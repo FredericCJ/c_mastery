@@ -1,9 +1,9 @@
 #include "waiters.h"
 #include <errno.h>
-int rd_port_init(RdPort *p, unsigned full, unsigned char value) {
+int rd_port_init(struct rd_port *p, unsigned full, unsigned char value) {
   if (!p || full > 1)
     return -1;
-  *p = (RdPort){0};
+  *p = (struct rd_port){0};
   pthread_condattr_t attr;
   if (pthread_mutex_init(&p->mutex, 0))
     return -1;
@@ -38,7 +38,7 @@ int rd_port_init(RdPort *p, unsigned full, unsigned char value) {
   p->initialized = 1;
   return 0;
 }
-int rd_port_wait(RdPort *p, unsigned producer, RdWait *w,
+int rd_port_wait(struct rd_port *p, unsigned producer, struct rd_wait *w,
                  const struct timespec *end) {
   if (!p || !p->initialized || producer > 1 || !w || !end ||
       w->result != RD_WAIT_PENDING || end->tv_nsec < 0 ||
@@ -95,7 +95,7 @@ int rd_port_wait(RdPort *p, unsigned producer, RdWait *w,
   int result = pthread_mutex_unlock(&p->mutex);
   return result ? -1 : 0;
 }
-int rd_port_enrolled(RdPort *p, unsigned entries, const struct timespec *end) {
+int rd_port_enrolled(struct rd_port *p, unsigned entries, const struct timespec *end) {
   if (!p || !p->initialized || !end || pthread_mutex_lock(&p->mutex))
     return -1;
   int result = 0;
@@ -104,7 +104,7 @@ int rd_port_enrolled(RdPort *p, unsigned entries, const struct timespec *end) {
   int unlocked = pthread_mutex_unlock(&p->mutex);
   return result || unlocked ? -1 : 0;
 }
-static int notify(RdPort *p, unsigned reason) {
+static int notify(struct rd_port *p, unsigned reason) {
   if (!p || !p->initialized || pthread_mutex_lock(&p->mutex))
     return -1;
   if (reason == 1)
@@ -115,10 +115,10 @@ static int notify(RdPort *p, unsigned reason) {
       u = pthread_mutex_unlock(&p->mutex);
   return r || u ? -1 : 0;
 }
-int rd_port_stop(RdPort *p) { return notify(p, 1); }
-int rd_port_peer_gone(RdPort *p) { return notify(p, 2); }
-int rd_port_notify(RdPort *p) { return notify(p, 0); }
-int rd_port_destroy(RdPort *p) {
+int rd_port_stop(struct rd_port *p) { return notify(p, 1); }
+int rd_port_peer_gone(struct rd_port *p) { return notify(p, 2); }
+int rd_port_notify(struct rd_port *p) { return notify(p, 0); }
+int rd_port_destroy(struct rd_port *p) {
   if (!p || !p->initialized || p->waiters)
     return -1;
   int a = pthread_cond_destroy(&p->changed),

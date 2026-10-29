@@ -2,9 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 #define CHECK(c) do { if(!(c)) { fprintf(stderr,"OR_CHECK:%d:%s\n",__LINE__,#c); return 1; } } while(0)
-static const ORRHandle nil={0,0};
+static const struct orr_handle nil={0,0};
 static int zero(void) {
-  ORRHeap h,before;ORRHandle a,b,out;uint16_t dead;unsigned i;
+  struct orr_heap h,before;struct orr_handle a,b,out;uint16_t dead;unsigned i;
   orr_init(&h);CHECK(orr_new(&h,&a)==OR_OK && orr_new(&h,&b)==OR_OK);
   CHECK(orr_store(&h,a,0,b,0,&dead)==OR_OK && orr_store(&h,a,1,b,0,&dead)==OR_OK);
   CHECK(orr_release(&h,b,0,&dead)==OR_OK && !dead && h.counts.refs[1]==2);
@@ -22,7 +22,7 @@ static int zero(void) {
   CHECK(orr_invariant(&h));
   orr_init(&h);
   for(i=0;i<48;i++){CHECK(orr_new(&h,&a)==OR_OK);CHECK(orr_release(&h,a,0,&dead)==OR_OK && dead);}
-  out=(ORRHandle){99,99};before=h;
+  out=(struct orr_handle){99,99};before=h;
   CHECK(orr_new(&h,&out)==OR_FULL && out.slot==99 && !memcmp(&h,&before,sizeof h));
   CHECK(orr_close(&h)==OR_OK && orr_close(&h)==OR_STATE);
   orr_init(&h);CHECK(orr_new(&h,&a)==OR_OK);
@@ -33,7 +33,7 @@ static int zero(void) {
   return 0;
 }
 static int deferred(void) {
-  ORRHeap h,before,other;ORRHandle a,b;ORRTrial t;uint16_t dead;unsigned i,n;
+  struct orr_heap h,before,other;struct orr_handle a,b;struct orr_trial t;uint16_t dead;unsigned i,n;
   orr_init(&h);CHECK(orr_new(&h,&a)==OR_OK && orr_new(&h,&b)==OR_OK);
   CHECK(orr_store(&h,b,0,a,0,&dead)==OR_OK);
   for(i=0;i<8;i++)CHECK(orr_retain(&h,a)==OR_OK);
@@ -61,9 +61,9 @@ static int deferred(void) {
   dead=777;CHECK(orr_commit(&h,&t,&dead)==OR_STATE && dead==777);
   return 0;
 }
-typedef struct { ORRConcurrent *owner;ORRHandle object;int release,stress,failed; } Worker;
+struct or_worker { struct orr_concurrent *owner;struct orr_handle object;int release,stress,failed; };
 static void *worker(void *opaque) {
-  Worker *w=opaque;ORRRequest q={0};ORRResponse r;unsigned i;
+  struct or_worker *w=opaque;struct orr_request q={0};struct orr_response r;unsigned i;
   q.object=w->object;
   for(i=0;i<(w->stress?1000u:1u);i++) {
     q.operation=w->release?ORR_RELEASE:ORR_RETAIN;
@@ -73,17 +73,17 @@ static void *worker(void *opaque) {
   return NULL;
 }
 static int concurrent(void) {
-  ORRConcurrent h;ORRRequest q={0};ORRResponse r,before;ORRHandle a,b;
-  ORRTrial t;pthread_t thread;Worker w;unsigned i;ORStatus s;
+  struct orr_concurrent h;struct orr_request q={0};struct orr_response r,before;struct orr_handle a,b;
+  struct orr_trial t;pthread_t thread;struct or_worker w;unsigned i;enum or_status s;
   CHECK(orrc_init(&h)==OR_OK);q.operation=ORR_NEW;CHECK(orrc_call(&h,&q,&r)==OR_OK);a=r.object;
   CHECK(orrc_call(&h,&q,&r)==OR_OK);b=r.object;
-  q=(ORRRequest){.operation=ORR_STORE,.object=a,.target=b};CHECK(orrc_call(&h,&q,&r)==OR_OK);
+  q=(struct orr_request){.operation=ORR_STORE,.object=a,.target=b};CHECK(orrc_call(&h,&q,&r)==OR_OK);
   q.object=b;q.target=a;CHECK(orrc_call(&h,&q,&r)==OR_OK);
-  q=(ORRRequest){.operation=ORR_RELEASE,.object=a};CHECK(orrc_call(&h,&q,&r)==OR_OK);
+  q=(struct orr_request){.operation=ORR_RELEASE,.object=a};CHECK(orrc_call(&h,&q,&r)==OR_OK);
   q.object=b;CHECK(orrc_call(&h,&q,&r)==OR_OK);
-  q=(ORRRequest){.operation=ORR_PREPARE};CHECK(orrc_call(&h,&q,&r)==OR_OK && r.trial.dead==3);t=r.trial;
-  w=(Worker){.owner=&h,.object=a};CHECK(!pthread_create(&thread,NULL,worker,&w));CHECK(!pthread_join(thread,NULL) && !w.failed);
-  q=(ORRRequest){.operation=ORR_COMMIT,.trial=t};memset(&r,0x33,sizeof r);before=r;
+  q=(struct orr_request){.operation=ORR_PREPARE};CHECK(orrc_call(&h,&q,&r)==OR_OK && r.trial.dead==3);t=r.trial;
+  w=(struct or_worker){.owner=&h,.object=a};CHECK(!pthread_create(&thread,NULL,worker,&w));CHECK(!pthread_join(thread,NULL) && !w.failed);
+  q=(struct orr_request){.operation=ORR_COMMIT,.trial=t};memset(&r,0x33,sizeof r);before=r;
   CHECK(orrc_call(&h,&q,&r)==OR_STATE && !memcmp(&r,&before,sizeof r));
   q.operation=ORR_INSPECT;CHECK(orrc_call(&h,&q,&r)==OR_OK && r.invariant && r.live==3);
   q.operation=ORR_PREPARE;CHECK(orrc_call(&h,&q,&r)==OR_OK && r.trial.dead==0);
@@ -93,26 +93,26 @@ static int concurrent(void) {
   q.operation=ORR_COMMIT;q.trial=r.trial;CHECK(orrc_call(&h,&q,&r)==OR_OK && r.dead==3);
   CHECK(orrc_close(&h)==OR_OK);
 
-  CHECK(orrc_init(&h)==OR_OK);q=(ORRRequest){.operation=ORR_NEW};CHECK(orrc_call(&h,&q,&r)==OR_OK);a=r.object;
-  q=(ORRRequest){.operation=ORR_RELEASE,.object=a,.defer=1};CHECK(orrc_call(&h,&q,&r)==OR_OK);
+  CHECK(orrc_init(&h)==OR_OK);q=(struct orr_request){.operation=ORR_NEW};CHECK(orrc_call(&h,&q,&r)==OR_OK);a=r.object;
+  q=(struct orr_request){.operation=ORR_RELEASE,.object=a,.defer=1};CHECK(orrc_call(&h,&q,&r)==OR_OK);
   q.operation=ORR_PREPARE;memset(&r,0x33,sizeof r);before=r;
   CHECK(orrc_call(&h,&q,&r)==OR_STATE && !memcmp(&r,&before,sizeof r));
-  q=(ORRRequest){.operation=ORR_FLUSH,.budget=8};CHECK(orrc_call(&h,&q,&r)==OR_DONE && r.dead==1);
+  q=(struct orr_request){.operation=ORR_FLUSH,.budget=8};CHECK(orrc_call(&h,&q,&r)==OR_DONE && r.dead==1);
   CHECK(orrc_close(&h)==OR_OK);
 
-  CHECK(orrc_init(&h)==OR_OK);q=(ORRRequest){.operation=ORR_NEW};CHECK(orrc_call(&h,&q,&r)==OR_OK);a=r.object;
-  w=(Worker){.owner=&h,.object=a,.stress=1};CHECK(!pthread_create(&thread,NULL,worker,&w));
+  CHECK(orrc_init(&h)==OR_OK);q=(struct orr_request){.operation=ORR_NEW};CHECK(orrc_call(&h,&q,&r)==OR_OK);a=r.object;
+  w=(struct or_worker){.owner=&h,.object=a,.stress=1};CHECK(!pthread_create(&thread,NULL,worker,&w));
   for(i=0;i<1000;i++) {
-    q=(ORRRequest){.operation=ORR_PREPARE};CHECK(orrc_call(&h,&q,&r)==OR_OK && !r.trial.dead);
+    q=(struct orr_request){.operation=ORR_PREPARE};CHECK(orrc_call(&h,&q,&r)==OR_OK && !r.trial.dead);
     q.operation=ORR_COMMIT;q.trial=r.trial;s=orrc_call(&h,&q,&r);CHECK(s==OR_OK || s==OR_STATE);
   }
   CHECK(!pthread_join(thread,NULL) && !w.failed);
-  q=(ORRRequest){.operation=ORR_INSPECT};CHECK(orrc_call(&h,&q,&r)==OR_OK && r.invariant && r.live==1);
-  q=(ORRRequest){.operation=ORR_RELEASE,.object=a};CHECK(orrc_call(&h,&q,&r)==OR_OK && r.dead==1);
+  q=(struct orr_request){.operation=ORR_INSPECT};CHECK(orrc_call(&h,&q,&r)==OR_OK && r.invariant && r.live==1);
+  q=(struct orr_request){.operation=ORR_RELEASE,.object=a};CHECK(orrc_call(&h,&q,&r)==OR_OK && r.dead==1);
   CHECK(orrc_close(&h)==OR_OK);return 0;
 }
 static int oracle(void) {
-  unsigned graph,mask,mode,i,j,code,n;ORRHeap h;ORRHandle a[3];ORRTrial t;uint16_t dead;
+  unsigned graph,mask,mode,i,j,code,n;struct orr_heap h;struct orr_handle a[3];struct orr_trial t;uint16_t dead;
   for(graph=0;graph<4096;graph++)for(mask=0;mask<8;mask++)for(mode=0;mode<2;mode++) {
     orr_init(&h);for(i=0;i<3;i++)CHECK(orr_new(&h,&a[i])==OR_OK);
     code=graph;

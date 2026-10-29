@@ -2,64 +2,64 @@
 #define CMASTERY_FAILURE_TAXONOMY_H
 #include "generic.h"
 #include "public_error.h"
-typedef enum {
+enum ae_outcome {
   AE_RECOVERABLE,
   AE_RETRYABLE,
   AE_TERMINAL,
   AE_DEGRADED
-} AeOutcome;
-typedef struct {
+};
+struct ae_secondary {
   unsigned stage;
   int cause;
-} AeSecondary;
-typedef struct {
-  AePublic result;
+};
+struct ae_error {
+  struct ae_public result;
   unsigned stage, backend;
   int first;
-  AeSecondary secondary[2];
+  struct ae_secondary secondary[2];
   unsigned stored, dropped, saturated;
-} AeError;
-AeCode ae_map(unsigned, int);
-AeOutcome ae_outcome(AeCode);
-AeCode ae_first(AeError *, AeCode, unsigned operation, unsigned stage,
+};
+enum ae_code ae_map(unsigned, int);
+enum ae_outcome ae_outcome(enum ae_code);
+enum ae_code ae_first(struct ae_error *, enum ae_code, unsigned operation, unsigned stage,
                 unsigned backend, int cause);
-AeCode ae_secondary(AeError *, unsigned stage, int cause);
-AeCode ae_boundary(const unsigned char *, size_t, unsigned internal_count,
+enum ae_code ae_secondary(struct ae_error *, unsigned stage, int cause);
+enum ae_code ae_boundary(const unsigned char *, size_t, unsigned internal_count,
                    unsigned allocation_failed, unsigned device_failed,
                    unsigned *out);
-typedef struct {
+struct ae_digit {
   unsigned value, admitted;
-} AeDigit;
-AeCode ae_admit_digit(const unsigned char *, size_t, AeDigit *);
-AeCode ae_trusted_digit(AeDigit, unsigned *);
-typedef struct {
+};
+enum ae_code ae_admit_digit(const unsigned char *, size_t, struct ae_digit *);
+enum ae_code ae_trusted_digit(struct ae_digit, unsigned *);
+struct ae_entry {
   unsigned id, delta;
-} AeEntry;
-typedef struct {
-  AeEntry history[2];
+};
+struct ae_counter {
+  struct ae_entry history[2];
   unsigned count, next, value, effects;
-} AeCounter;
-typedef enum { AE_SEND, AE_BUSY, AE_FAIL_BEFORE, AE_LOSE_ACK } AeTransportMode;
-AeCode ae_submit(AeCounter *, unsigned id, unsigned delta, AeTransportMode);
-typedef struct {
-  AeCode code;
+};
+enum ae_transport_mode { AE_SEND, AE_BUSY, AE_FAIL_BEFORE, AE_LOSE_ACK };
+enum ae_code ae_submit(struct ae_counter *, unsigned id, unsigned delta, enum ae_transport_mode);
+struct ae_write_result {
+  enum ae_code code;
   size_t accepted;
-} AeWriteResult;
-AeCode ae_write_result(size_t offered, size_t accepted, AeCode,
-                       AeWriteResult *);
-typedef struct {
+};
+enum ae_code ae_write_result(size_t offered, size_t accepted, enum ae_code,
+                       struct ae_write_result *);
+struct ae_lookup {
   unsigned found, value;
-} AeLookup;
-AeLookup ae_lookup(unsigned key);
-typedef struct {
+};
+struct ae_lookup ae_lookup(unsigned key);
+struct ae_field_error {
   unsigned field;
   size_t offset;
   int cause;
-} AeFieldError;
-typedef struct {
+};
+struct ae_fields {
   unsigned count;
   int values[4];
-  AeFieldError errors[4];
-} AeFields;
-AeCode ae_fields(const AvText *, size_t, AeFields *);
+  struct ae_field_error errors[4];
+};
+enum ae_code ae_fields(const struct av_text *, size_t, struct ae_fields *);
 #endif

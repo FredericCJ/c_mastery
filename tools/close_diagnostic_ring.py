@@ -21,7 +21,7 @@ def rows(r):
   row['dimensions']['implementation']['evidence']+=ARTIFACTS
   row['dimensions']['author_validation']['evidence']+=[REPORT,'research/v5/expansion/legacy_diagnostic_ring/exports.json']
   row['author_validation']['composition']=dict(report=REPORT,checks=[q['id'] for q in r['commands'] if '.tx' in q['id'] or '.rx' in q['id'] or '.mutation.' in q['id'] or q['id'].endswith('.execute')])
-  row['closure_rationale']+=' Additional actual DG/EnRing composition distinguishes copied admission, OWN publication, DMA completion and released application publication; it retains uncertain device ownership after a failed doorbell.'
+  row['closure_rationale']+=' Additional actual DG/struct en_ring composition distinguishes copied admission, OWN publication, DMA completion and released application publication; it retains uncertain device ownership after a failed doorbell.'
   row['evidence_limits']+=r['limits'];out.append(row)
  return out
 def integrate():
@@ -31,7 +31,7 @@ def integrate():
  before=HERE/'PR-T28-07.before-ring.json'
  if not before.exists():before.write_bytes((ROOT/PROJECT).read_bytes())
  public=sorted({n for n in run.pins() if n.startswith('labs/')}|{'labs/peripheral_depth/diagnostic/diagnostic.c','labs/peripheral_depth/diagnostic/ethernet.c','labs/ethernet_followthrough/ring/learner.c','labs/ethernet_followthrough/phy/learner.c','labs/ethernet_depth/src/ethernet_depth.c','labs/bringup_depth/bringup.c','labs/foundations/src/foundation.c','labs/ethernet_followthrough/ring/CONTRACTS.md','labs/ethernet_followthrough/phy/CONTRACTS.md'})
- put(ROOT/ATTACH,dict(project='PR-T28-07',domain='T28',key='diagnostic_ring_successor',supplied_artifacts=public,shared_contracts=[ARTIFACTS[0]],source_register='research/v5/expansion/legacy_diagnostic_ring/resources.json',support=SUPPORT,criterion_ids=[c['id'] for c in d['criteria'] if c['objective']=='T28.12.a'],scope='Actual DG diagnostic over EnRing; original USB/changed-hardware tasks remain bound to their separate complete campaign. Physical Ethernet and independent learner evidence are separate.'))
+ put(ROOT/ATTACH,dict(project='PR-T28-07',domain='T28',key='diagnostic_ring_successor',supplied_artifacts=public,shared_contracts=[ARTIFACTS[0]],source_register='research/v5/expansion/legacy_diagnostic_ring/resources.json',support=SUPPORT,criterion_ids=[c['id'] for c in d['criteria'] if c['objective']=='T28.12.a'],scope='Actual DG diagnostic over struct en_ring; original USB/changed-hardware tasks remain bound to their separate complete campaign. Physical Ethernet and independent learner evidence are separate.'))
  after=attach(copy.deepcopy(d));assert after['criteria']==d['criteria'] and after['baseline_binding']==d['baseline_binding'] and attach(copy.deepcopy(after))==after;put(ROOT/PROJECT,after)
  print('PASS original diagnostic tasks preserved; actual ring public composition attached')
 def package():
@@ -47,7 +47,7 @@ def package():
  old=read(ROOT/OLD)
  for n,h in old['source_sha256'].items():assert sha(ROOT/n)==h,('old diagnostic metadata stale',n)
  files|={ROOT/n for n in old['source_sha256']}
- put(HERE/'completion_dispositions.json',dict(schema_version=1,scope='T28.12.a ordinary and its unchanged delayed task, including actual EnRing composition; all prior USB/host/frame evidence retained',source_sha256={p.relative_to(ROOT).as_posix():sha(p) for p in sorted(files)},current_reports=[REPORT,'research/v5/expansion/legacy_diagnostic_ring/exports.json',*old['current_reports']],updates=rows(r),remaining_parents=['LRUN-24 must also bind the separate CAN/USB routes and selected PHY/ring prerequisites.','Physical board/cable, external review and independent delayed learner attempts remain unperformed.']))
+ put(HERE/'completion_dispositions.json',dict(schema_version=1,scope='T28.12.a ordinary and its unchanged delayed task, including actual struct en_ring composition; all prior USB/host/frame evidence retained',source_sha256={p.relative_to(ROOT).as_posix():sha(p) for p in sorted(files)},current_reports=[REPORT,'research/v5/expansion/legacy_diagnostic_ring/exports.json',*old['current_reports']],updates=rows(r),remaining_parents=['LRUN-24 must also bind the separate CAN/USB routes and selected PHY/ring prerequisites.','Physical board/cable, external review and independent delayed learner attempts remain unperformed.']))
  print('PASS two exact diagnostic composition dispositions')
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--integrate',action='store_true');a=p.parse_args();integrate() if a.integrate else package()

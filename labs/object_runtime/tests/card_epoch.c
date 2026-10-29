@@ -8,13 +8,13 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
-  ORCCards *cards;
+struct or_writer {
+  struct orc_cards *cards;
   unsigned object;
-  ORStatus result;
-} Writer;
+  enum or_status result;
+};
 static void *late_writer(void *arg) {
-  Writer *w = arg;
+  struct or_writer *w = arg;
   w->result = orcc_store(w->cards, w->object, 1, 7);
   return NULL;
 }
@@ -24,15 +24,15 @@ static int concurrent(void) {
   unsigned scanned;
   for (width = 1; width <= 8; width *= 2)
     for (padded = 0; padded < 2; padded++) {
-      ORCCards c;
-      ORCCSnapshot s;
+      struct orc_cards c;
+      struct orcc_snapshot s;
       pthread_t thread;
-      Writer w;
+      struct or_writer w;
       CHECK(orcc_init(&c, width, (int)padded) == OR_OK);
       CHECK(orcc_store(&c, 0, 0, 1) == OR_OK);
       CHECK(orcc_store(&c, 0, 0, 0) == OR_OK);
       CHECK(orcc_prepare(&c, 0, &s) == OR_OK);
-      w = (Writer){.cards = &c, .object = width - 1};
+      w = (struct or_writer){.cards = &c, .object = width - 1};
       CHECK(pthread_create(&thread, NULL, late_writer, &w) == 0);
       CHECK(pthread_join(thread, NULL) == 0 && w.result == OR_OK);
       roots = 777;
@@ -50,8 +50,8 @@ static int concurrent(void) {
       CHECK(orcc_close(&c) == OR_OK);
     }
   {
-    ORCCards c;
-    ORCCSnapshot s;
+    struct orc_cards c;
+    struct orcc_snapshot s;
     CHECK(orcc_init(&c, 2, 0) == OR_OK);
     for (i = 1; i < ORCC_REV_LIMIT; i++)
       CHECK(orcc_store(&c, 0, 0, 0) == OR_OK);
@@ -68,11 +68,11 @@ static int oracle(void) {
       for (object = 0; object < 8; object++)
         for (field = 0; field < 2; field++)
           for (target = 0; target <= 16; target++) {
-            ORCCards c;
-            ORCCSnapshot s;
+            struct orc_cards c;
+            struct orcc_snapshot s;
             uint16_t roots = 777;
             unsigned scanned = 888;
-            ORStatus status;
+            enum or_status status;
             CHECK(orcc_init(&c, width, (int)padded) == OR_OK);
             CHECK(orcc_store(&c, object, field, target) == OR_OK);
             status = orcc_prepare(&c, object / width, &s);

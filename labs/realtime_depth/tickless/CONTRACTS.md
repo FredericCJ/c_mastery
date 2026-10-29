@@ -36,7 +36,7 @@ phase-sensitive elapsed times and the first lost wake before running code.
 ## 4. Environment and dependency profile
 
 Use C17, caller-owned live disjoint objects, and externally serialized core
-operations. `TQTimer` is noncopyable after initialization; only its own sleep
+operations. `struct tq_timer` is noncopyable after initialization; only its own sleep
 tasks may inhabit the embedded CMX kernel. It must not acquire external CMX
 objects or receive direct caller mutations. Its internal task/control pointers
 are used only according to the supplied producer contract. Integer arithmetic
@@ -92,7 +92,7 @@ reprogramming loop. Stale/altered plans are invalid. `tq_abort` always removes a
 prepared/armed state. At exhausted plan or CMX wait counters, refuse new work;
 cancellation, result collection, manual advancement and retirement remain legal.
 
-`TQResume` stores the last always-on counter reading, a fixed count-to-local-tick
+`struct tq_resume` stores the last always-on counter reading, a fixed count-to-local-tick
 ratio and a fractional remainder. `tq_resume` requires the local clock to have
 stopped and no outstanding hardware plan. The independent32-bit counter must
 advance by less than2^31 counts between observations; this is an environmental
@@ -102,7 +102,7 @@ of the same counter sample contributes zero new time. A changed clock frequency
 requires a new, explicitly synchronized conversion state; mutating the ratio
 while retaining a remainder is forbidden.
 
-The `TPClock` adapter owns CMSDK timer0 and SysTick in the dedicated AN386 image.
+The `struct tp_clock` adapter owns CMSDK timer0 and SysTick in the dedicated AN386 image.
 Timer0 counts continuously while SysTick is deliberately stopped. Configure
 aligned word registers, preserve/restore PRIMASK and serialize queue/register
 changes. `tp_at` accepts a proven future/equal absolute date after reading the

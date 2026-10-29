@@ -8,12 +8,12 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
+struct al_resource {
   unsigned acquired, destroyed;
   int fail;
-} Resource;
+};
 static int init(void *v, unsigned char *p, size_t n) {
-  Resource *r = v;
+  struct al_resource *r = v;
   ++r->acquired;
   if (r->fail) {
     ++r->destroyed;
@@ -24,13 +24,13 @@ static int init(void *v, unsigned char *p, size_t n) {
   return 0;
 }
 static int destroy(void *v) {
-  Resource *r = v;
+  struct al_resource *r = v;
   ++r->destroyed;
   return 0;
 }
 int main(void) {
-  ALPool p, q;
-  ALPoolHandle h[3], foreign, reused;
+  struct al_pool p, q;
+  struct al_pool_handle h[3], foreign, reused;
   int32_t value = 0;
   al_pool_init(&p);
   al_pool_init(&q);
@@ -69,9 +69,9 @@ int main(void) {
   CHECK(al_pool_release(&p, h[0]) == AL_STALE);
   CHECK(al_pool_release(&p, h[2]) == AL_OK);
   CHECK(al_pool_release(&q, foreign) == AL_OK);
-  ALClasses classes, saved;
-  ALHandle handles[4], out;
-  Resource r = {0};
+  struct al_classes classes, saved;
+  struct al_handle handles[4], out;
+  struct al_resource r = {0};
   size_t payload, charged, retained;
   CHECK(al_classes_init(&classes) == AL_OK);
   unsigned sizes[] = {1, 8, 9, 17};

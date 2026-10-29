@@ -5,4 +5,4 @@ static void write32(void *ctx,uint32_t a,uint32_t v)
 {(void)ctx;*(volatile uint32_t *)(uintptr_t)a=v;}
 static void sync32(void *ctx)
 {(void)ctx;__asm__ volatile("dsb sy" ::: "memory");}
-FHIO fh_h745_io(void) {FHIO io={0,read32,write32,sync32};return io;}
+struct fh_io fh_h745_io(void) {struct fh_io io={0,read32,write32,sync32};return io;}

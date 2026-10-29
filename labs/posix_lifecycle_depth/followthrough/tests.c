@@ -18,34 +18,34 @@ int plx_injection_observed(void);
 static int descriptors(void){DIR *d=opendir("/proc/self/fd");if(!d)return -1;int n=0;while(readdir(d))++n;closedir(d);return n;}
 static void reap(pid_t p){int s;while(waitpid(p,&s,0)<0&&errno==EINTR){}}
 static int channel(const char *helper){
-  char *args[]={(char *)helper,"zero",NULL};PLXResult r={9,9,9};int before=descriptors();CHECK(before>0);
+  char *args[]={(char *)helper,"zero",NULL};struct plx_result r={9,9,9};int before=descriptors();CHECK(before>0);
   for(unsigned chunk=0;chunk<=8;++chunk){
-    CHECK(plx_launch(helper,args,(PLXOptions){PLX_NORMAL,chunk},&r)==0);
+    CHECK(plx_launch(helper,args,(struct plx_options){PLX_NORMAL,chunk},&r)==0);
     CHECK(r.kind==PLX_EXITED&&r.value==0&&r.stage==0);
     args[1]="127";
-    CHECK(plx_launch(helper,args,(PLXOptions){PLX_NORMAL,chunk},&r)==0);
+    CHECK(plx_launch(helper,args,(struct plx_options){PLX_NORMAL,chunk},&r)==0);
     CHECK(r.kind==PLX_EXITED&&r.value==127&&r.stage==0);args[1]="zero";
     char missing[4096];int n=snprintf(missing,sizeof missing,"%s.absent",helper);CHECK(n>0&&(size_t)n<sizeof missing);
     CHECK(access(missing,F_OK)==-1&&errno==ENOENT);
-    CHECK(plx_launch(missing,args,(PLXOptions){PLX_NORMAL,chunk},&r)==0);
+    CHECK(plx_launch(missing,args,(struct plx_options){PLX_NORMAL,chunk},&r)==0);
     CHECK(r.kind==PLX_FAILED&&r.value==ENOENT&&r.stage==2);
-    r=(PLXResult){9,9,9};CHECK(plx_launch(helper,args,(PLXOptions){PLX_SHORT_RECORD,chunk},&r)==EPROTO);
+    r=(struct plx_result){9,9,9};CHECK(plx_launch(helper,args,(struct plx_options){PLX_SHORT_RECORD,chunk},&r)==EPROTO);
     CHECK(r.kind==9&&r.value==9&&r.stage==9);
   }
-  CHECK(plx_launch(helper,args,(PLXOptions){PLX_NORMAL,9},&r)==EINVAL);
+  CHECK(plx_launch(helper,args,(struct plx_options){PLX_NORMAL,9},&r)==EINVAL);
 #ifdef PLX_INJECT
   CHECK(plx_injection_observed());
 #endif
   CHECK(descriptors()==before);CHECK(waitpid(-1,NULL,WNOHANG)==-1&&errno==ECHILD);return 0;
 }
 static int stages(const char *helper){
-  char *args[]={(char *)helper,"zero",NULL};PLXResult r={9,9,9};int before=descriptors();
-  CHECK(plx_launch(helper,args,(PLXOptions){PLX_SETUP_FAILURE,1},&r)==0);
+  char *args[]={(char *)helper,"zero",NULL};struct plx_result r={9,9,9};int before=descriptors();
+  CHECK(plx_launch(helper,args,(struct plx_options){PLX_SETUP_FAILURE,1},&r)==0);
   CHECK(r.kind==PLX_FAILED&&r.value==EACCES&&r.stage==1);
-  r=(PLXResult){9,9,9};CHECK(plx_launch(helper,args,(PLXOptions){PLX_UNKNOWN_STAGE,1},&r)==EPROTO);CHECK(r.kind==9&&r.value==9);
-  CHECK(plx_launch(helper,args,(PLXOptions){PLX_EARLY_EXIT,1},&r)==0);CHECK(r.kind==PLX_EXITED&&r.value==126);
-  CHECK(plx_launch(helper,args,(PLXOptions){PLX_EARLY_SIGNAL,1},&r)==0);CHECK(r.kind==PLX_SIGNALED&&r.value==SIGTERM);
-  args[1]="signal";CHECK(plx_launch(helper,args,(PLXOptions){PLX_NORMAL,1},&r)==0);CHECK(r.kind==PLX_SIGNALED&&r.value==SIGTERM);
+  r=(struct plx_result){9,9,9};CHECK(plx_launch(helper,args,(struct plx_options){PLX_UNKNOWN_STAGE,1},&r)==EPROTO);CHECK(r.kind==9&&r.value==9);
+  CHECK(plx_launch(helper,args,(struct plx_options){PLX_EARLY_EXIT,1},&r)==0);CHECK(r.kind==PLX_EXITED&&r.value==126);
+  CHECK(plx_launch(helper,args,(struct plx_options){PLX_EARLY_SIGNAL,1},&r)==0);CHECK(r.kind==PLX_SIGNALED&&r.value==SIGTERM);
+  args[1]="signal";CHECK(plx_launch(helper,args,(struct plx_options){PLX_NORMAL,1},&r)==0);CHECK(r.kind==PLX_SIGNALED&&r.value==SIGTERM);
   CHECK(descriptors()==before);CHECK(waitpid(-1,NULL,WNOHANG)==-1&&errno==ECHILD);return 0;
 }
 static int redirect(void){

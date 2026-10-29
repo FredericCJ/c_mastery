@@ -1,5 +1,5 @@
 #include "cvm.h"
-CvmStatus cvm_compile(const char *s, size_t n, CvmProgram *p) {
+enum cvm_status cvm_compile(const char *s, size_t n, struct cvm_program *p) {
   (void)s;
   (void)n;
   (void)p;

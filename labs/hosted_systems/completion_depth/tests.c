@@ -13,7 +13,7 @@ int main(void) {
   unsigned char storage[4][16], *buffers[4];
   for (unsigned i = 0; i < 4; ++i)
     buffers[i] = storage[i];
-  CoPool p;
+  struct co_pool p;
   uint64_t token, cancel, second;
   CHECK(co_init(&p, buffers, 16, 2) == 0 && co_quiescent(&p));
   CHECK(co_acquire(&p, 0, 16, &token) == 1 && token == 257 &&

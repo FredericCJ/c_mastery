@@ -47,7 +47,7 @@ def run(report):
                     execute([cc,*flags,ROOT/'labs/corpus_query'/source,ROOT/'assessor/corpus_query/query.c','-o',binary],cc+'.'+name+'-build')
                     if name=='measure':
                         raw=execute([binary],cc+'.measure');assert len(raw.splitlines())==3 and 'rows=40000' in raw
-                        d['measurements'].append(dict(compiler=cc,raw=raw,queries_per_order=10000,limits='Bounded host CPU ticks and exact examined-slot costs; not board latency or a universal speed claim.'))
+                        d['measurements'].append(dict(compiler=cc,raw=raw,queries_per_order=10000,limits='Bounded host struct lr_cpu ticks and exact examined-slot costs; not board latency or a universal speed claim.'))
                     else:
                         obs=json.loads(execute(['python3',ROOT/'assessor/corpus_query/oracle.py',binary],cc+'.oracle'));assert obs['passed'] and obs['observations']==113568
                         d['independent_oracles'].append(dict(compiler=cc,**obs))

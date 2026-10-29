@@ -1,6 +1,6 @@
 #include "request.h"
-int rq_owned(const Rq *r){return r->phase>=RQ_INFLIGHT&&r->phase<=RQ_RESETTING;}
-int rq_apply(Rq *r,unsigned op,uint32_t generation,int result){
+int rq_owned(const struct b5_rq *r){return r->phase>=RQ_INFLIGHT&&r->phase<=RQ_RESETTING;}
+int rq_apply(struct b5_rq *r,unsigned op,uint32_t generation,int result){
   if(!r||op>RQ_REAP)return RQ_INVALID;
   if(op==RQ_SUBMIT){
     if(r->phase!=RQ_FREE)return RQ_BUSY;

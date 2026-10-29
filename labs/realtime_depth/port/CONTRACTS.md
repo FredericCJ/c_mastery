@@ -12,7 +12,7 @@ this continuation does not replace their polling, cohort or ledger contracts.
 ## 2. Objectives and inspected references
 
 Explain exactly when the retained `cmx` scheduler selects a PSP context;
-derive consumption-linked eligibility from the completed `SSBudget`; and
+derive consumption-linked eligibility from the completed `struct ss_budget`; and
 separate finite tick accounting from a physical CPU execution bound. Inspect
 the functions recorded by `R-LRPORT-CMX` and `R-LRPORT-CORTEX` in
 `research/v5/expansion/legacy_realtime_port/resources.json`.
@@ -49,7 +49,7 @@ emulator timing; it is not a calibrated hardware cycle model.
 Implement the four operations in `port.h` using the unsolved `port.c`.
 `sr_init` binds one existing READY/RUNNING task and its full generation to
 quota `1..16`, period `Q..2^31-1`, the current kernel time and a 16-record
-`SSBudget`. Storage is fresh and live; kernel, adapter and outputs do not
+`struct ss_budget`. Storage is fresh and live; kernel, adapter and outputs do not
 overlap. Reinitializing a live binding or mutating its fields is forbidden.
 
 `sr_tick(s,boundary)` runs exactly once before `cmx_tick(k,boundary)` with

@@ -13,13 +13,13 @@
 static uint32_t lock(void){uint32_t mask;__asm__ volatile("mrs %0,primask\ncpsid i":"=r"(mask)::"memory");return mask;}
 static void unlock(uint32_t mask){__asm__ volatile("dsb\nisb\nmsr primask,%0"::"r"(mask):"memory");}
 uint32_t tp_raw(void){return UINT32_MAX-TIMER_VALUE;}
-uint32_t tp_now(const TPClock *clock){return clock->logical_origin+(tp_raw()-clock->raw_origin);}
-enum tq_status tp_init(TPClock *clock,TQTimer *timer,uint32_t origin){
+uint32_t tp_now(const struct tp_clock *clock){return clock->logical_origin+(tp_raw()-clock->raw_origin);}
+enum tq_status tp_init(struct tp_clock *clock,struct tq_timer *timer,uint32_t origin){
  uint32_t mask=lock();CSR=0;ICSR=1u<<25;TIMER_CTRL=0;TIMER_RELOAD=UINT32_MAX;TIMER_CTRL=1;
- *clock=(TPClock){.timer=timer,.raw_origin=tp_raw(),.logical_origin=origin};
+ *clock=(struct tp_clock){.timer=timer,.raw_origin=tp_raw(),.logical_origin=origin};
  enum tq_status status=tq_init(timer,origin);unlock(mask);return status;
 }
-enum tq_status tp_wait(TPClock *clock,unsigned task,uint32_t delay,unsigned infinite){
+enum tq_status tp_wait(struct tp_clock *clock,unsigned task,uint32_t delay,unsigned infinite){
  uint32_t mask=lock();if(clock->stopped){unlock(mask);return TQ_INVALID;}
  unsigned old_armed=clock->timer->armed;
  enum tq_status status=tq_advance(clock->timer,tp_now(clock));
@@ -27,7 +27,7 @@ enum tq_status tp_wait(TPClock *clock,unsigned task,uint32_t delay,unsigned infi
  if(TP_MUTANT!=1)CSR=0;else clock->timer->armed=old_armed;
  unlock(mask);return status;
 }
-enum tq_status tp_at(TPClock *clock,unsigned task,uint32_t at){
+enum tq_status tp_at(struct tp_clock *clock,unsigned task,uint32_t at){
  uint32_t mask=lock();if(clock->stopped){unlock(mask);return TQ_INVALID;}
  unsigned old_armed=clock->timer->armed;
  enum tq_status status=tq_advance(clock->timer,tp_now(clock));
@@ -35,12 +35,12 @@ enum tq_status tp_at(TPClock *clock,unsigned task,uint32_t at){
  if(TP_MUTANT!=1)CSR=0;else clock->timer->armed=old_armed;
  unlock(mask);return status;
 }
-enum tq_status tp_arm(TPClock *clock,uint32_t injected){
+enum tq_status tp_arm(struct tp_clock *clock,uint32_t injected){
  if(injected>=UINT32_C(0x80000000))return TQ_INVALID;
  uint32_t mask=lock();if(clock->stopped){unlock(mask);return TQ_INVALID;}
- TQTimer *timer=clock->timer;
+ struct tq_timer *timer=clock->timer;
  if(TP_MUTANT==1&&timer->armed){unlock(mask);return TQ_OK;}
- CSR=0;TQPlan plan;enum tq_status status=tq_plan(timer,tp_now(clock),&plan);
+ CSR=0;struct tq_plan plan;enum tq_status status=tq_plan(timer,tp_now(clock),&plan);
  if(status!=TQ_OK){unlock(mask);return status;}
  ICSR=1u<<25;
  if(timer->events){(void)tq_abort(timer);unlock(mask);return TQ_RETRY;}
@@ -56,22 +56,22 @@ enum tq_status tp_arm(TPClock *clock,uint32_t injected){
  if(status!=TQ_OK){CSR=0;ICSR=1u<<25;}
  unlock(mask);return status;
 }
-enum tq_status tp_interrupt(TPClock *clock){
+enum tq_status tp_interrupt(struct tp_clock *clock){
  uint32_t mask=lock();if(clock->stopped){unlock(mask);return TQ_INVALID;}
  CSR=0;clock->timer->armed=0;clock->interrupts++;
  enum tq_status status=tq_advance(clock->timer,tp_now(clock));unlock(mask);return status;
 }
-enum tq_status tp_stop(TPClock *clock){
+enum tq_status tp_stop(struct tp_clock *clock){
  uint32_t mask=lock();if(clock->stopped){unlock(mask);return TQ_INVALID;}
  CSR=0;ICSR=1u<<25;(void)tq_abort(clock->timer);
  uint32_t raw=tp_raw();enum tq_status status=tq_advance(clock->timer,clock->logical_origin+(raw-clock->raw_origin));
- if(status==TQ_OK){clock->resume=(TQResume){raw,1,1,0};clock->stopped=1;}
+ if(status==TQ_OK){clock->resume=(struct tq_resume){raw,1,1,0};clock->stopped=1;}
  unlock(mask);return status;
 }
-enum tq_status tp_resume(TPClock *clock){
+enum tq_status tp_resume(struct tp_clock *clock){
  uint32_t mask=lock();if(clock->stopped!=1){unlock(mask);return TQ_INVALID;}
  enum tq_status status=tq_resume(clock->timer,&clock->resume,tp_raw());
  if(status==TQ_OK)clock->stopped=0;
  unlock(mask);return status;
 }
-void tp_shutdown(TPClock *clock){uint32_t mask=lock();CSR=0;ICSR=1u<<25;TIMER_CTRL=0;(void)tq_abort(clock->timer);clock->stopped=2;unlock(mask);}
+void tp_shutdown(struct tp_clock *clock){uint32_t mask=lock();CSR=0;ICSR=1u<<25;TIMER_CTRL=0;(void)tq_abort(clock->timer);clock->stopped=2;unlock(mask);}

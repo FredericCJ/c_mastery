@@ -10,7 +10,7 @@ supplies the guest interpreter, continuation or tail-call mechanism for you.
 
 ## Representations and admission
 
-`Vs` owns a copied `CvmProgram`, a `Cvm` with bounded operands/frames/heap, the
+`Vs` owns a copied `struct cvm_program`, a `Cvm` with bounded operands/frames/heap, the
 execution state, numerical mode, host capability mask, epoch/serial, and invocation
 identities. Its representation is intentionally inspectable. The caller owns a
 zero-initialized or terminal session and disjoint, live inputs, scratch and result
@@ -50,7 +50,7 @@ remains separately tracked; no signed-overflow equivalence is claimed.
 HOST takes an integer argument, checks the invocation budget, charges one unit,
 then checks the selected service bit (IDs0–31). A denied service produces
 HOST_ERROR without issuing a request. An allowed service creates one pending
-`VsRequest` containing epoch, serial, service and copied integer argument. The
+`struct vs_request` containing epoch, serial, service and copied integer argument. The
 session retains its frames, IP and operands; it invokes no blocking C callback.
 `vs_take` transfers that request once. Completion requires a pending taken request
 and exact epoch/serial; stale, early and duplicate completions preserve state.

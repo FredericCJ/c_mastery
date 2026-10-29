@@ -46,10 +46,10 @@ GCC-specific kernel prerequisite and GNU assembler remain explicitly identified.
 
 ## 5. Concrete problem, inputs and outputs
 
-Implement `locks.h` in `locks.c`. Each `SlLock` has an immutable kind and positive
+Implement `locks.h` in `locks.c`. Each `struct sl_lock` has an immutable kind and positive
 global rank. `sl_init` runs exclusively before sharing; ticket start is 0..15,
 and other kinds require start0. It validates before mutation. A guard and
-per-CPU `SlContext` start zero, are exclusively owned, live and neither copied
+per-CPU `struct sl_context` start zero, are exclusively owned, live and neither copied
 nor moved while active. Node initialization requires live exclusive storage.
 Inputs must not overlap unrelated lock/control objects. Stats are optional,
 owner-private and initialized to zero; use workloads whose counters fit64 bits.
@@ -80,7 +80,7 @@ Reinitializing a shared lock, forged guards, recursive admission and asynchronou
 termination while owning/queued are outside the admitted contract.
 
 `sl_irq_enter` saves and disables the local interrupt state before admission.
-`SlPort` save/restore callbacks are live, non-reentrant and restore the exact
+`struct sl_port` save/restore callbacks are live, non-reentrant and restore the exact
 saved state; they return normally. The selected port saves IF as0/1, not all
 RFLAGS. Enter and leave must use the same live callbacks and port context;
 switching ports while a guard is active is outside the admitted contract.

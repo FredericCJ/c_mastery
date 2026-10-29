@@ -3,7 +3,7 @@
 #ifndef SJ_MUTANT
 #define SJ_MUTANT 0
 #endif
-static int valid(const SJTask *t, unsigned n) {
+static int valid(const struct sj_task *t, unsigned n) {
   if (!t || !n || n > SJ_TASKS)
     return 0;
   for (unsigned i = 0; i < n; i++)
@@ -11,7 +11,7 @@ static int valid(const SJTask *t, unsigned n) {
       return 0;
   return 1;
 }
-enum sj_status sj_order(const SJTask *t, unsigned n, unsigned dm,
+enum sj_status sj_order(const struct sj_task *t, unsigned n, unsigned dm,
                         unsigned *out) {
   cmx_job j[SJ_TASKS];
   unsigned order[SJ_TASKS];
@@ -27,10 +27,10 @@ enum sj_status sj_order(const SJTask *t, unsigned n, unsigned dm,
     out[i] = order[i];
   return SJ_OK;
 }
-enum sj_status sj_generate(const SJTask *t, unsigned n, const uint32_t *phase,
-                           const uint32_t *jitter, unsigned k, SJJob *out,
+enum sj_status sj_generate(const struct sj_task *t, unsigned n, const uint32_t *phase,
+                           const uint32_t *jitter, unsigned k, struct sj_job *out,
                            unsigned capacity, unsigned *count) {
-  SJJob tmp[SJ_JOBS];
+  struct sj_job tmp[SJ_JOBS];
   if (!valid(t, n) || !phase || !count || !out || (!jitter && k) ||
       k > SJ_JOBS || capacity > SJ_JOBS)
     return SJ_INVALID;
@@ -55,20 +55,20 @@ enum sj_status sj_generate(const SJTask *t, unsigned n, const uint32_t *phase,
       r += delay;
       if (t[i].deadline > UINT32_MAX - r)
         return SJ_RESOURCE;
-      tmp[at] = (SJJob){i, j, r, t[i].cost, 0, 0};
+      tmp[at] = (struct sj_job){i, j, r, t[i].cost, 0, 0};
     }
   for (unsigned j = 0; j < k * n; j++)
     out[j] = tmp[j];
   *count = k * n;
   return SJ_OK;
 }
-static int locked(const SJJob *j, const SJResult *r, unsigned current) {
+static int locked(const struct sj_job *j, const struct sj_result *r, unsigned current) {
   return current != SJ_NONE && r->jobs[current].state == SJ_READY &&
          r->jobs[current].executed >= j[current].nonpreempt_start &&
          r->jobs[current].executed - j[current].nonpreempt_start <
              j[current].nonpreempt_length;
 }
-static int earlier(const SJTask *t, const SJJob *j, const unsigned *rank,
+static int earlier(const struct sj_task *t, const struct sj_job *j, const unsigned *rank,
                    unsigned a, unsigned b, enum sj_policy p) {
   uint32_t ka =
       p == SJ_EDF ? j[a].release + t[j[a].task].deadline : rank[j[a].task];
@@ -84,11 +84,11 @@ static int earlier(const SJTask *t, const SJJob *j, const unsigned *rank,
     return j[a].release < j[b].release;
   return SJ_MUTANT == 10 ? a > b : a < b;
 }
-enum sj_status sj_simulate(const SJTask *t, unsigned n, const SJJob *j,
+enum sj_status sj_simulate(const struct sj_task *t, unsigned n, const struct sj_job *j,
                            unsigned k, enum sj_policy policy,
                            enum sj_overload overload, unsigned capacity,
-                           unsigned horizon, unsigned cost, SJResult *out) {
-  SJResult r = {0};
+                           unsigned horizon, unsigned cost, struct sj_result *out) {
+  struct sj_result r = {0};
   unsigned order[SJ_TASKS], rank[SJ_TASKS], current = SJ_NONE, active = 0,
                                             overhead = 0;
   if (!valid(t, n) || (!j && k) || k > SJ_JOBS || (unsigned)policy > SJ_EDF ||
@@ -108,7 +108,7 @@ enum sj_status sj_simulate(const SJTask *t, unsigned n, const SJJob *j,
     for (unsigned q = 0; q < i; q++)
       if (j[q].task == j[i].task && j[q].sequence == j[i].sequence)
         return SJ_INVALID;
-    r.jobs[i] = (SJJobResult){SJ_FUTURE, j[i].cost, 0, SJ_NONE, SJ_NONE, 0};
+    r.jobs[i] = (struct sj_job_result){SJ_FUTURE, j[i].cost, 0, SJ_NONE, SJ_NONE, 0};
   }
   for (unsigned tick = 0; tick <= horizon; tick++) {
     for (unsigned i = 0; i < k; i++)
@@ -119,7 +119,7 @@ enum sj_status sj_simulate(const SJTask *t, unsigned n, const SJJob *j,
       }
     if (tick == horizon)
       break;
-    r.ticks[tick] = (SJTick){SJ_NONE, SJ_IDLE};
+    r.ticks[tick] = (struct sj_tick){SJ_NONE, SJ_IDLE};
     for (unsigned i = 0; i < k; i++)
       if (j[i].release == tick) {
         if (!j[i].cost) {
@@ -191,9 +191,9 @@ enum sj_status sj_simulate(const SJTask *t, unsigned n, const SJJob *j,
       continue;
     }
     current = best;
-    r.ticks[tick] = (SJTick){best, SJ_SERVICE};
+    r.ticks[tick] = (struct sj_tick){best, SJ_SERVICE};
     r.work++;
-    SJJobResult *b = &r.jobs[best];
+    struct sj_job_result *b = &r.jobs[best];
     if (b->start == SJ_NONE)
       b->start = tick;
     b->executed++;
@@ -236,7 +236,7 @@ static int mul(uint64_t a, uint64_t b, uint64_t *out) {
   *out = result;
   return 1;
 }
-enum sj_status sj_rm_bound(const SJTask *t, unsigned n, unsigned *out) {
+enum sj_status sj_rm_bound(const struct sj_task *t, unsigned n, unsigned *out) {
   uint32_t h = 1;
   uint64_t numerator = 0, a, b, x = 1, y = 1;
   if (!valid(t, n) || !out)

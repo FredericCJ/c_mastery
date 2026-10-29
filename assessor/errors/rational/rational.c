@@ -29,20 +29,20 @@ er_code efr_add(er_fraction a,er_fraction b,er_fraction *out){
  *out=(er_fraction){(uint32_t)n,(uint32_t)d};return ER_OK;
 }
 static uint32_t magnitude(int32_t n){return n<0?UINT32_C(0)-(uint32_t)n:(uint32_t)n;}
-static int signed_valid(EfrSigned a){return a.denominator!=0&&efr_gcd(magnitude(a.numerator),a.denominator,NULL)==1;}
-static er_code publish(uint64_t n,uint64_t d,int negative,EfrSigned *out){
+static int signed_valid(struct efr_signed a){return a.denominator!=0&&efr_gcd(magnitude(a.numerator),a.denominator,NULL)==1;}
+static er_code publish(uint64_t n,uint64_t d,int negative,struct efr_signed *out){
  if(d==0||d>UINT32_MAX||n>(negative?UINT64_C(2147483648):INT32_MAX))return ER_RANGE;
  int32_t value;
  if(negative&&n==UINT64_C(2147483648))value=INT32_MIN;
  else value=negative?-(int32_t)n:(int32_t)n;
- *out=(EfrSigned){value,(uint32_t)d};return ER_OK;
+ *out=(struct efr_signed){value,(uint32_t)d};return ER_OK;
 }
-er_code efr_signed_make(int32_t n,uint32_t d,EfrSigned *out){
+er_code efr_signed_make(int32_t n,uint32_t d,struct efr_signed *out){
  if(!out||!d)return ER_INVALID;
  if(EFR_MUTATION==5&&n==INT32_MIN)return ER_RANGE;
  uint32_t a=magnitude(n),g=efr_gcd(a,d,NULL);return publish(a/g,d/g,n<0,out);
 }
-er_code efr_signed_add(EfrSigned a,EfrSigned b,EfrSigned *out){
+er_code efr_signed_add(struct efr_signed a,struct efr_signed b,struct efr_signed *out){
  if(!out||!signed_valid(a)||!signed_valid(b))return ER_INVALID;
  uint64_t g=efr_gcd(a.denominator,b.denominator,NULL),left=a.denominator/g,right=b.denominator/g;
  uint64_t x=(uint64_t)magnitude(a.numerator)*right,y=(uint64_t)magnitude(b.numerator)*left,t;int negative;
@@ -51,7 +51,7 @@ er_code efr_signed_add(EfrSigned a,EfrSigned b,EfrSigned *out){
  else {t=y-x;negative=b.numerator<0;}
  uint64_t h=gcd64(t,g);return publish(t/h,left*(b.denominator/h),negative,out);
 }
-er_code efr_signed_consume(EfrSigned a,int32_t *out){
+er_code efr_signed_consume(struct efr_signed a,int32_t *out){
  if(!out||!signed_valid(a))return ER_INVALID;
  uint32_t q=magnitude(a.numerator)/a.denominator;
  if(a.numerator<0&&q==UINT32_C(2147483648))*out=INT32_MIN;

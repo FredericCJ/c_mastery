@@ -1,7 +1,7 @@
 # Consistent-hash ring and membership views
 
 This required T76 refinement implements placement, distinct replica selection,
-and a bounded migration plan. It reuses the actual T76 `RphSha` component for
+and a bounded migration plan. It reuses the actual T76 `struct rph_sha` component for
 byte-key hashing. It does not transfer records, authenticate membership, run
 consensus, elect a leader, implement Chord finger routing or promise Dynamo
 compatibility. Existing anti-entropy, outbox and storage exercises retain those
@@ -43,7 +43,7 @@ semantic contract or prevent reentrant mutation.
 `cr_owner` returns the first token at or after the key's position, wrapping to
 the first token if none qualifies. For a position shared by several tokens it
 chooses the lowest owner/ordinal. Binary-search count and number of visited
-tokens are published in `CrCost`. Expected epoch mismatch yields STALE before
+tokens are published in `struct cr_cost`. Expected epoch mismatch yields STALE before
 lookup. EMPTY, STALE and other failures leave output and cost unchanged.
 
 `cr_change` adds one previously absent physical owner with1..32 explicitly

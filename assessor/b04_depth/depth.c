@@ -19,7 +19,7 @@ int b4_window(uint32_t base,uint32_t seq,uint32_t span,unsigned bits,int *out) {
     if(base>mask||seq>mask||span>=(UINT32_C(1)<<(bits-1))) return B4_RANGE;
     *out=((seq-base)&mask)<span;return B4_OK;
 }
-int b4_certificate(const B4Graph *g,unsigned s,const uint32_t *d,const unsigned *p) {
+int b4_certificate(const struct b4_graph *g,unsigned s,const uint32_t *d,const unsigned *p) {
     if(!g||!d||!p||g->vertices==0||g->vertices>6||s>=g->vertices) return B4_INVALID;
     for(unsigned u=0;u<g->vertices;u++) for(unsigned v=0;v<g->vertices;v++)
         if(g->cost[u][v]!=UINT32_MAX&&g->cost[u][v]>1000000) return B4_RANGE;
@@ -48,7 +48,7 @@ static int word(const unsigned char *p,size_t n,const char *w) {
     size_t i=0;for(;i<n&&w[i];i++) if(lower(p[i])!=(unsigned char)w[i]) return 0;
     return i==n&&!w[i];
 }
-int b4_framing(const unsigned char *p,size_t n,size_t limit,B4Framing *out) {
+int b4_framing(const unsigned char *p,size_t n,size_t limit,struct b4_framing *out) {
     if(!p||!out||n>512) return B4_INVALID;
     size_t pos=0,body=0;unsigned cl=0,te=0;
     while(pos<n) {
@@ -88,7 +88,7 @@ int b4_framing(const unsigned char *p,size_t n,size_t limit,B4Framing *out) {
     }
     return B4_INVALID;
 }
-int b4_dma(B4Dma *d,unsigned event,uint32_t gen) {
+int b4_dma(struct b4_dma *d,unsigned event,uint32_t gen) {
     if(!d||event>B4_RELEASE) return B4_INVALID;
     if(gen!=d->generation) return B4_STATE;
     switch(event) {
@@ -116,7 +116,7 @@ int b4_cache_extent(size_t offset,size_t n,size_t line,size_t cap,size_t *first,
     if(padding>cap-end) return B4_RANGE;
     *first=offset&~(line-1);*last=end+padding;return B4_OK;
 }
-int b4_memory(B4Ledger *l,unsigned op,uint32_t id,size_t bytes,int succeeded) {
+int b4_memory(struct b4_ledger *l,unsigned op,uint32_t id,size_t bytes,int succeeded) {
     if(!l||op>B4_FREE||!id) return B4_INVALID;
     unsigned index=4,free_slot=4;
     for(unsigned i=0;i<4;i++) {

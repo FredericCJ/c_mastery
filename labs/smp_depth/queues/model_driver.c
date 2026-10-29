@@ -4,7 +4,7 @@
 #include <inttypes.h>
 int main(void) {
  unsigned coarse;if(scanf("%u",&coarse)!=1)return 2;
- SqWorld w;SqHandle ids[3],running;SqTransfer tickets[3]={0};SqEvent e;SlStats stats={0};
+ struct sq_world w;struct sq_handle ids[3],running;struct sq_transfer tickets[3]={0};struct sq_event e;struct sl_stats stats={0};
  if(sq_init(&w,2,2,coarse)!=SQ_OK)return 3;
  for(unsigned i=0;i<3;i++)if(sq_create(&w,0,i/2,i,&ids[i],&e)!=SQ_OK)return 4;
  unsigned op,a,b,slot,choice;

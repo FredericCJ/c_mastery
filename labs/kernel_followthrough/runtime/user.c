@@ -2,7 +2,7 @@
 #include "probe.h"
 static uint8_t image[64];
 static char name[24] = "bytecode";
-static KfVmReport report;
+static struct kf_vm_report report;
 static void print(const char *p) {
   size_t n = 0;
   while (p[n])
@@ -45,7 +45,7 @@ __attribute__((section(".text.start"), noreturn)) void _start(void) {
     end(0);
   }
   for (unsigned i = 0; i < 6; ++i) {
-    KfVmResult *r = &report.cases[i];
+    struct kf_vm_result *r = &report.cases[i];
     print("KF_VM:");
     number(i);
     print(":");

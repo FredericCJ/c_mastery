@@ -1,5 +1,5 @@
 #include "http.h"
-int nh_init(NhHttp *s, NbNet *n, const char *a, NhDate d, void *c, uint64_t t) {
+int nh_init(struct nh_http *s, struct nb_net *n, const char *a, nh_date_fn d, void *c, uint64_t t) {
   (void)s;
   (void)n;
   (void)a;
@@ -8,7 +8,7 @@ int nh_init(NhHttp *s, NbNet *n, const char *a, NhDate d, void *c, uint64_t t) {
   (void)t;
   return NH_STUB;
 }
-int nh_step(NhHttp *s, uint64_t t) {
+int nh_step(struct nh_http *s, uint64_t t) {
   (void)s;
   (void)t;
   return NH_STUB;

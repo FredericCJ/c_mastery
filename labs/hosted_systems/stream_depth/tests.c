@@ -10,7 +10,7 @@
   } while (0)
 /* Complete-buffer decoder: inspect absolute frame extents, not parser state. */
 static int decode(const unsigned char *wire, size_t n, unsigned width,
-                  RfFrame out[2]) {
+                  struct rf_frame out[2]) {
   size_t at = 0;
   unsigned count = 0;
   while (at < n) {
@@ -29,7 +29,7 @@ static int decode(const unsigned char *wire, size_t n, unsigned width,
   }
   return (int)count;
 }
-static int equal(RfFrame a, RfFrame b) {
+static int equal(struct rf_frame a, struct rf_frame b) {
   return a.length == b.length && !memcmp(a.bytes, b.bytes, a.length);
 }
 static int framing(unsigned long *histories) {
@@ -47,11 +47,11 @@ static int framing(unsigned long *histories) {
           for (unsigned i = 0; i < lengths[f]; ++i)
             wire[n++] = (unsigned char)(i % 3 == 0 ? 0 : 255 - i - f);
         }
-        RfFrame expected[2] = {{0}};
+        struct rf_frame expected[2] = {{0}};
         CHECK(decode(wire, n, width, expected) == 2);
         unsigned long partitions = 1UL << (n - 1);
         for (unsigned long mask = 0; mask < partitions; ++mask) {
-          RfParser parser;
+          struct rf_parser parser;
           CHECK(rf_parser_init(&parser, width) == 0);
           size_t first = 0;
           unsigned frames = 0;
@@ -59,7 +59,7 @@ static int framing(unsigned long *histories) {
             if (end == n || (mask & (1UL << (end - 1)))) {
               size_t cursor = first;
               while (cursor < end) {
-                RfFrame out = {.length = 99};
+                struct rf_frame out = {.length = 99};
                 size_t used = 999;
                 int r =
                     rf_feed(&parser, wire + cursor, end - cursor, &used, &out);
@@ -79,9 +79,9 @@ static int framing(unsigned long *histories) {
         /* Every proper prefix is independently classified as
          * boundary/truncation. */
         for (size_t cut = 0; cut <= n; ++cut) {
-          RfParser p;
+          struct rf_parser p;
           CHECK(rf_parser_init(&p, width) == 0);
-          RfFrame out;
+          struct rf_frame out;
           for (size_t i = 0; i < cut; ++i)
             CHECK(rf_push(&p, wire[i], &out) >= 0);
           int boundary = cut == 0 || cut == width + a || cut == n;
@@ -91,8 +91,8 @@ static int framing(unsigned long *histories) {
         }
       }
   for (unsigned length = 0; length < 65536; ++length) {
-    RfParser p;
-    RfFrame f = {.length = 99};
+    struct rf_parser p;
+    struct rf_frame f = {.length = 99};
     CHECK(rf_parser_init(&p, 2) == 0);
     CHECK(rf_push(&p, (unsigned char)(length >> 8), &f) == 0);
     int r = rf_push(&p, (unsigned char)length, &f);
@@ -106,9 +106,9 @@ static int queues(unsigned *cases) {
   *cases = 0;
   for (unsigned budget = 0; budget <= 256; ++budget)
     for (unsigned length = 0; length <= 8; ++length) {
-      RfOutbox q;
+      struct rf_outbox q;
       CHECK(rf_outbox_init(&q, budget) == 0);
-      RfMessage messages[36];
+      struct rf_message messages[36];
       unsigned ids[4];
       for (unsigned i = 0; i < 4; ++i)
         CHECK(rf_open(&q, &ids[i]) == 1 && ids[i] == i);
@@ -116,7 +116,7 @@ static int queues(unsigned *cases) {
       CHECK(rf_open(&q, &untouched) == 0 && untouched == 99);
       size_t model_bytes = 0;
       unsigned model_count[4] = {0};
-      RfFrame frame = {.length = length};
+      struct rf_frame frame = {.length = length};
       for (unsigned j = 0; j < length; ++j)
         frame.bytes[j] = (unsigned char)j;
       for (unsigned i = 0; i < 36; ++i) {
@@ -149,9 +149,9 @@ static int queues(unsigned *cases) {
       CHECK(q.bytes == 0 && rf_outbox_invariant(&q));
       ++*cases;
     }
-  RfOutbox q;
-  RfMessage message, duplicate;
-  RfFrame frame = {.length = 8};
+  struct rf_outbox q;
+  struct rf_message message, duplicate;
+  struct rf_frame frame = {.length = 8};
   unsigned slot;
   CHECK(rf_outbox_init(&q, 8) == 0 && rf_open(&q, &slot) == 1 &&
         rf_message_init(&message, 7, 1, &frame) == 0 &&
@@ -164,13 +164,13 @@ static int queues(unsigned *cases) {
         q.bytes == 0 && rf_disconnect(&q, slot) == 0);
   return 0;
 }
-typedef struct {
+struct short_writer {
   unsigned calls, count, short_returns;
   unsigned char wire[10];
-} ShortWriter;
+};
 static int short_writer(void *context, const unsigned char *bytes,
                         size_t length) {
-  ShortWriter *s = context;
+  struct short_writer *s = context;
   ++s->calls;
   if (!(s->calls % 2))
     return 0;
@@ -182,13 +182,13 @@ static int short_writer(void *context, const unsigned char *bytes,
   return 1;
 }
 static int short_sends(void) {
-  RfOutbox q;
-  RfMessage m;
-  RfFrame f = {.length = 3, .bytes = {7, 0, 9}};
+  struct rf_outbox q;
+  struct rf_message m;
+  struct rf_frame f = {.length = 3, .bytes = {7, 0, 9}};
   unsigned slot;
   CHECK(rf_outbox_init(&q, 3) == 0 && rf_open(&q, &slot) == 1 &&
         rf_message_init(&m, 1, 2, &f) == 0 && rf_enqueue(&q, slot, &m) == 1);
-  ShortWriter w = {0};
+  struct short_writer w = {0};
   for (unsigned i = 0; i < 9; ++i) {
     int result = rf_send_once(&q, slot, short_writer, &w);
     CHECK(result == (i % 2 == 0));
@@ -201,7 +201,7 @@ static int short_sends(void) {
   return 0;
 }
 static int replay_and_sequences(void) {
-  RfDedup d;
+  struct rf_dedup d;
   uint32_t result = 99;
   CHECK(rf_dedup_init(&d, 4) == 0);
   CHECK(rf_effect(&d, 4, 7, 3, &result) == 1 && result == 3 && d.total == 3);
@@ -217,7 +217,7 @@ static int replay_and_sequences(void) {
   d.total = UINT32_MAX;
   CHECK(rf_effect(&d, 1, 1, 1, &result) == -1 && d.total == UINT32_MAX &&
         d.count == 0);
-  RfSequence s;
+  struct rf_sequence s;
   unsigned out[3], n;
   CHECK(rf_sequence_init(&s, 1, 7) == 0);
   unsigned arrivals[5] = {7, 9, 8, 9, 6};

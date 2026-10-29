@@ -1,12 +1,12 @@
 #include "handoff.h"
 #include <assert.h>
 #include <pthread.h>
-static XiQueue q;
+static struct xi_queue q;
 static unsigned published, consumed;
 static void *producer(void *unused) {
   (void)unused;
   for (unsigned i = 0; i < 3; ++i) {
-    XiRecord r;
+    struct xi_record r;
     r.sequence = i;
     r.timestamp = i * 3;
     r.original_length = 2;
@@ -26,7 +26,7 @@ static void *consumer(void *unused) {
   (void)unused;
   unsigned seen = 0, prior = 0;
   for (unsigned i = 0; i < 3; ++i) {
-    XiRecord r;
+    struct xi_record r;
     int rc = xi_pop(&q, &r);
     assert(rc == XI_OK || rc == XI_EMPTY);
     if (rc == XI_OK) {
@@ -47,7 +47,7 @@ int main(void) {
   pthread_create(&c, 0, consumer, 0);
   pthread_join(p, 0);
   pthread_join(c, 0);
-  XiRecord r;
+  struct xi_record r;
   while (xi_pop(&q, &r) == XI_OK) {
     assert(r.sequence < 3 && r.timestamp == 3 * r.sequence && r.copied == 2 &&
            r.bytes[0] == r.sequence && r.bytes[1] == r.sequence + 7);

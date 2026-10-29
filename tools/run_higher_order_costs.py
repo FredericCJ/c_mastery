@@ -12,7 +12,7 @@ def main():
  run=report.parent/'runs'/stamp;run.mkdir(parents=True)
  work=ROOT/'build'/'higher_order_costs'/stamp;work.mkdir(parents=True)
  pins={p:digest(ROOT/p) for p in SOURCES};records=[];results=[]
- probe=run/'layout.c';probe.write_text('#include "higher_order.h"\n#include <stdio.h>\nint main(void){printf("%zu %zu %zu %zu %zu %zu %zu %zu\\n",sizeof(HONode),sizeof(HOA),sizeof(HEInt),sizeof(HEFun),sizeof(HPInt),sizeof(HPFun),sizeof(HEOps),sizeof(HPOps));return 0;}\n')
+ probe=run/'layout.c';probe.write_text('#include "higher_order.h"\n#include <stdio.h>\nint main(void){printf("%zu %zu %zu %zu %zu %zu %zu %zu\\n",sizeof(struct ho_node),sizeof(struct ho_hoa),sizeof(he_int),sizeof(struct he_fun),sizeof(struct hp_int),sizeof(struct hp_fun),sizeof(struct he_ops),sizeof(struct hp_ops));return 0;}\n')
  def execute(command,label):
   start=time.monotonic_ns();p=subprocess.run(command,cwd=ROOT,capture_output=True,text=True);elapsed=time.monotonic_ns()-start
   log=run/(label+'.log');log.write_text(p.stdout+'\n'+p.stderr,encoding='utf8');records.append({'command':list(map(str,command)),'exit_code':p.returncode,'elapsed_ns':elapsed,'log':log.relative_to(ROOT).as_posix(),'log_sha256':digest(log)});assert p.returncode==0,(label,p.stderr);return p.stdout,elapsed
@@ -39,7 +39,7 @@ def main():
   text,no_change=execute(['cmake','--build',str(built)],compiler+'-incremental-no-change');assert 'no work to do' in text
   with (copied/'final.c').open('a') as f:f.write('\n/* Local copied-source invalidation probe; mechanism unchanged. */\n')
   text,changed=execute(['cmake','--build',str(built)],compiler+'-incremental-one-source');assert 'final.c.o' in text and 'free.c.o' not in text
-  results.append({'compiler':compiler,'clean_translation_and_link_ns':samples,'incremental_no_change_ns':no_change,'incremental_copied_source_comment_change_ns':changed,'layout_bytes':dict(zip(['HONode','HOA','HEInt','HEFun','HPInt','HPFun','HEOps','HPOps'],sizes))})
+  results.append({'compiler':compiler,'clean_translation_and_link_ns':samples,'incremental_no_change_ns':no_change,'incremental_copied_source_comment_change_ns':changed,'layout_bytes':dict(zip(['struct ho_node','struct ho_hoa','he_int','struct he_fun','struct hp_int','struct hp_fun','struct he_ops','struct hp_ops'],sizes))})
  for usage in work.glob('*.su'):(run/usage.name).write_bytes(usage.read_bytes())
  artifacts={p.relative_to(ROOT).as_posix():digest(p) for p in run.iterdir() if p.suffix in ('.su','.log','.c')}
  result={'schema_version':1,'status':'passed','passed':True,'inspected_paths':pins,'scope_source_stable':pins=={p:digest(ROOT/p) for p in SOURCES},'results':results,'executions':records,'artifacts':artifacts,'limits':['Actual Linux x86-64 observations; no second ABI or physical evidence.','Three independent translation/link commands per compiler; filesystem/toolchain caches not cleared; no timing superiority inference.','Stack usage files report compiler frames, not automatic whole-call-graph proofs. Bind callback stack and arbitrary callback effects remain caller obligations.','Incremental observations use isolated copies and one appended comment: they verify dependency invalidation, not semantic-change compilation cost or broad speedup.','This cost report is author observation, not independent learner or external review.']}

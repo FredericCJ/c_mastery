@@ -8,8 +8,8 @@ call the Pratt parser or a parser library. Pratt is a separate differential chec
 
 ## Representation and grammar
 
-Use C17, arrays of 64 operators/node indices and the existing 64-node `PdTree`.
-Input is `PdTokens`, at most 64 non-EOF tokens followed by exactly one final EOF.
+Use C17, arrays of 64 operators/node indices and the existing 64-node `struct pd_tree`.
+Input is `struct pd_tokens`, at most 64 non-EOF tokens followed by exactly one final EOF.
 Integer token values are nonnegative int32. The original lexer accepts at most
 256 bytes; offsets are byte offsets and tokens borrow no input text. Token kinds
 are integer0, addition1, multiplication2, open3, close4, minus5, power6, EOF7.
@@ -49,7 +49,7 @@ steps counts consumed token attempts. It is not a guaranteed minimal edit repair
 Budget failure may precede a later syntax error. State the admission order when
 comparing two implementations; do not require one global error for mixed faults.
 
-`sy_push` consumes one token into a successfully initialized valid `SyState`.
+`sy_push` consumes one token into a successfully initialized valid `struct sy_state`.
 PD_PENDING admits a non-EOF token, PD_OK admits a completing EOF, any other result
 leaves the entire prior state unchanged. It rejects all tokens after completion.
 PD_RANGE also applies to a 65th non-EOF token independently of other capacities.
@@ -94,7 +94,7 @@ an n-token generalized implementation; these arrays impose a finite64 bound.
 Whole parsing uses one private staging state. The streaming strong-failure
 guarantee uses one full private state copy per admitted or rejected token. With
 capacity C that adds O(C) copy work per token and O(n*C) total copy work; fixed64
-does not justify hiding this cost when generalizing. `SyCost` counts stack work,
+does not justify hiding this cost when generalizing. `struct sy_cost` counts stack work,
 not copying, instructions, cache misses or elapsed time. Measure both paths under
 the same accepted-expression and rollback contract, retaining source identities.
 

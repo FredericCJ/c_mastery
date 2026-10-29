@@ -9,7 +9,7 @@ int lr_compare_record(const void *a, const void *b) {
   (void)b;
   return 0;
 }
-enum lr_status lr_sort(int32_t *a, size_t n, FWork *w) {
+enum lr_status lr_sort(int32_t *a, size_t n, struct f_work *w) {
   (void)a;
   (void)n;
   (void)w;

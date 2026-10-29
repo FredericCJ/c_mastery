@@ -2,20 +2,20 @@
 #ifndef CDE_MUTANT
 #define CDE_MUTANT 0
 #endif
-static int valid(CDEvents *e) { return e && e->kernel; }
-static int callable(CDEvents *e, unsigned task) {
+static int valid(struct cd_events *e) { return e && e->kernel; }
+static int callable(struct cd_events *e, unsigned task) {
   return valid(e) && task < CMX_TASKS &&
          (e->kernel->task[task].state == CMX_READY ||
           e->kernel->task[task].state == CMX_RUNNING);
 }
-int cde_init(CDEvents *e, cmx_kernel *k) {
+int cde_init(struct cd_events *e, cmx_kernel *k) {
   if (!e || !k)
     return CMX_INVALID;
-  *e = (CDEvents){0};
+  *e = (struct cd_events){0};
   e->kernel = k;
   return CMX_OK;
 }
-int cde_wait(CDEvents *e, unsigned task, uint32_t mask, unsigned all,
+int cde_wait(struct cd_events *e, unsigned task, uint32_t mask, unsigned all,
              unsigned consume, cmx_deadline deadline) {
   if (!callable(e, task) || !mask || all > 1 || consume > 1 ||
       e->operation[task].phase != CDE_IDLE)
@@ -28,7 +28,7 @@ int cde_wait(CDEvents *e, unsigned task, uint32_t mask, unsigned all,
     mask &= UINT32_C(0x7fffffff);
   int result = cmx_event_wait(e->kernel, &e->event, task, mask, all, consume,
                               deadline);
-  CDEOperation *op = &e->operation[task];
+  struct cde_operation *op = &e->operation[task];
   op->phase = result == CMX_BLOCKED ? CDE_PENDING : CDE_DONE;
   op->result = result;
   if (result == CMX_OK) {
@@ -38,11 +38,11 @@ int cde_wait(CDEvents *e, unsigned task, uint32_t mask, unsigned all,
   }
   return result;
 }
-int cde_result(CDEvents *e, unsigned task, uint32_t *observed) {
+int cde_result(struct cd_events *e, unsigned task, uint32_t *observed) {
   if (!valid(e) || task >= CMX_TASKS || !observed ||
       e->operation[task].phase == CDE_IDLE)
     return CMX_INVALID;
-  CDEOperation *op = &e->operation[task];
+  struct cde_operation *op = &e->operation[task];
   if (op->phase == CDE_PENDING) {
     if (e->kernel->task[task].state == CMX_WAITING)
       return CMX_BLOCKED;
@@ -55,7 +55,7 @@ int cde_result(CDEvents *e, unsigned task, uint32_t *observed) {
   op->phase = CDE_IDLE;
   return result;
 }
-int cde_set(CDEvents *e, uint32_t bits) {
+int cde_set(struct cd_events *e, uint32_t bits) {
   if (!valid(e))
     return CMX_INVALID;
   if (e->event.closed)
@@ -72,7 +72,7 @@ int cde_set(CDEvents *e, uint32_t bits) {
       e->kernel->task[i].wait_sequence = saved[i];
   return CMX_OK;
 }
-int cde_clear(CDEvents *e, uint32_t bits) {
+int cde_clear(struct cd_events *e, uint32_t bits) {
   if (!valid(e))
     return CMX_INVALID;
   if (e->event.closed)
@@ -80,7 +80,7 @@ int cde_clear(CDEvents *e, uint32_t bits) {
   e->event.bits &= ~bits;
   return CMX_OK;
 }
-int cde_close(CDEvents *e) {
+int cde_close(struct cd_events *e) {
   if (!valid(e))
     return CMX_INVALID;
   if (CDE_MUTANT == 8)
@@ -89,7 +89,7 @@ int cde_close(CDEvents *e) {
     cmx_event_close(e->kernel, &e->event);
   return CMX_OK;
 }
-int cde_destroy(CDEvents *e) {
+int cde_destroy(struct cd_events *e) {
   if (!valid(e))
     return CMX_INVALID;
   for (unsigned i = 0; i < CMX_TASKS; i++)
@@ -98,8 +98,8 @@ int cde_destroy(CDEvents *e) {
   e->kernel = 0;
   return CMX_OK;
 }
-void cde_sequence_init(CDESequence *s) { *s = (CDESequence){{0, 0}}; }
-int cde_sequence_publish(CDESequence *s) {
+void cde_sequence_init(struct cde_sequence *s) { *s = (struct cde_sequence){{0, 0}}; }
+int cde_sequence_publish(struct cde_sequence *s) {
   if (!s)
     return CMX_INVALID;
   if (s->current.serial == UINT32_MAX) {
@@ -112,7 +112,7 @@ int cde_sequence_publish(CDESequence *s) {
     s->current.serial++;
   return CMX_OK;
 }
-int cde_sequence_read(const CDESequence *s, CDECursor *cursor, uint64_t *delta,
+int cde_sequence_read(const struct cde_sequence *s, struct cde_cursor *cursor, uint64_t *delta,
                        uint64_t *missed) {
   if (!s || !cursor || !delta || !missed)
     return CMX_INVALID;

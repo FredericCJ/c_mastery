@@ -48,7 +48,7 @@ refusal are unchanged, including output length, unless a retained producer says
 otherwise. Null required controls and malformed values return `EH_INVALID`;
 invalid C pointers are a caller-contract violation, not detectably safe inputs.
 
-**T39.09.a, namespaces.** An `EhRoute` contains host-order local IPv4 address,
+**T39.09.a, namespaces.** An `struct eh_route` contains host-order local IPv4 address,
 contiguous /1 through /30 mask and optional gateway. Source must be an individual
 host, first octet neither0,127 nor224..255; host bits cannot be all zero/all one.
 Reject self, local network/broadcast and nonindividual destinations. For a remote
@@ -59,7 +59,7 @@ RFC1122 routing, redirects, multicast, /31 point-to-point or multihoming.
 
 `eh_frame` accepts an opaque IPv4 envelope of20..1500 bytes: version4/IHL5,
 matching total length, configured source and valid20-byte header checksum.
-It checks next-hop association against `EhNeighbor.address`; a nonzero individual
+It checks next-hop association against `struct eh_neighbor.address`; a nonzero individual
 neighbor MAC is required. The configured source MAC is trusted individual,
 nonzero and administratively unique. Caller supplies a separately admitted IP
 datagram; this envelope does not validate transport, TTL, fragments or options.
@@ -88,7 +88,7 @@ Contrast this source graph with a hosted socket program that delegates the
 lower layers; equal HTTP output does not imply equal implemented mechanisms.
 
 **T39.09.c, limit and extension.** Choose reassembly as the changed feature.
-Use actual `NiReassembly`, its one-slot/1480-byte data/185-byte bitmap, tuple key,
+Use actual `struct ni_reassembly`, its one-slot/1480-byte data/185-byte bitmap, tuple key,
 first-header storage, READY and POISON states, absolute deadline and copied
 output. Send fragment offsets16(final),0,8 for24 data bytes. No partial output
 is permitted while the middle eight bytes are absent. Compare identical overlap
@@ -101,7 +101,7 @@ ID reuse after expiry, unavailable option handling and absent arbitrary-peer
 interoperability. A successful original GET never established these properties.
 
 **T39.10.a, time.** First preserve original offset conversion0,5,20 ->100,105,120
-and rejection of0,20,5. An `EhClock` gives local uint32 anchor, nonwrapping samples,
+and rejection of0,20,5. An `struct eh_clock` gives local uint32 anchor, nonwrapping samples,
 global uint64 microsecond anchor interval[lower,upper], and rate-error bound
 0..1000 parts per million. For delta `d`, widen by `ceil(d*ppm/1000000)` on each
 side. This bound is an explicit model premise, not an oscillator measurement.

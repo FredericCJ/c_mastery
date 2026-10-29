@@ -29,7 +29,7 @@ static int su_target_compare(const void *a, const void *b, size_t n) {
 #include "server.h"
 #include "specimens.h"
 static int cohort(void) {
- SUState s;
+ struct su_state s;
  CHECK(su_init(&s,20,50,0,0)==CMX_OK && su_active(&s,0,1)==CMX_OK);
  CHECK(su_run(&s,0,18)==CMX_OK && su_active(&s,18,0)==CMX_OK);
  CHECK(su_active(&s,40,1)==CMX_OK && su_run(&s,40,1)==CMX_OK);
@@ -50,7 +50,7 @@ static int cohort(void) {
  puts("SU_COHORT:pass");return 0;
 }
 static int overrun(void) {
- SUState s;SUFlawed bad;
+ struct su_state s;struct su_flawed bad;
  CHECK(su_init(&s,4,20,0,1)==CMX_OK && su_active(&s,0,1)==CMX_OK);
  CHECK(su_run(&s,0,2)==CMX_OK && su_active(&s,2,0)==CMX_OK);
  CHECK(su_active(&s,10,1)==CMX_OK && su_run(&s,10,3)==CMX_OK);
@@ -59,16 +59,16 @@ static int overrun(void) {
  for(unsigned i=0;i<s.q;++i){at20+=s.unit[i].due==20;at30+=s.unit[i].due==30;at40+=s.unit[i].due==40;}
  CHECK(at20==1 && at30==2 && at40==1);
  CHECK(su_active(&s,20,1)==CMX_OK && su_available(&s)==1);
- SUState saved=s;CHECK(su_run(&s,20,3)==CMX_FULL && !memcmp(&s,&saved,sizeof s));
+ struct su_state saved=s;CHECK(su_run(&s,20,3)==CMX_FULL && !memcmp(&s,&saved,sizeof s));
  su_flawed_init(&bad,4,20);su_flawed_run(&bad,0,2);su_flawed_active(&bad,2,0);su_flawed_run(&bad,10,3);
  unsigned total=bad.remaining;for(unsigned i=0;i<bad.count;++i)total+=bad.amount[i];
  CHECK(total==5 && total>bad.q);
  puts("SU_OVERRUN:pass");return 0;
 }
 static int guard(void) {
- SUState s;
+ struct su_state s;
  CHECK(su_init(&s,2,10,0,0)==CMX_OK && su_active(&s,0,1)==CMX_OK && su_run(&s,0,2)==CMX_OK);
- SUState saved=s;
+ struct su_state saved=s;
  CHECK(su_run(&s,10,3)==CMX_FULL && !memcmp(&s,&saved,sizeof s));
  CHECK(su_active(&s,1,0)==CMX_INVALID && !memcmp(&s,&saved,sizeof s));
  CHECK(su_init(&s,33,40,0,0)==CMX_INVALID && !memcmp(&s,&saved,sizeof s));
@@ -82,7 +82,7 @@ static int guard(void) {
  puts("SU_GUARD:pass");return 0;
 }
 static unsigned completion(unsigned flawed) {
- SUState s;SUFlawed bad;
+ struct su_state s;struct su_flawed bad;
  if(su_init(&s,20,50,0,0)!=CMX_OK)return 0;
  su_flawed_init(&bad,20,50);
  unsigned release[3]={0,40,90},cost[3]={18,20,20},left[3]={0},hp=0,low=49;
@@ -110,7 +110,7 @@ static unsigned completion(unsigned flawed) {
 }
 static int comparison(void) {
  CHECK(completion(0)==99 && completion(1)==117);
- SSBudget dispatch;SUState s;
+ struct ss_budget dispatch;struct su_state s;
  CHECK(ss_init(&dispatch,2,10,0,16,SS_REJECT)==CMX_OK);
  CHECK(su_init(&s,2,10,0,0)==CMX_OK && su_active(&s,0,1)==CMX_OK);
  CHECK(ss_charge(&dispatch,4,1)==CMX_OK && su_run(&s,4,1)==CMX_OK);
@@ -124,7 +124,7 @@ static int comparison(void) {
 static int stream(void) {
  unsigned q,p,start,overrun,n;
  while(scanf("%u%u%u%u%u",&q,&p,&start,&overrun,&n)==5) {
-  SUState s;CHECK(su_init(&s,q,p,start,overrun)==CMX_OK);
+  struct su_state s;CHECK(su_init(&s,q,p,start,overrun)==CMX_OK);
   for(unsigned i=0;i<n;++i) {
    unsigned op,t,arg;if(scanf("%u%u%u",&op,&t,&arg)!=3)return 2;
    enum cmx_result r=op?su_run(&s,t,arg):su_active(&s,t,arg);

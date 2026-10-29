@@ -10,7 +10,7 @@ must never be copied into a learner export.
 ## Transactional publication
 
 `mc_publish_pair` accepts a borrowed byte span and an exclusively owned valid
-`OwOwner`, empty or owning three blocks. The allocator obeys `V4Allocator`:
+`struct ow_owner`, empty or owning three blocks. The allocator obeys `struct v4_allocator`:
 counts are numbers of actual `int32_t` objects, not byte extents. No mechanism
 may replace the prior owner until all stages succeed. Reject `n > INT32_MAX`
 before inspecting bytes, allocating or changing the owner. Parse exactly two
@@ -36,7 +36,7 @@ storage with an existing owner is six typed cells plus allocator bookkeeping.
 
 ## Coroutine to receiver adapter
 
-`mc_read_init` connects and starts one operation, prepares a `COAsync` frame
+`mc_read_init` connects and starts one operation, prepares a `struct co_async` frame
 wanting1..8 bytes and one unconditional cleanup. A successful initialization
 does not call the backend. A failed initialization leaves the destination
 unchanged and does not transfer the cleanup obligation. After success the
@@ -64,7 +64,7 @@ only when the caller still owns a live terminal object; calling through a
 freed pointer is outside the API precondition.
 
 The two-attempt read/recheck behavior and generation admission come from the
-actual `COAsync` implementation. There is no new scheduler, implicit thread
+actual `struct co_async` implementation. There is no new scheduler, implicit thread
 synchronization or language-enforced immovability. Each poll is bounded by two
 backend attempts plus at most8 copied bytes; backend latency itself is an
 explicit external assumption. The original tests use synthetic port replies;
@@ -72,7 +72,7 @@ the Linux extension uses only local socket pairs and synthetic bytes.
 
 ## Five-resource recovery (MC-FALLIBLE-CLOSE)
 
-`recovery.h` extends X-T66-011 with three actual `OwOwner` cells and two opaque
+`recovery.h` extends X-T66-011 with three actual `struct ow_owner` cells and two opaque
 external resources. `mc_recovery_init` receives empty destination storage and
 non-null open/close callbacks. All calls are serialized. Callbacks must not
 reenter, mutate the owner, retain borrowed storage, perform a nonlocal jump or
@@ -118,8 +118,8 @@ each cleanup attempt has at most two closes, and retry count is unbounded.
 
 ## Linux readiness and cancellation (MC-REAL-IO)
 
-`linux_port.h` extends X-T73-011. Initialize `McLinuxPort` once at its final
-address with a live `McRead` and borrowed nonblocking file descriptor. Retain
+`linux_port.h` extends X-T73-011. Initialize `struct mc_linux_port` once at its final
+address with a live `struct mc_read` and borrowed nonblocking file descriptor. Retain
 that descriptor until terminal completion. Initialization owns a wake pipe,
 mutex and condition variable; failure releases created resources but leaves
 destination storage unspecified. Do not copy or reinitialize a live object.
@@ -129,7 +129,7 @@ worker polls input and wake pipe. Readiness permits retrying a nonblocking
 read, not declaring completion: partial data, EAGAIN, EOF and error remain
 separate. The worker queues at most one notification under the mutex, takes a
 reference for it and waits for consumption or stop. Only the owner dispatches
-the notice through `co_async_notify`; the worker never changes `COAsync`.
+the notice through `co_async_notify`; the worker never changes `struct co_async`.
 
 `mc_linux_request_cancel` records stop intent and wakes the worker. It returns
 without joining or releasing a queued borrow. `mc_linux_finish_cancel` joins

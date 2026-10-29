@@ -14,28 +14,28 @@
     }                                                                          \
   } while (0)
 static void operations(void) {
-  TACounter c;
+  struct ta_counter c;
   ta_counter_init(&c, UINT_MAX);
   CHECK(ta_counter_add(&c, 2) == UINT_MAX);
   CHECK(ta_counter_read(&c) == 1);
   CHECK(ta_counter_add(&c, 0) == 1 && ta_counter_read(&c) == 1);
-  _Atomic(TAPair) object;
-  TAPair initial = {UINT64_MAX, 7}, desired = {3, 9};
+  _Atomic(struct ta_pair) object;
+  struct ta_pair initial = {UINT64_MAX, 7}, desired = {3, 9};
   atomic_init(&object, initial);
-  TAPair observed = atomic_load(&object);
+  struct ta_pair observed = atomic_load(&object);
   CHECK(observed.first == UINT64_MAX && observed.second == 7);
   atomic_store(&object, desired);
   observed = atomic_load(&object);
   CHECK(observed.first == 3 && observed.second == 9);
   /* Initialize a distinct destination from a loaded value; never byte-copy a
      live atomic object or infer padding bytes from semantic field equality. */
-  _Atomic(TAPair) second;
+  _Atomic(struct ta_pair) second;
   atomic_init(&second, observed);
   observed = atomic_load(&second);
   CHECK(observed.first == 3 && observed.second == 9);
   printf("OBS operations unsigned-old-value/wrap; aggregate size=%zu align=%zu "
          "fields=3,9\n",
-         sizeof object, _Alignof(_Atomic(TAPair)));
+         sizeof object, _Alignof(_Atomic(struct ta_pair)));
 }
 #define QUERY(name, type, alignment)                                           \
   do {                                                                         \
@@ -52,11 +52,11 @@ static void lockfree(void) {
   QUERY("u32", uint32_t, _Alignof(_Atomic(uint32_t)));
   QUERY("u64", uint64_t, _Alignof(_Atomic(uint64_t)));
   QUERY("u64-overaligned", uint64_t, 64);
-  _Atomic(TAPair) pair;
-  TAPair zero = {0, 0};
+  _Atomic(struct ta_pair) pair;
+  struct ta_pair zero = {0, 0};
   atomic_init(&pair, zero);
   printf("QUERY pair size=%zu type_align=%zu lockfree=%d\n", sizeof pair,
-         _Alignof(_Atomic(TAPair)), atomic_is_lock_free(&pair));
+         _Alignof(_Atomic(struct ta_pair)), atomic_is_lock_free(&pair));
   printf("MACROS char=%d short=%d int=%d long=%d llong=%d pointer=%d\n",
          ATOMIC_CHAR_LOCK_FREE, ATOMIC_SHORT_LOCK_FREE, ATOMIC_INT_LOCK_FREE,
          ATOMIC_LONG_LOCK_FREE, ATOMIC_LLONG_LOCK_FREE,
@@ -128,15 +128,15 @@ static void model(void) {
   puts("OBS model32 exact MP/SB order-outcomes; SC independently enumerated; "
        "RA SB00 permitted; mixed loads outside SC order");
 }
-typedef struct {
+struct tw_message {
   atomic_int ready;
-  _Atomic(TANode *) pointer;
-  TANode node;
+  _Atomic(struct ta_node *) pointer;
+  struct ta_node node;
   int result;
-} Message;
+};
 static void *consume_reader(void *p) {
-  Message *m = p;
-  TANode *node;
+  struct tw_message *m = p;
+  struct ta_node *node;
   do {
     node = atomic_load_explicit(&m->pointer, memory_order_consume);
     if (!node)
@@ -147,7 +147,7 @@ static void *consume_reader(void *p) {
 }
 #ifndef TA_TSAN
 static void *fence_reader(void *p) {
-  Message *m = p;
+  struct tw_message *m = p;
   while (!atomic_load_explicit(&m->ready, memory_order_relaxed))
     sched_yield();
   atomic_thread_fence(memory_order_acquire);
@@ -161,7 +161,7 @@ static void dependency(void) {
   CHECK(ta_dependency(1, 0, 1) == 0);
   CHECK(ta_dependency(0, 1, 0) == 0);
   CHECK(ta_dependency(2, 0, 0) == -1);
-  Message m;
+  struct tw_message m;
   atomic_init(&m.ready, 0);
   atomic_init(&m.pointer, NULL);
   m.result = 0;

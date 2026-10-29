@@ -1,8 +1,8 @@
 /* Original local receiver: requests are synthetic counters, never external effects. */
 #include "replicated.h"
 #include <stdio.h>
-typedef struct { unsigned seen, count, score[8]; } Receiver;
-static int apply(Receiver *receiver, RPEffect effect, unsigned fail_tick) {
+struct rp_receiver { unsigned seen, count, score[8]; };
+static int apply(struct rp_receiver *receiver, struct rp_effect effect, unsigned fail_tick) {
     unsigned bit;
     if(effect.tick<1||effect.tick>8)return RP_INVALID;
     bit=1u<<(effect.tick-1);
@@ -11,8 +11,8 @@ static int apply(Receiver *receiver, RPEffect effect, unsigned fail_tick) {
     receiver->score[effect.tick-1]=effect.score;receiver->seen|=bit;++receiver->count;return RP_OK;
 }
 int main(void) {
-    const int moves[8]={1,1,0,-1,1,0,1,-1};RPEffect effects[8];RPState state;Receiver receiver={0,0,{0}};unsigned i,unsafe_count=0;
-    if(rp_replay((RPState){0,0,0,1},moves,8,&state,effects)!=RP_OK)return 1;
+    const int moves[8]={1,1,0,-1,1,0,1,-1};struct rp_effect effects[8];struct rp_state state;struct rp_receiver receiver={0,0,{0}};unsigned i,unsafe_count=0;
+    if(rp_replay((struct rp_state){0,0,0,1},moves,8,&state,effects)!=RP_OK)return 1;
     /* A naive adapter performs all requests again on replay. */
     for(i=0;i<16;++i)++unsafe_count;
     for(i=0;i<8;++i)if(apply(&receiver,effects[i],4)!=RP_OK)break;

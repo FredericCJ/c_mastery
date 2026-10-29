@@ -2,7 +2,7 @@
 #include <pthread.h>
 #include <sched.h>
 #include <stdio.h>
-static CPFClock clock_state;
+static struct cpf_clock clock_state;
 static atomic_uint ready, done;
 static void *writer(void *unused) {
   (void)unused;

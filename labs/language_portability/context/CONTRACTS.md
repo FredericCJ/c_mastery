@@ -82,7 +82,7 @@ Unavailable locale is a missing experiment, never an equivalent pass.
 The delayed experiment interleaves C3 then A9 in one state and E2 82 then AC
 in another; each continuation consumes only its own remaining bytes.
 
-`LcLocale` owns its mbstate_t and poison flag. Initialize exclusive live control
+`struct lc_locale` owns its mbstate_t and poison flag. Initialize exclusive live control
 with `lc_locale_init`; keep process locale fixed until all such states are
 reset. No concurrent setlocale or shared-state access is admitted. The actual
 mbrtowc call is synchronous and retains no source pointer. `lc_locale_one`
@@ -97,7 +97,7 @@ conversion equivalent to strict UTF-8 or make wchar_t universally Unicode.
 
 ## Strict octet stream and changed Unicode assumptions
 
-`LcUtf` has one partial scalar, its minimum, remaining continuation count and
+`struct lc_utf` has one partial scalar, its minimum, remaining continuation count and
 accepted byte/scalar counters. Initialize before use, keep control exclusive
 and unmodified except through these operations, and keep control/data/output
 storage disjoint. No borrowed input survives a call. The total stream limit

@@ -9,8 +9,8 @@
     }                                                                          \
   } while (0)
 static int uart(void) {
-  SDUart r;
-  SDReceive v;
+  struct sd_uart r;
+  struct sd_receive v;
   unsigned i;
   const uint8_t expected[10] = {0, 1, 0, 1, 0, 0, 1, 0, 1, 1};
   memset(&r, 0xa5, sizeof r);
@@ -37,7 +37,7 @@ static int uart(void) {
   return 0;
 }
 static int sync_test(void) {
-  SDSync s, b;
+  struct sd_sync s, b;
   unsigned mode, i;
   for (mode = 0; mode < 4; mode++) {
     CHECK(sd_sync(mode >> 1, mode & 1, 0, 1, 1, 0, 0xa5, &s) == 0 &&
@@ -55,7 +55,7 @@ static int sync_test(void) {
   return 0;
 }
 static int i2c(void) {
-  SDI2c s = {0}, old;
+  struct sd_sdi2c s = {0}, old;
   uint8_t a = 99, out = 99;
   unsigned p = 99;
   CHECK(sd_i2c_begin(&s, 1, 0x50, 7, &a, &out) == 0 && a == SD_START_WRITE &&
@@ -81,7 +81,7 @@ static int i2c(void) {
   return 0;
 }
 static int spi(void) {
-  SDSpi s = {0};
+  struct sd_spi s = {0};
   uint8_t l[16], p[16], m[16], r;
   unsigned mode, i;
   for (mode = 0; mode < 4; mode++) {
@@ -115,7 +115,7 @@ static int electrical(void) {
   return 0;
 }
 static int rs485(void) {
-  SDRs485 s = {0};
+  struct sd_rs485 s = {0};
   uint8_t b[2] = {0xa5, 0x5a};
   CHECK(sd_485_begin(&s, 1, b, 2, 0) == 0);
   CHECK(sd_485_poll(&s, 1, 599, 1, 0) == SD_BUSY && s.position == 0);
@@ -146,7 +146,7 @@ static int rs485(void) {
   return 0;
 }
 static int can(void) {
-  SDCan a = {0x123, 0, 0, 1, {0xa5}}, b = {0},
+  struct sd_can a = {0x123, 0, 0, 1, {0xa5}}, b = {0},
         ext = {0x123u << 18, 1, 0, 0, {0}}, remote = {0x123, 0, 1, 1, {0}};
   uint8_t bits[160], bad[160];
   size_t n = 0, k;
@@ -173,12 +173,12 @@ static int can(void) {
   return 0;
 }
 static int bxcan(void) {
-  SDTiming t;
-  SDFifo f = {{0}, 0, 0, 0};
+  struct sd_timing t;
+  struct sd_fifo f = {{0}, 0, 0, 0};
   uint32_t v;
   unsigned accept;
   {
-    SDMailbox m={0}; uint8_t result=99;
+    struct sd_mailbox m={0}; uint8_t result=99;
     CHECK(sd_can_submit(&m,1)==0 && sd_can_take(&m,1,&result)==SD_BUSY && result==99);
     CHECK(sd_can_complete(&m,1,1)==SD_BUSY && m.state==1);
     CHECK(sd_can_complete(&m,1,0)==0 && sd_can_take(&m,1,&result)==0 && result==0);
@@ -202,7 +202,7 @@ static int bxcan(void) {
   return 0;
 }
 static int fd(void) {
-  SDFd f, old;
+  struct sd_fd f, old;
   CHECK(sd_fd(9, 1, 0, 1, 0, 1, &f) == 0 && f.length == 12 &&
         f.crc_width == 17);
   CHECK(sd_fd(10, 1, 1, 0, 0, 1, &f) == 0 && f.length == 16 &&

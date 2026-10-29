@@ -9,7 +9,7 @@ and changed-assumption composition. The exact criterion mapping and inspected
 passages are in `research/v5/expansion/legacy_advanced_lease/`.
 
 Prerequisites are C17 integer/object/lifetime rules, original freestanding
-startup and runtime, T27 memory regions, the T28.10 `PdTransfer`/`FWPeer` contracts,
+startup and runtime, T27 memory regions, the T28.10 `struct pd_transfer`/`struct fw_peer` contracts,
 and T29.01–.06 exception and deferred-service ownership. Supply those learner
 artifacts before assessing integration. Author campaigns explicitly import the
 assessor implementations; they do not count as learner integration. No heap,
@@ -27,8 +27,8 @@ participants; a second core, NMI or device requires a separate protocol.
 ## Representation and ownership
 
 Implement `lease.c`, `bridge.c`, `order.c` and the target driver, leaving the
-supplied headers stable. `XdTicket` contains a nonzero epoch and generation.
-`XdLease` has nine 32-bit fields and no hidden allocation. Its phase is one of
+supplied headers stable. `struct xd_ticket` contains a nonzero epoch and generation.
+`struct xd_lease` has nine 32-bit fields and no hidden allocation. Its phase is one of
 QUARANTINE, CPU, DEVICE, STOPPING or SERVICE. Zero initialization means
 QUARANTINE, never permission to touch a possibly active device's storage.
 Within an epoch, generation increments without wrap; UINT32_MAX retires it.
@@ -123,14 +123,14 @@ generation8 and inject callback7. Compare the entire current state before and
 after rejection. Make epoch differ while generation is equal. Explain the
 finite-counter exhaustion policy instead of assuming wrap can never occur.
 
-In the reset variant, clear only `XdLease` while a separate engine and
+In the reset variant, clear only `struct xd_lease` while a separate engine and
 supervisor remain alive. The engine still owns a queued write. Zero state
 must refuse submit; a stop request alone must refuse recovery. Drain old
 writes, complete visibility, mint a fresh supervisor epoch, then enable reuse.
 Retain an old metadata callback and show its rejection. Also demonstrate,
 inside this synthetic model only, that a fabricated quiescence proof permits
 a late engine write to overwrite a harmless sentinel. Ticket checks cannot
-stop bus masters. Do not reset shared `PdTransfer` state while an active
+stop bus masters. Do not reset shared `struct pd_transfer` state while an active
 hardware stream is still associated with it.
 
 The hardware protocol is in `curriculum/guides/interrupt-lease-board-protocol.md`.

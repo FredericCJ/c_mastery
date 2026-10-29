@@ -48,7 +48,7 @@ static int ownership(void) {
   CHECK(cmx_mutex_close(&k, &b) == CMX_OK && cmx_invariant(&k));
   /* Calling extension code prevents a missing extension from masquerading as
      a passing primitive-only test. */
-  CDRecursive r;
+  struct cd_recursive r;
   CHECK(cdm_recursive_init(&r, &k, 1) == CMX_OK);
   CHECK(cdm_recursive_lock(&r, 0, cmx_forever()) == CMX_OK);
   CHECK(cdm_recursive_lock(&r, 0, cmx_forever()) == CMX_FULL);
@@ -58,11 +58,11 @@ static int ownership(void) {
        "refused");
   return 0;
 }
-typedef struct {
+struct cmx_model {
   int owner, waiter;
   unsigned depth;
-} Model;
-static int step(Model *m, unsigned operation) {
+};
+static int step(struct cmx_model *m, unsigned operation) {
   unsigned task = operation / 2;
   if (!(operation % 2)) {
     if (m->waiter == (int)task)
@@ -95,8 +95,8 @@ static int recursive(void) {
   unsigned transitions = 0;
   for (unsigned code = 0; code < 4096; code++) {
     cmx_kernel k;
-    CDRecursive r;
-    Model m = {-1, -1, 0};
+    struct cd_recursive r;
+    struct cmx_model m = {-1, -1, 0};
     unsigned word = code;
     CHECK(setup(&k));
     CHECK(cdm_recursive_init(&r, &k, 2) == CMX_OK);
@@ -113,7 +113,7 @@ static int recursive(void) {
     }
   }
   cmx_kernel k;
-  CDRecursive r;
+  struct cd_recursive r;
   CHECK(setup(&k));
   CHECK(cdm_recursive_init(&r, &k, UINT_MAX) == CMX_OK);
   CHECK(cdm_recursive_lock(&r, 0, cmx_forever()) == CMX_OK);
@@ -130,14 +130,14 @@ static int recursive(void) {
          transitions);
   return 0;
 }
-typedef struct {
+struct cmx_callback {
   cmx_kernel *k;
   cmx_mutex **locks;
   const unsigned *ranks;
   unsigned target, task;
   int result;
-} Callback;
-static void callback_lock(Callback *c) {
+};
+static void callback_lock(struct cmx_callback *c) {
   c->result = cdm_ordered_lock(c->k, c->locks, c->ranks, 2, c->target, c->task,
                                cmx_forever());
 }
@@ -150,7 +150,7 @@ static int order(void) {
   CHECK(cmx_mutex_init(&k, &a, 0, 0) == CMX_OK);
   CHECK(cmx_mutex_init(&k, &b, 0, 0) == CMX_OK);
   CHECK(cdm_ordered_lock(&k, locks, ranks, 2, 1, 0, cmx_forever()) == CMX_OK);
-  Callback c = {&k, locks, ranks, 0, 0, -1};
+  struct cmx_callback c = {&k, locks, ranks, 0, 0, -1};
   callback_lock(&c);
   CHECK(c.result == CMX_DEADLOCK && b.owner == 0 && a.owner < 0);
   CHECK(cmx_mutex_unlock(&k, &b, 0) == CMX_OK);
@@ -176,16 +176,16 @@ static int order(void) {
        "registry");
   return 0;
 }
-typedef struct {
+struct cmx_observer {
   cmx_kernel *k;
   cmx_mutex *m;
-  CDRecord *record;
+  struct cd_record *record;
   unsigned calls, observations;
   int lock_result, read_result;
-} Observer;
+};
 static void observe(void *p) {
-  Observer *o = p;
-  CDRecord output = {123, 456};
+  struct cmx_observer *o = p;
+  struct cd_record output = {123, 456};
   ++o->calls;
   o->lock_result = cmx_mutex_lock(o->k, o->m, 1, cmx_at(o->k->now));
   if (o->lock_result == CMX_OK) {
@@ -197,11 +197,11 @@ static void observe(void *p) {
 static int record(void) {
   cmx_kernel k;
   cmx_mutex m;
-  CDRecord record, out;
+  struct cd_record record, out;
   CHECK(setup(&k));
   CHECK(cmx_mutex_init(&k, &m, 0, 0) == CMX_OK);
   cdm_record_init(&record, 0);
-  Observer o = {&k, &m, &record, 0, 0, -1, -1};
+  struct cmx_observer o = {&k, &m, &record, 0, 0, -1, -1};
   for (unsigned i = 0; i < 64; i++) {
     CHECK(cmx_mutex_lock(&k, &m, 0, cmx_forever()) == CMX_OK);
     printf("OWNER:%u:acquire:0;balance=%d\n", i, record.balance);
@@ -222,7 +222,7 @@ static int record(void) {
 static int rollback(void) {
   cmx_kernel k;
   cmx_mutex m;
-  CDRecord record, before, out = {321, 654};
+  struct cd_record record, before, out = {321, 654};
   CHECK(setup(&k));
   CHECK(cmx_mutex_init(&k, &m, 0, 0) == CMX_OK);
   cdm_record_init(&record, INT32_MAX);

@@ -18,7 +18,7 @@ compiler/ABI comparisons. No C23 mechanism is claimed by this package.
 
 ## Operations, ownership and failure
 
-`FbWord` is at least32 unsigned value bits. Logical width is1..16, independent of
+`fb_word` is at least32 unsigned value bits. Logical width is1..16, independent of
 storage size. Bit operations interpret the input modulo2^width, explicitly masking
 high carrier bits. Outputs are caller-owned live objects, never retained. Input
 span extents must describe actual live arrays; numeric validation cannot prove
@@ -48,7 +48,7 @@ Inspect generated instructions/helpers before asserting speed or runtime closure
 
 ## Original teaching register
 
-`FbRegister` owns an8-bit state and read/write counters. Initialization accepts
+`struct fb_register` owns an8-bit state and read/write counters. Initialization accepts
 state0..255 and read_clear0/1. Raw reads/writes require an initialized live object;
 counters use defined unsigned wrap and are observations, not synchronization.
 Bits0..3 are ordinary writable controls. Writing ones to bits4..7 clears those

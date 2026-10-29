@@ -2,7 +2,7 @@
 #include <stdio.h>
 int main(void){
  for(unsigned word=0;word<6561;word++){
-  CrPool pool;CrToken normal={1,0,0},fault={1,0,2};unsigned char byte=42;unsigned code=word;int results[4];
+  struct cr_pool pool;struct cr_token normal={1,0,0},fault={1,0,2};unsigned char byte=42;unsigned code=word;int results[4];
   if(cr_pool_init(&pool,1)!=CR_OK)return 2;
   for(unsigned i=0;i<4;i++){unsigned op=code%9;code/=9;switch(op){
    case 0:results[i]=cr_allocate(&pool,0,&byte,1,&normal);break;

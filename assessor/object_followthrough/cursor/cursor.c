@@ -1,7 +1,7 @@
 #include "cursor.h"
 int oc_rows_read(void *context,size_t row,size_t col,int *out)
 {
-    OcRows *r=context;
+    struct oc_rows *r=context;
     if(!r || !out || !r->rows || row>=r->count || col>=3)return -1;
 #ifdef OC_MUTANT_ROW
     *out=r->rows[0][col];
@@ -12,11 +12,11 @@ int oc_rows_read(void *context,size_t row,size_t col,int *out)
 }
 int oc_table_read(void *context,size_t row,size_t col,int *out)
 {
-    OcTable *t=context;
+    struct oc_table *t=context;
     if(!t || !out || !t->rows || !t->lengths || row>=t->count || col>=t->lengths[row] || !t->rows[row])return -1;
     *out=t->rows[row][col];return 0;
 }
-int oc_read(const OcMatrix *m,size_t row,size_t col,int *out)
+int oc_read(const struct oc_matrix *m,size_t row,size_t col,int *out)
 {
     if(!m || !m->read || !out || row>=m->rows || col>=m->columns)return -1;
     return m->read(m->context,row,col,out);
@@ -29,9 +29,9 @@ int oc_representation(int (*matrix)[2][3],unsigned char *out,size_t capacity)
     for(size_t i=0;i<sizeof(*matrix);++i)out[i]=bytes[i];
     return 0;
 }
-FDStatus oc_take(FDCursor *c,size_t n,const unsigned char **out){return fd_take(c,n,out);}
-FDStatus oc_subview(const FDCursor *c,size_t offset,size_t n,FDCursor *out){return fd_subview(c,offset,n,out);}
-FDStatus oc_previous(FDCursor *c,size_t n,const unsigned char **out)
+enum fd_status oc_take(struct fd_cursor *c,size_t n,const unsigned char **out){return fd_take(c,n,out);}
+enum fd_status oc_subview(const struct fd_cursor *c,size_t offset,size_t n,struct fd_cursor *out){return fd_subview(c,offset,n,out);}
+enum fd_status oc_previous(struct fd_cursor *c,size_t n,const unsigned char **out)
 {
     size_t next;
     if(!c || !out || c->position>c->length || (!c->base && c->length))return FD_INVALID;
@@ -52,14 +52,14 @@ int oc_difference(const unsigned char *base,size_t n,size_t left,size_t right,pt
     if(magnitude>(size_t)PTRDIFF_MAX)return -1;
     *out=(base+left)-(base+right);return 0;
 }
-static int position(const size_t *lengths,size_t count,OcPosition p,size_t *out)
+static int position(const size_t *lengths,size_t count,struct oc_position p,size_t *out)
 {
     size_t sum=0;
     if(!lengths || p.segment>=count || p.index>lengths[p.segment])return -1;
     for(size_t i=0;i<count;++i){if(lengths[i]>SIZE_MAX-sum)return -1;sum+=lengths[i];}
     sum=0;for(size_t i=0;i<p.segment;++i)sum+=lengths[i];*out=sum+p.index;return 0;
 }
-int oc_order(const size_t *lengths,size_t count,OcPosition a,OcPosition b,int *out)
+int oc_order(const size_t *lengths,size_t count,struct oc_position a,struct oc_position b,int *out)
 {
     size_t x,y;
     if(!out || position(lengths,count,a,&x) || position(lengths,count,b,&y))return -1;

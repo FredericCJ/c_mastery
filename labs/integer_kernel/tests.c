@@ -3,7 +3,7 @@
 #include <stdio.h>
 #define CHECK(x) do{if(!(x)){fprintf(stderr,"FI_FAIL %s:%d %s\n",__FILE__,__LINE__,#x);return 1;}}while(0)
 static int arithmetic(void) {
- FiRange byte={-128,127},native={INT_MIN,INT_MAX};int out=917,q=918,r=919;unsigned clipped=9;
+ struct fi_range byte={-128,127},native={INT_MIN,INT_MAX};int out=917,q=918,r=919;unsigned clipped=9;
  CHECK(fi_binary(byte,FI_ADD,120,10,&out)==FI_RANGE&&out==917);
  CHECK(fi_binary(native,FI_ADD,120,10,&out)==FI_OK&&out==130);
  CHECK(((250u+10u)&255u)==4u);out=917;
@@ -25,7 +25,7 @@ static int arithmetic(void) {
  CHECK(fi_divide(native,FI_TRUNCATE,INT_MIN,-1,&q,&r)==(INT_MIN < -INT_MAX?FI_RANGE:FI_OK));
  CHECK(q==(INT_MIN < -INT_MAX?918:INT_MAX)&&r==(INT_MIN < -INT_MAX?919:0));q=918;r=919;
  CHECK(fi_divide(native,FI_TRUNCATE,1,0,&q,&r)==FI_RANGE&&q==918&&r==919);
- CHECK(fi_divide((FiRange){-127,127},FI_TRUNCATE,-127,-1,&q,&r)==FI_OK&&q==127&&r==0);
+ CHECK(fi_divide((struct fi_range){-127,127},FI_TRUNCATE,-127,-1,&q,&r)==FI_OK&&q==127&&r==0);
  CHECK(fi_divide(byte,FI_FLOOR,-7,3,&q,&r)==FI_OK&&q==-3&&r==2);
  CHECK(fi_divide(byte,FI_FLOOR,7,-3,&q,&r)==FI_OK&&q==-3&&r==-2);
  CHECK(fi_divide(byte,FI_EUCLIDEAN,-7,-3,&q,&r)==FI_OK&&q==3&&r==2);
@@ -35,9 +35,9 @@ static int arithmetic(void) {
  out=917;CHECK(fi_mod_positive(1,0,&out)==FI_INVALID&&out==917);
  CHECK(fi_mod_positive(1,-3,&out)==FI_INVALID&&out==917);
  CHECK(fi_divide(byte,FI_TRUNCATE,7,3,&out,&out)==FI_INVALID&&out==917);
- CHECK(fi_binary((FiRange){1,2},FI_ADD,1,1,&out)==FI_INVALID&&out==917);
+ CHECK(fi_binary((struct fi_range){1,2},FI_ADD,1,1,&out)==FI_INVALID&&out==917);
  CHECK(fi_binary(byte,FI_ADD,128,1,&out)==FI_RANGE&&out==917);
- CHECK(fi_binary(byte,(FiOperation)99,1,1,&out)==FI_INVALID&&out==917);
+ CHECK(fi_binary(byte,(enum fi_operation)99,1,1,&out)==FI_INVALID&&out==917);
  puts("FI_ARITHMETIC_PASS reject_saturate sign_partitions division_conventions symmetric_range");
  return 0;
 }

@@ -1,24 +1,24 @@
 #include "edu7_depth.h"
 /* Implement the explicitly bounded mechanisms. */
-int e7_grant_begin(E7Grant *state, uint32_t now, uint32_t *token) {
+int e7_grant_begin(struct e7_grant *state, uint32_t now, uint32_t *token) {
   (void)state;
   (void)now;
   (void)token;
   return E7_UNIMPLEMENTED;
 }
-int e7_grant_first(E7Grant *state, uint32_t token, uint32_t now) {
+int e7_grant_first(struct e7_grant *state, uint32_t token, uint32_t now) {
   (void)state;
   (void)token;
   (void)now;
   return E7_UNIMPLEMENTED;
 }
-int e7_grant_finish(E7Grant *state, uint32_t token, uint32_t now) {
+int e7_grant_finish(struct e7_grant *state, uint32_t token, uint32_t now) {
   (void)state;
   (void)token;
   (void)now;
   return E7_UNIMPLEMENTED;
 }
-int e7_grant_tick(E7Grant *state, uint32_t now) {
+int e7_grant_tick(struct e7_grant *state, uint32_t now) {
   (void)state;
   (void)now;
   return E7_UNIMPLEMENTED;
@@ -35,7 +35,7 @@ int e7_link_admit(unsigned kind, unsigned local, unsigned destination,
   (void)deliver;
   return E7_UNIMPLEMENTED;
 }
-int e7_send_begin(E7Sender *state, uint16_t id, unsigned source,
+int e7_send_begin(struct e7_sender *state, uint16_t id, unsigned source,
                   unsigned destination, const uint8_t *bytes, size_t length,
                   uint32_t now) {
   (void)state;
@@ -47,7 +47,7 @@ int e7_send_begin(E7Sender *state, uint16_t id, unsigned source,
   (void)now;
   return E7_UNIMPLEMENTED;
 }
-int e7_send_offer(E7Sender *state, uint32_t now, E7Fragment *fragment,
+int e7_send_offer(struct e7_sender *state, uint32_t now, struct e7_fragment *fragment,
                   uint32_t *token) {
   (void)state;
   (void)now;
@@ -55,7 +55,7 @@ int e7_send_offer(E7Sender *state, uint32_t now, E7Fragment *fragment,
   (void)token;
   return E7_UNIMPLEMENTED;
 }
-int e7_send_accept(E7Sender *state, uint32_t token, unsigned accepted,
+int e7_send_accept(struct e7_sender *state, uint32_t token, unsigned accepted,
                    uint32_t now) {
   (void)state;
   (void)token;
@@ -63,18 +63,18 @@ int e7_send_accept(E7Sender *state, uint32_t token, unsigned accepted,
   (void)now;
   return E7_UNIMPLEMENTED;
 }
-int e7_send_ack(E7Sender *state, const E7Fragment *ack, uint32_t now) {
+int e7_send_ack(struct e7_sender *state, const struct e7_fragment *ack, uint32_t now) {
   (void)state;
   (void)ack;
   (void)now;
   return E7_UNIMPLEMENTED;
 }
-int e7_send_expire(E7Sender *state, uint32_t now) {
+int e7_send_expire(struct e7_sender *state, uint32_t now) {
   (void)state;
   (void)now;
   return E7_UNIMPLEMENTED;
 }
-int e7_session_open(E7Session *state, uint16_t session, uint16_t epoch,
+int e7_session_open(struct e7_session *state, uint16_t session, uint16_t epoch,
                     unsigned schema, unsigned unit) {
   (void)state;
   (void)session;
@@ -83,7 +83,7 @@ int e7_session_open(E7Session *state, uint16_t session, uint16_t epoch,
   (void)unit;
   return E7_UNIMPLEMENTED;
 }
-int e7_session_prepare(E7Session *state, unsigned sender, uint16_t session,
+int e7_session_prepare(struct e7_session *state, unsigned sender, uint16_t session,
                        uint16_t epoch, uint16_t checkpoint,
                        const uint8_t *bytes, size_t length, uint32_t *token,
                        uint8_t *cached, size_t capacity,
@@ -101,7 +101,7 @@ int e7_session_prepare(E7Session *state, unsigned sender, uint16_t session,
   (void)cached_length;
   return E7_UNIMPLEMENTED;
 }
-int e7_session_commit(E7Session *state, uint32_t token, unsigned accepted,
+int e7_session_commit(struct e7_session *state, uint32_t token, unsigned accepted,
                       const uint8_t *response, size_t length) {
   (void)state;
   (void)token;
@@ -110,19 +110,19 @@ int e7_session_commit(E7Session *state, uint32_t token, unsigned accepted,
   (void)length;
   return E7_UNIMPLEMENTED;
 }
-int e7_token_begin(E7Session *state, unsigned sender, unsigned next) {
+int e7_token_begin(struct e7_session *state, unsigned sender, unsigned next) {
   (void)state;
   (void)sender;
   (void)next;
   return E7_UNIMPLEMENTED;
 }
-int e7_token_complete(E7Session *state, unsigned next, unsigned confirmed) {
+int e7_token_complete(struct e7_session *state, unsigned next, unsigned confirmed) {
   (void)state;
   (void)next;
   (void)confirmed;
   return E7_UNIMPLEMENTED;
 }
-int e7_session_resume(const E7Session *state, uint16_t session, uint16_t epoch,
+int e7_session_resume(const struct e7_session *state, uint16_t session, uint16_t epoch,
                       unsigned sender, uint16_t checkpoint) {
   (void)state;
   (void)session;
@@ -131,7 +131,7 @@ int e7_session_resume(const E7Session *state, uint16_t session, uint16_t epoch,
   (void)checkpoint;
   return E7_UNIMPLEMENTED;
 }
-int e7_session_close(E7Session *state) {
+int e7_session_close(struct e7_session *state) {
   (void)state;
   return E7_UNIMPLEMENTED;
 }

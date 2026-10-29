@@ -3,13 +3,13 @@
 #include <stdlib.h>
 #include <string.h>
 #define CHECK(x) do{if(!(x)){fprintf(stderr,"LP_CHECK %s:%d %s\n",__FILE__,__LINE__,#x);return 1;}}while(0)
-typedef struct {unsigned char *active;size_t size;unsigned calls,zero,releases,fail,policy;LrBuffer *owner;unsigned empty_at_release;} Track;
-static Track state;
-static void cleanup(void){free(state.active);state=(Track){0};}
+struct lp_track {unsigned char *active;size_t size;unsigned calls,zero,releases,fail,policy;struct lr_buffer *owner;unsigned empty_at_release;};
+static struct lp_track state;
+static void cleanup(void){free(state.active);state=(struct lp_track){0};}
 /* Both zero policies are original teaching adapters, not claims about libc.
    Nonzero implementation uses actual malloc/copy/free and scheduled refusal. */
 static void *allocate(void *ctx,void *old,size_t old_size,size_t size){
-    Track *t=ctx;t->calls++;
+    struct lp_track *t=ctx;t->calls++;
     if(!size){t->zero++;if(t->policy){free(t->active);t->active=NULL;t->size=0;}return NULL;}
     if(t->fail){t->fail=0;return NULL;}
     if(old!=t->active || old_size!=t->size)abort();
@@ -19,14 +19,14 @@ static void *allocate(void *ctx,void *old,size_t old_size,size_t size){
     free(t->active);t->active=next;t->size=size;return next;
 }
 static void release(void *ctx,void *old,size_t size){
-    Track *t=ctx;if(old!=t->active || size!=t->size)abort();
+    struct lp_track *t=ctx;if(old!=t->active || size!=t->size)abort();
     t->empty_at_release+=t->owner->data==NULL && t->owner->size==0;
     t->releases++;free(old);t->active=NULL;t->size=0;
 }
-static LrAllocator adapter(void){return (LrAllocator){.context=&state,.resize=allocate,.release=release};}
+static struct lr_allocator adapter(void){return (struct lr_allocator){.context=&state,.resize=allocate,.release=release};}
 static int zero(void){
     for(unsigned policy=0;policy<2;policy++){
-        LrBuffer b;state.policy=policy;state.owner=&b;
+        struct lr_buffer b;state.policy=policy;state.owner=&b;
         CHECK(lr_init(&b,adapter())==LR_OK);
         CHECK(lr_resize(&b,0)==LR_INVALID && state.calls==0 && !b.data && b.size==0);
         CHECK(lr_resize(&b,3)==LR_OK);unsigned char *old=b.data;b.data[0]=17;
@@ -44,21 +44,21 @@ static int zero(void){
     puts("LP zero validated");return 0;
 }
 static int failure(void){
-    LrBuffer b;state.owner=&b;CHECK(lr_init(&b,adapter())==LR_OK && lr_resize(&b,4)==LR_OK);
+    struct lr_buffer b;state.owner=&b;CHECK(lr_init(&b,adapter())==LR_OK && lr_resize(&b,4)==LR_OK);
     unsigned char *old=b.data;for(size_t i=0;i<4;i++)b.data[i]=(unsigned char)(i+7);
     state.fail=1;CHECK(lr_resize(&b,8)==LR_NOMEM && b.data==old && b.size==4);
     for(size_t i=0;i<4;i++)CHECK(b.data[i]==i+7);
     lr_release(&b);puts("LP failure validated");return 0;
 }
 static int drop(void){
-    LrBuffer b;state.owner=&b;CHECK(lr_init(&b,adapter())==LR_OK && lr_resize(&b,2)==LR_OK);
+    struct lr_buffer b;state.owner=&b;CHECK(lr_init(&b,adapter())==LR_OK && lr_resize(&b,2)==LR_OK);
     lr_release(&b);CHECK(!b.data && b.size==0 && state.releases==1 && state.empty_at_release==1);
     lr_release(&b);CHECK(state.releases==1);
     CHECK(lr_resize(&b,1)==LR_OK);lr_release(&b);CHECK(state.releases==2);
     puts("LP drop validated");return 0;
 }
 static int growth(void){
-    LrBuffer b;state.owner=&b;CHECK(lr_init(&b,adapter())==LR_OK && lr_resize(&b,2)==LR_OK);
+    struct lr_buffer b;state.owner=&b;CHECK(lr_init(&b,adapter())==LR_OK && lr_resize(&b,2)==LR_OK);
     CHECK(b.data[0]==0 && b.data[1]==0);b.data[0]=9;b.data[1]=11;
     CHECK(lr_resize(&b,5)==LR_OK && b.data[0]==9 && b.data[1]==11);
     for(size_t i=2;i<5;i++)CHECK(b.data[i]==0);
@@ -68,7 +68,7 @@ static int growth(void){
 static int oracle(void){
     unsigned policy;char history[8];
     while(scanf("%u %7s",&policy,history)==2){
-        LrBuffer b;state.policy=policy;state.owner=&b;CHECK(lr_init(&b,adapter())==LR_OK);LrStatus status=LR_OK;
+        struct lr_buffer b;state.policy=policy;state.owner=&b;CHECK(lr_init(&b,adapter())==LR_OK);enum lr_status status=LR_OK;
         for(size_t i=0;history[i];i++){
             char op=history[i];if(op=='-')continue;
             if(op=='a')status=lr_resize(&b,1);
@@ -93,6 +93,6 @@ int main(int argc,char **argv){
     if(!strcmp(argv[1],"drop"))result=drop();
     if(!strcmp(argv[1],"growth"))result=growth();
     if(!strcmp(argv[1],"oracle"))result=oracle();
-    if(!strcmp(argv[1],"metrics")){printf("{\"control_bytes\":%zu,\"size_limit\":64,\"zero_policies\":2}\n",sizeof(LrBuffer));result=0;}
+    if(!strcmp(argv[1],"metrics")){printf("{\"control_bytes\":%zu,\"size_limit\":64,\"zero_policies\":2}\n",sizeof(struct lr_buffer));result=0;}
     cleanup();return result;
 }

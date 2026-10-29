@@ -239,7 +239,7 @@
         "J"
       ],
       "task": "Discriminate bad startup range, invalid fault frame and DMA early reuse using safe captured status and ownership events. Mark side-effecting MMIO registers as unsuitable for blind debugger polling.",
-      "purpose": "Reading all registers is observationally harmless or halting the CPU stops DMA.",
+      "purpose": "Reading all registers is observationally harmless or halting the struct lr_cpu stops DMA.",
       "prerequisites": {
         "knowledge": [
           "T44 parent teaching and exact project contract",
@@ -251,25 +251,25 @@
       },
       "reasoning": [
         "Derive the stated result from pre/postconditions; name the first state at which the incorrect explanation fails.",
-        "Reading all registers is observationally harmless or halting the CPU stops DMA.",
+        "Reading all registers is observationally harmless or halting the struct lr_cpu stops DMA.",
         "Account for ownership, failure preservation and resource/complexity bounds where the task changes them; justify genuine non-applicability."
       ],
       "deliverables": {
-        "D1": "Prediction and causal explanation addressing: Reading all registers is observationally harmless or halting the CPU stops DMA.",
+        "D1": "Prediction and causal explanation addressing: Reading all registers is observationally harmless or halting the struct lr_cpu stops DMA.",
         "D2": "Discriminate bad startup range, invalid fault frame and DMA early reuse using safe captured status and ownership events. Mark side-effecting MMIO registers as unsuitable for blind debugger polling.",
-        "D3": "Independent counterexample and source-bound evidence for: The first invalid ownership event is CPU reuse before stop acknowledgment; invalid fault-address flags prevent using stale addresses.",
+        "D3": "Independent counterexample and source-bound evidence for: The first invalid ownership event is struct lr_cpu reuse before stop acknowledgment; invalid fault-address flags prevent using stale addresses.",
         "D4": "Move the model to a cached MCU and list the added visibility obligations."
       },
       "verification": {
         "procedure": "Predict before execution. Retain complete observable state, not just return codes. Compare the stated expected relation with the original fixture and independently constructed cases. Preserve exact commands/tool/source identities for experiments; reason about undefined cases without executing them as expected-output tests.",
-        "expected": "The first invalid ownership event is CPU reuse before stop acknowledgment; invalid fault-address flags prevent using stale addresses.",
+        "expected": "The first invalid ownership event is struct lr_cpu reuse before stop acknowledgment; invalid fault-address flags prevent using stale addresses.",
         "pass": "All stated relations hold with a correct causal argument; a matching output with false lifetime/language reasoning fails.",
         "limits": "This criterion is newly authored. The listed legacy anchor does not assess all of its obligations; no fresh result is inferred."
       },
       "rubric": {
         "0": "Missing or incorrect contract/result.",
         "1": "Reproduces a nominal example but cannot diagnose the stated misconception.",
-        "2": "The first invalid ownership event is CPU reuse before stop acknowledgment; invalid fault-address flags prevent using stale addresses. Explains the mechanism and supplies independent evidence.",
+        "2": "The first invalid ownership event is struct lr_cpu reuse before stop acknowledgment; invalid fault-address flags prevent using stale addresses. Explains the mechanism and supplies independent evidence.",
         "3": "Move the model to a cached MCU and list the added visibility obligations. Derives changed invariants without copying the previous solution."
       },
       "hints": [
@@ -313,7 +313,7 @@
         "I",
         "J"
       ],
-      "task": "Repair cancel_request-to-CPU ownership so only confirmed stop or completion returns the buffer. Replay duplicate acknowledgment, timeout and reset histories in the portable model; keep hardware execution pending unless performed.",
+      "task": "Repair cancel_request-to-struct lr_cpu ownership so only confirmed stop or completion returns the buffer. Replay duplicate acknowledgment, timeout and reset histories in the portable model; keep hardware execution pending unless performed.",
       "purpose": "A corrected host trace validates peripheral timing and physical cleanup.",
       "prerequisites": {
         "knowledge": [
@@ -331,7 +331,7 @@
       ],
       "deliverables": {
         "D1": "Prediction and causal explanation addressing: A corrected host trace validates peripheral timing and physical cleanup.",
-        "D2": "Repair cancel_request-to-CPU ownership so only confirmed stop or completion returns the buffer. Replay duplicate acknowledgment, timeout and reset histories in the portable model; keep hardware execution pending unless performed.",
+        "D2": "Repair cancel_request-to-struct lr_cpu ownership so only confirmed stop or completion returns the buffer. Replay duplicate acknowledgment, timeout and reset histories in the portable model; keep hardware execution pending unless performed.",
         "D3": "Independent counterexample and source-bound evidence for: Early writes reject; one terminal transition returns ownership; reset requires an explicit quiescence contract and target evidence remains separate.",
         "D4": "Add a late completion from the pre-reset generation."
       },

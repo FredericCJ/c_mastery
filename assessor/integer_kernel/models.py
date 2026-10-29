@@ -46,9 +46,9 @@ static const Row rows[]={ROWS};
 static const Division divisions[]={DIVISIONS};
 int main(void){
  for(size_t i=0;i<sizeof rows/sizeof rows[0];++i){Row r=rows[i];int value=917;
-  if(fi_binary((FiRange){INT_MIN,INT_MAX},(FiOperation)r.op,r.a,r.b,&value)!=(r.ok?FI_OK:FI_RANGE)||value!=r.value){fprintf(stderr,"FI_NATIVE_FAIL arithmetic %zu\\n",i);return 1;}}
+  if(fi_binary((struct fi_range){INT_MIN,INT_MAX},(enum fi_operation)r.op,r.a,r.b,&value)!=(r.ok?FI_OK:FI_RANGE)||value!=r.value){fprintf(stderr,"FI_NATIVE_FAIL arithmetic %zu\\n",i);return 1;}}
  for(size_t i=0;i<sizeof divisions/sizeof divisions[0];++i){Division r=divisions[i];int q=917,rem=919;
-  if(fi_divide((FiRange){INT_MIN,INT_MAX},(FiDivision)r.policy,r.a,r.b,&q,&rem)!=(r.ok?FI_OK:FI_RANGE)||q!=r.q||rem!=r.r){fprintf(stderr,"FI_NATIVE_FAIL division %zu\\n",i);return 1;}}
+  if(fi_divide((struct fi_range){INT_MIN,INT_MAX},(enum fi_division)r.policy,r.a,r.b,&q,&rem)!=(r.ok?FI_OK:FI_RANGE)||q!=r.q||rem!=r.r){fprintf(stderr,"FI_NATIVE_FAIL division %zu\\n",i);return 1;}}
  puts("FI_NATIVE_PASS arithmetic=972 division=972 independent_bigints");return 0;
 }
 '''.replace('ROWS',',\n'.join(rows)).replace('DIVISIONS',',\n'.join(division))

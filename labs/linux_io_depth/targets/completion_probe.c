@@ -10,7 +10,7 @@
 #include <sys/uio.h>
 #include <unistd.h>
 #define C(x) do{if(!(x)){fprintf(stderr,"B06_IO_CHECK:%d:%s errno=%d\n",__LINE__,#x,errno);exit(1);}}while(0)
-static CMRawRing ring;
+static struct cm_raw_ring ring;
 static void push(struct io_uring_sqe s){C(cm_ring_push(&ring,&s)==0);}
 static void submit(void){C(cm_ring_submit(&ring)==0);}
 static struct io_uring_cqe take(void){struct io_uring_cqe c;C(cm_ring_wait(&ring,&c)==0);printf("CQE id=%llu result=%d flags=%u\n",(unsigned long long)c.user_data,c.res,c.flags);return c;}

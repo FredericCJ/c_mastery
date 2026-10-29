@@ -1,8 +1,8 @@
 #include "progress.h"
-typedef struct {
+struct tw_queue {
   unsigned value[3], length;
-} Queue;
-static int step(Queue *q, const TPOp *op, unsigned *r, unsigned *v) {
+};
+static int step(struct tw_queue *q, const struct tp_op *op, unsigned *r, unsigned *v) {
   unsigned result, value = 0;
   if (op->kind == TP_ENQUEUE) {
     result = q->length == 3 ? TP_FULL : TP_VALUE;
@@ -23,8 +23,8 @@ static int step(Queue *q, const TPOp *op, unsigned *r, unsigned *v) {
          (op->result == result &&
           (op->kind == TP_ENQUEUE || result != TP_VALUE || op->value == value));
 }
-static int search(const TPOp *ops, size_t n, unsigned remaining, Queue queue,
-                  TPWitness *w, unsigned depth) {
+static int search(const struct tp_op *ops, size_t n, unsigned remaining, struct tw_queue queue,
+                  struct tp_witness *w, unsigned depth) {
   if (!remaining) {
     w->length = depth;
     return 1;
@@ -41,7 +41,7 @@ static int search(const TPOp *ops, size_t n, unsigned remaining, Queue queue,
 #endif
       if (!ready)
         continue;
-      Queue next = queue;
+      struct tw_queue next = queue;
       if (!step(&next, &ops[i], &w->result[i], &w->value[i]))
         continue;
       w->operation[depth] = (unsigned)i;
@@ -50,18 +50,18 @@ static int search(const TPOp *ops, size_t n, unsigned remaining, Queue queue,
     }
   return 0;
 }
-int tp_history(const TPOp *ops, size_t n, unsigned policy, TPWitness *out) {
+int tp_history(const struct tp_op *ops, size_t n, unsigned policy, struct tp_witness *out) {
   if ((n && !ops) || !out || n > 6 || policy > TP_ALLOW_EXTENSION)
     return TP_INVALID;
   unsigned pending = 0, complete = 0;
   for (size_t i = 0; i < n; i++) {
-    const TPOp *p = &ops[i];
+    const struct tp_op *p = &ops[i];
     if (!p->invocation || (p->response && p->response <= p->invocation) ||
         p->kind > TP_DEQUEUE || p->thread > 3 ||
         (p->response && p->result > TP_FULL))
       return TP_INVALID;
     for (size_t j = 0; j < i; j++) {
-      const TPOp *q = &ops[j];
+      const struct tp_op *q = &ops[j];
       if (p->invocation == q->invocation || p->invocation == q->response ||
           (p->response &&
            (p->response == q->invocation || p->response == q->response)))
@@ -80,8 +80,8 @@ int tp_history(const TPOp *ops, size_t n, unsigned policy, TPWitness *out) {
     return TP_INCOMPLETE;
   unsigned subset = pending;
   for (;;) {
-    TPWitness w = {0};
-    Queue q = {{0}, 0};
+    struct tp_witness w = {0};
+    struct tw_queue q = {{0}, 0};
     w.completed_pending_mask = subset;
     if (search(ops, n, complete | subset, q, &w, 0)) {
       *out = w;

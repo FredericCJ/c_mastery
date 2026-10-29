@@ -10,7 +10,7 @@ int main(void) {
             double x=sign*seeds[i];
             for(int direction=-1;direction<=1;direction+=2) {
                 double y=nextafter(x,direction<0?-INFINITY:INFINITY);uint64_t distance=917;
-                FfStatus rc=ff_ulps(x,y,&distance);
+                enum ff_status rc=ff_ulps(x,y,&distance);
                 if(isfinite(y)) {if(rc!=FF_OK || distance!=1) return 1;}
                 else if(rc!=FF_RANGE || distance!=917) return 1;
                 printf("BOUNDARY partition=%zu sign=%d direction=%d x=%a y=%a finite=%d\n",i,sign,direction,x,y,!!isfinite(y));pairs++;

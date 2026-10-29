@@ -5,12 +5,12 @@
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
-typedef struct {
+struct f_file {
   int fd;
   unsigned calls;
-} File;
+};
 static ptrdiff_t write_file(void *ctx, const uint8_t *data, size_t n) {
-  File *f = ctx;
+  struct f_file *f = ctx;
   ssize_t written;
   f->calls++;
   written = write(f->fd, data, n);
@@ -24,8 +24,8 @@ int main(void) {
   uint8_t source[4096], observed[4096];
   size_t accepted = 0, read_bytes = 0;
   struct timespec begin, after_write, after_sync;
-  File f;
-  FStatus status;
+  struct f_file f;
+  enum f_status status;
   for (size_t i = 0; i < sizeof source; i++)
     source[i] = (uint8_t)i;
   f.fd = mkstemp(path);

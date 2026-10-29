@@ -3,9 +3,9 @@
 #include "cmx.h"
 /* All objects and task slots are live, stable and externally serialized.
  * This extension validates a registered wait graph, not arbitrary pointers. */
-typedef struct {
+struct cdpi_stats {
   unsigned vertices, edges, closure_probes, donated_pairs;
-} CDPIStats;
+};
 enum cmx_result cdpi_reprioritize(cmx_kernel *, unsigned task,
-                                 unsigned new_base, CDPIStats *);
+                                 unsigned new_base, struct cdpi_stats *);
 #endif

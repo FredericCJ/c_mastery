@@ -11,7 +11,7 @@ int main(int argc, char **argv) {
     if (n != sizeof kf_vm_bytes || closed)
       return 9;
   }
-  KfVmReport r;
+  struct kf_vm_report r;
   int code = kf_vm_probe(kf_vm_bytes, sizeof kf_vm_bytes, &r);
   if (code) {
     printf("KF_VM_FAIL:%d\n", code);

@@ -3,41 +3,41 @@
 #include "messaging.h"
 #include "owned_value.h"
 
-typedef struct {
+struct mfl_allocator {
     void *context;
     void *(*allocate)(void *,size_t);
     void (*deallocate)(void *,void *);
-} MflAllocator;
-typedef struct MflShared MflShared;
-MsgStatus mfl_make(MflAllocator,MfoValue *,MflShared **);
-MsgStatus mfl_retain(MflShared *);
-void mfl_drop(MflShared **);
-const MfoValue *mfl_borrow(const MflShared *);
+};
+struct mfl_shared;
+enum msg_status mfl_make(struct mfl_allocator,struct mfo_value *,struct mfl_shared **);
+enum msg_status mfl_retain(struct mfl_shared *);
+void mfl_drop(struct mfl_shared **);
+const struct mfo_value *mfl_borrow(const struct mfl_shared *);
 
-typedef struct MfgArray MfgArray;
-typedef struct {
+struct mfg_array;
+struct mfg_deque {
     pthread_mutex_t mutex;
-    MflAllocator allocator;
-    MfgArray *array;
+    struct mfl_allocator allocator;
+    struct mfg_array *array;
     size_t top,bottom,capacity,maximum;
     unsigned active;
     bool live;
-} MfgDeque;
-typedef void (*MfgPause)(void *);
-MsgStatus mfg_init(MfgDeque *,MflAllocator,size_t);
-MsgStatus mfg_push(MfgDeque *,MfoValue *);
-MsgStatus mfg_pop(MfgDeque *,MflShared **);
-MsgStatus mfg_steal(MfgDeque *,MflShared **,MfgPause,void *);
-MsgStatus mfg_destroy(MfgDeque *);
+};
+typedef void (*mfg_pause_fn)(void *);
+enum msg_status mfg_init(struct mfg_deque *,struct mfl_allocator,size_t);
+enum msg_status mfg_push(struct mfg_deque *,struct mfo_value *);
+enum msg_status mfg_pop(struct mfg_deque *,struct mfl_shared **);
+enum msg_status mfg_steal(struct mfg_deque *,struct mfl_shared **,mfg_pause_fn,void *);
+enum msg_status mfg_destroy(struct mfg_deque *);
 
-typedef struct {
+struct mfp_pointer {
     pthread_mutex_t mutex;
-    MflShared *current;
+    struct mfl_shared *current;
     uint64_t sequence;
     bool live;
-} MfpPointer;
-MsgStatus mfp_init(MfpPointer *,MflShared **);
-MsgStatus mfp_snapshot(MfpPointer *,MflShared **);
-MsgStatus mfp_replace(MfpPointer *,MflShared **);
-MsgStatus mfp_destroy(MfpPointer *);
+};
+enum msg_status mfp_init(struct mfp_pointer *,struct mfl_shared **);
+enum msg_status mfp_snapshot(struct mfp_pointer *,struct mfl_shared **);
+enum msg_status mfp_replace(struct mfp_pointer *,struct mfl_shared **);
+enum msg_status mfp_destroy(struct mfp_pointer *);
 #endif

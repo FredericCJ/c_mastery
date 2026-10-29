@@ -6,12 +6,12 @@
 /* Two producers NEVER access one SPSC queue. A single peripheral/deferred owner
  * drains two queues; FIFO holds per source, not a global event-time order. */
 enum { COUNT = 2000 };
-static XiQueue queues[2];
+static struct xi_queue queues[2];
 static atomic_uint failed;
 static void *produce(void *arg) {
   unsigned owner = (unsigned)(uintptr_t)arg;
   for (unsigned i = 0; i < COUNT; ++i) {
-    XiRecord r = {
+    struct xi_record r = {
         .sequence = i, .timestamp = owner, .original_length = 8, .copied = 8};
     for (unsigned j = 0; j < 8; ++j)
       r.bytes[j] = (unsigned char)(i + j + owner);
@@ -38,7 +38,7 @@ int main(void) {
       return 2;
   while (seen[0] + seen[1] < 2 * COUNT && !atomic_load(&failed))
     for (unsigned i = 0; i < 2; ++i) {
-      XiRecord r;
+      struct xi_record r;
       int rc = xi_pop(&queues[i], &r);
       if (rc == XI_EMPTY) {
         sched_yield();

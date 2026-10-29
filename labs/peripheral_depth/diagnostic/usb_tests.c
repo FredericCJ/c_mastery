@@ -8,15 +8,15 @@
     }                                                                          \
   } while (0)
 int main(void) {
-  DGUsb u = {0};
-  DGControl c;
+  struct dg_usb u = {0};
+  struct dg_control c;
   uint8_t address[8] = {0, 5, 7, 0, 0, 0, 0, 0},
           configuration[8] = {0, 9, 1, 0, 0, 0, 0, 0};
   CHECK(dg_usb_setup(&u, address, &c) == DG_OK && !u.address);
   CHECK(dg_usb_status(&u, c.token, 1) == DG_OK && u.address == 7);
   CHECK(dg_usb_setup(&u, configuration, &c) == DG_OK && u.configured);
-  DGSession s = {0};
-  DGMessage m = {0};
+  struct dg_session s = {0};
+  struct dg_message m = {0};
   unsigned h;
   int app;
   const uint8_t bytes[6] = {0, 1, 0, 2, 1, 2};

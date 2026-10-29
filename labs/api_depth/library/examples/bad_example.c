@@ -1,6 +1,6 @@
 #include <lc.h>
 int main(void) {
-  LCBuffer *p = lc_create(1);
+  struct lc_buffer *p = lc_create(1);
   if (!p)
     return 2;
   unsigned char x[2] = {1, 2};

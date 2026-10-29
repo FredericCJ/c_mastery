@@ -1,7 +1,7 @@
 #include "port.h"
 static uint32_t stacks[4][1024] __attribute__((aligned(8)));
-static MfHandle handles[4];
-static MfProbe probes[2];
+static mf_handle_id handles[4];
+static struct mf_probe probes[2];
 static cmx_sem ready;
 static cmx_mutex owned[2];
 static volatile unsigned complete[2],resumed,hook_refusals,coalesced;
@@ -9,7 +9,7 @@ static volatile uint32_t guard[8] __attribute__((aligned(32)));
 static uint32_t mask_empty,mask_body;
 void mf_tick_hook(void){mf_require(mf_take(&ready,cmx_forever())==CMX_INVALID,120);hook_refusals++;}
 static unsigned basepri(void){unsigned x;__asm__ volatile("mrs %0,basepri":"=r"(x));return x;}
-static void probe(unsigned id){MfProbe *p=&probes[id];for(unsigned n=0;n<5;n++){
+static void probe(unsigned id){struct mf_probe *p=&probes[id];for(unsigned n=0;n<5;n++){
  mf_async_probe(p);for(unsigned j=0;j<8;j++)mf_require(p->integer[j]==p->observed_integer[j],130+j);
 #if MF_FP
  for(unsigned j=0;j<16;j++)mf_require(p->high_fp[j]==p->observed_fp[j],140+j);

@@ -24,8 +24,8 @@ static int write_reg(void *p,unsigned reg,uint32_t value){
  *(volatile uint32_t *)(uintptr_t)address=value;return 0;
 #endif
 }
-static uint32_t clock_reg(void *p){EpMmioClock *c=p;return c->clock(c->context);}
-int ep_f439_bus(EpMmioClock *clock,EDBus *out){
+static uint32_t clock_reg(void *p){struct ep_mmio_clock *c=p;return c->clock(c->context);}
+int ep_f439_bus(struct ep_mmio_clock *clock,struct ed_bus *out){
  if(!clock || !clock->clock || !out)return ED_INVALID;
- EDBus result={clock,read_reg,write_reg,clock_reg};*out=result;return ED_OK;
+ struct ed_bus result={clock,read_reg,write_reg,clock_reg};*out=result;return ED_OK;
 }

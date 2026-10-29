@@ -1,14 +1,14 @@
 #include "test_support.h"
 #include <limits.h>
 #include <sched.h>
-typedef struct {
-  TWBarrier *barrier;
+struct tw_phase {
+  struct tw_barrier *barrier;
   unsigned index;
   int *cells, *total;
   int broken, result;
-} Phase;
+};
 static void *phase_worker(void *arg) {
-  Phase *p = arg;
+  struct tw_phase *p = arg;
   if (p->broken) {
     p->result = tw_barrier_wait(p->barrier);
     return NULL;
@@ -22,14 +22,14 @@ static void *phase_worker(void *arg) {
   return NULL;
 }
 void test_barrier(void) {
-  TWBarrier b;
+  struct tw_barrier b;
   CHECK(tw_barrier_init(&b, 0) == EINVAL);
   CHECK(tw_barrier_init(&b, 3) == 0);
   int cells[3] = {0}, total = 0;
-  Phase p[3];
+  struct tw_phase p[3];
   pthread_t t[3];
   for (unsigned i = 0; i < 3; i++) {
-    p[i] = (Phase){.barrier = &b, .index = i, .cells = cells, .total = &total};
+    p[i] = (struct tw_phase){.barrier = &b, .index = i, .cells = cells, .total = &total};
     CHECK(pthread_create(&t[i], NULL, phase_worker, &p[i]) == 0);
   }
   for (unsigned i = 0; i < 3; i++)
@@ -38,7 +38,7 @@ void test_barrier(void) {
   tw_barrier_destroy(&b);
   CHECK(tw_barrier_init(&b, 3) == 0);
   for (unsigned i = 0; i < 2; i++) {
-    p[i] = (Phase){.barrier = &b, .broken = 1};
+    p[i] = (struct tw_phase){.barrier = &b, .broken = 1};
     CHECK(pthread_create(&t[i], NULL, phase_worker, &p[i]) == 0);
   }
   for (;;) {
@@ -111,12 +111,12 @@ static void *once_worker(void *p) {
   CHECK(initialized == 1);
   return NULL;
 }
-typedef struct {
-  TWPermits *pool;
+struct tw_async {
+  struct tw_permits *pool;
   unsigned token;
   atomic_uint entered;
   int released;
-} Async;
+};
 /* Only this selected-GCC/Clang compute region excludes instrumentation. A
    sanitizer runtime call itself has no async-cancel-safety contract. */
 __attribute__((noinline, no_sanitize("thread", "address", "undefined")))
@@ -131,14 +131,14 @@ static void async_region(atomic_uint *entered) {
     atomic_signal_fence(memory_order_seq_cst);
 }
 static void permit_cleanup(void *p) {
-  Async *a = p;
+  struct tw_async *a = p;
   int old;
   CHECK(pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &old) == 0);
   CHECK(tw_permit_release(a->pool, a->token) == 0);
   a->released = 1;
 }
 static void *async_worker(void *p) {
-  Async *a = p;
+  struct tw_async *a = p;
   int old, oldtype;
   CHECK(pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &old) == 0);
   CHECK(pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, &oldtype) == 0);
@@ -159,7 +159,7 @@ void test_permit(void) {
   for (unsigned i = 0; i < 4; i++)
     CHECK(pthread_join(t[i], NULL) == 0);
   CHECK(initialized == 1);
-  TWPermits p;
+  struct tw_permits p;
   CHECK(tw_permits_init(&p) == 0);
   unsigned tokens[3], sentinel = 99;
   for (unsigned i = 0; i < 3; i++)
@@ -171,7 +171,7 @@ void test_permit(void) {
     CHECK(tw_permit_release(&p, tokens[i]) == 0);
   CHECK(tw_permit_release(&p, tokens[0]) == EALREADY);
   CHECK(p.mask == 0 && p.settlements == 3);
-  Async a = {.pool = &p};
+  struct tw_async a = {.pool = &p};
   atomic_init(&a.entered, 0);
   CHECK(atomic_is_lock_free(&a.entered));
   CHECK(pthread_create(&t[0], NULL, async_worker, &a) == 0);

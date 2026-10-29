@@ -24,7 +24,7 @@ def main():
  report_path=ROOT/'research/v5/expansion/b06/boot_pair_validation.json';report=json.loads(report_path.read_text())
  assert report['passed'] and all(c['passed'] for c in report['checks'])
  for n,h in report['input_sha256'].items():assert sha(ROOT/n)==h,('stale actual MPU producer',n)
- observations=[c for c in report['checks'] if 'actual CPU execute' in c['label']]
+ observations=[c for c in report['checks'] if 'actual struct lr_cpu execute' in c['label']]
  assert len(observations)==12 and sum('FB_GUEST_MPU_FAULT:' in c.get('stdout','') for c in observations)==8
  print(json.dumps(dict(status='pass',fixture=dict(inherited=inherited,allowed=permissions),cloexec_schedules=schedules,mpu=dict(regions=regions,matrix=matrix,prior_actual_cpu_report=report_path.relative_to(ROOT).as_posix(),prior_actual_cpu_report_sha256=sha(report_path),prior_cpu_cases=[c['label'] for c in observations],new_cpu_execution=False,privileged_code_can_reconfigure=True,dma_covered_by_cpu_mpu=False,physical=False),enforcement=dict(iso_c='type/lifetime semantics; no hostile-module memory isolation',diagnostics='selected constraint and warning evidence, not runtime authority',runtime='explicit application gate and scoped bounds',os='tested descriptor rights, exec inheritance and private mappings',discipline='live borrowed inputs and serialized ownership'),limits=['Finite logical fork/open schedule, not multithreaded fork stress.','Selected nonoverlapping MPU design and source-bound prior MPS2 execution reused; not new hardware observation or complete MPU emulator.','Private process mappings and read-only descriptor do not remove ambient reopen/network/same-user authority.']),indent=2))
 if __name__=='__main__':main()

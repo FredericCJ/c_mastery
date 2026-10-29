@@ -8,14 +8,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-typedef struct {
+struct rd_slot {
   int fd, live;
-} Slot;
-typedef struct {
-  Slot slots[32];
+};
+struct rd_ledger {
+  struct rd_slot slots[32];
   unsigned used, live, closed, bad, fail;
-  ElOps system;
-} Ledger;
+  struct el_ops system;
+};
 enum {
   FAIL_NONE,
   FAIL_SOCKET,
@@ -24,50 +24,50 @@ enum {
   FAIL_CONNECT,
   FAIL_ACCEPT
 };
-static int inject(Ledger *l, unsigned op) {
+static int inject(struct rd_ledger *l, unsigned op) {
   if (l->fail != op)
     return 0;
   l->fail = 0;
   errno = EIO;
   return 1;
 }
-static int track(Ledger *l, int fd) {
+static int track(struct rd_ledger *l, int fd) {
   if (fd >= 0) {
     if (l->used == 32) {
       l->system.close_fd(0, fd);
       errno = EMFILE;
       return -1;
     }
-    l->slots[l->used++] = (Slot){fd, 1};
+    l->slots[l->used++] = (struct rd_slot){fd, 1};
     ++l->live;
   }
   return fd;
 }
 static int new_socket(void *p, int family, int type, int protocol) {
-  Ledger *l = p;
+  struct rd_ledger *l = p;
   if (inject(l, FAIL_SOCKET))
     return -1;
   return track(l, l->system.socket_fd(0, family, type, protocol));
 }
 static int bind_socket(void *p, int fd, const struct sockaddr *a, socklen_t n) {
-  Ledger *l = p;
+  struct rd_ledger *l = p;
   return inject(l, FAIL_BIND) ? -1 : l->system.bind_fd(0, fd, a, n);
 }
 static int listen_socket(void *p, int fd, int n) {
-  Ledger *l = p;
+  struct rd_ledger *l = p;
   return inject(l, FAIL_LISTEN) ? -1 : l->system.listen_fd(0, fd, n);
 }
 static int connect_socket(void *p, int fd, const struct sockaddr *a,
                           socklen_t n) {
-  Ledger *l = p;
+  struct rd_ledger *l = p;
   return inject(l, FAIL_CONNECT) ? -1 : l->system.connect_fd(0, fd, a, n);
 }
 static int accept_socket(void *p, int fd) {
-  Ledger *l = p;
+  struct rd_ledger *l = p;
   return inject(l, FAIL_ACCEPT) ? -1 : track(l, l->system.accept_fd(0, fd));
 }
 static int close_socket(void *p, int fd) {
-  Ledger *l = p;
+  struct rd_ledger *l = p;
   for (unsigned i = 0; i < l->used; ++i)
     if (l->slots[i].fd == fd && l->slots[i].live) {
       l->slots[i].live = 0;
@@ -79,9 +79,9 @@ static int close_socket(void *p, int fd) {
   errno = EBADF;
   return -1;
 }
-static ElOps operations(Ledger *l) {
+static struct el_ops operations(struct rd_ledger *l) {
   l->system = el_system_ops();
-  return (ElOps){new_socket,
+  return (struct el_ops){new_socket,
                  bind_socket,
                  listen_socket,
                  connect_socket,
@@ -95,7 +95,7 @@ static struct timespec deadline(void) {
   t.tv_sec += 2;
   return t;
 }
-static int bound_address(int fd, ElAddress *a) {
+static int bound_address(int fd, struct el_address *a) {
   a->length = sizeof a->storage;
   return getsockname(fd, (struct sockaddr *)&a->storage, &a->length);
 }
@@ -104,7 +104,7 @@ static int cancel(void *p, int fd) {
   ++*calls;
   return fcntl(fd, F_GETFD) >= 0;
 }
-static int accept_ready(ElOps o, int listener, int (*on_cancel)(void *, int),
+static int accept_ready(struct el_ops o, int listener, int (*on_cancel)(void *, int),
                         void *context, int *out) {
   struct timespec end = deadline();
   for (;;) {
@@ -134,9 +134,9 @@ static int accept_ready(ElOps o, int listener, int (*on_cancel)(void *, int),
     }                                                                          \
   } while (0)
 static int candidates(void) {
-  Ledger l = {0};
-  ElOps o = operations(&l);
-  ElAddress addresses[2], zero;
+  struct rd_ledger l = {0};
+  struct el_ops o = operations(&l);
+  struct el_address addresses[2], zero;
   CHECK(el_loopback(AF_INET, 0, &zero) == 0);
   int reserved =
       o.socket_fd(&l, AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0);
@@ -191,9 +191,9 @@ static int candidates(void) {
 }
 static int failures(void) {
   for (unsigned fault = FAIL_SOCKET; fault <= FAIL_ACCEPT; ++fault) {
-    Ledger l = {0};
-    ElOps o = operations(&l);
-    ElAddress address;
+    struct rd_ledger l = {0};
+    struct el_ops o = operations(&l);
+    struct el_address address;
     CHECK(el_loopback(AF_INET, 0, &address) == 0);
     int listener = -1;
     if (fault <= FAIL_LISTEN) {
@@ -220,9 +220,9 @@ static int failures(void) {
     }
     CHECK(l.live == 0 && l.bad == 0 && l.closed == l.used && !l.fail);
   }
-  Ledger l = {0};
-  ElOps o = operations(&l);
-  ElAddress address;
+  struct rd_ledger l = {0};
+  struct el_ops o = operations(&l);
+  struct el_address address;
   CHECK(el_loopback(AF_INET, 0, &address) == 0);
   int listener = -1, connection = -1, accepted = -1;
   unsigned checked = 0, calls = 0;
@@ -240,9 +240,9 @@ static int failures(void) {
 }
 static int families(const char *path) {
   for (unsigned i = 0; i < 2; ++i) {
-    Ledger l = {0};
-    ElOps o = operations(&l);
-    ElAddress a;
+    struct rd_ledger l = {0};
+    struct el_ops o = operations(&l);
+    struct el_address a;
     CHECK((i ? el_pathname(path, &a) : el_loopback(AF_INET6, 0, &a)) == 0);
     int listener = -1, connection = -1, accepted = -1;
     unsigned checked = 0;

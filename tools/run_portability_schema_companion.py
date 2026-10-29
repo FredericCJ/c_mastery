@@ -33,7 +33,7 @@ def main():
  workmap={}
  for label,value in cases:
   work=generate(label,value);workmap[label]=work;manifest=read_json(work/'generated/manifest.json');expected_masks={r['name']:(2**r['width']-1)*2**r['offset'] for r in value['fields'] if not r.get('reserved')};m=expected_masks
-  text='#include "schema.h"\n#include "generated/config.h"\n#include "generated/fields.h"\n#include <stdio.h>\nint main(void){LsFields f={5,17,2},g;uint16_t w; if(ls_pack(&f,&w)||w!=653||ls_unpack(w,&g)||g.tag!=5||g.length!=17||g.flags!=2||ls_require(LS_WIRE_ID,LS_ABI_ID))return 1;printf("%u %u %u %zu\\n",(unsigned)LS_TAG_MASK,(unsigned)LS_LENGTH_MASK,(unsigned)LS_FLAGS_MASK,ls_record_size());return 0;}\n';(work/'probe.c').write_text(text)
+  text='#include "schema.h"\n#include "generated/config.h"\n#include "generated/fields.h"\n#include <stdio.h>\nint main(void){struct ls_fields f={5,17,2},g;uint16_t w; if(ls_pack(&f,&w)||w!=653||ls_unpack(w,&g)||g.tag!=5||g.length!=17||g.flags!=2||ls_require(LS_WIRE_ID,LS_ABI_ID))return 1;printf("%u %u %u %zu\\n",(unsigned)LS_TAG_MASK,(unsigned)LS_LENGTH_MASK,(unsigned)LS_FLAGS_MASK,ls_record_size());return 0;}\n';(work/'probe.c').write_text(text)
   for cc in ['gcc','clang']:
    objs=[]
    for i,src in enumerate([private/'schema.c',work/'probe.c']):
@@ -59,7 +59,7 @@ def main():
  for cc in ['gcc','clang']:
   _,err=execute([cc,'-std=c17','-I'+str(workmap['ordinary']),'-DLS_FRAMED=0','-DLS_CRC=0','-fsyntax-only',probe],cc+'-identity-override',1);assert 'LS_CONFIGURATION_IDENTITY_framed' in err
  # Old generated v1 consumer accepts v2's zero-reserved encoding before any foreign layout use.
- consumer=home/'old.c';consumer.write_text('#include "schema.h"\n#include "generated/config.h"\n#include "generated/codec.h"\nint main(void){LsFields f={5,17,2},g;uint16_t w,again;if(ls_require(LS_WIRE_ID,LS_ABI_ID)||ls_pack(&f,&w)||lsg_unpack(w,&g)||lsg_pack(&g,&again)||again!=653)return 1;return 0;}\n')
+ consumer=home/'old.c';consumer.write_text('#include "schema.h"\n#include "generated/config.h"\n#include "generated/codec.h"\nint main(void){struct ls_fields f={5,17,2},g;uint16_t w,again;if(ls_require(LS_WIRE_ID,LS_ABI_ID)||ls_pack(&f,&w)||lsg_unpack(w,&g)||lsg_pack(&g,&again)||again!=653)return 1;return 0;}\n')
  incompatible=home/'incompatible.c';incompatible.write_text('#include "schema.h"\n#include "generated/config.h"\nint main(void){return ls_require(LS_WIRE_ID,LS_ABI_ID)==-1?0:1;}\n')
  for cc in ['gcc','clang']:
   for label,src,view in [('old',consumer,'ordinary'),('incompatible',incompatible,'raw')]:

@@ -17,7 +17,7 @@ void __wrap_free(void *p) {
     live--;
   __real_free(p);
 }
-static void done(void *p, LCStatus s) {
+static void done(void *p, enum lc_status s) {
   (void)p;
   (void)s;
 }
@@ -27,11 +27,11 @@ int main(void) {
   fail = 2;
   CHECK(lc_start(done, NULL) == NULL && live == 0);
   fail = 0;
-  LCBuffer *b = lc_create(0);
+  struct lc_buffer *b = lc_create(0);
   CHECK(b && live == 1);
   lc_release_buffer(b);
   CHECK(!live);
-  LCOperation *p = lc_start(done, NULL);
+  struct lc_operation *p = lc_start(done, NULL);
   CHECK(p && live == 1);
   CHECK(lc_poll(p) == LC_OK && lc_release_operation(p) == LC_OK && !live);
   puts("LC_ALLOCATION actual malloc failure and paired free passed");

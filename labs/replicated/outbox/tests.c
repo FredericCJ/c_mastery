@@ -3,9 +3,9 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
-static RpoFixture source, ack, inbox;
-static RpoSender sender;
-static RpoReceiver receiver;
+static struct rpo_fixture source, ack, inbox;
+static struct rpo_sender sender;
+static struct rpo_receiver receiver;
 static int setup(void) {
   CHECK(!rpo_fixture(&source, 19, 7));
   CHECK(!rpo_fixture(&ack, 19, RPO_ACK_SCHEMA));
@@ -16,8 +16,8 @@ static int setup(void) {
 }
 static int receive_case(void) {
   CHECK(!setup());
-  RpoReply reply = {8, 8, 8};
-  RplEvent e = {2, 1, 1, 7};
+  struct rpo_reply reply = {8, 8, 8};
+  struct rpl_event e = {2, 1, 1, 7};
   CHECK(rpo_receive(&receiver, 19, 7, e, &reply) == RPO_GAP);
   CHECK(inbox.log.memory.count == 0 && reply.total == 8);
   e.position = 1;
@@ -33,32 +33,32 @@ static int receive_case(void) {
   reply.total = 100;
   CHECK(rpo_receive(&receiver, 19, 7, e, &reply) == RPO_CONFLICT);
   CHECK(reply.total == 100 && inbox.log.memory.count == 1);
-  e = (RplEvent){2, 1, 2, -10};
+  e = (struct rpl_event){2, 1, 2, -10};
   CHECK(rpo_receive(&receiver, 19, 7, e, &reply) == RPL_OK);
   CHECK(reply.total == -3);
-  e = (RplEvent){1, 1, 1, 7};
+  e = (struct rpl_event){1, 1, 1, 7};
   CHECK(rpo_receive(&receiver, 19, 7, e, &reply) == RPO_REPLAY);
   CHECK(reply.total == 7 && inbox.log.memory.count == 2);
   return 0;
 }
 static int ack_case(void) {
   CHECK(!setup());
-  RplEvent e = {8, 8, 8, 8};
+  struct rpl_event e = {8, 8, 8, 8};
   CHECK(rpo_next(&sender, &e) == RPO_EMPTY && e.position == 8);
   CHECK(rpl_append(&source.log, 1, 3, 7) == RPL_OK);
   CHECK(rpo_next(&sender, &e) == RPL_OK && e.position == 1);
-  RpoReply reply = {20, 1, 7};
+  struct rpo_reply reply = {20, 1, 7};
   CHECK(rpo_ack(&sender, reply) == RPO_CONFLICT && ack.log.memory.count == 0);
-  reply = (RpoReply){19, 1, 8};
+  reply = (struct rpo_reply){19, 1, 8};
   CHECK(rpo_ack(&sender, reply) == RPO_CONFLICT && ack.log.memory.count == 0);
-  reply = (RpoReply){19, 1, 7};
+  reply = (struct rpo_reply){19, 1, 7};
   CHECK(rpo_ack(&sender, reply) == RPL_OK);
   CHECK(!rpo_reopen(&ack));
   CHECK(rpo_next(&sender, &e) == RPO_EMPTY);
   CHECK(rpl_append(&source.log, 1, 4, -2) == RPL_OK);
   CHECK(rpo_ack(&sender, reply) == RPO_CONFLICT && ack.log.memory.count == 1);
   CHECK(!rpo_fixture(&ack, 20, RPO_ACK_SCHEMA));
-  RpoSender saved = sender;
+  struct rpo_sender saved = sender;
   CHECK(rpo_sender(&source.log, &ack.log, &sender) == RPL_IDENTITY);
   CHECK(sender.events == saved.events &&
         sender.acknowledgments == saved.acknowledgments);
@@ -67,14 +67,14 @@ static int ack_case(void) {
   CHECK(rpo_sender(&source.log, &ack.log, &sender) == RPL_CORRUPT);
   return 0;
 }
-typedef struct {
+struct rp_wire {
   unsigned char bytes[100];
   size_t used, at, chunk;
   unsigned retry;
   int zero;
-} Wire;
+};
 static int writer(void *c, const unsigned char *p, size_t n) {
-  Wire *w = c;
+  struct rp_wire *w = c;
   if (w->retry) {
     --w->retry;
     return 0;
@@ -90,7 +90,7 @@ static int writer(void *c, const unsigned char *p, size_t n) {
   return (int)n;
 }
 static ptrdiff_t reader(void *c, unsigned char *p, size_t n) {
-  Wire *w = c;
+  struct rp_wire *w = c;
   if (w->retry) {
     --w->retry;
     return -2;
@@ -109,11 +109,11 @@ static int transport_case(void) {
   unsigned char payload[64], out[64];
   for (unsigned i = 0; i < 64; ++i)
     payload[i] = (unsigned char)(i * 3);
-  Wire w = {.chunk = 1, .retry = 2};
+  struct rp_wire w = {.chunk = 1, .retry = 2};
   CHECK(rpo_wire_write(writer, &w, 74, payload, 64) == RPL_OK && w.used == 72);
   for (unsigned i = 0; i < 8; ++i)
     CHECK(w.bytes[9 * i] == 8);
-  Wire original = w;
+  struct rp_wire original = w;
   for (size_t n = 1; n <= 9; ++n) {
     w = original;
     w.chunk = n;
@@ -132,7 +132,7 @@ static int transport_case(void) {
   }
   /* Same total bytes, noncanonical segmentation: 7 + 1 + seven 8-byte frames.
    */
-  w = (Wire){.chunk = 9};
+  w = (struct rp_wire){.chunk = 9};
   w.bytes[w.used++] = 7;
   for (unsigned i = 0; i < 7; ++i)
     w.bytes[w.used++] = payload[i];
@@ -148,12 +148,12 @@ static int transport_case(void) {
   w.bytes[w.used++] = 0;
   w.chunk = 9;
   CHECK(rpo_wire_read(reader, &w, 80, 64, out) == RPL_CORRUPT);
-  w = (Wire){.chunk = 1, .zero = 1};
+  w = (struct rp_wire){.chunk = 1, .zero = 1};
   CHECK(rpo_wire_write(writer, &w, 3, payload, 64) == RPL_IO && w.used == 0);
   CHECK(rpo_wire_read(reader, &w, 3, 64, out) == RPL_IO);
   int64_t values[] = {INT64_MIN, INT64_MAX, -1, 0, 1};
   for (unsigned i = 0; i < 5; ++i) {
-    RpoReply a = {UINT64_MAX, 16, values[i]}, b = {1, 1, 2};
+    struct rpo_reply a = {UINT64_MAX, 16, values[i]}, b = {1, 1, 2};
     unsigned char encoded[24];
     CHECK(rpo_reply_encode(a, encoded) == RPL_OK);
     CHECK(rpo_reply_decode(encoded, &b) == RPL_OK && b.uuid == a.uuid &&
@@ -171,9 +171,9 @@ static int faults_case(void) {
       for (unsigned cut = 1; cut <= 37; ++cut) {
         CHECK(!setup());
         CHECK(rpl_append(&source.log, 1, 2, 7) == RPL_OK);
-        RplEvent e;
+        struct rpl_event e;
         CHECK(rpo_next(&sender, &e) == RPL_OK);
-        RpoReply reply = {8, 8, 8};
+        struct rpo_reply reply = {8, 8, 8};
         if (which) {
           CHECK(rpo_receive(&receiver, 19, 7, e, &reply) == RPL_OK);
           rpo_cut(&ack, cut, mode);
@@ -222,13 +222,13 @@ static int oracle(void) {
     } else if (!strcmp(op, "receive")) {
       CHECK(scanf("%" SCNu64 " %u %u %u %u %" SCNd32, &uuid, &schema, &p, &key,
                   &kind, &value) == 6);
-      RpoReply reply = {99, 99, 99};
-      r = rpo_receive(&receiver, uuid, schema, (RplEvent){p, key, kind, value},
+      struct rpo_reply reply = {99, 99, 99};
+      r = rpo_receive(&receiver, uuid, schema, (struct rpl_event){p, key, kind, value},
                       &reply);
       total = reply.total;
     } else if (!strcmp(op, "ack")) {
       CHECK(scanf("%" SCNu64 " %u %" SCNd64, &uuid, &p, &total) == 3);
-      r = rpo_ack(&sender, (RpoReply){uuid, p, total});
+      r = rpo_ack(&sender, (struct rpo_reply){uuid, p, total});
     } else if (!strcmp(op, "reopen")) {
       CHECK(scanf("%u", &which) == 1 && which < 3);
       CHECK(!rpo_reopen(which == 0 ? &source : which == 1 ? &ack : &inbox));

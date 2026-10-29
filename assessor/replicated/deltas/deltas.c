@@ -3,7 +3,7 @@
 #ifndef RPD_MUTATION
 #define RPD_MUTATION 0
 #endif
-static int one_valid(const RPSet *s, int half) {
+static int one_valid(const struct rp_set *s, int half) {
   unsigned i;
   uint16_t seen = 0, allowed = 0;
   if (s->next[0] > 8 || s->next[1] > (half ? 0u : 8u))
@@ -18,10 +18,10 @@ static int one_valid(const RPSet *s, int half) {
   }
   return 1;
 }
-static int valid(const RpdSet *s) {
+static int valid(const struct rpd_set *s) {
   return s && one_valid(&s->first, 0) && one_valid(&s->second, 1);
 }
-static int same(const RpdSet *a, const RpdSet *b) {
+static int same(const struct rpd_set *a, const struct rpd_set *b) {
   unsigned i;
   for (i = 0; i < 4; ++i)
     if (a->first.adds[i] != b->first.adds[i] ||
@@ -35,8 +35,8 @@ static int same(const RpdSet *a, const RpdSet *b) {
       return 0;
   return 1;
 }
-int rpd_set_join(const RpdSet *s, const RpdSet *d, RpdSet *out) {
-  RpdSet t;
+int rpd_set_join(const struct rpd_set *s, const struct rpd_set *d, struct rpd_set *out) {
+  struct rpd_set t;
   if (!out || !valid(s) || !valid(d))
     return RPD_INVALID;
   t = *s;
@@ -54,9 +54,9 @@ int rpd_set_join(const RpdSet *s, const RpdSet *d, RpdSet *out) {
   *out = t;
   return RPD_OK;
 }
-int rpd_set_add(const RpdSet *s, unsigned writer, unsigned value, RpdSet *out,
-                RpdSet *delta) {
-  RpdSet t, d = {0};
+int rpd_set_add(const struct rpd_set *s, unsigned writer, unsigned value, struct rpd_set *out,
+                struct rpd_set *delta) {
+  struct rpd_set t, d = {0};
   int r;
   if (!out || !delta || out == delta || !valid(s) || writer > 2 || value > 3)
     return RPD_INVALID;
@@ -69,9 +69,9 @@ int rpd_set_add(const RpdSet *s, unsigned writer, unsigned value, RpdSet *out,
   *delta = d;
   return RPD_OK;
 }
-int rpd_set_remove(const RpdSet *s, unsigned value, RpdSet *out,
-                   RpdSet *delta) {
-  RpdSet t, d = {0};
+int rpd_set_remove(const struct rpd_set *s, unsigned value, struct rpd_set *out,
+                   struct rpd_set *delta) {
+  struct rpd_set t, d = {0};
   unsigned i;
   if (!out || !delta || out == delta || !valid(s) || value > 3)
     return RPD_INVALID;
@@ -93,12 +93,12 @@ int rpd_set_remove(const RpdSet *s, unsigned value, RpdSet *out,
   *delta = d;
   return RPD_OK;
 }
-int rpd_contains(const RpdSet *s, unsigned value) {
+int rpd_contains(const struct rpd_set *s, unsigned value) {
   return valid(s) && value < 4 &&
          (rp_set_contains(&s->first, value) ||
           rp_set_contains(&s->second, value));
 }
-static int state_valid(const RpdState *s) {
+static int state_valid(const struct rpd_state *s) {
   return s && s->uuid && s->epoch && s->self < 3 && valid(&s->set);
 }
 static void put64(unsigned char *p, uint64_t x) {
@@ -113,7 +113,7 @@ static uint64_t get64(const unsigned char *p) {
     x = x << 8 | p[i];
   return x;
 }
-static void set_wire(const RPSet *s, unsigned char *b) {
+static void set_wire(const struct rp_set *s, unsigned char *b) {
   unsigned i;
   for (i = 0; i < 4; ++i) {
     b[2 * i] = (unsigned char)(s->adds[i] >> 8);
@@ -124,7 +124,7 @@ static void set_wire(const RPSet *s, unsigned char *b) {
   b[16] = (unsigned char)s->next[0];
   b[17] = (unsigned char)s->next[1];
 }
-static void set_read(const unsigned char *b, RPSet *s) {
+static void set_read(const unsigned char *b, struct rp_set *s) {
   unsigned i;
   for (i = 0; i < 4; ++i) {
     s->adds[i] = (uint16_t)((unsigned)b[2 * i] << 8 | b[2 * i + 1]);
@@ -133,7 +133,7 @@ static void set_read(const unsigned char *b, RPSet *s) {
   s->next[0] = b[16];
   s->next[1] = b[17];
 }
-int rpd_encode(const RpdState *s, unsigned char out[128]) {
+int rpd_encode(const struct rpd_state *s, unsigned char out[128]) {
   unsigned char b[128] = {0};
   unsigned i;
   if (!out || !state_valid(s))
@@ -154,8 +154,8 @@ int rpd_encode(const RpdState *s, unsigned char out[128]) {
     out[i] = b[i];
   return RPD_OK;
 }
-int rpd_decode(const unsigned char b[128], RpdState *out) {
-  RpdState t = {0};
+int rpd_decode(const unsigned char b[128], struct rpd_state *out) {
+  struct rpd_state t = {0};
   unsigned char hash[32];
   unsigned i;
   if (!b || !out)
@@ -183,7 +183,7 @@ int rpd_decode(const unsigned char b[128], RpdState *out) {
   *out = t;
   return RPD_OK;
 }
-static int save(store *p, const RpdState *s) {
+static int save(store *p, const struct rpd_state *s) {
   unsigned char b[128];
   int r;
   unsigned i;
@@ -206,7 +206,7 @@ static int save(store *p, const RpdState *s) {
          : r == STORE_FULL ? RPD_FULL
                            : RPD_IO;
 }
-static int load(store *p, RpdState *out) {
+static int load(store *p, struct rpd_state *out) {
   unsigned char b[128];
   unsigned i;
   if (!p || !out)
@@ -222,8 +222,8 @@ static int load(store *p, RpdState *out) {
   }
   return rpd_decode(b, out);
 }
-static int current(RpdReplica *r) {
-  RpdState s;
+static int current(struct rpd_replica *r) {
+  struct rpd_state s;
   unsigned char a[128], b[128];
   unsigned i;
   int status;
@@ -239,8 +239,8 @@ static int current(RpdReplica *r) {
       return RPD_STATE;
   return RPD_OK;
 }
-int rpd_create(store *p, uint64_t uuid, unsigned self, RpdReplica *out) {
-  RpdReplica r = {0};
+int rpd_create(store *p, uint64_t uuid, unsigned self, struct rpd_replica *out) {
+  struct rpd_replica r = {0};
   int status;
   unsigned i;
   if (!p || !out || !uuid || self > 2)
@@ -263,8 +263,8 @@ int rpd_create(store *p, uint64_t uuid, unsigned self, RpdReplica *out) {
     *out = r;
   return status;
 }
-int rpd_open(store *p, uint64_t uuid, unsigned self, RpdReplica *out) {
-  RpdReplica r = {0};
+int rpd_open(store *p, uint64_t uuid, unsigned self, struct rpd_replica *out) {
+  struct rpd_replica r = {0};
   int status;
   if (!out || !uuid || self > 2)
     return RPD_INVALID;
@@ -283,17 +283,17 @@ int rpd_open(store *p, uint64_t uuid, unsigned self, RpdReplica *out) {
     *out = r;
   return status;
 }
-static void append(RpdReplica *r, uint64_t before, const RpdSet *d) {
+static void append(struct rpd_replica *r, uint64_t before, const struct rpd_set *d) {
   unsigned i;
   if (r->count == 4) {
     for (i = 1; i < 4; ++i)
       r->history[i - 1] = r->history[i];
     --r->count;
   }
-  r->history[r->count++] = (RpdEntry){before, *d};
+  r->history[r->count++] = (struct rpd_entry){before, *d};
 }
-static int publish(RpdReplica *r, const RpdSet *next, const RpdSet *delta) {
-  RpdState s = r->state;
+static int publish(struct rpd_replica *r, const struct rpd_set *next, const struct rpd_set *delta) {
+  struct rpd_state s = r->state;
   int status;
   if (s.sequence == UINT64_MAX)
     return RPD_RANGE;
@@ -308,8 +308,8 @@ static int publish(RpdReplica *r, const RpdSet *next, const RpdSet *delta) {
   r->state = s;
   return RPD_OK;
 }
-int rpd_local(RpdReplica *r, unsigned add, unsigned value) {
-  RpdSet next, delta;
+int rpd_local(struct rpd_replica *r, unsigned add, unsigned value) {
+  struct rpd_set next, delta;
   int status;
   if (add > 1 || value > 3)
     return RPD_INVALID;
@@ -322,10 +322,10 @@ int rpd_local(RpdReplica *r, unsigned add, unsigned value) {
     return status;
   return publish(r, &next, &delta);
 }
-int rpd_send(RpdReplica *r, unsigned peer, uint64_t peer_epoch,
-             RpdPacket *out) {
-  RpdPacket p = {0};
-  RpdMark a;
+int rpd_send(struct rpd_replica *r, unsigned peer, uint64_t peer_epoch,
+             struct rpd_packet *out) {
+  struct rpd_packet p = {0};
+  struct rpd_mark a;
   unsigned i;
   int status;
   if (!out || peer > 2 || !peer_epoch)
@@ -354,21 +354,21 @@ int rpd_send(RpdReplica *r, unsigned peer, uint64_t peer_epoch,
     p.start = a.upto;
     for (i = 0; i < r->count; ++i)
       if (r->history[i].sequence >= p.start) {
-        RpdSet t;
+        struct rpd_set t;
         status = rpd_set_join(&p.body, &r->history[i].delta, &t);
         if (status)
           return status;
         p.body = t;
       }
   }
-  r->sent[peer] = (RpdMark){peer_epoch, p.end};
+  r->sent[peer] = (struct rpd_mark){peer_epoch, p.end};
   *out = p;
   return RPD_OK;
 }
-int rpd_receive(RpdReplica *r, const RpdPacket *p, RpdAck *out) {
-  RpdSet next;
-  RpdAck ack;
-  RpdMark seen;
+int rpd_receive(struct rpd_replica *r, const struct rpd_packet *p, struct rpd_ack *out) {
+  struct rpd_set next;
+  struct rpd_ack ack;
+  struct rpd_mark seen;
   int status;
   if (!p || !out || p->sender > 2 || p->target > 2 || p->full > 1 ||
       !p->sender_epoch || !p->target_epoch || p->start > p->end ||
@@ -393,7 +393,7 @@ int rpd_receive(RpdReplica *r, const RpdPacket *p, RpdAck *out) {
   status = rpd_set_join(&r->state.set, &p->body, &next);
   if (status)
     return status;
-  ack = (RpdAck){r->state.uuid, r->state.epoch, p->sender_epoch,
+  ack = (struct rpd_ack){r->state.uuid, r->state.epoch, p->sender_epoch,
                  p->end,        r->state.self,  p->sender};
   if (RPD_MUTATION == 7)
     *out = ack;
@@ -403,15 +403,15 @@ int rpd_receive(RpdReplica *r, const RpdPacket *p, RpdAck *out) {
       return status;
   }
   if (seen.epoch != p->sender_epoch)
-    seen = (RpdMark){p->sender_epoch, 0};
+    seen = (struct rpd_mark){p->sender_epoch, 0};
   if (p->end > seen.upto)
     seen.upto = p->end;
   r->received[p->sender] = seen;
   *out = ack;
   return RPD_OK;
 }
-int rpd_ack(RpdReplica *r, uint64_t peer_epoch, const RpdAck *a) {
-  RpdMark *mark;
+int rpd_ack(struct rpd_replica *r, uint64_t peer_epoch, const struct rpd_ack *a) {
+  struct rpd_mark *mark;
   int status;
   if (!a || a->from > 2 || a->to > 2 || !peer_epoch)
     return RPD_INVALID;
@@ -429,7 +429,7 @@ int rpd_ack(RpdReplica *r, uint64_t peer_epoch, const RpdAck *a) {
     return RPD_INVALID;
   mark = &r->acked[a->from];
   if (mark->epoch != peer_epoch)
-    *mark = (RpdMark){peer_epoch, 0};
+    *mark = (struct rpd_mark){peer_epoch, 0};
   if (a->upto > mark->upto)
     mark->upto = a->upto;
   return RPD_OK;

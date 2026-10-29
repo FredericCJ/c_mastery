@@ -41,54 +41,54 @@ enum {
   PU_TC = 64,
   PU_TXE = 128
 };
-typedef struct {
+struct pu_io {
   void *context;
   uint32_t (*read)(void *, unsigned);
   void (*write)(void *, unsigned, uintptr_t);
-} PuIo;
-typedef struct {
+};
+struct pu_clock {
   uint32_t sys_hz, generation;
   unsigned ahb, apb1, apb2, timpre;
-} PuClock;
-typedef struct {
+};
+struct pu_rates {
   uint32_t core, apb1, apb2, timer1, timer2;
-} PuRates;
-int pu_rates(const PuClock *, PuRates *);
-typedef struct {
+};
+int pu_rates(const struct pu_clock *, struct pu_rates *);
+struct pu_byte {
   uint8_t value, error;
-} PuByte;
-typedef struct {
-  PuByte items[2];
+};
+struct pu_rx {
+  struct pu_byte items[2];
   unsigned head, count, backpressure, reserve;
   uint32_t dropped, errors;
-} PuRx;
-int pu_receive(PuRx *, unsigned status, uint8_t value);
-int pu_take(PuRx *, PuByte *);
-int pu_peer_ready(const PuRx *, unsigned *);
-typedef struct {
+};
+int pu_receive(struct pu_rx *, unsigned status, uint8_t value);
+int pu_take(struct pu_rx *, struct pu_byte *);
+int pu_peer_ready(const struct pu_rx *, unsigned *);
+struct pu_driver {
   uint32_t configured_generation, token, last, deadline;
   unsigned ready, active, backend, count, position, memory_owned, line_owned,
       cancel, result;
   const uint8_t *buffer;
-} PuDriver;
-int pu_open(PuDriver *, PuIo, const PuClock *, uint32_t baud, unsigned over8,
+};
+int pu_open(struct pu_driver *, struct pu_io, const struct pu_clock *, uint32_t baud, unsigned over8,
             unsigned polls);
-int pu_submit(PuDriver *, PuIo, uint32_t generation, uint32_t token,
+int pu_submit(struct pu_driver *, struct pu_io, uint32_t generation, uint32_t token,
               unsigned backend, const uint8_t *, unsigned count, uint32_t now,
               uint32_t budget);
-int pu_step(PuDriver *, PuIo, uint32_t token, uint32_t now);
-int pu_cancel(PuDriver *, PuIo, uint32_t token);
-int pu_reset_notice(PuDriver *, PuIo);
-int pu_poll(PuDriver *, PuIo, uint32_t token, uint32_t now, unsigned polls);
-int pu_rx_poll(PuRx *, PuIo, unsigned polls);
+int pu_step(struct pu_driver *, struct pu_io, uint32_t token, uint32_t now);
+int pu_cancel(struct pu_driver *, struct pu_io, uint32_t token);
+int pu_reset_notice(struct pu_driver *, struct pu_io);
+int pu_poll(struct pu_driver *, struct pu_io, uint32_t token, uint32_t now, unsigned polls);
+int pu_rx_poll(struct pu_rx *, struct pu_io, unsigned polls);
 int pu_deadline_fit(uint32_t clock, uint32_t divisor, unsigned bytes,
                     uint32_t remaining_us, unsigned *fits);
 /* Privileged F439-only adapter; never call on a hosted machine. */
-PuIo pu_f439_io(void);
+struct pu_io pu_f439_io(void);
 void pu_f439_pins(void);
 void pu_f439_rts_init(void);
-int pu_f439_rts(const PuRx *);
-int pu_f439_dma_submit(PuDriver *, uint32_t generation, uint32_t token,
+int pu_f439_rts(const struct pu_rx *);
+int pu_f439_dma_submit(struct pu_driver *, uint32_t generation, uint32_t token,
                        const uint8_t *, unsigned count, uint32_t now,
                        uint32_t budget);
 #endif

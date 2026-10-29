@@ -8,7 +8,7 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-static int setup(cmx_kernel *k, CDMailbox *m, unsigned capacity) {
+static int setup(cmx_kernel *k, struct cd_mailbox *m, unsigned capacity) {
   cmx_init(k, CMX_FIXED);
   for (unsigned t = 0; t < 3; t++)
     if (cmx_task_add(k, 9 - t, 0, 0x1000 + 0x200 * t, 256) != (int)t)
@@ -18,9 +18,9 @@ static int setup(cmx_kernel *k, CDMailbox *m, unsigned capacity) {
 static int transport(void) {
   for (unsigned capacity = 0; capacity < 2; capacity++) {
     cmx_kernel k;
-    CDMailbox m;
-    CDMBIdentity id;
-    CDMBRequest request;
+    struct cd_mailbox m;
+    struct cdmb_identity id;
+    struct cdmb_request request;
     unsigned char input[4] = {11, 0, 0, 0}, reply[4] = {77, 0, 0, 0},
                   out[4] = {99, 99, 99, 99};
     CHECK(setup(&k, &m, capacity));
@@ -29,7 +29,7 @@ static int transport(void) {
     CHECK(cdmb_delivery(&m, 0) == (capacity ? CMX_OK : CMX_BLOCKED));
     if (capacity)
       input[0] = 22; /* Mailbox's owned copy already exists. */
-    request = (CDMBRequest){{77, 88, 99}, {66, 66, 66, 66}};
+    request = (struct cdmb_request){{77, 88, 99}, {66, 66, 66, 66}};
     CHECK(cdmb_receive(&m, &request, 3, cmx_forever()) == CMX_FULL &&
           request.id.session == 77 && request.id.generation == 88 &&
           request.id.slot == 99 && request.bytes[0] == 66);
@@ -77,9 +77,9 @@ static int transport(void) {
     }
   }
   cmx_kernel k;
-  CDMailbox m;
-  CDMBIdentity a, b;
-  CDMBRequest request;
+  struct cd_mailbox m;
+  struct cdmb_identity a, b;
+  struct cdmb_request request;
   unsigned char input[4] = {11, 0, 0, 0}, out[4];
   CHECK(setup(&k, &m, 0));
   CHECK(cdmb_receive(&m, &request, 4, cmx_forever()) == CMX_BLOCKED);
@@ -98,9 +98,9 @@ static int transport(void) {
 }
 static int generations(void) {
   cmx_kernel k;
-  CDMailbox m;
-  CDMBIdentity first, second, out_id;
-  CDMBRequest request;
+  struct cd_mailbox m;
+  struct cdmb_identity first, second, out_id;
+  struct cdmb_request request;
   unsigned char input[4] = {1, 2, 3, 4}, reply[4] = {21, 22, 23, 24},
                 out[4] = {99, 99, 99, 99};
   CHECK(setup(&k, &m, 0));
@@ -123,7 +123,7 @@ static int generations(void) {
         out_id.generation == CDMB_GENERATION_MAX);
   CHECK(cdmb_cancel(&m, 0) == CMX_CLOSED &&
         cdmb_poll(&m, 0, out, 4) == CMX_CLOSED);
-  out_id = (CDMBIdentity){77, 88, 99};
+  out_id = (struct cdmb_identity){77, 88, 99};
   CHECK(cdmb_begin(&m, 0, input, cmx_forever(), &out_id) == CMX_FULL &&
         out_id.session == 77 && out_id.generation == 88 && out_id.slot == 99);
   /* Reversing the selected transition changes the result: a reply wakes the
@@ -142,7 +142,7 @@ static int generations(void) {
   CHECK(cdmb_begin(&m, 0, input, cmx_at(5), &first) == CMX_OK);
   CHECK(cdmb_poll(&m, 0, out, 4) == CMX_BLOCKED);
   cmx_tick(&k, 5);
-  request = (CDMBRequest){{77, 88, 99}, {66, 66, 66, 66}};
+  request = (struct cdmb_request){{77, 88, 99}, {66, 66, 66, 66}};
   CHECK(cdmb_receive(&m, &request, 4, cmx_forever()) == CDMB_STALE &&
         request.id.session == 77 && request.id.generation == 88 &&
         request.id.slot == 99 && request.bytes[0] == 66 && !m.client[0].borrowed);
@@ -156,9 +156,9 @@ static int generations(void) {
 static int clients(void) {
   for (unsigned capacity = 0; capacity < 2; capacity++) {
     cmx_kernel k;
-    CDMailbox m;
-    CDMBIdentity ids[2];
-    CDMBRequest request;
+    struct cd_mailbox m;
+    struct cdmb_identity ids[2];
+    struct cdmb_request request;
     unsigned char input[2][4] = {{11, 0, 0, 0}, {22, 0, 0, 0}}, out[4];
     CHECK(setup(&k, &m, capacity));
     CHECK(cdmb_begin(&m, 0, input[0], cmx_forever(), &ids[0]) ==
@@ -175,9 +175,9 @@ static int clients(void) {
   }
   {
     cmx_kernel k;
-    CDMailbox m;
-    CDMBIdentity first, failed;
-    CDMBRequest request;
+    struct cd_mailbox m;
+    struct cdmb_identity first, failed;
+    struct cdmb_request request;
     unsigned char a[4] = {11, 0, 0, 0}, b[4] = {22, 0, 0, 0},
                   out[4] = {99, 99, 99, 99};
     CHECK(setup(&k, &m, 1));
@@ -197,9 +197,9 @@ static int clients(void) {
 }
 static int unknown(void) {
   cmx_kernel k;
-  CDMailbox m;
-  CDMBIdentity first, second;
-  CDMBRequest request;
+  struct cd_mailbox m;
+  struct cdmb_identity first, second;
+  struct cdmb_request request;
   unsigned char input[4] = {1, 0, 0, 0}, reply[4] = {1, 0, 0, 0}, out[4];
   uint32_t value = 99;
   CHECK(setup(&k, &m, 0));
@@ -222,24 +222,24 @@ static int unknown(void) {
 }
 static int receipts(void) {
   cmx_kernel k;
-  CDMailbox m;
+  struct cd_mailbox m;
   uint32_t value = 777;
   CHECK(setup(&k, &m, 0));
   for (uint32_t id = 1; id <= 4; id++)
-    CHECK(cdmb_effect(&m, (CDMBIdentity){1, id, 0}, 1, &value) == CMX_OK &&
+    CHECK(cdmb_effect(&m, (struct cdmb_identity){1, id, 0}, 1, &value) == CMX_OK &&
           value == id);
   value = 777;
-  CHECK(cdmb_effect(&m, (CDMBIdentity){1, 5, 0}, 1, &value) == CMX_FULL &&
+  CHECK(cdmb_effect(&m, (struct cdmb_identity){1, 5, 0}, 1, &value) == CMX_FULL &&
         value == 777 && m.receipts[0].value == 4);
-  CHECK(cdmb_acknowledge(&m, (CDMBIdentity){1, 1, 0}) == CMX_OK);
-  CHECK(cdmb_effect(&m, (CDMBIdentity){1, 1, 0}, 1, &value) == CDMB_STALE &&
+  CHECK(cdmb_acknowledge(&m, (struct cdmb_identity){1, 1, 0}) == CMX_OK);
+  CHECK(cdmb_effect(&m, (struct cdmb_identity){1, 1, 0}, 1, &value) == CDMB_STALE &&
         value == 777 && m.receipts[0].value == 4);
-  CHECK(cdmb_effect(&m, (CDMBIdentity){1, 5, 0}, 1, &value) == CMX_OK &&
+  CHECK(cdmb_effect(&m, (struct cdmb_identity){1, 5, 0}, 1, &value) == CMX_OK &&
         value == 5);
   value = 777;
-  CHECK(cdmb_effect(&m, (CDMBIdentity){1, 2, 0}, 2, &value) == CMX_INVALID &&
+  CHECK(cdmb_effect(&m, (struct cdmb_identity){1, 2, 0}, 2, &value) == CMX_INVALID &&
         value == 777);
-  CHECK(cdmb_effect(&m, (CDMBIdentity){1, 1, 1}, 9, &value) == CMX_OK &&
+  CHECK(cdmb_effect(&m, (struct cdmb_identity){1, 1, 1}, 9, &value) == CMX_OK &&
         value == 9 && m.receipts[0].value == 5);
   puts("CDMB_RECEIPTS:four-per-client;full-refusal;ack-eviction-old-id-stale;"
        "delta-binding");
@@ -247,9 +247,9 @@ static int receipts(void) {
 }
 static int restart(void) {
   cmx_kernel k;
-  CDMailbox m;
-  CDMBIdentity old, fresh;
-  CDMBRequest request;
+  struct cd_mailbox m;
+  struct cdmb_identity old, fresh;
+  struct cdmb_request request;
   unsigned char input[4] = {1, 0, 0, 0}, reply[4] = {3, 0, 0, 0}, out[4];
   uint32_t value;
   CHECK(setup(&k, &m, 0));

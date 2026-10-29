@@ -9,11 +9,11 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-static const ORCHandle nil = {0, 0};
-static int drain(ORCHeap *h, uint16_t *dead) {
+static const struct orc_handle nil = {0, 0};
+static int drain(struct orc_heap *h, uint16_t *dead) {
   unsigned scanned;
-  ORCFinish token;
-  ORStatus s;
+  struct orc_finish token;
+  enum or_status s;
   do {
     s = orcm_step(h, 1, &scanned);
     CHECK((s == OR_OK || s == OR_DONE) && scanned <= 1);
@@ -25,10 +25,10 @@ static int drain(ORCHeap *h, uint16_t *dead) {
 static int allocation(void) {
   unsigned policy, i, scanned;
   uint16_t dead;
-  ORCHeap h, before;
-  ORCHandle a, b, n, out;
+  struct orc_heap h, before;
+  struct orc_handle a, b, n, out;
   for (policy = 0; policy < 3; policy++) {
-    orcm_init(&h, (ORCPolicy)policy);
+    orcm_init(&h, (enum orc_policy)policy);
     CHECK(orcm_allocate(&h, nil, nil, &a) == OR_OK);
     CHECK(orcm_allocate(&h, nil, nil, &b) == OR_OK);
     CHECK(orcm_release(&h, b) == OR_OK);
@@ -42,7 +42,7 @@ static int allocation(void) {
     CHECK(h.restarts == (policy == ORC_RESTART));
     CHECK(orcm_release(&h, a) == OR_OK && orcm_release(&h, n) == OR_OK);
     CHECK(orcm_begin(&h) == OR_OK && drain(&h, &dead) == 0 && dead == 7);
-    out = (ORCHandle){99, 99};
+    out = (struct orc_handle){99, 99};
     CHECK(orcm_allocate(&h, a, nil, &out) == OR_INVALID && out.slot == 99);
     CHECK(orcm_invariant(&h));
   }
@@ -67,7 +67,7 @@ static int allocation(void) {
     CHECK(orcm_begin(&h) == OR_OK && drain(&h, &dead) == 0);
   }
   memcpy(&before, &h, sizeof h);
-  out = (ORCHandle){99, 99};
+  out = (struct orc_handle){99, 99};
   CHECK(orcm_allocate(&h, nil, nil, &out) == OR_FULL && out.slot == 99 &&
         !memcmp(&before, &h, sizeof h));
   orcm_init(&h, ORC_BLACK);
@@ -79,32 +79,32 @@ static int allocation(void) {
   CHECK(orcm_invariant(&h));
   return 0;
 }
-typedef struct {
-  ORCConcurrent *control;
-  ORCRequest request;
-  ORStatus status;
+struct or_writer {
+  struct orc_concurrent *control;
+  struct orc_request request;
+  enum or_status status;
   unsigned completed;
-} Writer;
+};
 static void *one_write(void *arg) {
-  Writer *w = arg;
-  ORCResponse r;
+  struct or_writer *w = arg;
+  struct orc_response r;
   w->status = orcm_concurrent_call(w->control, &w->request, &r);
   return NULL;
 }
-static ORStatus call(ORCConcurrent *c, ORCOperation op, ORCHandle object,
-                     ORCHandle target, unsigned budget, ORCFinish finish,
-                     ORCResponse *r) {
-  ORCRequest q = {.operation = op,
+static enum or_status call(struct orc_concurrent *c, enum orc_operation op, struct orc_handle object,
+                     struct orc_handle target, unsigned budget, struct orc_finish finish,
+                     struct orc_response *r) {
+  struct orc_request q = {.operation = op,
                   .object = object,
                   .target = target,
                   .budget = budget,
                   .finish = finish};
   return orcm_concurrent_call(c, &q, r);
 }
-static int finish_concurrent(ORCConcurrent *c, uint16_t *dead) {
-  ORCResponse r;
-  ORStatus s;
-  ORCFinish empty = {0};
+static int finish_concurrent(struct orc_concurrent *c, uint16_t *dead) {
+  struct orc_response r;
+  enum or_status s;
+  struct orc_finish empty = {0};
   do {
     s = call(c, ORC_STEP, nil, nil, 1, empty, &r);
     CHECK(s == OR_OK || s == OR_DONE);
@@ -115,11 +115,11 @@ static int finish_concurrent(ORCConcurrent *c, uint16_t *dead) {
   return 0;
 }
 static int race_case(int root) {
-  ORCConcurrent c;
-  ORCResponse r;
-  ORCFinish token, empty = {0};
-  ORCHandle a, b;
-  Writer w;
+  struct orc_concurrent c;
+  struct orc_response r;
+  struct orc_finish token, empty = {0};
+  struct orc_handle a, b;
+  struct or_writer w;
   pthread_t thread;
   uint16_t dead;
   CHECK(orcm_concurrent_init(&c, ORC_BLACK) == OR_OK);
@@ -132,7 +132,7 @@ static int race_case(int root) {
   CHECK(call(&c, ORC_STEP, nil, nil, 1, empty, &r) == OR_DONE);
   CHECK(call(&c, ORC_PREPARE, nil, nil, 0, empty, &r) == OR_OK);
   token = r.finish;
-  w = (Writer){.control = &c,
+  w = (struct or_writer){.control = &c,
                .request = {.operation = root ? ORC_RETAIN : ORC_STORE,
                            .object = root ? b : a,
                            .target = b}};
@@ -152,13 +152,13 @@ static int race_case(int root) {
   return 0;
 }
 static void *mutator(void *arg) {
-  Writer *w = arg;
-  ORCResponse r;
-  ORCFinish empty = {0};
+  struct or_writer *w = arg;
+  struct orc_response r;
+  struct orc_finish empty = {0};
   unsigned i;
   w->status = OR_OK;
   for (i = 0; i < 1000; i++) {
-    ORCRequest q = w->request;
+    struct orc_request q = w->request;
     q.target = i % 2 ? q.target : nil;
     if (orcm_concurrent_call(w->control, &q, &r) != OR_OK ||
         call(w->control, ORC_RETAIN, w->request.target, nil, 0, empty, &r) !=
@@ -173,13 +173,13 @@ static void *mutator(void *arg) {
   return NULL;
 }
 static int concurrent(void) {
-  ORCConcurrent c;
-  ORCResponse r;
-  ORCHandle a, b;
-  ORCFinish empty = {0};
-  Writer w;
+  struct orc_concurrent c;
+  struct orc_response r;
+  struct orc_handle a, b;
+  struct orc_finish empty = {0};
+  struct or_writer w;
   pthread_t thread;
-  ORStatus status = OR_OK;
+  enum or_status status = OR_OK;
   unsigned i;
   uint16_t dead;
   CHECK(race_case(0) == 0 && race_case(1) == 0);
@@ -188,7 +188,7 @@ static int concurrent(void) {
   a = r.object;
   CHECK(call(&c, ORC_ALLOCATE, nil, nil, 0, empty, &r) == OR_OK);
   b = r.object;
-  w = (Writer){.control = &c,
+  w = (struct or_writer){.control = &c,
                .request = {.operation = ORC_STORE, .object = a, .target = b}};
   CHECK(pthread_create(&thread, NULL, mutator, &w) == 0);
   for (i = 0; i < 100 && status == OR_OK; i++) {
@@ -227,7 +227,7 @@ static int concurrent(void) {
   CHECK(call(&c, ORC_INSPECT, nil, nil, 0, empty, &r) == OR_OK &&
         r.revision == ORC_REV_LIMIT && r.invariant && r.live == 1);
   {
-    ORCResponse before;
+    struct orc_response before;
     memcpy(&before, &r, sizeof r);
     CHECK(call(&c, ORC_RELEASE, a, nil, 0, empty, &r) == OR_FULL &&
           !memcmp(&before, &r, sizeof r));
@@ -242,11 +242,11 @@ static int oracle(void) {
   for (graph = 0; graph < 64; graph++)
     for (mask = 0; mask < 8; mask++)
       for (policy = 0; policy < 3; policy++) {
-        ORCHeap h;
-        ORCHandle object[4];
+        struct orc_heap h;
+        struct orc_handle object[4];
         unsigned code = graph;
         uint16_t dead;
-        orcm_init(&h, (ORCPolicy)policy);
+        orcm_init(&h, (enum orc_policy)policy);
         for (i = 0; i < 3; i++)
           CHECK(orcm_allocate(&h, nil, nil, &object[i]) == OR_OK);
         for (i = 0; i < 3; i++) {
@@ -258,7 +258,7 @@ static int oracle(void) {
         }
         CHECK(orcm_begin(&h) == OR_OK);
         {
-          ORStatus status = orcm_step(&h, 1, &scanned);
+          enum or_status status = orcm_step(&h, 1, &scanned);
           CHECK(status == OR_OK || status == OR_DONE);
         }
         CHECK(orcm_allocate(&h, object[0], nil, &object[3]) == OR_OK);

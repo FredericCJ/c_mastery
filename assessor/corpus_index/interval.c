@@ -2,14 +2,14 @@
 #ifndef CI_MUTANT
 #define CI_MUTANT 0
 #endif
-static int height(const CiIntervals *t, int p) {
+static int height(const struct ci_intervals *t, int p) {
   return p < 0 ? 0 : t->node[p].height;
 }
-static int before(CiInterval a, CiInterval b) {
+static int before(struct ci_interval a, struct ci_interval b) {
   return a.low < b.low || (a.low == b.low && a.id < b.id);
 }
-static void fix(CiIntervals *t, int p) {
-  CiIntervalNode *n = &t->node[p];
+static void fix(struct ci_intervals *t, int p) {
+  struct ci_interval_node *n = &t->node[p];
   int a = height(t, n->left), b = height(t, n->right);
   n->height = 1 + (a > b ? a : b);
   n->maximum = n->value.high;
@@ -20,7 +20,7 @@ static void fix(CiIntervals *t, int p) {
       n->maximum = t->node[n->right].maximum;
   }
 }
-static int left(CiIntervals *t, int p) {
+static int left(struct ci_intervals *t, int p) {
   int q = t->node[p].right;
   t->node[p].right = t->node[q].left;
   t->node[q].left = p;
@@ -28,7 +28,7 @@ static int left(CiIntervals *t, int p) {
   fix(t, q);
   return q;
 }
-static int right(CiIntervals *t, int p) {
+static int right(struct ci_intervals *t, int p) {
   int q = t->node[p].left;
   t->node[p].left = t->node[q].right;
   t->node[q].right = p;
@@ -36,7 +36,7 @@ static int right(CiIntervals *t, int p) {
   fix(t, q);
   return q;
 }
-static int balance(CiIntervals *t, int p) {
+static int balance(struct ci_intervals *t, int p) {
   fix(t, p);
   int b = height(t, t->node[p].left) - height(t, t->node[p].right);
   if (b > 1) {
@@ -53,7 +53,7 @@ static int balance(CiIntervals *t, int p) {
   }
   return p;
 }
-CiStatus ci_intervals_init(CiIntervals *t, unsigned closed) {
+enum ci_status ci_intervals_init(struct ci_intervals *t, unsigned closed) {
   if (!t)
     return CI_INVALID;
   if (closed > 1)
@@ -63,7 +63,7 @@ CiStatus ci_intervals_init(CiIntervals *t, unsigned closed) {
   t->count = 0;
   t->closed = closed;
   for (unsigned i = 0; i < CI_CAP; i++) {
-    CiIntervalNode *n = &t->node[i];
+    struct ci_interval_node *n = &t->node[i];
     n->live = 0;
     n->left = n->right = -1;
     n->height = 0;
@@ -74,7 +74,7 @@ CiStatus ci_intervals_init(CiIntervals *t, unsigned closed) {
   }
   return CI_OK;
 }
-static int insert(CiIntervals *t, int p, int v) {
+static int insert(struct ci_intervals *t, int p, int v) {
   if (p < 0)
     return v;
   if (before(t->node[v].value, t->node[p].value))
@@ -83,17 +83,17 @@ static int insert(CiIntervals *t, int p, int v) {
     t->node[p].right = insert(t, t->node[p].right, v);
   return balance(t, p);
 }
-static int locate(const CiIntervals *t, CiInterval v) {
+static int locate(const struct ci_intervals *t, struct ci_interval v) {
   int p = t->root;
   while (p >= 0) {
-    CiInterval a = t->node[p].value;
+    struct ci_interval a = t->node[p].value;
     if (a.low == v.low && a.id == v.id)
       return p;
     p = before(v, a) ? t->node[p].left : t->node[p].right;
   }
   return -1;
 }
-CiStatus ci_intervals_insert(CiIntervals *t, CiInterval v) {
+enum ci_status ci_intervals_insert(struct ci_intervals *t, struct ci_interval v) {
   if (!t)
     return CI_INVALID;
   if (v.low > v.high || (!t->closed && v.low == v.high))
@@ -103,7 +103,7 @@ CiStatus ci_intervals_insert(CiIntervals *t, CiInterval v) {
   if (t->free_head < 0)
     return CI_FULL;
   int p = t->free_head;
-  CiIntervalNode *n = &t->node[p];
+  struct ci_interval_node *n = &t->node[p];
   t->free_head = n->next;
   n->value = v;
   n->left = n->right = -1;
@@ -115,8 +115,8 @@ CiStatus ci_intervals_insert(CiIntervals *t, CiInterval v) {
   t->count++;
   return CI_OK;
 }
-static int remove_node(CiIntervals *t, int p, CiInterval v) {
-  CiIntervalNode *n = &t->node[p];
+static int remove_node(struct ci_intervals *t, int p, struct ci_interval v) {
+  struct ci_interval_node *n = &t->node[p];
   if (before(v, n->value))
     n->left = remove_node(t, n->left, v);
   else if (before(n->value, v))
@@ -137,27 +137,27 @@ static int remove_node(CiIntervals *t, int p, CiInterval v) {
   }
   return balance(t, p);
 }
-CiStatus ci_intervals_remove(CiIntervals *t, int32_t low, uint32_t id) {
+enum ci_status ci_intervals_remove(struct ci_intervals *t, int32_t low, uint32_t id) {
   if (!t)
     return CI_INVALID;
-  CiInterval v = {low, low, id};
+  struct ci_interval v = {low, low, id};
   if (locate(t, v) < 0)
     return CI_MISSING;
   t->root = remove_node(t, t->root, v);
   t->count--;
   return CI_OK;
 }
-static int overlaps(const CiIntervals *t, CiInterval x, int32_t lo,
+static int overlaps(const struct ci_intervals *t, struct ci_interval x, int32_t lo,
                     int32_t hi) {
   return (t->closed || CI_MUTANT == 6) ? x.low <= hi && lo <= x.high
                                        : x.low < hi && lo < x.high;
 }
-static int viable(const CiIntervals *t, int p, int32_t lo) {
+static int viable(const struct ci_intervals *t, int p, int32_t lo) {
   return p >= 0 &&
          (t->closed ? t->node[p].maximum >= lo : t->node[p].maximum > lo);
 }
-CiStatus ci_intervals_find(const CiIntervals *t, int32_t lo, int32_t hi,
-                           CiInterval *out) {
+enum ci_status ci_intervals_find(const struct ci_intervals *t, int32_t lo, int32_t hi,
+                           struct ci_interval *out) {
   if (!t || !out)
     return CI_INVALID;
   if (lo > hi || (!t->closed && lo == hi))
@@ -172,24 +172,24 @@ CiStatus ci_intervals_find(const CiIntervals *t, int32_t lo, int32_t hi,
   }
   return CI_MISSING;
 }
-static void gather(const CiIntervals *t, int p, int32_t lo, int32_t hi,
-                   CiInterval *out, unsigned *n) {
+static void gather(const struct ci_intervals *t, int p, int32_t lo, int32_t hi,
+                   struct ci_interval *out, unsigned *n) {
   if (!viable(t, p, lo))
     return;
   gather(t, t->node[p].left, lo, hi, out, n);
-  CiInterval x = t->node[p].value;
+  struct ci_interval x = t->node[p].value;
   if (overlaps(t, x, lo, hi))
     out[(*n)++] = x;
   if (t->closed ? x.low <= hi : x.low < hi)
     gather(t, t->node[p].right, lo, hi, out, n);
 }
-CiStatus ci_intervals_all(const CiIntervals *t, int32_t lo, int32_t hi,
-                          CiInterval *out, unsigned cap, unsigned *count) {
+enum ci_status ci_intervals_all(const struct ci_intervals *t, int32_t lo, int32_t hi,
+                          struct ci_interval *out, unsigned cap, unsigned *count) {
   if (!t || !count || (!out && cap))
     return CI_INVALID;
   if (lo > hi || (!t->closed && lo == hi))
     return CI_RANGE;
-  CiInterval temp[CI_CAP];
+  struct ci_interval temp[CI_CAP];
   unsigned n = 0;
   gather(t, t->root, lo, hi, temp, &n);
   if (n > cap)

@@ -2,7 +2,7 @@
 #ifndef MM_MUTANT
 #define MM_MUTANT 0
 #endif
-static int valid(const MmDfa *d) {
+static int valid(const struct mm_dfa *d) {
     if(!d || !d->count || d->count>16 || d->start>=d->count || d->accept[d->start])return 0;
     for(unsigned i=0;i<256;++i)if(d->map[i]>4)return 0;
     for(unsigned q=0;q<d->count;++q)for(unsigned c=0;c<4;++c)
@@ -14,8 +14,8 @@ static unsigned rule(unsigned mask) {
     if(MM_MUTANT==2){while(mask>>1){mask>>=1;++r;}return r;}
     while(!(mask&1u)){mask>>=1;++r;}return r;
 }
-int mm_from_rx(const RxDfa *source,MmDfa *out) {
-    MmDfa d={0};
+int mm_from_rx(const struct rx_dfa *source,struct mm_dfa *out) {
+    struct mm_dfa d={0};
     if(!source || !out || !source->count || source->count>16 || source->accept[0])return PD_INVALID;
     d.count=source->count;
     for(unsigned i=0;i<256;++i)d.map[i]=4;
@@ -30,10 +30,10 @@ int mm_from_rx(const RxDfa *source,MmDfa *out) {
     }
     *out=d;return PD_OK;
 }
-int mm_scan(const MmDfa *d,const unsigned char *input,unsigned length,
-            unsigned mode,unsigned capacity,MmWorkspace *w,
-            MmTokens *out,MmCost *cost,unsigned *error_offset) {
-    MmTokens result={0};MmCost counts={0};unsigned begin=0;
+int mm_scan(const struct mm_dfa *d,const unsigned char *input,unsigned length,
+            unsigned mode,unsigned capacity,struct mm_workspace *w,
+            struct mm_tokens *out,struct mm_cost *cost,unsigned *error_offset) {
+    struct mm_tokens result={0};struct mm_cost counts={0};unsigned begin=0;
     if(!valid(d) || (!input && length) || !out || !cost || length>256 || mode>1 || capacity>256 || (mode && !w))return PD_INVALID;
     if(mode && MM_MUTANT!=5)for(unsigned i=0;i<=length;++i)for(unsigned q=0;q<d->count;++q)w->failed[i][q]=0;
     while(begin<length) {
@@ -63,7 +63,7 @@ int mm_scan(const MmDfa *d,const unsigned char *input,unsigned length,
         }
         if(!mask || last==begin){if(error_offset)*error_offset=begin;return PD_NO_MATCH;}
         if(result.count==capacity){if(error_offset)*error_offset=begin;return PD_RANGE;}
-        result.token[result.count++]=(MmToken){begin,last,rule(mask)};
+        result.token[result.count++]=(struct mm_token){begin,last,rule(mask)};
         if(MM_MUTANT==3)*out=result;
         begin=MM_MUTANT==4?length:last;
     }

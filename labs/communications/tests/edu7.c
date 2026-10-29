@@ -10,14 +10,14 @@
   } while (0)
 static int link_test(void) {
   CHECK(edu_crc("123456789", 9) == 0x29b1);
-  EduFrame f = {0, 1, 2, 40, {0}}, out;
+  struct edu_frame f = {0, 1, 2, 40, {0}}, out;
   for (unsigned i = 0; i < 40; i++)
     f.payload[i] = (uint8_t)(i % 2 ? 0x7e : 0x7d);
   uint8_t wire[96];
   size_t n;
   CHECK(!edu_frame_encode(&f, wire, sizeof wire, &n));
   CHECK(n <= 96);
-  EduFramer p = {0};
+  struct edu_framer p = {0};
   unsigned publications = 0;
   for (size_t i = 0; i < n; i++)
     if (edu_frame_byte(&p, wire[i], 0, &out) == 1)
@@ -51,7 +51,7 @@ static int link_test(void) {
   return 0;
 }
 static int router(void) {
-  EduDatagram d = {17, 51, 4, 2, {0xde, 0xad}}, r;
+  struct edu_datagram d = {17, 51, 4, 2, {0xde, 0xad}}, r;
   unsigned port;
   uint8_t next;
   CHECK(!edu_route(&d, 0, &r, &port, &next));
@@ -70,9 +70,9 @@ static int transport(void) {
   unsigned char bytes[55];
   for (unsigned i = 0; i < 55; i++)
     bytes[i] = (unsigned char)i;
-  EduTx t = {0};
-  EduRx r = {0};
-  EduFragment f, again, ack;
+  struct edu_tx t = {0};
+  struct edu_rx r = {0};
+  struct edu_fragment f, again, ack;
   CHECK(!edu_tx_begin(&t, 1, 7, 8, bytes, sizeof bytes, 0));
   CHECK(edu_tx_poll(&t, 0, &f) == 1);
   CHECK(edu_rx_accept(&r, &f, &ack) == 0);
@@ -111,13 +111,13 @@ static int transport(void) {
   memset(&t, 0, sizeof t);
   CHECK(!edu_tx_begin(&t, 3, 7, 8, bytes, 55, 0));
   CHECK(edu_tx_poll(&t, 0, &f) == 1);
-  ack = (EduFragment){2, 8, 7, 0, 3, 0, 3, {0}, 0};
+  ack = (struct edu_fragment){2, 8, 7, 0, 3, 0, 3, {0}, 0};
   CHECK(!edu_tx_ack(&t, &ack, 0));
   CHECK(edu_tx_poll(&t, 500, &f) == -1);
   return 0;
 }
 static int presentation(void) {
-  EduRecord r = {2, 42, -1234, 1, 1, {0}, 0}, decoded, reply;
+  struct edu_record r = {2, 42, -1234, 1, 1, {0}, 0}, decoded, reply;
   uint8_t p[80];
   size_t n;
   CHECK(!edu_record_encode(&r, p, &n));
@@ -140,7 +140,7 @@ static int presentation(void) {
   return 0;
 }
 static int session(void) {
-  EduSession s = {0};
+  struct edu_session s = {0};
   const uint8_t *d;
   size_t n;
   uint8_t open[] = {1, 0, 1, 0, 1, 0, 0, 1, 1, 17};
@@ -166,7 +166,7 @@ static int session(void) {
   return 0;
 }
 static int physical(void) {
-  EduPhysical p = {0};
+  struct edu_physical p = {0};
   CHECK(!edu_phy_begin(&p, 0) && p.driving);
   CHECK(edu_phy_started(&p, 199));
   CHECK(!edu_phy_started(&p, 200));
@@ -178,34 +178,34 @@ static int physical(void) {
 }
 /* A real byte pipeline crosses two independent simulated link segments.
    The router receives a decoded L3 value and never gets an L5/L6 API. */
-static int routed_fragment(const EduFragment *f, EduFragment *received) {
+static int routed_fragment(const struct edu_fragment *f, struct edu_fragment *received) {
   uint8_t transport_bytes[32], network_bytes[40], wire[96];
   size_t tn, nn, wn;
   CHECK(!edu_fragment_encode(f, transport_bytes, &tn));
-  EduDatagram packet = {17, 51, 4, (uint8_t)tn, {0}};
+  struct edu_datagram packet = {17, 51, 4, (uint8_t)tn, {0}};
   memcpy(packet.payload, transport_bytes, tn);
   CHECK(!edu_network_encode(&packet, network_bytes, &nn));
-  EduFrame link = {0, 1, 2, (uint8_t)nn, {0}};
+  struct edu_frame link = {0, 1, 2, (uint8_t)nn, {0}};
   memcpy(link.payload, network_bytes, nn);
   CHECK(!edu_frame_encode(&link, wire, sizeof wire, &wn));
-  EduFramer left = {0};
-  EduFrame decoded;
+  struct edu_framer left = {0};
+  struct edu_frame decoded;
   int done = 0;
   for (size_t i = 0; i < wn; i++)
     if (edu_frame_byte(&left, wire[i], 0, &decoded) == 1)
       done++;
   CHECK(done == 1);
-  EduDatagram in, out;
+  struct edu_datagram in, out;
   CHECK(!edu_network_decode(decoded.payload, decoded.length, &in));
   unsigned segment;
   uint8_t next;
   CHECK(!edu_route(&in, 0, &out, &segment, &next));
   CHECK(segment == 1 && next == 2);
   CHECK(!edu_network_encode(&out, network_bytes, &nn));
-  link = (EduFrame){0, 1, 2, (uint8_t)nn, {0}};
+  link = (struct edu_frame){0, 1, 2, (uint8_t)nn, {0}};
   memcpy(link.payload, network_bytes, nn);
   CHECK(!edu_frame_encode(&link, wire, sizeof wire, &wn));
-  EduFramer right = {0};
+  struct edu_framer right = {0};
   done = 0;
   for (size_t i = 0; i < wn; i++)
     if (edu_frame_byte(&right, wire[i], 0, &decoded) == 1)
@@ -217,16 +217,16 @@ static int routed_fragment(const EduFragment *f, EduFragment *received) {
   return 0;
 }
 static int pipeline(void) {
-  EduRecord request = {2, 88, 2350, 1, 1, {0}, 16};
+  struct edu_record request = {2, 88, 2350, 1, 1, {0}, 16};
   memset(request.label, 'x', 16);
   uint8_t sdu[87] = {3, 0, 1, 0, 1, 0, 1};
   size_t n;
   CHECK(!edu_record_encode(&request, sdu + 7, &n));
   CHECK(n == 33);
-  EduTx tx = {0};
-  EduRx rx = {0};
+  struct edu_tx tx = {0};
+  struct edu_rx rx = {0};
   CHECK(!edu_tx_begin(&tx, 1, 7, 8, sdu, n + 7, 0));
-  EduFragment f, received, ack;
+  struct edu_fragment f, received, ack;
   uint64_t now = 0;
   while (tx.active) {
     CHECK(edu_tx_poll(&tx, now, &f) == 1);
@@ -237,14 +237,14 @@ static int pipeline(void) {
     now++;
   }
   CHECK(rx.ready && rx.length == 40);
-  EduSession session = {0};
+  struct edu_session session = {0};
   uint8_t open[] = {1, 0, 1, 0, 1, 0, 0, 1, 1, 17};
   const uint8_t *value;
   size_t size;
   CHECK(!edu_session_receive(&session, 17, open, sizeof open, &value, &size));
   CHECK(edu_session_receive(&session, 17, rx.bytes, rx.length, &value, &size) ==
         1);
-  EduRecord decoded, reply;
+  struct edu_record decoded, reply;
   CHECK(!edu_record_decode(value, size, &decoded));
   int16_t setpoint = 2200;
   CHECK(!edu_application(&decoded, &setpoint, &reply) && setpoint == 2350 &&

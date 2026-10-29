@@ -2,15 +2,15 @@
 #ifndef CDN_MUTANT
 #define CDN_MUTANT 0
 #endif
-static int valid(CDNHandle h) {
-  CDNotify *n = h.owner;
+static int valid(struct cdn_handle h) {
+  struct cd_notify *n = h.owner;
   return n && n->kernel && n->attached && n->task < CMX_TASKS &&
          (CDN_MUTANT == 3 || (h.generation == n->generation &&
           n->kernel->task[n->task].generation == n->generation)) &&
          n->kernel->task[n->task].state != CMX_UNUSED &&
          n->kernel->task[n->task].state != CMX_EXITED;
 }
-static void settle(CDNotify *n) {
+static void settle(struct cd_notify *n) {
   cmx_task *t = &n->kernel->task[n->task];
   if (n->phase == CDN_PENDING && t->state != CMX_WAITING) {
     n->phase = CDN_DONE;
@@ -19,10 +19,10 @@ static void settle(CDNotify *n) {
       n->claimed = 1;
   }
 }
-void cdn_init(CDNotify *n, cmx_kernel *k) {
-  *n = (CDNotify){0}; n->kernel = k;
+void cdn_init(struct cd_notify *n, cmx_kernel *k) {
+  *n = (struct cd_notify){0}; n->kernel = k;
 }
-int cdn_attach(CDNotify *n, unsigned task, unsigned maximum, CDNHandle *out) {
+int cdn_attach(struct cd_notify *n, unsigned task, unsigned maximum, struct cdn_handle *out) {
   if (!n || !n->kernel || !out || !maximum || n->attached || task >= CMX_TASKS)
     return CMX_INVALID;
   cmx_task *t = &n->kernel->task[task];
@@ -30,15 +30,15 @@ int cdn_attach(CDNotify *n, unsigned task, unsigned maximum, CDNHandle *out) {
       (n->seen && (task != n->task || t->generation == n->generation)))
     return CMX_INVALID;
   cmx_kernel *k = n->kernel;
-  *n = (CDNotify){0}; n->kernel = k; n->task = task; n->generation = t->generation;
+  *n = (struct cd_notify){0}; n->kernel = k; n->task = task; n->generation = t->generation;
   n->maximum = maximum; n->attached = n->seen = 1;
-  *out = (CDNHandle){n, n->generation};
+  *out = (struct cdn_handle){n, n->generation};
   return CMX_OK;
 }
-int cdn_post(CDNHandle h, uint32_t count, CDNPost *out) {
+int cdn_post(struct cdn_handle h, uint32_t count, struct cdn_post *out) {
   if (!valid(h)) return CDN_STALE;
   if (!count || !out) return CMX_INVALID;
-  CDNotify *n = h.owner; cmx_task *t = &n->kernel->task[n->task];
+  struct cd_notify *n = h.owner; cmx_task *t = &n->kernel->task[n->task];
   settle(n);
   if (n->closed) return CMX_CLOSED;
   if (n->fault_pending) return CDN_FAULT_PENDING;
@@ -50,7 +50,7 @@ int cdn_post(CDNHandle h, uint32_t count, CDNPost *out) {
       if (!count) return CMX_OK;
     } else {
       n->rejected += count;
-      n->fault = (CDNFault){++n->fault_sequence, count, CMX_FULL};
+      n->fault = (struct cdn_fault){++n->fault_sequence, count, CMX_FULL};
       n->fault_pending = CDN_MUTANT != 6;
       return CMX_FULL;
     }
@@ -62,12 +62,12 @@ int cdn_post(CDNHandle h, uint32_t count, CDNPost *out) {
   if (CDN_MUTANT == 2 && woke) t->notifications = 0;
   if (CDN_MUTANT == 4 && t->notifications > 1) t->notifications = 1;
   settle(n);
-  *out = (CDNPost){woke, woke, 1};
+  *out = (struct cdn_post){woke, woke, 1};
   return CMX_OK;
 }
-int cdn_wait(CDNHandle h, uint32_t up_to, cmx_deadline deadline) {
+int cdn_wait(struct cdn_handle h, uint32_t up_to, cmx_deadline deadline) {
   if (!valid(h)) return CDN_STALE;
-  CDNotify *n = h.owner; cmx_task *t = &n->kernel->task[n->task];
+  struct cd_notify *n = h.owner; cmx_task *t = &n->kernel->task[n->task];
   if (!up_to || n->phase != CDN_IDLE ||
       (t->state != CMX_READY && t->state != CMX_RUNNING)) return CMX_INVALID;
   if (n->closed) return CMX_CLOSED;
@@ -76,9 +76,9 @@ int cdn_wait(CDNHandle h, uint32_t up_to, cmx_deadline deadline) {
   n->requested = up_to; n->claimed = result == CMX_OK; n->result = result;
   return result;
 }
-int cdn_result(CDNHandle h, uint32_t *count) {
+int cdn_result(struct cdn_handle h, uint32_t *count) {
   if (!valid(h)) return CDN_STALE;
-  CDNotify *n = h.owner;
+  struct cd_notify *n = h.owner;
   if (!count || n->phase == CDN_IDLE) return CMX_INVALID;
   settle(n);
   if (n->phase == CDN_PENDING) return CMX_BLOCKED;
@@ -96,9 +96,9 @@ int cdn_result(CDNHandle h, uint32_t *count) {
   n->claimed = 0; n->phase = CDN_IDLE;
   return result;
 }
-int cdn_cancel(CDNHandle h) {
+int cdn_cancel(struct cdn_handle h) {
   if (!valid(h)) return CDN_STALE;
-  CDNotify *n = h.owner; settle(n);
+  struct cd_notify *n = h.owner; settle(n);
   if (n->phase == CDN_IDLE) return CMX_INVALID;
   if (n->phase == CDN_PENDING) {
     int result = cmx_cancel(n->kernel, n->task);
@@ -107,9 +107,9 @@ int cdn_cancel(CDNHandle h) {
   }
   return n->result;
 }
-int cdn_close(CDNHandle h) {
+int cdn_close(struct cdn_handle h) {
   if (!valid(h)) return CDN_STALE;
-  CDNotify *n = h.owner; settle(n);
+  struct cd_notify *n = h.owner; settle(n);
   if (n->phase == CDN_PENDING) {
     (void)cmx_cancel(n->kernel, n->task);
     settle(n);
@@ -118,24 +118,24 @@ int cdn_close(CDNHandle h) {
   n->kernel->task[n->task].notifications = 0; n->closed = 1;
   return CMX_OK;
 }
-int cdn_detach(CDNHandle h) {
+int cdn_detach(struct cdn_handle h) {
   if (!valid(h)) return CDN_STALE;
-  CDNotify *n = h.owner;
+  struct cd_notify *n = h.owner;
   if (!n->closed || n->phase != CDN_IDLE || n->fault_pending) return CMX_BLOCKED;
   n->attached = 0; return CMX_OK;
 }
-int cdn_fault(CDNHandle h, CDNFault *out) {
+int cdn_fault(struct cdn_handle h, struct cdn_fault *out) {
   if (!valid(h)) return CDN_STALE;
   if (!out) return CMX_INVALID;
   if (!h.owner->fault_pending) return CMX_BLOCKED;
   *out = h.owner->fault; return CMX_OK;
 }
-int cdn_ack_fault(CDNHandle h, uint64_t sequence) {
+int cdn_ack_fault(struct cdn_handle h, uint64_t sequence) {
   if (!valid(h)) return CDN_STALE;
   if (!h.owner->fault_pending || h.owner->fault.sequence != sequence) return CDN_STALE;
   h.owner->fault_pending = 0; return CMX_OK;
 }
-int cdn_invariant(const CDNotify *n) {
+int cdn_invariant(const struct cd_notify *n) {
   if (!n || !n->kernel || n->task >= CMX_TASKS) return 0;
   uint64_t remaining = n->kernel->task[n->task].notifications;
   if (remaining > n->maximum || n->claimed > 1 || n->consumed > n->accepted ||

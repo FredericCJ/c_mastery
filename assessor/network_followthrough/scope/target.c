@@ -5,7 +5,7 @@ __attribute__((section(".dma"), aligned(32),
                used)) static unsigned char dma_buffers[6][2048];
 __attribute__((section(".dma"), aligned(32),
                used)) static uint32_t dma_descriptors[6][4];
-static NwTx connections[2];
+static struct nw_tx connections[2];
 void nw_print(const char *s) {
   register unsigned r0 __asm__("r0") = 4;
   register const char *r1 __asm__("r1") = s;
@@ -50,16 +50,16 @@ static void number(unsigned value) {
   }
 }
 void xf_target_main(void) {
-  NwLengths lengths;
+  struct nw_lengths lengths;
   CHECK(nw_lengths(3, &lengths) == NW_OK && lengths.with_fcs == 64);
   nw_print("NW_LAYOUT ");
-  number(sizeof(NetStack));
+  number(sizeof(struct net_stack));
   nw_print(" ");
-  number(sizeof(NwPair));
+  number(sizeof(struct nw_pair));
   nw_print(" ");
-  number(sizeof(NwTx));
+  number(sizeof(struct nw_tx));
   nw_print(" ");
-  number(sizeof(NwRx));
+  number(sizeof(struct nw_rx));
   nw_print("\n");
   for (unsigned i = 0; i < 6; ++i) {
     for (unsigned j = 0; j < 2048; ++j)
@@ -81,9 +81,9 @@ void xf_target_main(void) {
   }
   for (unsigned k = 0; k < 2; ++k) {
     unsigned packets = 0;
-    NwTx *s = &connections[k];
+    struct nw_tx *s = &connections[k];
     while (s->acknowledged < 600) {
-      NwSegment segment;
+      struct nw_segment segment;
       CHECK(nw_prepare(s, 256, 512, &segment) == NW_OK);
       CHECK(segment.length == (packets < 2 ? 256 : 88));
       CHECK(nw_submit(s, segment.ticket, 1) == NW_OK);

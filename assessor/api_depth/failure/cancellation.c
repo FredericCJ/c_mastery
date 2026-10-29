@@ -1,6 +1,6 @@
 #include "cancellation.h"
-AeCode ae_operation_start(AeOperation *o, const unsigned char *p, unsigned n,
-                          AeTerminal receiver, void *context,
+enum ae_code ae_operation_start(struct ae_operation *o, const unsigned char *p, unsigned n,
+                          ae_terminal_fn receiver, void *context,
                           unsigned *generation) {
   if (!o || (!p && n) || n > 4 || !receiver || !generation)
     return AE_INVALID;
@@ -9,7 +9,7 @@ AeCode ae_operation_start(AeOperation *o, const unsigned char *p, unsigned n,
   if (o->backend.generation >= 3)
     return AE_FULL;
   uint32_t ticket;
-  FStatus s = f_submit(&o->backend, &ticket);
+  enum f_status s = f_submit(&o->backend, &ticket);
   if (s != F_OK)
     return AE_CONTRACT;
   o->terminal = receiver;
@@ -22,7 +22,7 @@ AeCode ae_operation_start(AeOperation *o, const unsigned char *p, unsigned n,
   *generation = ticket;
   return AE_OK;
 }
-AeCode ae_operation_event(AeOperation *o, unsigned generation, AeEvent event) {
+enum ae_code ae_operation_event(struct ae_operation *o, unsigned generation, enum ae_event event) {
   if (!o || !generation || (unsigned)event > AE_JOINED)
     return AE_INVALID;
 #ifndef AE_MUTANT_STALE
@@ -45,9 +45,9 @@ AeCode ae_operation_event(AeOperation *o, unsigned generation, AeEvent event) {
     return AE_AGAIN;
   if (f_complete(&o->backend, o->backend.generation) != F_OK)
     return AE_CONTRACT;
-  AeTerminal receiver = o->terminal;
+  ae_terminal_fn receiver = o->terminal;
   void *context = o->context;
-  AeCode result = o->timed_out ? AE_TIMEOUT : AE_OK;
+  enum ae_code result = o->timed_out ? AE_TIMEOUT : AE_OK;
   unsigned length = o->length, ticket = o->backend.generation;
   unsigned char payload[4];
   for (unsigned i = 0; i < length; ++i)

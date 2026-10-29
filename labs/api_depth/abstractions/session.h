@@ -2,29 +2,29 @@
 #define CMASTERY_ABSTRACTION_SESSION_H
 #include "ownership.h"
 #include "session_v1.h"
-typedef enum { AS_OK,AS_INVALID,AS_FULL,AS_UNSUPPORTED,AS_FAILED,AS_UNIMPLEMENTED } AsStatus;
-typedef enum { AS_NEW,AS_ACTIVE,AS_SUSPENDED,AS_STOPPED } AsState;
-typedef enum { AS_START,AS_INCREMENT,AS_STOP,AS_SUSPEND,AS_RESUME,AS_CANCEL } AsEvent;
-typedef struct { AsState state;unsigned count,ready;AcLedger *ledger; } AsSession;
-typedef void (*AsConstructionObserver)(void *,AsSession *);
-void as_session_init(AsSession *,AcLedger *);
-AsStatus as_construct(AsSession *,unsigned fail_second,AsConstructionObserver,void *);
-AsStatus as_event(AsSession *,AsEvent);
-typedef struct AsOpaque AsOpaque;
-AsStatus as_opaque_create(AcAllocate,AcLedger *,AsOpaque **);
-AsStatus as_opaque_event(AsOpaque *,AsEvent);
-AsStatus as_opaque_read(const AsOpaque *,unsigned *);
-AsStatus as_opaque_destroy(AsOpaque *);
-typedef struct { uint32_t version,flags;size_t bytes; } AsHeader;
-typedef AsStatus (*AsRun)(void *,AsEvent);
-typedef AsStatus (*AsFlush)(void *);
-typedef struct { AsHeader header;AsRun run; } AsOpsV1;
-typedef struct { AsOpsV1 prefix;AsFlush flush; } AsOpsV2;
-typedef struct { AsRun run;AsFlush flush;void *context; } AsBackend;
-typedef struct { AsSession *session;unsigned calls; } AsExtra;
-extern const AsOpsV1 as_direct_ops;
-extern const AsOpsV2 as_adapted_ops;
-AsStatus as_backend(const void *descriptor,size_t available,void *context,AsBackend *);
-AsStatus as_backend_run(AsBackend,AsEvent);
-AsStatus as_backend_flush(AsBackend);
+enum as_status { AS_OK,AS_INVALID,AS_FULL,AS_UNSUPPORTED,AS_FAILED,AS_UNIMPLEMENTED };
+enum as_state { AS_NEW,AS_ACTIVE,AS_SUSPENDED,AS_STOPPED };
+enum as_event { AS_START,AS_INCREMENT,AS_STOP,AS_SUSPEND,AS_RESUME,AS_CANCEL };
+struct as_session { enum as_state state;unsigned count,ready;struct ac_ledger *ledger; };
+typedef void (*as_construction_observer_fn)(void *,struct as_session *);
+void as_session_init(struct as_session *,struct ac_ledger *);
+enum as_status as_construct(struct as_session *,unsigned fail_second,as_construction_observer_fn,void *);
+enum as_status as_event(struct as_session *,enum as_event);
+struct as_opaque;
+enum as_status as_opaque_create(struct ac_allocate,struct ac_ledger *,struct as_opaque **);
+enum as_status as_opaque_event(struct as_opaque *,enum as_event);
+enum as_status as_opaque_read(const struct as_opaque *,unsigned *);
+enum as_status as_opaque_destroy(struct as_opaque *);
+struct as_header { uint32_t version,flags;size_t bytes; };
+typedef enum as_status (*as_run_fn)(void *,enum as_event);
+typedef enum as_status (*as_flush_fn)(void *);
+struct as_ops_v1 { struct as_header header;as_run_fn run; };
+struct as_ops_v2 { struct as_ops_v1 prefix;as_flush_fn flush; };
+struct as_backend { as_run_fn run;as_flush_fn flush;void *context; };
+struct as_extra { struct as_session *session;unsigned calls; };
+extern const struct as_ops_v1 as_direct_ops;
+extern const struct as_ops_v2 as_adapted_ops;
+enum as_status as_backend(const void *descriptor,size_t available,void *context,struct as_backend *);
+enum as_status as_backend_run(struct as_backend,enum as_event);
+enum as_status as_backend_flush(struct as_backend);
 #endif

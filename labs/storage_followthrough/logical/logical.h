@@ -15,23 +15,23 @@ enum {
   SL_CORRUPT,
   SL_UNIMPLEMENTED
 };
-typedef struct {
+struct sl_receipt {
   uint64_t id;
   int64_t total;
-} SlReceipt;
-typedef struct {
+};
+struct sl_counter {
   store_io io;
   uint64_t id;
   int64_t total, delta;
   unsigned pending, poisoned;
-} SlCounter;
+};
 /* SLR1: three exclusive pages, serialized live control; no external effects.
  * Exact sequential IDs within one image lifetime. Latest duplicate only;
  * older IDs are rejected, never reapplied. Outputs/control/backend disjoint.
  * Fresh constructor storage; callback borrow/reentry rules match store_io. */
 int sl_format(store_io);
-int sl_open(SlCounter *, store_io);
-int sl_apply(SlCounter *, uint64_t id, int64_t delta, SlReceipt *);
-int sl_get(const SlCounter *, SlReceipt *);
-int sl_checkpoint(SlCounter *);
+int sl_open(struct sl_counter *, store_io);
+int sl_apply(struct sl_counter *, uint64_t id, int64_t delta, struct sl_receipt *);
+int sl_get(const struct sl_counter *, struct sl_receipt *);
+int sl_checkpoint(struct sl_counter *);
 #endif

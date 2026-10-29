@@ -8,7 +8,7 @@ not turn descriptor readiness into lifetime safety; no published C23 equivalence
 is asserted. Use GCC/Clang, Linux with timerfd/eventfd/epoll, libc and pthreads.
 No timer/event-loop library may implement the policy. Python is a host checker.
 
-`TdTimer` is caller-owned, address-stable storage initialized by `td_init` with
+`struct td_timer` is caller-owned, address-stable storage initialized by `td_init` with
 a generation limit in 1..65535. Its public fields enable inspection, not arbitrary
 mutation. All operations on one timer and scans of a timer array must share one
 serialization discipline. The reference race adapter uses one POSIX mutex.
@@ -56,7 +56,7 @@ Join actual callback threads before destroying their mutex/condition objects.
 eligible set (outputs unchanged), or-1 for invalid pointers. Count0 permits a
 null array. Scan cost is O(N), storage O(1); the native exercise uses three
 timers. Replace this with a heap only after preserving token, tie, failure and
-ownership contracts. `sizeof(TdTimer)` and target padding are measured facts,
+ownership contracts. `sizeof(struct td_timer)` and target padding are measured facts,
 not portable wire sizes. Core imports must contain no allocation service.
 
 The Linux adapter owns each descriptor until close, reads native eight-byte

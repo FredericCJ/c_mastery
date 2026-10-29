@@ -1,6 +1,6 @@
 #include "execution.h"
-int vs_start(Vs *s, const CvmProgram *p, unsigned m, uint32_t f, uint32_t g,
-             uint32_t h, uint32_t c, VvWork *w) {
+int vs_start(struct vg_vs *s, const struct cvm_program *p, unsigned m, uint32_t f, uint32_t g,
+             uint32_t h, uint32_t c, struct vv_work *w) {
   (void)s;
   (void)p;
   (void)m;
@@ -11,17 +11,17 @@ int vs_start(Vs *s, const CvmProgram *p, unsigned m, uint32_t f, uint32_t g,
   (void)w;
   return VS_UNIMPLEMENTED;
 }
-int vs_step(Vs *s, CvmValue *v) {
+int vs_step(struct vg_vs *s, struct cvm_value *v) {
   (void)s;
   (void)v;
   return VS_UNIMPLEMENTED;
 }
-int vs_take(Vs *s, VsRequest *r) {
+int vs_take(struct vg_vs *s, struct vs_request *r) {
   (void)s;
   (void)r;
   return VS_UNIMPLEMENTED;
 }
-int vs_complete(Vs *s, uint32_t e, uint32_t n, int f, int32_t v) {
+int vs_complete(struct vg_vs *s, uint32_t e, uint32_t n, int f, int32_t v) {
   (void)s;
   (void)e;
   (void)n;

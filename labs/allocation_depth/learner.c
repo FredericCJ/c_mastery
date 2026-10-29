@@ -9,15 +9,15 @@ int al_extent(size_t c, size_t n, size_t a, size_t cap, size_t *at,
   (void)end;
   return AL_BAD;
 }
-int al_arena_init(ALArena *a, unsigned char *p, size_t cap, size_t align) {
+int al_arena_init(struct al_arena *a, unsigned char *p, size_t cap, size_t align) {
   (void)a;
   (void)p;
   (void)cap;
   (void)align;
   return AL_BAD;
 }
-int al_arena_take(ALArena *a, size_t n, size_t align, ALCleanup f, void *ctx,
-                  ALHandle *out) {
+int al_arena_take(struct al_arena *a, size_t n, size_t align, al_cleanup_fn f, void *ctx,
+                  struct al_handle *out) {
   (void)a;
   (void)n;
   (void)align;
@@ -26,46 +26,46 @@ int al_arena_take(ALArena *a, size_t n, size_t align, ALCleanup f, void *ctx,
   (void)out;
   return AL_BAD;
 }
-int al_arena_view(ALArena *a, ALHandle h, unsigned char **out, size_t *size) {
+int al_arena_view(struct al_arena *a, struct al_handle h, unsigned char **out, size_t *size) {
   (void)a;
   (void)h;
   (void)out;
   (void)size;
   return AL_BAD;
 }
-int al_arena_mark(ALArena *a, ALMark *out) {
+int al_arena_mark(struct al_arena *a, struct al_mark *out) {
   (void)a;
   (void)out;
   return AL_BAD;
 }
-int al_arena_rollback(ALArena *a, ALMark mark) {
+int al_arena_rollback(struct al_arena *a, struct al_mark mark) {
   (void)a;
   (void)mark;
   return AL_BAD;
 }
-int al_arena_commit(ALArena *a, ALMark mark) {
+int al_arena_commit(struct al_arena *a, struct al_mark mark) {
   (void)a;
   (void)mark;
   return AL_BAD;
 }
-int al_arena_release(ALArena *a, ALHandle h) {
+int al_arena_release(struct al_arena *a, struct al_handle h) {
   (void)a;
   (void)h;
   return AL_BAD;
 }
-int al_arena_reset(ALArena *a) {
+int al_arena_reset(struct al_arena *a) {
   (void)a;
   return AL_BAD;
 }
-int al_buddy_init(ALBuddy *b) {
+int al_buddy_init(struct al_buddy *b) {
   (void)b;
   return AL_BAD;
 }
-int al_buddy_check(const ALBuddy *b) {
+int al_buddy_check(const struct al_buddy *b) {
   (void)b;
   return AL_BAD;
 }
-int al_buddy_take(ALBuddy *b, size_t n, ALHandle *out, size_t *offset,
+int al_buddy_take(struct al_buddy *b, size_t n, struct al_handle *out, size_t *offset,
                   size_t *charged) {
   (void)b;
   (void)n;
@@ -74,23 +74,23 @@ int al_buddy_take(ALBuddy *b, size_t n, ALHandle *out, size_t *offset,
   (void)charged;
   return AL_BAD;
 }
-int al_buddy_release(ALBuddy *b, ALHandle h) {
+int al_buddy_release(struct al_buddy *b, struct al_handle h) {
   (void)b;
   (void)h;
   return AL_BAD;
 }
-int al_stable_init(ALStable *s, ALHeap *heap) {
+int al_stable_init(struct al_stable *s, struct al_heap *heap) {
   (void)s;
   (void)heap;
   return AL_BAD;
 }
-int al_stable_take(ALStable *s, size_t n, ALStableHandle *out) {
+int al_stable_take(struct al_stable *s, size_t n, struct al_stable_handle *out) {
   (void)s;
   (void)n;
   (void)out;
   return AL_BAD;
 }
-int al_stable_view(ALStable *s, ALStableHandle h, unsigned char **out,
+int al_stable_view(struct al_stable *s, struct al_stable_handle h, unsigned char **out,
                    size_t *n) {
   (void)s;
   (void)h;
@@ -98,19 +98,19 @@ int al_stable_view(ALStable *s, ALStableHandle h, unsigned char **out,
   (void)n;
   return AL_BAD;
 }
-int al_stable_resize(ALStable *s, ALStableHandle h, size_t n, int fail) {
+int al_stable_resize(struct al_stable *s, struct al_stable_handle h, size_t n, int fail) {
   (void)s;
   (void)h;
   (void)n;
   (void)fail;
   return AL_BAD;
 }
-int al_stable_release(ALStable *s, ALStableHandle h) {
+int al_stable_release(struct al_stable *s, struct al_stable_handle h) {
   (void)s;
   (void)h;
   return AL_BAD;
 }
-int al_extent_choose(ALExtent *a, size_t *count, size_t bytes, size_t minimum,
+int al_extent_choose(struct al_extent *a, size_t *count, size_t bytes, size_t minimum,
                      unsigned best, size_t *offset, size_t *charged) {
   (void)a;
   (void)count;
@@ -121,30 +121,30 @@ int al_extent_choose(ALExtent *a, size_t *count, size_t bytes, size_t minimum,
   (void)charged;
   return AL_BAD;
 }
-int al_extent_coalesce(ALExtent *a, size_t *count, size_t capacity) {
+int al_extent_coalesce(struct al_extent *a, size_t *count, size_t capacity) {
   (void)a;
   (void)count;
   (void)capacity;
   return AL_BAD;
 }
-int al_heap_api(ALHeap *h, ALAllocator *out) {
+int al_heap_api(struct al_heap *h, struct al_allocator *out) {
   (void)h;
   (void)out;
   return AL_BAD;
 }
-int al_api_allocate(const ALAllocator *a, size_t n, size_t align,
-                    ALHandle *out) {
+int al_api_allocate(const struct al_allocator *a, size_t n, size_t align,
+                    struct al_handle *out) {
   (void)a;
   (void)n;
   (void)align;
   (void)out;
   return AL_BAD;
 }
-int al_heap_check(const ALHeap *h) {
+int al_heap_check(const struct al_heap *h) {
   (void)h;
   return AL_BAD;
 }
-int al_heap_init(ALHeap *h, unsigned n, unsigned best, unsigned deferred,
+int al_heap_init(struct al_heap *h, unsigned n, unsigned best, unsigned deferred,
                  unsigned instrument) {
   (void)h;
   (void)n;
@@ -153,37 +153,37 @@ int al_heap_init(ALHeap *h, unsigned n, unsigned best, unsigned deferred,
   (void)instrument;
   return AL_BAD;
 }
-int al_heap_take(ALHeap *h, size_t n, size_t alignment, ALHandle *out) {
+int al_heap_take(struct al_heap *h, size_t n, size_t alignment, struct al_handle *out) {
   (void)h;
   (void)n;
   (void)alignment;
   (void)out;
   return AL_BAD;
 }
-int al_heap_view(ALHeap *h, ALHandle handle, unsigned char **out, size_t *n) {
+int al_heap_view(struct al_heap *h, struct al_handle handle, unsigned char **out, size_t *n) {
   (void)h;
   (void)handle;
   (void)out;
   (void)n;
   return AL_BAD;
 }
-int al_heap_release(ALHeap *h, ALHandle handle) {
+int al_heap_release(struct al_heap *h, struct al_handle handle) {
   (void)h;
   (void)handle;
   return AL_BAD;
 }
-int al_heap_collect(ALHeap *h) {
+int al_heap_collect(struct al_heap *h) {
   (void)h;
   return AL_BAD;
 }
-int al_heap_stats(const ALHeap *h, size_t *total, size_t *largest) {
+int al_heap_stats(const struct al_heap *h, size_t *total, size_t *largest) {
   (void)h;
   (void)total;
   (void)largest;
   return AL_BAD;
 }
-int al_heap_resize_copy(ALHeap *h, ALHandle handle, size_t n, int fail_acquire,
-                        ALCopy copier, void *context, ALHandle *out) {
+int al_heap_resize_copy(struct al_heap *h, struct al_handle handle, size_t n, int fail_acquire,
+                        al_copy_fn copier, void *context, struct al_handle *out) {
   (void)h;
   (void)handle;
   (void)n;
@@ -193,8 +193,8 @@ int al_heap_resize_copy(ALHeap *h, ALHandle handle, size_t n, int fail_acquire,
   (void)out;
   return AL_BAD;
 }
-int al_heap_resize(ALHeap *h, ALHandle handle, size_t n, int fail_acquire,
-                   size_t fail_after, ALHandle *out) {
+int al_heap_resize(struct al_heap *h, struct al_handle handle, size_t n, int fail_acquire,
+                   size_t fail_after, struct al_handle *out) {
   (void)h;
   (void)handle;
   (void)n;
@@ -203,34 +203,34 @@ int al_heap_resize(ALHeap *h, ALHandle handle, size_t n, int fail_acquire,
   (void)out;
   return AL_BAD;
 }
-void al_pool_init(ALPool *p) {
+void al_pool_init(struct al_pool *p) {
   (void)p;
   return;
 }
-int al_pool_take(ALPool *p, int32_t value, ALPoolHandle *out) {
+int al_pool_take(struct al_pool *p, int32_t value, struct al_pool_handle *out) {
   (void)p;
   (void)value;
   (void)out;
   return AL_BAD;
 }
-int al_pool_get(const ALPool *p, ALPoolHandle h, int32_t *out) {
+int al_pool_get(const struct al_pool *p, struct al_pool_handle h, int32_t *out) {
   (void)p;
   (void)h;
   (void)out;
   return AL_BAD;
 }
-int al_pool_release(ALPool *p, ALPoolHandle h) {
+int al_pool_release(struct al_pool *p, struct al_pool_handle h) {
   (void)p;
   (void)h;
   return AL_BAD;
 }
-int al_classes_init(ALClasses *c) {
+int al_classes_init(struct al_classes *c) {
   (void)c;
   return AL_BAD;
 }
-int al_classes_take(ALClasses *c, size_t n,
+int al_classes_take(struct al_classes *c, size_t n,
                     int (*init)(void *, unsigned char *, size_t),
-                    ALCleanup destroy, void *ctx, ALHandle *out) {
+                    al_cleanup_fn destroy, void *ctx, struct al_handle *out) {
   (void)c;
   (void)n;
   (void)init;
@@ -239,12 +239,12 @@ int al_classes_take(ALClasses *c, size_t n,
   (void)out;
   return AL_BAD;
 }
-int al_classes_release(ALClasses *c, ALHandle h) {
+int al_classes_release(struct al_classes *c, struct al_handle h) {
   (void)c;
   (void)h;
   return AL_BAD;
 }
-int al_classes_stats(const ALClasses *c, size_t *payload, size_t *charged,
+int al_classes_stats(const struct al_classes *c, size_t *payload, size_t *charged,
                      size_t *retained) {
   (void)c;
   (void)payload;

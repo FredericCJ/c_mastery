@@ -15,7 +15,7 @@ static void exercise(void){
   CHECK(cmx_mutex_lock(&kernel,&b,1,cmx_forever())==CMX_OK);
   CHECK(cmx_mutex_lock(&kernel,&a,1,cmx_forever())==CMX_BLOCKED);
   CHECK(cmx_mutex_lock(&kernel,&b,2,cmx_forever())==CMX_BLOCKED);
-  CDPIStats stats;
+  struct cdpi_stats stats;
   CHECK(cdpi_reprioritize(&kernel,0,11,&stats)==CMX_OK);
   CHECK(kernel.task[0].priority==3 && kernel.task[1].priority==3 && kernel.task[0].base_priority==11 && stats.donated_pairs==3);
   CHECK(cdpi_reprioritize(&kernel,2,6,&stats)==CMX_OK && kernel.task[0].priority==6 && kernel.task[1].priority==6);

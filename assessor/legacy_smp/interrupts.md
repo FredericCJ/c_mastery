@@ -3,7 +3,7 @@
 The a trace must produce masks 0,1,1,3. Generation comparison happens before
 setting a bit, and destination identity is an independent index. Accepting the
 duplicate CPU0 event as a second participant is wrong even if the total count
-reaches two. `SiRound` observes trusted matching mailbox completion; it does not
+reaches two. `struct si_round` observes trusted matching mailbox completion; it does not
 validate arbitrary external acknowledgements. Its state is serialized.
 
 The box uses two publication edges: producer payload writes precede release of

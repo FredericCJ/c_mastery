@@ -41,9 +41,9 @@ preparation have distinct edge types.
 The successor route declares five additional component identities without changing
 the historical artifact catalog: `foundation.cursor`, `containers.depth.ring`,
 `containers.depth.heap`, `containers.depth.csr` and `algorithms.depth.graph`.
-They identify the actual `FDCursor`, `CD*` and `ad_*` APIs required by the current
+They identify the actual `struct fd_cursor`, `CD*` and `ad_*` APIs required by the current
 pointer and graph successors. An older `containers.ring` export has a different
-contract and cannot stand in for `CDRing`.
+contract and cannot stand in for `struct cd_ring`.
 
 Each producer card names its export, unchanged public header and dependency IDs.
 Implement each exported mechanism in separate source files so that a consumer

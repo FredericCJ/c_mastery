@@ -4,15 +4,15 @@ This required successor implements X-T73-008-R4 and supports the visibility,
 pin, reclamation and failure arguments in R1–R3. It supplies implementation and
 changed-condition evidence; an unseen delayed assessment remains a separate
 learner event. Implement `src/versions_follow.c` using `versions.h`, the completed
-`MsgVersions`/`MsgStore` cores, and the retained-owner primitives in `LIFETIME.md`.
+`struct msg_versions`/`struct msg_store` cores, and the retained-owner primitives in `LIFETIME.md`.
 Do not substitute a database, transaction library or reference-counted container.
 Use ISO C17 plus the explicit POSIX mutex interface on hosted Linux. Compiler
 sanitizers and Python models are host verification tools, not mechanism imports.
 
 ## Ownership, operations and failure contract
 
-`MfvStore` maps each live core version slot to one independently owned immutable
-payload. `mfv_init` consumes the initial unique `MfoValue` only on success. The
+`struct mfv_store` maps each live core version slot to one independently owned immutable
+payload. `mfv_init` consumes the initial unique `struct mfo_value` only on success. The
 store starts at timestamp0; its control storage must not already be initialized.
 A failed constructor leaves the initial owner intact and no initialized store.
 The same rule applies if allocating the shared-owner control fails. Store/output
@@ -28,7 +28,7 @@ context and destructor dependencies must remain live until the last token drops.
 A retained descriptor does not authorize mutation of the underlying payload.
 
 `mfv_publish` invokes the caller's clone with a borrowed source object and an
-initially empty temporary `MfoValue`. The source and callback context remain live
+initially empty temporary `struct mfo_value`. The source and callback context remain live
 and unchanged until return. On `MSG_OK`, clone supplies a fully constructed unique
 owner and a valid destructor; on any failure status it destroys its own partial
 construction and leaves the temporary empty. The wrapper propagates that failure.
@@ -70,7 +70,7 @@ never use a stale pointer as the expected-result oracle.
 
 ## Independent keys and delayed predicate variant
 
-`MfkStore` contains two logical unsigned keys and the actual `MsgStore` core.
+`struct mfk_store` contains two logical unsigned keys and the actual `struct msg_store` core.
 `mfk_begin` takes a consistent two-key value snapshot under an outer mutex and
 returns a transaction owned by the invoking thread. The output must not contain
 an active transaction. `mfk_read` returns a staged write or captured snapshot and

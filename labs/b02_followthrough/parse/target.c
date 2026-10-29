@@ -6,7 +6,7 @@ static const unsigned char endpoint[]={45,50,49,52,55,52,56,51,54,52,56};
 static const unsigned char overflow[]={50,49,52,55,52,56,51,54,52,56};
 static const unsigned char invalid[]={33};
 void bf_target(void){
- int32_t a=77,b=77;BfParse s;
+ int32_t a=77,b=77;struct bf_parse s;
  TEST(b2_parse(endpoint,sizeof endpoint,&a)==B2_OK && a==INT32_MIN);
  TEST(bf_parse_radix(endpoint,sizeof endpoint,10,&b)==B2_OK && b==a);
  TEST(bf_parse_reset(&s,10)==B2_OK);TEST(bf_parse_feed(&s,overflow,sizeof overflow)==B2_OK);TEST(bf_parse_feed(&s,invalid,1)==B2_OK);TEST(bf_parse_finish(&s,&b)==B2_INVALID && b==INT32_MIN);

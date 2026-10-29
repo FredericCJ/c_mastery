@@ -3,27 +3,27 @@
 #include <stddef.h>
 #include <stdint.h>
 
-enum TdState { TD_IDLE, TD_ARMED, TD_RUNNING, TD_CANCELLING, TD_RETIRED };
-typedef struct {
+enum td_state { TD_IDLE, TD_ARMED, TD_RUNNING, TD_CANCELLING, TD_RETIRED };
+struct td_timer {
   unsigned generation, limit;
-  enum TdState state;
+  enum td_state state;
   uint64_t deadline, period, next;
   int skip, exhausted;
-} TdTimer;
-typedef struct {
+};
+struct td_dispatch {
   unsigned generation;
   uint64_t scheduled, expirations, effects, next;
   int exhausted;
-} TdDispatch;
+};
 
 /* Serialized by the caller. See CONTRACTS.md for ownership and return values.
  */
-int td_init(TdTimer *, unsigned generation_limit);
-int td_arm(TdTimer *, uint64_t deadline, uint64_t period, int skip,
+int td_init(struct td_timer *, unsigned generation_limit);
+int td_arm(struct td_timer *, uint64_t deadline, uint64_t period, int skip,
            unsigned *generation);
-int td_begin(TdTimer *, unsigned generation, uint64_t now, TdDispatch *);
-int td_finish(TdTimer *, unsigned generation);
-int td_cancel(TdTimer *);
-int td_earliest(const TdTimer *, size_t count, size_t *index,
+int td_begin(struct td_timer *, unsigned generation, uint64_t now, struct td_dispatch *);
+int td_finish(struct td_timer *, unsigned generation);
+int td_cancel(struct td_timer *);
+int td_earliest(const struct td_timer *, size_t count, size_t *index,
                 uint64_t *deadline);
 #endif

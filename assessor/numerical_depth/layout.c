@@ -4,7 +4,7 @@
 #ifndef ND_MUTANT
 #define ND_MUTANT 0
 #endif
-int nd_insert(NDStore *s, double x, double y, const char label[24],
+int nd_insert(struct nd_store *s, double x, double y, const char label[24],
               unsigned *out) {
   if (!s || !label || !out || s->count >= ND_ITEMS || s->serial == UINT_MAX ||
       !isfinite(x) || !isfinite(y))
@@ -19,7 +19,7 @@ int nd_insert(NDStore *s, double x, double y, const char label[24],
   *out = s->serial;
   return ND_OK;
 }
-int nd_remove(NDStore *s, unsigned id) {
+int nd_remove(struct nd_store *s, unsigned id) {
   if (!s || s->count > ND_ITEMS)
     return ND_BAD;
   size_t i = 0;
@@ -38,10 +38,10 @@ int nd_remove(NDStore *s, unsigned id) {
   s->count--;
   return ND_OK;
 }
-int nd_reorder(NDStore *s, const unsigned *order, size_t n) {
+int nd_reorder(struct nd_store *s, const unsigned *order, size_t n) {
   if (!s || n != s->count || n > ND_ITEMS || (!order && n))
     return ND_BAD;
-  NDStore t = *s;
+  struct nd_store t = *s;
   unsigned seen = 0;
   for (size_t i = 0; i < n; i++) {
     if (order[i] >= n || (seen & (1u << order[i])))
@@ -57,7 +57,7 @@ int nd_reorder(NDStore *s, const unsigned *order, size_t n) {
   *s = t;
   return ND_OK;
 }
-int nd_record(const NDStore *s, unsigned id, NDRecord *out) {
+int nd_record(const struct nd_store *s, unsigned id, struct nd_record *out) {
   if (!s || !out || s->count > ND_ITEMS)
     return ND_BAD;
   for (size_t i = 0; i < s->count; i++)

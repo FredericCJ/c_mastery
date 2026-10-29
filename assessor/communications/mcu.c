@@ -4,7 +4,7 @@ static int address32(uint16_t a) {
   return a <= 0x2ec || (a >= 0xe00 && a <= 0xe14) ||
          (a >= 0x400 && a <= 0xbfc && !(a & 3));
 }
-int mcp_read32(const McpBus *b, uint16_t address, uint32_t *value) {
+int mcp_read32(const struct mcp_bus *b, uint16_t address, uint32_t *value) {
   if (!b || !b->transfer || !value || !address32(address))
     return -1;
   uint8_t tx[6] =
@@ -16,7 +16,7 @@ int mcp_read32(const McpBus *b, uint16_t address, uint32_t *value) {
            (uint32_t)rx[5] << 24;
   return 0;
 }
-int mcp_write32(const McpBus *b, uint16_t address, uint32_t value) {
+int mcp_write32(const struct mcp_bus *b, uint16_t address, uint32_t value) {
   /* IOCON requires single-byte writes; exclude that register from this helper.
    */
   if (!b || !b->transfer || !address32(address) ||
@@ -31,7 +31,7 @@ int mcp_write32(const McpBus *b, uint16_t address, uint32_t value) {
           rx[6] = {0};
   return b->transfer(b->ctx, tx, rx, sizeof tx) ? -1 : 0;
 }
-int mcp_configuration_reset(const McpBus *b, uint64_t timeout) {
+int mcp_configuration_reset(const struct mcp_bus *b, uint64_t timeout) {
   if (!b || !b->milliseconds || !timeout)
     return -1;
   uint64_t start = b->milliseconds(b->ctx);
@@ -63,7 +63,7 @@ int can_fd_length(unsigned dlc, unsigned *length) {
   *length = lengths[dlc];
   return 0;
 }
-int dma_tx_prepare(DmaSlot *s, const void *v, size_t n) {
+int dma_tx_prepare(struct dma_slot *s, const void *v, size_t n) {
   if (!s || s->owner || s->published || n < 14 || n > 1514)
     return -1;
   memcpy(s->data, v, n);
@@ -71,7 +71,7 @@ int dma_tx_prepare(DmaSlot *s, const void *v, size_t n) {
   s->complete = 0;
   return 0;
 }
-int dma_tx_publish(DmaSlot *s, void (*barrier)(void *), void *ctx) {
+int dma_tx_publish(struct dma_slot *s, void (*barrier)(void *), void *ctx) {
   if (!s || !barrier || s->owner || s->published || s->length < 14)
     return -1;
   barrier(ctx);
@@ -79,7 +79,7 @@ int dma_tx_publish(DmaSlot *s, void (*barrier)(void *), void *ctx) {
   s->owner = 1;
   return 0;
 }
-int dma_tx_complete(DmaSlot *s, int error) {
+int dma_tx_complete(struct dma_slot *s, int error) {
   if (!s || !s->published || !s->owner)
     return -1;
   s->owner = s->published = 0;
@@ -87,7 +87,7 @@ int dma_tx_complete(DmaSlot *s, int error) {
   s->complete = !error;
   return error ? -1 : 0;
 }
-int dma_rx_acquire(DmaSlot *s, unsigned own, unsigned fs, unsigned ls,
+int dma_rx_acquire(struct dma_slot *s, unsigned own, unsigned fs, unsigned ls,
                    unsigned error, unsigned fl, size_t *exposed) {
   if (!s || !exposed || own || !fs || !ls || error || fl < 64 || fl > 1518)
     return -1;

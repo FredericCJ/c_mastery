@@ -2,7 +2,7 @@
 extern uint32_t cl_stack_top, cl_data_start, cl_data_end, cl_data_load,
     cl_bss_start, cl_bss_end;
 static cmx_kernel kernel;
-static CDEvents events;
+static struct cd_events events;
 static void semihost(uint32_t op, const void *arg) {
   register uint32_t r0 __asm__("r0") = op;
   register const void *r1 __asm__("r1") = arg;
@@ -40,10 +40,10 @@ static void exercise(void) {
   CHECK(cde_result(&events, 0, &out) == CMX_OK && out == (UINT32_C(1) << 31));
   CHECK(cde_wait(&events, 0, 1, 0, 0, cmx_forever()) == CMX_BLOCKED);
   CHECK(cde_close(&events) == CMX_OK && cde_result(&events, 0, &out) == CMX_CLOSED);
-  CDESequence sequence; CDECursor cursor;
+  struct cde_sequence sequence; struct cde_cursor cursor;
   uint64_t delta, missed;
   cde_sequence_init(&sequence);
-  sequence.current = (CDECursor){7, UINT32_MAX - 1}; cursor = sequence.current;
+  sequence.current = (struct cde_cursor){7, UINT32_MAX - 1}; cursor = sequence.current;
   CHECK(cde_sequence_publish(&sequence) == CMX_OK && cde_sequence_publish(&sequence) == CMX_OK);
   CHECK(sequence.current.epoch == 8 && sequence.current.serial == 0);
   CHECK(cde_sequence_read(&sequence, &cursor, &delta, &missed) == CMX_OK && delta == 2 && missed == 1);

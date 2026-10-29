@@ -10,10 +10,10 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-static const RPState initial[2] = {{0, 0, 0, 1}, {0, 7, 0, 9}};
-static int capture(const RprSession *s, RphSha *h) {
+static const struct rp_state initial[2] = {{0, 0, 0, 1}, {0, 7, 0, 9}};
+static int capture(const struct rpr_session *s, struct rph_sha *h) {
   unsigned char b[512];
-  RprSession copy;
+  struct rpr_session copy;
   if (rpr_encode(s, b) || rpr_decode(9, b, &copy) || !rpr_invariant(&copy))
     return 1;
   return rph_update(h, b, sizeof b);
@@ -21,10 +21,10 @@ static int capture(const RprSession *s, RphSha *h) {
 int rpr_oracle(void) {
   unsigned n, lc, rc, order;
   while (scanf("%u %u %u %u", &n, &lc, &rc, &order) == 4) {
-    RprSession s;
-    RprNotice notice;
-    RprEffect effect;
-    RphSha h;
+    struct rpr_session s;
+    struct rpr_notice notice;
+    struct rpr_effect effect;
+    struct rph_sha h;
     int local[8], remote[8];
     unsigned char digest[32];
     CHECK(n <= 8 && rpr_init(9, 8, initial, &s) == 0 && rph_init(&h) == 0 &&
@@ -56,9 +56,9 @@ int rpr_oracle(void) {
   return ferror(stdin) ? 1 : 0;
 }
 int rpr_metrics(void) {
-  RprSession s;
-  RprNotice notice;
-  RprEffect effect;
+  struct rpr_session s;
+  struct rpr_notice notice;
+  struct rpr_effect effect;
   const unsigned runs = 2000;
   double times[7];
   for (unsigned sample = 0; sample < 7; ++sample) {
@@ -78,7 +78,7 @@ int rpr_metrics(void) {
   printf("{\"session_size\":%zu,\"durable_size\":%zu,\"snapshot_bytes\":512,"
          "\"input_bytes\":16,\"framed_bytes\":18,\"horizon\":8,\"runs\":%u,"
          "\"cpu_seconds\":[",
-         sizeof s, sizeof(RprDurable), runs);
+         sizeof s, sizeof(struct rpr_durable), runs);
   for (unsigned i = 0; i < 7; ++i)
     printf("%s%.9f", i ? "," : "", times[i]);
   puts("]}");
@@ -102,7 +102,7 @@ int rpr_counterexamples(void) {
   /* A callback outside the durable transaction is repeated after an uncertain
      acknowledgement, even though both deliveries name the same effect. */
   unsigned external_counter = 0;
-  RprEffect a = {9, 1, 22}, b = a;
+  struct rpr_effect a = {9, 1, 22}, b = a;
   if (a.timeline == 9 && a.tick == 1)
     ++external_counter;
   if (b.timeline == 9 && b.tick == 1)

@@ -25,16 +25,16 @@ static int unicast(const unsigned char *mac) {
     nonzero |= mac[i];
   return nonzero && !(mac[0] & 1);
 }
-static int valid(const NaArp *s, uint64_t now) {
+static int valid(const struct na_arp *s, uint64_t now) {
   return s && s->epoch && now >= s->last;
 }
-int na_init(NaArp *s, NaConfig c, uint32_t epoch) {
+int na_init(struct na_arp *s, struct na_config c, uint32_t epoch) {
   if (!s || !epoch || !unicast(c.local_mac) || equal(c.local_ip, c.peer_ip, 4))
     return NA_INVALID;
-  *s = (NaArp){.config = c, .epoch = epoch};
+  *s = (struct na_arp){.config = c, .epoch = epoch};
   return NA_OK;
 }
-int na_queue(NaArp *s, const void *p, size_t n, uint64_t now) {
+int na_queue(struct na_arp *s, const void *p, size_t n, uint64_t now) {
   if (!valid(s, now) || !p || !n || n > 1500)
     return NA_INVALID;
   if (s->pending || s->prepared)
@@ -50,7 +50,7 @@ int na_queue(NaArp *s, const void *p, size_t n, uint64_t now) {
   s->last = now;
   return NA_OK;
 }
-int na_receive(NaArp *s, const void *data, size_t n, uint64_t now) {
+int na_receive(struct na_arp *s, const void *data, size_t n, uint64_t now) {
   static const unsigned char broadcast[6] = {255, 255, 255, 255, 255, 255};
   if (!valid(s, now) || !data || n < 42 || n > 1514)
     return NA_INVALID;
@@ -78,7 +78,7 @@ int na_receive(NaArp *s, const void *data, size_t n, uint64_t now) {
   }
   return NA_OK;
 }
-static void frame(NaArp *s, NetPacket *p, unsigned kind) {
+static void frame(struct na_arp *s, struct net_packet *p, unsigned kind) {
   for (size_t i = 0; i < sizeof p->bytes; ++i)
     p->bytes[i] = 0;
   const unsigned char fixture_mac[6] = {2, 0, 0, 0, 0, 1};
@@ -112,7 +112,7 @@ static void frame(NaArp *s, NetPacket *p, unsigned kind) {
   if (p->length < 60)
     p->length = 60;
 }
-int na_prepare(NaArp *s, uint64_t now, NetPacket *out, NaTicket *ticket) {
+int na_prepare(struct na_arp *s, uint64_t now, struct net_packet *out, struct na_ticket *ticket) {
   if (!valid(s, now) || !out || !ticket)
     return NA_INVALID;
   if (s->prepared)
@@ -145,10 +145,10 @@ int na_prepare(NaArp *s, uint64_t now, NetPacket *out, NaTicket *ticket) {
   ++s->serial;
   s->prepared = kind;
   s->prepared_slot = slot;
-  *ticket = (NaTicket){s->epoch, s->serial, kind};
+  *ticket = (struct na_ticket){s->epoch, s->serial, kind};
   return NA_OK;
 }
-int na_submit(NaArp *s, NaTicket t, unsigned accepted) {
+int na_submit(struct na_arp *s, struct na_ticket t, unsigned accepted) {
   if (!s || accepted > 1)
     return NA_INVALID;
   if (!s->prepared || t.epoch != s->epoch || t.serial != s->serial ||

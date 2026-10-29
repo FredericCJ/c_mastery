@@ -28,7 +28,7 @@ direction changes the comparison at equality. Derive the waveform for ARR8,
 CCR4,7,8,0 before coding; do not invent an extra tick at either reversal.
 ARR0 blocks the selected timer and is rejected, not modeled as a one-tick PWM.
 
-Implement `pt_choose` from a `PuClock`, explicit PSC, requested positive integer
+Implement `pt_choose` from a `struct pu_clock`, explicit PSC, requested positive integer
 Hz, two duty requests in permille, mode and maximum frequency error in ppm.
 It uses the actual APB1 timer clock from `pu_rates`. Round the ideal reload span
 to nearest integer, ties to the larger period; this is a **period rounding**
@@ -41,7 +41,7 @@ nonzero allowance. Do not silently clamp invalid requests into a different
 waveform. Explain why the edge profile reserves ARR65535: full-duty CCR65536
 does not fit the register. A forced-active output mode is a distinct extension.
 
-`PtConfig` owns clock identity, nonzero generation, PSC, ARR, two CCRs and mode.
+`struct pt_config` owns clock identity, nonzero generation, PSC, ARR, two CCRs and mode.
 `pt_ratios` returns unreduced numerator/denominator pairs for frequency, tick
 seconds and both duties; outputs are distinct live objects and must not alias
 the input. All failures preserve outputs. Configurations have clock1..180MHz,
@@ -59,7 +59,7 @@ which its result and this nearest-rounding policy differ legitimately.
 
 ## Active/shadow state and composition — T28.06.b
 
-`PtModel` represents active and written shadow configurations separately.
+`struct pt_model` represents active and written shadow configurations separately.
 `pt_init` installs a valid configuration at counter0/up, divider phase0, running,
 UDIS=URS=UIF=0 and zero update count. `pt_stage` atomically copies the full shadow
 configuration; clock/generation mismatch is STALE and a mode change is BUSY.

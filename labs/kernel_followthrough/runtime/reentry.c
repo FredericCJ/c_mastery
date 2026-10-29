@@ -1,15 +1,15 @@
 #include "probe.h"
 #include <stdio.h>
 #include <string.h>
-static KfVerifierWorkspace workspace;
-static Cvm machine;
-static CvmProgram program;
+static struct kf_verifier_workspace workspace;
+static struct cvm_cvm machine;
+static struct cvm_program program;
 static unsigned refused;
 static int callback(void *unused, uint8_t service, int32_t input,
                     int32_t *out) {
   (void)unused;
-  Cvm before = machine;
-  CvmValue nested = cvm_int(-91);
+  struct cvm_cvm before = machine;
+  struct cvm_value nested = cvm_int(-91);
   if (service != 1 || input != 41 ||
       kf_run_scratch(&workspace, &machine, &program, &nested) != CVM_RANGE ||
       memcmp(&before, &machine, sizeof machine) || nested.integer != -91)
@@ -27,7 +27,7 @@ int main(void) {
     return 1;
   cvm_init(&machine, 32, 128, 1);
   machine.host = callback;
-  CvmValue out = cvm_int(-99);
+  struct cvm_value out = cvm_int(-99);
   if (kf_run_scratch(&workspace, &machine, &program, &out) != CVM_OK ||
       out.integer != 42 || refused != 1)
     return 2;

@@ -14,12 +14,12 @@ static uint64_t now(void) {
   return (uint64_t)t.tv_sec * UINT64_C(1000000000) + (uint64_t)t.tv_nsec;
 }
 
-static int exercise(enum TcKind kind) {
-  TdTimer timers[4];
+static int exercise(enum tc_kind kind) {
+  struct td_timer timers[4];
   size_t index[4], position[4], next[4], previous[4], heads[4];
-  TcCollection q;
-  TcToken token, selected;
-  TdDispatch dispatch;
+  struct tc_collection q;
+  struct tc_token token, selected;
+  struct td_dispatch dispatch;
   int fd=-1, result=1;
   uint64_t base=now(), deadline, max_lateness=0;
   if (!base || tc_init(&q,kind,timers,4,index,position,next,previous,heads,4,1000000,16)) goto done;
@@ -60,6 +60,6 @@ done:
   return result;
 }
 int main(void) {
-  for(enum TcKind kind=TC_SCAN;kind<=TC_WHEEL;++kind) if(exercise(kind)) return 1;
+  for(enum tc_kind kind=TC_SCAN;kind<=TC_WHEEL;++kind) if(exercise(kind)) return 1;
   return 0;
 }

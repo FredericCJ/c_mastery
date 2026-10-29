@@ -6,17 +6,17 @@
 #ifndef AR_MUTANT
 #define AR_MUTANT 0
 #endif
-ArResult ar_linux_read(int fd, unsigned char *p, size_t n) {
+struct ar_result ar_linux_read(int fd, unsigned char *p, size_t n) {
   if (fd < 0 || !p || !n || n > 8)
-    return (ArResult){0, AR_INVALID};
+    return (struct ar_result){0, AR_INVALID};
   ssize_t r = read(fd, p, n);
   if (r > 0)
-    return (ArResult){r, AR_OK};
+    return (struct ar_result){r, AR_OK};
   if (r == 0)
-    return (ArResult){0, AR_EMPTY};
+    return (struct ar_result){0, AR_EMPTY};
   if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)
-    return (ArResult){0, AR_MUTANT == 8 ? AR_EMPTY : AR_PENDING};
-  return (ArResult){0, AR_FAILED};
+    return (struct ar_result){0, AR_MUTANT == 8 ? AR_EMPTY : AR_PENDING};
+  return (struct ar_result){0, AR_FAILED};
 }
 static void put(unsigned char *p, uint32_t v) {
   for (unsigned i = 0; i < 4; ++i)

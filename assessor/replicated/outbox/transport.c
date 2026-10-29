@@ -3,11 +3,11 @@
 #ifndef RPO_MUTATION
 #define RPO_MUTATION 0
 #endif
-int rpo_wire_read(RpoReader read, void *context, unsigned limit, size_t length,
+int rpo_wire_read(rpo_reader_fn read, void *context, unsigned limit, size_t length,
                   unsigned char *out) {
   if (!read || !out || !limit || (length != 24 && length != 64))
     return RPL_INVALID;
-  RfParser parser;
+  struct rf_parser parser;
   if (rf_parser_init(&parser, 1))
     return RPL_STATE;
   unsigned char staged[64] = {0}, bytes[9];
@@ -28,7 +28,7 @@ int rpo_wire_read(RpoReader read, void *context, unsigned limit, size_t length,
     size_t used = 0;
     while (used < (size_t)n) {
       size_t consumed;
-      RfFrame frame;
+      struct rf_frame frame;
       int r =
           rf_feed(&parser, bytes + used, (size_t)n - used, &consumed, &frame);
       used += consumed;
@@ -45,18 +45,18 @@ int rpo_wire_read(RpoReader read, void *context, unsigned limit, size_t length,
   }
   return RPL_IO;
 }
-int rpo_wire_write(RpoWriter write, void *context, unsigned limit,
+int rpo_wire_write(rpo_writer_fn write, void *context, unsigned limit,
                    const unsigned char *bytes, size_t length) {
   if (!write || !bytes || !limit || (length != 24 && length != 64))
     return RPL_INVALID;
-  RfOutbox box;
-  RfMessage messages[8];
+  struct rf_outbox box;
+  struct rf_message messages[8];
   unsigned slot;
   if (rf_outbox_init(&box, 64) || rf_open(&box, &slot) != 1)
     return RPL_STATE;
   unsigned frames = (unsigned)(length / 8);
   for (unsigned f = 0; f < frames; ++f) {
-    RfFrame frame = {.length = 8};
+    struct rf_frame frame = {.length = 8};
     for (unsigned i = 0; i < 8; ++i)
       frame.bytes[i] = bytes[f * 8 + i];
     if (rf_message_init(&messages[f], f + 1, 1, &frame) ||
@@ -82,7 +82,7 @@ static uint64_t get64(const unsigned char *p) {
     n = n * 256 + p[i];
   return n;
 }
-int rpo_reply_encode(RpoReply r, unsigned char out[24]) {
+int rpo_reply_encode(struct rpo_reply r, unsigned char out[24]) {
   if (!out || !r.uuid || !r.position || r.position > 16)
     return RPL_INVALID;
   unsigned char p[24] = {'R', 'P', 'O', '1'};
@@ -93,7 +93,7 @@ int rpo_reply_encode(RpoReply r, unsigned char out[24]) {
     out[i] = p[i];
   return RPL_OK;
 }
-int rpo_reply_decode(const unsigned char in[24], RpoReply *out) {
+int rpo_reply_decode(const unsigned char in[24], struct rpo_reply *out) {
   if (!in || !out)
     return RPL_INVALID;
   if (in[0] != 'R' || in[1] != 'P' || in[2] != 'O' || in[3] != '1' || in[12] ||
@@ -103,6 +103,6 @@ int rpo_reply_decode(const unsigned char in[24], RpoReply *out) {
   if (!uuid)
     return RPL_IDENTITY;
   int64_t total = u <= INT64_MAX ? (int64_t)u : -(int64_t)(~u) - 1;
-  *out = (RpoReply){uuid, in[15], total};
+  *out = (struct rpo_reply){uuid, in[15], total};
   return RPL_OK;
 }

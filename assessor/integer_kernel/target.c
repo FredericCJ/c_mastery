@@ -13,7 +13,7 @@ void fi_fault(void){emit("FI_TARGET_FAULT\n");stop(2);}
 void fi_target_main(void) {
  _Static_assert(CHAR_BIT==8 && INT_MAX==2147483647 && SIZE_MAX==4294967295U,"recorded M4 data model");
  _Static_assert(INTMAX_MAX>SIZE_MAX,"actual wide-input/narrow-size boundary");
- FiRange r={INT_MIN,INT_MAX};int value=917,q=918,rem=919;unsigned clipped=9;size_t out=917;
+ struct fi_range r={INT_MIN,INT_MAX};int value=917,q=918,rem=919;unsigned clipped=9;size_t out=917;
  T(fi_binary(r,FI_ADD,INT_MAX,1,&value)==FI_RANGE&&value==917);
  T(fi_binary(r,FI_MULTIPLY,INT_MIN,-1,&value)==FI_RANGE&&value==917);
  T(fi_binary(r,FI_SUBTRACT,INT_MIN,1,&value)==FI_RANGE&&value==917);

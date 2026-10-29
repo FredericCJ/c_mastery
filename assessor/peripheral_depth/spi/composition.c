@@ -42,12 +42,12 @@ static void psput(void *p, unsigned r, uintptr_t v) {
     sr[PS_SR] = PS_BSY;
 }
 int main(void) {
-  FwIo fw = {0, get, put};
-  PuClock clock = {16000000, 1, 1, 1, 1, 0};
-  PsIo io = {0, psget, psput};
+  struct fw_io fw = {0, get, put};
+  struct pu_clock clock = {16000000, 1, 1, 1, 1, 0};
+  struct ps_io io = {0, psget, psput};
   for (unsigned n = 0; n < 256; n++) {
-    PsSpi s = {0};
-    SDSpi serial = {0};
+    struct ps_spi s = {0};
+    struct sd_spi serial = {0};
     uint8_t tx = (uint8_t)n, rx = 0, old = 0;
     peer = (uint8_t)(n ^ 0xa5u);
     phase = busy = read_count = 0;

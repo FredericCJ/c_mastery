@@ -1,16 +1,16 @@
 #ifndef CMASTERY_ARCH_EFFECTS_H
 #define CMASTERY_ARCH_EFFECTS_H
 #include "arch.h"
-typedef struct {
+struct ar_effect {
   uint32_t id;
   int32_t value;
-} ArEffect;
-typedef struct {
+};
+struct ar_effects {
   uint32_t next;
   unsigned pending;
-  ArEffect effect;
-} ArEffects;
-int ar_decide(ArEffects *, int32_t, ArEffect *);
-int ar_retry(const ArEffects *, ArEffect *);
-int ar_feedback(ArEffects *, unsigned);
+  struct ar_effect effect;
+};
+int ar_decide(struct ar_effects *, int32_t, struct ar_effect *);
+int ar_retry(const struct ar_effects *, struct ar_effect *);
+int ar_feedback(struct ar_effects *, unsigned);
 #endif

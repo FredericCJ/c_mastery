@@ -18,7 +18,7 @@ diagnostics, not normal application messages. CAN FD/XL are distinct interfaces;
 this adapter rejects their sizes. These are Linux/CAN contracts, not ISO C17
 features. C23 does not automatically validate an identifier, frame or lifetime.
 
-`CaFrame` owns its fixed eight-byte value; it never borrows the input span.
+`struct ca_frame` owns its fixed eight-byte value; it never borrows the input span.
 `ca_decode(bytes,length,msg_flags,out)` returns0 only for a complete classical
 frame and valid teaching-policy fields. Read a potentially unaligned ABI span
 by copying into an aligned local object, not by casting its address. Reject
@@ -35,7 +35,7 @@ Unused output payload bytes are zero, including all bytes for remote requests.
 and copies only the meaningful payload. It rejects error-message transmission:
 the teaching target receives synthetic diagnostics, it never injects errors
 on a real bus. All invalid operations return-1 and preserve the output object.
-Unknown `CaKind` values fail. Pointers designate valid nonoverlapping live input
+Unknown `ca_kind` values fail. Pointers designate valid nonoverlapping live input
 and output objects; ISO C cannot recover from an invalid caller pointer.
 
 `ca_filter(id,extended,remote,out)` constructs an exact positive filter whose

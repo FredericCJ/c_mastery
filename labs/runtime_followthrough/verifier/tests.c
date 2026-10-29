@@ -16,19 +16,19 @@ int memcmp(const void *, const void *, size_t);
       return 1;                                                                \
     }                                                                          \
   } while (0)
-static VvWork work;
-static CvmProgram program(const uint8_t *b, unsigned n, unsigned locals) {
-  CvmProgram p = {0};
+static struct vv_work work;
+static struct cvm_program program(const uint8_t *b, unsigned n, unsigned locals) {
+  struct cvm_program p = {0};
   p.count = 1;
   p.length = (uint16_t)n;
-  p.functions[0] = (CvmFunction){0, (uint16_t)n, 0, (uint8_t)locals};
+  p.functions[0] = (struct cvm_function){0, (uint16_t)n, 0, (uint8_t)locals};
   memcpy(p.code, b, n);
   return p;
 }
 static int structural(void) {
   const uint8_t literal[] = {OP_INT, 42, 0, 0, 0, OP_RET};
-  CvmProgram p = program(literal, 6, 0), out, before;
-  VvReport r;
+  struct cvm_program p = program(literal, 6, 0), out, before;
+  struct vv_report r;
   CHECK(vv_verify(&p, 0, 0, &work, &r) == VV_OK && r.decoded == 2 &&
         r.discovered == 2 && r.processed == 2);
   uint8_t image[1100];
@@ -65,7 +65,7 @@ static int structural(void) {
   p = program(cross, 5, 0);
   p.count = 2;
   p.functions[0].length = 3;
-  p.functions[1] = (CvmFunction){3, 2, 0, 0};
+  p.functions[1] = (struct cvm_function){3, 2, 0, 0};
   CHECK(vv_verify(&p, 0, 0, &work, &r) == VV_TARGET);
   p.code[1] = 0;
   CHECK(vv_verify(&p, 0, 0, &work, &r) == VV_OK);
@@ -73,7 +73,7 @@ static int structural(void) {
   p = program(call, 6, 0);
   p.count = 2;
   p.functions[0].length = 4;
-  p.functions[1] = (CvmFunction){4, 2, 0, 0};
+  p.functions[1] = (struct cvm_function){4, 2, 0, 0};
   CHECK(vv_verify(&p, 0, 0, &work, &r) == VV_DECODE);
   p.code[2] = 0;
   CHECK(vv_verify(&p, 0, 0, &work, &r) == VV_OK);
@@ -93,7 +93,7 @@ static int structural(void) {
   const uint8_t wrong_ret[] = {OP_NIL, OP_NIL, OP_RET};
   p = program(wrong_ret, 3, 0);
   CHECK(vv_verify(&p, 0, 0, &work, &r) == VV_HEIGHT);
-  p = (CvmProgram){0};
+  p = (struct cvm_program){0};
   p.count = 1;
   p.length = CVM_CODE;
   p.functions[0].length = CVM_CODE;
@@ -128,8 +128,8 @@ static int initialized(void) {
   b[29] = OP_LOAD;
   b[30] = 0;
   b[31] = OP_RET;
-  CvmProgram p = program(b, 32, 1);
-  VvReport r;
+  struct cvm_program p = program(b, 32, 1);
+  struct vv_report r;
   CHECK(vv_verify(&p, 0, 0, &work, &r) == VV_OK);
   CHECK(vv_verify(&p, 0, 1, &work, &r) == VV_INITIALIZED && r.pc == 29 &&
         r.local_changes > 0);
@@ -149,7 +149,7 @@ static int initialized(void) {
   p = program(params, 8, 0);
   p.count = 2;
   p.functions[0].length = 5;
-  p.functions[1] = (CvmFunction){5, 3, 1, 1};
+  p.functions[1] = (struct cvm_function){5, 3, 1, 1};
   CHECK(vv_verify(&p, 0, 1, &work, &r) == VV_OK && work.initialized[5] == 1);
   puts("VV_INITIALIZED_PASS "
        "intersection_late_reprocessing_parameters_not_types");
@@ -158,10 +158,10 @@ static int initialized(void) {
 static int lowering(void) {
   const uint8_t split[] = {OP_TRUE, VV_SPLIT, 6,  0, 12, 0, OP_INT, 42, 0, 0, 0,
                            OP_RET,  OP_INT,   17, 0, 0,  0, OP_RET};
-  CvmProgram p = program(split, 18, 0), q, before;
-  VvReport r;
-  Cvm v;
-  CvmValue result;
+  struct cvm_program p = program(split, 18, 0), q, before;
+  struct vv_report r;
+  struct cvm_cvm v;
+  struct cvm_value result;
   for (unsigned truth = 0; truth < 2; truth++) {
     p.code[0] = (uint8_t)(truth ? OP_TRUE : OP_FALSE);
     CHECK(vv_verify(&p, 1, 0, &work, &r) == VV_OK);
@@ -180,13 +180,13 @@ static int lowering(void) {
   p = program(multi, 19, 0);
   p.count = 2;
   p.functions[0].length = 10;
-  p.functions[1] = (CvmFunction){10, 9, 0, 0};
+  p.functions[1] = (struct cvm_function){10, 9, 0, 0};
   CHECK(vv_lower(&p, 1, &work, &q, &r) == VV_OK && q.functions[1].entry == 11 &&
         q.code[12] == 14);
   cvm_init(&v, 20, 0, 0);
   CHECK(cvm_run(&v, &q, &result) == CVM_OK && result.integer == 7);
   /* Dead but structurally valid SPLIT expansion still consumes image space. */
-  p = (CvmProgram){0};
+  p = (struct cvm_program){0};
   p.count = 1;
   p.length = 1022;
   p.functions[0].length = 1022;
@@ -205,10 +205,10 @@ static int lowering(void) {
   return 0;
 }
 static int limits(void) {
-  VvReport r;
-  Cvm v;
-  CvmValue out;
-  CvmProgram p;
+  struct vv_report r;
+  struct cvm_cvm v;
+  struct cvm_value out;
+  struct cvm_program p;
   const uint8_t uninit[] = {OP_LOAD, 0, OP_RET};
   p = program(uninit, 3, 1);
   CHECK(vv_verify(&p, 0, 0, &work, &r) == VV_OK && cvm_verify(&p) == CVM_OK);
@@ -225,7 +225,7 @@ static int limits(void) {
   CHECK(vv_verify(&p, 0, 1, &work, &r) == VV_OK);
   cvm_init(&v, 7, 0, 0);
   CHECK(cvm_run(&v, &p, &out) == CVM_FUEL && v.fuel == 0 && out.integer == 91);
-  p = (CvmProgram){0};
+  p = (struct cvm_program){0};
   p.count = 2;
   unsigned at = 0;
   for (unsigned i = 0; i < 63; i++)
@@ -237,7 +237,7 @@ static int limits(void) {
     p.code[at++] = OP_POP;
   p.code[at++] = OP_RET;
   p.functions[0].length = (uint16_t)at;
-  p.functions[1] = (CvmFunction){(uint16_t)at, 4, 0, 0};
+  p.functions[1] = (struct cvm_function){(uint16_t)at, 4, 0, 0};
   p.code[at++] = OP_NIL;
   p.code[at++] = OP_NIL;
   p.code[at++] = OP_POP;

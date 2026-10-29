@@ -1,13 +1,13 @@
 # Inline completion and owned successor chains
 
-This required X-T73-003-R2/R4 successor composes the actual `MsgOperation` with
+This required X-T73-003-R2/R4 successor composes the actual `struct msg_operation` with
 the owning payload descriptor/drop operation from X-T73-002 (`owned_value.h`) and
 an explicit backend start callback. Implement
 `src/operation_follow.c`; do not replace the imported operation's terminal-state
 protocol. The backend and receiver operate on one serialized executor. Cross-thread
 delivery needs an external serialization/quiescence adapter, not just these APIs.
 
-`MfoValue` is a unique owner `(data, drop)`; non-null data requires a drop function.
+`struct mfo_value` is a unique owner `(data, drop)`; non-null data requires a drop function.
 A null data value may have a drop function (it is still called). No ownership is
 copied by copying this C representation. A borrowed view does not become owned
 because it fits this struct. The operation, backend state and receiver state have

@@ -1,5 +1,5 @@
 #include "ipc.h"
-int ei_init(EiRequest *r, const unsigned char p[8], unsigned epoch,
+int ei_init(struct ei_request *r, const unsigned char p[8], unsigned epoch,
             unsigned id) {
   (void)r;
   (void)p;
@@ -7,21 +7,21 @@ int ei_init(EiRequest *r, const unsigned char p[8], unsigned epoch,
   (void)id;
   return -1;
 }
-int ei_transition(EiRequest *r, enum EiEvent e) {
+int ei_transition(struct ei_request *r, enum ei_event e) {
   (void)r;
   (void)e;
   return -1;
 }
-int ei_invariant(const EiRequest *r) {
+int ei_invariant(const struct ei_request *r) {
   (void)r;
   return 0;
 }
-int ei_enqueue(EiQueue *q, EiRequest *r) {
+int ei_enqueue(struct ei_queue *q, struct ei_request *r) {
   (void)q;
   (void)r;
   return -1;
 }
-int ei_dequeue(EiQueue *q, EiRequest **r) {
+int ei_dequeue(struct ei_queue *q, struct ei_request **r) {
   (void)q;
   (void)r;
   return -1;

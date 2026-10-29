@@ -28,7 +28,7 @@ def main():
 
 ## Prerequisites
 
-Complete X-T15-010 and retain its actual NFA, subset-construction and RxDfa artifacts. Explain finite-state recognition, ordered rules, array bounds, exclusive byte spans and whole-call publication. The refusing learner scaffold intentionally needs implementation.
+Complete X-T15-010 and retain its actual NFA, subset-construction and struct rx_dfa artifacts. Explain finite-state recognition, ordered rules, array bounds, exclusive byte spans and whole-call publication. The refusing learner scaffold intentionally needs implementation.
 
 ## Environment
 

@@ -1,5 +1,5 @@
 #include "port.h"
-Mf mf_machine;
+struct mf_mf mf_machine;
 volatile uint32_t mf_ticks,mf_pend_requests,mf_switches,mf_nested;
 volatile uint32_t mf_basic_frames,mf_fp_frames,mf_lazy_before,mf_lazy_after;
 volatile uint32_t mf_handler_alignment,mf_stack_min;
@@ -36,7 +36,7 @@ void mf_port_init(void){
 #endif
  ;mf_stack_min=UINT32_MAX;
 }
-MfHandle mf_port_add(void(*entry)(void),uint32_t *stack,size_t words){MfHandle h=0;
+mf_handle_id mf_port_add(void(*entry)(void),uint32_t *stack,size_t words){mf_handle_id h=0;
  unsigned old=mf_lock();enum cmx_result r=mf_add(&mf_machine,stack,words,(uint32_t)(uintptr_t)entry,(uint32_t)(uintptr_t)mf_task_return,1,0,2,&h);mf_unlock(old);
  mf_require(r==CMX_OK,103);return h;}
 uint32_t *mf_choose(uint32_t *old){

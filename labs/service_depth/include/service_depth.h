@@ -16,77 +16,77 @@ enum {
   SD_CORRUPT = 10,
   SD_UNIMPLEMENTED = 99
 };
-typedef struct {
+struct sd_memory {
   unsigned refs[16];
   unsigned char bytes[16][64];
-} SDMemory;
-typedef struct {
+};
+struct sd_image {
   unsigned active, count, length, frames[4], cow[4], kind[4];
-} SDImage;
-int sd_load(SDMemory *, const unsigned char *, size_t, int fail_after,
-            SDImage *);
-int sd_clone(SDMemory *, SDImage *, unsigned live_threads, SDImage *);
-int sd_write(SDMemory *, SDImage *, unsigned offset, unsigned char,
+};
+int sd_load(struct sd_memory *, const unsigned char *, size_t, int fail_after,
+            struct sd_image *);
+int sd_clone(struct sd_memory *, struct sd_image *, unsigned live_threads, struct sd_image *);
+int sd_write(struct sd_memory *, struct sd_image *, unsigned offset, unsigned char,
              int allocation_allowed);
-int sd_release(SDMemory *, SDImage *);
-typedef struct {
+int sd_release(struct sd_memory *, struct sd_image *);
+struct sd_cap {
   uint32_t epoch;
   unsigned rights;
-} SDCap;
-typedef struct {
+};
+struct sd_message {
   unsigned length;
   unsigned char bytes[32];
-} SDMessage;
-typedef struct {
+};
+struct sd_channel {
   uint32_t epoch;
   unsigned closed, head, count, retired;
-  SDMessage slots[2];
-} SDChannel;
-typedef int (*SDValidate)(
+  struct sd_message slots[2];
+};
+typedef int (*sd_validate_fn)(
     void *, void *, size_t); /* 0 grants complete extent; no writes/reentry. */
-int sd_channel_init(SDChannel *);
-int sd_grant(const SDChannel *, SDCap, unsigned rights, SDCap *);
-int sd_send(SDChannel *, SDCap, const unsigned char *, size_t);
-int sd_receive(SDChannel *, SDCap, void *, size_t, size_t *, SDValidate,
+int sd_channel_init(struct sd_channel *);
+int sd_grant(const struct sd_channel *, struct sd_cap, unsigned rights, struct sd_cap *);
+int sd_send(struct sd_channel *, struct sd_cap, const unsigned char *, size_t);
+int sd_receive(struct sd_channel *, struct sd_cap, void *, size_t, size_t *, sd_validate_fn,
                void *);
-int sd_channel_close(SDChannel *, SDCap);
-int sd_channel_reopen(SDChannel *);
-typedef struct {
+int sd_channel_close(struct sd_channel *, struct sd_cap);
+int sd_channel_reopen(struct sd_channel *);
+struct sd_entry {
   const char *name;
   const unsigned char *data;
   unsigned length;
-} SDEntry;
-typedef struct {
+};
+struct sd_handle {
   uint32_t index, generation;
-} SDHandle;
-typedef struct {
+};
+struct sd_open {
   unsigned active, entry, offset, refs;
-} SDOpen;
-typedef struct {
+};
+struct sd_file_handle {
   unsigned active, open;
   uint32_t generation;
-} SDFileHandle;
-typedef struct {
-  SDEntry entries[4];
+};
+struct sd_files {
+  struct sd_entry entries[4];
   unsigned count;
-  SDOpen descriptions[4];
-  SDFileHandle handles[8];
-} SDFiles;
-int sd_files_init(SDFiles *, const SDEntry *, unsigned);
-int sd_open(SDFiles *, const char *, SDHandle *);
-int sd_dup(SDFiles *, SDHandle, SDHandle *);
-int sd_seek(SDFiles *, SDHandle, unsigned origin, int32_t displacement);
-int sd_read(SDFiles *, SDHandle, void *, size_t capacity, size_t requested,
-            size_t *, SDValidate, void *);
-int sd_close(SDFiles *, SDHandle);
-typedef struct {
+  struct sd_open descriptions[4];
+  struct sd_file_handle handles[8];
+};
+int sd_files_init(struct sd_files *, const struct sd_entry *, unsigned);
+int sd_open(struct sd_files *, const char *, struct sd_handle *);
+int sd_dup(struct sd_files *, struct sd_handle, struct sd_handle *);
+int sd_seek(struct sd_files *, struct sd_handle, unsigned origin, int32_t displacement);
+int sd_read(struct sd_files *, struct sd_handle, void *, size_t capacity, size_t requested,
+            size_t *, sd_validate_fn, void *);
+int sd_close(struct sd_files *, struct sd_handle);
+struct sd_journal {
   unsigned char durable[2][32], pending[2][32];
-} SDJournal;
-typedef struct {
+};
+struct sd_receipt {
   uint32_t last;
   int32_t delta, value;
-} SDReceipt;
-int sd_recover(const SDJournal *, SDReceipt *);
-int sd_apply(SDJournal *, uint32_t operation, int32_t delta,
+};
+int sd_recover(const struct sd_journal *, struct sd_receipt *);
+int sd_apply(struct sd_journal *, uint32_t operation, int32_t delta,
              unsigned fault_stage, int32_t *);
 #endif

@@ -6,7 +6,7 @@ def run(c,root,args):
  for name,flag,selected in [('session-overflow','AS_MUTANT_OVERFLOW',source),('session-publication','AS_MUTANT_EARLY_ACTIVE',source),('session-learner','UNSOLVED',pub/'session.c')]:
   exe=c.root/name;c.run(['gcc',*common,'-O2','-D'+flag,pub/'session_tests.c',selected,*providers,'-o',exe]);c.run([exe],expected=1,contains='SESSION-CHECK:')
  wrong=c.write('session-wrong-signature.c','#include "session.h"\nstatic long wrong(int *p,int e){return *p+e;}\nAsRun invalid=wrong;\n')
- opaque=c.write('session-private-access.c','#include "session.h"\nvoid invalid(AsOpaque *s){s->session.count=99;}\n')
+ opaque=c.write('session-private-access.c','#include "session.h"\nvoid invalid(struct as_opaque *s){s->session.count=99;}\n')
  for cc in ('gcc','clang'):
   c.run([cc,*common,'-c',wrong,'-o',c.root/(cc+'-wrong.o')],expected='nonzero',contains='incompatible')
   c.run([cc,*common,'-c',opaque,'-o',c.root/(cc+'-opaque.o')],expected='nonzero',contains='incomplete')

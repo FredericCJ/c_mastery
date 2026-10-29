@@ -1,28 +1,28 @@
 #include "types.h"
 int (*td_row_factory(void))[4] { return NULL; }
-TdUnaryPtr td_factory(void) { return NULL; }
-TdCallable td_wrapped_factory(void) { return (TdCallable){NULL}; }
-struct TdOpaque *td_owner(unsigned i) {
+td_unary_ptr td_factory(void) { return NULL; }
+struct td_callable td_wrapped_factory(void) { return (struct td_callable){NULL}; }
+struct td_opaque *td_owner(unsigned i) {
   (void)i;
   return NULL;
 }
-TdStatus td_get(const struct TdOpaque *p, int *o) {
+enum td_status td_get(const struct td_opaque *p, int *o) {
   (void)p;
   (void)o;
   return TD_UNFINISHED;
 }
-TdStatus td_add(struct TdOpaque *p, int v) {
+enum td_status td_add(struct td_opaque *p, int v) {
   (void)p;
   (void)v;
   return TD_UNFINISHED;
 }
-TdStatus td_speed(TdMeters d, TdSeconds t, TdSpeed *o) {
+enum td_status td_speed(struct td_meters d, struct td_seconds t, struct td_speed *o) {
   (void)d;
   (void)t;
   (void)o;
   return TD_UNFINISHED;
 }
-TdStatus td_distance(TdSpeed v, TdSeconds t, TdMeters *o) {
+enum td_status td_distance(struct td_speed v, struct td_seconds t, struct td_meters *o) {
   (void)v;
   (void)t;
   (void)o;
@@ -38,7 +38,7 @@ int td_adapter(void *c, int v) {
   (void)c;
   return 0;
 }
-TdStatus td_rows(const int (*a)[4], size_t n, TdDispatch f, void *c, int *o) {
+enum td_status td_rows(const int (*a)[4], size_t n, td_dispatch_fn f, void *c, int *o) {
   (void)a;
   (void)n;
   (void)f;
@@ -46,23 +46,23 @@ TdStatus td_rows(const int (*a)[4], size_t n, TdDispatch f, void *c, int *o) {
   (void)o;
   return TD_UNFINISHED;
 }
-TdStatus td_submit(TdJob *j, TdDispatch f, void *c, int v) {
+enum td_status td_submit(struct td_job *j, td_dispatch_fn f, void *c, int v) {
   (void)j;
   (void)f;
   (void)c;
   (void)v;
   return TD_UNFINISHED;
 }
-TdStatus td_run(TdJob *j, int *o) {
+enum td_status td_run(struct td_job *j, int *o) {
   (void)j;
   (void)o;
   return TD_UNFINISHED;
 }
-TdStatus td_cancel(TdJob *j) {
+enum td_status td_cancel(struct td_job *j) {
   (void)j;
   return TD_UNFINISHED;
 }
-TdStatus td_reset(TdJob *j) {
+enum td_status td_reset(struct td_job *j) {
   (void)j;
   return TD_UNFINISHED;
 }

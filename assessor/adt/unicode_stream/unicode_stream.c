@@ -5,7 +5,7 @@ _Static_assert(CHAR_BIT == 8,
 #ifndef ADU_MUTATION
 #define ADU_MUTATION 0
 #endif
-void adu_init(AduStream *s) { *s = (AduStream){{0, 0, 0}, 0, 0, 0, ADU_OPEN}; }
+void adu_init(struct adu_stream *s) { *s = (struct adu_stream){{0, 0, 0}, 0, 0, 0, ADU_OPEN}; }
 static unsigned width(unsigned char first) {
   if (first < 0x80)
     return 1;
@@ -17,7 +17,7 @@ static unsigned width(unsigned char first) {
     return 4;
   return 0;
 }
-static int byte(AduStream *s, unsigned char c) {
+static int byte(struct adu_stream *s, unsigned char c) {
   if (!s->used) {
     unsigned need = width(c);
     if (!need)
@@ -40,7 +40,7 @@ static int byte(AduStream *s, unsigned char c) {
   unsigned need = width(lead);
   if (s->used + 1 == need) {
     unsigned char complete[4];
-    ADText admitted;
+    struct ad_text admitted;
     for (unsigned i = 0; i < s->used; ++i)
       complete[i] = s->pending[i];
     complete[s->used] = c;
@@ -54,14 +54,14 @@ static int byte(AduStream *s, unsigned char c) {
     s->pending[s->used++] = c;
   return 1;
 }
-AduStatus adu_feed(AduStream *s, const unsigned char *p, size_t n) {
+enum adu_status adu_feed(struct adu_stream *s, const unsigned char *p, size_t n) {
   if (!s || (n && !p))
     return ADU_INVALID;
   if (s->phase != ADU_OPEN)
     return ADU_STATE;
   if (n > 65535 - s->bytes)
     return ADU_RANGE;
-  AduStream next = *s;
+  struct adu_stream next = *s;
   if (ADU_MUTATION == 1)
     next.used = 0;
   for (size_t i = 0; i < n; ++i) {
@@ -74,18 +74,18 @@ AduStatus adu_feed(AduStream *s, const unsigned char *p, size_t n) {
   *s = next;
   return ADU_OK;
 }
-AduStatus adu_finish(AduStream *s, AduSummary *out) {
+enum adu_status adu_finish(struct adu_stream *s, struct adu_summary *out) {
   if (!s || !out)
     return ADU_INVALID;
   if (s->phase == ADU_CANCELLED)
     return ADU_STATE;
   if (s->used && ADU_MUTATION != 2)
     return ADU_UTF8;
-  *out = (AduSummary){s->bytes, s->scalars};
+  *out = (struct adu_summary){s->bytes, s->scalars};
   s->phase = ADU_FINISHED;
   return ADU_OK;
 }
-AduStatus adu_cancel(AduStream *s) {
+enum adu_status adu_cancel(struct adu_stream *s) {
   if (!s)
     return ADU_INVALID;
   if (ADU_MUTATION != 3)
@@ -93,36 +93,36 @@ AduStatus adu_cancel(AduStream *s) {
   s->phase = ADU_CANCELLED;
   return ADU_OK;
 }
-void adu_owner_init(AduOwner *o) {
+void adu_owner_init(struct adu_owner *o) {
   ado_init(&o->value);
   o->scalars = 0;
 }
-AduStatus adu_owner_set(AduOwner *o, const unsigned char *p, size_t n,
-                        AdoOps ops) {
+enum adu_status adu_owner_set(struct adu_owner *o, const unsigned char *p, size_t n,
+                        struct ado_ops ops) {
   if (!o || (n && !p) || !ops.clone || !ops.drop)
     return ADU_INVALID;
   if (n > 65535)
     return ADU_RANGE;
-  ADText admitted = {p, n, n};
+  struct ad_text admitted = {p, n, n};
   if (ADU_MUTATION != 6 && !ad_text(p, n, &admitted))
     return ADU_UTF8;
-  AdoStatus status = ado_text(&o->value, p, n, ops);
+  enum ado_status status = ado_text(&o->value, p, n, ops);
   if (status != ADO_OK)
     return status == ADO_NOMEM ? ADU_NOMEM : ADU_INVALID;
   o->scalars = ADU_MUTATION == 5 ? n : admitted.scalars;
   return ADU_OK;
 }
-AduStatus adu_owner_view(const AduOwner *o, ADText *out) {
+enum adu_status adu_owner_view(const struct adu_owner *o, struct ad_text *out) {
   if (!o || !out)
     return ADU_INVALID;
   if (o->value.tag == ADO_EMPTY)
-    *out = (ADText){NULL, 0, 0};
+    *out = (struct ad_text){NULL, 0, 0};
   else
-    *out = (ADText){o->value.data.text.bytes, o->value.data.text.length,
+    *out = (struct ad_text){o->value.data.text.bytes, o->value.data.text.length,
                     o->scalars};
   return ADU_OK;
 }
-void adu_owner_drop(AduOwner *o) {
+void adu_owner_drop(struct adu_owner *o) {
   ado_drop(&o->value);
   o->scalars = 0;
 }

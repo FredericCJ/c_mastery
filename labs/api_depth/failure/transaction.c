@@ -1,6 +1,6 @@
 #include "transaction.h"
-AeUpdate ae_replace(AeConfig *c, const unsigned *p, unsigned n, unsigned z,
-                    AeGuarantee g, unsigned f, unsigned e, AeObserve o,
+struct ae_update ae_replace(struct ae_config *c, const unsigned *p, unsigned n, unsigned z,
+                    enum ae_guarantee g, unsigned f, unsigned e, ae_observe_fn o,
                     void *x) {
   (void)c;
   (void)p;
@@ -11,9 +11,9 @@ AeUpdate ae_replace(AeConfig *c, const unsigned *p, unsigned n, unsigned z,
   (void)e;
   (void)o;
   (void)x;
-  return (AeUpdate){AE_UNIMPLEMENTED, 0, 0};
+  return (struct ae_update){AE_UNIMPLEMENTED, 0, 0};
 }
-AeCode ae_journal(AeJournal *j, unsigned i, unsigned d, unsigned c) {
+enum ae_code ae_journal(struct ae_journal *j, unsigned i, unsigned d, unsigned c) {
   (void)j;
   (void)i;
   (void)d;

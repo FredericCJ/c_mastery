@@ -1,7 +1,7 @@
 #include "test_support.h"
 #include "unicode_stream.h"
 #include <time.h>
-static int equal(AduStream a, AduStream b) {
+static int equal(struct adu_stream a, struct adu_stream b) {
   return a.used == b.used && a.bytes == b.bytes && a.scalars == b.scalars &&
          a.phase == b.phase && a.pending[0] == b.pending[0] &&
          a.pending[1] == b.pending[1] && a.pending[2] == b.pending[2];
@@ -9,15 +9,15 @@ static int equal(AduStream a, AduStream b) {
 static int chunks(void) {
   unsigned char input[] = {0x41, 0xe2, 0x82, 0xac, 0xf4, 0x8f, 0xbf, 0xbf};
   for (unsigned split = 0; split <= sizeof input; ++split) {
-    AduStream s;
+    struct adu_stream s;
     adu_init(&s);
-    AduSummary out = {99, 98};
+    struct adu_summary out = {99, 98};
     CHECK(adu_feed(&s, input, split) == ADU_OK);
     CHECK(s.used <= 3);
     CHECK(adu_feed(&s, input + split, sizeof input - split) == ADU_OK);
     CHECK(adu_finish(&s, &out) == ADU_OK && out.bytes == 8 && out.scalars == 3);
   }
-  AduStream s;
+  struct adu_stream s;
   adu_init(&s);
   unsigned char first[] = {0xe2, 0x82};
   CHECK(adu_feed(&s, first, 2) == ADU_OK && s.used == 2 && s.bytes == 2 &&
@@ -26,7 +26,7 @@ static int chunks(void) {
       0xff; /* retained bytes are copies, not borrowed chunks */
   unsigned char last = 0xac;
   CHECK(adu_feed(&s, &last, 1) == ADU_OK && s.scalars == 1 && s.used == 0);
-  AduStream old = s;
+  struct adu_stream old = s;
   unsigned char bad[] = {0x41, 0xff};
   CHECK(adu_feed(&s, bad, 2) == ADU_UTF8 && equal(s, old));
   unsigned char corrected[] = {0x41, 0x42};
@@ -38,12 +38,12 @@ static int chunks(void) {
   return 0;
 }
 static int finalization(void) {
-  AduStream s;
+  struct adu_stream s;
   adu_init(&s);
-  AduSummary out = {99, 98};
+  struct adu_summary out = {99, 98};
   unsigned char head[] = {0xf0, 0x90, 0x80};
   CHECK(adu_feed(&s, head, 3) == ADU_OK && s.used == 3);
-  AduStream old = s;
+  struct adu_stream old = s;
   CHECK(adu_finish(&s, &out) == ADU_UTF8 && out.bytes == 99 &&
         out.scalars == 98 && equal(s, old));
   CHECK(adu_cancel(&s) == ADU_OK && s.phase == ADU_CANCELLED && s.used == 0 &&
@@ -85,23 +85,23 @@ static int finalization(void) {
   CHECK(adu_feed(&s, head, 1) == ADU_OK && s.bytes == 65535 && s.used == 1);
   old = s;
   CHECK(adu_feed(&s, head + 1, 1) == ADU_RANGE && equal(s, old));
-  out = (AduSummary){99, 98};
+  out = (struct adu_summary){99, 98};
   CHECK(adu_finish(&s, &out) == ADU_UTF8 && out.bytes == 99 && equal(s, old));
   CHECK(adu_cancel(&s) == ADU_OK && s.bytes == 0);
   puts("ADU_FINALIZE incomplete-refusal cancel-discard length-boundary");
   return 0;
 }
 static int owner(void) {
-  Counter c = {0};
-  AduOwner o;
+  struct adp_counter c = {0};
+  struct adu_owner o;
   adu_owner_init(&o);
-  ADText view;
+  struct ad_text view;
   unsigned char input[] = {0xe2, 0x82, 0xac};
   CHECK(adu_owner_set(&o, input, 3, operations(&c)) == ADU_OK && c.live == 1);
   CHECK(adu_owner_view(&o, &view) == ADU_OK && view.length == 3 &&
         view.scalars == 1 && view.bytes != input);
   input[0] = 0xff;
-  ADText check;
+  struct ad_text check;
   CHECK(!ad_text(input, 3, &check) &&
         ad_text(view.bytes, view.length, &check) && check.scalars == 1);
   const unsigned char *saved = view.bytes;
@@ -114,7 +114,7 @@ static int owner(void) {
         c.calls == calls);
   CHECK(adu_owner_set(&o, input, 65536, operations(&c)) == ADU_RANGE &&
         c.calls == calls);
-  CHECK(adu_owner_set(&o, input, 3, (AdoOps){NULL, drop_bytes, &c}) ==
+  CHECK(adu_owner_set(&o, input, 3, (struct ado_ops){NULL, drop_bytes, &c}) ==
             ADU_INVALID &&
         c.calls == calls);
   CHECK(adu_owner_view(&o, &view) == ADU_OK && view.bytes == saved &&
@@ -148,10 +148,10 @@ static int owner(void) {
 }
 static int original(void) {
   unsigned char valid[] = {0x41, 0xe2, 0x82, 0xac, 0xf4, 0x8f, 0xbf, 0xbf};
-  ADText view;
+  struct ad_text view;
   CHECK(ad_text(valid, 8, &view) && view.length == 8 && view.scalars == 3);
   unsigned char overlong[] = {0xc0, 0x80}, surrogate[] = {0xed, 0xa0, 0x80};
-  ADText old = view;
+  struct ad_text old = view;
   CHECK(!ad_text(overlong, 2, &view) && view.bytes == old.bytes &&
         view.scalars == 3);
   CHECK(!ad_text(surrogate, 3, &view) && view.bytes == old.bytes &&
@@ -179,10 +179,10 @@ static int oracle(void) {
         return 2;
       bytes[i] = (unsigned char)v;
     }
-    ADText borrowed = {NULL, 77, 78};
+    struct ad_text borrowed = {NULL, 77, 78};
     int b = ad_text(bytes, n, &borrowed);
     printf("%d %zu %zu ", b, borrowed.length, borrowed.scalars);
-    AduStream s;
+    struct adu_stream s;
     adu_init(&s);
     size_t last = 0;
     for (size_t i = 0; i <= n; ++i)
@@ -191,8 +191,8 @@ static int oracle(void) {
         last = i;
       }
     printf("%u ", (unsigned)adu_feed(&s, bytes + last, n - last));
-    AduSummary out = {77, 78};
-    AduStatus result = adu_finish(&s, &out);
+    struct adu_summary out = {77, 78};
+    enum adu_status result = adu_finish(&s, &out);
     printf("%u %zu %zu %u ", (unsigned)s.phase, s.bytes, s.scalars, s.used);
     if (!s.used)
       printf("-");
@@ -224,9 +224,9 @@ int main(int argc, char **argv) {
       clock_t start = clock();
       size_t sum = 0;
       for (unsigned i = 0; i < 10000; ++i) {
-        AduStream s;
+        struct adu_stream s;
         adu_init(&s);
-        AduSummary r;
+        struct adu_summary r;
         for (unsigned j = 0; j < 8; ++j)
           CHECK(adu_feed(&s, input + j, 1) == ADU_OK);
         CHECK(adu_finish(&s, &r) == ADU_OK);
@@ -237,8 +237,8 @@ int main(int argc, char **argv) {
     }
     printf("{\"stream_size\":%zu,\"owner_size\":%zu,\"retained_bytes\":%zu,"
            "\"iterations\":10000,\"checksum\":30000,\"seconds\":[",
-           sizeof(AduStream), sizeof(AduOwner),
-           sizeof(((AduStream *)0)->pending));
+           sizeof(struct adu_stream), sizeof(struct adu_owner),
+           sizeof(((struct adu_stream *)0)->pending));
     for (unsigned i = 0; i < 7; ++i)
       printf("%s%.9f", i ? "," : "", seconds[i]);
     puts("]}");

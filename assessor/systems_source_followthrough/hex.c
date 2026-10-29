@@ -1,5 +1,5 @@
 #include "hex.h"
-enum SfStatus sf_window(const struct SfImage *image,uint64_t begin,uint64_t end)
+enum sf_status sf_window(const struct sf_image *image,uint64_t begin,uint64_t end)
 {
  if(!image||image->count>64||begin>=end||end>UINT64_C(4294967296))return SF_INVALID;
  for(size_t i=0;i<image->count;i++){
@@ -17,9 +17,9 @@ static int digit(unsigned char c)
  if(c>='a'&&c<='f')return c-'a'+10;
  return -1;
 }
-enum SfStatus sf_hex(const char *text,size_t length,enum SfMode mode,struct SfImage *out)
+enum sf_status sf_hex(const char *text,size_t length,enum sf_mode mode,struct sf_image *out)
 {
- struct SfImage tmp={0};size_t pos=0,records=0;uint32_t base=0;int eof=0;
+ struct sf_image tmp={0};size_t pos=0,records=0;uint32_t base=0;int eof=0;
  if(!text||!out||(unsigned)mode>SF_LINEAR||length>4096)return SF_INVALID;
  while(pos<length){
   unsigned char raw[260];size_t n=0;unsigned sum=0;

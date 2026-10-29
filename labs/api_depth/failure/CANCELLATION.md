@@ -1,12 +1,12 @@
 # T21.06: a deadline does not release the backend's ownership
 
-Use `cancellation.h/c`, public tests and the actual `FAsync` prerequisite provider.
+Use `cancellation.h/c`, public tests and the actual `struct f_async` prerequisite provider.
 The author campaign imports the assessor foundation provider and audits its
 `f_submit`, `f_cancel` and `f_complete` symbols. Learners supply their validated
 provider; copied look-alike counters are not integration. Families A/B/C/D/F/G/J
 apply to the original three T21.06 criteria and changed packets.
 
-Zero-initialize a stable `AeOperation`. Start copies0..4 bytes, installs a terminal
+Zero-initialize a stable `struct ae_operation`. Start copies0..4 bytes, installs a terminal
 receiver and admits a generation1..3. A second start while pending conflicts;
 after generation3 the control retires. Every core call is serialized. The backend
 owns access to retained operation storage while pending. A deadline records the

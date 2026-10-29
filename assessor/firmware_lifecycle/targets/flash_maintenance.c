@@ -11,10 +11,10 @@
 #define FKEY 0x40023C04u
 #define HERR 0x07EE0000u
 #define FERR 0x1F2u
-static int valid_io(FMIO io){return io.bus.read&&io.bus.write&&io.bus.sync&&io.fresh;}
+static int valid_io(struct fm_io io){return io.bus.read&&io.bus.write&&io.bus.sync&&io.fresh;}
 static uint32_t read4(const unsigned char*p){return (uint32_t)p[0]|(uint32_t)p[1]<<8|(uint32_t)p[2]<<16|(uint32_t)p[3]<<24;}
-static void snapshot(FMIO io,uint32_t base,unsigned char out[128]){for(unsigned i=0;i<32;++i){uint32_t v=io.bus.read(io.bus.ctx,base+4*i);for(unsigned b=0;b<4;++b)out[4*i+b]=(unsigned char)(v>>(8*b));}}
-static enum FHResult begin(FMOperation*o,FMIO io,unsigned profile,unsigned kind,uint32_t address,uint32_t span,uint32_t value,unsigned sector){
+static void snapshot(struct fm_io io,uint32_t base,unsigned char out[128]){for(unsigned i=0;i<32;++i){uint32_t v=io.bus.read(io.bus.ctx,base+4*i);for(unsigned b=0;b<4;++b)out[4*i+b]=(unsigned char)(v>>(8*b));}}
+static enum fh_result begin(struct fm_operation*o,struct fm_io io,unsigned profile,unsigned kind,uint32_t address,uint32_t span,uint32_t value,unsigned sector){
  if(!o||o->state||!valid_io(io))return FH_REJECT;
  unsigned h=profile==FM_H745;uint32_t craddr=h?HCR:FCR,sraddr=h?HSR:FSR,lock=h?1u:0x80000000u;
  uint32_t sr=io.bus.read(io.bus.ctx,sraddr),cr=io.bus.read(io.bus.ctx,craddr);
@@ -28,18 +28,18 @@ static enum FHResult begin(FMOperation*o,FMIO io,unsigned profile,unsigned kind,
  else {io.bus.write(io.bus.ctx,craddr,active|1u);io.bus.write(io.bus.ctx,address,value);}
  io.bus.sync(io.bus.ctx);return FH_PENDING;
 }
-enum FHResult fm_erase(FMOperation*o,FMIO io,enum FMProfile p,unsigned s){
+enum fh_result fm_erase(struct fm_operation*o,struct fm_io io,enum fm_profile p,unsigned s){
  if(p==FM_H745){if(s<6||s>7)return FH_REJECT;return begin(o,io,p,1,0x08000000u+s*0x20000u,0x20000u,UINT32_MAX,s);}
  if(p==FM_F439){if(s<10||s>11)return FH_REJECT;return begin(o,io,p,1,0x080C0000u+(s-10)*0x20000u,0x20000u,UINT32_MAX,s);}
  return FH_REJECT;
 }
-enum FHResult fm_f439_program(FMOperation*o,FMIO io,uint32_t a,uint32_t v){
+enum fh_result fm_f439_program(struct fm_operation*o,struct fm_io io,uint32_t a,uint32_t v){
  if((a&3u)||a<0x080C0000u||a>0x080FFFFCu)return FH_REJECT;
  return begin(o,io,FM_F439,2,a,4,v,0);
 }
-enum FHResult fm_poll(FMOperation*o){
+enum fh_result fm_poll(struct fm_operation*o){
  if(!o||(o->state!=1&&o->state!=2))return FH_REJECT;
- FHIO io=o->io.bus;unsigned h=o->profile==FM_H745;uint32_t sraddr=h?HSR:FSR,craddr=h?HCR:FCR,err=h?HERR:FERR;
+ struct fh_io io=o->io.bus;unsigned h=o->profile==FM_H745;uint32_t sraddr=h?HSR:FSR,craddr=h?HCR:FCR,err=h?HERR:FERR;
  if(o->state==1){uint32_t sr=io.read(io.ctx,sraddr);if(FM_MUTANT!=1&&(sr&(h?7u:0x10000u)))return FH_PENDING;
   if(h&&!(sr&(HERR|0x10000u)))return FH_PENDING;
   io.sync(io.ctx);io.write(io.ctx,craddr,o->control&~(h?1u:0x80000000u));if(o->control&(h?1u:0x80000000u))io.write(io.ctx,craddr,o->control);io.sync(io.ctx);
@@ -55,17 +55,17 @@ int fm_recover(const unsigned char a[128],const unsigned char b[128]){
  uint32_t sa=read4(a+4),sb=read4(b+4);if(sa!=sb)return sa>sb?1:2;
  for(unsigned i=0;i<128;++i)if(a[i]!=b[i])return -1;return 1;
 }
-enum FHResult fm_recycle_begin(FMRecycle*r,FMIO io,uint32_t old,const FWPeer*p,uint32_t n,const unsigned char h[64],const uint32_t v[2],const uint32_t ver[2]){
+enum fh_result fm_recycle_begin(struct fm_recycle*r,struct fm_io io,uint32_t old,const struct fw_peer*p,uint32_t n,const unsigned char h[64],const uint32_t v[2],const uint32_t ver[2]){
  if(!r||r->state||!valid_io(io)||(old!=0x080C0000u&&old!=0x080E0000u))return FH_REJECT;
  unsigned char prior[128],record[128];io.fresh(io.bus.ctx,old,128);snapshot(io,old,prior);
  if(!fh_record_valid(prior)||n<=read4(prior+4)||!fh_record(p,n,h,v,ver,record))return FH_REJECT;
  r->io=io;r->old_base=old;r->new_base=old^0x20000u;r->state=1;r->erase.state=0;
  for(unsigned i=0;i<128;++i)r->record[i]=record[i];
- enum FHResult e=fm_erase(&r->erase,io,FM_H745,(r->new_base-0x08000000u)/0x20000u);if(e!=FH_PENDING)r->state=5;return e;
+ enum fh_result e=fm_erase(&r->erase,io,FM_H745,(r->new_base-0x08000000u)/0x20000u);if(e!=FH_PENDING)r->state=5;return e;
 }
-enum FHResult fm_recycle_poll(FMRecycle*r){
+enum fh_result fm_recycle_poll(struct fm_recycle*r){
  if(!r||r->state<1||r->state>3)return FH_REJECT;
- enum FHResult e;
+ enum fh_result e;
  if(r->state==1){e=fm_poll(&r->erase);if(e==FH_PENDING)return e;if(e!=FH_DONE){r->state=5;return e;}
   /* The already validated record is copied exactly. Program each virgin word
    * once; append publishes its separately programmed commit word last. */

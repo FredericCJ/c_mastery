@@ -21,12 +21,12 @@
       exit(1);                                                                 \
     }                                                                          \
   } while (0)
-typedef struct {
-  CMRawRing ring;
-  CoPool pool;
+struct rd_context {
+  struct cm_raw_ring ring;
+  struct co_pool pool;
   unsigned char *map;
   int registered;
-} Context;
+};
 static uint64_t now(void) {
   struct timespec t;
   CHECK(clock_gettime(CLOCK_MONOTONIC, &t) == 0);
@@ -35,7 +35,7 @@ static uint64_t now(void) {
 static int reg(int fd, unsigned op, void *arg, unsigned n) {
   return (int)syscall(__NR_io_uring_register, fd, op, arg, n);
 }
-static void cleanup(Context *c) {
+static void cleanup(struct rd_context *c) {
   if (c->registered) {
     CHECK(co_quiescent(&c->pool));
     CHECK(reg(c->ring.fd, IORING_UNREGISTER_BUFFERS, NULL, 0) == 0);
@@ -54,7 +54,7 @@ static void cleanup(Context *c) {
 }
 /* Every injected cut precedes publication. Post-publication shutdown is tested
  * separately by consuming both target and cancellation CQEs before cleanup. */
-static int setup(Context *c, int fixed, int cut) {
+static int setup(struct rd_context *c, int fixed, int cut) {
   memset(c, 0, sizeof *c);
   c->ring.fd = -1;
   if (cut == 0)
@@ -124,7 +124,7 @@ static int setup(Context *c, int fixed, int cut) {
   }
   return 0;
 }
-static uint64_t read_op(Context *c, unsigned slot, int fd, unsigned n,
+static uint64_t read_op(struct rd_context *c, unsigned slot, int fd, unsigned n,
                         int fixed, unsigned displacement) {
   uint64_t token;
   CHECK(co_acquire(&c->pool, slot, n, &token) == 1);
@@ -139,7 +139,7 @@ static uint64_t read_op(Context *c, unsigned slot, int fd, unsigned n,
   CHECK(cm_ring_push(&c->ring, &s) == 0 && cm_ring_submit(&c->ring) == 0);
   return token;
 }
-static void cancel_op(Context *c, uint64_t target) {
+static void cancel_op(struct rd_context *c, uint64_t target) {
   uint64_t token;
   CHECK(co_cancel(&c->pool, target, &token) == 1);
   struct io_uring_sqe s = {0};
@@ -148,14 +148,14 @@ static void cancel_op(Context *c, uint64_t target) {
   s.user_data = token;
   CHECK(cm_ring_push(&c->ring, &s) == 0 && cm_ring_submit(&c->ring) == 0);
 }
-static struct io_uring_cqe take(Context *c) {
+static struct io_uring_cqe take(struct rd_context *c) {
   struct io_uring_cqe q;
   CHECK(cm_ring_wait(&c->ring, &q) == 0);
   CHECK(co_complete(&c->pool, q.user_data, q.res, q.flags) == 1);
   return q;
 }
 static void cancellation(int fixed) {
-  Context c;
+  struct rd_context c;
   CHECK(setup(&c, fixed, -1) == 0);
   int p[2];
   CHECK(pipe(p) == 0);
@@ -201,7 +201,7 @@ static void cancellation(int fixed) {
          (b.user_data >> 63) ? "cancel" : "target", latency);
 }
 static void boundaries(int fixed) {
-  Context c;
+  struct rd_context c;
   CHECK(setup(&c, fixed, -1) == 0);
   int p[2];
   CHECK(pipe(p) == 0);
@@ -238,7 +238,7 @@ int main(int argc, char **argv) {
     boundaries(0);
     boundaries(1);
   } else if (!strcmp(argv[1], "failure")) {
-    Context c;
+    struct rd_context c;
     for (int i = 0; i < 5; ++i)
       CHECK(setup(&c, 1, i) == -1);
     CHECK(setup(&c, 1, -1) == 0);

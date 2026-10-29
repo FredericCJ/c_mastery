@@ -28,11 +28,11 @@ def check_guest(text,cpus,mode):
    pairs=dict(re.findall(r'(\w+)=([0-9:]+)',line))
    records.append({key:((int(value.split(':')[0])<<32)|int(value.split(':')[1]) if ':' in value else int(value)) for key,value in pairs.items()})
  ids=[0,1,2,4][:cpus]
- if len(records)!=cpus:raise ValueError('Missing/duplicate per-CPU record')
+ if len(records)!=cpus:raise ValueError('Missing/duplicate per-struct lr_cpu record')
  for i,row in enumerate(records):
   if row['arat'] not in (0,1,2) or mode and not row['cpuid1c']&(1<<21):raise ValueError('Missing actual feature observations')
   if row['index']!=i or row['apic']!=ids[i] or row['mode']!=mode or row['one']!=1 or row['periodic'] not in (3,4) or row['ipis']<8 or row['eois']!=row['ipis']+row['periodic']+1 or row['work']!=11 or row['sum']!=155+i or row['ack']!=8 or row['timeout']!=int(cpus>1 and i==cpus-1) or row['handler_ticks']<row['work_ticks'] or row['work_ticks']<=0:raise ValueError('Wrong identity/timer/work/ack/EOI/cost result')
   row['nonwork_handler_ticks']=row['handler_ticks']-row['work_ticks']
- if ('SI_TIMEOUT_RETAIN cpu='+str(cpus-1)+' generation=8 peers='+str(cpus-1) in text)!=(cpus>1):raise ValueError('Missing delayed-CPU resource-retention observation')
+ if ('SI_TIMEOUT_RETAIN cpu='+str(cpus-1)+' generation=8 peers='+str(cpus-1) in text)!=(cpus>1):raise ValueError('Missing delayed-struct lr_cpu resource-retention observation')
  if 'SI_GUEST_PASS:' not in text or 'SI_GUEST_CHECK:' in text:raise ValueError('Guest did not complete')
  return {'cpus':cpus,'mode':mode,'records':records,'scope':'TSC ticks under emulator, not calibrated time/WCET; separate work interval from handler total.'}

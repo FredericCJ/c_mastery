@@ -99,7 +99,7 @@ a half-unit error bound outside the admitted normalized interval.
 
 ## PR-T17-03: views, matrix operations and hot/cold layout
 
-`NDView` contains data, actual element extent, rows, columns and positive element
+`struct nd_view` contains data, actual element extent, rows, columns and positive element
 strides. Rows and columns are 1..8. Reject arithmetic overflow, last-index escape
 and two logical elements naming the same index. Two positive strides support a
 transposed view; neither padding nor transposition implies contiguous storage.
@@ -116,7 +116,7 @@ Validate and justify the extra storage, traversal work and non-divisible edges.
 views of equal width and a disjoint scalar output. Admission scans and overlap
 checks are part of cost, not hidden by the cubic multiply count.
 
-`NDStore` is a caller-owned, zero-initialized structure of arrays for16 records.
+`struct nd_store` is a caller-owned, zero-initialized structure of arrays for16 records.
 IDs increase within one live owner, never wrap; insertion rejects exhausted
 serials/capacity, deletion compacts all associated arrays, and reorder accepts
 only a complete permutation. `nd_record` reconstructs one record from its ID.
@@ -162,7 +162,7 @@ stub is rejected. This reuse avoids duplicating assessor code without creating
 a backward curriculum dependency or supplying a solved filter to learners.
 
 Use the interface shared with the frozen PR-P6-02 `checkpoint_numeric.h` producer:
-`CPNDouble`, `cpn_double`, `cpn_transaction` and `cpn_iir_half`. Its exact source
+`struct cpn_double`, `cpn_double`, `cpn_transaction` and `cpn_iir_half`. Its exact source
 and receipt are pinned separately. Its FIR coefficients are [1,2,1]/4; zero
 history, finite±1e100 inputs, block capacity256 and unchanged-on-admission-error
 rules remain intact. `cpn_double` accepts exact in-place and rejects partial
@@ -189,7 +189,7 @@ matrix,3 row scales and3 result scalars. Choose each pivot by largest
 abs(column)/original-row-max, lowest row on ties. Reject a zero row scale or
 abs(pivot)<=tolerance*row-scale, with finite tolerance in[0,1). This relative
 screen is a declared diagnostic policy, not proof of good conditioning.
-Return `ND_RANGE` on nonfinite arithmetic; publish output and `NDCost` only
+Return `ND_RANGE` on nonfinite arithmetic; publish output and `struct nd_cost` only
 after successful back-substitution. Inputs remain unchanged.
 
 Count elimination/back-substitution additions, multiplications and divisions

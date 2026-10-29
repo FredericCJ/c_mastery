@@ -18,7 +18,7 @@ Delayed solution: isolate sources into separate queues and retain one register-s
 
 Capacity N−1 prevents ambiguity without sharing cursor ownership. Five records with no consumer accept the first three and reject two. Drop-newest does not mutate tail. At saturation, UINT32_MAX means at least that many drops, not an exact total. The deliberate wrapping-counter control fails the saturation check.
 
-The retain-newest solution is a separate `XiLatest` representation: a three-record deque with one externally serialized first/count pair. Full push removes the old first, increments drops, then appends the new record. Burst1..5 therefore returns3,4,5. Both push and pop need the same exclusion contract; atomic head alone cannot protect a producer that now modifies reader-owned state. Accept an immutable versioned-slot design with a complete equivalent ownership/retry proof, but not a tail store grafted onto SPSC.
+The retain-newest solution is a separate `struct xi_latest` representation: a three-record deque with one externally serialized first/count pair. Full push removes the old first, increments drops, then appends the new record. Burst1..5 therefore returns3,4,5. Both push and pop need the same exclusion contract; atomic head alone cannot protect a producer that now modifies reader-owned state. Accept an immutable versioned-slot design with a complete equivalent ownership/retry proof, but not a tail store grafted onto SPSC.
 
 ## 04.a
 
@@ -46,7 +46,7 @@ The two-producer state counterexample reserves slot0 twice, writesA, writesB, pu
 
 The word-index target emits actual atomic word loads/stores and barriers, with no libatomic import. The queue API rejects a platform whose ATOMIC_INT_LOCK_FREE is not2. Lock-free in ISO terminology is not a hard latency bound; the selected code's bounded load/store path needs its own generated-code argument. Default alignment follows the atomic type and the declared target ABI; placing the queue in a packed or misaligned byte buffer invalidates admission.
 
-The changed-width fixture is an actual64-bit-index N−1 queue, not an unrelated arithmetic intrinsic. Hosted tests validate3000 records over1000 wraps. Both M4 compilers emit `__atomic_load_8`/`__atomic_store_8`; the strict direct link rejects them. That is a dependency-profile result, not a claim every implementation lacks64-bit atomics. `XiWide` illustrates an explicitly different serialized two-word counter: compute low+n, detect carry via newLow<oldLow, reject high overflow before either store, restore saved mask. It is not falsely presented as a working lock-free64-bit queue. Monotonic-width alternatives must rederive the modulus/capacity relation and all ownership/accessor serialization.
+The changed-width fixture is an actual64-bit-index N−1 queue, not an unrelated arithmetic intrinsic. Hosted tests validate3000 records over1000 wraps. Both M4 compilers emit `__atomic_load_8`/`__atomic_store_8`; the strict direct link rejects them. That is a dependency-profile result, not a claim every implementation lacks64-bit atomics. `struct xi_wide` illustrates an explicitly different serialized two-word counter: compute low+n, detect carry via newLow<oldLow, reject high overflow before either store, restore saved mask. It is not falsely presented as a working lock-free64-bit queue. Monotonic-width alternatives must rederive the modulus/capacity relation and all ownership/accessor serialization.
 
 ## 05.c
 

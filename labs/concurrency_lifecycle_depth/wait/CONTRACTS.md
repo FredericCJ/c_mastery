@@ -25,7 +25,7 @@ cancellation from object close. No historical enum or fixture is rewritten.
 
 ## Representation, ownership and execution assumptions
 
-C17, hosted Linux GCC/Clang at O0/O3 and ASan/UBSan/TSan. `CWWorld` is stable
+C17, hosted Linux GCC/Clang at O0/O3 and ASan/UBSan/TSan. `struct cw_world` is stable
 caller-owned storage containing two object records and one node per CMX task.
 It borrows a live CMX kernel. `cw_init` requires nonnull fresh storage/kernel,
 with no outstanding references from an older world. Do not copy a live world,

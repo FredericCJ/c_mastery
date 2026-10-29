@@ -29,7 +29,7 @@ gap; an inspected C11 draft must not be relabeled C17.
 
 Prerequisites are C object lifetime, array extents, signed/unsigned arithmetic,
 loop invariants, ownership, asymptotic cost and the actual retained T11 byte and
-T14 heap/graph artifacts. The graph consumer uses `CDCSR` and `cd_csr_build`.
+T14 heap/graph artifacts. The graph consumer uses `struct cd_csr` and `cd_csr_build`.
 Heap sorting uses `cd_heap_build`/`cd_heap_take`. Byte operations import
 `fr_copy`, `fr_compare`, and portable same-arena `fr_arena_move`. These are
 original learner prerequisite implementations, not substituted libraries.
@@ -59,7 +59,7 @@ level0/1 evidence. The original per-leaf rubric remains the assessor authority.
 
 ## Search, sorting and selection: T15.01–05
 
-`ADRecord` contains a signed32 key and a non-owning integer label; admit0..16
+`struct ad_record` contains a signed32 key and a non-owning integer label; admit0..16
 records. `ad_linear` returns the first equal index or length. `ad_bounds` requires
 the stated ascending/descending ordering and returns the lower bound, upper
 bound, and first equal index or length. Prove `0<=lo<=hi<=n`, exclusion outside
@@ -78,7 +78,7 @@ Insertion and merge preserve original equal-key order. Merge requires two sorted
 runs and disjoint n-record workspace. Merge sort needs n scratch records and
 logarithmic recursive depth. The reference heap adapter builds the actual T14
 max heap, then fills a shrinking sorted suffix through extraction. It additionally
-holds16 keys,16 labels and a `CDHeap`; it does **not** claim constant auxiliary
+holds16 keys,16 labels and a `struct cd_heap`; it does **not** claim constant auxiliary
 space or stable ties. Derive the in-place active-array alternative as a distinct
 storage contract before comparing it with this producer adapter.
 
@@ -100,7 +100,7 @@ the reference reserves256 counters even for four-bit digits. A hypothetical
 baseline without an exact signed32 type needs a different representation and
 value mapping, not an unchecked reinterpretation of sign-magnitude bytes.
 
-`ADWork` must start at zero for a measured operation. Its comparisons count key
+`struct ad_work` must start at zero for a measured operation. Its comparisons count key
 comparisons; writes count the record assignments explicitly instrumented in the
 sort layer. They do not count all heap/control/scratch traffic. Enumerate that
 additional traffic and stack separately. The expensive-comparison variant changes
@@ -131,7 +131,7 @@ false-positive probability follows from this fixed small hash.
 
 ## Graph frontiers, paths and optimization: T15.07–09
 
-Consume the immutable T14 `CDCSR`: at most8 vertices and32 edges. Validate offsets,
+Consume the immutable T14 `struct cd_csr`: at most8 vertices and32 edges. Validate offsets,
 source ownership and destination bounds before edge access. BFS and iterative DFS
 use caller workspaces conservatively sized for every vertex, so a short workspace
 rejects before changing result/frontier data. Start-first forest mode next visits
@@ -210,7 +210,7 @@ division. The explicit reflected variant uses the reciprocal bit-processing
 constant0xE0 and independent initial/final parameters; the baseline check value
 is not transferable merely because the width is still eight.
 
-`ADFramer` owns eight bytes. Mode0 reads one length byte0..8 followed by that many
+`struct ad_framer` owns eight bytes. Mode0 reads one length byte0..8 followed by that many
 payload bytes. Mode1 uses delimiter0x7E, escape0x7D and XOR0x20 escaping; an empty
 delimited frame is valid. Feed accepts at most64 bytes and returns consumed input.
 It stops at the first ready frame. While ready it consumes zero new bytes until

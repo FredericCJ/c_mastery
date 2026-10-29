@@ -1,6 +1,6 @@
 #include "spi.h"
 /* Intentionally unfinished learner scaffold. */
-int ps_open(PsSpi *s, PsIo io, const PuClock *clock, unsigned mode,
+int ps_open(struct ps_spi *s, struct ps_io io, const struct pu_clock *clock, unsigned mode,
             unsigned divider) {
   (void)s;
   (void)io;
@@ -9,7 +9,7 @@ int ps_open(PsSpi *s, PsIo io, const PuClock *clock, unsigned mode,
   (void)divider;
   return PS_UNIMPLEMENTED;
 }
-int ps_begin(PsSpi *s, PsIo io, uint32_t generation, uint32_t token,
+int ps_begin(struct ps_spi *s, struct ps_io io, uint32_t generation, uint32_t token,
              const uint8_t *tx, uint8_t *rx, unsigned count, unsigned dma,
              uint32_t now, unsigned budget, unsigned setup, unsigned hold) {
   (void)s;
@@ -26,20 +26,20 @@ int ps_begin(PsSpi *s, PsIo io, uint32_t generation, uint32_t token,
   (void)hold;
   return PS_UNIMPLEMENTED;
 }
-int ps_cancel(PsSpi *s, PsIo io, uint32_t token) {
+int ps_cancel(struct ps_spi *s, struct ps_io io, uint32_t token) {
   (void)s;
   (void)io;
   (void)token;
   return PS_UNIMPLEMENTED;
 }
-int ps_abort_reset(PsSpi *s, PsIo io, uint32_t token, uint32_t now) {
+int ps_abort_reset(struct ps_spi *s, struct ps_io io, uint32_t token, uint32_t now) {
   (void)s;
   (void)io;
   (void)token;
   (void)now;
   return PS_UNIMPLEMENTED;
 }
-int ps_step(PsSpi *s, PsIo io, uint32_t token, uint32_t now) {
+int ps_step(struct ps_spi *s, struct ps_io io, uint32_t token, uint32_t now) {
   (void)s;
   (void)io;
   (void)token;

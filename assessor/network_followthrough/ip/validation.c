@@ -1,7 +1,7 @@
 #include "specimens.h"
-static const NiConfig config = {0xc0000202u, 0xc0000201u};
+static const struct ni_config config = {0xc0000202u, 0xc0000201u};
 static int rejected(unsigned char *p, size_t n) {
-  NiPacket out;
+  struct ni_packet out;
   for (unsigned j = 0; j < 1500; j++)
     out.bytes[j] = 0xa5;
   out.length = 777;
@@ -12,7 +12,7 @@ static int rejected(unsigned char *p, size_t n) {
 }
 int main(void) {
   unsigned char p[1500];
-  NiView v;
+  struct ni_view v;
   unsigned rejects = 0;
   for (unsigned n = 0; n < 33; n++) {
     ni_test_echo(p, 5);
@@ -94,7 +94,7 @@ int main(void) {
   for (unsigned alignment = 0; alignment < 8; alignment++)
     for (unsigned n = 0; n <= 64; n++) {
       ni_test_echo(p + alignment, n);
-      NiPacket aligned;
+      struct ni_packet aligned;
       CHECK(ni_echo(&config, p + alignment, n + 28, &aligned) == NI_OK &&
             aligned.length == n + 28);
       CHECK(aligned.bytes[24] == 0x12 &&
@@ -108,7 +108,7 @@ int main(void) {
   p[29] = p[31];
   p[30] = a;
   p[31] = b;
-  NiPacket out;
+  struct ni_packet out;
   CHECK(ni_echo(&config, p, 32, &out) == NI_OK && out.bytes[28] == 'c');
   CHECK(rejects == 314);
   puts("NI_VALIDATION_PASS rejected=314 unaligned=520 "

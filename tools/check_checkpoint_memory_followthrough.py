@@ -32,7 +32,7 @@ def validate(d,files=True):
    if name.startswith('transfer'):
     source=BASE/'transfer/memory_stub.c' if name.endswith('stub') else TRANSFER;need(str(source) in b['argv'] and str(BASE/'transfer/memory_tests.c') in b['argv'],'actual allocated/linked provider')
    if name.startswith('adapters'):
-    source=BASE/'transfer/adapters_stub.c' if name.endswith('stub') else ADAPTERS[0];need(all(str(p) in b['argv'] for p in [source,*ADAPTERS[1:]]) and str(BASE/'transfer/adapters_tests.c') in b['argv'],'actual prior OwOwner/result imports')
+    source=BASE/'transfer/adapters_stub.c' if name.endswith('stub') else ADAPTERS[0];need(all(str(p) in b['argv'] for p in [source,*ADAPTERS[1:]]) and str(BASE/'transfer/adapters_tests.c') in b['argv'],'actual prior struct ow_owner/result imports')
    if name=='ledger':need(str(REF/'ledger.c') in b['argv'] and str(TRANSFER) in b['argv'] and r['diagnostic']=='P1_LEDGER_PASS','independent extent ledger')
    if name.startswith(('transfer-','adapters-')):
     v=name.split('-')[1];need('-DCPX_MUTANT='+('0' if v=='stub' else v) in b['argv'] and r['diagnostic']=='CPX_CHECK:','intended defined transfer rejection')

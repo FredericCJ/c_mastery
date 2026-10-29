@@ -2,7 +2,7 @@
 #ifndef BL_MUTANT
 #define BL_MUTANT 0
 #endif
-static int view(BlView a) {
+static int view(struct bl_view a) {
   if (a.used && (!a.digits || a.digits[a.used - 1] == 0))
     return 0;
 #if BL_BITS == 8
@@ -12,7 +12,7 @@ static int view(BlView a) {
 #endif
   return 1;
 }
-static int output(const BlOutput *o) {
+static int output(const struct bl_output *o) {
   return o && o->used <= o->capacity && (!o->capacity || o->digits);
 }
 static size_t trim(const uint16_t *a, size_t n) {
@@ -30,12 +30,12 @@ static int compare(const uint16_t *a, size_t an, const uint16_t *b, size_t bn) {
   }
   return 0;
 }
-static void publish(BlOutput *o, const uint16_t *s, size_t n) {
+static void publish(struct bl_output *o, const uint16_t *s, size_t n) {
   for (size_t i = 0; i < n; i++)
     o->digits[i] = s[i];
   o->used = n;
 }
-static BlStatus stage(BlView a, BlView b, BlOutput *o, uint16_t *s, size_t sn,
+static enum bl_status stage(struct bl_view a, struct bl_view b, struct bl_output *o, uint16_t *s, size_t sn,
                       size_t need) {
   if (!view(a) || !view(b) || !output(o))
     return BL_INVALID;
@@ -45,11 +45,11 @@ static BlStatus stage(BlView a, BlView b, BlOutput *o, uint16_t *s, size_t sn,
     return BL_INVALID;
   return BL_OK;
 }
-BlStatus bl_add(BlView a, BlView b, BlOutput *o, uint16_t *s, size_t sn) {
+enum bl_status bl_add(struct bl_view a, struct bl_view b, struct bl_output *o, uint16_t *s, size_t sn) {
   size_t n = a.used > b.used ? a.used : b.used;
   if (n == SIZE_MAX)
     return BL_FULL;
-  BlStatus r = stage(a, b, o, s, sn, n + 1);
+  enum bl_status r = stage(a, b, o, s, sn, n + 1);
   if (r != BL_OK)
     return r;
   uint32_t carry = 0;
@@ -75,8 +75,8 @@ static void subtract(uint16_t *out, const uint16_t *a, size_t an,
     borrow = BL_MUTANT == 2 ? 0 : (x < y);
   }
 }
-BlStatus bl_sub(BlView a, BlView b, BlOutput *o, uint16_t *s, size_t sn) {
-  BlStatus r = stage(a, b, o, s, sn, a.used);
+enum bl_status bl_sub(struct bl_view a, struct bl_view b, struct bl_output *o, uint16_t *s, size_t sn) {
+  enum bl_status r = stage(a, b, o, s, sn, a.used);
   if (r != BL_OK)
     return r;
   if (compare(a.digits, a.used, b.digits, b.used) < 0)
@@ -88,11 +88,11 @@ BlStatus bl_sub(BlView a, BlView b, BlOutput *o, uint16_t *s, size_t sn) {
   publish(o, s, n);
   return BL_OK;
 }
-BlStatus bl_mul(BlView a, BlView b, BlOutput *o, uint16_t *s, size_t sn) {
+enum bl_status bl_mul(struct bl_view a, struct bl_view b, struct bl_output *o, uint16_t *s, size_t sn) {
   if (a.used > SIZE_MAX - b.used)
     return BL_FULL;
   size_t n = a.used + b.used;
-  BlStatus r = stage(a, b, o, s, sn, n);
+  enum bl_status r = stage(a, b, o, s, sn, n);
   if (r != BL_OK)
     return r;
   for (size_t i = 0; i < n; i++)
@@ -113,7 +113,7 @@ BlStatus bl_mul(BlView a, BlView b, BlOutput *o, uint16_t *s, size_t sn) {
   publish(o, s, n);
   return BL_OK;
 }
-BlStatus bl_div(BlView a, BlView b, BlOutput *q, BlOutput *r, uint16_t *s,
+enum bl_status bl_div(struct bl_view a, struct bl_view b, struct bl_output *q, struct bl_output *r, uint16_t *s,
                 size_t sn) {
   if (!view(a) || !view(b) || !output(q) || !output(r) || q == r)
     return BL_INVALID;
@@ -158,16 +158,16 @@ BlStatus bl_div(BlView a, BlView b, BlOutput *q, BlOutput *r, uint16_t *s,
   publish(r, rem, rn);
   return BL_OK;
 }
-static int signed_view(BlSigned a) {
+static int signed_view(struct bl_signed a) {
   return view(a.magnitude) &&
          (a.magnitude.used ? (a.sign == 1 || a.sign == -1) : a.sign == 0);
 }
-BlStatus bl_signed_add(BlSigned a, BlSigned b, BlSignedOutput *o, uint16_t *s,
+enum bl_status bl_signed_add(struct bl_signed a, struct bl_signed b, struct bl_signed_output *o, uint16_t *s,
                        size_t sn) {
   if (!o || !signed_view(a) || !signed_view(b))
     return BL_INVALID;
   int sign;
-  BlStatus status;
+  enum bl_status status;
   if (a.sign == b.sign || !a.sign || !b.sign) {
     sign = a.sign ? a.sign : b.sign;
     status = bl_add(a.magnitude, b.magnitude, &o->magnitude, s, sn);
@@ -183,11 +183,11 @@ BlStatus bl_signed_add(BlSigned a, BlSigned b, BlSignedOutput *o, uint16_t *s,
     o->sign = o->magnitude.used ? sign : 0;
   return status;
 }
-BlStatus bl_signed_div(BlSigned a, BlSigned b, BlSignedOutput *q,
-                       BlSignedOutput *r, uint16_t *s, size_t sn) {
+enum bl_status bl_signed_div(struct bl_signed a, struct bl_signed b, struct bl_signed_output *q,
+                       struct bl_signed_output *r, uint16_t *s, size_t sn) {
   if (!q || !r || q == r || !signed_view(a) || !signed_view(b))
     return BL_INVALID;
-  BlStatus status =
+  enum bl_status status =
       bl_div(a.magnitude, b.magnitude, &q->magnitude, &r->magnitude, s, sn);
   if (status == BL_OK) {
     q->sign = q->magnitude.used ? a.sign * b.sign : 0;
@@ -195,7 +195,7 @@ BlStatus bl_signed_div(BlSigned a, BlSigned b, BlSignedOutput *q,
   }
   return status;
 }
-BlStatus bl_owner_init(BlOwner *o, void *ctx, BlAllocate a, BlFree f) {
+enum bl_status bl_owner_init(struct bl_owner *o, void *ctx, bl_allocate_fn a, bl_free_fn f) {
   if (!o || !a || !f)
     return BL_INVALID;
   o->digits = NULL;
@@ -206,7 +206,7 @@ BlStatus bl_owner_init(BlOwner *o, void *ctx, BlAllocate a, BlFree f) {
   o->release = f;
   return BL_OK;
 }
-BlStatus bl_owner_set(BlOwner *o, BlView v, size_t reserve) {
+enum bl_status bl_owner_set(struct bl_owner *o, struct bl_view v, size_t reserve) {
   if (!o || !o->allocate || !o->release || !view(v) || reserve < v.used)
     return BL_INVALID;
   if (reserve > SIZE_MAX / sizeof(uint16_t))
@@ -228,7 +228,7 @@ BlStatus bl_owner_set(BlOwner *o, BlView v, size_t reserve) {
     o->release(o->context, old, capacity);
   return BL_OK;
 }
-void bl_owner_drop(BlOwner *o) {
+void bl_owner_drop(struct bl_owner *o) {
   if (!o)
     return;
   uint16_t *old = o->digits;

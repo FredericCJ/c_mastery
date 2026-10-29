@@ -1,12 +1,12 @@
 #include "match.h"
-int mt_init(MTStream*out,const unsigned char*p,size_t n){
+int mt_init(struct mt_stream*out,const unsigned char*p,size_t n){
  if(!out)return AL_INVALID;
- MTStream next={0};int status=al_stream_init(&next.prefix,p,n);if(status!=AL_OK)return status;*out=next;return AL_OK;
+ struct mt_stream next={0};int status=al_stream_init(&next.prefix,p,n);if(status!=AL_OK)return status;*out=next;return AL_OK;
 }
-int mt_drain(MTStream*s,ALPublish cb,void*ctx,MTReport*out){
+int mt_drain(struct mt_stream*s,al_publish_fn cb,void*ctx,struct mt_report*out){
  if(!s||!cb||!out)return AL_INVALID;
  if(s->state==2)return MT_CLOSED;
- MTReport r={0};
+ struct mt_report r={0};
  while(s->next<s->count){++r.attempted;int status=cb(ctx,s->pending[s->next]);
   if(status){
 #ifdef MT_MUTANT_SKIP
@@ -22,7 +22,7 @@ int mt_drain(MTStream*s,ALPublish cb,void*ctx,MTReport*out){
  }
  s->state=0;s->next=s->count=0;*out=r;return AL_OK;
 }
-int mt_feed(MTStream*s,const unsigned char*p,size_t n,ALPublish cb,void*ctx,MTReport*out){
+int mt_feed(struct mt_stream*s,const unsigned char*p,size_t n,al_publish_fn cb,void*ctx,struct mt_report*out){
  if(!s||!cb||!out)return AL_INVALID;
  if(s->state==2)return MT_CLOSED;
 #ifndef MT_MUTANT_REPLACE

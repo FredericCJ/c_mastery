@@ -2,12 +2,12 @@
 #include "depth.h"
 volatile unsigned fd_audit_status;
 volatile int32_t fd_audit_value;
-static FDPool pool;
+static struct fd_pool pool;
 void _start(void) {
     unsigned char wire[8],move[8]; size_t extent;
-    FDRecord input={3,2,-3},decoded;
-    FDHandle handle; FDValue value;
-    FDCursor c,sub; const unsigned char *view;
+    struct fd_record input={3,2,-3},decoded;
+    struct fd_handle handle; struct fd_value value;
+    struct fd_cursor c,sub; const unsigned char *view;
     int32_t counter=10;
     fd_audit_status=(unsigned)fd_extent(4,1,4,8,&extent);
     fd_audit_status+=(unsigned)fd_encode(input,wire,8);

@@ -5,7 +5,7 @@
 #define LS_MUTANT 0
 #endif
 static int equal(const char *a,const char *b){if(!a || !b)return 0;while(*a && *a==*b){++a;++b;}return *a==*b;}
-int ls_pack(const LsFields *v,uint16_t *out)
+int ls_pack(const struct ls_fields *v,uint16_t *out)
 {
 #if LS_MUTANT == 3
  if(out)*out=0;
@@ -15,7 +15,7 @@ int ls_pack(const LsFields *v,uint16_t *out)
 #endif
  return lsg_pack(v,out);
 }
-int ls_unpack(uint16_t w,LsFields *out)
+int ls_unpack(uint16_t w,struct ls_fields *out)
 {
 #if LS_MUTANT == 1
  if(out && !(w&UINT16_C(0xf801))){out->tag=(w>>1)&7;out->length=(w>>4)&31;out->flags=(w>>9)&3;return 0;}

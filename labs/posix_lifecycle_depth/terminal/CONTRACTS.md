@@ -75,7 +75,7 @@ A reconnect must not accidentally finish a previous peer's partial frame.
 
 ## Representation, invariants, failure and costs
 
-`PTGuard` borrows a live, exclusively configured PTY descriptor; no other actor
+`struct pt_guard` borrows a live, exclusively configured PTY descriptor; no other actor
 may change its attributes. It owns a saved `termios` value and restoration duty,
 not the descriptor. Compare named flags, every `c_cc`, and symbolic speeds,
 never padding via `memcmp`. Set `restore_pending` before attempting an attribute
@@ -96,7 +96,7 @@ ABI structure; this is not a portable file/network representation. Work is
 O(bytes), storage is bounded512-byte child buffers plus fixed ownership tables.
 The deadline is a laboratory containment policy, not a real-time guarantee.
 
-`PTSession` owns its parser/queue, saturating reject count and monotonically
+`struct pt_session` owns its parser/queue, saturating reject count and monotonically
 increasing uint64 connection epoch. Its API is externally serialized. Open on
 an already connected session or at epoch exhaustion fails unchanged. Close
 discards partial and queued data by explicit service policy. Feed borrows live

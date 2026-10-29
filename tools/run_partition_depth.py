@@ -21,7 +21,7 @@ def main(report):
     pins={p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
     value={'schema_version':1,'created_utc':datetime.now(timezone.utc).isoformat(),'inspected_paths':pins,'commands':[],'host':[],'target':[],'native':[],
       'scope':'Exact placement/demand/affinity with actual retained scheduling imports, strict M4 and actual native pinned workers plus one drained transfer.',
-      'limits':['Finite independent periodic scheduling premises and declared cost tables only.','Native wall/thread time and CPU samples are not physical WCET, M7/M4 measurements or hard-real-time scheduling guarantees.','No independent human review or learner assessment.']}
+      'limits':['Finite independent periodic scheduling premises and declared cost tables only.','Native wall/thread time and struct lr_cpu samples are not physical WCET, M7/M4 measurements or hard-real-time scheduling guarantees.','No independent human review or learner assessment.']}
     env=dict(os.environ,ASAN_OPTIONS='detect_leaks=1:abort_on_error=1',UBSAN_OPTIONS='halt_on_error=1',TSAN_OPTIONS='halt_on_error=1')
     def run(command,label,expected=0,marker=None,input_text=None):
         command=[str(x) for x in command];r=subprocess.run(command,capture_output=True,text=True,input=input_text,env=env,timeout=90);output=r.stdout+r.stderr

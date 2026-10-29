@@ -9,11 +9,11 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
+struct dg_m {
   unsigned ready, code;
-} M;
+};
 static uint32_t rd(void *p, unsigned r) {
-  M *m = p;
+  struct dg_m *m = p;
   return r == FW_STATUS ? (m->ready ? FW_EOC : 0) : r == FW_ADC ? m->code : 0;
 }
 static void wr(void *p, unsigned r, uint32_t v) {
@@ -22,8 +22,8 @@ static void wr(void *p, unsigned r, uint32_t v) {
   (void)v;
 }
 int main(void) {
-  M m = {0, 0};
-  FwIo io = {&m, rd, wr};
+  struct dg_m m = {0, 0};
+  struct fw_io io = {&m, rd, wr};
   uint16_t value = 99;
   CHECK(fw_adc(io, &value, 2) != 0 && value == 99);
   m.ready = 1;
@@ -31,15 +31,15 @@ int main(void) {
     m.code = i;
     CHECK(fw_adc(io, &value, 1) == 0 && value == (i % 4096));
   }
-  PuClock clock = {64000000, 1, 1, 2, 2, 0};
-  PtConfig timer;
-  PaConfig cfg = {4, 2, 1};
-  PaTiming timing;
+  struct pu_clock clock = {64000000, 1, 1, 2, 2, 0};
+  struct pt_config timer;
+  struct pa_config cfg = {4, 2, 1};
+  struct pa_timing timing;
   CHECK(pt_choose(&clock, 63, 1000, 0, 0, 0, 0, &timer) == PT_OK &&
         timer.psc == 63 && timer.arr == 999 && timer.clock == 64000000);
   CHECK(pa_timing(&clock, &cfg, &timing) == PA_OK &&
         timing.total_cycles == 192 && timing.conversion_us == 12);
-  PtModel model;
+  struct pt_model model;
   CHECK(pt_init(&model, &timer) == PT_OK);
   model.running = 1;
   for (unsigned i = 0; i < 64000; i++)

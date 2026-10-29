@@ -12,23 +12,23 @@ enum {
   SA_UNIMPLEMENTED
 };
 enum { SA_EMPTY = 0, SA_OWNED, SA_COMPLETED, SA_QUARANTINED };
-typedef struct {
+struct sa_port {
   void *context;
   int64_t (*submit_read)(void *, uint32_t, void *);
   int64_t (*wait)(void *, uint64_t);
-} SaPort;
-typedef struct {
-  SaPort port;
+};
+struct sa_read {
+  struct sa_port port;
   void *buffer;
   uint64_t ticket;
   unsigned state, abandoned;
-} SaRead;
+};
 /* Zero-initialized exclusive control; live writable4096-byte buffer and port
  * context through successful wait and explicit release. Submit positive means
  * accepted; nonpositive means no queued request. Wait0 proves completion;
  * any other result does NOT prove memory quiescence. No callback reentry. */
-int sa_start(SaRead *, SaPort, uint32_t, void *);
-int sa_abandon(SaRead *);
-int sa_finish(SaRead *);
-int sa_release(SaRead *, void **);
+int sa_start(struct sa_read *, struct sa_port, uint32_t, void *);
+int sa_abandon(struct sa_read *);
+int sa_finish(struct sa_read *);
+int sa_release(struct sa_read *, void **);
 #endif

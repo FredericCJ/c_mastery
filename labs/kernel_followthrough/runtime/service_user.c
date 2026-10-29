@@ -3,10 +3,10 @@
 #include "kf_abi.h"
 #include "services.h"
 static store database;
-static Cvm machine;
-static CvmProgram program;
-static CvmValue result;
-static Vh owner, reader;
+static struct cvm_cvm machine;
+static struct cvm_program program;
+static struct cvm_value result;
+static struct vg_vh owner, reader;
 static unsigned lose_reply, refuse_before;
 static void say(const char *p) {
   size_t n = 0;
@@ -39,7 +39,7 @@ static int host(void *ctx, uint8_t service, int32_t input, int32_t *out) {
   int r = vh_host(ctx, service, input, out);
   return r ? r : lose_reply ? STORE_INDETERMINATE : 0;
 }
-static CvmStatus execute(Vh *context, unsigned service, int32_t input) {
+static enum cvm_status execute(struct vg_vh *context, unsigned service, int32_t input) {
   uint32_t u = (uint32_t)input;
   uint8_t bytes[] = {'C',
                      'V',
@@ -76,7 +76,7 @@ __attribute__((section(".text.start"), noreturn)) void _start(void) {
     done(31);
   if (store_open(&database, io) != STORE_OK)
     done(32);
-  owner = (Vh){&database, 14, KF_CASE == 33 ? VH_LEGACY4 : VH_VERSIONED5, 0, 1};
+  owner = (struct vg_vh){&database, 14, KF_CASE == 33 ? VH_LEGACY4 : VH_VERSIONED5, 0, 1};
   reader = owner;
   reader.capabilities = 4;
   if (!verify) {

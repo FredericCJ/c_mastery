@@ -10,9 +10,9 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-static DMedium base, work, committed;
-static SdStore subject, committed_subject;
-static void maximum_generation(DMedium *m) {
+static struct d_medium base, work, committed;
+static struct sd_store subject, committed_subject;
+static void maximum_generation(struct d_medium *m) {
   unsigned selected = m->stable[0][8] >= m->stable[1][8] ? 0 : 1;
   uint8_t record[4096];
   memcpy(record, m->stable[selected], 4096);
@@ -29,11 +29,11 @@ static void maximum_generation(DMedium *m) {
   memcpy(m->stable[0], record, 4096);
   memcpy(m->stable[1], record, 4096);
 }
-static void reset(DMedium *m) {
+static void reset(struct d_medium *m) {
   dm_reboot(m);
   m->reads = m->writes = m->flushes = 0;
 }
-static int image(SdStore *s, unsigned state) {
+static int image(struct sd_store *s, unsigned state) {
   uint8_t bytes[4096], expected[4096];
   for (unsigned p = 0; p < 32; p++) {
     memset(expected, 0, sizeof expected);
@@ -47,7 +47,7 @@ static int image(SdStore *s, unsigned state) {
   }
   return 0;
 }
-static int change(SdStore *s, unsigned newer) {
+static int change(struct sd_store *s, unsigned newer) {
   unsigned pages[] = {0, 1, 31};
   uint8_t old[] = {10, 20, 30}, next[] = {11, 0, 77};
   CHECK(sd_begin(s) == SD_OK);
@@ -83,7 +83,7 @@ static int boundary(unsigned full) {
   uint8_t v = 77, out[4096];
   CHECK(sd_write(&subject, 0, 0, &v, 1) == SD_STATE);
   CHECK(sd_begin(&subject) == SD_OK);
-  SdStore saved = subject;
+  struct sd_store saved = subject;
   CHECK(sd_write(&subject, 32, 0, &v, 1) == SD_INVALID &&
         !memcmp(&saved, &subject, sizeof subject));
   CHECK(sd_write(&subject, 0, 4096, &v, 1) == SD_INVALID &&

@@ -58,11 +58,11 @@ ownership in ISO C. Hosted errors.h includes setjmp.h; no whole-family strict-
 firmware import is claimed. The core's plain enum/out-parameters are the selected
 freestanding interface.
 
-`CsResources` acquires, in order, an input duplicate,84 candidate bytes, an output
+`struct cs_resources` acquires, in order, an input duplicate,84 candidate bytes, an output
 duplicate, three queue-wire objects and an epoll registration. Fixture-owned
 source/output descriptors and epoll instance are external prerequisites, not
 unlisted service acquisitions. Inject refusal before1..5 and after5 before
-publication. Explicit reverse cleanup and actual `OwScope` must release the same
+publication. Explicit reverse cleanup and actual `struct ow_scope` must release the same
 IDs exactly once. Cleanup callbacks are nonreentrant and cannot escape or fail to
 release. The scope has eight entries; five are used. OS cleanup errors are retained
 and never justify retrying a close integer. The asynchronous variant retains all
@@ -70,7 +70,7 @@ acquisitions while a real worker may access candidate storage. Owner-close alone
 does not run cleanup. Join the borrowed worker, acknowledge, then unwind. The
 reference tests deliberately hold the worker at a condition predicate.
 
-The shared-slab variant uses four42-byte wire slots and actual `OwShared` rights.
+The shared-slab variant uses four42-byte wire slots and actual `struct ow_shared` rights.
 Publication creates two independent consumer rights, then drops the producer's
 right. Each token includes slot, generation and consumer index. Cancelling one
 consumer drops only that right; the other retains the immutable bytes. Last drop
@@ -80,7 +80,7 @@ This is a changed storage model:168 slab bytes plus ownership metadata, at most
 eight consumer rights and bounded queue/reference bookkeeping. It does not retain
 the original copied-frame252-byte interpretation by renaming storage.
 
-`CsReceipts` demonstrates explicit message retry semantics: a trusted nonzero epoch
+`struct cs_receipts` demonstrates explicit message retry semantics: a trusted nonzero epoch
 and sequence identify one request; the exact payload must match on retry. Four
 entries retain receipts without eviction. A duplicate has no new effect; changed
 payload under the same identity conflicts; capacity refuses before effect. After
@@ -89,7 +89,7 @@ frame under the same receipt identity. Byte replay on the old stream is not a
 transaction rollback. This volatile bounded ledger is not crash-safe exactly-once
 delivery, authentication, a durable store or infinite sequence-wrap support.
 
-The actual P5 `P5Bridge` uses a32-byte capture and the actual FAsync/queue shutdown
+The actual P5 `struct p5_bridge` uses a32-byte capture and the actual FAsync/queue shutdown
 protocol. A42-byte capstone frame therefore needs bounded13-byte or32-byte chunks.
 For every chunk, retain the capstone lease through withheld acknowledgement,
 observed matching quiescence and worker join. The worker copies from an original
@@ -97,7 +97,7 @@ local pipe; it is not a generic network writer. Never label callback observation
 as join. Both normal and shutdown-before-ack paths execute. The capstone accounts
 one final message release, even though the bridge releases several chunk operations.
 
-The selected changed architecture alternative consumes actual `COAsync`: requesting
+The selected changed architecture alternative consumes actual `struct co_async`: requesting
 42 bytes refuses, while8,8,8,8,8,2 reconstructs the same frame. Each producer poll
 has at most two read attempts, and synchronous disarm quiesces its notification
 source. The port here is a deliberately synchronous fixture. It cannot be replaced

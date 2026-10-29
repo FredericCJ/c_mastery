@@ -3,7 +3,7 @@
 #include <string.h>
 int main(int argc,char **argv) {
   if(argc!=2) return 64;
-  unsigned value=3,eval=0;AcStatus r;
+  unsigned value=3,eval=0;enum ac_status r;
   if(!strcmp(argv[1],"capacity")) r=ac_checked_add(2,4,&value,&eval);
   else if(!strcmp(argv[1],"external")) {
     unsigned char p[3]={5,4,0};r=ac_admit_wire(p,3,&value);

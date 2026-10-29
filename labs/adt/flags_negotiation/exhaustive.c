@@ -6,7 +6,7 @@
 int main(void) {
   uint64_t accepted = 0, rejected = 0, checksum = 0;
   for (uint64_t raw = 0; raw < UINT64_C(4294967296); ++raw) {
-    ADFlags out = {UINT32_C(0xdeadbeef)};
+    struct ad_flags out = {UINT32_C(0xdeadbeef)};
     int ok = ad_flags((uint32_t)raw, &out);
     int expected = raw < 8;
     if (ok != expected ||

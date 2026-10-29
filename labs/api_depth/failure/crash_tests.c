@@ -11,12 +11,12 @@
 int main(void) {
   const unsigned char golden[5] = {1, 4, 9, 2, 16};
   unsigned char b[5];
-  AeFault f = {4, 9, 2}, out = {0};
+  struct ae_fault f = {4, 9, 2}, out = {0};
   CHECK(ae_fault_encode(f, b, 5) == AE_OK && !memcmp(b, golden, 5));
   CHECK(ae_fault_decode(b, 5, &out) == AE_OK && out.build == 4 &&
         out.address == 9 && out.state == 2);
   for (unsigned n = 0; n < 5; ++n) {
-    out = (AeFault){0};
+    out = (struct ae_fault){0};
     CHECK(ae_fault_decode(b, n, &out) == AE_INVALID && out.build == 0);
   }
   b[4] = 17;
@@ -25,13 +25,13 @@ int main(void) {
   unsigned cuts = 0;
   for (unsigned history = 0; history < 3; ++history)
     for (unsigned cut = 0; cut <= 10; ++cut) {
-      AeCrashSlots slots = {0};
+      struct ae_crash_slots slots = {0};
       for (unsigned g = 1; g <= history; ++g)
-        CHECK(ae_fault_save(&slots, (AeFault){4, g, 2}, 0) == AE_OK);
+        CHECK(ae_fault_save(&slots, (struct ae_fault){4, g, 2}, 0) == AE_OK);
       CHECK(ae_fault_save(&slots, f, cut) == (cut ? AE_AMBIGUOUS : AE_OK));
       unsigned generation = 99;
-      out = (AeFault){0};
-      AeCode result = ae_fault_select(&slots, &out, &generation);
+      out = (struct ae_fault){0};
+      enum ae_code result = ae_fault_select(&slots, &out, &generation);
       unsigned committed = cut == 0 || cut == 10;
       if (!history && !committed)
         CHECK(result == AE_UNKNOWN && generation == 99);
@@ -40,10 +40,10 @@ int main(void) {
               out.address == (committed ? 9 : history));
       ++cuts;
     }
-  AeCrashSlots slots = {0};
+  struct ae_crash_slots slots = {0};
   for (unsigned i = 0; i < 3; ++i)
     CHECK(ae_fault_save(&slots, f, 0) == AE_OK);
-  AeCrashSlots before = slots;
+  struct ae_crash_slots before = slots;
   CHECK(ae_fault_save(&slots, f, 0) == AE_FULL &&
         !memcmp(&slots, &before, sizeof slots));
   unsigned generation;
@@ -57,7 +57,7 @@ int main(void) {
   memcpy(slots.bytes[1], slots.bytes[0], 8);
   CHECK(ae_fault_select(&slots, &out, &generation) == AE_CONFLICT);
   for (unsigned cut = 1; cut <= 5; ++cut) {
-    AeRecovery recovery;
+    struct ae_recovery recovery;
     ae_recovery_init(&recovery);
     CHECK(ae_recover(&recovery, b, 5, 4, cut) == AE_AMBIGUOUS);
     CHECK(ae_recover(&recovery, b, 5, 4, cut) ==
@@ -72,12 +72,12 @@ int main(void) {
     CHECK(ae_recover(&recovery, b, 5, 4, 0) == AE_OK &&
           recovery.ledger.count == events && recovery.effects.effects == 1);
   }
-  AeRecovery recovery;
+  struct ae_recovery recovery;
   ae_recovery_init(&recovery);
-  AeRecovery saved = recovery;
+  struct ae_recovery saved = recovery;
   CHECK(ae_recover(&recovery, b, 5, 5, 0) == AE_CONFLICT &&
         !memcmp(&recovery, &saved, sizeof recovery));
-  CHECK(ae_fault_encode((AeFault){4, 9, 3}, b, 5) == AE_OK &&
+  CHECK(ae_fault_encode((struct ae_fault){4, 9, 3}, b, 5) == AE_OK &&
         ae_fault_decode(b, 5, &out) == AE_OK);
   CHECK(ae_recover(&recovery, b, 5, 4, 0) == AE_CONFLICT && !recovery.done &&
         !recovery.effects.effects);

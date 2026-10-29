@@ -1,10 +1,10 @@
 #include "protocols.h"
-void pt_device_init(PTDevice *d,PTClosed *out){
+void pt_device_init(struct pt_device *d,struct pt_closed *out){
  d->generation=1;d->state=PT_CLOSED;d->control=d->cleanup=0;out->device=d;out->generation=1;
 }
-int pt_configure(PTClosed *old,unsigned fail,PTReady *out){
+int pt_configure(struct pt_closed *old,unsigned fail,struct pt_ready *out){
  if(!old||!out||!old->device||fail>2)return PT_INVALID;
- PTDevice *d=old->device;
+ struct pt_device *d=old->device;
  if(d->state!=PT_CLOSED)return PT_STATE;
 #ifndef TS_MUTATE_TYPESTATE2
  if(old->generation!=d->generation)return PT_STATE;
@@ -23,7 +23,7 @@ int pt_configure(PTClosed *old,unsigned fail,PTReady *out){
  }
  d->state=PT_READY;out->device=d;out->generation=d->generation;return PT_OK;
 }
-int pt_recover(PTDevice *d,unsigned quiet,PTClosed *out){
+int pt_recover(struct pt_device *d,unsigned quiet,struct pt_closed *out){
  if(!d||!out||quiet>1)return PT_INVALID;
  if(d->state!=PT_RECOVERY_REQUIRED)return PT_STATE;
  if(!quiet)return PT_PENDING;
@@ -31,22 +31,22 @@ int pt_recover(PTDevice *d,unsigned quiet,PTClosed *out){
  d->control=0;d->cleanup++;d->state=PT_CLOSED;d->generation++;
  out->device=d;out->generation=d->generation;return PT_OK;
 }
-int pt_close(PTReady *old,PTClosed *out){
+int pt_close(struct pt_ready *old,struct pt_closed *out){
  if(!old||!out||!old->device)return PT_INVALID;
- PTDevice *d=old->device;
+ struct pt_device *d=old->device;
  if(d->state!=PT_READY||old->generation!=d->generation)return PT_STATE;
  if(d->generation==UINT32_MAX)return PT_RANGE;
  d->control=0;d->cleanup++;d->state=PT_CLOSED;d->generation++;old->device=0;
  out->device=d;out->generation=d->generation;return PT_OK;
 }
-int pt_builder_set(PTBuilder *b,unsigned field,unsigned value){
+int pt_builder_set(struct pt_builder *b,unsigned field,unsigned value){
  if(!b||field>2||b->mask>7)return PT_INVALID;
  if(b->mask&(1u<<field))return PT_STATE;
  if((field==0&&(value>255||value%4))||(field==1&&(!value||value>64))||(field==2&&(!value||value>1000)))return PT_RANGE;
  if(field==0)b->address=value;else if(field==1)b->length=value;else b->timeout=value;
  b->mask|=1u<<field;return PT_OK;
 }
-int pt_builder_finish(const PTBuilder *b,PTConfig *out){
+int pt_builder_finish(const struct pt_builder *b,struct pt_config *out){
  if(!b||!out)return PT_INVALID;
 #ifndef TS_MUTATE_BUILDER
  if(b->mask!=7)return PT_STATE;
@@ -54,9 +54,9 @@ int pt_builder_finish(const PTBuilder *b,PTConfig *out){
 #ifndef TS_MUTATE_BUILDER2
  if(b->address>256||b->length>256-b->address)return PT_RANGE;
 #endif
- PTConfig c={b->address,b->length,b->timeout};*out=c;return PT_OK;
+ struct pt_config c={b->address,b->length,b->timeout};*out=c;return PT_OK;
 }
-int pt_session_step(PTSession *s,unsigned sending,unsigned tag){
+int pt_session_step(struct pt_session *s,unsigned sending,unsigned tag){
  if(!s||s->role>1||s->phase>5||s->remaining>8||sending>1)return PT_INVALID;
  if(s->phase==5)return PT_STATE;
  if((s->phase==2||s->phase==3)&&!s->remaining)return PT_INVALID;
@@ -78,7 +78,7 @@ int pt_session_step(PTSession *s,unsigned sending,unsigned tag){
  return PT_OK;
 }
 static unsigned parent(unsigned state){return state==PT_IDLE||state==PT_BUSY?PT_ONLINE:PT_ROOT;}
-int pt_dispatch(PTMachine *m,unsigned event,unsigned char *trace,size_t capacity,size_t *used){
+int pt_dispatch(struct pt_machine *m,unsigned event,unsigned char *trace,size_t capacity,size_t *used){
  if(!m||!used||(!trace&&capacity)||m->active<PT_OFFLINE||m->active>PT_FAULT||event>PT_PING)return PT_INVALID;
  if(m->dispatching)return PT_STATE;
  unsigned state=m->active,target=state;
@@ -105,14 +105,14 @@ int pt_dispatch(PTMachine *m,unsigned event,unsigned char *trace,size_t capacity
  for(size_t i=0;i<count;i++)trace[i]=local[i];
  m->active=target;*used=count;return PT_OK;
 }
-int pt_post(PTActive *a,unsigned event){
+int pt_post(struct pt_active *a,unsigned event){
  if(!a||event>PT_PING||a->count>4||a->head>3)return PT_INVALID;
 #ifndef TS_MUTATE_ACTIVE
  if(a->count==4)return PT_RANGE;
 #endif
  a->queue[(a->head+a->count)%4]=event;a->count++;return PT_OK;
 }
-int pt_active_step(PTActive *a,unsigned char *trace,size_t capacity,size_t *used){
+int pt_active_step(struct pt_active *a,unsigned char *trace,size_t capacity,size_t *used){
  if(!a||!used||a->count>4||a->head>3)return PT_INVALID;
  if(!a->count)return PT_PENDING;
  int r=pt_dispatch(&a->machine,a->queue[a->head],trace,capacity,used);
@@ -124,7 +124,7 @@ int pt_active_step(PTActive *a,unsigned char *trace,size_t capacity,size_t *used
  a->head=(a->head+1)%4;a->count--;return PT_OK;
 #endif
 }
-int pt_thread_sum(PTThread *p,unsigned available,uint32_t value,uint32_t *out){
+int pt_thread_sum(struct pt_thread *p,unsigned available,uint32_t value,uint32_t *out){
  if(!p||!out||available>1||p->count>3)return PT_INVALID;
  if(p->pc==UINT32_MAX)return PT_DONE;
  if(p->pc>1)return PT_STATE;
@@ -139,7 +139,7 @@ int pt_thread_sum(PTThread *p,unsigned available,uint32_t value,uint32_t *out){
  if(p->count==3){*out=p->sum;p->pc=UINT32_MAX;return PT_DONE;}
  return PT_PENDING;
 }
-static int tree_valid(const PTNode *p,size_t n){
+static int tree_valid(const struct pt_node *p,size_t n){
  unsigned parents[8]={0};if(!n||n>8)return 0;
  for(size_t i=0;i<n;i++){
   if(p[i].kind>PT_BT_SELECTOR)return 0;
@@ -150,7 +150,7 @@ static int tree_valid(const PTNode *p,size_t n){
  for(size_t i=1;i<n;i++)if(parents[i]!=1)return 0;
  return 1;
 }
-static unsigned tick_node(PTBehavior *b,const PTNode *p,unsigned node,PTTick tick,void *ctx){
+static unsigned tick_node(struct pt_behavior *b,const struct pt_node *p,unsigned node,pt_tick_fn tick,void *ctx){
  if(p[node].kind==PT_BT_LEAF){unsigned r=tick(ctx,node);if(r==PT_BT_RUNNING)b->active_mask|=1u<<node;else b->active_mask&=~(1u<<node);return r;}
 #ifdef TS_MUTATE_BEHAVIOR
  b->cursor[node]=0;
@@ -164,7 +164,7 @@ static unsigned tick_node(PTBehavior *b,const PTNode *p,unsigned node,PTTick tic
  }
  b->cursor[node]=0;return p[node].kind==PT_BT_SEQUENCE?PT_BT_SUCCESS:PT_BT_FAILURE;
 }
-int pt_behavior_tick(PTBehavior *b,const PTNode *p,size_t n,PTTick tick,void *ctx,unsigned *out){
+int pt_behavior_tick(struct pt_behavior *b,const struct pt_node *p,size_t n,pt_tick_fn tick,void *ctx,unsigned *out){
  if(!b||!p||!tick||!out||!tree_valid(p,n))return PT_INVALID;
  if(b->ticking)return PT_STATE;
  for(size_t i=0;i<n;i++)if(p[i].kind!=PT_BT_LEAF&&b->cursor[i]>=p[i].count)return PT_INVALID;
@@ -172,7 +172,7 @@ int pt_behavior_tick(PTBehavior *b,const PTNode *p,size_t n,PTTick tick,void *ct
  if(r>PT_BT_RUNNING)return PT_INVALID;
  *out=r;return PT_OK;
 }
-int pt_behavior_cancel(PTBehavior *b,PTAbort abort,void *ctx){
+int pt_behavior_cancel(struct pt_behavior *b,pt_abort_fn abort,void *ctx){
  if(!b||!abort)return PT_INVALID;
  if(b->ticking)return PT_STATE;
  b->ticking=1;unsigned mask=b->active_mask;b->active_mask=0;
@@ -184,7 +184,7 @@ int pt_behavior_cancel(PTBehavior *b,PTAbort abort,void *ctx){
  (void)mask;(void)ctx;
  b->ticking=0;return PT_OK;
 }
-int pt_driver_start(PTDriver *d,const unsigned char *p,size_t n){
+int pt_driver_start(struct pt_driver *d,const unsigned char *p,size_t n){
  if(!d||!p||!n||n>64||!d->port.start_dma||!d->port.stop_and_quiesce||!d->port.watchdog)return PT_INVALID;
  if(d->device.state!=PT_READY||d->dma_owned)return PT_STATE;
  d->buffer=p;d->length=n;d->dma_owned=1;
@@ -196,7 +196,7 @@ int pt_driver_start(PTDriver *d,const unsigned char *p,size_t n){
  }
  return PT_OK;
 }
-int pt_driver_complete(PTDriver *d,unsigned error,unsigned quiet){
+int pt_driver_complete(struct pt_driver *d,unsigned error,unsigned quiet){
  if(!d||error>1||quiet>1)return PT_INVALID;
  if(!d->dma_owned)return PT_STATE;
 #ifndef TS_MUTATE_DRIVER2
@@ -207,11 +207,11 @@ int pt_driver_complete(PTDriver *d,unsigned error,unsigned quiet){
  if(d->device.state==PT_RECOVERY_REQUIRED)return PT_RECOVERY;
  d->port.watchdog(d->port.context);return PT_OK;
 }
-int pt_driver_recover(PTDriver *d){
+int pt_driver_recover(struct pt_driver *d){
  if(!d||!d->port.stop_and_quiesce)return PT_INVALID;
  if(d->device.state!=PT_RECOVERY_REQUIRED)return PT_STATE;
  if(d->device.generation==UINT32_MAX)return PT_RANGE;
  if(d->port.stop_and_quiesce(d->port.context))return PT_PENDING;
  d->dma_owned=0;d->buffer=0;d->length=0;
- PTClosed closed;return pt_recover(&d->device,1,&closed);
+ struct pt_closed closed;return pt_recover(&d->device,1,&closed);
 }

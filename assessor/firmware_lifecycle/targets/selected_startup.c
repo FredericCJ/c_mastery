@@ -4,8 +4,8 @@
 #endif
 #define RCC 0x58024400u
 #define BOX 0x30040020u
-static int io_ok(FHIO x){return x.read&&x.write&&x.sync;}
-int st_cold_h745(FHIO x){
+static int io_ok(struct fh_io x){return x.read&&x.write&&x.sync;}
+int st_cold_h745(struct fh_io x){
  if(!io_ok(x))return 0;
  uint32_t cr=x.read(x.ctx,RCC),cf=x.read(x.ctx,RCC+0x10u);
  /* HSI64 ready, divide1, PLLs off, system clock=HSI, exact reset prescalers.
@@ -21,17 +21,17 @@ int st_cold_h745(FHIO x){
  x.write(x.ctx,RCC+0xE0u,x.read(x.ctx,RCC+0xE0u)|(1u<<25));
  (void)x.read(x.ctx,RCC+0xE0u);x.sync(x.ctx);return 1;
 }
-int st_cold_f439(FHIO x){
+int st_cold_f439(struct fh_io x){
  if(!io_ok(x))return 0;
  uint32_t cr=x.read(x.ctx,0x40023800u),cf=x.read(x.ctx,0x40023808u);
  /* HSI16, all PLLs off, reset AHB/APB divisors. No invented H7 peer. */
  return (cr&0x15000003u)==3u&&!(cf&0xFCFFu)&&!x.read(x.ctx,0xE000ED94u);
 }
-static int selection(const BSSelection*s){
+static int selection(const struct bs_selection*s){
  return s&&s->sequence&&s->record<2&&s->image[0].core==0&&s->image[1].core==1&&s->image[0].generation&&
  s->image[0].generation==s->image[1].generation;
 }
-int st_release(FHIO x,const BSSelection*s){
+int st_release(struct fh_io x,const struct bs_selection*s){
  if(!io_ok(x)||!selection(s)||(x.read(x.ctx,RCC+0xA0u)&8u))return 0;
  /* Caller already completed cold check and authenticated selection. Shared
   * SRAM is exclusive, uncached and inaccessible to any active peer so far. */
@@ -43,7 +43,7 @@ int st_release(FHIO x,const BSSelection*s){
  if(ST_MUTANT!=2)x.write(x.ctx,RCC+0xA0u,x.read(x.ctx,RCC+0xA0u)|8u);
  x.sync(x.ctx);return 1;
 }
-int st_peer_matches(FHIO x,const BSSelection*s){
+int st_peer_matches(struct fh_io x,const struct bs_selection*s){
  if(!io_ok(x)||!selection(s))return 0;x.sync(x.ctx);
  uint32_t n=x.read(x.ctx,BOX),g=x.read(x.ctx,BOX+4u),base=x.read(x.ctx,BOX+8u),inv=x.read(x.ctx,BOX+12u);
  return n==s->sequence&&g==s->image[0].generation&&base==s->image[1].base&&inv==~n;

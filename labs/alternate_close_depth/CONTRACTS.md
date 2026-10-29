@@ -21,7 +21,7 @@ rules. A successful close also does not establish data durability.
 
 ## Representation, ownership and operations
 
-`QCOwner` is live, initialized, exclusively accessed, noncopied storage containing
+`struct qc_owner` is live, initialized, exclusively accessed, noncopied storage containing
 an fd and state. Init is only for fresh storage, not a way to discard an unresolved
 owner. Caller transfers a live nonnegative descriptor and has no outstanding
 borrower, other close, dup2 replacement, asynchronous I/O or signal handler that

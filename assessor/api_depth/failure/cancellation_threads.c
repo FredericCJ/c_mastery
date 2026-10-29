@@ -11,26 +11,26 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
+struct ac_control {
   pthread_mutex_t lock;
-  AeOperation *operation;
+  struct ae_operation *operation;
   atomic_uint ready;
   unsigned reports, bad, yield, timeout;
-} Control;
-static void receiver(void *v, AeCode code, unsigned generation,
+};
+static void receiver(void *v, enum ae_code code, unsigned generation,
                      const unsigned char *p, unsigned n) {
-  Control *c = v;
+  struct ac_control *c = v;
   ++c->reports;
   if ((code != AE_OK && code != AE_TIMEOUT) || generation != 1 || n != 4 ||
       p[0] != 1 || p[3] != 4)
     ++c->bad;
   c->timeout = code == AE_TIMEOUT;
-  AeOperation *old = c->operation;
+  struct ae_operation *old = c->operation;
   c->operation = 0;
   free(old);
 }
 static void *complete(void *v) {
-  Control *c = v;
+  struct ac_control *c = v;
   while (!atomic_load_explicit(&c->ready, memory_order_acquire)) {
   }
   if (c->yield)
@@ -44,7 +44,7 @@ static void *complete(void *v) {
 int main(void) {
   unsigned timed = 0;
   for (unsigned i = 0; i < 256; ++i) {
-    Control c = {.yield = i % 2};
+    struct ac_control c = {.yield = i % 2};
     CHECK(!pthread_mutex_init(&c.lock, 0));
     c.operation = calloc(1, sizeof *c.operation);
     CHECK(c.operation);

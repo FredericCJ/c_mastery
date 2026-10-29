@@ -1,7 +1,7 @@
 #include "test_wire.h"
 static int close_states(void) {
-  NcStack s;
-  NcPacket o;
+  struct nc_stack s;
+  struct nc_packet o;
   unsigned char p[1500], d[4] = {1, 2, 3, 4};
   CHECK(!nc_establish(&s, 16, 1000, 0xfffffff0, 100));
   CHECK(nc_close(&s) == NC_OK);
@@ -49,10 +49,10 @@ static int close_states(void) {
   return 0;
 }
 static int timer_states(void) {
-  NcStack s;
-  NcPacket o;
+  struct nc_stack s;
+  struct nc_packet o;
   unsigned char p[300], data[32] = {0};
-  NiConfig c = {0xc0000202, 0xc0000201};
+  struct ni_config c = {0xc0000202, 0xc0000201};
   CHECK(nc_init(&s, c, 9, 1000, 512, 0) == NC_OK);
   size_t n = nc_wire(p, 30, 0, 2, 512, 0, 0, 100);
   CHECK(nc_receive(&s, p, n, 0) == NC_OK);
@@ -106,7 +106,7 @@ static int timer_states(void) {
   CHECK(nc_prepare(&s, &o) == NC_OK);
   CHECK(nc_submit(&s, o.ticket, 1, s.now) == NC_OK);
   CHECK(s.rto == 60000);
-  NcTicket old = o.ticket;
+  struct nc_ticket old = o.ticket;
   CHECK(nc_dma_done(&s, old) == NC_OK);
   CHECK(nc_dma_done(&s, old) == NC_STALE);
   old.epoch++;
@@ -136,9 +136,9 @@ static int timer_states(void) {
   return 0;
 }
 static int admission(void) {
-  NcStack s, before;
+  struct nc_stack s, before;
   unsigned char p[1500], data[8] = {0};
-  NcPacket out;
+  struct nc_packet out;
   CHECK(!nc_establish(&s, 32, 0xfffffff0, 0xfffffff0, 100));
   /* WL1 is deliberately newer than the current receive sequence: the state
    * arose from an admissible out-of-order pure ACK, which stores no bytes. */
@@ -188,7 +188,7 @@ static int admission(void) {
   CHECK(nc_receive(&s, p, n, 81) == NC_WAIT);
   CHECK(s.state == NC_ESTABLISHED && !s.ack_needed && s.rx.count == 0);
   for (unsigned test = 0; test < 8; test++) {
-    NiConfig c = {0xc0000202, 0xc0000201};
+    struct ni_config c = {0xc0000202, 0xc0000201};
     CHECK(nc_init(&s, c, 8, 20, 32, 0) == NC_OK);
     n = nc_wire(p, 30, 0, 2, 512, 0, 0, 100);
     switch (test) {
@@ -227,8 +227,8 @@ static int admission(void) {
   return 0;
 }
 static int local_abort(void) {
-  NcStack s, before;
-  NcPacket packet;
+  struct nc_stack s, before;
+  struct nc_packet packet;
   unsigned char payload[4] = {1,2,3,4};
   CHECK(!nc_establish(&s, 16, 1000, 30, 100));
   CHECK(nc_offer(&s, payload, sizeof payload) == NC_OK);

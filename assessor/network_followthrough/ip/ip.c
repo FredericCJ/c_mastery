@@ -18,17 +18,17 @@ static void put32(unsigned char *p, uint32_t x) {
     p[i] = (unsigned char)(x >> (24 - 8 * i));
 }
 static uint16_t checksum(const unsigned char *p, size_t n) {
-  SChecksum s = {0};
+  struct s_checksum s = {0};
   uint16_t out = 0;
   (void)s_checksum_add(&s, p, n);
   (void)s_checksum_finish(&s, &out);
   return out;
 }
-static int config_ok(const NiConfig *c) {
+static int config_ok(const struct ni_config *c) {
   return c && c->local && c->peer && c->local != c->peer;
 }
-int ni_parse(const NiConfig *c, const unsigned char *p, size_t n,
-             unsigned fragments, NiView *v) {
+int ni_parse(const struct ni_config *c, const unsigned char *p, size_t n,
+             unsigned fragments, struct ni_view *v) {
   if (!config_ok(c) || !p || !v || fragments > 1 || n < 20 || n > 1500)
     return NI_INVALID;
   unsigned total = u16(p + 2), flags = u16(p + 6),
@@ -45,14 +45,14 @@ int ni_parse(const NiConfig *c, const unsigned char *p, size_t n,
     return NI_INVALID;
   if (offset > 1480 || len > 1480 - offset)
     return NI_INVALID;
-  NiView out = {p,          p + 20, len,  u32(p + 12), u32(p + 16),
+  struct ni_view out = {p,          p + 20, len,  u32(p + 12), u32(p + 16),
                 u16(p + 4), offset, more, p[9]};
   *v = out;
   return NI_OK;
 }
-int ni_echo(const NiConfig *c, const unsigned char *p, size_t n,
-            NiPacket *out) {
-  NiView v;
+int ni_echo(const struct ni_config *c, const unsigned char *p, size_t n,
+            struct ni_packet *out) {
+  struct ni_view v;
   if (!out || ni_parse(c, p, n, 0, &v) != NI_OK || v.protocol != 1 ||
       v.length < 8 || v.length > 72 || v.payload[0] != 8 || v.payload[1] ||
       checksum(v.payload, v.length))
@@ -79,7 +79,7 @@ int ni_echo(const NiConfig *c, const unsigned char *p, size_t n,
   out->length = v.length + 20;
   return NI_OK;
 }
-int ni_init(NiReassembly *s, NiConfig c, unsigned slots, unsigned policy,
+int ni_init(struct ni_reassembly *s, struct ni_config c, unsigned slots, unsigned policy,
             uint64_t now, uint64_t timeout) {
   if (!s || !config_ok(&c) || slots < 1 || slots > 2 || policy > NI_IDENTICAL ||
       !timeout || timeout > 120000 || now > UINT64_MAX - timeout)
@@ -93,7 +93,7 @@ int ni_init(NiReassembly *s, NiConfig c, unsigned slots, unsigned policy,
     s->slot[i].state = NI_FREE;
   return NI_OK;
 }
-int ni_tick(NiReassembly *s, uint64_t now) {
+int ni_tick(struct ni_reassembly *s, uint64_t now) {
   if (!s || now < s->last)
     return NI_INVALID;
   for (unsigned i = 0; i < s->slots; i++)
@@ -103,16 +103,16 @@ int ni_tick(NiReassembly *s, uint64_t now) {
   s->last = now;
   return NI_OK;
 }
-int ni_expire(NiReassembly *s, uint64_t now, NiPacket out[2], unsigned *count) {
+int ni_expire(struct ni_reassembly *s, uint64_t now, struct ni_packet out[2], unsigned *count) {
   if (!s || !out || !count || now < s->last)
     return NI_INVALID;
   unsigned emitted = 0;
   for (unsigned i = 0; i < s->slots; i++) {
-    const NiSlot *a = &s->slot[i];
+    const struct ni_slot *a = &s->slot[i];
     if (NI_MUTANT == 8 || a->state != NI_ACTIVE || now < a->expiry ||
         !a->first || (a->protocol == 1 && a->bytes[0] != 0 && a->bytes[0] != 8))
       continue;
-    NiPacket *p = &out[emitted++];
+    struct ni_packet *p = &out[emitted++];
     for (unsigned j = 0; j < 28; j++)
       p->bytes[j] = 0;
     p->bytes[0] = 0x45;
@@ -135,23 +135,23 @@ int ni_expire(NiReassembly *s, uint64_t now, NiPacket out[2], unsigned *count) {
   *count = emitted;
   return NI_OK;
 }
-static unsigned has(const NiSlot *s, unsigned i) {
+static unsigned has(const struct ni_slot *s, unsigned i) {
   return (s->bitmap[i / 8] >> (i % 8)) & 1u;
 }
-static int poison(NiSlot *s) {
+static int poison(struct ni_slot *s) {
   s->state = NI_POISON;
   return NI_CONFLICT;
 }
-int ni_receive(NiReassembly *s, const unsigned char *p, size_t n, uint64_t now,
+int ni_receive(struct ni_reassembly *s, const unsigned char *p, size_t n, uint64_t now,
                unsigned *index) {
-  NiView v;
+  struct ni_view v;
   if (!s || !index || ni_parse(&s->config, p, n, 1, &v) != NI_OK ||
       now < s->last || now > UINT64_MAX - s->timeout)
     return NI_INVALID;
   (void)ni_tick(s, now);
   unsigned chosen = 2, empty = 2;
   for (unsigned i = 0; i < s->slots; i++) {
-    NiSlot *a = &s->slot[i];
+    struct ni_slot *a = &s->slot[i];
     if (a->state == NI_FREE) {
       if (empty == 2)
         empty = i;
@@ -168,7 +168,7 @@ int ni_receive(NiReassembly *s, const unsigned char *p, size_t n, uint64_t now,
     if (empty == 2)
       return NI_BUSY;
     chosen = empty;
-    NiSlot *a = &s->slot[chosen];
+    struct ni_slot *a = &s->slot[chosen];
     a->source = v.source;
     a->destination = v.destination;
     a->id = v.id;
@@ -184,7 +184,7 @@ int ni_receive(NiReassembly *s, const unsigned char *p, size_t n, uint64_t now,
     for (unsigned j = 0; j < 185; j++)
       a->bitmap[j] = 0;
   }
-  NiSlot *a = &s->slot[chosen];
+  struct ni_slot *a = &s->slot[chosen];
   if (a->state == NI_POISON)
     return NI_CONFLICT;
   if (a->state == NI_READY)
@@ -227,10 +227,10 @@ int ni_receive(NiReassembly *s, const unsigned char *p, size_t n, uint64_t now,
   *index = chosen;
   return a->state == NI_READY ? NI_OK : NI_WAIT;
 }
-int ni_take(NiReassembly *s, unsigned index, NiPacket *out) {
+int ni_take(struct ni_reassembly *s, unsigned index, struct ni_packet *out) {
   if (!s || !out || index >= s->slots)
     return NI_INVALID;
-  NiSlot *a = &s->slot[index];
+  struct ni_slot *a = &s->slot[index];
   if (a->state != NI_READY)
     return NI_WAIT;
   for (unsigned j = 0; j < 20; j++)

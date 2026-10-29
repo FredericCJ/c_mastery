@@ -9,12 +9,12 @@
     }                                                                          \
   } while (0)
 int main(void) {
-  AcTypedV1 old;
-  AcExposedV1 v1;
+  struct ac_typed_v1 old;
+  struct ac_exposed_v1 v1;
   CHECK(!ac_typed_v1_set(&old, 17, UINT32_MAX) && !ac_typed_v1_get(&old, &v1));
   CHECK(v1.identity == 17 && v1.count == UINT32_MAX);
-  AcTypedV2 next;
-  AcExposedV2 v2;
+  struct ac_typed_v2 next;
+  struct ac_exposed_v2 v2;
   CHECK(!ac_typed_v2_set(&next, 17, UINT64_MAX) &&
         !ac_typed_v2_get(&next, &v2));
   CHECK(v2.identity == 17 && v2.count == UINT64_MAX);
@@ -27,8 +27,8 @@ int main(void) {
   CHECK(ac_typed_v2_get(NULL, &v2) == 1 && v2.identity == 0x12345678u);
   printf("REPRESENTATION-PASS:exposed_v1=%zu/%zu exposed_v2=%zu/%zu "
          "typed_v1=%zu/%zu typed_v2=%zu/%zu serialized=12\n",
-         sizeof(AcExposedV1), _Alignof(AcExposedV1), sizeof(AcExposedV2),
-         _Alignof(AcExposedV2), sizeof(AcTypedV1), _Alignof(AcTypedV1),
-         sizeof(AcTypedV2), _Alignof(AcTypedV2));
+         sizeof(struct ac_exposed_v1), _Alignof(struct ac_exposed_v1), sizeof(struct ac_exposed_v2),
+         _Alignof(struct ac_exposed_v2), sizeof(struct ac_typed_v1), _Alignof(struct ac_typed_v1),
+         sizeof(struct ac_typed_v2), _Alignof(struct ac_typed_v2));
   return 0;
 }

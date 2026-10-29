@@ -3,17 +3,17 @@
 #include "secrets.h"
 #include <errno.h>
 #include <string.h>
-void sa_service_init(SAService *s) {
+void sa_service_init(struct sa_service *s) {
     sc_service_init(&s->queue);s->used_bytes=0;
     for(unsigned i=0;i<3;++i){s->charges[i]=s->resource[i]=0;memset(s->staging[i],0,4);}
 }
-enum sc_result sa_verified_submit(SAService *s,const SATrust *trust,const SAArtifact *artifact,const unsigned char *payload,size_t payload_size,const SCAuthority *authority,const unsigned char *request,size_t request_size,SCTicket *ticket) {
-    SAReport report;
+enum sc_result sa_verified_submit(struct sa_service *s,const struct sa_trust *trust,const struct sa_artifact *artifact,const unsigned char *payload,size_t payload_size,const struct sc_authority *authority,const unsigned char *request,size_t request_size,struct sc_ticket *ticket) {
+    struct sa_report report;
     if(sa_verify(trust,artifact,payload,payload_size,&report))return SC_INVALID;
     return sa_submit(s,&report,authority,request,request_size,ticket);
 }
-enum sc_result sa_submit(SAService *s,const SAReport *report,const SCAuthority *a,const unsigned char *bytes,size_t n,SCTicket *ticket) {
-    SCBatch b={0};SCMeter meter;unsigned charge=0,resource=0;enum sc_result result;SCTicket next;
+enum sc_result sa_submit(struct sa_service *s,const struct sa_report *report,const struct sc_authority *a,const unsigned char *bytes,size_t n,struct sc_ticket *ticket) {
+    struct sc_batch b={0};struct sc_meter meter;unsigned charge=0,resource=0;enum sc_result result;struct sc_ticket next;
     if(!s || !report || !a || !ticket || (!bytes && n))return SC_INVALID;
     if(!report->ready)return SC_DENIED;
     if(n && bytes[0]==6) {
@@ -37,10 +37,10 @@ enum sc_result sa_submit(SAService *s,const SAReport *report,const SCAuthority *
     if(charge)memcpy(s->staging[next.index],bytes+3,charge);
     *ticket=next;return SC_OK;
 }
-static void clear_slot(SAService *s,unsigned slot) {
+static void clear_slot(struct sa_service *s,unsigned slot) {
     s->used_bytes-=s->charges[slot];s->charges[slot]=s->resource[slot]=0;ss_wipe(s->staging[slot],4);
 }
-enum sc_result sa_finish(SAService *s,SCTicket ticket,int cancel,const SCAuthority *a,int fd,uint32_t *ordinary,uint32_t *privileged,char out[4]) {
+enum sc_result sa_finish(struct sa_service *s,struct sc_ticket ticket,int cancel,const struct sc_authority *a,int fd,uint32_t *ordinary,uint32_t *privileged,char out[4]) {
     char staged[4];enum sc_result result;int error=0;unsigned resource;
     if(!s || !a || !ordinary || !privileged || !out || (cancel!=0 && cancel!=1) || !a->generation || a->allowed>1)return SC_INVALID;
     if(ticket.index>=3 || !s->queue.jobs[ticket.index].active || s->queue.jobs[ticket.index].generation!=ticket.generation)return SC_STALE;
@@ -56,7 +56,7 @@ enum sc_result sa_finish(SAService *s,SCTicket ticket,int cancel,const SCAuthori
     if(result==SC_OK && resource && !cancel)memcpy(out,staged,4);
     ss_wipe(staged,4);return result;
 }
-enum sc_result sa_shutdown(SAService *s) {
+enum sc_result sa_shutdown(struct sa_service *s) {
     if(!s)return SC_INVALID;
     enum sc_result result=sc_shutdown(&s->queue);
     for(unsigned i=0;i<3;++i)clear_slot(s,i);

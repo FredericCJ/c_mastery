@@ -16,12 +16,12 @@ int memcmp(const void *, const void *, size_t);
       return 1;                                                                \
     }                                                                          \
   } while (0)
-static VvWork scratch;
-static Vs machine;
-static void emit(CvmProgram *p, unsigned op) {
+static struct vv_work scratch;
+static struct vg_vs machine;
+static void emit(struct cvm_program *p, unsigned op) {
   p->code[p->length++] = (uint8_t)op;
 }
-static void number(CvmProgram *p, int32_t n) {
+static void number(struct cvm_program *p, int32_t n) {
   emit(p, OP_INT);
   uint32_t u = (uint32_t)n;
   for (unsigned i = 0; i < 4; i++) {
@@ -29,8 +29,8 @@ static void number(CvmProgram *p, int32_t n) {
     u >>= 8;
   }
 }
-static CvmProgram binary(unsigned op, int32_t a, int32_t b) {
-  CvmProgram p = {0};
+static struct cvm_program binary(unsigned op, int32_t a, int32_t b) {
+  struct cvm_program p = {0};
   p.count = 1;
   number(&p, a);
   number(&p, b);
@@ -39,15 +39,15 @@ static CvmProgram binary(unsigned op, int32_t a, int32_t b) {
   p.functions[0].length = p.length;
   return p;
 }
-static CvmProgram bytes(const uint8_t *b, unsigned n, unsigned locals) {
-  CvmProgram p = {0};
+static struct cvm_program bytes(const uint8_t *b, unsigned n, unsigned locals) {
+  struct cvm_program p = {0};
   p.count = 1;
   p.length = (uint16_t)n;
-  p.functions[0] = (CvmFunction){0, (uint16_t)n, 0, (uint8_t)locals};
+  p.functions[0] = (struct cvm_function){0, (uint16_t)n, 0, (uint8_t)locals};
   memcpy(p.code, b, n);
   return p;
 }
-static int finish(Vs *s, CvmValue *out, unsigned bound) {
+static int finish(struct vg_vs *s, struct cvm_value *out, unsigned bound) {
   int status = VS_RUNNING;
   while (status == VS_RUNNING && bound--)
     status = vs_step(s, out);
@@ -71,9 +71,9 @@ static int arithmetic(void) {
                {OP_DIV, 7, -2, -3, CVM_OK},
                {OP_DIV, -7, -2, 3, CVM_OK}};
   for (unsigned i = 0; i < sizeof cases / sizeof cases[0]; i++) {
-    CvmProgram p = binary(cases[i].op, cases[i].a, cases[i].b);
-    Cvm original;
-    CvmValue a = cvm_int(91), b = a;
+    struct cvm_program p = binary(cases[i].op, cases[i].a, cases[i].b);
+    struct cvm_cvm original;
+    struct cvm_value a = cvm_int(91), b = a;
     cvm_init(&original, 10, 0, 0);
     int old = cvm_run(&original, &p, &a);
     CHECK(old == cases[i].status);
@@ -106,8 +106,8 @@ static int arithmetic(void) {
         n == INT32_MIN);
   CHECK(vs_arithmetic(VS_WRAP_V2, OP_DIV, 1, 0, &n) == CVM_RANGE &&
         n == INT32_MIN);
-  CvmProgram wrapping = binary(OP_ADD, INT32_MAX, 1);
-  CvmValue result = cvm_int(91);
+  struct cvm_program wrapping = binary(OP_ADD, INT32_MAX, 1);
+  struct cvm_value result = cvm_int(91);
   memset(&machine, 0, sizeof machine);
   CHECK(vs_start(&machine, &wrapping, VS_WRAP_V2, 4, 0, 0, 0, &scratch) ==
         VS_RUNNING);
@@ -118,13 +118,13 @@ static int arithmetic(void) {
 }
 static int failures(void) {
   const uint8_t wrong[] = {OP_TRUE, OP_FALSE, OP_ADD, OP_RET};
-  CvmProgram p = bytes(wrong, 4, 0);
-  CvmValue out = cvm_int(91);
+  struct cvm_program p = bytes(wrong, 4, 0);
+  struct cvm_value out = cvm_int(91);
   memset(&machine, 0, sizeof machine);
   CHECK(vs_start(&machine, &p, 0, 10, 0, 0, 0, &scratch) == VS_RUNNING);
   CHECK(finish(&machine, &out, 10) == CVM_TYPE && out.integer == 91);
   p.code[0] = OP_POP;
-  Vs before;
+  struct vg_vs before;
   memcpy(&before, &machine, sizeof before);
   CHECK(vs_start(&machine, &p, 0, 10, 0, 0, 0, &scratch) == CVM_VERIFY &&
         !memcmp(&machine, &before, sizeof machine));
@@ -146,7 +146,7 @@ static int failures(void) {
           done == (fuel < 4 ? fuel : 4));
     CHECK(machine.vm.fuel == (fuel < 4 ? 0 : fuel - 4));
   }
-  p = (CvmProgram){0};
+  p = (struct cvm_program){0};
   p.count = 2;
   for (unsigned i = 0; i < 63; i++)
     emit(&p, OP_NIL);
@@ -162,7 +162,7 @@ static int failures(void) {
   emit(&p, OP_NIL);
   emit(&p, OP_POP);
   emit(&p, OP_RET);
-  p.functions[1] = (CvmFunction){(uint16_t)at, 4, 0, 0};
+  p.functions[1] = (struct cvm_function){(uint16_t)at, 4, 0, 0};
   memset(&machine, 0, sizeof machine);
   out = cvm_int(91);
   CHECK(vs_start(&machine, &p, 0, 200, 0, 0, 0, &scratch) == VS_RUNNING);
@@ -173,26 +173,26 @@ static int failures(void) {
   return 0;
 }
 static int pending(void) {
-  CvmProgram p = binary(OP_ADD, 20, 22);
+  struct cvm_program p = binary(OP_ADD, 20, 22);
   p.code[11] = OP_HOST;
   p.code[12] = 3;
   p.code[13] = OP_RET;
   p.length = p.functions[0].length = 14;
   memset(&machine, 0, sizeof machine);
-  CvmValue out = cvm_int(91);
+  struct cvm_value out = cvm_int(91);
   CHECK(vs_start(&machine, &p, 0, 8, 0, 1, 8, &scratch) == VS_RUNNING);
   /* The live program is owned; mutation of the caller's input is irrelevant. */
   p.code[1] = 1;
   CHECK(finish(&machine, &out, 8) == VS_PENDING && out.integer == 91 &&
         machine.vm.fuel == 4 && machine.vm.host_budget == 0);
-  VsRequest r;
+  struct vs_request r;
   CHECK(vs_complete(&machine, machine.epoch, machine.serial, 0, 90) ==
         VS_STATE);
   CHECK(vs_take(&machine, &r) == VS_PENDING && r.service == 3 &&
         r.argument == 42);
   CHECK(vs_take(&machine, &r) == VS_STATE &&
         vs_step(&machine, &out) == VS_STATE);
-  Vs before;
+  struct vg_vs before;
   memcpy(&before, &machine, sizeof before);
   CHECK(vs_start(&machine, &p, 0, 8, 0, 1, 8, &scratch) == VS_STATE &&
         !memcmp(&machine, &before, sizeof machine));
@@ -228,7 +228,7 @@ static int pending(void) {
        "owned_image_once_ticket_epoch_no_reissue_error_after_arithmetic");
   return 0;
 }
-static CvmProgram sum(void) {
+static struct cvm_program sum(void) {
   const uint8_t b[] = {
       OP_INT,  100,    0,       0, 0,      OP_INT, 5,      0,
       0,       0,      OP_CALL, 1, 1,      OP_ADD, OP_RET, OP_LOAD,
@@ -236,14 +236,14 @@ static CvmProgram sum(void) {
       32,      0,      OP_INT,  0, 0,      0,      0,      OP_RET,
       OP_LOAD, 0,      OP_LOAD, 0, OP_INT, 1,      0,      0,
       0,       OP_SUB, OP_CALL, 1, 1,      OP_ADD, OP_RET};
-  CvmProgram p = bytes(b, sizeof b, 0);
+  struct cvm_program p = bytes(b, sizeof b, 0);
   p.count = 2;
   p.functions[0].length = 15;
-  p.functions[1] = (CvmFunction){15, 32, 1, 1};
+  p.functions[1] = (struct cvm_function){15, 32, 1, 1};
   return p;
 }
-static CvmProgram countdown(unsigned n, unsigned tail, unsigned mutual) {
-  CvmProgram p = {0};
+static struct cvm_program countdown(unsigned n, unsigned tail, unsigned mutual) {
+  struct cvm_program p = {0};
   p.count = mutual ? 3 : 2;
   number(&p, (int32_t)n);
   number(&p, 0);
@@ -282,18 +282,18 @@ static CvmProgram countdown(unsigned n, unsigned tail, unsigned mutual) {
     emit(&p, 2);
     emit(&p, OP_RET);
     p.functions[fn] =
-        (CvmFunction){(uint16_t)start, (uint16_t)(p.length - start), 2, 2};
+        (struct cvm_function){(uint16_t)start, (uint16_t)(p.length - start), 2, 2};
   }
   return p;
 }
 static int calls(void) {
-  CvmProgram p = sum();
-  CvmValue out = cvm_int(91);
+  struct cvm_program p = sum();
+  struct cvm_value out = cvm_int(91);
   memset(&machine, 0, sizeof machine);
   CHECK(vs_start(&machine, &p, 0, 2000, 0, 0, 0, &scratch) == VS_RUNNING);
   unsigned calls = 0, returns = 0, maxdepth = 1, steps = 0;
   while (machine.state == VS_RUNNING) {
-    CvmFrame *f = &machine.vm.frames[machine.vm.depth - 1];
+    struct cvm_frame *f = &machine.vm.frames[machine.vm.depth - 1];
     unsigned op = machine.image.code[f->ip];
     if (op == OP_CALL) {
       calls++;
@@ -325,9 +325,9 @@ static int calls(void) {
   }
   CHECK(out.integer == 115 && calls == 6 && returns == 7 && maxdepth == 7 &&
         machine.next_invocation == 7 && steps == 66);
-  Cvm v;
+  struct cvm_cvm v;
   cvm_init(&v, 2000, 0, 0);
-  CvmValue original = cvm_int(91);
+  struct cvm_value original = cvm_int(91);
   CHECK(cvm_run(&v, &p, &original) == CVM_OK &&
         original.integer == out.integer && 2000 - v.fuel == steps);
   for (unsigned mutual = 0; mutual < 2; mutual++) {
@@ -339,7 +339,7 @@ static int calls(void) {
     while (machine.state == VS_RUNNING) {
       if (machine.vm.depth > 1) {
         unsigned invocation = machine.invocation[machine.vm.depth - 1];
-        CvmFrame *active = &machine.vm.frames[machine.vm.depth - 1];
+        struct cvm_frame *active = &machine.vm.frames[machine.vm.depth - 1];
         CHECK(active->function == (mutual ? (invocation % 2 ? 2 : 1) : 1));
         CHECK(active->initialized[0] && active->initialized[1] &&
               active->locals[0].integer == (int32_t)(32 - invocation));
@@ -364,7 +364,7 @@ static int calls(void) {
   }
   p = countdown(1, 0, 0);
   p.code[12] = 1;
-  Vs before;
+  struct vg_vs before;
   memcpy(&before, &machine, sizeof before);
   CHECK(vs_start(&machine, &p, 0, 100, 0, 0, 0, &scratch) == CVM_VERIFY &&
         !memcmp(&machine, &before, sizeof machine));
@@ -373,9 +373,9 @@ static int calls(void) {
   return 0;
 }
 static int interleave(void) {
-  Vs automatic = {0};
-  CvmProgram a = binary(OP_ADD, 20, 22), b = binary(OP_MUL, 7, 8);
-  CvmValue x = cvm_int(91), y = cvm_int(92);
+  struct vg_vs automatic = {0};
+  struct cvm_program a = binary(OP_ADD, 20, 22), b = binary(OP_MUL, 7, 8);
+  struct cvm_value x = cvm_int(91), y = cvm_int(92);
   memset(&machine, 0, sizeof machine);
   CHECK(vs_start(&machine, &a, 0, 20, 0, 0, 0, &scratch) == VS_RUNNING);
   CHECK(vs_start(&automatic, &b, 0, 20, 0, 0, 0, &scratch) == VS_RUNNING);

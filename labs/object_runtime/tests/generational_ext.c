@@ -8,17 +8,17 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-static const ORCell *cell(const ORNursery *h, unsigned r) {
+static const struct or_cell *cell(const struct or_nursery *h, unsigned r) {
   return r <= 8 ? &h->young[h->active][r - 1] : &h->old[r - 9];
 }
-static int equivalent(const ORNursery *a, const ORNursery *b) {
+static int equivalent(const struct or_nursery *a, const struct or_nursery *b) {
   unsigned i, j;
   if (a->used != b->used || a->old_used != b->old_used ||
       memcmp(a->roots, b->roots, 4))
     return 0;
   for (i = 0; i < a->used + a->old_used; i++) {
     unsigned r = i < a->used ? i + 1 : i - a->used + 9;
-    const ORCell *x = cell(a, r), *y = cell(b, r);
+    const struct or_cell *x = cell(a, r), *y = cell(b, r);
     if (x->value != y->value || x->age != y->age)
       return 0;
     for (j = 0; j < 2; j++)
@@ -27,8 +27,8 @@ static int equivalent(const ORNursery *a, const ORNursery *b) {
   }
   return 1;
 }
-static ORNursery example(void) {
-  ORNursery h = {0};
+static struct or_nursery example(void) {
+  struct or_nursery h = {0};
   unsigned i;
   h.used = 3;
   h.old_used = 1;
@@ -41,8 +41,8 @@ static ORNursery example(void) {
   return h;
 }
 static int preflight(void) {
-  ORNursery h = example(), reference = h, before;
-  ORCards cards, card_before;
+  struct or_nursery h = example(), reference = h, before;
+  struct or_cards cards, card_before;
   unsigned copied, scanned, wanted;
   CHECK(or_nursery_cards_init(&h, &cards) == OR_OK);
   CHECK(or_minor(&reference, 8, 8, &wanted) == OR_OK);
@@ -77,8 +77,8 @@ static int preflight(void) {
   return 0;
 }
 static int composition(void) {
-  ORNursery h = {0}, reference, before;
-  ORCards cards, cb;
+  struct or_nursery h = {0}, reference, before;
+  struct or_cards cards, cb;
   unsigned copied, scanned, n, i;
   uint8_t forward[16];
   h.used = 7;
@@ -113,9 +113,9 @@ static int composition(void) {
   memcpy(&cb, &cards, sizeof cards);
   CHECK(or_nursery_old_store(&h, &cards, 0, 2, 0) == OR_INVALID &&
         !memcmp(&before, &h, sizeof h) && !memcmp(&cb, &cards, sizeof cards));
-  h = (ORNursery){0};
+  h = (struct or_nursery){0};
   h.used = 1;
-  h.young[0][0] = (ORCell){.value = 77, .age = 1};
+  h.young[0][0] = (struct or_cell){.value = 77, .age = 1};
   h.old_used = 8;
   h.roots[0] = 9;
   h.roots[1] = 1;
@@ -137,9 +137,9 @@ static int composition(void) {
   return 0;
 }
 static int large(void) {
-  ORLargeHeap h, before;
-  ORLargeHandle objects[4], out;
-  ORLargeLease lease, copy;
+  struct or_large_heap h, before;
+  struct or_large_handle objects[4], out;
+  struct or_large_lease lease, copy;
   const uint32_t *data;
   unsigned n, i;
   or_large_init(&h);
@@ -155,7 +155,7 @@ static int large(void) {
   CHECK(or_large_unpin(lease) == OR_OK && or_large_unpin(copy) == OR_STATE);
   CHECK(or_large_collect(&h, &n) == OR_OK && n == 1 && !h.block[0].active);
   memcpy(&before, &h, sizeof h);
-  out = (ORLargeHandle){99, 99};
+  out = (struct or_large_handle){99, 99};
   CHECK(or_large_allocate(&h, 3, 99, &out) == OR_FULL && out.slot == 99 &&
         !memcmp(&before, &h, sizeof h));
   CHECK(or_large_release(&h, objects[1]) == OR_OK &&
@@ -175,7 +175,7 @@ static int large(void) {
     CHECK(or_large_collect(&h, &n) == OR_OK && n == 1);
   }
   memcpy(&before, &h, sizeof h);
-  out = (ORLargeHandle){99, 99};
+  out = (struct or_large_handle){99, 99};
   CHECK(or_large_allocate(&h, 1, 55, &out) == OR_FULL && out.slot == 99 &&
         !memcmp(&before, &h, sizeof h));
   /* The descriptor moves left while the saved native payload span stays fixed. */
@@ -195,7 +195,7 @@ static int large(void) {
         h.heap.old_used == 0 && h.words[2] == 0 && h.words[3] == 0);
   return 0;
 }
-static void normalized(const ORNursery *h, unsigned *live, unsigned *young,
+static void normalized(const struct or_nursery *h, unsigned *live, unsigned *young,
                        unsigned roots[4], unsigned edges[4]) {
   unsigned i;
   *live = *young = 0;
@@ -205,7 +205,7 @@ static void normalized(const ORNursery *h, unsigned *live, unsigned *young,
   }
   for (i = 0; i < h->used + h->old_used; i++) {
     unsigned r = i < h->used ? i + 1 : i - h->used + 9;
-    const ORCell *p = cell(h, r);
+    const struct or_cell *p = cell(h, r);
     *live |= 1u << ((unsigned)p->value - 1);
     if (r <= 8)
       *young |= 1u << ((unsigned)p->value - 1);
@@ -218,8 +218,8 @@ static int oracle(void) {
     for (mask = 0; mask < 16; mask++)
       for (target = 0; target < 4; target++)
         for (ages = 0; ages < 8; ages++) {
-          ORNursery h = {0}, reference;
-          ORCards cards;
+          struct or_nursery h = {0}, reference;
+          struct or_cards cards;
           unsigned code = graph, copied, scanned, wanted, n, live, young,
                    roots[4], edges[4];
           uint8_t f[16];
@@ -268,9 +268,9 @@ static int large_oracle(void) {
   for (code = 0; code < 81; code++)
     for (release = 0; release < 16; release++)
       for (pins = 0; pins < 16; pins++) {
-        ORLargeHeap h;
-        ORLargeHandle objects[4];
-        ORLargeLease leases[4];
+        struct or_large_heap h;
+        struct or_large_handle objects[4];
+        struct or_large_lease leases[4];
         unsigned word = code, success = 0, leased = 0, live = 0, used = 0,
                  reclaimed, n;
         int status[4];
@@ -298,7 +298,7 @@ static int large_oracle(void) {
         CHECK(or_large_collect(&h, &reclaimed) == OR_OK);
         for (i = 0; i < 4; i++)
           if (success & (1u << i)) {
-            ORLargeBlock *b = &h.block[objects[i].slot - 1];
+            struct or_large_block *b = &h.block[objects[i].slot - 1];
             unsigned j;
             if (b->active) {
               live |= 1u << i;

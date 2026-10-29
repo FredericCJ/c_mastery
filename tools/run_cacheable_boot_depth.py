@@ -1,4 +1,4 @@
-"""Source-bound cacheable cold-start, explicit provider imports and separate CPU model evidence."""
+"""Source-bound cacheable cold-start, explicit provider imports and separate struct lr_cpu model evidence."""
 import datetime
 import hashlib
 import json

@@ -9,7 +9,7 @@ NOTES={
 'Exact mixed-sign verdict and two stated narrow-integer promotion models are derived before observations; no16-bit host execution is invented.',
 'Separate/shared nested bodies execute against exact allowed result/final pairs; the unsequenced argument-expression alternative stays analysis-only.',
 'The ten-case verdict analysis and shared-body versus argument-expression counterexample distinguish undefined from unspecified behavior without an execution oracle for undefined cases.',
-'Original repair checks extrema and output alias refusal; actual FDStep return-by-value transfer removes the contradictory two-output postcondition.',
+'Original repair checks extrema and output alias refusal; actual struct fd_step return-by-value transfer removes the contradictory two-output postcondition.',
 'Actual pointer-constraint translation continues with a diagnostic under an explicit severity policy and rejects under pedantic policy; no resulting object is executed.',
 'Two isolated diagnostic sources and exact GCC/Clang commands distinguish required diagnostic from warnings-as-errors and wording; unfamiliar Packet argument rejects independently.',
 'Exact verdict/type/lifetime dossiers and promotion models state why translation/repeatability cannot prove portable definedness; source editions and access gaps remain explicit.'],
@@ -24,7 +24,7 @@ NOTES={
 'Invalid cast is analyzed, never executed; actual bytewise decoder code/disassembly preserves the cost investigation under valid access contracts.'],
 'X-T03-003':[
 'Actual allocated slot phases, symbolic operation strings, typed storage and explicit wrapper move preserve distinct allocation/construction/publication/cleanup authority.',
-'Actual typed-store and character-array-copy constructors publish equal members from genuine allocations; declared-FDValue transfer separately revises the effective-type premise.',
+'Actual typed-store and character-array-copy constructors publish equal members from genuine allocations; declared-struct fd_value transfer separately revises the effective-type premise.',
 'Original allocation failures and3125 operation strings exercise state/resource transitions; two additional compiling controls discriminate premature publication and full destructor on failed initialization.',
 'Exact allocated versus declared storage reasoning and copied-owner counterexample distinguish C discipline from language-enforced move/destruction; A/B rollback and source revocation execute.'],
 'X-T03-004':[
@@ -53,10 +53,10 @@ NOTES={
 
 CASES={'X-T02-001':'semantic','X-T03-001':'cursor','X-T03-002':'codec','X-T03-003':'lifecycle','X-T03-004':'movement','X-T03-005':'registry','X-T04-001':'layout','X-T35-001':'frame'}
 DELAYED={
-'X-T02-001':'FDStep and unfamiliar-header/constraint/runtime-precondition dossier, including two integer models and explicit sequencing counterexamples.',
+'X-T02-001':'struct fd_step and unfamiliar-header/constraint/runtime-precondition dossier, including two integer models and explicit sequencing counterexamples.',
 'X-T03-001':'Two independent arrays with transactional segmented copy-out plus owner-relative views and rollback consumer.',
 'X-T03-002':'Version2 reserved-zero little-endian wire, least-width storage checks and memberwise equality.',
-'X-T03-003':'Actual declared-FDValue reservation, A/B partial-resource rollback and explicit move/source invalidation.',
+'X-T03-003':'Actual declared-struct fd_value reservation, A/B partial-resource rollback and explicit move/source invalidation.',
 'X-T03-004':'Positive-stride snapshot move, unchanged gap bytes and finite compaction epoch invalidation.',
 'X-T03-005':'Finite external registry, exclusive relocation and concrete reset-revival history; no reset is silently implemented.',
 'X-T04-001':'Signed-length two-segment layout with combined budget and unchanged three-field refusal; separate half-open interval now implemented.',

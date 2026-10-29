@@ -1,77 +1,77 @@
 #include "cvm.h"
 /* Learner implementation. Stubs compile; contract tests must fail until
  * implemented. */
-CvmValue cvm_int(int32_t n) {
-  CvmValue v = {CVM_INT, n, 0};
+struct cvm_value cvm_int(int32_t n) {
+  struct cvm_value v = {CVM_INT, n, 0};
   return v;
 }
-void cvm_init(Cvm *v, uint32_t f, uint32_t g, uint32_t h) {
+void cvm_init(struct cvm_cvm *v, uint32_t f, uint32_t g, uint32_t h) {
   (void)v;
   (void)f;
   (void)g;
   (void)h;
 }
-CvmStatus cvm_decode(const uint8_t *b, size_t n, CvmProgram *p) {
+enum cvm_status cvm_decode(const uint8_t *b, size_t n, struct cvm_program *p) {
   (void)b;
   (void)n;
   (void)p;
   return CVM_NOT_IMPLEMENTED;
 }
-CvmStatus cvm_encode(const CvmProgram *p, uint8_t *b, size_t n, size_t *w) {
-  (void)p;
-  (void)b;
-  (void)n;
-  (void)w;
-  return CVM_NOT_IMPLEMENTED;
-}
-CvmStatus cvm_load(const uint8_t *b, size_t n, CvmProgram *p) {
-  (void)b;
-  (void)n;
-  (void)p;
-  return CVM_NOT_IMPLEMENTED;
-}
-CvmStatus cvm_save(const CvmProgram *p, uint8_t *b, size_t n, size_t *w) {
+enum cvm_status cvm_encode(const struct cvm_program *p, uint8_t *b, size_t n, size_t *w) {
   (void)p;
   (void)b;
   (void)n;
   (void)w;
   return CVM_NOT_IMPLEMENTED;
 }
-CvmStatus cvm_verify(const CvmProgram *p) {
+enum cvm_status cvm_load(const uint8_t *b, size_t n, struct cvm_program *p) {
+  (void)b;
+  (void)n;
   (void)p;
   return CVM_NOT_IMPLEMENTED;
 }
-CvmStatus cvm_run(Cvm *v, const CvmProgram *p, CvmValue *r) {
+enum cvm_status cvm_save(const struct cvm_program *p, uint8_t *b, size_t n, size_t *w) {
+  (void)p;
+  (void)b;
+  (void)n;
+  (void)w;
+  return CVM_NOT_IMPLEMENTED;
+}
+enum cvm_status cvm_verify(const struct cvm_program *p) {
+  (void)p;
+  return CVM_NOT_IMPLEMENTED;
+}
+enum cvm_status cvm_run(struct cvm_cvm *v, const struct cvm_program *p, struct cvm_value *r) {
   (void)v;
   (void)p;
   (void)r;
   return CVM_NOT_IMPLEMENTED;
 }
-CvmStatus cvm_collect(Cvm *v) {
+enum cvm_status cvm_collect(struct cvm_cvm *v) {
   (void)v;
   return CVM_NOT_IMPLEMENTED;
 }
-CvmStatus cvm_pair(Cvm *v, CvmValue a, CvmValue b, CvmValue *r) {
+enum cvm_status cvm_pair(struct cvm_cvm *v, struct cvm_value a, struct cvm_value b, struct cvm_value *r) {
   (void)v;
   (void)a;
   (void)b;
   (void)r;
   return CVM_NOT_IMPLEMENTED;
 }
-CvmStatus cvm_root_push(Cvm *v, CvmValue a) {
+enum cvm_status cvm_root_push(struct cvm_cvm *v, struct cvm_value a) {
   (void)v;
   (void)a;
   return CVM_NOT_IMPLEMENTED;
 }
-void cvm_root_pop(Cvm *v) { (void)v; }
-CvmStatus cvm_field(Cvm *v, CvmValue r, int right, CvmValue *out) {
+void cvm_root_pop(struct cvm_cvm *v) { (void)v; }
+enum cvm_status cvm_field(struct cvm_cvm *v, struct cvm_value r, int right, struct cvm_value *out) {
   (void)v;
   (void)r;
   (void)right;
   (void)out;
   return CVM_NOT_IMPLEMENTED;
 }
-const char *cvm_status_name(CvmStatus s) {
+const char *cvm_status_name(enum cvm_status s) {
   static const char *const names[] = {
       "OK",          "FORMAT",      "VERIFY", "TYPE",       "RANGE",
       "STACK_LIMIT", "FRAME_LIMIT", "FUEL",   "HEAP_LIMIT", "GC_BUDGET",

@@ -15,9 +15,9 @@ static int cc_target_puts(const char *s){cc_semihost(4,s);cc_semihost(4,"\n");re
 #include "tests.c"
 #define MMIO(a) (*(volatile uint32_t *)(uintptr_t)(a))
 static cmx_kernel irq_kernel;
-static CCQueue irq_queue;
-static CCHandle irq_handles[5];
-static CCPort irq_port;
+static struct cc_queue irq_queue;
+static struct cc_handle irq_handles[5];
+static struct cc_port irq_port;
 static volatile unsigned irq_entries,enroll_probe,join_probe;
 void cw_irq_enrollment_hook(void){}
 void cc_irq_enrollment_hook(void){
@@ -37,7 +37,7 @@ static void cc_irq0(void){
 static void cc_irq_experiment(void){
   CHECK(cq_setup(&irq_queue,&irq_kernel,irq_handles)&&cc_port_acquire(&irq_queue,&irq_port)==CL_OK);
   MMIO(0xe000e280)=1;MMIO(0xe000e100)=1;
-  CCTicket ticket;CLMessage out;enroll_probe=1;
+  struct cc_ticket ticket;struct cl_message out;enroll_probe=1;
   CHECK(cc_irq_receive(irq_handles[4],4,cmx_forever(),&ticket)==CC_BLOCKED);enroll_probe=0;
   for(unsigned i=0;i<1000&&!irq_entries;i++)__asm__ volatile("nop");
   CHECK(irq_entries==1);
@@ -53,7 +53,7 @@ static void cc_irq_experiment(void){
   CHECK(cc_result(ticket,&out)==CL_OK&&out.sequence==2);
   CHECK(cc_close(&irq_queue,0)==CL_OK);
   for(unsigned i=0;i<5;i++)CHECK(cc_release(&irq_handles[i])==CL_OK);
-  CHECK(cc_destroy(&irq_queue)==CL_BUSY);CCPort stale=irq_port;join_probe=1;
+  CHECK(cc_destroy(&irq_queue)==CL_BUSY);struct cc_port stale=irq_port;join_probe=1;
   CHECK(cc_irq_join0(&irq_port)==CL_OK);join_probe=0;
   __asm__ volatile("mrs %0,primask":"=r"(mask));CHECK(mask==1);
   CHECK(!(MMIO(0xe000e100)&1)&&!(MMIO(0xe000e200)&1)&&!(MMIO(0xe000e300)&1));

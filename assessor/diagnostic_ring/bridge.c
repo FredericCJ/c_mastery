@@ -2,21 +2,21 @@
 #ifndef DR_MUTANT
 #define DR_MUTANT 0
 #endif
-static int current(const DgRing *s) {
+static int current(const struct dg_ring *s) {
   return s && s->ring && s->epoch && s->ring->epoch == s->epoch;
 }
-int dr_open(DgRing *s, EnRing *r) {
+int dr_open(struct dg_ring *s, struct en_ring *r) {
   if (!s || !r || !r->initialized || r->phase != EN_RUNNING || !r->epoch)
     return DG_INVALID;
   if (s->ring && (s->ring != r || r->epoch <= s->epoch))
     return DG_BUSY;
-  DgRing next = {0};
+  struct dg_ring next = {0};
   next.ring = r;
   next.epoch = r->epoch;
   *s = next;
   return DG_OK;
 }
-int dr_send(DgRing *s, const DGMessage *m) {
+int dr_send(struct dg_ring *s, const struct dg_message *m) {
   if (!s || !m)
     return DG_INVALID;
   if (!current(s))
@@ -28,7 +28,7 @@ int dr_send(DgRing *s, const DGMessage *m) {
   int rc = dg_ethernet_build(m, frame, sizeof frame, &n);
   if (rc)
     return rc;
-  EnTicket t;
+  struct en_ticket t;
   rc = en_tx_copy(s->ring, frame, n, &t);
   if (rc)
     return rc == ED_FULL    ? DG_FULL
@@ -39,7 +39,7 @@ int dr_send(DgRing *s, const DGMessage *m) {
   s->phase = DR_MUTANT == 1 ? 0 : 1;
   return DG_OK;
 }
-int dr_poll(DgRing *s, uint32_t *raw) {
+int dr_poll(struct dg_ring *s, uint32_t *raw) {
   if (!s || !raw)
     return DG_INVALID;
   if (!current(s))
@@ -75,20 +75,20 @@ int dr_poll(DgRing *s, uint32_t *raw) {
   s->phase = 3;
   return DG_IO;
 }
-int dr_receive(DgRing *s, DGSession *session, DGMessage *out) {
+int dr_receive(struct dg_ring *s, struct dg_session *session, struct dg_message *out) {
   if (!s || !session || !out)
     return DG_INVALID;
   if (!current(s))
     return DG_STALE;
-  EnFrame frame;
+  struct en_frame frame;
   int rc = en_rx_take(s->ring, &frame);
   if (rc)
     return rc == ED_BUSY    ? DG_BUSY
            : rc == ED_FULL  ? DG_FULL
            : rc == ED_STALE ? DG_STALE
                             : DG_IO;
-  DGSession pending = *session;
-  DGMessage message;
+  struct dg_session pending = *session;
+  struct dg_message message;
   rc = dg_ethernet_accept(&pending, frame.bytes, frame.length, &message);
   int released = DR_MUTANT == 4 ? ED_OK : en_rx_release(s->ring, frame.ticket);
   if (released != ED_OK && DR_MUTANT != 5)

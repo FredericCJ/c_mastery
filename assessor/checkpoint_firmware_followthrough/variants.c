@@ -11,34 +11,34 @@ static void two_producers(void){
     CHECK(head==1 && tail==0 && slot[tail]==22); /* 11 was lost. */
     /* Real correction: separate single-producer rings, explicit source IDs.
        Consumer round-robin defines service order, not physical arrival order. */
-    CPFRing a,b;CHECK(cpf_ring_init(&a,4) && cpf_ring_init(&b,4));
+    struct cpf_ring a,b;CHECK(cpf_ring_init(&a,4) && cpf_ring_init(&b,4));
     for(unsigned i=0;i<5;i++){
-        CHECK(cpf_irq_push(&a,(CPFSample){i,(uint16_t)(100+i),0})==(i<3));
-        CHECK(cpf_irq_push(&b,(CPFSample){i,(uint16_t)(200+i),0})==(i<3));
+        CHECK(cpf_irq_push(&a,(struct cpf_sample){i,(uint16_t)(100+i),0})==(i<3));
+        CHECK(cpf_irq_push(&b,(struct cpf_sample){i,(uint16_t)(200+i),0})==(i<3));
     }
     for(unsigned i=0;i<3;i++){
-        CPFSample x,y;CHECK(cpf_take(&a,&x) && cpf_take(&b,&y));
+        struct cpf_sample x,y;CHECK(cpf_take(&a,&x) && cpf_take(&b,&y));
         CHECK(x.sequence==i && y.sequence==i && x.value==100+i && y.value==200+i);
     }
-    CPFSample out;CHECK(!cpf_take(&a,&out) && !cpf_take(&b,&out) && a.dropped==2 && b.dropped==2);
+    struct cpf_sample out;CHECK(!cpf_take(&a,&out) && !cpf_take(&b,&out) && a.dropped==2 && b.dropped==2);
 }
 static void histories(void){
     /* Independent shifting-array oracle: all 3^8 offer/take/idle histories,
        identical workload under physical capacities4 and2. No ISR data race. */
     for(unsigned capacity=2;capacity<=4;capacity+=2)for(unsigned code=0;code<6561;code++){
-        CPFRing r;CHECK(cpf_ring_init(&r,capacity));unsigned model[3]={0},count=0,drops=0,n=code;
+        struct cpf_ring r;CHECK(cpf_ring_init(&r,capacity));unsigned model[3]={0},count=0,drops=0,n=code;
         for(unsigned step=0;step<8;step++,n/=3){
             unsigned action=n%3;
-            if(action==0){int expected=count<capacity-1;CHECK(cpf_irq_push(&r,(CPFSample){step,(uint16_t)(100+step),0})==expected);if(expected)model[count++]=step;else drops++;}
-            if(action==1){CPFSample out={99,99,99};CHECK(cpf_take(&r,&out)==(count!=0));if(count){CHECK(out.sequence==model[0]);for(unsigned i=1;i<count;i++)model[i-1]=model[i];count--;}else CHECK(out.sequence==99);}
+            if(action==0){int expected=count<capacity-1;CHECK(cpf_irq_push(&r,(struct cpf_sample){step,(uint16_t)(100+step),0})==expected);if(expected)model[count++]=step;else drops++;}
+            if(action==1){struct cpf_sample out={99,99,99};CHECK(cpf_take(&r,&out)==(count!=0));if(count){CHECK(out.sequence==model[0]);for(unsigned i=1;i<count;i++)model[i-1]=model[i];count--;}else CHECK(out.sequence==99);}
             CHECK(r.dropped==drops);
         }
-        for(unsigned i=0;i<count;i++){CPFSample out;CHECK(cpf_take(&r,&out) && out.sequence==model[i]);}
-        CPFSample out;CHECK(!cpf_take(&r,&out));
+        for(unsigned i=0;i<count;i++){struct cpf_sample out;CHECK(cpf_take(&r,&out) && out.sequence==model[i]);}
+        struct cpf_sample out;CHECK(!cpf_take(&r,&out));
     }
 }
 static void failed_abort(void){
-    CPFTx t;CPMessage m={.sequence=3,.length=1,.payload={7}};cpf_tx_init(&t,3,2);
+    struct cpf_tx t;struct cp_message m={.sequence=3,.length=1,.payload={7}};cpf_tx_init(&t,3,2);
     CHECK(cpf_tx_begin(&t,&m,1)==CPF_OK);unsigned g=t.generation;
     CHECK(cpf_tx_timeout(&t,g,17)==CPF_PENDING);
     for(unsigned i=0;i<100;i++){
@@ -54,7 +54,7 @@ static void failed_abort(void){
     CHECK(cpf_tx_recover(&t,t.generation,0,0)==CPF_FAILED && t.state==CPF_RETIRED);
 }
 static void split_clock(void){
-    CPFClock c;CHECK(cpf_clock_init(&c));uint64_t out=42;
+    struct cpf_clock c;CHECK(cpf_clock_init(&c));uint64_t out=42;
     CHECK(cpf_clock_write(&c,UINT64_C(0xffffffff)));
     /* All four store cuts during the 32-bit low-word rollover. These atomic
        cut states model interleaving without invoking undefined data races. */

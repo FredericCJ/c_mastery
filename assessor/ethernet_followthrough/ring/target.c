@@ -17,7 +17,7 @@ static void en_port_store(uint32_t a,uint32_t v){*(volatile uint32_t *)(uintptr_
 static void en_port_barrier(void){__asm__ volatile("dsb sy":::"memory");}
 #endif
 static void update(uint32_t a,uint32_t mask,uint32_t value){en_port_store(a,(en_port_load(a)&~mask)|value);}
-int en_target_open(EnTarget *t){
+int en_target_open(struct en_target *t){
  if(!t)return ED_INVALID;
  if(t->opened)return ED_BUSY;
  t->old_demcr=en_port_load(DEMCR);en_port_store(DEMCR,t->old_demcr|0x1000000u);en_port_barrier();
@@ -30,7 +30,7 @@ int en_target_open(EnTarget *t){
  t->opened=1;return ED_OK;
 }
 static int settle(void *p){
- EnTarget *t=p;
+ struct en_target *t=p;
  if(!t || !t->opened || !(en_port_load(DEMCR)&0x1000000u) || !(en_port_load(CTRL)&1u))return 1;
  en_port_barrier(); /* Complete the preceding peripheral write before timing. */
  uint32_t start=en_port_load(COUNT);
@@ -41,16 +41,16 @@ static int settle(void *p){
  return 1;
 }
 static int read_register(void *p,unsigned offset,uint32_t *v){
- EnTarget *t=p;if(!t || !t->opened || !v || (offset&3u) || offset>0x101cu)return 1;
+ struct en_target *t=p;if(!t || !t->opened || !v || (offset&3u) || offset>0x101cu)return 1;
  *v=en_port_load(ETH+offset);return 0;
 }
 static int write_register(void *p,unsigned offset,uint32_t v){
- EnTarget *t=p;if(!t || !t->opened || (offset&3u) || offset>0x101cu)return 1;
+ struct en_target *t=p;if(!t || !t->opened || (offset&3u) || offset>0x101cu)return 1;
  en_port_store(ETH+offset,v);return 0;
 }
 static void barrier(void *p){(void)p;en_port_barrier();}
-EnBus en_target_bus(EnTarget *t){EnBus b={t,read_register,write_register,barrier,settle};return b;}
-int en_target_cold(EnTarget *t){
+struct en_bus en_target_bus(struct en_target *t){struct en_bus b={t,read_register,write_register,barrier,settle};return b;}
+int en_target_cold(struct en_target *t){
  if(!t || !t->opened)return ED_INVALID;
  /* A cold preparation operation, never a live-driver recovery shortcut. */
  if(en_port_load(RCC+0x30)&0x0e000000u)return ED_BUSY;
@@ -70,7 +70,7 @@ int en_target_cold(EnTarget *t){
  update(RCC+0x30,0,0x0e000000u);(void)en_port_load(RCC+0x30);en_port_barrier();
  update(RCC+0x10,0x02000000u,0);en_port_barrier();return ED_OK;
 }
-int en_target_close(EnTarget *t){
+int en_target_close(struct en_target *t){
  if(!t || !t->opened)return ED_INVALID;
  en_port_store(CTRL,t->old_dwt);en_port_barrier();en_port_store(DEMCR,t->old_demcr);en_port_barrier();t->opened=0;return ED_OK;
 }

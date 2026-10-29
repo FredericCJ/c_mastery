@@ -30,7 +30,7 @@ address comparison without imposing a portable true/false golden.
 
 ## Representation and allocator contract
 
-`LrBuffer` is a live, uniquely owned, noncopied control: either `data==NULL`
+`struct lr_buffer` is a live, uniquely owned, noncopied control: either `data==NULL`
 and `size==0`, or it owns exactly1..64 writable character bytes. Its allocator
 and context remain live until all operations finish. Calls are serialized.
 Initialize only fresh or already nonowning control. Input/control/backend

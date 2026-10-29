@@ -33,9 +33,9 @@ int main(void){intmax_t x=INTMAX_MAX;printf("%" PRIdMAX "\n",x);
  return 0;}
 #elif LP_FEATURE == 7
 #include <stdatomic.h>
-typedef struct {unsigned long long a,b,c;} Pair;
-static volatile _Atomic(Pair) cell;
-int main(void){Pair a={3,7,11};atomic_store(&cell,a);a=atomic_load(&cell);return a.a!=3 || a.b!=7 || a.c!=11;}
+struct lp_pair {unsigned long long a,b,c;};
+static volatile _Atomic(struct lp_pair) cell;
+int main(void){struct lp_pair a={3,7,11};atomic_store(&cell,a);a=atomic_load(&cell);return a.a!=3 || a.b!=7 || a.c!=11;}
 #else
 #error Select one isolated feature
 #endif

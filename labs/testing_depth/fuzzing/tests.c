@@ -5,11 +5,11 @@ int main(void){
  static const unsigned char seeds[][12]={{1,2,0,1,0,2},{1,2,0,1},{1,0},{1,5},{0,0},{1,0,9},{1,4,255,255,255,255,255,255,255,255},{2,1,1,1,2,77}};
  const size_t lengths[]={6,4,2,2,2,3,10,6};
  for(unsigned i=0;i<8;i++)CHECK(one_case(seeds[i],lengths[i]));
- CHECK(one_case(NULL,0));TfPacket out={0};CHECK(tf_parse(0,NULL,SIZE_MAX,&out)==TF_LENGTH);
+ CHECK(one_case(NULL,0));struct tf_packet out={0};CHECK(tf_parse(0,NULL,SIZE_MAX,&out)==TF_LENGTH);
  /* Exercise original framing next to changed-session state, never reset per message. */
- TfSession s;tf_session_init(&s);CHECK(tf_session_begin(&s,1)==TF_OK);
+ struct tf_session s;tf_session_init(&s);CHECK(tf_session_begin(&s,1)==TF_OK);
  CHECK(tf_session_apply(&s,1,0,seeds[0],6,&out)==TF_OK&&s.total==3&&s.next==1);
- TfSession old=s;TfPacket old_out=out;
+ struct tf_session old=s;struct tf_packet old_out=out;
  CHECK(tf_session_apply(&s,1,0,seeds[0],6,&out)==TF_SEQUENCE&&memcmp(&s,&old,sizeof s)==0&&memcmp(&out,&old_out,sizeof out)==0);
  CHECK(tf_session_apply(&s,1,1,seeds[1],4,&out)==TF_LENGTH&&memcmp(&s,&old,sizeof s)==0);
  CHECK(tf_session_apply(&s,1,1,seeds[0],6,&out)==TF_OK&&s.total==6);

@@ -8,7 +8,7 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-static const NaConfig config = {
+static const struct na_config config = {
     {2, 0, 0, 0, 0, 2}, {192, 0, 2, 2}, {192, 0, 2, 1}};
 static void reply(unsigned char p[60], unsigned tail) {
   const unsigned char bytes[42] = {
@@ -19,9 +19,9 @@ static void reply(unsigned char p[60], unsigned tail) {
   p[11] = p[27] = (unsigned char)tail;
 }
 int main(void) {
-  NaArp s;
-  NetPacket frame;
-  NaTicket ticket, old;
+  struct na_arp s;
+  struct net_packet frame;
+  struct na_ticket ticket, old;
   unsigned char bytes[60];
   const unsigned char payload[5] = {1, 0, 2, 255, 4};
   CHECK(na_init(&s, config, 9) == NA_OK);
@@ -59,7 +59,7 @@ int main(void) {
   CHECK(na_prepare(&s, 30001, &frame, &ticket) == NA_OK &&
         ticket.kind == NA_DATA && frame.bytes[5] == 99);
   CHECK(na_receive(&s, bytes, 60, 30002) == NA_BUSY);
-  NaTicket wrong = ticket;
+  struct na_ticket wrong = ticket;
   wrong.epoch++;
   CHECK(na_submit(&s, wrong, 1) == NA_STALE && s.pending);
   CHECK(na_submit(&s, ticket, 1) == NA_OK && !s.pending && s.resolved);

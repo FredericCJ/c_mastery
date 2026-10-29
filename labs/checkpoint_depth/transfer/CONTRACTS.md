@@ -26,11 +26,11 @@ reenter nor exit nonlocally unless a separate adapter explicitly says otherwise.
 
 ## Allocated records, linked nodes and relocation — P1
 
-Implement `memory.h` in a copy of `memory_stub.c`. `CPXStore` has 1..4 records,
+Implement `memory.h` in a copy of `memory_stub.c`. `struct cpx_store` has 1..4 records,
 1..capacity nodes, a stable caller-owned control object and two separately
 allocated arrays. The backend returns genuine allocated storage suitable for
 the requested C objects; allocation failure acquires nothing. Records have a
-value, a 0..16-byte payload and its length. Stores through `CPXRecord` lvalues
+value, a 0..16-byte payload and its length. Stores through `struct cpx_record` lvalues
 establish the allocated objects' effective type. Alignment of a declared byte
 array alone would not establish that type. The node array is independent, so
 record availability does not imply admission availability.
@@ -69,7 +69,7 @@ borrow even merely to compare its address after successful relocation.**
 before any publication. Refuse live pins and failure at either acquisition;
 preserve existing handles, contents, registration and capacity on failure.
 Initialize new slot generations to1. Its cost includes copying old records and
-nodes, not just changing a capacity field. `CPXLease` separately owns an arena
+nodes, not just changing a capacity field. `struct cpx_lease` separately owns an arena
 pin under a nonzero callback cookie. Cancellation retains it; only a matching
 quiescent completion drops it, and duplicate completion cannot unpin twice.
 
@@ -89,14 +89,14 @@ individually. Distinguish internal unused payload, metadata and lifetime retenti
 
 ## Asynchronous ownership and progress products — P1/P2
 
-Implement `adapters.h` using the learner's completed `OwOwner` and `er_transfer`.
+Implement `adapters.h` using the learner's completed `struct ow_owner` and `er_transfer`.
 An owner holds three blocks. Unregister may complete later, so the adapter must
 retain the complete owner until a matching quiescent acknowledgement. Calling
 the original nonfailing destructor immediately is a contract error. Compare
 control bytes, unsubscribe requests and release calls; C still permits ownership
 duplication by structure assignment and supplies no automatic destruction.
 
-Map one `CPWWrite` invocation to an `er_progress` product while preserving the
+Map one `cpw_write_fn` invocation to an `er_progress` product while preserving the
 accepted offset and a separate first backend cause/cleanup cause. `ER_OK` means
 that invocation made progress, not necessarily that the whole transfer ended.
 On3,EINTR,2,EIO, retain offset5/cause5; subsequent cleanup9 cannot overwrite5.
@@ -210,7 +210,7 @@ tears/reordering and actual guest I/O; cite those observations at their own scop
 
 ## P4 analytical timing and observation protocol
 
-Implement `halfduplex.h` around the completed `CPFTx`. The direction callback
+Implement `halfduplex.h` around the completed `struct cpf_tx`. The direction callback
 is serialized, nonfailing and nonreentrant; it represents the dedicated
 transceiver's driver-enable output, not an arbitrary board pin. Assert direction
 before the first byte. TXE alone cannot release it. After a separately observed

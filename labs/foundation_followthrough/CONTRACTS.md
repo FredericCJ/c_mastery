@@ -41,9 +41,9 @@ last+1. Reject or change representation; silently wrapping is not an adapter.
 ## Source character copying: X-T03-003-R2
 
 Implement the initializer callback `ff_copy_initialize(context,destination)`.
-Context points to a distinct live, initialized `FDValue`. Destination is the
-actual fresh, appropriately aligned, allocated storage passed by `FDSlot`.
-Copy `sizeof(FDValue)` character elements from the source representation using a
+Context points to a distinct live, initialized `struct fd_value`. Destination is the
+actual fresh, appropriately aligned, allocated storage passed by `struct fd_slot`.
+Copy `sizeof(struct fd_value)` character elements from the source representation using a
 loop. Null callback arguments return nonzero without access. Successful return
 is zero. It acquires no resource; the slot retains its existing ownership and
 destruction protocol. Do not replace the actual allocation by a declared byte

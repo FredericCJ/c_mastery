@@ -27,7 +27,7 @@ must exclude all runtime helpers and visibly reject unsupported operations.
 
 ## Representation, operations and failure
 
-`AIPool` contains16 slots, a generation per slot, used/retired flags and an
+`struct ai_pool` contains16 slots, a generation per slot, used/retired flags and an
 immutable configured generation maximum. `ai_init` admits exactly8 or24
 generation bits, initializes every generation to1, and rejects invalid input
 unchanged. A32-bit handle stores a1-based slot index in the low8 bits and the

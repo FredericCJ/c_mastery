@@ -98,7 +98,7 @@ def generate():
                               assessment=dict(kind='existing-scoped-assessment',tests=value.get('tests',[]) if kind=='unit' else value['lab']['tests'],
                                               limits=value.get('remaining_evidence', 'Reasoning, independence and changed conditions require explicit evidence.'))))
             if project=='PR-T15-05':
-                nodes[-1]['contract_scope']='Implement the selected graph objectives using the imported CDCSR and local traversal/worklist storage. The shared T15 document also covers byte and sorting producers: its fr_* and heap-sort imports apply to those operations, not to ad_bfs/ad_dijkstra. The later frontier refinement separately imports the assessed CDRing/CDHeap producers.'
+                nodes[-1]['contract_scope']='Implement the selected graph objectives using the imported struct cd_csr and local traversal/worklist storage. The shared T15 document also covers byte and sorting producers: its fr_* and heap-sort imports apply to those operations, not to ad_bfs/ad_dijkstra. The later frontier refinement separately imports the assessed struct cd_ring/struct cd_heap producers.'
     byid={n['id']:n for n in nodes}
     # Place the compact vocabulary after actual C setup and bounds work.
     first='U-T01-01-01'

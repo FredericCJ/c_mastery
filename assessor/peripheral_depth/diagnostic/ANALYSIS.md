@@ -53,7 +53,7 @@ and programmer discipline supply the remaining boundaries.
 
 ## 12.b
 
-The representation is a byte protocol, not `sizeof(DGMessage)` or a packed struct
+The representation is a byte protocol, not `sizeof(struct dg_message)` or a packed struct
 overlay. Read16BE uses integer promotion within range; byte order is explicit.
 The cursor checks bounds by subtraction before pointer formation. The staged
 output means a failed decode cannot leak partial publication. The sequence policy

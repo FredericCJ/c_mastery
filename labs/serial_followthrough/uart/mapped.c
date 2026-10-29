@@ -2,19 +2,19 @@
 void ua_note(const char *);
 void ua_values(const char *,unsigned,unsigned,unsigned,unsigned);
 #define CHECK(x) do {if (!(x)) {ua_note("UA_MAP_ASSERT: " #x);return 41;}}while(0)
-typedef struct {volatile uint32_t sr,dr,brr,cr1,cr2,cr3,gtpr;} Registers;
-static Registers u;
+struct ep_registers {volatile uint32_t sr,dr,brr,cr1,cr2,cr3,gtpr;};
+static struct ep_registers u;
 static uint32_t addresses[32],values[32];static unsigned used;
 volatile uint32_t *pu_test_register(uint32_t a) {
   for(unsigned i=0;i<used;i++)if(addresses[i]==a)return values+i;
   if(used==32)return 0;
   addresses[used]=a;return values+used++;
 }
-Registers *pu_test_usart(void){return &u;}
+struct ep_registers *pu_test_usart(void){return &u;}
 #define R(a) (*pu_test_register(a))
 #define STREAM 0x40026058u
 int ua_mapped(void) {
-  PuDriver d={0};PuClock c={42000000,1,1,1,1,0};PuIo io=pu_f439_io();
+  struct pu_driver d={0};struct pu_clock c={42000000,1,1,1,1,0};struct pu_io io=pu_f439_io();
   R(0x40023800u)=2;R(0x40023808u)=0;
   CHECK(pu_open(&d,io,&c,115200,0,1)==PU_OK);
   R(0x40020c24u)=0xffffffffu;pu_f439_pins();

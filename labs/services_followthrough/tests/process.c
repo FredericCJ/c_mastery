@@ -6,7 +6,7 @@
 #if SF_CASE==19 || SF_CASE==20
 #include "wire.h"
 int sfv_tests(void);
-static struct sfv_wire vm_request(unsigned kind,uint64_t id){struct sfv_wire w={0};w.capacity=SFV_RESULT;w.request.session=1;w.request.id=id;w.request.fuel=10;w.request.gc=10;CvmProgram p={0};p.count=1;if(kind==1){p.code[0]=OP_JMP;p.length=3;}else{p.code[0]=OP_INT;p.code[1]=42;p.code[5]=OP_RET;p.length=6;}p.functions[0].length=p.length;size_t n=0;(void)cvm_encode(&p,w.request.image,SFV_IMAGE,&n);w.request.length=(uint32_t)n;return w;}
+static struct sfv_wire vm_request(unsigned kind,uint64_t id){struct sfv_wire w={0};w.capacity=SFV_RESULT;w.request.session=1;w.request.id=id;w.request.fuel=10;w.request.gc=10;struct cvm_program p={0};p.count=1;if(kind==1){p.code[0]=OP_JMP;p.length=3;}else{p.code[0]=OP_INT;p.code[1]=42;p.code[5]=OP_RET;p.length=6;}p.functions[0].length=p.length;size_t n=0;(void)cvm_encode(&p,w.request.image,SFV_IMAGE,&n);w.request.length=(uint32_t)n;return w;}
 #endif
 static void print(const char *s){size_t n=0;while(s[n])n++;cmk_write(s,n);}
 static void fail(const char *s){print("SF_CHECK:");print(s);print("\n");cmk_call(CMK_EXIT,91,0,0);for(;;){}}
@@ -38,7 +38,7 @@ static int64_t file_seek(unsigned operation,uint64_t file,int64_t offset,unsigne
 static struct sf_io_snapshot io_snapshot(void){struct sf_io_snapshot s;CHECK(!cmk_call(SF_IO_SNAPSHOT,(uintptr_t)&s,0,0),"held actual IO snapshot");return s;}
 #if SF_CASE==24 || SF_CASE==25
 #include "workload.h"
-static SfWork workload;
+static struct sf_work workload;
 static unsigned workload_burst;
 static void workload_producer(uintptr_t cpu){CHECK(!cmk_call(CMK2_SET_AFFINITY,1u<<cpu,0,0),"producer CPU role");while(workload.offered<128){while(atomic_load_explicit(&workload.phase,memory_order_acquire)!=0)cmk_call(CMK_YIELD,0,0,0);CHECK(!sfw_offer(&workload,workload_burst),"bounded acquisition offer");atomic_store_explicit(&workload.phase,1,memory_order_release);}while(atomic_load_explicit(&workload.phase,memory_order_acquire)!=0)cmk_call(CMK_YIELD,0,0,0);atomic_store_explicit(&workload.phase,2,memory_order_release);cmk2_thread_exit(0);}
 static uint64_t tsc(void){uint32_t low,high;__asm__ volatile("lfence;rdtsc":"=a"(low),"=d"(high)::"memory");return ((uint64_t)high<<32)|low;}

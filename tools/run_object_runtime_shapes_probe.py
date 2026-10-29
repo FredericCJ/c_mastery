@@ -19,16 +19,16 @@ static volatile uint64_t checksum;
 static uint64_t ns(void){struct timespec t;if(clock_gettime(CLOCK_MONOTONIC,&t))return 0;return (uint64_t)t.tv_sec*UINT64_C(1000000000)+(uint64_t)t.tv_nsec;}
 #define REQUIRE(c) do{if(!(c))return 1;}while(0)
 int main(void){unsigned depth_index,mode,trial,i,k;unsigned depths[]={1,4,8};
- printf("LAYOUT %zu %zu %zu %zu %zu %zu\n",sizeof(ORXWorld),sizeof(ORXDescriptor),sizeof(ORXObject),sizeof(ORXField),sizeof(ORXPropertyCache),_Alignof(ORXPropertyCache));
+ printf("LAYOUT %zu %zu %zu %zu %zu %zu\n",sizeof(struct orx_world),sizeof(struct orx_descriptor),sizeof(struct orx_object),sizeof(struct orx_field),sizeof(struct orx_property_cache),_Alignof(struct orx_property_cache));
  for(depth_index=0;depth_index<3;depth_index++)for(mode=0;mode<2;mode++)for(trial=0;trial<16;trial++){
-  ORXWorld w;ORXHandle object[8];ORXPropertyCache cache={0};unsigned depth=depths[depth_index],dead;int32_t value;uint64_t start,end,sum=0,hits=0,misses=0;
+  struct orx_world w;struct orx_handle object[8];struct orx_property_cache cache={0};unsigned depth=depths[depth_index],dead;int32_t value;uint64_t start,end,sum=0,hits=0,misses=0;
   orx_world_init(&w);for(i=0;i<depth;i++)REQUIRE(orx_world_new(&w,&object[i])==OR_OK);
   REQUIRE(orx_define(&w,object[depth-1],7,0,10,NULL,NULL)==OR_OK);
   for(i=0;i+1<depth;i++)REQUIRE(orx_prototype(&w,object[i],object[i+1])==OR_OK);
   start=ns();
   for(k=0;k<PROBE_ROUNDS;k++){
    if(k%16==0)REQUIRE(orx_define(&w,object[depth-1],7,0,(int32_t)(10+k/16),NULL,NULL)==OR_OK);
-   if(mode==0)cache=(ORXPropertyCache){0};
+   if(mode==0)cache=(struct orx_property_cache){0};
    REQUIRE(orx_get(&w,object[0],7,&cache,&value)==OR_OK);sum+=(uint32_t)value;
    if(mode==0){hits+=cache.hits;misses+=cache.misses;}
   }

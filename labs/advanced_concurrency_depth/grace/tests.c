@@ -13,8 +13,8 @@
     }                                                                          \
   } while (0)
 static void epoch(void) {
-  AGDomain d;
-  AGLease l;
+  struct ag_domain d;
+  struct ag_lease l;
   ag_init(&d, 0);
   CHECK(ag_register(&d, &l) == AG_OK);
   for (unsigned e = 0; e < 4; e++)
@@ -33,7 +33,7 @@ static void epoch(void) {
   CHECK(ag_leave(&d, l) == AG_OK && ag_reclaimable(&d, 5));
   CHECK(ag_leave(&d, l) == AG_INVALID);
   CHECK(ag_depart(&d, l) == AG_OK);
-  AGLease next;
+  struct ag_lease next;
   CHECK(ag_register(&d, &next) == AG_OK && next.generation != l.generation);
   CHECK(ag_enter(&d, l) == AG_INVALID);
   d.retained.epoch = UINT32_MAX;
@@ -59,9 +59,9 @@ static void epoch(void) {
        "nested_outermost saturation");
 }
 static void versions(void) {
-  AGStore s;
-  AGLease old, new;
-  AGBorrow before, after;
+  struct ag_store s;
+  struct ag_lease old, new;
+  struct ag_borrow before, after;
   unsigned char data[32];
   ag_store_init(&s, 0, 1);
   CHECK(ag_register(&s.domain, &old) == AG_OK &&
@@ -93,9 +93,9 @@ static void versions(void) {
        "coarse_retained_waits_all borrow_rejected");
 }
 static void pressure(void) {
-  AGStore s;
-  AGLease l;
-  AGBorrow b;
+  struct ag_store s;
+  struct ag_lease l;
+  struct ag_borrow b;
   ag_store_init(&s, 0, 0);
   CHECK(ag_register(&s.domain, &l) == AG_OK);
   CHECK(ag_read(&s, l, &b) == AG_OK);
@@ -116,17 +116,17 @@ static void pressure(void) {
   CHECK(ag_writer_release(&s, 1) == AG_OK);
   printf("OBS pressure retained_objects=16 payload_bytes=512 object_bytes=%zu "
          "capacity=17 full_then_recovery\n",
-         16 * sizeof(AGObject));
+         16 * sizeof(struct ag_object));
 }
-typedef struct {
+struct ag_log {
   char trace[8];
   unsigned length;
-  ApiHandle other;
+  struct api_handle other;
   int remove, destroy;
-} Log;
-static void callback(void *ctx, AGStore *s, ApiHandle self,
+};
+static void callback(void *ctx, struct ag_store *s, struct api_handle self,
                      const unsigned char bytes[32]) {
-  Log *log = ctx;
+  struct ag_log *log = ctx;
   for (unsigned i = 0; i < 32; i++)
     CHECK(bytes[i] == 1);
   log->trace[log->length++] = 'A';
@@ -143,11 +143,11 @@ static void callback(void *ctx, AGStore *s, ApiHandle self,
 }
 static void callbacks(void) {
   for (unsigned destroy = 0; destroy < 2; destroy++) {
-    AGStore s;
-    AGLease l;
-    AGBorrow b;
-    ApiHandle a, z;
-    Log log = {{0}, 0, {0, 0}, !destroy, (int)destroy};
+    struct ag_store s;
+    struct ag_lease l;
+    struct ag_borrow b;
+    struct api_handle a, z;
+    struct ag_log log = {{0}, 0, {0, 0}, !destroy, (int)destroy};
     ag_store_init(&s, 0, 1);
     CHECK(ag_register(&s.domain, &l) == AG_OK);
     CHECK(ag_read(&s, l, &b) == AG_OK);
@@ -161,17 +161,17 @@ static void callbacks(void) {
     CHECK(ag_capture(&s, b, callback, &log, &z) == API_INVALID);
     CHECK(ag_collect(&s) == 0 && s.objects[b.version.index].active);
     /* First callback removes both; second still owns its snapshot reference. */
-    ApiStatus r = ag_dispatch(&s);
+    enum api_status r = ag_dispatch(&s);
     CHECK(r == (destroy ? API_CLOSED : API_OK));
     CHECK(log.length == (destroy ? 1u : 2u) && s.invocations == log.length);
     CHECK(s.drops == 2 && s.objects[b.version.index].refs == 0);
     CHECK(ag_collect(&s) == 1);
   }
-  AGStore full;
-  AGLease l;
-  AGBorrow b;
-  ApiHandle h[4], sentinel = {99, 99};
-  Log log = {{0}, 0, {0, 0}, 0, 0};
+  struct ag_store full;
+  struct ag_lease l;
+  struct ag_borrow b;
+  struct api_handle h[4], sentinel = {99, 99};
+  struct ag_log log = {{0}, 0, {0, 0}, 0, 0};
   ag_store_init(&full, 0, 1);
   CHECK(ag_register(&full.domain, &l) == AG_OK &&
         ag_read(&full, l, &b) == AG_OK);
@@ -186,13 +186,13 @@ static void callbacks(void) {
   puts("OBS callbacks actual_registry refs_acquired_before_exit delayed_drop "
        "destroy_suppression full_rollback");
 }
-typedef struct {
-  AGStore *s;
+struct ag_writer {
+  struct ag_store *s;
   pthread_mutex_t *mutex;
   unsigned id, *done;
-} Writer;
+};
 static void *writer(void *ptr) {
-  Writer *w = ptr;
+  struct ag_writer *w = ptr;
   for (unsigned i = 0; i < 32; i++) {
     CHECK(!pthread_mutex_lock(w->mutex));
     CHECK(ag_writer_acquire(w->s, w->id) == AG_OK);
@@ -205,7 +205,7 @@ static void *writer(void *ptr) {
   return NULL;
 }
 static void writers(void) {
-  AGStore s;
+  struct ag_store s;
   ag_store_init(&s, 0, 0);
   CHECK(ag_writer_acquire(&s, 1) == AG_OK);
   CHECK(ag_writer_acquire(&s, 2) == AG_BUSY);
@@ -214,7 +214,7 @@ static void writers(void) {
   CHECK(ag_writer_release(&s, 1) == AG_OK);
   pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
   unsigned done = 0;
-  Writer args[2] = {{&s, &mutex, 1, &done}, {&s, &mutex, 2, &done}};
+  struct ag_writer args[2] = {{&s, &mutex, 1, &done}, {&s, &mutex, 2, &done}};
   pthread_t threads[2];
   for (unsigned i = 0; i < 2; i++)
     CHECK(!pthread_create(&threads[i], NULL, writer, &args[i]));
@@ -225,22 +225,22 @@ static void writers(void) {
   puts("OBS writers two_actual_threads explicit_mutex_domain publications=64 "
        "unsynchronized_core_not_authorized");
 }
-typedef struct {
-  AGStore *s;
-  AGLease lease;
-  AGBorrow borrow;
-} Depart;
+struct ag_depart {
+  struct ag_store *s;
+  struct ag_lease lease;
+  struct ag_borrow borrow;
+};
 static void *depart(void *ptr) {
-  Depart *d = ptr;
+  struct ag_depart *d = ptr;
   CHECK(ag_read(d->s, d->lease, &d->borrow) == AG_OK);
   return NULL;
 }
 static void departure(void) {
-  AGStore s;
-  AGLease lease;
+  struct ag_store s;
+  struct ag_lease lease;
   ag_store_init(&s, 0, 1);
   CHECK(ag_register(&s.domain, &lease) == AG_OK);
-  Depart d = {.s = &s, .lease = lease};
+  struct ag_depart d = {.s = &s, .lease = lease};
   pthread_t worker;
   CHECK(!pthread_create(&worker, NULL, depart, &d));
   CHECK(!pthread_join(worker, NULL));

@@ -239,8 +239,8 @@ For two16-byte owners, appending16 to each stages32 then32 bytes: logical peak96
 The C oracle converts each lane arithmetically, sums in int32 and clamps; tests cover2401 edge combinations and100000 deterministic mixed-word pairs. A separate Python oracle checks all2401 exact outputs. `dod.swarsigned` controls omit saturation or allow cross-lane carry. The measurement producer additionally compares actual signed/unsigned kernels with scalar saturation under equal value contracts, keeping copy instrumentation out of timed binaries.
 ## Caller dictionary and bounded collision investigation
 
-`dod_dictionary.h` extends X-T70-007 with a distinct persistent map. A `DHKey`
-owns exactly two copied octets. `DHDictionary` supplies a borrowed context,
+`dod_dictionary.h` extends X-T70-007 with a distinct persistent map. A `struct dh_key`
+owns exactly two copied octets. `struct dh_dictionary` supplies a borrowed context,
 `uint32_t` hash and equality callbacks. Equality must be an equivalence relation;
 equal keys must hash equally. Callbacks must terminate, preserve dictionary and
 map state, never reenter the map, and retain no temporary key address. Their
@@ -299,7 +299,7 @@ oracle compares4096 version/query results and9 collision-work records. These
 finite cases do not prove arbitrary callback correctness or independent mastery.
 ## Recycled entities and deferred command batches
 
-`dod_entities.h` composes the actual `DSparse` identity pool and `DQueryWorld`
+`dod_entities.h` composes the actual `struct d_sparse` identity pool and `struct d_query_world`
 archetype/cache implementation. It does not substitute ID equality for handle
 identity. Initialize stable world storage once; moving or reinitializing it
 while handles, commands or query caches survive is forbidden. A handle borrows
@@ -327,7 +327,7 @@ entities. Collect commands while iterating and apply only after row borrows
 have ended. Failed batches leave those borrows valid. Storage for4 commands and
 one full staged world is a disclosed fixed cost, not zero overhead.
 
-Initialize `DEntityQuery` to zero before first use. Its borrowed owner/cache
+Initialize `struct d_entity_query` to zero before first use. Its borrowed owner/cache
 fields must not be forged. Required/excluded masks use the existing query
 contract; successful query results enumerate live handles in ascending slot
 order. A repeated query may reuse the match cache only at the same world
@@ -388,7 +388,7 @@ preserves all samples and limits. These measurements establish no universal
 layout ranking, physical timing guarantee or independent learner completion.
 ## Insertion order over stable slots
 
-`dod_ordered.h` supplies X-T70-004-DELAYED. `DOrdered` embeds the actual DSparse
+`dod_ordered.h` supplies X-T70-004-DELAYED. `struct d_ordered` embeds the actual DSparse
 pool and four previous/next index pairs, with sentinel4 and head/tail indices.
 Mutations use only the adapter; callers may use `d_sparse_get` to validate a
 returned handle but must not mutate the embedded pool directly. Owner storage

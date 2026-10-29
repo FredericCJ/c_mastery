@@ -17,9 +17,9 @@
 #ifndef P4_RING
 #define P4_RING 4
 #endif
-volatile P4Capture p4_capture;
+volatile struct p4_capture p4_capture;
 static volatile uint32_t initialized=UINT32_C(0x13579bdf),zeroed;
-static CPXHalfDuplex half;
+static struct cpx_half_duplex half;
 static volatile unsigned received;
 static unsigned release_requested;
 static uint32_t now(void){return REG(0xe0001004);}
@@ -51,9 +51,9 @@ void p4_exti0(void){
     REG(0x40013c14)=1; /* W1C, never read-modify-write unrelated pending bits. */
     unsigned index=received;if(index>=P4_EVENTS){REG(0x40013c00)&=~UINT32_C(1);return;}
     marker(3,1);uint32_t tick=now();
-    volatile P4Row *row=&p4_capture.rows[index];row->sequence=index;
+    volatile struct p4_row *row=&p4_capture.rows[index];row->sequence=index;
     if(P4_TRACE)row->isr_cycle=tick;
-    int accepted=cpf_irq_push(&ring,(CPFSample){index,(uint16_t)(100+index),(uint16_t)(tick>>4)});
+    int accepted=cpf_irq_push(&ring,(struct cpf_sample){index,(uint16_t)(100+index),(uint16_t)(tick>>4)});
     if(P4_TRACE)row->publish_cycle=now();
     row->flags=accepted?P4_ACCEPTED:P4_DROPPED;
     marker(4,1);marker(4,0);marker(3,0);
@@ -77,14 +77,14 @@ static void inputs_setup(void){
     REG(0xe000e280)=UINT32_C(1)<<6;REG(0xe000e100)=UINT32_C(1)<<6;
     REG(0x40013c00)|=1;
 }
-static int send(const CPFSample *sample){
-    CPMessage message={0};message.sequence=(uint16_t)sample->sequence;message.length=8;
+static int send(const struct cpf_sample *sample){
+    struct cp_message message={0};message.sequence=(uint16_t)sample->sequence;message.length=8;
     for(unsigned i=0;i<4;i++)message.payload[i]=(unsigned char)(sample->sequence>>(8*i));
     message.payload[4]=(unsigned char)sample->value;message.payload[5]=(unsigned char)(sample->value>>8);
     message.payload[6]=(unsigned char)sample->tick;message.payload[7]=(unsigned char)(sample->tick>>8);
-    volatile P4Row *row=&p4_capture.rows[sample->sequence];
-    CPFTx *active=P4_MODE==2?&half.tx:&tx;
-    CPFStatus begun=P4_MODE==2?cpx_halfduplex_begin(&half,&message,1000,direction,0):cpf_tx_begin(&tx,&message,P4_MODE==1);
+    volatile struct p4_row *row=&p4_capture.rows[sample->sequence];
+    struct cpf_tx *active=P4_MODE==2?&half.tx:&tx;
+    enum cpf_status begun=P4_MODE==2?cpx_halfduplex_begin(&half,&message,1000,direction,0):cpf_tx_begin(&tx,&message,P4_MODE==1);
     if(begun!=CPF_OK){
         row->flags|=P4_FAILED;p4_capture.first_fault=3;
         p4_capture.fault_generation=active->generation;p4_capture.retained=(uint32_t)active->retained;
@@ -102,7 +102,7 @@ static int send(const CPFSample *sample){
     }
     uint32_t start=now(),tc_observed=0;
     for(unsigned budget=0;budget<1000000;budget++){
-        uint32_t status=REG(0x40004400);CPFStatus result;
+        uint32_t status=REG(0x40004400);enum cpf_status result;
         if(P4_MODE==1){
             unsigned enabled=REG(0x400260a0)&1;uint32_t remaining=REG(0x400260a4),flags=REG(0x40026004);
             if(!enabled && !remaining && !(row->flags&P4_DMA_DONE)){row->flags|=P4_DMA_DONE;if(P4_TRACE)row->dma_cycle=now();marker(7,1);marker(7,0);}
@@ -145,7 +145,7 @@ void cp_target_main(void){
     inputs_setup();__asm__ volatile("cpsie i":::"memory");
     unsigned completed=0;int failed=0;
     while((uint32_t)(now()-p4_capture.clock_start)<UINT32_C(32000000)){
-        CPFSample sample;
+        struct cpf_sample sample;
         if(cpf_take(&ring,&sample)){if(!send(&sample)){failed=1;break;}++completed;}
         unsigned dropped;if(received_and_dropped(&dropped)==P4_EVENTS && completed+dropped==P4_EVENTS)break;
     }

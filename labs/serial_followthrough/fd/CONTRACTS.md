@@ -18,7 +18,7 @@ The supplied artifacts are `fd.h`, unsolved `learner.c`, `tests.c`, host and tar
 
 ## Contracts, invariants and failure semantics
 
-All input/output objects are live, aligned and disjoint. One serialized caller owns each operation. Components perform no allocation, recursion, I/O or external calls other than the declared prerequisite. Raw flags are validated before conversion. Admission errors preserve output and lengths. `FdPacket` is produced by `fd_admit` or `fd_length`; callers must not fabricate inconsistent internal packets. Work is bounded by64 payload bytes,16DLC entries and720 one-byte wire bits.
+All input/output objects are live, aligned and disjoint. One serialized caller owns each operation. Components perform no allocation, recursion, I/O or external calls other than the declared prerequisite. Raw flags are validated before conversion. Admission errors preserve output and lengths. `struct fd_packet` is produced by `fd_admit` or `fd_length`; callers must not fabricate inconsistent internal packets. Work is bounded by64 payload bytes,16DLC entries and720 one-byte wire bits.
 
 `fd_admit` requires exact DLC/payload length agreement and validates raw FDF/BRS/ESI/remote/capability values. `fd_length` accepts exact or round-up policy, with0..64bytes; it copies input and zeroes every remaining payload slot. `payload_length` retains the original logical length, while `padding` records the added bytes. The application must carry its logical length separately if padded data is later decoded; zero padding does not recover it uniquely.
 

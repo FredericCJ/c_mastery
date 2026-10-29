@@ -6,20 +6,20 @@ static void copy4(unsigned char *out, const unsigned char *in) {
   for (unsigned i = 0; i < 4; i++)
     out[i] = in[i];
 }
-static int live(const CDMailbox *m, unsigned task) {
+static int live(const struct cd_mailbox *m, unsigned task) {
   return m && task < CMX_TASKS &&
          (m->kernel->task[task].state == CMX_READY ||
           m->kernel->task[task].state == CMX_RUNNING);
 }
-static int identity(const CDMailbox *m, CDMBIdentity id) {
+static int identity(const struct cd_mailbox *m, struct cdmb_identity id) {
   return m && id.slot < 2 && id.session == m->session && id.generation &&
          id.generation <= CDMB_GENERATION_MAX;
 }
-int cdmb_init(CDMailbox *m, cmx_kernel *k, unsigned capacity,
+int cdmb_init(struct cd_mailbox *m, cmx_kernel *k, unsigned capacity,
               uint32_t session) {
   if (!m || !k || capacity > 1 || !session)
     return CMX_INVALID;
-  *m = (CDMailbox){0};
+  *m = (struct cd_mailbox){0};
   m->kernel = k;
   m->capacity = capacity;
   m->session = session;
@@ -30,8 +30,8 @@ int cdmb_init(CDMailbox *m, cmx_kernel *k, unsigned capacity,
   }
   return CMX_OK;
 }
-static void terminal(CDMailbox *m, unsigned slot, int result) {
-  CDMBClient *c = &m->client[slot];
+static void terminal(struct cd_mailbox *m, unsigned slot, int result) {
+  struct cdmb_client *c = &m->client[slot];
   c->phase = CDMB_TERMINAL;
   c->result = result;
   c->borrowed = 0;
@@ -39,8 +39,8 @@ static void terminal(CDMailbox *m, unsigned slot, int result) {
 }
 /* Observe completion of the original transport wait before interpreting cancel.
    In rendezvous mode the wrapper's copied-byte boundary remains distinct. */
-static void settle_send(CDMailbox *m, unsigned slot) {
-  CDMBClient *c = &m->client[slot];
+static void settle_send(struct cd_mailbox *m, unsigned slot) {
+  struct cdmb_client *c = &m->client[slot];
   cmx_task *t = &m->kernel->task[slot];
   if (!c->send_pending || t->state == CMX_WAITING)
     return;
@@ -51,9 +51,9 @@ static void settle_send(CDMailbox *m, unsigned slot) {
     c->delivered = 1;
 }
 /* A selected kernel terminal result wins even before the client polls it. */
-static void settle(CDMailbox *m, unsigned slot) {
+static void settle(struct cd_mailbox *m, unsigned slot) {
   settle_send(m, slot);
-  CDMBClient *c = &m->client[slot];
+  struct cdmb_client *c = &m->client[slot];
   cmx_task *t = &m->kernel->task[slot];
   if (c->phase == CDMB_ACTIVE && c->progress_pending &&
       t->state != CMX_WAITING) {
@@ -63,16 +63,16 @@ static void settle(CDMailbox *m, unsigned slot) {
                c->delivered && CDMB_MUTANT != 3 ? CDMB_UNKNOWN : t->result);
   }
 }
-int cdmb_begin(CDMailbox *m, unsigned slot, const unsigned char request[4],
-               cmx_deadline deadline, CDMBIdentity *out) {
+int cdmb_begin(struct cd_mailbox *m, unsigned slot, const unsigned char request[4],
+               cmx_deadline deadline, struct cdmb_identity *out) {
   if (!m || slot >= 2 || !request || !out || !live(m, slot) ||
       m->client[slot].phase != CDMB_IDLE)
     return CMX_INVALID;
-  CDMBClient *c = &m->client[slot];
+  struct cdmb_client *c = &m->client[slot];
   if (CDMB_MUTANT != 4 && c->generation == CDMB_GENERATION_MAX)
     return CMX_FULL;
   uint32_t generation = c->generation + 1;
-  *c = (CDMBClient){0};
+  *c = (struct cdmb_client){0};
   c->generation = generation;
   c->phase = CDMB_ACTIVE;
   c->deadline = deadline;
@@ -89,20 +89,20 @@ int cdmb_begin(CDMailbox *m, unsigned slot, const unsigned char request[4],
     terminal(m, slot, result);
   else if (m->capacity)
     c->delivered = 1;
-  *out = (CDMBIdentity){m->session, generation, slot};
+  *out = (struct cdmb_identity){m->session, generation, slot};
   return result; /* Transport admission/delivery result, not an application
                     reply. */
 }
-int cdmb_delivery(CDMailbox *m, unsigned slot) {
+int cdmb_delivery(struct cd_mailbox *m, unsigned slot) {
   if (!m || slot >= 2 || m->client[slot].phase == CDMB_IDLE)
     return CMX_INVALID;
   settle(m, slot);
-  CDMBClient *c = &m->client[slot];
+  struct cdmb_client *c = &m->client[slot];
   if (c->phase == CDMB_TERMINAL)
     return c->result;
   return c->delivered || CDMB_MUTANT == 7 ? CMX_OK : CMX_BLOCKED;
 }
-int cdmb_receive(CDMailbox *m, CDMBRequest *out, unsigned capacity,
+int cdmb_receive(struct cd_mailbox *m, struct cdmb_request *out, unsigned capacity,
                  cmx_deadline deadline) {
   if (!m || !out)
     return CMX_INVALID;
@@ -129,10 +129,10 @@ int cdmb_receive(CDMailbox *m, CDMBRequest *out, unsigned capacity,
   unsigned slot = word & 1u;
   uint32_t generation = word >> 1;
   settle(m, slot);
-  CDMBClient *c = &m->client[slot];
+  struct cdmb_client *c = &m->client[slot];
   if (c->phase != CDMB_ACTIVE || c->generation != generation)
     return CDMB_STALE;
-  CDMBRequest value = {{m->session, generation, slot}, {0}};
+  struct cdmb_request value = {{m->session, generation, slot}, {0}};
   if (!m->capacity) {
     if (!c->borrowed)
       return CMX_INVALID;
@@ -149,12 +149,12 @@ int cdmb_receive(CDMailbox *m, CDMBRequest *out, unsigned capacity,
   *out = value;
   return CMX_OK;
 }
-int cdmb_reply(CDMailbox *m, CDMBIdentity id, const unsigned char reply[4]) {
+int cdmb_reply(struct cd_mailbox *m, struct cdmb_identity id, const unsigned char reply[4]) {
   if (!reply || !identity(m, id))
     return CDMB_STALE;
   if (CDMB_MUTANT != 8)
     settle(m, id.slot);
-  CDMBClient *c = &m->client[id.slot];
+  struct cdmb_client *c = &m->client[id.slot];
   if (c->phase != CDMB_ACTIVE || !c->received || c->has_reply ||
       (CDMB_MUTANT != 1 && c->generation != id.generation))
     return CDMB_STALE;
@@ -164,11 +164,11 @@ int cdmb_reply(CDMailbox *m, CDMBIdentity id, const unsigned char reply[4]) {
   c->has_reply = 1;
   return cmx_sem_give(m->kernel, &c->progress);
 }
-int cdmb_poll(CDMailbox *m, unsigned slot, unsigned char *reply,
+int cdmb_poll(struct cd_mailbox *m, unsigned slot, unsigned char *reply,
               unsigned capacity) {
   if (!m || slot >= 2 || !reply || m->client[slot].phase == CDMB_IDLE)
     return CMX_INVALID;
-  CDMBClient *c = &m->client[slot];
+  struct cdmb_client *c = &m->client[slot];
   if (capacity < 4) {
     if (CDMB_MUTANT == 2)
       c->phase = CDMB_IDLE;
@@ -201,11 +201,11 @@ int cdmb_poll(CDMailbox *m, unsigned slot, unsigned char *reply,
   c->borrowed = 0;
   return CMX_OK;
 }
-int cdmb_cancel(CDMailbox *m, unsigned slot) {
+int cdmb_cancel(struct cd_mailbox *m, unsigned slot) {
   if (!m || slot >= 2 || m->client[slot].phase == CDMB_IDLE)
     return CMX_INVALID;
   settle(m, slot);
-  CDMBClient *c = &m->client[slot];
+  struct cdmb_client *c = &m->client[slot];
   if (c->phase == CDMB_TERMINAL)
     return c->result;
   if (c->has_reply)
@@ -217,7 +217,7 @@ int cdmb_cancel(CDMailbox *m, unsigned slot) {
   terminal(m, slot, result);
   return result;
 }
-int cdmb_restart(CDMailbox *m) {
+int cdmb_restart(struct cd_mailbox *m) {
   if (!m)
     return CMX_INVALID;
   if (m->session == UINT32_MAX)
@@ -244,10 +244,10 @@ static int map(enum cl_result r) {
          : r == CL_PENDING ? CMX_BLOCKED
                            : CMX_INVALID;
 }
-int cdmb_effect(CDMailbox *m, CDMBIdentity id, uint32_t delta, uint32_t *out) {
+int cdmb_effect(struct cd_mailbox *m, struct cdmb_identity id, uint32_t delta, uint32_t *out) {
   if (!out || !identity(m, id))
     return CDMB_STALE;
-  CLAck *a = &m->receipts[id.slot];
+  struct cl_ack *a = &m->receipts[id.slot];
   enum cl_result result = cl_request(a, id.session, id.generation, delta, out);
   if (result == CL_PENDING) {
     result = cl_apply(a, id.generation);
@@ -256,7 +256,7 @@ int cdmb_effect(CDMailbox *m, CDMBIdentity id, uint32_t delta, uint32_t *out) {
   }
   return map(result);
 }
-int cdmb_acknowledge(CDMailbox *m, CDMBIdentity id) {
+int cdmb_acknowledge(struct cd_mailbox *m, struct cdmb_identity id) {
   if (!identity(m, id))
     return CDMB_STALE;
   int result = map(cl_acknowledge(&m->receipts[id.slot], id.generation));

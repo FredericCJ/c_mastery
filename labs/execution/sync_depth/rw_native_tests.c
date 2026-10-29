@@ -10,31 +10,31 @@
 #define CHECK(c) do{if(!(c)){fprintf(stderr,"CDRN_CHECK:%d:%s\n",__LINE__,#c);return 1;}}while(0)
 enum{WRITER_PREFERRED,PHASE_FAIR,ORDINARY_MUTEX};
 enum{ROUNDS=200,WORDS=64,EVENTS=ROUNDS*4*2};
-typedef struct{char kind;unsigned task,round;uint64_t time;} Event;
-typedef struct{
-  cmx_kernel kernel;CDRW rw;CPF phase;cmx_mutex ordinary;
-  CDRHandle rh[4];CPFHandle ph[4];pthread_mutex_t lock;pthread_cond_t changed;
+struct cmx_test_event{char kind;unsigned task,round;uint64_t time;};
+struct cmx_native{
+  cmx_kernel kernel;struct cd_rw rw;struct cmx_cpf phase;cmx_mutex ordinary;
+  struct cdr_handle rh[4];struct cpf_handle ph[4];pthread_mutex_t lock;pthread_cond_t changed;
   unsigned mode,rounds,cohort,ready,start,cohort_readers,readers,writer,max_readers;
-  unsigned payload[WORDS],events;Event trace[EVENTS];int cpus[2];
-} Native;
-typedef struct{Native *n;unsigned id;int failure,cpu;uint64_t checksum,wait_ns;} Worker;
+  unsigned payload[WORDS],events;struct cmx_test_event trace[EVENTS];int cpus[2];
+};
+struct cmx_worker{struct cmx_native *n;unsigned id;int failure,cpu;uint64_t checksum,wait_ns;};
 static int now(uint64_t *out){
   struct timespec t;if(clock_gettime(CLOCK_MONOTONIC_RAW,&t)||t.tv_sec<0||t.tv_nsec<0||t.tv_nsec>=1000000000L||
     (uint64_t)t.tv_sec>(UINT64_MAX-(uint64_t)t.tv_nsec)/UINT64_C(1000000000))return 0;
   *out=(uint64_t)t.tv_sec*UINT64_C(1000000000)+(uint64_t)t.tv_nsec;return 1;
 }
-static int event(Native *n,char kind,unsigned task,unsigned round){
+static int event(struct cmx_native *n,char kind,unsigned task,unsigned round){
   uint64_t stamp;if(n->events==EVENTS||!now(&stamp))return 0;
-  n->trace[n->events++]=(Event){kind,task,round,stamp};return 1;
+  n->trace[n->events++]=(struct cmx_test_event){kind,task,round,stamp};return 1;
 }
-static int acquire(Native *n,unsigned id){
+static int acquire(struct cmx_native *n,unsigned id){
   int result;
   if(n->mode==WRITER_PREFERRED){
-    CDRTicket t;result=cdr_begin(n->rh[id],id==3?CDR_WRITE:CDR_READ,cmx_forever(),&t);
+    struct cdr_ticket t;result=cdr_begin(n->rh[id],id==3?CDR_WRITE:CDR_READ,cmx_forever(),&t);
     if(result!=CMX_OK&&result!=CMX_BLOCKED)return result;
     while((result=cdr_result(t))==CMX_BLOCKED)if(pthread_cond_wait(&n->changed,&n->lock))return CMX_INVALID;
   }else if(n->mode==PHASE_FAIR){
-    CPFTicket t;result=cpf_begin(n->ph[id],id==3?CPF_WRITE:CPF_READ,cmx_forever(),&t);
+    struct cpf_ticket t;result=cpf_begin(n->ph[id],id==3?CPF_WRITE:CPF_READ,cmx_forever(),&t);
     if(result!=CMX_OK&&result!=CMX_BLOCKED)return result;
     while((result=cpf_result(t))==CMX_BLOCKED)if(pthread_cond_wait(&n->changed,&n->lock))return CMX_INVALID;
   }else{
@@ -46,13 +46,13 @@ static int acquire(Native *n,unsigned id){
   }
   return result;
 }
-static int release(Native *n,unsigned id){
+static int release(struct cmx_native *n,unsigned id){
   if(n->mode==WRITER_PREFERRED)return cdr_unlock(n->rh[id]);
   if(n->mode==PHASE_FAIR)return cpf_unlock(n->ph[id]);
   return cmx_mutex_unlock(&n->kernel,&n->ordinary,id);
 }
 static void *worker(void *arg){
-  Worker *w=arg;Native *n=w->n;cpu_set_t affinity;CPU_ZERO(&affinity);CPU_SET(n->cpus[w->id%2],&affinity);
+  struct cmx_worker *w=arg;struct cmx_native *n=w->n;cpu_set_t affinity;CPU_ZERO(&affinity);CPU_SET(n->cpus[w->id%2],&affinity);
   if(pthread_setaffinity_np(pthread_self(),sizeof affinity,&affinity)){w->failure=1;return 0;}
   if(pthread_mutex_lock(&n->lock)){w->failure=2;return 0;}
   n->ready++;if(pthread_cond_broadcast(&n->changed)){w->failure=3;return 0;}
@@ -87,7 +87,7 @@ static void *worker(void *arg){
   return 0;
 }
 static int preflight(void){
-  cmx_kernel k;CDRW rw;CPF p;CDRHandle rh[4];CPFHandle ph[4];CDRTicket rt[4];CPFTicket pt[4];
+  cmx_kernel k;struct cd_rw rw;struct cmx_cpf p;struct cdr_handle rh[4];struct cpf_handle ph[4];struct cdr_ticket rt[4];struct cpf_ticket pt[4];
   cmx_init(&k,CMX_FIXED);
   for(unsigned i=0;i<4;i++)CHECK(cmx_task_add(&k,5,0,0x1000+256*i,256)==(int)i);
   CHECK(cdr_init(&rw,&k,4)==CMX_OK);
@@ -112,7 +112,7 @@ static int preflight(void){
   CHECK(cpf_destroy(&p)==CMX_OK);return 0;
 }
 static int sample(unsigned mode,unsigned repeat,unsigned cohort){
-  Native n={.mode=mode,.rounds=cohort?1:ROUNDS,.cohort=cohort};Worker w[4];pthread_t threads[4];cpu_set_t affinity;
+  struct cmx_native n={.mode=mode,.rounds=cohort?1:ROUNDS,.cohort=cohort};struct cmx_worker w[4];pthread_t threads[4];cpu_set_t affinity;
   CHECK(!pthread_getaffinity_np(pthread_self(),sizeof affinity,&affinity));unsigned count=0;
   for(unsigned i=0;i<CPU_SETSIZE&&count<2;i++)if(CPU_ISSET(i,&affinity))n.cpus[count++]=(int)i;
   CHECK(count==2);cmx_init(&n.kernel,CMX_FIXED);
@@ -120,7 +120,7 @@ static int sample(unsigned mode,unsigned repeat,unsigned cohort){
   CHECK(cdr_init(&n.rw,&n.kernel,4)==CMX_OK&&cpf_init(&n.phase,&n.kernel)==CMX_OK&&cmx_mutex_init(&n.kernel,&n.ordinary,0,0)==CMX_OK);
   for(unsigned i=0;i<4;i++)CHECK(cdr_register(&n.rw,i,&n.rh[i])==CMX_OK&&cpf_register(&n.phase,i,&n.ph[i])==CMX_OK);
   CHECK(!pthread_mutex_init(&n.lock,0)&&!pthread_cond_init(&n.changed,0));
-  for(unsigned i=0;i<4;i++){w[i]=(Worker){.n=&n,.id=i,.cpu=-1};CHECK(!pthread_create(&threads[i],0,worker,&w[i]));}
+  for(unsigned i=0;i<4;i++){w[i]=(struct cmx_worker){.n=&n,.id=i,.cpu=-1};CHECK(!pthread_create(&threads[i],0,worker,&w[i]));}
   CHECK(!pthread_mutex_lock(&n.lock));while(n.ready<4)CHECK(!pthread_cond_wait(&n.changed,&n.lock));
   uint64_t begin,end;CHECK(now(&begin));n.start=1;CHECK(!pthread_cond_broadcast(&n.changed)&&!pthread_mutex_unlock(&n.lock));
   for(unsigned i=0;i<4;i++)CHECK(!pthread_join(threads[i],0)&&!w[i].failure);

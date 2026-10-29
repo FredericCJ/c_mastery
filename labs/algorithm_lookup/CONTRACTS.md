@@ -9,7 +9,7 @@ independent learner assessment and physical observation.
 
 ## Prerequisites and environment
 
-Bring the completed T14 `CDHash` and T15 `ADMatcher` learner artifacts, their
+Bring the completed T14 `struct cd_hash` and T15 `struct ad_matcher` learner artifacts, their
 headers, failure contracts and source hashes. Their public contracts are
 `labs/containers_depth/CONTRACTS.md` and `labs/algorithm_depth/CONTRACTS.md`.
 The author experiment links the actual existing implementations without edits.
@@ -19,7 +19,7 @@ replace it with those completed learner artifacts, never with assessor sources.
 
 Use ISO C17, Profile C, eight-bit bytes, exact32-bit unsigned integers and
 32-bit `int`/`unsigned`. The selected ABIs are Linux System V x86-64 and AAPCS32
-on Cortex-M4. Static assertions bind the actual `CDBucket` layout: twelve bytes,
+on Cortex-M4. Static assertions bind the actual `struct cd_bucket` layout: twelve bytes,
 key at0, value at4, state at8. These are target layout assumptions, not general
 ISO C guarantees. Retain the public typed object; character storage with a cast
 is not an alternative allocator. The Cortex image is strictly freestanding:
@@ -42,9 +42,9 @@ or sanitizer guarantee. Keep initialized stream state/prefix tables intact.
 ## Problem and representations
 
 Implement `lookup.h` and the two original assembly kernels. Use the supplied
-`fixtures/algorithms/PR-T36-06.json` unchanged. `ALRequest` contains a key and
-validated start index. `ALProbe` has found index (`-1` if missing), used count
-and sixteen visited indices. The raw kernel receives actual `CDBucket` slots,
+`fixtures/algorithms/PR-T36-06.json` unchanged. `struct al_request` contains a key and
+validated start index. `struct al_probe` has found index (`-1` if missing), used count
+and sixteen visited indices. The raw kernel receives actual `struct cd_bucket` slots,
 capacity1..16, request and trace. It visits the start, wraps one position at a
 time, skips tombstones, stops at empty/found, and otherwise stops after capacity
 visits. It reads the table and request only. It initializes index/count and
@@ -73,7 +73,7 @@ n+1 boundaries. A longer pattern has no matches. Count one comparison for each
 tested byte pair, including the first mismatch in a candidate window. The
 implementation may stage at most65 offsets; no terminators, `strlen`, `strstr`
 or delegated comparison are allowed. On success write exactly the matches and
-publish count plus `ALMatchWork {comparisons, required}`. Insufficient capacity,
+publish count plus `struct al_match_work {comparisons, required}`. Insufficient capacity,
 or null destination with nonzero required output, returns `AL_SPACE`, publishes
 required count/work and preserves every destination element. Invalid controls
 or spans preserve all outputs. Thus this API deliberately differs from the
@@ -126,7 +126,7 @@ addresses, reenter this invocation or trigger concurrent access. There is no
 rollback of arbitrary side effects, asynchronous cancellation or OS cancellation
 guarantee. Contrast this contract with failure-atomic array publication.
 
-`AX-PR-T36-06-T36.08.c-V1` (minimum seven days): `ALStream` composes the actual
+`AX-PR-T36-06-T36.08.c-V1` (minimum seven days): `struct al_stream` composes the actual
 T15 `ad_match_init`/`ad_match_feed`, not a newly substituted prefix algorithm.
 For nonempty patterns, stage a copy of that state and request a complete private
 match list; admit destination capacity before committing state. For empty

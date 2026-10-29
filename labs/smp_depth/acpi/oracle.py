@@ -99,14 +99,14 @@ def header(path,rows=None):
  'struct SaExpected {unsigned offset,length,capacity,profile;uint32_t fields[55];};','static const struct SaExpected sa_expected[]={']
  for offset,length,capacity,profile,want in entries:lines.append('{'+','.join(map(str,(offset,length,capacity,profile)))+',{'+','.join(map(str,want))+'}},')
  lines+=['};','static int sa_oracle_cases(void){',
- 'for(size_t i=0;i<sizeof sa_expected/sizeof sa_expected[0];++i){const struct SaExpected *e=&sa_expected[i];SaTopology t={0};int r=sa_parse(sa_wire+e->offset,e->length,e->capacity,e->profile,&t);',
+ 'for(size_t i=0;i<sizeof sa_expected/sizeof sa_expected[0];++i){const struct SaExpected *e=&sa_expected[i];struct sa_topology t={0};int r=sa_parse(sa_wire+e->offset,e->length,e->capacity,e->profile,&t);',
  'if(r!=(int)e->fields[0]||t.lapic!=e->fields[1]||t.flags!=e->fields[2]||t.count!=e->fields[3]||t.disabled!=e->fields[4]||t.online_capable!=e->fields[5]||t.unknown!=e->fields[6])return 1;',
  'for(unsigned j=0;j<t.count;++j)if(t.cpu[j].uid!=e->fields[7+3*j]||t.cpu[j].apic!=e->fields[8+3*j]||t.cpu[j].kind!=e->fields[9+3*j])return 1;}', 'return 0;}']
  path.write_text('\n'.join(lines)+'\n',encoding='utf-8',newline='\n');return len(rows)
 
 def capture_header(path,captures):
  lines=['/* Exact captured bytes; expected fields independently decoded in Python. */'];checks=[];observations=[]
- if len(captures)!=6 or {(r['machine'],r['cpus']) for r in captures}!={(m,c) for m in ('pc-i440fx-10.2','pc-q35-10.2') for c in (1,2,4)}:raise ValueError('Missing changed-machine/CPU condition')
+ if len(captures)!=6 or {(r['machine'],r['cpus']) for r in captures}!={(m,c) for m in ('pc-i440fx-10.2','pc-q35-10.2') for c in (1,2,4)}:raise ValueError('Missing changed-machine/struct lr_cpu condition')
  for i,capture in enumerate(captures):
   rsdp=bytes.fromhex(capture['rsdp']);regions={r['address']:bytes.fromhex(r['bytes']) for r in capture['regions']}
   if rsdp[:8]!=b'RSD PTR ' or sum(rsdp[:20])%256 or len(regions)!=len(capture['regions']):raise ValueError('Invalid captured RSDP/region uniqueness')
@@ -127,8 +127,8 @@ def capture_header(path,captures):
   entries=[]
   for j,(address,data) in enumerate(regions.items()):
    name=f'sa_region_{i}_{j}';lines.append('static const unsigned char '+name+'[]={'+','.join(map(str,data))+'};');entries.append('{UINT64_C('+str(address)+'),'+name+',sizeof '+name+'}')
-  lines.append('static const SaRegion sa_regions_'+str(i)+'[]={'+','.join(entries)+'};')
-  checks.append('{SaTopology t={0};if(sa_discover(sa_rsdp_'+str(i)+',sizeof sa_rsdp_'+str(i)+',sa_regions_'+str(i)+','+str(len(regions))+',16,0,&t)!=SA_OK)return 1;')
+  lines.append('static const struct sa_region sa_regions_'+str(i)+'[]={'+','.join(entries)+'};')
+  checks.append('{struct sa_topology t={0};if(sa_discover(sa_rsdp_'+str(i)+',sizeof sa_rsdp_'+str(i)+',sa_regions_'+str(i)+','+str(len(regions))+',16,0,&t)!=SA_OK)return 1;')
   for field,value in zip(('lapic','flags','count','disabled','online_capable','unknown'),wanted[1:7]):checks.append('if(t.'+field+'!=UINT32_C('+str(value)+'))return 1;')
   for j in range(wanted[3]):
    for field,value in zip(('uid','apic','kind'),wanted[7+j*3:10+j*3]):checks.append('if(t.cpu['+str(j)+'].'+field+'!=UINT32_C('+str(value)+'))return 1;')

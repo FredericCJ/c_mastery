@@ -9,7 +9,7 @@ remote service, persistence or physical timer is used.
 
 ## X-T23-002: fair turns and an ambiguous message outcome
 
-`BfRound` contains two valid B3 writers and next=0 or1. Both callbacks and context
+`struct bf_round` contains two valid B3 writers and next=0 or1. Both callbacks and context
 array entries describe synchronous backends. `bf_turn` selects next, publishes
 that index, advances next modulo2, and calls the actual b3_pump with quota0..64.
 Even WAIT, terminal or zero-quota turns advance the scheduler. Admission failure
@@ -17,7 +17,7 @@ changes nothing. Callback execution must itself return; quota cannot preempt a
 blocked callback. With positive quota and a ready cold backend making one byte
 of progress per call, the cold connection gets a turn within two invocations.
 
-`BfMessage` starts all-zero. Requests have ID1..3, 0..6 bytes; quota0..6 is a work
+`struct bf_message` starts all-zero. Requests have ID1..3, 0..6 bytes; quota0..6 is a work
 budget. An accepted ID owns a copied request until the next completed request is
 replaced. Only the latest ID may be retried, with exactly matching length/bytes.
 A new ID must be the next sequential ID and the old operation must be complete.
@@ -35,7 +35,7 @@ service would need atomic persistence of effect/progress/identity before reply.
 
 ## X-T24-002: queued is not quiescent
 
-`BfOperation` starts zero; at most three starts. Start while owned or after ID3
+`struct bf_operation` starts zero; at most three starts. Start while owned or after ID3
 fails unchanged. TIMEOUT moves ACTIVE to REQUESTED; repeats retain REQUESTED or
 QUEUED. REJECT is admitted only in REQUESTED and returns to ACTIVE, retaining all
 ownership: completion remains possible. QUEUED_ACK only in REQUESTED moves to
@@ -49,7 +49,7 @@ an API contract; it does not manufacture a real kernel's cancellation guarantee.
 
 ## X-T25-002: explicit claims
 
-`BfBox` is initialized before publication, exactly two producers and one consumer,
+`struct bf_box` is initialized before publication, exactly two producers and one consumer,
 live until all threads join. No payload escape or concurrent init. EMPTY0 ->
 WRITING1 is a strong CAS claim; only its winner writes ordinary payload. Release
 FULL2 publishes the payload. Consumer CAS FULL2 -> READING3 acquires it; consumer
@@ -64,7 +64,7 @@ claim. BF_ATOMIC_MUTANT is an assessor fault injection, never learner behavior.
 
 ## X-T28-002: consuming reads and W0C
 
-`BfRegister` starts with logical status0..15 and zero access counters. clear_read
+`struct bf_register` starts with logical status0..15 and zero access counters. clear_read
 returns all current bits and clears them in one synthetic read, including empty
 reads. A debugger's first read therefore consumes evidence a later read cannot
 recover. w0c accepts mask0..15, makes exactly one write/no read, and encodes an

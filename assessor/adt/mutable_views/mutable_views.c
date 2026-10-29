@@ -3,9 +3,9 @@
 #define ADV_MUTATION 0
 #endif
 static size_t gcd(size_t a,size_t b){while(b){size_t next=a%b;a=b;b=next;}return a;}
-AdvStatus adv_geometry(size_t cap,size_t rows,size_t cols,size_t rs,size_t cs,AdvGeometry *out){
+enum adv_status adv_geometry(size_t cap,size_t rows,size_t cols,size_t rs,size_t cs,struct adv_geometry *out){
  if(!out)return ADV_INVALID;
- AdvGeometry next={0,1};
+ struct adv_geometry next={0,1};
  if(rows&&cols){
   if(!rs||!cs)return ADV_INVALID;
   if(rows-1>SIZE_MAX/rs||cols-1>SIZE_MAX/cs)return ADV_RANGE;
@@ -17,28 +17,28 @@ AdvStatus adv_geometry(size_t cap,size_t rows,size_t cols,size_t rs,size_t cs,Ad
  }
  *out=next;return ADV_OK;
 }
-AdvStatus adv_view(uint32_t *p,size_t cap,size_t rows,size_t cols,size_t rs,size_t cs,AdvView *out){
+enum adv_status adv_view(uint32_t *p,size_t cap,size_t rows,size_t cols,size_t rs,size_t cs,struct adv_view *out){
  if(!out)return ADV_INVALID;
- AdvGeometry geometry;AdvStatus status=adv_geometry(cap,rows,cols,rs,cs,&geometry);if(status!=ADV_OK)return status;
- ADView checked;if(!ad_view(p,cap,rows,cols,rs,cs,&checked))return ADV_INVALID;
+ struct adv_geometry geometry;enum adv_status status=adv_geometry(cap,rows,cols,rs,cs,&geometry);if(status!=ADV_OK)return status;
+ struct ad_view checked;if(!ad_view(p,cap,rows,cols,rs,cs,&checked))return ADV_INVALID;
  if(!geometry.injective)return ADV_ALIAS;
- *out=(AdvView){p,cap,rows,cols,rs,cs};return ADV_OK;
+ *out=(struct adv_view){p,cap,rows,cols,rs,cs};return ADV_OK;
 }
-ADView adv_readonly(AdvView v){return(ADView){v.data,v.capacity,v.rows,v.columns,v.row_stride,v.column_stride};}
-AdvStatus adv_set(AdvView v,size_t r,size_t c,uint32_t x){if(r>=v.rows||c>=v.columns)return ADV_RANGE;v.data[r*v.row_stride+c*v.column_stride]=x;return ADV_OK;}
-AdvStatus adv_transpose(AdvView v,AdvView *out){if(!out)return ADV_INVALID;*out=(AdvView){v.data,v.capacity,v.columns,v.rows,ADV_MUTATION==3?v.row_stride:v.column_stride,ADV_MUTATION==3?v.column_stride:v.row_stride};return ADV_OK;}
-AdvStatus adv_subview(AdvView v,size_t r,size_t c,size_t rows,size_t cols,AdvView *out){
+struct ad_view adv_readonly(struct adv_view v){return(struct ad_view){v.data,v.capacity,v.rows,v.columns,v.row_stride,v.column_stride};}
+enum adv_status adv_set(struct adv_view v,size_t r,size_t c,uint32_t x){if(r>=v.rows||c>=v.columns)return ADV_RANGE;v.data[r*v.row_stride+c*v.column_stride]=x;return ADV_OK;}
+enum adv_status adv_transpose(struct adv_view v,struct adv_view *out){if(!out)return ADV_INVALID;*out=(struct adv_view){v.data,v.capacity,v.columns,v.rows,ADV_MUTATION==3?v.row_stride:v.column_stride,ADV_MUTATION==3?v.column_stride:v.row_stride};return ADV_OK;}
+enum adv_status adv_subview(struct adv_view v,size_t r,size_t c,size_t rows,size_t cols,struct adv_view *out){
  if(!out)return ADV_INVALID;
  if(r>v.rows||c>v.columns||rows>v.rows-r||cols>v.columns-c)return ADV_RANGE;
- AdvView next={v.data,v.capacity,rows,cols,v.row_stride,v.column_stride};
+ struct adv_view next={v.data,v.capacity,rows,cols,v.row_stride,v.column_stride};
  if(rows&&cols){size_t offset=r*(ADV_MUTATION==4?v.columns:v.row_stride)+c*v.column_stride;next.data=v.data+offset;next.capacity=v.capacity-offset;}
  *out=next;return ADV_OK;
 }
-AdvStatus adv_reduce(ADView v,AdvMode mode,AdvReduction *out){
+enum adv_status adv_reduce(struct ad_view v,enum adv_mode mode,struct adv_reduction *out){
  if(!out||(mode!=ADV_SCALAR&&mode!=ADV_VECTOR&&mode!=ADV_AUTO))return ADV_INVALID;
  if(v.rows&&v.columns>SIZE_MAX/v.rows)return ADV_RANGE;
  if(mode==ADV_VECTOR&&v.rows&&v.columns&&v.column_stride!=1)return ADV_LAYOUT;
- AdvReduction next={0,mode==ADV_AUTO?(v.column_stride==1?ADV_VECTOR:ADV_SCALAR):mode,0,0};
+ struct adv_reduction next={0,mode==ADV_AUTO?(v.column_stride==1?ADV_VECTOR:ADV_SCALAR):mode,0,0};
  if(!v.rows||!v.columns){*out=next;return ADV_OK;}
  for(size_t r=0;r<v.rows;++r){size_t c=0;
   if(next.backend==ADV_VECTOR){for(;v.columns-c>=4;c+=4){uint64_t block=adv_vector4(v.data+r*v.row_stride+c);if(ADV_MUTATION!=7&&block>UINT32_MAX-next.sum)return ADV_OVERFLOW;next.sum+=(uint32_t)block;++next.vector_blocks;}}

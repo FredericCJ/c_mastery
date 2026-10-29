@@ -2,14 +2,14 @@
 int in_records(const uint8_t *p, size_t n, algo_ring *q, size_t *used) {
   if (!p || !q || !used)
     return -1;
-  FCursor c = {p, n, 0};
+  struct f_cursor c = {p, n, 0};
   *used = 0;
   while (c.position < n) {
     size_t start = c.position;
     const uint8_t *length, *text;
     int32_t value;
 #ifdef IN_LOOKAHEAD
-    FCursor probe = c;
+    struct f_cursor probe = c;
     if (f_take(&probe, 1, &length) != F_OK || !*length ||
         f_take(&probe, *length, &text) != F_OK ||
         f_parse_i32(text, *length, &value) != F_OK)
@@ -32,7 +32,7 @@ int in_records(const uint8_t *p, size_t n, algo_ring *q, size_t *used) {
   }
   return 0;
 }
-int in_drain(algo_ring *q, InTransfer *t, FWriter writer, void *ctx,
+int in_drain(algo_ring *q, struct in_transfer *t, f_writer_fn writer, void *ctx,
              unsigned budget) {
   if (!q || !t || !writer)
     return -1;
@@ -47,7 +47,7 @@ int in_drain(algo_ring *q, InTransfer *t, FWriter writer, void *ctx,
       t->valid = 1;
     }
     size_t used = 0;
-    FStatus r = f_write_all(writer, ctx, &t->pending, 1, 1, &used);
+    enum f_status r = f_write_all(writer, ctx, &t->pending, 1, 1, &used);
     if (used == 1)
       t->valid = 0;
     if (r != F_OK && r != F_PENDING)
@@ -57,7 +57,7 @@ int in_drain(algo_ring *q, InTransfer *t, FWriter writer, void *ctx,
   }
   return t->valid || q->count ? 1 : 0;
 }
-int in_stream(InStream *s, uint8_t byte, algo_ring *q) {
+int in_stream(struct in_stream *s, uint8_t byte, algo_ring *q) {
   if (!s || !q || s->failed)
     return -1;
   if (!s->length) {
@@ -81,7 +81,7 @@ int in_stream(InStream *s, uint8_t byte, algo_ring *q) {
   }
   return 0;
 }
-int in_shutdown(algo_ring *q, FAsync *op, unsigned completed, uint32_t ticket,
+int in_shutdown(algo_ring *q, struct f_async *op, unsigned completed, uint32_t ticket,
                 unsigned *discarded) {
   if (!q || !op || !discarded)
     return -1;
@@ -100,14 +100,14 @@ int in_shutdown(algo_ring *q, FAsync *op, unsigned completed, uint32_t ticket,
     (*discarded)++;
   return 0;
 }
-int in_filter(V4Filter *f, const int32_t *input, size_t n, int32_t *out,
-              size_t cap, const V4Sample *begin, const V4Sample *end,
-              V4Measurement *m) {
+int in_filter(struct v4_filter *f, const int32_t *input, size_t n, int32_t *out,
+              size_t cap, const struct v4_sample *begin, const struct v4_sample *end,
+              struct v4_measurement *m) {
   size_t bytes;
   if (!f || !m || (!input && n) || (!out && n) || n > cap ||
       f_checked_size(n, sizeof *out, 0, &bytes) != F_OK)
     return -1;
-  V4Measurement measured;
+  struct v4_measurement measured;
   if (v4_measure(begin, end, &measured))
     return -1;
   for (size_t i = 0; i < n; i++) {
@@ -120,14 +120,14 @@ int in_filter(V4Filter *f, const int32_t *input, size_t n, int32_t *out,
   return 0;
 }
 #ifdef IN_FIRMWARE
-int in_dma_handoff(FwDma *d, FwIo io, uint32_t ticket, algo_ring *q) {
+int in_dma_handoff(struct fw_dma *d, struct fw_io io, uint32_t ticket, algo_ring *q) {
   if (!d || !q || q->count == q->capacity || ticket > INT32_MAX)
     return -1;
   if (fw_dma(d, io, 2, ticket))
     return -1;
   return algo_ring_put(q, (int32_t)ticket) == ALGO_OK ? 0 : -1;
 }
-int in_gateway(FwIo io, algo_ring *q, V4Filter *f, FwWatchdog *w,
+int in_gateway(struct fw_io io, algo_ring *q, struct v4_filter *f, struct fw_watchdog *w,
                int32_t *output) {
   if (!q || !f || !w || !output || q->count == q->capacity)
     return -1;
@@ -148,9 +148,9 @@ int in_gateway(FwIo io, algo_ring *q, V4Filter *f, FwWatchdog *w,
 int in_vm_store(const char *source, size_t n, uint8_t *page, size_t cap) {
   if (!page || cap < STORE_PAGE_SIZE)
     return -1;
-  CvmProgram p;
-  Cvm vm;
-  CvmValue result;
+  struct cvm_program p;
+  struct cvm_cvm vm;
+  struct cvm_value result;
   if (cvm_compile(source, n, &p) != CVM_OK)
     return -1;
   cvm_init(&vm, 1000, 32, 0);

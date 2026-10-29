@@ -2,10 +2,10 @@
 #ifndef GE_MUTANT
 #define GE_MUTANT 0
 #endif
-static int valid(const GEJob *jobs,unsigned n,const GEConfig *c){
+static int valid(const struct ge_job *jobs,unsigned n,const struct ge_config *c){
  if(!jobs||!c||!n||n>GE_JOBS||!c->cpus||c->cpus>2||!c->horizon||c->horizon>GE_HORIZON||c->partitioned>1||c->queue_cost>32||c->migration_cost>32)return 0;
  for(unsigned i=0;i<n;i++){
-  const GEJob *j=&jobs[i];
+  const struct ge_job *j=&jobs[i];
   if(j->task>=GE_TASKS||!j->generation||!j->affinity||(j->affinity>>c->cpus)||!j->strands||j->strands>GE_STRANDS||
      j->release<j->nominal||j->release-j->nominal>j->jitter||j->nominal>=j->deadline||j->deadline>GE_HORIZON||j->release>GE_HORIZON||
      (c->partitioned&&(c->home[j->task]>=c->cpus||!(j->affinity&(1u<<c->home[j->task])))))return 0;
@@ -17,8 +17,8 @@ static int valid(const GEJob *jobs,unsigned n,const GEConfig *c){
  }
  return 1;
 }
-typedef struct {unsigned node,stage,left,last;} CPU;
-static unsigned best(const GEJob *jobs,unsigned n,const GEConfig *cfg,uint64_t ready,uint64_t excluded,unsigned cpu){
+struct lr_cpu {unsigned node,stage,left,last;};
+static unsigned best(const struct ge_job *jobs,unsigned n,const struct ge_config *cfg,uint64_t ready,uint64_t excluded,unsigned cpu){
  unsigned answer=GE_NONE;
  for(unsigned i=0;i<n;i++)if((GE_MUTANT==5||(jobs[i].affinity&(1u<<cpu)))&&(!cfg->partitioned||cfg->home[jobs[i].task]==cpu)){
   for(unsigned v=0;v<jobs[i].strands;v++){
@@ -29,9 +29,9 @@ static unsigned best(const GEJob *jobs,unsigned n,const GEConfig *cfg,uint64_t r
  }
  return answer;
 }
-enum ge_status ge_simulate(const GEJob *jobs,unsigned n,const GEConfig *cfg,GEResult *out){
+enum ge_status ge_simulate(const struct ge_job *jobs,unsigned n,const struct ge_config *cfg,struct ge_result *out){
  if(!out||!valid(jobs,n,cfg))return GE_INVALID;
- GEResult r={0};CPU cpu[2]={{GE_NONE,0,0,GE_NONE},{GE_NONE,0,0,GE_NONE}};
+ struct ge_result r={0};struct lr_cpu cpu[2]={{GE_NONE,0,0,GE_NONE},{GE_NONE,0,0,GE_NONE}};
  unsigned last_cpu[GE_JOBS*GE_STRANDS],lock_owner=2;
  for(unsigned i=0;i<GE_JOBS*GE_STRANDS;i++)last_cpu[i]=2;
  for(unsigned i=0;i<n;i++){r.jobs[i].start=GE_NONE;r.jobs[i].finish=GE_NONE;}
@@ -51,7 +51,7 @@ enum ge_status ge_simulate(const GEJob *jobs,unsigned n,const GEConfig *cfg,GERe
    if(r.jobs[i].remaining[v]&&(GE_MUTANT==3||(jobs[i].predecessors[v]&r.jobs[i].complete_mask)==jobs[i].predecessors[v]))ready|=UINT64_C(1)<<(i*GE_STRANDS+v);
   for(unsigned c=0;c<cfg->cpus;c++)if(cpu[c].stage)reserved|=UINT64_C(1)<<cpu[c].node;
   for(unsigned c=0;c<cfg->cpus;c++){
-   CPU *p=&cpu[c];GETick *trace=&r.ticks[tick][c];*trace=(GETick){.kind=GE_IDLE,.job=GE_NONE,.strand=GE_NONE};
+   struct lr_cpu *p=&cpu[c];struct ge_tick *trace=&r.ticks[tick][c];*trace=(struct ge_tick){.kind=GE_IDLE,.job=GE_NONE,.strand=GE_NONE};
    if(!p->stage){
     unsigned node=best(jobs,n,cfg,ready,reserved|chosen,c);
     if(node==GE_NONE){r.idle++;p->last=GE_NONE;continue;}

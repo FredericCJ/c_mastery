@@ -2,10 +2,10 @@
 #include <stdio.h>
 #include <string.h>
 int main(int argc, char **argv) {
-  Cvm vm;
-  CvmProgram p;
-  CvmValue result;
-  CvmStatus s;
+  struct cvm_cvm vm;
+  struct cvm_program p;
+  struct cvm_value result;
+  enum cvm_status s;
   if (argc != 2) {
     fprintf(stderr, "usage: cvm-run '(fn main () (+ 20 22))'\n");
     return 2;

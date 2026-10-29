@@ -18,7 +18,7 @@ int mpb_file_recover(int directory,unsigned id){
     if(unlinkat(directory,stage,0)<0&&errno!=ENOENT)return MPB_IO;
     return MPB_OK;
 }
-int mpb_file_put(int directory,unsigned id,const unsigned char *bytes,size_t length,MpbBoundary boundary,void *context){
+int mpb_file_put(int directory,unsigned id,const unsigned char *bytes,size_t length,mpb_boundary_fn boundary,void *context){
     char final[12],stage[12];int fd=-1,renamed=0;size_t offset=0;ssize_t n;
     if(directory<0||id>7||!bytes||!length||length>800)return MPB_INVALID;
     names(id,final,stage);

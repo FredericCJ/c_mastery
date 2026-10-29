@@ -8,15 +8,15 @@
     }                                                                          \
   } while (0)
 int main(void) {
-  const NaConfig config = {{2, 0, 0, 0, 0, 2}, {192, 0, 2, 2}, {192, 0, 2, 1}};
+  const struct na_config config = {{2, 0, 0, 0, 0, 2}, {192, 0, 2, 2}, {192, 0, 2, 1}};
   const unsigned steps[] = {1, 17, 999, 1000, 2000, 4000};
   const uint64_t starts[] = {0, UINT32_MAX - 999, UINT64_MAX - 40000};
   for (unsigned b = 0; b < 3; ++b)
     for (unsigned k = 0; k < 6; ++k)
       for (unsigned mask = 0; mask < 4; ++mask) {
-        NaArp state;
-        NetPacket packet;
-        NaTicket ticket;
+        struct na_arp state;
+        struct net_packet packet;
+        struct na_ticket ticket;
         unsigned byte = 17;
         CHECK(na_init(&state, config, 1) == NA_OK &&
               na_queue(&state, &byte, 1, starts[b]) == NA_OK);

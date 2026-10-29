@@ -1,35 +1,35 @@
 #include "entry.h"
 /* Intentionally unfinished learner implementation; it must compile and fail. */
-FeStatus fe_fixed(const int32_t *p, size_t n, int32_t *o, size_t c) {
+enum fe_status fe_fixed(const int32_t *p, size_t n, int32_t *o, size_t c) {
   (void)p;
   (void)n;
   (void)o;
   (void)c;
   return FE_NOT_IMPLEMENTED;
 }
-FeStatus fe_recursive(const int32_t *p, size_t n, int32_t *o, FeTrace *t) {
+enum fe_status fe_recursive(const int32_t *p, size_t n, int32_t *o, struct fe_trace *t) {
   (void)p;
   (void)n;
   (void)o;
   (void)t;
   return FE_NOT_IMPLEMENTED;
 }
-FeStatus fe_explicit_stack(const int32_t *p, size_t n, int32_t *o, FeTrace *t) {
+enum fe_status fe_explicit_stack(const int32_t *p, size_t n, int32_t *o, struct fe_trace *t) {
   (void)p;
   (void)n;
   (void)o;
   (void)t;
   return FE_NOT_IMPLEMENTED;
 }
-FeStatus fe_two_pass(const int32_t *p, size_t n, int32_t *o, size_t c) {
+enum fe_status fe_two_pass(const int32_t *p, size_t n, int32_t *o, size_t c) {
   (void)p;
   (void)n;
   (void)o;
   (void)c;
   return FE_NOT_IMPLEMENTED;
 }
-FeStatus fe_staged(const int32_t *p, size_t n, int32_t *o, size_t c,
-                   FeAllocator a) {
+enum fe_status fe_staged(const int32_t *p, size_t n, int32_t *o, size_t c,
+                   struct fe_allocator a) {
   (void)p;
   (void)n;
   (void)o;
@@ -37,13 +37,13 @@ FeStatus fe_staged(const int32_t *p, size_t n, int32_t *o, size_t c,
   (void)a;
   return FE_NOT_IMPLEMENTED;
 }
-FeStatus fe_maximum(const int32_t *p, size_t n, int32_t *o) {
+enum fe_status fe_maximum(const int32_t *p, size_t n, int32_t *o) {
   (void)p;
   (void)n;
   (void)o;
   return FE_NOT_IMPLEMENTED;
 }
-FeStatus fe_encode24(uint32_t v, unsigned char *o, size_t c) {
+enum fe_status fe_encode24(uint32_t v, unsigned char *o, size_t c) {
   (void)v;
   (void)o;
   (void)c;

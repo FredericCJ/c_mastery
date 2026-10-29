@@ -5,15 +5,15 @@
 enum { CDMB_UNKNOWN = CMX_UNIMPLEMENTED + 1, CDMB_STALE };
 enum { CDMB_IDLE, CDMB_ACTIVE, CDMB_TERMINAL };
 enum { CDMB_GENERATION_MAX = 65535 };
-typedef struct {
+struct cdmb_identity {
   uint32_t session, generation;
   unsigned slot;
-} CDMBIdentity;
-typedef struct {
-  CDMBIdentity id;
+};
+struct cdmb_request {
+  struct cdmb_identity id;
   unsigned char bytes[4];
-} CDMBRequest;
-typedef struct {
+};
+struct cdmb_client {
   uint32_t generation;
   unsigned phase, send_pending, progress_pending, delivered, received,
       has_reply;
@@ -22,25 +22,25 @@ typedef struct {
   cmx_deadline deadline;
   int result;
   cmx_sem progress;
-} CDMBClient;
-typedef struct {
+};
+struct cd_mailbox {
   cmx_kernel *kernel;
   cmx_queue queue;
-  CDMBClient client[2];
-  CLAck receipts[2];
+  struct cdmb_client client[2];
+  struct cl_ack receipts[2];
   uint32_t session;
   unsigned capacity, receive_pending;
-} CDMailbox;
-int cdmb_init(CDMailbox *, cmx_kernel *, unsigned capacity, uint32_t session);
-int cdmb_begin(CDMailbox *, unsigned slot, const unsigned char request[4],
-               cmx_deadline, CDMBIdentity *);
-int cdmb_delivery(CDMailbox *, unsigned slot);
-int cdmb_receive(CDMailbox *, CDMBRequest *, unsigned capacity, cmx_deadline);
-int cdmb_reply(CDMailbox *, CDMBIdentity, const unsigned char reply[4]);
-int cdmb_poll(CDMailbox *, unsigned slot, unsigned char *reply,
+};
+int cdmb_init(struct cd_mailbox *, cmx_kernel *, unsigned capacity, uint32_t session);
+int cdmb_begin(struct cd_mailbox *, unsigned slot, const unsigned char request[4],
+               cmx_deadline, struct cdmb_identity *);
+int cdmb_delivery(struct cd_mailbox *, unsigned slot);
+int cdmb_receive(struct cd_mailbox *, struct cdmb_request *, unsigned capacity, cmx_deadline);
+int cdmb_reply(struct cd_mailbox *, struct cdmb_identity, const unsigned char reply[4]);
+int cdmb_poll(struct cd_mailbox *, unsigned slot, unsigned char *reply,
               unsigned capacity);
-int cdmb_cancel(CDMailbox *, unsigned slot);
-int cdmb_restart(CDMailbox *);
-int cdmb_effect(CDMailbox *, CDMBIdentity, uint32_t delta, uint32_t *result);
-int cdmb_acknowledge(CDMailbox *, CDMBIdentity);
+int cdmb_cancel(struct cd_mailbox *, unsigned slot);
+int cdmb_restart(struct cd_mailbox *);
+int cdmb_effect(struct cd_mailbox *, struct cdmb_identity, uint32_t delta, uint32_t *result);
+int cdmb_acknowledge(struct cd_mailbox *, struct cdmb_identity);
 #endif

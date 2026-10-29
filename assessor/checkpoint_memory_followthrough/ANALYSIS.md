@@ -6,7 +6,7 @@ public contract for premises and numeric input; never infer mastery from this ru
 
 ## t1401c
 
-`CPMPool.objects` is a declared typed array; the arena is a declared byte array.
+`struct cpm_pool.objects` is a declared typed array; the arena is a declared byte array.
 `tests/memory.c` copies int123 into and out of arena bytes, and reads the real int.
 The allocated variant `cpx_init` initializes actual records/nodes through typed
 lvalues; teardown releases both. An alignment-only cast is not a valid repair for

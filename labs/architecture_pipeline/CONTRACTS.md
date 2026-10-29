@@ -27,7 +27,7 @@ attacked or modified.
 
 ## Problem and representation
 
-Implement both functions in `pipeline.h`. `APSchedule` records each cycle's
+Implement both functions in `pipeline.h`. `struct ap_schedule` records each cycle's
 IF/ID/EX/MEM/WB occupants by fetched-instance ID, with a separate program-PC
 mapping, branch-resolution cycle, flush cycle and retirement sequence. An
 instruction fetched on the wrong path and its later correct refetch have
@@ -80,7 +80,7 @@ new memory access. A fetch vacancy during LOAD MEM remains empty. This can
 overlap an existing data stall and add no new cycle. Do not add two independent
 penalties when they describe the same blocked interval.
 
-`APConfig` explicitly selects forwarding0/1, load MEM duration1/2,
+`struct ap_config` explicitly selects forwarding0/1, load MEM duration1/2,
 write-first0/1, ID branch resolution0/1 and unified port0/1. All32 combinations
 must honor their declared rules. Default: six retire by13, I3 MEM6→I4 EX7,
 two instances flush at8, target refetch9. First four retire by9 with forwarding,

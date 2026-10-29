@@ -18,14 +18,14 @@ static volatile uint64_t checksum;
 static uint64_t ns(void){struct timespec t;if(clock_gettime(CLOCK_MONOTONIC,&t))return 0;return (uint64_t)t.tv_sec*UINT64_C(1000000000)+(uint64_t)t.tv_nsec;}
 #define REQUIRE(c) do{if(!(c))return 1;}while(0)
 int main(void){unsigned width,mode,trial,i,k;
- printf("LAYOUT %zu %zu %zu %zu\n",sizeof(ORDictionary),sizeof(ORShapes),sizeof(ORObject),sizeof(ORCache));
+ printf("LAYOUT %zu %zu %zu %zu\n",sizeof(struct or_dictionary),sizeof(struct or_shapes),sizeof(struct or_object),sizeof(struct or_cache));
  for(width=1;width<=3;width++)for(mode=0;mode<2;mode++)for(trial=0;trial<16;trial++){
-  ORShapes shapes;ORObject objects[3]={{0}};ORCache cache={0};uint64_t start,end,sum=0;unsigned misses=0;
+  struct or_shapes shapes;struct or_object objects[3]={{0}};struct or_cache cache={0};uint64_t start,end,sum=0;unsigned misses=0;
   or_shapes_init(&shapes);
   for(i=0;i<3;i++){if(i)REQUIRE(or_property_set(&shapes,&objects[i],(uint8_t)(i+1),-1)==OR_OK);REQUIRE(or_property_set(&shapes,&objects[i],1,(int32_t)(i*10+1))==OR_OK);if(!i)REQUIRE(or_property_set(&shapes,&objects[i],2,-1)==OR_OK);}
   start=ns();
   for(k=0;k<PROBE_ROUNDS;k++){
-   ORObject *object=&objects[k%width];uint8_t key=(uint8_t)(k%17?1:4);int32_t out=777;ORStatus status;
+   struct or_object *object=&objects[k%width];uint8_t key=(uint8_t)(k%17?1:4);int32_t out=777;enum or_status status;
    if(k%13==0)REQUIRE(or_property_set(&shapes,object,1,(int32_t)(100+k))==OR_OK);
    status=mode?or_property_get(&shapes,object,key,&cache,&out):or_property_generic(&shapes,object,key,&out);
    REQUIRE(status==(key==4?OR_MISS:OR_OK));sum+=(uint32_t)out;misses+=status==OR_MISS;

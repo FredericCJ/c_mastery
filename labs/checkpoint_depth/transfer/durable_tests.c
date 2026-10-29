@@ -3,15 +3,15 @@
 #include <stdlib.h>
 #include <string.h>
 #define CHECK(x) do{if(!(x)){fprintf(stderr,"CPX_CHECK: %s:%d: %s\n",__FILE__,__LINE__,#x);exit(1);}}while(0)
-typedef struct { unsigned char working[STORE_IMAGE_PAGES][STORE_PAGE_SIZE],stable[STORE_IMAGE_PAGES][STORE_PAGE_SIZE];unsigned operation,cut,persist_before_error;CPXSink *owner; } Device;
-static Device disk,snapshot;
-static int read_page(void *ctx,uint32_t page,void *out){Device *d=ctx;if(page>=STORE_IMAGE_PAGES)return 1;memcpy(out,d->working[page],STORE_PAGE_SIZE);return 0;}
-static int write_page(void *ctx,uint32_t page,const void *in){Device *d=ctx;if(page>=STORE_IMAGE_PAGES)return 1;if(d->owner)CHECK(!d->owner->durable);++d->operation;if(d->cut==d->operation)return 1;memcpy(d->working[page],in,STORE_PAGE_SIZE);return 0;}
-static int flush(void *ctx){Device *d=ctx;if(d->owner)CHECK(!d->owner->durable);++d->operation;if(d->cut==d->operation && !d->persist_before_error)return 1;memcpy(d->stable,d->working,sizeof d->stable);return d->cut==d->operation;}
+struct cpx_device { unsigned char working[STORE_IMAGE_PAGES][STORE_PAGE_SIZE],stable[STORE_IMAGE_PAGES][STORE_PAGE_SIZE];unsigned operation,cut,persist_before_error;struct cpx_sink *owner; };
+static struct cpx_device disk,snapshot;
+static int read_page(void *ctx,uint32_t page,void *out){struct cpx_device *d=ctx;if(page>=STORE_IMAGE_PAGES)return 1;memcpy(out,d->working[page],STORE_PAGE_SIZE);return 0;}
+static int write_page(void *ctx,uint32_t page,const void *in){struct cpx_device *d=ctx;if(page>=STORE_IMAGE_PAGES)return 1;if(d->owner)CHECK(!d->owner->durable);++d->operation;if(d->cut==d->operation)return 1;memcpy(d->working[page],in,STORE_PAGE_SIZE);return 0;}
+static int flush(void *ctx){struct cpx_device *d=ctx;if(d->owner)CHECK(!d->owner->durable);++d->operation;if(d->cut==d->operation && !d->persist_before_error)return 1;memcpy(d->stable,d->working,sizeof d->stable);return d->cut==d->operation;}
 static store_io api(void){return (store_io){&disk,read_page,write_page,flush,STORE_IMAGE_PAGES};}
-static void queue(CPQueue *q){CPMessage m={0};m.sequence=5;m.length=4;m.payload[0]=7;CPParser parser;cp_parser_init(&parser);parser.ready=1;parser.message=m;cp_queue_init(q);CHECK(cp_deliver(&parser,q)==CP_OK);}
+static void queue(struct cp_queue *q){struct cp_message m={0};m.sequence=5;m.length=4;m.payload[0]=7;struct cp_parser parser;cp_parser_init(&parser);parser.ready=1;parser.message=m;cp_queue_init(q);CHECK(cp_deliver(&parser,q)==CP_OK);}
 static unsigned reference(void){
- store s;CHECK(store_open(&s,api())==STORE_OK);CPQueue q;queue(&q);CPXSink sink={0};sink.storage=&s;disk.owner=&sink;disk.operation=0;
+ store s;CHECK(store_open(&s,api())==STORE_OK);struct cp_queue q;queue(&q);struct cpx_sink sink={0};sink.storage=&s;disk.owner=&sink;disk.operation=0;
  int32_t output=99;CHECK(cpx_sink_accept(&sink,&q)==SDR_OK && !q.count && sink.active && !sink.durable);CHECK(cpx_sink_acknowledge(&sink,&output)==SDR_UNCERTAIN && output==99);
  CHECK(cpx_sink_commit(&sink)==SDR_OK && sink.durable);unsigned operations=disk.operation;CHECK(operations>0);
  CHECK(cpx_sink_acknowledge(&sink,&output)==SDR_OK && output==7 && !sink.active);
@@ -22,7 +22,7 @@ int main(void){
  unsigned operations=reference(),cuts=0;
  for(unsigned mode=0;mode<2;++mode)for(unsigned cut=1;cut<=operations;++cut){
   disk=snapshot;disk.cut=0;disk.persist_before_error=mode;disk.operation=0;store s;CHECK(store_open(&s,api())==STORE_OK);disk.operation=0;disk.cut=cut;
-  CPXSink sink={0};sink.storage=&s;disk.owner=&sink;CPQueue q;queue(&q);CHECK(cpx_sink_accept(&sink,&q)==SDR_OK);int32_t output=99;
+  struct cpx_sink sink={0};sink.storage=&s;disk.owner=&sink;struct cp_queue q;queue(&q);CHECK(cpx_sink_accept(&sink,&q)==SDR_OK);int32_t output=99;
   CHECK(cpx_sink_commit(&sink)!=SDR_OK);CHECK(sink.active && !sink.durable && sink.held.sequence==5);
   CHECK(cpx_sink_acknowledge(&sink,&output)==SDR_UNCERTAIN && output==99);
   /* Simulated reset discards working state; only successful flush or declared

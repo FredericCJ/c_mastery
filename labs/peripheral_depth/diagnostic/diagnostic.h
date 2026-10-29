@@ -13,25 +13,25 @@ enum {
   DG_END,
   DG_UNIMPLEMENTED = 99
 };
-typedef struct {
+struct dg_message {
   uint16_t sequence, length;
   uint8_t payload[32];
-} DGMessage;
-typedef struct {
+};
+struct dg_session {
   uint16_t last;
   unsigned accepted;
-} DGSession;
+};
 /* Strict nonwrapping sequence policy; session identity is an external contract.
  */
-int dg_encode(const DGMessage *, uint8_t *, size_t, size_t *);
-int dg_decode(const uint8_t *, size_t, DGMessage *);
-int dg_accept(DGSession *, const uint8_t *, size_t, DGMessage *);
-typedef struct {
+int dg_encode(const struct dg_message *, uint8_t *, size_t, size_t *);
+int dg_decode(const uint8_t *, size_t, struct dg_message *);
+int dg_accept(struct dg_session *, const uint8_t *, size_t, struct dg_message *);
+struct dg_stream {
   uint8_t bytes[38];
   size_t used, needed;
   unsigned ready, poisoned;
-} DGStream;
-int dg_stream_feed(DGStream *, const uint8_t *, size_t, size_t *);
-int dg_stream_take(DGStream *, DGSession *, DGMessage *);
-int dg_stream_end(const DGStream *);
+};
+int dg_stream_feed(struct dg_stream *, const uint8_t *, size_t, size_t *);
+int dg_stream_take(struct dg_stream *, struct dg_session *, struct dg_message *);
+int dg_stream_end(const struct dg_stream *);
 #endif

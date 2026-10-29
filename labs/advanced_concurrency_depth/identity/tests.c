@@ -11,7 +11,7 @@
     }                                                                          \
   } while (0)
 static void pool(void) {
-  AIPool p;
+  struct ai_pool p;
   uint32_t handles[16], out = 99;
   CHECK(ai_init(&p, 8) == AI_OK);
   for (unsigned i = 0; i < 16; i++) {
@@ -19,7 +19,7 @@ static void pool(void) {
     CHECK((handles[i] & 255u) == i + 1 && ai_valid(&p, handles[i]));
   }
   CHECK(ai_take(&p, &out) == AI_FULL && out == 99);
-  AIPool before = p;
+  struct ai_pool before = p;
   CHECK(ai_init(&p, 7) == AI_INVALID && !memcmp(&p, &before, sizeof p));
   CHECK(ai_release(&p, handles[0]) == AI_OK);
   CHECK(!ai_valid(&p, handles[0]));
@@ -32,7 +32,7 @@ static void pool(void) {
   puts("OBS pool status stale-generation double-release invalid-layout");
 }
 static void exhaust(void) {
-  AIPool p;
+  struct ai_pool p;
   CHECK(ai_init(&p, 8) == AI_OK);
   unsigned count = 0;
   uint32_t h = 0;
@@ -52,7 +52,7 @@ static void exhaust(void) {
   printf("OBS exhaust incarnations=%u permanently-retired=16\n", count);
 }
 static void compact(void) {
-  AIPool p;
+  struct ai_pool p;
   uint32_t h = 0;
   CHECK(ai_init(&p, 24) == AI_OK);
   /* Boundary projection, no claim that all sixteen-million generations ran. */

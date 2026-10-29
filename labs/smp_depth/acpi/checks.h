@@ -9,7 +9,7 @@ static int sa_same(const void *a,const void *b,size_t n){const unsigned char *x=
 static int sa_checks(void){
  unsigned char p[200];sa_base(p,76);
  for(unsigned i=0;i<4;++i){unsigned at=44+8*i;p[at]=0;p[at+1]=8;p[at+2]=(unsigned char)(10+i);p[at+3]=(unsigned char)(2*i);sa_w32(p+at+4,i==2?0u:1u);}
- sa_sum(p,76);SaTopology t={0},old={0};SAC(sa_parse(p,76,16,SA_XAPIC,&t)==SA_OK);SAC(t.count==3&&t.disabled==1&&t.cpu[0].apic==0&&t.cpu[1].apic==2&&t.cpu[2].apic==6&&t.cpu[2].uid==13);old=t;
+ sa_sum(p,76);struct sa_topology t={0},old={0};SAC(sa_parse(p,76,16,SA_XAPIC,&t)==SA_OK);SAC(t.count==3&&t.disabled==1&&t.cpu[0].apic==0&&t.cpu[1].apic==2&&t.cpu[2].apic==6&&t.cpu[2].uid==13);old=t;
  unsigned char unaligned[80];for(unsigned i=0;i<76;++i)unaligned[i+1]=p[i];unaligned[77]=255;unaligned[78]=127;
  SAC(sa_parse(unaligned+1,78,16,SA_XAPIC,&t)==SA_OK&&t.count==3&&t.cpu[2].apic==6);
  for(unsigned n=0;n<76;++n){SAC(sa_parse(p,n,16,SA_XAPIC,&t)!=SA_OK);SAC(sa_same(&t,&old,sizeof t));}

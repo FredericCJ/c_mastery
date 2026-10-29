@@ -18,8 +18,8 @@ int memcmp(const void *, const void *, size_t);
   } while (0)
 static const uint8_t literal[] = {67, 86, 77, 49, 1, 0, 0, 6, 0,
                                   0,  0,  1,  42, 0, 0, 0, 17};
-static CvmProgram simple(void) {
-  CvmProgram p = {0};
+static struct cvm_program simple(void) {
+  struct cvm_program p = {0};
   p.count = 1;
   p.length = 6;
   p.functions[0].length = 6;
@@ -29,9 +29,9 @@ static CvmProgram simple(void) {
   return p;
 }
 static int values(void) {
-  CvmValue old[] = {
+  struct cvm_value old[] = {
       {CVM_INT, 0, 0}, {CVM_BOOL, 0, 0}, {CVM_NIL, 0, 0}, {CVM_REF, 0, 1}};
-  RvValue v[4], sentinel = {RV_INT, 91, 0}, out = sentinel;
+  struct rv_value v[4], sentinel = {RV_INT, 91, 0}, out = sentinel;
   int eq = 93;
   for (unsigned i = 0; i < 4; i++)
     CHECK(rv_import(old[i], &v[i]) == RV_OK);
@@ -42,40 +42,40 @@ static int values(void) {
     }
   CHECK(rv_arithmetic(RV_ADD, v[1], v[0], &out) == RV_TYPE &&
         out.payload == 91);
-  CHECK(rv_equal(v[3], (RvValue){RV_REF, 0, 2}, &eq) == RV_OK && !eq);
-  CHECK(rv_equal((RvValue){RV_NIL, 123, 99}, v[2], &eq) == RV_OK && eq);
-  CHECK(rv_equal((RvValue){RV_INT, 0, 99}, v[0], &eq) == RV_OK && eq);
-  CHECK(rv_import((CvmValue){CVM_REF, 16, 1}, &out) == RV_TYPE);
-  CHECK(rv_import((CvmValue){CVM_REF, 0, 0}, &out) == RV_TYPE);
-  CHECK(rv_import((CvmValue){CVM_BOOL, 2, 0}, &out) == RV_TYPE);
-  CHECK(rv_import((CvmValue){(CvmTag)99, 0, 0}, &out) == RV_TYPE);
-  CHECK(rv_arithmetic(RV_ADD, (RvValue){RV_INT, 32767, 0},
-                      (RvValue){RV_Q16, 32768, 0}, &out) == RV_OK &&
+  CHECK(rv_equal(v[3], (struct rv_value){RV_REF, 0, 2}, &eq) == RV_OK && !eq);
+  CHECK(rv_equal((struct rv_value){RV_NIL, 123, 99}, v[2], &eq) == RV_OK && eq);
+  CHECK(rv_equal((struct rv_value){RV_INT, 0, 99}, v[0], &eq) == RV_OK && eq);
+  CHECK(rv_import((struct cvm_value){CVM_REF, 16, 1}, &out) == RV_TYPE);
+  CHECK(rv_import((struct cvm_value){CVM_REF, 0, 0}, &out) == RV_TYPE);
+  CHECK(rv_import((struct cvm_value){CVM_BOOL, 2, 0}, &out) == RV_TYPE);
+  CHECK(rv_import((struct cvm_value){(enum cvm_tag)99, 0, 0}, &out) == RV_TYPE);
+  CHECK(rv_arithmetic(RV_ADD, (struct rv_value){RV_INT, 32767, 0},
+                      (struct rv_value){RV_Q16, 32768, 0}, &out) == RV_OK &&
         out.tag == RV_Q16 && out.payload == 2147450880);
-  CHECK(rv_arithmetic(RV_ADD, (RvValue){RV_INT, 32768, 0},
-                      (RvValue){RV_Q16, -65536, 0}, &out) == RV_RANGE &&
+  CHECK(rv_arithmetic(RV_ADD, (struct rv_value){RV_INT, 32768, 0},
+                      (struct rv_value){RV_Q16, -65536, 0}, &out) == RV_RANGE &&
         out.payload == 2147450880);
-  CHECK(rv_arithmetic(RV_MUL, (RvValue){RV_Q16, -1, 0},
-                      (RvValue){RV_Q16, 32768, 0}, &out) == RV_OK &&
+  CHECK(rv_arithmetic(RV_MUL, (struct rv_value){RV_Q16, -1, 0},
+                      (struct rv_value){RV_Q16, 32768, 0}, &out) == RV_OK &&
         out.payload == 0);
-  CHECK(rv_arithmetic(RV_DIV, (RvValue){RV_Q16, -65536, 0},
-                      (RvValue){RV_INT, 3, 0}, &out) == RV_OK &&
+  CHECK(rv_arithmetic(RV_DIV, (struct rv_value){RV_Q16, -65536, 0},
+                      (struct rv_value){RV_INT, 3, 0}, &out) == RV_OK &&
         out.payload == -21845);
-  CHECK(rv_arithmetic(RV_DIV, (RvValue){RV_INT, INT32_MIN, 0},
-                      (RvValue){RV_INT, -1, 0}, &out) == RV_RANGE &&
+  CHECK(rv_arithmetic(RV_DIV, (struct rv_value){RV_INT, INT32_MIN, 0},
+                      (struct rv_value){RV_INT, -1, 0}, &out) == RV_RANGE &&
         out.payload == -21845);
-  CHECK(rv_arithmetic(RV_MUL, (RvValue){RV_Q16, INT32_MIN, 0},
-                      (RvValue){RV_Q16, INT32_MIN, 0}, &out) == RV_RANGE);
-  CHECK(rv_equal((RvValue){RV_INT, 1, 0}, (RvValue){RV_Q16, 65536, 0}, &eq) ==
+  CHECK(rv_arithmetic(RV_MUL, (struct rv_value){RV_Q16, INT32_MIN, 0},
+                      (struct rv_value){RV_Q16, INT32_MIN, 0}, &out) == RV_RANGE);
+  CHECK(rv_equal((struct rv_value){RV_INT, 1, 0}, (struct rv_value){RV_Q16, 65536, 0}, &eq) ==
             RV_OK &&
         !eq);
   CHECK(rv_arithmetic(99, v[0], v[0], &out) == RV_ARGUMENT);
-  CHECK(rv_equal(v[0], (RvValue){99, 0, 0}, &eq) == RV_TYPE);
+  CHECK(rv_equal(v[0], (struct rv_value){99, 0, 0}, &eq) == RV_TYPE);
   puts("RV_VALUES_PASS tags_strict_mixed_Q16_explicit");
   return 0;
 }
 static int raw(void) {
-  CvmProgram p = simple(), out = {0}, before;
+  struct cvm_program p = simple(), out = {0}, before;
   uint8_t b[1100], saved[1100];
   size_t n = 77;
   memset(b, 91, sizeof b);
@@ -115,13 +115,13 @@ static int raw(void) {
   }
   memcpy(b, literal, sizeof literal);
   CHECK(cvm_decode(b, SIZE_MAX, &out) == CVM_FORMAT);
-  CvmProgram two = {0};
+  struct cvm_program two = {0};
   two.count = 2;
   two.length = 2;
   two.code[0] = 255;
   two.code[1] = 254;
   two.functions[0].length = 1;
-  two.functions[1] = (CvmFunction){1, 1, 1, 1};
+  two.functions[1] = (struct cvm_function){1, 1, 1, 1};
   CHECK(cvm_encode(&two, b, sizeof b, &n) == CVM_OK &&
         cvm_decode(b, n, &out) == CVM_OK);
   b[11] = 2;
@@ -133,7 +133,7 @@ static int raw(void) {
   return 0;
 }
 static int envelope(void) {
-  RvImage in = {0}, out, before;
+  struct rv_image in = {0}, out, before;
   uint8_t b[RV_IMAGE_MAX] = {0}, saved[RV_IMAGE_MAX];
   size_t n = 91;
   in.program = simple();
@@ -161,7 +161,7 @@ static int envelope(void) {
     CHECK(rv_encode(&in, b, i, &z) == RV_RANGE && z == 93 &&
           !memcmp(saved, b, sizeof b));
   }
-  CvmProgram p;
+  struct cvm_program p;
   CHECK(cvm_decode(b, n, &p) == CVM_FORMAT);
   b[8] = 3;
   b[n] = 99;

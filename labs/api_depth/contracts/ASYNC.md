@@ -3,8 +3,8 @@
 Apply [the shared contract](CONTRACTS.md). This packet implements the existing
 criteria T18.04.a, T18.08.a–c and T18.10.a–c, including their original delayed
 variants. Families A/B/C/D/F/G/H/I/J apply where indicated below. Prerequisites
-are the T18 ownership packet, the actual `ApiRegistry` removal contract and
-`FAsync` submit/cancel/complete contract. Bring the learner implementations and
+are the T18 ownership packet, the actual `struct api_registry` removal contract and
+`struct f_async` submit/cancel/complete contract. Bring the learner implementations and
 their lifetime dossiers; reference validation imports the explicitly identified
 assessor providers. It is not evidence that a learner integrated those artifacts.
 
@@ -41,7 +41,7 @@ an acknowledgment tied to actual concurrent dispatch, addressed in T51/T73.
 ## Version 1: synchronous borrowed output
 
 Implement `ac_transform_v1`: for 0–8 input bytes, XOR each with `0x20` and call
-the exact `AcBorrowed` signature once before returning. The output is a local
+the exact `ac_borrowed_fn` signature once before returning. The output is a local
 eight-byte array; it is valid only during that callback. Null input is allowed
 only for count zero. Callback and `written` are required. Return 0 on success,
 1 on invalid input; failure calls no callback and preserves `*written`. On
@@ -61,14 +61,14 @@ measured latency on a board. Foreign object/link audits are not execution.
 
 ## Version 2: explicit owned result and stable operation
 
-`AcOperation` is caller-owned live control storage initialized once before use.
+`struct ac_operation` is caller-owned live control storage initialized once before use.
 Do not copy it while active, reinitialize it while active, destroy it from a
-callback, or call it concurrently. All operations are serialized. `AcAllocate`
+callback, or call it concurrently. All operations are serialized. `struct ac_allocate`
 must return exclusive suitably aligned storage or null; release is infallible,
 nonreentrant and consumes that allocation. Its context outlives every box.
 
 `ac_submit_v2` validates all arguments and reserves counter headroom before
-allocating one `AcBox`. It copies and transforms 0–8 input bytes. Input storage
+allocating one `struct ac_box`. It copies and transforms 0–8 input bytes. Input storage
 may be reused when submit returns. Allocation failure leaves the operation and
 ticket unchanged and never calls the receiver. Busy means an operation or
 terminal callback is still active. Generation/release counter exhaustion rejects

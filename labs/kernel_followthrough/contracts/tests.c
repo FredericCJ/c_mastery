@@ -35,14 +35,14 @@ static size_t base(unsigned char *p, unsigned stride) {
   return n;
 }
 static int refused(const unsigned char *p, size_t n) {
-  KfBoot out, before;
+  struct kf_boot out, before;
   memset(&out, 0xa5, sizeof out);
   memcpy(&before, &out, sizeof out);
   return !kf_boot(p, n, &out) && memcmp(&before, &out, sizeof out) == 0;
 }
 static int tags(void) {
   unsigned char p[512], q[512];
-  KfBoot out;
+  struct kf_boot out;
   size_t n = base(p, 40);
   CHECK(kf_boot(p, n, &out) && out.next == n && out.visited == 3 &&
         out.core.entry_size == 40);
@@ -121,7 +121,7 @@ static int reservations(void) {
     w64(records[i] + 8, len[i]);
     w32(records[i] + 16, types[i]);
   }
-  KfSpan reserve[] = {
+  struct kf_span reserve[] = {
       {0x340001, 0x342000}, {0x3ff000, 0x400000}, {0x300000, 0x301000}};
   b.map = (const unsigned char *)records;
   b.map_bytes = sizeof records;
@@ -160,15 +160,15 @@ static int reservations(void) {
           }
   CHECK(permutations == 24);
   b.map = (unsigned char *)records;
-  reserve[1] = (KfSpan){0x350000, 0x352000};
+  reserve[1] = (struct kf_span){0x350000, 0x352000};
   CHECK(kf_frames(&got, &b, reserve, 3));
   CHECK(got.state[0x350] == 0 && got.state[0x351] == 0 &&
         got.state[0x3ff] == 1);
   snapshot = got;
-  reserve[1] = (KfSpan){10, 9};
+  reserve[1] = (struct kf_span){10, 9};
   CHECK(!kf_frames(&got, &b, reserve, 3) &&
         !memcmp(&got, &snapshot, sizeof got));
-  reserve[1] = (KfSpan){0, 0};
+  reserve[1] = (struct kf_span){0, 0};
   w64(records[3], UINT64_MAX);
   w64(records[3] + 8, 2);
   CHECK(!kf_frames(&got, &b, reserve, 3) &&
@@ -177,7 +177,7 @@ static int reservations(void) {
        "transactional");
   return 0;
 }
-static KfPool pool;
+static struct kf_pool pool;
 static void initpool(void) {
   memset(&pool, 0, sizeof pool);
   for (unsigned i = 768; i < 1024; ++i)
@@ -225,7 +225,7 @@ static int allocation(void) {
   for (unsigned count = 1; count <= 16; ++count)
     for (unsigned fail = 0; fail <= count; ++fail) {
       initpool();
-      KfSpace s = {0}, before;
+      struct kf_space s = {0}, before;
       s.live = 1;
       s.generation = 1;
       CHECK(kf_allocate(&pool, &s, 10, 1, 1));
@@ -251,10 +251,10 @@ static int allocation(void) {
         CHECK(pool.bytes[0][i] == 0x73);
     }
   initpool();
-  KfSpace s = {0};
+  struct kf_space s = {0};
   s.live = 1;
   CHECK(kf_allocate(&pool, &s, 258, 1, 1));
-  KfSpace old = s;
+  struct kf_space old = s;
   cmk_frames state = pool.frames;
   CHECK(!kf_allocate(&pool, &s, 256, 4, 4) && !memcmp(&s, &old, sizeof s) &&
         !memcmp(&state, &pool.frames, sizeof state));
@@ -264,10 +264,10 @@ static int allocation(void) {
 }
 static int lifecycle(void) {
   initpool();
-  KfSpace s = {0};
+  struct kf_space s = {0};
   s.live = 1;
   s.generation = 1;
-  KfCpu c = {0, 0, 0, 0};
+  struct kf_cpu c = {0, 0, 0, 0};
   CHECK(kf_allocate(&pool, &s, 10, 3, 3));
   size_t free = kf_free(&pool);
   CHECK(!kf_reap_user(&pool, &s, 0, &c));

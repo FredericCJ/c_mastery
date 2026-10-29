@@ -9,10 +9,10 @@ static int fail_allocation,launched;
 static void *allocate(void *c,size_t n){(void)c;if(fail_allocation)return NULL;allocation=malloc(n);return allocation;}
 static void release(void *c,void *p){(void)c;++frees;free(p);allocation=NULL;}
 #define REQUIRE(x) do{if(!(x)){fprintf(stderr,"MC_SHARED_ASSERT:%s\n",#x);if(!launched){free(allocation);allocation=NULL;}exit(41);}}while(0)
-typedef struct {McShared *owner;pthread_barrier_t *barrier;unsigned out;int late,ready,go;pthread_mutex_t gate;pthread_cond_t condition;} Context;
+struct ob_context {struct mc_shared *owner;pthread_barrier_t *barrier;unsigned out;int late,ready,go;pthread_mutex_t gate;pthread_cond_t condition;};
 static void *worker(void *arg)
 {
-    Context *c=arg;
+    struct ob_context *c=arg;
     if(c->late){
         if(pthread_mutex_lock(&c->gate))return c;
         c->ready=1;if(pthread_cond_signal(&c->condition))return c;
@@ -28,7 +28,7 @@ static void *worker(void *arg)
 }
 int main(int argc,char **argv)
 {
-    int late=argc==2 && !strcmp(argv[1],"late"),serial=argc==2 && !strcmp(argv[1],"serial");McShared state={0},*main_owner=&state,*extra=NULL,*third=NULL,*excess=NULL;McAllocator a={NULL,allocate,release};Context context={0};pthread_t thread;pthread_barrier_t barrier;void *result;unsigned value=99;
+    int late=argc==2 && !strcmp(argv[1],"late"),serial=argc==2 && !strcmp(argv[1],"serial");struct mc_shared state={0},*main_owner=&state,*extra=NULL,*third=NULL,*excess=NULL;struct mc_allocator a={NULL,allocate,release};struct ob_context context={0};pthread_t thread;pthread_barrier_t barrier;void *result;unsigned value=99;
     fail_allocation=1;REQUIRE(mc_shared_init(&state,a)==-1 && !state.initialized);fail_allocation=0;REQUIRE(mc_shared_init(&state,a)==0 && state.references==1);
     REQUIRE(mc_shared_retain(&state,&extra)==0 && state.references==2);REQUIRE(mc_shared_retain(&state,&third)==0 && state.references==3);REQUIRE(mc_shared_retain(&state,&excess)==-1 && !excess);REQUIRE(mc_shared_drop(&third)==0 && !third && state.references==2);REQUIRE(mc_shared_finish(&state)==-1);
     context.owner=extra;extra=NULL;context.late=late;

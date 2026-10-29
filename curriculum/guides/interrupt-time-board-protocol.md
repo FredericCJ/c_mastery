@@ -13,7 +13,7 @@ original ownership providers; obtain an externally retained reset supervisor if
 testing software-only reset while a device remains active. The supplied MPS2
 target is an executable reference for an emulator, not a board image. Its CMSDK
 32-bit count must not be relabeled a latched64-bit device counter. A board adapter
-must implement `XkIo` from actual documented register semantics and state whether
+must implement `struct xk_io` from actual documented register semantics and state whether
 it uses a latch, coupled timer cascade or interrupt-safe software counter. An
 undocumented cascade cannot use the hi–lo–hi proof by assumption.
 

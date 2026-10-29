@@ -4,7 +4,7 @@
 #ifndef SRG_MUTANT
 #define SRG_MUTANT 0
 #endif
-static SrWorld srg_world;static uint64_t srg_values[257];static uint8_t srg_bytes[257];static atomic_uint srg_visits[257];
+static struct sr_world srg_world;static uint64_t srg_values[257];static uint8_t srg_bytes[257];static atomic_uint srg_visits[257];
 static unsigned srg_ready[4],srg_command,srg_done[4],srg_observed[4],srg_errors[4],srg_failure;
 static uint64_t srg_cycles[4];
 static uint64_t srg_ticks(void){unsigned lo,hi;__asm__ volatile("lfence;rdtsc":"=a"(lo),"=d"(hi)::"memory");return (uint64_t)hi<<32|lo;}
@@ -16,7 +16,7 @@ static void srg_worker(unsigned cpu){
 }
 static void srg_case(unsigned sequence,size_t count,unsigned mode,unsigned failure){
  if(sr_init(&srg_world,mode==SR_BYTES?(const void *)srg_bytes:(const void *)srg_values,srg_visits,count,topology.count,mode)!=SR_OK)srg_fail("init");
- srg_failure=failure;SrResult out={0};out.unsigned_sum=91;if(sr_finish(&srg_world,&out)!=SR_INCOMPLETE||out.unsigned_sum!=91)srg_fail("early-completion-missing-owned-indices");
+ srg_failure=failure;struct sr_result out={0};out.unsigned_sum=91;if(sr_finish(&srg_world,&out)!=SR_INCOMPLETE||out.unsigned_sum!=91)srg_fail("early-completion-missing-owned-indices");
  uint64_t start=srg_ticks();__atomic_store_n(&srg_command,sequence,__ATOMIC_RELEASE);srg_job(0);if(SRG_MUTANT)for(unsigned i=1;i<topology.count;i++)srg_job(i);
  for(unsigned cpu=1;cpu<topology.count;cpu++)for(unsigned n=0;__atomic_load_n(&srg_done[cpu],__ATOMIC_ACQUIRE)!=sequence;n++){if(n==100000000)srg_fail("worker-progress");pause_cpu();}
  unsigned result=(unsigned)sr_finish(&srg_world,&out);uint64_t elapsed=srg_ticks()-start;
@@ -24,7 +24,7 @@ static void srg_case(unsigned sequence,size_t count,unsigned mode,unsigned failu
  else{if(result!=SR_OK||out.count!=count)srg_fail("reduction-result");uint64_t expected=0;for(size_t i=0;i<count;i++)expected+=srg_values[i];if(mode==SR_UNSIGNED&&out.unsigned_sum!=expected)srg_fail("integer-oracle");for(size_t i=0;i<count;i++)if(atomic_load(srg_visits+i)!=1)srg_fail("index-ownership");}
  text("SR_CASE sequence=");number(sequence);text(" count=");number((unsigned)count);text(" mode=");number(mode);text(" failed=");number(failure);text(" total=");ss_u64(mode==SR_BYTES?out.hash:out.unsigned_sum);text(" sender_ticks=");ss_u64(elapsed);text("\n");
  for(unsigned cpu=0;cpu<topology.count;cpu++){
-  if(srg_observed[cpu]!=cpu)srg_fail("all-workers-one-CPU");SrRange r;if(sr_partition(count,topology.count,cpu,&r)!=SR_OK)srg_fail("range");
+  if(srg_observed[cpu]!=cpu)srg_fail("all-workers-one-CPU");struct sr_range r;if(sr_partition(count,topology.count,cpu,&r)!=SR_OK)srg_fail("range");
   if(srg_errors[cpu]!=(failure&&cpu+1==topology.count?SR_FAILED:SR_OK))srg_fail("worker-error");
   text("SR_PART sequence=");number(sequence);text(" worker=");number(cpu);text(" cpu=");number(srg_observed[cpu]);text(" apic=");number(topology.ids[cpu]);text(" begin=");number((unsigned)r.begin);text(" end=");number((unsigned)r.end);text(" completed=");number((unsigned)srg_world.slot[cpu].value.count);text(" status=");number(srg_errors[cpu]);text(" active_ticks=");ss_u64(srg_cycles[cpu]);text("\n");
  }

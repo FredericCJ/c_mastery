@@ -33,15 +33,15 @@ static int close_fn(void *c, int fd) {
   (void)c;
   return close(fd);
 }
-ElOps el_system_ops(void) {
-  return (ElOps){socket_fn, bind_fn,  listen_fn, connect_fn,
+struct el_ops el_system_ops(void) {
+  return (struct el_ops){socket_fn, bind_fn,  listen_fn, connect_fn,
                  accept_fn, close_fn, 0};
 }
-static int ops_valid(ElOps o) {
+static int ops_valid(struct el_ops o) {
   return o.socket_fd && o.bind_fd && o.listen_fd && o.connect_fd &&
          o.accept_fd && o.close_fd;
 }
-static int address_valid(const ElAddress *a) {
+static int address_valid(const struct el_address *a) {
   if (!a)
     return 0;
   if (a->storage.ss_family == AF_INET) {
@@ -72,7 +72,7 @@ static int address_valid(const ElAddress *a) {
   }
   return 0;
 }
-int el_loopback(int family, unsigned port, ElAddress *out) {
+int el_loopback(int family, unsigned port, struct el_address *out) {
   if (!out || port > 65535 || (family != AF_INET && family != AF_INET6)) {
     errno = EAFNOSUPPORT;
     return -1;
@@ -89,7 +89,7 @@ int el_loopback(int family, unsigned port, ElAddress *out) {
     errno = e == EAI_MEMORY ? ENOMEM : EINVAL;
     return -1;
   }
-  ElAddress next = {0};
+  struct el_address next = {0};
   int found = 0;
   for (struct addrinfo *r = list; r; r = r->ai_next) {
     if (r->ai_family != family || r->ai_addrlen > sizeof next.storage)
@@ -109,7 +109,7 @@ int el_loopback(int family, unsigned port, ElAddress *out) {
   *out = next;
   return 0;
 }
-int el_pathname(const char *path, ElAddress *out) {
+int el_pathname(const char *path, struct el_address *out) {
   if (!path || !out || path[0] != '/') {
     errno = EINVAL;
     return -1;
@@ -122,13 +122,13 @@ int el_pathname(const char *path, ElAddress *out) {
   }
   u.sun_family = AF_UNIX;
   memcpy(u.sun_path, path, n + 1);
-  ElAddress next = {0};
+  struct el_address next = {0};
   next.length = (socklen_t)(offsetof(struct sockaddr_un, sun_path) + n + 1);
   memcpy(&next.storage, &u, next.length);
   *out = next;
   return 0;
 }
-int el_listener(ElOps o, const ElAddress *a, int *out) {
+int el_listener(struct el_ops o, const struct el_address *a, int *out) {
   if (!ops_valid(o) || !address_valid(a) || !out) {
     errno = EINVAL;
     return -1;
@@ -148,7 +148,7 @@ int el_listener(ElOps o, const ElAddress *a, int *out) {
   *out = fd;
   return 0;
 }
-int el_connect(ElOps o, const ElAddress *a, unsigned count,
+int el_connect(struct el_ops o, const struct el_address *a, unsigned count,
                struct timespec deadline, int *out, unsigned *checks) {
   if (!ops_valid(o) || !a || !out || !checks || !count || count > 8) {
     errno = EINVAL;
@@ -233,7 +233,7 @@ int el_connect(ElOps o, const ElAddress *a, unsigned count,
   errno = final;
   return -1;
 }
-int el_accept(ElOps o, int listener, int (*cancel)(void *, int), void *context,
+int el_accept(struct el_ops o, int listener, int (*cancel)(void *, int), void *context,
               int *out) {
   if (!ops_valid(o) || listener < 0 || !out) {
     errno = EINVAL;

@@ -2,15 +2,15 @@
 #ifndef TC_MUTANT
 #define TC_MUTANT 0
 #endif
-typedef struct {
+struct tc_frame {
   unsigned node, indent, flat;
-} Frame;
-static int valid(const TcDoc *d) {
+};
+static int valid(const struct tc_doc *d) {
   if (!d || !d->count || d->count > 128 || d->root >= d->count ||
       d->length > 512)
     return 0;
   for (unsigned i = 0; i < d->count; i++) {
-    const TcNode *n = d->nodes + i;
+    const struct tc_node *n = d->nodes + i;
     if (n->kind > TD_GROUP)
       return 0;
     if ((n->kind == TD_CAT || n->kind == TD_NEST || n->kind == TD_GROUP) &&
@@ -36,13 +36,13 @@ static int tick(unsigned *fuel) {
   --*fuel;
   return 1;
 }
-static int fits(const TcDoc *d, Frame *stack, unsigned count, unsigned column,
+static int fits(const struct tc_doc *d, struct tc_frame *stack, unsigned count, unsigned column,
                 unsigned width, unsigned *fuel) {
   while (count) {
     if (!tick(fuel))
       return -1;
-    Frame f = stack[--count];
-    const TcNode *n = d->nodes + f.node;
+    struct tc_frame f = stack[--count];
+    const struct tc_node *n = d->nodes + f.node;
     if (column > width)
       return 0;
     switch (n->kind) {
@@ -63,39 +63,39 @@ static int fits(const TcDoc *d, Frame *stack, unsigned count, unsigned column,
     case TD_CAT:
       if (count + 2 > 256)
         return -2;
-      stack[count++] = (Frame){n->right, f.indent, f.flat};
-      stack[count++] = (Frame){n->left, f.indent, f.flat};
+      stack[count++] = (struct tc_frame){n->right, f.indent, f.flat};
+      stack[count++] = (struct tc_frame){n->left, f.indent, f.flat};
       break;
     case TD_NEST:
     case TD_GROUP:
       if (count == 256)
         return -2;
-      stack[count++] = (Frame){n->left, f.indent, f.flat};
+      stack[count++] = (struct tc_frame){n->left, f.indent, f.flat};
       break;
     }
   }
   return column <= width;
 }
-static int emit(TcText *out, unsigned char ch) {
+static int emit(struct tc_text *out, unsigned char ch) {
   if (out->length == 4096)
     return 0;
   out->bytes[out->length++] = ch;
   return 1;
 }
-int tc_layout(const TcDoc *d, unsigned width, unsigned budget, TcText *out) {
+int tc_layout(const struct tc_doc *d, unsigned width, unsigned budget, struct tc_text *out) {
   if (!out || !valid(d))
     return TC_INVALID;
   if (width > 120)
     return TC_RANGE;
-  Frame stack[256], probe[256];
+  struct tc_frame stack[256], probe[256];
   unsigned count = 1, column = 0;
-  stack[0] = (Frame){d->root, 0, 0};
-  TcText result = {0};
+  stack[0] = (struct tc_frame){d->root, 0, 0};
+  struct tc_text result = {0};
   while (count) {
     if (!tick(&budget))
       return TC_FUEL;
-    Frame f = stack[--count];
-    const TcNode *n = d->nodes + f.node;
+    struct tc_frame f = stack[--count];
+    const struct tc_node *n = d->nodes + f.node;
     switch (n->kind) {
     case TD_NIL:
       break;
@@ -122,15 +122,15 @@ int tc_layout(const TcDoc *d, unsigned width, unsigned budget, TcText *out) {
     case TD_CAT:
       if (count + 2 > 256)
         return TC_RANGE;
-      stack[count++] = (Frame){n->right, f.indent, f.flat};
-      stack[count++] = (Frame){n->left, f.indent, f.flat};
+      stack[count++] = (struct tc_frame){n->right, f.indent, f.flat};
+      stack[count++] = (struct tc_frame){n->left, f.indent, f.flat};
       break;
     case TD_NEST:
       if (f.indent > 120 - n->value)
         return TC_RANGE;
       if (count == 256)
         return TC_RANGE;
-      stack[count++] = (Frame){
+      stack[count++] = (struct tc_frame){
           n->left, TC_MUTANT == 4 ? f.indent : f.indent + n->value, f.flat};
       break;
     case TD_GROUP: {
@@ -141,7 +141,7 @@ int tc_layout(const TcDoc *d, unsigned width, unsigned budget, TcText *out) {
           probe[i] = stack[i];
         if (k == 256)
           return TC_RANGE;
-        probe[k++] = (Frame){n->left, f.indent, 1};
+        probe[k++] = (struct tc_frame){n->left, f.indent, 1};
         int fit = fits(d, probe, k, column, width, &budget);
         if (fit < 0)
           return fit == -1 ? TC_FUEL : TC_RANGE;
@@ -149,7 +149,7 @@ int tc_layout(const TcDoc *d, unsigned width, unsigned budget, TcText *out) {
       }
       if (count == 256)
         return TC_RANGE;
-      stack[count++] = (Frame){n->left, f.indent, flat};
+      stack[count++] = (struct tc_frame){n->left, f.indent, flat};
       break;
     }
     }
@@ -157,15 +157,15 @@ int tc_layout(const TcDoc *d, unsigned width, unsigned budget, TcText *out) {
   *out = result;
   return TC_OK;
 }
-static unsigned node(TcDoc *d, unsigned kind, unsigned left, unsigned right,
+static unsigned node(struct tc_doc *d, unsigned kind, unsigned left, unsigned right,
                      unsigned value) {
   if (d->count == 128)
     return 128;
   unsigned k = d->count++;
-  d->nodes[k] = (TcNode){kind, left, right, value, 0, 0};
+  d->nodes[k] = (struct tc_node){kind, left, right, value, 0, 0};
   return k;
 }
-static unsigned text(TcDoc *d, const unsigned char *s, size_t n) {
+static unsigned text(struct tc_doc *d, const unsigned char *s, size_t n) {
   if (n > 512 - d->length)
     return 128;
   unsigned k = node(d, TD_TEXT, 0, 0, 0);
@@ -177,15 +177,15 @@ static unsigned text(TcDoc *d, const unsigned char *s, size_t n) {
     d->text[d->length++] = s[i];
   return k;
 }
-int tc_expression_doc(const PdTree *tree, TcDoc *out) {
+int tc_expression_doc(const struct pd_tree *tree, struct tc_doc *out) {
   if (!tree || !out || !tree->count || tree->root >= tree->count)
     return TC_INVALID;
   if (tree->count > 14)
     return TC_RANGE;
-  TcDoc d = {0};
+  struct tc_doc d = {0};
   unsigned roots[14];
   for (unsigned i = 0; i < tree->count; i++) {
-    const PdExpr *n = tree->nodes + i;
+    const struct pd_expr *n = tree->nodes + i;
     unsigned r = 128;
     if (n->kind == 0) {
       unsigned char digits[11], s[11];

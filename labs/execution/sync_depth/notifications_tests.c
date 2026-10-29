@@ -2,15 +2,15 @@
 #include <stdio.h>
 #include <string.h>
 #define CHECK(c) do { if (!(c)) { fprintf(stderr,"CDN_CHECK:%d:%s\n",__LINE__,#c); return 1; } } while (0)
-static int setup(cmx_kernel *k, CDNotify *n, CDNHandle *h, unsigned maximum) {
+static int setup(cmx_kernel *k, struct cd_notify *n, struct cdn_handle *h, unsigned maximum) {
   cmx_init(k, CMX_FIXED);
   if (cmx_task_add(k, 5, 0, 0x1000, 256) != 0) return 0;
   cdn_init(n, k);
   return cdn_attach(n, 0, maximum, h) == CMX_OK;
 }
 static int ledger(void) {
-  cmx_kernel k; CDNotify n; CDNHandle h; CDNPost post = {99,98,97};
-  uint32_t value = 999; CDNFault fault = {999,999,999};
+  cmx_kernel k; struct cd_notify n; struct cdn_handle h; struct cdn_post post = {99,98,97};
+  uint32_t value = 999; struct cdn_fault fault = {999,999,999};
   CHECK(setup(&k, &n, &h, 8));
   CHECK(cdn_post(h, 3, &post) == CMX_OK && !post.woke && post.object_probes == 1);
   CHECK(cdn_post(h, 2, &post) == CMX_OK);
@@ -20,7 +20,7 @@ static int ledger(void) {
   }
   CHECK(n.accepted == 5 && n.consumed == 4 && k.task[0].notifications == 1);
   CHECK(cdn_post(h, 6, &post) == CMX_OK && k.task[0].notifications == 7);
-  post = (CDNPost){99,98,97};
+  post = (struct cdn_post){99,98,97};
   CHECK(cdn_post(h, 2, &post) == CMX_FULL && k.task[0].notifications == 7 && n.accepted == 11);
   CHECK(post.woke == 99 && post.defer_schedule == 98 && post.object_probes == 97);
   CHECK(cdn_fault(h, &fault) == CMX_OK && fault.sequence == 1 && fault.count == 2 && fault.reason == CMX_FULL);
@@ -38,7 +38,7 @@ static int ledger(void) {
   CHECK(cdn_result(h, &value) == CMX_OK && value == UINT32_MAX && cdn_invariant(&n));
   CHECK(setup(&k, &n, &h, 8));
   n.accepted = n.consumed = UINT64_MAX; /* Reachable empty, exhausted ledger. */
-  post = (CDNPost){99,98,97};
+  post = (struct cdn_post){99,98,97};
   CHECK(cdn_invariant(&n) && cdn_post(h, 1, &post) == CDN_RETIRED && post.woke == 99);
   CHECK(cdn_close(h) == CMX_OK && cdn_detach(h) == CMX_OK);
   CHECK(setup(&k, &n, &h, 8));
@@ -52,7 +52,7 @@ static int ledger(void) {
   return 0;
 }
 static int handoff(void) {
-  cmx_kernel k; CDNotify n; CDNHandle h; CDNPost post; uint32_t out = 999;
+  cmx_kernel k; struct cd_notify n; struct cdn_handle h; struct cdn_post post; uint32_t out = 999;
   CHECK(setup(&k, &n, &h, 8));
   CHECK(cdn_wait(h, 1, cmx_forever()) == CMX_BLOCKED);
   CHECK(cdn_post(h, 3, &post) == CMX_OK && post.woke && post.defer_schedule);
@@ -72,7 +72,7 @@ static int handoff(void) {
   return 0;
 }
 static int lifetime(void) {
-  cmx_kernel k; CDNotify n; CDNHandle old, fresh; CDNPost post = {99,98,97};
+  cmx_kernel k; struct cd_notify n; struct cdn_handle old, fresh; struct cdn_post post = {99,98,97};
   uint32_t out = 999;
   CHECK(setup(&k, &n, &old, 8));
   CHECK(cdn_post(old, 0, &post) == CMX_INVALID && post.woke == 99);
@@ -104,7 +104,7 @@ static int lifetime(void) {
 static int histories(void) {
   unsigned histories = 0, transitions = 0;
   for (unsigned code = 0; code < 1024; code++) {
-    cmx_kernel k; CDNotify n; CDNHandle h; CDNPost post; CDNFault fault;
+    cmx_kernel k; struct cd_notify n; struct cdn_handle h; struct cdn_post post; struct cdn_fault fault;
     unsigned remaining = 0, accepted = 0, consumed = 0, rejected = 0, digits = code;
     CHECK(setup(&k, &n, &h, 8));
     for (unsigned step = 0; step < 5; step++) {

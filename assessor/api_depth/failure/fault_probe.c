@@ -34,8 +34,8 @@ int main(int argc, char **argv) {
     return 0;
   }
   if (internal > capacity) {
-    AeReporter r = {.fallback_available = 1};
-    AeRecord event = {3, 1, 8, 1, 0, 0, {0}};
+    struct ae_reporter r = {.fallback_available = 1};
+    struct ae_record event = {3, 1, 8, 1, 0, 0, {0}};
     (void)ae_report(&r, &event, broken, 0);
     if (!strcmp(argv[1], "panic")) {
       fprintf(stderr, "FAULT-PANIC:cleanup=0;fallback=%u;process-only;\n",

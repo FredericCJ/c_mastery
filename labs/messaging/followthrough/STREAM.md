@@ -1,7 +1,7 @@
 # Executor-owned demand and bounded admission — X-T73-010
 
 Implement `src/stream_follow.c` through `stream.h`, importing the actual completed
-`MsgHub` copied-unsigned channel and `MsgStream` demand state machine. This
+`struct msg_hub` copied-unsigned channel and `struct msg_stream` demand state machine. This
 required successor supports R2/R3, the multithreaded R4 investigation and the
 slow-subscriber assumptions in X-T73-010-DELAYED. It does not replace the unaided
 delayed assessment. Use C17, POSIX pthreads and the declared unique context owner;
@@ -9,9 +9,9 @@ no reactive-stream or executor library implements the studied mechanism.
 
 ## Representation and lifetime
 
-`MfqStream` owns one native executor thread, one `MsgStream`, a real `MsgHub`
+`struct mfq_stream` owns one native executor thread, one `struct msg_stream`, a real `struct msg_hub`
 whose channel0 has capacity1–4, a control mutex/condition variable, pending
-control signals, and a unique `MfoValue` callback context. Its initialized
+control signals, and a unique `struct mfo_value` callback context. Its initialized
 control address is stable until destruction; never copy it or use the embedded
 core/hub through another API. Mutex order is control then hub. Callbacks run
 only on the executor and outside both locks. All pthread operations after
@@ -31,7 +31,7 @@ context's eventual destruction. The destructor returns normally and cannot
 reenter the destroyed stream.
 
 `mfq_acquire` requires the administrative owner to protect the live stream while
-acquiring a unique `MfqHandle`. Success increments its lease count; refused
+acquiring a unique `struct mfq_handle`. Success increments its lease count; refused
 admission leaves output unchanged. The output must not already own a handle.
 A handle may move to another thread with an explicit happens-before handoff, but
 must not be copied or used concurrently. Its lifetime covers every call through

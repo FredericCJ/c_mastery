@@ -4,13 +4,13 @@
 #define SC_MUTANT 0
 #endif
 static void *child_main(void *p) {
-  MsgChild *c = p;
+  struct msg_child *c = p;
   c->result = c->task(c->ctx, &c->owner->cancel);
   if (c->result != 0 && SC_MUTANT != 1)
     atomic_store(&c->owner->cancel, true);
   return NULL;
 }
-void msg_nursery_init(MsgNursery *n, size_t fail) {
+void msg_nursery_init(struct msg_nursery *n, size_t fail) {
   atomic_init(&n->cancel, false);
   n->count = 0;
   n->attempts = 0;
@@ -18,8 +18,8 @@ void msg_nursery_init(MsgNursery *n, size_t fail) {
   n->closing = false;
   n->closed = false;
 }
-void msg_cancel(MsgNursery *n) { atomic_store(&n->cancel, true); }
-MsgStatus msg_spawn(MsgNursery *n, MsgTask task, void *ctx) {
+void msg_cancel(struct msg_nursery *n) { atomic_store(&n->cancel, true); }
+enum msg_status msg_spawn(struct msg_nursery *n, msg_task_fn task, void *ctx) {
   if (n->closing || n->closed)
     return MSG_CLOSED;
   if (!task)
@@ -33,7 +33,7 @@ MsgStatus msg_spawn(MsgNursery *n, MsgTask task, void *ctx) {
     msg_cancel(n);
     return MSG_FAILED;
   }
-  MsgChild *c = &n->child[n->count];
+  struct msg_child *c = &n->child[n->count];
   c->task = task;
   c->ctx = ctx;
   c->owner = n;
@@ -46,11 +46,11 @@ MsgStatus msg_spawn(MsgNursery *n, MsgTask task, void *ctx) {
   ++n->count;
   return MSG_OK;
 }
-MsgStatus msg_join(MsgNursery *n, int *result) {
+enum msg_status msg_join(struct msg_nursery *n, int *result) {
   n->closing = true;
   int first = 0;
   for (size_t i = 0; i < n->count; i++) {
-    MsgChild *c = &n->child[i];
+    struct msg_child *c = &n->child[i];
     if (!c->joined) {
       if (pthread_join(c->thread, NULL) != 0)
         return MSG_FAILED;
@@ -63,7 +63,7 @@ MsgStatus msg_join(MsgNursery *n, int *result) {
   *result = first;
   return MSG_OK;
 }
-MsgStatus msg_hub_init(MsgHub *h, size_t a, size_t b) {
+enum msg_status msg_hub_init(struct msg_hub *h, size_t a, size_t b) {
   if (a > 4 || b > 4)
     return MSG_INVALID;
   if (pthread_mutex_init(&h->mutex, NULL))
@@ -72,23 +72,23 @@ MsgStatus msg_hub_init(MsgHub *h, size_t a, size_t b) {
     pthread_mutex_destroy(&h->mutex);
     return MSG_FAILED;
   }
-  h->channel[0] = (MsgChannel){.capacity = a};
-  h->channel[1] = (MsgChannel){.capacity = b};
+  h->channel[0] = (struct msg_channel){.capacity = a};
+  h->channel[1] = (struct msg_channel){.capacity = b};
   h->stop = false;
   h->next = 0;
   return MSG_OK;
 }
-void msg_hub_destroy(MsgHub *h) {
+void msg_hub_destroy(struct msg_hub *h) {
   pthread_cond_destroy(&h->changed);
   pthread_mutex_destroy(&h->mutex);
 }
-void msg_hub_cancel(MsgHub *h) {
+void msg_hub_cancel(struct msg_hub *h) {
   pthread_mutex_lock(&h->mutex);
   h->stop = true;
   pthread_cond_broadcast(&h->changed);
   pthread_mutex_unlock(&h->mutex);
 }
-MsgStatus msg_close(MsgHub *h, unsigned k) {
+enum msg_status msg_close(struct msg_hub *h, unsigned k) {
   if (k > 1)
     return MSG_INVALID;
   pthread_mutex_lock(&h->mutex);
@@ -97,12 +97,12 @@ MsgStatus msg_close(MsgHub *h, unsigned k) {
   pthread_mutex_unlock(&h->mutex);
   return MSG_OK;
 }
-MsgStatus msg_send(MsgHub *h, unsigned k, unsigned v, bool wait) {
+enum msg_status msg_send(struct msg_hub *h, unsigned k, unsigned v, bool wait) {
   if (k > 1)
     return MSG_INVALID;
   pthread_mutex_lock(&h->mutex);
-  MsgChannel *c = &h->channel[k];
-  MsgStatus status = MSG_OK;
+  struct msg_channel *c = &h->channel[k];
+  enum msg_status status = MSG_OK;
   while (!h->stop && !c->closed &&
          (c->capacity ? c->count == c->capacity : c->offered)) {
     if (!wait) {
@@ -148,12 +148,12 @@ out:
   pthread_mutex_unlock(&h->mutex);
   return status;
 }
-MsgStatus msg_select(MsgHub *h, unsigned mask, bool wait, unsigned *which,
+enum msg_status msg_select(struct msg_hub *h, unsigned mask, bool wait, unsigned *which,
                      unsigned *value) {
   if (!mask || (mask & ~3u))
     return MSG_INVALID;
   pthread_mutex_lock(&h->mutex);
-  MsgStatus status;
+  enum msg_status status;
   for (;;) {
     if (h->stop) {
       status = MSG_CANCELLED;
@@ -164,7 +164,7 @@ MsgStatus msg_select(MsgHub *h, unsigned mask, bool wait, unsigned *which,
       unsigned k = (h->next + j) % 2;
       if (!(mask & (1u << k)))
         continue;
-      MsgChannel *c = &h->channel[k];
+      struct msg_channel *c = &h->channel[k];
       if (!c->closed)
         ++live;
       if ((c->count && SC_MUTANT != 12) || (c->offered && !c->closed)) {
@@ -198,10 +198,10 @@ out:
   pthread_mutex_unlock(&h->mutex);
   return status;
 }
-void msg_connect(MsgOperation *o, MsgReceiver r, void *ctx) {
-  *o = (MsgOperation){.state = MSG_NEW, .receiver = r, .ctx = ctx};
+void msg_connect(struct msg_operation *o, msg_receiver_fn r, void *ctx) {
+  *o = (struct msg_operation){.state = MSG_NEW, .receiver = r, .ctx = ctx};
 }
-MsgStatus msg_start(MsgOperation *o) {
+enum msg_status msg_start(struct msg_operation *o) {
   if (o->state != MSG_NEW)
     return MSG_INVALID;
   if (!o->receiver)
@@ -209,7 +209,7 @@ MsgStatus msg_start(MsgOperation *o) {
   o->state = MSG_STARTED;
   return MSG_OK;
 }
-MsgStatus msg_stop_operation(MsgOperation *o) {
+enum msg_status msg_stop_operation(struct msg_operation *o) {
   if (o->state != MSG_STARTED)
     return MSG_INVALID;
   o->cancel = true;
@@ -217,21 +217,21 @@ MsgStatus msg_stop_operation(MsgOperation *o) {
     o->state = MSG_DONE;
   return MSG_OK;
 }
-MsgStatus msg_complete(MsgOperation *o, MsgStatus s, unsigned v) {
+enum msg_status msg_complete(struct msg_operation *o, enum msg_status s, unsigned v) {
   if (o->state != MSG_STARTED && SC_MUTANT != 3)
     return MSG_INVALID;
   if (s != MSG_OK && s != MSG_FAILED && s != MSG_CANCELLED)
     return MSG_INVALID;
-  MsgReceiver r = o->receiver;
+  msg_receiver_fn r = o->receiver;
   void *ctx = o->ctx;
   o->state = MSG_DONE;
   r(ctx, s, v);
   return MSG_OK;
 }
-void msg_actor_init(MsgActor *a, MsgHandler f, void *ctx) {
-  *a = (MsgActor){.generation = 1, .alive = true, .handler = f, .ctx = ctx};
+void msg_actor_init(struct msg_actor *a, msg_handler_fn f, void *ctx) {
+  *a = (struct msg_actor){.generation = 1, .alive = true, .handler = f, .ctx = ctx};
 }
-MsgStatus msg_actor_send(MsgActor *a, uint64_t g, unsigned v) {
+enum msg_status msg_actor_send(struct msg_actor *a, uint64_t g, unsigned v) {
   if (g != a->generation && SC_MUTANT != 4)
     return MSG_STALE;
   if (!a->alive)
@@ -242,7 +242,7 @@ MsgStatus msg_actor_send(MsgActor *a, uint64_t g, unsigned v) {
   ++a->count;
   return MSG_OK;
 }
-MsgStatus msg_actor_step(MsgActor *a) {
+enum msg_status msg_actor_step(struct msg_actor *a) {
   if (!a->alive)
     return MSG_CLOSED;
   if (a->stepping)
@@ -263,7 +263,7 @@ MsgStatus msg_actor_step(MsgActor *a) {
   }
   return MSG_OK;
 }
-MsgStatus msg_actor_restart(MsgActor *a) {
+enum msg_status msg_actor_restart(struct msg_actor *a) {
   if (a->alive || a->stepping)
     return MSG_BUSY;
   if (a->generation == UINT64_MAX)
@@ -274,13 +274,13 @@ MsgStatus msg_actor_restart(MsgActor *a) {
   a->alive = true;
   return MSG_OK;
 }
-MsgStatus msg_supervisor_init(MsgSupervisor *s, size_t limit, uint64_t window) {
+enum msg_status msg_supervisor_init(struct msg_supervisor *s, size_t limit, uint64_t window) {
   if (!limit || limit > 4 || !window)
     return MSG_INVALID;
-  *s = (MsgSupervisor){.limit = limit, .window = window};
+  *s = (struct msg_supervisor){.limit = limit, .window = window};
   return MSG_OK;
 }
-MsgStatus msg_restart_plan(MsgSupervisor *s, uint64_t now, MsgStrategy strategy,
+enum msg_status msg_restart_plan(struct msg_supervisor *s, uint64_t now, enum msg_strategy strategy,
                            unsigned failed, int *actions, size_t *count) {
   if (failed > 3 || strategy > MSG_REST || now < s->last)
     return MSG_INVALID;
@@ -311,13 +311,13 @@ MsgStatus msg_restart_plan(MsgSupervisor *s, uint64_t now, MsgStrategy strategy,
   *count = n;
   return MSG_OK;
 }
-void msg_deque_init(MsgDeque *q) {
+void msg_deque_init(struct msg_deque *q) {
   atomic_init(&q->top, 1);
   atomic_init(&q->bottom, 1);
   for (unsigned i = 0; i < 8; i++)
     atomic_init(&q->slots[i], 0);
 }
-MsgStatus msg_push(MsgDeque *q, unsigned v) {
+enum msg_status msg_push(struct msg_deque *q, unsigned v) {
   size_t b = atomic_load(&q->bottom), t = atomic_load(&q->top);
   if (b == SIZE_MAX - 1)
     return MSG_OVERFLOW;
@@ -327,7 +327,7 @@ MsgStatus msg_push(MsgDeque *q, unsigned v) {
   atomic_store(&q->bottom, b + 1);
   return MSG_OK;
 }
-MsgStatus msg_pop(MsgDeque *q, unsigned *out) {
+enum msg_status msg_pop(struct msg_deque *q, unsigned *out) {
   size_t b = atomic_load(&q->bottom);
   if (!b)
     return MSG_EMPTY;
@@ -348,7 +348,7 @@ MsgStatus msg_pop(MsgDeque *q, unsigned *out) {
   *out = SC_MUTANT == 6 ? v + 1 : v;
   return MSG_OK;
 }
-MsgStatus msg_steal(MsgDeque *q, unsigned *out) {
+enum msg_status msg_steal(struct msg_deque *q, unsigned *out) {
   size_t t = atomic_load(&q->top), b = atomic_load(&q->bottom);
   if (t >= b)
     return MSG_EMPTY;
@@ -358,25 +358,25 @@ MsgStatus msg_steal(MsgDeque *q, unsigned *out) {
   *out = v;
   return MSG_OK;
 }
-void msg_store_init(MsgStore *s) {
+void msg_store_init(struct msg_store *s) {
   atomic_init(&s->clock, 0);
   for (unsigned i = 0; i < 4; i++) {
     atomic_init(&s->cells[i].stamp, 0);
     atomic_init(&s->cells[i].value, 0);
   }
 }
-void msg_begin(MsgStore *s, MsgTxn *t) {
-  *t = (MsgTxn){.store = s, .snapshot = atomic_load(&s->clock), .active = true};
+void msg_begin(struct msg_store *s, struct msg_txn *t) {
+  *t = (struct msg_txn){.store = s, .snapshot = atomic_load(&s->clock), .active = true};
 }
-void msg_abort(MsgTxn *t) { t->active = false; }
-MsgStatus msg_read(MsgTxn *t, unsigned k, unsigned *out) {
+void msg_abort(struct msg_txn *t) { t->active = false; }
+enum msg_status msg_read(struct msg_txn *t, unsigned k, unsigned *out) {
   if (!t->active || k > 3)
     return MSG_INVALID;
   if (t->writes & (1u << k)) {
     *out = t->values[k];
     return MSG_OK;
   }
-  MsgCell *c = &t->store->cells[k];
+  struct msg_cell *c = &t->store->cells[k];
   unsigned before = atomic_load(&c->stamp), v = atomic_load(&c->value),
            after = atomic_load(&c->stamp);
   if (SC_MUTANT != 7 &&
@@ -388,19 +388,19 @@ MsgStatus msg_read(MsgTxn *t, unsigned k, unsigned *out) {
   *out = v;
   return MSG_OK;
 }
-MsgStatus msg_write(MsgTxn *t, unsigned k, unsigned v) {
+enum msg_status msg_write(struct msg_txn *t, unsigned k, unsigned v) {
   if (!t->active || k > 3)
     return MSG_INVALID;
   t->writes |= 1u << k;
   t->values[k] = v;
   return MSG_OK;
 }
-MsgStatus msg_commit(MsgTxn *t) {
+enum msg_status msg_commit(struct msg_txn *t) {
   if (!t->active)
     return MSG_INVALID;
-  MsgStore *s = t->store;
+  struct msg_store *s = t->store;
   unsigned locked = 0, old[4] = {0}, stamp = 0;
-  MsgStatus status = MSG_CONFLICT;
+  enum msg_status status = MSG_CONFLICT;
   for (unsigned i = 0; i < 4; i++)
     if (t->writes & (1u << i)) {
       unsigned v = atomic_load(&s->cells[i].stamp);
@@ -442,7 +442,7 @@ abort:
   t->active = false;
   return status;
 }
-static size_t visible(MsgVersions *s, uint64_t stamp) {
+static size_t visible(struct msg_versions *s, uint64_t stamp) {
   size_t best = 8;
   for (size_t i = 0; i < 8; i++)
     if (s->versions[i].live && s->versions[i].stamp <= stamp &&
@@ -450,7 +450,7 @@ static size_t visible(MsgVersions *s, uint64_t stamp) {
       best = i;
   return best;
 }
-static void collect(MsgVersions *s) {
+static void collect(struct msg_versions *s) {
   bool keep[8] = {false};
   size_t current = visible(s, s->clock);
   keep[current] = true;
@@ -462,40 +462,40 @@ static void collect(MsgVersions *s) {
     if (!keep[i])
       s->versions[i].live = false;
 }
-MsgStatus msg_versions_init(MsgVersions *s) {
+enum msg_status msg_versions_init(struct msg_versions *s) {
   if (pthread_mutex_init(&s->mutex, NULL))
     return MSG_FAILED;
   s->clock = 0;
   for (unsigned i = 0; i < 8; i++)
-    s->versions[i] = (MsgVersion){0};
+    s->versions[i] = (struct msg_version){0};
   s->versions[0].live = true;
   for (unsigned i = 0; i < 4; i++)
-    s->pins[i] = (MsgPin){0};
+    s->pins[i] = (struct msg_pin){0};
   return MSG_OK;
 }
-void msg_versions_destroy(MsgVersions *s) { pthread_mutex_destroy(&s->mutex); }
-MsgStatus msg_snapshot(MsgVersions *s, MsgSnapshot *out) {
+void msg_versions_destroy(struct msg_versions *s) { pthread_mutex_destroy(&s->mutex); }
+enum msg_status msg_snapshot(struct msg_versions *s, struct msg_snapshot *out) {
   pthread_mutex_lock(&s->mutex);
-  MsgStatus status = MSG_FULL;
+  enum msg_status status = MSG_FULL;
   for (unsigned i = 0; i < 4; i++)
     if (!s->pins[i].active && s->pins[i].generation < UINT64_MAX) {
       s->pins[i].active = true;
       s->pins[i].stamp = s->clock;
       ++s->pins[i].generation;
-      *out = (MsgSnapshot){i, s->pins[i].generation};
+      *out = (struct msg_snapshot){i, s->pins[i].generation};
       status = MSG_OK;
       break;
     }
   pthread_mutex_unlock(&s->mutex);
   return status;
 }
-static bool pin_valid(MsgVersions *s, MsgSnapshot p) {
+static bool pin_valid(struct msg_versions *s, struct msg_snapshot p) {
   return p.slot < 4 && s->pins[p.slot].active &&
          (SC_MUTANT == 18 || s->pins[p.slot].generation == p.generation);
 }
-MsgStatus msg_snapshot_read(MsgVersions *s, MsgSnapshot p, unsigned *out) {
+enum msg_status msg_snapshot_read(struct msg_versions *s, struct msg_snapshot p, unsigned *out) {
   pthread_mutex_lock(&s->mutex);
-  MsgStatus status = MSG_STALE;
+  enum msg_status status = MSG_STALE;
   if (pin_valid(s, p)) {
     size_t v = visible(s, s->pins[p.slot].stamp);
     if (v < 8) {
@@ -508,9 +508,9 @@ MsgStatus msg_snapshot_read(MsgVersions *s, MsgSnapshot p, unsigned *out) {
   pthread_mutex_unlock(&s->mutex);
   return status;
 }
-MsgStatus msg_snapshot_drop(MsgVersions *s, MsgSnapshot p) {
+enum msg_status msg_snapshot_drop(struct msg_versions *s, struct msg_snapshot p) {
   pthread_mutex_lock(&s->mutex);
-  MsgStatus status = MSG_STALE;
+  enum msg_status status = MSG_STALE;
   if (pin_valid(s, p)) {
     s->pins[p.slot].active = false;
     collect(s);
@@ -519,9 +519,9 @@ MsgStatus msg_snapshot_drop(MsgVersions *s, MsgSnapshot p) {
   pthread_mutex_unlock(&s->mutex);
   return status;
 }
-MsgStatus msg_publish(MsgVersions *s, unsigned a, unsigned b) {
+enum msg_status msg_publish(struct msg_versions *s, unsigned a, unsigned b) {
   pthread_mutex_lock(&s->mutex);
-  MsgStatus status = MSG_FULL;
+  enum msg_status status = MSG_FULL;
   if (s->clock == UINT64_MAX) {
     status = MSG_OVERFLOW;
     goto out;
@@ -530,7 +530,7 @@ MsgStatus msg_publish(MsgVersions *s, unsigned a, unsigned b) {
   for (unsigned i = 0; i < 8; i++)
     if (!s->versions[i].live) {
       s->versions[i] =
-          (MsgVersion){.values = {a, b}, .stamp = ++s->clock, .live = true};
+          (struct msg_version){.values = {a, b}, .stamp = ++s->clock, .live = true};
       status = MSG_OK;
       break;
     }
@@ -538,12 +538,12 @@ out:
   pthread_mutex_unlock(&s->mutex);
   return status;
 }
-void msg_sequence_init(MsgSequence *s) {
+void msg_sequence_init(struct msg_sequence *s) {
   atomic_init(&s->sequence, 0);
   atomic_init(&s->first, 0);
   atomic_init(&s->second, 0);
 }
-MsgStatus msg_sequence_write(MsgSequence *s, unsigned a, unsigned b) {
+enum msg_status msg_sequence_write(struct msg_sequence *s, unsigned a, unsigned b) {
   unsigned v = atomic_load(&s->sequence);
   if (v & 1u)
     return MSG_BUSY;
@@ -556,7 +556,7 @@ MsgStatus msg_sequence_write(MsgSequence *s, unsigned a, unsigned b) {
   atomic_store(&s->sequence, v + 2);
   return MSG_OK;
 }
-MsgStatus msg_sequence_read(MsgSequence *s, size_t tries, unsigned *out) {
+enum msg_status msg_sequence_read(struct msg_sequence *s, size_t tries, unsigned *out) {
   for (size_t i = 0; i < tries; i++) {
     unsigned a = atomic_load(&s->sequence);
     if ((a & 1u) && SC_MUTANT != 9)
@@ -571,10 +571,10 @@ MsgStatus msg_sequence_read(MsgSequence *s, size_t tries, unsigned *out) {
   }
   return MSG_BUSY;
 }
-void msg_stream_init(MsgStream *s, MsgNext next, MsgTerminal end, void *ctx) {
-  *s = (MsgStream){.next = next, .end = end, .ctx = ctx};
+void msg_stream_init(struct msg_stream *s, msg_next_fn next, msg_terminal_fn end, void *ctx) {
+  *s = (struct msg_stream){.next = next, .end = end, .ctx = ctx};
 }
-MsgStatus msg_request(MsgStream *s, uint64_t n) {
+enum msg_status msg_request(struct msg_stream *s, uint64_t n) {
   if (s->terminal || s->cancelled || s->pending_error)
     return MSG_CLOSED;
   if (!n) {
@@ -587,8 +587,8 @@ MsgStatus msg_request(MsgStream *s, uint64_t n) {
   s->demand = UINT64_MAX - s->demand < n ? UINT64_MAX : s->demand + n;
   return MSG_OK;
 }
-void msg_stream_cancel(MsgStream *s) { s->cancelled = true; }
-MsgStatus msg_emit(MsgStream *s, unsigned v) {
+void msg_stream_cancel(struct msg_stream *s) { s->cancelled = true; }
+enum msg_status msg_emit(struct msg_stream *s, unsigned v) {
   if (s->terminal || s->cancelled)
     return MSG_CLOSED;
   if (s->delivering)
@@ -606,7 +606,7 @@ MsgStatus msg_emit(MsgStream *s, unsigned v) {
   }
   return MSG_OK;
 }
-MsgStatus msg_stream_end(MsgStream *s, MsgStatus status) {
+enum msg_status msg_stream_end(struct msg_stream *s, enum msg_status status) {
   if ((s->terminal || s->cancelled) && SC_MUTANT != 20)
     return MSG_CLOSED;
   if (s->delivering)

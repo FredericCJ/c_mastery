@@ -8,20 +8,20 @@
 #include <string.h>
 #define CHECK(c) do{if(!(c)){fprintf(stderr,"CPF_CHECK:%d:%s\n",__LINE__,#c);return 1;}}while(0)
 #endif
-static int pf_setup(cmx_kernel *k,CPF *o,CPFHandle h[6]){
+static int pf_setup(cmx_kernel *k,struct cmx_cpf *o,struct cpf_handle h[6]){
   cmx_init(k,CMX_FIXED);
   for(unsigned i=0;i<6;i++)if(cmx_task_add(k,5+i,0,0x1000+256*i,256)!=(int)i)return 0;
   if(cpf_init(o,k)!=CMX_OK)return 0;
   for(unsigned i=0;i<6;i++)if(cpf_register(o,i,&h[i])!=CMX_OK)return 0;
   return 1;
 }
-static int pf_close_all(CPF *o,CPFHandle h[6]){
+static int pf_close_all(struct cmx_cpf *o,struct cpf_handle h[6]){
   if(cpf_close(o)!=CMX_OK)return 0;
   for(unsigned i=0;i<6;i++)if(cpf_release(&h[i])!=CMX_OK)return 0;
   return cpf_destroy(o)==CMX_OK;
 }
 static int pf_phases(void){
-  cmx_kernel k;CPF o;CPFHandle h[6];CPFTicket t[6],old;
+  cmx_kernel k;struct cmx_cpf o;struct cpf_handle h[6];struct cpf_ticket t[6],old;
   CHECK(pf_setup(&k,&o,h));
   CHECK(cpf_begin(h[0],CPF_READ,cmx_forever(),&t[0])==CMX_OK&&cpf_result(t[0])==CMX_OK);
   CHECK(cpf_begin(h[1],CPF_WRITE,cmx_forever(),&t[1])==CMX_BLOCKED);
@@ -41,7 +41,7 @@ static int pf_phases(void){
   CHECK(pf_close_all(&o,h));puts("CPF_PHASES:R-W-Rbatch-W-R;FIFO-writers;all-current-readers;no-late-reader-barge;ticket-identity");return 0;
 }
 static int pf_upgrade(void){
-  cmx_kernel k;CPF o;CPFHandle h[6];CPFTicket a,b,u,w,unused;
+  cmx_kernel k;struct cmx_cpf o;struct cpf_handle h[6];struct cpf_ticket a,b,u,w,unused;
   CHECK(pf_setup(&k,&o,h));
   CHECK(cpf_begin(h[0],CPF_READ,cmx_forever(),&a)==CMX_OK&&cpf_result(a)==CMX_OK);
   CHECK(cpf_begin(h[1],CPF_READ,cmx_forever(),&b)==CMX_OK&&cpf_result(b)==CMX_OK);
@@ -59,7 +59,7 @@ static int pf_upgrade(void){
 }
 static int pf_cancelled(void){
   for(unsigned timeout=0;timeout<2;timeout++){
-    cmx_kernel k;CPF o;CPFHandle h[6];CPFTicket a,b,u,r;
+    cmx_kernel k;struct cmx_cpf o;struct cpf_handle h[6];struct cpf_ticket a,b,u,r;
     CHECK(pf_setup(&k,&o,h));
     CHECK(cpf_begin(h[0],CPF_READ,cmx_forever(),&a)==CMX_OK&&cpf_result(a)==CMX_OK);
     CHECK(cpf_begin(h[1],CPF_READ,cmx_forever(),&b)==CMX_OK&&cpf_result(b)==CMX_OK);
@@ -74,7 +74,7 @@ static int pf_cancelled(void){
   puts("CPF_CANCEL:upgrade-timeout+cancel-retain-read;gate-reopens;no-owner-loss");return 0;
 }
 static int pf_boundaries(void){
-  cmx_kernel k;CPF o;CPFHandle h[6];CPFTicket a,b;
+  cmx_kernel k;struct cmx_cpf o;struct cpf_handle h[6];struct cpf_ticket a,b;
   CHECK(pf_setup(&k,&o,h));
   CHECK(cpf_begin(h[0],CPF_READ,cmx_at(0),&a)==CMX_OK&&cpf_result(a)==CMX_OK);
   CHECK(cpf_upgrade(h[0],cmx_at(0),&b)==CMX_OK&&cpf_result(b)==CMX_OK&&o.writer==0);
@@ -82,7 +82,7 @@ static int pf_boundaries(void){
   CHECK(cpf_unlock(h[0])==CMX_OK);
   CHECK(cmx_sleep(&k,0,cmx_forever())==CMX_BLOCKED&&cpf_begin(h[0],CPF_READ,cmx_forever(),&a)==CMX_INVALID);
   CHECK(cmx_cancel(&k,0)==CMX_OK);
-  k.task[1].owned_sync=UINT_MAX;b=(CPFTicket){h[2],17};
+  k.task[1].owned_sync=UINT_MAX;b=(struct cpf_ticket){h[2],17};
   CHECK(cpf_begin(h[1],CPF_WRITE,cmx_forever(),&b)==CMX_FULL&&o.writer==CMX_NONE&&o.readers==0&&
     b.handle.task==2&&b.serial==17&&o.slot[1].phase==CPF_IDLE);
   k.task[1].owned_sync=0;o.slot[1].serial=UINT32_MAX;

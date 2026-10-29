@@ -19,12 +19,12 @@ static void wait_entered(void){
  (void)pthread_mutex_lock(&pause_mutex);while(!entered)(void)pthread_cond_wait(&pause_condition,&pause_mutex);(void)pthread_mutex_unlock(&pause_mutex);
 }
 static void release_pause(void){(void)pthread_mutex_lock(&pause_mutex);released=1;(void)pthread_cond_broadcast(&pause_condition);(void)pthread_mutex_unlock(&pause_mutex);}
-static void wait_done(DSAsyncToken token){DSAsyncRegistry *r=token.registry;(void)pthread_mutex_lock(&r->mutex);while(!r->entries[token.slot].done)(void)pthread_cond_wait(&r->condition,&r->mutex);(void)pthread_mutex_unlock(&r->mutex);}
+static void wait_done(struct ds_async_token token){struct ds_async_registry *r=token.registry;(void)pthread_mutex_lock(&r->mutex);while(!r->entries[token.slot].done)(void)pthread_cond_wait(&r->condition,&r->mutex);(void)pthread_mutex_unlock(&r->mutex);}
 static unsigned gate_calls,gate_fail;
 static int gate(void *context){unsigned *calls=context;++*calls;return *calls==gate_fail?DS_FAILED:DS_OK;}
 static int registration(const char *path){
- DSAsyncRegistry registry;DSLoaded module={0};CHECK(ds_async_init(&registry)==DS_OK);CHECK(ds_loaded_open(&module,path)==DS_OK);
- DSAsyncToken token={0};CHECK(ds_async_register(&registry,&module,&token)==DS_OK && module.borrows==1);
+ struct ds_async_registry registry;struct ds_loaded module={0};CHECK(ds_async_init(&registry)==DS_OK);CHECK(ds_loaded_open(&module,path)==DS_OK);
+ struct ds_async_token token={0};CHECK(ds_async_register(&registry,&module,&token)==DS_OK && module.borrows==1);
  CHECK(ds_async_queue(token,17,3)==DS_OK && module.borrows==2);CHECK(ds_async_destroy(&registry)==DS_BUSY);
  int removed=ds_async_remove(token);unsigned cancel_borrows=module.borrows;
  wait_done(token);int out=91;int drained=ds_async_drain(token,&out);unsigned drained_borrows=module.borrows;int acknowledged=ds_async_remove(token);
@@ -38,12 +38,12 @@ static int registration(const char *path){
  CHECK(ds_async_remove(token)==DS_BUSY && module.borrows==2);out=91;CHECK(ds_async_drain(token,&out)==DS_BUSY && out==91);CHECK(ds_loaded_close(&module)==DS_BUSY);
  release_pause();wait_done(token);CHECK(ds_async_drain(token,&out)==DS_STALE && out==91);CHECK(ds_async_remove(token)==DS_OK);
  for(unsigned i=3;i<12;++i){CHECK(ds_async_register(&registry,&module,&token)==DS_OK);CHECK(ds_async_remove(token)==DS_OK);}
- DSAsyncToken unchanged={&registry,99,99};CHECK(ds_async_register(&registry,&module,&unchanged)==DS_FULL && unchanged.slot==99);
+ struct ds_async_token unchanged={&registry,99,99};CHECK(ds_async_register(&registry,&module,&unchanged)==DS_FULL && unchanged.slot==99);
  CHECK(registry.registrations==12 && registry.acknowledgements==12 && registry.invocations==2 && module.borrows==0);
  CHECK(ds_loaded_close(&module)==DS_OK);CHECK(ds_async_destroy(&registry)==DS_OK);return 0;
 }
 static int transition(const char *one,const char *two,const char *bad,unsigned n,unsigned failure,int print){
- DSAsyncRegistry registry;CHECK(ds_async_init(&registry)==DS_OK);OwAllocator allocator={0};DSReload h;ds_reload_init(&h,&registry,ds_counted_bytes(&allocator));
+ struct ds_async_registry registry;CHECK(ds_async_init(&registry)==DS_OK);struct ow_allocator allocator={0};struct ds_reload h;ds_reload_init(&h,&registry,ds_counted_bytes(&allocator));
  int32_t values[8]={1,2,3,4,5,6,7,8};if(failure==2 && n)values[n-1]=600;
  CHECK(ds_reload_change(&h,one,n?values:NULL,n)==DS_OK && h.current==0 && h.generation==1 && registry.registrations==2);
  if(failure==1)allocator.fail_at=allocator.attempts+1;
@@ -67,8 +67,8 @@ static int transition(const char *one,const char *two,const char *bad,unsigned n
 static int retirement(const char *one,const char *two,const char *bad,int oracle){
  for(unsigned n=0;n<=8;++n)for(unsigned failure=0;failure<7;++failure)if(transition(one,two,bad,n,failure,oracle))return 1;
  if(oracle)return 0;
- DSAsyncRegistry registry;CHECK(ds_async_init(&registry)==DS_OK);OwAllocator allocator={0};DSReload h;ds_reload_init(&h,&registry,ds_counted_bytes(&allocator));int32_t values[8]={1,2,3,4,5,6,7,8};
- CHECK(ds_reload_change(&h,one,values,8)==DS_OK);DSAsyncToken running=h.registrations[0][0],queued=h.registrations[0][1];
+ struct ds_async_registry registry;CHECK(ds_async_init(&registry)==DS_OK);struct ow_allocator allocator={0};struct ds_reload h;ds_reload_init(&h,&registry,ds_counted_bytes(&allocator));int32_t values[8]={1,2,3,4,5,6,7,8};
+ CHECK(ds_reload_change(&h,one,values,8)==DS_OK);struct ds_async_token running=h.registrations[0][0],queued=h.registrations[0][1];
  CHECK(ds_async_queue(running,17,99)==DS_OK);CHECK(ds_async_queue(queued,17,3)==DS_OK);CHECK(h.modules[0].borrows==4);CHECK(ds_async_start(running)==DS_OK);wait_entered();
  CHECK(ds_reload_change(&h,two,NULL,0)==DS_OK && h.current==1 && h.retired==0 && h.modules[0].borrows==4 && h.modules[1].borrows==2 && allocator.live==2 && allocator.peak==2);
  gate_calls=0;gate_fail=1;CHECK(ds_reload_collect(&h,gate,&gate_calls)==DS_BUSY && gate_calls==0);CHECK(ds_reload_change(&h,one,NULL,0)==DS_BUSY);
@@ -83,7 +83,7 @@ static int retirement(const char *one,const char *two,const char *bad,int oracle
 static int measurements(const char *one,const char *two){
  const unsigned counts[4]={0,4,5,8};
  for(unsigned c=0;c<4;++c)for(unsigned sample=0;sample<21;++sample){
-  unsigned n=counts[c];DSAsyncRegistry registry;CHECK(ds_async_init(&registry)==DS_OK);OwAllocator allocator={0};DSReload h;ds_reload_init(&h,&registry,ds_counted_bytes(&allocator));int32_t values[8]={1,2,3,4,5,6,7,8};
+  unsigned n=counts[c];struct ds_async_registry registry;CHECK(ds_async_init(&registry)==DS_OK);struct ow_allocator allocator={0};struct ds_reload h;ds_reload_init(&h,&registry,ds_counted_bytes(&allocator));int32_t values[8]={1,2,3,4,5,6,7,8};
   CHECK(ds_reload_change(&h,one,n?values:NULL,n)==DS_OK);struct timespec begin,end;CHECK(clock_gettime(CLOCK_MONOTONIC,&begin)==0);
   CHECK(ds_reload_change(&h,two,NULL,0)==DS_OK);CHECK(clock_gettime(CLOCK_MONOTONIC,&end)==0);
   long long elapsed=(long long)(end.tv_sec-begin.tv_sec)*1000000000LL+end.tv_nsec-begin.tv_nsec;
@@ -99,6 +99,6 @@ int main(int argc,char **argv){if(argc!=5)return 2;case_name=argv[1];
  if(!strcmp(case_name,"reload_owned"))return retirement(argv[2],argv[3],argv[4],0);
  if(!strcmp(case_name,"oracle"))return retirement(argv[2],argv[3],argv[4],1);
  if(!strcmp(case_name,"measure"))return measurements(argv[2],argv[3]);
- if(!strcmp(case_name,"layout")){printf("%zu %zu %zu %zu %zu\n",sizeof(DSReload),sizeof(DSAsyncRegistry),sizeof(DSAsyncEntry),sizeof(DSAsyncToken),sizeof(DSmall));return 0;}
+ if(!strcmp(case_name,"layout")){printf("%zu %zu %zu %zu %zu\n",sizeof(struct ds_reload),sizeof(struct ds_async_registry),sizeof(struct ds_async_entry),sizeof(struct ds_async_token),sizeof(struct d_small));return 0;}
  return 2;
 }

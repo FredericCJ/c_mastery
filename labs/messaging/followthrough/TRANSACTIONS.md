@@ -3,7 +3,7 @@
 This required successor concretely supports X-T73-007-R3, R4 and the changed
 allocated-node assumptions in X-T73-007-DELAYED. Implement
 `src/transactions_follow.c` through `transactions.h`, using completed
-`MsgStore`/`MsgTxn` begin/read/write primitives, `MflShared`, and unique `MfoValue`
+`struct msg_store`/`struct msg_txn` begin/read/write primitives, `struct mfl_shared`, and unique `struct mfo_value`
 ownership. Use C17 atomics and the declared POSIX mutex, not a transaction or
 memory-management library. The fixed-cell core remains a separate required
 implementation. The phase engine is an explicit instrumented commit implementation;
@@ -11,7 +11,7 @@ it is not a claim that the unchanged core already has a hook API.
 
 ## Instrumented commit and failure boundary
 
-`mft_commit_phase` accepts a live active `MsgTxn` and optional `MftHook`. It acquires
+`mft_commit_phase` accepts a live active `struct msg_txn` and optional `mft_hook_fn`. It acquires
 write-cell locks in key order with nonblocking compare/exchange, reserves a
 nonwrapping global timestamp, validates recorded reads, publishes buffered atomic
 payloads, then releases every owned lock with the new version. All these accesses
@@ -50,10 +50,10 @@ read-only commit and two native threads performing2,000 total two-cell increment
 
 ## Allocated-node ownership adapter
 
-`MftStore` has four current shared payload owners, actual atomic core cells
+`struct mft_store` has four current shared payload owners, actual atomic core cells
 containing presence flags, an outer mutex, a64-entry in-memory synthetic event
 log, and an active-transaction count. `mft_init` initializes empty cells/log with
-no heap allocation. Supply a valid `MflAllocator` and lifetime-compatible
+no heap allocation. Supply a valid `struct mfl_allocator` and lifetime-compatible
 callbacks as in `LIFETIME.md`. Typed control storage must not already be live;
 store and output objects are disjoint. Never access the embedded core or current
 node pointers through another API while this adapter is live.
@@ -61,7 +61,7 @@ node pointers through another API while this adapter is live.
 `mft_begin` publishes a private active transaction and increments admission count;
 its output must not already own an active transaction. `mft_read` validates the
 actual cell under the outer mutex and, before releasing that protection, retains
-the current node if present. It returns a borrowed immutable `MfoValue` descriptor,
+the current node if present. It returns a borrowed immutable `struct mfo_value` descriptor,
 or NULL for an absent node. A read-your-writes result refers to the staged owner.
 The borrow ends when its staged owner is replaced/removed, or the transaction
 finishes or aborts. A caller needing a longer lifetime must use a separately

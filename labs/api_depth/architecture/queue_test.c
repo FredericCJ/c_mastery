@@ -3,13 +3,13 @@ static void trace(const unsigned arrivals[3], unsigned before,
                   const unsigned expected_pending[3],
                   const unsigned expected_drop[3],
                   const unsigned expected_service[3]) {
-  ArQueue q;
+  struct ar_queue q;
   CHECK(ar_queue_init(&q, 4) == AR_OK);
   unsigned id = 0, last = 0;
   for (unsigned tick = 0; tick < 3; ++tick) {
     unsigned serviced = 0, dropped = 0;
-    ArItem item;
-    ArEviction e;
+    struct ar_item item;
+    struct ar_eviction e;
     if (before)
       while (serviced < 2 && ar_pop(&q, &item) == AR_OK) {
         CHECK(item.id > last);
@@ -18,7 +18,7 @@ static void trace(const unsigned arrivals[3], unsigned before,
       }
     for (unsigned i = 0; i < arrivals[tick]; ++i) {
       ++id;
-      int r = ar_push(&q, (ArItem){id, 0}, 0, &e);
+      int r = ar_push(&q, (struct ar_item){id, 0}, 0, &e);
       if (r == AR_FULL)
         ++dropped;
       else
@@ -35,32 +35,32 @@ static void trace(const unsigned arrivals[3], unsigned before,
   }
 }
 int main(void) {
-  ArQueue q;
-  ArEviction e = {9, {9, 9}};
-  ArItem item;
+  struct ar_queue q;
+  struct ar_eviction e = {9, {9, 9}};
+  struct ar_item item;
   CHECK(ar_queue_init(&q, 2) == AR_OK);
-  CHECK(ar_push(&q, (ArItem){1, 1}, 0, &e) == AR_OK && !e.valid);
-  CHECK(ar_push(&q, (ArItem){2, 1}, 0, &e) == AR_OK);
-  CHECK(ar_push(&q, (ArItem){3, 1}, 0, &e) == AR_FULL);
+  CHECK(ar_push(&q, (struct ar_item){1, 1}, 0, &e) == AR_OK && !e.valid);
+  CHECK(ar_push(&q, (struct ar_item){2, 1}, 0, &e) == AR_OK);
+  CHECK(ar_push(&q, (struct ar_item){3, 1}, 0, &e) == AR_FULL);
   CHECK(ar_pop(&q, &item) == AR_OK && item.id == 1);
   CHECK(ar_pop(&q, &item) == AR_OK && item.id == 2);
   CHECK(ar_pop(&q, &item) == AR_EMPTY);
   CHECK(ar_queue_init(&q, 2) == AR_OK);
-  CHECK(ar_push(&q, (ArItem){1, 1}, 1, &e) == AR_OK);
-  CHECK(ar_push(&q, (ArItem){2, 1}, 1, &e) == AR_OK);
-  CHECK(ar_push(&q, (ArItem){3, 1}, 1, &e) == AR_OK && e.valid &&
+  CHECK(ar_push(&q, (struct ar_item){1, 1}, 1, &e) == AR_OK);
+  CHECK(ar_push(&q, (struct ar_item){2, 1}, 1, &e) == AR_OK);
+  CHECK(ar_push(&q, (struct ar_item){3, 1}, 1, &e) == AR_OK && e.valid &&
         e.item.id == 1);
   CHECK(ar_pop(&q, &item) == AR_OK && item.id == 2);
   CHECK(ar_pop(&q, &item) == AR_OK && item.id == 3);
-  CHECK(ar_push(&q, (ArItem){4, 1}, 2, &e) == AR_OK);
-  CHECK(ar_push(&q, (ArItem){5, 3}, 2, &e) == AR_OK);
-  CHECK(ar_push(&q, (ArItem){6, 2}, 2, &e) == AR_OK && e.valid &&
+  CHECK(ar_push(&q, (struct ar_item){4, 1}, 2, &e) == AR_OK);
+  CHECK(ar_push(&q, (struct ar_item){5, 3}, 2, &e) == AR_OK);
+  CHECK(ar_push(&q, (struct ar_item){6, 2}, 2, &e) == AR_OK && e.valid &&
         e.item.id == 4);
-  CHECK(ar_push(&q, (ArItem){7, 2}, 2, &e) == AR_FULL);
+  CHECK(ar_push(&q, (struct ar_item){7, 2}, 2, &e) == AR_FULL);
   CHECK(ar_pop(&q, &item) == AR_OK && item.id == 5);
   CHECK(ar_pop(&q, &item) == AR_OK && item.id == 6);
   CHECK(ar_queue_init(&q, 0) == AR_OK &&
-        ar_push(&q, (ArItem){1, 1}, 0, &e) == AR_FULL);
+        ar_push(&q, (struct ar_item){1, 1}, 0, &e) == AR_FULL);
 #if AR_CAP == 4
   trace((unsigned[]){3, 1, 4}, 0, (unsigned[]){1, 0, 2}, (unsigned[]){0, 0, 0},
         (unsigned[]){2, 2, 2});

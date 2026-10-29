@@ -30,22 +30,22 @@ def run():
         dest=folder/p.name;shutil.copyfile(p,dest);artifacts.append(dict(path=dest.relative_to(ROOT).as_posix(),sha256=sha(dest)))
     with tempfile.TemporaryDirectory(prefix='cmastery-receiver-audit-') as name:
         tmp=Path(name);inc=['-I',ROOT/'labs/metaprog/receivers/include','-I',ROOT/'assessor/metaprog/receivers'];core=ROOT/'assessor/metaprog/receivers/receivers.c';flags=['-std=c17','-pedantic-errors','-Wall','-Wextra','-Werror']
-        positive=tmp/'positive.c';save(positive,'#include "receiver_macros.h"\n#include <stdio.h>\nint main(void){uint32_t x=7;uint32_t *const p=&x;const uint32_t *q=&x;volatile uint32_t v=8;const volatile uint32_t *cv=&v;MpvRead o={0};if(MPV_READ(p,&o)||o.category!=1||MPV_READ(q,&o)||o.category!=2||MPV_READ(&v,&o)||o.category!=3||MPV_READ(cv,&o)||o.category!=4)return 1;uint32_t a[1]={9};if(MPV_READ(a,&o)||o.value!=9||o.category!=1)return 2;puts("MPV_TYPED top-pointer-unqualified pointee-cv retained array-decay");return 0;}\n')
+        positive=tmp/'positive.c';save(positive,'#include "receiver_macros.h"\n#include <stdio.h>\nint main(void){uint32_t x=7;uint32_t *const p=&x;const uint32_t *q=&x;volatile uint32_t v=8;const volatile uint32_t *cv=&v;struct mpv_read o={0};if(MPV_READ(p,&o)||o.category!=1||MPV_READ(q,&o)||o.category!=2||MPV_READ(&v,&o)||o.category!=3||MPV_READ(cv,&o)||o.category!=4)return 1;uint32_t a[1]={9};if(MPV_READ(a,&o)||o.value!=9||o.category!=1)return 2;puts("MPV_TYPED top-pointer-unqualified pointee-cv retained array-decay");return 0;}\n')
         negatives={
-          'unsupported':'double x=0;MpvRead o;return MPV_READ(&x,&o);',
+          'unsupported':'double x=0;struct mpv_read o;return MPV_READ(&x,&o);',
           'const-write':'const uint32_t x=0;return MPV_WRITE(&x,1,1);',
           'cv-write':'const volatile uint32_t x=0;return MPV_WRITE(&x,1,1);',
           'unselected-invalid':'uint32_t x=0;uint32_t *p=&x;return _Generic(p,uint32_t*:1,const uint32_t*:p->missing);',
           'compatible-duplicate':'typedef uint32_t Word;uint32_t x=0;return _Generic(&x,uint32_t*:1,Word*:2);',
           'variable-association':'unsigned n=2;typedef uint32_t A[n];uint32_t x=0;return _Generic(&x,A:1,default:2);',
           'function-association':'uint32_t x=0;return _Generic(&x,void(void):1,default:2);',
-          'discard-volatile':'volatile uint32_t x=0;MpvRead o;return mpv_read_m(&x,&o);',
-          'wrong-device-view':'volatile uint32_t x=0;MpvRW rw={&x,15};return mpv_ack(rw,1);'
+          'discard-volatile':'volatile uint32_t x=0;struct mpv_read o;return mpv_read_m(&x,&o);',
+          'wrong-device-view':'volatile uint32_t x=0;struct mpv_rw rw={&x,15};return mpv_ack(rw,1);'
         }
         negpaths={}
         for kind,body in negatives.items():
             p=tmp/(kind+'.c');save(p,'#include "receiver_macros.h"\nint main(void){'+body+'}\n');negpaths[kind]=p
-        cast=tmp/'explicit_cast.c';save(cast,'#include "receivers.h"\nint probe(volatile uint32_t *p,MpvRead *o){return mpv_read_m((uint32_t*)p,o);}\n')
+        cast=tmp/'explicit_cast.c';save(cast,'#include "receivers.h"\nint probe(volatile uint32_t *p,struct mpv_read *o){return mpv_read_m((uint32_t*)p,o);}\n')
         raw=tmp/'raw_qualifier.c';save(raw,'#include "receivers.h"\n#include <stdio.h>\nint main(void){uint32_t x=0;uint32_t *const p=&x;int category=_Generic((p),uint32_t*:1,uint32_t *const:2);printf("MPV_RAW %d\\n",category);return category!=1;}\n')
         for cc in ['gcc','clang']:
             exe=tmp/(cc+'-positive');execute([cc,*flags,*inc,positive,core,'-o',exe],cc+'-positive-compile');execute([exe],cc+'-positive-run','MPV_TYPED top-pointer-unqualified pointee-cv retained array-decay');observations.append(dict(kind='typed-positive',compiler=cc,executed=True,categories=[1,2,3,4],top_pointer=1,array_category=1))

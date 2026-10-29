@@ -2,16 +2,16 @@
 
 The installed `lc.h` owns operation requirements; generated references reproduce
 that header. This note owns design alternatives and does not duplicate numeric
-admission limits. The original `ApiBuffer`/`api_append` implementation remains the
+admission limits. The original `struct api_buffer`/`api_append` implementation remains the
 mechanism producer. The packaging adapter owns opaque allocation, ABI admission
-and release identity. `ApiBuffer` is private: exposing it would couple consumers
+and release identity. `struct api_buffer` is private: exposing it would couple consumers
 to both its layout and its capacity. The alternative inline public representation
 would remove one allocation but impose that compatibility obligation.
 
 `lc_view` borrows; `lc_copy` spends O(length) byte stores to decouple the caller's
 lifetime. Python must retain the original opaque address for library release;
 converting an owned pointer directly to Python bytes does not release it. Native
-argument names document units; `LCBytes` and `LCElements` add incompatible struct
+argument names document units; `struct lc_bytes` and `struct lc_elements` add incompatible struct
 types, but explicit casts or an incorrectly constructed wrapper bypass intent.
 
 The host and teaching register-model backends have separate state and different

@@ -4,7 +4,7 @@ import json
 def generate(c):
  symbols=[('I',-2,'I=-2;'),('I',0,'I=0;'),('I',7,'I=7;'),('D',-0.5,'D=-0.50;'),('D',0.0,'D=0.00;'),('D',1.25,'D=1.25;')]
  cases=[seq for n in range(4) for seq in product(symbols,repeat=n)]
- chunks=['#include "format.h"\n#include "expressions.h"\n#include <limits.h>\n#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n_Static_assert(INT_MAX==2147483647 && UCHAR_MAX==255,"oracle recorded native model");\nstatic char *get(void *p,size_t n){(void)p;return malloc(n);}\nstatic void put(void *p,char *v){(void)p;free(v);}\nstatic TfStatus call(unsigned id,char *out,size_t n,size_t *r,TfAllocator a,TfScalars s){switch(id){']
+ chunks=['#include "format.h"\n#include "expressions.h"\n#include <limits.h>\n#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n_Static_assert(INT_MAX==2147483647 && UCHAR_MAX==255,"oracle recorded native model");\nstatic char *get(void *p,size_t n){(void)p;return malloc(n);}\nstatic void put(void *p,char *v){(void)p;free(v);}\nstatic enum tf_status call(unsigned id,char *out,size_t n,size_t *r,struct tf_allocator a,struct tf_scalars s){switch(id){']
  for i,seq in enumerate(cases):
   args=','.join("'%s',%s"%(t,repr(v)) for t,v,_ in seq)
   chunks.append(f'case {i}:return tf_format(out,n,r,a,s,{len(seq)}u'+(','+args if args else '')+');')
@@ -18,20 +18,20 @@ def generate(c):
  c.write('independent-equations.json',json.dumps(dict(format_cases=[dict(pairs=[(t,v) for t,v,_ in s],text=''.join(x for _,_,x in s)) for s in cases],integer_model=dict(minimum=lo,maximum=hi,char_max=255),arithmetic=rows),indent=2)+'\n')
  def literal(n):return 'INT_MIN' if n==lo else str(n)
  chunks.append('static const struct {int a,b,c,ok,result;} rows[]={'+','.join('{'+','.join(literal(n) for n in r)+'}' for r in rows)+'};')
- chunks.append('static TfStatus sa(void *p,int *v){*v=((int*)p)[0];return TF_OK;}\nstatic TfStatus sb(void *p,int *v){*v=((int*)p)[1];return TF_OK;}\nstatic TfStatus sc(void *p,int *v){*v=((int*)p)[2];return TF_OK;}\nstatic TfStatus gate(void *p){(void)p;return TF_OK;}')
+ chunks.append('static enum tf_status sa(void *p,int *v){*v=((int*)p)[0];return TF_OK;}\nstatic enum tf_status sb(void *p,int *v){*v=((int*)p)[1];return TF_OK;}\nstatic enum tf_status sc(void *p,int *v){*v=((int*)p)[2];return TF_OK;}\nstatic enum tf_status gate(void *p){(void)p;return TF_OK;}')
  chunks.append('''int main(void){
- TfAllocator a={NULL,get,put};TfScalars s={NULL,tf_default_integer,tf_default_real};
+ struct tf_allocator a={NULL,get,put};struct tf_scalars s={NULL,tf_default_integer,tf_default_real};
  for(unsigned i=0;i<sizeof expected/sizeof expected[0];++i){
   size_t want=strlen(expected[i]);
   for(size_t cap=0;cap<=want+1;++cap){char out[64];memset(out,'@',sizeof out);size_t r=999;
-   TfStatus status=call(i,cap?out:NULL,cap,&r,a,s);
+   enum tf_status status=call(i,cap?out:NULL,cap,&r,a,s);
    if(r!=want || status!=(cap<=want?TF_FULL:TF_OK)) return 1;
    if(status==TF_FULL){for(size_t j=0;j<sizeof out;++j)if(out[j]!='@')return 2;}
    else if(strcmp(out,expected[i]) || out[want+1]!='@')return 3;
   }
  }
- for(unsigned i=0;i<sizeof rows/sizeof rows[0];++i){int v[]={rows[i].a,rows[i].b,rows[i].c};TfProgress p={99,123};
-  TfStatus status=tf_steps(sa,sb,sc,gate,v,&p);
+ for(unsigned i=0;i<sizeof rows/sizeof rows[0];++i){int v[]={rows[i].a,rows[i].b,rows[i].c};struct tf_progress p={99,123};
+  enum tf_status status=tf_steps(sa,sb,sc,gate,v,&p);
   if(status!=(rows[i].ok?TF_OK:TF_SIZE)||p.completed!=3||p.result!=(rows[i].ok?rows[i].result:123))return 4;
  }
  for(long long v=-1024;v<=1024;++v){unsigned char out=77;int ok=v>=0&&v<=255;

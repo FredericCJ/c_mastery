@@ -2,12 +2,12 @@
 #include "services.h"
 #include <stdio.h>
 #include <string.h>
-static VhMedium disk;
+static struct vh_medium disk;
 static store database;
 int main(void) {
   char kind;
   unsigned histories = 0, cases = 0;
-  Vh h = {&database, 14, VH_VERSIONED5, 0, 0};
+  struct vg_vh h = {&database, 14, VH_VERSIONED5, 0, 0};
   while (scanf(" %c", &kind) == 1) {
     if (kind == 'B') {
       long long initial;

@@ -3,7 +3,7 @@
 #include "foundation.h"
 #include <stddef.h>
 #include <stdint.h>
-typedef enum {
+enum fe_status {
   FE_OK,
   FE_INVALID,
   FE_RANGE,
@@ -11,21 +11,21 @@ typedef enum {
   FE_ALLOC,
   FE_EMPTY,
   FE_NOT_IMPLEMENTED
-} FeStatus;
-typedef struct {
+};
+struct fe_event {
   unsigned entering;
   size_t index;
   int32_t value;
-} FeEvent;
-typedef struct {
-  FeEvent event[34];
+};
+struct fe_trace {
+  struct fe_event event[34];
   size_t count, maximum_live;
-} FeTrace;
-typedef struct {
+};
+struct fe_allocator {
   void *context;
   int32_t *(*take)(void *, size_t);
   void (*release)(void *, int32_t *);
-} FeAllocator;
+};
 /* All pointed-to control objects are live/disjoint. After scalar admission,
  * n must not exceed the actual accessible array extents. In particular the
  * staged byte-count rejection precedes access and allocation. Fixed and
@@ -34,13 +34,13 @@ typedef struct {
  * pointers. Range/allocation failures preserve output. Trace is an observation
  * output: admitted recursion/stack calls reset it and retain partial failure
  * history. */
-FeStatus fe_fixed(const int32_t *, size_t, int32_t *, size_t);
-FeStatus fe_recursive(const int32_t *, size_t, int32_t *, FeTrace *);
-FeStatus fe_explicit_stack(const int32_t *, size_t, int32_t *, FeTrace *);
-FeStatus fe_two_pass(const int32_t *, size_t, int32_t *, size_t);
-FeStatus fe_staged(const int32_t *, size_t, int32_t *, size_t, FeAllocator);
-FeStatus fe_maximum(const int32_t *, size_t, int32_t *);
-FeStatus fe_encode24(uint32_t, unsigned char *, size_t);
+enum fe_status fe_fixed(const int32_t *, size_t, int32_t *, size_t);
+enum fe_status fe_recursive(const int32_t *, size_t, int32_t *, struct fe_trace *);
+enum fe_status fe_explicit_stack(const int32_t *, size_t, int32_t *, struct fe_trace *);
+enum fe_status fe_two_pass(const int32_t *, size_t, int32_t *, size_t);
+enum fe_status fe_staged(const int32_t *, size_t, int32_t *, size_t, struct fe_allocator);
+enum fe_status fe_maximum(const int32_t *, size_t, int32_t *);
+enum fe_status fe_encode24(uint32_t, unsigned char *, size_t);
 int fe_any(uint8_t, uint8_t);
 int fe_all(uint8_t, uint8_t);
 int fe_forbidden_clear(uint8_t, uint8_t);

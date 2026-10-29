@@ -48,53 +48,53 @@ enum {
   PI_AF = 1024,
   PI_OVR = 2048
 };
-typedef struct {
+struct pi_io {
   void *context;
   uint32_t (*read)(void *, unsigned);
   void (*write)(void *, unsigned, uint32_t);
-} PiIo;
-typedef struct {
+};
+struct pi_i2c {
   uint32_t generation, last_token, token, last, deadline, clock;
   unsigned ready, phase, address, command, count, received, command_sent,
       master, stop_requested, result, berr;
   uint8_t partial[2], *output;
-} PiI2c;
-int pi_open(PiI2c *, PiIo, const PuClock *);
-int pi_begin(PiI2c *, PiIo, uint32_t generation, uint32_t token,
+};
+int pi_open(struct pi_i2c *, struct pi_io, const struct pu_clock *);
+int pi_begin(struct pi_i2c *, struct pi_io, uint32_t generation, uint32_t token,
              unsigned address, unsigned command, unsigned count,
              uint8_t *output, uint32_t now, unsigned budget);
-int pi_step(PiI2c *, PiIo, uint32_t token, uint32_t now);
-int pi_cancel(PiI2c *, PiIo, uint32_t token);
+int pi_step(struct pi_i2c *, struct pi_io, uint32_t token, uint32_t now);
+int pi_cancel(struct pi_i2c *, struct pi_io, uint32_t token);
 /* Open-drain recovery requires an externally established exclusive lease. */
-typedef struct {
+struct pi_lines {
   void *context;
   unsigned (*read)(void *, unsigned);
   void (*release)(void *, unsigned, unsigned);
-} PiLines;
+};
 enum { PI_SCL, PI_SDA };
-typedef struct {
+struct pi_recovery {
   unsigned active, phase, pulses, result;
   uint32_t last, due, deadline;
   unsigned half;
-} PiRecovery;
-int pi_recover_begin(PiRecovery *, PiLines, unsigned exclusive,
+};
+int pi_recover_begin(struct pi_recovery *, struct pi_lines, unsigned exclusive,
                      unsigned other_masters, uint32_t now, unsigned budget,
                      unsigned half);
-int pi_recover_step(PiRecovery *, PiLines, uint32_t now);
+int pi_recover_step(struct pi_recovery *, struct pi_lines, uint32_t now);
 /* Original local partner. Commands0x10 read,0x11 increment; no real device. */
 int pi_device(unsigned command, unsigned lose_ack, uint8_t *device,
               uint8_t *reply);
 int pi_retry_policy(unsigned command, unsigned may_have_applied,
                     unsigned bus_status);
-PiIo pi_f439_io(void);
+struct pi_io pi_f439_io(void);
 void pi_f439_pins(void);
-int pi_f439_step(PiI2c *, uint32_t token, uint32_t now);
-int pi_f439_open(PiI2c *, const PuClock *);
-int pi_f439_begin(PiI2c *, uint32_t generation, uint32_t token,
+int pi_f439_step(struct pi_i2c *, uint32_t token, uint32_t now);
+int pi_f439_open(struct pi_i2c *, const struct pu_clock *);
+int pi_f439_begin(struct pi_i2c *, uint32_t generation, uint32_t token,
                   unsigned address, unsigned command, unsigned count, uint8_t *,
                   uint32_t now, unsigned budget);
-int pi_f439_cancel(PiI2c *, uint32_t token);
-PiLines pi_f439_lines(void);
-int pi_f439_recovery_prepare(PiI2c *, unsigned exclusive,
+int pi_f439_cancel(struct pi_i2c *, uint32_t token);
+struct pi_lines pi_f439_lines(void);
+int pi_f439_recovery_prepare(struct pi_i2c *, unsigned exclusive,
                              unsigned other_masters);
 #endif

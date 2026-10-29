@@ -7,21 +7,21 @@
 static int scalar(uint32_t x) {
   return x <= 0x10ffffu && (RPS_MUTATION == 2 || x < 0xd800u || x > 0xdfffu);
 }
-static int item(const RpsTree *t, unsigned id) {
+static int item(const struct rps_tree *t, unsigned id) {
   unsigned i;
   for (i = 0; i < t->count; ++i)
     if (t->items[i].id == id)
       return (int)i;
   return -1;
 }
-static int rebuild(RpsTree *t) {
+static int rebuild(struct rps_tree *t) {
   unsigned i, j, progress = 1;
-  RPSequence s = {0};
+  struct rp_sequence s = {0};
   while (progress) {
     progress = 0;
     for (i = 0; i < t->count; ++i) {
       int known = 0;
-      RpsItem *x = &t->items[i];
+      struct rps_item *x = &t->items[i];
       if (!x->inserted)
         continue;
       for (j = 0; j < s.count; ++j)
@@ -39,14 +39,14 @@ static int rebuild(RpsTree *t) {
   t->topology = s;
   return RPS_OK;
 }
-static int tree_valid(const RpsTree *t) {
+static int tree_valid(const struct rps_tree *t) {
   unsigned i, j;
   if (!t || !t->epoch || t->mode > 1 || t->count > 16 ||
       t->waiting_count > 16 || t->topology.count > 16 ||
       (t->mode && t->waiting_count))
     return 0;
   for (i = 0; i < t->count; ++i) {
-    const RpsItem *x = &t->items[i];
+    const struct rps_item *x = &t->items[i];
     if (!x->id || x->inserted > 1 || x->removed > 1 ||
         (!x->inserted && (!t->mode || !x->removed || x->parent || x->scalar)) ||
         (x->inserted && (x->parent >= x->id || !scalar(x->scalar))))
@@ -64,8 +64,8 @@ static int tree_valid(const RpsTree *t) {
   }
   return 1;
 }
-int rps_init(RpsTree *t, uint64_t epoch, unsigned mode) {
-  RpsTree x = {0};
+int rps_init(struct rps_tree *t, uint64_t epoch, unsigned mode) {
+  struct rps_tree x = {0};
   if (!t || !epoch || mode > 1)
     return RPS_INVALID;
   x.epoch = epoch;
@@ -73,9 +73,9 @@ int rps_init(RpsTree *t, uint64_t epoch, unsigned mode) {
   *t = x;
   return RPS_OK;
 }
-int rps_insert(RpsTree *t, uint64_t epoch, unsigned id, unsigned parent,
+int rps_insert(struct rps_tree *t, uint64_t epoch, unsigned id, unsigned parent,
                uint32_t cp) {
-  RpsTree x;
+  struct rps_tree x;
   int n;
   unsigned i;
   if (!tree_valid(t) || !id || parent >= id || !scalar(cp))
@@ -92,7 +92,7 @@ int rps_insert(RpsTree *t, uint64_t epoch, unsigned id, unsigned parent,
     if (x.count == 16)
       return RPS_FULL;
     n = (int)x.count++;
-    x.items[n] = (RpsItem){id, 0, 0, 0, 0};
+    x.items[n] = (struct rps_item){id, 0, 0, 0, 0};
   }
   x.items[n].parent = parent;
   x.items[n].scalar = cp;
@@ -110,8 +110,8 @@ int rps_insert(RpsTree *t, uint64_t epoch, unsigned id, unsigned parent,
   *t = x;
   return RPS_OK;
 }
-int rps_remove(RpsTree *t, uint64_t epoch, unsigned id) {
-  RpsTree x;
+int rps_remove(struct rps_tree *t, uint64_t epoch, unsigned id) {
+  struct rps_tree x;
   int n;
   unsigned i;
   if (!tree_valid(t) || !id)
@@ -125,7 +125,7 @@ int rps_remove(RpsTree *t, uint64_t epoch, unsigned id) {
   else if (x.mode) {
     if (x.count == 16)
       return RPS_FULL;
-    x.items[x.count++] = (RpsItem){id, 0, 0, 0, 1};
+    x.items[x.count++] = (struct rps_item){id, 0, 0, 0, 1};
   } else {
     for (i = 0; i < x.waiting_count; ++i)
       if (x.waiting[i] == id)
@@ -160,11 +160,11 @@ static unsigned utf8(uint32_t cp, unsigned char *out) {
   out[3] = (unsigned char)(0x80 | (cp & 63));
   return 4;
 }
-int rps_render(const RpsTree *t, unsigned char *out, size_t capacity,
+int rps_render(const struct rps_tree *t, unsigned char *out, size_t capacity,
                size_t *length) {
   unsigned char order[16], bytes[64];
   size_t n = 0, k = 0, i;
-  RpsTree x;
+  struct rps_tree x;
   if (!tree_valid(t) || !length || (!out && capacity))
     return RPS_INVALID;
   x = *t;
@@ -195,17 +195,17 @@ static void put64(unsigned char *p, uint64_t x) {
 static uint64_t get64(const unsigned char *p) {
   return (uint64_t)get32(p) << 32 | get32(p + 4);
 }
-int rps_snapshot(const RpsTree *t, unsigned char out[368]) {
+int rps_snapshot(const struct rps_tree *t, unsigned char out[368]) {
   unsigned char b[368] = {0};
   unsigned i, j;
-  RpsTree x;
+  struct rps_tree x;
   if (!tree_valid(t) || !out)
     return RPS_INVALID;
   x = *t;
   for (i = 0; i < x.count; ++i)
     for (j = i + 1; j < x.count; ++j)
       if (x.items[i].id > x.items[j].id) {
-        RpsItem a = x.items[i];
+        struct rps_item a = x.items[i];
         x.items[i] = x.items[j];
         x.items[j] = a;
       }
@@ -239,8 +239,8 @@ int rps_snapshot(const RpsTree *t, unsigned char out[368]) {
     out[i] = b[i];
   return RPS_OK;
 }
-int rps_restore(const unsigned char b[368], RpsTree *out) {
-  RpsTree t = {0};
+int rps_restore(const unsigned char b[368], struct rps_tree *out) {
+  struct rps_tree t = {0};
   unsigned char check[368];
   unsigned i;
   if (!b || !out)
@@ -254,7 +254,7 @@ int rps_restore(const unsigned char b[368], RpsTree *out) {
   t.waiting_count = b[14];
   for (i = 0; i < t.count; ++i) {
     const unsigned char *p = b + 16 + 16 * i;
-    t.items[i] = (RpsItem){get32(p), get32(p + 4), get32(p + 8), p[12], p[13]};
+    t.items[i] = (struct rps_item){get32(p), get32(p + 4), get32(p + 8), p[12], p[13]};
   }
   for (i = 0; i < t.waiting_count; ++i)
     t.waiting[i] = get32(b + 272 + 4 * i);
@@ -268,8 +268,8 @@ int rps_restore(const unsigned char b[368], RpsTree *out) {
   *out = t;
   return RPS_OK;
 }
-int rps_compact(RpsTree *a, RpsTree *b, RpsTree *c, size_t outstanding) {
-  RpsTree next[3], *all[3] = {a, b, c};
+int rps_compact(struct rps_tree *a, struct rps_tree *b, struct rps_tree *c, size_t outstanding) {
+  struct rps_tree next[3], *all[3] = {a, b, c};
   unsigned char wire[3][368], order[16];
   size_t n = 0;
   unsigned i, j;
@@ -281,7 +281,7 @@ int rps_compact(RpsTree *a, RpsTree *b, RpsTree *c, size_t outstanding) {
   if (a->epoch == UINT64_MAX)
     return RPS_RANGE;
   for (i = 0; i < 3; ++i) {
-    RpsTree x = *all[i];
+    struct rps_tree x = *all[i];
     (void)rebuild(&x);
     if (x.waiting_count || x.topology.count != x.count)
       return RPS_GAP;
@@ -304,10 +304,10 @@ int rps_compact(RpsTree *a, RpsTree *b, RpsTree *c, size_t outstanding) {
     *all[i] = next[i];
   return RPS_OK;
 }
-static int sameop(RpsOp a, RpsOp b) {
+static int sameop(struct rps_op a, struct rps_op b) {
   return a.kind == b.kind && a.position == b.position && a.scalar == b.scalar;
 }
-static int same_request(const RpsRequest *a, const RpsRequest *b) {
+static int same_request(const struct rps_request *a, const struct rps_request *b) {
   unsigned i;
   if (a->epoch != b->epoch || a->base != b->base || a->site != b->site ||
       a->sequence != b->sequence || !sameop(a->op, b->op))
@@ -317,7 +317,7 @@ static int same_request(const RpsRequest *a, const RpsRequest *b) {
       return 0;
   return 1;
 }
-static int same_commit(const RpsCommit *a, const RpsCommit *b) {
+static int same_commit(const struct rps_commit *a, const struct rps_commit *b) {
   unsigned i;
   if (a->epoch != b->epoch || a->revision != b->revision ||
       a->site != b->site || a->sequence != b->sequence || !sameop(a->op, b->op))
@@ -327,7 +327,7 @@ static int same_commit(const RpsCommit *a, const RpsCommit *b) {
       return 0;
   return 1;
 }
-static int apply(uint32_t *doc, unsigned *n, RpsOp op) {
+static int apply(uint32_t *doc, unsigned *n, struct rps_op op) {
   unsigned i;
   if (op.kind == 0)
     return RPS_OK;
@@ -349,16 +349,16 @@ static int apply(uint32_t *doc, unsigned *n, RpsOp op) {
   --*n;
   return RPS_OK;
 }
-int rps_server_init(RpsServer *s, uint64_t epoch) {
-  RpsServer t = {0};
+int rps_server_init(struct rps_server *s, uint64_t epoch) {
+  struct rps_server t = {0};
   if (!s || !epoch)
     return RPS_INVALID;
   t.epoch = epoch;
   *s = t;
   return RPS_OK;
 }
-int rps_client_init(RpsClient *c, uint64_t epoch, unsigned site) {
-  RpsClient t = {0};
+int rps_client_init(struct rps_client *c, uint64_t epoch, unsigned site) {
+  struct rps_client t = {0};
   if (!c || !epoch || site > 2)
     return RPS_INVALID;
   t.epoch = epoch;
@@ -366,9 +366,9 @@ int rps_client_init(RpsClient *c, uint64_t epoch, unsigned site) {
   *c = t;
   return RPS_OK;
 }
-int rps_prepare(RpsClient *c, unsigned kind, unsigned position, uint32_t cp,
-                RpsRequest *out) {
-  RpsRequest q = {0};
+int rps_prepare(struct rps_client *c, unsigned kind, unsigned position, uint32_t cp,
+                struct rps_request *out) {
+  struct rps_request q = {0};
   unsigned i;
   if (!c || !out || !c->epoch || c->site > 2 || c->revision > 16 ||
       c->length > 32 || kind < 1 || kind > 2)
@@ -384,7 +384,7 @@ int rps_prepare(RpsClient *c, unsigned kind, unsigned position, uint32_t cp,
   q.base = c->revision;
   q.site = c->site;
   q.sequence = c->vector[c->site] + 1;
-  q.op = (RpsOp){kind, position, cp};
+  q.op = (struct rps_op){kind, position, cp};
   for (i = 0; i < 3; ++i)
     q.vector[i] = c->vector[i];
   c->request = q;
@@ -392,10 +392,10 @@ int rps_prepare(RpsClient *c, unsigned kind, unsigned position, uint32_t cp,
   *out = q;
   return RPS_OK;
 }
-int rps_submit(RpsServer *s, const RpsRequest *q, RpsCommit *out) {
-  RpsServer t;
-  RpsCommit c = {0};
-  RpsOp op;
+int rps_submit(struct rps_server *s, const struct rps_request *q, struct rps_commit *out) {
+  struct rps_server t;
+  struct rps_commit c = {0};
+  struct rps_op op;
   unsigned i, j, n;
   uint32_t scratch[32];
   int r;
@@ -430,7 +430,7 @@ int rps_submit(RpsServer *s, const RpsRequest *q, RpsCommit *out) {
     return r;
   op = q->op;
   for (i = q->base; i < s->count && op.kind; ++i) {
-    RpsOp past = s->commits[i].op;
+    struct rps_op past = s->commits[i].op;
     if (RPS_MUTATION == 6 || !past.kind)
       continue;
     if (op.kind == 1 && past.kind == 1) {
@@ -448,7 +448,7 @@ int rps_submit(RpsServer *s, const RpsRequest *q, RpsCommit *out) {
         ++op.position;
     } else if (op.position == past.position) {
       if (RPS_MUTATION != 9)
-        op = (RpsOp){0, 0, 0};
+        op = (struct rps_op){0, 0, 0};
     } else if (op.position > past.position)
       --op.position;
   }
@@ -476,8 +476,8 @@ int rps_submit(RpsServer *s, const RpsRequest *q, RpsCommit *out) {
   *out = c;
   return RPS_OK;
 }
-int rps_deliver(RpsClient *c, const RpsCommit *q) {
-  RpsClient t;
+int rps_deliver(struct rps_client *c, const struct rps_commit *q) {
+  struct rps_client t;
   unsigned i;
   int r;
   if (!c || !q || !c->epoch || c->revision > 16 || c->length > 32 ||

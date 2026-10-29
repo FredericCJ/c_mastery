@@ -22,7 +22,7 @@ outputs. Record probe impedance/capacitance, bandwidth and load-induced edge
 shift; verify voltage limits against the exact package/board documentation.
 
 Configure a known16MHz timer input, PSC15, edge ARR999, CCR1=250, CCR2=750.
-The clock owner must establish the supplied `PuClock` before `pt_f439_start`;
+The clock owner must establish the supplied `struct pu_clock` before `pt_f439_start`;
 do not assume a debugger or bootloader left HSI selected. Start capture with
 PSC15. Observe both outputs and record at least1000 complete periods, all
 intermediate raw edges, timer captures and overcapture flags. The minimum gap

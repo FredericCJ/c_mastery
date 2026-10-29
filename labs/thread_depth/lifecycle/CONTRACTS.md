@@ -65,8 +65,8 @@ Implement the joinable borrowing baseline and draw the forbidden trace
 `publish stack address; caller returns; worker reads`. Analyze that trace;
 do not execute use-after-scope. The executable repair copies 0..16 bytes into
 one job before publication and creates its worker with detached attributes.
-`TLCreator` and its input stay live until the creator exits; the resulting
-job owns its copy. `TLMonitor` is an independently retained test-controller
+`struct tl_creator` and its input stay live until the creator exits; the resulting
+job owns its copy. `struct tl_monitor` is an independently retained test-controller
 object, initialized once and used for exactly one job. Its mutex protects
 all monitor fields. Two references are established before successful worker
 creation: creator and worker. Creation failure publishes an error and frees

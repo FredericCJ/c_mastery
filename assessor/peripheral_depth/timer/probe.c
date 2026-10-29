@@ -10,8 +10,8 @@ int main(void) {
         for (unsigned d = 0; d < 6; d++)
           for (unsigned m = 0; m < 2; m++)
             for (unsigned p = 0; p < 3; p++) {
-              PuClock k = {clocks[a], 1, 1, 1, 1, 0};
-              PtConfig c = {0};
+              struct pu_clock k = {clocks[a], 1, 1, 1, 1, 0};
+              struct pt_config c = {0};
               int rc = pt_choose(&k, pscs[b], hzs[h], duties[d],
                                  1000 - duties[d], m, ppms[p], &c);
               printf("C %u %u %u %u %u %u %d %u %u %u\n", clocks[a], pscs[b],
@@ -21,8 +21,8 @@ int main(void) {
   for (unsigned m = 0; m < 2; m++)
     for (unsigned a = 1; a <= 16; a++)
       for (unsigned c = 0; c <= a + !m; c++) {
-        PtConfig v = {16000000, 1, 0, a, {c, c}, m};
-        PtModel t;
+        struct pt_config v = {16000000, 1, 0, a, {c, c}, m};
+        struct pt_model t;
         unsigned level;
         pt_init(&t, &v);
         for (unsigned i = 0; i < (m ? 2 * a : a + 1); i++) {
@@ -34,9 +34,9 @@ int main(void) {
       }
   for (unsigned center = 0; center < 2; center++)
     for (unsigned word = 0; word < 3125; word++) {
-      PtConfig a = {16000000, 1, 1, 3, {1, 2}, center},
+      struct pt_config a = {16000000, 1, 1, 3, {1, 2}, center},
                b = {16000000, 1, 2, 2, {0, 2}, center};
-      PtModel t;
+      struct pt_model t;
       unsigned n = word;
       pt_init(&t, &a);
       for (unsigned step = 0; step < 5; step++) {

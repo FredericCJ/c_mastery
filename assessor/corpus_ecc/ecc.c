@@ -16,7 +16,7 @@ static uint16_t payload(unsigned n,uint16_t word) {
     }
     return data;
 }
-ECStatus ec_encode(unsigned n,uint16_t data,uint16_t *out) {
+enum ec_status ec_encode(unsigned n,uint16_t data,uint16_t *out) {
     unsigned width=k(n);if(!out||!width||data>=(1u<<width))return EC_INVALID;
     uint16_t word=0;unsigned j=0,syndrome=0;
     for(unsigned p=1;p<n;++p)if((p&(p-1))!=0) {
@@ -28,9 +28,9 @@ ECStatus ec_encode(unsigned n,uint16_t data,uint16_t *out) {
 #endif
     *out=word;return EC_OK;
 }
-ECStatus ec_decode(unsigned n,uint16_t received,ECResult *out) {
+enum ec_status ec_decode(unsigned n,uint16_t received,struct ec_result *out) {
     if(!out||!k(n)||(received&(uint16_t)~mask(n)))return EC_INVALID;
-    unsigned syndrome=0,position=0;uint16_t word=received;ECStatus status=EC_OK;
+    unsigned syndrome=0,position=0;uint16_t word=received;enum ec_status status=EC_OK;
     for(unsigned p=1;p<n;++p)if((word>>(p-1))&1u)syndrome^=p;
     if(count(word)&1u) {
         position=syndrome?syndrome:n;word^=(uint16_t)(1u<<(position-1));status=EC_CORRECTED;
@@ -41,12 +41,12 @@ ECStatus ec_decode(unsigned n,uint16_t received,ECResult *out) {
         return EC_DETECTED;
 #endif
     }
-    ECResult result={payload(n,word),word,position};*out=result;return status;
+    struct ec_result result={payload(n,word),word,position};*out=result;return status;
 }
-ECStatus ec_erasures(unsigned n,uint16_t received,uint16_t erased,unsigned errors,ECResult *out) {
+enum ec_status ec_erasures(unsigned n,uint16_t received,uint16_t erased,unsigned errors,struct ec_result *out) {
     unsigned width=k(n),s=count(erased);
     if(!out||!width||errors>1||2u*errors+s>=4||((received|erased)&(uint16_t)~mask(n)))return EC_INVALID;
-    unsigned matches=0;ECResult result={0,0,0};uint16_t known=(uint16_t)(mask(n)&(uint16_t)~erased);
+    unsigned matches=0;struct ec_result result={0,0,0};uint16_t known=(uint16_t)(mask(n)&(uint16_t)~erased);
 #if EC_MUTATION == 4
     known=mask(n);
 #endif
@@ -64,10 +64,10 @@ ECStatus ec_erasures(unsigned n,uint16_t received,uint16_t erased,unsigned error
     if(matches!=1)return EC_AMBIGUOUS;
     *out=result;return (s||result.word!=received)?EC_CORRECTED:EC_OK;
 }
-ECStatus ec_interleave(unsigned n,const uint16_t words[4],uint8_t bits[64]) {
+enum ec_status ec_interleave(unsigned n,const uint16_t words[4],uint8_t bits[64]) {
     return ec_interleave_phase(n,words,0,bits);
 }
-ECStatus ec_interleave_phase(unsigned n,const uint16_t words[4],unsigned phase,uint8_t bits[64]) {
+enum ec_status ec_interleave_phase(unsigned n,const uint16_t words[4],unsigned phase,uint8_t bits[64]) {
     if(!k(n)||!words||!bits||phase>=4)return EC_INVALID;
     for(unsigned lane=0;lane<4;++lane)if(words[lane]&(uint16_t)~mask(n))return EC_INVALID;
 #if EC_MUTATION == 6
@@ -81,10 +81,10 @@ ECStatus ec_interleave_phase(unsigned n,const uint16_t words[4],unsigned phase,u
 #endif
     return EC_OK;
 }
-ECStatus ec_deinterleave(unsigned n,const uint8_t bits[64],uint16_t words[4]) {
+enum ec_status ec_deinterleave(unsigned n,const uint8_t bits[64],uint16_t words[4]) {
     return ec_deinterleave_phase(n,bits,0,words);
 }
-ECStatus ec_deinterleave_phase(unsigned n,const uint8_t bits[64],unsigned phase,uint16_t words[4]) {
+enum ec_status ec_deinterleave_phase(unsigned n,const uint8_t bits[64],unsigned phase,uint16_t words[4]) {
     if(!k(n)||!words||!bits||phase>=4)return EC_INVALID;
     for(unsigned i=0;i<4u*n;++i)if(bits[i]>1)return EC_INVALID;
     uint16_t result[4];for(unsigned lane=0;lane<4;++lane)result[lane]=0;

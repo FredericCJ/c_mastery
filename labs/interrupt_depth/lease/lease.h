@@ -12,31 +12,31 @@ enum {
 };
 enum { XD_QUARANTINE, XD_CPU, XD_DEVICE, XD_STOPPING, XD_SERVICE };
 enum { XD_NONE, XD_COMPLETE, XD_STOPPED, XD_ERROR };
-typedef struct {
+struct xd_ticket {
   uint32_t epoch, generation;
-} XdTicket;
-typedef struct {
+};
+struct xd_lease {
   uint32_t epoch, generation, phase, terminal, terminal_count, length, complete,
       possible, quiescent;
-} XdLease;
+};
 /* Trusted supervisor observation from OUTSIDE a reset software domain.
  * Numeric fields cannot authenticate this statement; the port must prove it. */
-typedef struct {
+struct xd_fence {
   uint32_t old_epoch, new_epoch, stopped, writes_drained;
-} XdFence;
-typedef struct {
-  XdTicket ticket;
+};
+struct xd_proof {
+  struct xd_ticket ticket;
   uint32_t enabled, writes_pending, visibility_done, complete, possible;
-} XdProof;
-typedef struct {
-  XdTicket ticket;
+};
+struct xd_result {
+  struct xd_ticket ticket;
   uint32_t terminal, complete, possible;
-} XdResult;
+};
 /* Zero-initialized state is quarantined, never immediately CPU-owned. */
-int xd_recover(XdLease *, const XdFence *);
-int xd_submit(XdLease *, uint32_t length, XdTicket *);
-int xd_cancel(XdLease *, XdTicket);
-int xd_observe(XdLease *, XdTicket, unsigned event, const XdProof *);
-int xd_reclaim(XdLease *, XdTicket, XdResult *);
-void xd_quarantine(XdLease *);
+int xd_recover(struct xd_lease *, const struct xd_fence *);
+int xd_submit(struct xd_lease *, uint32_t length, struct xd_ticket *);
+int xd_cancel(struct xd_lease *, struct xd_ticket);
+int xd_observe(struct xd_lease *, struct xd_ticket, unsigned event, const struct xd_proof *);
+int xd_reclaim(struct xd_lease *, struct xd_ticket, struct xd_result *);
+void xd_quarantine(struct xd_lease *);
 #endif

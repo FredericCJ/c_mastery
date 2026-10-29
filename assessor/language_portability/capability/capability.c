@@ -2,12 +2,12 @@
 #include <limits.h>
 #include <inttypes.h>
 #include <stdio.h>
-int lp_record(unsigned present, intmax_t value, LpValue *out) {
+int lp_record(unsigned present, intmax_t value, struct lp_value *out) {
     if (!out || present > 1) return 0;
-    *out = (LpValue){.present=present, .value=(present || LP_MUTANT==4) ? value : 0};
+    *out = (struct lp_value){.present=present, .value=(present || LP_MUTANT==4) ? value : 0};
     return 1;
 }
-int lp_format(LpValue value, char *out, size_t capacity) {
+int lp_format(struct lp_value value, char *out, size_t capacity) {
     char staged[128];
     int n;
     if (!out || value.present > 1) return 0;

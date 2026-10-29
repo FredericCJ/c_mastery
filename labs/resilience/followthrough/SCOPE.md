@@ -3,14 +3,14 @@
 This is required implementation support for X-T75-001 R1-R4 and
 X-T75-001-DELAYED. The original exercise supplies the source passages, rubric,
 learner deliverables and delayed assessment policy. Complete `src/scope_follow.c`
-against `followthrough/scope.h`; the original `RZScope` is an explicit dependency.
+against `followthrough/scope.h`; the original `struct rz_scope` is an explicit dependency.
 The assessor implementation is separately packaged. This is C17 hosted C with
 8-bit bytes, exact `uint64_t`, C atomics and POSIX threads in the test harness.
 No OS clock, timer, RPC framework or garbage collector implements the mechanism.
 
 ## Representation, authority and lifetime
 
-An allocated `RzfScope` embeds a real `RZScope`, an immutable parent owner,
+An allocated `struct rzf_scope` embeds a real `struct rz_scope`, an immutable parent owner,
 an allocator value and an atomic reference count. Each successfully created cell
 owns one caller reference. A child owns a separate parent reference. All tree
 edges share one clock domain; maximum depth is the retained core's eight cells.
@@ -33,13 +33,13 @@ owner being consumed. Release clears the caller's location before decrementing
 and releases a zero-count cell and its parent edge, at most eight cells. Separate
 owners may be released concurrently; their pointer locations may not be shared
 without synchronization. No ordinary cell field may be mutated after publication.
-The allocator returns suitably aligned `sizeof(RzfScope)` storage or null;
+The allocator returns suitably aligned `sizeof(struct rzf_scope)` storage or null;
 deallocation is infallible and releases exactly that allocation. Its context
 outlives all cells and supports the threads that may release their last owner.
 Callbacks must not reenter these operations or change/retain borrowed cell
 storage. ISO C cannot enforce these ownership or callback conditions.
 
-A zero-initialized `RzfBorrow` is an acknowledgement ticket. Begin retains one
+A zero-initialized `struct rzf_borrow` is an acknowledgement ticket. Begin retains one
 scope reference; a live ticket cannot be begun again. The borrower may access the
 cell until its backend is quiescent. Only then may the ticket owner acknowledge
 and release it. Duplicate acknowledgement is `RZ_STALE`. Quiescence is a caller
@@ -50,7 +50,7 @@ deadline expiry authorizes early acknowledgement.
 
 ## A budget across unrelated clock origins
 
-`RzfBudget` contains remaining duration R and a conservative transport bound B.
+`struct rzf_budget` contains remaining duration R and a conservative transport bound B.
 Export at sender time t calls actual `rz_remaining`, deducting all sender work
 already elapsed. It rejects cancelled/expired scopes and `B >= R`. The optional
 16-octet encoding is unsigned big endian R followed by B, with no padding or raw

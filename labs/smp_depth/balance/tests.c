@@ -2,12 +2,12 @@
 #include <stdio.h>
 #include <string.h>
 #define CHECK(x) do{if(!(x)){fprintf(stderr,"SB_CHECK:%u:%s\n",__LINE__,#x);return 1;}}while(0)
-typedef struct {unsigned rings[4],fail;} Port;
-static int ring(void *ctx,unsigned cpu){Port *p=ctx;p->rings[cpu]++;return !p->fail;}
+struct sa_port {unsigned rings[4],fail;};
+static int ring(void *ctx,unsigned cpu){struct sa_port *p=ctx;p->rings[cpu]++;return !p->fail;}
 static void ack(void *ctx,unsigned cpu){(void)ctx;(void)cpu;}
 static int contract(void){
- SbWorld w;Port p={{0},0};SqHandle a,b,c,run;SqEvent e={0},before={0},end;SqTransfer t={0},old;SlStats s={0};SbTimer timer;
- CHECK(sb_init(&w,3,2,(SwPort){ring,ack,&p})==SQ_OK);
+ struct sb_world w;struct sa_port p={{0},0};struct sq_handle a,b,c,run;struct sq_event e={0},before={0},end;struct sq_transfer t={0},old;struct sl_stats s={0};struct sb_timer timer;
+ CHECK(sb_init(&w,3,2,(struct sw_port){ring,ack,&p})==SQ_OK);
  CHECK(sb_create(&w,0,0,0,7,&a,&e)==SQ_OK);CHECK(sb_create(&w,0,0,1,1,&b,&e)==SQ_OK);
  CHECK(sb_affinity(&w,0,a,0,&s)==SQ_INVALID);CHECK(sb_affinity(&w,0,a,8,&s)==SQ_INVALID);
  CHECK(sb_dispatch(&w,0,&run,&e,&s)==SQ_OK&&run.slot==0);
@@ -38,8 +38,8 @@ static int contract(void){
  return 0;
 }
 static int balance(void){
- SbWorld w;Port p={{0},0};SqHandle id[4],run;SqEvent first,last;SlStats stats={0};
- CHECK(sb_init(&w,2,4,(SwPort){ring,ack,&p})==SQ_OK);
+ struct sb_world w;struct sa_port p={{0},0};struct sq_handle id[4],run;struct sq_event first,last;struct sl_stats stats={0};
+ CHECK(sb_init(&w,2,4,(struct sw_port){ring,ack,&p})==SQ_OK);
  for(unsigned i=0;i<4;i++)CHECK(sb_create(&w,0,0,i,i?3:1,&id[i],&first)==SQ_OK);
  CHECK(sb_balance(&w,0,&first,&last,&stats)==SQ_OK&&first.slot==1&&last.destination==1);
  CHECK(sb_balance(&w,0,&first,&last,&stats)==SQ_OK&&first.slot==2&&last.destination==1);
@@ -48,15 +48,15 @@ static int balance(void){
  CHECK(sb_invariant(&w));return 0;
 }
 static int limits(void){
- SbWorld w;Port p={{0},0};SqHandle id,run;SqEvent e;SqTransfer t;SbTimer timer;SlStats s={0};
- CHECK(sb_init(&w,2,1,(SwPort){ring,ack,&p})==SQ_OK);CHECK(sb_create(&w,0,0,0,3,&id,&e)==SQ_OK);
+ struct sb_world w;struct sa_port p={{0},0};struct sq_handle id,run;struct sq_event e;struct sq_transfer t;struct sb_timer timer;struct sl_stats s={0};
+ CHECK(sb_init(&w,2,1,(struct sw_port){ring,ack,&p})==SQ_OK);CHECK(sb_create(&w,0,0,0,3,&id,&e)==SQ_OK);
  w.migrations[0]=UINT64_MAX-1;CHECK(sb_move_begin(&w,0,1,id,0,&t,&e,&s)==SQ_OK);CHECK(sb_move_end(&w,0,t,1,&e,&s)==SQ_OK&&w.migrations[0]==UINT64_MAX);CHECK(sb_move_begin(&w,0,0,id,0,&t,&e,&s)==SQ_FULL);
  w.timer_serial[0]=UINT64_MAX-1;CHECK(sb_timer_arm(&w,0,id,&timer,&s)==SQ_OK&&timer.serial==UINT64_MAX);CHECK(sb_timer_cancel(&w,0,timer,&s)==SQ_OK);CHECK(sb_timer_arm(&w,0,id,&timer,&s)==SQ_FULL);
  CHECK(sb_dispatch(&w,1,&run,&e,&s)==SQ_OK);CHECK(sb_finish(&w,1,run,SQ_EXITED,&e,&s)==SQ_OK&&sb_invariant(&w));return 0;
 }
 static int capacity(void){
- SbWorld w;Port p={{0},0};SqHandle a,b,run;SqEvent e;SqTransfer t;SlStats s={0};
- CHECK(sb_init(&w,2,1,(SwPort){ring,ack,&p})==SQ_OK);CHECK(sb_create(&w,0,0,0,3,&a,&e)==SQ_OK);CHECK(sb_create(&w,0,1,1,2,&b,&e)==SQ_OK);
+ struct sb_world w;struct sa_port p={{0},0};struct sq_handle a,b,run;struct sq_event e;struct sq_transfer t;struct sl_stats s={0};
+ CHECK(sb_init(&w,2,1,(struct sw_port){ring,ack,&p})==SQ_OK);CHECK(sb_create(&w,0,0,0,3,&a,&e)==SQ_OK);CHECK(sb_create(&w,0,1,1,2,&b,&e)==SQ_OK);
  CHECK(sb_move_begin(&w,0,1,a,0,&t,&e,&s)==SQ_FULL&&sb_invariant(&w)&&w.wake.queues.queue[0].count==1);
  CHECK(sb_dispatch(&w,1,&run,&e,&s)==SQ_OK);CHECK(sb_move_begin(&w,0,1,a,0,&t,&e,&s)==SQ_FULL);CHECK(sb_finish(&w,1,b,SQ_BLOCKED,&e,&s)==SQ_OK);
  CHECK(sb_move_begin(&w,0,1,a,0,&t,&e,&s)==SQ_OK);CHECK(sb_wake(&w,1,b,&e,&s)==SQ_FULL);

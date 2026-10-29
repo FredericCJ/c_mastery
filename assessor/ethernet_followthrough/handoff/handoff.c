@@ -11,7 +11,7 @@ static int host(uint32_t ip, uint32_t mask) {
   uint32_t h = ip & ~mask;
   return unicast(ip) && h && h != ~mask;
 }
-int eh_next(const EhRoute *r, uint32_t dst, uint32_t *out) {
+int eh_next(const struct eh_route *r, uint32_t dst, uint32_t *out) {
   uint32_t inv, next;
   if (!r || !out)
     return EH_INVALID;
@@ -38,7 +38,7 @@ static uint32_t ip(const unsigned char *p) {
   return (uint32_t)p[0] << 24 | (uint32_t)p[1] << 16 | (uint32_t)p[2] << 8 |
          p[3];
 }
-int eh_frame(const EhRoute *r, const unsigned char *mac, const EhNeighbor *n,
+int eh_frame(const struct eh_route *r, const unsigned char *mac, const struct eh_neighbor *n,
              const unsigned char *p, size_t size, unsigned char *out,
              size_t cap, size_t *written) {
   uint32_t next, sum = 0;
@@ -74,7 +74,7 @@ int eh_frame(const EhRoute *r, const unsigned char *mac, const EhNeighbor *n,
   }
   return EH_OK;
 }
-int eh_correlate(const EhClock *c, const uint32_t *t, size_t n, uint64_t *lower,
+int eh_correlate(const struct eh_clock *c, const uint32_t *t, size_t n, uint64_t *lower,
                  uint64_t *upper) {
   uint64_t lo[16], hi[16];
   size_t i;

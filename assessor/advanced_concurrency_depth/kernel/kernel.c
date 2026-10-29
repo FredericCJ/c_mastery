@@ -1,6 +1,6 @@
 #include "kernel.h"
-enum ak_result ak_copy(AKPacket *p, size_t n, AKCopy copy, void *context) {
-  AKPacket next;
+enum ak_result ak_copy(struct ak_packet *p, size_t n, ak_copy_fn copy, void *context) {
+  struct ak_packet next;
   size_t i, left;
   if (!p || !copy || !n || n > 32)
     return AK_INVALID;
@@ -17,7 +17,7 @@ enum ak_result ak_copy(AKPacket *p, size_t n, AKCopy copy, void *context) {
   *p = next;
   return AK_OK;
 }
-enum ak_result ak_init(AKService *s, AKBackend b) {
+enum ak_result ak_init(struct ak_service *s, struct ak_backend b) {
   if (!s || !b.map || !b.sync_device || !b.submit || !b.quiesce ||
       !b.sync_cpu || !b.unmap)
     return AK_INVALID;
@@ -28,15 +28,15 @@ enum ak_result ak_init(AKService *s, AKBackend b) {
   s->cookie = 0;
   return AK_OK;
 }
-enum ak_result ak_enqueue(AKService *s, ASValue v) {
+enum ak_result ak_enqueue(struct ak_service *s, struct as_value v) {
   enum cmx_result r;
   if (!s)
     return AK_INVALID;
   r = as_push(&s->queue, v, 0, 0);
   return r == CMX_OK ? AK_OK : r == CMX_FULL ? AK_BUSY : AK_INVALID;
 }
-enum ak_result ak_start(AKService *s) {
-  AKBackend *b;
+enum ak_result ak_start(struct ak_service *s) {
+  struct ak_backend *b;
   unsigned cookie;
   if (!s)
     return AK_INVALID;
@@ -61,8 +61,8 @@ enum ak_result ak_start(AKService *s) {
   s->state = 2;
   return AK_OK;
 }
-enum ak_result ak_complete(AKService *s, ASValue *out) {
-  AKBackend *b;
+enum ak_result ak_complete(struct ak_service *s, struct as_value *out) {
+  struct ak_backend *b;
   if (!s || !out)
     return AK_INVALID;
   if (s->state != 2)

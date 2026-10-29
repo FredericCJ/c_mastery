@@ -2,8 +2,8 @@
 #ifndef ADQ_MUTATION
 #define ADQ_MUTATION 0
 #endif
-AdqStatus adq_scale(int64_t value, uint32_t numerator, uint32_t denominator,
-                    AdqResult *out) {
+enum adq_status adq_scale(int64_t value, uint32_t numerator, uint32_t denominator,
+                    struct adq_result *out) {
   if (!out || !numerator || !denominator)
     return ADQ_INVALID;
   unsigned negative = value < 0;
@@ -26,17 +26,17 @@ AdqStatus adq_scale(int64_t value, uint32_t numerator, uint32_t denominator,
         result == (uint64_t)INT64_MAX + 1 ? INT64_MIN : -(int64_t)result;
   else
     signed_result = (int64_t)result;
-  *out = (AdqResult){signed_result,
+  *out = (struct adq_result){signed_result,
                      ADQ_MUTATION == 2 ? 0 : product % denominator != 0};
   return ADQ_OK;
 }
-AdqStatus adq_to_ticks(AdqMicroseconds value, AdqPeriod period,
-                       AdqResult *out) {
+enum adq_status adq_to_ticks(struct adq_microseconds value, struct adq_period period,
+                       struct adq_result *out) {
   return adq_scale(
       value.value, ADQ_MUTATION == 4 ? period.numerator_us : period.denominator,
       ADQ_MUTATION == 4 ? period.denominator : period.numerator_us, out);
 }
-AdqStatus adq_to_microseconds(AdqTicks value, AdqPeriod period,
-                              AdqResult *out) {
+enum adq_status adq_to_microseconds(struct adq_ticks value, struct adq_period period,
+                              struct adq_result *out) {
   return adq_scale(value.value, period.numerator_us, period.denominator, out);
 }

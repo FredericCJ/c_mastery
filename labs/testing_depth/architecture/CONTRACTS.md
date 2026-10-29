@@ -10,8 +10,8 @@ guarantee. The supplied `architecture.c` is deliberately unfinished.
 ## Inputs, representation and ownership
 
 Read `architecture.h`. Implement the operations from permitted C primitives;
-do not use an existing queue or collection library. A `TaQueue` borrows a live,
-properly aligned `TaStorage` until its last use. Both are fixed-address typed
+do not use an existing queue or collection library. A `struct ta_queue` borrows a live,
+properly aligned `struct ta_storage` until its last use. Both are fixed-address typed
 objects. Do not copy an active queue as an independent owner, use expired
 storage, call concurrently, or mutate representation fields outside the
 diagnostic experiment. Controls, backing storage, input and output ranges are
@@ -58,7 +58,7 @@ longer repeated wrap/drain sequences and capacities1 and8 separately.
 
 `ta_decode` accepts exactly the original three-byte packet `{2,a,b}` and
 publishes two output bytes only after complete validation. `ta_begin` admits a
-fresh `TaFlow`, a valid packet, one of the four layouts and positive callback
+fresh `struct ta_flow`, a valid packet, one of the four layouts and positive callback
 budget. It copies packet values through the actual queue into owned staging;
 no packet borrow survives. Invalid begin leaves the entire flow unchanged.
 The flow may be reused only after terminal state and with no callback active.

@@ -8,10 +8,10 @@ enum { LIST = 1, WORD, NUMBER };
 static int ws(unsigned char c) {
   return c == ' ' || c == '\t' || c == '\n' || c == '\r';
 }
-static int named(const VcNode *n, const char *s) {
+static int named(const struct vc_node *n, const char *s) {
   return n->kind == WORD && !strcmp(n->word, s);
 }
-static int ident(const VcNode *n) {
+static int ident(const struct vc_node *n) {
   if (n->kind != WORD)
     return 0;
   const char *s = n->word;
@@ -23,7 +23,7 @@ static int ident(const VcNode *n) {
       return 0;
   return strcmp(s, "true") && strcmp(s, "false") && strcmp(s, "nil");
 }
-static unsigned add(VcWork *w, unsigned kind) {
+static unsigned add(struct vc_work *w, unsigned kind) {
   if (w->count == VC_NODES) {
     w->failed = 1;
     return 0;
@@ -37,7 +37,7 @@ static unsigned add(VcWork *w, unsigned kind) {
   w->tails[level] = id;
   return id;
 }
-static void parse(VcWork *w, const char *s, size_t n, VcReport *r) {
+static void parse(struct vc_work *w, const char *s, size_t n, struct vc_report *r) {
   w->count = 1;
   w->nodes[0].kind = LIST;
   for (size_t pos = 0; pos < n && !w->failed;) {
@@ -81,7 +81,7 @@ static void parse(VcWork *w, const char *s, size_t n, VcReport *r) {
     unsigned id = add(w, WORD);
     if (w->failed)
       break;
-    VcNode *v = &w->nodes[id];
+    struct vc_node *v = &w->nodes[id];
     for (size_t i = 0; i < len; i++) {
       c = (unsigned char)s[start + i];
       if (c < 33 || c > 126)
@@ -112,14 +112,14 @@ static void parse(VcWork *w, const char *s, size_t n, VcReport *r) {
     w->failed = 1;
   r->nodes = w->count;
 }
-static unsigned next(VcWork *w, unsigned id) { return w->nodes[id].next; }
-static unsigned count(VcWork *w, unsigned id) {
+static unsigned next(struct vc_work *w, unsigned id) { return w->nodes[id].next; }
+static unsigned count(struct vc_work *w, unsigned id) {
   unsigned n = 0;
   for (; id; id = next(w, id))
     n++;
   return n;
 }
-static void signatures(VcWork *w) {
+static void signatures(struct vc_work *w) {
   for (unsigned id = w->nodes[0].first; id && !w->failed; id = next(w, id)) {
     unsigned head = w->nodes[id].first, name = next(w, head),
              params = next(w, name), body = next(w, params);
@@ -144,7 +144,7 @@ static void signatures(VcWork *w) {
     }
     if (!w->failed)
       w->definitions[w->staged.count++] =
-          (VcDefinition){name, params, body, argc};
+          (struct vc_definition){name, params, body, argc};
   }
   if (!w->staged.count || !named(&w->nodes[w->definitions[0].name], "main") ||
       w->definitions[0].arity)
@@ -154,13 +154,13 @@ static void signatures(VcWork *w) {
         named(&w->nodes[w->nodes[id].first], "break"))
       w->breaks = 1;
 }
-static void byte(VcWork *w, unsigned n) {
+static void byte(struct vc_work *w, unsigned n) {
   if (w->staged.length >= CVM_CODE)
     w->failed = 1;
   else
     w->staged.code[w->staged.length++] = (uint8_t)n;
 }
-static void constant(VcWork *w, int32_t n) {
+static void constant(struct vc_work *w, int32_t n) {
   uint32_t u = (uint32_t)n;
   byte(w, OP_INT);
   for (unsigned i = 0; i < 4; i++) {
@@ -169,14 +169,14 @@ static void constant(VcWork *w, int32_t n) {
   }
   w->height++;
 }
-static unsigned branch(VcWork *w, unsigned op) {
+static unsigned branch(struct vc_work *w, unsigned op) {
   byte(w, op);
   unsigned p = w->staged.length;
   byte(w, 0);
   byte(w, 0);
   return p;
 }
-static void patch(VcWork *w, unsigned at, unsigned target) {
+static void patch(struct vc_work *w, unsigned at, unsigned target) {
   if (at + 1 >= CVM_CODE || target > CVM_CODE) {
     w->failed = 1;
     return;
@@ -186,7 +186,7 @@ static void patch(VcWork *w, unsigned at, unsigned target) {
   w->staged.code[at] = (uint8_t)target;
   w->staged.code[at + 1] = (uint8_t)(target >> 8);
 }
-static int local(VcWork *w, unsigned id) {
+static int local(struct vc_work *w, unsigned id) {
   if (VC_MUTANT == 1) {
     for (unsigned i = 0; i < w->used; i++)
       if (!strcmp(w->names[i], w->nodes[id].word))
@@ -199,17 +199,17 @@ static int local(VcWork *w, unsigned id) {
       return (int)i;
   return -1;
 }
-static void clear(VcWork *w, unsigned slot) {
+static void clear(struct vc_work *w, unsigned slot) {
   byte(w, OP_NIL);
   byte(w, OP_STORE);
   byte(w, slot);
 }
-static void push(VcWork *w, unsigned node, int loop, VcReport *r) {
+static void push(struct vc_work *w, unsigned node, int loop, struct vc_report *r) {
   if (!node || w->sp >= w->limit) {
     w->failed = 1;
     return;
   }
-  VcFrame f = {0};
+  struct vc_frame f = {0};
   f.node = node;
   f.base = w->height;
   f.used = w->used;
@@ -219,7 +219,7 @@ static void push(VcWork *w, unsigned node, int loop, VcReport *r) {
   if (w->sp > r->emitter_peak)
     r->emitter_peak = w->sp;
 }
-static void done(VcWork *w) {
+static void done(struct vc_work *w) {
   w->height = w->frames[w->sp - 1].base + 1;
   w->sp--;
 }
@@ -233,12 +233,12 @@ static unsigned binary(const char *s) {
          : !strcmp(s, "pair") ? OP_PAIR
                               : 0;
 }
-static void compile_body(VcWork *w, unsigned body, const VcOptions *o,
-                         VcReport *r) {
+static void compile_body(struct vc_work *w, unsigned body, const struct vc_options *o,
+                         struct vc_report *r) {
   push(w, body, -1, r);
   while (w->sp && !w->failed) {
-    VcFrame *f = &w->frames[w->sp - 1];
-    VcNode *v = &w->nodes[f->node];
+    struct vc_frame *f = &w->frames[w->sp - 1];
+    struct vc_node *v = &w->nodes[f->node];
     unsigned h = v->first, a = next(w, h), b = next(w, a), c = next(w, b);
     const char *op = w->nodes[h].word;
     if (f->stage == 0) {
@@ -563,7 +563,7 @@ static void compile_body(VcWork *w, unsigned body, const VcOptions *o,
       done(w);
       break;
     case 110: {
-      VcFrame *loop = &w->frames[f->loop];
+      struct vc_frame *loop = &w->frames[f->loop];
       byte(w, OP_STORE);
       byte(w, 7);
       w->height--;
@@ -600,8 +600,8 @@ static void compile_body(VcWork *w, unsigned body, const VcOptions *o,
     }
   }
 }
-CvmStatus vc_compile(const char *s, size_t n, const VcOptions *o, VcWork *w,
-                     CvmProgram *out, VcReport *r) {
+enum cvm_status vc_compile(const char *s, size_t n, const struct vc_options *o, struct vc_work *w,
+                     struct cvm_program *out, struct vc_report *r) {
   if (!s || !o || !w || !out || !r || n > 4096 || !o->expression_depth ||
       o->expression_depth > VC_DEPTH || o->fold_constants > 1)
     return CVM_SYNTAX;
@@ -612,8 +612,8 @@ CvmStatus vc_compile(const char *s, size_t n, const VcOptions *o, VcWork *w,
   if (!w->failed)
     signatures(w);
   for (unsigned f = 0; f < w->staged.count && !w->failed; f++) {
-    VcDefinition *d = &w->definitions[f];
-    CvmFunction *fn = &w->staged.functions[f];
+    struct vc_definition *d = &w->definitions[f];
+    struct cvm_function *fn = &w->staged.functions[f];
     fn->entry = w->staged.length;
     fn->arity = (uint8_t)d->arity;
     w->used = d->arity;

@@ -1,5 +1,5 @@
 #include "allocation.h"
-int al_extent_choose(ALExtent *a, size_t *count, size_t bytes, size_t minimum,
+int al_extent_choose(struct al_extent *a, size_t *count, size_t bytes, size_t minimum,
                      unsigned best, size_t *offset, size_t *charged) {
   if (!a || !count || !bytes || !minimum || best > 1 || !offset || !charged ||
       *count > 16)
@@ -29,10 +29,10 @@ int al_extent_choose(ALExtent *a, size_t *count, size_t bytes, size_t minimum,
   *charged = n;
   return AL_OK;
 }
-int al_extent_coalesce(ALExtent *a, size_t *count, size_t capacity) {
+int al_extent_coalesce(struct al_extent *a, size_t *count, size_t capacity) {
   if (!a || !count || *count > 16)
     return AL_BAD;
-  ALExtent sorted[16];
+  struct al_extent sorted[16];
   for (size_t i = 0; i < *count; ++i) {
     if (!a[i].size || a[i].offset > capacity ||
         a[i].size > capacity - a[i].offset)
@@ -40,7 +40,7 @@ int al_extent_coalesce(ALExtent *a, size_t *count, size_t capacity) {
     sorted[i] = a[i];
   }
   for (size_t i = 1; i < *count; ++i) {
-    ALExtent x = sorted[i];
+    struct al_extent x = sorted[i];
     size_t j = i;
     while (j && sorted[j - 1].offset > x.offset) {
       sorted[j] = sorted[j - 1];
@@ -51,7 +51,7 @@ int al_extent_coalesce(ALExtent *a, size_t *count, size_t capacity) {
   size_t used = 0;
   for (size_t i = 0; i < *count; ++i) {
     if (used) {
-      ALExtent *p = &sorted[used - 1];
+      struct al_extent *p = &sorted[used - 1];
       size_t end = p->offset + p->size;
       if (end > sorted[i].offset)
         return AL_BAD;
@@ -67,21 +67,21 @@ int al_extent_coalesce(ALExtent *a, size_t *count, size_t capacity) {
   *count = used;
   return AL_OK;
 }
-static int allocate(void *p, size_t n, size_t align, ALHandle *out) {
+static int allocate(void *p, size_t n, size_t align, struct al_handle *out) {
   return al_heap_take(p, n, align, out);
 }
-static int release(void *p, ALHandle h) { return al_heap_release(p, h); }
-static int resize(void *p, ALHandle h, size_t n, ALHandle *out) {
+static int release(void *p, struct al_handle h) { return al_heap_release(p, h); }
+static int resize(void *p, struct al_handle h, size_t n, struct al_handle *out) {
   return al_heap_resize(p, h, n, 0, SIZE_MAX, out);
 }
-int al_heap_api(ALHeap *h, ALAllocator *out) {
+int al_heap_api(struct al_heap *h, struct al_allocator *out) {
   if (!h || !out)
     return AL_BAD;
-  *out = (ALAllocator){h, 8, allocate, release, resize};
+  *out = (struct al_allocator){h, 8, allocate, release, resize};
   return AL_OK;
 }
-int al_api_allocate(const ALAllocator *a, size_t n, size_t align,
-                    ALHandle *out) {
+int al_api_allocate(const struct al_allocator *a, size_t n, size_t align,
+                    struct al_handle *out) {
   if (!a || !a->allocate || !a->owner || !out || !n || !align ||
       (align & (align - 1)) || align > a->max_alignment)
     return AL_BAD;

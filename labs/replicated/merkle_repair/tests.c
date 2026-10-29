@@ -11,12 +11,12 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
-  RpkTree tree;
+struct rp_peer {
+  struct rpk_tree tree;
   unsigned calls, fail, mode, chunk, cut, tamper_at;
-} Peer;
-static RpkTree make(unsigned n) {
-  RpkTree t = {0};
+};
+static struct rpk_tree make(unsigned n) {
+  struct rpk_tree t = {0};
   unsigned i;
   t.domain = 7;
   t.count = n;
@@ -29,7 +29,7 @@ static RpkTree make(unsigned n) {
 static unsigned at(unsigned raw) { return raw / 8 * 9 + 1 + raw % 8; }
 static int exchange(void *context, const unsigned char *q, size_t qn,
                     unsigned char *reply, size_t capacity, size_t *length) {
-  Peer *p = context;
+  struct rp_peer *p = context;
   int r;
   ++p->calls;
   if (p->calls == p->fail)
@@ -54,9 +54,9 @@ static int exchange(void *context, const unsigned char *q, size_t qn,
   return 0;
 }
 static int proof(void) {
-  RpkTree t;
-  RpkCommitment root, other;
-  RpkProof p, bad;
+  struct rpk_tree t;
+  struct rpk_commitment root, other;
+  struct rpk_proof p, bad;
   unsigned n, i, j;
   unsigned char raw[32], bound[41], swap[32];
   uint32_t values[8];
@@ -140,10 +140,10 @@ static int proof(void) {
   return 0;
 }
 static int wire(void) {
-  Peer p = {0};
-  RpkTree t, saved;
-  RpkCommitment root;
-  RpkCost cost, before;
+  struct rp_peer p = {0};
+  struct rpk_tree t, saved;
+  struct rpk_commitment root;
+  struct rpk_cost cost, before;
   unsigned chunk, mode;
   p.tree = make(5);
   CHECK(rpk_commit(&p.tree, &root) == RPK_OK);
@@ -183,10 +183,10 @@ static int wire(void) {
   return 0;
 }
 static int repair(void) {
-  Peer p = {0};
-  RpkTree t, saved;
-  RpkCommitment root, actual;
-  RpkCost cost, before;
+  struct rp_peer p = {0};
+  struct rpk_tree t, saved;
+  struct rpk_commitment root, actual;
+  struct rpk_cost cost, before;
   unsigned n, fail;
   p.tree = make(2);
   p.chunk = 1;
@@ -231,10 +231,10 @@ static int repair(void) {
   return 0;
 }
 static int cost(void) {
-  Peer p = {0};
-  RpkTree t;
-  RpkCommitment root;
-  RpkCost sparse, full, equal, direct;
+  struct rp_peer p = {0};
+  struct rpk_tree t;
+  struct rpk_commitment root;
+  struct rpk_cost sparse, full, equal, direct;
   p.tree = make(16);
   p.chunk = 8;
   CHECK(rpk_commit(&p.tree, &root) == RPK_OK);
@@ -265,9 +265,9 @@ static int cost(void) {
   return 0;
 }
 static int oracle(void) {
-  RpkTree t;
-  RpkCommitment root;
-  RpkProof p;
+  struct rpk_tree t;
+  struct rpk_commitment root;
+  struct rpk_proof p;
   unsigned domain, n, index, i, j, l, b;
   while (scanf("%u %u %u", &domain, &n, &index) == 3) {
     CHECK(n <= 16);
@@ -305,10 +305,10 @@ static int repair_oracle(void) {
   unsigned n, mask, chunk, full, fail, mode, i;
   while (scanf("%u %u %u %u %u %u", &n, &mask, &chunk, &full, &fail, &mode) ==
          6) {
-    Peer peer = {0};
-    RpkTree t;
-    RpkCommitment root, actual;
-    RpkCost cost = {0};
+    struct rp_peer peer = {0};
+    struct rpk_tree t;
+    struct rpk_commitment root, actual;
+    struct rpk_cost cost = {0};
     int status;
     CHECK(n <= 16);
     peer.tree = make(n);
@@ -331,10 +331,10 @@ static int repair_oracle(void) {
   return 0;
 }
 static int metrics(void) {
-  Peer p = {0};
-  RpkTree t;
-  RpkCommitment root;
-  RpkCost observed[3];
+  struct rp_peer p = {0};
+  struct rpk_tree t;
+  struct rpk_commitment root;
+  struct rpk_cost observed[3];
   clock_t start, end;
   double seconds[3];
   unsigned full, i;
@@ -361,7 +361,7 @@ static int metrics(void) {
          "requests\":%u,\"full_requests\":%u,\"sparse_cpu_seconds\":%.9f,"
          "\"full_cpu_seconds\":%.9f,\"direct_hashes\":%u,\"direct_requests\":%"
          "u,\"direct_cpu_seconds\":%.9f}\n",
-         sizeof(RpkTree), sizeof(RpkProof), sizeof(RpkCost), observed[0].hashes,
+         sizeof(struct rpk_tree), sizeof(struct rpk_proof), sizeof(struct rpk_cost), observed[0].hashes,
          observed[1].hashes, observed[0].requests, observed[1].requests,
          seconds[0], seconds[1], observed[2].hashes, observed[2].requests,
          seconds[2]);

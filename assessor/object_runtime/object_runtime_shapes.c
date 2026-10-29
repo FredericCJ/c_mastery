@@ -2,32 +2,32 @@
 #ifndef ORS_MUTANT
 #define ORS_MUTANT 0
 #endif
-static int eq(ORXHandle a, ORXHandle b) {
+static int eq(struct orx_handle a, struct orx_handle b) {
   return a.slot == b.slot && a.generation == b.generation;
 }
-static int shape_eq(ORXShapeId a, ORXShapeId b) {
+static int shape_eq(struct orx_shape_id a, struct orx_shape_id b) {
   return a.slot == b.slot && a.generation == b.generation;
 }
-static int valid(const ORXWorld *w, ORXHandle h) {
+static int valid(const struct orx_world *w, struct orx_handle h) {
   return w && h.slot < 8 && h.generation && w->heap.entry[h.slot].live &&
          w->heap.entry[h.slot].generation == h.generation &&
          w->object[h.slot].generation == h.generation;
 }
-static int shape_valid(const ORXWorld *w, ORXShapeId s) {
+static int shape_valid(const struct orx_world *w, struct orx_shape_id s) {
   return s.slot < 16 && s.generation && w->shape[s.slot].live &&
          w->shape[s.slot].generation == s.generation;
 }
-static ORXHandle parent(const ORXWorld *w, ORXHandle h) {
+static struct orx_handle parent(const struct orx_world *w, struct orx_handle h) {
   return w->heap.cell[w->heap.entry[h.slot].position].edge[0];
 }
-static int find(const ORXDescriptor *d, unsigned key) {
+static int find(const struct orx_descriptor *d, unsigned key) {
   unsigned i;
   for (i = 0; i < d->count; i++)
     if (d->key[i] == key)
       return (int)i;
   return -1;
 }
-static int descriptor_eq(const ORXDescriptor *a, const ORXDescriptor *b) {
+static int descriptor_eq(const struct orx_descriptor *a, const struct orx_descriptor *b) {
   unsigned i;
   if (a->count != b->count)
     return 0;
@@ -36,8 +36,8 @@ static int descriptor_eq(const ORXDescriptor *a, const ORXDescriptor *b) {
       return 0;
   return 1;
 }
-static void drop_shape(ORXWorld *w, ORXShapeId s) {
-  ORXDescriptor *d = &w->shape[s.slot];
+static void drop_shape(struct orx_world *w, struct orx_shape_id s) {
+  struct orx_descriptor *d = &w->shape[s.slot];
   d->refs--;
   if (!s.slot)
     return;
@@ -46,13 +46,13 @@ static void drop_shape(ORXWorld *w, ORXShapeId s) {
     d->generation++;
   }
 }
-static ORStatus acquire_shape(ORXWorld *w, const ORXDescriptor *wanted,
-                              ORXShapeId *out) {
+static enum or_status acquire_shape(struct orx_world *w, const struct orx_descriptor *wanted,
+                              struct orx_shape_id *out) {
   unsigned i;
   for (i = 0; i < 16; i++)
     if (w->shape[i].live && descriptor_eq(&w->shape[i], wanted)) {
       w->shape[i].refs++;
-      *out = (ORXShapeId){(uint8_t)i, w->shape[i].generation};
+      *out = (struct orx_shape_id){(uint8_t)i, w->shape[i].generation};
       return OR_OK;
     }
   for (i = 1; i < 16; i++)
@@ -62,38 +62,38 @@ static ORStatus acquire_shape(ORXWorld *w, const ORXDescriptor *wanted,
       w->shape[i].live = 1;
       w->shape[i].generation = g;
       w->shape[i].refs = 1;
-      *out = (ORXShapeId){(uint8_t)i, g};
+      *out = (struct orx_shape_id){(uint8_t)i, g};
       return OR_OK;
     }
   return OR_FULL;
 }
-void orx_world_init(ORXWorld *w) {
+void orx_world_init(struct orx_world *w) {
   unsigned i;
   if (!w)
     return;
-  *w = (ORXWorld){0};
+  *w = (struct orx_world){0};
   orx_heap_init(&w->heap);
   w->epoch = 1;
   for (i = 0; i < 16; i++)
     w->shape[i].generation = 1;
   w->shape[0].live = 1;
 }
-ORStatus orx_world_new(ORXWorld *w, ORXHandle *out) {
-  ORXHandle h;
-  ORStatus s;
+enum or_status orx_world_new(struct orx_world *w, struct orx_handle *out) {
+  struct orx_handle h;
+  enum or_status s;
   if (!w || !out || !w->epoch)
     return OR_INVALID;
   s = orx_new(&w->heap, NULL, 0, &h);
   if (s != OR_OK)
     return s;
-  w->object[h.slot] = (ORXObject){.generation = h.generation, .shape = {0, 1}};
+  w->object[h.slot] = (struct orx_object){.generation = h.generation, .shape = {0, 1}};
   w->shape[0].refs++;
   *out = h;
   return OR_OK;
 }
-ORStatus orx_world_collect(ORXWorld *w, unsigned *dead) {
+enum or_status orx_world_collect(struct orx_world *w, unsigned *dead) {
   unsigned i, n;
-  ORStatus s;
+  enum or_status s;
   if (!w || !dead || !w->epoch)
     return OR_INVALID;
   if (w->epoch == UINT8_MAX)
@@ -104,19 +104,19 @@ ORStatus orx_world_collect(ORXWorld *w, unsigned *dead) {
   for (i = 0; i < 8; i++)
     if (w->object[i].generation && !w->heap.entry[i].live) {
       drop_shape(w, w->object[i].shape);
-      w->object[i] = (ORXObject){0};
+      w->object[i] = (struct orx_object){0};
     }
   w->epoch++;
   *dead = n;
   return OR_OK;
 }
-ORStatus orx_define(ORXWorld *w, ORXHandle h, unsigned key, unsigned attributes,
-                    int32_t value, ORXGetter getter, void *context) {
-  ORXObject object;
-  ORXDescriptor wanted;
-  ORXShapeId shape;
+enum or_status orx_define(struct orx_world *w, struct orx_handle h, unsigned key, unsigned attributes,
+                    int32_t value, orx_getter_fn getter, void *context) {
+  struct orx_object object;
+  struct orx_descriptor wanted;
+  struct orx_shape_id shape;
   int offset;
-  ORStatus s;
+  enum or_status s;
   if (!valid(w, h) || !key || key > 255 || attributes > 3 ||
       ((attributes & ORX_ACCESSOR) && !getter))
     return OR_INVALID;
@@ -134,7 +134,7 @@ ORStatus orx_define(ORXWorld *w, ORXHandle h, unsigned key, unsigned attributes,
     wanted.attributes[offset] = (uint8_t)attributes;
   } else
     wanted.attributes[offset] = (uint8_t)attributes;
-  object.field[offset] = (ORXField){value, getter, context};
+  object.field[offset] = (struct orx_field){value, getter, context};
   if (descriptor_eq(&wanted, &w->shape[object.shape.slot])) {
     w->object[h.slot] = object;
     return OR_OK;
@@ -150,13 +150,13 @@ ORStatus orx_define(ORXWorld *w, ORXHandle h, unsigned key, unsigned attributes,
   w->epoch++;
   return OR_OK;
 }
-ORStatus orx_delete(ORXWorld *w, ORXHandle h, unsigned key) {
-  ORXObject object;
-  ORXDescriptor wanted;
-  ORXShapeId shape;
+enum or_status orx_delete(struct orx_world *w, struct orx_handle h, unsigned key) {
+  struct orx_object object;
+  struct orx_descriptor wanted;
+  struct orx_shape_id shape;
   int offset;
   unsigned i;
-  ORStatus s;
+  enum or_status s;
   if (!valid(w, h) || !key || key > 255)
     return OR_INVALID;
   object = w->object[h.slot];
@@ -175,7 +175,7 @@ ORStatus orx_delete(ORXWorld *w, ORXHandle h, unsigned key) {
   }
   wanted.count--;
   wanted.key[wanted.count] = wanted.attributes[wanted.count] = 0;
-  object.field[wanted.count] = (ORXField){0};
+  object.field[wanted.count] = (struct orx_field){0};
   s = acquire_shape(w, &wanted, &shape);
   if (s != OR_OK)
     return s;
@@ -185,10 +185,10 @@ ORStatus orx_delete(ORXWorld *w, ORXHandle h, unsigned key) {
   w->epoch++;
   return OR_OK;
 }
-ORStatus orx_prototype(ORXWorld *w, ORXHandle object, ORXHandle prototype) {
-  ORXHandle p = prototype;
+enum or_status orx_prototype(struct orx_world *w, struct orx_handle object, struct orx_handle prototype) {
+  struct orx_handle p = prototype;
   unsigned visits = 0;
-  ORStatus s;
+  enum or_status s;
   if (!valid(w, object) || (prototype.generation && !valid(w, prototype)) ||
       (!prototype.generation && prototype.slot))
     return OR_INVALID;
@@ -207,23 +207,23 @@ ORStatus orx_prototype(ORXWorld *w, ORXHandle object, ORXHandle prototype) {
   w->epoch++;
   return OR_OK;
 }
-ORStatus orx_get(ORXWorld *w, ORXHandle receiver, unsigned key,
-                 ORXPropertyCache *cache, int32_t *out) {
-  ORXPropertyCache next;
-  ORXHandle holder;
-  ORXObject object;
-  ORXField field;
+enum or_status orx_get(struct orx_world *w, struct orx_handle receiver, unsigned key,
+                 struct orx_property_cache *cache, int32_t *out) {
+  struct orx_property_cache next;
+  struct orx_handle holder;
+  struct orx_object object;
+  struct orx_field field;
   int offset = -1;
   unsigned visits = 0;
   int hit;
-  ORStatus s;
+  enum or_status s;
   int32_t value;
   uint8_t epoch;
   if (!valid(w, receiver) || !cache || !out || !key || key > 255)
     return OR_INVALID;
   if (w->in_getter)
     return OR_STATE;
-  next = cache->world == w ? *cache : (ORXPropertyCache){.world = w};
+  next = cache->world == w ? *cache : (struct orx_property_cache){.world = w};
   hit = next.valid && eq(next.receiver, receiver) && next.key == key &&
         (ORS_MUTANT == 3 || next.epoch == w->epoch) && valid(w, next.holder) &&
         shape_valid(w, next.receiver_shape) &&

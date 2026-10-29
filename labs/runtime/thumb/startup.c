@@ -1,8 +1,8 @@
 #include "cvm.h"
 extern unsigned long __stack_top, __data_start, __data_end, __data_load,
     __bss_start, __bss_end;
-static Cvm vm;
-static CvmProgram program;
+static struct cvm_cvm vm;
+static struct cvm_program program;
 static void semihost(unsigned op, const void *arg) {
   register unsigned r0 __asm__("r0") = op;
   register const void *r1 __asm__("r1") = arg;
@@ -19,7 +19,7 @@ void reset(void) {
    * not as C objects in a common array. Compare integer addresses and access
    * each mapped word under that target-specific startup contract. */
   uintptr_t src = (uintptr_t)&__data_load, dst;
-  CvmValue result;
+  struct cvm_value result;
   const uint8_t image[] = {'C', 'V', 'M',    '1', 1, 0, 0, 6,     0,
                            0,   0,   OP_INT, 42,  0, 0, 0, OP_RET};
   for (dst = (uintptr_t)&__data_start; dst < (uintptr_t)&__data_end;
@@ -36,7 +36,7 @@ void reset(void) {
     stop(1);
   }
   {
-    CvmValue a, b;
+    struct cvm_value a, b;
     if (cvm_pair(&vm, cvm_int(7), cvm_int(9), &a) != CVM_OK ||
         cvm_root_push(&vm, a) != CVM_OK || cvm_collect(&vm) != CVM_OK ||
         cvm_field(&vm, a, 1, &b) != CVM_OK || b.integer != 9) {

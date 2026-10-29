@@ -2,14 +2,14 @@
 #ifndef MFS_MUTANT
 #define MFS_MUTANT 0
 #endif
-static void event(MfsReport*r,int value){if(r)r->events[r->count++]=value;}
-static void stop(MfsTree*t,unsigned g,unsigned c,MfsReport*r){
+static void event(struct mfs_report*r,int value){if(r)r->events[r->count++]=value;}
+static void stop(struct mfs_tree*t,unsigned g,unsigned c,struct mfs_report*r){
   bool live=t->actors[g][c].actor.alive||t->resources[g][c];
   (void)mfa_destroy(&t->actors[g][c]);
   if(t->resources[g][c]){t->close(t->resource_ctx,g,c);t->resources[g][c]=false;}
   if(live)event(r,-(int)(4*g+c+1));
 }
-static bool start(MfsTree*t,unsigned g,unsigned c,unsigned failures,MfsReport*r){
+static bool start(struct mfs_tree*t,unsigned g,unsigned c,unsigned failures,struct mfs_report*r){
   unsigned attempt=r?r->attempts++:0;
   bool fail=(r && (failures&(1u<<attempt))) || (c==1&&!t->resources[g][0]);
   if(!fail)fail=!t->open(t->resource_ctx,g,c);
@@ -19,23 +19,23 @@ static bool start(MfsTree*t,unsigned g,unsigned c,unsigned failures,MfsReport*r)
   }
   event(r,(int)(4*g+c+1)+(fail?100:0));return !fail;
 }
-static void stop_group(MfsTree*t,unsigned g,MfsReport*r){
+static void stop_group(struct mfs_tree*t,unsigned g,struct mfs_report*r){
   for(unsigned c=4;c;c--)stop(t,g,c-1,r);
 }
-static void stop_all(MfsTree*t,MfsReport*r){
+static void stop_all(struct mfs_tree*t,struct mfs_report*r){
   for(unsigned g=4;g;g--)stop_group(t,g-1,r);
   t->closed=true;
 }
-static bool quiescent(const MfsTree*t){
+static bool quiescent(const struct mfs_tree*t){
   for(unsigned g=0;g<4;g++)for(unsigned c=0;c<4;c++)
     if(t->actors[g][c].actor.stepping)return false;
   return true;
 }
-MsgStatus mfs_init(MfsTree*t,size_t parent,size_t child,uint64_t window,
-                   MfsOpen open,MfsClose close,void*resource_ctx,MfaHandler handler,
-                   void*contexts[4][4],MfaDeadLetter dead,void*dead_ctx){
+enum msg_status mfs_init(struct mfs_tree*t,size_t parent,size_t child,uint64_t window,
+                   mfs_open_fn open,mfs_close_fn close,void*resource_ctx,mfa_handler_fn handler,
+                   void*contexts[4][4],mfa_dead_letter_fn dead,void*dead_ctx){
   if(!t||!open||!close||!handler||!dead||!contexts||!window||!parent||parent>4||!child||child>4)return MSG_INVALID;
-  *t=(MfsTree){.open=open,.close=close,.resource_ctx=resource_ctx,.child_limit=child,.window=window};
+  *t=(struct mfs_tree){.open=open,.close=close,.resource_ctx=resource_ctx,.child_limit=child,.window=window};
   (void)msg_supervisor_init(&t->parent,parent,window);
   for(unsigned g=0;g<4;g++){
     (void)msg_supervisor_init(&t->children[g],child,window);
@@ -49,15 +49,15 @@ MsgStatus mfs_init(MfsTree*t,size_t parent,size_t child,uint64_t window,
   }
   return MSG_OK;
 }
-MsgStatus mfs_fault(MfsTree*t,unsigned group,unsigned child,uint64_t now,
-                    MsgStrategy strategy,unsigned failures,MfsReport*out){
+enum msg_status mfs_fault(struct mfs_tree*t,unsigned group,unsigned child,uint64_t now,
+                    enum msg_strategy strategy,unsigned failures,struct mfs_report*out){
   if(!t||!out||group>3||child>3||(strategy!=MSG_ONE&&strategy!=MSG_ALL&&strategy!=MSG_REST)||failures>255||now<t->last)return MSG_INVALID;
   if(t->closed)return MSG_CLOSED;
   if(!quiescent(t))return MSG_BUSY;
-  MsgSupervisor candidate=t->children[group];int actions[8];size_t count=0;
-  MsgStatus status=msg_restart_plan(&candidate,now,strategy,child,actions,&count);
+  struct msg_supervisor candidate=t->children[group];int actions[8];size_t count=0;
+  enum msg_status status=msg_restart_plan(&candidate,now,strategy,child,actions,&count);
   if(status!=MSG_OK&&status!=MSG_FAILED)return status;
-  MfsReport report={0};t->last=now;t->children[group]=candidate;
+  struct mfs_report report={0};t->last=now;t->children[group]=candidate;
   bool escalate=status==MSG_FAILED;
   for(size_t i=0;i<count;i++){
     int a=actions[i];
@@ -88,7 +88,7 @@ MsgStatus mfs_fault(MfsTree*t,unsigned group,unsigned child,uint64_t now,
   }
   report.closed=t->closed;*out=report;return status;
 }
-MsgStatus mfs_destroy(MfsTree*t){
+enum msg_status mfs_destroy(struct mfs_tree*t){
   if(!t)return MSG_INVALID;
   if(!quiescent(t))return MSG_BUSY;
   stop_all(t,NULL);return MSG_OK;

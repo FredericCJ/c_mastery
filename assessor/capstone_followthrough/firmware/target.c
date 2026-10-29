@@ -4,7 +4,7 @@
 static volatile uint32_t initialized __attribute__((section(".data.special"),aligned(32)))=0x7193a5c7u;
 static volatile uint32_t tail __attribute__((section(".data.tail")))=0x13579bdfu;
 static volatile uint32_t zeroed;
-static CfFirmware target_service;
+static struct cf_firmware target_service;
 static volatile uint32_t guard[8] __attribute__((aligned(32)));
 static volatile unsigned fault_seen,copy_seen;
 static unsigned char user_request[8]={1,2,3,4,5,6,7,8},copied[8];
@@ -12,7 +12,7 @@ extern unsigned char cf_denied_instruction[],cf_denied_resume[];
 extern void cf_user_store(volatile uint32_t *,uint32_t);
 extern int cf_checks(unsigned);
 static volatile unsigned irq_seen;
-void cf_pendsv(void){CPFSample sample={73,0xa5,6};if(cf_acquire(&target_service,1,&sample)==CF_OK)irq_seen=1;}
+void cf_pendsv(void){struct cpf_sample sample={73,0xa5,6};if(cf_acquire(&target_service,1,&sample)==CF_OK)irq_seen=1;}
 static int target_clock(void *context){(void)context;return 1;}
 static void emit(const char *s){register unsigned r0 __asm__("r0")=4;register const char *r1 __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(r0):"r"(r1):"memory");}
 static void end(unsigned status){unsigned a[2]={0x20026,status};register unsigned r0 __asm__("r0")=0x20;register const void *r1 __asm__("r1")=a;__asm__ volatile("bkpt 0xab":"+r"(r0):"r"(r1):"memory");for(;;){}}

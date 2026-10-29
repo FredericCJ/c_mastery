@@ -1,7 +1,7 @@
 # MAC admission interface for copied redo records
 
 X-T47-001 V2 requests an interface and a trust argument, not a new cryptographic
-implementation. `SxMac` borrows an opaque key context and canonical message only
+implementation. `sx_mac_fn` borrows an opaque key context and canonical message only
 until synchronous return. Success writes exactly32 tag bytes; failure may change
 its private context/tag scratch, but cannot publish a recovery result. It must
 not reenter, retain pointers, alter records/checkpoint or access dead objects.

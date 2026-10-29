@@ -7,7 +7,7 @@
 #define CHECK(x) do { if(!(x)) { fprintf(stderr,"SK_CHECK:%d:%s\n",__LINE__,#x); return 1; } } while(0)
 #if SK_TEST==1
 int main(void) {
-    SkCmConfig config={0}; SkCm a,b,all,old; unsigned i,r; uint64_t value;
+    struct sk_cm_config config={0}; struct sk_cm a,b,all,old; unsigned i,r; uint64_t value;
     config.p=3; config.depth=3;
     for(r=0;r<3;r++) { config.bias[r]=r; for(i=0;i<3;i++) config.mask[r][i]=UINT32_C(1)<<(i+r); }
     CHECK(sk_cm_init(&a,&config)==SK_OK); CHECK(sk_cm_init(&b,&config)==SK_OK); CHECK(sk_cm_init(&all,&config)==SK_OK);
@@ -32,7 +32,7 @@ int main(void) {
 }
 #elif SK_TEST==2
 int main(void) {
-    SkHll fine,coarse,direct,part,old; unsigned p,i; double estimate=123;
+    struct sk_hll fine,coarse,direct,part,old; unsigned p,i; double estimate=123;
     for(p=4;p<=8;p++) {
         CHECK(sk_hll_init(&fine,p,91)==SK_OK); CHECK(sk_hll_estimate(&fine,&estimate)==SK_OK && estimate==0);
         CHECK(sk_hll_init(&part,p,91)==SK_OK); CHECK(sk_hll_init(&coarse,4,91)==SK_OK); CHECK(sk_hll_init(&direct,4,91)==SK_OK);
@@ -58,7 +58,7 @@ int main(void) {
 }
 #elif SK_TEST==3
 int main(void) {
-    SkMhConfig config={0}; SkMh a,b,old,u; SkFraction f; unsigned i,j,bands=99;
+    struct sk_mh_config config={0}; struct sk_mh a,b,old,u; struct sk_fraction f; unsigned i,j,bands=99;
     config.universe=5; config.count=10;
     for(i=0;i<10;i++) for(j=0;j<5;j++) config.rank[i][j]=(uint8_t)((i+j)%5);
     CHECK(sk_mh_init(&a,&config)==SK_OK); CHECK(sk_mh_init(&b,&config)==SK_OK);

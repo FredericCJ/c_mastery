@@ -35,9 +35,9 @@ commits. The last case retains the two successful commits but must not alter
 state/control for the failed third clock. Demonstrate both original mutations:
 reading a prematurely zeroed destination and changing PC before validation.
 
-Implement `commit.h` in the learner scaffold. `ATMachine` owns a committed
-`SCMachine`, one pending load snapshot/control, zero-status bit and model tick
-count. `ATTrace` carries the proposed control wires, read operands, whether a
+Implement `commit.h` in the learner scaffold. `struct at_machine` owns a committed
+`struct sc_machine`, one pending load snapshot/control, zero-status bit and model tick
+count. `struct at_trace` carries the proposed control wires, read operands, whether a
 commit actually occurred, phase and tick count. A proposed reg-write bit is
 not an effective architectural write unless `committed` is1. No pointer into
 caller program storage is retained; the immutable program's lifetime still
@@ -84,7 +84,7 @@ instructions have their own flag-update rules. Compare the relation for all
 equality flag is equivalent for these operands. This does not equate toy byte
 register width, instruction-index PC or timing with either real architecture.
 
-`ATSpec` is one caller-owned speculative slot, initialized to all zero.
+`struct at_spec` is one caller-owned speculative slot, initialized to all zero.
 `at_predict` accepts an idle nonhalted machine currently at BNZ and a predicted
 in-program next index. It computes the branch proposal and one successor in
 private snapshots. A bad speculative instruction is retained as a deferred

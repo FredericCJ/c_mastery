@@ -3,19 +3,19 @@
 #include <stdlib.h>
 #include <string.h>
 #define CHECK(x) do{if(!(x)){fprintf(stderr,"CP_CHECK: %s:%d %s\n",__FILE__,__LINE__,#x);exit(1);}}while(0)
-typedef struct {CPOperation *operation;unsigned allocations,releases,reports;int fail,cancelled;unsigned char expected[128];} Context;
-static void *allocate(void *c,size_t n){Context *x=c;if(x->fail)return 0;++x->allocations;return malloc(n);}
-static void release(void *c,void *p){Context *x=c;++x->releases;free(p);}
+struct cpx_context {struct cp_operation *operation;unsigned allocations,releases,reports;int fail,cancelled;unsigned char expected[128];};
+static void *allocate(void *c,size_t n){struct cpx_context *x=c;if(x->fail)return 0;++x->allocations;return malloc(n);}
+static void release(void *c,void *p){struct cpx_context *x=c;++x->releases;free(p);}
 static int report(void *c,unsigned gen,const unsigned char *p,size_t n,int cancelled){
-    Context *x=c;++x->reports;x->cancelled=cancelled;CHECK(n==sizeof x->expected && !memcmp(p,x->expected,n));
+    struct cpx_context *x=c;++x->reports;x->cancelled=cancelled;CHECK(n==sizeof x->expected && !memcmp(p,x->expected,n));
     unsigned unchanged=99;CHECK(cpo_begin(x->operation,p,n,&unchanged)==CPO_BUSY && unchanged==99);
     CHECK(cpo_cancel(x->operation,gen)==CPO_STALE && cpo_complete(x->operation,gen,1)==CPO_STALE);
     return 1;
 }
-typedef struct {CPOperation *operation;unsigned generation;CPOStatus result;} Completion;
-static void *complete_thread(void *value){Completion *c=value;c->result=cpo_complete(c->operation,c->generation,1);return 0;}
+struct cpx_completion {struct cp_operation *operation;unsigned generation;enum cpo_status result;};
+static void *complete_thread(void *value){struct cpx_completion *c=value;c->result=cpo_complete(c->operation,c->generation,1);return 0;}
 void cp_test_operation(void){
-    CPOperation operation;Context context={.operation=&operation};
+    struct cp_operation operation;struct cpx_context context={.operation=&operation};
     for(size_t i=0;i<sizeof context.expected;++i)context.expected[i]=(unsigned char)(i^0xa5);
     unsigned char input[128];memcpy(input,context.expected,sizeof input);
     CHECK(cpo_init(&operation,2,&context,allocate,release,report)==CPO_OK);
@@ -26,7 +26,7 @@ void cp_test_operation(void){
     CHECK(cpo_cancel(&operation,generation)==CPO_PENDING && cpo_cancel(&operation,generation)==CPO_PENDING);
     CHECK(cpo_complete(&operation,generation,0)==CPO_PENDING && context.releases==0 && context.reports==0 && operation.bytes);
     CHECK(cpo_destroy(&operation)==CPO_PENDING);
-    Completion c={&operation,generation,CPO_ERROR};pthread_t worker;
+    struct cpx_completion c={&operation,generation,CPO_ERROR};pthread_t worker;
     CHECK(!pthread_create(&worker,0,complete_thread,&c) && !pthread_join(worker,0));
     CHECK(c.result==CPO_OK && context.releases==1 && context.reports==1 && context.cancelled && operation.report_failed==1);
     CHECK(cpo_complete(&operation,generation,1)==CPO_STALE && context.releases==1);

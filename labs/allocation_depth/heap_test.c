@@ -13,8 +13,8 @@ static unsigned next(unsigned *s) {
   return *s;
 }
 int main(void) {
-  ALHeap h, copy;
-  ALHandle a, b, c, out = {0};
+  struct al_heap h, copy;
+  struct al_handle a, b, c, out = {0};
   unsigned char *p;
   size_t n, total, big;
   CHECK(al_heap_init(&h, 64, 0, 0, 1) == AL_OK);
@@ -72,7 +72,7 @@ int main(void) {
   for (unsigned policy = 0; policy < 2; ++policy)
     for (unsigned seed = 1; seed <= 96; ++seed) {
       CHECK(al_heap_init(&h, 256, policy, 0, 1) == AL_OK);
-      ALHandle live[12] = {{0}};
+      struct al_handle live[12] = {{0}};
       unsigned lengths[12] = {0};
       unsigned state = seed;
       for (unsigned step = 0; step < 256; ++step) {

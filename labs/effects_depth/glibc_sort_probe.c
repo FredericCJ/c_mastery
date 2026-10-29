@@ -8,9 +8,9 @@ static unsigned tracing,fail,requests;static size_t requested;
 void*malloc(size_t n){if(tracing){++requests;requested=n;if(fail){errno=ENOMEM;return NULL;}}return __libc_malloc(n);}
 void free(void*p){__libc_free(p);}
 static int cmp(const void*a,const void*b){int x=*(const int*)a,y=*(const int*)b;return(x>y)-(x<y);}
-typedef struct {int key;unsigned char payload[60];} Record;
+struct ef_record {int key;unsigned char payload[60];};
 int main(void){
- int a[300];Record large[10];unsigned counts[4];size_t sizes[4];
+ int a[300];struct ef_record large[10];unsigned counts[4];size_t sizes[4];
  for(unsigned mode=0;mode<4;++mode){for(unsigned i=0;i<300;++i)a[i]=(int)(300-i);for(unsigned i=0;i<10;++i)large[i].key=(int)(10-i);
  requests=0;requested=0;fail=mode==3;errno=E2BIG;tracing=1;
  if(mode==2)qsort(large,10,sizeof*large,cmp);else qsort(a,mode==0?64:300,sizeof*a,cmp);

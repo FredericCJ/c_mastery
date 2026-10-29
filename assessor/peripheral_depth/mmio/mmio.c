@@ -3,7 +3,7 @@
 #ifndef PM_MUTANT
 #define PM_MUTANT 0
 #endif
-int pm_access(PmModel *m, unsigned off, unsigned width, unsigned wr,
+int pm_access(struct pm_model *m, unsigned off, unsigned width, unsigned wr,
               uint32_t *v) {
   if (!m || !v || wr > 1 || m->revision < 1 || m->revision > 2 ||
       m->log_count >= 64 || off > PM_BSRR || off % 4 ||
@@ -55,10 +55,10 @@ int pm_access(PmModel *m, unsigned off, unsigned width, unsigned wr,
     }
     *v = value;
   }
-  m->log[m->log_count++] = (PmAccess){off, width, wr, value};
+  m->log[m->log_count++] = (struct pm_access){off, width, wr, value};
   return 0;
 }
-int pm_gpio(FwIo io, unsigned set, unsigned clear) {
+int pm_gpio(struct fw_io io, unsigned set, unsigned clear) {
   if (!io.write || !io.read || set > 65535 || clear > 65535 || (set & clear))
     return -1;
   if (PM_MUTANT == 3) {
@@ -68,13 +68,13 @@ int pm_gpio(FwIo io, unsigned set, unsigned clear) {
     io.write(io.context, FW_GPIO, set | (clear << 16));
   return 0;
 }
-int pm_begin(PmRequest *r, unsigned char b, unsigned polls) {
+int pm_begin(struct pm_request *r, unsigned char b, unsigned polls) {
   if (!r || !polls || r->phase == 1 || r->phase > 3)
     return -1;
-  *r = (PmRequest){1, polls, b};
+  *r = (struct pm_request){1, polls, b};
   return 0;
 }
-int pm_step(PmRequest *r, PmModel *m) {
+int pm_step(struct pm_request *r, struct pm_model *m) {
   if (!r || !m || r->phase != 1)
     return -1;
   uint32_t status = 0;
@@ -93,7 +93,7 @@ int pm_step(PmRequest *r, PmModel *m) {
   }
   return 1;
 }
-int pm_filter_init(PmFilter *d, unsigned n, uint32_t duration, uint32_t gap) {
+int pm_filter_init(struct pm_filter *d, unsigned n, uint32_t duration, uint32_t gap) {
   if (!d || !n || duration >= 0x80000000u ||
       (duration && (!gap || gap >= 0x80000000u)))
     return -1;
@@ -109,13 +109,13 @@ int pm_filter_init(PmFilter *d, unsigned n, uint32_t duration, uint32_t gap) {
   d->max_gap = gap;
   return 0;
 }
-int pm_sample(PmFilter *d, unsigned b, uint32_t now, unsigned *changed) {
+int pm_sample(struct pm_filter *d, unsigned b, uint32_t now, unsigned *changed) {
   if (!d || !changed || b > 1 || !d->threshold)
     return -1;
   uint32_t elapsed = now - d->last;
   if (d->initialized && d->duration && elapsed >= 0x80000000u)
     return -1;
-  PmFilter t = *d;
+  struct pm_filter t = *d;
   if (!t.initialized || b != t.candidate ||
       (t.duration && elapsed > t.max_gap)) {
     t.candidate = b;
@@ -146,7 +146,7 @@ int pm_line(unsigned od, unsigned out, unsigned low, unsigned pull) {
   return !od || pull ? 1 : 2;
 }
 
-int pm_irq_event(PmInterrupt *q, PmModel *m, uint32_t now) {
+int pm_irq_event(struct pm_interrupt *q, struct pm_model *m, uint32_t now) {
   if (!q || !m || !q->armed || q->request.phase != 1 ||
       now - q->last >= 0x80000000u || now - q->start >= 0x80000000u ||
       m->log_count > 61)
@@ -171,7 +171,7 @@ int pm_irq_event(PmInterrupt *q, PmModel *m, uint32_t now) {
   }
   return 1;
 }
-int pm_irq_begin(PmInterrupt *q, PmModel *m, unsigned char byte, uint32_t now,
+int pm_irq_begin(struct pm_interrupt *q, struct pm_model *m, unsigned char byte, uint32_t now,
                  uint32_t ticks) {
   if (!q || !m || q->armed || !ticks || ticks >= 0x80000000u ||
       !(m->control & 1) || m->log_count > 60)

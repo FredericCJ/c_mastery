@@ -15,17 +15,17 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
+struct rp_file {
   int fd;
-  RplPages adapter;
+  struct rpl_pages adapter;
   store pages;
-} File;
-static File files[2];
-static RprDurable session;
-static RplLog inbox;
-static const RPState initial[2] = {{0, 0, 0, 1}, {0, 7, 0, 9}};
+};
+static struct rp_file files[2];
+static struct rpr_durable session;
+static struct rpl_log inbox;
+static const struct rp_state initial[2] = {{0, 0, 0, 1}, {0, 7, 0, 9}};
 static ptrdiff_t file_read(void *c, size_t at, unsigned char *p, size_t n) {
-  File *f = c;
+  struct rp_file *f = c;
   if (n > 113)
     n = 113;
   ssize_t r = pread(f->fd, p, n, (off_t)at);
@@ -33,18 +33,18 @@ static ptrdiff_t file_read(void *c, size_t at, unsigned char *p, size_t n) {
 }
 static ptrdiff_t file_write(void *c, size_t at, const unsigned char *p,
                             size_t n) {
-  File *f = c;
+  struct rp_file *f = c;
   if (n > 257)
     n = 257;
   ssize_t r = pwrite(f->fd, p, n, (off_t)at);
   return r < 0 && errno == EINTR ? -2 : r;
 }
-static int file_flush(void *c) { return fdatasync(((File *)c)->fd); }
+static int file_flush(void *c) { return fdatasync(((struct rp_file *)c)->fd); }
 static int attach(unsigned index, int create) {
-  File *f = &files[index];
+  struct rp_file *f = &files[index];
   store_io io;
   CHECK(rpl_pages(&f->adapter,
-                  (RplBytes){f, file_read, file_write, file_flush,
+                  (struct rpl_bytes){f, file_read, file_write, file_flush,
                              STORE_IMAGE_PAGES * STORE_PAGE_SIZE, 4098},
                   &io) == RPL_OK);
   if (create) {
@@ -90,7 +90,7 @@ static int sender(int fd) {
   CHECK(transfer(fd, &barrier, 1, 0) == 0 && barrier == 1);
   for (unsigned i = 0; i < 5; ++i) {
     unsigned tick = order[i];
-    CHECK(rpr_input_frame((RprInput){9, tick, remote[tick - 1]}, wire) == 0 &&
+    CHECK(rpr_input_frame((struct rpr_input){9, tick, remote[tick - 1]}, wire) == 0 &&
           transfer(fd, wire, 18, 1) == 0);
   }
   CHECK(shutdown(fd, SHUT_WR) == 0);
@@ -99,8 +99,8 @@ static int sender(int fd) {
 static int process_case(void) {
   int pair[2], status;
   pid_t child;
-  RprNotice n;
-  RprEffect effect, retry;
+  struct rpr_notice n;
+  struct rpr_effect effect, retry;
   unsigned applied;
   unsigned char b = 1, wire[18];
   CHECK(socketpair(AF_UNIX, SOCK_STREAM, 0, pair) == 0);
@@ -119,7 +119,7 @@ static int process_case(void) {
   CHECK(rpr_prepare_durable(&session, &effect) == RPR_EMPTY);
   CHECK(transfer(pair[0], &b, 1, 1) == 0);
   for (unsigned i = 0; i < 5; ++i) {
-    RprInput input;
+    struct rpr_input input;
     CHECK(transfer(pair[0], wire, 18, 0) == 0 &&
           rpr_input_unframe(wire, 18, 2, &input) == 0 &&
           rpr_correct_durable(&session, input.timeline, input.tick,
@@ -145,7 +145,7 @@ static int process_case(void) {
         retry.tick == effect.tick && retry.value == effect.value &&
         rpr_sink_apply(&inbox, retry, &applied) == 0 && applied == 0);
   CHECK(rpr_feedback_durable(&session, retry, AR_OK) == 0);
-  RprEffect changed = retry;
+  struct rpr_effect changed = retry;
   changed.value += 2;
   applied = 77;
   CHECK(rpr_sink_apply(&inbox, changed, &applied) == RPR_CONFLICT &&

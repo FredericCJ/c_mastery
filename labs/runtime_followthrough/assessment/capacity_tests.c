@@ -8,8 +8,8 @@
     }                                                                          \
   } while (0)
 int main(void) {
-  Cvm vm;
-  CvmValue first, last, tmp;
+  struct cvm_cvm vm;
+  struct cvm_value first, last, tmp;
   cvm_init(&vm, 0, 0, 0);
   vm.arena = 1;
   for (unsigned i = 0; i < CVM_HEAP; i++) {

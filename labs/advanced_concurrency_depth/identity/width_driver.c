@@ -2,13 +2,13 @@
 #include <stddef.h>
 #include <stdio.h>
 int main(void) {
-  _Static_assert(sizeof(AIPair) == sizeof(void *) + sizeof(uintptr_t),
+  _Static_assert(sizeof(struct ai_pair) == sizeof(void *) + sizeof(uintptr_t),
                  "selected ABI requires no pair padding");
-  _Static_assert(offsetof(AIPair, generation) == sizeof(void *),
+  _Static_assert(offsetof(struct ai_pair, generation) == sizeof(void *),
                  "selected pair layout");
   int a = 1, b = 2;
-  AIPair original = {&a, 1}, expected = original, desired = {&b, 2};
-  _Atomic(AIPair) pair;
+  struct ai_pair original = {&a, 1}, expected = original, desired = {&b, 2};
+  _Atomic(struct ai_pair) pair;
   atomic_init(&pair, original);
   if (!ai_pair_cas(&pair, &expected, desired))
     return 41;
@@ -23,7 +23,7 @@ int main(void) {
     return 41;
   printf("OBS width pointer=%zu pair=%zu pair_align=%zu pair_lockfree=%d "
          "compact=%zu compact_lockfree=%d\n",
-         sizeof(void *), sizeof(AIPair), _Alignof(_Atomic(AIPair)),
+         sizeof(void *), sizeof(struct ai_pair), _Alignof(_Atomic(struct ai_pair)),
          ai_pair_lock_free(&pair), sizeof(uint32_t),
          atomic_is_lock_free(&word));
   return 0;

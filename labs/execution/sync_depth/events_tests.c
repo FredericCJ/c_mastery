@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #define CHECK(c) do { if (!(c)) { fprintf(stderr,"CDE_CHECK:%d:%s\n",__LINE__,#c); return 1; } } while (0)
-static int setup(cmx_kernel *k, CDEvents *e) {
+static int setup(cmx_kernel *k, struct cd_events *e) {
   cmx_init(k, CMX_FIXED);
   for (unsigned t = 0; t < 3; t++)
     if (cmx_task_add(k, 9 - t, 0, 0x1000 + 0x200 * t, 256) != (int)t)
@@ -31,7 +31,7 @@ static int truth(void) {
     for (unsigned mask = 1; mask < 8; mask++)
       for (unsigned all = 0; all < 2; all++)
         for (unsigned consume = 0; consume < 2; consume++) {
-          cmx_kernel k; CDEvents e; unsigned observed;
+          cmx_kernel k; struct cd_events e; unsigned observed;
           uint32_t out = 999;
           unsigned matched = relation(bits, mask, all, &observed);
           CHECK(setup(&k, &e) && cde_set(&e, bits) == CMX_OK);
@@ -43,7 +43,7 @@ static int truth(void) {
           CHECK(cde_result(&e, 0, &out) == CMX_INVALID);
           cases++;
         }
-  cmx_kernel k; CDEvents e; uint32_t out = 999;
+  cmx_kernel k; struct cd_events e; uint32_t out = 999;
   CHECK(setup(&k, &e));
   const uint32_t high = UINT32_C(1) << 31;
   CHECK(cde_set(&e, high | 3) == CMX_OK);
@@ -64,7 +64,7 @@ static int order(void) {
         for (unsigned clears = 0; clears < 4; clears++)
           for (unsigned reverse = 0; reverse < 2; reverse++)
             for (unsigned posted = 0; posted < 8; posted++) {
-              cmx_kernel k; CDEvents e;
+              cmx_kernel k; struct cd_events e;
               unsigned masks[2] = {a, b}, matched[2] = {0}, values[2] = {0};
               unsigned remaining = posted;
               CHECK(setup(&k, &e));
@@ -89,7 +89,7 @@ static int order(void) {
               CHECK(cmx_invariant(&k) && cde_destroy(&e) == CMX_OK);
               cases++;
             }
-  cmx_kernel k; CDEvents e; uint32_t out = 999;
+  cmx_kernel k; struct cd_events e; uint32_t out = 999;
   CHECK(setup(&k, &e));
   CHECK(cde_wait(&e, 0, 3, 1, 1, cmx_forever()) == CMX_BLOCKED);
   CHECK(cde_wait(&e, 1, 1, 0, 1, cmx_forever()) == CMX_BLOCKED);
@@ -102,7 +102,7 @@ static int order(void) {
   return 0;
 }
 static int terminal(void) {
-  cmx_kernel k; CDEvents e; uint32_t out = 999;
+  cmx_kernel k; struct cd_events e; uint32_t out = 999;
   CHECK(setup(&k, &e) && cde_set(&e, 4) == CMX_OK);
   CHECK(cde_wait(&e, 0, 0, 0, 1, cmx_forever()) == CMX_INVALID && e.event.bits == 4);
   CHECK(cde_wait(&e, 0, 1, 2, 1, cmx_forever()) == CMX_INVALID && e.event.bits == 4);
@@ -138,7 +138,7 @@ static int terminal(void) {
   return 0;
 }
 static int sequence(void) {
-  cmx_kernel k; CDEvents e; CDESequence s; CDECursor cursor = {0, 0};
+  cmx_kernel k; struct cd_events e; struct cde_sequence s; struct cde_cursor cursor = {0, 0};
   uint32_t out = 999; uint64_t delta = 999, missed = 999;
   CHECK(setup(&k, &e));
   cde_sequence_init(&s);
@@ -157,13 +157,13 @@ static int sequence(void) {
   CHECK(cde_sequence_read(&s, &cursor, &delta, &missed) == CMX_OK && delta == 3 && missed == 2);
   delta = missed = 999;
   CHECK(cde_sequence_read(&s, &cursor, &delta, &missed) == CMX_BLOCKED && delta == 999 && missed == 999);
-  s.current = (CDECursor){7, UINT32_MAX - 1}; cursor = s.current;
+  s.current = (struct cde_cursor){7, UINT32_MAX - 1}; cursor = s.current;
   CHECK(cde_sequence_publish(&s) == CMX_OK && cde_sequence_publish(&s) == CMX_OK);
   CHECK(s.current.epoch == 8 && s.current.serial == 0);
   CHECK(cde_sequence_read(&s, &cursor, &delta, &missed) == CMX_OK && delta == 2 && missed == 1);
-  cursor = (CDECursor){9, 0}; delta = missed = 999;
+  cursor = (struct cde_cursor){9, 0}; delta = missed = 999;
   CHECK(cde_sequence_read(&s, &cursor, &delta, &missed) == CMX_INVALID && cursor.epoch == 9 && delta == 999 && missed == 999);
-  s.current = (CDECursor){UINT32_MAX, UINT32_MAX}; cursor = (CDECursor){0, 0};
+  s.current = (struct cde_cursor){UINT32_MAX, UINT32_MAX}; cursor = (struct cde_cursor){0, 0};
   CHECK(cde_sequence_publish(&s) == CMX_FULL && s.current.epoch == UINT32_MAX && s.current.serial == UINT32_MAX);
   CHECK(cde_sequence_read(&s, &cursor, &delta, &missed) == CMX_OK && delta == UINT64_MAX && missed == UINT64_MAX - 1);
   puts("CDE_SEQUENCE:three-sets-one-bit-three-counts;gap3-missed2;low-word-wrap;finite-exhaustion;future-cursor-refusal");

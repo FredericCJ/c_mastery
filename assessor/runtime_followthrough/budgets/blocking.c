@@ -12,14 +12,14 @@
 #ifndef VL_BLOCK_SKIP_READ
 #define VL_BLOCK_SKIP_READ 0
 #endif
-typedef struct {
+struct vg_blocking {
   int ready, release;
-} Blocking;
-typedef struct {
+};
+struct vg_record {
   int status, value;
   uint32_t fuel;
   unsigned calls;
-} Record;
+};
 static unsigned calls;
 static int64_t milliseconds(void) {
   struct timespec t;
@@ -67,7 +67,7 @@ static int readable(int fd, int duration) {
 /* Intentionally lacks its own deadline: this is the faulty teaching callback,
  * violating the embedding policy. Its owned parent always releases/kills it. */
 static int blocking(void *ctx, uint8_t id, int32_t input, int32_t *out) {
-  Blocking *b = ctx;
+  struct vg_blocking *b = ctx;
   char byte = 'R';
   calls++;
   if (id != 1 || transfer(b->ready, &byte, 1, 1))
@@ -102,13 +102,13 @@ static int experiment(unsigned mode) {
   pid_t child = -1;
   int result = 1, status = 0;
   char byte;
-  CvmProgram p = {
+  struct cvm_program p = {
       {OP_INT, 7, 0, 0, 0, OP_HOST, 1, OP_RET}, 8, 1, {{0, 8, 0, 0}}};
-  Vs session = {0};
-  VvWork scratch;
-  VsRequest request = {0};
-  CvmValue value = cvm_int(91);
-  VlReport ledger;
+  struct vg_vs session = {0};
+  struct vv_work scratch;
+  struct vs_request request = {0};
+  struct cvm_value value = cvm_int(91);
+  struct vl_report ledger;
   const char *failure = "pipe/fork setup";
   if (pipe(ready) || pipe(release) || pipe(done))
     goto cleanup;
@@ -127,14 +127,14 @@ static int experiment(unsigned mode) {
     close_fd(&ready[0]);
     close_fd(&release[1]);
     close_fd(&done[0]);
-    Blocking b = {ready[1], release[0]};
-    Record r = {0};
+    struct vg_blocking b = {ready[1], release[0]};
+    struct vg_record r = {0};
     if (!mode) {
-      Cvm vm;
+      struct cvm_cvm vm;
       cvm_init(&vm, 3, 0, 1);
       vm.host = blocking;
       vm.host_context = &b;
-      CvmValue out = cvm_int(91);
+      struct cvm_value out = cvm_int(91);
       r.status = cvm_run(&vm, &p, &out);
       r.value = out.integer;
       r.fuel = vm.fuel;
@@ -166,9 +166,9 @@ static int experiment(unsigned mode) {
   if (mode) {
     /* Actual unrelated guest makes progress while first session retains
      * request. */
-    CvmProgram q = {{OP_INT, 47, 0, 0, 0, OP_RET}, 6, 1, {{0, 6, 0, 0}}};
-    Vs other = {0};
-    CvmValue out = cvm_int(91);
+    struct cvm_program q = {{OP_INT, 47, 0, 0, 0, OP_RET}, 6, 1, {{0, 6, 0, 0}}};
+    struct vg_vs other = {0};
+    struct cvm_value out = cvm_int(91);
     failure = "unrelated guest progress";
     if (vs_start(&other, &q, 0, 2, 0, 0, 0, &scratch) != VS_RUNNING ||
         vl_step(&other, &out, &ledger) != VS_RUNNING ||
@@ -201,7 +201,7 @@ static int experiment(unsigned mode) {
   failure = "release/result";
   if (transfer(release[1], &byte, 1, 1) || readable(done[0], 5000) != 1)
     goto cleanup;
-  Record r;
+  struct vg_record r;
   if (transfer(done[0], &r, sizeof r, 0) || reap(child, &status))
     goto cleanup;
   child = -1;

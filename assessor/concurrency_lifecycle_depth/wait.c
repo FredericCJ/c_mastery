@@ -8,22 +8,22 @@ static int due(uint32_t now, cmx_deadline deadline) {
          (uint32_t)(now - deadline.at) < UINT32_C(0x80000000);
 }
 
-void cw_init(CWWorld *world, cmx_kernel *kernel) {
-  *world = (CWWorld){0};
+void cw_init(struct cw_world *world, cmx_kernel *kernel) {
+  *world = (struct cw_world){0};
   world->kernel = kernel;
   for (unsigned i = 0; i < CMX_TASKS; ++i)
     world->nodes[i].result = CMX_INVALID;
 }
 
-static int object_valid(const CWWorld *world, unsigned index) {
+static int object_valid(const struct cw_world *world, unsigned index) {
   return world && world->kernel && index < 2 && world->objects[index].live;
 }
 
-static int matches(CWToken token) {
+static int matches(struct cw_token token) {
   if (!token.owner || !token.owner->kernel || token.object >= 2 ||
       !token.owner->objects[token.object].generation || token.task >= CMX_TASKS)
     return 0;
-  const CWNode *node = &token.owner->nodes[token.task];
+  const struct cw_node *node = &token.owner->nodes[token.task];
   return token.operation &&
          (CW_MUTANT == 1 || token.operation == node->sequence) &&
          token.task_generation == node->task_generation &&
@@ -35,9 +35,9 @@ static int matches(CWToken token) {
              token.owner->objects[token.object].generation;
 }
 
-static void synchronize(CWWorld *world, unsigned reason) {
+static void synchronize(struct cw_world *world, unsigned reason) {
   for (unsigned i = 0; i < CMX_TASKS; ++i) {
-    CWNode *node = &world->nodes[i];
+    struct cw_node *node = &world->nodes[i];
     const cmx_task *task = &world->kernel->task[i];
     if (!node->linked || task->state == CMX_WAITING)
       continue;
@@ -52,12 +52,12 @@ static void synchronize(CWWorld *world, unsigned reason) {
   }
 }
 
-int cw_object_init(CWWorld *world, unsigned index, unsigned kind,
+int cw_object_init(struct cw_world *world, unsigned index, unsigned kind,
                    unsigned initial, unsigned maximum) {
   if (!world || !world->kernel || index >= 2 || kind > CW_MUTEX ||
       (kind == CW_SEMAPHORE && (!maximum || initial > maximum)))
     return CMX_INVALID;
-  CWObject *object = &world->objects[index];
+  struct cw_object *object = &world->objects[index];
   if (object->live)
     return CMX_INVALID;
   if (object->generation == UINT32_MAX)
@@ -76,11 +76,11 @@ int cw_object_init(CWWorld *world, unsigned index, unsigned kind,
   return CMX_OK;
 }
 
-int cw_begin(CWWorld *world, unsigned index, unsigned task,
-             cmx_deadline deadline, unsigned strict, CWToken *out) {
+int cw_begin(struct cw_world *world, unsigned index, unsigned task,
+             cmx_deadline deadline, unsigned strict, struct cw_token *out) {
   if (!object_valid(world, index) || !out || task >= CMX_TASKS || strict > 1)
     return CMX_INVALID;
-  CWNode *node = &world->nodes[task];
+  struct cw_node *node = &world->nodes[task];
   cmx_task *entry = &world->kernel->task[task];
   if (node->linked ||
       (entry->state != CMX_READY && entry->state != CMX_RUNNING))
@@ -89,7 +89,7 @@ int cw_begin(CWWorld *world, unsigned index, unsigned task,
     return CMX_FULL;
   if (strict && due(world->kernel->now, deadline) && CW_MUTANT != 4)
     return CMX_TIMEOUT;
-  CWObject *object = &world->objects[index];
+  struct cw_object *object = &world->objects[index];
   /* Reserve counter room before the underlying operation can acquire. */
   if (object->acquired == UINT64_MAX)
     return CMX_FULL;
@@ -115,13 +115,13 @@ int cw_begin(CWWorld *world, unsigned index, unsigned task,
     ++node->terminals;
     ++object->acquired;
   }
-  *out = (CWToken){
+  *out = (struct cw_token){
       world,         task, index, entry->generation, object->generation,
       node->sequence};
   return result;
 }
 
-int cw_result(CWToken token, int *result, unsigned *cause) {
+int cw_result(struct cw_token token, int *result, unsigned *cause) {
   if (!result || !cause)
     return CMX_INVALID;
   if (!matches(token))
@@ -131,10 +131,10 @@ int cw_result(CWToken token, int *result, unsigned *cause) {
   return CMX_OK;
 }
 
-int cw_post(CWWorld *world, unsigned index) {
+int cw_post(struct cw_world *world, unsigned index) {
   if (!object_valid(world, index) || world->objects[index].kind != CW_SEMAPHORE)
     return CMX_INVALID;
-  CWObject *object = &world->objects[index];
+  struct cw_object *object = &world->objects[index];
   if (object->posts == UINT64_MAX || object->acquired == UINT64_MAX)
     return CMX_FULL;
   int result = cmx_sem_give(world->kernel, &object->semaphore);
@@ -144,13 +144,13 @@ int cw_post(CWWorld *world, unsigned index) {
   return result;
 }
 
-int cw_ready_callback(CWToken token) {
+int cw_ready_callback(struct cw_token token) {
   if (!matches(token) || !token.owner->nodes[token.task].linked)
     return CW_STALE;
   return cw_post(token.owner, token.object);
 }
 
-int cw_timeout(CWToken token, uint32_t now) {
+int cw_timeout(struct cw_token token, uint32_t now) {
   if (!matches(token) || !token.owner->nodes[token.task].linked)
     return CW_STALE;
   cmx_kernel *kernel = token.owner->kernel;
@@ -162,10 +162,10 @@ int cw_timeout(CWToken token, uint32_t now) {
   return CMX_OK;
 }
 
-int cw_cancel(CWToken token) {
+int cw_cancel(struct cw_token token) {
   if (!matches(token))
     return CW_STALE;
-  CWObject *object = &token.owner->objects[token.object];
+  struct cw_object *object = &token.owner->objects[token.object];
   if (!token.owner->nodes[token.task].linked) {
     if (CW_MUTANT == 5 && object->kind == CW_MUTEX)
       return cmx_mutex_unlock(token.owner->kernel, &object->mutex, token.task);
@@ -181,7 +181,7 @@ int cw_cancel(CWToken token) {
   return result;
 }
 
-int cw_unlock(CWWorld *world, unsigned index, unsigned task) {
+int cw_unlock(struct cw_world *world, unsigned index, unsigned task) {
   if (!object_valid(world, index) || world->objects[index].kind != CW_MUTEX ||
       task >= CMX_TASKS)
     return CMX_INVALID;
@@ -204,10 +204,10 @@ int cw_unlock(CWWorld *world, unsigned index, unsigned task) {
   return result;
 }
 
-int cw_close(CWWorld *world, unsigned index) {
+int cw_close(struct cw_world *world, unsigned index) {
   if (!object_valid(world, index))
     return CMX_INVALID;
-  CWObject *object = &world->objects[index];
+  struct cw_object *object = &world->objects[index];
   int result = object->kind == CW_SEMAPHORE
                    ? cmx_sem_close(world->kernel, &object->semaphore)
                    : cmx_mutex_close(world->kernel, &object->mutex);
@@ -224,7 +224,7 @@ int cw_close(CWWorld *world, unsigned index) {
   return result;
 }
 
-int cw_exit_reap(CWWorld *world, unsigned task) {
+int cw_exit_reap(struct cw_world *world, unsigned task) {
   if (!world || !world->kernel || task >= CMX_TASKS ||
       world->nodes[task].linked)
     return CMX_INVALID;

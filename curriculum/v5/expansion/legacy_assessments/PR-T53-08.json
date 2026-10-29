@@ -109,7 +109,7 @@
   },
   "environment": {
     "language": "Active C17. C11 draft and edition comparisons are labeled; compiler atomics/assembly, ABI, ISA, OS and board contracts are distinct authorities.",
-    "target": "Original disposable x86-64 QEMU teaching guest, with separate host span/state models; exact machine/CPU/version recorded. No host-disk/network passthrough.",
+    "target": "Original disposable x86-64 QEMU teaching guest, with separate host span/state models; exact machine/struct lr_cpu/version recorded. No host-disk/network passthrough.",
     "profile": "F",
     "dependencies": "Retain strict parent E/F target restrictions: no linked libc, libgcc, compiler-rt, libatomic, HAL or preexisting kernel implements the taught mechanism. Host Python/verification and explicitly separate FreeRTOS/Linux comparisons are not target dependencies.",
     "toolchain": [
@@ -140,7 +140,7 @@
   "reference_gaps": [
     "Published exact C17/C23 comparisons and full platform standards beyond listed passages remain separately inspected obligations. N1570 is a C11 draft comparison.",
     "No fresh complete baseline target campaign or learner portfolio is asserted by this authoring wave.",
-    "Physical timing, cache effects, electrical behavior and current CPU/board errata remain unvalidated.",
+    "Physical timing, cache effects, electrical behavior and current struct lr_cpu/board errata remain unvalidated.",
     "ACPI6.6 retrieval returned403; current ACPI conformance is not newly established. Intel253668-060US is historical, not current errata."
   ],
   "supplied_artifacts": [
@@ -223,19 +223,19 @@
         "D1": "Prediction and causal argument addressing: Migration copies a live context and lets the destination start immediately.",
         "D2": "After the required PR-T56-01 substrate, derive migration as an ownership transfer of a stopped/READY context. For source0,destination2,affinity{1,2}, show allowed transfer; reject empty mask and migration of a concurrently RUNNING frame. Include pending wake ownership.",
         "D3": "Exact source/model, commands or derivation, original inputs, raw observations, independently expected results and a criterion-specific falsification control. Separate missing tools/targets from observed outcomes.",
-        "D4": "Restrict a currently running task's affinity to exclude its CPU and define the safe rescheduling boundary."
+        "D4": "Restrict a currently running task's affinity to exclude its struct lr_cpu and define the safe rescheduling boundary."
       },
       "verification": {
         "procedure": "Predict before observing. Implement or derive every concrete task clause under the parent/shared contract; retain normal, boundary/failure and falsification evidence. Compare the specified expected argument, including negative outcomes and limitations, rather than only a checksum or old fixture. Bind versions, source/image hashes and the observation environment.",
-        "expected": "The source must stop using the context before destination publication. One authoritative saved frame and one CPU owner remain. Affinity constrains destination but does not itself stop a running thread or deliver pending work.",
+        "expected": "The source must stop using the context before destination publication. One authoritative saved frame and one struct lr_cpu owner remain. Affinity constrains destination but does not itself stop a running thread or deliver pending work.",
         "pass": "Every task clause and expected causal distinction is supported by actual learner artifacts. Correct numbers with the stated misconception, missing ownership/failure behavior or unsupported target claims fail this objective.",
         "limits": "New full criteria are unattempted. Baseline test names identify bounded support only; model, host, emulator, physical and learner evidence are not interchangeable."
       },
       "rubric": {
         "0": "Missing/incorrect artifacts, violated containment/preconditions or a false semantic guarantee.",
         "1": "Reproduces an ordinary case but cannot reject this leaf-specific misconception or explain its boundary.",
-        "2": "The source must stop using the context before destination publication. One authoritative saved frame and one CPU owner remain. Affinity constrains destination but does not itself stop a running thread or deliver pending work. Supplies a distinct falsification control and the concrete task artifacts.",
-        "3": "Restrict a currently running task's affinity to exclude its CPU and define the safe rescheduling boundary. Independently derives and verifies the changed obligations after the recorded delay."
+        "2": "The source must stop using the context before destination publication. One authoritative saved frame and one struct lr_cpu owner remain. Affinity constrains destination but does not itself stop a running thread or deliver pending work. Supplies a distinct falsification control and the concrete task artifacts.",
+        "3": "Restrict a currently running task's affinity to exclude its struct lr_cpu and define the safe rescheduling boundary. Independently derives and verifies the changed obligations after the recorded delay."
       },
       "hints": [
         "Stop source use before publishing destination ownership.",
@@ -245,7 +245,7 @@
         {
           "id": "AX-PR-T53-08-T53.08.a-DELAYED",
           "minimum_days": 7,
-          "task": "Restrict a currently running task's affinity to exclude its CPU and define the safe rescheduling boundary."
+          "task": "Restrict a currently running task's affinity to exclude its struct lr_cpu and define the safe rescheduling boundary."
         }
       ],
       "assessor_anchor": "#t5308a",
@@ -297,7 +297,7 @@
           ]
         }
       ],
-      "task": "Implement source/destination lock acquisition in CPU-index order, destination capacity reservation, source removal and destination publication. Inject failure before reservation and after reservation but before commit; retain one owner and release reservations on rollback. Race a wake with transfer using a finite model.",
+      "task": "Implement source/destination lock acquisition in struct lr_cpu-index order, destination capacity reservation, source removal and destination publication. Inject failure before reservation and after reservation but before commit; retain one owner and release reservations on rollback. Race a wake with transfer using a finite model.",
       "purpose": "Taking source lock then destination lock is globally deadlock-free.",
       "prerequisites": {
         "knowledge": [
@@ -318,9 +318,9 @@
       ],
       "deliverables": {
         "D1": "Prediction and causal argument addressing: Taking source lock then destination lock is globally deadlock-free.",
-        "D2": "Implement source/destination lock acquisition in CPU-index order, destination capacity reservation, source removal and destination publication. Inject failure before reservation and after reservation but before commit; retain one owner and release reservations on rollback. Race a wake with transfer using a finite model.",
+        "D2": "Implement source/destination lock acquisition in struct lr_cpu-index order, destination capacity reservation, source removal and destination publication. Inject failure before reservation and after reservation but before commit; retain one owner and release reservations on rollback. Race a wake with transfer using a finite model.",
         "D3": "Exact source/model, commands or derivation, original inputs, raw observations, independently expected results and a criterion-specific falsification control. Separate missing tools/targets from observed outcomes.",
-        "D4": "Migrate a task with a timer callback referencing its old CPU and redesign callback routing/lifetime."
+        "D4": "Migrate a task with a timer callback referencing its old struct lr_cpu and redesign callback routing/lifetime."
       },
       "verification": {
         "procedure": "Predict before observing. Implement or derive every concrete task clause under the parent/shared contract; retain normal, boundary/failure and falsification evidence. Compare the specified expected argument, including negative outcomes and limitations, rather than only a checksum or old fixture. Bind versions, source/image hashes and the observation environment.",
@@ -332,7 +332,7 @@
         "0": "Missing/incorrect artifacts, violated containment/preconditions or a false semantic guarantee.",
         "1": "Reproduces an ordinary case but cannot reject this leaf-specific misconception or explain its boundary.",
         "2": "Opposite migrations create an AB/BA cycle unless lock order is total. Failure before commit must preserve source ownership; after commit, wakeups route to the new owner. Intermediate states and reserved slots must be visible to the protocol, not ordinary dispatch. Supplies a distinct falsification control and the concrete task artifacts.",
-        "3": "Migrate a task with a timer callback referencing its old CPU and redesign callback routing/lifetime. Independently derives and verifies the changed obligations after the recorded delay."
+        "3": "Migrate a task with a timer callback referencing its old struct lr_cpu and redesign callback routing/lifetime. Independently derives and verifies the changed obligations after the recorded delay."
       },
       "hints": [
         "Stop source use before publishing destination ownership.",
@@ -342,7 +342,7 @@
         {
           "id": "AX-PR-T53-08-T53.08.b-DELAYED",
           "minimum_days": 7,
-          "task": "Migrate a task with a timer callback referencing its old CPU and redesign callback routing/lifetime."
+          "task": "Migrate a task with a timer callback referencing its old struct lr_cpu and redesign callback routing/lifetime."
         }
       ],
       "assessor_anchor": "#t5308b",
@@ -393,7 +393,7 @@
           ]
         }
       ],
-      "task": "Compare pinned and movable workloads using per-task generations, CPU transitions, migration counts and actual work completion. Reject duplicate-context and lost-wakeup controls. Measure imbalance and cache-warmup effects only where supported, keeping QEMU results separate from physical claims.",
+      "task": "Compare pinned and movable workloads using per-task generations, struct lr_cpu transitions, migration counts and actual work completion. Reject duplicate-context and lost-wakeup controls. Measure imbalance and cache-warmup effects only where supported, keeping QEMU results separate from physical claims.",
       "purpose": "Balanced queue lengths imply reduced completion time.",
       "prerequisites": {
         "knowledge": [
@@ -414,7 +414,7 @@
       ],
       "deliverables": {
         "D1": "Prediction and causal argument addressing: Balanced queue lengths imply reduced completion time.",
-        "D2": "Compare pinned and movable workloads using per-task generations, CPU transitions, migration counts and actual work completion. Reject duplicate-context and lost-wakeup controls. Measure imbalance and cache-warmup effects only where supported, keeping QEMU results separate from physical claims.",
+        "D2": "Compare pinned and movable workloads using per-task generations, struct lr_cpu transitions, migration counts and actual work completion. Reject duplicate-context and lost-wakeup controls. Measure imbalance and cache-warmup effects only where supported, keeping QEMU results separate from physical claims.",
         "D3": "Exact source/model, commands or derivation, original inputs, raw observations, independently expected results and a criterion-specific falsification control. Separate missing tools/targets from observed outcomes.",
         "D4": "Pin one latency-sensitive task and rebalance only others, deriving the changed admissible placement set."
       },

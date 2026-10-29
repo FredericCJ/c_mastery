@@ -15,7 +15,7 @@ int main(int argc, char **argv) {
       fclose(f);
       return 2;
     }
-    EiRequest r;
+    struct ei_request r;
     if (ei_init(&r, payload, 1, 1)) {
       fclose(f);
       return 3;
@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
         fclose(f);
         return 2;
       }
-      rc = ei_transition(&r, (enum EiEvent)(line[i] - '0'));
+      rc = ei_transition(&r, (enum ei_event)(line[i] - '0'));
     }
     printf("%u %d %u %u %u %u %u %u %u %u %d\n", index++, rc, (unsigned)r.state,
            (unsigned)r.owner, (unsigned)r.outcome, r.connected, r.effect_done,

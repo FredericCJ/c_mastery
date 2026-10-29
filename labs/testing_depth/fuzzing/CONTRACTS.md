@@ -12,7 +12,7 @@ import the completed actual PR-T32-02 decoder and PR-T32-01 queue sources using
 ## Core inputs, output and state
 
 `tf_parse(0,...)` retains opcode1,count0..4, exact2+2count bytes, big-endian u16
-values and maximum input10 bytes. A copied `TfPacket` holds count, four values
+values and maximum input10 bytes. A copied `struct tf_packet` holds count, four values
 and an absent optional tag. No pointer into input is retained. Successful
 output is fully initialized; rejection preserves the entire caller output.
 No static parser state or allocation exists. Parsing the same bytes after any
@@ -32,7 +32,7 @@ decoder; publish tag and record only after its success. Missing/extra tag and
 unknown flags reject. Count0 is valid in both profiles. Work is O(admitted
 count), at most4 decoded values; large inputs are rejected in constant work.
 
-The stateful changed condition uses `TfSession`, initialized explicitly with
+The stateful changed condition uses `struct tf_session`, initialized explicitly with
 epoch0/inactive. Begin requires a strictly greater nonzero epoch and resets
 next sequence and total. Apply requires that active epoch, the exact next
 sequence0..65535, and a valid original packet. Stage parsing and checked sum

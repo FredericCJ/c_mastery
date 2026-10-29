@@ -1,4 +1,4 @@
-"""Source-bound cross-layer consumers; actual C providers and isolated CPU models."""
+"""Source-bound cross-layer consumers; actual C providers and isolated struct lr_cpu models."""
 import datetime,hashlib,json,pathlib,shutil,sys
 import run_thread_lifecycle as harness
 import run_network_http as network
@@ -56,6 +56,6 @@ def main():
   assert {q['id'] for q in harness.COMMANDS}==expected_commands()
  except Exception as ex:failure=str(ex)
  if before!=pins() or ext!=external():failure='Scoped sources changed'
- limits=['Actual original EnRing/Na/Ni/Nc/Nb/Nh providers; CPU/register models, no physical Ethernet or capture uncertainty observation.','Routed envelope is separate from same-link NbNet/NhHttp exchange; no routed HTTP, general Internet compliance or full standard coverage.','Finite fragmentation consumer covers stated hole/overlap/deadline policy only; no options, arbitrary traffic or peer interoperability conclusion.','Independent original/delayed learner assessment and external review remain not-run.']
+ limits=['Actual original struct en_ring/Na/Ni/Nc/Nb/Nh providers; struct lr_cpu/register models, no physical Ethernet or capture uncertainty observation.','Routed envelope is separate from same-link struct nb_net/struct nh_http exchange; no routed HTTP, general Internet compliance or full standard coverage.','Finite fragmentation consumer covers stated hole/overlap/deadline policy only; no options, arbitrary traffic or peer interoperability conclusion.','Independent original/delayed learner assessment and external review remain not-run.']
  r=dict(schema_version=1,status='pass' if failure is None else 'fail',failure=failure,source_sha256=pins(),external_sha256=ext,outputs_sha256={p.relative_to(ROOT).as_posix():sha(p) for p in sorted(p for p in BUILD.rglob('*') if p.is_file())},commands=harness.COMMANDS,limits=limits);(HERE/'validation.json').write_text(json.dumps(r,indent=2)+'\n',encoding='utf8');print(json.dumps(dict(status=r['status'],commands=len(r['commands']),failure=failure)));return int(failure is not None)
 if __name__=='__main__':raise SystemExit(main())

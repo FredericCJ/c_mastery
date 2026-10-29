@@ -4,11 +4,11 @@
 #define MC_MUTANT 0
 #endif
 uint32_t mc_spi_now(void *v) {
-  McSpi *a = v;
+  struct mc_spi *a = v;
   return a->ticks(a->clock_context);
 }
 int mc_spi_transfer(void *v, const uint8_t *tx, uint8_t *rx, size_t n) {
-  McSpi *a = v;
+  struct mc_spi *a = v;
   if (!a || !a->ticks || !tx || !rx || !n || n > 16 || a->spi.phase ||
       a->spi.cs_owned || a->spi.mode != 0 || a->token == UINT32_MAX)
     return -1;

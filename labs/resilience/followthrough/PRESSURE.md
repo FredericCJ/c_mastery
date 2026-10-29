@@ -18,16 +18,16 @@ CMake, Python independent models and sanitizers are host tools. GCC/Clang
 debug/release and instrumented configurations are declared in the family.
 There is no freestanding or physical-device execution claim.
 
-The supplied work is two related representations. `RzpOwnedQueue` preserves
+The supplied work is two related representations. `struct rzp_owned_queue` preserves
 the original five overload policies while owning resources associated with
-their unsigned values. `RzpPump` implements the blocking policy with two
+their unsigned values. `struct rzp_pump` implements the blocking policy with two
 bounded registered producers and four credits across queue, transport and
 receiver leases. The pump must call actual `rz_offer`, `rz_forward`,
 `msg_select` and MsgHub lifetime functions. It may not fake transport acceptance.
 
 ## Owned policy contracts
 
-`RzpValue` consists of an unsigned semantic value, nonnull owned pointer and
+`struct rzp_value` consists of an unsigned semantic value, nonnull owned pointer and
 disposer. It is movable by a single descriptor transfer, not safely copyable
 as an owner. `drop` clears the descriptor before calling the disposer. The
 disposer must finish normally, be valid for the pointer and never reenter or
@@ -43,7 +43,7 @@ retains the resource associated with the larger newest value: replace and
 dispose the prior newest only if the new value is larger; otherwise dispose
 the input. Equal values preserve the older owner. This explicit disposer
 policy is an extension of the copied-value contract, not an assertion that
-the original `RZOffer` itself frees arbitrary objects.
+the original `struct rz_offer` itself frees arbitrary objects.
 
 Pop transfers one owner to an output that must own no prior resource; failure
 preserves output. Closing rejects new offers while allowing complete draining.

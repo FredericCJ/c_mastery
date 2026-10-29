@@ -40,13 +40,13 @@ int main(void) {
     CHECK(ff_ulps(-1,nextafter(-1,-INFINITY),&distance)==FF_OK && distance==1);
     distance=917;CHECK(ff_ulps(NAN,0,&distance)==FF_RANGE && distance==917);
     CHECK(feclearexcept(FE_ALL_EXCEPT)==0 && feraiseexcept(FE_DIVBYZERO)==0 && fesetround(FE_DOWNWARD)==0);
-    int flags=fetestexcept(FE_ALL_EXCEPT);errno=EDOM;FfRound round;
+    int flags=fetestexcept(FE_ALL_EXCEPT);errno=EDOM;struct ff_round round;
     CHECK(ff_round_probe(1,0x1p-53,&round)==FF_OK && round.count==4);
     CHECK(fegetround()==FE_DOWNWARD && fetestexcept(FE_ALL_EXCEPT)==flags && errno==EDOM);
     for (size_t i=0;i<round.count;i++) CHECK(round.values[i]==(round.modes[i]==FE_UPWARD?0x1.0000000000001p0:1));
     for (int failure=0;failure<7;failure++) {
-        FfEnvOps ops={fegetenv,feholdexcept,fail_mode,count_restore};
-        FfRound sentinel={{917},{917},917};unsigned char before[sizeof sentinel];
+        struct ff_env_ops ops={fegetenv,feholdexcept,fail_mode,count_restore};
+        struct ff_round sentinel={{917},{917},917};unsigned char before[sizeof sentinel];
         memcpy(before,&sentinel,sizeof sentinel);calls=0;restore_calls=0;fail_at=failure;
         if (failure==0) ops.save=fail_save;
         if (failure==5) ops.hold=fail_hold;

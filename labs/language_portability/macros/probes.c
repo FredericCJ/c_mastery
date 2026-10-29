@@ -22,9 +22,9 @@ int main(void){int (*p)(int)=F,(*q)(int)=G;printf("%d %d %d %d %d %d\n",p(3),q(3
 #define FORWARD(x) ID(x)
 int result=FORWARD(PAIR);
 #elif CASE == 4
-typedef struct{int a,b;} Pair;
+struct lp_pair{int a,b;};
 #define FIRST(x) ((x).a)
-int main(void){return FIRST((Pair){3,4});}
+int main(void){return FIRST((struct lp_pair){3,4});}
 #elif CASE == 5
 #define CAT(a,b) a##b
 CAT(x,+)

@@ -3,9 +3,9 @@
 void r5_note(const char *);
 void r5_values(const char *,unsigned,unsigned,unsigned,unsigned);
 #define CHECK(x) do{if(!(x)){r5_note("R5_ASSERT: " #x);return 41;}}while(0)
-typedef struct {uint32_t r[16];uintptr_t address;unsigned de,edges,writes,reads;} Model;
-static uint32_t read_io(void *p,unsigned k){Model *m=p;if(k==PU_SOURCE)return 1;if(k==PU_DR){++m->reads;m->r[PU_SR]&=~47u;}return m->r[k];}
-static void write_io(void *p,unsigned k,uintptr_t v){Model *m=p;
+struct mc_model {uint32_t r[16];uintptr_t address;unsigned de,edges,writes,reads;};
+static uint32_t read_io(void *p,unsigned k){struct mc_model *m=p;if(k==PU_SOURCE)return 1;if(k==PU_DR){++m->reads;m->r[PU_SR]&=~47u;}return m->r[k];}
+static void write_io(void *p,unsigned k,uintptr_t v){struct mc_model *m=p;
  if(k==PU_DMA_ADDRESS)m->address=v;
  else if(k==PU_SR)m->r[k]&=(uint32_t)v;
  else if(k==PU_DMA_CLEAR)m->r[PU_DMA_FLAGS]=0;
@@ -13,13 +13,13 @@ static void write_io(void *p,unsigned k,uintptr_t v){Model *m=p;
  if(k==PU_DR){++m->writes;m->r[PU_SR]&=~(PU_TXE|PU_TC);}
  if(k==PU_DMA_CONTROL&&v)m->r[PU_DMA_BUSY]=1;
 }
-static void drive(void *p,unsigned enabled){Model *m=p;m->de=enabled;++m->edges;}
-static int open_channel(R5Channel *s,Model *m,unsigned rx,unsigned events,uint32_t now){
- PuClock c={42000000,1,1,1,1,0};R5Timing timing={R5_THVD1410,0,1,2000};
- R5Io io={{m,read_io,write_io},m,drive};return r5_open(s,io,&c,100000,&timing,rx,events,now);
+static void drive(void *p,unsigned enabled){struct mc_model *m=p;m->de=enabled;++m->edges;}
+static int open_channel(struct r5_channel *s,struct mc_model *m,unsigned rx,unsigned events,uint32_t now){
+ struct pu_clock c={42000000,1,1,1,1,0};struct r5_timing timing={R5_THVD1410,0,1,2000};
+ struct r5_io io={{m,read_io,write_io},m,drive};return r5_open(s,io,&c,100000,&timing,rx,events,now);
 }
 static int config(void){
- R5Timing t={R5_THVD1410,0,1,2000};R5Delays d={99,99,99};unsigned load=99;
+ struct r5_timing t={R5_THVD1410,0,1,2000};struct r5_delays d={99,99,99};unsigned load=99;
  CHECK(r5_load(16,16,&load)==R5_OK&&load==32);
  CHECK(r5_load(256,1,&load)==R5_INVALID&&load==32);
  CHECK(r5_delays(&t,&d)==R5_OK&&d.enable==600&&d.disable==200&&d.guard==2000);
@@ -32,7 +32,7 @@ static int config(void){
  r5_values("config",32,11000,650,4);return 0;
 }
 static int one_turn(uint32_t base){
- R5Channel s={0};Model m={0};uint8_t bytes[]={17,34};size_t count=99;R5Event e={0};
+ struct r5_channel s={0};struct mc_model m={0};uint8_t bytes[]={17,34};size_t count=99;struct r5_event e={0};
  CHECK(open_channel(&s,&m,16,32,base)==R5_OK);
  CHECK(r5_send(&s,1,bytes,2,PU_POLL,base,500000,&count)==R5_OK&&count==2&&m.de);
  bytes[0]=99;bytes[1]=99;
@@ -53,7 +53,7 @@ static int one_turn(uint32_t base){
 }
 static int timing(void){CHECK(one_turn(0)==0);CHECK(one_turn(UINT32_MAX-300u)==0);r5_values("timing",200600,202800,2,0x80000000u);return 0;}
 static int events(void){
- R5Channel s={0};Model m={0};size_t consumed=99;R5Event e={0};
+ struct r5_channel s={0};struct mc_model m={0};size_t consumed=99;struct r5_event e={0};
  CHECK(open_channel(&s,&m,2,8,0)==R5_OK);
  CHECK(r5_receive(&s,PU_RXNE,17,&consumed)==R5_OK&&consumed==1);
  CHECK(r5_receive(&s,PU_RXNE,34,&consumed)==R5_OK&&consumed==1);
@@ -75,8 +75,8 @@ static int events(void){
  r5_values("events",2,3,m.reads,s.queued);return 0;
 }
 static int cancellation(void){
- R5Channel s={0};Model m={0};uint8_t bytes[16];for(unsigned i=0;i<16;++i)bytes[i]=(uint8_t)i;
- size_t count=0;R5Event e={0};CHECK(open_channel(&s,&m,16,8,0)==R5_OK);
+ struct r5_channel s={0};struct mc_model m={0};uint8_t bytes[16];for(unsigned i=0;i<16;++i)bytes[i]=(uint8_t)i;
+ size_t count=0;struct r5_event e={0};CHECK(open_channel(&s,&m,16,8,0)==R5_OK);
  CHECK(r5_send(&s,1,bytes,16,PU_DMA,0,500000,&count)==R5_OK&&count==16);
  CHECK(r5_step(&s,1,600)==R5_BUSY&&s.tx.byte.memory_owned&&m.r[PU_DMA_BUSY]);
  CHECK(m.address==(uintptr_t)s.tx_bytes&&m.r[PU_DMA_COUNT]==8);
@@ -108,7 +108,7 @@ static int cancellation(void){
  CHECK(r5_step(&s,3,10402)==R5_OK);
  CHECK(r5_take(&s,&e,&count)==R5_OK&&e.kind==R5_ABORTED&&e.token==3);
  /* A full unreserved queue cannot steal either eventual control event. */
- R5Channel q={0};Model qm={0};CHECK(open_channel(&q,&qm,1,3,0)==R5_OK);
+ struct r5_channel q={0};struct mc_model qm={0};CHECK(open_channel(&q,&qm,1,3,0)==R5_OK);
  CHECK(r5_loss(&q)==R5_OK);
  CHECK(r5_send(&q,1,bytes,1,PU_DMA,0,1000,&count)==R5_OK&&q.reserved==2);
  CHECK(r5_loss(&q)==R5_FULL&&q.queued==1&&q.reserved==2);
@@ -129,15 +129,15 @@ static int cancellation(void){
  r5_values("cancellation",1,16,2,7200);return 0;
 }
 static int link_case(void){
- EduFrame source={0,1,2,4,{1,0x7e,0x7d,2}},out={0};uint8_t wire[96];size_t n=0;
+ struct edu_frame source={0,1,2,4,{1,0x7e,0x7d,2}},out={0};uint8_t wire[96];size_t n=0;
  CHECK(edu_frame_encode(&source,wire,sizeof wire,&n)==0&&n<=96);
  unsigned runs=0;
  for(size_t split=0;split<=n;++split){
-  R5Link link={0};link.local=2;link.grant=1;
-  R5Channel channel={0};Model model={0};size_t consumed=99;
+  struct r5_link link={0};link.local=2;link.grant=1;
+  struct r5_channel channel={0};struct mc_model model={0};size_t consumed=99;
   CHECK(open_channel(&channel,&model,16,32,0)==R5_OK);
   /* A channel transport lost an event, then a complete fresh frame arrives. */
-  R5Event e={R5_BYTE,0,0,0};
+  struct r5_event e={R5_BYTE,0,0,0};
   for(size_t i=0;i<n;++i){
    if(i==split){CHECK(r5_loss(&channel)==R5_OK);CHECK(r5_take(&channel,&e,&consumed)==R5_OK&&e.kind==R5_LOSS);CHECK(r5_link(&link,&e,&out)==R5_OK);}
    CHECK(r5_receive(&channel,PU_RXNE,wire[i],&consumed)==R5_OK&&consumed==1);
@@ -153,10 +153,10 @@ static int link_case(void){
   CHECK(link.delivered==before+1&&out.length==4&&out.payload[1]==0x7e&&out.payload[2]==0x7d&&link.faults==1);
   ++runs;
  }
- R5Link foreign={0};foreign.local=1;foreign.grant=1;R5Event e={R5_BYTE,0,0,0};
+ struct r5_link foreign={0};foreign.local=1;foreign.grant=1;struct r5_event e={R5_BYTE,0,0,0};
  out.length=99;for(size_t i=0;i<n;++i){e.value=wire[i];(void)r5_link(&foreign,&e,&out);}
  CHECK(!foreign.delivered&&foreign.rejected==1&&out.length==99);
- foreign=(R5Link){0};foreign.local=2;out.length=99;
+ foreign=(struct r5_link){0};foreign.local=2;out.length=99;
  for(size_t i=0;i<n;++i){e.value=wire[i];(void)r5_link(&foreign,&e,&out);}
  CHECK(!foreign.delivered&&foreign.rejected==1&&out.length==99);
  r5_values("link",(unsigned)n,runs,1,0);return 0;

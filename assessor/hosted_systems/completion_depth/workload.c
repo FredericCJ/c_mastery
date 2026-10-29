@@ -107,9 +107,9 @@ int main(int argc, char **argv) {
   uint64_t start = clock_ns(CLOCK_MONOTONIC),
            cpu_start = clock_ns(CLOCK_PROCESS_CPUTIME_ID), pin_start = 0,
            pin_ns = 0;
-  CMRawRing ring = {.fd = -1};
+  struct cm_raw_ring ring = {.fd = -1};
   unsigned char *map = NULL;
-  CoPool pool;
+  struct co_pool pool;
   unsigned char *buffers[4] = {0};
   if (!send_mode) {
     map = mmap(NULL, 16384, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS,

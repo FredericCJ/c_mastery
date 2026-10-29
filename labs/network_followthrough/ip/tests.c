@@ -1,12 +1,12 @@
 #include "specimens.h"
-static const NiConfig config = {0xc0000202u, 0xc0000201u};
+static const struct ni_config config = {0xc0000202u, 0xc0000201u};
 static int checksums(void) {
   unsigned char bytes[257];
   for (unsigned i = 0; i < 257; i++)
     bytes[i] = 255;
   for (unsigned n = 0; n <= 257; n++)
     for (unsigned split = 0; split <= n; split++) {
-      SChecksum s = {0};
+      struct s_checksum s = {0};
       uint16_t actual = 7, again = 9;
       CHECK(!s_checksum_add(&s, bytes, split));
       CHECK(!s_checksum_finish(&s, &again));
@@ -15,7 +15,7 @@ static int checksums(void) {
       CHECK(actual == ni_test_sum(bytes, n));
       CHECK(!s_checksum_finish(&s, &again) && again == actual);
     }
-  SChecksum s = {0};
+  struct s_checksum s = {0};
   uint16_t value = 0;
   unsigned char odd = 0x61;
   CHECK(!s_checksum_add(&s, &odd, 1));
@@ -23,13 +23,13 @@ static int checksums(void) {
   odd = 0x62;
   CHECK(!s_checksum_add(&s, &odd, 1));
   CHECK(!s_checksum_finish(&s, &value) && value == 0x9e9d);
-  s = (SChecksum){0};
+  s = (struct s_checksum){0};
   for (unsigned i = 0; i < 510; i++)
     CHECK(!s_checksum_add(&s, bytes, 257));
   CHECK(!s_checksum_add(&s, bytes, 6));
   CHECK(!s_checksum_finish(&s, &value) && value == 0);
   /* 131076 all-FF bytes exceed an unbounded32-bit accumulator's safe count. */
-  SChecksum bad = {65536, 0, 0};
+  struct s_checksum bad = {65536, 0, 0};
   value = 0x1234;
   CHECK(s_checksum_finish(&bad, &value) == S_INVALID && value == 0x1234);
   puts("NI_CHECKSUM_PASS splits=33411 long_bytes=131076");
@@ -37,8 +37,8 @@ static int checksums(void) {
 }
 static int ipv4(void) {
   unsigned char input[100];
-  NiPacket out;
-  NiView v;
+  struct ni_packet out;
+  struct ni_view v;
   for (unsigned n = 0; n <= 64; n++) {
     ni_test_echo(input, n);
     for (unsigned i = n + 28; i < 100; i++)
@@ -67,8 +67,8 @@ static int ipv4(void) {
 }
 static int reassembly(void) {
   unsigned char p[36];
-  NiReassembly s;
-  NiPacket out;
+  struct ni_reassembly s;
+  struct ni_packet out;
   unsigned index = 9;
   CHECK(ni_init(&s, config, 2, NI_STRICT, 100, 60000) == NI_OK);
   ni_test_header(p, 8, 7, 0, 1, 1);

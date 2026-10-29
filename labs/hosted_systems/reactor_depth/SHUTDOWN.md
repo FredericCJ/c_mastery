@@ -2,7 +2,7 @@
 
 ## T24.11.a — choose an overload policy before exhaustion
 
-Import the actual `RfOutbox` from PR-T24-03 into `RdService`. Admit at most four
+Import the actual `struct rf_outbox` from PR-T24-03 into `struct rd_service`. Admit at most four
 connections and eight frames per connection. Reject a fifth connection and ninth
 frame with the caller still owning rejected input. Compare the same nine-frame
 trace under three policies: drop newest leaves the existing queue; disconnect
@@ -71,7 +71,7 @@ owner is terminal to expose premature publication in a bounded model.
 
 ## T24.11.c — enroll waiters and arbitrate competing outcomes
 
-Implement the capacity-one `RdPort` with one mutex protecting queue, stop/peer
+Implement the capacity-one `struct rd_port` with one mutex protecting queue, stop/peer
 predicates, enrollment counters and terminal decisions. Force an empty blocked
 consumer, a full blocked producer, an actual peer EOF and repeated shutdown
 notifications. The test announces entry while holding the mutex, then performs

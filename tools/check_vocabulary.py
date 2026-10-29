@@ -18,7 +18,7 @@ MINIMUM_PER_DOMAIN = 15
 MINIMUM_CORE = 120
 ACRONYM = re.compile(r'(?<![\w-])([A-Z]{2,6})(?![\w-])')  # letters only: T03, C23, RM0090 are identifiers, not acronyms
 ACRONYM_USES = 5
-STOP_ACRONYMS = {'ISO', 'IEC', 'IEEE', 'RFC', 'ANSI', 'POSIX', 'GNU', 'GCC', 'LLVM', 'ARM', 'ST', 'TI', 'CPU', 'RAM', 'ROM',
+STOP_ACRONYMS = {'ISO', 'IEC', 'IEEE', 'RFC', 'ANSI', 'POSIX', 'GNU', 'GCC', 'LLVM', 'ARM', 'ST', 'TI', 'struct lr_cpu', 'RAM', 'ROM',
                  'USB', 'LED', 'PC', 'OS', 'IO', 'API', 'ABI', 'ELF', 'JSON', 'CSV', 'HTML', 'URL', 'PDF', 'ID', 'OK', 'TODO',
                  'MCU', 'SMP', 'AMP', 'VM', 'HTTP', 'TCP', 'UDP', 'IP', 'DNS', 'CAN', 'SPI', 'I2C', 'UART', 'USART', 'DMA',
                  'ADC', 'DAC', 'PWM', 'GPIO', 'RTOS', 'ISR', 'NVIC', 'MMIO', 'TLB', 'IPI', 'WCET', 'CRC', 'FCS', 'UB', 'ASLR',

@@ -162,7 +162,7 @@ static void spawned(const char *worker, int log, int tmp, int delimiter,
                   "$(synthetic)",
                   NULL};
   char *env[] = {"SD_ONLY=yes", delimiter ? reopen : NULL, NULL};
-  SDChild c;
+  struct sd_child c;
   CHECK(!sd_spawn(worker, args, env, log, tmp, 0, &c));
   char text[2048];
   size_t n = 0;
@@ -204,14 +204,14 @@ static void inheritance(const char *worker) {
   CHECK(snprintf(missing, sizeof missing, "%s/missing-worker", root) > 0);
   for (unsigned f = 1; f <= 4; ++f) {
     char *a[] = {"worker", NULL}, *e[] = {NULL};
-    SDChild out = {-7, -8};
+    struct sd_child out = {-7, -8};
     CHECK(sd_spawn(worker, a, e, log, tmp, f, &out) == EIO && out.pid == -7 &&
           out.output == -8);
     CHECK(descriptors() == initial);
   }
   {
     char *a[] = {"worker", NULL}, *e[] = {NULL};
-    SDChild out = {-7, -8};
+    struct sd_child out = {-7, -8};
     CHECK(sd_spawn(missing, a, e, log, tmp, 0, &out) == ENOENT &&
           out.pid == -7 && out.output == -8);
     CHECK(descriptors() == initial);

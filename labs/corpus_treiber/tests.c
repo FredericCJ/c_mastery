@@ -5,13 +5,13 @@
 #include <string.h>
 #define CHECK(x) do{if(!(x)){fprintf(stderr,"TS_CHECK:%d:%s\n",__LINE__,#x);exit(1);}}while(0)
 static void stack(void){
- TsStack s;uint32_t out=77;CHECK(ts_init(&s,0)==TS_INVALID);CHECK(ts_init(&s,8)==TS_OK);
+ struct ts_stack s;uint32_t out=77;CHECK(ts_init(&s,0)==TS_INVALID);CHECK(ts_init(&s,8)==TS_OK);
  CHECK(ts_pop(&s,0,&out)==TS_EMPTY&&out==77);
  for(unsigned i=0;i<8;i++)CHECK(ts_push(&s,i+20)==TS_OK);
  CHECK(ts_push(&s,99)==TS_FULL);
  for(unsigned i=8;i;i--)CHECK(ts_pop(&s,0,&out)==TS_OK&&out==i+19);
  CHECK(ts_push(&s,99)==TS_FULL);CHECK(ts_collect(&s)==8);CHECK(ts_push(&s,99)==TS_OK);
- TsPop a,b;CHECK(ts_begin(&s,0,&a)==TS_OK&&ts_begin(&s,1,&b)==TS_OK);
+ struct ts_pop a,b;CHECK(ts_begin(&s,0,&a)==TS_OK&&ts_begin(&s,1,&b)==TS_OK);
  CHECK(ts_commit(&a,&out)==TS_OK&&out==99);out=123;
  CHECK(ts_commit(&b,&out)==TS_RETRY&&out==123);CHECK(!b.owner);
  CHECK(ts_cancel(&b)==TS_INVALID);CHECK(ts_collect(&s)==1);
@@ -21,7 +21,7 @@ static void stack(void){
  CHECK(ts_pop(&s,TS_THREADS,&out)==TS_INVALID&&out==UINT32_MAX);
 }
 static void reclaim(void){
- TsStack s;TsPop a;TsRetired old,other,newer;uint32_t out;
+ struct ts_stack s;struct ts_pop a;struct ts_retired old,other,newer;uint32_t out;
  CHECK(ts_init(&s,1)==TS_OK);CHECK(ts_push(&s,41)==TS_OK);CHECK(ts_begin(&s,0,&a)==TS_OK);
  CHECK(ts_pop(&s,1,&out)==TS_OK&&out==41);
  CHECK(ts_collect(&s)==0);CHECK(ts_push(&s,42)==TS_FULL); /* stalled hazard */
@@ -46,12 +46,12 @@ static void reclaim(void){
  CHECK(atomic_compare_exchange_strong(&head,&saved,saved_next));CHECK(atomic_load(&head)==1);
 }
 enum{ITEMS=1000};
-static TsStack shared;
+static struct ts_stack shared;
 static atomic_uint seen[TS_THREADS*ITEMS];
 static void *worker(void *arg){
  unsigned p=*(unsigned*)arg;
  for(unsigned i=0;i<ITEMS;i++){
-  unsigned tries=0;TsStatus r;
+  unsigned tries=0;enum ts_status r;
   do{r=ts_push(&shared,p*ITEMS+i);if(r==TS_FULL)(void)ts_collect(&shared);CHECK(++tries<10000000u);}while(r==TS_FULL);
   CHECK(r==TS_OK);uint32_t v;tries=0;
   do{r=ts_pop(&shared,p,&v);CHECK(++tries<10000000u);}while(r==TS_EMPTY);
@@ -67,10 +67,10 @@ static void native(void){
  for(unsigned i=0;i<TS_THREADS*ITEMS;i++)CHECK(atomic_load(&seen[i])==1);
  uint32_t v;CHECK(ts_pop(&shared,0,&v)==TS_EMPTY);(void)ts_collect(&shared);
 }
-typedef struct{unsigned start,end;TsStatus result;uint32_t value;} Record;
-static Record records[4];static atomic_uint clock_tick;
+struct ts_record{unsigned start,end;enum ts_status result;uint32_t value;};
+static struct ts_record records[4];static atomic_uint clock_tick;
 static void *history_worker(void *arg){
- unsigned p=*(unsigned*)arg;Record *a=&records[p*2],*b=a+1;
+ unsigned p=*(unsigned*)arg;struct ts_record *a=&records[p*2],*b=a+1;
  a->start=atomic_fetch_add(&clock_tick,1);a->value=10+p;a->result=ts_push(&shared,a->value);a->end=atomic_fetch_add(&clock_tick,1);
  b->start=atomic_fetch_add(&clock_tick,1);b->value=99;b->result=ts_pop(&shared,p,&b->value);b->end=atomic_fetch_add(&clock_tick,1);return 0;
 }
@@ -83,8 +83,8 @@ static void history(void){
  }
 }
 static void driver(void){
- TsStack s;unsigned cap,n;char op;CHECK(scanf("%u %u",&cap,&n)==2);CHECK(ts_init(&s,cap)==TS_OK);
- for(unsigned i=0;i<n;i++){unsigned v=0;CHECK(scanf(" %c %u",&op,&v)==2);uint32_t out=999;TsStatus r;
+ struct ts_stack s;unsigned cap,n;char op;CHECK(scanf("%u %u",&cap,&n)==2);CHECK(ts_init(&s,cap)==TS_OK);
+ for(unsigned i=0;i<n;i++){unsigned v=0;CHECK(scanf(" %c %u",&op,&v)==2);uint32_t out=999;enum ts_status r;
   if(op=='P')r=ts_push(&s,v);else if(op=='O')r=ts_pop(&s,0,&out);else{out=ts_collect(&s);r=TS_OK;}
   printf("%u %u\n",(unsigned)r,out);
  }
@@ -92,5 +92,5 @@ static void driver(void){
 int main(int argc,char **argv){
  CHECK(argc==2);if(!strcmp(argv[1],"driver")){driver();return 0;}if(!strcmp(argv[1],"history")){history();return 0;}
  if(!strcmp(argv[1],"stack")){stack();native();}else{CHECK(!strcmp(argv[1],"reclaim"));reclaim();}
- printf("TS_PASS gen=%u stack=%zu node=%zu pop=%zu\n",TS_GEN_MAX,sizeof(TsStack),sizeof(TsNode),sizeof(TsPop));return 0;
+ printf("TS_PASS gen=%u stack=%zu node=%zu pop=%zu\n",TS_GEN_MAX,sizeof(struct ts_stack),sizeof(struct ts_node),sizeof(struct ts_pop));return 0;
 }

@@ -2,11 +2,11 @@
 #ifndef PL_POST_MUTANT
 #define PL_POST_MUTANT 0
 #endif
-int pl_flush(PlPosted *m) {
+int pl_flush(struct pl_posted *m) {
   if (!m || m->count > 8 || m->head > 7)
     return PL_INVALID;
   while (m->count) {
-    PmAccess a = m->pending[m->head];
+    struct pm_access a = m->pending[m->head];
     uint32_t v = a.value;
     if (pm_access(&m->device, a.offset, a.width, 1, &v))
       return PL_IO;
@@ -16,7 +16,7 @@ int pl_flush(PlPosted *m) {
   }
   return PL_OK;
 }
-int pl_post_write(PlPosted *m, unsigned off, unsigned width, uint32_t value) {
+int pl_post_write(struct pl_posted *m, unsigned off, unsigned width, uint32_t value) {
   if (!m || m->count > 8 || m->head > 7 || m->immediate > 1)
     return PL_INVALID;
   if ((off != PM_CTRL && off != PM_STATUS && off != PM_DATA) ||
@@ -24,16 +24,16 @@ int pl_post_write(PlPosted *m, unsigned off, unsigned width, uint32_t value) {
     return PL_INVALID;
   if (m->count == 8)
     return PL_BUSY;
-  m->pending[(m->head + m->count) % 8] = (PmAccess){off, width, 1, value};
+  m->pending[(m->head + m->count) % 8] = (struct pm_access){off, width, 1, value};
   m->count++;
   return m->immediate ? pl_flush(m) : PL_OK;
 }
-int pl_post_read(PlPosted *m, unsigned off, unsigned width, uint32_t *out) {
+int pl_post_read(struct pl_posted *m, unsigned off, unsigned width, uint32_t *out) {
   if (!m || !out)
     return PL_INVALID;
   return pm_access(&m->device, off, width, 0, out) ? PL_IO : PL_OK;
 }
-int pl_exchange_begin(PlExchange *s, PlPosted *m, uint8_t b, unsigned budget) {
+int pl_exchange_begin(struct pl_exchange *s, struct pl_posted *m, uint8_t b, unsigned budget) {
   if (!s || !m || !budget)
     return PL_INVALID;
   if (s->phase == 1 || s->phase == 2 || m->count)
@@ -47,10 +47,10 @@ int pl_exchange_begin(PlExchange *s, PlPosted *m, uint8_t b, unsigned budget) {
     s->phase = 4;
     return r;
   }
-  *s = (PlExchange){1, budget, b};
+  *s = (struct pl_exchange){1, budget, b};
   return PL_OK;
 }
-int pl_exchange_step(PlExchange *s, PlPosted *m, uint8_t *out) {
+int pl_exchange_step(struct pl_exchange *s, struct pl_posted *m, uint8_t *out) {
   if (!s || !m || !out)
     return PL_INVALID;
   if (s->phase != 1 && s->phase != 2)

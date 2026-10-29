@@ -2,7 +2,7 @@
 #ifndef RPR_MUTATION
 #define RPR_MUTATION 0
 #endif
-int rpr_sink_apply(RplLog *log, RprEffect e, unsigned *out) {
+int rpr_sink_apply(struct rpl_log *log, struct rpr_effect e, unsigned *out) {
   unsigned i;
   int r;
   if (!log || !out || e.timeline != log->uuid ||
@@ -14,7 +14,7 @@ int rpr_sink_apply(RplLog *log, RprEffect e, unsigned *out) {
   if (log->memory.count > 8)
     return RPR_CORRUPT;
   for (i = 0; i < log->memory.count; ++i) {
-    RPEvent event = log->memory.events[i];
+    struct rp_event event = log->memory.events[i];
     if (log->kinds[i] != RPL_SET || event.position != i + 1 ||
         event.key != i + 1 || event.value < 0 || event.value > 67108350 ||
         (event.value & 1))

@@ -1,6 +1,6 @@
 #include "comparison.h"
 #include "cmx.h"
-void fc_run(FCReport *r){
+void fc_run(struct fc_report *r){
  cmx_kernel k;cmx_queue q;cmx_mutex m,second;cmx_init(&k,CMX_FIXED);
  for(unsigned n=0;n<3;++n)FC_REQUIRE(cmx_task_add(&k,3-n,0,0x1000u+n*0x1000u,256)==(int)n);
  cmx_queue_init(&q,8);unsigned ticks=0;FC_REQUIRE(fc_ticks(21,FC_TICK_RATE,&ticks));r->ticks=ticks;

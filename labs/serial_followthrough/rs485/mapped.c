@@ -2,9 +2,9 @@
 void r5_note(const char *);
 void r5_values(const char *,unsigned,unsigned,unsigned,unsigned);
 #define CHECK(x) do{if(!(x)){r5_note("R5_PORT_ASSERT: " #x);return 41;}}while(0)
-typedef struct {volatile uint32_t sr,dr,brr,cr1,cr2,cr3,gtpr;} Registers;
+struct ep_registers {volatile uint32_t sr,dr,brr,cr1,cr2,cr3,gtpr;};
 static uint32_t rcc[64],gpio[16],dma[64];
-static Registers usart;
+static struct ep_registers usart;
 static unsigned barriers,bad;
 volatile uint32_t *pu_test_register(uint32_t a){
  if(a>=0x40023800u&&a<0x40023900u&&!(a&3))return &rcc[(a-0x40023800u)/4];
@@ -13,7 +13,7 @@ volatile uint32_t *pu_test_register(uint32_t a){
  ++bad;return &rcc[63];
 }
 /* Matches the producer's seven uint32_t register members. */
-Registers *pu_test_usart(void){return &usart;}
+struct ep_registers *pu_test_usart(void){return &usart;}
 volatile uint32_t *r5_test_register(uint32_t a){return pu_test_register(a);}
 void r5_test_barrier(void){++barriers;}
 int r5_mapped(void){
@@ -24,9 +24,9 @@ int r5_mapped(void){
  CHECK((rcc[12]&(1u<<3))&&gpio[6]==(1u<<26));
  CHECK(((gpio[0]>>20)&3u)==1 && !(gpio[1]&(1u<<10)) && !(gpio[2]&(3u<<20)) && !(gpio[3]&(3u<<20)));
  CHECK((gpio[9]&255u)==0x77u); /* actual inherited USART3 AF7 */
- R5Io io=r5_f439_io();io.drive(io.context,1);CHECK(gpio[6]==(1u<<10));
+ struct r5_io io=r5_f439_io();io.drive(io.context,1);CHECK(gpio[6]==(1u<<10));
  io.drive(io.context,0);CHECK(gpio[6]==(1u<<26)&&barriers==3);
- R5Channel s={0};PuClock clock={16000000,1,1,1,1,0};R5Timing timing={R5_THVD1410,0,1000,2000};
+ struct r5_channel s={0};struct pu_clock clock={16000000,1,1,1,1,0};struct r5_timing timing={R5_THVD1410,0,1000,2000};
  CHECK(r5_open(&s,io,&clock,100000,&timing,16,8,0)==R5_OK&&usart.brr==160);
  uint8_t bytes[]={0x55,0xaa};size_t accepted=99;
  CHECK(r5_f439_send(&s,1,bytes,2,PU_POLL,0,1000,&accepted)==R5_OK&&accepted==2&&gpio[6]==(1u<<10));

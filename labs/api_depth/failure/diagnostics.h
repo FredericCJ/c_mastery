@@ -10,7 +10,7 @@
 extern unsigned ae_threshold;
 void ae_developer_emit(unsigned);
 void ae_integrator_emit(unsigned, unsigned);
-AeCode ae_production_capacity(unsigned);
+enum ae_code ae_production_capacity(unsigned);
 unsigned ae_diagnostic_events(unsigned category);
 #if AE_DEV
 #define AE_TRACE(value) ae_developer_emit(value)

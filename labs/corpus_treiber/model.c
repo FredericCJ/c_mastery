@@ -6,16 +6,16 @@
 #ifndef TS_MODEL
 #define TS_MODEL 1
 #endif
-static TsStack s;
+static struct ts_stack s;
 static uint32_t result[2];
-static TsStatus status[2];
+static enum ts_status status[2];
 static void *actor(void *arg){
  unsigned p=(unsigned)(uintptr_t)arg;
 #if TS_MODEL == 1
  assert(ts_push(&s,p+10)==TS_OK);
  status[p]=ts_pop(&s,p,&result[p]);
 #else
- if(p==0){TsPop v;status[0]=ts_begin(&s,0,&v);if(status[0]==TS_OK){status[0]=ts_commit(&v,&result[0]);}}
+ if(p==0){struct ts_pop v;status[0]=ts_begin(&s,0,&v);if(status[0]==TS_OK){status[0]=ts_commit(&v,&result[0]);}}
  else{status[1]=ts_pop(&s,1,&result[1]);(void)ts_collect(&s);assert(ts_push(&s,22)==TS_OK);}
 #endif
  return 0;

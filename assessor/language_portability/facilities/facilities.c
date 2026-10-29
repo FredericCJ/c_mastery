@@ -6,7 +6,7 @@
 #include <stdckdint.h>
 #include <stdbit.h>
 #endif
-LfStatus lf_add(int32_t a,int32_t b,int32_t *out){
+enum lf_status lf_add(int32_t a,int32_t b,int32_t *out){
  if(!out)return LF_INVALID;
 #if LF_MUTANT==1
  *out=0;
@@ -19,7 +19,7 @@ LfStatus lf_add(int32_t a,int32_t b,int32_t *out){
 #endif
  *out=v;return LF_OK;
 }
-LfStatus lf_mixed(int32_t a,uint32_t b,uint16_t *out){
+enum lf_status lf_mixed(int32_t a,uint32_t b,uint16_t *out){
  if(!out)return LF_INVALID;
 #ifdef LF_ENHANCED
  uint16_t v;if(ckd_add(&v,a,b))return LF_INVALID;*out=v;
@@ -34,12 +34,12 @@ LfStatus lf_mixed(int32_t a,uint32_t b,uint16_t *out){
 #endif
  return LF_OK;
 }
-LfStatus lf_bits(uint32_t v,LfBits *out){
+enum lf_status lf_bits(uint32_t v,struct lf_bits *out){
  if(!out)return LF_INVALID;
 #ifdef LF_ENHANCED
- LfBits r={(unsigned)stdc_leading_zeros(v),(unsigned)stdc_trailing_zeros(v),(unsigned)stdc_bit_width(v)};
+ struct lf_bits r={(unsigned)stdc_leading_zeros(v),(unsigned)stdc_trailing_zeros(v),(unsigned)stdc_bit_width(v)};
 #else
- LfBits r={32,32,0};uint32_t t=v;while(t){r.width++;t>>=1;}r.leading=32-r.width;
+ struct lf_bits r={32,32,0};uint32_t t=v;while(t){r.width++;t>>=1;}r.leading=32-r.width;
  if(v){r.trailing=0;t=v;while((t&1u)==0){r.trailing++;t>>=1;}}
 #endif
 #if LF_MUTANT==3
@@ -47,7 +47,7 @@ LfStatus lf_bits(uint32_t v,LfBits *out){
 #endif
  *out=r;return LF_OK;
 }
-LfStatus lf_div(uint64_t a,uint64_t b,uint64_t *out){
+enum lf_status lf_div(uint64_t a,uint64_t b,uint64_t *out){
  if(!out)return LF_INVALID;
 #if LF_MUTANT==4
  *out=0;
@@ -62,7 +62,7 @@ LfStatus lf_div(uint64_t a,uint64_t b,uint64_t *out){
 #endif
  return LF_OK;
 }
-LfStatus lf_select(unsigned observed,unsigned strict,unsigned *out){
+enum lf_status lf_select(unsigned observed,unsigned strict,unsigned *out){
  if(!out || observed>31 || strict>1)return LF_INVALID;
 #if LF_MUTANT==5
  *out=(observed&1u)!=0;

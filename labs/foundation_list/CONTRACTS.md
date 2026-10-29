@@ -74,7 +74,7 @@ out-of-range result. Include complete output preservation and repeated stream
 finalization. Test every two-chunk split of a representative input and single-byte
 feeding; provide your own additional partition and explain its mechanism.
 
-For collect-all, `FtErrors` is caller-owned fixed storage: retain the first8 token
+For collect-all, `struct ft_errors` is caller-owned fixed storage: retain the first8 token
 diagnostics in encounter order and count all errors in `total`. All input tokens
 must be inspected; do not reset total after each failure, append beyond8 entries,
 or lose the first status as the return value. An error at an excess-capacity token

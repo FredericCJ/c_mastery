@@ -14,12 +14,12 @@ int main(void) {
   unsigned f, g, h, status, uf, ug, uh, allocations, collections,
       count = 0, expected_effects;
   int value;
-  CvmProgram p = vl_composed();
+  struct cvm_program p = vl_composed();
   while (scanf("%u%u%u%u%u%u%u%u%u%u%d", &f, &g, &h, &status, &uf, &ug, &uh,
                &allocations, &collections, &expected_effects, &value) == 11) {
-    Cvm vm;
-    CvmValue out = cvm_int(91);
-    VlReport r;
+    struct cvm_cvm vm;
+    struct cvm_value out = cvm_int(91);
+    struct vl_report r;
     effects = 0;
     cvm_init(&vm, f, g, h);
     vm.host = host;

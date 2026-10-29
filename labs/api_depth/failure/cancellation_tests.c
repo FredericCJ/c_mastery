@@ -8,14 +8,14 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
+struct ac_receiver {
   unsigned reports, generation, bad;
-  AeCode code;
-  AeOperation *release;
-} Receiver;
-static void receive(void *v, AeCode code, unsigned generation,
+  enum ae_code code;
+  struct ae_operation *release;
+};
+static void receive(void *v, enum ae_code code, unsigned generation,
                     const unsigned char *p, unsigned n) {
-  Receiver *r = v;
+  struct ac_receiver *r = v;
   ++r->reports;
   r->generation = generation;
   r->code = code;
@@ -27,8 +27,8 @@ static void receive(void *v, AeCode code, unsigned generation,
   }
 }
 static int history(unsigned word, unsigned length) {
-  AeOperation o = {0};
-  Receiver r = {0};
+  struct ae_operation o = {0};
+  struct ac_receiver r = {0};
   unsigned generation;
   const unsigned char p[4] = {1, 2, 3, 4};
   CHECK(ae_operation_start(&o, p, 4, receive, &r, &generation) == AE_OK);
@@ -37,7 +37,7 @@ static int history(unsigned word, unsigned length) {
     unsigned e = word % 4;
     word /= 4;
     unsigned old_reports = r.reports;
-    AeCode result = ae_operation_event(&o, 1, (AeEvent)e);
+    enum ae_code result = ae_operation_event(&o, 1, (enum ae_event)e);
     if (done)
       CHECK(result == AE_CONFLICT);
     else if (e == AE_DEADLINE) {
@@ -69,8 +69,8 @@ int main(void) {
     power *= 4;
   }
   const unsigned char p[4] = {1, 2, 3, 4};
-  AeOperation o = {0};
-  Receiver r = {0};
+  struct ae_operation o = {0};
+  struct ac_receiver r = {0};
   unsigned generation = 99;
   for (unsigned g = 1; g <= 3; ++g) {
     CHECK(ae_operation_start(&o, p, 4, receive, &r, &generation) == AE_OK &&
@@ -87,16 +87,16 @@ int main(void) {
   }
   CHECK(ae_operation_start(&o, p, 4, receive, &r, &generation) == AE_FULL &&
         generation == 3);
-  o = (AeOperation){0};
-  r = (Receiver){0};
+  o = (struct ae_operation){0};
+  r = (struct ac_receiver){0};
   CHECK(ae_operation_start(&o, p, 4, receive, &r, &generation) == AE_OK);
   for (unsigned i = 0; i < 20; ++i)
     CHECK(ae_operation_event(&o, 1, AE_DEADLINE) == AE_AGAIN && !r.reports &&
           !o.backend.releases);
   CHECK(ae_operation_event(&o, 1, AE_JOINED) == AE_OK && r.reports == 1);
-  AeOperation *heap = calloc(1, sizeof *heap);
+  struct ae_operation *heap = calloc(1, sizeof *heap);
   CHECK(heap);
-  r = (Receiver){.release = heap};
+  r = (struct ac_receiver){.release = heap};
   CHECK(ae_operation_start(heap, p, 4, receive, &r, &generation) == AE_OK);
   CHECK(ae_operation_event(heap, 1, AE_COMPLETE) == AE_OK && !r.release &&
         r.reports == 1 && !r.bad);

@@ -1,38 +1,38 @@
 #ifndef CMASTERY_ADU_H
 #define CMASTERY_ADU_H
 #include "owning_sum.h"
-typedef enum {
+enum adu_status {
   ADU_OK,
   ADU_INVALID,
   ADU_UTF8,
   ADU_RANGE,
   ADU_STATE,
   ADU_NOMEM
-} AduStatus;
-typedef enum { ADU_OPEN, ADU_FINISHED, ADU_CANCELLED } AduPhase;
-typedef struct {
+};
+enum adu_phase { ADU_OPEN, ADU_FINISHED, ADU_CANCELLED };
+struct adu_stream {
   unsigned char pending[3];
   unsigned used;
   size_t bytes, scalars;
-  AduPhase phase;
-} AduStream;
-typedef struct {
+  enum adu_phase phase;
+};
+struct adu_summary {
   size_t bytes, scalars;
-} AduSummary;
-typedef struct {
-  AdoValue value;
+};
+struct adu_owner {
+  struct ado_value value;
   size_t scalars;
-} AduOwner;
+};
 /* Live controls must be initialized and caller-exclusive. No chunk borrow
    survives feed. Refused feed leaves every observable stream field unchanged.
  */
-void adu_init(AduStream *);
-AduStatus adu_feed(AduStream *, const unsigned char *, size_t);
-AduStatus adu_finish(AduStream *, AduSummary *);
-AduStatus adu_cancel(AduStream *);
+void adu_init(struct adu_stream *);
+enum adu_status adu_feed(struct adu_stream *, const unsigned char *, size_t);
+enum adu_status adu_finish(struct adu_stream *, struct adu_summary *);
+enum adu_status adu_cancel(struct adu_stream *);
 /* Initialize only unowned owner storage; don't copy owners by assignment. */
-void adu_owner_init(AduOwner *);
-AduStatus adu_owner_set(AduOwner *, const unsigned char *, size_t, AdoOps);
-AduStatus adu_owner_view(const AduOwner *, ADText *);
-void adu_owner_drop(AduOwner *);
+void adu_owner_init(struct adu_owner *);
+enum adu_status adu_owner_set(struct adu_owner *, const unsigned char *, size_t, struct ado_ops);
+enum adu_status adu_owner_view(const struct adu_owner *, struct ad_text *);
+void adu_owner_drop(struct adu_owner *);
 #endif

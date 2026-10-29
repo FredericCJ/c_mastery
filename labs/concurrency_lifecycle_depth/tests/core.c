@@ -9,8 +9,8 @@
     }                                                                          \
   } while (0)
 static int queue(void) {
-  CLQueue q;
-  CLMessage slots[2];
+  struct cl_queue q;
+  struct cl_message slots[2];
   unsigned char in[4] = {3, 0, 9, 7}, out[5] = {99, 99, 99, 99, 99};
   size_t n = 77;
   uint32_t p = 77, s = 77;
@@ -48,9 +48,9 @@ static int queue(void) {
   return 0;
 }
 static int pool(void) {
-  CLPool p;
-  CLOwnedQueue q;
-  CLBuffer h[4], out = {99, 99};
+  struct cl_pool p;
+  struct cl_owned_queue q;
+  struct cl_buffer h[4], out = {99, 99};
   unsigned n = 99;
   unsigned char bytes[8] = {1, 2, 3, 4, 5, 6, 7, 8}, copy[8] = {0};
   cl_pool_init(&p);
@@ -90,8 +90,8 @@ static int pool(void) {
   return 0;
 }
 static int life(void) {
-  CLLife l;
-  CLLease h[5], old;
+  struct cl_life l;
+  struct cl_lease h[5], old;
   cl_life_init(&l);
   for (unsigned i = 0; i < 5; i++)
     CHECK(cl_acquire(&l, &h[i]) == CL_OK);
@@ -126,8 +126,8 @@ static int life(void) {
   cl_life_close(&l);
   CHECK(cl_life_drained(&l) == CL_OK && cl_destroy(&l) == CL_OK);
   CHECK(cl_restart(&l) == CL_RANGE && l.phase == CL_DESTROYED);
-  CLLife service[3];
-  CLLease consumer_to_worker, worker_to_timer;
+  struct cl_life service[3];
+  struct cl_lease consumer_to_worker, worker_to_timer;
   for (unsigned i = 0; i < 3; i++)
     cl_life_init(&service[i]);
   CHECK(cl_acquire(&service[1], &consumer_to_worker) == CL_OK &&
@@ -160,7 +160,7 @@ static int life(void) {
   return 0;
 }
 static int record(void) {
-  CLRecord r;
+  struct cl_record r;
   uint32_t v = 99;
   cl_record_init(&r, 7);
   CHECK(cl_record_begin(&r, 1) == CL_OK && cl_record_stage(&r, 1, 13) == CL_OK);
@@ -189,7 +189,7 @@ static int record(void) {
   return 0;
 }
 static int ack(void) {
-  CLAck a;
+  struct cl_ack a;
   uint32_t out = 99;
   cl_ack_init(&a, 5);
   CHECK(cl_request(&a, 5, 1, 7, &out) == CL_PENDING && out == 99);

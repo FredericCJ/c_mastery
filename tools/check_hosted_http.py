@@ -34,7 +34,7 @@ def validate_campaign(v):
    for e,a in zip(expected,actual):
     if e['name']=='extension-129':need(a['used']==bytes.fromhex(e['wire']).index(b'\r\n\r\n')+4+1+129+2,'Wrong first extension rejection boundary')
    observation=next(r for r in v['parser_observations'] if r['profile']==prefix);need(observation=={'profile':prefix,'cases':144,'partitions':8029,'groups':groups},'Wrong parser observations')
-   result(prefix+'-ledger',0);ledger=json.loads(text(prefix+'-ledger'));need(ledger=={'HttpRequest':2224,'HttpParser':10640,'HFOutput':1632,'HFFlow':13960,'HFPool':80,'four_flows':55840,'line':8193,'body':1024,'target':1025,'output_bytes':3264},'Wrong actual ABI ledger')
+   result(prefix+'-ledger',0);ledger=json.loads(text(prefix+'-ledger'));need(ledger=={'struct http_request':2224,'struct http_parser':10640,'struct hf_output':1632,'struct hf_flow':13960,'struct hf_pool':80,'four_flows':55840,'line':8193,'body':1024,'target':1025,'output_bytes':3264},'Wrong actual ABI ledger')
   for kind in ('linux','server','custom'):result(cc+'-'+kind+'-build',0)
   need('-DHF_SERVER_SOURCE="'+str(REF/'server.c')+'"' in rows[cc+'-linux-build']['command'],'Linux harness did not select explicit assessor source')
   result(cc+'-linux',0,'LINUX_PASS:5-initializer-failures:unchanged-publication');need('accept-EAGAIN:flags:buffered5-before-EOF' in text(cc+'-linux'),'Missing readiness/EOF observation')

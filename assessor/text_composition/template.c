@@ -2,18 +2,18 @@
 #ifndef TC_MUTANT
 #define TC_MUTANT 0
 #endif
-static int add(TcProgram *p, unsigned kind, unsigned value, unsigned jump) {
+static int add(struct tc_program *p, unsigned kind, unsigned value, unsigned jump) {
   if (p->count == 128)
     return 0;
-  p->ops[p->count++] = (TcOp){kind, value, jump};
+  p->ops[p->count++] = (struct tc_op){kind, value, jump};
   return 1;
 }
-int tc_template_compile(const unsigned char *s, size_t length, TcProgram *out) {
+int tc_template_compile(const unsigned char *s, size_t length, struct tc_program *out) {
   if (!out || (!s && length))
     return TC_INVALID;
   if (length > 256)
     return TC_RANGE;
-  TcProgram p = {0};
+  struct tc_program p = {0};
   unsigned stack[64], depth = 0;
   for (size_t i = 0; i < length;) {
     if (s[i] != '{' && s[i] != '}') {
@@ -71,19 +71,19 @@ int tc_template_compile(const unsigned char *s, size_t length, TcProgram *out) {
   *out = p;
   return TC_OK;
 }
-typedef struct {
-  const TcProgram *bank;
+struct tc_run {
+  const struct tc_program *bank;
   unsigned count, html, budget;
-  const TcModel *model;
-  TcText result;
-} Run;
-static int tick(Run *r) {
+  const struct tc_model *model;
+  struct tc_text result;
+};
+static int tick(struct tc_run *r) {
   if (!r->budget)
     return 0;
   --r->budget;
   return 1;
 }
-static int byte(Run *r, unsigned char ch) {
+static int byte(struct tc_run *r, unsigned char ch) {
   if (!tick(r))
     return TC_FUEL;
   if (r->result.length == 4096)
@@ -91,7 +91,7 @@ static int byte(Run *r, unsigned char ch) {
   r->result.bytes[r->result.length++] = ch;
   return TC_OK;
 }
-static int value(Run *r, const TcValue *v) {
+static int value(struct tc_run *r, const struct tc_value *v) {
   for (size_t i = 0; i < v->length; i++) {
     const char *replacement = 0;
     unsigned char c = v->bytes[i];
@@ -121,15 +121,15 @@ static int value(Run *r, const TcValue *v) {
   }
   return TC_OK;
 }
-static int execute(Run *r, unsigned program, unsigned start, unsigned end,
-                   const TcValue *current, unsigned active, unsigned depth) {
+static int execute(struct tc_run *r, unsigned program, unsigned start, unsigned end,
+                   const struct tc_value *current, unsigned active, unsigned depth) {
   if (depth > 128)
     return TC_RANGE;
-  const TcProgram *p = r->bank + program;
+  const struct tc_program *p = r->bank + program;
   for (unsigned i = start; i < end;) {
     if (!tick(r))
       return TC_FUEL;
-    const TcOp *op = p->ops + i;
+    const struct tc_op *op = p->ops + i;
     int status = TC_OK;
     if (op->kind == TT_LITERAL) {
       status = byte(r, (unsigned char)op->value);
@@ -150,7 +150,7 @@ static int execute(Run *r, unsigned program, unsigned start, unsigned end,
                        active | (1u << op->value), depth + 1);
       ++i;
     } else if (op->kind == TT_IF || op->kind == TT_LOOP) {
-      const TcField *f = r->model->fields + op->value;
+      const struct tc_field *f = r->model->fields + op->value;
       if (op->kind == TT_IF) {
         if (f->count)
           status = execute(r, program, i + 1, op->jump - 1, current, active,
@@ -173,12 +173,12 @@ static int execute(Run *r, unsigned program, unsigned start, unsigned end,
   }
   return TC_OK;
 }
-static int valid(const TcProgram *p) {
+static int valid(const struct tc_program *p) {
   if (p->count > 128)
     return 0;
   unsigned stack[64], depth = 0;
   for (unsigned i = 0; i < p->count; i++) {
-    const TcOp *o = p->ops + i;
+    const struct tc_op *o = p->ops + i;
     if (o->kind > TT_INCLUDE)
       return 0;
     if (o->kind == TT_LITERAL &&
@@ -204,9 +204,9 @@ static int valid(const TcProgram *p) {
   }
   return !depth;
 }
-int tc_template_render(const TcProgram *bank, unsigned count, unsigned entry,
-                       const TcModel *model, unsigned html_text,
-                       unsigned budget, TcText *out) {
+int tc_template_render(const struct tc_program *bank, unsigned count, unsigned entry,
+                       const struct tc_model *model, unsigned html_text,
+                       unsigned budget, struct tc_text *out) {
   if (!bank || !model || !out || count == 0 || count > 4 || entry >= count ||
       html_text > 1)
     return TC_INVALID;
@@ -214,11 +214,11 @@ int tc_template_render(const TcProgram *bank, unsigned count, unsigned entry,
     if (!valid(bank + i))
       return TC_INVALID;
   for (unsigned i = 0; i < 4; i++) {
-    const TcField *f = model->fields + i;
+    const struct tc_field *f = model->fields + i;
     if (f->count > 4)
       return TC_INVALID;
     for (unsigned j = 0; j < f->count; j++) {
-      const TcValue *v = f->values + j;
+      const struct tc_value *v = f->values + j;
       if (v->length > 256)
         return TC_INVALID;
       for (size_t k = 0; k < v->length; k++)
@@ -227,7 +227,7 @@ int tc_template_render(const TcProgram *bank, unsigned count, unsigned entry,
           return TC_INVALID;
     }
   }
-  Run r = {bank, count, html_text, budget, model, {{0}, 0}};
+  struct tc_run r = {bank, count, html_text, budget, model, {{0}, 0}};
   int status = execute(&r, entry, 0, bank[entry].count, 0, 1u << entry, 0);
   if (!status)
     *out = r.result;

@@ -3,8 +3,8 @@
 #define REG8(a) (*(volatile uint8_t *)(uintptr_t)(a))
 extern uint32_t cl_stack_top,cl_data_start,cl_data_end,cl_data_load,cl_bss_start,cl_bss_end;
 static cmx_kernel kernel;
-static CDNotify notify;
-static CDNHandle recipient;
+static struct cd_notify notify;
+static struct cdn_handle recipient;
 static volatile unsigned interrupts,pend_calls,urgent;
 static volatile uint32_t before_irq,entry_ticks[4],post_ticks[4],deferred_ticks;
 static void semihost(uint32_t op,const void *arg) {
@@ -30,7 +30,7 @@ static void hex(uint32_t v){
 }
 static void irq0(void){
   CHECK(ipsr()==16);
-  uint32_t started=ticks(); CDNPost out={99,98,97};
+  uint32_t started=ticks(); struct cdn_post out={99,98,97};
   CHECK(cdn_thread_wait(recipient,1,cmx_forever())==CMX_INVALID);
   if(urgent){
     CHECK(cdn_irq_post(recipient,1,&out)==CMX_INVALID && out.woke==99);
@@ -71,7 +71,7 @@ static void exercise(void){
   basepri(0xc0); /* Allows IRQ0 priority0x80, holds PendSV priority0xff. */
   for(unsigned i=1;i<=4;i++)fire(i);
   CHECK(pend_calls==0 && notify.accepted==8 && notify.claimed==1 && kernel.task[1].notifications==7 && cdn_invariant(&notify));
-  CDNFault fault;CHECK(cdn_fault(recipient,&fault)==CMX_OK&&fault.count==4&&notify.rejected==4);
+  struct cdn_fault fault;CHECK(cdn_fault(recipient,&fault)==CMX_OK&&fault.count==4&&notify.rejected==4);
   CHECK(cdn_ack_fault(recipient,fault.sequence)==CMX_OK);
   basepri(0);
   for(unsigned i=0;i<100000&&pend_calls!=1;i++)__asm__ volatile("nop":::"memory");
@@ -81,11 +81,11 @@ static void exercise(void){
   CHECK(cdn_thread_wait(recipient,3,cmx_forever())==CMX_OK&&cdn_result(recipient,&count)==CMX_OK&&count==3);
   CHECK(cdn_thread_wait(recipient,UINT32_MAX,cmx_forever())==CMX_OK&&cdn_result(recipient,&count)==CMX_OK&&count==4);
   urgent=1;REG8(0xe000e400u)=0;fire(5);
-  CDNHandle old=recipient;
+  struct cdn_handle old=recipient;
   CHECK(cdn_close(recipient)==CMX_OK&&cdn_detach(recipient)==CMX_OK);
   CHECK(cmx_exit(&kernel,1,0)==CMX_OK&&cmx_schedule(&kernel)==0&&cmx_reap(&kernel,1)==CMX_OK);
   CHECK(cmx_task_add(&kernel,3,0,0x20006200,256)==1&&cdn_attach(&notify,1,8,&recipient)==CMX_OK);
-  CDNPost post;CHECK(cdn_post(old,1,&post)==CDN_STALE);
+  struct cdn_post post;CHECK(cdn_post(old,1,&post)==CDN_STALE);
   for(unsigned i=0;i<4;i++){
     CHECK(entry_ticks[i]<UINT32_C(0x800000)&&post_ticks[i]<UINT32_C(0x800000));
     semihost(4,"CDN_IRQ_ENTRY_TICKS:");hex(entry_ticks[i]);semihost(4,"CDN_POST_TICKS:");hex(post_ticks[i]);

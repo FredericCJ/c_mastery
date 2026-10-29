@@ -57,7 +57,7 @@ function(configure_target target)''')
             if not match:raise ValueError(parameter)
             names.append(match.group(1))
         if declaration.startswith('void rp_log_init'):
-            body='*log = (RPLog){0};'
+            body='*log = (struct rp_log){0};'
         else:
             body=' '.join('(void)'+name+';' for name in names)
             body+=' '+('' if declaration.startswith('void ') else 'return RP_FAILED;' if declaration.startswith('int ') else 'return 0;')

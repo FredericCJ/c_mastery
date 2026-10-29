@@ -8,8 +8,8 @@ static uint64_t ns(struct timespec t) {
 }
 int main(void) {
   struct timespec begin, end, cpu_begin, cpu_end;
-  FWork work = {0};
-  FRecord records[32];
+  struct f_work work = {0};
+  struct f_record records[32];
   uint64_t comparisons = 0, shifts = 0;
   const unsigned repeats = 2000;
   if (clock_gettime(CLOCK_MONOTONIC, &begin) ||
@@ -20,7 +20,7 @@ int main(void) {
       records[i].key = (int32_t)(31 - i);
       records[i].ordinal = i;
     }
-    FStatus status = f_sort(records, 32, &work);
+    enum f_status status = f_sort(records, 32, &work);
     if (status != F_OK) {
       fprintf(stderr, "%s\n", f_status_name(status));
       return 1;

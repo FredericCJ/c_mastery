@@ -14,8 +14,8 @@ int main(void) {
     for (unsigned instrumentation = 0; instrumentation < 2; ++instrumentation)
       for (unsigned workload = 0; workload < 3; ++workload)
         for (unsigned sample = 0; sample < 9; ++sample) {
-          ALHeap h;
-          ALHandle handles[8];
+          struct al_heap h;
+          struct al_handle handles[8];
           uint64_t start = now();
           size_t peak = 0, charged = 0, big = 0, total = 0;
           unsigned failures = 0;
@@ -37,7 +37,7 @@ int main(void) {
               if (instrumentation && al_heap_check(&h))
                 abort();
             }
-            ALHandle request;
+            struct al_handle request;
             int s = al_heap_take(&h, 60, 8, &request);
             if (s == AL_FULL)
               ++failures;

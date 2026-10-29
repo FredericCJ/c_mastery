@@ -1,6 +1,6 @@
 # Server port technical analysis
 
-The finite adapter stages only `SRPort`/`SSBudget`. It preflights all local
+The finite adapter stages only `struct sr_port`/`struct ss_budget`. It preflights all local
 counter limits; the retained `cmx_sleep` either refuses without mutation or
 publishes the exact sleep and increments its global wait sequence. Once that
 call succeeds, assignment of the staged adapter cannot fail. Thus no failed

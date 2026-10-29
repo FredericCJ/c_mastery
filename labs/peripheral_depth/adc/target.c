@@ -1,6 +1,6 @@
 #include "adc.h"
-PaIo pa_f439_io(void) {
-  PaIo io = {0, 0, 0};
+struct pa_io pa_f439_io(void) {
+  struct pa_io io = {0, 0, 0};
   return io;
 }
 void pa_f439_pins(void) {}

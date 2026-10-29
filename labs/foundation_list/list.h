@@ -8,7 +8,7 @@
 _Static_assert(FT_CAPACITY >= 1 && FT_CAPACITY <= 16,
                "explicit list capacity model");
 enum { FT_ERROR_CAPACITY = 8 };
-typedef enum {
+enum ft_status {
   FT_OK,
   FT_EMPTY,
   FT_MALFORMED,
@@ -18,34 +18,34 @@ typedef enum {
   FT_INVALID,
   FT_STATE,
   FT_NOT_IMPLEMENTED
-} FtStatus;
-typedef struct {
+};
+struct ft_result {
   size_t count;
   int32_t sum;
-} FtResult;
-typedef struct {
+};
+struct ft_error {
   size_t token;
-  FtStatus status;
-} FtError;
-typedef struct {
-  FtError items[FT_ERROR_CAPACITY];
+  enum ft_status status;
+};
+struct ft_errors {
+  struct ft_error items[FT_ERROR_CAPACITY];
   size_t stored, total;
-} FtErrors;
-typedef struct {
+};
+struct ft_token {
   unsigned state, negative, magnitude, range;
-} FtToken;
-typedef struct {
-  FtToken token;
+};
+struct ft_stream {
+  struct ft_token token;
   int32_t values[FT_CAPACITY];
   size_t count;
-  FtStatus status;
+  enum ft_status status;
   unsigned finished;
-} FtStream;
-FtStatus ft_tokens(const char *const *tokens, size_t count, int collect,
-                   FtResult *out, FtErrors *errors);
-void ft_stream_init(FtStream *stream);
-FtStatus ft_stream_feed(FtStream *stream, const unsigned char *bytes,
+};
+enum ft_status ft_tokens(const char *const *tokens, size_t count, int collect,
+                   struct ft_result *out, struct ft_errors *errors);
+void ft_stream_init(struct ft_stream *stream);
+enum ft_status ft_stream_feed(struct ft_stream *stream, const unsigned char *bytes,
                         size_t count);
-FtStatus ft_stream_finish(FtStream *stream, FtResult *out);
-const char *ft_name(FtStatus status);
+enum ft_status ft_stream_finish(struct ft_stream *stream, struct ft_result *out);
+const char *ft_name(enum ft_status status);
 #endif

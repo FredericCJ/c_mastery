@@ -3,21 +3,21 @@
 #define SV_MUTANT 0
 #endif
 
-void sv_init(SVStream *stream) {
+void sv_init(struct sv_stream *stream) {
   if (stream) {
     sf_init(&stream->frame);
-    stream->base = (SFHandle){0};
+    stream->base = (struct sf_handle){0};
     stream->status = SF_STATE;
   }
 }
 
-static int valid(SVHandle handle) {
+static int valid(struct sv_handle handle) {
   return handle.owner && handle.generation &&
          handle.generation == handle.owner->frame.generation;
 }
 
-int sv_start(SVStream *stream, const unsigned char *bytes, size_t length,
-             SVHandle *out) {
+int sv_start(struct sv_stream *stream, const unsigned char *bytes, size_t length,
+             struct sv_handle *out) {
   if (!stream || !out || (!bytes && length))
     return SF_INVALID;
   if (length > 64 || stream->frame.generation == UINT32_MAX)
@@ -35,21 +35,21 @@ int sv_start(SVStream *stream, const unsigned char *bytes, size_t length,
   if (result != SF_OK)
     return result;
   stream->status = SF_PENDING;
-  *out = (SVHandle){stream, stream->frame.generation};
+  *out = (struct sv_handle){stream, stream->frame.generation};
   return SF_OK;
 }
 
-typedef struct {
-  SVWrite write;
+struct ac_bridge {
+  sv_write_fn write;
   void *context;
-  SVWriteResult result;
+  struct sv_write_result result;
   int invalid;
-} Bridge;
+};
 static ptrdiff_t bridge(void *context, const unsigned char *bytes,
                         size_t length) {
-  Bridge *adapter = context;
+  struct ac_bridge *adapter = context;
   adapter->result = adapter->write(adapter->context, bytes, length);
-  SVWriteResult result = adapter->result;
+  struct sv_write_result result = adapter->result;
   if (result.accepted > length || result.disposition > SV_ERROR ||
       (result.disposition == SV_RETRY && result.accepted) ||
       (result.disposition == SV_PROGRESS && !result.accepted)) {
@@ -65,16 +65,16 @@ static ptrdiff_t bridge(void *context, const unsigned char *bytes,
   return result.disposition == SV_RETRY ? -2 : 0;
 }
 
-int sv_pump(SVHandle handle, SVWrite write, void *context, unsigned budget,
+int sv_pump(struct sv_handle handle, sv_write_fn write, void *context, unsigned budget,
             size_t *accepted) {
   if (!valid(handle) || !write || !accepted)
     return SF_INVALID;
-  SVStream *stream = handle.owner;
+  struct sv_stream *stream = handle.owner;
   *accepted = stream->frame.offset;
   if (stream->status != SF_PENDING)
     return stream->status;
   while (budget--) {
-    Bridge adapter = {write, context, {0, SV_WAIT}, 0};
+    struct ac_bridge adapter = {write, context, {0, SV_WAIT}, 0};
     int result = sf_pump(stream->base, bridge, &adapter, 1, accepted);
     if (adapter.invalid)
       return stream->status = SF_INVALID;
@@ -89,16 +89,16 @@ int sv_pump(SVHandle handle, SVWrite write, void *context, unsigned budget,
   return SF_PENDING;
 }
 
-typedef struct {
-  SVHandle handle;
-  SVWriteV write;
+struct vector_bridge {
+  struct sv_handle handle;
+  sv_write_v_fn write;
   void *context;
-} VectorBridge;
-static SVWriteResult vectors(void *context, const unsigned char *bytes,
+};
+static struct sv_write_result vectors(void *context, const unsigned char *bytes,
                              size_t length) {
-  VectorBridge *adapter = context;
-  const SFStream *frame = &adapter->handle.owner->frame;
-  SVSpan spans[3];
+  struct vector_bridge *adapter = context;
+  const struct sf_stream *frame = &adapter->handle.owner->frame;
+  struct sv_span spans[3];
   size_t used = 0, start = 0, offset = frame->offset;
   size_t ends[3] = {1, frame->length - 1, frame->length};
   (void)bytes;
@@ -106,7 +106,7 @@ static SVWriteResult vectors(void *context, const unsigned char *bytes,
   for (unsigned i = 0; i < 3; ++i) {
     size_t from = offset > start ? offset : start;
     if (from < ends[i] && !(SV_MUTANT == 4 && i == 2)) {
-      spans[used++] = (SVSpan){frame->bytes + (SV_MUTANT == 3 ? start : from),
+      spans[used++] = (struct sv_span){frame->bytes + (SV_MUTANT == 3 ? start : from),
                                ends[i] - from};
     }
     start = ends[i];
@@ -114,15 +114,15 @@ static SVWriteResult vectors(void *context, const unsigned char *bytes,
   return adapter->write(adapter->context, spans, used);
 }
 
-int sv_pumpv(SVHandle handle, SVWriteV write, void *context, unsigned budget,
+int sv_pumpv(struct sv_handle handle, sv_write_v_fn write, void *context, unsigned budget,
              size_t *accepted) {
   if (!valid(handle) || !write || !accepted)
     return SF_INVALID;
-  VectorBridge adapter = {handle, write, context};
+  struct vector_bridge adapter = {handle, write, context};
   return sv_pump(handle, vectors, &adapter, budget, accepted);
 }
 
-int sv_cancel(SVHandle handle) {
+int sv_cancel(struct sv_handle handle) {
   if (!valid(handle))
     return SF_INVALID;
   if (handle.owner->status != SF_PENDING)
@@ -133,7 +133,7 @@ int sv_cancel(SVHandle handle) {
   return result;
 }
 
-void svq_init(SVQueue *queue) {
+void svq_init(struct sv_queue *queue) {
   if (!queue)
     return;
   for (unsigned i = 0; i < 2; ++i) {
@@ -145,8 +145,8 @@ void svq_init(SVQueue *queue) {
   queue->tainted = 0;
 }
 
-int svq_submit(SVQueue *queue, const unsigned char *bytes, size_t length,
-               SVHandle *out) {
+int svq_submit(struct sv_queue *queue, const unsigned char *bytes, size_t length,
+               struct sv_handle *out) {
   if (!queue || !out || (!bytes && length))
     return SF_INVALID;
   if (length > 64 || queue->next_ticket == UINT64_MAX)
@@ -166,7 +166,7 @@ int svq_submit(SVQueue *queue, const unsigned char *bytes, size_t length,
   return SF_OK;
 }
 
-static unsigned head(const SVQueue *queue) {
+static unsigned head(const struct sv_queue *queue) {
   if (!queue->active[0])
     return queue->active[1] ? 1 : 2;
   if (!queue->active[1])
@@ -176,8 +176,8 @@ static unsigned head(const SVQueue *queue) {
   return queue->tickets[0] < queue->tickets[1] ? 0 : 1;
 }
 
-int svq_pump(SVQueue *queue, SVWrite write, void *context, unsigned budget,
-             SVEvent *out) {
+int svq_pump(struct sv_queue *queue, sv_write_fn write, void *context, unsigned budget,
+             struct sv_event *out) {
   if (!queue || !write || !out)
     return SF_INVALID;
   if (queue->tainted && SV_MUTANT != 6)
@@ -185,10 +185,10 @@ int svq_pump(SVQueue *queue, SVWrite write, void *context, unsigned budget,
   unsigned slot = head(queue);
   if (slot == 2)
     return SF_STATE;
-  SVHandle handle = {&queue->slots[slot], queue->slots[slot].frame.generation};
+  struct sv_handle handle = {&queue->slots[slot], queue->slots[slot].frame.generation};
   size_t accepted = 0;
   int result = sv_pump(handle, write, context, budget, &accepted);
-  *out = (SVEvent){handle, accepted, result};
+  *out = (struct sv_event){handle, accepted, result};
   if (result != SF_PENDING) {
     queue->active[slot] = 0;
     if (result == SF_IO || result == SF_INVALID)
@@ -197,7 +197,7 @@ int svq_pump(SVQueue *queue, SVWrite write, void *context, unsigned budget,
   return result;
 }
 
-int svq_cancel(SVQueue *queue, SVHandle handle, SVEvent *out) {
+int svq_cancel(struct sv_queue *queue, struct sv_handle handle, struct sv_event *out) {
   if (!queue || !out)
     return SF_INVALID;
   unsigned slot;
@@ -212,14 +212,14 @@ int svq_cancel(SVQueue *queue, SVHandle handle, SVEvent *out) {
   if (result != SF_OK)
     return result;
   size_t accepted = queue->slots[slot].frame.offset;
-  *out = (SVEvent){handle, accepted, SF_CANCELLED};
+  *out = (struct sv_event){handle, accepted, SF_CANCELLED};
   queue->active[slot] = 0;
   if (accepted)
     queue->tainted = 1;
   return SF_OK;
 }
 
-int svq_reset_transport(SVQueue *queue, unsigned verified_quiescent) {
+int svq_reset_transport(struct sv_queue *queue, unsigned verified_quiescent) {
   if (!queue)
     return SF_INVALID;
   if (verified_quiescent != 1)

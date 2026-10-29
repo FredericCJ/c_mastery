@@ -28,19 +28,19 @@ static void pause_owner(void) {
   while (nanosleep(&t, &t)) {
   }
 }
-typedef struct {
-  CfPool *pool;
+struct pool_actor {
+  struct cf_pool *pool;
   pthread_barrier_t *start;
   unsigned policy, worker, count;
   uint64_t scans, retries, elapsed;
-} PoolActor;
+};
 static void *pool_actor(void *ptr) {
-  PoolActor *a = ptr;
+  struct pool_actor *a = ptr;
   int b = pthread_barrier_wait(a->start);
   CK(!b || b == PTHREAD_BARRIER_SERIAL_THREAD);
   uint64_t start = now();
   for (unsigned i = 0; i < a->count; i++) {
-    CfTicket t;
+    struct cf_ticket t;
     unsigned scans;
     int r;
     do {
@@ -61,13 +61,13 @@ static void *pool_actor(void *ptr) {
 int cf_pool_measure(unsigned policy, unsigned iterations, const char *csv) {
   if (policy > 2 || !iterations || iterations > 100000 || !csv)
     return 2;
-  CfPool p;
+  struct cf_pool p;
   CK(cf_pool_init(&p, UINT_MAX >> 3) == CF_OK);
   unsigned admitted = 0, rejected = 0;
-  CfTicket held[24];
+  struct cf_ticket held[24];
   for (unsigned worker = 0; worker < 4; worker++)
     for (unsigned i = 0; i < (worker == 0 ? 12u : 4u); i++) {
-      CfTicket t;
+      struct cf_ticket t;
       unsigned scans;
       int r = cf_take(&p, policy ? worker : 0, policy != 1, &t, &scans);
       if (r == CF_OK)
@@ -83,14 +83,14 @@ int cf_pool_measure(unsigned policy, unsigned iterations, const char *csv) {
     CK(cf_cancel(&p, held[i]) == CF_OK);
   /* The skew test's released private reservations are externally quiescent;
    * initialize a distinct fresh object for the contention experiment. */
-  CfPool concurrent;
+  struct cf_pool concurrent;
   CK(cf_pool_init(&concurrent, UINT_MAX >> 3) == CF_OK);
   pthread_barrier_t start;
   CK(!pthread_barrier_init(&start, NULL, 5));
-  PoolActor a[4];
+  struct pool_actor a[4];
   pthread_t t[4];
   for (unsigned i = 0; i < 4; i++) {
-    a[i] = (PoolActor){&concurrent, &start, policy, i, iterations, 0, 0, 0};
+    a[i] = (struct pool_actor){&concurrent, &start, policy, i, iterations, 0, 0, 0};
     CK(!pthread_create(&t[i], NULL, pool_actor, &a[i]));
   }
   uint64_t begin = now();
@@ -117,32 +117,32 @@ int cf_pool_measure(unsigned policy, unsigned iterations, const char *csv) {
   CK(!pthread_barrier_destroy(&start));
   return 0;
 }
-typedef struct {
+struct cf_locked {
   pthread_mutex_t lock;
   pthread_cond_t readable, writable;
-  CfValue values[31];
+  struct cf_value values[31];
   unsigned head, count;
-} Locked;
-typedef struct {
-  CfRing ring;
-  APQueue ap;
-  Locked mutex;
+};
+struct queue_run {
+  struct cf_ring ring;
+  struct ap_queue ap;
+  struct cf_locked mutex;
   pthread_barrier_t start;
   unsigned kind, pairs, bytes, affinity, pause, total, cpu[2], ncpus;
   unsigned char payload[LIMIT][256];
   uint64_t started[LIMIT], push_latency[LIMIT], latency[LIMIT];
   unsigned receiver[LIMIT];
   atomic_uint seen[LIMIT];
-} QueueRun;
-static QueueRun qr;
-typedef struct {
-  QueueRun *q;
+};
+static struct queue_run qr;
+struct q_actor {
+  struct queue_run *q;
   unsigned role;
-  APLease lease;
+  struct ap_lease lease;
   uint64_t retries, completed;
   unsigned held_retired;
-} QActor;
-static void pin(QueueRun *q, unsigned role) {
+};
+static void pin(struct queue_run *q, unsigned role) {
   if (!q->affinity)
     return;
   cpu_set_t set;
@@ -150,7 +150,7 @@ static void pin(QueueRun *q, unsigned role) {
   CPU_SET(q->cpu[q->affinity == 1 ? 0 : role % q->ncpus], &set);
   CK(!pthread_setaffinity_np(pthread_self(), sizeof set, &set));
 }
-static void locked_push(Locked *q, CfValue v) {
+static void locked_push(struct cf_locked *q, struct cf_value v) {
   CK(!pthread_mutex_lock(&q->lock));
   while (q->count == 31)
     CK(!pthread_cond_wait(&q->writable, &q->lock));
@@ -159,18 +159,18 @@ static void locked_push(Locked *q, CfValue v) {
   CK(!pthread_cond_signal(&q->readable));
   CK(!pthread_mutex_unlock(&q->lock));
 }
-static CfValue locked_pop(Locked *q) {
+static struct cf_value locked_pop(struct cf_locked *q) {
   CK(!pthread_mutex_lock(&q->lock));
   while (!q->count)
     CK(!pthread_cond_wait(&q->readable, &q->lock));
-  CfValue v = q->values[q->head];
+  struct cf_value v = q->values[q->head];
   q->head = (q->head + 1) % 31;
   q->count--;
   CK(!pthread_cond_signal(&q->writable));
   CK(!pthread_mutex_unlock(&q->lock));
   return v;
 }
-static int locked_try(Locked *q, CfValue *v, unsigned push) {
+static int locked_try(struct cf_locked *q, struct cf_value *v, unsigned push) {
   CK(!pthread_mutex_lock(&q->lock));
   int result = CF_OK;
   if (push) {
@@ -191,8 +191,8 @@ static int locked_try(Locked *q, CfValue *v, unsigned push) {
   return result;
 }
 static void *queue_actor(void *ptr) {
-  QActor *a = ptr;
-  QueueRun *q = a->q;
+  struct q_actor *a = ptr;
+  struct queue_run *q = a->q;
   pin(q, a->role);
   unsigned hold = q->pause && a->role == q->pairs;
   if (hold && q->kind == 1)
@@ -211,7 +211,7 @@ static void *queue_actor(void *ptr) {
   for (unsigned i = 0; i < count; i++) {
     if (a->role < q->pairs) {
       unsigned id = a->role * count + i;
-      CfValue v = {id, ~id};
+      struct cf_value v = {id, ~id};
       uint64_t start = now();
       q->started[id] = start;
       if (q->kind == 0) {
@@ -223,7 +223,7 @@ static void *queue_actor(void *ptr) {
         CK(r == CF_OK);
       } else if (q->kind == 1) {
         int r;
-        while ((r = ap_push(&q->ap, a->lease, (APValue){id, ~id})) == AP_FULL) {
+        while ((r = ap_push(&q->ap, a->lease, (struct ap_value){id, ~id})) == AP_FULL) {
           a->retries++;
           ap_collect(&q->ap);
           sched_yield();
@@ -241,7 +241,7 @@ static void *queue_actor(void *ptr) {
       }
       q->push_latency[id] = now() - start;
     } else {
-      CfValue v;
+      struct cf_value v;
       if (q->kind == 0) {
         int r;
         while ((r = cf_pop(&q->ring, &v, 1, NULL, NULL)) == CF_EMPTY) {
@@ -250,7 +250,7 @@ static void *queue_actor(void *ptr) {
         }
         CK(r == CF_OK);
       } else if (q->kind == 1) {
-        APValue value;
+        struct ap_value value;
         int r;
         while ((r = ap_pop(&q->ap, a->lease, &value)) == AP_RETRY) {
           a->retries++;
@@ -258,7 +258,7 @@ static void *queue_actor(void *ptr) {
           sched_yield();
         }
         CK(r == AP_OK);
-        v = (CfValue){value.sequence, value.inverse};
+        v = (struct cf_value){value.sequence, value.inverse};
         ap_collect(&q->ap);
       } else if (q->kind == 2)
         v = locked_pop(&q->mutex);
@@ -292,7 +292,7 @@ int cf_queue_measure(unsigned kind, unsigned pairs, unsigned bytes,
       (bytes != 8 && bytes != 64 && bytes != 256) || affinity > 2 ||
       pause > 1 || total > LIMIT || !total || total % pairs || !csv)
     return 2;
-  QueueRun *q = &qr;
+  struct queue_run *q = &qr;
   q->kind = kind;
   q->pairs = pairs;
   q->bytes = bytes;
@@ -320,12 +320,12 @@ int cf_queue_measure(unsigned kind, unsigned pairs, unsigned bytes,
     for (unsigned b = 0; b < bytes; b++)
       q->payload[id][b] = (unsigned char)(id + b);
   }
-  QActor actors[8];
+  struct q_actor actors[8];
   pthread_t t[8];
   for (unsigned i = 0; i < 2 * pairs; i++) {
-    APLease l;
+    struct ap_lease l;
     CK(ap_register(&q->ap, &l) == AP_OK);
-    actors[i] = (QActor){q, i, l, 0, 0, 0};
+    actors[i] = (struct q_actor){q, i, l, 0, 0, 0};
     CK(!pthread_create(&t[i], NULL, queue_actor, &actors[i]));
   }
   uint64_t start = now();
@@ -359,7 +359,7 @@ int cf_queue_measure(unsigned kind, unsigned pairs, unsigned bytes,
          "padded=%u capacity_upper=31 atomic_lock_free=%d\n",
          kind, pairs, bytes, affinity, q->cpu[0], q->cpu[q->ncpus - 1], pause,
          total, (unsigned long long)elapsed, (unsigned long long)retries,
-         sizeof(CfRing), sizeof(APQueue), sizeof(Locked), sizeof(q->payload),
+         sizeof(struct cf_ring), sizeof(struct ap_queue), sizeof(struct cf_locked), sizeof(q->payload),
          CF_PAD, atomic_is_lock_free(&q->ap.head));
   CK(!pthread_barrier_destroy(&q->start));
   CK(!pthread_mutex_destroy(&q->mutex.lock));
@@ -367,8 +367,8 @@ int cf_queue_measure(unsigned kind, unsigned pairs, unsigned bytes,
   CK(!pthread_cond_destroy(&q->mutex.writable));
   return 0;
 }
-typedef struct {
-  AGStore store;
+struct rw_run {
+  struct ag_store store;
   pthread_mutex_t lock;
   pthread_rwlock_t rw;
   pthread_barrier_t start;
@@ -376,17 +376,17 @@ typedef struct {
   unsigned kind, pause, writes;
   uint64_t reader_ns[2][4000], writer_ns[4000];
   unsigned retries, peak_retained;
-  AGLease lease[2];
+  struct ag_lease lease[2];
   atomic_uint paused_ready;
-} RwRun;
-static RwRun rr;
-typedef struct {
-  RwRun *r;
+};
+static struct rw_run rr;
+struct rw_actor {
+  struct rw_run *r;
   unsigned role;
-} RwActor;
+};
 static void *rw_actor(void *ptr) {
-  RwActor *a = ptr;
-  RwRun *r = a->r;
+  struct rw_actor *a = ptr;
+  struct rw_run *r = a->r;
   int gate = pthread_barrier_wait(&r->start);
   CK(!gate || gate == PTHREAD_BARRIER_SERIAL_THREAD);
   if (a->role == 2 && r->pause)
@@ -429,7 +429,7 @@ static void *rw_actor(void *ptr) {
       uint64_t start = now();
       unsigned char bytes[32];
       if (r->kind == 0) {
-        AGBorrow borrow;
+        struct ag_borrow borrow;
         CK(!pthread_mutex_lock(&r->lock));
         CK(ag_read(&r->store, r->lease[a->role], &borrow) == AG_OK);
         CK(ag_copy(&r->store, borrow, bytes) == AG_OK);
@@ -462,7 +462,7 @@ int cf_rw_measure(unsigned kind, unsigned pause, unsigned writes,
                   const char *csv) {
   if (kind > 1 || pause > 1 || !writes || writes > 4000 || !csv)
     return 2;
-  RwRun *r = &rr;
+  struct rw_run *r = &rr;
   r->kind = kind;
   r->pause = pause;
   r->writes = writes;
@@ -477,10 +477,10 @@ int cf_rw_measure(unsigned kind, unsigned pause, unsigned writes,
   CK(!pthread_mutex_init(&r->lock, NULL));
   CK(!pthread_rwlock_init(&r->rw, NULL));
   CK(!pthread_barrier_init(&r->start, NULL, 4));
-  RwActor a[3];
+  struct rw_actor a[3];
   pthread_t t[3];
   for (unsigned i = 0; i < 3; i++) {
-    a[i] = (RwActor){r, i};
+    a[i] = (struct rw_actor){r, i};
     CK(!pthread_create(&t[i], NULL, rw_actor, &a[i]));
   }
   uint64_t start = now();
@@ -503,7 +503,7 @@ int cf_rw_measure(unsigned kind, unsigned pause, unsigned writes,
          "version_capacity=17 elapsed_ns=%llu full_retries=%u peak_retired=%u "
          "ag_bytes=%zu rw_payload_bytes=%zu\n",
          kind, pause, writes, (unsigned long long)elapsed, r->retries,
-         r->peak_retained, sizeof(AGStore), sizeof(r->rw_storage));
+         r->peak_retained, sizeof(struct ag_store), sizeof(r->rw_storage));
   for (unsigned i = 0; i < 2; i++)
     CK(ag_depart(&r->store.domain, r->lease[i]) == AG_OK);
   CK(!pthread_barrier_destroy(&r->start));

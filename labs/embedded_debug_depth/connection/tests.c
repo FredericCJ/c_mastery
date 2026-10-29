@@ -2,7 +2,7 @@
 #include <stdio.h>
 #define CHECK(x) do{if(!(x)){printf("DC_CHECK:%d\n",__LINE__);return 1;}}while(0)
 int main(void){
- DCManifest m={255,1,2,3,4,5,0x413,6,7,0,0,0};DCSession s;CHECK(dc_init(&s,&m)==DC_OK);
+ struct dc_manifest m={255,1,2,3,4,5,0x413,6,7,0,0,0};struct dc_session s;CHECK(dc_init(&s,&m)==DC_OK);
  CHECK(dc_halt(&s,1)==DC_ORDER&&dc_program_authorized(&s)==DC_ORDER);CHECK(dc_identify(&s,0x419)==DC_MISMATCH&&s.phase==0);
  CHECK(dc_identify(&s,0x413)==DC_OK&&dc_halt(&s,0)==DC_UNKNOWN&&s.phase==1);CHECK(dc_halt(&s,1)==DC_OK&&dc_reset(&s,0)==DC_UNKNOWN&&s.phase==2);CHECK(dc_reset(&s,1)==DC_OK&&dc_program_authorized(&s)==DC_UNKNOWN);
  m.flash_driver=8;m.known|=DC_FLASH_DRIVER;CHECK(dc_reconfigure(&s,&m)==DC_OK&&s.phase==0&&!s.observed_target);

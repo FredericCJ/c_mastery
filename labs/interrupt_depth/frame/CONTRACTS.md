@@ -52,7 +52,7 @@ With STKALIGN set, or an extended frame, the captured SP must be eight-byte
 aligned. Otherwise require four-byte alignment and no alignment padding flag.
 Reject address addition overflow. Unsupported return encodings and missing FPU
 capability are distinct from a short capture or structurally inconsistent frame.
-All failures leave the output unchanged. Success stages a complete `XfFrame`.
+All failures leave the output unchanged. Success stages a complete `struct xf_frame`.
 `hardware_words` excludes the optional padding word; `original_sp` includes it.
 Execution and storage are bounded constants (at most 27 input words, one result).
 

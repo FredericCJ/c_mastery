@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 int main(void) {
- unsigned op;size_t cap,n;unsigned char input[512];EsText out,old;
+ unsigned op;size_t cap,n;unsigned char input[512];struct es_text out,old;
  while(scanf("%u %zu %zu",&op,&cap,&n)==3) {
   if(n>512)return 2;
   for(size_t i=0;i<n;i++){unsigned x;if(scanf("%u",&x)!=1||x>255)return 2;input[i]=(unsigned char)x;}

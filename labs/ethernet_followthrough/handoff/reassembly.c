@@ -2,9 +2,9 @@
 #include "network_followthrough/ip/specimens.h"
 #include <string.h>
 int eh_reassembly(void) {
-  NiConfig c = {0xc0000202, 0xc0000201};
-  NiReassembly s;
-  NiPacket out;
+  struct ni_config c = {0xc0000202, 0xc0000201};
+  struct ni_reassembly s;
+  struct ni_packet out;
   unsigned char p[44];
   unsigned index = 99;
   CHECK(ni_init(&s, c, 1, NI_IDENTICAL, 0, 60000) == NI_OK);

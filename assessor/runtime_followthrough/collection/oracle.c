@@ -1,12 +1,12 @@
 #include "collection.h"
 #include <stdio.h>
 #include <string.h>
-static Vg g;
+static struct vg_vg g;
 int main(void) {
   unsigned e[6], roots, expected, cases = 0;
   while (scanf("%u%u%u%u%u%u%u%u", e, e + 1, e + 2, e + 3, e + 4, e + 5, &roots,
                &expected) == 8) {
-    VgRef r[3], scalar;
+    struct vg_ref r[3], scalar;
     uint16_t dead;
     unsigned n;
     memset(&g, 0, sizeof g);

@@ -12,7 +12,7 @@ static size_t decode(const char *hex, unsigned char *bytes) {
   }
   return n;
 }
-static void result(int status, const TcText *text) {
+static void result(int status, const struct tc_text *text) {
   printf("%d %zu ", status, status == 0 ? text->length : 0);
   if (status == 0 && text->length)
     for (size_t i = 0; i < text->length; i++)
@@ -21,7 +21,7 @@ static void result(int status, const TcText *text) {
     printf("-");
   puts("");
 }
-static void fixture(TcDoc *d, unsigned a, unsigned b, unsigned tail,
+static void fixture(struct tc_doc *d, unsigned a, unsigned b, unsigned tail,
                     unsigned indent) {
   memset(d, 0, sizeof *d);
   for (unsigned i = 0; i < a; i++)
@@ -30,15 +30,15 @@ static void fixture(TcDoc *d, unsigned a, unsigned b, unsigned tail,
     d->text[d->length++] = 'b';
   for (unsigned i = 0; i < tail; i++)
     d->text[d->length++] = 'z';
-  d->nodes[0] = (TcNode){TD_TEXT, 0, 0, 0, 0, a};
-  d->nodes[1] = (TcNode){TD_LINE, 0, 0, 0, 0, 0};
-  d->nodes[2] = (TcNode){TD_TEXT, 0, 0, 0, a, b};
-  d->nodes[3] = (TcNode){TD_CAT, 0, 1, 0, 0, 0};
-  d->nodes[4] = (TcNode){TD_CAT, 3, 2, 0, 0, 0};
-  d->nodes[5] = (TcNode){TD_NEST, 4, 0, indent, 0, 0};
-  d->nodes[6] = (TcNode){TD_GROUP, 5, 0, 0, 0, 0};
-  d->nodes[7] = (TcNode){TD_TEXT, 0, 0, 0, a + b, tail};
-  d->nodes[8] = (TcNode){TD_CAT, 6, 7, 0, 0, 0};
+  d->nodes[0] = (struct tc_node){TD_TEXT, 0, 0, 0, 0, a};
+  d->nodes[1] = (struct tc_node){TD_LINE, 0, 0, 0, 0, 0};
+  d->nodes[2] = (struct tc_node){TD_TEXT, 0, 0, 0, a, b};
+  d->nodes[3] = (struct tc_node){TD_CAT, 0, 1, 0, 0, 0};
+  d->nodes[4] = (struct tc_node){TD_CAT, 3, 2, 0, 0, 0};
+  d->nodes[5] = (struct tc_node){TD_NEST, 4, 0, indent, 0, 0};
+  d->nodes[6] = (struct tc_node){TD_GROUP, 5, 0, 0, 0, 0};
+  d->nodes[7] = (struct tc_node){TD_TEXT, 0, 0, 0, a + b, tail};
+  d->nodes[8] = (struct tc_node){TD_CAT, 6, 7, 0, 0, 0};
   d->count = 9;
   d->root = 8;
 }
@@ -51,7 +51,7 @@ int main(void) {
         return 2;
       unsigned char bytes[1024];
       size_t n = decode(hex, bytes);
-      TcBatch b;
+      struct tc_batch b;
       int s = tc_recover(bytes, n, p, q, &b);
       printf("%d", s);
       if (s == TC_OK || s == TC_RECOVERED) {
@@ -68,8 +68,8 @@ int main(void) {
       if (scanf("%u %u %u %u", &a, &b, &tail, &indent) != 4 ||
           a + b + tail > 512 || indent > 120)
         return 2;
-      TcDoc d;
-      TcText out;
+      struct tc_doc d;
+      struct tc_text out;
       fixture(&d, a, b, tail, indent);
       int s = tc_layout(&d, p, q, &out);
       result(s, &out);
@@ -78,8 +78,8 @@ int main(void) {
       if (scanf("%2048s %2048s %u %u", hex, inc, &count, &presence) != 4 ||
           count > 4)
         return 2;
-      TcProgram bank[2];
-      TcModel m = {0};
+      struct tc_program bank[2];
+      struct tc_model m = {0};
       unsigned char bytes[1024];
       size_t n = decode(hex, bytes);
       int s = tc_template_compile(bytes, n, bank);
@@ -102,7 +102,7 @@ int main(void) {
         m.fields[1].values[0].bytes[0] = 'B';
         m.fields[1].values[0].length = 1;
       }
-      TcText out;
+      struct tc_text out;
       if (!s)
         s = tc_template_render(bank, 2, 0, &m, p, q, &out);
       result(s, &out);

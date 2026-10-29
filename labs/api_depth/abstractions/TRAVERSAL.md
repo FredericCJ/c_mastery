@@ -1,15 +1,15 @@
 # T19 iteration, callbacks and continuations
 
 This required PR-T19-03 packet binds T19.07.a/b/c and their original seven-day
-changed tasks. Families A/B/C/F/G/H/J. Import the actual T18 `AcEpochOwner` and
-foundation `FView`, not a replacement implementation. Prerequisites: T18 borrow
+changed tasks. Families A/B/C/F/G/H/J. Import the actual T18 `struct ac_epoch_owner` and
+foundation `struct f_view`, not a replacement implementation. Prerequisites: T18 borrow
 lifetimes, value versus structural epochs, and T19 callback/reducer contracts.
 Use C17 hosted GCC/Clang O0/O2 and ASan/UBSan; host inspection tools are separate
 from dependencies of the mechanism. No hardware or OS asynchronous I/O is used.
 
 ## Pull owns progress; the owner owns storage
 
-Implement `AtCursor` with a borrowed owner control, its captured view/generation,
+Implement `struct at_cursor` with a borrowed owner control, its captured view/generation,
 position, threshold0..255 and terminal status. The owner control must remain alive
 until termination, even after logical destruction or structural invalidation.
 On each active `at_next`, check logical liveness and structural generation before
@@ -33,11 +33,11 @@ STOP_NOW stops after the current visit; REMOVE returns DENIED without removing
 anything. Unknown callback results are invalid. The visitor may perform a
 value-only update or a structural reset; the next iteration observes their
 different effects. Owner/control storage must remain live throughout the call.
-Nested visitors share `AtPush`; allow at most three active levels and reject
+Nested visitors share `struct at_push`; allow at most three active levels and reject
 the fourth before calling it. Reset visits/max-depth at the outer entry, not at
 recursive entry. Count callback work separately from representation bytes.
 
-The changed task uses `AtDeferred`: zero-initialize, explicitly start, then pump
+The changed task uses `struct at_deferred`: zero-initialize, explicitly start, then pump
 with an item budget. Zero budget leaves the operation active and makes no callback.
 Cursor and callback context survive between pumps. All methods are serialized.
 Cancel outside a callback is a synchronous quiescence acknowledgment: clear

@@ -10,33 +10,33 @@ _Static_assert(UINT_MAX == UINT32_MAX,
 #define AP_PARTICIPANTS 8u
 enum { AP_OK, AP_RETRY, AP_FULL, AP_INVALID, AP_UNIMPLEMENTED };
 enum { AP_LOADED, AP_VALIDATED, AP_RETIRE_SNAPSHOT, AP_LINKED };
-typedef struct {
+struct ap_value {
   uint32_t sequence, inverse;
-} APValue;
-typedef struct {
+};
+struct ap_node {
   atomic_uint next, state;
-  APValue value;
-} APNode;
-typedef void (*APHook)(void *, unsigned point, unsigned participant,
+  struct ap_value value;
+};
+typedef void (*ap_hook_fn)(void *, unsigned point, unsigned participant,
                        unsigned node);
-typedef struct APQueue {
+struct ap_queue {
   atomic_uint head, tail, hazard[AP_PARTICIPANTS][2],
       registration[AP_PARTICIPANTS];
-  APNode node[AP_NODES];
+  struct ap_node node[AP_NODES];
   unsigned participants, generation_limit;
-  APHook hook;
+  ap_hook_fn hook;
   void *hook_context;
-} APQueue;
-typedef struct {
-  const APQueue *owner;
+};
+struct ap_lease {
+  const struct ap_queue *owner;
   unsigned participant, generation;
-} APLease;
-int ap_init(APQueue *, unsigned participants, unsigned generation_limit, APHook,
+};
+int ap_init(struct ap_queue *, unsigned participants, unsigned generation_limit, ap_hook_fn,
             void *);
-int ap_register(APQueue *, APLease *);
+int ap_register(struct ap_queue *, struct ap_lease *);
 /* Owner or externally joined successor only: no in-flight operation/borrow. */
-int ap_leave(APQueue *, APLease);
-int ap_push(APQueue *, APLease, APValue);
-int ap_pop(APQueue *, APLease, APValue *);
-unsigned ap_collect(APQueue *);
+int ap_leave(struct ap_queue *, struct ap_lease);
+int ap_push(struct ap_queue *, struct ap_lease, struct ap_value);
+int ap_pop(struct ap_queue *, struct ap_lease, struct ap_value *);
+unsigned ap_collect(struct ap_queue *);
 #endif

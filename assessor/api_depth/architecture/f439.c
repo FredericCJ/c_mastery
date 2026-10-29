@@ -18,10 +18,10 @@ static void clock_gpio(void) {
 }
 int ar_target_minimal(int32_t milli) {
   clock_gpio();
-  ArBoard board = {0, read_register, write_register, GPIOA_BASE, 2, 0};
+  struct ar_board board = {0, read_register, write_register, GPIOA_BASE, 2, 0};
   if (ar_board_init(&board) != AR_OK)
     return AR_FAILED;
-  return ar_service(milli, 100, (ArIndicator){&board, ar_board_set});
+  return ar_service(milli, 100, (struct ar_indicator){&board, ar_board_set});
 }
 int ar_target_vendor(int32_t milli) {
   clock_gpio();
@@ -43,13 +43,13 @@ static void uart_sync(void *ctx) {
   __DSB();
   __ISB();
 }
-static FHIO uart_bus(void) {
-  return (FHIO){0, uart_read, uart_write, uart_sync};
+static struct fh_io uart_bus(void) {
+  return (struct fh_io){0, uart_read, uart_write, uart_sync};
 }
 int ar_target_input_init(void) {
-  FHIO bus = uart_bus();
+  struct fh_io bus = uart_bus();
   return f4_cold(bus) && f4_uart_init(bus) ? AR_OK : AR_FAILED;
 }
-ArResult ar_target_input(unsigned char *p, size_t n) {
+struct ar_result ar_target_input(unsigned char *p, size_t n) {
   return ar_f439_read(uart_bus(), p, n);
 }

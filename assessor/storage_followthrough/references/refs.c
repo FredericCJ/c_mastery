@@ -435,7 +435,7 @@ static void entry(store_node *d, unsigned di, const store_node *a,
   memcpy(d->key[di], a->key[ai], STORE_KEY_MAX);
   memcpy(d->value[di], a->value[ai], STORE_VALUE_MAX);
 }
-typedef struct split {
+typedef struct store_split {
   uint32_t right;
   uint8_t key[STORE_KEY_MAX], len;
 } split;
@@ -969,12 +969,12 @@ int store_check(store *s) {
   return STORE_OK;
 }
 
-int store_ref_make(store *s,uint32_t id,StoreRef *out){
+int store_ref_make(store *s,uint32_t id,struct store_ref *out){
  if(!s||!out||s->poisoned||s->active)return STORE_STATE;
  store_node n;int r=node(s,id,&n);if(r)return r;
- *out=(StoreRef){s,id,n.incarnation};return STORE_OK;
+ *out=(struct store_ref){s,id,n.incarnation};return STORE_OK;
 }
-int store_ref_read(StoreRef ref,store_node *out){
+int store_ref_read(struct store_ref ref,store_node *out){
  store *s=ref.owner;if(!s||!out||s->poisoned||s->active)return STORE_STATE;
  if(!reference_ok(s,ref.id,ref.incarnation))return STORE_STALE;
  store_node n;int r=node(s,ref.id,&n);if(r)return r;*out=n;return STORE_OK;

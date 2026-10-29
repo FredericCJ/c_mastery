@@ -17,12 +17,12 @@ static void wr(void *p, unsigned r, uintptr_t v) {
     regs[PS_RX_EN] = 1;
 }
 int main(void) {
-  PuClock c = {16000000, 1, 1, 1, 1, 0};
-  PsIo io = {0, rd, wr};
+  struct pu_clock c = {16000000, 1, 1, 1, 1, 0};
+  struct ps_io io = {0, rd, wr};
   for (unsigned mode = 0; mode < 4; mode++)
     for (unsigned tx = 0; tx < 256; tx++) {
       uint8_t level[16], sample[16], mosi[16], rx;
-      PsSpi s = {0};
+      struct ps_spi s = {0};
       regs[PS_SR] = 0;
       if (ps_open(&s, io, &c, mode, 3) ||
           sd_spi_edge(mode, (uint8_t)tx, (uint8_t)(tx ^ 0xa5u), level, sample,
@@ -63,7 +63,7 @@ int main(void) {
         for (unsigned tx = 1; tx < 5; tx++)
           for (unsigned rx = 1; rx < 5; rx++)
             for (unsigned wire = 1; wire < 5; wire++) {
-              PsSpi s = {0};
+              struct ps_spi s = {0};
               uint8_t a = 9, b = 0;
               uint32_t start = wrap ? UINT32_MAX - 3u : 0;
               for (unsigned i = 0; i < 19; i++)

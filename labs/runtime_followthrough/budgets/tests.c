@@ -16,9 +16,9 @@ void *memset(void *, int, size_t);
       return 1;                                                                \
     }                                                                          \
   } while (0)
-static Cvm vm, saved;
-static Vs session;
-static VvWork scratch;
+static struct cvm_cvm vm, saved;
+static struct vg_vs session;
+static struct vv_work scratch;
 static unsigned calls;
 static int callback(void *ctx, uint8_t id, int32_t n, int32_t *out) {
   (void)ctx;
@@ -28,10 +28,10 @@ static int callback(void *ctx, uint8_t id, int32_t n, int32_t *out) {
   *out = n + 11;
   return 0;
 }
-static void emit(CvmProgram *p, unsigned x) {
+static void emit(struct cvm_program *p, unsigned x) {
   p->code[p->length++] = (uint8_t)x;
 }
-static void number(CvmProgram *p, int32_t x) {
+static void number(struct cvm_program *p, int32_t x) {
   emit(p, OP_INT);
   uint32_t u = (uint32_t)x;
   for (unsigned i = 0; i < 4; i++) {
@@ -39,9 +39,9 @@ static void number(CvmProgram *p, int32_t x) {
     u >>= 8;
   }
 }
-static void finish(CvmProgram *p) {
+static void finish(struct cvm_program *p) {
   p->count = 1;
-  p->functions[0] = (CvmFunction){0, p->length, 0, 0};
+  p->functions[0] = (struct cvm_function){0, p->length, 0, 0};
 }
 static void initialize(unsigned f, unsigned g, unsigned h) {
   cvm_init(&vm, f, g, h);
@@ -49,9 +49,9 @@ static void initialize(unsigned f, unsigned g, unsigned h) {
   calls = 0;
 }
 static int units(void) {
-  CvmProgram p = {0};
-  CvmValue out = cvm_int(91);
-  VlReport r;
+  struct cvm_program p = {0};
+  struct cvm_value out = cvm_int(91);
+  struct vl_report r;
   number(&p, 7);
   emit(&p, OP_RET);
   finish(&p);
@@ -59,7 +59,7 @@ static int units(void) {
   CHECK(vl_run(&vm, &p, &out, &r) == CVM_OK && out.integer == 7);
   CHECK(r.fuel == 2 && r.gc == 0 && r.host == 0 && r.allocations == 0 &&
         r.collections == 0);
-  p = (CvmProgram){0};
+  p = (struct cvm_program){0};
   emit(&p, OP_GC);
   number(&p, 7);
   emit(&p, OP_RET);
@@ -67,7 +67,7 @@ static int units(void) {
   initialize(10, 50, 3);
   CHECK(vl_run(&vm, &p, &out, &r) == CVM_OK && r.fuel == 3 && r.gc == 16 &&
         r.host == 0 && r.collections == 1);
-  p = (CvmProgram){0};
+  p = (struct cvm_program){0};
   number(&p, 7);
   emit(&p, OP_HOST);
   emit(&p, 1);
@@ -96,9 +96,9 @@ static int units(void) {
   return 0;
 }
 static int limits(void) {
-  CvmProgram p = {0};
-  CvmValue out = cvm_int(91);
-  VlReport r;
+  struct cvm_program p = {0};
+  struct cvm_value out = cvm_int(91);
+  struct vl_report r;
   number(&p, 1);
   emit(&p, OP_RET);
   finish(&p);
@@ -109,11 +109,11 @@ static int limits(void) {
   CHECK(vl_run(&vm, &p, &out, &r) == CVM_FUEL && r.fuel == 1 &&
         out.integer == 91);
   /* Valid self-recursion has a frame result contract, but never reaches RET. */
-  p = (CvmProgram){{OP_CALL, 0, 0, OP_RET}, 4, 1, {{0, 4, 0, 0}}};
+  p = (struct cvm_program){{OP_CALL, 0, 0, OP_RET}, 4, 1, {{0, 4, 0, 0}}};
   initialize(100, 100, 1);
   CHECK(vl_run(&vm, &p, &out, &r) == CVM_FRAME_LIMIT && vm.depth == 16 &&
         r.fuel == 16 && out.integer == 91);
-  p = (CvmProgram){0};
+  p = (struct cvm_program){0};
   for (unsigned i = 0; i < 63; i++)
     number(&p, 0);
   emit(&p, OP_CALL);
@@ -130,18 +130,18 @@ static int limits(void) {
   emit(&p, OP_RET);
   p.count = 2;
   p.functions[1] =
-      (CvmFunction){(uint16_t)start, (uint16_t)(p.length - start), 0, 0};
+      (struct cvm_function){(uint16_t)start, (uint16_t)(p.length - start), 0, 0};
   initialize(1000, 100, 1);
   CHECK(vl_run(&vm, &p, &out, &r) == CVM_STACK_LIMIT && vm.sp == 64 &&
         vm.depth == 2 && r.fuel == 66 && out.integer == 91);
-  p = (CvmProgram){0};
+  p = (struct cvm_program){0};
   number(&p, 0);
   number(&p, 0);
   emit(&p, OP_PAIR);
   emit(&p, OP_RET);
   finish(&p);
   initialize(100, 100, 1);
-  CvmValue child = cvm_int(0);
+  struct cvm_value child = cvm_int(0);
   for (unsigned i = 0; i < 16; i++)
     CHECK(cvm_pair(&vm, child, cvm_int(0), &child) == CVM_OK);
   CHECK(cvm_root_push(&vm, child) == CVM_OK);
@@ -158,11 +158,11 @@ static int limits(void) {
     CHECK(cvm_root_push(&vm, cvm_int(0)) == CVM_OK);
   CHECK(vl_run(&vm, &p, &out, &r) == CVM_STACK_LIMIT && vm.root_count == 7 &&
         vm.sp == 0 && r.gc == 0 && out.integer == 91);
-  p = (CvmProgram){{OP_GC, OP_INT, 0, 0, 0, 0, OP_RET}, 7, 1, {{0, 7, 0, 0}}};
+  p = (struct cvm_program){{OP_GC, OP_INT, 0, 0, 0, 0, OP_RET}, 7, 1, {{0, 7, 0, 0}}};
   initialize(100, 0, 1);
   CHECK(vl_run(&vm, &p, &out, &r) == CVM_GC_BUDGET && r.fuel == 1 &&
         r.gc == 0 && out.integer == 91);
-  p = (CvmProgram){
+  p = (struct cvm_program){
       {OP_INT, 0, 0, 0, 0, OP_HOST, 1, OP_RET}, 8, 1, {{0, 8, 0, 0}}};
   initialize(100, 100, 0);
   CHECK(vl_run(&vm, &p, &out, &r) == CVM_HOST_BUDGET && r.fuel == 2 &&
@@ -175,7 +175,7 @@ static int limits(void) {
   CHECK(vl_run(&vm, &p, &out, &r) == CVM_HOST_BUDGET && r.host == 0 &&
         calls == 0);
   /* Wrong tag precedes host-budget check after paid instruction fetch. */
-  p = (CvmProgram){{OP_TRUE, OP_HOST, 1, OP_RET}, 4, 1, {{0, 4, 0, 0}}};
+  p = (struct cvm_program){{OP_TRUE, OP_HOST, 1, OP_RET}, 4, 1, {{0, 4, 0, 0}}};
   initialize(2, 100, 0);
   CHECK(vl_run(&vm, &p, &out, &r) == CVM_TYPE && r.fuel == 2 && r.host == 0 &&
         calls == 0);
@@ -184,7 +184,7 @@ static int limits(void) {
 }
 static int changed_collector(void) {
   initialize(100, 100, 1);
-  CvmValue values[3];
+  struct cvm_value values[3];
   for (unsigned i = 0; i < 3; i++)
     CHECK(cvm_pair(&vm, cvm_int((int32_t)i), cvm_int(0), &values[i]) == CVM_OK);
   vm.heap[2].left = values[1];
@@ -192,9 +192,9 @@ static int changed_collector(void) {
   saved = vm;
   CHECK(cvm_collect(&vm) == CVM_OK && vm.gc_budget == 79); /* 1+2*2+16 */
   vm = saved;
-  ORVM adapter;
+  struct or_vm adapter;
   orv_init(&adapter, &vm);
-  ORVStats stats = {0};
+  struct orv_stats stats = {0};
   stats.work = 91;
   CHECK(orv_collect(&adapter, 24, 0, &stats) == OR_FULL && stats.work == 91 &&
         vm.heap[0].used);
@@ -206,10 +206,10 @@ static int changed_collector(void) {
   return 0;
 }
 static int pending(void) {
-  CvmProgram p = {
+  struct cvm_program p = {
       {OP_INT, 7, 0, 0, 0, OP_HOST, 1, OP_RET}, 8, 1, {{0, 8, 0, 0}}};
-  CvmValue out = cvm_int(91);
-  VlReport r;
+  struct cvm_value out = cvm_int(91);
+  struct vl_report r;
   memset(&session, 0, sizeof session);
   CHECK(vs_start(&session, &p, 0, 3, 0, 1, 2, &scratch) == VS_RUNNING);
   CHECK(vl_step(&session, &out, &r) == VS_RUNNING && r.fuel == 1 &&
@@ -218,7 +218,7 @@ static int pending(void) {
         r.host == 1 && out.integer == 91);
   CHECK(vl_step(&session, &out, &r) == VS_STATE && r.fuel == 0 && r.host == 0 &&
         out.integer == 91);
-  VsRequest request;
+  struct vs_request request;
   CHECK(vs_take(&session, &request) == VS_PENDING);
   CHECK(vs_start(&session, &p, 0, 3, 0, 1, 2, &scratch) == VS_STATE);
   CHECK(vs_complete(&session, request.epoch, request.serial, 0, 18) ==

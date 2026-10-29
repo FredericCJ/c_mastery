@@ -41,7 +41,7 @@ unbounded admission server.
 
 ## Transactions and lock graphs — T25.03.a/b
 
-`TWBank` starts at `(50,50)`. `tw_transfer` admits `0 <= amount <= a`, debits
+`struct tw_bank` starts at `(50,50)`. `tw_transfer` admits `0 <= amount <= a`, debits
 `a`, credits `b`, and preserves total100 under one mutex. Reject before mutation.
 The test hook executes between debit and credit while that mutex is held. It
 may synchronize the test controller but must not reenter the bank, cancel the
@@ -51,7 +51,7 @@ the two changes. Observe90 there and100 after completion. In the repaired case
 the controller's nonblocking lock attempt must report busy at the same point.
 Do not run a native data race to obtain the inconsistent state.
 
-For the unlocked-reader variant, implement `TWSnapshot` using atomic sequence
+For the unlocked-reader variant, implement `struct tw_snapshot` using atomic sequence
 and atomic balances, all sequentially consistent. There is exactly one writer;
 reject sequence exhaustion rather than wrap. A reader accepts two values only
 between equal even sequence observations. Ordinary non-atomic payload reads
@@ -71,7 +71,7 @@ address remains a unique lifetime identity.
 
 ## Queue representation and lifetime — T25.03.c/T25.04
 
-`TWQueue` contains a capacity-three ring, one core mutex, nonempty/nonfull
+`struct tw_queue` contains a capacity-three ring, one core mutex, nonempty/nonfull
 conditions, a test-observer condition, and a separate admission-root mutex.
 Its state is OPEN(0), CLOSING(1), RETIRED(2). Under the core mutex:
 `count <= 3`, head/tail are in0..2, tail equals `(head+count)%3`, and exactly
@@ -143,7 +143,7 @@ The controllers' reference/close/retire/observer calls must not be canceled.
 
 ## Primitive construction and changed assumptions — T25.05
 
-Implement `TWBarrier` from a mutex, condition, expected participants, arrival
+Implement `struct tw_barrier` from a mutex, condition, expected participants, arrival
 count and generation. Support1..4 participants. In the three-worker case,
 each worker writes its own cell1,2,3, rendezvous, worker0 calculates6, and a
 second phase publishes that result to all. Generation exhaustion breaks the
@@ -165,7 +165,7 @@ row in order, and an unknown requirement returns-1.
 |Reusable phases|participants and generation; barrier|One missing participant prevents ordinary phase completion; break is explicit.|
 |Read-mostly mutable state|readers coexist, writer excludes them; read/write lock|Exclusion alone does not specify preference, scheduling or bounded waiting.|
 
-`TWPermits` uses a mutex and a three-bit ownership mask. Acquisition is
+`struct tw_permits` uses a mutex and a three-bit ownership mask. Acquisition is
 nonblocking, gives a distinct token0..2 or `EAGAIN`, and preserves output on
 failure. Release validates range and ownership; duplicate release gives
 `EALREADY`. Tokens are linear caller-owned capabilities within one active

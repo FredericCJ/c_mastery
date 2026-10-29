@@ -11,7 +11,7 @@ drivers and answer keys are withheld.
 Use hosted C17, profile A, Linux nonblocking pipes/local sockets and epoll, POSIX
 mutexes and condition variables. Core state machines use fixed objects and C
 operations, with no event-loop, queue, coroutine or cancellation library doing
-the assigned work. `RdService` must import the actual T24.05 `RfOutbox` API rather
+the assigned work. `struct rd_service` must import the actual T24.05 `struct rf_outbox` API rather
 than reimplementing a narrower queue. Supply your prerequisite `stream.c` from
 PR-T24-03. Author runs use the named assessor stream implementation; that evidence
 does not establish that an eventual learner provider meets the same contract.
@@ -32,13 +32,13 @@ retain a peeked range past advance/disconnect. C enforces neither these ownershi
 rules nor callback termination. Runtime checks reject specified invalid tokens,
 bounds and transitions; tests and external reasoning cover additional obligations.
 
-`RdOperation` owns up to eight bytes and separate goal/done/terminal fields.
+`struct rd_operation` owns up to eight bytes and separate goal/done/terminal fields.
 Receive and transmit states are independent. Positive progress records actual
 committed bytes; -2 means would-block, -1 terminal error, zero EOF. A terminal
 operation never becomes active without explicit fresh initialization. Transport
 EOF after the requested extent has completed is a separate channel observation.
 
-`RdRegistry` has four stable slots. Event identity is `(slot, connection generation)`;
+`struct rd_registry` has four stable slots. Event identity is `(slot, connection generation)`;
 completion identity additionally includes direction and a nonreused operation
 sequence. Connection generation and operation sequence have declared finite
 limits. Exhaustion retires the relevant reuse path; it never silently wraps.
@@ -48,13 +48,13 @@ alone does not settle a target operation. The completion adapter here is an
 executable serialized event protocol; the kernel-retained I/O backend belongs to
 T24.12 and must be validated independently.
 
-`RdScheduler` has three participants. Each turn snapshots ready work, permits at
+`struct rd_scheduler` has three participants. Each turn snapshots ready work, permits at
 most two successful operations per participant, at most eight successes globally,
 and a separately selected callback budget of 1–8. CPU-only work consumes a
 callback. Ready publication during a callback joins the next turn; nested turns
 are rejected. Fairness arguments require finite callbacks and repeated turns.
 
-`RdService` imports four connections and eight frames per connection, a global
+`struct rd_service` imports four connections and eight frames per connection, a global
 payload limit 0–256, and a separate 64-entry lifetime terminal ledger. An epoch
 accepts at most 64 distinct IDs, including previously completed ones; exhaustion
 rejects a caller-owned message. Derive memory as the sum of queue/message objects,
@@ -65,7 +65,7 @@ another callback's message. Stop rejects new work immediately, can only shorten
 an existing absolute deadline, and retains pending message ownership until the
 last borrower returns. Caller code closes its actual descriptors after release.
 
-`RdPort` is a separate capacity-one producer/consumer adapter using a single
+`struct rd_port` is a separate capacity-one producer/consumer adapter using a single
 mutex and predicate conditions. It supports cooperative stop and peer-gone events,
 not `pthread_cancel`. Condition variables use CLOCK_MONOTONIC. On reacquiring the
 mutex, an observed stop, peer event or available transfer takes precedence over

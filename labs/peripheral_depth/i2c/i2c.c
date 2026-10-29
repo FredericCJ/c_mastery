@@ -1,12 +1,12 @@
 #include "i2c.h"
 /* Intentionally unfinished learner scaffold. */
-int pi_open(PiI2c *s, PiIo io, const PuClock *c) {
+int pi_open(struct pi_i2c *s, struct pi_io io, const struct pu_clock *c) {
   (void)s;
   (void)io;
   (void)c;
   return PI_UNIMPLEMENTED;
 }
-int pi_begin(PiI2c *s, PiIo io, uint32_t generation, uint32_t token,
+int pi_begin(struct pi_i2c *s, struct pi_io io, uint32_t generation, uint32_t token,
              unsigned address, unsigned command, unsigned count, uint8_t *out,
              uint32_t now, unsigned budget) {
   (void)s;
@@ -21,20 +21,20 @@ int pi_begin(PiI2c *s, PiIo io, uint32_t generation, uint32_t token,
   (void)budget;
   return PI_UNIMPLEMENTED;
 }
-int pi_cancel(PiI2c *s, PiIo io, uint32_t token) {
+int pi_cancel(struct pi_i2c *s, struct pi_io io, uint32_t token) {
   (void)s;
   (void)io;
   (void)token;
   return PI_UNIMPLEMENTED;
 }
-int pi_step(PiI2c *s, PiIo io, uint32_t token, uint32_t now) {
+int pi_step(struct pi_i2c *s, struct pi_io io, uint32_t token, uint32_t now) {
   (void)s;
   (void)io;
   (void)token;
   (void)now;
   return PI_UNIMPLEMENTED;
 }
-int pi_recover_begin(PiRecovery *s, PiLines io, unsigned exclusive,
+int pi_recover_begin(struct pi_recovery *s, struct pi_lines io, unsigned exclusive,
                      unsigned peers, uint32_t now, unsigned budget,
                      unsigned half) {
   (void)s;
@@ -46,7 +46,7 @@ int pi_recover_begin(PiRecovery *s, PiLines io, unsigned exclusive,
   (void)half;
   return PI_UNIMPLEMENTED;
 }
-int pi_recover_step(PiRecovery *s, PiLines io, uint32_t now) {
+int pi_recover_step(struct pi_recovery *s, struct pi_lines io, uint32_t now) {
   (void)s;
   (void)io;
   (void)now;

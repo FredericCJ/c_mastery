@@ -3,7 +3,7 @@ void li_init(struct li_copy *c) {
   if (c)
     *c = (struct li_copy){0};
 }
-enum li_status li_pump(struct li_copy *c, LIRead read, void *rc, FWriter write,
+enum li_status li_pump(struct li_copy *c, LIRead read, void *rc, f_writer_fn write,
                        void *wc, unsigned budget) {
   if (!c || !read || !write || c->offset > c->length || c->length > 2 ||
       c->written_total > c->read_total ||
@@ -14,7 +14,7 @@ enum li_status li_pump(struct li_copy *c, LIRead read, void *rc, FWriter write,
   while (budget--) {
     if (c->offset < c->length) {
       size_t accepted = 0;
-      FStatus s = f_write_all(write, wc, c->bytes + c->offset,
+      enum f_status s = f_write_all(write, wc, c->bytes + c->offset,
                               c->length - c->offset, 1, &accepted);
       if (accepted > SIZE_MAX - c->written_total)
         return c->terminal = LI_PROTOCOL;

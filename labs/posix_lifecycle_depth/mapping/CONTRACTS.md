@@ -86,7 +86,7 @@ It detects the supplied corruption, not malicious forgery. Every scalar is
 decoded bytewise. Validate offset>=32, offset<=extent and length<=extent-offset
 before forming a view; no native struct, padding, pointer or unaligned load is
 the wire contract. The codec writes a full staged128-byte result only on success;
-decode similarly publishes a copied `PMRecord` only after validation.
+decode similarly publishes a copied `struct pm_record` only after validation.
 
 `pm_publish(fd, session, payload, length, cut, context)` and `pm_replace` use an
 exclusive whole-file **process-associated fcntl record lock**. A zero-sized new

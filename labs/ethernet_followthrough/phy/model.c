@@ -1,6 +1,6 @@
 #include "model.h"
 int ep_model_read(void *p,unsigned reg,uint32_t *out){
- EpModel *m=p;m->calls++;m->reads++;if(m->calls==m->fail_at)return 1;
+ struct ep_model *m=p;m->calls++;m->reads++;if(m->calls==m->fail_at)return 1;
  if(reg==1){*out=m->data;return 0;}
  if(reg!=0)return 1;
  if(m->ar&1){
@@ -21,17 +21,17 @@ int ep_model_read(void *p,unsigned reg,uint32_t *out){
  *out=m->ar;return 0;
 }
 int ep_model_write(void *p,unsigned reg,uint32_t value){
- EpModel *m=p;m->calls++;if(m->calls==m->fail_at)return 1;
+ struct ep_model *m=p;m->calls++;if(m->calls==m->fail_at)return 1;
  if(m->ar&1){m->violation++;return 1;}
  m->writes++;
  if(reg==1){m->data=(uint16_t)value;return 0;}
  if(reg!=0)return 1;
  m->ar=value;if(value&1)m->busy_reads=m->delay;return 0;
 }
-uint32_t ep_model_clock(void *p){EpModel *m=p;if(!m->frozen)m->tick++;return m->tick;}
-EDBus ep_model_bus(EpModel *m){EDBus b={m,ep_model_read,ep_model_write,ep_model_clock};return b;}
-void ep_model_setup(EpModel *m,unsigned address){
- EpModel zero={0};*m=zero;m->delay=1;
+uint32_t ep_model_clock(void *p){struct ep_model *m=p;if(!m->frozen)m->tick++;return m->tick;}
+struct ed_bus ep_model_bus(struct ep_model *m){struct ed_bus b={m,ep_model_read,ep_model_write,ep_model_clock};return b;}
+void ep_model_setup(struct ep_model *m,unsigned address){
+ struct ep_model zero={0};*m=zero;m->delay=1;
  for(unsigned a=0;a<32;a++)for(unsigned r=0;r<32;r++)m->phy[a][r]=0xffff;
  m->phy[address][0]=0x1000;m->phy[address][1]=0x24;m->phy[address][2]=7;m->phy[address][3]=0xc13a;m->phy[address][31]=0x1018;
 }

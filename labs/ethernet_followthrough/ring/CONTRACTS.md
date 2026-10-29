@@ -8,10 +8,10 @@ and toolchains, not learner mastery, external review or a physical-board pass.
 
 ## Prerequisites and environment
 
-Use the inspected T27 `BuRange`/`bu_f439_dma` implementation and the T39
-`EpPhy` lifecycle and retained `EDRx`/`EDTx` models. These are actual source
+Use the inspected T27 `struct bu_range`/`bu_f439_dma` implementation and the T39
+`struct ep_phy` lifecycle and retained `struct ed_rx`/`struct ed_tx` models. These are actual source
 imports. A completed T27 clock/pin dossier is still needed for a physical image:
-the generic `BuClock` model does not configure a real PLL. Supply a stable,
+the generic `struct bu_clock` model does not configure a real PLL. Supply a stable,
 known core/HCLK at most180MHz and a continuous selected-board50MHz RMII clock;
 record supply, flash latency and clock-tree configuration separately.
 
@@ -27,7 +27,7 @@ text remains outside the selected hardware-source inspection.
 
 ## Representation and authority
 
-`EnDescriptor` is four volatile32-bit words. `EnMemory` is exactly12384 bytes:
+`struct en_descriptor` is four volatile32-bit words. `struct en_memory` is exactly12384 bytes:
 four RX and two TX descriptors plus six2048-byte, four-byte-aligned buffers.
 The selected T41 hardware profile uses normal ring RER/TER, not chained mode,
 enhanced descriptors, descriptor skips, timestamps, checksum offload or jumbo
@@ -61,7 +61,7 @@ held. A new reset advances the nonwrapping epoch, requests SWR, and exposes
 Timeout retains the pending reset and storage. A fresh explicit finite window
 can resume read-only observation without rewriting SWR or advancing the epoch.
 
-`en_start` requires stopped state and a current successful `EpPhy` snapshot.
+`en_start` requires stopped state and a current successful `struct ep_phy` snapshot.
 Initialize all descriptor metadata before OWN, install bases only while DMA is
 stopped, use TSF/RSF, no FEF/FUGF, MACCSTF/APCS/IPCO zero, normal format and
 PBL1. Configure the accepted10/full or100/full mode, perfect local unicast plus
@@ -149,15 +149,15 @@ normalizes the upper span once. It does not guess how a particular changed
 silicon configuration encodes RDES0FL; that mapping requires a source/capture
 argument before a hardware variant can use it. The selected ring stays CSTF0.
 
-Retained `EDTx` exercises the original two-descriptor/one-publication policy.
-`EvChain` extends the separate borrowed publication model to2/3 descriptors:
+Retained `struct ed_tx` exercises the original two-descriptor/one-publication policy.
+`struct ev_chain` extends the separate borrowed publication model to2/3 descriptors:
 all metadata and every tail OWN precede head OWN. A borrowed caller buffer
 must remain immutable/live through documented returned ownership or confirmed
 stop. Partial tail publication plus unconfirmed abort retains the borrow;
 neither a completion flag nor a fresh token authorizes reuse. This model is
 not an undocumented switch of the normal hardware ring to chained mode.
 
-`EvVisibility` models two32-byte cache lines with distinct CPU/device arrays.
+`struct ev_visibility` models two32-byte cache lines with distinct CPU/device arrays.
 Dirty CPU data requires clean before device ownership; all bytes of an owned
 line, including unrelated-looking neighbors, are unavailable to CPU stores.
 Returned device writes require invalidation before CPU observation. An explicit

@@ -5,7 +5,7 @@
 #define CHECK(x) do{if(!(x)){fprintf(stderr,"TD_CHECK:%d:%s\n",__LINE__,#x);return 1;}}while(0)
 static double absolute(double x){return x<0?-x:x;}
 int main(void){
-    Td a,b,old;double values[64],q=19,cdf=19,total=0,weighted=0;unsigned i,j;
+    struct td_td a,b,old;double values[64],q=19,cdf=19,total=0,weighted=0;unsigned i,j;
     CHECK(td_init(&a,16)==TD_OK && td_valid(&a));
     CHECK(td_quantile(&a,.5,&q)==TD_INVALID && q==19);
     CHECK(td_add(&a,0,0)==TD_OK);

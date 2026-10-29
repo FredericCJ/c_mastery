@@ -13,7 +13,7 @@ def main():
  port=work/'systems-port.c';run('registered source',[sys.executable,REF/'port_registration.py',port]);providers=dict(BASE,systems=port);incs=[LAB/x for x in ['reclamation','once','transfers']]+[ROOT/'labs'/Path(v).parent for v in HEADERS.values()];flags=['-std=c17','-O2','-Wall','-Wextra','-Wpedantic','-Werror','-pthread',*['-I'+str(x) for x in incs]]
  cases=[('b04_depth','b04',['memory'],'B4'),('b05_depth','b05',['verify','recover','copy','timer','response','grace'],'B5'),('b045_systems','systems',['paired','reduce','replace','wait','shoot','peer'],'S'),('modern_bridge','bridge',['once','hazard','epoch'],'MB')]
  for cc in ['gcc','clang']:
-  run(cc+' costs compile',[cc,*flags,REF/'costs.c','-o',work/(cc+'-costs')]);run(cc+' costs',[work/(cc+'-costs')],marker='COST SxOnce=')
+  run(cc+' costs compile',[cc,*flags,REF/'costs.c','-o',work/(cc+'-costs')]);run(cc+' costs',[work/(cc+'-costs')],marker='COST struct sx_once=')
   for family,provider,kinds,prefix in cases:
    for kind in kinds:
     for variant in ([1,2] if prefix=='MB' else [0]):

@@ -12,7 +12,7 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-static NhHttp app;
+static struct nh_http app;
 static unsigned char request[1800], capture[4096], body[1024];
 static size_t request_length, captured, sent;
 static uint32_t server_next, client_next, client_ack;
@@ -301,7 +301,7 @@ static int link_recovery(void) {
   }
   CHECK(stopped);
   uint32_t old_ack = net.tcp.snd_nxt;
-  NcTicket old = {net.tcp.epoch, net.tcp.dma_serial};
+  struct nc_ticket old = {net.tcp.epoch, net.tcp.dma_serial};
   model.stop_stuck = 1;
   phy_model.phy[0][1] = 0x20;
   CHECK(nh_step(&app, time_ms++) == NH_ABORT && net.tcp.state == NC_CLOSED &&
@@ -353,7 +353,7 @@ static int link_recovery(void) {
 #define main nh_public_tests
 #endif
 int main(void) {
-  NcStack old;
+  struct nc_stack old;
   CHECK(!nc_establish(&old, 16, 1000, 30, 100));
   CHECK(!streams());
   CHECK(!failure());

@@ -25,7 +25,7 @@ static void wr2(void *p,unsigned k,uintptr_t v){(void)p;
  else if(k>=PU_SR&&k<=PU_CR3)REG(0x40004400u+offset(k))=(uint32_t)v;
 }
 static void drive2(void *p,unsigned on){(void)p;REG(0x40020018u)=1u<<(on?1:17);barrier();}
-static R5Io io2(void){R5Io io={{0,rd2,wr2},0,drive2};return io;}
+static struct r5_io io2(void){struct r5_io io={{0,rd2,wr2},0,drive2};return io;}
 static void pins2(void){
  REG(0x40023830u)|=1u;(void)REG(0x40023830u);
  REG(0x40020018u)=1u<<17; /* inactive PA1 latch before output mode */
@@ -34,12 +34,12 @@ static void pins2(void){
  REG(0x40020020u)=(REG(0x40020020u)&~0xff00u)|(EP_PORT_MUTANT==1?0x6600u:0x7700u);
  REG(0x40020000u)=(REG(0x40020000u)&~252u)|164u;barrier();
 }
-int ep_f439_open(EpTx *s,const PuClock *clock,uint32_t baud,unsigned device,uint32_t now){
+int ep_f439_open(struct ep_tx *s,const struct pu_clock *clock,uint32_t baud,unsigned device,uint32_t now){
  return ep_f439_open_port(s,clock,baud,device,0,now);
 }
-int ep_f439_open_port(EpTx *s,const PuClock *clock,uint32_t baud,unsigned device,unsigned port,uint32_t now){
+int ep_f439_open_port(struct ep_tx *s,const struct pu_clock *clock,uint32_t baud,unsigned device,unsigned port,uint32_t now){
  if(!s||s->enabled||s->phase||device>R5_THVD1400||port>1)return EP_INVALID;
- R5Timing timing={device,0,1000,200000};
+ struct r5_timing timing={device,0,1000,200000};
  if(port){pins2();return ep_open(s,io2(),clock,baud,&timing,now);}
  r5_f439_prepare();return ep_open(s,r5_f439_io(),clock,baud,&timing,now);
 }

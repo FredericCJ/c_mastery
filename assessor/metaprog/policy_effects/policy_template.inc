@@ -7,7 +7,7 @@ int MPP_NAME(MPP_PARAMETERS){
  uint32_t sum=0;
  for(size_t i=0;i<count;i++){
   if(MPP_MUTATION==3&&MPP_SATURATE&&sum==limit)break;
-  MppItem item={0};uint32_t term=0;
+  struct mpp_item item={0};uint32_t term=0;
   size_t index=MPP_MUTATION==4?count-1-i:i;
   if(ops.acquire(ops.context,index,&item)){
    if(MPP_MUTATION!=1)ops.release(ops.context,&item);

@@ -11,15 +11,15 @@
   } while (0)
 #define STATUS(e, w)                                                           \
   do {                                                                         \
-    CvmStatus got = (e);                                                       \
+    enum cvm_status got = (e);                                                       \
     if (got != (w)) {                                                          \
       fprintf(stderr, "FAIL %s:%d: %s got %s expected %s\n", __FILE__,         \
               __LINE__, #e, cvm_status_name(got), cvm_status_name(w));         \
       return 1;                                                                \
     }                                                                          \
   } while (0)
-static CvmProgram simple(void) {
-  CvmProgram p = {0};
+static struct cvm_program simple(void) {
+  struct cvm_program p = {0};
   p.count = 1;
   p.length = 6;
   p.functions[0].length = 6;
@@ -28,13 +28,13 @@ static CvmProgram simple(void) {
   p.code[5] = OP_RET;
   return p;
 }
-static CvmStatus eval(const char *source, Cvm *v, CvmValue *r) {
-  CvmProgram p;
-  CvmStatus s = cvm_compile(source, strlen(source), &p);
+static enum cvm_status eval(const char *source, struct cvm_cvm *v, struct cvm_value *r) {
+  struct cvm_program p;
+  enum cvm_status s = cvm_compile(source, strlen(source), &p);
   return s == CVM_OK ? cvm_run(v, &p, r) : s;
 }
 static int wire(void) {
-  CvmProgram p = simple(), q = {0};
+  struct cvm_program p = simple(), q = {0};
   uint8_t b[1200] = {0};
   size_t n = 0;
   unsigned char before[sizeof q];
@@ -77,7 +77,7 @@ static int wire(void) {
   return 0;
 }
 static int image_verifier(void) {
-  CvmProgram p = simple(), q;
+  struct cvm_program p = simple(), q;
   uint8_t b[1200] = {0}, prior[1200];
   size_t n = 0;
   STATUS(cvm_save(&p, b, sizeof b, &n), CVM_OK);
@@ -96,7 +96,7 @@ static int image_verifier(void) {
   return 0;
 }
 static int verifier(void) {
-  CvmProgram p = simple();
+  struct cvm_program p = simple();
   STATUS(cvm_verify(&p), CVM_OK);
   p.code[0] = OP_POP;
   STATUS(cvm_verify(&p), CVM_VERIFY);
@@ -113,7 +113,7 @@ static int verifier(void) {
   p = simple();
   p.functions[0].arity = 1;
   STATUS(cvm_verify(&p), CVM_VERIFY);
-  p = (CvmProgram){0};
+  p = (struct cvm_program){0};
   p.count = 1;
   p.length = 10;
   p.functions[0].length = 10;
@@ -140,7 +140,7 @@ static int verifier(void) {
   STATUS(cvm_verify(&p), CVM_VERIFY);
   return 0;
 }
-static void emit_int(CvmProgram *p, int32_t value) {
+static void emit_int(struct cvm_program *p, int32_t value) {
   uint32_t bits = (uint32_t)value;
   p->code[p->length++] = OP_INT;
   for (unsigned i = 0; i < 4; ++i) {
@@ -148,8 +148,8 @@ static void emit_int(CvmProgram *p, int32_t value) {
     bits >>= 8;
   }
 }
-static CvmProgram binary(unsigned opcode, int32_t a, int32_t b) {
-  CvmProgram p = {0};
+static struct cvm_program binary(unsigned opcode, int32_t a, int32_t b) {
+  struct cvm_program p = {0};
   p.count = 1;
   emit_int(&p, a);
   emit_int(&p, b);
@@ -159,9 +159,9 @@ static CvmProgram binary(unsigned opcode, int32_t a, int32_t b) {
   return p;
 }
 static int arithmetic(void) {
-  Cvm v;
-  CvmValue r;
-  CvmProgram p = binary(OP_ADD, 20, 22);
+  struct cvm_cvm v;
+  struct cvm_value r;
+  struct cvm_program p = binary(OP_ADD, 20, 22);
   cvm_init(&v, 100, 0, 0);
   STATUS(cvm_run(&v, &p, &r), CVM_OK);
   CHECK(r.integer == 42);
@@ -178,7 +178,7 @@ static int arithmetic(void) {
     cvm_init(&v, 100, 0, 0);
     STATUS(cvm_run(&v, &p, &r), CVM_RANGE);
   }
-  p = (CvmProgram){0};
+  p = (struct cvm_program){0};
   p.count = 1;
   p.code[p.length++] = OP_TRUE;
   emit_int(&p, 1);
@@ -194,9 +194,9 @@ static int arithmetic(void) {
   return 0;
 }
 static int calls(void) {
-  Cvm v;
-  CvmValue r;
-  CvmProgram p = {0};
+  struct cvm_cvm v;
+  struct cvm_value r;
+  struct cvm_program p = {0};
   p.count = 2;
   const uint8_t code[] = {
       OP_INT,  5,       0,      0,      0,     OP_CALL, 1, 1,      OP_RET,
@@ -206,18 +206,18 @@ static int calls(void) {
       OP_CALL, 1,       1,      OP_ADD, OP_RET};
   memcpy(p.code, code, sizeof code);
   p.length = sizeof code;
-  p.functions[0] = (CvmFunction){0, 9, 0, 0};
-  p.functions[1] = (CvmFunction){9, 32, 1, 1};
+  p.functions[0] = (struct cvm_function){0, 9, 0, 0};
+  p.functions[1] = (struct cvm_function){9, 32, 1, 1};
   cvm_init(&v, 2000, 0, 0);
   STATUS(cvm_run(&v, &p, &r), CVM_OK);
   CHECK(r.integer == 15);
-  p = (CvmProgram){0};
+  p = (struct cvm_program){0};
   p.count = 2;
   p.length = 8;
   const uint8_t recursive[] = {OP_CALL, 1, 0, OP_RET, OP_CALL, 1, 0, OP_RET};
   memcpy(p.code, recursive, sizeof recursive);
-  p.functions[0] = (CvmFunction){0, 4, 0, 0};
-  p.functions[1] = (CvmFunction){4, 4, 0, 0};
+  p.functions[0] = (struct cvm_function){0, 4, 0, 0};
+  p.functions[1] = (struct cvm_function){4, 4, 0, 0};
   cvm_init(&v, 10000, 0, 0);
   STATUS(cvm_run(&v, &p, &r), CVM_FRAME_LIMIT);
   p.code[2] = 1;
@@ -225,9 +225,9 @@ static int calls(void) {
   return 0;
 }
 static int compiler(void) {
-  Cvm v;
-  CvmValue r;
-  CvmProgram p;
+  struct cvm_cvm v;
+  struct cvm_value r;
+  struct cvm_program p;
   cvm_init(&v, 1000, 1000, 0);
   STATUS(eval("(fn main () (let x 2 (+ (let x 40 x) x)))", &v, &r), CVM_OK);
   CHECK(r.integer == 42);
@@ -268,9 +268,9 @@ static int compiler(void) {
   return 0;
 }
 static int control(void) {
-  Cvm v;
-  CvmValue r;
-  CvmProgram p = simple();
+  struct cvm_cvm v;
+  struct cvm_value r;
+  struct cvm_program p = simple();
   const char *counter =
       "(fn main () (let n 0 (do (while (< n 5) (set n (+ n 1))) n)))";
   cvm_init(&v, 1000, 0, 0);
@@ -292,8 +292,8 @@ static int control(void) {
   return 0;
 }
 static int arena(void) {
-  Cvm v;
-  CvmValue r;
+  struct cvm_cvm v;
+  struct cvm_value r;
   cvm_init(&v, 100, 1000, 0);
   v.arena = 1;
   for (unsigned i = 0; i < CVM_HEAP; i++)
@@ -304,15 +304,15 @@ static int arena(void) {
   v.arena = 1;
   STATUS(cvm_pair(&v, cvm_int(1), cvm_int(2), &r), CVM_OK);
   CHECK(v.allocations == 1);
-  CvmValue field;
+  struct cvm_value field;
   STATUS(cvm_field(&v, r, 0, &field), CVM_OK);
   CHECK(field.integer == 1);
   return 0;
 }
 static int gc(void) {
-  Cvm v;
-  CvmValue root, child, garbage, r;
-  CvmValue nil = {CVM_NIL, 0, 0};
+  struct cvm_cvm v;
+  struct cvm_value root, child, garbage, r;
+  struct cvm_value nil = {CVM_NIL, 0, 0};
   cvm_init(&v, 1000, 10000, 0);
   STATUS(cvm_pair(&v, cvm_int(42), nil, &child), CVM_OK);
   STATUS(cvm_pair(&v, child, nil, &root), CVM_OK);
@@ -341,7 +341,7 @@ static int gc(void) {
   STATUS(cvm_collect(&v), CVM_GC_BUDGET);
   STATUS(cvm_field(&v, root, 0, &r), CVM_OK);
   /* Frame roots via hand-encoded code; no later compiler extension needed. */
-  CvmProgram p = {0};
+  struct cvm_program p = {0};
   p.count = 1;
   p.functions[0].locals = 1;
   emit_int(&p, 11);
@@ -360,9 +360,9 @@ static int gc(void) {
   return 0;
 }
 static int fuel(void) {
-  Cvm v;
-  CvmValue r;
-  CvmProgram p = {0};
+  struct cvm_cvm v;
+  struct cvm_value r;
+  struct cvm_program p = {0};
   p.count = 1;
   const uint8_t code[] = {OP_TRUE, OP_JFALSE, 9, 0,      OP_NIL, OP_POP,
                           OP_JMP,  0,         0, OP_NIL, OP_RET};
@@ -386,10 +386,10 @@ static int callback(void *ctx, uint8_t service, int32_t arg, int32_t *out) {
   return 0;
 }
 static int host(void) {
-  Cvm v;
-  CvmValue r;
+  struct cvm_cvm v;
+  struct cvm_value r;
   unsigned count = 0;
-  CvmProgram p = simple();
+  struct cvm_program p = simple();
   p.code[5] = OP_HOST;
   p.code[6] = 1;
   p.code[7] = OP_RET;
@@ -413,8 +413,8 @@ static int host(void) {
   return 0;
 }
 static int integration(void) {
-  Cvm v;
-  CvmValue r;
+  struct cvm_cvm v;
+  struct cvm_value r;
   unsigned count = 0;
   cvm_init(&v, 1000, 10000, 1);
   v.host = callback;
@@ -427,9 +427,9 @@ static int integration(void) {
   return 0;
 }
 static int portability(void) {
-  CvmProgram p;
-  Cvm v;
-  CvmValue r;
+  struct cvm_program p;
+  struct cvm_cvm v;
+  struct cvm_value r;
   uint8_t wire[1200];
   size_t n;
   const char *source = "(fn main () -2147483648)";

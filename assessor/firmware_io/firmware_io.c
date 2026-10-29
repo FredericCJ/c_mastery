@@ -1,6 +1,6 @@
 #include "firmware_io.h"
-static int valid(FwIo io) { return io.read && io.write; }
-static int await(FwIo io, uint32_t mask, uint32_t value, unsigned polls) {
+static int valid(struct fw_io io) { return io.read && io.write; }
+static int await(struct fw_io io, uint32_t mask, uint32_t value, unsigned polls) {
   while (polls--)
     if ((io.read(io.context, FW_STATUS) & mask) == value)
       return 0;
@@ -23,19 +23,19 @@ int fw_vector(uint32_t sp, uint32_t pc, uint32_t lo, uint32_t hi, uint32_t flo,
              ? 0
              : -1;
 }
-int fw_gpio(FwIo io, unsigned pin, int high) {
+int fw_gpio(struct fw_io io, unsigned pin, int high) {
   if (!valid(io) || pin > 15 || (high != 0 && high != 1))
     return -1;
   io.write(io.context, FW_GPIO, 1u << (pin + (high ? 0 : 16)));
   return 0;
 }
-int fw_uart(FwIo io, uint8_t b, unsigned polls) {
+int fw_uart(struct fw_io io, uint8_t b, unsigned polls) {
   if (!valid(io) || await(io, FW_TXE, FW_TXE, polls))
     return -1;
   io.write(io.context, FW_DATA, b);
   return 0;
 }
-int fw_spi(FwIo io, uint8_t b, uint8_t *out, unsigned polls) {
+int fw_spi(struct fw_io io, uint8_t b, uint8_t *out, unsigned polls) {
   if (!valid(io) || !out || !polls)
     return -1;
   io.write(io.context, FW_CONTROL, 1);
@@ -53,7 +53,7 @@ int fw_spi(FwIo io, uint8_t b, uint8_t *out, unsigned polls) {
   io.write(io.context, FW_CONTROL, 0);
   return ok ? 0 : -1;
 }
-int fw_i2c_recover(FwIo io, unsigned pulses) {
+int fw_i2c_recover(struct fw_io io, unsigned pulses) {
   if (!valid(io) || pulses > 9)
     return -1;
   io.write(io.context, FW_SDA, 1);
@@ -72,7 +72,7 @@ int fw_i2c_recover(FwIo io, unsigned pulses) {
   io.write(io.context, FW_SDA, 1);
   return 0;
 }
-int fw_timer(FwIo io, uint32_t clock, uint32_t hz, uint32_t duty) {
+int fw_timer(struct fw_io io, uint32_t clock, uint32_t hz, uint32_t duty) {
   if (!valid(io) || !hz || clock < hz || clock % hz || duty > 1000)
     return -1;
   uint32_t ticks = clock / hz;
@@ -84,7 +84,7 @@ int fw_timer(FwIo io, uint32_t clock, uint32_t hz, uint32_t duty) {
   io.write(io.context, FW_CONTROL, 2);
   return 0;
 }
-int fw_adc(FwIo io, uint16_t *out, unsigned polls) {
+int fw_adc(struct fw_io io, uint16_t *out, unsigned polls) {
   if (!valid(io) || !out)
     return -1;
   io.write(io.context, FW_CONTROL, 4);
@@ -93,7 +93,7 @@ int fw_adc(FwIo io, uint16_t *out, unsigned polls) {
   *out = (uint16_t)(io.read(io.context, FW_ADC) & 4095);
   return 0;
 }
-int fw_dma(FwDma *d, FwIo io, unsigned action, uint32_t ticket) {
+int fw_dma(struct fw_dma *d, struct fw_io io, unsigned action, uint32_t ticket) {
   if (!d || !valid(io))
     return -1;
   if (action == 0) {
@@ -117,7 +117,7 @@ int fw_dma(FwDma *d, FwIo io, unsigned action, uint32_t ticket) {
   }
   return -1;
 }
-int fw_ethernet(FwDescriptor *d, FwIo io, uint32_t n, uint32_t gen,
+int fw_ethernet(struct fw_descriptor *d, struct fw_io io, uint32_t n, uint32_t gen,
                 unsigned polls) {
   if (!d || !valid(io) || d->own || n < 14 || n > 1518)
     return -1;
@@ -132,7 +132,7 @@ int fw_ethernet(FwDescriptor *d, FwIo io, uint32_t n, uint32_t gen,
   }
   return -1;
 }
-int fw_rs485(FwIo io, uint8_t b, unsigned polls) {
+int fw_rs485(struct fw_io io, uint8_t b, unsigned polls) {
   if (!valid(io) || !polls)
     return -1;
   io.write(io.context, FW_DE, 1);
@@ -145,7 +145,7 @@ int fw_rs485(FwIo io, uint8_t b, unsigned polls) {
   io.write(io.context, FW_DE, 0);
   return 0;
 }
-int fw_watchdog(FwWatchdog *w, FwIo io, uint32_t progress, uint32_t fault) {
+int fw_watchdog(struct fw_watchdog *w, struct fw_io io, uint32_t progress, uint32_t fault) {
   if (!w || !valid(io) || !w->required)
     return -1;
   if (fault) {

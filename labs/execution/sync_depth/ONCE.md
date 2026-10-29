@@ -10,15 +10,15 @@ dependencies of the once implementation. Assessor solutions are not supplied.
 ## Inputs, representation and operations
 
 Implement `once.h` for three registered participants, actual CMX task slots
-0, 1 and 2. `CDOnce` owns a permanent-policy `MBOnce`, a CMX once wait object,
-three result slots, three allocator-owned cells, and `CDOTable`. The table has
+0, 1 and 2. `struct cd_once` owns a permanent-policy `struct mb_once`, a CMX once wait object,
+three result slots, three allocator-owned cells, and `struct cdo_table`. The table has
 three fields: eight entries, count and checksum. The required workload writes
 entry `i` as `17*i+1`, then count 8, then checksum 484. Every entry, count and
 checksum is a distinct construction step. The checksum uses unsigned modular
 addition; this workload does not overflow. Derive the independent expected
 sum as `8 + 17*(0+1+2+3+4+5+6+7)`.
 
-The allocator returns three distinct, live, correctly aligned `CDOCell` objects
+The allocator returns three distinct, live, correctly aligned `struct cdo_cell` objects
 or null. The core must not call malloc/free. Accumulate each entry into cell
 `i%3`; failure drops all acquired cells in reverse acquisition order, exactly
 once. The callbacks cannot reenter, retain borrowed control storage, throw,
@@ -91,7 +91,7 @@ Explain these three distinct mechanisms using the supplied `policies` case:
   failure and one attempt. The corrected adapter provides that contract.
 * Actual `cmx_once_enter/finish` uses `CMX_RETRY` as initializer permission and
   as the wake result after failure; failure returns its raw object to EMPTY.
-* Actual `MBOnce` selects permanent or retry policy at initialization.
+* Actual `struct mb_once` selects permanent or retry policy at initialization.
   `MB_INIT` grants initialization. `MB_RETRY` denotes compare-exchange
   contention, not the CMX initializer role. This experiment does not force a
   compare-exchange contention execution; it distinguishes the API meanings.

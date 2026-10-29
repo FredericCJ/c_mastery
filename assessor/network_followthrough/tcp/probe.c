@@ -1,8 +1,8 @@
 #include "test_wire.h"
 #include <inttypes.h>
 int main(void) {
-  NcRtt r;
-  NcStack s;
+  struct nc_rtt r;
+  struct nc_stack s;
   char op;
   unsigned a, b;
   uint32_t seq;

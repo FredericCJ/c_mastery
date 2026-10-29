@@ -89,7 +89,7 @@ claimed measured speedup.
 
 ## Dimensional arithmetic and overlapping service
 
-`ACHFraction` is a nonnegative numerator and positive denominator, each32 bits.
+`struct ach_fraction` is a nonnegative numerator and positive denominator, each32 bits.
 Normalize outputs to coprime terms. Checked cross-cancellation and64-bit
 intermediates must not overflow. The admitted arithmetic implementation may
 return `ACH_RANGE` when an intermediate numerator/denominator cannot fit32

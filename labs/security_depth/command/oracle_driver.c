@@ -7,9 +7,9 @@ int main(void) {
   while (scanf("%u%u%u%u", &ext, &allowed, &generation, &n) == 4) {
     unsigned char bytes[40];
     unsigned i, j, value;
-    SCBatch b;
-    SCMeter m;
-    SCAuthority a = {generation, allowed};
+    struct sc_batch b;
+    struct sc_meter m;
+    struct sc_authority a = {generation, allowed};
     enum sc_result r;
     if (n > sizeof bytes)
       return 2;
@@ -23,7 +23,7 @@ int main(void) {
     if (r == SC_OK) {
       printf(" %u %u", b.count, b.work);
       for (i = 0; i < b.count; ++i) {
-        const SCCommand *c = &b.commands[i];
+        const struct sc_command *c = &b.commands[i];
         printf(" %u %u %u", c->opcode, c->count, c->generation);
         for (j = 0; j < c->count; ++j)
           printf(" %u", c->values[j]);

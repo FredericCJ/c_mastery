@@ -11,8 +11,8 @@ failure recovery, cost analysis and changed-condition composition.
 
 Bring the completed T15 insertion, stable merge and unstable heap-sort artifacts,
 and the paired ABI proof/probes from PR-T36-02. This successor identifies the
-actual T15 `ADRecord`/`ad_insertion`/`ad_merge_sort`/`ad_heap_sort` interfaces;
-its heap sort calls the actual T14 `CDHeap` producer. Both prior sources remain
+actual T15 `struct ad_record`/`ad_insertion`/`ad_merge_sort`/`ad_heap_sort` interfaces;
+its heap sort calls the actual T14 `struct cd_heap` producer. Both prior sources remain
 unchanged. Their admitted n<=16 and signed32 keys are narrower than the new
 assembly n<=32/unsigned32 contract. Do not cast incompatible record pointers.
 
@@ -49,7 +49,7 @@ a falsely described intermediate permutation after one half of a movement.
 Observer copies, global counters, call preservation and sampling overhead are
 additional instrumentation work; do not include their runtime in kernel timing.
 
-The supplied `ASStats`/`ASPrefixes` observer is serialized, reset before each
+The supplied `struct as_stats`/`struct as_prefixes` observer is serialized, reset before each
 call and not reentrant or thread-safe. It has room for all31 possible prefixes
 of the admitted32 records. The observer may inspect borrowed input only during
 the call; it owns its copied snapshots. It cannot mutate or retain input.
@@ -66,7 +66,7 @@ records and the prior layer's comparison/write counters. Outputs and inputs
 are disjoint live objects, cost output is mandatory, n<=16 and middle<=n.
 
 Implement descending stable insertion as a separate interface; reverse strict
-key ordering while retaining the stop-on-equality policy. Implement `ASWide`
+key ordering while retaining the stop-on-equality policy. Implement `struct as_wide`
 with unsigned32 key and unsigned64 tag, key at offset0, tag at offset8 and
 stride16 on these ABIs. Derive the new loads, register pressure and preserved
 state; do not use an eight-byte whole-record move for this object. Padding is
@@ -76,7 +76,7 @@ Implement `as_fallible` as a new transactional comparator interface. It admits
 n<=32 and stages all records in a local32-record array. A callback returns0
 with relation exactly−1,0,+1; any nonzero status or malformed relation aborts
 with status2 and leaves the caller's array unchanged. Publish attempted work
-in `ASStats` on this callback failure, including the failing comparison. On
+in `struct as_stats` on this callback failure, including the failing comparison. On
 success0 commit the complete stable result. Admission failure1 leaves both
 array and statistics unchanged and makes no callback. Empty still requires
 a comparator and statistics object but makes zero calls.

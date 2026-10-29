@@ -56,8 +56,8 @@ def family_of(relative):
 
 
 def in_scope(manifest):
-    listed = subprocess.run(["git", "ls-files", "*.c", "*.h"], cwd=ROOT, capture_output=True,
-                            text=True, check=True).stdout.split()
+    listed = subprocess.run(["git", "ls-files", "*.c", "*.h", "*.inc"], cwd=ROOT,
+                            capture_output=True, text=True, check=True).stdout.split()
     files = []
     for name in listed:
         if not any(fnmatch.fnmatch(name, p) for p in manifest["include"]):
@@ -128,11 +128,37 @@ def format_off_findings(text):
             yield "unjustified-format-off", text[line_start:line_end].strip()[:80]
 
 
+def fix(binary, manifest, house_files, kernel_files, no_insert_braces):
+    house = ROOT / manifest["clang_format"]["house_style"]
+    style = f"file:{house}"
+    if no_insert_braces:
+        # Same configuration with brace insertion disabled, so the migration
+        # can prove a token-identical layout step before inserting braces.
+        import tempfile
+        text = house.read_text().replace("InsertBraces: true", "InsertBraces: false")
+        handle = tempfile.NamedTemporaryFile("w", suffix=".clang-format", delete=False)
+        handle.write(text)
+        handle.close()
+        style = f"file:{handle.name}"
+    for start in range(0, len(house_files), 150):
+        subprocess.run([str(binary), "-i", f"--style={style}", *house_files[start:start + 150]],
+                       cwd=ROOT, check=True)
+    kernel_style = ROOT / manifest["clang_format"]["kernel_style"]
+    if kernel_files:
+        subprocess.run([str(binary), "-i", f"--style=file:{kernel_style}", *kernel_files], cwd=ROOT, check=True)
+    print(json.dumps({"formatted": len(house_files) + len(kernel_files),
+                      "insert_braces": not no_insert_braces}))
+    return 0
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--report", type=Path, help="write a JSON receipt to this new path")
     parser.add_argument("--all", action="store_true", help="enforce every family regardless of manifest state")
     parser.add_argument("--family", action="append", default=[], help="limit to these families")
+    parser.add_argument("--fix", action="store_true", help="rewrite in-scope files with the pinned clang-format")
+    parser.add_argument("--no-insert-braces", action="store_true",
+                        help="with --fix: whitespace-only pass (migration step; braces inserted separately)")
     args = parser.parse_args()
     if args.report and args.report.exists():
         parser.error("report exists; use a fresh path")
@@ -147,6 +173,8 @@ def main():
     kernel = {entry["path"] for entry in manifest["kernel_style"]}
     house_files = [f for f in files if f not in kernel]
     kernel_files = [f for f in files if f in kernel]
+    if args.fix:
+        return fix(binary, manifest, house_files, kernel_files, args.no_insert_braces)
     failing = layout_failures(binary, ROOT / manifest["clang_format"]["house_style"], house_files)
     kernel_style = ROOT / manifest["clang_format"]["kernel_style"]
     if kernel_files and kernel_style.is_file():

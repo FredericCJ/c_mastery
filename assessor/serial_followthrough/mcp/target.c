@@ -3,9 +3,9 @@
    actually valid clock generation and a calibrated monotonic microsecond tick.
    This code is cross-built, not executed on physical F439 by author campaigns.
  */
-int mc_f439_open(McSpi *a, const PuClock *clock, void *ctx,
+int mc_f439_open(struct mc_spi *a, const struct pu_clock *clock, void *ctx,
                  uint32_t (*ticks)(void *)) {
-  PuRates rates;
+  struct pu_rates rates;
   if (!a || !clock || !ticks || pu_rates(clock, &rates) != PU_OK ||
       a->spi.phase || a->spi.cs_owned)
     return PS_INVALID;

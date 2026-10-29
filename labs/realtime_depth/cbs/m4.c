@@ -1,11 +1,11 @@
 #include "cbs.h"
-static CBTrace trace;
-static CBMutexTrace mutex_trace;
+static struct cb_trace trace;
+static struct cb_mutex_trace mutex_trace;
 static void say(const char *s){register unsigned r0 __asm__("r0")=4;register const void *r1 __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(r0),"+r"(r1)::"memory");}
 static void finish(unsigned code){unsigned args[2]={0x20026u,code};register unsigned r0 __asm__("r0")=0x20;register const void *r1 __asm__("r1")=args;__asm__ volatile("bkpt 0xab":"+r"(r0),"+r"(r1)::"memory");for(;;){}}
 #define CHECK(x) do{if(!(x)){say("CB_M4_CHECK\n");finish(1);}}while(0)
 void task_main(void){
-  CBBudget s,a,b;CHECK(cb_init(&s,3,10,10,CB_SOFT_BOOK,0)==CMX_OK&&cb_arrive(&s,0)==CMX_OK);
+  struct cb_budget s,a,b;CHECK(cb_init(&s,3,10,10,CB_SOFT_BOOK,0)==CMX_OK&&cb_arrive(&s,0)==CMX_OK);
   for(unsigned t=0;t<8;t++)CHECK(cb_charge(&s,t,1)==CMX_OK&&!s.throttled);
   CHECK(s.core.remaining==1&&s.core.deadline==30);
   CHECK(cb_init(&a,4,8,8,CB_SOFT_BOOK,0)==CMX_OK&&cb_init(&b,4,8,8,CB_SOFT_RETAINED,0)==CMX_OK);
@@ -15,8 +15,8 @@ void task_main(void){
   CHECK(cb_init(&s,2,4,10,CB_HARD_DOCUMENT,0)==CMX_OK&&cb_arrive(&s,0)==CMX_OK&&s.core.deadline==4);
   CHECK(cb_charge(&s,0,2)==CMX_OK&&s.throttled&&cb_update(&s,4)==CMX_OK&&s.core.deadline==14);
   unsigned admitted=99;CHECK(cb_admit(1073741824,2147483647,2147483647,1073741824,2147483647,2147483647,&admitted)==CMX_OK&&!admitted);
-  CBWorkload w={.quota={3,2},.deadline={10,5},.period={10,5},.policy={CB_SOFT_BOOK,CB_SOFT_BOOK},.count=1,.horizon=32,.capacity=8};
-  w.request[0]=(CBRequest){0,0,8,10};CHECK(cb_workload(&w,&trace)==CMX_OK&&trace.finish[0]==8);
+  struct cb_workload w={.quota={3,2},.deadline={10,5},.period={10,5},.policy={CB_SOFT_BOOK,CB_SOFT_BOOK},.count=1,.horizon=32,.capacity=8};
+  w.request[0]=(struct cb_request){0,0,8,10};CHECK(cb_workload(&w,&trace)==CMX_OK&&trace.finish[0]==8);
   w.policy[0]=CB_HARD_DOCUMENT;CHECK(cb_workload(&w,&trace)==CMX_OK&&trace.finish[0]==22);
   CHECK(cb_mutex(7,&mutex_trace)==CMX_OK&&mutex_trace.waiter_missed&&mutex_trace.waiter_finish==8);
   for(unsigned t=1;t<7;t++)CHECK(mutex_trace.charged[t]==0&&mutex_trace.budget[t][1]==2);

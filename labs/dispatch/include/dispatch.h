@@ -2,7 +2,7 @@
 #define CMASTERY_DISPATCH_H
 #include "dod.h"
 #include <stddef.h>
-enum DSStatus {
+enum ds_status {
   DS_OK,
   DS_INVALID,
   DS_RANGE,
@@ -14,118 +14,118 @@ enum DSStatus {
   DS_STALE,
   DS_UNSUPPORTED
 };
-typedef struct {
+struct ds_ops {
   int (*measure)(const void *, int *);
-} DSOps;
-typedef struct {
+};
+struct ds_view {
   const void *object;
-  const DSOps *ops;
-} DSView;
-typedef struct {
-  const DSOps *ops;
+  const struct ds_ops *ops;
+};
+struct ds_box {
+  const struct ds_ops *ops;
   int value;
-} DSBox;
-int ds_measure(DSView, int *);
-int ds_embedded(const DSBox *, int *);
-typedef int (*DSCombine)(int, int, int *);
-int ds_fold(const int *, size_t, int, DSCombine, int *);
+};
+int ds_measure(struct ds_view, int *);
+int ds_embedded(const struct ds_box *, int *);
+typedef int (*ds_combine_fn)(int, int, int *);
+int ds_fold(const int *, size_t, int, ds_combine_fn, int *);
 int ds_sum(const int *, size_t, int, int *);
-enum DSMode { DS_SHARED, DS_MUTABLE, DS_ONCE };
-typedef struct {
+enum ds_mode { DS_SHARED, DS_MUTABLE, DS_ONCE };
+struct ds_closure {
   int capture;
-  enum DSMode mode;
+  enum ds_mode mode;
   unsigned active;
-} DSClosure;
-int ds_closure_init(DSClosure *, int, enum DSMode);
-int ds_closure_call(DSClosure *, int, int *);
-typedef int (*DSThunk)(const unsigned char *, size_t, int, int *);
-typedef struct {
-  DSmall capture;
-  DSThunk call;
+};
+int ds_closure_init(struct ds_closure *, int, enum ds_mode);
+int ds_closure_call(struct ds_closure *, int, int *);
+typedef int (*ds_thunk_fn)(const unsigned char *, size_t, int, int *);
+struct ds_erased {
+  struct d_small capture;
+  ds_thunk_fn call;
   void (*destroy)(void *);
   void *resource;
   unsigned active;
-} DSErased;
-void ds_erased_init(DSErased *, DAllocator);
-int ds_erased_assign(DSErased *, const unsigned char *, size_t, DSThunk,
+};
+void ds_erased_init(struct ds_erased *, struct d_allocator);
+int ds_erased_assign(struct ds_erased *, const unsigned char *, size_t, ds_thunk_fn,
                      void (*)(void *), void *);
-int ds_erased_call(const DSErased *, int, int *);
-int ds_erased_move(DSErased *, DSErased *);
-void ds_erased_drop(DSErased *);
-typedef struct {
-  DSCombine entries[3][3];
+int ds_erased_call(const struct ds_erased *, int, int *);
+int ds_erased_move(struct ds_erased *, struct ds_erased *);
+void ds_erased_drop(struct ds_erased *);
+struct ds_methods {
+  ds_combine_fn entries[3][3];
   unsigned epoch;
-} DSMethods;
-typedef struct {
+};
+struct ds_cache {
   unsigned epoch, left, right;
-  DSCombine method;
-} DSCache;
-void ds_methods_init(DSMethods *);
-int ds_methods_set(DSMethods *, unsigned, unsigned, DSCombine);
-int ds_dispatch(const DSMethods *, DSCache *, unsigned, unsigned, int, int,
+  ds_combine_fn method;
+};
+void ds_methods_init(struct ds_methods *);
+int ds_methods_set(struct ds_methods *, unsigned, unsigned, ds_combine_fn);
+int ds_dispatch(const struct ds_methods *, struct ds_cache *, unsigned, unsigned, int, int,
                 int *);
-typedef struct DSList DSList;
-typedef struct DSLink {
-  struct DSLink *previous, *next;
-  DSList *owner;
-} DSLink;
-typedef struct {
-  DSLink link;
+struct ds_list;
+struct ds_link {
+  struct ds_link *previous, *next;
+  struct ds_list *owner;
+};
+struct ds_item {
+  struct ds_link link;
   int value;
-} DSItem;
-struct DSList {
-  DSLink head;
+};
+struct ds_list {
+  struct ds_link head;
   unsigned count;
 };
-void ds_list_init(DSList *);
-void ds_item_init(DSItem *, int);
-int ds_list_push(DSList *, DSItem *);
-int ds_list_remove(DSList *, DSItem *);
-int ds_list_sum(const DSList *, int *);
-typedef struct DSModule DSModule;
-typedef struct {
+void ds_list_init(struct ds_list *);
+void ds_item_init(struct ds_item *, int);
+int ds_list_push(struct ds_list *, struct ds_item *);
+int ds_list_remove(struct ds_list *, struct ds_item *);
+int ds_list_sum(const struct ds_list *, int *);
+struct ds_module;
+struct ds_service {
   int (*read)(void *, int *);
   void *context;
-} DSService;
-int ds_module_open(DSService, DSModule **);
-int ds_module_twice(DSModule *, int *);
-void ds_module_close(DSModule *);
-typedef struct {
+};
+int ds_module_open(struct ds_service, struct ds_module **);
+int ds_module_twice(struct ds_module *, int *);
+void ds_module_close(struct ds_module *);
+struct ds_authority {
   unsigned rights, epoch;
   int counter;
-} DSAuthority;
-typedef struct {
-  const DSAuthority *owner;
+};
+struct ds_capability {
+  const struct ds_authority *owner;
   unsigned rights, epoch;
-} DSCapability;
-void ds_authority_init(DSAuthority *, unsigned);
-int ds_cap_issue(const DSAuthority *, unsigned, DSCapability *);
-int ds_cap_attenuate(DSCapability, unsigned, DSCapability *);
-int ds_cap_add(DSAuthority *, DSCapability, int);
-int ds_cap_revoke(DSAuthority *);
-typedef struct {
+};
+void ds_authority_init(struct ds_authority *, unsigned);
+int ds_cap_issue(const struct ds_authority *, unsigned, struct ds_capability *);
+int ds_cap_attenuate(struct ds_capability, unsigned, struct ds_capability *);
+int ds_cap_add(struct ds_authority *, struct ds_capability, int);
+int ds_cap_revoke(struct ds_authority *);
+struct ds_plugin {
   unsigned abi;
   size_t size;
   unsigned schema;
   int (*apply)(int, int, int *);
   int (*migrate)(unsigned, int, int *);
-} DSPlugin;
-typedef struct {
+};
+struct ds_loaded {
   void *handle;
-  const DSPlugin *api;
+  const struct ds_plugin *api;
   unsigned borrows;
-} DSLoaded;
-void ds_loaded_init(DSLoaded *);
-int ds_loaded_open(DSLoaded *, const char *);
-int ds_loaded_acquire(DSLoaded *, const DSPlugin **);
-int ds_loaded_release(DSLoaded *);
-int ds_loaded_close(DSLoaded *);
-typedef struct {
-  DSLoaded current, retired;
+};
+void ds_loaded_init(struct ds_loaded *);
+int ds_loaded_open(struct ds_loaded *, const char *);
+int ds_loaded_acquire(struct ds_loaded *, const struct ds_plugin **);
+int ds_loaded_release(struct ds_loaded *);
+int ds_loaded_close(struct ds_loaded *);
+struct ds_host {
+  struct ds_loaded current, retired;
   int state;
   unsigned generation;
-} DSHost;
-void ds_host_init(DSHost *);
-int ds_host_reload(DSHost *, DSLoaded *);
-int ds_host_collect(DSHost *);
+};
+void ds_host_init(struct ds_host *);
+int ds_host_reload(struct ds_host *, struct ds_loaded *);
+int ds_host_collect(struct ds_host *);
 #endif

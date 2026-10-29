@@ -5,8 +5,8 @@ int main(void) {
   char history[64];
   while (fgets(history, sizeof(history), stdin)) {
     cmx_kernel kernel;
-    CWWorld world = {0};
-    CWToken tokens[2] = {{0}, {0}};
+    struct cw_world world = {0};
+    struct cw_token tokens[2] = {{0}, {0}};
     cmx_init(&kernel, CMX_FIXED);
     if (cmx_task_add(&kernel, 3, 100, 0x1000, 256) != 0 ||
         cmx_task_add(&kernel, 5, 100, 0x1100, 256) != 1)

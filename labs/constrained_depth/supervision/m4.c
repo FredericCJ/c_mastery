@@ -26,7 +26,7 @@ static void prepare(void){
  __asm__ volatile("cpsie i":::"memory");
 }
 static void exercise(void){
- CSWorld world;CHECK(cs_init(&world,2,1)==CS_OK);
+ struct cs_world world;CHECK(cs_init(&world,2,1)==CS_OK);
  CHECK(cs_progress(&world,0)==CS_OK&&cs_progress(&world,1)==CS_OK&&cs_window(&world)==CS_OK);
  CHECK(cs_progress(&world,0)==CS_OK&&cs_window(&world)==CS_WAIT);
  CHECK(cs_progress(&world,1)==CS_OK&&cs_window(&world)==CS_OK);

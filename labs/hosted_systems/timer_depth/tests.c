@@ -9,8 +9,8 @@
     }                                                                          \
   } while (0)
 static void history(void) {
-  TdTimer t;
-  TdDispatch d = {0};
+  struct td_timer t;
+  struct td_dispatch d = {0};
   unsigned g, old;
   CHECK(td_init(&t, 3) == 0);
   CHECK(td_arm(&t, 10, 3, 0, &g) == 1 && g == 1);
@@ -37,8 +37,8 @@ static void history(void) {
   CHECK(td_cancel(&t) == 0 && td_arm(&t, 1, 0, 0, &g) == 0);
 }
 static void edges(void) {
-  TdTimer t;
-  TdDispatch d;
+  struct td_timer t;
+  struct td_dispatch d;
   unsigned g;
   CHECK(td_init(&t, 65535) == 0 && td_init(&t, 0) == -1);
   CHECK(td_arm(&t, 0, 1, 0, &g) == -1 && t.generation == 0);
@@ -54,7 +54,7 @@ static void edges(void) {
   CHECK(td_begin(&t, g, 1, &d) == 1 && d.exhausted && d.effects == 1);
 }
 static void earliest(void) {
-  TdTimer t[4];
+  struct td_timer t[4];
   unsigned g;
   size_t at = 99;
   uint64_t d = 99;

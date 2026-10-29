@@ -1,8 +1,8 @@
 #include "bound.h"
-int ab_trace(const uint32_t *a,uint32_t n,uint32_t key,unsigned upper,ABTrace *out) {
+int ab_trace(const uint32_t *a,uint32_t n,uint32_t key,unsigned upper,struct ab_trace *out) {
     if(!out || n>1024 || (!a&&n) || upper>1)return 1;
-    ABTrace t={0};uint32_t lo=0,hi=n;
-    while(lo<hi){uint32_t mid=lo+(hi-lo)/2;ABStep step={lo,hi,mid,0,0};
+    struct ab_trace t={0};uint32_t lo=0,hi=n;
+    while(lo<hi){uint32_t mid=lo+(hi-lo)/2;struct ab_step step={lo,hi,mid,0,0};
         if(a[mid]<key || (upper && a[mid]==key))lo=mid+1;else hi=mid;
         step.next_lo=lo;step.next_hi=hi;t.steps[t.count++]=step;
     }

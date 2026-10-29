@@ -45,7 +45,7 @@ cases, not inferred from a stress checksum.
 
 ## Representation and ownership
 
-`CDBarrier` exclusively owns a real `cmx_barrier` and its participating CMX wait
+`struct cd_barrier` exclusively owns a real `cmx_barrier` and its participating CMX wait
 operations. `members` is a nonempty mask of at most16 task slots; `registered`
 tracks live registrations for the current uint32 configuration epoch. Each
 registration snapshots its actual task generation. All members must register

@@ -9,7 +9,7 @@ historical criterion, hour, baseline or receipt.
 
 ## Environment and prerequisites
 
-Use C17 and the completed `algo_ring`, `InTransfer`, `f_write_all`, `CPWTransfer`
+Use C17 and the completed `algo_ring`, `struct in_transfer`, `f_write_all`, `struct cpw_transfer`
 and their actual public contracts. `writer.h` deliberately imports
 `labs/integration/include/integration.h`; an unrelated channel implementation
 does not satisfy this composition. Strict Profile D has no default C runtime,
@@ -36,14 +36,14 @@ pointer's lifetime or provenance.
 
 Implement every function in `writer.h` using the supplied unfinished
 `learner.c`. Preserve the original queue and transfer APIs. For a byte transfer,
-the queue owns bytes not yet removed; `InTransfer` owns the one active byte;
+the queue owns bytes not yet removed; `struct in_transfer` owns the one active byte;
 the sink owns accepted bytes. The required trace is 65 retry, 65 accepted,
 66 terminal error, explicit recovery, 66 accepted. A terminal wrapper blocks
 further callbacks until recovery. Recovery keeps the active byte and first
 cause. `budget` bounds the actual producer's callback work; it is not a promise
 that the callback itself cannot block. Report three separate state columns.
 
-`CWFSpan` owns a copied span of at most16 bytes. `begin` refuses a busy owner or
+`struct cwf_span` owns a copied span of at most16 bytes. `begin` refuses a busy owner or
 invalid extent. `take` first validates and stages exactly the requested prefix
 from a copy of the ring, then commits queue removal and the active span together.
 Refusal preserves the original queue. The ring representation contains values
@@ -53,7 +53,7 @@ bytes never return to the queue. Failure retains the same suffix and first
 cause; explicit recovery resumes at that offset. `step` makes at most one
 callback. Completion releases the active state. A zero-length admitted span is
 already complete and is retired by the next `step` without invoking the writer.
-Keep an active `CWFSpan` at a stable address: its nested transfer borrows its
+Keep an active `struct cwf_span` at a stable address: its nested transfer borrows its
 own byte array, so copying or relocating the complete control would not rebase
 that pointer. Caller-owned source bytes may change after successful copying.
 
@@ -66,7 +66,7 @@ temporary span, active storage and metadata separately.
 
 Normalize three interfaces deliberately: raw Linux negative errors, libc
 `-1` with immediately captured `errno`, and the teaching callback's `-2` retry.
-The same integer `-2` means different things at these boundaries. `CWFError`
+The same integer `-2` means different things at these boundaries. `struct cwf_error`
 contains category, operation, accepted count, first cause and separate first
 cleanup cause. Extracting it performs no logging or I/O. An optional caller
 reporter may copy the record; core failure propagation must remain correct
@@ -96,8 +96,8 @@ closure. Unused functions from the broader integration provider are removed
 with explicit function-section garbage collection; disclose that narrower
 linked surface.
 
-For the modern comparison, apply the same3,EINTR,2,EIO trace to `CPWTransfer`
-and actual `er_transfer` through `CPXProgress`. Compare offset5, first cause5,
+For the modern comparison, apply the same3,EINTR,2,EIO trace to `struct cpw_transfer`
+and actual `er_transfer` through `struct cpx_progress`. Compare offset5, first cause5,
 cleanup9 and four callbacks. `ER_OK` denotes an invocation's progress, not
 whole-transfer completion. Measure actual result/control sizes and generated
 static branch sites, and count callbacks and adapter payload copies. These

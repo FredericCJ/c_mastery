@@ -14,13 +14,13 @@ int pm_puts(const char *);
       return 1;                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
+struct dg_model {
   uint32_t r[10];
   unsigned tx[8], ntx, reads, stop, violation, receiver, count, cr_writes;
   uint8_t incoming[2];
-} Model;
+};
 static uint32_t rd(void *v, unsigned r) {
-  Model *m = v;
+  struct dg_model *m = v;
   if (r == PI_SR2 && (m->r[PI_SR1] & PI_ADDR)) {
     if (m->receiver &&
         ((m->r[PI_CR1] & PI_ACK) ||
@@ -38,7 +38,7 @@ static uint32_t rd(void *v, unsigned r) {
   return m->r[r];
 }
 static void wr(void *v, unsigned r, uint32_t x) {
-  Model *m = v;
+  struct dg_model *m = v;
   if (r == PI_CR1) {
     ++m->cr_writes;
     if (m->r[r] & (PI_START | PI_STOP | PI_PEC))
@@ -58,8 +58,8 @@ static void wr(void *v, unsigned r, uint32_t x) {
   }
   m->r[r] = x;
 }
-static int event(PiI2c *s, Model *m, unsigned sr, uint32_t now) {
-  PiIo io = {m, rd, wr};
+static int event(struct pi_i2c *s, struct dg_model *m, unsigned sr, uint32_t now) {
+  struct pi_io io = {m, rd, wr};
   m->r[PI_SR1] = sr;
   if (sr & PI_SB) {
     m->r[PI_CR1] &= ~PI_START;
@@ -67,27 +67,27 @@ static int event(PiI2c *s, Model *m, unsigned sr, uint32_t now) {
   }
   return pi_step(s, io, 1, now);
 }
-typedef struct {
+struct dg_lines {
   unsigned released[2], held_scl, release_after, rises, writes;
-} Lines;
+};
 static unsigned line_read(void *v, unsigned line) {
-  Lines *l = v;
+  struct dg_lines *l = v;
   return l->released[line] &&
          (line == PI_SCL ? !l->held_scl : l->rises >= l->release_after);
 }
 static void line_release(void *v, unsigned line, unsigned high) {
-  Lines *l = v;
+  struct dg_lines *l = v;
   ++l->writes;
   if (line == PI_SCL && high && !l->released[line])
     ++l->rises;
   l->released[line] = high;
 }
 int main(void) {
-  PuClock c = {16000000, 1, 1, 1, 1, 0};
+  struct pu_clock c = {16000000, 1, 1, 1, 1, 0};
   for (unsigned count = 1; count <= 2; count++) {
-    PiI2c s = {0};
-    Model m = {0};
-    PiIo io = {&m, rd, wr};
+    struct pi_i2c s = {0};
+    struct dg_model m = {0};
+    struct pi_io io = {&m, rd, wr};
     uint8_t out[2] = {0xcc, 0xcc};
     m.count = count;
     m.incoming[0] = 0x5a;
@@ -118,9 +118,9 @@ int main(void) {
     CHECK(pi_begin(&s, io, 1, 1, 0x52, 0x10, count, out, 6, 100) == PI_STALE);
   }
   for (unsigned kind = 0; kind < 4; kind++) {
-    PiI2c s = {0};
-    Model m = {0};
-    PiIo io = {&m, rd, wr};
+    struct pi_i2c s = {0};
+    struct dg_model m = {0};
+    struct pi_io io = {&m, rd, wr};
     uint8_t out = 77;
     m.count = 1;
     CHECK(!pi_open(&s, io, &c));
@@ -150,9 +150,9 @@ int main(void) {
     CHECK(!m.violation);
   }
   for (unsigned pulses = 0; pulses <= 10; pulses++) {
-    PiRecovery r = {0};
-    Lines l = {{1, 1}, 0, pulses, 0, 0};
-    PiLines io = {&l, line_read, line_release};
+    struct pi_recovery r = {0};
+    struct dg_lines l = {{1, 1}, 0, pulses, 0, 0};
+    struct pi_lines io = {&l, line_read, line_release};
     int rc = PI_BUSY;
     CHECK(pi_recover_begin(&r, io, 1, 0, UINT32_MAX - 3u, 200, 2) == PI_OK);
     for (unsigned t = 0; t < 200 && rc == PI_BUSY; t++)
@@ -162,9 +162,9 @@ int main(void) {
           l.released[1]);
   }
   {
-    PiRecovery r = {0};
-    Lines l = {{1, 1}, 1, 0, 0, 0};
-    PiLines io = {&l, line_read, line_release};
+    struct pi_recovery r = {0};
+    struct dg_lines l = {{1, 1}, 1, 0, 0, 0};
+    struct pi_lines io = {&l, line_read, line_release};
     CHECK(pi_recover_begin(&r, io, 0, 0, 0, 30, 2) == PI_FORBIDDEN &&
           !l.writes);
     CHECK(pi_recover_begin(&r, io, 1, 1, 0, 30, 2) == PI_FORBIDDEN &&
@@ -186,9 +186,9 @@ int main(void) {
     CHECK(pi_retry_policy(0x11, 0, PI_ADDRESS_NACK) == PI_BUSY);
   }
   {
-    PiI2c s = {0};
-    Model m = {0};
-    PiIo io = {&m, rd, wr};
+    struct pi_i2c s = {0};
+    struct dg_model m = {0};
+    struct pi_io io = {&m, rd, wr};
     uint8_t out = 77;
     CHECK(!pi_open(&s, io, &c));
     CHECK(!pi_begin(&s, io, 1, 1, 0x52, 0x10, 1, &out, 0, 10));

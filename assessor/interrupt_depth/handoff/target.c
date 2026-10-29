@@ -52,17 +52,17 @@ static uint32_t basepri(void) {
   return x;
 }
 static uint32_t now(void) { return UINT32_MAX - REG(0x40001004); }
-static XiQueue queue;
-static XiService service;
+static struct xi_queue queue;
+static struct xi_service service;
 static volatile unsigned mode, low_seen, high_seen, mixed_seen, input_sequence,
     event_done;
 static volatile uint32_t pair_first, pair_second;
 static unsigned char payload[8] = {1, 2, 3, 4, 5, 6, 7, 8};
-typedef struct {
+struct xi_sample {
   uint32_t entry, publish_before, publish_after, exit, consumed;
   unsigned status;
-} Sample;
-static Sample samples[2][40];
+};
+static struct xi_sample samples[2][40];
 static unsigned workload;
 void xi_low(void) { ++low_seen; }
 void xi_high(void) {
@@ -84,7 +84,7 @@ void xi_timer(void) {
   __asm__ volatile("dsb" ::: "memory");
   unsigned id = input_sequence;
   CHECK(id < 40);
-  Sample *r = &samples[workload][id];
+  struct xi_sample *r = &samples[workload][id];
   r->entry = entry;
   uint32_t p = xi_primask_enter();
   int rc =
@@ -172,12 +172,12 @@ static void arm_event(unsigned id) {
     CHECK((uint32_t)(now() - start) < 25000);
 }
 static void drain(unsigned *count) {
-  XiRecord r;
+  struct xi_record r;
   int rc;
   while ((rc = xi_pop(&queue, &r)) == XI_OK) {
     CHECK(r.sequence < 40 && r.copied == 8 && r.bytes[7] == 8);
     CHECK(r.flags == (r.sequence % 3 == 0 ? XI_TRUNCATED : 0));
-    Sample *s = &samples[workload][r.sequence];
+    struct xi_sample *s = &samples[workload][r.sequence];
     CHECK(s->status == XI_OK && !s->consumed);
     s->consumed = now();
     ++*count;
@@ -190,13 +190,13 @@ static void wait_until(uint32_t origin, uint32_t deadline) {
 }
 void xf_target_main(void) {
   mask_checks();
-  XiWide wide = {UINT32_MAX, 7};
+  struct xi_wide wide = {UINT32_MAX, 7};
   CHECK(xi_wide_add(&wide, 1) == XI_OK);
-  XiWide snapshot = xi_wide_read(&wide);
+  struct xi_wide snapshot = xi_wide_read(&wide);
   CHECK(snapshot.low == 0 && snapshot.high == 8 && primask() == 0);
   xi_primask_enter();
   CHECK(xi_wide_add(&wide, UINT32_MAX) == XI_OK && primask() == 1);
-  wide = (XiWide){UINT32_MAX, UINT32_MAX};
+  wide = (struct xi_wide){UINT32_MAX, UINT32_MAX};
   CHECK(xi_wide_add(&wide, 1) == XI_EXHAUSTED && primask() == 1);
   snapshot = xi_wide_read(&wide);
   CHECK(snapshot.low == UINT32_MAX && snapshot.high == UINT32_MAX);
@@ -214,7 +214,7 @@ void xf_target_main(void) {
   workload = 0;
   arm_event(0);
   CHECK(service.acknowledged == 1 && service.reentrant == 1);
-  XiRecord first;
+  struct xi_record first;
   CHECK(xi_pop(&queue, &first) == XI_OK && first.sequence == 0);
   mode = 0;
   uint32_t overhead[32];
@@ -229,7 +229,7 @@ void xf_target_main(void) {
     CHECK(xi_init(&queue, 4) == XI_OK &&
           xi_service_init(&service, &queue) == XI_OK);
     for (unsigned i = 0; i < 40; ++i)
-      samples[workload][i] = (Sample){0};
+      samples[workload][i] = (struct xi_sample){0};
     event_done = 0;
     unsigned consumed = 0;
     uint32_t origin = now();
@@ -261,7 +261,7 @@ void xf_target_main(void) {
   }
   for (unsigned w = 0; w < 2; ++w)
     for (unsigned i = 0; i < 40; ++i) {
-      Sample *s = &samples[w][i];
+      struct xi_sample *s = &samples[w][i];
       output("XI_SAMPLE ");
       hex(w);
       hex(i);

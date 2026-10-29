@@ -1,4 +1,4 @@
-"""Actual T76 RphSha adapter compared with Python hashlib + interval scan."""
+"""Actual T76 struct rph_sha adapter compared with Python hashlib + interval scan."""
 import hashlib,json,subprocess,sys
 p=subprocess.run([sys.argv[1]],text=True,capture_output=True,timeout=30);assert p.returncode==0,p.stderr
 rows=p.stdout.splitlines();assert len(rows)==513

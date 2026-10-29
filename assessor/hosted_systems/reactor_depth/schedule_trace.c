@@ -13,8 +13,8 @@ int main(int argc, char **argv) {
   unsigned mask, start, budget, kind[3];
   while (fscanf(f, "%u %u %u %u %u %u", &mask, &start, &budget, &kind[0],
                 &kind[1], &kind[2]) == 6) {
-    RdScheduler s = {.ready = mask, .cursor = start};
-    RdTurn t;
+    struct rd_scheduler s = {.ready = mask, .cursor = start};
+    struct rd_turn t;
     if (rd_turn(&s, budget, callback, kind, &t))
       return 3;
     printf("%u %u %u %u", t.callbacks, t.successes, s.ready, s.cursor);

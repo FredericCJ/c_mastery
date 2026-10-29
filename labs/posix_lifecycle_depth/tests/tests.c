@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
     int initial = descriptors();
     CHECK(initial >= 0);
     char *args[] = {argv[2], "zero", NULL};
-    PLLaunch result = {PL_SIGNALED, 999};
+    struct pl_launch result = {PL_SIGNALED, 999};
     CHECK(pl_launch(argv[2],args,0,&result) == 0);
     CHECK(result.kind == PL_EXITED && result.value == 0);
     args[1] = "127";
@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
     CHECK(pl_launch(argv[2],args,0,&result) == 0);
     CHECK(result.kind == PL_SIGNALED && result.value == SIGTERM);
     for (unsigned fail = 1; fail <= 2; ++fail) {
-      result = (PLLaunch){PL_SIGNALED, 999};
+      result = (struct pl_launch){PL_SIGNALED, 999};
       CHECK(pl_launch(argv[2],args,fail,&result) == (fail == 1 ? EMFILE : EAGAIN));
       CHECK(result.kind == PL_SIGNALED && result.value == 999);
       CHECK(descriptors() == initial);
@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
   } else if (!strcmp(argv[1],"pool")) {
     for (unsigned n = 0; n <= 4; ++n) {
       for (unsigned fail = 0; fail <= n; ++fail) {
-        PLPool result = {99,99,99,99,99};
+        struct pl_pool result = {99,99,99,99,99};
         unsigned made = fail ? fail-1 : n, expected = 0;
         for (unsigned i = 1; i <= made; ++i) expected += i*i;
         CHECK(pl_pool(n,fail,&result) == 0);
@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
         CHECK(result.sum == expected && result.create_error == (fail ? EAGAIN : 0));
       }
     }
-    PLPool sentinel = {99,99,99,99,99}, result = sentinel;
+    struct pl_pool sentinel = {99,99,99,99,99}, result = sentinel;
     CHECK(pl_pool(5,0,&result) == EINVAL);
     CHECK(result.created == 99 && result.sum == 99 && result.create_error == 99);
     CHECK(pl_pool(1,2,&result) == EINVAL);

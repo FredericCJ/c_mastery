@@ -1,7 +1,7 @@
 #include "barrier.h"
 extern uint32_t cl_stack_top,cl_data_start,cl_data_end,cl_data_load,cl_bss_start,cl_bss_end;
 static cmx_kernel k;
-static CDBarrier b;
+static struct cd_barrier b;
 static void semihost(uint32_t op,const void *arg){
   register uint32_t r0 __asm__("r0")=op;register const void *r1 __asm__("r1")=arg;
   __asm__ volatile("bkpt 0xab":"+r"(r0):"r"(r1):"memory");
@@ -12,7 +12,7 @@ __attribute__((noreturn)) static void stop(unsigned status){
 }
 #define CHECK(c) do{if(!(c))stop(1);}while(0)
 static void exercise(void){
-  CDBMember h[3];CDBTicket old[3],next[3];unsigned out=999;
+  struct cdb_member h[3];struct cdb_ticket old[3],next[3];unsigned out=999;
   cmx_init(&k,CMX_FIXED);
   for(unsigned i=0;i<3;i++)CHECK(cmx_task_add(&k,5+i,0,0x20006000+256*i,256)==(int)i);
   CHECK(cdb_init(&b,&k,7,8)==CMX_OK);
@@ -31,7 +31,7 @@ static void exercise(void){
   cmx_tick(&k,5);out=999;
   CHECK(cdb_result(next[0],&out)==CMX_TIMEOUT&&out==999&&cdb_result(next[1],&out)==CMX_BROKEN&&out==999);
   CHECK(cdb_stage(&b,5)==CMX_OK&&cdb_apply(&b)==CMX_BLOCKED);
-  CDBMember stale=h[1];
+  struct cdb_member stale=h[1];
   for(unsigned i=0;i<3;i++)CHECK(cdb_release(&h[i])==CMX_OK);
   CHECK(cdb_apply(&b)==CMX_OK&&cdb_register(&b,0,&h[0])==CMX_OK&&cdb_register(&b,2,&h[2])==CMX_OK);
   CHECK(cdb_arrive(stale,cmx_forever(),&next[1])==CDB_STALE);

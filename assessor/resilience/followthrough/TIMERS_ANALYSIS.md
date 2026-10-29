@@ -36,7 +36,7 @@ identity. Inspect invariant checks after head/middle/tail removals and the actua
 producer thread while processing is paused. The mutex is the synchronization
 mechanism; the timer structures are not claimed lock-free.
 
-Resource comparison is deliberately honest: `RztTimers` reserves all runtime
+Resource comparison is deliberately honest: `struct rzt_timers` reserves all runtime
 alternatives, so physical object size is equal. Logical maintenance counts expose
 different work, not cache traffic or every C write. Timing builds disable those
 counters. Report raw unsanitized GCC/Clang observations for the declared fixed

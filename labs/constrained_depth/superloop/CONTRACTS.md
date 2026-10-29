@@ -69,7 +69,7 @@ are5 and103. Output ownership and cursor must survive every yield.
 
 ## Representation, invariants and ownership
 
-`ScTask` owns copied input and private staged output, length, cursor, terminal
+`struct sc_task` owns copied input and private staged output, length, cursor, terminal
 state and emission count. READY implies cursor<length; completion publishes DONE
 and exactly one emission. Empty input is already complete with one emission.
 Step after terminal returns CLOSED without changing work output. Reading a
@@ -84,20 +84,20 @@ including cancellation at every yield. The caller must not equate a saved
 program-counter number with complete ownership state. Unlike a language coroutine,
 this C representation has no automatic destruction or cancellation cleanup.
 
-`ScEvents` is a FIFO of three copied `{id,value}` records. Push1..5 admits1,2,3
+`struct sc_events` is a FIFO of three copied `{id,value}` records. Push1..5 admits1,2,3
 and returns FULL for4,5 while incrementing the explicit rejection count. Repeated
 IDs are separate caller-supplied commands; this interface does not deduplicate.
 Pop transfers a copy exactly once in FIFO order. Finite telemetry refuses RANGE
 before wrapping; draining remains legal at maximum admission count.
 
-`ScLatest` has a different contract: five writes10..50 retain only50, with four
+`struct sc_latest` has a different contract: five writes10..50 retain only50, with four
 superseded observations. It is suitable for a latest desired state, not five
 independent commands. Its update counters and pending state are separate from
 periodic releases and the event FIFO. Derive what is intentionally discarded.
 
 ## Periodic release and overload semantics
 
-`ScReleases` contains a positive period, next release, last successful observation,
+`struct sc_releases` contains a positive period, next release, last successful observation,
 exact seen/lost counts and two queued release timestamps. Time is a full64-bit
 monotonic model counter; rollover arithmetic is assessed separately in T30.04.
 Reject backwards observations. Calculate the due count arithmetically, without
@@ -124,7 +124,7 @@ caller must reject that workload or increase proven service capacity.
 
 ## Fairness, priorities and replenished budget
 
-`ScSchedule` selects one unit-cost dispatch per strictly increasing logical tick.
+`struct sc_schedule` selects one unit-cost dispatch per strictly increasing logical tick.
 Successful empty observations advance its time bookkeeping but preserve the
 selection output. Invalid observations change nothing. READY masks describe up
 to four slots; selection itself does not execute or preempt work.

@@ -1,21 +1,21 @@
 #ifndef CMASTERY_MESSAGING_ACTOR_EXECUTOR_H
 #define CMASTERY_MESSAGING_ACTOR_EXECUTOR_H
 #include "owned.h"
-typedef struct MfeExecutor MfeExecutor;
-typedef struct {
-    MfeExecutor *owner;MfoValue value;uint64_t generation;unsigned destination;bool used;
-} MfeEnvelope;
-struct MfeExecutor {
-    MfcHub input;MfaActor actor[2];pthread_mutex_t pool;
-    MfeEnvelope envelopes[8];uint64_t published[2];
+struct mfe_executor;
+struct mfe_envelope {
+    struct mfe_executor *owner;struct mfo_value value;uint64_t generation;unsigned destination;bool used;
 };
-typedef struct {unsigned destination;uint64_t generation;MsgStatus delivery;} MfeEvent;
-MsgStatus mfe_init(MfeExecutor *,size_t,size_t,MfaHandler,void *[2],MfaDeadLetter,void *);
-MsgStatus mfe_send(MfeExecutor *,unsigned,uint64_t,MfoValue *,bool);
-MsgStatus mfe_pump(MfeExecutor *,bool,MfeEvent *);
-MsgStatus mfe_generation(MfeExecutor *,unsigned,uint64_t *);
-MsgStatus mfe_restart(MfeExecutor *,unsigned);
-MsgStatus mfe_close(MfeExecutor *,unsigned);
-void mfe_cancel(MfeExecutor *);
-MsgStatus mfe_destroy(MfeExecutor *);
+struct mfe_executor {
+    struct mfc_hub input;struct mfa_actor actor[2];pthread_mutex_t pool;
+    struct mfe_envelope envelopes[8];uint64_t published[2];
+};
+struct mfe_event {unsigned destination;uint64_t generation;enum msg_status delivery;};
+enum msg_status mfe_init(struct mfe_executor *,size_t,size_t,mfa_handler_fn,void *[2],mfa_dead_letter_fn,void *);
+enum msg_status mfe_send(struct mfe_executor *,unsigned,uint64_t,struct mfo_value *,bool);
+enum msg_status mfe_pump(struct mfe_executor *,bool,struct mfe_event *);
+enum msg_status mfe_generation(struct mfe_executor *,unsigned,uint64_t *);
+enum msg_status mfe_restart(struct mfe_executor *,unsigned);
+enum msg_status mfe_close(struct mfe_executor *,unsigned);
+void mfe_cancel(struct mfe_executor *);
+enum msg_status mfe_destroy(struct mfe_executor *);
 #endif

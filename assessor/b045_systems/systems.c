@@ -1,6 +1,6 @@
 #include "systems.h"
 #include <limits.h>
-int s_pipeline(const SInstruction *p,size_t n,unsigned forwarding,unsigned out[16],unsigned *cycles){
+int s_pipeline(const struct s_instruction *p,size_t n,unsigned forwarding,unsigned out[16],unsigned *cycles){
  if((!p&&n)||!out||!cycles||n>16||forwarding>1)return S_INVALID;
  unsigned ready[8]={0},trace[16],next=1,last=0;
  for(size_t i=0;i<n;i++){
@@ -22,13 +22,13 @@ int s_pipeline(const SInstruction *p,size_t n,unsigned forwarding,unsigned out[1
  for(size_t i=0;i<n;i++)out[i]=trace[i];
  *cycles=last;return S_OK;
 }
-int s_i2c_drive(const SI2c *s,unsigned *release){
+int s_i2c_drive(const struct s_si2c *s,unsigned *release){
  if(!s||!release||s->byte>255||s->bit>8||s->state>S_I2C_LOST)return S_INVALID;
  if(s->state==S_I2C_DATA){if(s->bit>=8)return S_INVALID;*release=(s->byte>>(7-s->bit))&1;}
  else *release=1;
  return S_OK;
 }
-int s_i2c_sample(SI2c *s,unsigned scl,unsigned sda){
+int s_i2c_sample(struct s_si2c *s,unsigned scl,unsigned sda){
  unsigned release;if(!s||scl>1||sda>1||s_i2c_drive(s,&release))return S_INVALID;
  if(s->state!=S_I2C_DATA&&s->state!=S_I2C_ACK)return S_CONFLICT;
  if(!scl)return S_PENDING;
@@ -39,7 +39,7 @@ int s_i2c_sample(SI2c *s,unsigned scl,unsigned sda){
 #endif
  s->bit++;if(s->bit==8)s->state=S_I2C_ACK;return S_OK;
 }
-int s_checksum_add(SChecksum *s,const unsigned char *p,size_t n){
+int s_checksum_add(struct s_checksum *s,const unsigned char *p,size_t n){
  if(!s||(!p&&n)||s->sum>65535||s->pending>1||s->octet>255)return S_INVALID;
  for(size_t i=0;i<n;i++){
   if(!s->pending){s->octet=p[i];s->pending=1;}
@@ -50,7 +50,7 @@ int s_checksum_add(SChecksum *s,const unsigned char *p,size_t n){
 #endif
  return S_OK;
 }
-int s_checksum_finish(const SChecksum *s,uint16_t *out){
+int s_checksum_finish(const struct s_checksum *s,uint16_t *out){
  if(!s||!out||s->sum>65535||s->pending>1||s->octet>255)return S_INVALID;
  uint32_t sum=s->sum+(s->pending?s->octet<<8:0);sum=(sum&65535)+(sum>>16);
  *out=(uint16_t)(sum^65535);return S_OK;
@@ -67,7 +67,7 @@ int s_paired(const uint32_t *a,const uint32_t *b,size_t n,int64_t *out,unsigned 
 #endif
  *wins=count;return S_OK;
 }
-int s_reduce(const unsigned char *input,size_t n,SClassify classify,void *ctx,unsigned budget,unsigned char out[32],size_t *length,unsigned *calls){
+int s_reduce(const unsigned char *input,size_t n,s_classify_fn classify,void *ctx,unsigned budget,unsigned char out[32],size_t *length,unsigned *calls){
  if((!input&&n)||!classify||!out||!length||!calls||n>32)return S_INVALID;
  if(!budget)return S_RANGE;
  unsigned char current[32],candidate[32];for(size_t i=0;i<n;i++)current[i]=input[i];
@@ -101,9 +101,9 @@ int s_reduce(const unsigned char *input,size_t n,SClassify classify,void *ctx,un
  for(size_t i=0;i<n;i++){out[i]=current[i];}
  *length=n;*calls=used;return S_OK;
 }
-int s_replace(const unsigned char *refs,size_t n,unsigned frames,unsigned policy,SReplacement *out){
+int s_replace(const unsigned char *refs,size_t n,unsigned frames,unsigned policy,struct s_replacement *out){
  if((!refs&&n)||!out||n>32||!frames||frames>8||policy>S_LRU)return S_INVALID;
- unsigned resident[8],used=0,hand=0,last[8]={0};SReplacement result={0,{0}};
+ unsigned resident[8],used=0,hand=0,last[8]={0};struct s_replacement result={0,{0}};
  for(size_t i=0;i<n;i++){
   result.evicted[i]=-1;unsigned hit=used;
   for(unsigned j=0;j<used;j++)if(resident[j]==refs[i]){hit=j;break;}
@@ -127,7 +127,7 @@ int s_replace(const unsigned char *refs,size_t n,unsigned frames,unsigned policy
  }
  *out=result;return S_OK;
 }
-int s_wait_event(SWait *s,unsigned actor,unsigned op){
+int s_wait_event(struct s_wait *s,unsigned actor,unsigned op){
  if(!s||actor<1||actor>2||op>S_SIGNAL)return S_INVALID;
  if(op==S_LOCK){if(s->owner)return S_CONFLICT;s->owner=actor;return S_OK;}
  if(s->owner!=actor)return S_CONFLICT;
@@ -145,17 +145,17 @@ int s_wait_event(SWait *s,unsigned actor,unsigned op){
  else if(s->waiting){s->waiting=0;s->ready=1;}
  return S_OK;
 }
-int s_shoot_begin(SShootdown *s,unsigned targets){
+int s_shoot_begin(struct s_shootdown *s,unsigned targets){
  if(!s||targets>255)return S_INVALID;
  if(s->active||s->generation==UINT32_MAX)return S_CONFLICT;
  s->generation++;s->active=1;s->targets=s->pending=targets;s->reclaimed=0;return S_OK;
 }
-int s_shoot_ack(SShootdown *s,unsigned cpu,uint32_t gen){
+int s_shoot_ack(struct s_shootdown *s,unsigned cpu,uint32_t gen){
  if(!s||cpu>=8)return S_INVALID;
  unsigned bit=1u<<cpu;if(!s->active||gen!=s->generation||!(s->pending&bit))return S_CONFLICT;
  s->pending&=~bit;return S_OK;
 }
-int s_shoot_reclaim(SShootdown *s){
+int s_shoot_reclaim(struct s_shootdown *s){
  if(!s)return S_INVALID;
  if(!s->active)return S_CONFLICT;
 #ifndef S_MUTATE_SHOOT
@@ -163,12 +163,12 @@ int s_shoot_reclaim(SShootdown *s){
 #endif
  s->reclaimed=1;s->active=0;return S_OK;
 }
-int s_peer_submit(SPeer *p,uint32_t *epoch,uint32_t *sequence){
+int s_peer_submit(struct s_peer *p,uint32_t *epoch,uint32_t *sequence){
  if(!p||!epoch||!sequence||epoch==sequence)return S_INVALID;
  if(!p->ready||p->outstanding||p->sequence==UINT32_MAX)return S_CONFLICT;
  p->sequence++;p->outstanding=1;*epoch=p->epoch;*sequence=p->sequence;return S_OK;
 }
-int s_peer_ack(SPeer *p,uint32_t epoch,uint32_t sequence){
+int s_peer_ack(struct s_peer *p,uint32_t epoch,uint32_t sequence){
  if(!p)return S_INVALID;
  if(!p->ready||!p->outstanding||sequence!=p->sequence)return S_CONFLICT;
 #ifndef S_MUTATE_PEER
@@ -178,13 +178,13 @@ int s_peer_ack(SPeer *p,uint32_t epoch,uint32_t sequence){
 #endif
  p->outstanding=0;return S_OK;
 }
-int s_peer_restart(SPeer *p,unsigned quiet){
+int s_peer_restart(struct s_peer *p,unsigned quiet){
  if(!p||quiet>1)return S_INVALID;
  if(!quiet)return S_PENDING;
  if(p->epoch==UINT32_MAX)return S_CONFLICT;
  p->uncertain=p->outstanding;p->outstanding=0;p->ready=0;p->sequence=0;p->epoch++;return S_OK;
 }
-int s_peer_ready(SPeer *p,uint32_t epoch){
+int s_peer_ready(struct s_peer *p,uint32_t epoch){
  if(!p)return S_INVALID;
  if(p->ready||epoch!=p->epoch)return S_CONFLICT;
  p->ready=1;return S_OK;

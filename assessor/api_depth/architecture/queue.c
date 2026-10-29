@@ -2,19 +2,19 @@
 #ifndef AR_MUTANT
 #define AR_MUTANT 0
 #endif
-int ar_queue_init(ArQueue *q, size_t cap) {
+int ar_queue_init(struct ar_queue *q, size_t cap) {
   if (!q || cap > AR_CAP)
     return AR_INVALID;
-  *q = (ArQueue){.capacity = cap};
+  *q = (struct ar_queue){.capacity = cap};
   return AR_OK;
 }
-int ar_push(ArQueue *q, ArItem value, unsigned policy, ArEviction *out) {
+int ar_push(struct ar_queue *q, struct ar_item value, unsigned policy, struct ar_eviction *out) {
   if (!q || !out || policy > 2 || q->capacity > AR_CAP ||
       q->length > q->capacity)
     return AR_INVALID;
   if (!q->capacity)
     return AR_FULL;
-  ArEviction e = {0};
+  struct ar_eviction e = {0};
   if (q->length == q->capacity) {
     if (policy == 0)
       return AR_FULL;
@@ -26,7 +26,7 @@ int ar_push(ArQueue *q, ArItem value, unsigned policy, ArEviction *out) {
       if (value.priority <= q->items[at].priority)
         return AR_FULL;
     }
-    e = (ArEviction){1, q->items[at]};
+    e = (struct ar_eviction){1, q->items[at]};
     for (size_t i = at; i + 1 < q->length; ++i)
       q->items[i] = q->items[i + 1];
     --q->length;
@@ -37,7 +37,7 @@ int ar_push(ArQueue *q, ArItem value, unsigned policy, ArEviction *out) {
   *out = e;
   return AR_OK;
 }
-int ar_pop(ArQueue *q, ArItem *out) {
+int ar_pop(struct ar_queue *q, struct ar_item *out) {
   if (!q || !out || q->length > q->capacity)
     return AR_INVALID;
   if (!q->length)

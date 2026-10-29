@@ -11,26 +11,26 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
-  MBRegion *region;
+struct mb_cleanup {
+  struct mb_region *region;
   unsigned value;
   unsigned *trace, *count;
   int *busy;
-} Cleanup;
+};
 static void cleanup(void *v) {
-  Cleanup *c = v;
-  MBSpan s;
+  struct mb_cleanup *c = v;
+  struct mb_span s;
   *c->busy = mb_region_alloc(c->region, 1, 1, &s);
   c->trace[(*c->count)++] = c->value;
 }
 static int region(void) {
-  MBRegion r;
+  struct mb_region r;
   mb_region_init(&r);
-  MBSpan a, b, sentinel = {0};
+  struct mb_span a, b, sentinel = {0};
   unsigned char out = 99;
   unsigned trace[4] = {0}, count = 0;
   int busy = 0;
-  Cleanup c[4];
+  struct mb_cleanup c[4];
   CHECK(mb_region_alloc(&r, 3, 1, &a) == MB_OK);
   CHECK(a.offset == 0 && a.length == 3);
   r.bytes[a.offset] = 42;
@@ -43,7 +43,7 @@ static int region(void) {
   CHECK(mb_region_alloc(&r, 0, 1, &sentinel) == MB_INVALID);
   CHECK(mb_region_alloc(&r, 1, 3, &sentinel) == MB_INVALID);
   for (unsigned i = 0; i < 4; i++) {
-    c[i] = (Cleanup){&r, i + 1, trace, &count, &busy};
+    c[i] = (struct mb_cleanup){&r, i + 1, trace, &count, &busy};
     CHECK(mb_region_cleanup(&r, cleanup, &c[i]) == MB_OK);
   }
   CHECK(mb_region_cleanup(&r, cleanup, &c[0]) == MB_FULL);
@@ -60,14 +60,14 @@ static int region(void) {
   CHECK(r.generation == 4);
   return 0;
 }
-typedef struct {
-  MBOnce *once;
+struct thread_arg {
+  struct mb_once *once;
   unsigned id;
   atomic_uint *attempts;
   int result;
-} ThreadArg;
+};
 static void *once_worker(void *v) {
-  ThreadArg *t = v;
+  struct thread_arg *t = v;
   unsigned out[2] = {0};
   t->result = 1;
   for (unsigned i = 0; i < 1000000; i++) {
@@ -86,7 +86,7 @@ static void *once_worker(void *v) {
   return NULL;
 }
 static int once(void) {
-  MBOnce o;
+  struct mb_once o;
   unsigned out[2] = {91, 92};
   mb_once_init(&o, false);
   CHECK(mb_once_enter(&o, 0, out) == MB_INIT);
@@ -109,9 +109,9 @@ static int once(void) {
     atomic_uint attempts;
     atomic_init(&attempts, 0);
     pthread_t threads[3];
-    ThreadArg args[3];
+    struct thread_arg args[3];
     for (unsigned i = 0; i < 3; i++) {
-      args[i] = (ThreadArg){&o, i, &attempts, 1};
+      args[i] = (struct thread_arg){&o, i, &attempts, 1};
       CHECK(pthread_create(&threads[i], NULL, once_worker, &args[i]) == 0);
     }
     for (unsigned i = 0; i < 3; i++) {
@@ -123,7 +123,7 @@ static int once(void) {
   return 0;
 }
 static int hazard(void) {
-  MBHazards h;
+  struct mb_hazards h;
   unsigned out = 999;
   mb_hp_init(&h);
   CHECK(mb_hp_publish(&h, 11) == MB_OK);
@@ -165,7 +165,7 @@ static int hazard(void) {
   return 0;
 }
 static int epoch(void) {
-  MBEpoch e;
+  struct mb_epoch e;
   mb_epoch_init(&e);
   CHECK(mb_epoch_enter(&e, 0) == MB_OK);
   CHECK(mb_epoch_enter(&e, 0) == MB_BUSY);

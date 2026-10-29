@@ -2,43 +2,43 @@
 #ifndef MFO_MUTANT
 #define MFO_MUTANT 0
 #endif
-static void delivered(void *arg, MsgStatus status, unsigned ignored) {
-  MfoOperation *op = arg;
-  MfoReceiver receiver = op->receiver;
+static void delivered(void *arg, enum msg_status status, unsigned ignored) {
+  struct mfo_operation *op = arg;
+  mfo_receiver_fn receiver = op->receiver;
   void *ctx = op->receiver_ctx;
-  MfoValue value = op->pending;
+  struct mfo_value value = op->pending;
   (void)ignored;
-  op->pending = (MfoValue){0};
-  if (MFO_MUTANT == 2) value = (MfoValue){0};
+  op->pending = (struct mfo_value){0};
+  if (MFO_MUTANT == 2) value = (struct mfo_value){0};
   receiver(ctx, status, value);
   /* Receiver may have freed op, ctx and the backend context. */
 }
-MsgStatus mfo_init(MfoOperation *op, MfoBackend backend, void *backend_ctx,
-                   MfoReceiver receiver, void *receiver_ctx) {
+enum msg_status mfo_init(struct mfo_operation *op, mfo_backend_fn backend, void *backend_ctx,
+                   mfo_receiver_fn receiver, void *receiver_ctx) {
   if (!op || !backend || !receiver) return MSG_INVALID;
-  *op = (MfoOperation){.receiver=receiver,.receiver_ctx=receiver_ctx,
+  *op = (struct mfo_operation){.receiver=receiver,.receiver_ctx=receiver_ctx,
                        .backend=backend,.backend_ctx=backend_ctx};
   msg_connect(&op->operation,delivered,op);
   return MSG_OK;
 }
-MsgStatus mfo_start(MfoOperation *op) {
+enum msg_status mfo_start(struct mfo_operation *op) {
   if (!op) return MSG_INVALID;
-  MfoBackend backend = op->backend;
+  mfo_backend_fn backend = op->backend;
   void *ctx = op->backend_ctx;
-  MsgStatus status = MFO_MUTANT == 1 ? MSG_OK : msg_start(&op->operation);
+  enum msg_status status = MFO_MUTANT == 1 ? MSG_OK : msg_start(&op->operation);
   if (status != MSG_OK) return status;
   backend(op,ctx);
   return MSG_OK;
 }
-MsgStatus mfo_stop(MfoOperation *op) {
+enum msg_status mfo_stop(struct mfo_operation *op) {
   return op ? msg_stop_operation(&op->operation) : MSG_INVALID;
 }
-MsgStatus mfo_finish(MfoOperation *op, MsgStatus status, MfoValue *value) {
+enum msg_status mfo_finish(struct mfo_operation *op, enum msg_status status, struct mfo_value *value) {
   if (!op || !value || (value->data && !value->drop) ||
       (status != MSG_OK && status != MSG_FAILED && status != MSG_CANCELLED))
     return MSG_INVALID;
   if (op->operation.state != MSG_STARTED) return MSG_BUSY;
   op->pending = *value;
-  *value = (MfoValue){0};
+  *value = (struct mfo_value){0};
   return msg_complete(&op->operation,status,0);
 }

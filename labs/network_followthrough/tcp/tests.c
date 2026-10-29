@@ -1,6 +1,6 @@
 #include "test_wire.h"
 int main(void) {
-  NcRtt r;
+  struct nc_rtt r;
   CHECK(nc_rtt_init(&r, 1, 0) == NC_OK);
   CHECK(nc_rtt_sample(&r, 80, 0) == NC_OK);
   CHECK(r.srtt == 80 && r.variance == 40 && r.rto == 1000);
@@ -8,8 +8,8 @@ int main(void) {
   CHECK(r.srtt == 85 && r.variance == 40 && r.rto == 1000);
   CHECK(nc_rtt_sample(&r, 800, 1) == NC_WAIT);
   CHECK(r.samples == 2 && r.srtt == 85);
-  NcStack s;
-  NcPacket out;
+  struct nc_stack s;
+  struct nc_packet out;
   unsigned char p[1500], data[256];
   for (unsigned i = 0; i < 256; i++)
     data[i] = (unsigned char)i;

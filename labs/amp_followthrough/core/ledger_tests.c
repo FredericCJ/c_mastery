@@ -1,7 +1,7 @@
 #include "ledger.h"
 #include <stdio.h>
 #define C(x) do{if(!(x)){fprintf(stderr,"AF_LEDGER_CHECK:%d:%s\n",__LINE__,#x);return 1;}}while(0)
-int main(void){AfLedger s={.epoch=1};for(unsigned id=1;id<=100;id++)C(af_admit(&s,1,id)==AF_OK);
+int main(void){struct af_ledger s={.epoch=1};for(unsigned id=1;id<=100;id++)C(af_admit(&s,1,id)==AF_OK);
  for(unsigned id=1;id<=90;id++)C(af_terminal(&s,1,id,AF_DONE)==AF_OK);
  /* Five items are explicitly dropped AFTER admission, not five rejected
     admissions. The exact original criterion counts 100 accepted inputs. */

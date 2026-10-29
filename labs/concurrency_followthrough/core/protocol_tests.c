@@ -14,16 +14,16 @@
       exit(41);                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
+struct cf_gate {
   pthread_mutex_t lock;
   pthread_cond_t cv;
   unsigned point, node, entered, release;
-} Gate;
+};
 static _Thread_local unsigned gated;
 static void hook(void *ctx, unsigned point, unsigned participant,
                  unsigned node) {
   (void)participant;
-  Gate *g = ctx;
+  struct cf_gate *g = ctx;
   if (!gated || point != g->point || node != g->node)
     return;
   CK(!pthread_mutex_lock(&g->lock));
@@ -35,24 +35,24 @@ static void hook(void *ctx, unsigned point, unsigned participant,
   }
   CK(!pthread_mutex_unlock(&g->lock));
 }
-typedef struct {
-  APQueue *q;
-  APLease l;
-  ChOp *o;
+struct cf_operation {
+  struct ap_queue *q;
+  struct ap_lease l;
+  struct ch_op *o;
   atomic_uint *clock;
   unsigned push;
-  APValue out;
+  struct ap_value out;
   int result;
-} Operation;
-static void record(Operation *a, unsigned role) {
+};
+static void record(struct cf_operation *a, unsigned role) {
   gated = role;
-  ChOp *o = a->o;
+  struct ch_op *o = a->o;
   o->participant = a->l.participant;
   o->operation = a->push ? CH_INSERT : CH_REMOVE;
   o->pending = 0;
   o->invoke = atomic_fetch_add(a->clock, 1);
   o->invoke_event = o->invoke;
-  APValue v = {11, ~11u};
+  struct ap_value v = {11, ~11u};
   a->result = a->push ? ap_push(a->q, a->l, v) : ap_pop(a->q, a->l, &a->out);
   CK(a->result == AP_OK);
   o->value = a->push ? 11 : a->out.sequence;
@@ -66,17 +66,17 @@ static void *operate(void *p) {
 }
 static void pause_cases(void) {
   for (unsigned push = 0; push < 2; push++) {
-    Gate g = {PTHREAD_MUTEX_INITIALIZER,
+    struct cf_gate g = {PTHREAD_MUTEX_INITIALIZER,
               PTHREAD_COND_INITIALIZER,
               push ? AP_LINKED : AP_VALIDATED,
               push ? 1u : 0u,
               0,
               0};
-    APQueue q;
-    APLease slow, actor;
+    struct ap_queue q;
+    struct ap_lease slow, actor;
     CK(ap_init(&q, 2, 100, hook, &g) == AP_OK);
     CK(ap_register(&q, &slow) == AP_OK && ap_register(&q, &actor) == AP_OK);
-    ChOp ops[5] = {0};
+    struct ch_op ops[5] = {0};
     unsigned n = 0;
     atomic_uint clock;
     atomic_init(&clock, 0);
@@ -84,13 +84,13 @@ static void pause_cases(void) {
       for (unsigned i = 0; i < 2; i++) {
         unsigned v = 11 * (i + 1);
         ops[n] =
-            (ChOp){2 * i,     2 * i + 1, 2 * i,    2 * i + 1, actor.participant,
+            (struct ch_op){2 * i,     2 * i + 1, 2 * i,    2 * i + 1, actor.participant,
                    CH_INSERT, v,         CH_VALUE, 0};
-        CK(ap_push(&q, actor, (APValue){v, ~v}) == AP_OK);
+        CK(ap_push(&q, actor, (struct ap_value){v, ~v}) == AP_OK);
         n++;
         atomic_store(&clock, 2 * (i + 1));
       }
-    Operation a = {&q, slow, &ops[n], &clock, push, {0, 0}, -1};
+    struct cf_operation a = {&q, slow, &ops[n], &clock, push, {0, 0}, -1};
     n++;
     pthread_t t;
     CK(!pthread_create(&t, NULL, operate, &a));
@@ -100,18 +100,18 @@ static void pause_cases(void) {
     CK(!pthread_mutex_unlock(&g.lock));
     if (push) {
       CK(atomic_load(&q.tail) == 0);
-      ChOp *o = &ops[n++];
+      struct ch_op *o = &ops[n++];
       o->participant = actor.participant;
       o->operation = CH_INSERT;
       o->value = 22;
       o->result = CH_VALUE;
       o->invoke = atomic_fetch_add(&clock, 1);
       o->invoke_event = o->invoke;
-      CK(ap_push(&q, actor, (APValue){22, ~22u}) == AP_OK);
+      CK(ap_push(&q, actor, (struct ap_value){22, ~22u}) == AP_OK);
       o->respond = atomic_fetch_add(&clock, 1);
       o->respond_event = o->respond;
     }
-    Operation b = {&q, actor, &ops[n++], &clock, 0, {0, 0}, -1};
+    struct cf_operation b = {&q, actor, &ops[n++], &clock, 0, {0, 0}, -1};
     record(&b, 0);
     CK(b.out.sequence == 11 && b.out.inverse == ~11u);
     if (!push) {
@@ -125,7 +125,7 @@ static void pause_cases(void) {
     CK(a.result == AP_OK);
     if (!push)
       CK(a.out.sequence == 22 && a.out.inverse == ~22u);
-    ChWitness w;
+    struct ch_witness w;
     uint32_t visited;
     CK(ch_check(ops, n, 4, CH_FIFO, 0, 1, 100000, &w, &visited) == CH_VALID);
     printf("CP_HISTORY %u", push);
@@ -140,20 +140,20 @@ static void pause_cases(void) {
   puts("CP_PASS:pause actual postlink enqueue+dequeue help and overlapping "
        "two-dequeuer FIFO witnesses");
 }
-typedef struct {
-  APQueue *q;
-  APLease l;
+struct cf_worker {
+  struct ap_queue *q;
+  struct ap_lease l;
   unsigned role;
   atomic_uint *seen, *received;
-} Worker;
+};
 static void *stress(void *ptr) {
-  Worker *w = ptr;
+  struct cf_worker *w = ptr;
   gated = 0;
   if (w->role < 2)
     for (unsigned i = 0; i < 20000; i++) {
       unsigned id = w->role * 20000 + i;
       int r;
-      while ((r = ap_push(w->q, w->l, (APValue){id, ~id})) == AP_FULL) {
+      while ((r = ap_push(w->q, w->l, (struct ap_value){id, ~id})) == AP_FULL) {
         ap_collect(w->q);
         sched_yield();
       }
@@ -161,7 +161,7 @@ static void *stress(void *ptr) {
     }
   else
     while (atomic_load(w->received) < 40000) {
-      APValue v;
+      struct ap_value v;
       int r = ap_pop(w->q, w->l, &v);
       if (r == AP_RETRY) {
         ap_collect(w->q);
@@ -177,19 +177,19 @@ static void *stress(void *ptr) {
   return NULL;
 }
 static void multiplicity(void) {
-  APQueue q;
+  struct ap_queue q;
   CK(ap_init(&q, 4, UINT_MAX >> 2, NULL, NULL) == AP_OK);
   static atomic_uint seen[40000];
   atomic_uint received;
   atomic_init(&received, 0);
   for (unsigned i = 0; i < 40000; i++)
     atomic_init(&seen[i], 0);
-  Worker a[4];
+  struct cf_worker a[4];
   pthread_t t[4];
   for (unsigned i = 0; i < 4; i++) {
-    APLease l;
+    struct ap_lease l;
     CK(ap_register(&q, &l) == AP_OK);
-    a[i] = (Worker){&q, l, i, seen, &received};
+    a[i] = (struct cf_worker){&q, l, i, seen, &received};
     CK(!pthread_create(&t[i], NULL, stress, &a[i]));
   }
   for (unsigned i = 0; i < 4; i++)

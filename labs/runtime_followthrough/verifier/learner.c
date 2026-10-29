@@ -1,6 +1,6 @@
 #include "verifier.h"
-int vv_verify(const CvmProgram *p, unsigned d, unsigned i, VvWork *w,
-              VvReport *r) {
+int vv_verify(const struct cvm_program *p, unsigned d, unsigned i, struct vv_work *w,
+              struct vv_report *r) {
   (void)p;
   (void)d;
   (void)i;
@@ -8,8 +8,8 @@ int vv_verify(const CvmProgram *p, unsigned d, unsigned i, VvWork *w,
   (void)r;
   return VV_UNIMPLEMENTED;
 }
-int vv_load(const uint8_t *b, size_t n, unsigned d, unsigned i, VvWork *w,
-            CvmProgram *p, VvReport *r) {
+int vv_load(const uint8_t *b, size_t n, unsigned d, unsigned i, struct vv_work *w,
+            struct cvm_program *p, struct vv_report *r) {
   (void)b;
   (void)n;
   (void)d;
@@ -19,8 +19,8 @@ int vv_load(const uint8_t *b, size_t n, unsigned d, unsigned i, VvWork *w,
   (void)r;
   return VV_UNIMPLEMENTED;
 }
-int vv_lower(const CvmProgram *p, unsigned d, VvWork *w, CvmProgram *out,
-             VvReport *r) {
+int vv_lower(const struct cvm_program *p, unsigned d, struct vv_work *w, struct cvm_program *out,
+             struct vv_report *r) {
   (void)p;
   (void)d;
   (void)w;

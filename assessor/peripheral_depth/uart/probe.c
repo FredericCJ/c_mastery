@@ -11,8 +11,8 @@ int main(void) {
       for (unsigned a = 0; a < 5; a++)
         for (unsigned b = 0; b < 5; b++)
           for (unsigned t = 0; t < 2; t++) {
-            PuClock c = {sys[s], 1, ahb[h], apb[a], apb[b], t};
-            PuRates r = {101, 102, 103, 104, 105};
+            struct pu_clock c = {sys[s], 1, ahb[h], apb[a], apb[b], t};
+            struct pu_rates r = {101, 102, 103, 104, 105};
             int rc = pu_rates(&c, &r);
             printf("C %u %u %u %u %u %d %u %u %u %u %u\n", c.sys_hz, c.ahb,
                    c.apb1, c.apb2, t, rc, r.core, r.apb1, r.apb2, r.timer1,
@@ -21,15 +21,15 @@ int main(void) {
   for (unsigned clock = 1; clock <= 255; clock++)
     for (unsigned baud = 1; baud <= 32; baud++)
       for (unsigned over = 0; over < 2; over++) {
-        SDUart out = {0};
+        struct sd_uart out = {0};
         int rc = sd_uart(clock, baud, over, 8, 0, 1, 0, &out);
         printf("B %u %u %u %d %u %u\n", clock, baud, over, rc, out.divisor,
                out.brr);
       }
   for (unsigned code = 0; code < 4096; code++) {
     unsigned x = code;
-    PuRx q = {0};
-    PuByte v = {0};
+    struct pu_rx q = {0};
+    struct pu_byte v = {0};
     q.backpressure = 1;
     q.reserve = 1;
     for (unsigned i = 0; i < 6; i++) {
@@ -50,12 +50,12 @@ int main(void) {
     puts("");
   }
   for (unsigned code = 0; code < 7776; code++) {
-    Device m = {0};
+    struct dg_device m = {0};
     m.source_after = 1;
     m.sr = PU_TXE | PU_TC;
-    PuIo io = {&m, rd, wr};
-    PuDriver d = {0};
-    PuClock c = {16000000, 1, 1, 1, 1, 0};
+    struct pu_io io = {&m, rd, wr};
+    struct pu_driver d = {0};
+    struct pu_clock c = {16000000, 1, 1, 1, 1, 0};
     uint8_t data[3] = {0, 65, 255};
     pu_open(&d, io, &c, 115200, 0, 1);
     pu_submit(&d, io, 1, 1, PU_DMA, data, 3, 0, 3);

@@ -6,10 +6,10 @@
 #include <string.h>
 #include <time.h>
 #define CHECK(x) do { if(!(x)) { fprintf(stderr,"MPO_CHECK %d: %s\n",__LINE__,#x);return 1; } } while(0)
-static MplField tick(unsigned *calls,uint32_t n) { ++*calls;return mpl_number(n); }
-static MplSink *sink_tick(unsigned *calls,MplSink *s) { ++*calls;return s; }
+static struct mpl_field tick(unsigned *calls,uint32_t n) { ++*calls;return mpl_number(n); }
+static struct mpl_sink *sink_tick(unsigned *calls,struct mpl_sink *s) { ++*calls;return s; }
 static int evaluation(void) {
-    MplSink s={0};unsigned c[4]={0},sc=0;size_t i;
+    struct mpl_sink s={0};unsigned c[4]={0},sc=0;size_t i;
     CHECK(MPL_LOG(sink_tick(&sc,&s),tick(&c[0],7))==MPL_OK && c[0]==1 && sc==1);
     CHECK(MPL_LOG(&s,tick(&c[0],8),tick(&c[1],9))==MPL_OK);
     CHECK(MPL_LOG(&s,tick(&c[0],10),tick(&c[1],11),tick(&c[2],12))==MPL_OK);
@@ -18,11 +18,11 @@ static int evaluation(void) {
     for(i=0;i<4;++i) CHECK(s.records[i].count==i+1);
     CHECK(s.records[3].fields[0].number==13 && s.records[3].fields[3].number==16);
     CHECK(MPL_LOG(sink_tick(&sc,&s),tick(&c[0],17))==MPL_FULL && sc==2 && c[0]==5);
-    s.count=0;CHECK(MPL_LOG(&s,((MplField){MPL_NUMBER,19,NULL,0}))==MPL_OK && s.records[0].fields[0].number==19);
+    s.count=0;CHECK(MPL_LOG(&s,((struct mpl_field){MPL_NUMBER,19,NULL,0}))==MPL_OK && s.records[0].fields[0].number==19);
     puts("MPL_EVAL finite-arity once separate-effects protected-comma");return 0;
 }
 static int copying(void) {
-    MplSink s={0};unsigned char bytes[]={0,255,2,3,4,5,6,7};char file[]="synthetic.c";MplSite site={file,77};MplField fields[]={mpl_bytes(bytes,8),mpl_number(UINT32_MAX)};unsigned line;
+    struct mpl_sink s={0};unsigned char bytes[]={0,255,2,3,4,5,6,7};char file[]="synthetic.c";struct mpl_site site={file,77};struct mpl_field fields[]={mpl_bytes(bytes,8),mpl_number(UINT32_MAX)};unsigned line;
     CHECK(mpl_write(&s,&site,fields,2)==MPL_OK);
     bytes[7]=99;file[0]='X';CHECK(s.records[0].fields[0].bytes[7]==7 && s.records[0].fields[0].bytes[1]==255 && s.records[0].fields[1].number==UINT32_MAX);
     CHECK(s.records[0].has_site==1 && s.records[0].line==77 && !strcmp(s.records[0].file,"synthetic.c"));
@@ -36,7 +36,7 @@ static int copying(void) {
     puts("MPL_COPY inline-binary filename line no-retained-borrow");return 0;
 }
 static int atomicity(void) {
-    MplSink s={0},before;MplField f[]={mpl_number(1),{7,0,NULL,0}};char file[256];MplSite p={file,1};unsigned char data[9]={0};unsigned c=0;
+    struct mpl_sink s={0},before;struct mpl_field f[]={mpl_number(1),{7,0,NULL,0}};char file[256];struct mpl_site p={file,1};unsigned char data[9]={0};unsigned c=0;
     CHECK(MPL_LOG0(&s)==MPL_OK && s.count==1 && s.records[0].count==0 && !s.records[0].has_site);
     before=s;CHECK(mpl_write(&s,NULL,f,2)==MPL_INVALID && !memcmp(&s,&before,sizeof s));
     f[1]=mpl_bytes(data,9);CHECK(mpl_write(&s,NULL,f,2)==MPL_RANGE && !memcmp(&s,&before,sizeof s));
@@ -57,26 +57,26 @@ static int baseline(void) {
     puts("MPL_BASE actual-numeric-dispatch modulo empty-identity");return 0;
 }
 static uint64_t fold(uint64_t h,uint64_t n) { return h*257+n; }
-static uint64_t digest(const MplRecord *r) {
+static uint64_t digest(const struct mpl_record *r) {
     uint64_t h=0;size_t i,j;h=fold(h,r->has_site);h=fold(h,r->line);h=fold(h,r->count);
     for(i=0;r->file[i];++i) h=fold(h,(unsigned char)r->file[i]);
-    for(i=0;i<r->count;++i) { const MplValue *v=&r->fields[i];h=fold(h,v->kind);h=fold(h,v->number);h=fold(h,v->length);for(j=0;j<v->length;++j) h=fold(h,v->bytes[j]); }
+    for(i=0;i<r->count;++i) { const struct mpl_value *v=&r->fields[i];h=fold(h,v->kind);h=fold(h,v->number);h=fold(h,v->length);for(j=0;j<v->length;++j) h=fold(h,v->bytes[j]); }
     return h;
 }
 static int driver(void) {
     unsigned used,mode,sl,n;uint32_t seed;
     while(scanf("%u%u%u%u%" SCNu32,&used,&mode,&sl,&n,&seed)==5) {
-        MplSink s={0},before;MplField fields[5];unsigned char data[5][9];char file[257];MplSite p;size_t i,j;int status;
+        struct mpl_sink s={0},before;struct mpl_field fields[5];unsigned char data[5][9];char file[257];struct mpl_site p;size_t i,j;int status;
         if(used>5 || mode>3 || sl>256 || n>5) return 2;
-        for(i=0;i<n;++i) { unsigned kind,len,isnull;if(scanf("%u%u%u",&kind,&len,&isnull)!=3 || len>9) return 2;for(j=0;j<9;++j) data[i][j]=(unsigned char)(seed+i+j);fields[i]=(MplField){kind,seed+(uint32_t)i,isnull?NULL:data[i],len}; }
+        for(i=0;i<n;++i) { unsigned kind,len,isnull;if(scanf("%u%u%u",&kind,&len,&isnull)!=3 || len>9) return 2;for(j=0;j<9;++j) data[i][j]=(unsigned char)(seed+i+j);fields[i]=(struct mpl_field){kind,seed+(uint32_t)i,isnull?NULL:data[i],len}; }
         for(i=0;i<sl;++i) file[i]=(char)('a'+i%26);
-        file[sl]=0;p=(MplSite){mode==2?NULL:file,mode==3?0:17};s.count=used;before=s;status=mpl_write(&s,mode?&p:NULL,fields,n);
+        file[sl]=0;p=(struct mpl_site){mode==2?NULL:file,mode==3?0:17};s.count=used;before=s;status=mpl_write(&s,mode?&p:NULL,fields,n);
         printf("%d %zu %" PRIu64 " %d\n",status,s.count,status==MPL_OK?digest(&s.records[used]):UINT64_C(99),status==MPL_OK?0:!memcmp(&s,&before,sizeof s));
     }
     return ferror(stdin)?2:0;
 }
 static int metrics(void) {
-    double macro[7],direct[7];size_t sample,round;uint64_t sum=0;MplSink s={0};MplSite p={NULL,0};
+    double macro[7],direct[7];size_t sample,round;uint64_t sum=0;struct mpl_sink s={0};struct mpl_site p={NULL,0};
     for(sample=0;sample<7;++sample) {
         clock_t start=clock();CHECK(start!=(clock_t)-1);sum=0;
         for(round=0;round<10000;++round) { s.count=0;CHECK(MPL_LOG(&s,mpl_number(1),mpl_number(2),mpl_number(3),mpl_number(4))==MPL_OK);sum+=s.records[0].fields[3].number; }
@@ -84,7 +84,7 @@ static int metrics(void) {
         for(round=0;round<10000;++round) { s.count=0;CHECK(mpl_log4(&s,p,mpl_number(1),mpl_number(2),mpl_number(3),mpl_number(4))==MPL_OK);sum+=s.records[0].fields[3].number; }
         direct[sample]=(double)(clock()-start)/CLOCKS_PER_SEC;CHECK(sum==40000);
     }
-    printf("{\"iterations\":10000,\"checksum\":40000,\"sink_size\":%zu,\"record_size\":%zu,\"field_size\":%zu,\"macro_seconds\":[",sizeof s,sizeof(MplRecord),sizeof(MplField));
+    printf("{\"iterations\":10000,\"checksum\":40000,\"sink_size\":%zu,\"record_size\":%zu,\"field_size\":%zu,\"macro_seconds\":[",sizeof s,sizeof(struct mpl_record),sizeof(struct mpl_field));
     for(sample=0;sample<7;++sample) printf("%s%.9f",sample?",":"",macro[sample]);
     printf("],\"direct_seconds\":[");for(sample=0;sample<7;++sample) printf("%s%.9f",sample?",":"",direct[sample]);puts("]}");return 0;
 }

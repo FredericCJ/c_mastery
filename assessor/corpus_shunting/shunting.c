@@ -8,11 +8,11 @@ static unsigned priority(unsigned kind) {
     if (kind == 5) return SY_MUTANT == 2 ? 50 : 30;
     return 40;
 }
-static int fail(PdDiagnostic *d, size_t offset, unsigned expected, int code) {
+static int fail(struct pd_diagnostic *d, size_t offset, unsigned expected, int code) {
     if (d) { d->offset = offset; d->expected = expected; }
     return code;
 }
-static int emit(SyState *s, SyOperator op) {
+static int emit(struct sy_state *s, struct sy_operator op) {
     unsigned right, left, index;
     if (s->values_used < (op.kind == 5 ? 1u : 2u)) return PD_INVALID;
     if (s->tree.count == s->node_capacity) return PD_RANGE;
@@ -20,26 +20,26 @@ static int emit(SyState *s, SyOperator op) {
     left = op.kind == 5 ? right : s->values[--s->values_used];
     if (SY_MUTANT == 3 && op.kind == 8) { unsigned t = left; left = right; right = t; }
     index = s->tree.count++;
-    s->tree.nodes[index] = (PdExpr){op.kind, left, op.kind == 5 ? 0 : right, 0, op.offset};
+    s->tree.nodes[index] = (struct pd_expr){op.kind, left, op.kind == 5 ? 0 : right, 0, op.offset};
     s->values[s->values_used++] = index;
     ++s->cost.reductions;
     return PD_OK;
 }
-static int operator_push(SyState *s, unsigned kind, size_t offset) {
+static int operator_push(struct sy_state *s, unsigned kind, size_t offset) {
     if (s->operators_used == s->operator_capacity) return PD_RANGE;
-    s->operators[s->operators_used++] = (SyOperator){kind, offset};
+    s->operators[s->operators_used++] = (struct sy_operator){kind, offset};
     ++s->cost.pushes;
     if (s->operators_used > s->cost.peak_operators) s->cost.peak_operators = s->operators_used;
     return PD_OK;
 }
-static int reduce(SyState *s) {
+static int reduce(struct sy_state *s) {
     int rc = emit(s, s->operators[s->operators_used-1]);
     if (rc == PD_OK) --s->operators_used;
     return rc;
 }
 int sy_begin(unsigned right_power, unsigned operator_capacity,
-             unsigned node_capacity, SyState *out) {
-    SyState s = {0};
+             unsigned node_capacity, struct sy_state *out) {
+    struct sy_state s = {0};
     if (!out || right_power > 1 || operator_capacity > 64 || node_capacity > 64) return PD_INVALID;
     s.right_power = right_power; s.operator_capacity = operator_capacity;
     s.node_capacity = node_capacity; s.want_operand = 1;
@@ -48,7 +48,7 @@ int sy_begin(unsigned right_power, unsigned operator_capacity,
 }
 /* This internal routine mutates only private staging storage. Every caller
  * publishes it solely on success. Thus failed reductions may be destructive. */
-static int consume(SyState *s, const PdToken *t, PdDiagnostic *d) {
+static int consume(struct sy_state *s, const struct pd_token *t, struct pd_diagnostic *d) {
     unsigned k = t->kind;
     int rc;
     if (d) ++d->steps;
@@ -58,7 +58,7 @@ static int consume(SyState *s, const PdToken *t, PdDiagnostic *d) {
     if (k == 0) {
         if (!s->want_operand) return fail(d,t->offset,(1u<<1)|(1u<<2)|(1u<<7),PD_INVALID);
         if (s->tree.count == s->node_capacity) return fail(d,t->offset,0,PD_RANGE);
-        s->tree.nodes[s->tree.count] = (PdExpr){0,0,0,t->value,t->offset};
+        s->tree.nodes[s->tree.count] = (struct pd_expr){0,0,0,t->value,t->offset};
         s->values[s->values_used++] = s->tree.count++;
         if (s->values_used > s->cost.peak_values) s->cost.peak_values = s->values_used;
         s->want_operand = 0;
@@ -95,32 +95,32 @@ static int consume(SyState *s, const PdToken *t, PdDiagnostic *d) {
     ++s->tokens;
     return PD_PENDING;
 }
-int sy_push(SyState *state, const PdToken *token, PdDiagnostic *diagnostic) {
-    SyState next;
+int sy_push(struct sy_state *state, const struct pd_token *token, struct pd_diagnostic *diagnostic) {
+    struct sy_state next;
     int rc;
     if (!state || !token) return PD_INVALID;
     next = *state;
-    if (diagnostic) *diagnostic = (PdDiagnostic){0,0,0};
+    if (diagnostic) *diagnostic = (struct pd_diagnostic){0,0,0};
     rc = consume(&next,token,diagnostic);
     if (rc == PD_OK || rc == PD_PENDING || SY_MUTANT == 5) *state = next;
     return rc;
 }
-int sy_result(const SyState *state, PdTree *out, SyCost *cost) {
+int sy_result(const struct sy_state *state, struct pd_tree *out, struct sy_cost *cost) {
     if (!state || !out || !cost) return PD_INVALID;
     if (!state->done) return PD_PENDING;
     *out = state->tree; *cost = state->cost;
     return PD_OK;
 }
-int sy_parse(const PdTokens *tokens, unsigned right_power,
+int sy_parse(const struct pd_tokens *tokens, unsigned right_power,
              unsigned operator_capacity, unsigned node_capacity,
-             PdTree *out, SyCost *cost, PdDiagnostic *diagnostic) {
-    SyState next;
+             struct pd_tree *out, struct sy_cost *cost, struct pd_diagnostic *diagnostic) {
+    struct sy_state next;
     size_t i;
     int rc;
     if (!tokens || !out || !cost || !tokens->count || tokens->count > 65) return PD_INVALID;
     rc = sy_begin(right_power,operator_capacity,node_capacity,&next);
     if (rc != PD_OK) return rc;
-    if (diagnostic) *diagnostic = (PdDiagnostic){0,0,0};
+    if (diagnostic) *diagnostic = (struct pd_diagnostic){0,0,0};
     for (i = 0; i < tokens->count; ++i) {
         if (tokens->tokens[i].kind == 7 && i+1 != tokens->count) return fail(diagnostic,tokens->tokens[i].offset,0,PD_INVALID);
         rc = consume(&next,&tokens->tokens[i],diagnostic);

@@ -3,8 +3,8 @@
 #ifndef SU_MUTANT
 #define SU_MUTANT 0
 #endif
-static int io_valid(PuIo io) { return io.read && io.write; }
-int su_configure(Su *s, PuIo io, unsigned p, unsigned h, unsigned l) {
+static int io_valid(struct pu_io io) { return io.read && io.write; }
+int su_configure(struct mc_su *s, struct pu_io io, unsigned p, unsigned h, unsigned l) {
   if (!s || !io_valid(io) || p > 1 || h > 1 || l > 1 || !s->byte.ready)
     return PU_INVALID;
   if (s->active || s->byte.active || s->byte.memory_owned || s->byte.line_owned)
@@ -16,7 +16,7 @@ int su_configure(Su *s, PuIo io, unsigned p, unsigned h, unsigned l) {
   s->cpol = p; s->cpha = h; s->lbcl = l; s->configured = 1;
   return PU_OK;
 }
-int su_enable(Su *s, PuIo io, unsigned tx, unsigned rx) {
+int su_enable(struct mc_su *s, struct pu_io io, unsigned tx, unsigned rx) {
   if (!s || !io_valid(io) || !s->configured || tx > 1 || rx > 1)
     return PU_INVALID;
   if (s->active || s->byte.active || s->byte.memory_owned || s->byte.line_owned)
@@ -25,14 +25,14 @@ int su_enable(Su *s, PuIo io, unsigned tx, unsigned rx) {
   io.write(io.context, PU_CR1, (cr1 & ~12u) | tx << 3 | rx << 2);
   return PU_OK;
 }
-static int next_byte(Su *s, PuIo io, uint32_t now) {
+static int next_byte(struct mc_su *s, struct pu_io io, uint32_t now) {
   if (s->byte.token == UINT32_MAX) return PU_STALE;
   return pu_submit(&s->byte, io, s->byte.configured_generation,
                    s->byte.token + 1, PU_POLL, s->tx + s->position,
                    1, now, s->deadline - now);
 }
-int su_begin(Su *s, PuIo io, uint32_t gen, uint32_t token,
-             const uint8_t *tx, unsigned n, PuByte *rx, unsigned cap,
+int su_begin(struct mc_su *s, struct pu_io io, uint32_t gen, uint32_t token,
+             const uint8_t *tx, unsigned n, struct pu_byte *rx, unsigned cap,
              uint32_t now, uint32_t budget) {
   if (!s || !io_valid(io) || !tx || !rx || !token || !n || n > 8 || cap < n ||
       cap > 8 || !budget || budget >= 0x80000000u || !s->configured)
@@ -54,7 +54,7 @@ int su_begin(Su *s, PuIo io, uint32_t gen, uint32_t token,
   s->byte_received=0; s->stopping=0; s->result=PU_BUSY; s->tx=tx; s->rx=rx;
   return PU_OK;
 }
-int su_cancel(Su *s, PuIo io, uint32_t token) {
+int su_cancel(struct mc_su *s, struct pu_io io, uint32_t token) {
   if (!s || !io_valid(io)) return PU_INVALID;
   if (!s->active || s->token != token) return PU_STALE;
   s->stopping=1;
@@ -62,7 +62,7 @@ int su_cancel(Su *s, PuIo io, uint32_t token) {
   if (s->byte.active) return pu_cancel(&s->byte, io, s->byte.token);
   return PU_OK;
 }
-int su_step(Su *s, PuIo io, uint32_t token, uint32_t now) {
+int su_step(struct mc_su *s, struct pu_io io, uint32_t token, uint32_t now) {
   if (!s || !io_valid(io)) return PU_INVALID;
   if (!s->active || token != s->token) return PU_STALE;
   if (now-s->last >= 0x80000000u) return PU_INVALID;
@@ -70,7 +70,7 @@ int su_step(Su *s, PuIo io, uint32_t token, uint32_t now) {
   if (!s->stopping && !s->byte_received) {
     int r=pu_rx_poll(&s->receive,io,1);
     if (r==PU_OK) {
-      PuByte b;
+      struct pu_byte b;
       if (pu_take(&s->receive,&b)) return PU_IO;
       s->rx[s->received++]=b; s->byte_received=1;
       if (b.error && SU_MUTANT!=5) { s->result=PU_IO; (void)su_cancel(s,io,token); }
@@ -107,7 +107,7 @@ int su_step(Su *s, PuIo io, uint32_t token, uint32_t now) {
   }
   return PU_BUSY;
 }
-int su_trace(unsigned p,unsigned h,unsigned l,const SDSync *t,unsigned *bad) {
+int su_trace(unsigned p,unsigned h,unsigned l,const struct sd_sync *t,unsigned *bad) {
   if (!t || !bad || p>1 || h>1 || l>1) return PU_INVALID;
   unsigned n=l?16:14;
   for (unsigned i=0;i<n && i<t->edges;i++) {

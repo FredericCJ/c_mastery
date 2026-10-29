@@ -42,8 +42,8 @@ void fe_fault(void) {
 void fe_target_main(void) {
   const int32_t in[3] = {3, -1, 4}, bad[3] = {INT32_MAX, 1, -1};
   int32_t out[3] = {91, 92, 93}, value = 91, zeros[16] = {0};
-  FeTrace a, b;
-  FeAllocator allocator = {0, take, release};
+  struct fe_trace a, b;
+  struct fe_allocator allocator = {0, take, release};
   T(fe_fixed(in, 3, out, 3) == FE_OK && out[0] == 3 && out[1] == 2 &&
     out[2] == 6);
   T(fe_fixed(bad, 3, out, 3) == FE_RANGE && out[0] == 3 && out[1] == 2 &&

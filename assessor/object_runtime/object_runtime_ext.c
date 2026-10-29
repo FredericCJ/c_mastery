@@ -5,10 +5,10 @@
 #define ORX_MUTANT 0
 #endif
 
-static int same(ORXHandle a, ORXHandle b) {
+static int same(struct orx_handle a, struct orx_handle b) {
   return a.slot == b.slot && a.generation == b.generation;
 }
-static int live(const ORXHeap *h, ORXHandle o) {
+static int live(const struct orx_heap *h, struct orx_handle o) {
   return h && o.slot < 8 && o.generation && o.generation <= 3 &&
          h->entry[o.slot].live &&
          (ORX_MUTANT == 3 || h->entry[o.slot].generation == o.generation);
@@ -19,8 +19,8 @@ uint32_t orx_binary32(uint32_t b) {
              ? UINT32_C(0x7fc00000)
              : b;
 }
-ORStatus orx_value_decode(const unsigned char w[6], ORXValue *out) {
-  ORXValue v = {0};
+enum or_status orx_value_decode(const unsigned char w[6], struct orx_value *out) {
+  struct orx_value v = {0};
   uint32_t b = 0;
   unsigned i;
   if (!w || !out)
@@ -43,13 +43,13 @@ ORStatus orx_value_decode(const unsigned char w[6], ORXValue *out) {
   } else if (v.tag == 3) {
     if (b < 1 || b > 8 || w[5] < 1 || w[5] > 3)
       return OR_INVALID;
-    v.as.handle = (ORXHandle){(uint8_t)(b - 1), w[5]};
+    v.as.handle = (struct orx_handle){(uint8_t)(b - 1), w[5]};
   } else
     return OR_INVALID;
   *out = v;
   return OR_OK;
 }
-ORStatus orx_value_encode(ORXValue v, unsigned char w[6]) {
+enum or_status orx_value_encode(struct orx_value v, unsigned char w[6]) {
   unsigned char t[6] = {0};
   uint32_t b;
   unsigned i;
@@ -94,7 +94,7 @@ static int byte_order(void) {
     return 1;
   return -1;
 }
-ORStatus orx_double_bits(double value, uint64_t *out) {
+enum or_status orx_double_bits(double value, uint64_t *out) {
   const unsigned char *p = (const unsigned char *)&value;
   uint64_t b = 0;
   int order = byte_order();
@@ -106,7 +106,7 @@ ORStatus orx_double_bits(double value, uint64_t *out) {
   *out = or_number_bits(b);
   return OR_OK;
 }
-ORStatus orx_bits_double(uint64_t b, double *out) {
+enum or_status orx_bits_double(uint64_t b, double *out) {
   double value = 0;
   unsigned char *p = (unsigned char *)&value;
   int order = byte_order();
@@ -121,20 +121,20 @@ ORStatus orx_bits_double(uint64_t b, double *out) {
   *out = value;
   return OR_OK;
 }
-void orx_heap_init(ORXHeap *h) {
+void orx_heap_init(struct orx_heap *h) {
   unsigned i;
   if (!h)
     return;
-  *h = (ORXHeap){0};
+  *h = (struct orx_heap){0};
   h->epoch = 1;
   for (i = 0; i < 8; i++)
     h->entry[i].generation = 1;
   for (i = 0; i < 4; i++)
     h->lease[i].generation = 1;
 }
-ORStatus orx_new(ORXHeap *h, const unsigned char *b, size_t n, ORXHandle *out) {
+enum or_status orx_new(struct orx_heap *h, const unsigned char *b, size_t n, struct orx_handle *out) {
   unsigned s, p, i, used = 0;
-  ORXCell c = {0};
+  struct orx_cell c = {0};
   if (!h || !out || (!b && n) || n > 15 || !h->epoch)
     return OR_INVALID;
   for (s = 0; s < 8; s++)
@@ -154,11 +154,11 @@ ORStatus orx_new(ORXHeap *h, const unsigned char *b, size_t n, ORXHandle *out) {
     c.bytes[i] = b[i];
   c.length = (uint8_t)n;
   h->cell[p] = c;
-  h->entry[s] = (ORXEntry){1, h->entry[s].generation, (uint8_t)p, 1, 0};
-  *out = (ORXHandle){(uint8_t)s, h->entry[s].generation};
+  h->entry[s] = (struct orx_entry){1, h->entry[s].generation, (uint8_t)p, 1, 0};
+  *out = (struct orx_handle){(uint8_t)s, h->entry[s].generation};
   return OR_OK;
 }
-ORStatus orx_retain(ORXHeap *h, ORXHandle o) {
+enum or_status orx_retain(struct orx_heap *h, struct orx_handle o) {
   if (!live(h, o))
     return OR_INVALID;
   if (h->entry[o.slot].roots == UINT8_MAX)
@@ -166,7 +166,7 @@ ORStatus orx_retain(ORXHeap *h, ORXHandle o) {
   h->entry[o.slot].roots++;
   return OR_OK;
 }
-ORStatus orx_release(ORXHeap *h, ORXHandle o) {
+enum or_status orx_release(struct orx_heap *h, struct orx_handle o) {
   if (!live(h, o))
     return OR_INVALID;
   if (!h->entry[o.slot].roots)
@@ -174,10 +174,10 @@ ORStatus orx_release(ORXHeap *h, ORXHandle o) {
   h->entry[o.slot].roots--;
   return OR_OK;
 }
-ORStatus orx_read(const ORXHeap *h, ORXHandle o, unsigned char out[15],
+enum or_status orx_read(const struct orx_heap *h, struct orx_handle o, unsigned char out[15],
                   size_t *n) {
   unsigned i;
-  const ORXCell *c;
+  const struct orx_cell *c;
   if (!out || !n || !live(h, o))
     return OR_INVALID;
   c = &h->cell[h->entry[o.slot].position];
@@ -186,14 +186,14 @@ ORStatus orx_read(const ORXHeap *h, ORXHandle o, unsigned char out[15],
   *n = c->length;
   return OR_OK;
 }
-ORStatus orx_edge(ORXHeap *h, ORXHandle from, unsigned field, ORXHandle to) {
+enum or_status orx_edge(struct orx_heap *h, struct orx_handle from, unsigned field, struct orx_handle to) {
   if (!live(h, from) || field >= 2 || (to.generation && !live(h, to)) ||
       (!to.generation && to.slot))
     return OR_INVALID;
   h->cell[h->entry[from.slot].position].edge[field] = to;
   return OR_OK;
 }
-ORStatus orx_collect(ORXHeap *h, unsigned *reclaimed) {
+enum or_status orx_collect(struct orx_heap *h, unsigned *reclaimed) {
   unsigned seen = 0, last, i, j, n = 0;
   if (!h || !reclaimed || !h->epoch)
     return OR_INVALID;
@@ -207,7 +207,7 @@ ORStatus orx_collect(ORXHeap *h, unsigned *reclaimed) {
     for (i = 0; i < 8; i++)
       if (seen & (1u << i))
         for (j = 0; j < 2; j++) {
-          ORXHandle o = h->cell[h->entry[i].position].edge[j];
+          struct orx_handle o = h->cell[h->entry[i].position].edge[j];
           if (o.generation) {
             if (!live(h, o))
               return OR_INVALID;
@@ -217,7 +217,7 @@ ORStatus orx_collect(ORXHeap *h, unsigned *reclaimed) {
   } while (last != seen);
   for (i = 0; i < 8; i++)
     if (h->entry[i].live && !(seen & (1u << i))) {
-      h->cell[h->entry[i].position] = (ORXCell){0};
+      h->cell[h->entry[i].position] = (struct orx_cell){0};
       h->entry[i].live = 0;
       h->entry[i].roots = h->entry[i].pins = 0;
       h->entry[i].generation++;
@@ -227,8 +227,8 @@ ORStatus orx_collect(ORXHeap *h, unsigned *reclaimed) {
   *reclaimed = n;
   return OR_OK;
 }
-ORStatus orx_pack(ORXHeap *h, unsigned *moved) {
-  ORXCell next[8] = {0};
+enum or_status orx_pack(struct orx_heap *h, unsigned *moved) {
+  struct orx_cell next[8] = {0};
   uint8_t pos[8] = {0};
   unsigned pinned = 0, used = 0, n = 0, i, p;
   if (!h || !moved || !h->epoch)
@@ -260,9 +260,9 @@ ORStatus orx_pack(ORXHeap *h, unsigned *moved) {
   *moved = n;
   return OR_OK;
 }
-ORStatus orx_import(ORXHeap *h, ORXValue value, const ORXGrant *grant,
-                    ORXHandle *out) {
-  ORStatus s;
+enum or_status orx_import(struct orx_heap *h, struct orx_value value, const struct orx_grant *grant,
+                    struct orx_handle *out) {
+  enum or_status s;
   if (!out || value.tag != 3 || !live(h, value.as.handle))
     return OR_INVALID;
   if (ORX_MUTANT != 9 && (!grant || (ORX_MUTANT != 10 && grant->heap != h) ||
@@ -274,8 +274,8 @@ ORStatus orx_import(ORXHeap *h, ORXValue value, const ORXGrant *grant,
   *out = value.as.handle;
   return OR_OK;
 }
-static ORXLease *lease(ORXTicket t) {
-  ORXLease *l;
+static struct orx_lease *lease(struct orx_ticket t) {
+  struct orx_lease *l;
   if (!t.heap || t.slot >= 4 || !t.generation || t.generation > 3)
     return NULL;
   l = &t.heap->lease[t.slot];
@@ -283,12 +283,12 @@ static ORXLease *lease(ORXTicket t) {
     return NULL;
   return l;
 }
-ORStatus orx_foreign_begin(ORXHeap *h, ORXHandle o, uint64_t who,
-                           ORXTicket *ticket, const unsigned char **bytes,
+enum or_status orx_foreign_begin(struct orx_heap *h, struct orx_handle o, uint64_t who,
+                           struct orx_ticket *ticket, const unsigned char **bytes,
                            size_t *length) {
   unsigned i;
-  ORXLease *l;
-  ORXCell *c;
+  struct orx_lease *l;
+  struct orx_cell *c;
   if (!ticket || !bytes || !length || !live(h, o))
     return OR_INVALID;
   if (h->entry[o.slot].pins == UINT8_MAX)
@@ -306,21 +306,21 @@ ORStatus orx_foreign_begin(ORXHeap *h, ORXHandle o, uint64_t who,
   l->object = o;
   l->active = 1;
   h->entry[o.slot].pins++;
-  *ticket = (ORXTicket){h, (uint8_t)i, l->generation};
+  *ticket = (struct orx_ticket){h, (uint8_t)i, l->generation};
   *bytes = c->bytes;
   *length = c->length;
   return OR_OK;
 }
-ORStatus orx_foreign_cancel(ORXTicket t, uint64_t who) {
-  ORXLease *l = lease(t);
+enum or_status orx_foreign_cancel(struct orx_ticket t, uint64_t who) {
+  struct orx_lease *l = lease(t);
   if (!l || ow_pin_cancel(&l->pin, who) != OW_OK)
     return OR_INVALID;
   if (ORX_MUTANT == 7 && t.heap->entry[l->object.slot].pins)
     t.heap->entry[l->object.slot].pins--;
   return OR_OK;
 }
-ORStatus orx_foreign_finish(ORXTicket t, uint64_t who) {
-  ORXLease *l = lease(t);
+enum or_status orx_foreign_finish(struct orx_ticket t, uint64_t who) {
+  struct orx_lease *l = lease(t);
   if (!l || ow_pin_complete(&l->pin, who) != OW_OK)
     return OR_INVALID;
   if (t.heap->entry[l->object.slot].pins)
@@ -337,26 +337,26 @@ static unsigned hash(const unsigned char *p, size_t n) {
     h = (h * 33u + p[i]) & 255u;
   return h;
 }
-static int32_t code(ORXHandle h) {
+static int32_t code(struct orx_handle h) {
   return (int32_t)(h.generation * 8u + h.slot + 1u);
 }
-static ORXHandle decode(int32_t c) {
-  return (ORXHandle){(uint8_t)((c - 1) % 8), (uint8_t)((c - 1) / 8)};
+static struct orx_handle decode(int32_t c) {
+  return (struct orx_handle){(uint8_t)((c - 1) % 8), (uint8_t)((c - 1) / 8)};
 }
-static void place(ORXIntern *t, int32_t *b, unsigned cap, ORXHandle o) {
-  const ORXCell *c = &t->heap->cell[t->heap->entry[o.slot].position];
+static void place(struct orx_intern *t, int32_t *b, unsigned cap, struct orx_handle o) {
+  const struct orx_cell *c = &t->heap->cell[t->heap->entry[o.slot].position];
   unsigned p = hash(c->bytes, c->length) % cap;
   while (b[p])
     p = (p + 1) % cap;
   b[p] = code(o);
 }
-ORStatus orx_intern_init(ORXIntern *t, ORXHeap *h, V4Allocator a) {
+enum or_status orx_intern_init(struct orx_intern *t, struct orx_heap *h, struct v4_allocator a) {
   if (!t || !h || !h->epoch || !a.take || !a.release)
     return OR_INVALID;
-  *t = (ORXIntern){h, a, NULL, 0, 0, h->epoch};
+  *t = (struct orx_intern){h, a, NULL, 0, 0, h->epoch};
   return OR_OK;
 }
-ORStatus orx_intern_reserve(ORXIntern *t, unsigned capacity) {
+enum or_status orx_intern_reserve(struct orx_intern *t, unsigned capacity) {
   int32_t *b, *old;
   unsigned i;
   if (!t || !t->heap || t->observed_epoch != t->heap->epoch ||
@@ -379,11 +379,11 @@ ORStatus orx_intern_reserve(ORXIntern *t, unsigned capacity) {
     t->allocator.release(t->allocator.context, old);
   return OR_OK;
 }
-ORStatus orx_intern_get(ORXIntern *t, const unsigned char *b, size_t n,
-                        ORXHandle *out) {
+enum or_status orx_intern_get(struct orx_intern *t, const unsigned char *b, size_t n,
+                        struct orx_handle *out) {
   unsigned p, i, s;
-  ORXHandle o;
-  ORStatus status;
+  struct orx_handle o;
+  enum or_status status;
   int32_t *candidate = NULL, *old;
   unsigned cap;
   if (!t || !out || (!b && n) || n > 15 || !t->heap ||
@@ -393,7 +393,7 @@ ORStatus orx_intern_get(ORXIntern *t, const unsigned char *b, size_t n,
     p = hash(b, n) % t->capacity;
     for (i = 0; i < t->capacity && t->bucket[p];
          i++, p = (p + 1) % t->capacity) {
-      const ORXCell *c;
+      const struct orx_cell *c;
       o = decode(t->bucket[p]);
       if (!live(t->heap, o))
         return OR_INVALID;
@@ -448,15 +448,15 @@ ORStatus orx_intern_get(ORXIntern *t, const unsigned char *b, size_t n,
   *out = o;
   return OR_OK;
 }
-ORStatus orx_intern_sweep(ORXIntern *t, unsigned *removed) {
-  ORXHandle keep[8];
+enum or_status orx_intern_sweep(struct orx_intern *t, unsigned *removed) {
+  struct orx_handle keep[8];
   unsigned i, n = 0, before;
   if (!t || !removed || !t->heap)
     return OR_INVALID;
   before = t->used;
   for (i = 0; i < t->capacity; i++)
     if (t->bucket[i]) {
-      ORXHandle o = decode(t->bucket[i]);
+      struct orx_handle o = decode(t->bucket[i]);
       if (live(t->heap, o))
         keep[n++] = o;
       t->bucket[i] = 0;
@@ -468,11 +468,11 @@ ORStatus orx_intern_sweep(ORXIntern *t, unsigned *removed) {
   *removed = before - n;
   return OR_OK;
 }
-ORStatus orx_intern_close(ORXIntern *t) {
+enum or_status orx_intern_close(struct orx_intern *t) {
   if (!t || !t->heap)
     return OR_INVALID;
   if (t->bucket)
     t->allocator.release(t->allocator.context, t->bucket);
-  *t = (ORXIntern){0};
+  *t = (struct orx_intern){0};
   return OR_OK;
 }

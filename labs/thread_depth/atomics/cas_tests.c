@@ -10,11 +10,11 @@
       exit(41);                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
+struct tw_script {
   unsigned actual, call, spurious, mismatch, strong, desired[16];
-} Script;
+};
 static int scripted(void *arg, unsigned *expected, unsigned desired, int weak) {
-  Script *s = arg;
+  struct tw_script *s = arg;
   CHECK(s->call < 16);
   s->desired[s->call++] = desired;
   if (!weak)
@@ -69,24 +69,24 @@ static void orders(void) {
   puts("OBS orders36 valid14 release-only failure relaxed");
 }
 static void retry(void) {
-  Script s = {.actual = 10, .spurious = 1, .mismatch = 1};
-  TAReport r;
+  struct tw_script s = {.actual = 10, .spurious = 1, .mismatch = 1};
+  struct ta_report r;
   CHECK(ta_increment(scripted, &s, 10, 3, 0, &r) == TA_SUCCESS);
   CHECK(r.attempts == 3 && r.expected == 20 && r.desired == 21 &&
         r.published == 1);
   CHECK(s.desired[0] == 11 && s.desired[1] == 11 && s.desired[2] == 21 &&
         s.actual == 21);
-  s = (Script){.actual = 10, .spurious = 1};
+  s = (struct tw_script){.actual = 10, .spurious = 1};
   CHECK(ta_increment(scripted, &s, 10, 1, 0, &r) == TA_LIMIT &&
         r.published == 0 && s.actual == 10);
-  s = (Script){.actual = 10, .spurious = 1};
+  s = (struct tw_script){.actual = 10, .spurious = 1};
   CHECK(ta_increment(scripted, &s, 10, 1, 1, &r) == TA_SUCCESS &&
         s.strong == 1 && s.actual == 11);
   atomic_uint p;
   atomic_init(&p, UINT_MAX);
   CHECK(ta_increment(real_cas, &p, UINT_MAX, 1, 1, &r) == TA_SUCCESS &&
         r.desired == 0 && atomic_load(&p) == 0);
-  TAReport sentinel = {99, 98, 97, 96};
+  struct ta_report sentinel = {99, 98, 97, 96};
   r = sentinel;
   CHECK(ta_increment(real_cas, &p, 0, 0, 0, &r) == TA_INVALID &&
         r.attempts == sentinel.attempts && r.expected == sentinel.expected &&
@@ -94,13 +94,13 @@ static void retry(void) {
   puts("OBS retry spurious unchanged; mismatch20; recomputed21; strong "
        "one-attempt; unsigned wrap");
 }
-typedef struct {
-  TANode *actual, *replacement;
+struct node_script {
+  struct ta_node *actual, *replacement;
   unsigned call, spurious, mismatch, freed;
   int free_on_success;
-} NodeScript;
-static int node_cas(void *arg, TANode **expected, TANode *desired, int weak) {
-  NodeScript *s = arg;
+};
+static int node_cas(void *arg, struct ta_node **expected, struct ta_node *desired, int weak) {
+  struct node_script *s = arg;
   s->call++;
   CHECK(weak);
   if (s->spurious) {
@@ -123,20 +123,20 @@ static int node_cas(void *arg, TANode **expected, TANode *desired, int weak) {
   }
   return 1;
 }
-typedef struct {
-  _Atomic(TANode *) head;
+struct native_node {
+  _Atomic(struct ta_node *) head;
   unsigned calls, freed;
-} NativeNode;
-static int native_node_cas(void *arg, TANode **expected, TANode *desired,
+};
+static int native_node_cas(void *arg, struct ta_node **expected, struct ta_node *desired,
                            int weak) {
-  NativeNode *n = arg;
+  struct native_node *n = arg;
   CHECK(weak);
   n->calls++;
   if (!atomic_compare_exchange_strong_explicit(&n->head, expected, desired,
                                                memory_order_acq_rel,
                                                memory_order_acquire))
     return 0;
-  TANode *receiver =
+  struct ta_node *receiver =
       atomic_exchange_explicit(&n->head, NULL, memory_order_acq_rel);
   CHECK(receiver == desired);
   free(receiver);
@@ -144,15 +144,15 @@ static int native_node_cas(void *arg, TANode **expected, TANode *desired,
   return 1;
 }
 static void ownership(void) {
-  TANode *old = malloc(sizeof *old), *other = malloc(sizeof *other),
+  struct ta_node *old = malloc(sizeof *old), *other = malloc(sizeof *other),
          *owned = malloc(sizeof *owned);
   CHECK(old && other && owned);
-  *old = (TANode){10};
-  *other = (TANode){20};
-  *owned = (TANode){77};
-  TANode *leases[] = {old, other};
-  TANodeReport r;
-  NodeScript s = {
+  *old = (struct ta_node){10};
+  *other = (struct ta_node){20};
+  *owned = (struct ta_node){77};
+  struct ta_node *leases[] = {old, other};
+  struct ta_node_report r;
+  struct node_script s = {
       .actual = old, .replacement = other, .spurious = 1, .mismatch = 1};
   int first = ta_publish(node_cas, &s, owned, old, leases, 2, 0, 1, &r);
   int ownership_preserved = first == TA_LIMIT && r.published == 0 &&
@@ -169,8 +169,8 @@ static void ownership(void) {
   free(owned);
   owned = malloc(sizeof *owned);
   CHECK(owned);
-  *owned = (TANode){0};
-  s = (NodeScript){
+  *owned = (struct ta_node){0};
+  s = (struct node_script){
       .actual = old, .replacement = other, .spurious = 1, .mismatch = 1};
   CHECK(ta_publish(node_cas, &s, owned, old, leases, 2, 1, 3, &r) ==
             TA_SUCCESS &&
@@ -179,24 +179,24 @@ static void ownership(void) {
   /* A live address not protected by the declared lease is not dereferenced. */
   owned = malloc(sizeof *owned);
   CHECK(owned);
-  *owned = (TANode){88};
-  s = (NodeScript){.actual = other};
+  *owned = (struct ta_node){88};
+  s = (struct node_script){.actual = other};
   CHECK(ta_publish(node_cas, &s, owned, other, leases, 1, 1, 3, &r) ==
             TA_UNPROTECTED &&
         r.attempts == 0 && r.published == 0 && owned->value == 88);
   free(owned);
   owned = malloc(sizeof *owned);
   CHECK(owned);
-  *owned = (TANode){99};
-  s = (NodeScript){.actual = old, .free_on_success = 1};
+  *owned = (struct ta_node){99};
+  s = (struct node_script){.actual = old, .free_on_success = 1};
   CHECK(ta_publish(node_cas, &s, owned, old, leases, 2, 0, 1, &r) ==
             TA_SUCCESS &&
         r.published == 1 &&
         s.freed == 1); /* owned already freed by receiver callback */
   owned = malloc(sizeof *owned);
   CHECK(owned);
-  *owned = (TANode){7};
-  NativeNode native;
+  *owned = (struct ta_node){7};
+  struct native_node native;
   atomic_init(&native.head, other);
   native.calls = native.freed = 0;
   CHECK(ta_publish(native_node_cas, &native, owned, old, leases, 2, 0, 2, &r) ==

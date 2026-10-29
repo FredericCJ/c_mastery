@@ -3,19 +3,19 @@
 #include <string.h>
 #define CHECK(x) do{if(!(x)){fprintf(stderr,"HANDLES-CHECK:%d:%s\n",__LINE__,#x);return 1;}}while(0)
 int main(void){
- AhPool p;ah_pool_init(&p);AhHandle old[27];unsigned count=0,value=999;
+ struct ah_pool p;ah_pool_init(&p);struct ah_handle old[27];unsigned count=0,value=999;
  for(unsigned epoch=1;epoch<=3;++epoch){
-  for(unsigned i=0;i<9;++i){AhHandle h;CHECK(ah_allocate(&p,10+i,&h)==AH_OK);CHECK(h.index==i/3&&h.generation==i%3+1&&h.epoch==epoch);old[count++]=h;CHECK(ah_read(&p,h,&value)==AH_OK&&value==10+i);CHECK(ah_release(&p,h)==AH_OK);for(unsigned j=0;j<count;++j){value=999;CHECK(ah_read(&p,old[j],&value)==AH_STALE&&value==999);}}
-  AhHandle unchanged={9,9,9},out=unchanged;CHECK(ah_allocate(&p,1,&out)==AH_FULL&&memcmp(&out,&unchanged,sizeof out)==0);
+  for(unsigned i=0;i<9;++i){struct ah_handle h;CHECK(ah_allocate(&p,10+i,&h)==AH_OK);CHECK(h.index==i/3&&h.generation==i%3+1&&h.epoch==epoch);old[count++]=h;CHECK(ah_read(&p,h,&value)==AH_OK&&value==10+i);CHECK(ah_release(&p,h)==AH_OK);for(unsigned j=0;j<count;++j){value=999;CHECK(ah_read(&p,old[j],&value)==AH_STALE&&value==999);}}
+  struct ah_handle unchanged={9,9,9},out=unchanged;CHECK(ah_allocate(&p,1,&out)==AH_FULL&&memcmp(&out,&unchanged,sizeof out)==0);
   CHECK(ah_enter(&p)==AH_OK);CHECK(ah_reuse(&p)==AH_BUSY);CHECK(ah_leave(&p)==AH_OK);
   CHECK(ah_reuse(&p)==(epoch==3?AH_FULL:AH_OK));
  }
- CHECK(ah_read(&p,(AhHandle){99,1,3},&value)==AH_STALE);CHECK(ah_leave(&p)==AH_INVALID);
- ah_pool_init(&p);AhHandle slots[3];for(unsigned i=0;i<3;++i)CHECK(ah_allocate(&p,i,&slots[i])==AH_OK);CHECK(ah_reuse(&p)==AH_BUSY);CHECK(ah_allocate(&p,1,&slots[0])==AH_FULL);for(unsigned i=0;i<3;++i)CHECK(ah_release(&p,slots[i])==AH_OK);
+ CHECK(ah_read(&p,(struct ah_handle){99,1,3},&value)==AH_STALE);CHECK(ah_leave(&p)==AH_INVALID);
+ ah_pool_init(&p);struct ah_handle slots[3];for(unsigned i=0;i<3;++i)CHECK(ah_allocate(&p,i,&slots[i])==AH_OK);CHECK(ah_reuse(&p)==AH_BUSY);CHECK(ah_allocate(&p,1,&slots[0])==AH_FULL);for(unsigned i=0;i<3;++i)CHECK(ah_release(&p,slots[i])==AH_OK);
  for(unsigned i=0;i<3;++i){CHECK(ah_enter(&p)==AH_OK);}
  CHECK(ah_enter(&p)==AH_FULL);
  for(unsigned i=0;i<3;++i){CHECK(ah_leave(&p)==AH_OK);}
- AhStats stats={0};AhShared *a=0,*b=0;unsigned strong,weak;
+ struct ah_stats stats={0};struct ah_shared *a=0,*b=0;unsigned strong,weak;
  CHECK(ah_shared_create(7,&stats,&a)==AH_OK);CHECK(ah_shared_create(9,&stats,&b)==AH_OK);
  /* The two edge owners are a->b and b->a; roots and edges are distinct obligations. */
  CHECK(ah_retain(a)==AH_OK&&ah_retain(b)==AH_OK);CHECK(ah_drop(a)==AH_OK&&ah_drop(b)==AH_OK);

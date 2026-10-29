@@ -15,20 +15,20 @@ static void copy(void *p, const void *s, unsigned long n) {
     *q++ = *r++;
 }
 static uint32_t bit(unsigned i) { return UINT32_C(1) << i; }
-static int validbox(SpBox b, unsigned d) {
+static int validbox(struct sp_box b, unsigned d) {
   for (unsigned k = 0; k < 3; k++)
     if (b.lo[k] < -1024 || b.hi[k] > 1024 || b.lo[k] > b.hi[k] ||
         (k >= d && (b.lo[k] != 0 || b.hi[k] != 0)))
       return 0;
   return 1;
 }
-static int overlap(SpBox a, SpBox b, unsigned d) {
+static int overlap(struct sp_box a, struct sp_box b, unsigned d) {
   for (unsigned k = 0; k < d; k++)
     if (a.lo[k] > b.hi[k] || a.hi[k] < b.lo[k])
       return 0;
   return 1;
 }
-static SpBox join(SpBox a, SpBox b, unsigned d) {
+static struct sp_box join(struct sp_box a, struct sp_box b, unsigned d) {
   for (unsigned k = 0; k < d; k++) {
     if (b.lo[k] < a.lo[k])
       a.lo[k] = b.lo[k];
@@ -37,16 +37,16 @@ static SpBox join(SpBox a, SpBox b, unsigned d) {
   }
   return a;
 }
-static uint64_t volume(SpBox a, unsigned d) {
+static uint64_t volume(struct sp_box a, unsigned d) {
   uint64_t v = 1;
   for (unsigned k = 0; k < d; k++)
     v *= (uint64_t)(a.hi[k] - a.lo[k]);
   return v;
 }
-static unsigned allocnode(SpIndex *t) {
+static unsigned allocnode(struct sp_index *t) {
   for (unsigned i = 0; i < t->budget; i++)
     if (!t->nodes[i].active) {
-      SpNode *n = &t->nodes[i];
+      struct sp_node *n = &t->nodes[i];
       zero(n, sizeof *n);
       n->active = 1;
       for (unsigned k = 0; k < 8; k++)
@@ -56,8 +56,8 @@ static unsigned allocnode(SpIndex *t) {
     }
   return NIL;
 }
-static SpBox maskbox(const SpIndex *t, uint32_t m) {
-  SpBox b = {{0, 0, 0}, {0, 0, 0}};
+static struct sp_box maskbox(const struct sp_index *t, uint32_t m) {
+  struct sp_box b = {{0, 0, 0}, {0, 0, 0}};
   unsigned found = 0;
   for (unsigned i = 0; i < 32; i++)
     if (m & bit(i)) {
@@ -72,7 +72,7 @@ static unsigned population(uint32_t m) {
     n++;
   return n;
 }
-static int less(const SpIndex *t, unsigned a, unsigned b, unsigned axis) {
+static int less(const struct sp_index *t, unsigned a, unsigned b, unsigned axis) {
   int32_t x = t->items[a].box.lo[axis], y = t->items[b].box.lo[axis];
   if (t->kind == SP_BVH) {
     x += t->items[a].box.hi[axis];
@@ -80,13 +80,13 @@ static int less(const SpIndex *t, unsigned a, unsigned b, unsigned axis) {
   }
   return x < y || (x == y && a < b);
 }
-static unsigned binary(SpIndex *t, uint32_t mask, unsigned depth) {
+static unsigned binary(struct sp_index *t, uint32_t mask, unsigned depth) {
   if (!mask)
     return NIL;
   unsigned at = allocnode(t);
   if (at == NIL)
     return NIL;
-  SpNode *n = &t->nodes[at];
+  struct sp_node *n = &t->nodes[at];
   n->box = maskbox(t, mask);
   n->mask = mask;
   unsigned ids[32], count = 0, axis = depth % t->dim;
@@ -130,13 +130,13 @@ static unsigned binary(SpIndex *t, uint32_t mask, unsigned depth) {
   }
   return at;
 }
-static unsigned quad(SpIndex *t, uint32_t mask, SpBox cell, unsigned side) {
+static unsigned quad(struct sp_index *t, uint32_t mask, struct sp_box cell, unsigned side) {
   if (!mask)
     return NIL;
   unsigned at = allocnode(t);
   if (at == NIL)
     return NIL;
-  SpNode *n = &t->nodes[at];
+  struct sp_node *n = &t->nodes[at];
   n->box = cell;
   n->mask = mask;
   if (side == 1 || population(mask) <= 1) {
@@ -147,7 +147,7 @@ static unsigned quad(SpIndex *t, uint32_t mask, SpBox cell, unsigned side) {
   }
   unsigned half = side / 2;
   for (unsigned c = 0; c < (1u << t->dim); c++) {
-    SpBox sub = cell;
+    struct sp_box sub = cell;
     for (unsigned k = 0; k < t->dim; k++) {
       int32_t mid = cell.lo[k] + (int32_t)half;
       if (c & (1u << k))
@@ -169,14 +169,14 @@ static unsigned quad(SpIndex *t, uint32_t mask, SpBox cell, unsigned side) {
   }
   return at;
 }
-static SpBox entrybox(const SpIndex *t, const SpNode *n, unsigned e) {
+static struct sp_box entrybox(const struct sp_index *t, const struct sp_node *n, unsigned e) {
   return n->leaf ? t->items[e].box : t->nodes[e].box;
 }
-static void rbound(SpIndex *t, unsigned at) {
-  SpNode *n = &t->nodes[at];
+static void rbound(struct sp_index *t, unsigned at) {
+  struct sp_node *n = &t->nodes[at];
   if (!n->count)
     return;
-  SpBox first = entrybox(t, n, n->entry[0]);
+  struct sp_box first = entrybox(t, n, n->entry[0]);
   /* Explicit field transfer: Clang's overlapping aggregate assignment emitted
    * __aeabi_memmove4 in the strict target profile despite -fno-builtin. */
   for (unsigned k = 0; k < 3; k++) {
@@ -187,14 +187,14 @@ static void rbound(SpIndex *t, unsigned at) {
   for (unsigned i = 1; i < n->count; i++)
     n->box = join(n->box, entrybox(t, n, n->entry[i]), t->dim);
 }
-static uint64_t enlargement(const SpIndex *t, SpBox a, SpBox b) {
+static uint64_t enlargement(const struct sp_index *t, struct sp_box a, struct sp_box b) {
   return volume(join(a, b, t->dim), t->dim) - volume(a, t->dim);
 }
-static unsigned rsplit(SpIndex *t, unsigned at) {
+static unsigned rsplit(struct sp_index *t, unsigned at) {
   unsigned other = allocnode(t);
   if (other == NIL)
     return NIL;
-  SpNode *n = &t->nodes[at], *o = &t->nodes[other];
+  struct sp_node *n = &t->nodes[at], *o = &t->nodes[other];
   o->leaf = n->leaf;
   unsigned e[5];
   for (unsigned i = 0; i < 5; i++)
@@ -203,7 +203,7 @@ static unsigned rsplit(SpIndex *t, unsigned at) {
   int64_t worst = INT64_MIN;
   for (unsigned i = 0; i < 5; i++)
     for (unsigned j = i + 1; j < 5; j++) {
-      SpBox x = entrybox(t, n, e[i]), y = entrybox(t, n, e[j]);
+      struct sp_box x = entrybox(t, n, e[i]), y = entrybox(t, n, e[j]);
       int64_t waste = (int64_t)volume(join(x, y, t->dim), t->dim) -
                       (int64_t)volume(x, t->dim) - (int64_t)volume(y, t->dim);
       if (waste > worst) {
@@ -223,7 +223,7 @@ static unsigned rsplit(SpIndex *t, unsigned at) {
     uint64_t preference = 0;
     for (unsigned i = 0; i < 5; i++)
       if (!(used & (1u << i))) {
-        SpBox box = entrybox(t, n, e[i]);
+        struct sp_box box = entrybox(t, n, e[i]);
         uint64_t x = enlargement(t, n->box, box),
                  y = enlargement(t, o->box, box), diff = x > y ? x - y : y - x;
         if (diff >= preference) {
@@ -239,7 +239,7 @@ static unsigned rsplit(SpIndex *t, unsigned at) {
       dest = 0;
     else if (o->count + remaining == 2)
       dest = 1;
-    SpNode *d = dest ? o : n;
+    struct sp_node *d = dest ? o : n;
     d->entry[d->count++] = e[pick];
     used |= 1u << pick;
     rbound(t, dest ? other : at);
@@ -248,15 +248,15 @@ static unsigned rsplit(SpIndex *t, unsigned at) {
 }
 /* Return 0 success, 1 allocation refusal; partner is NIL unless this node
  * split. */
-static int rinsert(SpIndex *t, unsigned at, unsigned id, unsigned *partner) {
-  SpNode *n = &t->nodes[at];
+static int rinsert(struct sp_index *t, unsigned at, unsigned id, unsigned *partner) {
+  struct sp_node *n = &t->nodes[at];
   *partner = NIL;
   if (n->leaf)
     n->entry[n->count++] = id;
   else {
     unsigned best = 0;
     for (unsigned i = 1; i < n->count; i++) {
-      SpBox a = t->nodes[n->entry[i]].box, b = t->nodes[n->entry[best]].box;
+      struct sp_box a = t->nodes[n->entry[i]].box, b = t->nodes[n->entry[best]].box;
       uint64_t x = enlargement(t, a, t->items[id].box),
                y = enlargement(t, b, t->items[id].box);
       if (x < y || (x == y && volume(a, t->dim) < volume(b, t->dim)))
@@ -276,7 +276,7 @@ static int rinsert(SpIndex *t, unsigned at, unsigned id, unsigned *partner) {
   }
   return 0;
 }
-static int radd(SpIndex *t, unsigned id) {
+static int radd(struct sp_index *t, unsigned id) {
   if (t->root == NIL) {
     t->root = allocnode(t);
     if (t->root == NIL)
@@ -298,8 +298,8 @@ static int radd(SpIndex *t, unsigned id) {
   }
   return 0;
 }
-static void collect(SpIndex *t, unsigned at, uint32_t *orphan) {
-  SpNode *n = &t->nodes[at];
+static void collect(struct sp_index *t, unsigned at, uint32_t *orphan) {
+  struct sp_node *n = &t->nodes[at];
   if (n->leaf) {
     for (unsigned i = 0; i < n->count; i++)
       *orphan |= bit(n->entry[i]);
@@ -309,8 +309,8 @@ static void collect(SpIndex *t, unsigned at, uint32_t *orphan) {
   n->active = 0;
   t->used--;
 }
-static int rremove(SpIndex *t, unsigned at, unsigned id, uint32_t *orphan) {
-  SpNode *n = &t->nodes[at];
+static int rremove(struct sp_index *t, unsigned at, unsigned id, uint32_t *orphan) {
+  struct sp_node *n = &t->nodes[at];
   for (unsigned i = 0; i < n->count; i++) {
     int found =
         n->leaf ? (n->entry[i] == id) : rremove(t, n->entry[i], id, orphan);
@@ -340,8 +340,8 @@ static unsigned hashcell(const int32_t c[3]) {
           (uint32_t)c[2] * UINT32_C(83492791)) %
          SP_BUCKETS;
 }
-static int gridadd(SpIndex *t, unsigned id) {
-  SpBox b = t->items[id].box;
+static int gridadd(struct sp_index *t, unsigned id) {
+  struct sp_box b = t->items[id].box;
   int32_t low[3], hi[3];
   uint64_t need = 1;
   for (unsigned k = 0; k < 3; k++) {
@@ -354,7 +354,7 @@ static int gridadd(SpIndex *t, unsigned id) {
   for (int32_t x = low[0]; x <= hi[0]; x++)
     for (int32_t y = low[1]; y <= hi[1]; y++)
       for (int32_t z = low[2]; z <= hi[2]; z++) {
-        SpRef *r = &t->refs[t->used];
+        struct sp_ref *r = &t->refs[t->used];
         r->cell[0] = x;
         r->cell[1] = y;
         r->cell[2] = z;
@@ -365,7 +365,7 @@ static int gridadd(SpIndex *t, unsigned id) {
       }
   return 0;
 }
-static int itemvalid(SpItem x, unsigned kind, unsigned dim) {
+static int itemvalid(struct sp_item x, unsigned kind, unsigned dim) {
   if (x.id >= 32 || !validbox(x.box, dim))
     return 0;
   for (unsigned k = 0; k < dim; k++) {
@@ -376,8 +376,8 @@ static int itemvalid(SpItem x, unsigned kind, unsigned dim) {
   }
   return 1;
 }
-int sp_build(SpIndex *out, SpIndex *t, unsigned kind, unsigned dim,
-             const SpItem *items, unsigned n, unsigned budget, unsigned width) {
+int sp_build(struct sp_index *out, struct sp_index *t, unsigned kind, unsigned dim,
+             const struct sp_item *items, unsigned n, unsigned budget, unsigned width) {
   if (!out || !t || (!items && n) || n > 32 || kind < 1 || kind > 5 ||
       (dim != 2 && dim != 3) || budget > (kind == SP_GRID ? 256u : 128u) ||
       (kind == SP_GRID && (width == 0 || width > 16)))
@@ -391,7 +391,7 @@ int sp_build(SpIndex *out, SpIndex *t, unsigned kind, unsigned dim,
   for (unsigned i = 0; i < 17; i++)
     t->buckets[i] = NIL;
   for (unsigned i = 0; i < n; i++) {
-    SpItem x = items[i];
+    struct sp_item x = items[i];
     if (!itemvalid(x, kind, dim) || (t->live & bit(x.id)))
       return SP_INVALID;
     t->items[x.id] = x;
@@ -401,7 +401,7 @@ int sp_build(SpIndex *out, SpIndex *t, unsigned kind, unsigned dim,
   if (kind == SP_KD || kind == SP_BVH)
     t->root = binary(t, t->live, 0);
   if (kind == SP_QUAD) {
-    SpBox b = {{-16, -16, 0}, {15, 15, 0}};
+    struct sp_box b = {{-16, -16, 0}, {15, 15, 0}};
     if (dim == 3) {
       b.lo[2] = -16;
       b.hi[2] = 15;
@@ -421,7 +421,7 @@ int sp_build(SpIndex *out, SpIndex *t, unsigned kind, unsigned dim,
   copy(out, t, sizeof *out);
   return SP_OK;
 }
-int sp_edit(SpIndex *t, SpIndex *s, unsigned action, SpItem item) {
+int sp_edit(struct sp_index *t, struct sp_index *s, unsigned action, struct sp_item item) {
   if (!t || !s || action < 1 || action > 3 || item.id >= 32)
     return SP_INVALID;
   unsigned present = (t->live & bit(item.id)) != 0;
@@ -432,7 +432,7 @@ int sp_edit(SpIndex *t, SpIndex *s, unsigned action, SpItem item) {
   if (action != 3 && !itemvalid(item, t->kind, t->dim))
     return SP_INVALID;
   if (t->kind != SP_RTREE) {
-    SpItem list[32];
+    struct sp_item list[32];
     unsigned n = 0;
     for (unsigned i = 0; i < 32; i++)
       if ((t->live & bit(i)) && i != item.id)
@@ -448,7 +448,7 @@ int sp_edit(SpIndex *t, SpIndex *s, unsigned action, SpItem item) {
       return SP_MISSING;
     s->live &= ~bit(item.id);
     s->count--;
-    SpNode *r = &s->nodes[s->root];
+    struct sp_node *r = &s->nodes[s->root];
     if (!r->count) {
       r->active = 0;
       s->used--;
@@ -476,18 +476,18 @@ int sp_edit(SpIndex *t, SpIndex *s, unsigned action, SpItem item) {
   copy(t, s, sizeof *t);
   return SP_OK;
 }
-static SpBox refit(SpIndex *t, unsigned at) {
-  SpNode *n = &t->nodes[at];
+static struct sp_box refit(struct sp_index *t, unsigned at) {
+  struct sp_node *n = &t->nodes[at];
   if (n->leaf)
     n->box = t->items[n->item].box;
   else {
-    SpBox a = refit(t, n->child[0]), b = refit(t, n->child[1]);
+    struct sp_box a = refit(t, n->child[0]), b = refit(t, n->child[1]);
     if (SP_MUTANT != 4)
       n->box = join(a, b, t->dim);
   }
   return n->box;
 }
-int sp_refit(SpIndex *t, SpIndex *s, SpItem item) {
+int sp_refit(struct sp_index *t, struct sp_index *s, struct sp_item item) {
   if (!t || !s || t->kind != SP_BVH || !itemvalid(item, t->kind, t->dim))
     return SP_INVALID;
   if (!(t->live & bit(item.id)))
@@ -498,10 +498,10 @@ int sp_refit(SpIndex *t, SpIndex *s, SpItem item) {
   copy(t, s, sizeof *t);
   return SP_OK;
 }
-static void querytree(const SpIndex *t, unsigned at, SpBox q, SpResult *r) {
+static void querytree(const struct sp_index *t, unsigned at, struct sp_box q, struct sp_result *r) {
   if (at == NIL)
     return;
-  const SpNode *n = &t->nodes[at];
+  const struct sp_node *n = &t->nodes[at];
   r->visits++;
   if (!overlap(n->box, q, t->dim))
     return;
@@ -545,10 +545,10 @@ static void querytree(const SpIndex *t, unsigned at, SpBox q, SpResult *r) {
       }
     }
 }
-int sp_query(const SpIndex *t, SpBox q, SpResult *out) {
+int sp_query(const struct sp_index *t, struct sp_box q, struct sp_result *out) {
   if (!t || !out || !validbox(q, t->dim))
     return SP_INVALID;
-  SpResult r = {0, 0, 0};
+  struct sp_result r = {0, 0, 0};
   if (t->kind != SP_GRID)
     querytree(t, t->root, q, &r);
   else {
@@ -562,7 +562,7 @@ int sp_query(const SpIndex *t, SpBox q, SpResult *out) {
     uint32_t seen = 0;
     for (unsigned h = 0; h < 17; h++)
       for (unsigned j = t->buckets[h]; j != NIL; j = t->refs[j].next) {
-        const SpRef *x = &t->refs[j];
+        const struct sp_ref *x = &t->refs[j];
         r.visits++;
         unsigned in = 1;
         for (unsigned k = 0; k < 3; k++)
@@ -579,7 +579,7 @@ int sp_query(const SpIndex *t, SpBox q, SpResult *out) {
   *out = r;
   return SP_OK;
 }
-static uint64_t distance(SpBox b, const int32_t *p, const unsigned *w,
+static uint64_t distance(struct sp_box b, const int32_t *p, const unsigned *w,
                          unsigned d) {
   uint64_t sum = 0;
   for (unsigned k = 0; k < d; k++) {
@@ -590,11 +590,11 @@ static uint64_t distance(SpBox b, const int32_t *p, const unsigned *w,
   }
   return sum;
 }
-static void nearest(const SpIndex *t, unsigned at, const int32_t *p,
-                    const unsigned *w, SpNearest *r) {
+static void nearest(const struct sp_index *t, unsigned at, const int32_t *p,
+                    const unsigned *w, struct sp_nearest *r) {
   if (at == NIL)
     return;
-  const SpNode *n = &t->nodes[at];
+  const struct sp_node *n = &t->nodes[at];
   r->visits++;
   uint64_t bound = distance(n->box, p, w, t->dim);
   if (bound > r->distance || (SP_MUTANT == 1 && bound == r->distance))
@@ -621,8 +621,8 @@ static void nearest(const SpIndex *t, unsigned at, const int32_t *p,
     nearest(t, b, p, w, r);
   }
 }
-int sp_nearest(const SpIndex *t, const int32_t p[3], const unsigned w[3],
-               SpNearest *out) {
+int sp_nearest(const struct sp_index *t, const int32_t p[3], const unsigned w[3],
+               struct sp_nearest *out) {
   if (!t || !p || !w || !out || (t->kind != SP_KD && t->kind != SP_BVH))
     return SP_INVALID;
   for (unsigned k = 0; k < 3; k++)
@@ -631,7 +631,7 @@ int sp_nearest(const SpIndex *t, const int32_t p[3], const unsigned w[3],
       return SP_INVALID;
   if (!t->count)
     return SP_MISSING;
-  SpNearest r = {NIL, 0, 0, UINT64_MAX};
+  struct sp_nearest r = {NIL, 0, 0, UINT64_MAX};
   unsigned weights[3];
   for (unsigned k = 0; k < 3; k++)
     weights[k] = SP_MUTANT == 2 ? 1 : w[k];
@@ -639,7 +639,7 @@ int sp_nearest(const SpIndex *t, const int32_t p[3], const unsigned w[3],
   *out = r;
   return SP_OK;
 }
-int sp_pairs(const SpIndex *t, uint32_t rows[32], unsigned *candidates) {
+int sp_pairs(const struct sp_index *t, uint32_t rows[32], unsigned *candidates) {
   if (!t || !rows || !candidates || t->kind != SP_GRID)
     return SP_INVALID;
   uint32_t result[32], seen[32];
@@ -649,7 +649,7 @@ int sp_pairs(const SpIndex *t, uint32_t rows[32], unsigned *candidates) {
   for (unsigned h = 0; h < 17; h++)
     for (unsigned a = t->buckets[h]; a != NIL; a = t->refs[a].next)
       for (unsigned b = t->refs[a].next; b != NIL; b = t->refs[b].next) {
-        const SpRef *x = &t->refs[a], *y = &t->refs[b];
+        const struct sp_ref *x = &t->refs[a], *y = &t->refs[b];
         if (x->item == y->item)
           continue;
         unsigned same = 1;

@@ -14,11 +14,11 @@ static unsigned rnd(void) {
   random_state = random_state * 1664525u + 1013904223u;
   return random_state;
 }
-static CsMatrix unit(void) {
-  CsMatrix m = {{{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}}};
+static struct cs_matrix unit(void) {
+  struct cs_matrix m = {{{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}}};
   return m;
 }
-static int same(const CsMatrix *a, const CsMatrix *b) {
+static int same(const struct cs_matrix *a, const struct cs_matrix *b) {
   for (unsigned i = 0; i < 3; i++)
     for (unsigned j = 0; j < 4; j++)
       if (a->m[i][j] != b->m[i][j])
@@ -26,9 +26,9 @@ static int same(const CsMatrix *a, const CsMatrix *b) {
   return 1;
 }
 static int scene(int dump) {
-  CsScene s, before, other;
-  CsHandle h[CS_N], bad;
-  CsMatrix m = unit(), w, old;
+  struct cs_scene s, before, other;
+  struct cs_handle h[CS_N], bad;
+  struct cs_matrix m = unit(), w, old;
   unsigned work;
   cs_init(&s);
   cs_init(&other);
@@ -89,8 +89,8 @@ static int scene(int dump) {
   CHECK(cs_add(&s, NULL, &m, &h[1]) == CS_OK && h[1].generation == UINT32_MAX);
   CHECK(cs_remove(&s, h[1]) == CS_OK);
   CHECK(cs_add(&s, NULL, &m, &bad) == CS_OK && bad.slot != h[1].slot);
-  CsScene overflow;
-  CsHandle chain[6];
+  struct cs_scene overflow;
+  struct cs_handle chain[6];
   cs_init(&overflow);
   m = unit();
   m.m[0][0] = 16;
@@ -105,8 +105,8 @@ static int scene(int dump) {
         memcmp(&before, &overflow, sizeof before) == 0);
   /* Independent matrix oracle consumes actual source state and every queried
    * result. */
-  CsScene many;
-  CsHandle handles[CS_N];
+  struct cs_scene many;
+  struct cs_handle handles[CS_N];
   cs_init(&many);
   for (unsigned i = 0; i < CS_N; i++) {
     m = unit();
@@ -152,15 +152,15 @@ static int scene(int dump) {
       cached++;
     }
   }
-  printf("COST scene %u %u %zu %zu\n", computed, cached, sizeof(CsScene),
-         sizeof(CsMatrix) * CS_N);
+  printf("COST scene %u %u %zu %zu\n", computed, cached, sizeof(struct cs_scene),
+         sizeof(struct cs_matrix) * CS_N);
   return 0;
 }
-static NvPolygon box(int x0, int y0, int y1, int x1, int z0, int z1) {
-  NvPolygon p = {4, {{x0, y0}, {x1, z0}, {x1, z1}, {x0, y1}}};
+static struct nv_polygon box(int x0, int y0, int y1, int x1, int z0, int z1) {
+  struct nv_polygon p = {4, {{x0, y0}, {x1, z0}, {x1, z1}, {x0, y1}}};
   return p;
 }
-static NvPoint transform(NvPoint p, unsigned t) {
+static struct nv_point transform(struct nv_point p, unsigned t) {
   if (t == 1) {
     int32_t x = p.x;
     p.x = -p.y;
@@ -175,10 +175,10 @@ static NvPoint transform(NvPoint p, unsigned t) {
   return p;
 }
 static int nav(int dump) {
-  NvPolygon c[8];
-  NvScratch scratch;
-  NvPath out, saved;
-  NvPoint a = {1, 1}, b = {7, 7};
+  struct nv_polygon c[8];
+  struct nv_scratch scratch;
+  struct nv_path out, saved;
+  struct nv_point a = {1, 1}, b = {7, 7};
   c[0] = box(0, 0, 4, 4, 0, 4);
   c[1] = box(4, 0, 4, 8, 0, 4);
   c[2] = box(4, 4, 8, 8, 4, 8);
@@ -192,8 +192,8 @@ static int nav(int dump) {
         memcmp(&out, &saved, sizeof out) == 0);
   CHECK(nv_path(c, 3, a, b, &scratch, 4, 2, &out) == CS_FULL &&
         memcmp(&out, &saved, sizeof out) == 0);
-  NvSession session, other;
-  NvTicket t, old;
+  struct nv_session session, other;
+  struct nv_ticket t, old;
   nv_init(&session);
   nv_init(&other);
   CHECK(nv_begin(&session, c, 3, a, b, &scratch, 4, 10, &t) == CS_OK);
@@ -221,10 +221,10 @@ static int nav(int dump) {
   c[1] = c[0];
   CHECK(nv_path(c, 3, a, b, &scratch, 4, 10, &out) == CS_INVALID);
   /* Two triangles, a portal endpoint start, and coincident start/end. */
-  c[0] = (NvPolygon){3, {{0, 0}, {4, 0}, {0, 4}}};
-  c[1] = (NvPolygon){3, {{4, 0}, {4, 4}, {0, 4}}};
-  a = (NvPoint){0, 4};
-  b = (NvPoint){4, 4};
+  c[0] = (struct nv_polygon){3, {{0, 0}, {4, 0}, {0, 4}}};
+  c[1] = (struct nv_polygon){3, {{4, 0}, {4, 4}, {0, 4}}};
+  a = (struct nv_point){0, 4};
+  b = (struct nv_point){4, 4};
   CHECK(nv_path(c, 2, a, b, &scratch, 3, 10, &out) == CS_OK && out.n == 2);
   CHECK(nv_path(c, 1, a, a, &scratch, 2, 1, &out) == CS_OK && out.n == 1);
   random_state = 1481;
@@ -233,11 +233,11 @@ static int nav(int dump) {
     int center[9];
     for (unsigned i = 0; i <= n; i++)
       center[i] = (int)(rnd() % 17) - 8;
-    NvPolygon original[8];
+    struct nv_polygon original[8];
     for (unsigned i = 0; i < n; i++)
       original[i] = box((int)i * 3, center[i] - 1, center[i] + 1,
                         (int)(i + 1) * 3, center[i + 1] - 1, center[i + 1] + 1);
-    NvPoint first = {0, center[0]}, last = {(int32_t)n * 3, center[n]};
+    struct nv_point first = {0, center[0]}, last = {(int32_t)n * 3, center[n]};
     for (unsigned variant = 0; variant < 8; variant++) {
       unsigned shape = variant % 4;
       for (unsigned i = 0; i < n; i++) {
@@ -249,11 +249,11 @@ static int nav(int dump) {
       b = transform(last, shape);
       if (variant >= 4) {
         for (unsigned i = 0; i < n / 2; i++) {
-          NvPolygon temp = c[i];
+          struct nv_polygon temp = c[i];
           c[i] = c[n - 1 - i];
           c[n - 1 - i] = temp;
         }
-        NvPoint temp = a;
+        struct nv_point temp = a;
         a = b;
         b = temp;
       }
@@ -278,8 +278,8 @@ static int nav(int dump) {
             memcmp(&out, &saved, sizeof out) == 0);
     }
   }
-  printf("COST nav %zu %zu %zu\n", sizeof(NvScratch), sizeof(NvSession),
-         sizeof(NvPath));
+  printf("COST nav %zu %zu %zu\n", sizeof(struct nv_scratch), sizeof(struct nv_session),
+         sizeof(struct nv_path));
   return 0;
 }
 int main(int argc, char **argv) {

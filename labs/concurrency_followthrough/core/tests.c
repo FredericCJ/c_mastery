@@ -11,14 +11,14 @@
       exit(41);                                                                \
     }                                                                          \
   } while (0)
-static CfValue val(unsigned n) { return (CfValue){n, ~n}; }
-typedef struct {
+static struct cf_value val(unsigned n) { return (struct cf_value){n, ~n}; }
+struct cf_gate {
   pthread_mutex_t lock;
   pthread_cond_t cv;
   unsigned entered, released;
-} Gate;
+};
 static void hook(void *p) {
-  Gate *g = p;
+  struct cf_gate *g = p;
   CK(!pthread_mutex_lock(&g->lock));
   g->entered = 1;
   CK(!pthread_cond_broadcast(&g->cv));
@@ -26,37 +26,37 @@ static void hook(void *p) {
     CK(!pthread_cond_wait(&g->cv, &g->lock));
   CK(!pthread_mutex_unlock(&g->lock));
 }
-static void wait_gate(Gate *g) {
+static void wait_gate(struct cf_gate *g) {
   CK(!pthread_mutex_lock(&g->lock));
   while (!g->entered)
     CK(!pthread_cond_wait(&g->cv, &g->lock));
   CK(!pthread_mutex_unlock(&g->lock));
 }
-static void release_gate(Gate *g) {
+static void release_gate(struct cf_gate *g) {
   CK(!pthread_mutex_lock(&g->lock));
   g->released = 1;
   CK(!pthread_cond_broadcast(&g->cv));
   CK(!pthread_mutex_unlock(&g->lock));
 }
-typedef struct {
-  CfRing *q;
-  Gate *g;
-  CfValue v[4];
+struct cf_batch {
+  struct cf_ring *q;
+  struct cf_gate *g;
+  struct cf_value v[4];
   unsigned pop;
   int result;
-} Batch;
+};
 static void *batch(void *p) {
-  Batch *b = p;
+  struct cf_batch *b = p;
   b->result = b->pop ? cf_pop(b->q, b->v, 4, hook, b->g)
                      : cf_push(b->q, b->v, 4, hook, b->g);
   return NULL;
 }
 static void boundary(void) {
   for (unsigned pop = 0; pop < 2; pop++) {
-    Gate g = {PTHREAD_MUTEX_INITIALIZER, PTHREAD_COND_INITIALIZER, 0, 0};
-    CfRing q;
+    struct cf_gate g = {PTHREAD_MUTEX_INITIALIZER, PTHREAD_COND_INITIALIZER, 0, 0};
+    struct cf_ring q;
     CK(cf_ring_init(&q, 4, 4, 32) == CF_OK);
-    Batch b = {&q, &g, {{0, 0}}, pop, -1};
+    struct cf_batch b = {&q, &g, {{0, 0}}, pop, -1};
     for (unsigned i = 0; i < 4; i++)
       b.v[i] = val(i + 1);
     if (pop)
@@ -64,7 +64,7 @@ static void boundary(void) {
     pthread_t thread;
     CK(!pthread_create(&thread, NULL, batch, &b));
     wait_gate(&g);
-    CfValue other[4] = {val(90), val(91), val(92), val(93)};
+    struct cf_value other[4] = {val(90), val(91), val(92), val(93)};
     int r = pop ? cf_push(&q, other, 1, NULL, NULL)
                 : cf_pop(&q, other, 1, NULL, NULL);
     CK(r == (pop ? CF_FULL : CF_EMPTY));
@@ -89,12 +89,12 @@ static void ring(void) {
     unsigned mask = bits == 8 ? 255u : UINT_MAX;
     for (unsigned offset = 0; offset < 256; offset++)
       for (unsigned n = 1; n <= 4; n++) {
-        CfRing q;
+        struct cf_ring q;
         CK(cf_ring_init(&q, 4, 4, bits) == CF_OK);
         unsigned start = (mask - offset) & mask;
         atomic_store(&q.head, start);
         atomic_store(&q.tail, start);
-        CfValue v[4] = {val(7), val(8), val(9), val(10)},
+        struct cf_value v[4] = {val(7), val(8), val(9), val(10)},
                 out[4] = {val(99), val(99), val(99), val(99)};
         CK(cf_push(&q, v, n, NULL, NULL) == CF_OK);
         if (n < 4)
@@ -108,11 +108,11 @@ static void ring(void) {
         CK(cf_pop(&q, out, 1, NULL, NULL) == CF_EMPTY && out[0].sequence == 99);
       }
   }
-  CfRing q;
+  struct cf_ring q;
   CK(cf_ring_init(&q, 4, 4, 16) == CF_INVALID);
   CK(cf_ring_init(&q, 256, 128, 8) == CF_INVALID);
   CK(cf_ring_init(&q, 4, 4, 32) == CF_OK);
-  CfValue d[4] = {val(1), val(2), val(3), val(4)};
+  struct cf_value d[4] = {val(1), val(2), val(3), val(4)};
   CK(cf_push(&q, d, 0, NULL, NULL) == CF_INVALID &&
      cf_push(&q, d, 5, NULL, NULL) == CF_INVALID);
   puts("CF_PASS:ring 2048 exact wrapped batch histories including UINT_MAX-1");
@@ -135,7 +135,7 @@ static void cas(void) {
          "lock_free=%d\n",
          atomic_load(&v), atomic_is_lock_free(&v));
 }
-static void counts(CfPool *p, unsigned want_free, unsigned want_reserved,
+static void counts(struct cf_pool *p, unsigned want_free, unsigned want_reserved,
                    unsigned want_linked, unsigned want_retired) {
   unsigned n[5] = {0};
   for (unsigned i = 0; i < 32; i++) {
@@ -148,10 +148,10 @@ static void counts(CfPool *p, unsigned want_free, unsigned want_reserved,
   CK(n[0] + n[1] + n[2] + n[3] + n[4] == 32);
 }
 static void pool(void) {
-  CfPool p;
+  struct cf_pool p;
   CK(cf_pool_init(&p, 3) == CF_OK);
   counts(&p, 31, 0, 1, 0);
-  CfTicket a, b, c;
+  struct cf_ticket a, b, c;
   unsigned scans;
   CK(cf_take(&p, 0, 1, &a, &scans) == CF_OK);
   CK(cf_take(&p, 0, 1, &b, &scans) == CF_OK);
@@ -203,11 +203,11 @@ static void pool(void) {
        "saturation");
 }
 static void diagnostic(void) {
-  CfRing q;
+  struct cf_ring q;
   CK(cf_ring_init(&q, 4, 4, 32) == CF_OK);
   unsigned dropped = 0;
   for (unsigned i = 0; i < 9; i++) {
-    CfValue v = val(i);
+    struct cf_value v = val(i);
     int r = cf_push(&q, &v, 1, NULL, NULL);
     if (r == CF_FULL)
       dropped++;
@@ -216,7 +216,7 @@ static void diagnostic(void) {
   }
   CK(dropped == 5);
   for (unsigned i = 0; i < 4; i++) {
-    CfValue out;
+    struct cf_value out;
     CK(cf_pop(&q, &out, 1, NULL, NULL) == CF_OK && out.sequence == i);
   }
   puts("CF_PASS:diagnostic retained=4 dropped_new=5 no allocation logger or "

@@ -1,6 +1,6 @@
 #include "b05.h"
 #include <limits.h>
-int b5_verify(const B5Instruction *p,size_t n,unsigned *maximum) {
+int b5_verify(const struct b5_instruction *p,size_t n,unsigned *maximum) {
     if(!p||!maximum||!n||n>16) return B5_INVALID;
     int height[16];unsigned queue[16],head=0,tail=1,peak=0;
     for(size_t i=0;i<n;i++) {
@@ -30,7 +30,7 @@ int b5_verify(const B5Instruction *p,size_t n,unsigned *maximum) {
     *maximum=peak;return B5_OK;
 }
 uint32_t b5_checksum(uint32_t gen,uint32_t value) { return gen^value^UINT32_C(0x93c72a5d); }
-int b5_recover(uint32_t generation,uint32_t base,const B5Redo *r,size_t n,uint32_t *out) {
+int b5_recover(uint32_t generation,uint32_t base,const struct b5_redo *r,size_t n,uint32_t *out) {
     if(!out||(!r&&n)||n>8) return B5_INVALID;
     uint32_t result=base,current=generation;
     for(size_t i=0;i<n;i++) {
@@ -45,17 +45,17 @@ int b5_recover(uint32_t generation,uint32_t base,const B5Redo *r,size_t n,uint32
     }
     *out=result;return B5_OK;
 }
-int b5_copy_to_user(B5Page pages[4],size_t address,const unsigned char *input,size_t n) {
+int b5_copy_to_user(struct b5_page pages[4],size_t address,const unsigned char *input,size_t n) {
     if(!pages||(!input&&n)) return B5_INVALID;
     if(address>64||n>64-address) return B5_RANGE;
 #ifndef B5_MUTATE_COPY
     for(size_t i=0;i<n;i++) {
-        B5Page *p=&pages[(address+i)/16];
+        struct b5_page *p=&pages[(address+i)/16];
         if(!p->present||!p->user||!p->writable) return B5_CONFLICT;
     }
 #endif
     for(size_t i=0;i<n;i++) {
-        B5Page *p=&pages[(address+i)/16];
+        struct b5_page *p=&pages[(address+i)/16];
 #ifdef B5_MUTATE_COPY
         if(!p->present||!p->user||!p->writable) return B5_CONFLICT;
 #endif
@@ -63,12 +63,12 @@ int b5_copy_to_user(B5Page pages[4],size_t address,const unsigned char *input,si
     }
     return B5_OK;
 }
-int b5_timer_arm(B5Timer *t,uint32_t now,uint32_t delay) {
+int b5_timer_arm(struct b5_timer *t,uint32_t now,uint32_t delay) {
     if(!t) return B5_INVALID;
     if(delay>=UINT32_C(0x80000000)) return B5_RANGE;
     t->last=now;t->remaining=delay;t->armed=1;t->expired=delay==0;return B5_OK;
 }
-int b5_timer_poll(B5Timer *t,uint32_t now,int *out) {
+int b5_timer_poll(struct b5_timer *t,uint32_t now,int *out) {
     if(!t||!out||!t->armed) return B5_INVALID;
     uint32_t elapsed=now-t->last;
     if(elapsed>=UINT32_C(0x80000000)) return B5_RANGE;
@@ -79,7 +79,7 @@ int b5_timer_poll(B5Timer *t,uint32_t now,int *out) {
     else t->remaining-=elapsed;
     t->last=now;*out=(int)t->expired;return B5_OK;
 }
-int b5_response(uint32_t own,uint32_t blocking,uint32_t deadline,const B5Task *h,size_t n,uint32_t *out) {
+int b5_response(uint32_t own,uint32_t blocking,uint32_t deadline,const struct b5_task *h,size_t n,uint32_t *out) {
     if(!out||(!h&&n)||n>4||!own||!deadline||deadline>1000000) return B5_INVALID;
     for(size_t i=0;i<n;i++) if(!h[i].period||h[i].jitter>1000000||h[i].cost>1000000) return B5_INVALID;
     uint64_t base=(uint64_t)own+blocking,r=base;
@@ -101,23 +101,23 @@ int b5_response(uint32_t own,uint32_t blocking,uint32_t deadline,const B5Task *h
     }
     return B5_RANGE;
 }
-int b5_read_enter(B5Grace *g,unsigned id,uint32_t *out) {
+int b5_read_enter(struct b5_grace *g,unsigned id,uint32_t *out) {
     if(!g||!out||id>=4) return B5_INVALID;
     if(g->active[id]||g->next_ticket==UINT32_MAX) return B5_RANGE;
     g->next_ticket++;g->active[id]=g->next_ticket;*out=g->next_ticket;return B5_OK;
 }
-int b5_read_exit(B5Grace *g,unsigned id,uint32_t ticket) {
+int b5_read_exit(struct b5_grace *g,unsigned id,uint32_t ticket) {
     if(!g||id>=4||!ticket) return B5_INVALID;
     if(g->active[id]!=ticket) return B5_CONFLICT;
     g->active[id]=0;return B5_OK;
 }
-int b5_grace_begin(B5Grace *g) {
+int b5_grace_begin(struct b5_grace *g) {
     if(!g) return B5_INVALID;
     if(g->pending) return B5_CONFLICT;
     for(unsigned i=0;i<4;i++) g->waiting[i]=g->active[i];
     g->pending=1;return B5_OK;
 }
-int b5_grace_done(B5Grace *g,int *out) {
+int b5_grace_done(struct b5_grace *g,int *out) {
     if(!g||!out||!g->pending) return B5_INVALID;
     unsigned blocked=0;
     for(unsigned i=0;i<4;i++) {
@@ -129,7 +129,7 @@ int b5_grace_done(B5Grace *g,int *out) {
     }
     *out=!blocked;if(!blocked)g->pending=0;return B5_OK;
 }
-int b5_request(B5Request *r,unsigned op,uint32_t gen,unsigned result) {
+int b5_request(struct b5_request *r,unsigned op,uint32_t gen,unsigned result) {
     if(!r||op>B5_REAP||result>2) return B5_INVALID;
     if(gen!=r->generation) return B5_CONFLICT;
     if(op==B5_SUBMIT) {

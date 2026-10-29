@@ -9,20 +9,20 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
+struct rpo_medium {
   unsigned char stable[STORE_IMAGE_PAGES][STORE_PAGE_SIZE];
   unsigned char pending[STORE_IMAGE_PAGES][STORE_PAGE_SIZE];
   unsigned char dirty[STORE_IMAGE_PAGES];
   unsigned event, cut, persist, dead;
-} RpoMedium;
-typedef struct {
-  RpoMedium disk;
-  RplPages adapter;
+};
+struct rpo_fixture {
+  struct rpo_medium disk;
+  struct rpl_pages adapter;
   store pages;
-  RplLog log;
-} RpoFixture;
-int rpo_fixture(RpoFixture *, uint64_t, uint32_t);
-int rpo_reopen(RpoFixture *);
-int rpo_sync(RpoFixture *);
-void rpo_cut(RpoFixture *, unsigned, unsigned);
+  struct rpl_log log;
+};
+int rpo_fixture(struct rpo_fixture *, uint64_t, uint32_t);
+int rpo_reopen(struct rpo_fixture *);
+int rpo_sync(struct rpo_fixture *);
+void rpo_cut(struct rpo_fixture *, unsigned, unsigned);
 #endif

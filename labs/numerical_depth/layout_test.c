@@ -1,19 +1,19 @@
 #include "test.h"
 #include <stddef.h>
 int main(void) {
-  NDStore s = {0};
+  struct nd_store s = {0};
   char a[24] = {"alpha"}, b[24] = {"beta"}, c[24] = {"gamma"};
   unsigned x, y, z;
   CHECK(nd_insert(&s, 1, 2, a, &x) == 0);
   CHECK(nd_insert(&s, 3, 4, b, &y) == 0);
   CHECK(nd_insert(&s, 5, 6, c, &z) == 0);
   CHECK(nd_remove(&s, y) == 0);
-  NDRecord r;
+  struct nd_record r;
   CHECK(nd_record(&s, z, &r) == 0 && r.x == 5 && !strcmp(r.label, "gamma"));
   unsigned order[] = {1, 0};
   CHECK(nd_reorder(&s, order, 2) == 0);
   CHECK(nd_record(&s, x, &r) == 0 && r.x == 1 && !strcmp(r.label, "alpha"));
-  NDStore old = s;
+  struct nd_store old = s;
   unsigned bad[] = {0, 0};
   CHECK(nd_reorder(&s, bad, 2) == ND_BAD && memcmp(&s, &old, sizeof s) == 0);
   CHECK(nd_record(&s, y, &r) == ND_BAD);
@@ -31,7 +31,7 @@ int main(void) {
   CHECK(ao == so);
   printf("PASS hot/cold identity, reorder and bounded capacity; "
          "sizeof(record)=%zu align=%zu offsets=%zu,%zu,%zu,%zu\n",
-         sizeof(NDRecord), _Alignof(NDRecord), offsetof(NDRecord, x),
-         offsetof(NDRecord, y), offsetof(NDRecord, id),
-         offsetof(NDRecord, label));
+         sizeof(struct nd_record), _Alignof(struct nd_record), offsetof(struct nd_record, x),
+         offsetof(struct nd_record, y), offsetof(struct nd_record, id),
+         offsetof(struct nd_record, label));
 }

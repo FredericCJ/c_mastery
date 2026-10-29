@@ -32,4 +32,4 @@ if 'identities' in keys:
  assert 'EW_IDENTITIES_VALUES 17 51 7 8 42 1 4 3' in text
 if 'faults' in keys:assert 'EW_FAULTS_VALUES 1 2 0 0' in text
 if 'adversarial' in keys:assert 'EW_ADVERSARIAL_VALUES 0 0 3 0' in text
-print(json.dumps(dict(status='pass',keys=keys,packets=len(keys),physical='not-observed',limits='Independent byte/CRC/application oracle; CPU/model captures are not bench evidence.')))
+print(json.dumps(dict(status='pass',keys=keys,packets=len(keys),physical='not-observed',limits='Independent byte/CRC/application oracle; struct lr_cpu/model captures are not bench evidence.')))

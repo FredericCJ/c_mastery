@@ -8,10 +8,10 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
+struct ep_registers {
   volatile uint32_t sr, dr, brr, cr1, cr2, cr3, gtpr;
-} Registers;
-static Registers u;
+};
+static struct ep_registers u;
 static uint32_t addresses[32], values[32];
 static unsigned count;
 volatile uint32_t *pu_test_register(uint32_t a) {
@@ -23,10 +23,10 @@ volatile uint32_t *pu_test_register(uint32_t a) {
   addresses[count] = a;
   return &values[count++];
 }
-Registers *pu_test_usart(void) { return &u; }
+struct ep_registers *pu_test_usart(void) { return &u; }
 #define R(a) (*pu_test_register(a))
 int main(void) {
-  PuIo io = pu_f439_io();
+  struct pu_io io = pu_f439_io();
   CHECK(io.read && io.write);
   R(0x40023808) = 0;
   R(0x40023800) = 2;
@@ -38,8 +38,8 @@ int main(void) {
   R(0x40023808) = 12;
   CHECK(io.read(0, PU_SOURCE) == 0);
   R(0x40023808) = 0;
-  PuDriver d = {0};
-  PuClock c = {16000000, 1, 1, 1, 1, 0};
+  struct pu_driver d = {0};
+  struct pu_clock c = {16000000, 1, 1, 1, 1, 0};
   CHECK(pu_open(&d, io, &c, 115200, 1, 2) == PU_OK && u.brr == 275 &&
         u.cr1 == 0xa00c && u.cr2 == 0 && u.cr3 == 0);
   CHECK(R(0x40023840) == 0x40000 && R(0x40023820) == 0);
@@ -68,7 +68,7 @@ int main(void) {
   CHECK(io.read(0, PU_DMA_FLAGS) == 2);
   CHECK(pu_cancel(&d, io, 1) == PU_OK && d.memory_owned &&
         !(R(0x40026058) & 1));
-  PuRx q = {0};
+  struct pu_rx q = {0};
   q.backpressure = 1;
   q.reserve = 1;
   pu_f439_rts_init();

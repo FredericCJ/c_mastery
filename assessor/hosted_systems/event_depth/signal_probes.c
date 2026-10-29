@@ -88,7 +88,7 @@ static int coalesce(void) {
   CHECK(pthread_sigmask(SIG_SETMASK, &old, 0) == 0);
   /* Original two-cell counted queue: unlike a pending bit, two admitted
    * records remain two records; a third is rejected before publication. */
-  EsCounted queue = {0};
+  struct es_counted queue = {0};
   unsigned value = 99;
   CHECK(es_counted_push(&queue, 7) == 1 && es_counted_push(&queue, 9) == 1);
   CHECK(es_counted_push(&queue, 8) == 0 && queue.count == 2);
@@ -288,16 +288,16 @@ static int descriptor(void) {
   puts("SIGNALFD:records=2;predicates=3;empty=EAGAIN;blocked_mask_restored=1;");
   return 0;
 }
-typedef struct {
+struct rd_workers {
   pthread_mutex_t lock;
   pthread_cond_t cv;
   unsigned ready, finished;
   int error;
   char *owned;
   sigset_t set;
-} Workers;
+};
 static void *worker(void *arg) {
-  Workers *w = arg;
+  struct rd_workers *w = arg;
   sigset_t current;
   int e = pthread_sigmask(SIG_SETMASK, 0, &current);
   pthread_mutex_lock(&w->lock);
@@ -312,7 +312,7 @@ static void *worker(void *arg) {
   return 0;
 }
 static void *receiver(void *arg) {
-  Workers *w = arg;
+  struct rd_workers *w = arg;
   siginfo_t info;
   int sig = sigtimedwait(&w->set, &info, &(struct timespec){2, 0});
   /* Synchronous acceptance is ordinary thread execution: malloc/stdio/mutex
@@ -330,7 +330,7 @@ static void *receiver(void *arg) {
   return 0;
 }
 static int threads(void) {
-  Workers w = {.lock = PTHREAD_MUTEX_INITIALIZER,
+  struct rd_workers w = {.lock = PTHREAD_MUTEX_INITIALIZER,
                .cv = PTHREAD_COND_INITIALIZER};
   sigemptyset(&w.set);
   sigaddset(&w.set, SIGUSR1);
@@ -413,7 +413,7 @@ static int bad_plugin(void) {
   return 0;
 }
 static int children(int late) {
-  EsSignals p = {0};
+  struct es_signals p = {0};
   CHECK(es_open(&p) == 0);
   pid_t ids[3] = {0};
   int statuses[3] = {0};

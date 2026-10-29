@@ -29,7 +29,7 @@ static int digest_is(const unsigned char p[32], const char *want) {
 }
 static int sha_stream(void) {
   unsigned char data[257], a[32], b[32];
-  RphSha s;
+  struct rph_sha s;
   size_t n, split, i;
   CHECK(rph_hash(NULL, 0, a) == RPH_OK);
   CHECK(digest_is(
@@ -59,7 +59,7 @@ static int sha_stream(void) {
 }
 static int hmac_test(void) {
   unsigned char key[131], data[150], a[32], b[32];
-  RphHmac s;
+  struct rph_hmac s;
   unsigned i;
   memset(key, 0x0b, 20);
   CHECK(rph_hmac(key, 20, (const unsigned char *)"Hi There", 8, a) == RPH_OK);
@@ -97,8 +97,8 @@ static int hmac_test(void) {
   return 0;
 }
 static int lifecycle(void) {
-  RphSha s;
-  RphHmac h;
+  struct rph_sha s;
+  struct rph_hmac h;
   unsigned char old[sizeof h], out[32], saved[32], byte = 7;
   unsigned i;
   CHECK(rph_init(&s) == RPH_OK);
@@ -148,8 +148,8 @@ static int oracle(void) {
   unsigned n, kn, chunk, salt, i;
   unsigned char data[8193], key[257], a[32], b[32];
   char x[65], y[65];
-  RphSha s;
-  RphHmac h;
+  struct rph_sha s;
+  struct rph_hmac h;
   while (scanf("%u %u %u %u", &n, &kn, &chunk, &salt) == 4) {
     CHECK(n <= 8193 && kn <= 257 && chunk > 0 && chunk <= 8193);
     for (i = 0; i < n; ++i)
@@ -172,7 +172,7 @@ static int oracle(void) {
   }
   return 0;
 }
-static void resume_digest(RphSha *s, const unsigned char tag[32],
+static void resume_digest(struct rph_sha *s, const unsigned char tag[32],
                           uint64_t prefix_bytes) {
   unsigned i;
   (void)rph_init(s);
@@ -188,7 +188,7 @@ static int security(void) {
                       extra[8] = {'&', 'a', 'd', 'm', 'i', 'n', '=', '1'};
   unsigned char request[64] = {0}, bad[32], forged[32], target[32], tag[32],
                 hforged[32];
-  RphSha s;
+  struct rph_sha s;
   unsigned i;
   /* Original teaching verifier: SHA256(secret || request). The attacker has
      only the returned tag and knows this lab key has eight bytes. */
@@ -227,7 +227,7 @@ static int security(void) {
 static int lengths(void) {
   const uint64_t counts[] = {UINT64_C(536870913), UINT64_C(4294967351),
                              RPH_MAX_BYTES};
-  RphSha s;
+  struct rph_sha s;
   unsigned i, j;
   unsigned char out[32];
   char text[65];
@@ -244,7 +244,7 @@ static int lengths(void) {
   return 0;
 }
 static int clone_test(void) {
-  RphSha prefix, left, right;
+  struct rph_sha prefix, left, right;
   unsigned char a[32], b[32], expected[32];
   CHECK(rph_init(&prefix) == RPH_OK);
   CHECK(rph_update(&prefix, (const unsigned char *)"pre", 3) == RPH_OK);
@@ -271,7 +271,7 @@ static int metrics(void) {
   memset(data, 0x61, sizeof data);
   printf(
       "{\"sha_size\":%zu,\"hmac_size\":%zu,\"schedule_words\":%u,\"samples\":[",
-      sizeof(RphSha), sizeof(RphHmac), RPH_SCHEDULE64 ? 64 : 16);
+      sizeof(struct rph_sha), sizeof(struct rph_hmac), RPH_SCHEDULE64 ? 64 : 16);
   for (i = 0; i < sizeof sizes / sizeof sizes[0]; ++i) {
     CHECK(timespec_get(&start, TIME_UTC) == TIME_UTC);
     for (j = 0; j < 1000; ++j) {

@@ -1,8 +1,8 @@
 # Owned resources and synchronized copy-on-write snapshots
 
 This is required X-T66-007 support, including X-T66-007-DELAYED. Use hosted
-ISO C17 with the original `OwCow` and `OwAllocator` contracts. The resource
-successor below is a first-principles representation change: `OwCow`'s scalar
+ISO C17 with the original `struct ow_cow` and `struct ow_allocator` contracts. The resource
+successor below is a first-principles representation change: `struct ow_cow`'s scalar
 copy cannot express fallible owned-resource cloning. POSIX supplies only mutexes
 and test threads; it does not implement COW or reclamation. All pointers and
 contexts designate live, correctly typed disjoint objects. The store is fresh,

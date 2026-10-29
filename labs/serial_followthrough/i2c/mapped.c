@@ -12,12 +12,12 @@ volatile uint32_t *pi_test_register(uint32_t a){
 }
 #define R(a) (*pi_test_register(a))
 #define B 0x40005400u
-static int event(PiI2c *s,unsigned flags,uint32_t now){
+static int event(struct pi_i2c *s,unsigned flags,uint32_t now){
  R(B+20)=flags;if(flags&PI_SB){R(B)&=~PI_START;R(B+24)=3;}
  critical=1;int r=pi_f439_step(s,s->token,now);critical=0;return r;
 }
 int ia_mapped(void){
- PiI2c s={0};PuClock c={16000000,1,1,1,1,0};uint8_t out=77;
+ struct pi_i2c s={0};struct pu_clock c={16000000,1,1,1,1,0};uint8_t out=77;
  R(0x40020424u)=0xffffffffu;pi_f439_pins();
  CHECK(R(0x40020424u)==0xffffff44u && (R(0x40020404u)&0x300u)==0x300u);
  CHECK((R(0x40020400u)&0xf0000u)==0xa0000u && (R(0x40023840u)&(1u<<21)));

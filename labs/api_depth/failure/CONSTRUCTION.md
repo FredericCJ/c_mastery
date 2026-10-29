@@ -1,7 +1,7 @@
 # T21.03–04: failure-complete construction
 
 Use `construction.h`, the deliberately unfinished `construction.c`,
-`construction_tests.c`, and the actual T18 `AcLedger` provider. The original
+`construction_tests.c`, and the actual T18 `struct ac_ledger` provider. The original
 criterion IDs and delayed variants in PR-T21-01 remain the assessment identities.
 Read TAXONOMY.md first. Implement the resource ledger prerequisite yourself;
 the author campaign explicitly imports the assessor T18 implementation instead.
@@ -16,7 +16,7 @@ have ceased using it. Its generation admits 1, 2 and 3, then retires without wra
 
 Represent NEW, PARTIAL, ACTIVE, FAILED and STOPPED explicitly. The ownership mask
 is an obligation, not an acquisition counter. A failed close may either retain or
-consume its resource according to `AcLedger.consume_on_error`. Inspect that
+consume its resource according to `struct ac_ledger.consume_on_error`. Inspect that
 postcondition before retrying. Traverse reverse acquisition order, but never close
 a base while either dependent remains held, including by an external transferee.
 For example, if closing resource 2 retains it, cleanup leaves 0,1,2 held. A later

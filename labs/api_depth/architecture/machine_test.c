@@ -1,31 +1,31 @@
 #include "test.h"
 #include <pthread.h>
-typedef struct {
-  ArMachine *m;
+struct ac_producer {
+  struct ar_machine *m;
   pthread_mutex_t *mutex;
-  ArEvent event;
+  struct ar_event event;
   int result;
-} Producer;
+};
 static void *produce(void *p) {
-  Producer *x = p;
+  struct ac_producer *x = p;
   CHECK(pthread_mutex_lock(x->mutex) == 0);
   x->result = ar_event(x->m, x->event);
   CHECK(pthread_mutex_unlock(x->mutex) == 0);
   return 0;
 }
 int main(void) {
-  ArMachine m;
+  struct ar_machine m;
   ar_machine_init(&m);
   uint32_t id;
   CHECK(ar_acquire(&m, &id) == AR_OK && id == 1);
   CHECK(ar_machine_cancel(&m) == AR_CANCELLED && m.releases == 1);
   CHECK(ar_acquire(&m, &id) == AR_OK && id == 2);
   CHECK(ar_submit(&m) == AR_OK);
-  ArEvent e = {m.incarnation, id, 0};
+  struct ar_event e = {m.incarnation, id, 0};
   CHECK(ar_event(&m, e) == AR_OK && ar_event(&m, e) == AR_OK &&
         ar_event(&m, e) == AR_FULL);
   CHECK(ar_machine_cancel(&m) == AR_PENDING);
-  ArEvent ack = e;
+  struct ar_event ack = e;
   ack.type = 1;
   CHECK(ar_event(&m, ack) == AR_OK);
   CHECK(ar_step(&m) == AR_CANCELLED && m.releases == 2);
@@ -33,11 +33,11 @@ int main(void) {
   CHECK(ar_restart(&m) == AR_OK && m.incarnation == 2);
   CHECK(ar_acquire(&m, &id) == AR_OK && ar_submit(&m) == AR_OK);
   CHECK(ar_event(&m, e) == AR_STATE);
-  e = (ArEvent){m.incarnation, id, 0};
+  e = (struct ar_event){m.incarnation, id, 0};
   CHECK(ar_event(&m, e) == AR_OK && ar_step(&m) == AR_OK);
   CHECK(ar_machine_cancel(&m) == AR_STATE && m.releases == 3);
   for (unsigned order = 0; order < 2; ++order) {
-    ArMachine independent[2];
+    struct ar_machine independent[2];
     uint32_t ids[2];
     for (unsigned i = 0; i < 2; ++i) {
       ar_machine_init(&independent[i]);
@@ -46,14 +46,14 @@ int main(void) {
     }
     for (unsigned j = 0; j < 2; ++j) {
       unsigned i = j ^ order;
-      CHECK(ar_event(&independent[i], (ArEvent){1, ids[i], 0}) == AR_OK &&
+      CHECK(ar_event(&independent[i], (struct ar_event){1, ids[i], 0}) == AR_OK &&
             ar_step(&independent[i]) == AR_OK);
     }
     CHECK(independent[0].releases == 1 && independent[1].releases == 1);
   }
   CHECK(ar_acquire(&m, &id) == AR_OK && ar_submit(&m) == AR_OK);
   pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
-  Producer p[2] = {{&m, &lock, {m.incarnation, id, 0}, -1},
+  struct ac_producer p[2] = {{&m, &lock, {m.incarnation, id, 0}, -1},
                    {&m, &lock, {m.incarnation, id, 0}, -1}};
   pthread_t workers[2];
   for (unsigned i = 0; i < 2; ++i)

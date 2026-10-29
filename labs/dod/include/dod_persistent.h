@@ -1,23 +1,23 @@
 #ifndef CMASTERY_DOD_PERSISTENT_H
 #define CMASTERY_DOD_PERSISTENT_H
 #include "dod.h"
-typedef struct {DTree *arena;unsigned root,focus,depth,crumb[3],direction[3];} DZipper;
-int d_zip_open(DTree *,unsigned,DZipper *);
-int d_zip_down(DZipper *,unsigned);
-int d_zip_up(DZipper *);
-int d_zip_write(const DZipper *,int,unsigned *);
-int d_tree_census(const DTree *,const unsigned *,size_t,unsigned *,unsigned *);
-int d_hamt_delete(DHamt *,unsigned,unsigned,unsigned *);
+struct d_zipper {struct d_tree *arena;unsigned root,focus,depth,crumb[3],direction[3];};
+int d_zip_open(struct d_tree *,unsigned,struct d_zipper *);
+int d_zip_down(struct d_zipper *,unsigned);
+int d_zip_up(struct d_zipper *);
+int d_zip_write(const struct d_zipper *,int,unsigned *);
+int d_tree_census(const struct d_tree *,const unsigned *,size_t,unsigned *,unsigned *);
+int d_hamt_delete(struct d_hamt *,unsigned,unsigned,unsigned *);
 
-typedef struct {void *context;int (*clone)(void *,const unsigned char *,size_t,unsigned char **);void (*drop)(void *,unsigned char *);} DTextOps;
-typedef struct {unsigned left,right,refs;unsigned char *text;size_t length;} DRcNode;
-typedef struct {DRcNode nodes[65];DTextOps ops;unsigned live,attempts,fail_at,reclaimed;} DRcTree;
-typedef struct {DRcTree *owner;unsigned pending[65],count;} DRcRetire;
-void d_rc_init(DRcTree *,DTextOps);
-int d_rc_retain(DRcTree *,unsigned);
-int d_rc_release(DRcTree *,unsigned);
-int d_rc_update(DRcTree *,unsigned,unsigned,const unsigned char *,size_t,unsigned *);
-int d_rc_get(const DRcTree *,unsigned,unsigned,const unsigned char **,size_t *);
-int d_rc_retire(DRcTree *,unsigned,DRcRetire *);
-int d_rc_drain(DRcRetire *,unsigned budget,unsigned *done);
+struct d_text_ops {void *context;int (*clone)(void *,const unsigned char *,size_t,unsigned char **);void (*drop)(void *,unsigned char *);};
+struct d_rc_node {unsigned left,right,refs;unsigned char *text;size_t length;};
+struct d_rc_tree {struct d_rc_node nodes[65];struct d_text_ops ops;unsigned live,attempts,fail_at,reclaimed;};
+struct d_rc_retire {struct d_rc_tree *owner;unsigned pending[65],count;};
+void d_rc_init(struct d_rc_tree *,struct d_text_ops);
+int d_rc_retain(struct d_rc_tree *,unsigned);
+int d_rc_release(struct d_rc_tree *,unsigned);
+int d_rc_update(struct d_rc_tree *,unsigned,unsigned,const unsigned char *,size_t,unsigned *);
+int d_rc_get(const struct d_rc_tree *,unsigned,unsigned,const unsigned char **,size_t *);
+int d_rc_retire(struct d_rc_tree *,unsigned,struct d_rc_retire *);
+int d_rc_drain(struct d_rc_retire *,unsigned budget,unsigned *done);
 #endif

@@ -7,16 +7,16 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-static XiRecord record(unsigned id) {
-  XiRecord r = {
+static struct xi_record record(unsigned id) {
+  struct xi_record r = {
       .sequence = id, .timestamp = 17 * id, .original_length = 8, .copied = 8};
   for (unsigned j = 0; j < 8; ++j)
     r.bytes[j] = (unsigned char)(id + j);
   return r;
 }
 int main(void) {
-  XiQueue q;
-  XiRecord out = record(999), r = record(1);
+  struct xi_queue q;
+  struct xi_record out = record(999), r = record(1);
   CHECK(xi_init(&q, 0) == XI_INVALID);
   CHECK(xi_init(&q, 1) == XI_INVALID);
   CHECK(xi_init(&q, 3) == XI_INVALID);
@@ -55,7 +55,7 @@ int main(void) {
     CHECK(xi_pop(&q, &out) == XI_OK && out.sequence == j &&
           out.bytes[7] == (unsigned char)(j + 7));
   }
-  XiService service;
+  struct xi_service service;
   CHECK(xi_service_init(&service, &q) == XI_OK);
   unsigned char bytes[8] = {1, 2, 3, 4, 5, 6, 7, 8};
   CHECK(xi_capture_begin(&service, 1, 5, bytes, UINT32_MAX) == XI_OK);
@@ -98,7 +98,7 @@ int main(void) {
   CHECK(xi_capture_begin(&service, 10, 7, bytes, 1) == XI_BUSY &&
         service.reentrant == UINT32_MAX);
   CHECK(xi_capture_end(&service) == XI_OK);
-  XiLatest latest;
+  struct xi_latest latest;
   xi_latest_init(&latest);
   for (unsigned i = 1; i <= 5; ++i) {
     r = record(i);
@@ -107,10 +107,10 @@ int main(void) {
   CHECK(latest.dropped == 2);
   for (unsigned i = 3; i <= 5; ++i)
     CHECK(xi_latest_pop(&latest, &out) == XI_OK && out.sequence == i);
-  XiMask mask;
+  struct xi_mask mask;
   uint32_t outer, inner;
   for (unsigned prior = 0; prior < 2; ++prior) {
-    CHECK(xi_mask_init(&mask, (XfPriorityConfig){4, 3}, 0, prior) == XI_OK);
+    CHECK(xi_mask_init(&mask, (struct xf_priority_config){4, 3}, 0, prior) == XI_OK);
     CHECK(xi_mask_enter(&mask, 1, &outer) == XI_OK);
     CHECK(xi_mask_enter(&mask, 1, &inner) == XI_OK);
     CHECK(xi_mask_leave(&mask, outer) == XI_STATE && mask.depth == 2);
@@ -118,7 +118,7 @@ int main(void) {
     CHECK(xi_mask_leave(&mask, outer) == XI_OK && mask.value == prior);
     CHECK(xi_mask_leave(&mask, outer) == XI_STATE);
   }
-  CHECK(xi_mask_init(&mask, (XfPriorityConfig){4, 3}, 1, 0x40) == XI_OK);
+  CHECK(xi_mask_init(&mask, (struct xf_priority_config){4, 3}, 1, 0x40) == XI_OK);
   CHECK(xi_mask_enter(&mask, 0x80, &outer) == XI_OK && mask.value == 0x40);
   CHECK(xi_mask_enter(&mask, 0x20, &inner) == XI_OK && mask.value == 0x20);
   CHECK(xi_mask_leave(&mask, inner) == XI_OK && mask.value == 0x40);
@@ -128,7 +128,7 @@ int main(void) {
   mask.next = UINT32_MAX;
   CHECK(xi_mask_enter(&mask, 0x20, &outer) == XI_EXHAUSTED);
   CHECK(xi_mask_enter(&mask, 0x21, &outer) == XI_INVALID);
-  CHECK(xi_mask_init(&mask, (XfPriorityConfig){4, 3}, 0, 0) == XI_OK);
+  CHECK(xi_mask_init(&mask, (struct xf_priority_config){4, 3}, 0, 0) == XI_OK);
   uint32_t tokens[8];
   for (unsigned i = 0; i < 8; ++i)
     CHECK(xi_mask_enter(&mask, 1, &tokens[i]) == XI_OK);

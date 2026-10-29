@@ -3,7 +3,7 @@
 #define TH_MUTANT 0
 #endif
 int th_health_accept(unsigned c,uint32_t g,uint32_t expected,uint32_t result){const uint32_t answer[2]={671377293u,3011442293u};return c<2&&g&&g==expected&&(TH_MUTANT==3||result==answer[c]);}
-enum FHResult th_commit_begin(FMRecycle*r,FMIO io,const BSSelection*o,const BSSelection*t,const FWPeer*p,uint32_t parked){
+enum fh_result th_commit_begin(struct fm_recycle*r,struct fm_io io,const struct bs_selection*o,const struct bs_selection*t,const struct fw_peer*p,uint32_t parked){
  if(!r||!o||!t||!p||o->record>1||t->record!=o->record||!o->sequence||o->sequence==UINT32_MAX||t->sequence!=o->sequence+1||
     t->image[0].core!=0||t->image[1].core!=1||!t->image[0].generation||t->image[0].generation!=t->image[1].generation||
     t->image[0].generation<=o->image[0].generation||t->image[1].generation<=o->image[1].generation||

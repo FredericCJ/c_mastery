@@ -13,17 +13,17 @@ int al_extent(size_t c, size_t n, size_t a, size_t cap, size_t *at,
   *end = *at + n;
   return AL_OK;
 }
-int al_arena_init(ALArena *a, unsigned char *p, size_t cap, size_t align) {
+int al_arena_init(struct al_arena *a, unsigned char *p, size_t cap, size_t align) {
   if (!a || (!p && cap) || !align || (align & (align - 1)))
     return AL_BAD;
-  *a = (ALArena){0};
+  *a = (struct al_arena){0};
   a->bytes = p;
   a->capacity = cap;
   a->alignment = align;
   return AL_OK;
 }
-int al_arena_take(ALArena *a, size_t n, size_t align, ALCleanup f, void *ctx,
-                  ALHandle *out) {
+int al_arena_take(struct al_arena *a, size_t n, size_t align, al_cleanup_fn f, void *ctx,
+                  struct al_handle *out) {
   if (!a || !out || align > a->alignment)
     return AL_BAD;
   size_t at, end;
@@ -34,7 +34,7 @@ int al_arena_take(ALArena *a, size_t n, size_t align, ALCleanup f, void *ctx,
     return AL_FULL;
   if (a->serial == UINT32_MAX)
     return AL_RETIRED;
-  ALItem item = {at, n, a->used, ++a->serial, f, ctx};
+  struct al_item item = {at, n, a->used, ++a->serial, f, ctx};
   a->items[a->count++] = item;
   a->used = end;
   a->payload += n;
@@ -42,10 +42,10 @@ int al_arena_take(ALArena *a, size_t n, size_t align, ALCleanup f, void *ctx,
     a->peak = end;
   if (end > a->epoch_peak)
     a->epoch_peak = end;
-  *out = (ALHandle){a, item.id};
+  *out = (struct al_handle){a, item.id};
   return AL_OK;
 }
-static int index_of(const ALArena *a, ALHandle h) {
+static int index_of(const struct al_arena *a, struct al_handle h) {
   if (!a || h.owner != a || !h.id)
     return -1;
   for (unsigned i = 0; i < a->count; ++i)
@@ -53,7 +53,7 @@ static int index_of(const ALArena *a, ALHandle h) {
       return (int)i;
   return -1;
 }
-int al_arena_view(ALArena *a, ALHandle h, unsigned char **out, size_t *size) {
+int al_arena_view(struct al_arena *a, struct al_handle h, unsigned char **out, size_t *size) {
   if (!out || !size)
     return AL_BAD;
   int i = index_of(a, h);
@@ -63,7 +63,7 @@ int al_arena_view(ALArena *a, ALHandle h, unsigned char **out, size_t *size) {
   *size = a->items[i].size;
   return AL_OK;
 }
-int al_arena_mark(ALArena *a, ALMark *out) {
+int al_arena_mark(struct al_arena *a, struct al_mark *out) {
   if (!a || !out)
     return AL_BAD;
   if (a->mark_count == 8)
@@ -74,17 +74,17 @@ int al_arena_mark(ALArena *a, ALMark *out) {
   a->marks[i].id = ++a->serial;
   a->marks[i].count = a->count;
   a->marks[i].used = a->used;
-  *out = (ALMark){a, a->serial};
+  *out = (struct al_mark){a, a->serial};
   return AL_OK;
 }
-static int mark_ok(ALArena *a, ALMark mark) {
+static int mark_ok(struct al_arena *a, struct al_mark mark) {
   return a && a->mark_count && mark.owner == a &&
          mark.id == a->marks[a->mark_count - 1].id;
 }
-static int pop(ALArena *a, unsigned count) {
+static int pop(struct al_arena *a, unsigned count) {
   int failed = 0;
   while (a->count > count) {
-    ALItem x = a->items[--a->count];
+    struct al_item x = a->items[--a->count];
     a->used = x.before;
     a->payload -= x.size;
     if (x.cleanup && x.cleanup(x.context))
@@ -92,7 +92,7 @@ static int pop(ALArena *a, unsigned count) {
   }
   return failed ? AL_CLEANUP : AL_OK;
 }
-int al_arena_rollback(ALArena *a, ALMark mark) {
+int al_arena_rollback(struct al_arena *a, struct al_mark mark) {
   if (!mark_ok(a, mark))
     return AL_STALE;
   unsigned i = --a->mark_count;
@@ -100,13 +100,13 @@ int al_arena_rollback(ALArena *a, ALMark mark) {
   a->used = a->marks[i].used;
   return status;
 }
-int al_arena_commit(ALArena *a, ALMark mark) {
+int al_arena_commit(struct al_arena *a, struct al_mark mark) {
   if (!mark_ok(a, mark))
     return AL_STALE;
   --a->mark_count;
   return AL_OK;
 }
-int al_arena_release(ALArena *a, ALHandle h) {
+int al_arena_release(struct al_arena *a, struct al_handle h) {
   int i = index_of(a, h);
   if (i < 0)
     return AL_STALE;
@@ -118,7 +118,7 @@ int al_arena_release(ALArena *a, ALHandle h) {
     return AL_BAD;
   return pop(a, (unsigned)i);
 }
-int al_arena_reset(ALArena *a) {
+int al_arena_reset(struct al_arena *a) {
   if (!a)
     return AL_BAD;
   int status = pop(a, 0);

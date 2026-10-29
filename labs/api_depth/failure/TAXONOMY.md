@@ -28,7 +28,7 @@ external malformed input; neither test calls the trusted function with a forged
 capability. Its public C struct does not enforce non-forgery. Supply the concrete
 counterexample showing why a cast or user-written admitted flag is not validation.
 
-`AeCounter` makes retry consequences observable. Requests have IDs1..7, deltas1..7,
+`struct ae_counter` makes retry consequences observable. Requests have IDs1..7, deltas1..7,
 counter bound63 and effect count bound31. Busy and definite pre-send failure make
 no effect. Accepted SEND commits once; LOSE_ACK commits but returns AMBIGUOUS.
 Two entries retain (ID,delta) in FIFO order. A retained identical request returns
@@ -40,7 +40,7 @@ durable replay protection or a rule that all timeouts are safe to retry.
 
 ## First cause is not the last cleanup symptom
 
-`AeError` records stable public code/operation, resource stage0..3, backend0/1 and
+`struct ae_error` records stable public code/operation, resource stage0..3, backend0/1 and
 first cause0..65535 where representable by int. Operation IDs1..31 are a declared
 bound. Set primary only from an empty record; a later primary attempt conflicts
 without changing it. Cleanup adds two secondary(stage,cause) records. Further
@@ -79,11 +79,11 @@ stable two-field error layout.
 
 ## Status and data need distinct channels
 
-`AeWriteResult` retains accepted count alongside status. An error after accepting
+`struct ae_write_result` retains accepted count alongside status. An error after accepting
 two of five bytes leaves an unaccepted suffix of three; replaying all five can
 duplicate two bytes. Zero-length success is OK with accepted0. OK with accepted
 less than offered is rejected by this complete-operation result contract.
-AGAIN/DEVICE may accompany a valid partial count. `AeLookup` distinguishes
+AGAIN/DEVICE may accompany a valid partial count. `struct ae_lookup` distinguishes
 present value0 from absent; a payload-zero sentinel cannot represent both.
 
 For changed accumulation, validate four independent fields with the actual

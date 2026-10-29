@@ -31,12 +31,12 @@ def main():
  records['saved-state']={'present':['register/PC text','selected stack variables','matching image hashes'],'heap':None,'absent_heap_means':'unknown','not_a_native_core':True,'same_source_lines_wrong_build':'reject by image/symbol identity before interpreting bytes'}
  # Reset and fault inputs are numeric captured labels, never host MMIO reads.
  reset=0x08000101;vtor=0x08000000;irq=3;cfsr=[0x8200,0x400]
- records['captured-target']={'reset_pc':reset&~1,'thumb':bool(reset&1),'irq_exception':16+irq,'vector_address':vtor+4*(16+irq),'BFAR_usable':[bool(v&0x8000) for v in cfsr],'startup_bad_sequence':['configure-clock-before-enable','enable','configure'],'first_bad_stage':0,'polling_policy':'snapshot once only where register read is allowed;never poll clear-on-read status to reconstruct history','cached_variant':['CPU clean payload before device read','publish descriptor/OWN after required ordering','wait actual stop/completion','invalidate device-written cache lines before CPU read'],'cached_hardware_observed':False}
+ records['captured-target']={'reset_pc':reset&~1,'thumb':bool(reset&1),'irq_exception':16+irq,'vector_address':vtor+4*(16+irq),'BFAR_usable':[bool(v&0x8000) for v in cfsr],'startup_bad_sequence':['configure-clock-before-enable','enable','configure'],'first_bad_stage':0,'polling_policy':'snapshot once only where register read is allowed;never poll clear-on-read status to reconstruct history','cached_variant':['struct lr_cpu clean payload before device read','publish descriptor/OWN after required ordering','wait actual stop/completion','invalidate device-written cache lines before struct lr_cpu read'],'cached_hardware_observed':False}
  assert records['captured-target']['vector_address']==0x0800004c and records['captured-target']['BFAR_usable']==[True,False]
  # Reset cancellation does not manufacture quiescence. Epoch changes are
  # admitted only with a stated device-stop premise; old completion is rejected.
- def reset_model(epoch,owner,quiescent):return (epoch+1,'CPU') if quiescent else (epoch,owner)
- assert reset_model(7,'DMA',False)==(7,'DMA') and reset_model(7,'DMA',True)==(8,'CPU')
+ def reset_model(epoch,owner,quiescent):return (epoch+1,'struct lr_cpu') if quiescent else (epoch,owner)
+ assert reset_model(7,'DMA',False)==(7,'DMA') and reset_model(7,'DMA',True)==(8,'struct lr_cpu')
  records['reset-epoch']={'before':[7,'DMA'],'timeout':reset_model(7,'DMA',False),'acknowledged_reset':reset_model(7,'DMA',True),'completion_ticket7_matches_epoch8':False,'no_generation_wrap':'UINT_MAX rejects next start'}
  # Asynchronous publication uses a different ownership boundary. A release
  # publication admits only a fully valid candidate; acquire observes payload.

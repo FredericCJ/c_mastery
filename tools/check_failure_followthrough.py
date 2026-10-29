@@ -38,7 +38,7 @@ def validate(d):
    category='PUBLICATION' if name in ('unpin','publication-stub') else 'DIAGNOSTICS' if name in ('disabled-eval','diagnostics-stub') else 'CANCEL' if m=='cancellation' else m.upper()
    if not good(name,1,category+'-CHECK'):errors.append('Missing semantic rejection: '+name)
  names={r.get('name') for r in checks}
- for module,required in {'taxonomy':['actual old public consumers with copied diagnostic snapshot'],'construction':['actual T18 resource ownership provider imported'],'cancellation':['Actual FAsync producer functions imported'],'target':['all named bounded failure-core API roots selected']}.items():
+ for module,required in {'taxonomy':['actual old public consumers with copied diagnostic snapshot'],'construction':['actual T18 resource ownership provider imported'],'cancellation':['Actual struct f_async producer functions imported'],'target':['all named bounded failure-core API roots selected']}.items():
   if module in selected and not set(required)<=names:errors.append('Missing import/bound: '+module)
  if 'transaction' in selected:
   for cc,profile in itertools.product(('gcc','clang'),('debug','release','sanitize')):

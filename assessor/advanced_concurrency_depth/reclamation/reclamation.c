@@ -1,16 +1,16 @@
 #include "reclamation.h"
 #include <limits.h>
-static void event(APQueue *q, unsigned point, unsigned p, unsigned n) {
+static void event(struct ap_queue *q, unsigned point, unsigned p, unsigned n) {
   if (q->hook)
     q->hook(q->hook_context, point, p, n);
 }
-static int lease_valid(const APQueue *q, APLease lease) {
+static int lease_valid(const struct ap_queue *q, struct ap_lease lease) {
   return q && lease.owner == q && lease.participant < q->participants &&
          lease.generation && lease.generation <= (UINT_MAX >> 2) &&
          atomic_load(&q->registration[lease.participant]) ==
              ((lease.generation << 2) | 1u);
 }
-int ap_init(APQueue *q, unsigned participants, unsigned limit, APHook hook,
+int ap_init(struct ap_queue *q, unsigned participants, unsigned limit, ap_hook_fn hook,
             void *context) {
   if (!q || !participants || participants > AP_PARTICIPANTS || !limit ||
       limit > (UINT_MAX >> 2))
@@ -34,7 +34,7 @@ int ap_init(APQueue *q, unsigned participants, unsigned limit, APHook hook,
   }
   return AP_OK;
 }
-int ap_register(APQueue *q, APLease *out) {
+int ap_register(struct ap_queue *q, struct ap_lease *out) {
   if (!q || !out)
     return AP_INVALID;
   for (unsigned p = 0; p < q->participants; p++) {
@@ -49,11 +49,11 @@ int ap_register(APQueue *q, APLease *out) {
   }
   return AP_FULL;
 }
-static void clear(APQueue *q, unsigned p) {
+static void clear(struct ap_queue *q, unsigned p) {
   atomic_store(&q->hazard[p][0], AP_NONE);
   atomic_store(&q->hazard[p][1], AP_NONE);
 }
-int ap_leave(APQueue *q, APLease lease) {
+int ap_leave(struct ap_queue *q, struct ap_lease lease) {
   if (!lease_valid(q, lease))
     return AP_INVALID;
   unsigned old = (lease.generation << 2) | 1u;
@@ -69,7 +69,7 @@ int ap_leave(APQueue *q, APLease lease) {
              ? AP_OK
              : AP_INVALID;
 }
-static unsigned protect(APQueue *q, unsigned p, unsigned h,
+static unsigned protect(struct ap_queue *q, unsigned p, unsigned h,
                         atomic_uint *location) {
   unsigned n;
   do {
@@ -84,7 +84,7 @@ static unsigned protect(APQueue *q, unsigned p, unsigned h,
   event(q, AP_VALIDATED, p, n);
   return n;
 }
-unsigned ap_collect(APQueue *q) {
+unsigned ap_collect(struct ap_queue *q) {
   unsigned count = 0;
   for (unsigned n = 0; n < AP_NODES; n++) {
     unsigned old = atomic_load(&q->node[n].state);
@@ -116,7 +116,7 @@ unsigned ap_collect(APQueue *q) {
   }
   return count;
 }
-int ap_push(APQueue *q, APLease lease, APValue value) {
+int ap_push(struct ap_queue *q, struct ap_lease lease, struct ap_value value) {
   if (!lease_valid(q, lease))
     return AP_INVALID;
   unsigned n = AP_NONE, p = lease.participant;
@@ -155,7 +155,7 @@ int ap_push(APQueue *q, APLease lease, APValue value) {
       atomic_compare_exchange_weak(&q->tail, &tail, next);
   }
 }
-int ap_pop(APQueue *q, APLease lease, APValue *out) {
+int ap_pop(struct ap_queue *q, struct ap_lease lease, struct ap_value *out) {
   if (!out || !lease_valid(q, lease))
     return AP_INVALID;
   unsigned p = lease.participant;
@@ -172,7 +172,7 @@ int ap_pop(APQueue *q, APLease lease, APValue *out) {
       atomic_compare_exchange_weak(&q->tail, &tail, next);
       continue;
     }
-    APValue item;
+    struct ap_value item;
     item.sequence = q->node[next].value.sequence;
     item.inverse = q->node[next].value.inverse;
     unsigned old = head;

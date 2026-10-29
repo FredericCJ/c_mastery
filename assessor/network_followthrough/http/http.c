@@ -4,12 +4,12 @@
 #ifndef NH_MUTANT
 #define NH_MUTANT 0
 #endif
-static int fail(NhHttp *s, uint64_t now) {
+static int fail(struct nh_http *s, uint64_t now) {
   s->state = NH_FAILED;
   (void)nb_stop(s->net, now);
   return NH_ABORT;
 }
-int nh_init(NhHttp *s, NbNet *n, const char *authority, NhDate date,
+int nh_init(struct nh_http *s, struct nb_net *n, const char *authority, nh_date_fn date,
             void *context, uint64_t now) {
   if (!s || !n || !authority || n->phase != NB_RUNNING || now < n->now ||
       now > UINT64_MAX - 240000 ||
@@ -25,7 +25,7 @@ int nh_init(NhHttp *s, NbNet *n, const char *authority, NhDate date,
   http_init(&s->parser, authority);
   return NH_OK;
 }
-static int output(NhHttp *s, unsigned interim, uint64_t now) {
+static int output(struct nh_http *s, unsigned interim, uint64_t now) {
   s->offered = 0;
   s->output_started = now;
   if (interim) {
@@ -45,7 +45,7 @@ static int output(NhHttp *s, unsigned interim, uint64_t now) {
   }
   return NH_WAIT;
 }
-int nh_step(NhHttp *s, uint64_t now) {
+int nh_step(struct nh_http *s, uint64_t now) {
   if (!s || !s->net || now < s->now || now > UINT64_MAX - 240000)
     return NH_INVALID;
   if (s->state == NH_FAILED)
@@ -60,7 +60,7 @@ int nh_step(NhHttp *s, uint64_t now) {
   int e = nb_step(s->net, now);
   if (e == NB_FAULT || e == NB_STOPPED || s->net->phase != NB_RUNNING)
     return fail(s, now);
-  NcStack *t = &s->net->tcp;
+  struct nc_stack *t = &s->net->tcp;
   if (s->state == NH_CLOSING &&
       (t->state == NC_CLOSED || t->state == NC_TIME_WAIT)) {
     s->state = NH_FINISHED;

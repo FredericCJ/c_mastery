@@ -48,8 +48,8 @@ integer clock are this laboratory's contracts. No board timing is implied.
 ## 5. Problem, inputs, outputs and supplied artifacts
 
 Implement `jobs.c` against `jobs.h`. The public scaffold remains unsolved.
-`SJTask` has cost, period, relative deadline and maximum release jitter.
-`SJJob` has task index, sequence identity, actual release, actual cost and one
+`struct sj_task` has cost, period, relative deadline and maximum release jitter.
+`struct sj_job` has task index, sequence identity, actual release, actual cost and one
 nonpreemptible service interval. Costs range0..1024; periods/deadlines are
 positive uint32 values. A finite experiment has1..8 tasks,0..32 jobs,
 capacity1..32, horizon1..128 and preemption cost0..128. Infeasible cost greater
@@ -70,7 +70,7 @@ is checked before publishing output/count. Jitter can exceed a period: output
 identity order therefore need not equal actual release order. Generated
 sections are empty; explicitly assign sections in the changed-condition work.
 
-`sj_simulate` publishes a complete `SJResult`: every input job retains state,
+`sj_simulate` publishes a complete `struct sj_result`: every input job retains state,
 remaining/executed service, first dispatch/finish, and whether a miss was
 observed. Every tick records job identity and service/overhead/idle. Counters
 include preemptions, misses, completed/rejected/dropped jobs and peak backlog.

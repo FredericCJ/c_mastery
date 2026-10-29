@@ -4,27 +4,27 @@
 #include "fractional.h"
 #include "v4_com.h"
 
-typedef struct { uint32_t state; uint64_t draws; } RzrRandom;
-typedef enum { RZR_FULL_JITTER, RZR_NO_JITTER, RZR_EQUAL_JITTER } RzrJitter;
-typedef struct {
-    RzfBorrow scope;
-    RZRetry retry;
-    RzfBucket *limiter;
-    NetStack *transport;
-    RzrRandom random;
+struct rzr_random { uint32_t state; uint64_t draws; };
+enum rzr_jitter { RZR_FULL_JITTER, RZR_NO_JITTER, RZR_EQUAL_JITTER };
+struct rzr_retry {
+    struct rzf_borrow scope;
+    struct rz_retry retry;
+    struct rzf_bucket *limiter;
+    struct net_stack *transport;
+    struct rzr_random random;
     uint64_t due;
     unsigned original, dispatched, dropped;
     bool pending, closed;
-} RzrRetry;
+};
 
 int rzr_reduce(uint32_t, unsigned, uint32_t, uint32_t *);
-int rzr_uniform(RzrRandom *, uint32_t, uint32_t *);
-int rzr_init(RzrRetry *, RzfScope *, RzfBucket *, NetStack *, unsigned,
+int rzr_uniform(struct rzr_random *, uint32_t, uint32_t *);
+int rzr_init(struct rzr_retry *, struct rzf_scope *, struct rzf_bucket *, struct net_stack *, unsigned,
               uint64_t, uint64_t, bool, uint32_t);
-int rzr_original(RzrRetry *, uint64_t, V4PacketSink, void *);
-int rzr_plan(RzrRetry *, uint64_t, uint64_t, RzrJitter, uint64_t *);
-int rzr_dispatch(RzrRetry *, uint64_t, V4PacketSink, void *);
-int rzr_ack_packet(RzrRetry *, const void *, size_t, uint64_t, NetPacket *);
-int rzr_finish(RzrRetry *);
-int rzr_abort(RzrRetry *);
+int rzr_original(struct rzr_retry *, uint64_t, v4_packet_sink_fn, void *);
+int rzr_plan(struct rzr_retry *, uint64_t, uint64_t, enum rzr_jitter, uint64_t *);
+int rzr_dispatch(struct rzr_retry *, uint64_t, v4_packet_sink_fn, void *);
+int rzr_ack_packet(struct rzr_retry *, const void *, size_t, uint64_t, struct net_packet *);
+int rzr_finish(struct rzr_retry *);
+int rzr_abort(struct rzr_retry *);
 #endif

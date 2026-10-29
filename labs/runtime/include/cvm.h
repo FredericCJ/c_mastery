@@ -11,7 +11,7 @@
 #define CVM_LOCALS 8u
 #define CVM_HEAP 16u
 #define CVM_ROOTS 8u
-typedef enum {
+enum cvm_status {
   CVM_OK,
   CVM_FORMAT,
   CVM_VERIFY,
@@ -27,14 +27,14 @@ typedef enum {
   CVM_STALE,
   CVM_SYNTAX,
   CVM_NOT_IMPLEMENTED
-} CvmStatus;
-typedef enum { CVM_NIL, CVM_INT, CVM_BOOL, CVM_REF } CvmTag;
-typedef struct {
-  CvmTag tag;
+};
+enum cvm_tag { CVM_NIL, CVM_INT, CVM_BOOL, CVM_REF };
+struct cvm_value {
+  enum cvm_tag tag;
   int32_t integer;
   uint32_t generation;
-} CvmValue;
-typedef enum {
+};
+enum cvm_opcode {
   OP_INT = 1,
   OP_TRUE,
   OP_FALSE,
@@ -57,62 +57,62 @@ typedef enum {
   OP_SECOND,
   OP_GC,
   OP_HOST
-} CvmOpcode;
-typedef struct {
+};
+struct cvm_function {
   uint16_t entry, length;
   uint8_t arity, locals;
-} CvmFunction;
-typedef struct {
+};
+struct cvm_program {
   uint8_t code[CVM_CODE];
   uint16_t length;
   uint8_t count;
-  CvmFunction functions[CVM_FUNCTIONS];
-} CvmProgram;
-typedef struct {
+  struct cvm_function functions[CVM_FUNCTIONS];
+};
+struct cvm_frame {
   uint8_t function;
   uint16_t ip, base;
-  CvmValue locals[CVM_LOCALS];
+  struct cvm_value locals[CVM_LOCALS];
   uint8_t initialized[CVM_LOCALS];
-} CvmFrame;
-typedef struct {
+};
+struct cvm_object {
   uint8_t used, marked;
   uint32_t generation;
-  CvmValue left, right;
-} CvmObject;
+  struct cvm_value left, right;
+};
 /* Callback must terminate with its own finite I/O/deadline policy. No VM
    reentry. Returning nonzero is failure. Only a CVM_INT crosses this interface.
  */
-typedef int (*CvmHost)(void *, uint8_t, int32_t, int32_t *);
-typedef struct {
-  CvmValue stack[CVM_STACK], roots[CVM_ROOTS];
-  CvmFrame frames[CVM_FRAMES];
-  CvmObject heap[CVM_HEAP];
+typedef int (*cvm_host_fn)(void *, uint8_t, int32_t, int32_t *);
+struct cvm_cvm {
+  struct cvm_value stack[CVM_STACK], roots[CVM_ROOTS];
+  struct cvm_frame frames[CVM_FRAMES];
+  struct cvm_object heap[CVM_HEAP];
   uint16_t sp;
   uint8_t depth, root_count, arena;
   uint32_t fuel, gc_budget, host_budget, allocations, collections;
-  CvmHost host;
+  cvm_host_fn host;
   void *host_context;
-} Cvm;
-CvmValue cvm_int(int32_t n);
-void cvm_init(Cvm *vm, uint32_t fuel, uint32_t gc_budget, uint32_t host_budget);
+};
+struct cvm_value cvm_int(int32_t n);
+void cvm_init(struct cvm_cvm *vm, uint32_t fuel, uint32_t gc_budget, uint32_t host_budget);
 /* Structural container codec only: bounded, contiguous function regions and
  * failure-atomic output. Decoded instructions are NOT verified for execution.
  * Use load/save for verified images, and run verifies again before dispatch. */
-CvmStatus cvm_decode(const uint8_t *bytes, size_t length, CvmProgram *out);
-CvmStatus cvm_encode(const CvmProgram *p, uint8_t *out, size_t capacity,
+enum cvm_status cvm_decode(const uint8_t *bytes, size_t length, struct cvm_program *out);
+enum cvm_status cvm_encode(const struct cvm_program *p, uint8_t *out, size_t capacity,
                      size_t *written);
-CvmStatus cvm_load(const uint8_t *bytes, size_t length, CvmProgram *out);
-CvmStatus cvm_save(const CvmProgram *p, uint8_t *out, size_t capacity,
+enum cvm_status cvm_load(const uint8_t *bytes, size_t length, struct cvm_program *out);
+enum cvm_status cvm_save(const struct cvm_program *p, uint8_t *out, size_t capacity,
                    size_t *written);
-CvmStatus cvm_verify(const CvmProgram *p);
-CvmStatus cvm_run(Cvm *vm, const CvmProgram *p, CvmValue *result);
-CvmStatus cvm_collect(Cvm *vm);
-CvmStatus cvm_pair(Cvm *vm, CvmValue left, CvmValue right, CvmValue *out);
-CvmStatus cvm_root_push(Cvm *vm, CvmValue value);
-void cvm_root_pop(Cvm *vm);
-CvmStatus cvm_field(Cvm *vm, CvmValue ref, int right, CvmValue *out);
+enum cvm_status cvm_verify(const struct cvm_program *p);
+enum cvm_status cvm_run(struct cvm_cvm *vm, const struct cvm_program *p, struct cvm_value *result);
+enum cvm_status cvm_collect(struct cvm_cvm *vm);
+enum cvm_status cvm_pair(struct cvm_cvm *vm, struct cvm_value left, struct cvm_value right, struct cvm_value *out);
+enum cvm_status cvm_root_push(struct cvm_cvm *vm, struct cvm_value value);
+void cvm_root_pop(struct cvm_cvm *vm);
+enum cvm_status cvm_field(struct cvm_cvm *vm, struct cvm_value ref, int right, struct cvm_value *out);
 /* Hosted compiler: source is an explicit byte span; output unchanged on
  * failure. */
-CvmStatus cvm_compile(const char *source, size_t length, CvmProgram *out);
-const char *cvm_status_name(CvmStatus status);
+enum cvm_status cvm_compile(const char *source, size_t length, struct cvm_program *out);
+const char *cvm_status_name(enum cvm_status status);
 #endif

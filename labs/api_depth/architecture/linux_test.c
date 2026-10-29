@@ -13,11 +13,11 @@ static ptrdiff_t write_one(void *p, const unsigned char *b, size_t n) {
   return x < 0 ? -1 : x;
 }
 static void assemble(int fd, const unsigned char expected[3]) {
-  ArReader reader = {{0}, 0, 1};
-  ArRecord r = {99};
+  struct ar_reader reader = {{0}, 0, 1};
+  struct ar_record r = {99};
   for (unsigned i = 0; i < 3; ++i) {
     unsigned char b = 0;
-    ArResult got = ar_linux_read(fd, &b, 1);
+    struct ar_result got = ar_linux_read(fd, &b, 1);
     CHECK(got.state == AR_OK && got.count == 1 && b == expected[i]);
     CHECK(ar_feed(&reader, &b, 1, &r) == (i == 2 ? AR_OK : AR_PENDING));
   }
@@ -28,7 +28,7 @@ int main(void) {
   int fd = mkstemp(path);
   CHECK(fd >= 0 && unlink(path) == 0);
   unsigned char wire[3];
-  CHECK(ar_encode(1, (ArRecord){513}, wire, 3) == AR_OK);
+  CHECK(ar_encode(1, (struct ar_record){513}, wire, 3) == AR_OK);
   CHECK(write(fd, wire, 3) == 3 && lseek(fd, 0, SEEK_SET) == 0);
   assemble(fd, wire);
   unsigned char b;
@@ -40,8 +40,8 @@ int main(void) {
   CHECK(write(pipefd[1], wire, 1) == 1 && write(pipefd[1], wire + 1, 2) == 2);
   assemble(pipefd[0], wire);
   CHECK(ar_linux_read(pipefd[0], &b, 1).state == AR_PENDING);
-  SFStream s;
-  SFHandle handle;
+  struct sf_stream s;
+  struct sf_handle handle;
   sf_init(&s);
   unsigned char payload[] = {1, 2, 3};
   CHECK(sf_start(&s, payload, 3, &handle) == SF_OK);

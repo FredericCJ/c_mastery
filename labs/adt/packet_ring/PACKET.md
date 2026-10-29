@@ -11,11 +11,11 @@ segmented receive ring are both required.
 Retain X-T67-009 and the original T67 sum/view contracts. Core C17 prerequisites
 are initialized object lifetime, pointer bounds, checked size arithmetic and
 explicit status/ownership transitions. For the contiguous stage import actual
-`bytes.cursor` from PR-T03-02 (`FCursor/f_take`) and `bytes.checked`
+`bytes.cursor` from PR-T03-02 (`struct f_cursor/f_take`) and `bytes.checked`
 PR-T04-01/U-T04-01-04 (`f_checked_size`) from the completed foundations workspace. The packet-specific
 baseline is actual `ad_packet` in the completed ADT source, not a replacement
 parser merely bearing its name. For the record stage import actual
-`codec.records` PR-T20-01 (`ArRecord/ar_encode/ar_decode`) from the completed
+`codec.records` PR-T20-01 (`struct ar_record/ar_encode/ar_decode`) from the completed
 api_depth architecture workspace. For the pipe stage import `io.frame`
 PR-T23-04/LAB-HS-06 (`hs_read_frame`) from hosted_systems.
 
@@ -30,7 +30,7 @@ No hidden target library implements the ring or the ownership mechanism.
 ## Problem and error table
 
 `adp_parse` composes the actual `ad_packet` verdict with a cursor walk and returns
-an `ADPacket` borrowing the input. A null output is INVALID. The retained parser
+an `struct ad_packet` borrowing the input. A null output is INVALID. The retained parser
 precedence is: null input or fewer than3 bytes  ->  HEADER; unsupported kind  -> 
 KIND; BE16 length unequal to the exact remaining extent  ->  LENGTH; kind2 with
 nonzero payload  ->  ACK; otherwise OK. Kind1 admits zero payload. Subtract3 only
@@ -45,7 +45,7 @@ preflight: nonnull output/used and nonnull nonempty payload; kind1/2; length
 preserves all output bytes and `used`. Contiguous parsing supports the full
 65535-byte payload; the receive ring intentionally narrows it to29 bytes.
 
-`AdpRing` has32 owned bytes and `(head,count)` describing their logical order.
+`struct adp_ring` has32 owned bytes and `(head,count)` describing their logical order.
 `adp_init(r,origin,first_generation)` admits origin0..31 and generation1..MAX.
 Production starts at0,1; explicit seeds make layout and finite-counter boundaries
 testable. Initialization is once per object lifetime, or only after all tokens,

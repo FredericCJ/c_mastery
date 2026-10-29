@@ -4,14 +4,14 @@
 #define RPR_MUTATION 0
 #endif
 static int move(int x) { return x >= -1 && x <= 1; }
-static int state(RPState s, unsigned tick) {
+static int state(struct rp_state s, unsigned tick) {
   return s.tick == tick && s.position < 16 && s.score <= 65535;
 }
-static int equal(RPState a, RPState b) {
+static int equal(struct rp_state a, struct rp_state b) {
   return a.tick == b.tick && a.position == b.position && a.score == b.score &&
          a.random == b.random;
 }
-static int presentation(const RPState s[2], int32_t *out) {
+static int presentation(const struct rp_state s[2], int32_t *out) {
   uint32_t value =
       s[0].position + 16u * s[1].position + 256u * (s[0].score + s[1].score);
   if (value > INT32_MAX / 2)
@@ -19,10 +19,10 @@ static int presentation(const RPState s[2], int32_t *out) {
   *out = (int32_t)value;
   return RPR_OK;
 }
-static int rebuild(RprSession *s, unsigned from) {
+static int rebuild(struct rpr_session *s, unsigned from) {
   unsigned i;
   int predicted = 0;
-  RPEffect effect;
+  struct rp_effect effect;
   for (i = 0; i < from; ++i)
     if (s->known[i])
       predicted = s->remote[i];
@@ -42,8 +42,8 @@ static int rebuild(RprSession *s, unsigned from) {
     ++s->confirmed;
   return RPR_OK;
 }
-int rpr_invariant(const RprSession *s) {
-  RprSession next;
+int rpr_invariant(const struct rpr_session *s) {
+  struct rpr_session next;
   unsigned i;
   int32_t value;
   if (!s || !s->timeline || !s->revision || s->horizon < 1 || s->horizon > 8 ||
@@ -73,9 +73,9 @@ int rpr_invariant(const RprSession *s) {
   }
   return 1;
 }
-int rpr_init(uint64_t timeline, unsigned horizon, const RPState initial[2],
-             RprSession *out) {
-  RprSession s = {0};
+int rpr_init(uint64_t timeline, unsigned horizon, const struct rp_state initial[2],
+             struct rpr_session *out) {
+  struct rpr_session s = {0};
   if (!timeline || horizon < 1 || horizon > 8 || !initial || !out ||
       !state(initial[0], 0) || !state(initial[1], 0))
     return RPR_INVALID;
@@ -87,21 +87,21 @@ int rpr_init(uint64_t timeline, unsigned horizon, const RPState initial[2],
   *out = s;
   return RPR_OK;
 }
-int rpr_value(const RprSession *s, unsigned tick, int32_t *out) {
+int rpr_value(const struct rpr_session *s, unsigned tick, int32_t *out) {
   if (!out || !rpr_invariant(s) || tick > s->head)
     return RPR_INVALID;
   return presentation(s->snapshots[tick], out);
 }
-static RprNotice notice(const RprSession *old, const RprSession *next,
+static struct rpr_notice notice(const struct rpr_session *old, const struct rpr_session *next,
                         unsigned from) {
-  RprNotice n = {from, next->head, old->revision, next->revision, 0, 0};
+  struct rpr_notice n = {from, next->head, old->revision, next->revision, 0, 0};
   (void)presentation(old->snapshots[old->head], &n.old_value);
   (void)presentation(next->snapshots[next->head], &n.new_value);
   return n;
 }
-int rpr_advance(RprSession *s, int local, RprNotice *out) {
-  RprSession next;
-  RprNotice n;
+int rpr_advance(struct rpr_session *s, int local, struct rpr_notice *out) {
+  struct rpr_session next;
+  struct rpr_notice n;
   int r;
   if (!out || !move(local) || !rpr_invariant(s))
     return RPR_INVALID;
@@ -124,10 +124,10 @@ int rpr_advance(RprSession *s, int local, RprNotice *out) {
   *out = n;
   return RPR_OK;
 }
-int rpr_correct(RprSession *s, uint64_t timeline, unsigned tick, int remote,
-                RprNotice *out) {
-  RprSession next;
-  RprNotice n;
+int rpr_correct(struct rpr_session *s, uint64_t timeline, unsigned tick, int remote,
+                struct rpr_notice *out) {
+  struct rpr_session next;
+  struct rpr_notice n;
   int r;
   if (!out || !move(remote) || !rpr_invariant(s) || !tick || tick > s->head)
     return RPR_INVALID;
@@ -156,9 +156,9 @@ int rpr_correct(RprSession *s, uint64_t timeline, unsigned tick, int remote,
   *out = n;
   return RPR_OK;
 }
-int rpr_prepare(RprSession *s, RprEffect *out) {
-  RprSession next;
-  ArEffect effect;
+int rpr_prepare(struct rpr_session *s, struct rpr_effect *out) {
+  struct rpr_session next;
+  struct ar_effect effect;
   int32_t value;
   int r;
   if (!out || !rpr_invariant(s))
@@ -177,11 +177,11 @@ int rpr_prepare(RprSession *s, RprEffect *out) {
       return RPR_STATE;
   }
   *s = next;
-  *out = (RprEffect){s->timeline, effect.id, effect.value};
+  *out = (struct rpr_effect){s->timeline, effect.id, effect.value};
   return RPR_OK;
 }
-int rpr_feedback(RprSession *s, RprEffect effect, unsigned result) {
-  RprSession next;
+int rpr_feedback(struct rpr_session *s, struct rpr_effect effect, unsigned result) {
+  struct rpr_session next;
   if (!rpr_invariant(s) || !s->effects.pending)
     return RPR_STATE;
   if (RPR_MUTATION != 8 &&

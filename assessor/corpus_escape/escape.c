@@ -15,8 +15,8 @@ static int same(const unsigned char *s,size_t n,const char *t,size_t z) {
  for(size_t i=0;i<z;i++)if(s[i]!=(unsigned char)t[i])return 0;
  return 1;
 }
-static int decode(const unsigned char *s,size_t n,unsigned html,EsText *out) {
- EsText r={{0},0};
+static int decode(const unsigned char *s,size_t n,unsigned html,struct es_text *out) {
+ struct es_text r={{0},0};
  for(size_t i=0;i<n;) {
   unsigned char c=s[i++];
   if(c=='&') {
@@ -33,10 +33,10 @@ static int decode(const unsigned char *s,size_t n,unsigned html,EsText *out) {
  }
  *out=r;return ES_OK;
 }
-int es_encode(const unsigned char *s,size_t n,size_t cap,EsText *out) {
+int es_encode(const unsigned char *s,size_t n,size_t cap,struct es_text *out) {
  if(!out||(!s&&n)||cap>ES_ENCODED)return ES_INVALID;
  if(n>ES_PLAIN)return ES_RANGE;
- EsText r={{0},0};
+ struct es_text r={{0},0};
  for(size_t i=0;i<n;i++) {
   if(!admitted(s[i]))return ES_SYNTAX;
   size_t k=special(s[i]);
@@ -47,21 +47,21 @@ int es_encode(const unsigned char *s,size_t n,size_t cap,EsText *out) {
  if(r.length>cap)return ES_CAPACITY;
  *out=r;return ES_OK;
 }
-int es_decode(const unsigned char *s,size_t n,size_t cap,EsText *out) {
+int es_decode(const unsigned char *s,size_t n,size_t cap,struct es_text *out) {
  if(!out||(!s&&n)||cap>ES_ENCODED)return ES_INVALID;
  if(n>ES_ENCODED)return ES_RANGE;
- EsText r={{0},0};int status=decode(s,n,0,&r);
+ struct es_text r={{0},0};int status=decode(s,n,0,&r);
  if(status)return status;
  if(ES_MUTANT==2) {
-  EsText twice={{0},0};
+  struct es_text twice={{0},0};
   if(decode(r.bytes,r.length,0,&twice)==ES_OK)r=twice;
  }
  if(r.length>cap)return ES_CAPACITY;
  *out=r;return ES_OK;
 }
-int es_recode_html(const unsigned char *s,size_t n,size_t cap,EsText *out) {
+int es_recode_html(const unsigned char *s,size_t n,size_t cap,struct es_text *out) {
  if(!out||(!s&&n)||cap>ES_ENCODED)return ES_INVALID;
  if(n>ES_ENCODED)return ES_RANGE;
- EsText plain={{0},0};int status=decode(s,n,1,&plain);
+ struct es_text plain={{0},0};int status=decode(s,n,1,&plain);
  return status?status:es_encode(plain.bytes,plain.length,cap,out);
 }

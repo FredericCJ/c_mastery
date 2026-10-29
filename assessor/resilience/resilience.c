@@ -6,7 +6,7 @@ static int add_int(int a, int b, int *out) {
   *out = a + b;
   return RZ_OK;
 }
-int rz_scope_init(RZScope *s, const RZScope *p, uint64_t now, uint64_t budget) {
+int rz_scope_init(struct rz_scope *s, const struct rz_scope *p, uint64_t now, uint64_t budget) {
   if (!s || s == p || (p && p->depth >= 8))
     return RZ_INVALID;
   uint64_t deadline;
@@ -29,21 +29,21 @@ int rz_scope_init(RZScope *s, const RZScope *p, uint64_t now, uint64_t budget) {
   atomic_init(&s->cancelled, false);
   return RZ_OK;
 }
-void rz_cancel(RZScope *s) {
+void rz_cancel(struct rz_scope *s) {
   if (s)
     atomic_store(&s->cancelled, true);
 }
-int rz_check(const RZScope *s, uint64_t now) {
+int rz_check(const struct rz_scope *s, uint64_t now) {
   if (!s)
     return RZ_INVALID;
 #ifndef RZ_MUTATE_DEADLINE2
-  for (const RZScope *p = s; p; p = p->parent)
+  for (const struct rz_scope *p = s; p; p = p->parent)
     if (atomic_load(&p->cancelled))
       return RZ_CANCELLED;
 #endif
   return now >= s->deadline ? RZ_EXPIRED : RZ_OK;
 }
-int rz_remaining(const RZScope *s, uint64_t now, uint64_t *out) {
+int rz_remaining(const struct rz_scope *s, uint64_t now, uint64_t *out) {
   if (!out)
     return RZ_INVALID;
   int status = rz_check(s, now);
@@ -52,11 +52,11 @@ int rz_remaining(const RZScope *s, uint64_t now, uint64_t *out) {
   *out = s->deadline - now;
   return RZ_OK;
 }
-void rz_queue_init(RZQueue *q) {
+void rz_queue_init(struct rz_queue *q) {
   if (q)
-    *q = (RZQueue){0};
+    *q = (struct rz_queue){0};
 }
-int rz_offer(RZQueue *q, RZOffer *o, RZPolicy policy, uint64_t now) {
+int rz_offer(struct rz_queue *q, struct rz_offer *o, enum rz_policy policy, uint64_t now) {
   if (!q || !o || !o->pending || policy > RZ_DEGRADE || policy < RZ_BLOCK)
     return RZ_INVALID;
   int status = rz_check(o->scope, now);
@@ -96,7 +96,7 @@ int rz_offer(RZQueue *q, RZOffer *o, RZPolicy policy, uint64_t now) {
   o->pending = false;
   return RZ_OK;
 }
-int rz_pop(RZQueue *q, unsigned *out) {
+int rz_pop(struct rz_queue *q, unsigned *out) {
   if (!q || !out)
     return RZ_INVALID;
   if (!q->count)
@@ -106,12 +106,12 @@ int rz_pop(RZQueue *q, unsigned *out) {
   q->count--;
   return RZ_OK;
 }
-int rz_forward(RZQueue *q, MsgHub *hub, unsigned channel) {
+int rz_forward(struct rz_queue *q, struct msg_hub *hub, unsigned channel) {
   if (!q || !hub || channel > 1)
     return RZ_INVALID;
   if (!q->count)
     return RZ_EMPTY;
-  MsgStatus s = msg_send(hub, channel, q->values[q->head], false);
+  enum msg_status s = msg_send(hub, channel, q->values[q->head], false);
   if (s == MSG_FULL)
     return RZ_FULL;
   if (s == MSG_CLOSED)
@@ -124,17 +124,17 @@ int rz_forward(RZQueue *q, MsgHub *hub, unsigned channel) {
   q->count--;
   return RZ_OK;
 }
-void rz_wheel_init(RZWheel *w, uint64_t now) {
+void rz_wheel_init(struct rz_wheel *w, uint64_t now) {
   if (!w)
     return;
-  *w = (RZWheel){.now = now};
+  *w = (struct rz_wheel){.now = now};
   for (unsigned i = 0; i < 4; i++) {
     w->head[i] = -1;
-    w->slots[i] = (RZTimer){.next = -1, .previous = -1, .generation = 1};
+    w->slots[i] = (struct rz_timer){.next = -1, .previous = -1, .generation = 1};
   }
 }
-static void unlink_timer(RZWheel *w, unsigned i) {
-  RZTimer *t = &w->slots[i];
+static void unlink_timer(struct rz_wheel *w, unsigned i) {
+  struct rz_timer *t = &w->slots[i];
   unsigned bucket = (unsigned)(t->due % 4);
   if (t->previous < 0)
     w->head[bucket] = t->next;
@@ -146,7 +146,7 @@ static void unlink_timer(RZWheel *w, unsigned i) {
   t->next = t->previous = -1;
   t->generation++;
 }
-int rz_schedule(RZWheel *w, uint64_t delay, RZTimerId *out) {
+int rz_schedule(struct rz_wheel *w, uint64_t delay, struct rz_timer_id *out) {
   if (!w || !out || delay < 1 || delay > 16)
     return RZ_INVALID;
   if (delay > UINT64_MAX - w->now)
@@ -157,7 +157,7 @@ int rz_schedule(RZWheel *w, uint64_t delay, RZTimerId *out) {
       break;
   if (i == 4)
     return RZ_FULL;
-  RZTimer *t = &w->slots[i];
+  struct rz_timer *t = &w->slots[i];
   t->due = w->now + delay;
   unsigned bucket = (unsigned)(t->due % 4);
   t->next = w->head[bucket];
@@ -166,10 +166,10 @@ int rz_schedule(RZWheel *w, uint64_t delay, RZTimerId *out) {
     w->slots[t->next].previous = (int)i;
   w->head[bucket] = (int)i;
   t->active = true;
-  *out = (RZTimerId){w, i, t->generation};
+  *out = (struct rz_timer_id){w, i, t->generation};
   return RZ_OK;
 }
-int rz_unschedule(RZWheel *w, RZTimerId id) {
+int rz_unschedule(struct rz_wheel *w, struct rz_timer_id id) {
   if (!w)
     return RZ_INVALID;
   if (id.owner != w || id.slot >= 4 || !w->slots[id.slot].active)
@@ -181,7 +181,7 @@ int rz_unschedule(RZWheel *w, RZTimerId id) {
   unlink_timer(w, id.slot);
   return RZ_OK;
 }
-int rz_tick(RZWheel *w, unsigned *mask) {
+int rz_tick(struct rz_wheel *w, unsigned *mask) {
   if (!w || !mask)
     return RZ_INVALID;
   if (w->now == UINT64_MAX)
@@ -190,7 +190,7 @@ int rz_tick(RZWheel *w, unsigned *mask) {
   unsigned fired = 0;
   int i = w->head[w->now % 4];
   while (i >= 0) {
-    RZTimer *t = &w->slots[i];
+    struct rz_timer *t = &w->slots[i];
     int next = t->next;
 #ifdef RZ_MUTATE_WHEEL1
     if (true)
@@ -206,14 +206,14 @@ int rz_tick(RZWheel *w, unsigned *mask) {
   *mask = fired;
   return RZ_OK;
 }
-int rz_bucket_init(RZBucket *b, uint64_t capacity, uint64_t rate,
+int rz_bucket_init(struct rz_bucket *b, uint64_t capacity, uint64_t rate,
                    uint64_t now) {
   if (!b || capacity < 1 || capacity > 16 || rate < 1 || rate > 16)
     return RZ_INVALID;
-  *b = (RZBucket){capacity, rate, capacity, now};
+  *b = (struct rz_bucket){capacity, rate, capacity, now};
   return RZ_OK;
 }
-int rz_consume(RZBucket *b, uint64_t now, uint64_t cost) {
+int rz_consume(struct rz_bucket *b, uint64_t now, uint64_t cost) {
   if (!b || !cost || cost > b->capacity)
     return RZ_INVALID;
   if (now < b->last)
@@ -240,15 +240,15 @@ int rz_consume(RZBucket *b, uint64_t now, uint64_t cost) {
   b->tokens -= cost;
   return RZ_OK;
 }
-int rz_retry_init(RZRetry *r, const RZScope *s, unsigned max, uint64_t base,
+int rz_retry_init(struct rz_retry *r, const struct rz_scope *s, unsigned max, uint64_t base,
                   uint64_t cap, bool safe) {
   if (!r || !s || !max || max > 4 || !base || base > 8 || cap < base ||
       cap > 32)
     return RZ_INVALID;
-  *r = (RZRetry){s, 0, max, base, cap, safe};
+  *r = (struct rz_retry){s, 0, max, base, cap, safe};
   return RZ_OK;
 }
-int rz_retry_next(RZRetry *r, uint64_t now, uint64_t draw, uint64_t *out) {
+int rz_retry_next(struct rz_retry *r, uint64_t now, uint64_t draw, uint64_t *out) {
   if (!r || !out)
     return RZ_INVALID;
 #ifndef RZ_MUTATE_RETRY1
@@ -276,13 +276,13 @@ int rz_retry_next(RZRetry *r, uint64_t now, uint64_t draw, uint64_t *out) {
   return RZ_OK;
 }
 
-int rz_gate_init(RZGate *g, unsigned limit, uint64_t now) {
+int rz_gate_init(struct rz_gate *g, unsigned limit, uint64_t now) {
   if (!g || limit < 1 || limit > 2)
     return RZ_INVALID;
-  *g = (RZGate){.limit = limit, .epoch = 1, .last = now, .generations = {1, 1}};
+  *g = (struct rz_gate){.limit = limit, .epoch = 1, .last = now, .generations = {1, 1}};
   return RZ_OK;
 }
-int rz_admit(RZGate *g, uint64_t now, RZPermit *out) {
+int rz_admit(struct rz_gate *g, uint64_t now, struct rz_permit *out) {
   if (!g || !out || now < g->last)
     return RZ_INVALID;
   g->last = now;
@@ -315,10 +315,10 @@ int rz_admit(RZGate *g, uint64_t now, RZPermit *out) {
     return RZ_FULL;
   g->active[i] = true;
   g->epochs[i] = g->epoch;
-  *out = (RZPermit){g, i, g->generations[i]};
+  *out = (struct rz_permit){g, i, g->generations[i]};
   return RZ_OK;
 }
-static void open_gate(RZGate *g, uint64_t now) {
+static void open_gate(struct rz_gate *g, uint64_t now) {
   g->phase = 1;
   if (g->epoch == 7) {
     g->retired = true;
@@ -331,7 +331,7 @@ static void open_gate(RZGate *g, uint64_t now) {
   }
   g->until = now + 4;
 }
-int rz_finish(RZGate *g, RZPermit p, uint64_t now, int outcome) {
+int rz_finish(struct rz_gate *g, struct rz_permit p, uint64_t now, int outcome) {
   if (!g || now < g->last || outcome < -1 || outcome > 1)
     return RZ_INVALID;
   if (p.owner != g || p.slot >= 2 || !g->active[p.slot] ||
@@ -364,17 +364,17 @@ int rz_finish(RZGate *g, RZPermit p, uint64_t now, int outcome) {
     open_gate(g, now);
   return RZ_OK;
 }
-int rz_hedge_init(RZHedge *h, const RZScope *s, uint64_t now, uint64_t delay) {
+int rz_hedge_init(struct rz_hedge *h, const struct rz_scope *s, uint64_t now, uint64_t delay) {
   if (!h || !s || delay > UINT64_MAX - now)
     return RZ_INVALID;
   int status = rz_check(s, now);
   if (status != RZ_OK)
     return status;
-  *h = (RZHedge){
+  *h = (struct rz_hedge){
       .scope = s, .hedge_at = now + delay, .started = 1, .winner = -1};
   return RZ_OK;
 }
-int rz_hedge_start(RZHedge *h, uint64_t now) {
+int rz_hedge_start(struct rz_hedge *h, uint64_t now) {
   if (!h)
     return RZ_INVALID;
   int status = rz_check(h->scope, now);
@@ -387,7 +387,7 @@ int rz_hedge_start(RZHedge *h, uint64_t now) {
   h->started |= 2;
   return RZ_OK;
 }
-int rz_hedge_complete(RZHedge *h, unsigned attempt, uint64_t now,
+int rz_hedge_complete(struct rz_hedge *h, unsigned attempt, uint64_t now,
                       bool acceptable, unsigned value) {
   if (!h || attempt > 1)
     return RZ_INVALID;
@@ -414,7 +414,7 @@ int rz_hedge_complete(RZHedge *h, unsigned attempt, uint64_t now,
   }
   return RZ_DONE;
 }
-int rz_hedge_result(const RZHedge *h, unsigned *out) {
+int rz_hedge_result(const struct rz_hedge *h, unsigned *out) {
   if (!h || !out)
     return RZ_INVALID;
   if (h->winner < 0)
@@ -422,16 +422,16 @@ int rz_hedge_result(const RZHedge *h, unsigned *out) {
   *out = h->value;
   return RZ_OK;
 }
-bool rz_hedge_quiescent(const RZHedge *h) {
+bool rz_hedge_quiescent(const struct rz_hedge *h) {
   return h && h->started == h->completed;
 }
-int rz_receiver_init(RZReceiver *r, uint64_t now, uint64_t window) {
+int rz_receiver_init(struct rz_receiver *r, uint64_t now, uint64_t window) {
   if (!r || !window || window > 16)
     return RZ_INVALID;
-  *r = (RZReceiver){.window = window, .last = now};
+  *r = (struct rz_receiver){.window = window, .last = now};
   return RZ_OK;
 }
-int rz_receive(RZReceiver *r, uint64_t now, unsigned client, unsigned id,
+int rz_receive(struct rz_receiver *r, uint64_t now, unsigned client, unsigned id,
                uint64_t fence, int delta, int *out, bool *duplicate) {
   if (!r || !out || !duplicate || client > 1 || id < 1 || id > 15 || !fence ||
       delta < -8 || delta > 8 || now < r->last)
@@ -442,7 +442,7 @@ int rz_receive(RZReceiver *r, uint64_t now, unsigned client, unsigned id,
 #endif
   unsigned free_slot = 4;
   for (unsigned i = 0; i < 4; i++) {
-    RZEntry *e = &r->entries[i];
+    struct rz_entry *e = &r->entries[i];
     if (!e->live || now - e->born >= r->window) {
       if (free_slot == 4)
         free_slot = i;
@@ -467,7 +467,7 @@ int rz_receive(RZReceiver *r, uint64_t now, unsigned client, unsigned id,
   int status = add_int(r->total, delta, &total);
   if (status != RZ_OK)
     return status;
-  r->entries[free_slot] = (RZEntry){true, client, id, delta, total, now};
+  r->entries[free_slot] = (struct rz_entry){true, client, id, delta, total, now};
   r->total = total;
   r->last = now;
   if (fence > r->fence)
@@ -476,7 +476,7 @@ int rz_receive(RZReceiver *r, uint64_t now, unsigned client, unsigned id,
   *duplicate = false;
   return RZ_OK;
 }
-int rz_service_init(RZService *s, const RZScope *scope, MsgHub *hub,
+int rz_service_init(struct rz_service *s, const struct rz_scope *scope, struct msg_hub *hub,
                     uint64_t now) {
   if (!s || !scope || !hub)
     return RZ_INVALID;
@@ -491,7 +491,7 @@ int rz_service_init(RZService *s, const RZScope *scope, MsgHub *hub,
   (void)rz_receiver_init(&s->receiver, now, 8);
   return RZ_OK;
 }
-int rz_service_submit(RZService *s, uint64_t now, unsigned client, unsigned id,
+int rz_service_submit(struct rz_service *s, uint64_t now, unsigned client, unsigned id,
                       uint64_t fence, int delta, int *out) {
   if (!s || !out)
     return RZ_INVALID;
@@ -505,7 +505,7 @@ int rz_service_submit(RZService *s, uint64_t now, unsigned client, unsigned id,
   status = rz_consume(&s->limiter, now, 1);
   if (status != RZ_OK)
     return status;
-  RZPermit p;
+  struct rz_permit p;
   status = rz_admit(&s->breaker, now, &p);
   if (status != RZ_OK)
     return status;
@@ -528,7 +528,7 @@ int rz_service_submit(RZService *s, uint64_t now, unsigned client, unsigned id,
   *out = result;
   return RZ_OK;
 }
-int rz_service_flush(RZService *s) {
+int rz_service_flush(struct rz_service *s) {
   if (!s)
     return RZ_INVALID;
 #ifdef RZ_MUTATE_SERVICE2

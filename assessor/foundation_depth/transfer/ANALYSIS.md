@@ -38,7 +38,7 @@ type cannot widen the wire contract. Its staged decoder preserves all fields on
 rejection, without comparing or assigning meaning to structure padding.
 
 The typed-storage adapter deliberately changes the original allocator contract:
-it reserves an existing declared `FDValue`, whose declared type remains in force,
+it reserves an existing declared `struct fd_value`, whose declared type remains in force,
 rather than creating an untyped allocation. This is legal for this concrete typed
 construction and is not a generic aligned-byte allocator. The unchanged slot
 control logic is reused under that revised premise. Owner transfer is ordinary

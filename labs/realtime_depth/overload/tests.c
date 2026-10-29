@@ -3,17 +3,17 @@
 #include <string.h>
 static int stream(void){
  char kind;while(scanf(" %c",&kind)==1){
-  ODSet set={0};unsigned n,h;
+  struct od_set set={0};unsigned n,h;
   if(kind=='A'){
    if(scanf("%u%u",&n,&h)!=2||n>OD_TASKS)return 2;
    enum od_decision d=OD_INCONCLUSIVE;
-   for(unsigned i=0;i<n;i++){ODTask t;if(scanf("%u%u%u",&t.cost,&t.period,&t.critical)!=3)return 2;
+   for(unsigned i=0;i<n;i++){struct od_task t;if(scanf("%u%u%u",&t.cost,&t.period,&t.critical)!=3)return 2;
     enum od_status s=od_admit(&set,t,h,&d);printf("A %u %u %u\n",s,d,set.count);}
   }else if(kind=='R'){
    unsigned cap,policy,supervisor;uint32_t sw,re;
    if(scanf("%u%u%u%u%u%u%u%u",&set.count,&n,&cap,&h,&policy,&supervisor,&sw,&re)!=8||set.count>OD_TASKS||n>OD_REQUESTS)return 2;
    for(unsigned i=0;i<set.count;i++)if(scanf("%u%u%u",&set.tasks[i].cost,&set.tasks[i].period,&set.tasks[i].critical)!=3)return 2;
-   ODRequest r[OD_REQUESTS];ODResult o;
+   struct od_request r[OD_REQUESTS];struct od_result o;
    for(unsigned i=0;i<n;i++)if(scanf("%u%u%u%u%u%u",&r[i].id,&r[i].stream,&r[i].release,&r[i].cost,&r[i].deadline,&r[i].io_until)!=6)return 2;
    enum od_status s=od_run(&set,r,n,cap,h,(enum od_policy)policy,supervisor,sw,re,&o);printf("R %u\n",s);if(s!=OD_OK)continue;
    printf("S %u %u %u %u %u %u %u\n",o.peak,o.heartbeats,o.work,o.idle,o.mode_switches,o.recovered,o.recovery_refused);

@@ -5,8 +5,8 @@ int main(int argc, char **argv) {
   uint8_t bytes[1100];
   size_t n, written;
   FILE *file;
-  CvmProgram program;
-  CvmStatus status;
+  struct cvm_program program;
+  enum cvm_status status;
   if (argc != 3) {
     fprintf(stderr, "usage: cvm-compile SOURCE OUTPUT.cvm\n");
     return 2;

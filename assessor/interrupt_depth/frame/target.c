@@ -41,11 +41,11 @@ __attribute__((noreturn)) void xf_fault(void) {
       finish(1);                                                               \
     }                                                                          \
   } while (0)
-typedef struct {
+struct xi_record {
   uint32_t id, er, sp, msp, active, pending, lazy_before, lazy_after, fpcar;
-  XfFrame frame;
-} Record;
-static Record trace[16];
+  struct xf_frame frame;
+};
+static struct xi_record trace[16];
 static volatile unsigned used;
 static unsigned current_group;
 static uint32_t psp_storage[512] __attribute__((aligned(8)));
@@ -55,7 +55,7 @@ extern unsigned char xf_interrupted_begin[], xf_interrupted_end[];
 void xf_capture(uint32_t *sp, uint32_t er, unsigned id, uint32_t msp) {
   CHECK(used < 16);
   unsigned slot = used++;
-  Record *r = &trace[slot];
+  struct xi_record *r = &trace[slot];
   r->id = id;
   r->er = er;
   r->sp = (uint32_t)(uintptr_t)sp;
@@ -135,7 +135,7 @@ void xf_target_main(void) {
           CHECK(used == 4 && trace[0].id == 16 &&
                 trace[grouping == 3 ? 1 : 2].id == 17 &&
                 trace[grouping == 3 ? 2 : 1].id == 160 && trace[3].id == 18);
-          Record *a = &trace[0], *b = &trace[grouping == 3 ? 1 : 2],
+          struct xi_record *a = &trace[0], *b = &trace[grouping == 3 ? 1 : 2],
                  *c = &trace[3], *after = &trace[grouping == 3 ? 2 : 1];
           CHECK(a->frame.thread && a->frame.psp && a->frame.extended == fp &&
                 a->frame.alignment_word == pad);

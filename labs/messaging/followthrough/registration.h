@@ -3,25 +3,25 @@
 #include "messaging.h"
 #include <time.h>
 
-typedef struct MfrWaiter MfrWaiter;
-typedef struct {
+struct mfr_waiter;
+struct mfr_hub {
     pthread_mutex_t channel_mutex[2], registry;
     pthread_cond_t changed;
-    MsgChannel channel[2];
-    MfrWaiter *waiters;
+    struct msg_channel channel[2];
+    struct mfr_waiter *waiters;
     size_t waiting;
     uint64_t sleeps;
     unsigned next;
     bool stop;
-} MfrHub;
-typedef void (*MfrProbe)(void *);
-MsgStatus mfr_init(MfrHub *,size_t,size_t);
-MsgStatus mfr_send(MfrHub *,unsigned,unsigned);
-MsgStatus mfr_select(MfrHub *,unsigned,bool,unsigned *,unsigned *);
-MsgStatus mfr_select_probe(MfrHub *,unsigned,unsigned *,unsigned *,
-                           const struct timespec *,MfrProbe,void *);
-MsgStatus mfr_close(MfrHub *,unsigned);
-void mfr_cancel(MfrHub *);
-void mfr_observe(MfrHub *,size_t *,uint64_t *);
-MsgStatus mfr_destroy(MfrHub *);
+};
+typedef void (*mfr_probe_fn)(void *);
+enum msg_status mfr_init(struct mfr_hub *,size_t,size_t);
+enum msg_status mfr_send(struct mfr_hub *,unsigned,unsigned);
+enum msg_status mfr_select(struct mfr_hub *,unsigned,bool,unsigned *,unsigned *);
+enum msg_status mfr_select_probe(struct mfr_hub *,unsigned,unsigned *,unsigned *,
+                           const struct timespec *,mfr_probe_fn,void *);
+enum msg_status mfr_close(struct mfr_hub *,unsigned);
+void mfr_cancel(struct mfr_hub *);
+void mfr_observe(struct mfr_hub *,size_t *,uint64_t *);
+enum msg_status mfr_destroy(struct mfr_hub *);
 #endif

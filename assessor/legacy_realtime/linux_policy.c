@@ -2,7 +2,7 @@
 #ifndef LC_MUTANT
 #define LC_MUTANT 0
 #endif
-int lc_select(const LCEntity *entities,size_t count,size_t *selected){
+int lc_select(const struct lc_entity *entities,size_t count,size_t *selected){
  if(!entities||!selected||!count||count>8)return -1;
  size_t best=count;for(size_t i=0;i<count;++i){if(LC_MUTANT!=1&&entities[i].lag<0)continue;
  if(best==count||entities[i].virtual_deadline<entities[best].virtual_deadline)best=i;}

@@ -8,7 +8,7 @@ reused from the completed graph/tree providers, not replaced with new solvers.
 
 Prerequisites: derive source-rooted shortest-path witnesses and edge inequalities;
 implement byte decoding, bounded arrays and a binary-tree certificate; bring
-your actual `AGCertificate`, `CDCSR`, `ATCertificate`, `ag_certificate`,
+your actual `struct ag_certificate`, `struct cd_csr`, `struct at_certificate`, `ag_certificate`,
 `cd_csr_build` and recursive `at_check` artifacts. Record source/header identities
 and any contract conversion. Author campaigns import named assessor references;
 that is not learner integration. Read the original exercises and the contracts

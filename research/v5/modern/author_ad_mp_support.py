@@ -121,7 +121,7 @@ endif()
 '''
     write(f'labs/{family}/CMakeLists.txt',cm)
     header=(R/f'labs/{family}/include/{family}.h').read_text(encoding='utf-8')
-    declarations=re.findall(r'^((?:int|void|uint32_t|uint64_t|size_t|ADPair|ADValue|ADPacketError|MPPair|MPSum|MPToken|MPArg)\s+\w+\([^;]*\));',header,re.M)
+    declarations=re.findall(r'^((?:int|void|uint32_t|uint64_t|size_t|struct ad_pair|struct ad_value|enum ad_packet_error|struct mp_pair|MPSum|struct mp_token|struct mp_arg)\s+\w+\([^;]*\));',header,re.M)
     stubs=[f'#include "{family}.h"','/* Intentionally incomplete; implement the canonical exercise contracts. */']
     for declaration in declarations:
         signature=declaration.strip();params=signature[signature.index('(')+1:-1].split(',')
@@ -132,7 +132,7 @@ endif()
             if not name: raise ValueError(param)
             names.append('(void)'+name.group(1)+';')
         ret=signature.split()[0]
-        value={'void':'','ADPair':'return (ADPair){0,0};','ADValue':'return (ADValue){AD_EMPTY,{.number=0}};','ADPacketError':'return AD_PACKET_HEADER;','MPPair':'return (MPPair){0,0};','MPSum':'return (MPSum){0,0};','MPToken':'return (MPToken){0,0,0};','MPArg':'return (MPArg){0,0,NULL};'}.get(ret,'return 0;')
+        value={'void':'','struct ad_pair':'return (struct ad_pair){0,0};','struct ad_value':'return (struct ad_value){AD_EMPTY,{.number=0}};','enum ad_packet_error':'return AD_PACKET_HEADER;','struct mp_pair':'return (struct mp_pair){0,0};','MPSum':'return (MPSum){0,0};','struct mp_token':'return (struct mp_token){0,0,0};','struct mp_arg':'return (struct mp_arg){0,0,NULL};'}.get(ret,'return 0;')
         stubs.append(signature+' { '+' '.join(names)+' '+value+' }')
     write(f'labs/{family}/src/{family}.c','\n'.join(stubs)+'\n')
     costs='# Mechanism-specific cost and enforcement review\n\nComplete measured columns with compiler flags, architecture, workload and equivalent correctness contracts. The following are analytical expectations, not invented measurements.\n'

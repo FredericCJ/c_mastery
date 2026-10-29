@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 int main(void) {
-  NiReassembly s;
-  NiPacket output;
+  struct ni_reassembly s;
+  struct ni_packet output;
   unsigned char packet[1500];
   char line[200], action;
   unsigned slots, policy, id, protocol, offset, length, more, pattern, index;
@@ -16,7 +16,7 @@ int main(void) {
       if (sscanf(line, "I %u %u %llu %llu", &slots, &policy, &now, &timeout) !=
           4)
         return 2;
-      rc = ni_init(&s, (NiConfig){0xc0000202u, 0xc0000201u}, slots, policy,
+      rc = ni_init(&s, (struct ni_config){0xc0000202u, 0xc0000201u}, slots, policy,
                    (uint64_t)now, (uint64_t)timeout);
     } else if (action == 'F') {
       if (sscanf(line, "F %u %u %u %u %u %llu %u", &id, &protocol, &offset,
@@ -39,7 +39,7 @@ int main(void) {
       return 2;
     printf("%c %d %u", action, rc, index);
     for (unsigned i = 0; i < s.slots; i++) {
-      NiSlot *a = &s.slot[i];
+      struct ni_slot *a = &s.slot[i];
       printf(" %u", a->state);
       if (a->state)
         printf(":%u:%u:%llu", a->covered, a->total,

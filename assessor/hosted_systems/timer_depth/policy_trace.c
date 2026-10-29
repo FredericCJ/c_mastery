@@ -6,8 +6,8 @@ int main(void) {
     for (uint64_t period = 0; period <= 8; ++period)
       for (uint64_t now = 0; now <= 48; ++now)
         for (int skip = 0; skip <= 1; ++skip) {
-          TdTimer t;
-          TdDispatch d = {0};
+          struct td_timer t;
+          struct td_dispatch d = {0};
           unsigned g;
           if (td_init(&t, 1) || td_arm(&t, deadline, period, skip, &g) != 1)
             return 1;

@@ -2,12 +2,12 @@
 #ifndef EVV_MUTATION
 #define EVV_MUTATION 0
 #endif
-static void emit(EvvSummary *r,EvvDiagnostic *out,size_t cap,unsigned root,unsigned item,unsigned field){
+static void emit(struct evv_summary *r,struct evv_diagnostic *out,size_t cap,unsigned root,unsigned item,unsigned field){
     ++r->total;
-    if(r->stored<cap){EvvDiagnostic e={field,3,{root,EVV_MUTATION==5?0:item,field}};out[r->stored++]=e;}
+    if(r->stored<cap){struct evv_diagnostic e={field,3,{root,EVV_MUTATION==5?0:item,field}};out[r->stored++]=e;}
 }
-EvvSummary evv_validate(const EvvInput *input,unsigned root,EvvInput *output,EvvDiagnostic *errors,size_t capacity){
-    EvvSummary r={0};
+struct evv_summary evv_validate(const struct evv_input *input,unsigned root,struct evv_input *output,struct evv_diagnostic *errors,size_t capacity){
+    struct evv_summary r={0};
     if(!input||!output||!root||input->count>3||(capacity>9&&EVV_MUTATION!=7)||(capacity&&!errors)){r.total=SIZE_MAX;return r;}
     unsigned quota[3]={0},denominator[3]={0};
     if(EVV_MUTATION==1)*output=*input;

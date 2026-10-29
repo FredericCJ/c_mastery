@@ -47,8 +47,8 @@ static uint64_t guard(void *p) {
   (void)p;
   return now();
 }
-static XiQueue queue;
-static CPFClock software_clock;
+static struct xi_queue queue;
+static struct cpf_clock software_clock;
 static volatile unsigned done, current;
 static unsigned drops;
 static uint32_t begins[7], ends[7], samples[7], entries[7], posted[7];
@@ -63,15 +63,15 @@ void xk_timer(void) {
   else
     CHECK(cpf_clock_read(&software_clock, 2, &software) &&
           software == UINT64_C(0x800000000));
-  XkSnapshot snapshot;
-  CHECK(xk_snapshot((XkIo){0, hi, lo, guard}, (XkPolicy){32, 1, 2, 2001, 2000},
+  struct xk_snapshot snapshot;
+  CHECK(xk_snapshot((struct xk_io){0, hi, lo, guard}, (struct xk_policy){32, 1, 2, 2001, 2000},
                     &snapshot) == XK_OK);
   CHECK(snapshot.begin <= snapshot.value && snapshot.value <= snapshot.end &&
         snapshot.end < 1000000);
   begins[current] = (uint32_t)snapshot.begin;
   ends[current] = (uint32_t)snapshot.end;
   samples[current] = (uint32_t)snapshot.value;
-  XiRecord record = {.sequence = current,
+  struct xi_record record = {.sequence = current,
                      .timestamp = (uint32_t)snapshot.value};
   int rc = xi_push(&queue, &record);
   CHECK(rc == (current >= 3 && current < 6 ? XI_FULL : XI_OK));
@@ -81,8 +81,8 @@ void xk_timer(void) {
 }
 int xk_integration(void);
 void xf_target_main(void) {
-  XkCalibration wide = {0, 0, 0, 1, 0, 1};
-  XkInterval edge;
+  struct xk_calibration wide = {0, 0, 0, 1, 0, 1};
+  struct xk_interval edge;
   CHECK(xk_calibrate(&wide, UINT64_MAX, UINT64_MAX, &edge) == XK_OK &&
         edge.lower == UINT64_MAX && edge.upper == UINT64_MAX);
   wide.anchor_upper_ns = 1;
@@ -95,7 +95,7 @@ void xf_target_main(void) {
   CHECK(xk_calibrate(&wide, UINT32_MAX, UINT32_MAX, &edge) == XK_RANGE);
   xk_print("XK_ARITHMETIC_PASS large_division_boundaries=4\n");
   unsigned touching = 99;
-  CHECK(xk_order((XkInterval){1, 2, 1}, (XkInterval){2, 3, 1}, &touching) ==
+  CHECK(xk_order((struct xk_interval){1, 2, 1}, (struct xk_interval){2, 3, 1}, &touching) ==
             XK_OK && touching == XK_AMBIGUOUS);
   if (xk_integration())
     finish(1);
@@ -108,8 +108,8 @@ void xf_target_main(void) {
   REG(0xe000e100) = 1u << 8;
   *(volatile uint8_t *)(uintptr_t)(0xe000e400 + 8) = 0x60;
   __asm__ volatile("cpsie i" ::: "memory");
-  XkSequence sequence = {0};
-  XiRecord record;
+  struct xk_sequence sequence = {0};
+  struct xi_record record;
   for (current = 0; current < 7; ++current) {
     if (current == 0) {
       atomic_store(&software_clock.sequence, 3);
@@ -132,8 +132,8 @@ void xf_target_main(void) {
     REG(0x40000000) = 9;
     while (!done)
       __asm__ volatile("nop" ::: "memory");
-    XkCalibration calibration = {0, 0, 0, 40, 0, 1};
-    XkInterval interval;
+    struct xk_calibration calibration = {0, 0, 0, 40, 0, 1};
+    struct xk_interval interval;
     CHECK(xk_calibrate(&calibration, begins[current], ends[current],
                        &interval) == XK_OK);
     unsigned relation = 99;

@@ -1,8 +1,8 @@
 #include "test_wire.h"
 int main(void) {
-  NcStack s;
-  NcPacket o;
-  HttpParser http;
+  struct nc_stack s;
+  struct nc_packet o;
+  struct http_parser http;
   unsigned char packet[1500];
   const char request[] = "POST /echo HTTP/1.1\r\nHost: "
                          "192.0.2.2:8080\r\nContent-Length: 4\r\n\r\nABCDNEXT";

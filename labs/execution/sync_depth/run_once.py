@@ -1,4 +1,4 @@
-"""Run once cases with explicit completed CMX, MBOnce and adapter imports."""
+"""Run once cases with explicit completed CMX, struct mb_once and adapter imports."""
 import argparse
 from pathlib import Path
 import subprocess

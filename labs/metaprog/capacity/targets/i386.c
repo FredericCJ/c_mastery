@@ -8,7 +8,7 @@ int mpc32_test(void){
  REQUIRE(mp_storage_bound(SIZE_MAX/4,4,SIZE_MAX,&out)&&out==UINT32_C(4294967292));
  REQUIRE(!mp_storage_bound(SIZE_MAX/4+1,4,SIZE_MAX,&out)&&out==UINT32_C(4294967292));
  REQUIRE(!mp_storage_bound(4,4,15,&out)&&out==UINT32_C(4294967292));
- uint32_t data[3],value;MpcRuntime ring;REQUIRE(mpc_init(&ring,data,3,sizeof data)==MPC_OK);
+ uint32_t data[3],value;struct mpc_runtime ring;REQUIRE(mpc_init(&ring,data,3,sizeof data)==MPC_OK);
  for(unsigned n=0;n<20;n++){
   REQUIRE(mpc_push(&ring,n)==MPC_OK&&mpc_push(&ring,n+1)==MPC_OK&&mpc_push(&ring,n+2)==MPC_OK&&mpc_push(&ring,99)==MPC_FULL);
   REQUIRE(mpc_pop(&ring,&value)==MPC_OK&&value==n&&mpc_pop(&ring,&value)==MPC_OK&&value==n+1&&mpc_pop(&ring,&value)==MPC_OK&&value==n+2);

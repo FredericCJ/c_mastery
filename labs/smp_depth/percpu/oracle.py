@@ -1,4 +1,4 @@
-"""Independent numeric-layout expectations and actual per-CPU trace checks."""
+"""Independent numeric-layout expectations and actual per-struct lr_cpu trace checks."""
 import itertools,re
 MAX=2**64-1
 def cases():
@@ -43,15 +43,15 @@ def check_guest(text,cpus,simd):
  for c,k,lh,ll,hh,hl in parsed:
   key=(int(c),int(k));low=int(lh)*2**32+int(ll);high=int(hh)*2**32+int(hl)
   if key in spans or not low<high:raise ValueError('Duplicate/invalid actual extent')
-  if any(low<h and l<high for l,h in spans.values()):raise ValueError('Actual cross-CPU/stack/table alias')
+  if any(low<h and l<high for l,h in spans.values()):raise ValueError('Actual cross-struct lr_cpu/stack/table alias')
   spans[key]=(low,high)
  if set(spans)!={(c,k) for c in range(cpus) for k in range(9)}:raise ValueError('Missing actual storage extent')
  rows=re.findall(r'SP_CPU index=(\d+) apic=(\d+) irq=(\d+) ud=(\d+) gp=(\d+) progress=(\d+) peer_before=(\d+) peer_after=(\d+) irq_frame=(\d+):(\d+) ud_frame=(\d+):(\d+) gp_frame=(\d+):(\d+)',text)
- if len(rows)!=cpus:raise ValueError('Wrong CPU observations')
+ if len(rows)!=cpus:raise ValueError('Wrong struct lr_cpu observations')
  fault=1 if cpus>1 else 0;ids=[0,1,2,4];seen=set();result=[]
  for row in rows:
   c,apic,irq,ud,gp,progress,before,after,ih,il,uh,ul,gh,gl=map(int,row)
-  if c in seen or c>=cpus or apic!=ids[c] or irq<128 or progress!=irq or (ud,gp)!=((1,1) if c==fault else (0,0)):raise ValueError('Wrong CPU identity/register/fault accounting')
+  if c in seen or c>=cpus or apic!=ids[c] or irq<128 or progress!=irq or (ud,gp)!=((1,1) if c==fault else (0,0)):raise ValueError('Wrong struct lr_cpu identity/register/fault accounting')
   seen.add(c)
   if c==fault and cpus>1 and after<before+4:raise ValueError('No actual peer progress during controlled fault')
   for addr,kind,active in ((ih*2**32+il,2,True),(uh*2**32+ul,8,c==fault),(gh*2**32+gl,3,c==fault)):

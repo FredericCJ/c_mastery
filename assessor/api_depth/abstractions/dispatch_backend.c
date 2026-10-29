@@ -1,6 +1,6 @@
 #include "dispatch.h"
 #include <stdint.h>
-static ptrdiff_t accept(AdSink *s,const unsigned char *p,size_t n,size_t quota) {
+static ptrdiff_t accept(struct ad_sink *s,const unsigned char *p,size_t n,size_t quota) {
  if(!s||(!p&&n)||s->length>66||n>66-s->length||s->calls==SIZE_MAX||n>SIZE_MAX-s->offered)return -1;
  ++s->calls;s->offered+=n;
  if(s->mode==1){s->mode=0;return -2;}
@@ -15,7 +15,7 @@ static ptrdiff_t accept(AdSink *s,const unsigned char *p,size_t n,size_t quota) 
 #endif
  return (ptrdiff_t)n;
 }
-ptrdiff_t ad_one(AdSink *s,const unsigned char *p,size_t n){return accept(s,p,n,1);}
-ptrdiff_t ad_four(AdSink *s,const unsigned char *p,size_t n){return accept(s,p,n,4);}
-ptrdiff_t ad_all(AdSink *s,const unsigned char *p,size_t n){return accept(s,p,n,66);}
-const AdOps *ad_operations(unsigned kind){static const AdOps ops[3]={{1,0,ad_one},{1,1,ad_four},{1,2,ad_all}};return kind<3?ops+kind:0;}
+ptrdiff_t ad_one(struct ad_sink *s,const unsigned char *p,size_t n){return accept(s,p,n,1);}
+ptrdiff_t ad_four(struct ad_sink *s,const unsigned char *p,size_t n){return accept(s,p,n,4);}
+ptrdiff_t ad_all(struct ad_sink *s,const unsigned char *p,size_t n){return accept(s,p,n,66);}
+const struct ad_ops *ad_operations(unsigned kind){static const struct ad_ops ops[3]={{1,0,ad_one},{1,1,ad_four},{1,2,ad_all}};return kind<3?ops+kind:0;}

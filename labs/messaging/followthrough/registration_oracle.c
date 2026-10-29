@@ -3,10 +3,10 @@
 int main(void) {
     char word[16];
     while (fgets(word,sizeof word,stdin)) {
-        MfrHub h;if (mfr_init(&h,2,2)!=MSG_OK) return 1;
+        struct mfr_hub h;if (mfr_init(&h,2,2)!=MSG_OK) return 1;
         unsigned k=99,v=101;
         for (size_t i=0;word[i] && word[i]!='\n';i++) {
-            MsgStatus s=MSG_INVALID;
+            enum msg_status s=MSG_INVALID;
             switch (word[i]) {
             case '0':s=mfr_send(&h,0,10+(unsigned)i);break;
             case '1':s=mfr_send(&h,1,20+(unsigned)i);break;

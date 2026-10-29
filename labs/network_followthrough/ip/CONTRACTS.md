@@ -17,7 +17,7 @@ isolated teaching link. A link adapter must reject broadcast/multicast and retai
 actual frame length before this IP interface. Link admission is a separate contract.
 
 First derive contiguous checksums by hand and complete X-T41-001. Bring that
-learner's `SChecksum` provider, the T41.01 length/ownership dossier and original
+learner's `struct s_checksum` provider, the T41.01 length/ownership dossier and original
 T41.04 association component. Next implement IP admission and Echo; diagnose the
 field matrix before adding reassembly. Only then compose completed datagrams
 with the actual original `net_receive`/`net_checksum` implementation. The public
@@ -46,7 +46,7 @@ nonzero offset. With fragments=0, any MF/offset is rejected. With fragments=1,
 nonfinal payloads are nonempty multiples of8; noninitial payloads are nonempty;
 offset*8 plus payload must fit1480. These limits intentionally exclude options
 and larger datagrams. Successful output borrows only total-length bytes; trailing
-Ethernet padding never becomes transport input. Failure leaves `NiView` unchanged.
+Ethernet padding never becomes transport input. Failure leaves `struct ni_view` unchanged.
 
 Explain each subtraction and multiplication bound before pointer formation.
 An untrusted total length is not an allocation size or readable extent. Distinguish
@@ -90,7 +90,7 @@ a bad wire checksum. The physical protocol is required, presently unobserved.
 
 ## Required reassembly extension: X-T41-002
 
-`NiReassembly` contains one or two statically owned slots. Each slot has1480 data
+`struct ni_reassembly` contains one or two statically owned slots. Each slot has1480 data
 bytes, a185-byte coverage bitmap, the first20-byte header and identity/control
 fields. Identity is (source,destination,protocol,ID); the local configuration
 constrains the first two without removing them from the key. State is FREE,

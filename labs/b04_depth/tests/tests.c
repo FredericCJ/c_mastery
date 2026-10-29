@@ -15,7 +15,7 @@ static int serial(void){
  CHECK(b4_window(0,1,8,4,&out)==B4_RANGE);return 0;
 }
 static int certificate(void){
- B4Graph g;g.vertices=3;for(unsigned i=0;i<6;i++)for(unsigned j=0;j<6;j++)g.cost[i][j]=UINT32_MAX;
+ struct b4_graph g;g.vertices=3;for(unsigned i=0;i<6;i++)for(unsigned j=0;j<6;j++)g.cost[i][j]=UINT32_MAX;
  g.cost[0][1]=8;g.cost[0][2]=1;g.cost[2][1]=1;
  uint32_t d[]={0,2,1};unsigned p[]={UINT_MAX,2,0};CHECK(!b4_certificate(&g,0,d,p));
  d[1]=8;p[1]=0;CHECK(b4_certificate(&g,0,d,p)==B4_CONFLICT);
@@ -33,7 +33,7 @@ static int framing(void){
  if(body[0]=='0'&&body[1]=='\r'&&body[2]=='\n'&&body[3]=='\r'&&body[4]=='\n') te_first_boundary=5;
  CHECK(cl_first_boundary!=te_first_boundary&&body[cl_first_boundary-1]=='S');
  const unsigned char conflict[]="Content-Length: 6\r\nTransfer-Encoding: chunked\r\n\r\n";
- B4Framing unchanged={9,99};
+ struct b4_framing unchanged={9,99};
  CHECK(b4_framing(conflict,sizeof conflict-1,16,&unchanged)==B4_CONFLICT&&unchanged.chunked==9&&unchanged.body==99);
  struct{const char*s;int status;unsigned chunked;size_t body;}v[]={
  {"\r\n",B4_OK,0,0},{"Content-Length: 3\r\n\r\n",B4_OK,0,3},
@@ -46,13 +46,13 @@ static int framing(void){
  {"Content-Length: +1\r\n\r\n",B4_INVALID,0,0},
  {"Transfer-Encoding: chunked, gzip\r\n\r\n",B4_CONFLICT,0,0},
  {"Content-Length: 1\n\n",B4_INVALID,0,0},{"\r\nX",B4_INVALID,0,0}};
- for(size_t i=0;i<sizeof v/sizeof*v;i++){B4Framing r={9,99};CHECK(b4_framing((const unsigned char*)v[i].s,strlen(v[i].s),16,&r)==v[i].status);if(v[i].status)CHECK(r.chunked==9&&r.body==99);else CHECK(r.chunked==v[i].chunked&&r.body==v[i].body);}
+ for(size_t i=0;i<sizeof v/sizeof*v;i++){struct b4_framing r={9,99};CHECK(b4_framing((const unsigned char*)v[i].s,strlen(v[i].s),16,&r)==v[i].status);if(v[i].status)CHECK(r.chunked==9&&r.body==99);else CHECK(r.chunked==v[i].chunked&&r.body==v[i].body);}
  const unsigned char s[]="Content-Length: 3\r\n\r\n";
- for(size_t n=0;n<sizeof s-1;n++){B4Framing r={9,99};CHECK(b4_framing(s,n,16,&r)!=B4_OK&&r.body==99);}
+ for(size_t n=0;n<sizeof s-1;n++){struct b4_framing r={9,99};CHECK(b4_framing(s,n,16,&r)!=B4_OK&&r.body==99);}
  return 0;
 }
 static int dma(void){
- B4Dma d={B4_CPU,0,1,1};CHECK(!b4_dma(&d,B4_WRITE,1));
+ struct b4_dma d={B4_CPU,0,1,1};CHECK(!b4_dma(&d,B4_WRITE,1));
  CHECK(b4_dma(&d,B4_SUBMIT,1)==B4_STATE&&d.owner==B4_CPU&&d.dirty);
  CHECK(!b4_dma(&d,B4_CLEAN,1));CHECK(!b4_dma(&d,B4_SUBMIT,1));
  CHECK(b4_dma(&d,B4_WRITE,1)==B4_STATE);CHECK(b4_dma(&d,B4_COMPLETE,0)==B4_STATE);
@@ -66,7 +66,7 @@ static int dma(void){
  CHECK(b4_cache_extent(0,1,3,64,&b,&e)==B4_INVALID);return 0;
 }
 static int memory(void){
- B4Ledger l={0};CHECK(!b4_memory(&l,B4_ALLOC,1,10,1));CHECK(l.live==10&&l.peak==10);
+ struct b4_ledger l={0};CHECK(!b4_memory(&l,B4_ALLOC,1,10,1));CHECK(l.live==10&&l.peak==10);
  CHECK(!b4_memory(&l,B4_RESIZE,1,20,0));CHECK(l.live==10&&l.slots[0].live&&l.peak==10);
  CHECK(!b4_memory(&l,B4_ALLOC,2,5,1));CHECK(!b4_memory(&l,B4_RESIZE,1,2,1));CHECK(l.live==7&&l.peak==15);
  CHECK(!b4_memory(&l,B4_FREE,2,0,1));CHECK(l.live==2&&l.peak==15);

@@ -10,62 +10,62 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-static int same(AdfAgreement a, AdfAgreement b) {
+static int same(struct adf_agreement a, struct adf_agreement b) {
   return a.common == b.common && a.required == b.required &&
          a.advisory == b.advisory && a.enabled == b.enabled;
 }
 static int negotiate(void) {
-  AdfAgreement r = {77, 78, 79, 80}, old = r;
-  AdfCapabilities a = {1, 7}, b = {2, 63};
-  CHECK(adf_negotiate(a, b, (AdfOffer){1, 8},
-                      (AdfOffer){2, UINT32_C(0x80000004)}, &r) == ADF_OK);
-  CHECK(same(r, (AdfAgreement){7, 3, UINT32_C(0x8000000c), 7}));
-  AdfAgreement reversed;
-  CHECK(adf_negotiate(b, a, (AdfOffer){2, UINT32_C(0x80000004)},
-                      (AdfOffer){1, 8}, &reversed) == ADF_OK &&
+  struct adf_agreement r = {77, 78, 79, 80}, old = r;
+  struct adf_capabilities a = {1, 7}, b = {2, 63};
+  CHECK(adf_negotiate(a, b, (struct adf_offer){1, 8},
+                      (struct adf_offer){2, UINT32_C(0x80000004)}, &r) == ADF_OK);
+  CHECK(same(r, (struct adf_agreement){7, 3, UINT32_C(0x8000000c), 7}));
+  struct adf_agreement reversed;
+  CHECK(adf_negotiate(b, a, (struct adf_offer){2, UINT32_C(0x80000004)},
+                      (struct adf_offer){1, 8}, &reversed) == ADF_OK &&
         same(r, reversed));
   r = old;
   /* The counter is a harmless local unsupported-operation marker. */
   unsigned counter = 0;
-  AdfStatus status =
-      adf_negotiate(a, b, (AdfOffer){0, 0}, (AdfOffer){8, 0}, &r);
+  enum adf_status status =
+      adf_negotiate(a, b, (struct adf_offer){0, 0}, (struct adf_offer){8, 0}, &r);
   if (status == ADF_OK && (r.enabled & UINT32_C(8)))
     ++counter;
   CHECK(counter == 0 && status == ADF_UNSUPPORTED && same(r, old));
-  CHECK(adf_negotiate(a, b, (AdfOffer){0, UINT32_MAX}, (AdfOffer){0, 0}, &r) ==
+  CHECK(adf_negotiate(a, b, (struct adf_offer){0, UINT32_MAX}, (struct adf_offer){0, 0}, &r) ==
         ADF_OK);
-  CHECK(same(r, (AdfAgreement){7, 0, UINT32_MAX, 7}));
-  CHECK(adf_negotiate((AdfCapabilities){2, 63}, b, (AdfOffer){32, 0},
-                      (AdfOffer){0, 0}, &r) == ADF_OK &&
+  CHECK(same(r, (struct adf_agreement){7, 0, UINT32_MAX, 7}));
+  CHECK(adf_negotiate((struct adf_capabilities){2, 63}, b, (struct adf_offer){32, 0},
+                      (struct adf_offer){0, 0}, &r) == ADF_OK &&
         r.enabled == 32);
-  CHECK(adf_negotiate(a, b, (AdfOffer){0, 0}, (AdfOffer){0, 32}, &r) ==
+  CHECK(adf_negotiate(a, b, (struct adf_offer){0, 0}, (struct adf_offer){0, 32}, &r) ==
             ADF_OK &&
         r.advisory == 32 && r.enabled == 0);
-  AdfOffer forwarded = {r.required, r.advisory};
-  CHECK(adf_negotiate(b, b, forwarded, (AdfOffer){0, 0}, &r) == ADF_OK &&
+  struct adf_offer forwarded = {r.required, r.advisory};
+  CHECK(adf_negotiate(b, b, forwarded, (struct adf_offer){0, 0}, &r) == ADF_OK &&
         r.advisory == 32 && r.enabled == 32);
   r = old;
-  CHECK(adf_negotiate(a, b, (AdfOffer){32, 0}, (AdfOffer){0, 0}, &r) ==
+  CHECK(adf_negotiate(a, b, (struct adf_offer){32, 0}, (struct adf_offer){0, 0}, &r) ==
             ADF_UNSUPPORTED &&
         same(r, old));
   r = old;
-  CHECK(adf_negotiate(a, b, (AdfOffer){UINT32_C(0x80000000), 0},
-                      (AdfOffer){0, 0}, &r) == ADF_UNSUPPORTED &&
+  CHECK(adf_negotiate(a, b, (struct adf_offer){UINT32_C(0x80000000), 0},
+                      (struct adf_offer){0, 0}, &r) == ADF_UNSUPPORTED &&
         same(r, old));
-  CHECK(adf_negotiate((AdfCapabilities){1, 8}, b, (AdfOffer){0, 0},
-                      (AdfOffer){0, 0}, &r) == ADF_INVALID &&
+  CHECK(adf_negotiate((struct adf_capabilities){1, 8}, b, (struct adf_offer){0, 0},
+                      (struct adf_offer){0, 0}, &r) == ADF_INVALID &&
         same(r, old));
-  CHECK(adf_negotiate((AdfCapabilities){2, 64}, b, (AdfOffer){0, 0},
-                      (AdfOffer){0, 0}, &r) == ADF_INVALID &&
+  CHECK(adf_negotiate((struct adf_capabilities){2, 64}, b, (struct adf_offer){0, 0},
+                      (struct adf_offer){0, 0}, &r) == ADF_INVALID &&
         same(r, old));
-  CHECK(adf_negotiate((AdfCapabilities){3, 0}, b, (AdfOffer){0, 0},
-                      (AdfOffer){0, 0}, &r) == ADF_INVALID &&
+  CHECK(adf_negotiate((struct adf_capabilities){3, 0}, b, (struct adf_offer){0, 0},
+                      (struct adf_offer){0, 0}, &r) == ADF_INVALID &&
         same(r, old));
-  CHECK(adf_negotiate(a, b, (AdfOffer){0, 0}, (AdfOffer){0, 0}, NULL) ==
+  CHECK(adf_negotiate(a, b, (struct adf_offer){0, 0}, (struct adf_offer){0, 0}, NULL) ==
         ADF_INVALID);
-  CHECK(adf_negotiate((AdfCapabilities){1, 0}, (AdfCapabilities){2, 0},
-                      (AdfOffer){0, 0}, (AdfOffer){0, 0}, &r) == ADF_OK &&
-        same(r, (AdfAgreement){0, 0, 0, 0}));
+  CHECK(adf_negotiate((struct adf_capabilities){1, 0}, (struct adf_capabilities){2, 0},
+                      (struct adf_offer){0, 0}, (struct adf_offer){0, 0}, &r) == ADF_OK &&
+        same(r, (struct adf_agreement){0, 0, 0, 0}));
   puts("ADF_NEGOTIATION intersection-authority advisory-forwarding "
        "unchanged-refusal");
   return 0;
@@ -73,38 +73,38 @@ static int negotiate(void) {
 static int sets(void) {
   for (uint32_t a = 0; a < 8; ++a)
     for (uint32_t b = 0; b < 8; ++b) {
-      ADFlags x = {a}, y = {b}, r = {99}, u, i;
+      struct ad_flags x = {a}, y = {b}, r = {99}, u, i;
       CHECK(adf_union(x, y, &u) == ADF_OK && u.bits == (a | b));
       CHECK(adf_intersection(x, y, &i) == ADF_OK && i.bits == (a & b));
       CHECK(adf_intersection(x, u, &r) == ADF_OK && r.bits == a);
       CHECK(adf_union(x, i, &r) == ADF_OK && r.bits == a);
       CHECK(adf_union(x, y, &x) == ADF_OK && x.bits == (a | b));
       for (uint32_t c = 0; c < 8; ++c) {
-        ADFlags left, right, mid;
-        CHECK(adf_union(u, (ADFlags){c}, &left) == ADF_OK);
-        CHECK(adf_union(y, (ADFlags){c}, &mid) == ADF_OK);
-        CHECK(adf_union((ADFlags){a}, mid, &right) == ADF_OK &&
+        struct ad_flags left, right, mid;
+        CHECK(adf_union(u, (struct ad_flags){c}, &left) == ADF_OK);
+        CHECK(adf_union(y, (struct ad_flags){c}, &mid) == ADF_OK);
+        CHECK(adf_union((struct ad_flags){a}, mid, &right) == ADF_OK &&
               left.bits == right.bits);
-        CHECK(adf_intersection(i, (ADFlags){c}, &left) == ADF_OK);
-        CHECK(adf_intersection(y, (ADFlags){c}, &mid) == ADF_OK);
-        CHECK(adf_intersection((ADFlags){a}, mid, &right) == ADF_OK &&
+        CHECK(adf_intersection(i, (struct ad_flags){c}, &left) == ADF_OK);
+        CHECK(adf_intersection(y, (struct ad_flags){c}, &mid) == ADF_OK);
+        CHECK(adf_intersection((struct ad_flags){a}, mid, &right) == ADF_OK &&
               left.bits == right.bits);
       }
     }
-  ADFlags r = {99};
-  CHECK(adf_union((ADFlags){8}, (ADFlags){1}, &r) == ADF_INVALID &&
+  struct ad_flags r = {99};
+  CHECK(adf_union((struct ad_flags){8}, (struct ad_flags){1}, &r) == ADF_INVALID &&
         r.bits == 99);
-  CHECK(adf_intersection((ADFlags){1}, (ADFlags){UINT32_MAX}, &r) ==
+  CHECK(adf_intersection((struct ad_flags){1}, (struct ad_flags){UINT32_MAX}, &r) ==
             ADF_INVALID &&
         r.bits == 99);
-  CHECK(adf_union((ADFlags){0}, (ADFlags){0}, NULL) == ADF_INVALID);
-  CHECK(adf_intersection((ADFlags){0}, (ADFlags){0}, NULL) == ADF_INVALID);
-  AdfCapabilities cap = {99, 88};
+  CHECK(adf_union((struct ad_flags){0}, (struct ad_flags){0}, NULL) == ADF_INVALID);
+  CHECK(adf_intersection((struct ad_flags){0}, (struct ad_flags){0}, NULL) == ADF_INVALID);
+  struct adf_capabilities cap = {99, 88};
   CHECK(adf_capabilities(2, 63, &cap) == ADF_OK && cap.version == 2 &&
         cap.bits == 63);
   CHECK(adf_capabilities(1, 0, &cap) == ADF_OK && cap.version == 1 &&
         cap.bits == 0);
-  cap = (AdfCapabilities){99, 88};
+  cap = (struct adf_capabilities){99, 88};
   CHECK(adf_capabilities(1, 8, &cap) == ADF_INVALID && cap.version == 99 &&
         cap.bits == 88);
   CHECK(adf_capabilities(2, 64, &cap) == ADF_INVALID && cap.version == 99 &&
@@ -117,17 +117,17 @@ static int sets(void) {
 }
 static int original(void) {
   for (uint32_t raw = 0; raw < 256; ++raw) {
-    ADFlags out = {99};
+    struct ad_flags out = {99};
     int ok = ad_flags(raw, &out);
     CHECK(ok == (raw < 8) && out.bits == (raw < 8 ? raw : 99));
   }
   for (unsigned k = 0; k < 32; ++k) {
     uint32_t raw = UINT32_C(1) << k;
-    ADFlags out = {99};
+    struct ad_flags out = {99};
     int ok = ad_flags(raw, &out);
     CHECK(ok == (k < 3) && out.bits == (k < 3 ? raw : 99));
   }
-  ADFlags r = {99};
+  struct ad_flags r = {99};
   CHECK(!ad_flags(UINT32_MAX, &r) && r.bits == 99);
   puts("ADF_BASE actual-ad-flags empty-reserved-high-bit");
   return 0;
@@ -147,10 +147,10 @@ int main(int argc, char **argv) {
     while (scanf("%u %" SCNu32 " %u %" SCNu32 " %" SCNu32 " %" SCNu32
                  " %" SCNu32 " %" SCNu32,
                  &lv, &lc, &pv, &pc, &lr, &la, &pr, &pa) == 8) {
-      AdfAgreement r = {77, 78, 79, 80};
-      AdfStatus s =
-          adf_negotiate((AdfCapabilities){lv, lc}, (AdfCapabilities){pv, pc},
-                        (AdfOffer){lr, la}, (AdfOffer){pr, pa}, &r);
+      struct adf_agreement r = {77, 78, 79, 80};
+      enum adf_status s =
+          adf_negotiate((struct adf_capabilities){lv, lc}, (struct adf_capabilities){pv, pc},
+                        (struct adf_offer){lr, la}, (struct adf_offer){pr, pa}, &r);
       printf("%u %" PRIu32 " %" PRIu32 " %" PRIu32 " %" PRIu32 "\n",
              (unsigned)s, r.common, r.required, r.advisory, r.enabled);
     }
@@ -163,10 +163,10 @@ int main(int argc, char **argv) {
       clock_t start = clock();
       uint64_t sum = 0;
       for (unsigned i = 0; i < 100000; ++i) {
-        AdfAgreement r;
-        CHECK(adf_negotiate((AdfCapabilities){1, 7}, (AdfCapabilities){2, 63},
-                            (AdfOffer){i % 8, UINT32_C(0x80000000)},
-                            (AdfOffer){0, 0}, &r) == ADF_OK);
+        struct adf_agreement r;
+        CHECK(adf_negotiate((struct adf_capabilities){1, 7}, (struct adf_capabilities){2, 63},
+                            (struct adf_offer){i % 8, UINT32_C(0x80000000)},
+                            (struct adf_offer){0, 0}, &r) == ADF_OK);
         sum += r.enabled;
       }
       CHECK(sum == 350000);
@@ -175,7 +175,7 @@ int main(int argc, char **argv) {
     }
     printf("{\"capabilities_size\":%zu,\"offer_size\":%zu,\"agreement_size\":%"
            "zu,\"iterations\":100000,\"checksum\":%" PRIu64 ",\"seconds\":[",
-           sizeof(AdfCapabilities), sizeof(AdfOffer), sizeof(AdfAgreement),
+           sizeof(struct adf_capabilities), sizeof(struct adf_offer), sizeof(struct adf_agreement),
            checksum);
     for (unsigned i = 0; i < 7; ++i)
       printf("%s%.9f", i ? "," : "", times[i]);

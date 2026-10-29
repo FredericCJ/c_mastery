@@ -1,5 +1,5 @@
 #include "crash.h"
-AeCode ae_fault_encode(AeFault f, unsigned char *out, size_t n) {
+enum ae_code ae_fault_encode(struct ae_fault f, unsigned char *out, size_t n) {
   if (!out || n < 5 || !f.build || f.build > 7 || f.address > 255 ||
       f.state > 3)
     return AE_INVALID;
@@ -10,28 +10,28 @@ AeCode ae_fault_encode(AeFault f, unsigned char *out, size_t n) {
     out[i] = b[i];
   return AE_OK;
 }
-AeCode ae_fault_decode(const unsigned char *p, size_t n, AeFault *out) {
+enum ae_code ae_fault_decode(const unsigned char *p, size_t n, struct ae_fault *out) {
   if (!p || !out || n != 5 || p[0] != 1 || !p[1] || p[1] > 7 || p[3] > 3)
     return AE_INVALID;
 #ifndef AE_MUTANT_CHECKSUM
   if (((unsigned)p[0] + p[1] + p[2] + p[3]) % 256 != p[4])
     return AE_INVALID;
 #endif
-  *out = (AeFault){p[1], p[2], p[3]};
+  *out = (struct ae_fault){p[1], p[2], p[3]};
   return AE_OK;
 }
-static unsigned valid(const unsigned char *b, AeFault *f) {
+static unsigned valid(const unsigned char *b, struct ae_fault *f) {
   unsigned sum = 0;
   for (unsigned i = 0; i < 6; ++i)
     sum += b[i];
   return b[7] == 165 && b[0] >= 1 && b[0] <= 3 && (sum & 255u) == b[6] &&
          ae_fault_decode(b + 1, 5, f) == AE_OK;
 }
-AeCode ae_fault_select(const AeCrashSlots *s, AeFault *out,
+enum ae_code ae_fault_select(const struct ae_crash_slots *s, struct ae_fault *out,
                        unsigned *generation) {
   if (!s || !out || !generation)
     return AE_INVALID;
-  AeFault a, b;
+  struct ae_fault a, b;
   unsigned x = valid(s->bytes[0], &a), y = valid(s->bytes[1], &b);
   if (!x && !y)
     return AE_UNKNOWN;
@@ -46,22 +46,22 @@ AeCode ae_fault_select(const AeCrashSlots *s, AeFault *out,
   }
   return AE_OK;
 }
-AeCode ae_fault_save(AeCrashSlots *s, AeFault fault, unsigned cut) {
+enum ae_code ae_fault_save(struct ae_crash_slots *s, struct ae_fault fault, unsigned cut) {
   if (!s || cut > 10)
     return AE_INVALID;
   unsigned char payload[5];
   if (ae_fault_encode(fault, payload, 5) != AE_OK)
     return AE_INVALID;
-  AeFault old;
+  struct ae_fault old;
   unsigned generation = 0;
-  AeCode status = ae_fault_select(s, &old, &generation);
+  enum ae_code status = ae_fault_select(s, &old, &generation);
   if (status != AE_OK && status != AE_UNKNOWN)
     return status;
   if (generation == 3)
     return AE_FULL;
   unsigned target = 0;
   if (status == AE_OK) {
-    AeFault ignored;
+    struct ae_fault ignored;
     target =
         valid(s->bytes[0], &ignored) && s->bytes[0][0] == generation ? 1 : 0;
   }
@@ -83,15 +83,15 @@ AeCode ae_fault_save(AeCrashSlots *s, AeFault fault, unsigned cut) {
   }
   return cut == 10 ? AE_AMBIGUOUS : AE_OK;
 }
-void ae_recovery_init(AeRecovery *r) {
+void ae_recovery_init(struct ae_recovery *r) {
   if (r) {
-    *r = (AeRecovery){0};
+    *r = (struct ae_recovery){0};
     ae_construction_init(&r->owner, &r->ledger);
   }
 }
-AeCode ae_recover(AeRecovery *r, const unsigned char *p, size_t n,
+enum ae_code ae_recover(struct ae_recovery *r, const unsigned char *p, size_t n,
                   unsigned expected, unsigned cut) {
-  AeFault fault;
+  struct ae_fault fault;
   if (!r || cut > 5 || ae_fault_decode(p, n, &fault) != AE_OK)
     return AE_INVALID;
   if (fault.build != expected || fault.state != 2)
@@ -113,7 +113,7 @@ AeCode ae_recover(AeRecovery *r, const unsigned char *p, size_t n,
     if (r->ledger.held[i])
       return AE_CONTRACT;
   ae_construction_init(&r->owner, &r->ledger);
-  AeConstructionHandle private_handle;
+  struct ae_construction_handle private_handle;
   if (ae_construct(&r->owner, 3, 0, 0, 0, AE_LABELS, &private_handle) != AE_OK)
     return AE_EXHAUSTED;
   if (cut == 3)

@@ -2,20 +2,20 @@
 #ifndef LE_MUTANT
 #define LE_MUTANT 0
 #endif
-void le_drop(LeOwner *owner){
+void le_drop(struct le_owner *owner){
  if(!owner || !owner->data)return;
- LeOwner old=*owner;*owner=(LeOwner){0};old.ops.release(old.ops.context,old.id,old.data,old.size);
+ struct le_owner old=*owner;*owner=(struct le_owner){0};old.ops.release(old.ops.context,old.id,old.data,old.size);
 }
-LeStatus le_run(LeOps ops,unsigned transfer,LeOwner *out){
+enum le_status le_run(struct le_ops ops,unsigned transfer,struct le_owner *out){
  if(!out || out->data || !ops.acquire || !ops.release || transfer>2)return LE_INVALID;
- LeOwner a={0},b={0};LeStatus result=LE_NOMEM;
- a=(LeOwner){.data=ops.acquire(ops.context,1,8),.size=8,.id=1,.ops=ops};if(!a.data)goto done;
- b=(LeOwner){.data=ops.acquire(ops.context,2,16),.size=16,.id=2,.ops=ops};if(!b.data)goto done;
+ struct le_owner a={0},b={0};enum le_status result=LE_NOMEM;
+ a=(struct le_owner){.data=ops.acquire(ops.context,1,8),.size=8,.id=1,.ops=ops};if(!a.data)goto done;
+ b=(struct le_owner){.data=ops.acquire(ops.context,2,16),.size=16,.id=2,.ops=ops};if(!b.data)goto done;
  for(size_t i=0;i<a.size;i++)a.data[i]=(unsigned char)(i+1);
  for(size_t i=0;i<b.size;i++)b.data[i]=(unsigned char)(i+17);
- if(transfer){LeOwner *selected=transfer==1?&a:&b;*out=*selected;
+ if(transfer){struct le_owner *selected=transfer==1?&a:&b;*out=*selected;
 #if LE_MUTANT!=3
- *selected=(LeOwner){0};
+ *selected=(struct le_owner){0};
 #endif
  }
  result=LE_OK;

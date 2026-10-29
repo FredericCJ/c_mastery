@@ -39,12 +39,12 @@ void pd_cache_observe(unsigned op, uint32_t a, uint32_t n) {
   cache_ops |= 1u << op;
 }
 int main(void) {
-  PdPort p = {0};
-  PdIo io = pd_target_io(&p);
+  struct pd_port p = {0};
+  struct pd_io io = pd_target_io(&p);
   CHECK(io.configure && io.snapshot && io.enable && io.stop && io.visibility);
   uint32_t base = PD_BOARD ? 0x40020400u : 0x40026400u;
   uint32_t mem = PD_BOARD ? 0x30040100u : 0x20000000u;
-  PdExtent e = {mem, mem + 8192, 64, 64, 64, 4};
+  struct pd_extent e = {mem, mem + 8192, 64, 64, 64, 4};
   *reg(base) = 0xffffffffu;
   CHECK(io.configure(io.context, &e, 7) && *reg(base + 0x18) == mem &&
         *reg(base + 0x1c) == mem + 8192 && *reg(base + 0x14) == 16 &&
@@ -57,7 +57,7 @@ int main(void) {
   CHECK(cache_ops == 13);
   io.enable(io.context);
   CHECK(*reg(base + 0x10) == 0x5681);
-  PdSnapshot x = io.snapshot(io.context);
+  struct pd_snapshot x = io.snapshot(io.context);
   CHECK(x.enabled == 1 && !(x.flags & PD_TC));
   CHECK(!io.configure(io.context, &e, 8) && p.token == 7);
   io.stop(io.context);

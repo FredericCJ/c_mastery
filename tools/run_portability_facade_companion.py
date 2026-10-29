@@ -26,7 +26,7 @@ def main():
    for case in range(1,7):
     _,err=execute([*flags,'-DCASE='+str(case),'-fsyntax-only',public/'probes.c'],label+'-type-negative'+str(case),1);assert 'error:' in err
    _,err=execute([*flags,'-DCASE=7','-E','-P',public/'probes.c'],label+'-invalid-token',1);assert 'pasting' in err
-   output=home/(label+'-wrong-type.i');execute([*flags,'-DCASE=8','-E',public/'probes.c','-o',output],label+'-nested-preprocess');_,err=execute([cc,'-std=c17','-pedantic-errors','-fsyntax-only',output],label+'-nested-semantic',1);assert 'error:' in err and ('BfRecord' in err or 'incompatible' in err)
+   output=home/(label+'-wrong-type.i');execute([*flags,'-DCASE=8','-E',public/'probes.c','-o',output],label+'-nested-preprocess');_,err=execute([cc,'-std=c17','-pedantic-errors','-fsyntax-only',output],label+'-nested-semantic',1);assert 'error:' in err and ('struct bf_record' in err or 'incompatible' in err)
    expanded=home/(label+'-positive.i');execute([*flags,'-E','-P',public/'probes.c','-o',expanded],label+'-positive-preprocess');text=expanded.read_text();assert '"A"' in text and '"73"' in text and 'b2_identity_int(73)' in text
    objects=[]
    for i,src in enumerate([public/'probes.c',private/'facade.c',ROOT/'assessor/b02_depth/depth.c']):

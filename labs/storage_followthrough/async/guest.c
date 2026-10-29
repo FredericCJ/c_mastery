@@ -18,8 +18,8 @@ static void sa_guest(void) {
   SA_CHECK(!cmk2_block(h, 4, 0, 0));
   for (unsigned i = 0; i < 4096; i++)
     sa_bytes[i] = 0;
-  SaRead operation = {0};
-  SaPort port = {h, sa_submit_guest, sa_wait_guest};
+  struct sa_read operation = {0};
+  struct sa_port port = {h, sa_submit_guest, sa_wait_guest};
   void *out = h;
   SA_CHECK(sa_start(&operation, port, 8, sa_bytes) == SA_OK);
   SA_CHECK(sa_abandon(&operation) == SA_BUSY);

@@ -29,7 +29,7 @@ Initialize fresh storage only with no outstanding request or old handle use.
 
 ## A: count and diagnostic are independent
 
-`SVWriteResult` carries `accepted` and disposition. The count is a prefix of
+`struct sv_write_result` carries `accepted` and disposition. The count is a prefix of
 the offered suffix, at most its length. `SV_PROGRESS` requires a positive
 count; `SV_RETRY` requires zero; `SV_WAIT` and `SV_ERROR` may carry any valid
 count. Commit the accepted prefix exactly once before interpreting the
@@ -70,7 +70,7 @@ assessed and is forbidden for this task.
 
 ## C: admission, identity and stream boundaries
 
-`SVQueue` owns exactly two copied frames, each with its producer generation.
+`struct sv_queue` owns exactly two copied frames, each with its producer generation.
 Admission picks a free nonretired slot and a strictly increasing 64-bit ticket.
 Full queue rejects without mutating either frame or the output handle. A slot
 at maximum generation is retired; ticket maximum rejects before increment.
@@ -78,7 +78,7 @@ Caller payload may change after successful admission. An old handle cannot
 cancel a later occupant. Do not implement cancellation as a raw slot number.
 
 One activation services only the oldest active ticket, with the stated callback
-budget; it returns one `SVEvent` containing identity, total accepted prefix and
+budget; it returns one `struct sv_event` containing identity, total accepted prefix and
 status. Terminal completion frees that slot after publishing the value event.
 Whole-frame FIFO preserves framing on one byte stream. Fairness is conditional:
 if callbacks finish and eventually accept bytes, a frame has at most66 bytes

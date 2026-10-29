@@ -1,6 +1,6 @@
 #include "workload.h"
 #define REG(a) (*(volatile uint32_t *)(uintptr_t)(a))
-#define SH ((SfWork *)(uintptr_t)UINT32_C(0x30040000))
+#define SH ((struct sf_work *)(uintptr_t)UINT32_C(0x30040000))
 static uint32_t now(void){return REG(0xe0001004u);}
 static void barrier(void){__asm__ volatile("dsb sy\n\tisb sy":::"memory");}
 static _Noreturn void fail(void){__asm__ volatile("cpsid i");for(;;)__asm__ volatile("wfi");}

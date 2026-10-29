@@ -81,7 +81,7 @@ int sl_format(store_io io) {
     return SL_IO;
   return SL_OK;
 }
-static int replay(SlCounter *s, const uint8_t *log) {
+static int replay(struct sl_counter *s, const uint8_t *log) {
   uint64_t id = r64(log + 8);
   int64_t delta = signed64(r64(log + 24));
   if (id < s->id)
@@ -107,7 +107,7 @@ static int replay(SlCounter *s, const uint8_t *log) {
   s->delta = delta;
   return SL_OK;
 }
-int sl_open(SlCounter *s, store_io io) {
+int sl_open(struct sl_counter *s, store_io io) {
   if (!s || !valid_io(io))
     return SL_INVALID;
   memset(s, 0, sizeof *s);
@@ -133,15 +133,15 @@ int sl_open(SlCounter *s, store_io io) {
   s->poisoned = 0;
   return SL_OK;
 }
-int sl_get(const SlCounter *s, SlReceipt *out) {
+int sl_get(const struct sl_counter *s, struct sl_receipt *out) {
   if (!s || !out)
     return SL_INVALID;
   if (s->poisoned)
     return SL_STATE;
-  *out = (SlReceipt){s->id, s->total};
+  *out = (struct sl_receipt){s->id, s->total};
   return SL_OK;
 }
-int sl_checkpoint(SlCounter *s) {
+int sl_checkpoint(struct sl_counter *s) {
   if (!s || s->poisoned)
     return SL_STATE;
   if (!s->pending)
@@ -156,7 +156,7 @@ int sl_checkpoint(SlCounter *s) {
   s->pending = 0;
   return SL_OK;
 }
-int sl_apply(SlCounter *s, uint64_t id, int64_t delta, SlReceipt *out) {
+int sl_apply(struct sl_counter *s, uint64_t id, int64_t delta, struct sl_receipt *out) {
   if (!s || !out || !id)
     return SL_INVALID;
   if (s->poisoned)
@@ -164,7 +164,7 @@ int sl_apply(SlCounter *s, uint64_t id, int64_t delta, SlReceipt *out) {
   if (id == s->id) {
     if (SL_MUTANT != 4 && delta != s->delta)
       return SL_CONFLICT;
-    *out = (SlReceipt){id, s->total};
+    *out = (struct sl_receipt){id, s->total};
     return SL_DUPLICATE;
   }
   if (id < s->id)
@@ -189,7 +189,7 @@ int sl_apply(SlCounter *s, uint64_t id, int64_t delta, SlReceipt *out) {
   uint8_t log[4096];
   encode(log, 2, id, s->id, delta);
   if (SL_MUTANT == 3)
-    *out = (SlReceipt){id, total};
+    *out = (struct sl_receipt){id, total};
   r = writep(s->io, 2, log);
   if (!r && SL_MUTANT != 1)
     r = flush(s->io);
@@ -201,6 +201,6 @@ int sl_apply(SlCounter *s, uint64_t id, int64_t delta, SlReceipt *out) {
   s->total = total;
   s->delta = delta;
   s->pending = 1;
-  *out = (SlReceipt){id, total};
+  *out = (struct sl_receipt){id, total};
   return SL_OK;
 }

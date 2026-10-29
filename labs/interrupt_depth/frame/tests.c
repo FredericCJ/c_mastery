@@ -16,7 +16,7 @@ int pm_puts(const char *);
   } while (0)
 int main(void) {
   uint32_t words[27] = {1, 2, 3, 4, 12, 0x08000201u, 0x08000120u, 1u << 24};
-  XfFrame f = {0};
+  struct xf_frame f = {0};
   CHECK(xf_frame(words, 8, 0x20000000u, 0xfffffffdu, 1, 0, 1, 0, &f) == XF_OK);
   CHECK(f.pc == 0x08000120u && f.stacked_lr == 0x08000201u && f.psp &&
         f.thread && !f.extended && f.original_sp == 0x20000020u);
@@ -64,12 +64,12 @@ int main(void) {
   CHECK(xf_frame(words, 27, 0x20000000u, 0xfffffffdu, 1, 0, 1, 0, &f) ==
         XF_FRAME);
   words[6] &= ~1u;
-  XfPriorityConfig cfg = {4, 5};
-  XfPriority q;
+  struct xf_priority_config cfg = {4, 5};
+  struct xf_priority q;
   unsigned chosen = 99, allowed = 99;
   CHECK(xf_priority(cfg, 0x7f, &q) == XF_OK && q.encoded == 0x70 &&
         q.logical == 7 && q.group == 1 && q.sub == 3);
-  XfIrq irq[3] = {
+  struct xf_irq irq[3] = {
       {16, 0x60, 1, 0, 0, 0}, {17, 0x20, 0, 1, 0, 0}, {18, 0x50, 1, 1, 0, 0}};
   CHECK(xf_pick(cfg, irq, 3, 0x60, 0, 0, &chosen) == XF_NONE &&
         chosen == 99); /* subpriority cannot preempt */
@@ -91,13 +91,13 @@ int main(void) {
   CHECK(xf_api_allowed(cfg, 0x60, 0x51, &allowed) == XF_INVALID);
   cfg.grouping = 4;
   CHECK(xf_api_allowed(cfg, 0x60, 0x40, &allowed) == XF_INVALID);
-  cfg = (XfPriorityConfig){8, 0};
+  cfg = (struct xf_priority_config){8, 0};
   CHECK(xf_api_allowed(cfg, 4, 5, &allowed) == XF_INVALID);
   CHECK(xf_api_allowed(cfg, 4, 4, &allowed) == XF_OK && allowed);
   for (unsigned bits = 3; bits <= 8; ++bits)
     for (unsigned grouping = 0; grouping <= 7; ++grouping)
       for (unsigned raw = 0; raw < 256; ++raw) {
-        cfg = (XfPriorityConfig){bits, grouping};
+        cfg = (struct xf_priority_config){bits, grouping};
         CHECK(xf_priority(cfg, raw, &q) == XF_OK);
         unsigned unit = 1u << (8 - bits), clean = raw - raw % unit,
                  block = 1u << (grouping + 1);

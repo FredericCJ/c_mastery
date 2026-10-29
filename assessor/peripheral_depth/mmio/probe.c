@@ -3,7 +3,7 @@
 int main(void) {
   for (unsigned initial = 0; initial < 32; ++initial)
     for (unsigned acknowledge = 0; acknowledge < 32; ++acknowledge) {
-      PmModel m = {0};
+      struct pm_model m = {0};
       m.revision = 1;
       m.status = initial;
       uint32_t v = acknowledge;
@@ -14,7 +14,7 @@ int main(void) {
   for (unsigned initial = 0; initial < 16; ++initial)
     for (unsigned set = 0; set < 16; ++set)
       for (unsigned clear = 0; clear < 16; ++clear) {
-        PmModel m = {0};
+        struct pm_model m = {0};
         m.revision = 1;
         m.odr = initial;
         uint32_t v = set | (clear << 16);
@@ -25,7 +25,7 @@ int main(void) {
   for (unsigned mode = 0; mode < 2; ++mode)
     for (unsigned seq = 0; seq < 256; ++seq)
       for (unsigned threshold = 1; threshold <= 4; ++threshold) {
-        PmFilter d;
+        struct pm_filter d;
         unsigned changed;
         if (pm_filter_init(&d, threshold, mode ? 5 : 0, 4))
           return 1;

@@ -3,14 +3,14 @@
 #ifndef ORCC_MUTANT
 #define ORCC_MUTANT 0
 #endif
-static ORCCMeta *meta(ORCCards *c, unsigned i) {
+static struct orcc_meta *meta(struct orc_cards *c, unsigned i) {
   return c->padded ? &c->metadata.padded[i].meta : &c->metadata.packed[i];
 }
-static void unlock(ORCCards *c) {
+static void unlock(struct orc_cards *c) {
   if (pthread_mutex_unlock(&c->mutex))
     abort();
 }
-ORStatus orcc_init(ORCCards *c, unsigned width, int padded) {
+enum or_status orcc_init(struct orc_cards *c, unsigned width, int padded) {
   unsigned i, j;
   if (!c || (width != 1 && width != 2 && width != 4 && width != 8) ||
       (padded != 0 && padded != 1))
@@ -22,14 +22,14 @@ ORStatus orcc_init(ORCCards *c, unsigned width, int padded) {
   for (i = 0; i < 8; i++) {
     for (j = 0; j < 2; j++)
       c->edge[i][j] = 0;
-    *meta(c, i) = (ORCCMeta){1, 0};
+    *meta(c, i) = (struct orcc_meta){1, 0};
   }
   c->initialized = 1;
   return OR_OK;
 }
-ORStatus orcc_store(ORCCards *c, unsigned object, unsigned field,
+enum or_status orcc_store(struct orc_cards *c, unsigned object, unsigned field,
                     unsigned target) {
-  ORCCMeta *m;
+  struct orcc_meta *m;
   if (!c || !c->initialized || object >= 8 || field >= 2 || target > 16)
     return OR_INVALID;
   if (pthread_mutex_lock(&c->mutex))
@@ -46,9 +46,9 @@ ORStatus orcc_store(ORCCards *c, unsigned object, unsigned field,
   unlock(c);
   return OR_OK;
 }
-ORStatus orcc_prepare(ORCCards *c, unsigned card, ORCCSnapshot *out) {
-  ORCCSnapshot s;
-  ORCCMeta *m;
+enum or_status orcc_prepare(struct orc_cards *c, unsigned card, struct orcc_snapshot *out) {
+  struct orcc_snapshot s;
+  struct orcc_meta *m;
   unsigned i;
   if (!c || !out || !c->initialized || card >= 8u / c->width)
     return OR_INVALID;
@@ -59,7 +59,7 @@ ORStatus orcc_prepare(ORCCards *c, unsigned card, ORCCSnapshot *out) {
     unlock(c);
     return OR_DONE;
   }
-  s = (ORCCSnapshot){.owner = c,
+  s = (struct orcc_snapshot){.owner = c,
                      .card = card,
                      .count = 2u * c->width,
                      .revision = m->revision};
@@ -69,11 +69,11 @@ ORStatus orcc_prepare(ORCCards *c, unsigned card, ORCCSnapshot *out) {
   unlock(c);
   return OR_OK;
 }
-ORStatus orcc_scan_commit(ORCCards *c, const ORCCSnapshot *s, uint16_t *roots,
+enum or_status orcc_scan_commit(struct orc_cards *c, const struct orcc_snapshot *s, uint16_t *roots,
                           unsigned *scanned) {
   uint16_t r = 0;
   unsigned i;
-  ORCCMeta *m;
+  struct orcc_meta *m;
   if (!c || !s || !roots || !scanned || !c->initialized || s->owner != c ||
       s->card >= 8u / c->width || s->count != 2u * c->width)
     return OR_INVALID;
@@ -99,7 +99,7 @@ ORStatus orcc_scan_commit(ORCCards *c, const ORCCSnapshot *s, uint16_t *roots,
   unlock(c);
   return OR_OK;
 }
-ORStatus orcc_close(ORCCards *c) {
+enum or_status orcc_close(struct orc_cards *c) {
   if (!c || !c->initialized)
     return OR_INVALID;
   /* Owner has joined every user and discarded every prepared snapshot. */

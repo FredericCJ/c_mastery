@@ -9,7 +9,7 @@
     }                                                                          \
   } while (0)
 static int operations(void) {
-  RdOperation rx, tx;
+  struct rd_operation rx, tx;
   const unsigned char input[3] = {7, 0, 9}, output[3] = {1, 2, 3};
   CHECK(!rd_operation_init(&rx, 3, 0) && !rd_operation_init(&tx, 3, output));
   CHECK(rd_progress(&rx, 2, input) == 1 && rx.done == 2 &&
@@ -35,16 +35,16 @@ static int operations(void) {
   return 0;
 }
 static int identities(void) {
-  RdRegistry r;
-  RdToken old, fresh, untouched = {99, 99};
+  struct rd_registry r;
+  struct rd_token old, fresh, untouched = {99, 99};
   CHECK(!rd_registry_init(&r, 7, 8) && rd_register(&r, 2, 100, &old) == 1 &&
         old.generation == 7);
-  RdSlot *s = rd_borrow(&r, old);
+  struct rd_slot *s = rd_borrow(&r, old);
   CHECK(s && s->descriptor == 100);
   const unsigned char tx[2] = {3, 4};
   CHECK(!rd_operation_init(&s->receive, 3, 0) &&
         !rd_operation_init(&s->transmit, 2, tx));
-  RdCompletion rx1, rx2, tx1, ignored;
+  struct rd_completion rx1, rx2, tx1, ignored;
   const unsigned char byte = 42;
   CHECK(rd_submit(&r, old, 0, &rx1) == 1 && rd_submit(&r, old, 1, &tx1) == 1 &&
         rd_submit(&r, old, 1, &ignored) == 0);
@@ -57,7 +57,7 @@ static int identities(void) {
   CHECK(r.slots[2].active && r.slots[2].pending == 3);
   /* A cancellation acknowledgment carries no target completion and changes no
    * pending bit. Model the later actual target terminal separately. */
-  RdCompletion wrong = rx2;
+  struct rd_completion wrong = rx2;
   wrong.connection.generation = 6;
   CHECK(rd_complete(&r, wrong, -1, 0) == 0 && r.slots[2].pending == 3);
   CHECK(rd_complete(&r, tx1, 1, 0) == 1 && r.slots[2].pending == 1 &&
@@ -72,7 +72,7 @@ static int identities(void) {
   s = rd_borrow(&r, fresh);
   CHECK(s && !rd_operation_init(&s->receive, 1, 0));
   s->submitted[0] = 65535;
-  ignored = (RdCompletion){.sequence = 99};
+  ignored = (struct rd_completion){.sequence = 99};
   CHECK(rd_submit(&r, fresh, 0, &ignored) == 0 && ignored.sequence == 99 &&
         !s->pending && !rd_return(&r, fresh));
   CHECK(rd_close(&r, fresh) == 1 && r.slots[2].retired &&
@@ -92,7 +92,7 @@ static int identities(void) {
           !rd_operation_init(&s->transmit, 1, &byte));
     CHECK(rd_submit(&r, fresh, 0, &rx1) == 1 &&
           rd_submit(&r, fresh, 1, &tx1) == 1);
-    RdCompletion invalid = rx1;
+    struct rd_completion invalid = rx1;
     invalid.direction = 2;
     CHECK(rd_complete(&r, invalid, 1, &byte) == 0 && s->pending == 3 &&
           rd_close(&r, fresh) == 1);
@@ -112,62 +112,62 @@ static int identities(void) {
   }
   return 0;
 }
-typedef struct {
-  RdScheduler *scheduler;
+struct rd_work {
+  struct rd_scheduler *scheduler;
   unsigned counts[3], zero, inject, nested_rejected;
-} Work;
+};
 static int callback(void *context, unsigned at) {
-  Work *w = context;
+  struct rd_work *w = context;
   ++w->counts[at];
   if (w->inject && at == 0) {
     (void)rd_ready(w->scheduler, 2);
-    RdTurn ignored;
+    struct rd_turn ignored;
     w->nested_rejected = rd_turn(w->scheduler, 1, callback, w, &ignored) == -1;
   }
   return w->zero ? 0 : 1;
 }
 static int self_publish(void *context, unsigned at) {
-  Work *w = context;
+  struct rd_work *w = context;
   ++w->counts[at];
   (void)rd_ready(w->scheduler, at);
   return -2;
 }
 static int scheduling(void) {
-  RdScheduler s = {0};
-  RdTurn t;
-  Work w = {.scheduler = &s};
+  struct rd_scheduler s = {0};
+  struct rd_turn t;
+  struct rd_work w = {.scheduler = &s};
   CHECK(!rd_ready(&s, 0) && !rd_ready(&s, 1) &&
         !rd_turn(&s, 2, callback, &w, &t));
   CHECK(t.callbacks == 2 && t.successes == 2 && t.order[0] == 0 &&
         t.order[1] == 0);
   CHECK(!rd_turn(&s, 2, callback, &w, &t) && t.order[0] == 1 &&
         w.counts[1] == 2);
-  s = (RdScheduler){.ready = 7};
-  w = (Work){.scheduler = &s};
+  s = (struct rd_scheduler){.ready = 7};
+  w = (struct rd_work){.scheduler = &s};
   CHECK(!rd_turn(&s, 8, callback, &w, &t) && t.successes == 6 &&
         t.callbacks == 6);
   for (unsigned i = 0; i < 6; ++i)
     CHECK(t.order[i] == i / 2);
-  s = (RdScheduler){.ready = 7};
-  w = (Work){.scheduler = &s, .zero = 1};
+  s = (struct rd_scheduler){.ready = 7};
+  w = (struct rd_work){.scheduler = &s, .zero = 1};
   for (unsigned turn = 0; turn < 3; ++turn) {
     CHECK(!rd_turn(&s, 2, callback, &w, &t));
     CHECK(t.callbacks == 2 && t.successes == 0 && t.order[0] == turn);
   }
   CHECK(w.counts[0] == 2 && w.counts[1] == 2 && w.counts[2] == 2);
-  s = (RdScheduler){.ready = 1};
-  w = (Work){.scheduler = &s, .inject = 1};
+  s = (struct rd_scheduler){.ready = 1};
+  w = (struct rd_work){.scheduler = &s, .inject = 1};
   CHECK(!rd_turn(&s, 8, callback, &w, &t) && t.successes == 2 &&
         w.counts[2] == 0 && w.nested_rejected);
   CHECK(!rd_turn(&s, 8, callback, &w, &t) && w.counts[2] == 2);
-  s = (RdScheduler){.ready = 1};
-  w = (Work){.scheduler = &s};
+  s = (struct rd_scheduler){.ready = 1};
+  w = (struct rd_work){.scheduler = &s};
   CHECK(!rd_turn(&s, 8, self_publish, &w, &t) && t.callbacks == 1 &&
         s.ready == 1 && w.counts[0] == 1);
   CHECK(!rd_turn(&s, 8, self_publish, &w, &t) && t.callbacks == 1 &&
         s.ready == 1 && w.counts[0] == 2);
   /* Bounded execution of the flawed always-drain policy; no infinite hang. */
-  w = (Work){.scheduler = &s};
+  w = (struct rd_work){.scheduler = &s};
   for (unsigned step = 0; step < 16; ++step)
     CHECK(callback(&w, 0) == 1);
   CHECK(w.counts[0] == 16 && w.counts[1] == 0);
@@ -175,17 +175,17 @@ static int scheduling(void) {
 }
 static int policies(void) {
   for (unsigned policy = 0; policy < 3; ++policy) {
-    RdService s;
-    RfMessage messages[9];
+    struct rd_service s;
+    struct rf_message messages[9];
     unsigned slots[4], extra = 99;
-    RfFrame frame = {.length = 1, .bytes = {42}};
+    struct rf_frame frame = {.length = 1, .bytes = {42}};
     CHECK(!rd_service_init(&s, 256));
     for (unsigned i = 0; i < 4; ++i)
       CHECK(rd_service_open(&s, &slots[i]) == 1);
     CHECK(rd_service_open(&s, &extra) == 0 && extra == 99);
     for (unsigned i = 0; i < 9; ++i) {
       CHECK(!rf_message_init(&messages[i], i + 1, 1, &frame));
-      CHECK(rd_admit(&s, 0, &messages[i], (enum RdPolicy)policy) == (i < 8));
+      CHECK(rd_admit(&s, 0, &messages[i], (enum rd_policy)policy) == (i < 8));
     }
     CHECK(messages[8].owner == RF_CALLER && s.accepted == 8);
     if (policy == RD_DISCONNECT) {
@@ -207,10 +207,10 @@ static int policies(void) {
   unsigned cells = 0;
   for (unsigned limit = 0; limit <= 32; ++limit)
     for (unsigned length = 0; length <= 8; ++length) {
-      RdService s;
-      RfMessage m[9];
+      struct rd_service s;
+      struct rf_message m[9];
       unsigned at;
-      RfFrame f = {.length = length};
+      struct rf_frame f = {.length = length};
       size_t expected_bytes = 0;
       unsigned accepted = 0;
       CHECK(!rd_service_init(&s, limit) && rd_service_open(&s, &at) == 1);
@@ -228,9 +228,9 @@ static int policies(void) {
       ++cells;
     }
   CHECK(cells == 297);
-  RdService epoch;
-  RfMessage message;
-  RfFrame empty = {0};
+  struct rd_service epoch;
+  struct rf_message message;
+  struct rf_frame empty = {0};
   unsigned slot;
   CHECK(!rd_service_init(&epoch, 0) && rd_service_open(&epoch, &slot) == 1);
   for (unsigned id = 1; id <= 64; ++id) {
@@ -245,9 +245,9 @@ static int policies(void) {
   return 0;
 }
 static int shutdowns(void) {
-  RdService s;
-  RfMessage m[7];
-  RfFrame f = {.length = 1, .bytes = {4}};
+  struct rd_service s;
+  struct rf_message m[7];
+  struct rf_frame f = {.length = 1, .bytes = {4}};
   unsigned at;
   CHECK(!rd_service_init(&s, 8) && rd_service_open(&s, &at) == 1);
   for (unsigned i = 0; i < 7; ++i)

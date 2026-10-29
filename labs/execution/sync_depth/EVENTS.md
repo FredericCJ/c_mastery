@@ -12,7 +12,7 @@ the worked implementation and causal analysis remain assessor-only.
 ## Representation and ownership
 
 Use C17 with `uint32_t`/`uint64_t`, the retained sixteen-task CMX kernel and caller
-storage. `CDEvents` owns an actual `cmx_event` and one result slot per logical task;
+storage. `struct cd_events` owns an actual `cmx_event` and one result slot per logical task;
 it borrows its live kernel. Each result slot is idle, pending or done. All access
 is externally serialized, including CMX ticks, cancellation and task transitions.
 Do not move an event/kernel or reap/reuse a participating task until its pending
@@ -73,7 +73,7 @@ rule is relaxed by the adapter.
 
 Three identical sets performed before observation produce one level bit, whereas
 three actual `cmx_notify` operations retain three counted notifications. For the
-required sequence variant, `CDESequence` stores `(epoch, serial)`, both uint32_t.
+required sequence variant, `struct cde_sequence` stores `(epoch, serial)`, both uint32_t.
 The logical number is `(uint64_t)epoch << 32 | serial`. Initial state is zero.
 Each publication increments the serial; at UINT32_MAX it increments the epoch
 and sets serial to zero. At the maximal pair it refuses FULL without mutation.
@@ -81,7 +81,7 @@ There is no terminal wrap, silent reuse or indefinite uniqueness claim. Named
 near-limit fixtures are constructed directly rather than pretending billions
 of publications ran.
 
-Each observer owns a separate `CDECursor` from the same sequence lifetime.
+Each observer owns a separate `struct cde_cursor` from the same sequence lifetime.
 `cde_sequence_read` refuses a future cursor INVALID; equal cursor returns BLOCKED;
 both preserve cursor, delta and missed outputs. For a changed sequence it returns
 OK, writes the exact unsigned delta and `missed = delta - 1`, then advances that

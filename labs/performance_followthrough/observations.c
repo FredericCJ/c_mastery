@@ -22,9 +22,9 @@
 #define C(x) do{if(!(x)){fprintf(stderr,"PF_HOST_CHECK:%d:%s:errno%d\n",__LINE__,#x,errno);exit(1);}}while(0)
 static uint64_t stamp(clockid_t id){struct timespec t;C(!clock_gettime(id,&t));return (uint64_t)t.tv_sec*1000000000u+(unsigned)t.tv_nsec;}
 static uint64_t burn(unsigned count){volatile uint64_t v=1;for(unsigned i=0;i<count;++i)v=v*33+i;return v;}
-typedef struct{uint64_t cpu,checksum;} Thread;
-static void*worker(void*p){Thread*r=p;uint64_t start=stamp(CLOCK_THREAD_CPUTIME_ID);r->checksum=burn(12000000);r->cpu=stamp(CLOCK_THREAD_CPUTIME_ID)-start;return NULL;}
-static void clocks(void){struct timespec res;C(!clock_getres(CLOCK_MONOTONIC,&res));uint64_t a=stamp(CLOCK_MONOTONIC),p=stamp(CLOCK_PROCESS_CPUTIME_ID),t=stamp(CLOCK_THREAD_CPUTIME_ID);Thread r[2]={{0}};pthread_t threads[2];for(unsigned i=0;i<2;++i)C(!pthread_create(threads+i,NULL,worker,r+i));struct timespec delay={0,20000000};C(!nanosleep(&delay,NULL));for(unsigned i=0;i<2;++i)C(!pthread_join(threads[i],NULL));uint64_t wall=stamp(CLOCK_MONOTONIC)-a,process=stamp(CLOCK_PROCESS_CPUTIME_ID)-p,maincpu=stamp(CLOCK_THREAD_CPUTIME_ID)-t;C(r[0].checksum==r[1].checksum&&r[0].cpu&&r[1].cpu);printf("{\"case\":\"clocks\",\"resolution_ns\":%ld,\"elapsed_ns\":%"PRIu64",\"process_cpu_ns\":%"PRIu64",\"main_thread_cpu_ns\":%"PRIu64",\"worker_cpu_ns\":[%"PRIu64",%"PRIu64"],\"wall_minus_process_ns\":%"PRId64"}\n",res.tv_nsec,wall,process,maincpu,r[0].cpu,r[1].cpu,(int64_t)wall-(int64_t)process);
+struct pf_thread{uint64_t cpu,checksum;};
+static void*worker(void*p){struct pf_thread*r=p;uint64_t start=stamp(CLOCK_THREAD_CPUTIME_ID);r->checksum=burn(12000000);r->cpu=stamp(CLOCK_THREAD_CPUTIME_ID)-start;return NULL;}
+static void clocks(void){struct timespec res;C(!clock_getres(CLOCK_MONOTONIC,&res));uint64_t a=stamp(CLOCK_MONOTONIC),p=stamp(CLOCK_PROCESS_CPUTIME_ID),t=stamp(CLOCK_THREAD_CPUTIME_ID);struct pf_thread r[2]={{0}};pthread_t threads[2];for(unsigned i=0;i<2;++i)C(!pthread_create(threads+i,NULL,worker,r+i));struct timespec delay={0,20000000};C(!nanosleep(&delay,NULL));for(unsigned i=0;i<2;++i)C(!pthread_join(threads[i],NULL));uint64_t wall=stamp(CLOCK_MONOTONIC)-a,process=stamp(CLOCK_PROCESS_CPUTIME_ID)-p,maincpu=stamp(CLOCK_THREAD_CPUTIME_ID)-t;C(r[0].checksum==r[1].checksum&&r[0].cpu&&r[1].cpu);printf("{\"case\":\"clocks\",\"resolution_ns\":%ld,\"elapsed_ns\":%"PRIu64",\"process_cpu_ns\":%"PRIu64",\"main_thread_cpu_ns\":%"PRIu64",\"worker_cpu_ns\":[%"PRIu64",%"PRIu64"],\"wall_minus_process_ns\":%"PRId64"}\n",res.tv_nsec,wall,process,maincpu,r[0].cpu,r[1].cpu,(int64_t)wall-(int64_t)process);
  struct rusage before,after;C(!getrusage(RUSAGE_CHILDREN,&before));p=stamp(CLOCK_PROCESS_CPUTIME_ID);pid_t child=fork();C(child>=0);if(!child){(void)burn(16000000);_exit(0);}int status;C(waitpid(child,&status,0)==child&&WIFEXITED(status)&&!WEXITSTATUS(status));process=stamp(CLOCK_PROCESS_CPUTIME_ID)-p;C(!getrusage(RUSAGE_CHILDREN,&after));int64_t childus=(after.ru_utime.tv_sec-before.ru_utime.tv_sec)*1000000+(after.ru_utime.tv_usec-before.ru_utime.tv_usec)+(after.ru_stime.tv_sec-before.ru_stime.tv_sec)*1000000+(after.ru_stime.tv_usec-before.ru_stime.tv_usec);printf("{\"case\":\"child-clock-scope\",\"parent_process_cpu_ns\":%"PRIu64",\"waited_child_cpu_us\":%"PRId64"}\n",process,childus);C(childus>0);
 }
 /* Same accepted sorted immutable extent. The instruction core is extracted
@@ -49,19 +49,19 @@ static void files(void){char dir[]="/tmp/cmastery-performance-XXXXXX";C(mkdtemp(
  for(unsigned pass=0;pass<3;++pass){if(pass==2){pid_t child=fork();C(child>=0);if(!child){int other=open(path,O_RDONLY|O_CLOEXEC);if(other<0)_exit(1);unsigned char copy[8192];unsigned k=read_file(other,copy,sizeof copy);close(other);_exit(!k||memcmp(copy,bytes,sizeof copy));}int status;C(waitpid(child,&status,0)==child&&WIFEXITED(status)&&!WEXITSTATUS(status));}start=stamp(CLOCK_MONOTONIC);unsigned reads=read_file(fd,readback,sizeof readback);completed=stamp(CLOCK_MONOTONIC);C(!memcmp(bytes,readback,sizeof bytes));printf("{\"case\":\"read-pass\",\"pass\":%u,\"accepted_bytes\":8192,\"syscalls\":%u,\"elapsed_ns\":%"PRIu64",\"device_bytes\":null,\"after_owned_other_process\":%s}\n",pass,reads,completed-start,pass==2?"true":"false");}
  /* Exercise the same publication path with a failing synchronizer. */
  int stage=open(tmp,O_CREAT|O_EXCL|O_RDWR|O_CLOEXEC,0600);C(stage>=0);C(write(stage,"abcdefgh",8)==8);
- unsigned sync_calls=0;PFPublication failed=pf_publish(stage,dfd,tmp,path,(PFSynchronizer){&sync_calls,injected_sync});
+ unsigned sync_calls=0;struct pf_publication failed=pf_publish(stage,dfd,tmp,path,(struct pf_synchronizer){&sync_calls,injected_sync});
  C(failed.state==PF_STAGE_RETAINED&&failed.error==EIO&&sync_calls==1&&access(tmp,F_OK)==0);
  C(read_file(fd,readback,sizeof readback)>0&&!memcmp(bytes,readback,sizeof bytes));
  puts("{\"case\":\"injected-fsync-error\",\"source\":\"local-adapter\",\"status\":\"failed\",\"readable_bytes\":8192,\"synchronizer_calls\":1,\"publication\":\"stage-retained\",\"destination_unchanged\":true}");
- PFPublication published=pf_publish(stage,dfd,tmp,path,(PFSynchronizer){NULL,pf_sync_system});
+ struct pf_publication published=pf_publish(stage,dfd,tmp,path,(struct pf_synchronizer){NULL,pf_sync_system});
  C(published.state==PF_SYNCED&&!published.error&&published.calls==2);C(!close(stage));
  puts("{\"case\":\"publish\",\"boundaries\":[\"write8\",\"file-fsync\",\"rename\",\"directory-fsync\"],\"power_loss\":\"unobserved\"}");C(!close(fd));fd=open(path,O_RDWR|O_CLOEXEC);C(fd>=0);C(!ftruncate(fd,1048576));C(pwrite(fd,"abcdefgh",8,1048568)==8);C(!fsync(fd));struct stat sparse,pre;C(!fstat(fd,&sparse));int prestatus=posix_fallocate(fd,0,1048576);C(!fstat(fd,&pre));C(pread(fd,readback,8,1048568)==8&&!memcmp(readback,"abcdefgh",8));printf("{\"case\":\"sparse-preallocated\",\"logical_length\":1048576,\"payload\":8,\"sparse_512_blocks\":%jd,\"after_512_blocks\":%jd,\"preallocate_status\":%d,\"physical_device_traffic\":null}\n",(intmax_t)sparse.st_blocks,(intmax_t)pre.st_blocks,prestatus);C(!close(fd));C(!unlink(path));C(!close(dfd));C(!rmdir(dir));
 }
 static void pmu(void) {
- const PFPmuEvent events[]={{PERF_TYPE_HARDWARE,PERF_COUNT_HW_INSTRUCTIONS},{PERF_TYPE_HARDWARE,PERF_COUNT_HW_CPU_CYCLES},{PERF_TYPE_HARDWARE,PERF_COUNT_HW_BRANCH_MISSES},{PERF_TYPE_HARDWARE,PERF_COUNT_HW_CACHE_MISSES}};
+ const struct pf_pmu_event events[]={{PERF_TYPE_HARDWARE,PERF_COUNT_HW_INSTRUCTIONS},{PERF_TYPE_HARDWARE,PERF_COUNT_HW_CPU_CYCLES},{PERF_TYPE_HARDWARE,PERF_COUNT_HW_BRANCH_MISSES},{PERF_TYPE_HARDWARE,PERF_COUNT_HW_CACHE_MISSES}};
  const char *names[]={"instructions","cycles","branch-misses","cache-misses"};
- PFPmu group;
- PFPmuState state=pf_pmu_open(&group,pf_pmu_linux(),events,4);
+ struct pf_pmu group;
+ enum pf_pmu_state state=pf_pmu_open(&group,pf_pmu_linux(),events,4);
  if(state==PF_PMU_READY)state=pf_pmu_start(&group);
  if(state==PF_PMU_ACTIVE){(void)burn(1000000);state=pf_pmu_stop(&group);}
  for(unsigned i=0;i<4;++i){

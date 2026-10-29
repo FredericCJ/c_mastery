@@ -23,11 +23,11 @@ def generate(c):
  cases=[list(x) for n in range(3) for x in itertools.product(alphabet,repeat=n)]
  cases += [list(map(str,x)) for x in itertools.product([-32768,-1,0,1,32767],repeat=3)]
  cases += [['0']*4,['0']*5,['x','99999','+','1','2','--3','0','0','0','0','0'],['9999999999999999999x']]
- lines=['#include "list.h"','#include <stdio.h>','#define C(x) do { if(!(x)){fprintf(stderr,"FT_ORACLE:%u:%s\\n",__LINE__,#x);return 1;} } while(0)','int main(void) { FtResult r; FtErrors e; FtStatus s;']
+ lines=['#include "list.h"','#include <stdio.h>','#define C(x) do { if(!(x)){fprintf(stderr,"FT_ORACLE:%u:%s\\n",__LINE__,#x);return 1;} } while(0)','int main(void) { struct ft_result r; struct ft_errors e; enum ft_status s;']
  for i,ts in enumerate(cases):
   literals=','.join(json.dumps(t) for t in ts) or '0';lines.append('{ const char *a[] = {'+literals+'};')
   for collect in [0,1]:
-   s,n,total,errors=model(ts,bool(collect));lines += ['r=(FtResult){91,92};',f's=ft_tokens(a,{len(ts)},{collect},&r,&e);',f'C(s=={s} && r.count=={n} && r.sum=={total} && e.total=={len(errors)} && e.stored=={min(8,len(errors))});']
+   s,n,total,errors=model(ts,bool(collect));lines += ['r=(struct ft_result){91,92};',f's=ft_tokens(a,{len(ts)},{collect},&r,&e);',f'C(s=={s} && r.count=={n} && r.sum=={total} && e.total=={len(errors)} && e.stored=={min(8,len(errors))});']
    for j,(index,code) in enumerate(errors[:8]):lines.append(f'C(e.items[{j}].token=={index} && e.items[{j}].status=={code});')
   lines.append('}')
  lines += [f'puts("FT_ORACLE_PASS cases={len(cases)} modes=2");return 0;','}']

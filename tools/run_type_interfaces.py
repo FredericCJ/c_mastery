@@ -4,7 +4,7 @@ import argparse,datetime,importlib.util,json,shutil,sys
 ROOT=Path(__file__).resolve().parents[1];LAB=ROOT/'labs/type_interfaces';REF=ROOT/'assessor/type_interfaces';REPORT='reviews/v5/expansion/legacy_type_interfaces/current_validation.json'
 PROFILES=[('gcc','-O0','gcc-debug'),('gcc','-O3','gcc-release'),('clang','-O0','clang-debug'),('clang','-O3','clang-release'),('gcc','-fsanitize=address,undefined','gcc-asan'),('clang','-fsanitize=address,undefined','clang-asan')]
 MARKERS=['TD_REP_PASS row_factory function_alias wrapper opaque_distinct exact_units','TD_CALL_PASS actual_row_stride admission_before_callbacks explicit_adapter','TD_JOB_PASS borrowed_until_quiescent cancel_suppresses_call running_busy','TD_PASS typed_interfaces']
-MUTANTS={1:'a && b && a != b',2:'td_speed((TdMeters){13}',3:'td_rows(rows, 2, td_adapter',4:'td_cancel(&job) == TD_OK'};STUB='row && (*row)[0] == 1'
+MUTANTS={1:'a && b && a != b',2:'td_speed((struct td_meters){13}',3:'td_rows(rows, 2, td_adapter',4:'td_cancel(&job) == TD_OK'};STUB='row && (*row)[0] == 1'
 def module(name,p):
  s=importlib.util.spec_from_file_location(name,p);m=importlib.util.module_from_spec(s);s.loader.exec_module(m);return m
 common=module('td_common',ROOT/'assessor/legacy_systems/toolchain/common.py');sha=common.sha

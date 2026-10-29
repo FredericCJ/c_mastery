@@ -19,7 +19,7 @@ int tp_nonsleepable(unsigned effects) {
   (void)effects;
   return TP_INVALID;
 }
-int tp_history(const TPOp *ops, size_t n, unsigned policy, TPWitness *out) {
+int tp_history(const struct tp_op *ops, size_t n, unsigned policy, struct tp_witness *out) {
   (void)ops;
   (void)n;
   (void)policy;

@@ -10,19 +10,19 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-static RpwLimits all(void) { return (RpwLimits){4, 256, 32, 3}; }
-static RpwField integer(unsigned tag, uint32_t value) {
-  RpwField f = {0};
+static struct rpw_limits all(void) { return (struct rpw_limits){4, 256, 32, 3}; }
+static struct rpw_field integer(unsigned tag, uint32_t value) {
+  struct rpw_field f = {0};
   f.tag = tag;
   f.value = value;
   return f;
 }
-static RpwDoc chain(unsigned count) {
-  RpwDoc d = {0};
+static struct rpw_doc chain(unsigned count) {
+  struct rpw_doc d = {0};
   unsigned i;
   d.count = count;
   for (i = 0; i < count; ++i) {
-    RpwRecord *r = &d.records[i];
+    struct rpw_record *r = &d.records[i];
     r->count = i + 1 < count ? 3 : 2;
     r->fields[0] = integer(1, i + 1);
     r->fields[1] = integer(2, rp_zigzag(-(int32_t)i));
@@ -33,7 +33,7 @@ static RpwDoc chain(unsigned count) {
   }
   return d;
 }
-static int canonical(const RpwDoc *a, const RpwDoc *b) {
+static int canonical(const struct rpw_doc *a, const struct rpw_doc *b) {
   unsigned char x[256], y[256];
   size_t xn, yn;
   return rpw_encode(a, all(), x, sizeof x, &xn) == 0 &&
@@ -41,14 +41,14 @@ static int canonical(const RpwDoc *a, const RpwDoc *b) {
          !memcmp(x, y, xn);
 }
 static int nested(void) {
-  RpwDoc d = chain(4), got, before;
+  struct rpw_doc d = chain(4), got, before;
   unsigned char wire[256], other[256];
   size_t n, m;
   unsigned i;
   CHECK(rpw_encode(&d, all(), wire, sizeof wire, &n) == 0 &&
         rpw_decode(wire, n, all(), &got) == 0 && canonical(&d, &got));
   for (i = 0; i < 4; ++i) {
-    RpwField f = d.records[i].fields[0];
+    struct rpw_field f = d.records[i].fields[0];
     d.records[i].fields[0] = d.records[i].fields[1];
     d.records[i].fields[1] = f;
   }
@@ -56,7 +56,7 @@ static int nested(void) {
         !memcmp(wire, other, n));
   {
     unsigned char raw[] = {16, 1, 8, 150, 1, 120, 255, 255, 255, 255, 15};
-    RPMessage base;
+    struct rp_message base;
     unsigned char expected[48];
     size_t z;
     CHECK(rp_decode(raw, sizeof raw, &base) == RP_OK &&
@@ -89,8 +89,8 @@ static int nested(void) {
   return 0;
 }
 static int bounds(void) {
-  RpwDoc d = chain(2), got, before;
-  RpwLimits l = all();
+  struct rpw_doc d = chain(2), got, before;
+  struct rpw_limits l = all();
   unsigned char wire[256], out[256], saved[256];
   size_t n, length;
   unsigned cap;
@@ -136,14 +136,14 @@ static int bounds(void) {
   d = chain(1);
   d.records[0].count = 9;
   CHECK(rpw_encode(&d, all(), out, sizeof out, &length) == RPW_INVALID);
-  d = (RpwDoc){0};
+  d = (struct rpw_doc){0};
   d.count = 7;
   for (cap = 0; cap < 7; ++cap) {
-    RpwRecord *r = &d.records[cap];
+    struct rpw_record *r = &d.records[cap];
     r->fields[r->count++] = integer(1, cap);
     r->fields[r->count++] = integer(2, 0);
     if (cap < 3) {
-      RpwField f = integer(3, cap * 2 + 1);
+      struct rpw_field f = integer(3, cap * 2 + 1);
       f.kind = 2;
       r->fields[r->count++] = f;
       f.tag = 4;
@@ -176,8 +176,8 @@ static int bounds(void) {
   return 0;
 }
 static int streaming(void) {
-  RpwDoc d = chain(4), got, before;
-  RpwStream s;
+  struct rpw_doc d = chain(4), got, before;
+  struct rpw_stream s;
   unsigned char wire[578];
   size_t n, at, used, part;
   unsigned chunk;
@@ -217,7 +217,7 @@ static int streaming(void) {
     CHECK(rpw_feed(&s, &bad, 1, &used, &got) == RPW_INVALID && used == 1);
   }
   {
-    RpwLimits l = all();
+    struct rpw_limits l = all();
     l.bytes = 4;
     CHECK(rpw_stream_init(&s, l) == 0 &&
           rpw_feed(&s, wire, n, &used, &got) == RPW_LIMIT && s.phase == 2);
@@ -228,11 +228,11 @@ static int streaming(void) {
   return 0;
 }
 static int evolution(void) {
-  RpwDoc d = chain(1), got;
-  RPMessage projected;
+  struct rpw_doc d = chain(1), got;
+  struct rp_message projected;
   unsigned char before[256], after[256], lost[48];
   size_t n, m, z;
-  RpwField unknown = {0};
+  struct rpw_field unknown = {0};
   unknown.tag = 8;
   unknown.kind = 1;
   unknown.length = 4;
@@ -251,7 +251,7 @@ static int evolution(void) {
   CHECK(rpw_project(&d, all(), &projected) == 0 &&
         rp_encode(&projected, lost, sizeof lost, &z) == RP_OK && z < m);
   {
-    RpwDoc other = d;
+    struct rpw_doc other = d;
     unsigned char tmp = other.records[0].fields[2].bytes[0];
     other.records[0].fields[2].bytes[0] = other.records[0].fields[2].bytes[2];
     other.records[0].fields[2].bytes[2] = tmp;
@@ -288,8 +288,8 @@ static int oracle(void) {
   while (scanf("%u %u %u %u %519s", &depth, &bytes, &fields, &supported, hex) ==
          5) {
     unsigned char raw[256], out[256];
-    RpwDoc d;
-    RpwLimits l = {depth, bytes, fields, supported};
+    struct rpw_doc d;
+    struct rpw_limits l = {depth, bytes, fields, supported};
     size_t n = 0, z = 0, i;
     int r;
     unsigned x;
@@ -332,7 +332,7 @@ static int normalization_oracle(void) {
   return 0;
 }
 static int metrics(void) {
-  RpwDoc d = chain(4);
+  struct rpw_doc d = chain(4);
   unsigned char raw[256], framed[289];
   size_t n, m;
   unsigned i, sample, mode;
@@ -340,7 +340,7 @@ static int metrics(void) {
   clock_t start = clock(), end;
   CHECK(start != (clock_t)-1);
   for (i = 0; i < 10000; ++i) {
-    RpwDoc next;
+    struct rpw_doc next;
     CHECK(rpw_encode(&d, all(), raw, sizeof raw, &n) == 0 &&
           rpw_decode(raw, n, all(), &next) == 0);
   }
@@ -352,8 +352,8 @@ static int metrics(void) {
       clock_t begin = clock(), finish;
       CHECK(begin != (clock_t)-1);
       for (i = 0; i < 5000; ++i) {
-        RpwStream s;
-        RpwDoc next;
+        struct rpw_stream s;
+        struct rpw_doc next;
         size_t at = 0, used;
         CHECK(rpw_stream_init(&s, all()) == 0);
         while (at < m) {
@@ -374,7 +374,7 @@ static int metrics(void) {
          "budget\":256,\"field_budget\":32,\"nested_bytes\":%zu,\"framed_"
          "bytes\":%zu,\"runs\":10000,\"cpu_seconds\":%.9f,\"feed_runs\":5000,"
          "\"bulk_cpu_seconds\":[",
-         sizeof d, sizeof(RpwStream), n, m,
+         sizeof d, sizeof(struct rpw_stream), n, m,
          (double)(end - start) / CLOCKS_PER_SEC);
   for (sample = 0; sample < 7; ++sample)
     printf("%s%.9f", sample ? "," : "", samples[0][sample]);

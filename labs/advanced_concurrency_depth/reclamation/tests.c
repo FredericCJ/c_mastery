@@ -11,17 +11,17 @@
       exit(41);                                                                \
     }                                                                          \
   } while (0)
-static APValue value(unsigned n) {
-  APValue v = {n, ~n};
+static struct ap_value value(unsigned n) {
+  struct ap_value v = {n, ~n};
   return v;
 }
 static _Thread_local unsigned role;
-typedef struct {
+struct ag_gate {
   pthread_mutex_t lock;
   pthread_cond_t cv;
   unsigned point, node, armed, reached, released, first_validated;
-} Gate;
-static void gate_init(Gate *g, unsigned point, unsigned node) {
+};
+static void gate_init(struct ag_gate *g, unsigned point, unsigned node) {
   CHECK(!pthread_mutex_init(&g->lock, NULL));
   CHECK(!pthread_cond_init(&g->cv, NULL));
   g->point = point;
@@ -32,7 +32,7 @@ static void gate_init(Gate *g, unsigned point, unsigned node) {
 }
 static void hook(void *ctx, unsigned point, unsigned p, unsigned node) {
   (void)p;
-  Gate *g = ctx;
+  struct ag_gate *g = ctx;
   if (role != 1)
     return;
   CHECK(!pthread_mutex_lock(&g->lock));
@@ -47,31 +47,31 @@ static void hook(void *ctx, unsigned point, unsigned p, unsigned node) {
   }
   CHECK(!pthread_mutex_unlock(&g->lock));
 }
-static void reached(Gate *g) {
+static void reached(struct ag_gate *g) {
   CHECK(!pthread_mutex_lock(&g->lock));
   while (!g->reached)
     CHECK(!pthread_cond_wait(&g->cv, &g->lock));
   CHECK(!pthread_mutex_unlock(&g->lock));
 }
-static void release_gate(Gate *g) {
+static void release_gate(struct ag_gate *g) {
   CHECK(!pthread_mutex_lock(&g->lock));
   g->released = 1;
   CHECK(!pthread_cond_broadcast(&g->cv));
   CHECK(!pthread_mutex_unlock(&g->lock));
 }
-static void gate_destroy(Gate *g) {
+static void gate_destroy(struct ag_gate *g) {
   CHECK(!pthread_cond_destroy(&g->cv));
   CHECK(!pthread_mutex_destroy(&g->lock));
 }
-typedef struct {
-  APQueue *q;
-  APLease lease;
+struct ag_operation {
+  struct ap_queue *q;
+  struct ap_lease lease;
   unsigned operation;
   int result;
-  APValue out;
-} Operation;
+  struct ap_value out;
+};
 static void *operate(void *ptr) {
-  Operation *op = ptr;
+  struct ag_operation *op = ptr;
   role = 1;
   if (op->operation == 0)
     op->result = ap_pop(op->q, op->lease, &op->out);
@@ -81,23 +81,23 @@ static void *operate(void *ptr) {
     op->result = (int)ap_collect(op->q);
   return NULL;
 }
-static void setup(APQueue *q, Gate *g, APLease *reader, APLease *actor) {
+static void setup(struct ap_queue *q, struct ag_gate *g, struct ap_lease *reader, struct ap_lease *actor) {
   CHECK(ap_init(q, 4, UINT_MAX >> 2, hook, g) == AP_OK);
   CHECK(ap_register(q, reader) == AP_OK);
   CHECK(ap_register(q, actor) == AP_OK);
 }
 static void validation(void) {
-  Gate g;
+  struct ag_gate g;
   gate_init(&g, AP_LOADED, 0);
-  APQueue q;
-  APLease reader, actor;
+  struct ap_queue q;
+  struct ap_lease reader, actor;
   setup(&q, &g, &reader, &actor);
   CHECK(ap_push(&q, actor, value(11)) == AP_OK);
-  Operation op = {&q, reader, 0, AP_UNIMPLEMENTED, {0, 0}};
+  struct ag_operation op = {&q, reader, 0, AP_UNIMPLEMENTED, {0, 0}};
   pthread_t thread;
   CHECK(!pthread_create(&thread, NULL, operate, &op));
   reached(&g);
-  APValue v;
+  struct ap_value v;
   CHECK(ap_pop(&q, actor, &v) == AP_OK && v.sequence == 11);
   CHECK(ap_collect(&q) == 1);
   CHECK(ap_push(&q, actor, value(22)) == AP_OK);
@@ -110,18 +110,18 @@ static void validation(void) {
        "retry-before-hazardous-access");
 }
 static void protection(void) {
-  Gate g;
+  struct ag_gate g;
   gate_init(&g, AP_VALIDATED, 0);
-  APQueue q;
-  APLease reader, actor;
+  struct ap_queue q;
+  struct ap_lease reader, actor;
   setup(&q, &g, &reader, &actor);
   CHECK(ap_push(&q, actor, value(11)) == AP_OK);
   CHECK(ap_push(&q, actor, value(22)) == AP_OK);
-  Operation op = {&q, reader, 0, AP_UNIMPLEMENTED, {0, 0}};
+  struct ag_operation op = {&q, reader, 0, AP_UNIMPLEMENTED, {0, 0}};
   pthread_t thread;
   CHECK(!pthread_create(&thread, NULL, operate, &op));
   reached(&g);
-  APValue v;
+  struct ap_value v;
   CHECK(ap_pop(&q, actor, &v) == AP_OK && v.sequence == 11);
   unsigned collected = ap_collect(&q), state = atomic_load(&q.node[0].state);
   release_gate(&g);
@@ -134,17 +134,17 @@ static void protection(void) {
        "normal-clear-permits-collect");
 }
 static void publication(void) {
-  Gate g;
+  struct ag_gate g;
   gate_init(&g, AP_LINKED, 1);
-  APQueue q;
-  APLease writer, actor;
+  struct ap_queue q;
+  struct ap_lease writer, actor;
   setup(&q, &g, &writer, &actor);
-  Operation op = {&q, writer, 1, AP_UNIMPLEMENTED, {0, 0}};
+  struct ag_operation op = {&q, writer, 1, AP_UNIMPLEMENTED, {0, 0}};
   pthread_t thread;
   CHECK(!pthread_create(&thread, NULL, operate, &op));
   reached(&g);
   unsigned lagging = atomic_load(&q.tail);
-  APValue v;
+  struct ap_value v;
   CHECK(ap_pop(&q, actor, &v) == AP_OK && v.sequence == 11);
   unsigned after = atomic_load(&q.tail);
   release_gate(&g);
@@ -154,15 +154,15 @@ static void publication(void) {
   puts("OBS publication actual-paused-publisher consumer-helps-tail");
 }
 static void collector(void) {
-  Gate g;
+  struct ag_gate g;
   gate_init(&g, AP_RETIRE_SNAPSHOT, 0);
-  APQueue q;
-  APLease reader, actor;
+  struct ap_queue q;
+  struct ap_lease reader, actor;
   setup(&q, &g, &reader, &actor);
-  APValue v;
+  struct ap_value v;
   CHECK(ap_push(&q, actor, value(11)) == AP_OK);
   CHECK(ap_pop(&q, actor, &v) == AP_OK);
-  Operation op = {&q, reader, 2, AP_UNIMPLEMENTED, {0, 0}};
+  struct ag_operation op = {&q, reader, 2, AP_UNIMPLEMENTED, {0, 0}};
   pthread_t thread;
   CHECK(!pthread_create(&thread, NULL, operate, &op));
   reached(&g);
@@ -181,9 +181,9 @@ static void collector(void) {
 }
 static void generation(void) {
   for (unsigned limit = 1; limit <= 3; limit += 2) {
-    APQueue q;
-    APLease lease;
-    APValue v;
+    struct ap_queue q;
+    struct ap_lease lease;
+    struct ap_value v;
     CHECK(ap_init(&q, 1, limit, NULL, NULL) == AP_OK);
     CHECK(ap_register(&q, &lease) == AP_OK);
     unsigned expected = 32 * (limit + 1) - 1, count = 0;
@@ -205,8 +205,8 @@ static void generation(void) {
   }
 }
 static void registration(void) {
-  APQueue q;
-  APLease leases[8], later;
+  struct ap_queue q;
+  struct ap_lease leases[8], later;
   CHECK(ap_init(&q, 4, UINT_MAX >> 2, NULL, NULL) == AP_OK);
   for (unsigned i = 0; i < 4; i++)
     CHECK(ap_register(&q, &leases[i]) == AP_OK);
@@ -220,24 +220,24 @@ static void registration(void) {
         atomic_load(&q.hazard[0][0]) == 0);
   CHECK(ap_leave(&q, later) == AP_OK &&
         atomic_load(&q.hazard[0][0]) == AP_NONE);
-  APLease final = {&q, 0, UINT_MAX >> 2};
+  struct ap_lease final = {&q, 0, UINT_MAX >> 2};
   atomic_store(&q.registration[0], (final.generation << 2) | 1u);
   CHECK(ap_leave(&q, final) == AP_OK);
   CHECK((atomic_load(&q.registration[0]) & 3u) == 3u);
   CHECK(ap_register(&q, &later) == AP_FULL);
-  APValue v = value(99);
+  struct ap_value v = value(99);
   CHECK(ap_pop(&q, leases[0], &v) == AP_INVALID && v.sequence == 99);
   puts("OBS registration generation-handshake stale-owner-no-clear saturation");
 }
 static void retention(void) {
   for (unsigned participants = 4; participants <= 8; participants += 4) {
-    APQueue q;
-    APLease lease[8];
+    struct ap_queue q;
+    struct ap_lease lease[8];
     CHECK(ap_init(&q, participants, UINT_MAX >> 2, NULL, NULL) == AP_OK);
     for (unsigned p = 0; p < participants; p++)
       CHECK(ap_register(&q, &lease[p]) == AP_OK);
-    APLease actor = lease[participants - 1];
-    APValue v;
+    struct ap_lease actor = lease[participants - 1];
+    struct ap_value v;
     unsigned held = 2 * (participants - 1);
     for (unsigned i = 0; i < held; i++) {
       CHECK(ap_push(&q, actor, value(i)) == AP_OK);
@@ -259,20 +259,20 @@ static void retention(void) {
   }
 }
 static void *depart(void *ptr) {
-  Operation *op = ptr;
+  struct ag_operation *op = ptr;
   unsigned head = atomic_load(&op->q->head);
   atomic_store(&op->q->hazard[op->lease.participant][0], head);
   return NULL;
 }
 static void departure(void) {
-  APQueue q;
-  APLease holder, actor, next;
-  APValue v;
+  struct ap_queue q;
+  struct ap_lease holder, actor, next;
+  struct ap_value v;
   CHECK(ap_init(&q, 4, UINT_MAX >> 2, NULL, NULL) == AP_OK);
   CHECK(ap_register(&q, &holder) == AP_OK);
   CHECK(ap_register(&q, &actor) == AP_OK);
   CHECK(ap_push(&q, actor, value(11)) == AP_OK);
-  Operation op = {&q, holder, 0, 0, {0, 0}};
+  struct ag_operation op = {&q, holder, 0, 0, {0, 0}};
   pthread_t thread;
   CHECK(!pthread_create(&thread, NULL, depart, &op));
   CHECK(!pthread_join(thread, NULL));
@@ -287,14 +287,14 @@ static void departure(void) {
   puts("OBS departure actual-join-before-successor-clears-hazard; "
        "no-clearing-merely-paused-owner");
 }
-typedef struct {
-  APQueue *q;
-  APLease lease;
+struct ag_stress {
+  struct ap_queue *q;
+  struct ap_lease lease;
   unsigned index, producers, total;
   atomic_uint *seen, *received, *done;
-} Stress;
+};
 static void *stress_thread(void *ptr) {
-  Stress *s = ptr;
+  struct ag_stress *s = ptr;
   role = 0;
   if (s->index < s->producers) {
     for (unsigned i = 0; i < 512; i++) {
@@ -307,7 +307,7 @@ static void *stress_thread(void *ptr) {
     atomic_fetch_add(s->done, 1);
   } else {
     while (atomic_load(s->received) < s->total) {
-      APValue v;
+      struct ap_value v;
       int r = ap_pop(s->q, s->lease, &v);
       if (r == AP_RETRY) {
         ap_collect(s->q);
@@ -325,7 +325,7 @@ static void *stress_thread(void *ptr) {
 }
 static void stress(void) {
   for (unsigned participants = 4; participants <= 8; participants += 4) {
-    APQueue q;
+    struct ap_queue q;
     CHECK(ap_init(&q, participants, UINT_MAX >> 2, NULL, NULL) == AP_OK);
     unsigned producers = participants / 2, total = producers * 512;
     atomic_uint seen[2048], received, done;
@@ -333,13 +333,13 @@ static void stress(void) {
     atomic_init(&done, 0);
     for (unsigned i = 0; i < total; i++)
       atomic_init(&seen[i], 0);
-    Stress args[8];
+    struct ag_stress args[8];
     pthread_t threads[8];
     for (unsigned i = 0; i < participants; i++) {
-      APLease lease;
+      struct ap_lease lease;
       CHECK(ap_register(&q, &lease) == AP_OK);
       args[i] =
-          (Stress){&q, lease, i, producers, total, seen, &received, &done};
+          (struct ag_stress){&q, lease, i, producers, total, seen, &received, &done};
     }
     for (unsigned i = 0; i < participants; i++)
       CHECK(!pthread_create(&threads[i], NULL, stress_thread, &args[i]));

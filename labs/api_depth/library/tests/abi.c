@@ -11,7 +11,7 @@ int main(void) {
         info[6] == _Alignof(size_t));
   CHECK(lc_info(1, info, 24) == (lc_release() == 1 ? LC_VERSION : LC_OK));
   CHECK(info[23] == 99);
-  LCBuffer *p = lc_create(9);
+  struct lc_buffer *p = lc_create(9);
   CHECK((p != NULL) == (lc_release() == 2));
   lc_release_buffer(p);
   printf("LC_ABI release=%u pointer=%zu size_t=%zu alignment=%zu\n",

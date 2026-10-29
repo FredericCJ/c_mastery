@@ -43,31 +43,31 @@ int hd_date(unsigned available,uint32_t days,uint32_t seconds,char *out,size_t c
   for(unsigned i=0;i<30;i++)out[i]=value[i];
   *length=29;return HD_OK;
 }
-static int valid(const HDPool *p,HDHandle h) {
+static int valid(const struct hd_pool *p,struct hd_handle h) {
   if(!p||h.index>=4)return 0;
-  const HDSlot *s=&p->slots[h.index];
+  const struct hd_slot *s=&p->slots[h.index];
 #ifdef HD_MUTATE_LIFECYCLE
   return s->live!=0;
 #else
   return s->live&&s->generation==h.generation;
 #endif
 }
-int hd_admit(HDPool *p,int fd,unsigned flags,HDHandle *out) {
+int hd_admit(struct hd_pool *p,int fd,unsigned flags,struct hd_handle *out) {
   if(!p||!out||fd<0||flags!=1)return HD_INVALID;
   for(unsigned i=0;i<4;i++)if(p->slots[i].live&&p->slots[i].fd==fd)return HD_INVALID;
   for(unsigned i=0;i<4;i++) {
-    HDSlot *s=&p->slots[i];if(s->live||s->retired||s->generation==UINT32_MAX)continue;
+    struct hd_slot *s=&p->slots[i];if(s->live||s->retired||s->generation==UINT32_MAX)continue;
     s->generation++;s->live=1;s->fd=fd;s->interest=1;
     out->index=i;out->generation=s->generation;return HD_OK;
   }
   return HD_FULL;
 }
-int hd_interest(HDPool *p,HDHandle h,unsigned mask) {
+int hd_interest(struct hd_pool *p,struct hd_handle h,unsigned mask) {
   if(!p||mask>3)return HD_INVALID;
   if(!valid(p,h))return HD_STALE;
   p->slots[h.index].interest=mask;return HD_OK;
 }
-int hd_event(const HDPool *p,HDHandle h,int fd,unsigned ready,unsigned *out) {
+int hd_event(const struct hd_pool *p,struct hd_handle h,int fd,unsigned ready,unsigned *out) {
   if(!p||!out||ready>15||fd<0)return HD_INVALID;
   if(!valid(p,h)||p->slots[h.index].fd!=fd)return HD_STALE;
 #ifdef HD_MUTATE_LIFECYCLE2
@@ -77,10 +77,10 @@ int hd_event(const HDPool *p,HDHandle h,int fd,unsigned ready,unsigned *out) {
 #endif
   return HD_OK;
 }
-int hd_close(HDPool *p,HDHandle h,int *out) {
+int hd_close(struct hd_pool *p,struct hd_handle h,int *out) {
   if(!p||!out)return HD_INVALID;
   if(!valid(p,h))return HD_STALE;
-  HDSlot *s=&p->slots[h.index];*out=s->fd;s->live=0;s->interest=0;
+  struct hd_slot *s=&p->slots[h.index];*out=s->fd;s->live=0;s->interest=0;
   if(s->generation==UINT32_MAX)s->retired=1;
   return HD_OK;
 }

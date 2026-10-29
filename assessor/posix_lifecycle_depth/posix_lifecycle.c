@@ -9,7 +9,7 @@
 #ifndef PL_MUTANT
 #define PL_MUTANT 0
 #endif
-int pl_launch(const char *path, char *const argv[], unsigned fail_stage, PLLaunch *out) {
+int pl_launch(const char *path, char *const argv[], unsigned fail_stage, struct pl_launch *out) {
   int channel[2], status, exec_error = 0;
   size_t used = 0;
   if (!path || !argv || !argv[0] || !out || fail_stage > 2) return EINVAL;
@@ -53,32 +53,32 @@ int pl_launch(const char *path, char *const argv[], unsigned fail_stage, PLLaunc
   if (waited < 0) return errno; /* Forbidden external reaping violates this narrow contract. */
   if (read_error) return read_error;
   if (used != 0 && used != sizeof exec_error) return EPROTO;
-  PLLaunch result;
+  struct pl_launch result;
   if (used == sizeof exec_error && PL_MUTANT != 1)
-    result = (PLLaunch){PL_EXEC_ERROR, exec_error};
+    result = (struct pl_launch){PL_EXEC_ERROR, exec_error};
   else if (WIFEXITED(status))
-    result = (PLLaunch){PL_EXITED, WEXITSTATUS(status)};
+    result = (struct pl_launch){PL_EXITED, WEXITSTATUS(status)};
   else if (WIFSIGNALED(status))
-    result = (PLLaunch){PL_SIGNALED, WTERMSIG(status)};
+    result = (struct pl_launch){PL_SIGNALED, WTERMSIG(status)};
   else return EPROTO;
   if (PL_MUTANT == 2 && result.kind == PL_EXITED && result.value == 127)
-    result = (PLLaunch){PL_EXEC_ERROR, ENOENT};
+    result = (struct pl_launch){PL_EXEC_ERROR, ENOENT};
   *out = result;
   return 0;
 }
-typedef struct { unsigned input, result; } Work;
+struct pt_work { unsigned input, result; };
 static void *square(void *p) {
-  Work *work = p;
+  struct pt_work *work = p;
   work->result = work->input * work->input;
   return NULL;
 }
-int pl_pool(unsigned workers, unsigned fail_ordinal, PLPool *out) {
+int pl_pool(unsigned workers, unsigned fail_ordinal, struct pl_pool *out) {
   pthread_t handles[4];
-  Work work[4];
-  PLPool result = {0};
+  struct pt_work work[4];
+  struct pl_pool result = {0};
   if (!out || workers > 4 || fail_ordinal > workers) return EINVAL;
   for (unsigned i = 0; i < workers; ++i) {
-    work[i] = (Work){i + 1, 0};
+    work[i] = (struct pt_work){i + 1, 0};
     int error = fail_ordinal == i + 1 && PL_MUTANT != 3 ? EAGAIN :
       pthread_create(&handles[i], NULL, square, &work[i]);
     if (error) { result.create_error = error; break; }

@@ -8,27 +8,27 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #define CHECK(x) do{if(!(x)){fprintf(stderr,"MC_CHECK:%d:%s\n",__LINE__,#x);exit(1);}}while(0)
-typedef struct {
+struct mc_test_resources {
     int fds[16];unsigned live[16],next,opens,fail_open,retains,released_error,closes;
-} Resources;
+};
 static int resource_open(void *context,unsigned ordinal,int *out) {
-    Resources *r=context;(void)ordinal;++r->opens;
+    struct mc_test_resources *r=context;(void)ordinal;++r->opens;
     if(r->fail_open==r->opens)return 0;
     CHECK(r->next<16);int fd=open("/dev/null",O_RDONLY);CHECK(fd>=0);
     unsigned id=r->next++;r->fds[id]=fd;r->live[id]=1;*out=(int)id;return 1;
 }
-static McClose resource_close(void *context,int id) {
-    Resources *r=context;CHECK(id>=0 && (unsigned)id<r->next && r->live[id]);
+static enum mc_close resource_close(void *context,int id) {
+    struct mc_test_resources *r=context;CHECK(id>=0 && (unsigned)id<r->next && r->live[id]);
     ++r->closes;
     if(r->retains){--r->retains;return MC_RETAINED;}
     CHECK(close(r->fds[id])==0);r->live[id]=0;
     if(r->released_error){--r->released_error;return MC_RELEASED_ERROR;}
     return MC_RELEASED;
 }
-static unsigned live_resources(Resources *r) {
+static unsigned live_resources(struct mc_test_resources *r) {
     unsigned n=0;for(unsigned i=0;i<r->next;++i)n+=r->live[i];return n;
 }
-static void retire(McRecovery *s,OwAllocator *pool,Resources *r) {
+static void retire(struct mc_recovery *s,struct ow_allocator *pool,struct mc_test_resources *r) {
     uint32_t token=0;unsigned errors=99;
     CHECK(mc_retire_current(s,&token));CHECK(mc_recover(s,token,&errors));
     CHECK(!errors && pool->live==0 && live_resources(r)==0 && !pool->invalid_releases);
@@ -39,16 +39,16 @@ static void close_recovery(unsigned oracle) {
        Resource IDs are monotonic; descriptor numbers are allowed to be reused. */
     for(unsigned allocation=0;allocation<=3;++allocation)
     for(unsigned open_failure=0;open_failure<=2;++open_failure) {
-        Resources resources={0};OwAllocator pool={0};McRecovery state;
-        CHECK(mc_recovery_init(&state,(McResources){&resources,resource_open,resource_close}));
-        V4Allocator allocator=ow_allocator(&pool);
-        McRecovered first=mc_publish_recoverable(&state,(const unsigned char *)"2:3",3,allocator);
+        struct mc_test_resources resources={0};struct ow_allocator pool={0};struct mc_recovery state;
+        CHECK(mc_recovery_init(&state,(struct mc_resources){&resources,resource_open,resource_close}));
+        struct v4_allocator allocator=ow_allocator(&pool);
+        struct mc_recovered first=mc_publish_recoverable(&state,(const unsigned char *)"2:3",3,allocator);
         CHECK(first.publication.committed && !first.cleanup_pending && pool.live==3);
-        McFive old=state.current;
+        struct mc_five old=state.current;
         pool.fail_at=allocation?pool.attempts+allocation:0;
         resources.fail_open=open_failure?resources.opens+open_failure:0;
         resources.retains=2;
-        McRecovered next=mc_publish_recoverable(&state,(const unsigned char *)"7:9",3,allocator);
+        struct mc_recovered next=mc_publish_recoverable(&state,(const unsigned char *)"7:9",3,allocator);
         if(oracle)printf("{\"allocation\":%u,\"open\":%u,\"committed\":%u,\"pending\":%u,\"cells\":%zu,\"resources\":%u,\"sum\":%d,\"generation\":%u,\"attempts\":%zu,\"releases\":%zu,\"opens\":%u}\n",allocation,open_failure,(unsigned)next.publication.committed,next.cleanup_pending,pool.live,live_resources(&resources),state.current.cells.block[0][0],state.generation,pool.attempts,pool.releases,resources.opens);
         if(allocation || open_failure) {
             CHECK(!next.publication.committed);
@@ -58,9 +58,9 @@ static void close_recovery(unsigned oracle) {
             CHECK(state.current.cells.block[0][0]==16 && pool.live==6 && live_resources(&resources)==4);
         }
         if(next.cleanup_pending) {
-            unsigned errors=99;McFive published=state.current;
+            unsigned errors=99;struct mc_five published=state.current;
             CHECK(!mc_recover(&state,next.recovery_token-1,&errors) && errors==99);
-            McRecovered blocked=mc_publish_recoverable(&state,(const unsigned char *)"1:1",3,allocator);
+            struct mc_recovered blocked=mc_publish_recoverable(&state,(const unsigned char *)"1:1",3,allocator);
             CHECK(!blocked.publication.committed && state.current.cells.block[0]==published.cells.block[0]);
             resources.retains=0;
             CHECK(mc_recover(&state,next.recovery_token,&errors));
@@ -68,12 +68,12 @@ static void close_recovery(unsigned oracle) {
         resources.retains=0;resources.fail_open=0;pool.fail_at=0;
         retire(&state,&pool,&resources);
     }
-    Resources resources={0};OwAllocator pool={0};McRecovery state;
-    CHECK(mc_recovery_init(&state,(McResources){&resources,resource_open,resource_close}));
-    V4Allocator allocator=ow_allocator(&pool);
+    struct mc_test_resources resources={0};struct ow_allocator pool={0};struct mc_recovery state;
+    CHECK(mc_recovery_init(&state,(struct mc_resources){&resources,resource_open,resource_close}));
+    struct v4_allocator allocator=ow_allocator(&pool);
     CHECK(mc_publish_recoverable(&state,(const unsigned char *)"1:2",3,allocator).publication.committed);
     resources.released_error=1;
-    McRecovered r=mc_publish_recoverable(&state,(const unsigned char *)"4:5",3,allocator);
+    struct mc_recovered r=mc_publish_recoverable(&state,(const unsigned char *)"4:5",3,allocator);
     CHECK(r.publication.committed && !r.cleanup_pending && r.close_errors==1);
     CHECK(pool.live==3 && live_resources(&resources)==2);
     state.generation=UINT32_MAX-1;size_t reserved_attempts=pool.attempts;
@@ -85,13 +85,13 @@ static void close_recovery(unsigned oracle) {
     CHECK(pool.attempts==attempts);
     if(!oracle)printf("recoverable publication: 12 failure combinations, released-error and retirement boundaries\n");
 }
-typedef struct {McRead read;McLinuxPort port;} AsyncOwner;
-typedef struct {
-    AsyncOwner *owner;unsigned cleanups,receivers,freed,queued,consumed,discarded,joined,exits;
-    MsgStatus status;unsigned progress,release;
-} Observer;
+struct async_owner {struct mc_read read;struct mc_linux_port port;};
+struct mc_observer {
+    struct async_owner *owner;unsigned cleanups,receivers,freed,queued,consumed,discarded,joined,exits;
+    enum msg_status status;unsigned progress,release;
+};
 static void cleanup(void *context) {
-    Observer *o=context;McLinuxPort *p=&o->owner->port;
+    struct mc_observer *o=context;struct mc_linux_port *p=&o->owner->port;
     int quiescent=mc_linux_quiescent(p);
     /* Contain a rejected implementation before exiting: preserve the observed
        failure, but reap its stopped worker so TSan's exit-time thread-leak
@@ -103,8 +103,8 @@ static void cleanup(void *context) {
     CHECK(o->queued==o->consumed+o->discarded && o->joined==o->exits);
     CHECK(mc_linux_destroy(p));++o->cleanups;
 }
-static void receiver(void *context,MsgStatus status,unsigned value) {
-    Observer *o=context;CHECK(o->cleanups==1 && !o->receivers);
+static void receiver(void *context,enum msg_status status,unsigned value) {
+    struct mc_observer *o=context;CHECK(o->cleanups==1 && !o->receivers);
     ++o->receivers;o->status=status;o->progress=value;
     if(o->release){free(o->owner);o->owner=NULL;o->freed=1;}
 }
@@ -113,8 +113,8 @@ static void real_io(void) {
     for(unsigned mode=0;mode<5;++mode)for(unsigned release=0;release<2;++release) {
         int pair[2];CHECK(socketpair(AF_UNIX,SOCK_STREAM,0,pair)==0);
         CHECK(fcntl(pair[0],F_SETFL,O_NONBLOCK)==0);
-        Observer o={0};o.release=release;o.owner=calloc(1,sizeof(*o.owner));CHECK(o.owner);
-        AsyncOwner *a=o.owner;unsigned char out[8];memset(out,0x5a,sizeof(out));
+        struct mc_observer o={0};o.release=release;o.owner=calloc(1,sizeof(*o.owner));CHECK(o.owner);
+        struct async_owner *a=o.owner;unsigned char out[8];memset(out,0x5a,sizeof(out));
         CHECK(mc_linux_init(&a->port,&a->read,pair[0]));
         CHECK(mc_read_init(&a->read,mc_linux_interface(&a->port),3,19,out,receiver,&o,cleanup,&o)==MSG_OK);
         if(mode==4){CHECK(write(pair[1],"abc",3)==3);CHECK(mc_read_poll(&a->read)==MSG_OK);}
@@ -135,7 +135,7 @@ static void real_io(void) {
                 CHECK(mc_linux_dispatch(&a->port));
                 if(mode==3) {
                     CHECK(shutdown(pair[1],SHUT_WR)==0);
-                    MsgStatus status=mc_read_poll(&a->read);
+                    enum msg_status status=mc_read_poll(&a->read);
                     if(status==MSG_BUSY) {
                         CHECK(mc_linux_wait(&a->port,5000));
                         CHECK(mc_linux_dispatch(&a->port));

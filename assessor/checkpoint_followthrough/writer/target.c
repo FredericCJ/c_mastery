@@ -1,10 +1,10 @@
 #include "writer.h"
-typedef struct {unsigned call,used;unsigned char bytes[2];} Sink;
+struct cwf_sink {unsigned call,used;unsigned char bytes[2];};
 static ptrdiff_t write_byte(void *context,const uint8_t *p,size_t n)
-{Sink *s=context;if(n!=1)return -1;unsigned call=s->call++;if(call==0)return -2;if(call==2)return -1;s->bytes[s->used++]=*p;return 1;}
+{struct cwf_sink *s=context;if(n!=1)return -1;unsigned call=s->call++;if(call==0)return -2;if(call==2)return -1;s->bytes[s->used++]=*p;return 1;}
 int cpw_image(void)
 {
-    algo_ring q;CWFByte t={0};Sink sink={0};
+    algo_ring q;struct cwf_byte t={0};struct cwf_sink sink={0};
     if(algo_ring_init(&q,2)!=ALGO_OK || algo_ring_put(&q,65)!=ALGO_OK || algo_ring_put(&q,66)!=ALGO_OK)return 81;
     if(cwf_byte_step(&q,&t,write_byte,&sink,1)!=1 || !t.active.valid)return 82;
     if(cwf_byte_step(&q,&t,write_byte,&sink,1)<0 || t.active.valid)return 83;

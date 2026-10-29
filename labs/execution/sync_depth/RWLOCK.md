@@ -27,7 +27,7 @@ B releases may C read. Implicit read-to-write upgrade, recursive reads and
 recursive writes are rejected. Track identities rather than merely a reader
 count: a nonowner must not release another participant's share.
 
-`CDRW` holds an actual `cmx_rwlock`, sixteen operation slots, a registration
+`struct cd_rw` holds an actual `cmx_rwlock`, sixteen operation slots, a registration
 bitmap and a reader reservation limit in 1..16. `cdr_begin` returns immediate
 OK or BLOCKED with a ticket. Collect even an immediate OK using `cdr_result`
 before using and later unlocking the resource. A ticket binds control, task
@@ -55,7 +55,7 @@ CMX operations on an outstanding ticket's task behind the adapter.
 
 ## Phase admission variant
 
-`CPF` implements a fixed sixteen-participant blocking queue over one actual
+`struct cmx_cpf` implements a fixed sixteen-participant blocking queue over one actual
 CMX latch per pending request. It owns reader bits, one writer identity,
 per-request arrival order, an optional upgrader identity and the previous
 nonempty phase. Every operation is externally serialized with CMX progress.

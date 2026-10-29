@@ -11,12 +11,12 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
+struct in_sink {
   uint8_t out[16];
   unsigned n, calls, stall;
-} Sink;
+};
 static ptrdiff_t writer(void *p, const uint8_t *b, size_t n) {
-  Sink *s = p;
+  struct in_sink *s = p;
   s->calls++;
   if (s->stall) {
     s->stall = 0;
@@ -34,13 +34,13 @@ static ptrdiff_t failed_writer(void *p, const uint8_t *b, size_t n) {
   return -1;
 }
 #ifdef IN_FIRMWARE
-typedef struct {
+struct in_model {
   uint32_t r[16];
   unsigned feeds;
-} Model;
-static uint32_t rd(void *p, unsigned r) { return ((Model *)p)->r[r]; }
+};
+static uint32_t rd(void *p, unsigned r) { return ((struct in_model *)p)->r[r]; }
 static void wr(void *p, unsigned r, uint32_t v) {
-  Model *m = p;
+  struct in_model *m = p;
   m->r[r] = v;
   if (r == FW_WATCHDOG)
     m->feeds++;
@@ -66,8 +66,8 @@ int main(int argc, char **argv) {
     CHECK(in_records(p, sizeof p, &q, &used) == 1 && used == 3 && q.count == 1);
   } else if (!strcmp(argv[1], "p2")) {
     CHECK(algo_ring_put(&q, 65) == 0 && algo_ring_put(&q, 66) == 0);
-    Sink s = {.stall = 1};
-    InTransfer t = {0};
+    struct in_sink s = {.stall = 1};
+    struct in_transfer t = {0};
     CHECK(in_drain(&q, &t, writer, &s, 4) == 1 && t.valid && s.n == 0 &&
           q.count == 1);
     CHECK(in_drain(&q, &t, writer, &s, 4) == 0 && s.n == 2 && s.out[0] == 65 &&
@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
     CHECK(in_drain(&q, &t, failed_writer, &s, 4) < 0 && t.valid &&
           t.pending == 67 && !q.count && s.n == 2);
   } else if (!strcmp(argv[1], "p3")) {
-    InStream s = {0};
+    struct in_stream s = {0};
     CHECK(in_stream(&s, 2, &q) == 0 && !q.count);
     CHECK(in_stream(&s, '4', &q) == 0 && !q.count);
     CHECK(in_stream(&s, '2', &q) == 1 && q.count == 1);
@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
     CHECK(in_stream(&s, 32, &q) < 0 && s.failed && !q.count);
     CHECK(in_stream(&s, 1, &q) < 0);
   } else if (!strcmp(argv[1], "p5")) {
-    FAsync op = {0};
+    struct f_async op = {0};
     uint32_t ticket;
     CHECK(f_submit(&op, &ticket) == F_OK);
     CHECK(algo_ring_put(&q, 1) == 0 && algo_ring_put(&q, 2) == 0);
@@ -98,9 +98,9 @@ int main(int argc, char **argv) {
           op.releases == 1);
   } else if (!strcmp(argv[1], "p6")) {
     int32_t input[] = {4, 0, 0, 0}, out[4];
-    V4Filter f = {0};
-    V4Sample a = {0}, b = {.wall_ns = 100, .cycles = 20};
-    V4Measurement m;
+    struct v4_filter f = {0};
+    struct v4_sample a = {0}, b = {.wall_ns = 100, .cycles = 20};
+    struct v4_measurement m;
     CHECK(in_filter(&f, input, 2, out, 2, &a, &b, &m) == 0);
     CHECK(in_filter(&f, input + 2, 2, out + 2, 2, &a, &b, &m) == 0);
     CHECK(out[0] == 0 && out[1] == 1 && out[2] == 1 && out[3] == 0 &&
@@ -109,19 +109,19 @@ int main(int argc, char **argv) {
   }
 #ifdef IN_FIRMWARE
   else if (!strcmp(argv[1], "p4")) {
-    Model m = {0};
-    FwIo io = {&m, rd, wr};
-    FwDma d = {0};
+    struct in_model m = {0};
+    struct fw_io io = {&m, rd, wr};
+    struct fw_dma d = {0};
     CHECK(fw_dma(&d, io, 0, 0) == 0);
     CHECK(in_dma_handoff(&d, io, 1, &q) < 0 && !q.count && d.state == 1);
     m.r[FW_DMA] = 0;
     CHECK(in_dma_handoff(&d, io, 1, &q) == 0 && q.count == 1 && d.state == 0);
     CHECK(in_dma_handoff(&d, io, 1, &q) < 0 && q.count == 1);
   } else if (!strcmp(argv[1], "mcu")) {
-    Model m = {0};
-    FwIo io = {&m, rd, wr};
-    FwWatchdog w = {.required = 3};
-    V4Filter f = {0};
+    struct in_model m = {0};
+    struct fw_io io = {&m, rd, wr};
+    struct fw_watchdog w = {.required = 3};
+    struct v4_filter f = {0};
     int32_t out = 99;
     CHECK(in_gateway(io, &q, &f, &w, &out) < 0 && !q.count && !m.feeds &&
           out == 99);

@@ -64,7 +64,7 @@ identity for that different premise.
 ## Fresh creation and failed open
 
 Implement `sf_format_fresh` over the actual `store_format` and `store_open`.
-`SfFactory.acquire` returns zero with no transferred ownership, or nonzero with
+`struct sf_factory.acquire` returns zero with no transferred ownership, or nonzero with
 one exclusive fresh disposable 67-page image and a unique nonzero identity. The
 factory, not data in the file, establishes this authority. An established image
 must never be supplied. The formatter cannot infer freshness from arbitrary bytes.

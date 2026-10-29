@@ -1,19 +1,19 @@
 #include "history.h"
-typedef struct {
+struct cf_state {
   unsigned values[8], count;
-} State;
-typedef struct {
-  const ChOp *ops;
+};
+struct cf_search {
+  const struct ch_op *ops;
   unsigned n, capacity, spec, event_mode;
   uint32_t budget, visited;
   unsigned limit;
-} Search;
-static int before(const ChOp *a, const ChOp *b, unsigned events) {
+};
+static int before(const struct ch_op *a, const struct ch_op *b, unsigned events) {
   return !a->pending &&
          (a->respond < b->invoke || (events && a->respond == b->invoke &&
                                      a->respond_event < b->invoke_event));
 }
-static int step(State *s, const ChOp *o, unsigned cap, unsigned spec,
+static int step(struct cf_state *s, const struct ch_op *o, unsigned cap, unsigned spec,
                 unsigned *r, unsigned *v) {
   *v = o->value;
   if (o->operation == CH_INSERT) {
@@ -39,7 +39,7 @@ static int step(State *s, const ChOp *o, unsigned cap, unsigned spec,
   return o->pending || (o->result == *r && (o->operation == CH_INSERT ||
                                             *r != CH_VALUE || o->value == *v));
 }
-static int search(Search *c, unsigned remaining, State state, ChWitness *w,
+static int search(struct cf_search *c, unsigned remaining, struct cf_state state, struct ch_witness *w,
                   unsigned depth) {
   if (c->visited == c->budget) {
     c->limit = 1;
@@ -62,7 +62,7 @@ static int search(Search *c, unsigned remaining, State state, ChWitness *w,
 #endif
       if (blocked)
         continue;
-      State next = state;
+      struct cf_state next = state;
       if (!step(&next, &c->ops[i], c->capacity, c->spec, &w->result[i],
                 &w->value[i]))
         continue;
@@ -74,8 +74,8 @@ static int search(Search *c, unsigned remaining, State state, ChWitness *w,
     }
   return 0;
 }
-int ch_check(const ChOp *ops, unsigned n, unsigned cap, unsigned spec,
-             unsigned extend, unsigned events, uint32_t budget, ChWitness *out,
+int ch_check(const struct ch_op *ops, unsigned n, unsigned cap, unsigned spec,
+             unsigned extend, unsigned events, uint32_t budget, struct ch_witness *out,
              uint32_t *visited) {
   if ((n && !ops) || !out || !visited || n > 10 || !cap || cap > 8 ||
       spec > CH_STACK || extend > 1 || events > 1 || !budget ||
@@ -83,7 +83,7 @@ int ch_check(const ChOp *ops, unsigned n, unsigned cap, unsigned spec,
     return CH_INVALID;
   unsigned pending = 0, complete = 0;
   for (unsigned i = 0; i < n; i++) {
-    const ChOp *o = &ops[i];
+    const struct ch_op *o = &ops[i];
     if (o->pending > 1 || o->participant > 9 || o->operation > CH_REMOVE ||
         (!o->pending && (o->result > CH_EMPTY || o->respond < o->invoke ||
                          (o->respond == o->invoke &&
@@ -91,7 +91,7 @@ int ch_check(const ChOp *ops, unsigned n, unsigned cap, unsigned spec,
                          (events && o->respond_event <= o->invoke_event))))
       return CH_INVALID;
     for (unsigned j = 0; j < i; j++) {
-      const ChOp *p = &ops[j];
+      const struct ch_op *p = &ops[j];
       if (o->participant == p->participant && !before(o, p, events) &&
           !before(p, o, events))
         return CH_INVALID;
@@ -118,15 +118,15 @@ int ch_check(const ChOp *ops, unsigned n, unsigned cap, unsigned spec,
   *visited = 0;
   if (pending && !extend)
     return CH_PENDING;
-  Search c = {ops, n, cap, spec, events, budget, 0, 0};
+  struct cf_search c = {ops, n, cap, spec, events, budget, 0, 0};
   unsigned subset = pending;
 #ifdef CH_MUTANT_DROP_PENDING
   subset = 0;
   pending = 0;
 #endif
   for (;;) {
-    State state = {{0}, 0};
-    ChWitness w = {0};
+    struct cf_state state = {{0}, 0};
+    struct ch_witness w = {0};
     w.selected_pending = subset;
     if (search(&c, complete | subset, state, &w, 0)) {
       w.visited = c.visited;

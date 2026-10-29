@@ -18,9 +18,9 @@ static int fail(void *p) {
   return 1;
 }
 int main(void) {
-  const BuRange code = {0x08000000, 0x200000}, stack = {0x2002f000, 0x1000};
+  const struct bu_range code = {0x08000000, 0x200000}, stack = {0x2002f000, 0x1000};
   unsigned char vec[8] = {0, 0, 3, 0x20, 1, 2, 0, 8};
-  BuVectors v = {0, 0};
+  struct bu_vectors v = {0, 0};
   CK(bu_vectors(vec, 8, 1, code.base, code, stack, &v) == BU_OK &&
      v.stack == 0x20030000 && v.reset == 0x08000201);
   for (size_t n = 0; n < 8; n++)
@@ -33,16 +33,16 @@ int main(void) {
   CK(bu_vectors(vec, 8, 1, code.base, code, stack, &v) == BU_INVALID);
   vec[0] = 0;
   CK(bu_vectors(vec, 8, 1, code.base + 4, code, stack, &v) == BU_INVALID);
-  CK(!bu_contains((BuRange){UINT32_MAX - 1, 4}, (BuRange){UINT32_MAX, 1}));
-  CK(bu_contains((BuRange){9, 4}, (BuRange){13, 0}));
-  CK(!bu_overlap((BuRange){9, 4}, (BuRange){13, 2}));
+  CK(!bu_contains((struct bu_range){UINT32_MAX - 1, 4}, (struct bu_range){UINT32_MAX, 1}));
+  CK(bu_contains((struct bu_range){9, 4}, (struct bu_range){13, 0}));
+  CK(!bu_overlap((struct bu_range){9, 4}, (struct bu_range){13, 2}));
   unsigned char ram[64], rom[32], before[64];
   for (unsigned i = 0; i < 32; i++)
     rom[i] = (unsigned char)(17 * i + 3);
   memset(ram, 0xa5, sizeof ram);
-  BuCopy cp[3] = {{1, 2, 7}, {13, 32, 8}, {32, 64, 0}};
-  BuRange zp[2] = {{13, 5}, {45, 7}};
-  CK(bu_memory(ram, 64, rom, 32, cp, 3, zp, 2, (BuRange){24, 8}) == BU_OK);
+  struct bu_copy cp[3] = {{1, 2, 7}, {13, 32, 8}, {32, 64, 0}};
+  struct bu_range zp[2] = {{13, 5}, {45, 7}};
+  CK(bu_memory(ram, 64, rom, 32, cp, 3, zp, 2, (struct bu_range){24, 8}) == BU_OK);
   for (unsigned i = 0; i < 64; i++) {
     unsigned e = 0xa5;
     if (i >= 2 && i < 9)
@@ -55,18 +55,18 @@ int main(void) {
   }
   memcpy(before, ram, 64);
   cp[1].run = 4;
-  CK(bu_memory(ram, 64, rom, 32, cp, 3, zp, 2, (BuRange){24, 8}) ==
+  CK(bu_memory(ram, 64, rom, 32, cp, 3, zp, 2, (struct bu_range){24, 8}) ==
          BU_INVALID &&
      memcmp(before, ram, 64) == 0);
-  CK(bu_f439_dma((BuRange){0x2002fffc, 4}));
-  CK(!bu_f439_dma((BuRange){0x2002fffc, 5}));
-  CK(!bu_f439_dma((BuRange){0x10000000, 4}));
-  BuClock clock;
+  CK(bu_f439_dma((struct bu_range){0x2002fffc, 4}));
+  CK(!bu_f439_dma((struct bu_range){0x2002fffc, 5}));
+  CK(!bu_f439_dma((struct bu_range){0x10000000, 4}));
+  struct bu_clock clock;
   for (unsigned limit = 1; limit <= 8; limit++)
     for (unsigned ready = 1; ready <= limit + 1; ready++) {
       CK(bu_clock_start(&clock, limit, 1) == BU_OK);
       for (unsigned i = 1; i <= limit && clock.phase == 1; i++) {
-        BuResult r = bu_clock_step(&clock, i == ready, 0);
+        enum bu_result r = bu_clock_step(&clock, i == ready, 0);
         CK(r == (i == limit && ready > limit ? BU_TIMEOUT : BU_OK));
       }
       if (ready <= limit) {
@@ -81,7 +81,7 @@ int main(void) {
         CK(clock.phase == 4 && !clock.dependencies);
     }
   unsigned calls = 0, done = 99;
-  BuHook h[3] = {
+  struct bu_hook h[3] = {
       {0, 1, hook, &calls}, {1, 2, hook, &calls}, {2, 0, hook, &calls}};
   CK(bu_hooks(0, 0, 0, &done) == BU_OK && !done);
   CK(bu_hooks(h, 3, 3, &done) == BU_OK && calls == 111 && done == 7);
@@ -93,7 +93,7 @@ int main(void) {
   h[1].call = fail;
   CK(bu_hooks(h, 3, 3, &done) == BU_FAILED && done == 1 && calls == 2);
   unsigned char bytes[2][BU_RECORD];
-  BuRecord a = {1, 4, 255, {3, 4, 5, 6}},
+  struct bu_record a = {1, 4, 255, {3, 4, 5, 6}},
            b = {2, 8, 0, {9, 8, 7, 6, 5, 4, 3, 2}}, out = {0};
   unsigned writes, chosen;
   for (unsigned cut = 0; cut <= 25; cut++) {
@@ -117,7 +117,7 @@ int main(void) {
   CK(bu_store(bytes[1], BU_RECORD, &b, 25, &writes) == BU_OK);
   CK(bu_select((const unsigned char (*)[BU_RECORD])bytes, &chosen) ==
      BU_AMBIGUOUS);
-  BuHandoff ho = {0x20030000, 0x08000200, 0x08000401, 1, 1, 1, 1, 0, 1, 1, 1};
+  struct bu_handoff ho = {0x20030000, 0x08000200, 0x08000401, 1, 1, 1, 1, 0, 1, 1, 1};
   CK(bu_handoff(&ho, code, stack) == BU_OK);
   ho.dma_active = 1;
   CK(bu_handoff(&ho, code, stack) == BU_INVALID);

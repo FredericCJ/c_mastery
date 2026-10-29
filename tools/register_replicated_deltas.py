@@ -20,7 +20,7 @@ def register():
     h='\n## Required durable causal delta intervals\n';after=after.split(h,1)[0].rstrip()+h+'''
 
 Implement [DELTAS.md](../../../labs/replicated/deltas/DELTAS.md): three actual
-RPSet-based replicas, retained exact tombstones, bounded interval history,
+struct rp_set-based replicas, retained exact tombstones, bounded interval history,
 durable transition/transport identity, commit-before-acknowledgment and
 full-state fallback. The actual page-store and first-principles hash imports
 are explicit. Four anchors and ten semantic controls accompany 222 commit

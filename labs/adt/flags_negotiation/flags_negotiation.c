@@ -1,24 +1,24 @@
 #include "flags_negotiation.h"
-AdfStatus adf_capabilities(unsigned v, uint32_t b, AdfCapabilities *out) {
+enum adf_status adf_capabilities(unsigned v, uint32_t b, struct adf_capabilities *out) {
   (void)v;
   (void)b;
   (void)out;
   return ADF_INVALID;
 }
-AdfStatus adf_union(ADFlags a, ADFlags b, ADFlags *out) {
+enum adf_status adf_union(struct ad_flags a, struct ad_flags b, struct ad_flags *out) {
   (void)a;
   (void)b;
   (void)out;
   return ADF_INVALID;
 }
-AdfStatus adf_intersection(ADFlags a, ADFlags b, ADFlags *out) {
+enum adf_status adf_intersection(struct ad_flags a, struct ad_flags b, struct ad_flags *out) {
   (void)a;
   (void)b;
   (void)out;
   return ADF_INVALID;
 }
-AdfStatus adf_negotiate(AdfCapabilities a, AdfCapabilities b, AdfOffer c,
-                        AdfOffer d, AdfAgreement *out) {
+enum adf_status adf_negotiate(struct adf_capabilities a, struct adf_capabilities b, struct adf_offer c,
+                        struct adf_offer d, struct adf_agreement *out) {
   (void)a;
   (void)b;
   (void)c;

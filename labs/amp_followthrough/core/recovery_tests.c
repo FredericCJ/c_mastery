@@ -3,7 +3,7 @@
 #define C(x) do{if(!(x)){fprintf(stderr,"AF_RECOVERY_CHECK:%d:%s\n",__LINE__,#x);return 1;}}while(0)
 int main(void){
  for(unsigned cut=0;cut<=4;cut++){
-  AfBoot b={0};AfBootOwner o={0};AfRing q;af_ring_init(&q,0);C(af_boot_begin(&o,7,UINT32_MAX-9,20,1,1)==AF_OK);
+  struct af_boot b={0};struct af_boot_owner o={0};struct af_ring q;af_ring_init(&q,0);C(af_boot_begin(&o,7,UINT32_MAX-9,20,1,1)==AF_OK);
   for(unsigned i=0;i<cut;i++)C(af_boot_stage(&o,&b,i,2,AF_LAYOUT)==AF_OK);
   if(cut<4)C(af_boot_ack(&b,2,AF_LAYOUT,8)==AF_BUSY);
   for(unsigned i=0;i<cut;i++)C(af_boot_stage(&o,&b,i,2,AF_LAYOUT)==AF_OK);
@@ -18,9 +18,9 @@ int main(void){
     requests lacking replies. The latter remain uncertain after peer reset. */
  unsigned state[100];for(unsigned i=0;i<100;i++)state[i]=i<90?1:i<95?2:3;
  unsigned complete=0,rejected=0,uncertain=0;for(unsigned i=0;i<100;i++){complete+=state[i]==1;rejected+=state[i]==2;uncertain+=state[i]==3;}C(complete==90&&rejected==5&&uncertain==5);
- AfReceipt survivor={.session=10};int32_t value=0;
+ struct af_receipt survivor={.session=10};int32_t value=0;
  for(unsigned cut=0;cut<3;cut++){
-  AfReceipt s=survivor;if(cut)C(af_effect(&s,10,1,5,&value)==AF_OK);
+  struct af_receipt s=survivor;if(cut)C(af_effect(&s,10,1,5,&value)==AF_OK);
   /* Cut before effect, after effect before reply, or after reply. Receipt is
      retained in the supervisor's still-live memory, not reset with peer. */
   C(af_effect(&s,10,1,5,&value)==AF_OK&&value==5&&s.total==5);

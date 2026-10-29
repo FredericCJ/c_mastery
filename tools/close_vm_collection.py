@@ -14,7 +14,7 @@ SELECTORS={
 RATIONALE={
 '07.a':'Actual heap generation reuse/last-generation retirement, reset raw-handle collision and owner/epoch successor with compiling epoch mutation.',
 '07.b':'Actual16-cell arena versus collection occupancy and staged cyclic/alias phase transfer with all seven fault cuts, natural capacity refusal, scalar transfer and typed atomicity.',
-'07.c':'Actual original host-temporary collection hazard, explicit rooted repair, stopped arena policy transition and two independently owned actual ORVM/algo_pool root leases.',
+'07.c':'Actual original host-temporary collection hazard, explicit rooted repair, stopped arena policy transition and two independently owned actual struct or_vm/algo_pool root leases.',
 '08.a':'Actual original root classes and bounded worklist argument,32768 independent simple-path graph cases per profile, weak clearing/upgrade and weak-as-strong mutation.',
 '08.b':'Actual original both-operand preservation, second temporary-push failure balance and allocating helper between operands, plus successor temporary-root semantic mutation.',
 '08.c':'All27 original root/edge/sweep budget cuts and fresh-mark retry, incremental late black-to-white stores/roots after READY, compiled omitted-barrier controls and explicit work-unit boundary.'}
@@ -35,7 +35,7 @@ def integrate():
   x=attach(d);assert attach(copy.deepcopy(x))==x and x['criteria']==old['criteria'];put(ROOT/project(name),x)
   mapping.extend(dict(criterion=c['id'],objective=c['objective'],task=c['task'],delayed=c['variants'][0],teaching='labs/runtime_followthrough/collection/CONTRACTS.md',learner_artifacts=['learner.c','original CVM codec','criterion-indexed heap/root/color/ownership/cost dossier'],assessment='assessor/runtime_followthrough/collection/ANALYSIS.md#'+c['objective'][4:].replace('.',''),checks=SELECTORS[c['objective'][4:]],source_register='research/v5/expansion/legacy_vm_collection/resources.json') for c in d['criteria'])
  put(HERE/'objective_mapping.json',dict(criteria=mapping,remaining='T46–49 and recursive inventory remain required; physical/source/external dimensions are separate.'))
- put(HERE/'research_gate.json',dict(status='passage-inspected',resource_ids=[r['id'] for r in read(HERE/'resources.json')['resources']],research_input_sha256={p.relative_to(ROOT).as_posix():sha(p) for p in [HERE/'resources.json',HERE/'audit.md']},limitations=['Named primary passages only; no final ISO wording or physical target result inferred.','Actual CVM1,ORGraph,ORWeak,ORVM and algo_pool imported; retained provider and explicit enum-guard target successor are distinguished.']))
+ put(HERE/'research_gate.json',dict(status='passage-inspected',resource_ids=[r['id'] for r in read(HERE/'resources.json')['resources']],research_input_sha256={p.relative_to(ROOT).as_posix():sha(p) for p in [HERE/'resources.json',HERE/'audit.md']},limitations=['Named primary passages only; no final ISO wording or physical target result inferred.','Actual CVM1,struct or_graph,struct or_weak,struct or_vm and algo_pool imported; retained provider and explicit enum-guard target successor are distinguished.']))
  print('PASS six original criteria preserved; additive attachments idempotent')
 def package():
  from check_vm_collection import validate

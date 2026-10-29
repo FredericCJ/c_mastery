@@ -12,17 +12,17 @@ int probe(void){return B2_IDENTITY(2.5);}
 #elif CASE == 2
 int probe(int *p){return B2_IDENTITY(p);}
 #elif CASE == 3
-int probe(void){BfRecord r={1};return B2_IDENTITY(r);}
+int probe(void){struct bf_record r={1};return B2_IDENTITY(r);}
 #elif CASE == 4
 int probe(void){int x=1;return _Generic(x,int:x,default:x.member);}
 #elif CASE == 5
-int probe(const BfRecord *r){BF_BORROW(r)->value=3;return 0;}
+int probe(const struct bf_record *r){BF_BORROW(r)->value=3;return 0;}
 #elif CASE == 6
 int probe(void){return BF_BINARY(1,2u);}
 #elif CASE == 7
 BF_CAT_RAW(+,*)
 #elif CASE == 8
-int probe(void){return BF_CAT(b2_identity_,KIND)((BfRecord){1});}
+int probe(void){return BF_CAT(b2_identity_,KIND)((struct bf_record){1});}
 #else
 #include <stdio.h>
 #include <string.h>
@@ -30,8 +30,8 @@ _Static_assert(_Generic(B2_IDENTITY(1),int:1,default:0),"identity int result");
 _Static_assert(_Generic(B2_IDENTITY(1u),unsigned:1,default:0),"identity unsigned result");
 _Static_assert(_Generic(BF_BINARY(1,2),int:1,default:0),"binary int result");
 _Static_assert(_Generic(BF_BINARY(1u,2u),unsigned:1,default:0),"binary unsigned result");
-_Static_assert(_Generic(BF_BORROW((BfRecord*)0),BfRecord*:1,default:0),"mutable borrow result");
-_Static_assert(_Generic(BF_BORROW((const BfRecord*)0),const BfRecord*:1,default:0),"const borrow result");
+_Static_assert(_Generic(BF_BORROW((struct bf_record*)0),struct bf_record*:1,default:0),"mutable borrow result");
+_Static_assert(_Generic(BF_BORROW((const struct bf_record*)0),const struct bf_record*:1,default:0),"const borrow result");
 static unsigned counts[2],n;static char order[3];
 static int left(void *p){(void)p;++counts[0];order[n++]='L';return 7;}
 static int right(void *p){(void)p;++counts[1];order[n++]='R';return 9;}

@@ -4,7 +4,7 @@
 #endif
 static void put(unsigned char *p,uint64_t v,unsigned n){for(unsigned i=0;i<n;++i)p[i]=(unsigned char)(v>>(8*i));}
 static uint64_t get(const unsigned char *p,unsigned n){uint64_t v=0;for(unsigned i=0;i<n;++i)v|=(uint64_t)p[i]<<(8*i);return v;}
-CPXAuthStatus cpx_auth_sign(const CPXAuthState *s,uint64_t sequence,const unsigned char *payload,size_t n,unsigned char *out,size_t capacity,size_t *written,CPXMac mac){
+enum cpx_auth_status cpx_auth_sign(const struct cpx_auth_state *s,uint64_t sequence,const unsigned char *payload,size_t n,unsigned char *out,size_t capacity,size_t *written,cpx_mac_fn mac){
  if(!s || !written || !mac || !out || (!payload && n) || n>CPX_AUTH_PAYLOAD)return CPX_AUTH_INVALID;
  if(capacity<n+58)return CPX_AUTH_FULL;
  unsigned char stage[CPX_AUTH_WIRE];stage[0]='P';stage[1]='3';stage[2]='A';stage[3]='1';put(stage+4,s->key_id,4);put(stage+8,s->epoch,8);put(stage+16,sequence,8);put(stage+24,n,2);
@@ -14,7 +14,7 @@ CPXAuthStatus cpx_auth_sign(const CPXAuthState *s,uint64_t sequence,const unsign
  for(size_t i=0;i<n+58;++i)out[i]=stage[i];
  *written=n+58;return CPX_AUTH_OK;
 }
-CPXAuthStatus cpx_auth_open(CPXAuthState *s,const unsigned char *wire,size_t n,unsigned char *out,size_t capacity,size_t *written,CPXMac mac){
+enum cpx_auth_status cpx_auth_open(struct cpx_auth_state *s,const unsigned char *wire,size_t n,unsigned char *out,size_t capacity,size_t *written,cpx_mac_fn mac){
  if(!s || !wire || !out || !written || !mac || n<58 || n>CPX_AUTH_WIRE)return CPX_AUTH_INVALID;
  if(wire[0]!='P' || wire[1]!='3' || wire[2]!='A' || wire[3]!='1' || get(wire+4,4)!=s->key_id || get(wire+8,8)!=s->epoch)return CPX_AUTH_INVALID;
  size_t length=(size_t)get(wire+24,2);if(length>CPX_AUTH_PAYLOAD || n!=length+58)return CPX_AUTH_INVALID;

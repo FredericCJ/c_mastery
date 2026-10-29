@@ -41,7 +41,7 @@ def audit(work):
         # GCC rows commonly already include it.
         return usage[name]+8+n,[name]+chain
     maximum,chain=measure('_start',[])
-    return {'passed':True,'method':'static compiler rows + conservative direct/tail call graph + audited single CvmHost callback; every call adds eight extra bytes','maximum_native_chain_bytes':maximum,'maximum_chain':chain,'usage':usage,'calls':{k:sorted(v) for k,v in graph.items()},'indirect_calls':indirect,'one_page_user_capacity_bytes':4088,'fits_one_page':maximum<=4088,'separate_stacks':{'normal_user_bytes':131072,'kernel_task_bytes':8192,'double_fault_IST_bytes':8192,'exception_frame_bytes':176},'scope':'Fixed probe source and compiler profile only; no claim about an arbitrary future callback, physical latency, SMP or unlisted compiler.'}
+    return {'passed':True,'method':'static compiler rows + conservative direct/tail call graph + audited single cvm_host_fn callback; every call adds eight extra bytes','maximum_native_chain_bytes':maximum,'maximum_chain':chain,'usage':usage,'calls':{k:sorted(v) for k,v in graph.items()},'indirect_calls':indirect,'one_page_user_capacity_bytes':4088,'fits_one_page':maximum<=4088,'separate_stacks':{'normal_user_bytes':131072,'kernel_task_bytes':8192,'double_fault_IST_bytes':8192,'exception_frame_bytes':176},'scope':'Fixed probe source and compiler profile only; no claim about an arbitrary future callback, physical latency, SMP or unlisted compiler.'}
 
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('work',type=Path);a=p.parse_args();r=audit(a.work);(a.work/'stack-audit.json').write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({k:r[k] for k in ('passed','maximum_native_chain_bytes','maximum_chain','fits_one_page')}))

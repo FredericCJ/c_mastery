@@ -6,7 +6,7 @@ Families B/C/F/G/H/I/J apply to construction, boundary diagnosis, falsification,
 recovery, resource accounting, backend changes and component reuse.
 
 Use hosted C17, GCC or Clang, Linux x86-64, an unprivileged process in the teaching
-guest, installed `linux/io_uring.h`, libc/POSIX and the retained T62 `CMRawRing`
+guest, installed `linux/io_uring.h`, libc/POSIX and the retained T62 `struct cm_raw_ring`
 contract. The raw ring's `__atomic` publication operations are compiler extensions
 over the Linux shared-ring ABI; they are not portable ISO C queue semantics.
 No liburing library is permitted: implement the operation and ownership adapter.
@@ -26,7 +26,7 @@ operations. Missing operation support is exit77/unavailable, never fallback/pass
 
 ## Pool and operation algebra
 
-`CoPool` owns four caller-supplied live, disjoint byte arrays, each of the same
+`struct co_pool` owns four caller-supplied live, disjoint byte arrays, each of the same
 capacity1..4096. Their extent and nonoverlap are caller preconditions; equal base
 pointers are additionally rejected. Initialization rejects a null pointer, invalid
 capacity or generation limit outside1..0x7fffffff without modifying the pool.

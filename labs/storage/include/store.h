@@ -37,7 +37,7 @@ typedef struct store_cache_entry {
   int valid;
   uint8_t bytes[STORE_PAGE_SIZE];
 } store_cache_entry;
-typedef struct store {
+typedef struct store_store {
   store_io io;
   uint64_t generation, checkpoint_generation;
   uint32_t root, used, saved_root, saved_used;

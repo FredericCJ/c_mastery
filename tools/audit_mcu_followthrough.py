@@ -97,7 +97,7 @@ def main():
     check(name+' nested selected capacity',row['linked_call_path_bounds']['MSP_nested_conservative_bytes']<8192 and row['linked_call_path_bounds']['MSP_fault_or_switch_bytes']<8192 and row['linked_call_path_bounds']['PSP_conservative_bytes']<4096)
    if name.startswith('integrated'):
     row['component_bytes']=serial_block(log,'MF RAM input/output/pool+leases/stacks/kernel+wrapper/diagnostics',6)
-    row['CPU_work_bound']='Processor8 rounds per admitted sample; producer bounded12 burst and UART4 reads/IRQ; scheduler16 slots; queue capacities4/2; diagnostics2. Wait/interrupt interference and bus timing excluded from CPU instruction bounds.'
+    row['CPU_work_bound']='Processor8 rounds per admitted sample; producer bounded12 burst and UART4 reads/IRQ; scheduler16 slots; queue capacities4/2; diagnostics2. Wait/interrupt interference and bus timing excluded from struct lr_cpu instruction bounds.'
     check(name+' stack reservation',row['component_bytes'][3]==5*768*4)
    images.append(row)
   for cc in ('gcc','clang'):

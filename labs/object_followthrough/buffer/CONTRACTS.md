@@ -31,7 +31,7 @@ correctly typed, initially zero-initialized when their contract requires empty
 state, and distinct from inputs/output pointers. Output parameters already
 owning resources may not be overwritten. No function is concurrent or reentrant.
 
-`ObConstruction` separates an initialized state mask from a record containing
+`struct ob_construction` separates an initialized state mask from a record containing
 int, pointer and char fields. Set the mask before any failure edge. Each set bit
 authorizes reading exactly its corresponding member. Fail after the integer or
 pointer store on request. A successful pointer-store edge transfers ownership
@@ -73,7 +73,7 @@ only after the final owning reference. A reference must remain while a const
 borrow is in use; const does not enforce the absence of another writable alias.
 No threads or atomic refcount safety are implied.
 
-`ObTable` owns one flexible object and an externally assigned, nonzero unique
+`struct ob_table` owns one flexible object and an externally assigned, nonzero unique
 identity. A new table starts generation1; each successful resize or erase consumes
 one generation, with maximum3. Refuse further invalidating operations unchanged
 instead of wrapping. Append requires available capacity and never relocates.

@@ -11,7 +11,7 @@ selector and record publication. Do not copy the private assessor sources.
 ## Representation, operations and ownership
 
 Use ISO C17 with extensions disabled, hosted GCC/Clang and the declared
-six-profile campaign. `MplSink` owns four inline `MplRecord` slots and a count
+six-profile campaign. `struct mpl_sink` owns four inline `struct mpl_record` slots and a count
 in 0..4. Initialize fresh storage to zero. There is no heap, operating-system
 I/O, format-string interpreter, concurrent publication or global logger.
 Records contain zero to four typed values: number (uint32) or binary bytes
@@ -33,7 +33,7 @@ access needs external serialization; copying bytes supplies no synchronization.
 `mpl_number` and `mpl_bytes` create descriptors. The number constructor takes
 uint32_t, so ordinary C implicit numeric conversion still applies: passing
 3.5 is not rejected as a type error. `mpl_log1` through `mpl_log4` instead take
-`MplField` parameters: passing a raw integer or a different structure violates
+`struct mpl_field` parameters: passing a raw integer or a different structure violates
 a function-call constraint and must be diagnosed. A forged field tag is
 checked at runtime. These are different enforcement boundaries.
 The exact literal may additionally trigger a compiler conversion warning;
@@ -69,7 +69,7 @@ Derive the selector position for each supported arity, then inspect the
 expanded tokens. Include a trailing sentinel so the helper's variadic tail
 is not empty in C17. Only commas inside matching parentheses are protected;
 braces alone do not protect the commas of a compound literal. The expression
-`((MplField){MPL_NUMBER,19,NULL,0})` is one field, whereas the form without
+`((struct mpl_field){MPL_NUMBER,19,NULL,0})` is one field, whereas the form without
 the outer parentheses is a diagnostic specimen. Macro argument expansion
 and rescan are preprocessing, not evaluation. A compound-literal site passed
 through another macro likewise needs the outer parentheses.

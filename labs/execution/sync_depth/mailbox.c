@@ -1,15 +1,15 @@
 #include "mailbox.h"
 /* Intentional learner scaffold. Implement the transport/application boundary.
  */
-int cdmb_init(CDMailbox *m, cmx_kernel *k, unsigned c, uint32_t s) {
+int cdmb_init(struct cd_mailbox *m, cmx_kernel *k, unsigned c, uint32_t s) {
   (void)m;
   (void)k;
   (void)c;
   (void)s;
   return CMX_UNIMPLEMENTED;
 }
-int cdmb_begin(CDMailbox *m, unsigned s, const unsigned char r[4],
-               cmx_deadline d, CDMBIdentity *i) {
+int cdmb_begin(struct cd_mailbox *m, unsigned s, const unsigned char r[4],
+               cmx_deadline d, struct cdmb_identity *i) {
   (void)m;
   (void)s;
   (void)r;
@@ -17,48 +17,48 @@ int cdmb_begin(CDMailbox *m, unsigned s, const unsigned char r[4],
   (void)i;
   return CMX_UNIMPLEMENTED;
 }
-int cdmb_delivery(CDMailbox *m, unsigned s) {
+int cdmb_delivery(struct cd_mailbox *m, unsigned s) {
   (void)m;
   (void)s;
   return CMX_UNIMPLEMENTED;
 }
-int cdmb_receive(CDMailbox *m, CDMBRequest *r, unsigned c, cmx_deadline d) {
+int cdmb_receive(struct cd_mailbox *m, struct cdmb_request *r, unsigned c, cmx_deadline d) {
   (void)m;
   (void)r;
   (void)c;
   (void)d;
   return CMX_UNIMPLEMENTED;
 }
-int cdmb_reply(CDMailbox *m, CDMBIdentity i, const unsigned char r[4]) {
+int cdmb_reply(struct cd_mailbox *m, struct cdmb_identity i, const unsigned char r[4]) {
   (void)m;
   (void)i;
   (void)r;
   return CMX_UNIMPLEMENTED;
 }
-int cdmb_poll(CDMailbox *m, unsigned s, unsigned char *r, unsigned c) {
+int cdmb_poll(struct cd_mailbox *m, unsigned s, unsigned char *r, unsigned c) {
   (void)m;
   (void)s;
   (void)r;
   (void)c;
   return CMX_UNIMPLEMENTED;
 }
-int cdmb_cancel(CDMailbox *m, unsigned s) {
+int cdmb_cancel(struct cd_mailbox *m, unsigned s) {
   (void)m;
   (void)s;
   return CMX_UNIMPLEMENTED;
 }
-int cdmb_restart(CDMailbox *m) {
+int cdmb_restart(struct cd_mailbox *m) {
   (void)m;
   return CMX_UNIMPLEMENTED;
 }
-int cdmb_effect(CDMailbox *m, CDMBIdentity i, uint32_t d, uint32_t *r) {
+int cdmb_effect(struct cd_mailbox *m, struct cdmb_identity i, uint32_t d, uint32_t *r) {
   (void)m;
   (void)i;
   (void)d;
   (void)r;
   return CMX_UNIMPLEMENTED;
 }
-int cdmb_acknowledge(CDMailbox *m, CDMBIdentity i) {
+int cdmb_acknowledge(struct cd_mailbox *m, struct cdmb_identity i) {
   (void)m;
   (void)i;
   return CMX_UNIMPLEMENTED;

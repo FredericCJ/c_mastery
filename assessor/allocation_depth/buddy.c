@@ -1,11 +1,11 @@
 #include "allocation.h"
-int al_buddy_init(ALBuddy *b) {
+int al_buddy_init(struct al_buddy *b) {
   if (!b)
     return AL_BAD;
-  *b = (ALBuddy){0};
+  *b = (struct al_buddy){0};
   return AL_OK;
 }
-static int valid(const ALBuddy *b, unsigned node, unsigned size) {
+static int valid(const struct al_buddy *b, unsigned node, unsigned size) {
   if (b->state[node] > 2)
     return 0;
   if (b->state[node] == 1) {
@@ -23,10 +23,10 @@ static int valid(const ALBuddy *b, unsigned node, unsigned size) {
   }
   return 1;
 }
-int al_buddy_check(const ALBuddy *b) {
+int al_buddy_check(const struct al_buddy *b) {
   return b && valid(b, 0, 64) ? AL_OK : AL_CORRUPT;
 }
-static int take(ALBuddy *b, unsigned node, unsigned size, unsigned off,
+static int take(struct al_buddy *b, unsigned node, unsigned size, unsigned off,
                 unsigned need, unsigned *chosen, unsigned *offset,
                 unsigned *charged) {
   ++b->steps;
@@ -51,7 +51,7 @@ static int take(ALBuddy *b, unsigned node, unsigned size, unsigned off,
     b->state[node] = 0;
   return 0;
 }
-int al_buddy_take(ALBuddy *b, size_t n, ALHandle *out, size_t *offset,
+int al_buddy_take(struct al_buddy *b, size_t n, struct al_handle *out, size_t *offset,
                   size_t *charged) {
   if (!b || !out || !offset || !charged || !n || n > 64)
     return AL_BAD;
@@ -62,18 +62,18 @@ int al_buddy_take(ALBuddy *b, size_t n, ALHandle *out, size_t *offset,
   unsigned need = 8;
   while (need < n)
     need *= 2;
-  ALBuddy t = *b;
+  struct al_buddy t = *b;
   unsigned chosen, at, size;
   t.steps = 0;
   if (!take(&t, 0, 64, 0, need, &chosen, &at, &size))
     return AL_FULL;
   *b = t;
-  *out = (ALHandle){b, b->ids[chosen]};
+  *out = (struct al_handle){b, b->ids[chosen]};
   *offset = at;
   *charged = size;
   return AL_OK;
 }
-int al_buddy_release(ALBuddy *b, ALHandle h) {
+int al_buddy_release(struct al_buddy *b, struct al_handle h) {
   if (!b)
     return AL_BAD;
   if (al_buddy_check(b))

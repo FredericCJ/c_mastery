@@ -6,9 +6,9 @@ _Static_assert(FLT_RADIX==2 && DBL_MANT_DIG==53 && DBL_MAX_EXP==1024 && sizeof(d
 #define NF_MUTANT 0
 #endif
 static double magnitude(double x){return x<0?-x:x;}
-int nf_compare(NfPolicy policy,double want,double got,NfError *out){
+int nf_compare(enum nf_policy policy,double want,double got,struct nf_error *out){
  if(!out || (policy!=NF_TELEMETRY && policy!=NF_AUDIT) || !(want>=-1e100 && want<=1e100) || !(got>=-1e100 && got<=1e100))return -1;
- double scale=magnitude(want),error=magnitude(got-want);NfError next={error,error/(scale>1?scale:1),0};
+ double scale=magnitude(want),error=magnitude(got-want);struct nf_error next={error,error/(scale>1?scale:1),0};
  next.accepted=policy==NF_AUDIT?!memcmp(&want,&got,sizeof want):error<=0x1p-40+0x1p-40*scale;
 #if NF_MUTANT==1
  next.accepted=error<=0x1p-40*scale;

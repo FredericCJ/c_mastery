@@ -27,8 +27,8 @@ assumption, not a universal cache-line size.
 
 ## Interface and representation
 
-`ASQueue` has separate atomic unsigned head/tail, capacity1–16 power-of-two,
-sixteen ordinary four-word `ASValue` slots and producer/consumer active flags.
+`struct as_queue` has separate atomic unsigned head/tail, capacity1–16 power-of-two,
+sixteen ordinary four-word `struct as_value` slots and producer/consumer active flags.
 There is exactly one externally owned producer execution domain and one consumer
 domain. Retain queue and input/output/callback contexts until all calls finish.
 Pointers denote live aligned objects; initialization/reinitialization requires
@@ -62,7 +62,7 @@ specified changed test: the corresponding active flag rejects with
 state, not a multi-producer/consumer lock. A second thread using the same domain
 violates the precondition and is modeled symbolically, not executed with a race.
 
-`ASCircular` is the changed N−1 representation: normalized head/tail indices,
+`struct as_circular` is the changed N−1 representation: normalized head/tail indices,
 storage N in1,2,4,8,16, usable capacity N−1. Empty is head==tail; full is
 next(head)==tail. N1 deliberately stores zero items. Its operations use the same
 forward/reverse publication argument; they do not reuse the full-capacity

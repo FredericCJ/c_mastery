@@ -47,7 +47,7 @@ def run(report):
                     execute([cc,*flags,ROOT/'labs/corpus_ring'/source,ROOT/'assessor/corpus_ring/ring.c','-o',binary],cc+'.'+name+'-build')
                     if name=='measure':
                         raw=execute([binary],cc+'.measure');assert len(raw.splitlines())==16 and 'load_max=65536' in raw
-                        d['measurements'].append(dict(compiler=cc,raw=raw,keys_per_layout=65536,limits='Bounded host CPU ticks and exact examined-slot costs; not board latency or a universal speed claim.'))
+                        d['measurements'].append(dict(compiler=cc,raw=raw,keys_per_layout=65536,limits='Bounded host struct lr_cpu ticks and exact examined-slot costs; not board latency or a universal speed claim.'))
                     else:
                         obs=json.loads(execute(['python3',ROOT/'assessor/corpus_ring/oracle.py',binary],cc+'.oracle'));assert obs['passed'] and obs['observations']==14414
                         d['independent_oracles'].append(dict(compiler=cc,**obs))

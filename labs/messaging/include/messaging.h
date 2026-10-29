@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-typedef enum {
+enum msg_status {
   MSG_OK,
   MSG_EMPTY,
   MSG_FULL,
@@ -17,158 +17,158 @@ typedef enum {
   MSG_OVERFLOW,
   MSG_CONFLICT,
   MSG_FAILED
-} MsgStatus;
+};
 
-typedef int (*MsgTask)(void *, const atomic_bool *);
-typedef struct MsgNursery MsgNursery;
-typedef struct {
+typedef int (*msg_task_fn)(void *, const atomic_bool *);
+struct msg_nursery;
+struct msg_child {
   pthread_t thread;
-  MsgTask task;
+  msg_task_fn task;
   void *ctx;
-  MsgNursery *owner;
+  struct msg_nursery *owner;
   int result;
   bool joined;
-} MsgChild;
-struct MsgNursery {
+};
+struct msg_nursery {
   atomic_bool cancel;
-  MsgChild child[8];
+  struct msg_child child[8];
   size_t count, attempts, fail_at;
   bool closing, closed;
 };
-void msg_nursery_init(MsgNursery *, size_t);
-MsgStatus msg_spawn(MsgNursery *, MsgTask, void *);
-void msg_cancel(MsgNursery *);
-MsgStatus msg_join(MsgNursery *, int *);
+void msg_nursery_init(struct msg_nursery *, size_t);
+enum msg_status msg_spawn(struct msg_nursery *, msg_task_fn, void *);
+void msg_cancel(struct msg_nursery *);
+enum msg_status msg_join(struct msg_nursery *, int *);
 
-typedef struct {
+struct msg_channel {
   unsigned values[4];
   size_t head, count, capacity;
   bool closed, offered;
   unsigned offer;
   uint64_t ticket, accepted;
-} MsgChannel;
-typedef struct {
+};
+struct msg_hub {
   pthread_mutex_t mutex;
   pthread_cond_t changed;
-  MsgChannel channel[2];
+  struct msg_channel channel[2];
   bool stop;
   unsigned next;
-} MsgHub;
-MsgStatus msg_hub_init(MsgHub *, size_t, size_t);
-void msg_hub_destroy(MsgHub *);
-void msg_hub_cancel(MsgHub *);
-MsgStatus msg_send(MsgHub *, unsigned, unsigned, bool);
-MsgStatus msg_select(MsgHub *, unsigned, bool, unsigned *, unsigned *);
-MsgStatus msg_close(MsgHub *, unsigned);
+};
+enum msg_status msg_hub_init(struct msg_hub *, size_t, size_t);
+void msg_hub_destroy(struct msg_hub *);
+void msg_hub_cancel(struct msg_hub *);
+enum msg_status msg_send(struct msg_hub *, unsigned, unsigned, bool);
+enum msg_status msg_select(struct msg_hub *, unsigned, bool, unsigned *, unsigned *);
+enum msg_status msg_close(struct msg_hub *, unsigned);
 
-typedef void (*MsgReceiver)(void *, MsgStatus, unsigned);
-typedef struct {
+typedef void (*msg_receiver_fn)(void *, enum msg_status, unsigned);
+struct msg_operation {
   enum { MSG_NEW, MSG_STARTED, MSG_DONE } state;
   bool cancel;
-  MsgReceiver receiver;
+  msg_receiver_fn receiver;
   void *ctx;
-} MsgOperation;
-void msg_connect(MsgOperation *, MsgReceiver, void *);
-MsgStatus msg_start(MsgOperation *);
-MsgStatus msg_stop_operation(MsgOperation *);
-MsgStatus msg_complete(MsgOperation *, MsgStatus, unsigned);
+};
+void msg_connect(struct msg_operation *, msg_receiver_fn, void *);
+enum msg_status msg_start(struct msg_operation *);
+enum msg_status msg_stop_operation(struct msg_operation *);
+enum msg_status msg_complete(struct msg_operation *, enum msg_status, unsigned);
 
-typedef bool (*MsgHandler)(void *, unsigned);
-typedef struct {
+typedef bool (*msg_handler_fn)(void *, unsigned);
+struct msg_actor {
   unsigned queue[4];
   size_t head, count;
   uint64_t generation;
   bool alive, stepping;
-  MsgHandler handler;
+  msg_handler_fn handler;
   void *ctx;
-} MsgActor;
-void msg_actor_init(MsgActor *, MsgHandler, void *);
-MsgStatus msg_actor_send(MsgActor *, uint64_t, unsigned);
-MsgStatus msg_actor_step(MsgActor *);
-MsgStatus msg_actor_restart(MsgActor *);
-typedef enum { MSG_ONE, MSG_ALL, MSG_REST } MsgStrategy;
-typedef struct {
+};
+void msg_actor_init(struct msg_actor *, msg_handler_fn, void *);
+enum msg_status msg_actor_send(struct msg_actor *, uint64_t, unsigned);
+enum msg_status msg_actor_step(struct msg_actor *);
+enum msg_status msg_actor_restart(struct msg_actor *);
+enum msg_strategy { MSG_ONE, MSG_ALL, MSG_REST };
+struct msg_supervisor {
   uint64_t times[4], last, window;
   size_t count, limit;
   bool escalated;
-} MsgSupervisor;
-MsgStatus msg_supervisor_init(MsgSupervisor *, size_t, uint64_t);
-MsgStatus msg_restart_plan(MsgSupervisor *, uint64_t, MsgStrategy, unsigned,
+};
+enum msg_status msg_supervisor_init(struct msg_supervisor *, size_t, uint64_t);
+enum msg_status msg_restart_plan(struct msg_supervisor *, uint64_t, enum msg_strategy, unsigned,
                            int *, size_t *);
 
-typedef struct {
+struct msg_deque {
   atomic_size_t top, bottom;
   atomic_uint slots[8];
-} MsgDeque;
-void msg_deque_init(MsgDeque *);
-MsgStatus msg_push(MsgDeque *, unsigned);
-MsgStatus msg_pop(MsgDeque *, unsigned *);
-MsgStatus msg_steal(MsgDeque *, unsigned *);
+};
+void msg_deque_init(struct msg_deque *);
+enum msg_status msg_push(struct msg_deque *, unsigned);
+enum msg_status msg_pop(struct msg_deque *, unsigned *);
+enum msg_status msg_steal(struct msg_deque *, unsigned *);
 
-typedef struct {
+struct msg_cell {
   atomic_uint stamp, value;
-} MsgCell;
-typedef struct {
+};
+struct msg_store {
   atomic_uint clock;
-  MsgCell cells[4];
-} MsgStore;
-typedef struct {
-  MsgStore *store;
+  struct msg_cell cells[4];
+};
+struct msg_txn {
+  struct msg_store *store;
   unsigned snapshot, reads, writes, values[4];
   bool active;
-} MsgTxn;
-void msg_store_init(MsgStore *);
-void msg_begin(MsgStore *, MsgTxn *);
-MsgStatus msg_read(MsgTxn *, unsigned, unsigned *);
-MsgStatus msg_write(MsgTxn *, unsigned, unsigned);
-MsgStatus msg_commit(MsgTxn *);
-void msg_abort(MsgTxn *);
+};
+void msg_store_init(struct msg_store *);
+void msg_begin(struct msg_store *, struct msg_txn *);
+enum msg_status msg_read(struct msg_txn *, unsigned, unsigned *);
+enum msg_status msg_write(struct msg_txn *, unsigned, unsigned);
+enum msg_status msg_commit(struct msg_txn *);
+void msg_abort(struct msg_txn *);
 
-typedef struct {
+struct msg_version {
   unsigned values[2];
   uint64_t stamp;
   bool live;
-} MsgVersion;
-typedef struct {
+};
+struct msg_pin {
   uint64_t stamp, generation;
   bool active;
-} MsgPin;
-typedef struct {
+};
+struct msg_versions {
   pthread_mutex_t mutex;
-  MsgVersion versions[8];
-  MsgPin pins[4];
+  struct msg_version versions[8];
+  struct msg_pin pins[4];
   uint64_t clock;
-} MsgVersions;
-typedef struct {
+};
+struct msg_snapshot {
   unsigned slot;
   uint64_t generation;
-} MsgSnapshot;
-MsgStatus msg_versions_init(MsgVersions *);
-void msg_versions_destroy(MsgVersions *);
-MsgStatus msg_snapshot(MsgVersions *, MsgSnapshot *);
-MsgStatus msg_snapshot_read(MsgVersions *, MsgSnapshot, unsigned *);
-MsgStatus msg_snapshot_drop(MsgVersions *, MsgSnapshot);
-MsgStatus msg_publish(MsgVersions *, unsigned, unsigned);
+};
+enum msg_status msg_versions_init(struct msg_versions *);
+void msg_versions_destroy(struct msg_versions *);
+enum msg_status msg_snapshot(struct msg_versions *, struct msg_snapshot *);
+enum msg_status msg_snapshot_read(struct msg_versions *, struct msg_snapshot, unsigned *);
+enum msg_status msg_snapshot_drop(struct msg_versions *, struct msg_snapshot);
+enum msg_status msg_publish(struct msg_versions *, unsigned, unsigned);
 
-typedef struct {
+struct msg_sequence {
   atomic_uint sequence, first, second;
-} MsgSequence;
-void msg_sequence_init(MsgSequence *);
-MsgStatus msg_sequence_write(MsgSequence *, unsigned, unsigned);
-MsgStatus msg_sequence_read(MsgSequence *, size_t, unsigned *);
+};
+void msg_sequence_init(struct msg_sequence *);
+enum msg_status msg_sequence_write(struct msg_sequence *, unsigned, unsigned);
+enum msg_status msg_sequence_read(struct msg_sequence *, size_t, unsigned *);
 
-typedef void (*MsgNext)(void *, unsigned);
-typedef void (*MsgTerminal)(void *, MsgStatus);
-typedef struct {
+typedef void (*msg_next_fn)(void *, unsigned);
+typedef void (*msg_terminal_fn)(void *, enum msg_status);
+struct msg_stream {
   uint64_t demand;
   bool cancelled, terminal, delivering, pending_error;
-  MsgNext next;
-  MsgTerminal end;
+  msg_next_fn next;
+  msg_terminal_fn end;
   void *ctx;
-} MsgStream;
-void msg_stream_init(MsgStream *, MsgNext, MsgTerminal, void *);
-MsgStatus msg_request(MsgStream *, uint64_t);
-void msg_stream_cancel(MsgStream *);
-MsgStatus msg_emit(MsgStream *, unsigned);
-MsgStatus msg_stream_end(MsgStream *, MsgStatus);
+};
+void msg_stream_init(struct msg_stream *, msg_next_fn, msg_terminal_fn, void *);
+enum msg_status msg_request(struct msg_stream *, uint64_t);
+void msg_stream_cancel(struct msg_stream *);
+enum msg_status msg_emit(struct msg_stream *, unsigned);
+enum msg_status msg_stream_end(struct msg_stream *, enum msg_status);
 #endif

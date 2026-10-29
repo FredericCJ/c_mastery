@@ -2,7 +2,7 @@
 import json
 def generate(c):
  distances=[0,1,2,3,7,12,13,999,1000];times=[0,1,2,3,7,999,1000];speeds=[0,1,3,7,500,999,1000]
- rows=[];lines=['#include "types.h"','#include <stdio.h>','#define C(x) do{if(!(x)){fprintf(stderr,"TD_ORACLE:%d\\n",__LINE__);return 1;}}while(0)','int main(void){TdSpeed s;TdMeters d;TdStatus r;']
+ rows=[];lines=['#include "types.h"','#include <stdio.h>','#define C(x) do{if(!(x)){fprintf(stderr,"TD_ORACLE:%d\\n",__LINE__);return 1;}}while(0)','int main(void){struct td_speed s;struct td_meters d;enum td_status r;']
  for distance in distances:
   for t in times:
    q=next((q for q in range(1001) if t>0 and q*t==distance),None)

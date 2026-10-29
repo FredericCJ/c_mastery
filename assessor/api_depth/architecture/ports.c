@@ -2,7 +2,7 @@
 #ifndef AR_MUTANT
 #define AR_MUTANT 0
 #endif
-static int finish(ArTask *t, unsigned status) {
+static int finish(struct ar_task *t, unsigned status) {
   (void)t->ops.notify(t->ops.context, 0);
   t->ops.release(t->ops.context, t->data);
   t->data = 0;
@@ -10,7 +10,7 @@ static int finish(ArTask *t, unsigned status) {
   t->terminal = status;
   return (int)status;
 }
-int ar_begin(ArTask *t, ArOps o, const unsigned char *p, size_t n,
+int ar_begin(struct ar_task *t, struct ar_ops o, const unsigned char *p, size_t n,
              unsigned version, unsigned partial) {
   if (!t || !p || !n || n > 8 || !o.allocate || !o.release || !o.clock_ms ||
       !o.write || !o.notify || !version || partial > 1)
@@ -27,10 +27,10 @@ int ar_begin(ArTask *t, ArOps o, const unsigned char *p, size_t n,
     o.release(o.context, data);
     return AR_FAILED;
   }
-  *t = (ArTask){o, data, n, 0, now, 1, 0, AR_PENDING, version, partial};
+  *t = (struct ar_task){o, data, n, 0, now, 1, 0, AR_PENDING, version, partial};
   return AR_OK;
 }
-int ar_poll(ArTask *t) {
+int ar_poll(struct ar_task *t) {
   if (!t)
     return AR_INVALID;
   if (!t->active)
@@ -41,7 +41,7 @@ int ar_poll(ArTask *t) {
   if (now < t->last_ms)
     return AR_CONTRACT;
   size_t left = t->length - t->offset;
-  ArResult r = t->ops.write(t->ops.context, t->data + t->offset, left);
+  struct ar_result r = t->ops.write(t->ops.context, t->data + t->offset, left);
   if (r.count < 0 || (size_t)r.count > left ||
       (r.state != AR_OK && r.state != AR_PENDING && r.state != AR_FAILED) ||
       (!t->allow_partial_failure && r.state == AR_FAILED && r.count))
@@ -55,13 +55,13 @@ int ar_poll(ArTask *t) {
     return finish(t, AR_OK);
   return AR_PENDING;
 }
-int ar_cancel(ArTask *t) {
+int ar_cancel(struct ar_task *t) {
   if (!t || !t->active)
     return AR_STATE;
   t->cancelling = 1;
   return AR_PENDING;
 }
-int ar_cancel_ack(ArTask *t) {
+int ar_cancel_ack(struct ar_task *t) {
   if (!t || !t->active || !t->cancelling)
     return AR_STATE;
   return finish(t, AR_CANCELLED);

@@ -45,7 +45,7 @@ int plx_wait(pid_t child,int *status,unsigned *interrupts){
 }
 static void put(unsigned char *p,unsigned value){for(unsigned i=0;i<4;++i)p[i]=(unsigned char)(value>>(8*i));}
 static uint32_t get(const unsigned char *p){uint32_t v=0;for(unsigned i=0;i<4;++i)v|=(uint32_t)p[i]<<(8*i);return v;}
-int plx_launch(const char *path,char *const args[],PLXOptions options,PLXResult *out){
+int plx_launch(const char *path,char *const args[],struct plx_options options,struct plx_result *out){
   if(!path||!args||!args[0]||!out||options.mode>PLX_EARLY_SIGNAL||options.chunk>8)return EINVAL;
   int pipefd[2];if(pipe2(pipefd,O_CLOEXEC)<0)return errno;
   pid_t child=fork();
@@ -82,16 +82,16 @@ int plx_launch(const char *path,char *const args[],PLXOptions options,PLXResult 
   if(waited)return waited;
   if(error)return error;
   if(used&&used!=8){if(PLX_MUTANT!=2)return EPROTO;used=0;}
-  PLXResult result={0,0,0};
+  struct plx_result result={0,0,0};
   if(used){
     uint32_t stage=get(record),code=get(record+4);
     if((stage!=1&&stage!=2)&&PLX_MUTANT!=3)return EPROTO;
     if(code==0||code>4095||!WIFEXITED(status)||WEXITSTATUS(status)!=127)return EPROTO;
-    result=(PLXResult){PLX_FAILED,(int)code,(int)stage};
-  }else if(WIFEXITED(status))result=(PLXResult){PLX_EXITED,WEXITSTATUS(status),0};
-  else if(WIFSIGNALED(status))result=(PLXResult){PLX_SIGNALED,WTERMSIG(status),0};
+    result=(struct plx_result){PLX_FAILED,(int)code,(int)stage};
+  }else if(WIFEXITED(status))result=(struct plx_result){PLX_EXITED,WEXITSTATUS(status),0};
+  else if(WIFSIGNALED(status))result=(struct plx_result){PLX_SIGNALED,WTERMSIG(status),0};
   else return EPROTO;
-  if(PLX_MUTANT==4&&!used)result=(PLXResult){PLX_EXITED,0,0};
+  if(PLX_MUTANT==4&&!used)result=(struct plx_result){PLX_EXITED,0,0};
   *out=result;return 0;
 }
 int plx_redirect(const int sources[2],const int destinations[2],unsigned fail){

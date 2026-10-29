@@ -9,7 +9,7 @@ implied by the synthetic counter backend.
 
 ## Return an effect request before executing it
 
-`AmMachine` contains phase IDLE/READY/WAIT/FAILED and sequence0..7. IDLE requires
+`struct am_machine` contains phase IDLE/READY/WAIT/FAILED and sequence0..7. IDLE requires
 sequence0; WAIT/FAILED require nonzero identity. READY may retain the identity
 of the previously acknowledged request. The reducer takes a machine by value
 and returns next state plus either no effect or WRITE(key). It performs no
@@ -69,7 +69,7 @@ A single fixed device backend is a counterexample to mandatory runtime dispatch;
 per-instance live backend replacement is a counterexample to a compile-time-only
 choice. Use the actual size/code observations to support the decision.
 
-For replacement, `AmHot` owns one current strategy and at most one retired strategy.
+For replacement, `struct am_hot` owns one current strategy and at most one retired strategy.
 A lease borrows exact function/context/epoch from the current version and increments
 its in-flight count, bounded at3. Replacing publishes a higher nonzero epoch; with
 old leases, transfer the old strategy into the retired slot. Otherwise release it

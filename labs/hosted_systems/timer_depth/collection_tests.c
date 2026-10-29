@@ -4,15 +4,15 @@
 #include <string.h>
 #define CHECK(x) do { if (!(x)) { fprintf(stderr,"COLLECTION_CHECK:%d:%s\n",__LINE__,#x); exit(1); } } while(0)
 #define N 17
-typedef struct {
-  TcCollection q;
-  TdTimer timers[N];
+struct rd_fixture {
+  struct tc_collection q;
+  struct td_timer timers[N];
   size_t index[N], pos[N], next[N], prev[N], heads[7];
-} Fixture;
-static void init(Fixture *f, enum TcKind kind, unsigned limit) {
+};
+static void init(struct rd_fixture *f, enum tc_kind kind, unsigned limit) {
   CHECK(tc_init(&f->q,kind,f->timers,N,f->index,f->pos,f->next,f->prev,f->heads,7,3,limit)==0);
 }
-static void membership(Fixture *f) {
+static void membership(struct rd_fixture *f) {
   size_t live=0;
   unsigned seen[N]={0};
   for (size_t i=0;i<N;++i) live+=f->timers[i].state==TD_ARMED;
@@ -44,8 +44,8 @@ static void membership(Fixture *f) {
 }
 /* Independent one-shot oracle: a deadline array and monotonically increasing
  * identity array, with no heap, wheel, TdTimer calls or copied expected trace. */
-static void histories(enum TcKind kind) {
-  Fixture f;
+static void histories(enum tc_kind kind) {
+  struct rd_fixture f;
   init(&f,kind,65535);
   uint64_t deadlines[N]={0};
   unsigned generations[N]={0};
@@ -54,7 +54,7 @@ static void histories(enum TcKind kind) {
     random=random*1664525u+1013904223u;
     size_t slot=(random>>8)%N;
     unsigned op=random%5;
-    TcToken token={slot,generations[slot]}, out={99,99};
+    struct tc_token token={slot,generations[slot]}, out={99,99};
     if(op<3) {
       uint64_t d=1+(random>>16)%97;
       CHECK(tc_arm(&f.q,slot,d,0,0,&out)==1);
@@ -67,7 +67,7 @@ static void histories(enum TcKind kind) {
     } else {
       size_t best=N;
       for(size_t i=0;i<N;++i) if(deadlines[i] && (best==N || deadlines[i]<deadlines[best])) best=i;
-      TdDispatch dispatch={0};
+      struct td_dispatch dispatch={0};
       uint64_t now=(random>>16)%100;
       int expected=best!=N && deadlines[best]<=now;
       CHECK(tc_begin(&f.q,now,&out,&dispatch)==expected);
@@ -82,24 +82,24 @@ static void histories(enum TcKind kind) {
     size_t best=N;
     for(size_t i=0;i<N;++i) if(deadlines[i] && (best==N || deadlines[i]<deadlines[best])) best=i;
     uint64_t d=999;
-    out=(TcToken){99,99};
+    out=(struct tc_token){99,99};
     CHECK(tc_peek(&f.q,&out,&d)==(best!=N));
     if(best!=N) CHECK(out.slot==best && d==deadlines[best]);
     else CHECK(out.slot==99 && d==999);
   }
 }
-static void boundaries(enum TcKind kind) {
-  Fixture f;
+static void boundaries(enum tc_kind kind) {
+  struct rd_fixture f;
   init(&f,kind,3);
-  TcToken a={99,99}, b, current;
-  TdDispatch d;
+  struct tc_token a={99,99}, b, current;
+  struct td_dispatch d;
   CHECK(tc_arm(&f.q,N,10,0,0,&a)==-1 && a.slot==99);
   CHECK(tc_arm(&f.q,0,0,0,0,&a)==-1 && a.slot==99);
   CHECK(tc_arm(&f.q,0,10,3,0,&a)==1);
   CHECK(tc_arm(&f.q,1,10,0,0,&b)==1);
   CHECK(tc_begin(&f.q,20,&current,&d)==1 && current.slot==0 && d.effects==4 && d.next==22);
   CHECK(tc_cancel(&f.q,a)==2);
-  TcToken unchanged={99,99};
+  struct tc_token unchanged={99,99};
   CHECK(tc_arm(&f.q,0,15,0,0,&unchanged)==0 && unchanged.slot==99);
   CHECK(tc_finish(&f.q,a)==1 && f.timers[0].state==TD_IDLE);
   CHECK(tc_begin(&f.q,20,&current,&d)==1 && current.slot==1 && tc_finish(&f.q,current)==1);
@@ -125,7 +125,7 @@ static void boundaries(enum TcKind kind) {
   }
 }
 int main(void) {
-  for(enum TcKind kind=TC_SCAN;kind<=TC_WHEEL;++kind) { histories(kind); boundaries(kind); }
+  for(enum tc_kind kind=TC_SCAN;kind<=TC_WHEEL;++kind) { histories(kind); boundaries(kind); }
   puts("COLLECTION_PASS:independent_histories=36000;representations=3;identity;borrow;overflow;ties;membership");
   return 0;
 }

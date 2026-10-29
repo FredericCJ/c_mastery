@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #define CHECK(x) do{if(!(x)){fprintf(stderr,"DUR_CHECK third line%d: %s\n",__LINE__,#x);return 1;}}while(0)
-static DMedium medium,saved;
+static struct d_medium medium,saved;
 static uint32_t crc(const uint8_t *p,size_t n){uint32_t c=UINT32_MAX;for(size_t i=0;i<n;i++){c^=p[i];for(unsigned j=0;j<8;j++)c=(c>>1)^(UINT32_C(0xedb88320)&(0u-(c&1u)));}return ~c;}
 static void seal(uint8_t *p){uint32_t c=crc(p,4092);for(unsigned i=0;i<4;i++)p[4092+i]=(uint8_t)(c>>(i*8));}
 static int transaction(store *s,unsigned v){uint8_t key=1,value=(uint8_t)v;CHECK(store_begin(s)==STORE_OK&&store_put(s,&key,1,&value,1)==STORE_OK&&dm_arm(&medium,0,0,0,0,0)==0&&store_commit(s)==STORE_OK);return 0;}

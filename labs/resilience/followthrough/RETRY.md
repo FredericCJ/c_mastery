@@ -9,8 +9,8 @@ derivation, not a claim that the referenced services use this generator.
 
 ## Dependencies, supplied artifacts and environment
 
-Complete X-T75-001's owned `RzfScope`, X-T75-004's fractional `RzfBucket`, and
-the original `RZRetry` first. Import the actual `communications.tcp_fault`
+Complete X-T75-001's owned `struct rzf_scope`, X-T75-004's fractional `struct rzf_bucket`, and
+the original `struct rz_retry` first. Import the actual `communications.tcp_fault`
 artifact from PR-T41-06/LAB-EX-09: `v4_com.c`, `net.c`, their declared HTTP and
 EDU7 dependencies and public headers. The test calls actual `v4_tcp_delivery`,
 `net_tick`, `net_receive` and `net_link_down`; do not replace them with a
@@ -34,10 +34,10 @@ are host verification tools, not target dependencies.
 
 ## Representation and ownership
 
-`RzrRandom` owns a 32-bit state and nonwrapping 64-bit draw count. `RzrRetry`
-owns one `RzfBorrow`, the original `RZRetry` schedule, its random state and a
+`struct rzr_random` owns a 32-bit state and nonwrapping 64-bit draw count. `struct rzr_retry`
+owns one `struct rzf_borrow`, the original `struct rz_retry` schedule, its random state and a
 single pending schedule. It borrows a stable-address initialized fractional
-limiter and a stable-address `NetStack` until successful finish/abort. An output
+limiter and a stable-address `struct net_stack` until successful finish/abort. An output
 controller must not already own an operation. It may not be copied while live.
 Only this adapter may advance or mutate its borrowed transport; sharing a
 limiter requires serialization of every user and one common clock origin.

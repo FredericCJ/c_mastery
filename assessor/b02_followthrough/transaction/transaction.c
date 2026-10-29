@@ -2,7 +2,7 @@
 #ifndef BF_MUTANT
 #define BF_MUTANT 0
 #endif
-int bf_construct(unsigned style,B2Backend b,unsigned*out){
+int bf_construct(unsigned style,struct b2_backend b,unsigned*out){
  if(style>3||!out||!b.acquire||!b.release)return B2_INVALID;
  if(style==0)return b2_transaction(b,out);
  if(style==1){
@@ -29,8 +29,8 @@ int bf_construct(unsigned style,B2Backend b,unsigned*out){
  failed1:b.release(b.context,0);
  failed0:return B2_FAILED;
 }
-void bf_tx_init(BfTx*t){*t=(BfTx){0};t->stage=4;}
-static int cleanup(BfTx*t){
+void bf_tx_init(struct bf_tx*t){*t=(struct bf_tx){0};t->stage=4;}
+static int cleanup(struct bf_tx*t){
  t->state=BF_TX_PENDING;
  for(unsigned i=3;i;){--i;if(!(t->mask&(1u<<i)))continue;
   int error=t->backend.release(t->backend.context,i);
@@ -43,7 +43,7 @@ static int cleanup(BfTx*t){
  if(t->mask)return BF_TX_RECOVERY;
  t->state=BF_TX_DONE;return t->primary?B2_FAILED:B2_OK;
 }
-int bf_tx_begin(BfTx*t,BfTxBackend b,unsigned*out){
+int bf_tx_begin(struct bf_tx*t,struct bf_tx_backend b,unsigned*out){
  if(!t||!out||t->state!=BF_TX_IDLE||!b.acquire||!b.release||!b.commit)return B2_INVALID;
  t->backend=b;
  if(BF_MUTANT==3)*out=3;
@@ -51,7 +51,7 @@ int bf_tx_begin(BfTx*t,BfTxBackend b,unsigned*out){
  int error=b.commit(b.context);if(error){t->primary=error;t->stage=3;return cleanup(t);}
  t->state=BF_TX_LIVE;*out=3;return B2_OK;
 }
-int bf_tx_close(BfTx*t){
+int bf_tx_close(struct bf_tx*t){
  if(!t||t->state==BF_TX_IDLE)return B2_INVALID;
  if(t->state==BF_TX_DONE)return t->primary?B2_FAILED:B2_OK;
  return cleanup(t);

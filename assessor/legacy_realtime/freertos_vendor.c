@@ -11,7 +11,7 @@
 #endif
 static StaticTask_t controls[4];static StackType_t stacks[4][FC_STACK];static TaskHandle_t tasks[4];
 static StaticQueue_t queue_control,mutex_control,second_control;static unsigned char storage[8*sizeof(unsigned)];
-static QueueHandle_t queue;static SemaphoreHandle_t mutex,second;static FCReport *report;
+static QueueHandle_t queue;static SemaphoreHandle_t mutex,second;static struct fc_report *report;
 static volatile unsigned command,isr_after;
 static void note(unsigned value){taskENTER_CRITICAL();FC_REQUIRE(report->traces<3);report->trace[report->traces++]=value;taskEXIT_CRITICAL();}
 #ifdef FC_M4
@@ -59,7 +59,7 @@ static void controller(void *unused){(void)unused;unsigned ticks,value;
  vTaskEndScheduler();for(;;){}
 #endif
 }
-void fc_run(FCReport *r){report=r;queue=xQueueCreateStatic(8,sizeof(unsigned),storage,&queue_control);mutex=FC_MUTANT==3?xSemaphoreCreateBinaryStatic(&mutex_control):xSemaphoreCreateMutexStatic(&mutex_control);second=xSemaphoreCreateMutexStatic(&second_control);FC_REQUIRE(queue&&mutex&&second);if(FC_MUTANT==3)FC_REQUIRE(xSemaphoreGive(mutex)==pdPASS);
+void fc_run(struct fc_report *r){report=r;queue=xQueueCreateStatic(8,sizeof(unsigned),storage,&queue_control);mutex=FC_MUTANT==3?xSemaphoreCreateBinaryStatic(&mutex_control):xSemaphoreCreateMutexStatic(&mutex_control);second=xSemaphoreCreateMutexStatic(&second_control);FC_REQUIRE(queue&&mutex&&second);if(FC_MUTANT==3)FC_REQUIRE(xSemaphoreGive(mutex)==pdPASS);
  tasks[0]=xTaskCreateStatic(controller,"control",FC_STACK,0,4,stacks[0],&controls[0]);
  tasks[1]=xTaskCreateStatic(low,"low",FC_STACK,0,fc_priority(3),stacks[1],&controls[1]);
  tasks[2]=xTaskCreateStatic(high,"high",FC_STACK,0,fc_priority(1),stacks[2],&controls[2]);

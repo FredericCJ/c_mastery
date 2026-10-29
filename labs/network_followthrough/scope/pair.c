@@ -1,5 +1,5 @@
 #include "pair.h"
-int nw_pair_init(NwPair *s, unsigned n, uint32_t e, uint16_t a, uint16_t b) {
+int nw_pair_init(struct nw_pair *s, unsigned n, uint32_t e, uint16_t a, uint16_t b) {
   (void)s;
   (void)n;
   (void)e;
@@ -7,8 +7,8 @@ int nw_pair_init(NwPair *s, unsigned n, uint32_t e, uint16_t a, uint16_t b) {
   (void)b;
   return NW_UNIMPLEMENTED;
 }
-int nw_pair_receive(NwPair *s, const void *p, size_t n, uint64_t now,
-                    NetPacket *out) {
+int nw_pair_receive(struct nw_pair *s, const void *p, size_t n, uint64_t now,
+                    struct net_packet *out) {
   (void)s;
   (void)p;
   (void)n;

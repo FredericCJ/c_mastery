@@ -1,20 +1,20 @@
 #include "identity.h"
-int ai_init(AIPool *p, unsigned bits) {
+int ai_init(struct ai_pool *p, unsigned bits) {
   (void)p;
   (void)bits;
   return AI_UNIMPLEMENTED;
 }
-int ai_take(AIPool *p, uint32_t *out) {
+int ai_take(struct ai_pool *p, uint32_t *out) {
   (void)p;
   (void)out;
   return AI_UNIMPLEMENTED;
 }
-int ai_valid(const AIPool *p, uint32_t h) {
+int ai_valid(const struct ai_pool *p, uint32_t h) {
   (void)p;
   (void)h;
   return 0;
 }
-int ai_release(AIPool *p, uint32_t h) {
+int ai_release(struct ai_pool *p, uint32_t h) {
   (void)p;
   (void)h;
   return AI_UNIMPLEMENTED;

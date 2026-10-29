@@ -1,3 +1,3 @@
 #include "admission.h"
-CPStatus cpa_admit(CPParser *p,CPQueue *q,size_t capacity)
+enum cp_status cpa_admit(struct cp_parser *p,struct cp_queue *q,size_t capacity)
 {(void)p;(void)q;(void)capacity;return CP_INVALID;}

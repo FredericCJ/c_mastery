@@ -89,7 +89,7 @@ int sd_format(store_io io) {
     return SD_IO;
   return SD_OK;
 }
-static int install(SdStore *s, const uint8_t marker[4096]) {
+static int install(struct sd_store *s, const uint8_t marker[4096]) {
   uint32_t mask = r32(marker + 16);
   uint64_t generation = r64(marker + 8);
   uint8_t bytes[4096], zero[4096] = {0};
@@ -122,7 +122,7 @@ static int install(SdStore *s, const uint8_t marker[4096]) {
   s->wal_mask = 0;
   return SD_OK;
 }
-int sd_open(SdStore *s, store_io io, unsigned full) {
+int sd_open(struct sd_store *s, store_io io, unsigned full) {
   if (!s || !io_valid(io) || full > 1)
     return SD_INVALID;
   memset(s, 0, sizeof *s);
@@ -157,7 +157,7 @@ int sd_open(SdStore *s, store_io io, unsigned full) {
   s->poisoned = 0;
   return SD_OK;
 }
-int sd_read(SdStore *s, unsigned page, void *out) {
+int sd_read(struct sd_store *s, unsigned page, void *out) {
   if (!s || page >= 32 || !out)
     return SD_INVALID;
   if (s->poisoned)
@@ -177,7 +177,7 @@ int sd_read(SdStore *s, unsigned page, void *out) {
   memcpy(out, bytes, 4096);
   return SD_OK;
 }
-int sd_checkpoint(SdStore *s) {
+int sd_checkpoint(struct sd_store *s) {
   if (!s || s->poisoned || s->active)
     return SD_STATE;
   if (!s->wal_mask)
@@ -193,7 +193,7 @@ int sd_checkpoint(SdStore *s) {
     s->poisoned = 1;
   return r;
 }
-int sd_begin(SdStore *s) {
+int sd_begin(struct sd_store *s) {
   if (!s || s->poisoned || s->active)
     return SD_STATE;
   int r = sd_checkpoint(s);
@@ -210,7 +210,7 @@ int sd_begin(SdStore *s) {
   s->active = 1;
   return SD_OK;
 }
-int sd_write(SdStore *s, unsigned page, size_t offset, const void *input,
+int sd_write(struct sd_store *s, unsigned page, size_t offset, const void *input,
              size_t n) {
   if (!s || page >= 32 || offset > 4096 || n > 4096 - offset || (!input && n))
     return SD_INVALID;
@@ -223,13 +223,13 @@ int sd_write(SdStore *s, unsigned page, size_t offset, const void *input,
   }
   return SD_OK;
 }
-void sd_abort(SdStore *s) {
+void sd_abort(struct sd_store *s) {
   if (s && s->active) {
     s->active = 0;
     s->dirty = 0;
   }
 }
-int sd_commit(SdStore *s) {
+int sd_commit(struct sd_store *s) {
   if (!s || s->poisoned || !s->active)
     return SD_STATE;
   if (!s->dirty) {

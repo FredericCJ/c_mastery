@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 #define CHECK(x) do{if(!(x)){fprintf(stderr,"SX_CHECK:%d:%s\n",__LINE__,#x);return 1;}}while(0)
-static void revoke(SxMap*m,void*v){unsigned page=*(unsigned*)v;(void)sx_remap(m,page,1,1,0,88);}
-int main(void){SxMap m={0};SxLedger l={0};SxAlias a,b;SxHotplug w={0};SxCopyResult result;unsigned page=1;size_t n=99;unsigned char p[4]={1,2,3,4};
+static void revoke(struct sx_map*m,void*v){unsigned page=*(unsigned*)v;(void)sx_remap(m,page,1,1,0,88);}
+int main(void){struct sx_map m={0};struct sx_ledger l={0};struct sx_alias a,b;struct sx_hotplug w={0};struct sx_copy_result result;unsigned page=1;size_t n=99;unsigned char p[4]={1,2,3,4};
  for(unsigned i=0;i<4;i++)CHECK(sx_remap(&m,i,1,1,1,55)==B5_OK);
  CHECK(sx_copy(&m,14,p,4,revoke,&page)==B5_CONFLICT&&m.pages[0].bytes[14]==55&&m.pages[1].bytes[0]==88);
  CHECK(sx_partial(&m,14,p,4,&result)==B5_OK&&result.copied==2&&result.status==B5_CONFLICT&&m.pages[0].bytes[14]==1);

@@ -2,14 +2,14 @@
 #ifndef PI_MUTANT
 #define PI_MUTANT 0
 #endif
-static int valid(PiIo io) { return io.read && io.write; }
+static int valid(struct pi_io io) { return io.read && io.write; }
 static int due(uint32_t now, uint32_t then) {
   return (uint32_t)(now - then) < UINT32_C(0x80000000);
 }
 static unsigned pending(uint32_t cr) {
   return (cr & (PI_START | PI_STOP | PI_PEC)) != 0;
 }
-static int finish(PiI2c *s) {
+static int finish(struct pi_i2c *s) {
   int r = (int)s->result;
   if (r == PI_BUSY) {
     for (unsigned i = 0; i < s->count; i++)
@@ -21,8 +21,8 @@ static int finish(PiI2c *s) {
   s->result = (unsigned)r;
   return r;
 }
-int pi_open(PiI2c *s, PiIo io, const PuClock *c) {
-  PuRates rates;
+int pi_open(struct pi_i2c *s, struct pi_io io, const struct pu_clock *c) {
+  struct pu_rates rates;
   if (!s || !valid(io) || !c || pu_rates(c, &rates) != PU_OK ||
       rates.apb1 < 2000000u || rates.apb1 > 42000000u || rates.apb1 % 1000000u)
     return PI_INVALID;
@@ -45,7 +45,7 @@ int pi_open(PiI2c *s, PiIo io, const PuClock *c) {
   s->generation = c->generation;
   return PI_OK;
 }
-int pi_begin(PiI2c *s, PiIo io, uint32_t generation, uint32_t token,
+int pi_begin(struct pi_i2c *s, struct pi_io io, uint32_t generation, uint32_t token,
              unsigned address, unsigned command, unsigned count, uint8_t *out,
              uint32_t now, unsigned budget) {
   if (!s || !valid(io) || !out || !token || address < 8 || address > 119 ||
@@ -71,7 +71,7 @@ int pi_begin(PiI2c *s, PiIo io, uint32_t generation, uint32_t token,
   io.write(io.context, PI_CR1, PI_PE | PI_ACK | PI_START);
   return PI_OK;
 }
-int pi_cancel(PiI2c *s, PiIo io, uint32_t token) {
+int pi_cancel(struct pi_i2c *s, struct pi_io io, uint32_t token) {
   if (!s || !valid(io))
     return PI_INVALID;
   if (!s->phase || token != s->token)
@@ -81,7 +81,7 @@ int pi_cancel(PiI2c *s, PiIo io, uint32_t token) {
   s->phase = 10;
   return PI_BUSY;
 }
-int pi_step(PiI2c *s, PiIo io, uint32_t token, uint32_t now) {
+int pi_step(struct pi_i2c *s, struct pi_io io, uint32_t token, uint32_t now) {
   uint32_t sr, cr;
   if (!s || !valid(io))
     return PI_INVALID;
@@ -217,7 +217,7 @@ int pi_step(PiI2c *s, PiIo io, uint32_t token, uint32_t now) {
   }
   return PI_BUSY;
 }
-int pi_recover_begin(PiRecovery *s, PiLines io, unsigned exclusive,
+int pi_recover_begin(struct pi_recovery *s, struct pi_lines io, unsigned exclusive,
                      unsigned peers, uint32_t now, unsigned budget,
                      unsigned half) {
   if (!s || !io.read || !io.release || exclusive > 1 || peers > 1 || !half ||
@@ -240,14 +240,14 @@ int pi_recover_begin(PiRecovery *s, PiLines io, unsigned exclusive,
   io.release(io.context, PI_SCL, 1);
   return PI_OK;
 }
-static int recover_end(PiRecovery *s, PiLines io, unsigned result) {
+static int recover_end(struct pi_recovery *s, struct pi_lines io, unsigned result) {
   io.release(io.context, PI_SDA, 1);
   io.release(io.context, PI_SCL, 1);
   s->active = 0;
   s->result = result;
   return (int)result;
 }
-int pi_recover_step(PiRecovery *s, PiLines io, uint32_t now) {
+int pi_recover_step(struct pi_recovery *s, struct pi_lines io, uint32_t now) {
   if (!s || !io.read || !io.release)
     return PI_INVALID;
   if (!s->active)

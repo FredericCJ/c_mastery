@@ -19,54 +19,54 @@ enum {
 };
 /* Writers0/1 use first's actual RPSet slots; writer2 uses second.slot0.
    second.slot1 is permanently unused. Tags never recycle. */
-typedef struct {
-  RPSet first, second;
-} RpdSet;
-typedef struct {
+struct rpd_set {
+  struct rp_set first, second;
+};
+struct rpd_state {
   uint64_t uuid, epoch, sequence;
   unsigned self;
-  RpdSet set;
-} RpdState;
-typedef struct {
+  struct rpd_set set;
+};
+struct rpd_mark {
   uint64_t epoch, upto;
-} RpdMark;
-typedef struct {
+};
+struct rpd_entry {
   uint64_t sequence;
-  RpdSet delta;
-} RpdEntry;
-typedef struct {
+  struct rpd_set delta;
+};
+struct rpd_replica {
   store *pages;
-  RpdState state;
-  RpdEntry history[4];
+  struct rpd_state state;
+  struct rpd_entry history[4];
   unsigned count;
-  RpdMark acked[3], sent[3], received[3];
-} RpdReplica;
-typedef struct {
+  struct rpd_mark acked[3], sent[3], received[3];
+};
+struct rpd_packet {
   uint64_t uuid, sender_epoch, target_epoch, start, end;
   unsigned sender, target, full;
-  RpdSet body;
-} RpdPacket;
-typedef struct {
+  struct rpd_set body;
+};
+struct rpd_ack {
   uint64_t uuid, from_epoch, to_epoch, upto;
   unsigned from, to;
-} RpdAck;
-int rpd_set_add(const RpdSet *state, unsigned writer, unsigned value,
-                RpdSet *out, RpdSet *delta);
-int rpd_set_remove(const RpdSet *state, unsigned value, RpdSet *out,
-                   RpdSet *delta);
-int rpd_set_join(const RpdSet *state, const RpdSet *delta, RpdSet *out);
-int rpd_contains(const RpdSet *state, unsigned value);
-int rpd_encode(const RpdState *state, unsigned char out[128]);
-int rpd_decode(const unsigned char wire[128], RpdState *out);
-int rpd_create(store *pages, uint64_t uuid, unsigned self, RpdReplica *out);
+};
+int rpd_set_add(const struct rpd_set *state, unsigned writer, unsigned value,
+                struct rpd_set *out, struct rpd_set *delta);
+int rpd_set_remove(const struct rpd_set *state, unsigned value, struct rpd_set *out,
+                   struct rpd_set *delta);
+int rpd_set_join(const struct rpd_set *state, const struct rpd_set *delta, struct rpd_set *out);
+int rpd_contains(const struct rpd_set *state, unsigned value);
+int rpd_encode(const struct rpd_state *state, unsigned char out[128]);
+int rpd_decode(const unsigned char wire[128], struct rpd_state *out);
+int rpd_create(store *pages, uint64_t uuid, unsigned self, struct rpd_replica *out);
 /* Open increments and commits transport epoch before returning authority.
    Old controls are retired; CRDT tag counters and sequence never reset. */
-int rpd_open(store *pages, uint64_t uuid, unsigned self, RpdReplica *out);
-int rpd_local(RpdReplica *replica, unsigned add, unsigned value);
+int rpd_open(store *pages, uint64_t uuid, unsigned self, struct rpd_replica *out);
+int rpd_local(struct rpd_replica *replica, unsigned add, unsigned value);
 /* peer_epoch is supplied by an identified current peer session. */
-int rpd_send(RpdReplica *replica, unsigned peer, uint64_t peer_epoch,
-             RpdPacket *out);
-int rpd_receive(RpdReplica *replica, const RpdPacket *packet, RpdAck *out);
-int rpd_ack(RpdReplica *replica, uint64_t current_peer_epoch,
-            const RpdAck *ack);
+int rpd_send(struct rpd_replica *replica, unsigned peer, uint64_t peer_epoch,
+             struct rpd_packet *out);
+int rpd_receive(struct rpd_replica *replica, const struct rpd_packet *packet, struct rpd_ack *out);
+int rpd_ack(struct rpd_replica *replica, uint64_t current_peer_epoch,
+            const struct rpd_ack *ack);
 #endif

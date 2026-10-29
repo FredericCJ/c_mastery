@@ -12,15 +12,15 @@ static int stream(void){char kind;while(scanf(" %c",&kind)==1){
   enum tq_status s=kind=='T'?tq_ticks(ms,num,den,&n):tq_not_before(now,ms,num,den,&n);
   printf("%c %u %"PRIu64"\n",kind,s,n);
  }else if(kind=='Q'){
-  unsigned start,d0,d1,d2,before,after,irq;TQTimer t;TQPlan p;
+  unsigned start,d0,d1,d2,before,after,irq;struct tq_timer t;struct tq_plan p;
   if(scanf("%u%u%u%u%u%u%u",&start,&d0,&d1,&d2,&before,&after,&irq)!=7)return 2;
   if(tq_init(&t,start)!=TQ_OK||tq_wait(&t,0,d0,0)!=TQ_OK||tq_wait(&t,1,d1,0)!=TQ_OK||tq_plan(&t,start+before,&p)!=TQ_OK||tq_wait(&t,2,d2,0)!=TQ_OK)return 1;
   enum tq_status s=tq_commit(&t,p,start+after,irq);
   printf("Q %u %u %u %u %u %u %u %u %u %u\n",s,t.events,t.armed,t.programmed,t.kernel.now,p.at,p.armed,t.dispatch[0],t.dispatch[1],t.dispatch[2]);
  }else if(kind=='S'){
-  unsigned start,aon,num,den,count;TQTimer t;
+  unsigned start,aon,num,den,count;struct tq_timer t;
   if(scanf("%u%u%u%u%u",&start,&aon,&num,&den,&count)!=5||count>64||tq_init(&t,start)!=TQ_OK)return 2;
-  TQResume r={aon,num,den,0};
+  struct tq_resume r={aon,num,den,0};
   for(unsigned i=0;i<count;i++){unsigned next;if(scanf("%u",&next)!=1)return 2;enum tq_status s=tq_resume(&t,&r,next);printf("S %u %u %u %"PRIu64"\n",s,t.kernel.now,r.last,r.remainder);}
  }else return 2;
  }return 0;}

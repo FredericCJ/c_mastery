@@ -8,7 +8,7 @@
 #define P5_MUTANT 0
 #endif
 static void *work(void *arg){
- P5Bridge *p=arg;struct pollfd fds[2]={{p->fd,POLLIN,0},{p->wake[0],POLLIN,0}};
+ struct p5_bridge *p=arg;struct pollfd fds[2]={{p->fd,POLLIN,0},{p->wake[0],POLLIN,0}};
  for(;;){
   int n;do{n=poll(fds,2,-1);}while(n<0 && errno==EINTR);
   if(pthread_mutex_lock(&p->mutex))return 0;
@@ -30,10 +30,10 @@ static void *work(void *arg){
  p->quiescent=1;++p->callbacks;pthread_cond_broadcast(&p->changed);
  pthread_mutex_unlock(&p->mutex);return 0;
 }
-int p5_bridge_init(P5Bridge *p,int fd,int hold){
+int p5_bridge_init(struct p5_bridge *p,int fd,int hold){
  if(!p)return -1;
  int flags=fcntl(fd,F_GETFL);if(flags<0 || !(flags&O_NONBLOCK))return -1;
- *p=(P5Bridge){.fd=-1,.wake={-1,-1},.hold_ack=!!hold};
+ *p=(struct p5_bridge){.fd=-1,.wake={-1,-1},.hold_ack=!!hold};
  p->fd=fcntl(fd,F_DUPFD_CLOEXEC,0);if(p->fd<0)return -1;
  if(pipe2(p->wake,O_NONBLOCK|O_CLOEXEC)){close(p->fd);return -1;}
  if(pthread_mutex_init(&p->mutex,0))goto fail_fds;
@@ -44,11 +44,11 @@ int p5_bridge_init(P5Bridge *p,int fd,int hold){
 fail_mutex:pthread_mutex_destroy(&p->mutex);
 fail_fds:close(p->fd);close(p->wake[0]);close(p->wake[1]);return -1;
 }
-int p5_bridge_offer(P5Bridge *p,int32_t value){
+int p5_bridge_offer(struct p5_bridge *p,int32_t value){
  if(!p || !p->initialized || pthread_mutex_lock(&p->mutex))return -1;
  int r=p->started?-1:algo_ring_put(&p->queue,value)==ALGO_OK?0:-1;pthread_mutex_unlock(&p->mutex);return r;
 }
-int p5_bridge_begin(P5Bridge *p,uint32_t *ticket){
+int p5_bridge_begin(struct p5_bridge *p,uint32_t *ticket){
  if(!p || !ticket || !p->initialized || pthread_mutex_lock(&p->mutex))return -1;
  if(p->started || f_submit(&p->operation,&p->ticket)!=F_OK){pthread_mutex_unlock(&p->mutex);return -1;}
  p->cancelled=p->quiescent=p->release_ack=0;p->used=0;p->io_error=0;
@@ -59,7 +59,7 @@ int p5_bridge_begin(P5Bridge *p,uint32_t *ticket){
  }
  p->started=1;*ticket=p->ticket;pthread_mutex_unlock(&p->mutex);return 0;
 }
-int p5_bridge_cancel(P5Bridge *p,uint32_t ticket){
+int p5_bridge_cancel(struct p5_bridge *p,uint32_t ticket){
  if(!p || !p->initialized || pthread_mutex_lock(&p->mutex))return -1;
  if(!p->started || ticket!=p->ticket){pthread_mutex_unlock(&p->mutex);return -1;}
  int r=in_shutdown(&p->queue,&p->operation,0,ticket,&p->discarded);p->cancelled=1;
@@ -69,7 +69,7 @@ int p5_bridge_cancel(P5Bridge *p,uint32_t ticket){
  if(n<0 && errno!=EAGAIN && errno!=EWOULDBLOCK)return -1;
  return r;
 }
-int p5_bridge_observe(P5Bridge *p,uint32_t ticket){
+int p5_bridge_observe(struct p5_bridge *p,uint32_t ticket){
  if(!p || !p->initialized || pthread_mutex_lock(&p->mutex))return -1;
  int r=-1;
  if((P5_MUTANT==2 || ticket==p->ticket) && p->started && p->cancelled){
@@ -78,22 +78,22 @@ int p5_bridge_observe(P5Bridge *p,uint32_t ticket){
  }
  pthread_mutex_unlock(&p->mutex);return r;
 }
-int p5_bridge_wait(P5Bridge *p,const struct timespec *until){
+int p5_bridge_wait(struct p5_bridge *p,const struct timespec *until){
  if(!p || !until || !p->initialized || pthread_mutex_lock(&p->mutex))return -1;
  int e=0;while(!p->quiescent && !e)e=pthread_cond_timedwait(&p->changed,&p->mutex,until);
  int r=p->quiescent?0:e==ETIMEDOUT?1:-1;pthread_mutex_unlock(&p->mutex);return r;
 }
-int p5_bridge_release_gate(P5Bridge *p){
+int p5_bridge_release_gate(struct p5_bridge *p){
  if(!p || !p->initialized || pthread_mutex_lock(&p->mutex))return -1;
  p->release_ack=1;int e=pthread_cond_broadcast(&p->changed);pthread_mutex_unlock(&p->mutex);return e?-1:0;
 }
-int p5_bridge_reap(P5Bridge *p){
+int p5_bridge_reap(struct p5_bridge *p){
  if(!p || !p->initialized || pthread_mutex_lock(&p->mutex))return -1;
  int ready=p->started && p->quiescent && p->operation.state==F_DONE;pthread_mutex_unlock(&p->mutex);if(!ready)return 1;
  if(pthread_join(p->worker,0))return -1;
  p->started=0;++p->joins;return 0;
 }
-int p5_bridge_destroy(P5Bridge *p){
+int p5_bridge_destroy(struct p5_bridge *p){
  if(!p || !p->initialized)return -1;
  if(p->started)return P5_MUTANT==3?0:1; /* Wrong mutant merely reports permission; no unsafe free. */
  if(p->operation.state==F_INFLIGHT || p->operation.state==F_CANCEL_REQUESTED)return 1;

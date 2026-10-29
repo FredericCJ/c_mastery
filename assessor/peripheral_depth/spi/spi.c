@@ -2,13 +2,13 @@
 #ifndef PS_MUTANT
 #define PS_MUTANT 0
 #endif
-static int valid(PsIo io) { return io.read && io.write; }
+static int valid(struct ps_io io) { return io.read && io.write; }
 static int reached(uint32_t now, uint32_t due) {
   return (uint32_t)(now - due) < UINT32_C(0x80000000);
 }
-int ps_open(PsSpi *s, PsIo io, const PuClock *clock, unsigned mode,
+int ps_open(struct ps_spi *s, struct ps_io io, const struct pu_clock *clock, unsigned mode,
             unsigned divider) {
-  PuRates rates;
+  struct pu_rates rates;
   if (!s || !valid(io) || !clock || mode > 3 || divider > 7 ||
       pu_rates(clock, &rates) != PU_OK)
     return PS_INVALID;
@@ -30,7 +30,7 @@ int ps_open(PsSpi *s, PsIo io, const PuClock *clock, unsigned mode,
   s->divider = divider;
   return PS_OK;
 }
-int ps_begin(PsSpi *s, PsIo io, uint32_t generation, uint32_t token,
+int ps_begin(struct ps_spi *s, struct ps_io io, uint32_t generation, uint32_t token,
              const uint8_t *tx, uint8_t *rx, unsigned count, unsigned dma,
              uint32_t now, unsigned budget, unsigned setup, unsigned hold) {
   if (!s || !valid(io) || !tx || !rx || !count || count > 16 || dma > 1 ||
@@ -64,7 +64,7 @@ int ps_begin(PsSpi *s, PsIo io, uint32_t generation, uint32_t token,
   io.write(io.context, PS_CS, 0);
   return PS_OK;
 }
-int ps_cancel(PsSpi *s, PsIo io, uint32_t token) {
+int ps_cancel(struct ps_spi *s, struct ps_io io, uint32_t token) {
   if (!s || !valid(io))
     return PS_INVALID;
   if (!s->phase || s->token != token)
@@ -90,13 +90,13 @@ int ps_cancel(PsSpi *s, PsIo io, uint32_t token) {
     s->tx_owned = s->rx_owned = 0;
   return PS_BUSY;
 }
-static int finish(PsSpi *s, PsIo io) {
+static int finish(struct ps_spi *s, struct ps_io io) {
   io.write(io.context, PS_CS, 1);
   s->cs_owned = 0;
   s->phase = 0;
   return s->result == PS_BUSY ? (s->result = PS_OK) : s->result;
 }
-int ps_abort_reset(PsSpi *s, PsIo io, uint32_t token, uint32_t now) {
+int ps_abort_reset(struct ps_spi *s, struct ps_io io, uint32_t token, uint32_t now) {
   uint32_t sr;
   if (!s || !valid(io))
     return PS_INVALID;
@@ -132,7 +132,7 @@ int ps_abort_reset(PsSpi *s, PsIo io, uint32_t token, uint32_t now) {
   s->phase = 3;
   return PS_BUSY;
 }
-int ps_step(PsSpi *s, PsIo io, uint32_t token, uint32_t now) {
+int ps_step(struct ps_spi *s, struct ps_io io, uint32_t token, uint32_t now) {
   uint32_t sr;
   if (!s || !valid(io))
     return PS_INVALID;

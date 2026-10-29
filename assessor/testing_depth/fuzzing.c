@@ -2,8 +2,8 @@
 #ifndef TF_MUTANT
 #define TF_MUTANT 0
 #endif
-unsigned tf_parse(unsigned profile,const unsigned char *p,size_t n,TfPacket *out){
- TfPacket staged={0};unsigned char canonical[10];unsigned status;
+unsigned tf_parse(unsigned profile,const unsigned char *p,size_t n,struct tf_packet *out){
+ struct tf_packet staged={0};unsigned char canonical[10];unsigned status;
  if(!out||profile>1)return TF_INVALID;
  if(n>(profile?12u:10u))return TF_LENGTH;
  if(!p&&n)return TF_INVALID;
@@ -27,13 +27,13 @@ unsigned tf_parse(unsigned profile,const unsigned char *p,size_t n,TfPacket *out
  if(TF_MUTANT==3&&staged.packet.count)staged.packet.values[0]^=1;
  *out=staged;return TF_OK;
 }
-void tf_session_init(TfSession *s){s->epoch=0;s->next=0;s->total=0;s->active=0;}
-unsigned tf_session_begin(TfSession *s,uint32_t epoch){
+void tf_session_init(struct tf_session *s){s->epoch=0;s->next=0;s->total=0;s->active=0;}
+unsigned tf_session_begin(struct tf_session *s,uint32_t epoch){
  if(!epoch||epoch<=s->epoch)return TF_SESSION;
  s->epoch=epoch;s->next=0;s->total=0;s->active=1;return TF_OK;
 }
-unsigned tf_session_apply(TfSession *s,uint32_t epoch,uint32_t sequence,const unsigned char *p,size_t n,TfPacket *out){
- TfPacket staged;uint32_t sum=0;unsigned result;
+unsigned tf_session_apply(struct tf_session *s,uint32_t epoch,uint32_t sequence,const unsigned char *p,size_t n,struct tf_packet *out){
+ struct tf_packet staged;uint32_t sum=0;unsigned result;
  if(!out)return TF_INVALID;
  if(!s->active||s->epoch!=epoch)return TF_SESSION;
  if(s->next>UINT16_MAX||sequence!=s->next)return TF_SEQUENCE;

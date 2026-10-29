@@ -37,12 +37,12 @@ enum tq_status tq_not_before(uint64_t now,uint64_t ms,uint32_t num,uint32_t den,
   s=tq_ticks(ms,num,den,&d);if(s!=TQ_OK||n>UINT64_MAX-d)return TQ_FULL;*out=n+d-1;return TQ_OK;}
  return convert(now+delay,num,den,1000000,out);
 }
-enum tq_status tq_init(TQTimer *timer,uint32_t now){
- TQTimer t={0};cmx_init(&t.kernel,CMX_FIXED);t.kernel.now=now;
+enum tq_status tq_init(struct tq_timer *timer,uint32_t now){
+ struct tq_timer t={0};cmx_init(&t.kernel,CMX_FIXED);t.kernel.now=now;
  for(unsigned i=0;i<TQ_TASKS;i++)if(cmx_task_add(&t.kernel,i,0,0x1000+0x1000*i,512)!=(int)i)return TQ_INVALID;
  *timer=t;return TQ_OK;
 }
-enum tq_status tq_wait(TQTimer *t,unsigned task,uint32_t delay,unsigned infinite){
+enum tq_status tq_wait(struct tq_timer *t,unsigned task,uint32_t delay,unsigned infinite){
  if(task>=TQ_TASKS||infinite>1||(!infinite&&delay>=HALF)||t->kernel.task[task].state!=CMX_READY||(t->events&(1u<<task)))return TQ_INVALID;
  if(t->kernel.sequence==UINT32_MAX||t->serial==UINT64_MAX)return TQ_FULL;
  enum cmx_result r=cmx_sleep(&t->kernel,task,infinite?cmx_forever():cmx_at(t->kernel.now+delay));
@@ -50,48 +50,48 @@ enum tq_status tq_wait(TQTimer *t,unsigned task,uint32_t delay,unsigned infinite
  if(r==CMX_TIMEOUT){t->events|=1u<<task;t->dispatch[task]=t->kernel.now;t->kernel.task[task].result=CMX_OK;}
  t->armed=0;return TQ_OK;
 }
-enum tq_status tq_cancel(TQTimer *t,unsigned task){
+enum tq_status tq_cancel(struct tq_timer *t,unsigned task){
  if(task>=TQ_TASKS||t->kernel.task[task].state!=CMX_WAITING)return TQ_INVALID;
  if(cmx_cancel(&t->kernel,task)!=CMX_OK)return TQ_INVALID;
  t->events|=1u<<task;t->dispatch[task]=t->kernel.now;t->armed=0;return TQ_OK;
 }
-enum tq_status tq_advance(TQTimer *t,uint32_t now){
+enum tq_status tq_advance(struct tq_timer *t,uint32_t now){
  if((uint32_t)(now-t->kernel.now)>=HALF)return TQ_INVALID;
  unsigned waiting=0;for(unsigned i=0;i<TQ_TASKS;i++)if(t->kernel.task[i].state==CMX_WAITING)waiting|=1u<<i;
  cmx_tick(&t->kernel,TQ_MUTANT==2?now-1:now);t->kernel.now=now;
  for(unsigned i=0;i<TQ_TASKS;i++)if((waiting&(1u<<i))&&t->kernel.task[i].state==CMX_READY){t->events|=1u<<i;t->dispatch[i]=now;t->armed=0;}
  return TQ_OK;
 }
-enum tq_status tq_collect(TQTimer *t,unsigned task,uint32_t *when,enum cmx_result *result){
+enum tq_status tq_collect(struct tq_timer *t,unsigned task,uint32_t *when,enum cmx_result *result){
  if(task>=TQ_TASKS)return TQ_INVALID;
  if(!(t->events&(1u<<task)))return TQ_EMPTY;
  *when=t->dispatch[task];*result=t->kernel.task[task].result;t->events&=~(1u<<task);return TQ_OK;
 }
-static TQPlan earliest(const TQTimer *t){
- TQPlan plan={0};plan.observed=t->kernel.now;uint32_t distance=0;
+static struct tq_plan earliest(const struct tq_timer *t){
+ struct tq_plan plan={0};plan.observed=t->kernel.now;uint32_t distance=0;
  for(unsigned i=0;i<TQ_TASKS;i++)if(t->kernel.task[i].state==CMX_WAITING&&!t->kernel.task[i].deadline.infinite){
   uint32_t delta=t->kernel.task[i].deadline.at-t->kernel.now;
   if(!plan.armed||delta<distance){plan.armed=1;plan.at=t->kernel.task[i].deadline.at;distance=delta;}}
  return plan;
 }
-enum tq_status tq_plan(TQTimer *t,uint32_t now,TQPlan *out){
+enum tq_status tq_plan(struct tq_timer *t,uint32_t now,struct tq_plan *out){
  if(t->prepared)return TQ_INVALID;
  if(t->serial==UINT64_MAX)return TQ_FULL;
  if(tq_advance(t,now)!=TQ_OK)return TQ_INVALID;
- TQPlan plan=earliest(t);plan.token=++t->serial;t->plan=plan;t->prepared=1;t->armed=0;*out=plan;return TQ_OK;
+ struct tq_plan plan=earliest(t);plan.token=++t->serial;t->plan=plan;t->prepared=1;t->armed=0;*out=plan;return TQ_OK;
 }
-enum tq_status tq_commit(TQTimer *t,TQPlan plan,uint32_t after,unsigned irq){
+enum tq_status tq_commit(struct tq_timer *t,struct tq_plan plan,uint32_t after,unsigned irq){
  if(!t->prepared||irq>1||plan.token!=t->plan.token||plan.at!=t->plan.at||plan.armed!=t->plan.armed||plan.observed!=t->plan.observed||
     (uint32_t)(after-t->kernel.now)>=HALF)return TQ_INVALID;
  if(tq_advance(t,after)!=TQ_OK)return TQ_INVALID;
- TQPlan current=earliest(t);t->prepared=0;t->armed=0;
+ struct tq_plan current=earliest(t);t->prepared=0;t->armed=0;
  if(irq||(TQ_MUTANT!=5&&(current.armed!=plan.armed||(current.armed&&current.at!=plan.at))))return TQ_RETRY;
  /* A newly ready task forbids sleep even when no finite timer remains. */
  if(t->events)return TQ_RETRY;
  t->armed=plan.armed;t->programmed=plan.at;return TQ_OK;
 }
-enum tq_status tq_abort(TQTimer *t){t->prepared=0;t->armed=0;return TQ_OK;}
-enum tq_status tq_resume(TQTimer *t,TQResume *r,uint32_t now){
+enum tq_status tq_abort(struct tq_timer *t){t->prepared=0;t->armed=0;return TQ_OK;}
+enum tq_status tq_resume(struct tq_timer *t,struct tq_resume *r,uint32_t now){
  if(t->prepared||!r->numerator||!r->denominator||r->numerator>1000000u||r->denominator>1000000u||r->remainder>=r->denominator)return TQ_INVALID;
  uint32_t delta=now-r->last;if(delta>=HALF)return TQ_INVALID;
  uint64_t remainder,total=(uint64_t)delta*r->numerator+r->remainder,elapsed=divide(total,r->denominator,&remainder);

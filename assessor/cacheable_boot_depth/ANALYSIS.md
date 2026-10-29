@@ -15,7 +15,7 @@ fields are disjoint. Invalidating before cache enable prevents uninitialized
 tag state; writing the line afterward deliberately creates dirty state in the
 declared model. Only the full clean followed by DSB authorizes CPU2 release.
 
-The type `FWPeer` exists in a dedicated target section. C's object representation
+The type `struct fw_peer` exists in a dedicated target section. C's object representation
 is not a claim about automatic physical coherence. M7 accesses mutable fields
 only under HSEM and maintenance; M4 has its own noncacheable view. A stale
 generation must be rejected, not overwritten. The CPU2 reset path may not clear

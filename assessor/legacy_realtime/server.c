@@ -2,7 +2,7 @@
 #ifndef SS_MUTANT
 #define SS_MUTANT 0
 #endif
-int ss_invariant(const SSBudget *s) {
+int ss_invariant(const struct ss_budget *s) {
   if (!s || !s->capacity || s->capacity > 16 ||
       (unsigned)s->merge > SS_DELAY_LATEST || !s->core.budget ||
       s->core.budget > s->core.period || s->core.period >= 0x80000000u ||
@@ -19,28 +19,28 @@ int ss_invariant(const SSBudget *s) {
   }
   return sum == s->core.budget;
 }
-enum cmx_result ss_init(SSBudget *s, uint32_t q, uint32_t p, uint32_t start,
+enum cmx_result ss_init(struct ss_budget *s, uint32_t q, uint32_t p, uint32_t start,
                         unsigned capacity, enum ss_merge merge) {
   if (!s || !capacity || capacity > 16 || (unsigned)merge > SS_DELAY_LATEST)
     return CMX_INVALID;
-  SSBudget x = {0};
+  struct ss_budget x = {0};
   enum cmx_result r = cmx_server_init(&x.core, q, p);
   if (r != CMX_OK) return r;
   x.capacity = capacity; x.merge = merge; x.core.last = start;
   if (!ss_invariant(&x)) return CMX_BROKEN;
   *s = x; return CMX_OK;
 }
-enum cmx_result ss_update(SSBudget *s, uint32_t now) {
+enum cmx_result ss_update(struct ss_budget *s, uint32_t now) {
   if (!ss_invariant(s)) return CMX_BROKEN;
-  SSBudget x = *s;
+  struct ss_budget x = *s;
   enum cmx_result r = cmx_server_update(&x.core, now);
   if (r != CMX_OK) return r;
   if (!ss_invariant(&x)) return CMX_BROKEN;
   *s = x; return CMX_OK;
 }
-enum cmx_result ss_charge(SSBudget *s, uint32_t now, uint32_t n) {
+enum cmx_result ss_charge(struct ss_budget *s, uint32_t now, uint32_t n) {
   if (!ss_invariant(s)) return CMX_BROKEN;
-  SSBudget x = *s;
+  struct ss_budget x = *s;
   enum cmx_result r = cmx_server_update(&x.core, now);
   if (r != CMX_OK) return r;
   if (SS_MUTANT == 3) *s = x; /* publishes due processing before refusal */
@@ -67,11 +67,11 @@ enum cmx_result ss_charge(SSBudget *s, uint32_t now, uint32_t n) {
 }
 enum cmx_result ss_compare(uint32_t q, uint32_t p, uint32_t begin,
                            uint32_t end, const uint32_t *service, unsigned n,
-                           SSComparison *out) {
+                           struct ss_comparison *out) {
   if (!out || !service || !n || n > 16 || n > q || !p ||
       p >= 0x80000000u || !(uint32_t)(end - begin) ||
       (uint32_t)(end - begin) >= p) return CMX_INVALID;
-  SSComparison x;
+  struct ss_comparison x;
   enum cmx_result r = ss_init(&x.dispatch,q,p,begin,16,SS_REJECT);
   if (r != CMX_OK) return r;
   r = ss_init(&x.grouped,q,p,begin,16,SS_REJECT);
@@ -94,8 +94,8 @@ enum cmx_result ss_compare(uint32_t q, uint32_t p, uint32_t begin,
   if (!ss_invariant(&x.grouped)) return CMX_BROKEN;
   *out = x; return CMX_OK;
 }
-enum cmx_result ss_workload(const SSWorkload *w, enum ss_policy policy,
-                            SSTrace *out) {
+enum cmx_result ss_workload(const struct ss_workload *w, enum ss_policy policy,
+                            struct ss_trace *out) {
   if (!w || !out || (unsigned)policy > SS_DISPATCH ||
       w->count > SS_REQUESTS || !w->capacity || w->capacity > 8 ||
       !w->horizon || w->horizon > SS_HORIZON || !w->q ||
@@ -103,8 +103,8 @@ enum cmx_result ss_workload(const SSWorkload *w, enum ss_policy policy,
   for (unsigned i = 0; i < w->count; ++i)
     if (w->request[i].release >= w->horizon || w->request[i].cost > 1024)
       return CMX_INVALID;
-  SSTrace x = {0};
-  SSBudget budget;
+  struct ss_trace x = {0};
+  struct ss_budget budget;
   enum cmx_result result = ss_init(&budget,w->q,w->period,0,16,SS_DELAY_LATEST);
   if (result != CMX_OK) return result;
   for (unsigned i = 0; i < SS_REQUESTS; ++i) x.finish[i] = SS_NONE;

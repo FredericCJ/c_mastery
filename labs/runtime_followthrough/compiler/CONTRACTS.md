@@ -10,7 +10,7 @@ not rewrite historical acceptance or administer a learner's delayed assessment.
 ## Prerequisites, environment and dependencies
 
 Bring the original CVM1 program/value/codec/VM artifacts and the actual
-`VvWork`/`vv_verify` definite-initialization verifier from
+`struct vv_work`/`vv_verify` definite-initialization verifier from
 `labs/runtime_followthrough/verifier`. Read `labs/runtime/SPEC.md` and the
 original PR-T46-05/06 contracts. The reference campaign links their actual
 implementations; identical names or an always-successful verifier are insufficient.
@@ -19,7 +19,7 @@ compiler's implementation. Learner exports contain unfinished sources.
 
 The compiler is hosted profile A, ISO C17, eight-bit bytes and provided fixed-width
 integer types. It may use the declared C byte/string primitives; no parser,
-compiler, AST or scope library may implement the taught mechanism. `VcWork` is
+compiler, AST or scope library may implement the taught mechanism. `struct vc_work` is
 caller-owned and contains no allocation. Host Python tools are verification tools.
 The VM's separate strict target evidence does not turn this hosted compiler into
 a freestanding target. Record GCC/Clang/libc, optimization, NDEBUG and sanitizer
@@ -55,7 +55,7 @@ Changed forms are `(block expression...)`, `(and left right)`, `(or left right)`
 and `(break value)`. A nonempty block sequences expressions, discarding all but
 the last result. Each nested `let` remains lexical; sequential completed scopes
 reuse slots. No address-of, closure or reference-to-local operation exists in
-this language. A pair contains copied `CvmValue`s, not addresses into reused
+this language. A pair contains copied `struct cvm_value`s, not addresses into reused
 local storage. This argument depends on the actual VM representation and is
 not a general guarantee about all C implementations or future closure features.
 
@@ -71,7 +71,7 @@ escaped values. A program containing break reserves slot7 for a transient
 value, reducing its named-local/parameter limit to7; the scratch slot is cleared
 after loading the result. This explicit changed capacity is not hidden overhead.
 
-`VcOptions={64,0}` is the retained depth/no-folding profile. Expression depth
+`struct vc_options={64,0}` is the retained depth/no-folding profile. Expression depth
 counts every expression including atoms, independently of grammar parentheses.
 The iterative variant permits any positive limit up to256. Parser parent/tail
 arrays have260 levels; the explicit AST has4096 nodes; emitter frames have256

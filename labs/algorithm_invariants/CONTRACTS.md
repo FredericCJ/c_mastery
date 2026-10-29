@@ -12,9 +12,9 @@ Use active C17, live typed objects, exact uint32_t and hosted Linux GCC/Clang un
 O0/O3 and ASan/UBSan profiles. `ai_step` and `ai_permutation` are Profile C components:
 no allocator/library algorithm, I/O, library container or runtime dependency. Separate
 `ai_growth` and the experiment harness are Profile A adapters. Growth imports the
-learner's completed `CDVector` through `labs/containers_depth/containers.h`; its
+learner's completed `struct cd_vector` through `labs/containers_depth/containers.h`; its
 callbacks may use genuine malloc/free storage. Queue comparison imports actual
-`CDRing` and `CDQueue`, with their frozen `CONTRACTS.md`. Do not rebuild these
+`struct cd_ring` and `struct cd_queue`, with their frozen `CONTRACTS.md`. Do not rebuild these
 containers. Diagnostic counters, Python oracles and sanitizers are host verification
 dependencies. The actual provider identity and generated instrumentation are retained
 with source hashes; original provider files and acceptance records remain unchanged.
@@ -27,7 +27,7 @@ assessor implementations and source-transformation tools are separately packaged
 
 ## Problem and mechanism
 
-Implement `ai_step` over `AIState{a,b}` with values0..4095 and nonzero pair. Mode0
+Implement `ai_step` over `struct ai_state{a,b}` with values0..4095 and nonzero pair. Mode0
 performs one Euclidean remainder transition `(a,b)->(b,a%b)`, only when b>0.
 When b=0 return AI_DONE without touching output. Mode1 repeatedly subtracts the
 smaller positive operand from the larger; equal operands or either zero return

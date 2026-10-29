@@ -4,8 +4,8 @@
 #ifndef MPL_MUTATION
 #define MPL_MUTATION 0
 #endif
-#define MPL_SITE_NONE ((MplSite){NULL,0})
-#define MPL_SITE_HERE ((MplSite){__FILE__,__LINE__})
+#define MPL_SITE_NONE ((struct mpl_site){NULL,0})
+#define MPL_SITE_HERE ((struct mpl_site){__FILE__,__LINE__})
 #define MPL_SELECT(_1,_2,_3,_4,_5,NAME,...) NAME
 #if MPL_MUTATION==1
 #define MPL_ONE(s,p,a) ((void)(a),mpl_log1((s),(p),(a)))

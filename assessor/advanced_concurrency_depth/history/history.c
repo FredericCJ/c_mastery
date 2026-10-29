@@ -1,8 +1,8 @@
 #include "history.h"
-typedef struct {
+struct ag_object {
   unsigned values[4], length;
-} Object;
-static int step(Object *q, const AHOperation *op, unsigned cap, unsigned spec,
+};
+static int step(struct ag_object *q, const struct ah_operation *op, unsigned cap, unsigned spec,
                 unsigned *result, unsigned *value) {
   unsigned r, v = op->value, found = q->length;
   for (unsigned i = 0; i < q->length; i++)
@@ -46,8 +46,8 @@ static int step(Object *q, const AHOperation *op, unsigned cap, unsigned spec,
          (op->result == r && (spec == AH_SET || op->operation == AH_INSERT ||
                               r != AH_VALUE || op->value == v));
 }
-static int search(const AHOperation *ops, size_t n, unsigned remaining,
-                  unsigned cap, unsigned spec, Object q, AHWitness *w,
+static int search(const struct ah_operation *ops, size_t n, unsigned remaining,
+                  unsigned cap, unsigned spec, struct ag_object q, struct ah_witness *w,
                   unsigned depth) {
   if (!remaining) {
     w->length = depth;
@@ -65,7 +65,7 @@ static int search(const AHOperation *ops, size_t n, unsigned remaining,
 #endif
       if (blocked)
         continue;
-      Object next = q;
+      struct ag_object next = q;
       if (!step(&next, &ops[i], cap, spec, &w->result[i], &w->value[i]))
         continue;
       w->order[depth] = i;
@@ -74,21 +74,21 @@ static int search(const AHOperation *ops, size_t n, unsigned remaining,
     }
   return 0;
 }
-int ah_history(const AHOperation *ops, size_t n, unsigned cap, unsigned spec,
-               unsigned policy, AHWitness *out) {
+int ah_history(const struct ah_operation *ops, size_t n, unsigned cap, unsigned spec,
+               unsigned policy, struct ah_witness *out) {
   if ((n && !ops) || !out || n > 7 || !cap || cap > 4 || spec > AH_SET ||
       policy > AH_EXTEND_PENDING)
     return AH_INVALID;
   unsigned pending = 0, complete = 0;
   for (unsigned i = 0; i < n; i++) {
-    const AHOperation *p = &ops[i];
+    const struct ah_operation *p = &ops[i];
     if (p->invoke == AH_PENDING ||
         (p->respond != AH_PENDING && p->respond <= p->invoke) ||
         p->operation > AH_REMOVE || p->participant > 7 ||
         (p->respond != AH_PENDING && p->result > AH_ABSENT))
       return AH_INVALID;
     for (unsigned j = 0; j < i; j++) {
-      const AHOperation *q = &ops[j];
+      const struct ah_operation *q = &ops[j];
       if (p->invoke == q->invoke ||
           (q->respond != AH_PENDING && p->invoke == q->respond) ||
           (p->respond != AH_PENDING &&
@@ -111,8 +111,8 @@ int ah_history(const AHOperation *ops, size_t n, unsigned cap, unsigned spec,
 #endif
   unsigned subset = pending;
   for (;;) {
-    Object q = {{0}, 0};
-    AHWitness w = {0};
+    struct ag_object q = {{0}, 0};
+    struct ah_witness w = {0};
     w.completed_pending = subset;
     if (search(ops, n, complete | subset, cap, spec, q, &w, 0)) {
 #ifdef AH_MUTANT_WITNESS

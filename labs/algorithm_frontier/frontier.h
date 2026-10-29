@@ -1,21 +1,21 @@
 #ifndef CMASTERY_ALGORITHM_FRONTIER_H
 #define CMASTERY_ALGORITHM_FRONTIER_H
 #include "algorithms.h"
-enum AGStatus {AG_OK,AG_INVALID,AG_SPACE,AG_RANGE,AG_BAD_CERTIFICATE};
-typedef struct {uint64_t distance[8];unsigned done,seen,selected,count,frontier[8];int priority[8];} AGStep;
-typedef struct {unsigned edge,from,to;uint64_t before,after;} AGRelax;
-typedef struct {AGStep bfs[8],weighted[8];AGRelax relaxation[24];unsigned bfs_count,weighted_count,relaxations,queue_pushes,queue_pops,heap_inserts,heap_changes,heap_takes;uint64_t heap_comparisons;} AGTrace;
-typedef struct {unsigned vertices,source,reachable,previous[8];uint32_t distance[8],hops[8];} AGResult;
-typedef struct {int queue[8];CDHeap heap;CDHeapHandle handles[8];} AGWorkspace;
-typedef struct {int64_t distance[8];unsigned reachable,previous[8];} AGCertificate;
-enum AGStatus ag_run(const CDEdge*,size_t,unsigned,unsigned,unsigned,AGWorkspace*,size_t,AGResult*,AGTrace*);
-enum AGStatus ag_certificate(const CDCSR*,unsigned,const AGCertificate*);
-enum ADStatus ag_refined_bfs(const CDCSR*,unsigned,unsigned,int*,size_t,ADTraversal*,AGTrace*);
-enum ADStatus ag_refined_dijkstra(const CDCSR*,unsigned,uint64_t,uint64_t[8],unsigned[8],AGWorkspace*,AGTrace*);
-void ag_bfs_snapshot(AGTrace*,const ADTraversal*,unsigned,const CDRing*);
-void ag_weight_snapshot(AGTrace*,const uint64_t[8],unsigned,const CDHeap*);
-void ag_relax_snapshot(AGTrace*,unsigned,unsigned,unsigned,uint64_t,uint64_t);
+enum ag_status {AG_OK,AG_INVALID,AG_SPACE,AG_RANGE,AG_BAD_CERTIFICATE};
+struct ag_step {uint64_t distance[8];unsigned done,seen,selected,count,frontier[8];int priority[8];};
+struct ag_relax {unsigned edge,from,to;uint64_t before,after;};
+struct ag_trace {struct ag_step bfs[8],weighted[8];struct ag_relax relaxation[24];unsigned bfs_count,weighted_count,relaxations,queue_pushes,queue_pops,heap_inserts,heap_changes,heap_takes;uint64_t heap_comparisons;};
+struct ag_result {unsigned vertices,source,reachable,previous[8];uint32_t distance[8],hops[8];};
+struct ag_workspace {int queue[8];struct cd_heap heap;struct cd_heap_handle handles[8];};
+struct ag_certificate {int64_t distance[8];unsigned reachable,previous[8];};
+enum ag_status ag_run(const struct cd_edge*,size_t,unsigned,unsigned,unsigned,struct ag_workspace*,size_t,struct ag_result*,struct ag_trace*);
+enum ag_status ag_certificate(const struct cd_csr*,unsigned,const struct ag_certificate*);
+enum ad_status ag_refined_bfs(const struct cd_csr*,unsigned,unsigned,int*,size_t,struct ad_traversal*,struct ag_trace*);
+enum ad_status ag_refined_dijkstra(const struct cd_csr*,unsigned,uint64_t,uint64_t[8],unsigned[8],struct ag_workspace*,struct ag_trace*);
+void ag_bfs_snapshot(struct ag_trace*,const struct ad_traversal*,unsigned,const struct cd_ring*);
+void ag_weight_snapshot(struct ag_trace*,const uint64_t[8],unsigned,const struct cd_heap*);
+void ag_relax_snapshot(struct ag_trace*,unsigned,unsigned,unsigned,uint64_t,uint64_t);
 int ag_failure(const char*,unsigned);
-void ag_emit(unsigned,unsigned,const AGResult*,const AGTrace*);
+void ag_emit(unsigned,unsigned,const struct ag_result*,const struct ag_trace*);
 int ag_test(unsigned);
 #endif

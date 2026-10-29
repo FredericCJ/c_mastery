@@ -24,7 +24,7 @@ opaque libc internals prevent extending the component's own no-allocation
 claim to the whole process without further evidence. ASan/UBSan and their
 section-boundary/runtime symbols belong only to the diagnostic harness.
 
-`SSCompare` owns two unsigned fields (equal/work). `SSPool` owns an actual
+`struct ss_compare` owns two unsigned fields (equal/work). `struct ss_pool` owns an actual
 four-byte array and live flag initialized to0, no typeless-storage fiction.
 Each pool has one owner, no concurrent access, and cannot be copied while
 live to create a second ownership claim. `ss_acquire` copies the borrowed

@@ -2,7 +2,7 @@
 #ifndef PD_MUTANT
 #define PD_MUTANT 0
 #endif
-static int valid_io(PdIo io) {
+static int valid_io(struct pd_io io) {
   return io.configure && io.enable && io.stop && io.snapshot && io.visibility;
 }
 static int extent(uint32_t a, uint32_t n, unsigned board) {
@@ -13,14 +13,14 @@ static int extent(uint32_t a, uint32_t n, unsigned board) {
 static int overlaps(uint32_t a, uint32_t n, uint32_t b, uint32_t m) {
   return a < b ? b - a < n : a - b < m;
 }
-int pd_validate(unsigned board, unsigned cached, const PdExtent *v, unsigned n,
+int pd_validate(unsigned board, unsigned cached, const struct pd_extent *v, unsigned n,
                 uint32_t *out) {
   if (!v || !out || !n || n > 4 || board > PD_H745 || cached > 1 ||
       (board == PD_F439 && cached))
     return PD_INVALID;
   uint32_t total = 0;
   for (unsigned i = 0; i < n; i++) {
-    const PdExtent *e = &v[i];
+    const struct pd_extent *e = &v[i];
     if ((e->width != 1 && e->width != 2 && e->width != 4) || !e->bytes ||
         e->bytes > 4096 || e->bytes % e->width || e->source % e->width ||
         e->destination % e->width || e->bytes > e->source_capacity ||
@@ -47,10 +47,10 @@ int pd_validate(unsigned board, unsigned cached, const PdExtent *v, unsigned n,
   *out = total;
   return PD_OK;
 }
-static void clean(PdTransfer *s, PdIo io) {
+static void clean(struct pd_transfer *s, struct pd_io io) {
   if (s->cached)
     for (unsigned i = 0; i < s->count; i++) {
-      PdExtent *e = &s->extents[i];
+      struct pd_extent *e = &s->extents[i];
       io.visibility(io.context, PD_CLEAN, e->source, e->bytes);
       /* Exclusive destination lines: clean then invalidate prevents later
          eviction from overwriting DMA data and preserves bytes outside a
@@ -61,8 +61,8 @@ static void clean(PdTransfer *s, PdIo io) {
     }
   io.visibility(io.context, PD_RELEASE, 0, 0);
 }
-int pd_submit(PdTransfer *s, PdIo io, unsigned board, unsigned cached,
-              const PdExtent *v, unsigned n, uint32_t token) {
+int pd_submit(struct pd_transfer *s, struct pd_io io, unsigned board, unsigned cached,
+              const struct pd_extent *v, unsigned n, uint32_t token) {
   uint32_t total;
   if (!s || !valid_io(io) || !token ||
       pd_validate(board, cached, v, n, &total) != PD_OK)
@@ -74,7 +74,7 @@ int pd_submit(PdTransfer *s, PdIo io, unsigned board, unsigned cached,
   /* Configure cannot publish and leaves the stream disabled on refusal. */
   if (!io.configure(io.context, &v[0], token))
     return PD_BUSY;
-  PdTransfer next = {0};
+  struct pd_transfer next = {0};
   next.last_token = next.token = token;
   next.count = n;
   next.total = total;
@@ -88,7 +88,7 @@ int pd_submit(PdTransfer *s, PdIo io, unsigned board, unsigned cached,
   io.enable(io.context);
   return PD_OK;
 }
-int pd_cancel(PdTransfer *s, PdIo io, uint32_t token) {
+int pd_cancel(struct pd_transfer *s, struct pd_io io, uint32_t token) {
   if (!s || !valid_io(io))
     return PD_INVALID;
   if (!s->phase || token != s->token)
@@ -102,17 +102,17 @@ int pd_cancel(PdTransfer *s, PdIo io, uint32_t token) {
   }
   return PD_BUSY;
 }
-int pd_poll(PdTransfer *s, PdIo io, uint32_t token) {
+int pd_poll(struct pd_transfer *s, struct pd_io io, uint32_t token) {
   if (!s || !valid_io(io))
     return PD_INVALID;
   if (!s->phase || token != s->token)
     return PD_STALE;
   if (s->phase == 3)
     return PD_OK; /* Ready to finalize; not a second terminal result. */
-  PdSnapshot x = io.snapshot(io.context);
+  struct pd_snapshot x = io.snapshot(io.context);
   if (PD_MUTANT != 4 && x.token != token)
     return PD_BUSY;
-  PdExtent *e = &s->extents[s->index];
+  struct pd_extent *e = &s->extents[s->index];
   uint32_t items = e->bytes / e->width;
   if (x.remaining > items || x.enabled > 1 || x.fifo_empty > 1 ||
       x.flags & (PD_TE | PD_DME | PD_FE)) {
@@ -162,7 +162,7 @@ int pd_poll(PdTransfer *s, PdIo io, uint32_t token) {
   io.enable(io.context);
   return PD_BUSY;
 }
-int pd_finalize(PdTransfer *s, PdIo io, uint32_t token, PdResult *out) {
+int pd_finalize(struct pd_transfer *s, struct pd_io io, uint32_t token, struct pd_result *out) {
   if (!s || !valid_io(io) || !out)
     return PD_INVALID;
   if (!s->phase || token != s->token)
@@ -174,12 +174,12 @@ int pd_finalize(PdTransfer *s, PdIo io, uint32_t token, PdResult *out) {
       io.visibility(io.context, PD_INVALIDATE, s->extents[i].destination,
                     s->extents[i].bytes);
   io.visibility(io.context, PD_ACQUIRE, 0, 0);
-  PdResult r = {token, s->result, s->done, s->touched};
+  struct pd_result r = {token, s->result, s->done, s->touched};
   *out = r;
   s->phase = 0;
   return PD_OK;
 }
-int pd_suffix(const PdExtent *v, unsigned n, uint32_t done, PdExtent *out,
+int pd_suffix(const struct pd_extent *v, unsigned n, uint32_t done, struct pd_extent *out,
               unsigned *count) {
   if (!v || !out || !count || !n || n > 4)
     return PD_INVALID;
@@ -197,7 +197,7 @@ int pd_suffix(const PdExtent *v, unsigned n, uint32_t done, PdExtent *out,
   }
   if (done > total)
     return PD_INVALID;
-  PdExtent temp[4];
+  struct pd_extent temp[4];
   unsigned used = 0;
   for (unsigned i = 0; i < n; i++) {
     if (done >= v[i].bytes) {

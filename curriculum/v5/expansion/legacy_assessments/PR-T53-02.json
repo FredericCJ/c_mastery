@@ -2,7 +2,7 @@
   "schema_version": 1,
   "project": "PR-T53-02",
   "domain": "T53",
-  "title": "Secondary-CPU trampoline and startup \u2014 explicit depth assessments",
+  "title": "Secondary-struct lr_cpu trampoline and startup \u2014 explicit depth assessments",
   "required": true,
   "shared_contracts": [
     "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
@@ -109,7 +109,7 @@
   },
   "environment": {
     "language": "Active C17. C11 draft and edition comparisons are labeled; compiler atomics/assembly, ABI, ISA, OS and board contracts are distinct authorities.",
-    "target": "Original disposable x86-64 QEMU teaching guest, with separate host span/state models; exact machine/CPU/version recorded. No host-disk/network passthrough.",
+    "target": "Original disposable x86-64 QEMU teaching guest, with separate host span/state models; exact machine/struct lr_cpu/version recorded. No host-disk/network passthrough.",
     "profile": "F",
     "dependencies": "Retain strict parent E/F target restrictions: no linked libc, libgcc, compiler-rt, libatomic, HAL or preexisting kernel implements the taught mechanism. Host Python/verification and explicitly separate FreeRTOS/Linux comparisons are not target dependencies.",
     "toolchain": [
@@ -132,7 +132,7 @@
   "reference_gaps": [
     "Published exact C17/C23 comparisons and full platform standards beyond listed passages remain separately inspected obligations. N1570 is a C11 draft comparison.",
     "No fresh complete baseline target campaign or learner portfolio is asserted by this authoring wave.",
-    "Physical timing, cache effects, electrical behavior and current CPU/board errata remain unvalidated.",
+    "Physical timing, cache effects, electrical behavior and current struct lr_cpu/board errata remain unvalidated.",
     "ACPI6.6 retrieval returned403; current ACPI conformance is not newly established. Intel253668-060US is historical, not current errata."
   ],
   "supplied_artifacts": [
@@ -209,14 +209,14 @@
       },
       "verification": {
         "procedure": "Predict before observing. Implement or derive every concrete task clause under the parent/shared contract; retain normal, boundary/failure and falsification evidence. Compare the specified expected argument, including negative outcomes and limitations, rather than only a checksum or old fixture. Bind versions, source/image hashes and the observation environment.",
-        "expected": "The startup vector identifies a low4KiB page and the AP must establish the required machine state before C. The original mailbox provides page tables, stack, entry and CPU index; each has a lifetime and visibility requirement. ISA rules are not ISO C semantics.",
+        "expected": "The startup vector identifies a low4KiB page and the AP must establish the required machine state before C. The original mailbox provides page tables, stack, entry and struct lr_cpu index; each has a lifetime and visibility requirement. ISA rules are not ISO C semantics.",
         "pass": "Every task clause and expected causal distinction is supported by actual learner artifacts. Correct numbers with the stated misconception, missing ownership/failure behavior or unsupported target claims fail this objective.",
         "limits": "New full criteria are unattempted. Baseline test names identify bounded support only; model, host, emulator, physical and learner evidence are not interchangeable."
       },
       "rubric": {
         "0": "Missing/incorrect artifacts, violated containment/preconditions or a false semantic guarantee.",
         "1": "Reproduces an ordinary case but cannot reject this leaf-specific misconception or explain its boundary.",
-        "2": "The startup vector identifies a low4KiB page and the AP must establish the required machine state before C. The original mailbox provides page tables, stack, entry and CPU index; each has a lifetime and visibility requirement. ISA rules are not ISO C semantics. Supplies a distinct falsification control and the concrete task artifacts.",
+        "2": "The startup vector identifies a low4KiB page and the AP must establish the required machine state before C. The original mailbox provides page tables, stack, entry and struct lr_cpu index; each has a lifetime and visibility requirement. ISA rules are not ISO C semantics. Supplies a distinct falsification control and the concrete task artifacts.",
         "3": "Move the trampoline to another valid low page and regenerate relocation/disassembly evidence instead of patching one literal only. Independently derives and verifies the changed obligations after the recorded delay."
       },
       "hints": [
@@ -297,14 +297,14 @@
       },
       "verification": {
         "procedure": "Predict before observing. Implement or derive every concrete task clause under the parent/shared contract; retain normal, boundary/failure and falsification evidence. Compare the specified expected argument, including negative outcomes and limitations, rather than only a checksum or old fixture. Bind versions, source/image hashes and the observation environment.",
-        "expected": "Timeout means acknowledgement was not observed, not that the AP stopped. Reuse can make a delayed AP consume another CPU's mailbox or stack. Failure must retain/contain affected resources or establish quiescence before retry; a busy ICR bit is not software initialization completion.",
+        "expected": "Timeout means acknowledgement was not observed, not that the AP stopped. Reuse can make a delayed AP consume another struct lr_cpu's mailbox or stack. Failure must retain/contain affected resources or establish quiescence before retry; a busy ICR bit is not software initialization completion.",
         "pass": "Every task clause and expected causal distinction is supported by actual learner artifacts. Correct numbers with the stated misconception, missing ownership/failure behavior or unsupported target claims fail this objective.",
         "limits": "New full criteria are unattempted. Baseline test names identify bounded support only; model, host, emulator, physical and learner evidence are not interchangeable."
       },
       "rubric": {
         "0": "Missing/incorrect artifacts, violated containment/preconditions or a false semantic guarantee.",
         "1": "Reproduces an ordinary case but cannot reject this leaf-specific misconception or explain its boundary.",
-        "2": "Timeout means acknowledgement was not observed, not that the AP stopped. Reuse can make a delayed AP consume another CPU's mailbox or stack. Failure must retain/contain affected resources or establish quiescence before retry; a busy ICR bit is not software initialization completion. Supplies a distinct falsification control and the concrete task artifacts.",
+        "2": "Timeout means acknowledgement was not observed, not that the AP stopped. Reuse can make a delayed AP consume another struct lr_cpu's mailbox or stack. Failure must retain/contain affected resources or establish quiescence before retry; a busy ICR bit is not software initialization completion. Supplies a distinct falsification control and the concrete task artifacts.",
         "3": "Support parallel AP startup with per-AP mailboxes and derive the extra allocation and acknowledgement invariants. Independently derives and verifies the changed obligations after the recorded delay."
       },
       "hints": [
@@ -337,7 +337,7 @@
     },
     {
       "id": "AX-PR-T53-02-T53.02.c",
-      "title": "Boot1,2,4 CPUs and retain distinct per-CPU entry markers and stack addresses. An intentionally missing acknowledgment must fail within the declared bound.",
+      "title": "Boot1,2,4 CPUs and retain distinct per-struct lr_cpu entry markers and stack addresses. An intentionally missing acknowledgment must fail within the declared bound.",
       "objective": "T53.02.c",
       "families": [
         "D",
@@ -358,8 +358,8 @@
           ]
         }
       ],
-      "task": "Collect1/2/4-CPU guest startup traces with sparse identity mapping, stack addresses and completion generation. Add missing-ack and stale-ack controls in the original emulator target, under a host harness deadline. Audit the image's entry code and unresolved symbols; report guest failure as failure.",
-      "purpose": "A printed AP count proves every CPU has initialized usable private state.",
+      "task": "Collect1/2/4-struct lr_cpu guest startup traces with sparse identity mapping, stack addresses and completion generation. Add missing-ack and stale-ack controls in the original emulator target, under a host harness deadline. Audit the image's entry code and unresolved symbols; report guest failure as failure.",
+      "purpose": "A printed AP count proves every struct lr_cpu has initialized usable private state.",
       "prerequisites": {
         "knowledge": [
           "Retained T53.02 teaching and project prerequisite chain",
@@ -372,27 +372,27 @@
         ]
       },
       "reasoning": [
-        "A printed AP count proves every CPU has initialized usable private state. Refute it using the smallest relevant state/trace.",
+        "A printed AP count proves every struct lr_cpu has initialized usable private state. Refute it using the smallest relevant state/trace.",
         "State preconditions, postconditions, representation invariant, ownership/lifetime, publication and failure boundaries for this task.",
         "Derive bounded storage, work/progress and timing assumptions where applicable. Mark genuinely inapplicable quantities instead of inventing a timing guarantee."
       ],
       "deliverables": {
-        "D1": "Prediction and causal argument addressing: A printed AP count proves every CPU has initialized usable private state.",
-        "D2": "Collect1/2/4-CPU guest startup traces with sparse identity mapping, stack addresses and completion generation. Add missing-ack and stale-ack controls in the original emulator target, under a host harness deadline. Audit the image's entry code and unresolved symbols; report guest failure as failure.",
+        "D1": "Prediction and causal argument addressing: A printed AP count proves every struct lr_cpu has initialized usable private state.",
+        "D2": "Collect1/2/4-struct lr_cpu guest startup traces with sparse identity mapping, stack addresses and completion generation. Add missing-ack and stale-ack controls in the original emulator target, under a host harness deadline. Audit the image's entry code and unresolved symbols; report guest failure as failure.",
         "D3": "Exact source/model, commands or derivation, original inputs, raw observations, independently expected results and a criterion-specific falsification control. Separate missing tools/targets from observed outcomes.",
-        "D4": "Use a different emulator CPU model and identify unsupported features before attempting the same image."
+        "D4": "Use a different emulator struct lr_cpu model and identify unsupported features before attempting the same image."
       },
       "verification": {
         "procedure": "Predict before observing. Implement or derive every concrete task clause under the parent/shared contract; retain normal, boundary/failure and falsification evidence. Compare the specified expected argument, including negative outcomes and limitations, rather than only a checksum or old fixture. Bind versions, source/image hashes and the observation environment.",
-        "expected": "Each CPU must publish its own verified state before the BSP accepts completion. A print marker alone can be stale or early. QEMU execution and generated-code closure support that bounded guest, not physical startup timing or current CPU errata.",
+        "expected": "Each struct lr_cpu must publish its own verified state before the BSP accepts completion. A print marker alone can be stale or early. QEMU execution and generated-code closure support that bounded guest, not physical startup timing or current struct lr_cpu errata.",
         "pass": "Every task clause and expected causal distinction is supported by actual learner artifacts. Correct numbers with the stated misconception, missing ownership/failure behavior or unsupported target claims fail this objective.",
         "limits": "New full criteria are unattempted. Baseline test names identify bounded support only; model, host, emulator, physical and learner evidence are not interchangeable."
       },
       "rubric": {
         "0": "Missing/incorrect artifacts, violated containment/preconditions or a false semantic guarantee.",
         "1": "Reproduces an ordinary case but cannot reject this leaf-specific misconception or explain its boundary.",
-        "2": "Each CPU must publish its own verified state before the BSP accepts completion. A print marker alone can be stale or early. QEMU execution and generated-code closure support that bounded guest, not physical startup timing or current CPU errata. Supplies a distinct falsification control and the concrete task artifacts.",
-        "3": "Use a different emulator CPU model and identify unsupported features before attempting the same image. Independently derives and verifies the changed obligations after the recorded delay."
+        "2": "Each struct lr_cpu must publish its own verified state before the BSP accepts completion. A print marker alone can be stale or early. QEMU execution and generated-code closure support that bounded guest, not physical startup timing or current struct lr_cpu errata. Supplies a distinct falsification control and the concrete task artifacts.",
+        "3": "Use a different emulator struct lr_cpu model and identify unsupported features before attempting the same image. Independently derives and verifies the changed obligations after the recorded delay."
       },
       "hints": [
         "List the machine state required before the first C instruction.",
@@ -402,7 +402,7 @@
         {
           "id": "AX-PR-T53-02-T53.02.c-DELAYED",
           "minimum_days": 7,
-          "task": "Use a different emulator CPU model and identify unsupported features before attempting the same image."
+          "task": "Use a different emulator struct lr_cpu model and identify unsupported features before attempting the same image."
         }
       ],
       "assessor_anchor": "#t5302c",
@@ -443,7 +443,7 @@
         "AX-PR-T53-02-T53.02.b",
         "AX-PR-T53-02-T53.02.c"
       ],
-      "scope": "Actual regenerated serial/parallel/late AP startup, sparse identities and changed CPU capability checks; physical timing and independent assessment separate."
+      "scope": "Actual regenerated serial/parallel/late AP startup, sparse identities and changed struct lr_cpu capability checks; physical timing and independent assessment separate."
     }
   ]
 }

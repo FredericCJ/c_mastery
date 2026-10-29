@@ -1,12 +1,12 @@
 #include "spsc.h"
-static void copy_value(ASValue *out, const ASValue *in) {
+static void copy_value(struct as_value *out, const struct as_value *in) {
   out->sequence = in->sequence;
   out->inverse = in->inverse;
   out->salt = in->salt;
   out->triple = in->triple;
 }
 static int valid(unsigned n) { return n && n <= 16 && !(n & (n - 1)); }
-enum cmx_result as_init(ASQueue *q, unsigned capacity) {
+enum cmx_result as_init(struct as_queue *q, unsigned capacity) {
   if (!valid(capacity))
     return CMX_INVALID;
 #ifdef AS_MUTANT_INTERFACE
@@ -18,7 +18,7 @@ enum cmx_result as_init(ASQueue *q, unsigned capacity) {
   q->producer_active = q->consumer_active = 0;
   return CMX_OK;
 }
-enum cmx_result as_push(ASQueue *q, ASValue value, ASHook hook, void *context) {
+enum cmx_result as_push(struct as_queue *q, struct as_value value, as_hook_fn hook, void *context) {
   if (q->producer_active)
     return CMX_INVALID;
   q->producer_active = 1;
@@ -46,7 +46,7 @@ enum cmx_result as_push(ASQueue *q, ASValue value, ASHook hook, void *context) {
   q->producer_active = 0;
   return CMX_OK;
 }
-enum cmx_result as_pop(ASQueue *q, ASValue *out, ASHook hook, void *context) {
+enum cmx_result as_pop(struct as_queue *q, struct as_value *out, as_hook_fn hook, void *context) {
   if (!out || q->consumer_active)
     return CMX_INVALID;
   q->consumer_active = 1;
@@ -56,7 +56,7 @@ enum cmx_result as_pop(ASQueue *q, ASValue *out, ASHook hook, void *context) {
     q->consumer_active = 0;
     return CMX_RETRY;
   }
-  ASValue value;
+  struct as_value value;
   copy_value(&value, &q->data[t & (q->capacity - 1)]);
 #ifdef AS_MUTANT_REUSE
   atomic_store_explicit(&q->tail, t + 1, memory_order_release);
@@ -70,7 +70,7 @@ enum cmx_result as_pop(ASQueue *q, ASValue *out, ASHook hook, void *context) {
   q->consumer_active = 0;
   return CMX_OK;
 }
-enum cmx_result as_circular_init(ASCircular *q, unsigned n) {
+enum cmx_result as_circular_init(struct as_circular *q, unsigned n) {
   if (!valid(n))
     return CMX_INVALID;
   atomic_init(&q->head, 0);
@@ -78,7 +78,7 @@ enum cmx_result as_circular_init(ASCircular *q, unsigned n) {
   q->storage = n;
   return CMX_OK;
 }
-enum cmx_result as_circular_push(ASCircular *q, ASValue value) {
+enum cmx_result as_circular_push(struct as_circular *q, struct as_value value) {
   unsigned h = atomic_load_explicit(&q->head, memory_order_relaxed);
   unsigned next = (h + 1) & (q->storage - 1);
   unsigned t = atomic_load_explicit(&q->tail, memory_order_acquire);
@@ -93,7 +93,7 @@ enum cmx_result as_circular_push(ASCircular *q, ASValue value) {
   atomic_store_explicit(&q->head, next, memory_order_release);
   return CMX_OK;
 }
-enum cmx_result as_circular_pop(ASCircular *q, ASValue *out) {
+enum cmx_result as_circular_pop(struct as_circular *q, struct as_value *out) {
   if (!out)
     return CMX_INVALID;
   unsigned t = atomic_load_explicit(&q->tail, memory_order_relaxed);

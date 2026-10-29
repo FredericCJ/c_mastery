@@ -29,7 +29,7 @@ void ae_integrator_emit(unsigned severity, unsigned value) {
   (void)value;
 #endif
 }
-AeCode ae_production_capacity(unsigned n) { return n > 3 ? AE_INVALID : AE_OK; }
+enum ae_code ae_production_capacity(unsigned n) { return n > 3 ? AE_INVALID : AE_OK; }
 unsigned ae_diagnostic_events(unsigned category) {
 #if AE_DEV
   if (category == 0)

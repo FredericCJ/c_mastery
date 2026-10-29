@@ -8,19 +8,19 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
+struct fw_model {
   uint32_t reg[16], writes[64][2];
   unsigned count, reads, scl, release_after;
-} Model;
+};
 static uint32_t read_reg(void *p, unsigned r) {
-  Model *m = p;
+  struct fw_model *m = p;
   m->reads++;
   if (r == FW_SDA && m->release_after)
     return m->scl >= m->release_after;
   return m->reg[r];
 }
 static void write_reg(void *p, unsigned r, uint32_t v) {
-  Model *m = p;
+  struct fw_model *m = p;
   if (m->count < 64) {
     m->writes[m->count][0] = r;
     m->writes[m->count++][1] = v;
@@ -32,8 +32,8 @@ static void write_reg(void *p, unsigned r, uint32_t v) {
 int main(int argc, char **argv) {
   if (argc != 2)
     return 2;
-  Model m = {0};
-  FwIo io = {&m, read_reg, write_reg};
+  struct fw_model m = {0};
+  struct fw_io io = {&m, read_reg, write_reg};
   if (!strcmp(argv[1], "startup")) {
     uint8_t d[5] = {9, 9, 9, 9, 9}, b[5] = {8, 8, 8, 8, 8}, l[] = {1, 2, 3};
     CHECK(fw_startup(d + 1, l, 3, b + 1, 3) == 0);
@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
   } else if (!strcmp(argv[1], "i2c")) {
     m.release_after = 3;
     CHECK(fw_i2c_recover(io, 9) == 0 && m.scl == 4 && m.reg[FW_SDA] == 1);
-    m = (Model){.release_after = 10};
+    m = (struct fw_model){.release_after = 10};
     CHECK(fw_i2c_recover(io, 9) != 0 && m.scl == 9);
   } else if (!strcmp(argv[1], "timer")) {
     CHECK(fw_timer(io, 16000000, 1000, 250) == 0 && m.reg[FW_PERIOD] == 15999 &&
@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
     m.reg[FW_ADC] = 0xfabc;
     CHECK(fw_adc(io, &x, 2) == 0 && x == 0xabc);
   } else if (!strcmp(argv[1], "dma")) {
-    FwDma d = {0};
+    struct fw_dma d = {0};
     CHECK(fw_dma(&d, io, 0, 0) == 0 && d.state == 1 && d.generation == 1);
     CHECK(fw_dma(&d, io, 0, 0) != 0);
     CHECK(fw_dma(&d, io, 1, 0) != 0 && d.state == 1 &&
@@ -100,7 +100,7 @@ int main(int argc, char **argv) {
     CHECK(fw_dma(&d, io, 2, 1) == 0 && d.state == 0);
     CHECK(fw_dma(&d, io, 2, 1) != 0);
   } else if (!strcmp(argv[1], "ethernet")) {
-    FwDescriptor d = {0};
+    struct fw_descriptor d = {0};
     m.reg[FW_MDIO] = 1;
     CHECK(fw_ethernet(&d, io, 64, 7, 3) != 0 && !d.own);
     m.reg[FW_MDIO] = 0;
@@ -113,7 +113,7 @@ int main(int argc, char **argv) {
     m.reg[FW_STATUS] |= FW_TC;
     CHECK(fw_rs485(io, 42, 3) == 0 && m.reg[FW_DE] == 0);
   } else if (!strcmp(argv[1], "watchdog")) {
-    FwWatchdog w = {.required = 7};
+    struct fw_watchdog w = {.required = 7};
     CHECK(fw_watchdog(&w, io, 1, 0) == 0);
     CHECK(fw_watchdog(&w, io, 2, 0) == 0);
     CHECK(fw_watchdog(&w, io, 4, 0) == 1 && w.feeds == 1 && w.seen == 0);

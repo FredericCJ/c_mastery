@@ -3,7 +3,7 @@
 This required companion implements the original V1 composition and explicitly
 reuses the V2 prefix provider. Preserve X-T36-003 R2/R3, the minimum seven-day
 delay and the ordinary two-pass all-match exercise. Families B/C/D/F/G/H/J apply.
-The prerequisites are the completed `ALStream` adapter and original `ADMatcher`,
+The prerequisites are the completed `struct al_stream` adapter and original `struct ad_matcher`,
 their ownership/count-on-failure contracts, prefix-function derivation, callback
 effect rules and the original local all-match oracle. Reference artifacts are
 not learner work. Use C17 with the same byte/offset domains as the retained

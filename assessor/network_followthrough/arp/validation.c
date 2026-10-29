@@ -8,7 +8,7 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-static const NaConfig config = {
+static const struct na_config config = {
     {2, 0, 0, 0, 0, 2}, {192, 0, 2, 2}, {192, 0, 2, 1}};
 static void packet(unsigned char p[60]) {
   const unsigned char a[42] = {2,   0, 0, 0, 0, 2, 2, 0, 0, 0, 0,   77, 8, 6,
@@ -18,7 +18,7 @@ static void packet(unsigned char p[60]) {
   memcpy(p, a, 42);
 }
 int main(void) {
-  NaArp s;
+  struct na_arp s;
   unsigned char p[60], before[sizeof s];
   unsigned rejected = 0, accepted = 0;
   const unsigned fields[] = {0,  12, 13, 14, 15, 16, 17, 18, 19, 20,

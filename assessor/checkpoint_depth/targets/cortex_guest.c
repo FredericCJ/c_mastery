@@ -1,6 +1,6 @@
 #include "checkpoint_firmware.h"
 static volatile uint32_t initialized=UINT32_C(0x13579bdf),zeroed;
-static CPFRing ring;
+static struct cpf_ring ring;
 static volatile unsigned calls;
 void __aeabi_memclr4(void *,size_t);
 static void semihost(uint32_t operation,const void *argument){
@@ -15,7 +15,7 @@ void cp_fault(void){stop(2);}
 #define REQUIRE(x) do{if(!(x))stop(1);}while(0)
 void cp_pendsv(void){
     unsigned ipsr;__asm__ volatile("mrs %0,ipsr":"=r"(ipsr));REQUIRE(ipsr==14);
-    unsigned n=calls;(void)cpf_irq_push(&ring,(CPFSample){n,(uint16_t)(100+n),(uint16_t)(65530+n)});calls=n+1;
+    unsigned n=calls;(void)cpf_irq_push(&ring,(struct cpf_sample){n,(uint16_t)(100+n),(uint16_t)(65530+n)});calls=n+1;
 }
 void cp_target_main(void){
     REQUIRE(initialized==UINT32_C(0x13579bdf) && zeroed==0 && calls==0);
@@ -36,12 +36,12 @@ void cp_target_main(void){
     }
     REQUIRE(ring.dropped==2);
     for(unsigned i=0;i<3;++i){
-        CPFSample sample;REQUIRE(cpf_take(&ring,&sample) && sample.value==100+i && sample.sequence==i);
+        struct cpf_sample sample;REQUIRE(cpf_take(&ring,&sample) && sample.value==100+i && sample.sequence==i);
         unsigned char wire[CP_WIRE];size_t n,used;REQUIRE(cpf_frame(&sample,wire,sizeof wire,&n)==CP_OK);
-        CPParser parser;cp_parser_init(&parser);REQUIRE(cp_feed(&parser,wire,n,&used)==CP_FRAME && used==n);
-        CPMessage message;REQUIRE(cp_peek(&parser,&message)==CP_FRAME && message.payload[6]==(unsigned char)(65530+i));
+        struct cp_parser parser;cp_parser_init(&parser);REQUIRE(cp_feed(&parser,wire,n,&used)==CP_FRAME && used==n);
+        struct cp_message message;REQUIRE(cp_peek(&parser,&message)==CP_FRAME && message.payload[6]==(unsigned char)(65530+i));
     }
-    CPFSample sample;REQUIRE(!cpf_take(&ring,&sample));uint16_t elapsed;REQUIRE(cpf_elapsed16(65530,6,&elapsed) && elapsed==12);
-    CPFClock clock;uint64_t stamp;REQUIRE(cpf_clock_init(&clock) && cpf_clock_write(&clock,UINT64_C(0x100000000)) && cpf_clock_read(&clock,3,&stamp) && stamp==UINT64_C(0x100000000));
+    struct cpf_sample sample;REQUIRE(!cpf_take(&ring,&sample));uint16_t elapsed;REQUIRE(cpf_elapsed16(65530,6,&elapsed) && elapsed==12);
+    struct cpf_clock clock;uint64_t stamp;REQUIRE(cpf_clock_init(&clock) && cpf_clock_write(&clock,UINT64_C(0x100000000)) && cpf_clock_read(&clock,3,&stamp) && stamp==UINT64_C(0x100000000));
     stop(0);
 }

@@ -6,17 +6,17 @@
 int main(void) {
   for (unsigned backend = 0; backend <= 2; backend++)
     for (unsigned cut = 0; cut <= 8; cut++) {
-      Device device = {0};
+      struct dg_device device = {0};
       device.source_after = 1;
-      PuIo io = {&device, rd, wr};
-      PuClock clock = {16000000, 1, 1, 1, 1, 0};
-      PlUart uart = {0};
+      struct pu_io io = {&device, rd, wr};
+      struct pu_clock clock = {16000000, 1, 1, 1, 1, 0};
+      struct pl_uart uart = {0};
       CHECK(pl_uart_open(&uart, io, &clock, 115200, backend, 2) == PL_OK);
-      PlService service = {0};
-      PlTransport t = pl_uart_transport(&uart);
-      PlResult result = {99, 99, 99};
-      PlParser peer = {0};
-      PlCommand command = {99, 99};
+      struct pl_service service = {0};
+      struct pl_transport t = pl_uart_transport(&uart);
+      struct pl_result result = {99, 99, 99};
+      struct pl_parser peer = {0};
+      struct pl_command command = {99, 99};
       device.sr = PU_TXE | PU_TC;
       CHECK(pl_send(&service, t, 0xf0, 0xf1, 1, 0, 100) == PL_OK);
       for (unsigned k = 0; k < cut; k++) {

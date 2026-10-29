@@ -9,8 +9,8 @@ derive the interface diagram from their public headers; then implement
 
 ## Representation and authority
 
-`NbNet` borrows one live `EnRing`, which borrows its `EnMemory`, bus context and
-`EpPhy`. The adapter owns ARP pending bytes, two reassembly slots, one transport
+`struct nb_net` borrows one live `struct en_ring`, which borrows its `struct en_memory`, bus context and
+`struct ep_phy`. The adapter owns ARP pending bytes, two reassembly slots, one transport
 control block, two copied-descriptor records and two queued control packets.
 Every call is serialized and this adapter is the ring's only TX producer.
 No callback may reenter. Fixed storage is explicit in `driver.h`; calculate its
@@ -67,7 +67,7 @@ explicit drop counter. No unbounded allocation hides pressure.
 
 ## Target construction and changed conditions
 
-`NbBoard` composes the actual F439 GPIO/RCC/DWT port, MDIO port, PHY and ring.
+`struct nb_board` composes the actual F439 GPIO/RCC/DWT port, MDIO port, PHY and ring.
 Its cold entry requires the identified MB1137 route, stable 168MHz HCLK,
 external 50MHz RMII reference, PHY address0 and exclusive peripheral ownership.
 It accepts a separately established monotonic millisecond clock. That 32-bit
@@ -84,7 +84,7 @@ Required changed-condition packages reuse the actual T39 implementations:
 | T41.02.a | Compare the inspected UM1974 Rev8 and Rev11 board evidence. Name revision, pin, bridge and clock source individually; do not transfer wiring from the board name alone. Follow the original physical capture protocol. |
 | T41.02.b | Remove link after copied payload admission. The TCB closes while DMA remains owned; only observed stop permits release/restart. Also hold reset and MDIO beyond their bounds. |
 | T41.02.c | Reuse the T39 10/full and 100/full mode fixtures and separately authored bench protocol. RMII reference stays50MHz; a current-up register/model result alone cannot demonstrate it, a cable or magnetics. |
-| T41.03.a | Execute `EvVisibility`: dirty byte0, neighboring byte31 on the same leased32-byte line, byte32 on another line, device write9, and stale clean7. Derive clean/invalidate/lease order without claiming M7 execution. |
+| T41.03.a | Execute `struct ev_visibility`: dirty byte0, neighboring byte31 on the same leased32-byte line, byte32 on another line, device write9, and stale clean7. Derive clean/invalidate/lease order without claiming M7 execution. |
 | T41.03.b | Hold one RX lease through four-slot wrap; stop with it held, return it while stopping without republishing OWN, then reject a duplicate return. Reconstruct descriptor control bits after writeback. |
 | T41.03.c | Execute `ev_span` with CSTF0 and CSTF1, type0800 versus length46 and0600, and oversize input. Derive the capture-to-span rule. The selected hardware ring remains CSTF0/APCS0; a changed hardware FL interpretation requires its own source/capture evidence. |
 

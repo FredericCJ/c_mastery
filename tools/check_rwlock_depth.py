@@ -125,7 +125,7 @@ def interval_controls(text):
     return [
         ('wrong-work',change('CDRN_SAMPLE:',{'read_ops':4}),'Wrong work'),
         ('zero-elapsed',change('CDRN_SAMPLE:',{'elapsed_ns':0}),'Wrong work'),
-        ('one-CPU',change('CDRN_SAMPLE:',{'cpu1':oracle.fields(next(l for l in text.splitlines() if l.startswith('CDRN_SAMPLE:')))['cpu0']}),'Two allowed CPUs'),
+        ('one-struct lr_cpu',change('CDRN_SAMPLE:',{'cpu1':oracle.fields(next(l for l in text.splitlines() if l.startswith('CDRN_SAMPLE:')))['cpu0']}),'Two allowed CPUs'),
         ('wrong-worker-affinity',change('CDRN_WORKER:',{'cpu':-1}),'Wrong effective affinity'),
         ('writer-overlap',change('CDRN_INTERVAL:',{'kind':'W','task':3},1),'Writer overlaps'),
         ('reader-overlap',change('CDRN_INTERVAL:',{'kind':'W','task':3}),'Reader overlaps'),

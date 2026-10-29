@@ -32,7 +32,7 @@ static uint16_t checksum(const uint8_t *p, size_t n, uint32_t sum) {
 static const uint8_t local_mac[6] = {2, 0, 0, 0, 0, 2},
                      peer_mac[6] = {2, 0, 0, 0, 0, 1};
 static const uint8_t local_ip[4] = {192, 0, 2, 2}, peer_ip[4] = {192, 0, 2, 1};
-static void arp(NetPacket *p) {
+static void arp(struct net_packet *p) {
   memset(p, 0, sizeof *p);
   memset(p->bytes, 255, 6);
   memcpy(p->bytes + 6, peer_mac, 6);
@@ -48,7 +48,7 @@ static void arp(NetPacket *p) {
   memcpy(a + 24, local_ip, 4);
   p->length = 60;
 }
-static void tcp(NetPacket *p, uint32_t seq, uint32_t ack, unsigned flags,
+static void tcp(struct net_packet *p, uint32_t seq, uint32_t ack, unsigned flags,
                 unsigned window, const void *data, size_t n) {
   memset(p, 0, sizeof *p);
   memcpy(p->bytes, local_mac, 6);
@@ -80,8 +80,8 @@ static void tcp(NetPacket *p, uint32_t seq, uint32_t ack, unsigned flags,
   if (p->length < 60)
     p->length = 60;
 }
-static int prepare(NetStack *s, uint32_t seq) {
-  NetPacket p, o;
+static int prepare(struct net_stack *s, uint32_t seq) {
+  struct net_packet p, o;
   net_init(s, UINT32_MAX - 20);
   arp(&p);
   CHECK(net_receive(s, p.bytes, p.length, 0, &o) == 1 &&
@@ -97,8 +97,8 @@ static int prepare(NetStack *s, uint32_t seq) {
 static int packets(void) {
   uint8_t odd[] = {0, 1, 2, 3, 4};
   CHECK(net_checksum(odd, 5, 0) == checksum(odd, 5, 0));
-  NetStack s;
-  NetPacket p, o;
+  struct net_stack s;
+  struct net_packet p, o;
   CHECK(!prepare(&s, 100));
   tcp(&p, 101, s.snd_nxt, 16, 512, 0, 0);
   p.bytes[14] = 0x46;
@@ -115,8 +115,8 @@ static int packets(void) {
   return 0;
 }
 static int arp_test(void) {
-  NetStack s;
-  NetPacket p, o;
+  struct net_stack s;
+  struct net_packet p, o;
   net_init(&s, 1000);
   arp(&p);
   CHECK(net_receive(&s, p.bytes, p.length, 0, &o) == 1 && s.peer_known &&
@@ -130,8 +130,8 @@ static int arp_test(void) {
   return 0;
 }
 static int sequence(void) {
-  NetStack s;
-  NetPacket p, o;
+  struct net_stack s;
+  struct net_packet p, o;
   CHECK(!prepare(&s, UINT32_MAX - 10));
   uint32_t start = s.rcv_nxt;
   const char *a = "GET /";
@@ -156,8 +156,8 @@ static int sequence(void) {
   return 0;
 }
 static int timers(void) {
-  NetStack s;
-  NetPacket p, o;
+  struct net_stack s;
+  struct net_packet p, o;
   net_init(&s, 1000);
   net_rtt(&s, 1000);
   CHECK(s.srtt == 1000 && s.rttvar == 500 && s.rto == 3000);
@@ -182,8 +182,8 @@ static int timers(void) {
   return 0;
 }
 static int http(void) {
-  NetStack s;
-  NetPacket p, o;
+  struct net_stack s;
+  struct net_packet p, o;
   CHECK(!prepare(&s, 100));
   const char *request = "GET /health HTTP/1.1\r\nHost: 192.0.2.2:8080\r\n\r\n";
   size_t n = strlen(request);
@@ -229,8 +229,8 @@ static int http(void) {
   return 0;
 }
 static int zero_window(void) {
-  NetStack s;
-  NetPacket p, o;
+  struct net_stack s;
+  struct net_packet p, o;
   CHECK(!prepare(&s, 100));
   const char *r = "GET /health HTTP/1.1\r\nHost: 192.0.2.2:8080\r\n\r\n";
   tcp(&p, 101, s.snd_nxt, 24, 0, r, strlen(r));
@@ -244,8 +244,8 @@ static int zero_window(void) {
   return 0;
 }
 static int icmp(void) {
-  NetStack s;
-  NetPacket p, o;
+  struct net_stack s;
+  struct net_packet p, o;
   net_init(&s, 1000);
   arp(&p);
   CHECK(net_receive(&s, p.bytes, p.length, 0, &o) == 1);
@@ -271,8 +271,8 @@ static int icmp(void) {
   return 0;
 }
 static int expect_continue(void) {
-  NetStack s;
-  NetPacket p, o;
+  struct net_stack s;
+  struct net_packet p, o;
   CHECK(!prepare(&s, 100));
   const char *head =
       "POST /echo HTTP/1.1\r\nHost: 192.0.2.2:8080\r\nContent-Length: "

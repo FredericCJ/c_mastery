@@ -2,14 +2,14 @@
 #ifndef G4_MUTANT
 #define G4_MUTANT 0
 #endif
-static void field(G4Io io,enum G4Reg reg,uint32_t mask,uint32_t value){io.write(io.context,reg,(io.read(io.context,reg)&~mask)|value);}
-static int wait_flag(G4Io io,enum G4Reg reg,uint32_t mask,unsigned limit,G4Init *out){
+static void field(struct g4_io io,enum g4_reg reg,uint32_t mask,uint32_t value){io.write(io.context,reg,(io.read(io.context,reg)&~mask)|value);}
+static int wait_flag(struct g4_io io,enum g4_reg reg,uint32_t mask,unsigned limit,struct g4_init *out){
  for(unsigned i=0;i<limit;i++){++out->polls;if(io.read(io.context,reg)&mask)return 1;}return 0;
 }
-int g4_initialize(G4Io io,uint32_t baud,unsigned limit,G4Init *out){
+int g4_initialize(struct g4_io io,uint32_t baud,unsigned limit,struct g4_init *out){
  if(!io.read || !io.write || !out || !baud || baud>1000000u || !limit || limit>1000000u)return G4_INVALID;
  uint32_t brr=(16000000u+baud/2u)/baud;if(brr<16 || brr>65535)return G4_INVALID;
- *out=(G4Init){1,0,brr};field(io,G4_RCC_CR,0,1u<<8);
+ *out=(struct g4_init){1,0,brr};field(io,G4_RCC_CR,0,1u<<8);
  if(!wait_flag(io,G4_RCC_CR,1u<<10,limit,out))return G4_CLOCK_TIMEOUT;
  out->stage=2;field(io,G4_RCC_AHB2ENR,0,1);(void)io.read(io.context,G4_RCC_AHB2ENR);
  field(io,G4_RCC_APB1ENR1,0,1u<<17);(void)io.read(io.context,G4_RCC_APB1ENR1);

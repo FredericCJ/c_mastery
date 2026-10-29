@@ -3,21 +3,21 @@
 #include <stddef.h>
 #include <stdint.h>
 enum { CP_PAYLOAD = 32, CP_WIRE = 42, CP_QUEUE = 2 };
-typedef enum { CP_OK, CP_NEED_MORE, CP_FRAME, CP_REJECT, CP_FULL, CP_INVALID } CPStatus;
-typedef struct { uint16_t sequence; size_t length; unsigned char payload[CP_PAYLOAD]; } CPMessage;
-typedef struct {
+enum cp_status { CP_OK, CP_NEED_MORE, CP_FRAME, CP_REJECT, CP_FULL, CP_INVALID };
+struct cp_message { uint16_t sequence; size_t length; unsigned char payload[CP_PAYLOAD]; };
+struct cp_parser {
     unsigned char candidate[CP_WIRE];
     size_t used;
     int ready;
-    CPMessage message;
-} CPParser;
-typedef struct { CPMessage items[CP_QUEUE]; size_t head, count; } CPQueue;
+    struct cp_message message;
+};
+struct cp_queue { struct cp_message items[CP_QUEUE]; size_t head, count; };
 uint32_t cp_crc32(const unsigned char *, size_t);
-CPStatus cp_encode(const CPMessage *, unsigned char *, size_t, size_t *);
-void cp_parser_init(CPParser *);
-CPStatus cp_feed(CPParser *, const unsigned char *, size_t, size_t *);
-CPStatus cp_peek(const CPParser *, CPMessage *);
-void cp_queue_init(CPQueue *);
-CPStatus cp_deliver(CPParser *, CPQueue *);
-CPStatus cp_take(CPQueue *, CPMessage *);
+enum cp_status cp_encode(const struct cp_message *, unsigned char *, size_t, size_t *);
+void cp_parser_init(struct cp_parser *);
+enum cp_status cp_feed(struct cp_parser *, const unsigned char *, size_t, size_t *);
+enum cp_status cp_peek(const struct cp_parser *, struct cp_message *);
+void cp_queue_init(struct cp_queue *);
+enum cp_status cp_deliver(struct cp_parser *, struct cp_queue *);
+enum cp_status cp_take(struct cp_queue *, struct cp_message *);
 #endif

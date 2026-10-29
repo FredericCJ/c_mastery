@@ -3,7 +3,7 @@
 Implement `crash.h/c/tests` after CONSTRUCTION.md and TRANSACTION.md. Families
 A/B/C/D/F/G/I/J cover the original three criteria and changed packets. Reuse the
 actual constructor/resource ledger and journal; the author campaign identifies
-their assessor provenance. `AeRecovery` is stable, noncopied storage because its
+their assessor provenance. `struct ae_recovery` is stable, noncopied storage because its
 private constructor points into its own ledger. This is a bounded original
 failure model and selected hosted ELF experiment, not a deployed crash collector.
 

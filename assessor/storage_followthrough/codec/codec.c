@@ -49,9 +49,9 @@ int sf_leaf_upgrade(uint32_t id,uint64_t gen,const uint8_t *b,size_t n,uint8_t o
 int sf_leaf_downgrade(uint32_t id,uint64_t gen,const uint8_t *b,size_t n,uint8_t out[STORE_PAGE_SIZE]){
  store_node node;int r=sf_leaf_decode(id,gen,b,n,&node);return r?r:store_page_encode(id,gen,&node,out);
 }
-int sf_format_fresh(SfFactory f,SfImage *out){
+int sf_format_fresh(struct sf_factory f,struct sf_image *out){
  if(!out||!f.acquire||!f.discard)return STORE_INVALID;
- SfImage candidate={0};if(!f.acquire(f.context,&candidate))return STORE_FULL;
+ struct sf_image candidate={0};if(!f.acquire(f.context,&candidate))return STORE_FULL;
  int r=store_format(candidate.io);store verified;
  if(r==STORE_OK)r=store_open(&verified,candidate.io);
  if(r!=STORE_OK){if(SFC_MUTANT!=5)f.discard(f.context,candidate);return r;}

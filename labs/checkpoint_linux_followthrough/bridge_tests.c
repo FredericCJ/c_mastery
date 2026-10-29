@@ -8,13 +8,13 @@
 #include <unistd.h>
 #define CHECK(x) do{if(!(x)){fprintf(stderr,"P5_CHECK line=%d %s\n",__LINE__,#x);exit(1);}}while(0)
 static struct timespec until(unsigned seconds){struct timespec t;CHECK(!clock_gettime(CLOCK_MONOTONIC,&t));t.tv_sec+=seconds;return t;}
-static void read_progress(P5Bridge *p,size_t expected){
+static void read_progress(struct p5_bridge *p,size_t expected){
  struct timespec t=until(3);CHECK(!pthread_mutex_lock(&p->mutex));
  while(p->used<expected)CHECK(!pthread_cond_timedwait(&p->changed,&p->mutex,&t));
  CHECK(!memcmp(p->bytes,"ABC",expected));CHECK(!pthread_mutex_unlock(&p->mutex));
 }
 int main(void){
- int fds[2];CHECK(!pipe2(fds,O_NONBLOCK|O_CLOEXEC));P5Bridge p;
+ int fds[2];CHECK(!pipe2(fds,O_NONBLOCK|O_CLOEXEC));struct p5_bridge p;
  CHECK(!p5_bridge_init(&p,fds[0],1));CHECK(!close(fds[0])); /* duplicate is owned */
  CHECK(!p5_bridge_offer(&p,1) && !p5_bridge_offer(&p,2));uint32_t g=99;
  CHECK(!p5_bridge_begin(&p,&g) && g==1);CHECK(write(fds[1],"ABC",3)==3);read_progress(&p,3);
@@ -35,7 +35,7 @@ int main(void){
  p.operation.generation=UINT32_MAX;next=99;CHECK(p5_bridge_begin(&p,&next)==-1 && next==99);
  CHECK(!p5_bridge_destroy(&p) && !p.initialized && !close(fds[1]));
  /* Synchronous original composition: false completion retains both items. */
- algo_ring q;FAsync op={F_IDLE,0,0};uint32_t ticket;unsigned discarded=0;
+ algo_ring q;struct f_async op={F_IDLE,0,0};uint32_t ticket;unsigned discarded=0;
  CHECK(algo_ring_init(&q,4)==ALGO_OK && algo_ring_put(&q,1)==ALGO_OK && algo_ring_put(&q,2)==ALGO_OK && f_submit(&op,&ticket)==F_OK);
  CHECK(in_shutdown(&q,&op,0,ticket,&discarded)==1 && q.count==2 && !op.releases);
  CHECK(in_shutdown(&q,&op,1,ticket,&discarded)==0 && q.count==0 && discarded==2 && op.releases==1);

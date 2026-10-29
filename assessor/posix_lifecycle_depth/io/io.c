@@ -8,9 +8,9 @@
 #ifndef PC_MUTANT
 #define PC_MUTANT 0
 #endif
-void pc_init(PCCopy *copy){if(copy)memset(copy,0,sizeof *copy);}
-static enum PCStatus fail(PCCopy *copy,int error){copy->error=error;return PC_ERROR;}
-enum PCStatus pc_resume(PCCopy *copy,PCOps ops,unsigned budget){
+void pc_init(struct pc_copy *copy){if(copy)memset(copy,0,sizeof *copy);}
+static enum pc_status fail(struct pc_copy *copy,int error){copy->error=error;return PC_ERROR;}
+enum pc_status pc_resume(struct pc_copy *copy,struct pc_ops ops,unsigned budget){
     if(!copy||!ops.read||!ops.write)return PC_ERROR;
     if(copy->error)return PC_ERROR;
     if(copy->next>copy->end||copy->end>sizeof copy->bytes)return fail(copy,EINVAL);
@@ -85,7 +85,7 @@ int pc_write_record(int fd,uintmax_t offset,const unsigned char *data,size_t len
         done+=(size_t)n;
     }*committed=done;return 0;
 }
-int pc_close_transition(bool *owned,int error,enum PCClosePolicy policy){
+int pc_close_transition(bool *owned,int error,enum pc_close_policy policy){
     if(!owned||!*owned||(policy!=PC_LINUX_RELEASES&&policy!=PC_EINTR_RETAINS)||error<0)return EINVAL;
 #if PC_MUTANT == 7
     policy=PC_EINTR_RETAINS;

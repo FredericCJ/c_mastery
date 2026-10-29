@@ -9,8 +9,8 @@
       exit(41);                                                                \
     }                                                                          \
   } while (0)
-static SCBatch batch(unsigned work) {
-  SCBatch b = {0};
+static struct sc_batch batch(unsigned work) {
+  struct sc_batch b = {0};
   b.count = 1;
   b.work = work;
   b.commands[0].opcode = 1;
@@ -19,9 +19,9 @@ static SCBatch batch(unsigned work) {
   return b;
 }
 static void quota(void) {
-  SCService s;
-  SCTicket t[4];
-  SCBatch b;
+  struct sc_service s;
+  struct sc_ticket t[4];
+  struct sc_batch b;
   unsigned i;
   static const unsigned costs[] = {2, 3, 5, 1};
   static const enum sc_result wanted[] = {SC_OK, SC_OK, SC_INVALID, SC_OK};
@@ -47,7 +47,7 @@ static void quota(void) {
   /* Sustained finite hostile bursts cannot increase retained capacity. */
   sc_service_init(&s);
   for (i = 0; i < 1024; ++i) {
-    SCAuthority a = {1, 1};
+    struct sc_authority a = {1, 1};
     uint32_t p = 0, q = 0;
     b = batch(4);
     CHECK(sc_submit(&s, &b, &t[0]) == SC_OK);
@@ -58,7 +58,7 @@ static void quota(void) {
   CHECK(s.terminal == 1024 && s.released == 1024);
   printf(
       "OBS storage batch=%zu service=%zu recovery=%zu pointer=%zu size_t=%zu\n",
-      sizeof(SCBatch), sizeof(SCService), sizeof(SCRecovery), sizeof(void *),
+      sizeof(struct sc_batch), sizeof(struct sc_service), sizeof(struct sc_recovery), sizeof(void *),
       sizeof(size_t));
   puts("OBS quota costs=2,3,5,1 admitted=1,1,0,1 retained=6 queue=3 "
        "reserved_control=1");
@@ -67,10 +67,10 @@ static void schedules(void) {
   unsigned order, mutate;
   for (order = 0; order < 2; ++order)
     for (mutate = 0; mutate < 2; ++mutate) {
-      SCService s;
-      SCTicket t;
-      SCBatch b = batch(1);
-      SCAuthority a = {1, 1};
+      struct sc_service s;
+      struct sc_ticket t;
+      struct sc_batch b = batch(1);
+      struct sc_authority a = {1, 1};
       uint32_t p = 0, q = 0;
       enum sc_result first;
       sc_service_init(&s);
@@ -87,10 +87,10 @@ static void schedules(void) {
       CHECK(q == (!order && !mutate));
     }
   {
-    SCService s;
-    SCTicket t;
-    SCBatch b = batch(1);
-    SCAuthority a = {1, 1};
+    struct sc_service s;
+    struct sc_ticket t;
+    struct sc_batch b = batch(1);
+    struct sc_authority a = {1, 1};
     uint32_t p = 0, q = 0;
     sc_service_init(&s);
     s.jobs[0].generation = UINT_MAX - 1;
@@ -104,10 +104,10 @@ static void schedules(void) {
     CHECK(sc_shutdown(&s) == SC_OK);
   }
   for (order = 0; order < 2; ++order) {
-    SCService s;
-    SCTicket t;
-    SCBatch b = batch(1);
-    SCAuthority a = {1, 1};
+    struct sc_service s;
+    struct sc_ticket t;
+    struct sc_batch b = batch(1);
+    struct sc_authority a = {1, 1};
     uint32_t p = 0, q = 0;
     sc_service_init(&s);
     CHECK(sc_submit(&s, &b, &t) == SC_OK);
@@ -121,9 +121,9 @@ static void schedules(void) {
     CHECK(sc_shutdown(&s) == SC_OK && s.released == 1);
   }
   {
-    SCService s;
-    SCTicket t;
-    SCBatch b = batch(1);
+    struct sc_service s;
+    struct sc_ticket t;
+    struct sc_batch b = batch(1);
     sc_service_init(&s);
     s.terminal = s.released = UINT_MAX - 1;
     CHECK(sc_submit(&s, &b, &t) == SC_OK);
@@ -133,11 +133,11 @@ static void schedules(void) {
   puts("OBS schedules terminal_orders=4 exact_release=1 copy_ownership=1 "
        "late_callback=stale retry_limit=2 generation=retired");
 }
-typedef struct {
+struct sc_test_resources {
   unsigned fail, live, count, order[4];
-} Resources;
+};
 static int acquire(void *p, unsigned i) {
-  Resources *r = p;
+  struct sc_test_resources *r = p;
   if (i == r->fail)
     return 1;
   CHECK(!(r->live & (1u << i)));
@@ -145,7 +145,7 @@ static int acquire(void *p, unsigned i) {
   return 0;
 }
 static void release(void *p, unsigned i) {
-  Resources *r = p;
+  struct sc_test_resources *r = p;
   CHECK(r->live & (1u << i));
   r->live &= ~(1u << i);
   r->order[r->count++] = i;
@@ -153,9 +153,9 @@ static void release(void *p, unsigned i) {
 static void recovery(void) {
   unsigned fail;
   for (fail = 0; fail <= 2; ++fail) {
-    Resources r = {0};
-    SCRecovery s = {0};
-    SCResources ops = {acquire, release, &r};
+    struct sc_test_resources r = {0};
+    struct sc_recovery s = {0};
+    struct sc_resources ops = {acquire, release, &r};
     r.fail = fail;
     CHECK(sc_recover(&s, ops, 0) == (fail < 2 ? SC_FULL : SC_OK));
     CHECK(s.attempts == 1 && s.log_fallbacks == 1);
@@ -170,9 +170,9 @@ static void recovery(void) {
             r.order[2] == 1 && r.order[3] == 0);
   }
   {
-    Resources r = {0};
-    SCRecovery s = {2, 2, 0, UINT_MAX};
-    SCResources ops = {acquire, release, &r};
+    struct sc_test_resources r = {0};
+    struct sc_recovery s = {2, 2, 0, UINT_MAX};
+    struct sc_resources ops = {acquire, release, &r};
     CHECK(sc_recover(&s, ops, 0) == SC_EXHAUSTED &&
           s.log_fallbacks == UINT_MAX);
   }

@@ -1,10 +1,10 @@
 #include "allocation.h"
-void al_pool_init(ALPool *p) {
+void al_pool_init(struct al_pool *p) {
   algo_pool_init(&p->producer);
   for (unsigned i = 3; i < 16; ++i)
     p->producer.state[i] = 2;
 }
-int al_pool_take(ALPool *p, int32_t value, ALPoolHandle *out) {
+int al_pool_take(struct al_pool *p, int32_t value, struct al_pool_handle *out) {
   if (!p || !out)
     return AL_BAD;
   uint64_t raw;
@@ -13,10 +13,10 @@ int al_pool_take(ALPool *p, int32_t value, ALPoolHandle *out) {
     return AL_FULL;
   if (s != ALGO_OK)
     return AL_BAD;
-  *out = (ALPoolHandle){p, raw};
+  *out = (struct al_pool_handle){p, raw};
   return AL_OK;
 }
-int al_pool_get(const ALPool *p, ALPoolHandle h, int32_t *out) {
+int al_pool_get(const struct al_pool *p, struct al_pool_handle h, int32_t *out) {
   if (!p || !out)
     return AL_BAD;
 #if AL_MUTANT != 6
@@ -25,7 +25,7 @@ int al_pool_get(const ALPool *p, ALPoolHandle h, int32_t *out) {
 #endif
   return algo_pool_get(&p->producer, h.raw, out) == ALGO_OK ? AL_OK : AL_STALE;
 }
-int al_pool_release(ALPool *p, ALPoolHandle h) {
+int al_pool_release(struct al_pool *p, struct al_pool_handle h) {
   if (!p)
     return AL_BAD;
   if (h.owner != p)
@@ -40,22 +40,22 @@ int al_pool_release(ALPool *p, ALPoolHandle h) {
     p->producer.state[i] = 2;
   return s == ALGO_OK ? AL_OK : AL_STALE;
 }
-int al_classes_init(ALClasses *c) {
+int al_classes_init(struct al_classes *c) {
   if (!c)
     return AL_BAD;
-  *c = (ALClasses){0};
+  *c = (struct al_classes){0};
   return AL_OK;
 }
-int al_classes_take(ALClasses *c, size_t n,
+int al_classes_take(struct al_classes *c, size_t n,
                     int (*init)(void *, unsigned char *, size_t),
-                    ALCleanup destroy, void *ctx, ALHandle *out) {
+                    al_cleanup_fn destroy, void *ctx, struct al_handle *out) {
   if (!c || !n || n > 32 || !out || !init)
     return AL_BAD;
   if (c->serial == UINT32_MAX)
     return AL_RETIRED;
   unsigned group = n <= 8 ? 0 : n <= 16 ? 1 : 2;
   for (unsigned i = 0; i < 4; ++i) {
-    ALClassSlot *s = &c->slots[group][i];
+    struct al_class_slot *s = &c->slots[group][i];
     if (!s->live) {
       unsigned char data[32] = {0};
       if (init(ctx, data, n))
@@ -68,20 +68,20 @@ int al_classes_take(ALClasses *c, size_t n,
       s->cleanup = destroy;
       s->context = ctx;
       c->retained[group] = 1;
-      *out = (ALHandle){c, s->id};
+      *out = (struct al_handle){c, s->id};
       return AL_OK;
     }
   }
   return AL_FULL;
 }
-int al_classes_release(ALClasses *c, ALHandle h) {
+int al_classes_release(struct al_classes *c, struct al_handle h) {
   if (!c)
     return AL_BAD;
   if (h.owner != c || !h.id)
     return AL_STALE;
   for (unsigned g = 0; g < 3; ++g)
     for (unsigned i = 0; i < 4; ++i) {
-      ALClassSlot *s = &c->slots[g][i];
+      struct al_class_slot *s = &c->slots[g][i];
       if (s->live && s->id == h.id) {
         s->live = 0;
         int status = s->cleanup ? s->cleanup(s->context) : 0;
@@ -92,7 +92,7 @@ int al_classes_release(ALClasses *c, ALHandle h) {
     }
   return AL_STALE;
 }
-int al_classes_stats(const ALClasses *c, size_t *payload, size_t *charged,
+int al_classes_stats(const struct al_classes *c, size_t *payload, size_t *charged,
                      size_t *retained) {
   if (!c || !payload || !charged || !retained)
     return AL_BAD;

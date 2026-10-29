@@ -12,65 +12,65 @@ enum {
   RPS_BUSY,
   RPS_UNIMPLEMENTED
 };
-typedef struct {
+struct rps_item {
   unsigned id, parent;
   uint32_t scalar;
   unsigned inserted, removed;
-} RpsItem;
-typedef struct {
+};
+struct rps_tree {
   uint64_t epoch;
   unsigned mode, count, waiting_count;
-  RpsItem items[16];
+  struct rps_item items[16];
   unsigned waiting[16];
-  RPSequence topology;
-} RpsTree;
-int rps_init(RpsTree *tree, uint64_t epoch, unsigned placeholder_mode);
-int rps_insert(RpsTree *tree, uint64_t epoch, unsigned id, unsigned parent,
+  struct rp_sequence topology;
+};
+int rps_init(struct rps_tree *tree, uint64_t epoch, unsigned placeholder_mode);
+int rps_insert(struct rps_tree *tree, uint64_t epoch, unsigned id, unsigned parent,
                uint32_t scalar);
-int rps_remove(RpsTree *tree, uint64_t epoch, unsigned id);
-int rps_render(const RpsTree *tree, unsigned char *out, size_t capacity,
+int rps_remove(struct rps_tree *tree, uint64_t epoch, unsigned id);
+int rps_render(const struct rps_tree *tree, unsigned char *out, size_t capacity,
                size_t *length);
-int rps_snapshot(const RpsTree *tree, unsigned char out[368]);
-int rps_restore(const unsigned char wire[368], RpsTree *out);
+int rps_snapshot(const struct rps_tree *tree, unsigned char out[368]);
+int rps_restore(const unsigned char wire[368], struct rps_tree *out);
 /* Original local coordinator: all three controls must be distinct, quiescent,
    and have the same fully admitted state; outstanding counts copied messages.
  */
-int rps_compact(RpsTree *a, RpsTree *b, RpsTree *c, size_t outstanding);
+int rps_compact(struct rps_tree *a, struct rps_tree *b, struct rps_tree *c, size_t outstanding);
 
-typedef struct {
+struct rps_op {
   unsigned kind, position;
   uint32_t scalar;
-} RpsOp;
-typedef struct {
+};
+struct rps_request {
   uint64_t epoch;
   unsigned base, site, sequence, vector[3];
-  RpsOp op;
-} RpsRequest;
-typedef struct {
+  struct rps_op op;
+};
+struct rps_commit {
   uint64_t epoch;
   unsigned revision, site, sequence, before[3];
-  RpsOp op;
-} RpsCommit;
-typedef struct {
+  struct rps_op op;
+};
+struct rps_server {
   uint64_t epoch;
   unsigned count, lengths[17], vectors[17][3];
   uint32_t documents[17][32];
-  RpsRequest originals[16];
-  RpsCommit commits[16];
-} RpsServer;
-typedef struct {
+  struct rps_request originals[16];
+  struct rps_commit commits[16];
+};
+struct rps_client {
   uint64_t epoch;
   unsigned revision, length, vector[3], site, pending;
-  RpsRequest request;
+  struct rps_request request;
   uint32_t document[32];
-  RpsCommit commits[16];
-} RpsClient;
-int rps_server_init(RpsServer *server, uint64_t epoch);
-int rps_client_init(RpsClient *client, uint64_t epoch, unsigned site);
+  struct rps_commit commits[16];
+};
+int rps_server_init(struct rps_server *server, uint64_t epoch);
+int rps_client_init(struct rps_client *client, uint64_t epoch, unsigned site);
 /* kind1 inserts one scalar at gap0..length; kind2 deletes position0..length-1.
  */
-int rps_prepare(RpsClient *client, unsigned kind, unsigned position,
-                uint32_t scalar, RpsRequest *out);
-int rps_submit(RpsServer *server, const RpsRequest *request, RpsCommit *out);
-int rps_deliver(RpsClient *client, const RpsCommit *commit);
+int rps_prepare(struct rps_client *client, unsigned kind, unsigned position,
+                uint32_t scalar, struct rps_request *out);
+int rps_submit(struct rps_server *server, const struct rps_request *request, struct rps_commit *out);
+int rps_deliver(struct rps_client *client, const struct rps_commit *commit);
 #endif

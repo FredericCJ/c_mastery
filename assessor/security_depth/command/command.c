@@ -1,10 +1,10 @@
 #include "command.h"
 static enum sc_result parse(const unsigned char *p, size_t n,
-                            const SCAuthority *a, int extended, unsigned depth,
-                            SCBatch *b, SCMeter *m, int dry) {
+                            const struct sc_authority *a, int extended, unsigned depth,
+                            struct sc_batch *b, struct sc_meter *m, int dry) {
   unsigned op, count, i, opt = 0, cost;
   size_t offset = 2, expected;
-  SCCommand c = {0};
+  struct sc_command c = {0};
   enum sc_result r;
   if (n < 2)
     return SC_LENGTH;
@@ -92,10 +92,10 @@ static enum sc_result parse(const unsigned char *p, size_t n,
   b->work += cost;
   return SC_OK;
 }
-enum sc_result sc_decode(const unsigned char *p, size_t n, const SCAuthority *a,
-                         int extended, SCBatch *out, SCMeter *m) {
-  SCBatch b = {0};
-  SCMeter local = {0};
+enum sc_result sc_decode(const unsigned char *p, size_t n, const struct sc_authority *a,
+                         int extended, struct sc_batch *out, struct sc_meter *m) {
+  struct sc_batch b = {0};
+  struct sc_meter local = {0};
   unsigned char stable[32];
   size_t i;
   enum sc_result r;
@@ -112,8 +112,8 @@ enum sc_result sc_decode(const unsigned char *p, size_t n, const SCAuthority *a,
   local.bytes = (unsigned)n;
   r = parse(stable, n, a, extended, 0, &b, &local, 1);
   if (r == SC_OK) {
-    SCBatch materialized = {0};
-    SCMeter material_meter = {0};
+    struct sc_batch materialized = {0};
+    struct sc_meter material_meter = {0};
     r = parse(stable, n, a, extended, 0, &materialized, &material_meter, 0);
     if (r == SC_OK) {
       b = materialized;
@@ -127,7 +127,7 @@ enum sc_result sc_decode(const unsigned char *p, size_t n, const SCAuthority *a,
     *out = b;
   return r;
 }
-enum sc_result sc_revoke(SCAuthority *a) {
+enum sc_result sc_revoke(struct sc_authority *a) {
   if (!a || !a->generation || a->allowed > 1)
     return SC_INVALID;
   a->allowed = 0;
@@ -136,7 +136,7 @@ enum sc_result sc_revoke(SCAuthority *a) {
   ++a->generation;
   return SC_OK;
 }
-enum sc_result sc_apply(const SCBatch *b, const SCAuthority *a,
+enum sc_result sc_apply(const struct sc_batch *b, const struct sc_authority *a,
                         uint32_t *ordinary, uint32_t *privileged) {
   uint32_t add = 0, effects = 0;
   unsigned i, j, work = 0;
@@ -144,7 +144,7 @@ enum sc_result sc_apply(const SCBatch *b, const SCAuthority *a,
       !a->generation || a->allowed > 1)
     return SC_INVALID;
   for (i = 0; i < b->count; ++i) {
-    const SCCommand *c = &b->commands[i];
+    const struct sc_command *c = &b->commands[i];
     if ((c->opcode != 1 && c->opcode != 2) || c->count > 4)
       return SC_INVALID;
     work += c->count ? c->count : 1;

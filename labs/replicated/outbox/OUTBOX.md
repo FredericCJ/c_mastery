@@ -29,7 +29,7 @@ addresses. Callbacks are synchronous, nonreentrant and retain no buffers.
 
 ## Representation and authority
 
-Three distinct exclusive `RplLog` stores share a nonzero log UUID. The source
+Three distinct exclusive `struct rpl_log` stores share a nonzero log UUID. The source
 event log is also the outbox: every committed event after the acknowledged
 prefix remains a delivery obligation. No second insertion can fail between
 event commit and outbox creation. A separate ACK log has schema `RPO_ACK_SCHEMA`,

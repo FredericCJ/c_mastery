@@ -53,7 +53,7 @@ channel ends on all completed paths. A separate wait failure is a function error
 the result is published only after completed collection. No cancellation or
 adversarial signal-handler ownership is promised. EINTR retries preserve progress.
 
-Return 0 with `PCLaunch.kind=1` for ordinary exit and its exit value; kind 2 for
+Return 0 with `struct pc_launch.kind=1` for ordinary exit and its exit value; kind 2 for
 the child's launch error and its errno; kind 3 for a terminating signal and its
 number. A parent setup/collection failure returns a positive error and leaves
 the result untouched. An exit127 is not itself an exec-failure proof. The error

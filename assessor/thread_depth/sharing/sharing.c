@@ -12,9 +12,9 @@ static int launch(void *(*worker)(void *),void *args,size_t stride,unsigned n){
  for(;made<n;made++){e=pthread_create(&threads[made],&attr,worker,(unsigned char *)args+made*stride);if(e)break;}
  checked(pthread_attr_destroy(&attr));for(unsigned i=0;i<made;i++)checked(pthread_join(threads[i],NULL));return e;
 }
-typedef struct {const int32_t *input;size_t begin,end;int shared;int64_t local,*total;pthread_mutex_t *mutex;} SumArg;
+struct sum_arg {const int32_t *input;size_t begin,end;int shared;int64_t local,*total;pthread_mutex_t *mutex;};
 static void *sum_worker(void *arg){
- SumArg *a=arg;for(size_t i=a->begin;i<a->end;i++){
+ struct sum_arg *a=arg;for(size_t i=a->begin;i<a->end;i++){
   if(a->shared){checked(pthread_mutex_lock(a->mutex));*a->total+=a->input[i];checked(pthread_mutex_unlock(a->mutex));}
   else a->local+=a->input[i];
  }return NULL;
@@ -22,8 +22,8 @@ static void *sum_worker(void *arg){
 int ts_sum(const int32_t *p,size_t n,unsigned workers,int shared,int64_t *out){
  if((!p&&n)||n>16||workers<1||workers>4||shared<0||shared>1||!out)return EINVAL;
  pthread_mutex_t mutex;int e=pthread_mutex_init(&mutex,NULL);if(e)return e;
- SumArg args[4];int64_t total=0;
- for(unsigned i=0;i<workers;i++)args[i]=(SumArg){p,n*i/workers,n*(i+1)/workers,shared,0,&total,&mutex};
+ struct sum_arg args[4];int64_t total=0;
+ for(unsigned i=0;i<workers;i++)args[i]=(struct sum_arg){p,n*i/workers,n*(i+1)/workers,shared,0,&total,&mutex};
 #ifdef TS_MUTANT1
  if(n)args[workers-1].end--;
 #endif
@@ -31,7 +31,7 @@ int ts_sum(const int32_t *p,size_t n,unsigned workers,int shared,int64_t *out){
  if(!shared)for(unsigned i=0;i<workers;i++)total+=args[i].local;
  *out=total;return 0;
 }
-int ts_snapshot_sum(TSInput *p,unsigned workers,TSSnapshotHook hook,void *context,int64_t *out,unsigned *version){
+int ts_snapshot_sum(struct ts_input *p,unsigned workers,ts_snapshot_hook_fn hook,void *context,int64_t *out,unsigned *version){
  if(!p||!out||!version||workers<1||workers>4)return EINVAL;
  int32_t local[16];checked(pthread_mutex_lock(&p->mutex));size_t n=p->length;
  if(n>16){checked(pthread_mutex_unlock(&p->mutex));return EINVAL;}
@@ -39,8 +39,8 @@ int ts_snapshot_sum(TSInput *p,unsigned workers,TSSnapshotHook hook,void *contex
  if(hook)hook(context);
  int64_t sum;int e=ts_sum(local,n,workers,0,&sum);if(e)return e;*out=sum;*version=v;return 0;
 }
-int ts_queue_init(TSQueue *q){if(!q)return EINVAL;memset(q,0,sizeof *q);return pthread_mutex_init(&q->mutex,NULL);}
-int ts_enqueue(TSQueue *q,unsigned id){
+int ts_queue_init(struct ts_queue *q){if(!q)return EINVAL;memset(q,0,sizeof *q);return pthread_mutex_init(&q->mutex,NULL);}
+int ts_enqueue(struct ts_queue *q,unsigned id){
  if(!q||id>=8)return EINVAL;
  checked(pthread_mutex_lock(&q->mutex));int e=0;
  if(q->state[id]!=TS_CALLER)e=EALREADY;else if(q->closed)e=EPIPE;else if(q->count==2)e=EAGAIN;
@@ -50,40 +50,40 @@ int ts_enqueue(TSQueue *q,unsigned id){
 #endif
  checked(pthread_mutex_unlock(&q->mutex));return e;
 }
-int ts_dequeue(TSQueue *q,unsigned *out){
+int ts_dequeue(struct ts_queue *q,unsigned *out){
  if(!q||!out)return EINVAL;
  checked(pthread_mutex_lock(&q->mutex));int e=0;
  if(!q->count)e=q->closed?EPIPE:EAGAIN;
  else{unsigned id=q->ring[q->head];q->head=(q->head+1)%2;q->count--;q->state[id]=TS_WORKER;*out=id;}
  checked(pthread_mutex_unlock(&q->mutex));return e;
 }
-int ts_settle(TSQueue *q,unsigned id,unsigned status){
+int ts_settle(struct ts_queue *q,unsigned id,unsigned status){
  if(!q||id>=8||(status!=TS_SUCCESS&&status!=TS_FAILED))return EINVAL;
  checked(pthread_mutex_lock(&q->mutex));int e=q->state[id]==TS_WORKER?0:EALREADY;
  if(!e){q->state[id]=TS_SETTLED;q->terminal[id]=status;q->settlements[id]++;}
  checked(pthread_mutex_unlock(&q->mutex));return e;
 }
-int ts_queue_close(TSQueue *q){
+int ts_queue_close(struct ts_queue *q){
  if(!q)return EINVAL;
  checked(pthread_mutex_lock(&q->mutex));q->closed=1;
  while(q->count){unsigned id=q->ring[q->head];q->head=(q->head+1)%2;q->count--;q->state[id]=TS_SETTLED;q->terminal[id]=TS_CANCELED;q->settlements[id]++;}
  checked(pthread_mutex_unlock(&q->mutex));return 0;
 }
-int ts_queue_inspect(TSQueue *q,unsigned id,unsigned *state,unsigned *terminal,unsigned *settlements){
+int ts_queue_inspect(struct ts_queue *q,unsigned id,unsigned *state,unsigned *terminal,unsigned *settlements){
  if(!q||id>=8||!state||!terminal||!settlements)return EINVAL;
  checked(pthread_mutex_lock(&q->mutex));*state=q->state[id];*terminal=q->terminal[id];*settlements=q->settlements[id];checked(pthread_mutex_unlock(&q->mutex));return 0;
 }
-int ts_queue_destroy(TSQueue *q){
+int ts_queue_destroy(struct ts_queue *q){
  if(!q)return EINVAL;
  for(unsigned i=0;i<8;i++)if(q->state[i]==TS_QUEUED||q->state[i]==TS_WORKER)return EBUSY;
  return pthread_mutex_destroy(&q->mutex);
 }
-typedef struct {
+struct hist_arg {
  const uint32_t *input;size_t begin,end,bins;unsigned mode,index;
  uint64_t *hist;pthread_mutex_t *mutex;
-} HistArg;
+};
 static void *hist_worker(void *arg){
- HistArg *a=arg;uint32_t keys[64];uint64_t counts[64];size_t used=0;
+ struct hist_arg *a=arg;uint32_t keys[64];uint64_t counts[64];size_t used=0;
  for(size_t i=a->begin;i<a->end;i++){
   uint32_t key=a->input[i];
   if(a->mode==TS_PRIVATE){a->hist[a->bins*a->index+key]++;continue;}
@@ -96,7 +96,7 @@ static void *hist_worker(void *arg){
   unsigned shard=a->mode==TS_SHARED?0:key%4;checked(pthread_mutex_lock(&a->mutex[shard]));a->hist[key]++;checked(pthread_mutex_unlock(&a->mutex[shard]));
  }return NULL;
 }
-int ts_histogram(const uint32_t *input,size_t n,size_t bins,unsigned mode,size_t budget,uint64_t *out,TSResources *resources){
+int ts_histogram(const uint32_t *input,size_t n,size_t bins,unsigned mode,size_t budget,uint64_t *out,struct ts_resources *resources){
  if((!input&&n)||n>262144||!bins||bins>65536||mode>TS_BATCHED||!out||!resources)return EINVAL;
  for(size_t i=0;i<n;i++)if(input[i]>=bins)return EINVAL;
  size_t copies=mode==TS_PRIVATE?4:1;
@@ -106,7 +106,7 @@ int ts_histogram(const uint32_t *input,size_t n,size_t bins,unsigned mode,size_t
  pthread_mutex_t mutex[4];unsigned initialized=0;int e=0;
  for(;initialized<4;initialized++){e=pthread_mutex_init(&mutex[initialized],NULL);if(e)break;}
  if(!e){
-  HistArg args[4];for(unsigned i=0;i<4;i++)args[i]=(HistArg){input,n*i/4,n*(i+1)/4,bins,mode,i,hist,mutex};
+  struct hist_arg args[4];for(unsigned i=0;i<4;i++)args[i]=(struct hist_arg){input,n*i/4,n*(i+1)/4,bins,mode,i,hist,mutex};
   e=launch(hist_worker,args,sizeof args[0],4);
  }
  if(!e){
@@ -118,7 +118,7 @@ int ts_histogram(const uint32_t *input,size_t n,size_t bins,unsigned mode,size_t
    for(size_t c=0;c<limit;c++)value+=hist[c*bins+b];
    out[b]=value;
   }
-  *resources=(TSResources){bytes,4,4u*256u*1024u};
+  *resources=(struct ts_resources){bytes,4,4u*256u*1024u};
  }
  for(unsigned i=0;i<initialized;i++)checked(pthread_mutex_destroy(&mutex[i]));
  free(hist);return e;

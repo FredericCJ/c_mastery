@@ -2,29 +2,29 @@
 #include <errno.h>
 /* Intentionally unfinished. Tests compile before rejecting the missing
  * behavior. */
-int tw_bank_init(TWBank *p) {
+int tw_bank_init(struct tw_bank *p) {
   (void)p;
   return ENOSYS;
 }
-int tw_transfer(TWBank *p, int n, TWHook h, void *a) {
+int tw_transfer(struct tw_bank *p, int n, tw_hook_fn h, void *a) {
   (void)p;
   (void)n;
   (void)h;
   (void)a;
   return ENOSYS;
 }
-int tw_bank_total(TWBank *p) {
+int tw_bank_total(struct tw_bank *p) {
   (void)p;
   return -1;
 }
-void tw_bank_destroy(TWBank *p) { (void)p; }
-void tw_snapshot_init(TWSnapshot *p) { (void)p; }
-int tw_snapshot_write(TWSnapshot *p, int n) {
+void tw_bank_destroy(struct tw_bank *p) { (void)p; }
+void tw_snapshot_init(struct tw_snapshot *p) { (void)p; }
+int tw_snapshot_write(struct tw_snapshot *p, int n) {
   (void)p;
   (void)n;
   return ENOSYS;
 }
-int tw_snapshot_read(TWSnapshot *p, int *n) {
+int tw_snapshot_read(struct tw_snapshot *p, int *n) {
   (void)p;
   (void)n;
   return ENOSYS;
@@ -39,36 +39,36 @@ int tw_order(uint64_t a, uint64_t b) {
   (void)b;
   return 0;
 }
-int tw_queue_init(TWQueue *p, unsigned n, TWInit *r) {
+int tw_queue_init(struct tw_queue *p, unsigned n, struct tw_init *r) {
   (void)p;
   (void)n;
   (void)r;
   return ENOSYS;
 }
-int tw_ref(TWQueue *p) {
+int tw_ref(struct tw_queue *p) {
   (void)p;
   return ENOSYS;
 }
-int tw_unref(TWQueue *p) {
+int tw_unref(struct tw_queue *p) {
   (void)p;
   return ENOSYS;
 }
-int tw_close(TWQueue *p) {
+int tw_close(struct tw_queue *p) {
   (void)p;
   return ENOSYS;
 }
-int tw_retire(TWQueue *p) {
+int tw_retire(struct tw_queue *p) {
   (void)p;
   return ENOSYS;
 }
-void tw_root_destroy(TWQueue *p) { (void)p; }
-int tw_push(TWQueue *p, int n, const struct timespec *t) {
+void tw_root_destroy(struct tw_queue *p) { (void)p; }
+int tw_push(struct tw_queue *p, int n, const struct timespec *t) {
   (void)p;
   (void)n;
   (void)t;
   return ENOSYS;
 }
-int tw_pop(TWQueue *p, int *n, const struct timespec *t, TWHook h, void *a) {
+int tw_pop(struct tw_queue *p, int *n, const struct timespec *t, tw_hook_fn h, void *a) {
   (void)p;
   (void)n;
   (void)t;
@@ -76,51 +76,51 @@ int tw_pop(TWQueue *p, int *n, const struct timespec *t, TWHook h, void *a) {
   (void)a;
   return ENOSYS;
 }
-int tw_noise(TWQueue *p) {
+int tw_noise(struct tw_queue *p) {
   (void)p;
   return ENOSYS;
 }
-int tw_wait_entries(TWQueue *p, unsigned n) {
+int tw_wait_entries(struct tw_queue *p, unsigned n) {
   (void)p;
   (void)n;
   return ENOSYS;
 }
-int tw_counts(TWQueue *p, unsigned *r, unsigned *a, size_t *c) {
+int tw_counts(struct tw_queue *p, unsigned *r, unsigned *a, size_t *c) {
   (void)p;
   (void)r;
   (void)a;
   (void)c;
   return ENOSYS;
 }
-int tw_barrier_init(TWBarrier *p, unsigned n) {
+int tw_barrier_init(struct tw_barrier *p, unsigned n) {
   (void)p;
   (void)n;
   return ENOSYS;
 }
-int tw_barrier_wait(TWBarrier *p) {
+int tw_barrier_wait(struct tw_barrier *p) {
   (void)p;
   return ENOSYS;
 }
-int tw_barrier_break(TWBarrier *p) {
+int tw_barrier_break(struct tw_barrier *p) {
   (void)p;
   return ENOSYS;
 }
-void tw_barrier_destroy(TWBarrier *p) { (void)p; }
-int tw_permits_init(TWPermits *p) {
+void tw_barrier_destroy(struct tw_barrier *p) { (void)p; }
+int tw_permits_init(struct tw_permits *p) {
   (void)p;
   return ENOSYS;
 }
-int tw_permit_take(TWPermits *p, unsigned *t) {
-  (void)p;
-  (void)t;
-  return ENOSYS;
-}
-int tw_permit_release(TWPermits *p, unsigned t) {
+int tw_permit_take(struct tw_permits *p, unsigned *t) {
   (void)p;
   (void)t;
   return ENOSYS;
 }
-void tw_permits_destroy(TWPermits *p) { (void)p; }
+int tw_permit_release(struct tw_permits *p, unsigned t) {
+  (void)p;
+  (void)t;
+  return ENOSYS;
+}
+void tw_permits_destroy(struct tw_permits *p) { (void)p; }
 int tw_reader_admit(unsigned r, unsigned w, unsigned n, int p) {
   (void)r;
   (void)w;

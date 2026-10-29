@@ -8,7 +8,7 @@ do not rewrite their historical acceptance or make physical gates optional.
 
 ## Prerequisites and environment
 
-Bring the learner's `sd_uart`, `sd_sync`, `PuDriver`, `PuRx`, F439 pin/clock
+Bring the learner's `sd_uart`, `sd_sync`, `struct pu_driver`, `struct pu_rx`, F439 pin/clock
 adapter and T27 reset/linker artifacts. Read the actual selected clauses in
 R-SU-RM21 (RM0090 Rev21 pp973–977,981,991,997–999,1010–1017) and R-SU-DS14
 (DS9484 Rev14 Table12 pp78–79), registered in
@@ -50,7 +50,7 @@ cannot make an F439 synchronous master produce a clock.
 
 `Su` starts zeroed. All controls, TX/RX spans and callback storage are live,
 adequately sized, disjoint and exclusively owned. Only these APIs may mutate
-the state while a request is active. `PuIo` callbacks terminate, obey the
+the state while a request is active. `struct pu_io` callbacks terminate, obey the
 register contract, do not reenter the component and retain no caller pointers.
 An ISR or concurrent adapter is not supplied by this serialized contract.
 
@@ -63,7 +63,7 @@ if a callback violates its contract. Rejected inputs publish no configuration.
 `su_enable` sets the requested TE/RE together in one CR1 write while idle; the
 caller must have established no in-flight receive before disabling them.
 
-`su_begin` admits 1..8 immutable TX bytes and at least that many RX `PuByte`
+`su_begin` admits 1..8 immutable TX bytes and at least that many RX `struct pu_byte`
 slots (capacity<=8). LBCL1 and UE/TE/RE enabled are necessary for the matched
 eight-bit exchange; LBCL0 remains useful for trace analysis but is rejected by
 this peer adapter. A pending RXNE rejects admission rather than treating an old

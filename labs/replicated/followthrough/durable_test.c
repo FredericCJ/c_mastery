@@ -10,26 +10,26 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
+struct rp_medium {
   unsigned char stable[STORE_IMAGE_PAGES][STORE_PAGE_SIZE];
   unsigned char pending[STORE_IMAGE_PAGES][STORE_PAGE_SIZE];
   unsigned char dirty[STORE_IMAGE_PAGES];
   unsigned event, cut, mode, dead, reads, read_fail, retries, zero;
   unsigned tear_n;
   size_t chunk;
-} Medium;
-static Medium disk, base;
-static RplPages adapter;
+};
+static struct rp_medium disk, base;
+static struct rpl_pages adapter;
 static store pages;
-static RplLog logbook;
-static void persist(Medium *m) {
+static struct rpl_log logbook;
+static void persist(struct rp_medium *m) {
   for (unsigned i = 0; i < STORE_IMAGE_PAGES; ++i)
     if (m->dirty[i]) {
       memcpy(m->stable[i], m->pending[i], STORE_PAGE_SIZE);
       m->dirty[i] = 0;
     }
 }
-static int cut(Medium *m, size_t offset, size_t n) {
+static int cut(struct rp_medium *m, size_t offset, size_t n) {
   ++m->event;
   if (!m->cut || m->cut != m->event)
     return 0;
@@ -56,7 +56,7 @@ static int cut(Medium *m, size_t offset, size_t n) {
   return 1;
 }
 static ptrdiff_t mread(void *ctx, size_t off, unsigned char *p, size_t n) {
-  Medium *m = ctx;
+  struct rp_medium *m = ctx;
   unsigned page = (unsigned)(off / STORE_PAGE_SIZE);
   size_t in = off % STORE_PAGE_SIZE;
   if (m->dead || ++m->reads == m->read_fail || page >= STORE_IMAGE_PAGES)
@@ -76,7 +76,7 @@ static ptrdiff_t mread(void *ctx, size_t off, unsigned char *p, size_t n) {
 }
 static ptrdiff_t mwrite(void *ctx, size_t off, const unsigned char *p,
                         size_t n) {
-  Medium *m = ctx;
+  struct rp_medium *m = ctx;
   unsigned page = (unsigned)(off / STORE_PAGE_SIZE);
   size_t in = off % STORE_PAGE_SIZE;
   if (m->dead || page >= STORE_IMAGE_PAGES)
@@ -100,17 +100,17 @@ static ptrdiff_t mwrite(void *ctx, size_t off, const unsigned char *p,
   return (ptrdiff_t)n;
 }
 static int mflush(void *ctx) {
-  Medium *m = ctx;
+  struct rp_medium *m = ctx;
   if (m->dead || cut(m, 0, 0))
     return -1;
   persist(m);
   return 0;
 }
-static int attach(Medium *m, store_io *io) {
-  RplBytes b = {m, mread, mwrite, mflush, sizeof m->stable, 4098};
+static int attach(struct rp_medium *m, store_io *io) {
+  struct rpl_bytes b = {m, mread, mwrite, mflush, sizeof m->stable, 4098};
   return rpl_pages(&adapter, b, io);
 }
-static void restart(Medium *m) {
+static void restart(struct rp_medium *m) {
   memset(m->dirty, 0, sizeof m->dirty);
   m->dead = 0;
   m->cut = 0;
@@ -142,13 +142,13 @@ static int reopen(void) {
 }
 static int bytes_case(void) {
   unsigned char wire[64];
-  RplEvent e = {3, 31, RPL_QUERY_RESULT, INT32_MIN}, out = {9, 9, 9, 9};
+  struct rpl_event e = {3, 31, RPL_QUERY_RESULT, INT32_MIN}, out = {9, 9, 9, 9};
   CHECK(rpl_event_encode(9, 17, e, wire) == RPL_OK);
   CHECK(rpl_event_decode(9, 17, wire, &out) == RPL_OK);
   CHECK(out.position == 3 && out.key == 31 && out.value == INT32_MIN &&
         out.kind == RPL_QUERY_RESULT);
   wire[63] ^= 1;
-  out = (RplEvent){9, 9, 9, 9};
+  out = (struct rpl_event){9, 9, 9, 9};
   CHECK(rpl_event_decode(9, 17, wire, &out) == RPL_CORRUPT);
   CHECK(out.value == 9);
   wire[63] ^= 1;
@@ -196,12 +196,12 @@ static int log_case(void) {
   CHECK(logbook.memory.count == 2);
   /* A valid but unpublished extra event is corruption, not a new prefix. */
   unsigned char record[64], key[2] = {'E', 3};
-  CHECK(rpl_event_encode(logbook.uuid, 17, (RplEvent){3, 4, RPL_SET, 11},
+  CHECK(rpl_event_encode(logbook.uuid, 17, (struct rpl_event){3, 4, RPL_SET, 11},
                          record) == RPL_OK);
   CHECK(store_begin(&pages) == STORE_OK);
   CHECK(store_put(&pages, key, 2, record, 64) == STORE_OK);
   CHECK(store_commit(&pages) == STORE_OK);
-  RplLog unchanged = logbook;
+  struct rpl_log unchanged = logbook;
   CHECK(rpl_open(&pages, logbook.uuid, 17, &logbook) == RPL_CORRUPT);
   CHECK(!memcmp(&unchanged, &logbook, sizeof logbook));
   CHECK(setup() == 0);
@@ -219,10 +219,10 @@ static int snapshot_case(void) {
   CHECK(rpl_append(&logbook, RPL_SET, 3, 7) == RPL_OK);
   CHECK(rpl_append(&logbook, RPL_QUERY_RESULT, 3, 9) == RPL_OK);
   CHECK(rpl_snapshot_save(&logbook, 1) == RPL_OK);
-  RplSnapshot snap;
+  struct rpl_snapshot snap;
   CHECK(rpl_snapshot_load(&logbook, &snap) == RPL_OK);
   CHECK(snap.position == 1 && snap.present == 8 && snap.values[3] == 7);
-  RplSnapshot full, fast;
+  struct rpl_snapshot full, fast;
   CHECK(rpl_state(&logbook, 0, &full) == RPL_OK);
   CHECK(rpl_state(&logbook, 1, &fast) == RPL_OK);
   CHECK(full.position == fast.position && full.present == fast.present &&
@@ -230,7 +230,7 @@ static int snapshot_case(void) {
   restart(&disk);
   CHECK(reopen() == 0);
   CHECK(rpl_snapshot_load(&logbook, &snap) == RPL_OK && snap.values[3] == 7);
-  RplLog unchanged = logbook;
+  struct rpl_log unchanged = logbook;
   CHECK(rpl_open(&pages, logbook.uuid, 18, &logbook) == RPL_IDENTITY);
   CHECK(!memcmp(&unchanged, &logbook, sizeof logbook));
   CHECK(rpl_snapshot_save(&logbook, 0) == RPL_OK);
@@ -326,7 +326,7 @@ static int oracle(void) {
       CHECK(reopen() == 0);
       printf("%u\n", logbook.memory.count);
     } else if (op == 'Q') {
-      RplSnapshot s;
+      struct rpl_snapshot s;
       CHECK(scanf("%u", &pos) == 1);
       int r = rpl_state(&logbook, pos, &s);
       printf("%d", r);
@@ -341,7 +341,7 @@ static int oracle(void) {
       CHECK(scanf("%" SCNu64 " %" SCNu32 " %u %u %u %" SCNd32, &uuid, &schema,
                   &pos, &kind, &key, &value) == 6);
       int r =
-          rpl_event_encode(uuid, schema, (RplEvent){pos, key, kind, value}, b);
+          rpl_event_encode(uuid, schema, (struct rpl_event){pos, key, kind, value}, b);
       printf("%d", r);
       if (!r)
         for (unsigned i = 0; i < 64; ++i)

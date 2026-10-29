@@ -3,7 +3,7 @@
 #if defined(__GNUC__) || defined(__clang__)
 __attribute__((noinline))
 #endif
-int cpx_effect_probe(CPMPool *pool,CPMRing *queue,int (*callback)(int)){
+int cpx_effect_probe(struct cpm_pool *pool,struct cpm_ring *queue,int (*callback)(int)){
  volatile unsigned char guard[32];guard[0]=7;
  int values[2]={11,22};size_t accepted;
  int status=(int)cpm_prefix(pool,queue,values,2,&accepted);

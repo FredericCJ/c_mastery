@@ -46,7 +46,7 @@ exports or label their successful runs as learner completion.
 
 ## Ring publication, wrap and diagnostics
 
-`CfRing` has32 caller-owned typed slots, storage a power of two1..32 and a
+`struct cf_ring` has32 caller-owned typed slots, storage a power of two1..32 and a
 logical limit1..storage. Select8 or32 counter bits; indices reside in C atomic
 unsigned objects but the8-bit profile masks every publication and distance.
 Capacity must remain strictly below half the selected modulus. The additional
@@ -92,7 +92,7 @@ progress without the losing caller's completion. A purely spurious loss does
 not establish another caller's success. Signed overflow is not a permitted
 alternative to the checked policy.
 
-`CfPool` is an explicit reservation/lifetime exercise, not a second
+`struct cf_pool` is an explicit reservation/lifetime exercise, not a second
 Michael–Scott queue. It owns32 atomic state words; slot0 is a permanent dummy.
 Each other word includes a nonwrapping generation and FREE, RESERVED, LINKED,
 RETIRED or permanently retired state. A take scans at most31 candidate slots
@@ -148,7 +148,7 @@ cannot be reused. Keep that optimization rejected without a new valid proof.
 
 ## Epochs, nesting, departure and grace
 
-`CfEpoch` composes the actual ordinary-field AGDomain with one C17 atomic-flag
+`struct cf_epoch` composes the actual ordinary-field AGDomain with one C17 atomic-flag
 gate. Every metadata access acquires that gate or returns BUSY unchanged.
 The owner releases after all ordinary writes; the next successful acquire
 orders its reads. A caller may retry but successful service is not lock-free

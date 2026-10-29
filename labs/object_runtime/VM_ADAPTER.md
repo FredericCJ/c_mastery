@@ -11,7 +11,7 @@ concurrent collector or an interrupt-safe API.
 
 ## Representation and authority
 
-`ORVM` borrows a live initialized Cvm for its whole lifetime. Initialize into
+`struct or_vm` borrows a live initialized Cvm for its whole lifetime. Initialize into
 fresh control storage with `orv_init`. Callers own every referenced object and
 serialize all VM/adapter access. The VM must be stopped before `orv_pause(1)`;
 the flag asserts a boundary and cannot stop another thread. Resume sets it to
@@ -19,7 +19,7 @@ zero, causing collection and registration to refuse. No raw heap address may
 survive a collecting operation. Old unregistered CvmValue copies can become
 stale. A caller must register *every usable copy* or reconstruct it afterward.
 
-`ORVDerived` holds a full CvmValue base and a pair-field offset: 0, 1, or the
+`struct orv_derived` holds a full CvmValue base and a pair-field offset: 0, 1, or the
 representable one-past offset 2. Offset 2 cannot be dereferenced. Non-reference
 values require offset zero. It is a logical pair index, not a truncated native
 pointer. Each registration borrows an exclusive writable ORVDerived object until

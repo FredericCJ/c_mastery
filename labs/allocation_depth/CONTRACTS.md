@@ -51,7 +51,7 @@ An aligned declared character array supplies byte storage only. Actual `T[]`
 objects supply typed slots. Genuine allocated storage can acquire effective type
 through the appropriate typed stores; the harness demonstrates this separately.
 The mapping adapter uses the inspected Linux interface and byte accesses, with
-no blanket ISO C claim for arbitrary firmware addresses. `ALArena` trusts the
+no blanket ISO C claim for arbitrary firmware addresses. `struct al_arena` trusts the
 caller's stated base-alignment guarantee; it cannot validate arbitrary pointers.
 The unaligned-base variant supplies alignment1 and rejects an alignment8 request.
 
@@ -68,7 +68,7 @@ destructors continue after an error.
 
 ## Arena, scopes and LIFO work: T16.01–T16.05
 
-Implement `al_extent`, then `ALArena`: capacity is caller-selected, with at most
+Implement `al_extent`, then `struct al_arena`: capacity is caller-selected, with at most
 16 live allocation descriptors and 8 nested marks. `al_extent` checks nonzero
 power-of-two alignment, computes padding by unsigned arithmetic, and compares
 against remaining capacity before addition. Run the exact 24-byte input
@@ -97,14 +97,14 @@ lookup, and O(number removed) cleanup; callbacks have separately bounded costs.
 
 ## Extents, tags and resize: T16.02, T16.07–T16.08, T16.11
 
-`ALExtent` is a logical-byte policy with at most16 sorted free intervals. Implement
+`struct al_extent` is a logical-byte policy with at most16 sorted free intervals. Implement
 first fit and best fit, with lowest offset breaking best-fit ties. For holes
 `[0,12),[20,40)` and request10, minimum remainder8 absorbs the first hole's
 2-byte tail. Test remainders7/8/9, every release order of three8-byte intervals,
 overlap rejection and size arithmetic. This logical model has no hidden in-band
 header and must not be confused with the tagged allocator below.
 
-`ALHeap` owns an actual 8-aligned byte array, capacity16..256 in multiples of8.
+`struct al_heap` owns an actual 8-aligned byte array, capacity16..256 in multiples of8.
 An allocated block has an 8-byte header, byte payload and 4-byte footer; total
 block size is a multiple of8 and at least16. Header fields are little-endian
 16-bit total and request, state0/1, reserved zero, markersA5/5A. Footer repeats
@@ -130,7 +130,7 @@ supplied callback acquires a synthetic token, fails after two copied bytes and
 cleans that token. Raw byte migration excludes self/interior pointers; the
 transfer must choose a documented relocation callback/offset representation or
 retain that exclusion. A client descriptor can keep stable identity by updating
-its underlying handle only after success; `ALStable` implements a three-entry
+its underlying handle only after success; `struct al_stable` implements a three-entry
 typed descriptor table with owner/index/generation handles and retirement at3.
 The same stable handle survives successful moving resize, failed resize preserves
 both table and heap, and release invalidates it. Lookup validates the table before
@@ -143,7 +143,7 @@ total and largest free extent. Peaks include staged destination storage before
 old release on a moving resize. Search counts count successful free-list searches
 only, saturating at SIZE_MAX; prove bounds rather than interpreting absence of a failed-search update as
 zero work. The validator scans at most16 blocks and16 live descriptors per block;
-first/best search is O(free blocks), full snapshot storage is `sizeof(ALHeap)`,
+first/best search is O(free blocks), full snapshot storage is `sizeof(struct al_heap)`,
 and copy work is O(retained payload). These costs belong in every comparison.
 
 The explicit variants derive a 4-byte-header/payload5/alignment8/footer4 layout
@@ -155,7 +155,7 @@ exact inspected N1570 and N3096 passages; preserve the published-C17 access gap.
 
 ## Pools, classes and buddy work: T16.06, T16.09–T16.10
 
-`ALPool` composes the existing16-slot `algo_pool`, admitting only slots0..2.
+`struct al_pool` composes the existing16-slot `algo_pool`, admitting only slots0..2.
 Slots3..15 are retired. Its wrapper includes owner identity and retires each slot
 after generation3, making exhaustion observable without billions of iterations.
 Keep the producer unchanged. Demonstrate that the old raw numeric handle can
@@ -164,18 +164,18 @@ contract, while the wrapper rejects that foreign owner. Audit the state bitmap,
 free count, live values and generation together. Compare actual typed int32
 slots with byte-only classes; neither grants arbitrary over-aligned typed storage.
 
-`ALClasses` has four byte slots in each size class8/16/32. Choose the smallest
+`struct al_classes` has four byte slots in each size class8/16/32. Choose the smallest
 class, initialize staged bytes, commit ownership only on success, destroy before
 reuse, and reject stale/foreign handles. Required requests1,8,9,17 yield payload35,
 charged64 and internal waste29. The embedded C arrays reserve all physical storage
 for the owner's lifetime: the reported logical class backing224 is active cache
-capacity, not an OS mapping or `sizeof(ALClasses)` measurement. Report metadata
+capacity, not an OS mapping or `sizeof(struct al_classes)` measurement. Report metadata
 and reserved32-byte slot arrays separately. The four64-byte-slabs variant is a
 separate explicit layout model, with one live8-byte slot per slab: payload32,
 charged32, retained256. Compaction requires ending raw borrows and updating stable
 indirection; merely freeing logical slots does not release an embedded C array.
 
-`ALBuddy` uses a15-node tree for a64-byte logical region and minimum8. States are
+`struct al_buddy` uses a15-node tree for a64-byte logical region and minimum8. States are
 free, split, or allocated; side metadata holds unique IDs. It splits left first,
 merges only whole free siblings, and checks hidden descendants are empty.
 Implement the9-then8 trace and all subsets of eight8-byte releases. Bound a search

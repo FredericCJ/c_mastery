@@ -51,12 +51,12 @@ static int thunk(const unsigned char *p, size_t n, int a, int *out) {
   return DS_OK;
 }
 static void destroy(void *p) { (*(unsigned *)p)++; }
-typedef struct {
+struct ds_test_service {
   unsigned calls, fail;
   int value;
-} Service;
+};
 static int service_read(void *p, int *out) {
-  Service *s = p;
+  struct ds_test_service *s = p;
   s->calls++;
   if (s->calls == s->fail)
     return DS_FAILED;
@@ -68,14 +68,14 @@ int main(int argc, char **argv) {
     return 2;
   if (!strcmp(argv[1], "traits")) {
     int value = 7, out = 99;
-    DSOps ops = {read_int}, bad = {read_fail};
-    CHECK(ds_measure((DSView){&value, &ops}, &out) == DS_OK && out == 7);
+    struct ds_ops ops = {read_int}, bad = {read_fail};
+    CHECK(ds_measure((struct ds_view){&value, &ops}, &out) == DS_OK && out == 7);
     out = 99;
-    CHECK(ds_measure((DSView){&value, &bad}, &out) == DS_FAILED && out == 99);
-    CHECK(ds_measure((DSView){&value, NULL}, &out) == DS_INVALID && out == 99);
+    CHECK(ds_measure((struct ds_view){&value, &bad}, &out) == DS_FAILED && out == 99);
+    CHECK(ds_measure((struct ds_view){&value, NULL}, &out) == DS_INVALID && out == 99);
   } else if (!strcmp(argv[1], "fat")) {
-    DSOps ops = {read_int}, bad = {read_fail};
-    DSBox box = {&ops, 17};
+    struct ds_ops ops = {read_int}, bad = {read_fail};
+    struct ds_box box = {&ops, 17};
     int out = 99;
     CHECK(ds_embedded(&box, &out) == DS_OK && out == 17);
     box.ops = &bad;
@@ -89,7 +89,7 @@ int main(int argc, char **argv) {
     out = 99;
     CHECK(ds_fold(bad, 2, 10, reject_negative, &out) == DS_FAILED && out == 99);
   } else if (!strcmp(argv[1], "closures")) {
-    DSClosure c;
+    struct ds_closure c;
     int out = 99;
     CHECK(ds_closure_init(&c, 3, DS_SHARED) == DS_OK);
     CHECK(ds_closure_call(&c, 2, &out) == DS_OK && out == 5 && c.capture == 3);
@@ -102,11 +102,11 @@ int main(int argc, char **argv) {
     CHECK(ds_closure_init(&c, INT_MAX, DS_ONCE) == DS_OK);
     CHECK(ds_closure_call(&c, 1, &out) == DS_RANGE && !c.active && out == 3);
   } else if (!strcmp(argv[1], "erased")) {
-    DSErased a, b;
+    struct ds_erased a, b;
     unsigned destroyed = 0;
     unsigned char bytes[] = {7};
     int out = 99;
-    DAllocator allocator = {NULL, allocate, release};
+    struct d_allocator allocator = {NULL, allocate, release};
     ds_erased_init(&a, allocator);
     ds_erased_init(&b, allocator);
     CHECK(ds_erased_assign(&a, bytes, 1, thunk, destroy, &destroyed) == DS_OK);
@@ -120,8 +120,8 @@ int main(int argc, char **argv) {
     ds_erased_drop(&b);
     CHECK(destroyed == 1);
   } else if (!strcmp(argv[1], "multiple")) {
-    DSMethods m;
-    DSCache c = {0, 0, 0, NULL};
+    struct ds_methods m;
+    struct ds_cache c = {0, 0, 0, NULL};
     int out = 99;
     ds_methods_init(&m);
     CHECK(ds_methods_set(&m, 0, 1, subtract) == DS_OK);
@@ -132,8 +132,8 @@ int main(int argc, char **argv) {
     CHECK(ds_dispatch(&m, &c, 0, 1, 10, 2, &out) == DS_OK && out == 12);
     CHECK(ds_methods_set(&m, 0, 1, NULL) == DS_FULL);
   } else if (!strcmp(argv[1], "intrusive")) {
-    DSList l;
-    DSItem a, b, c;
+    struct ds_list l;
+    struct ds_item a, b, c;
     int out = 99;
     ds_list_init(&l);
     ds_item_init(&a, 1);
@@ -152,13 +152,13 @@ int main(int argc, char **argv) {
     CHECK(ds_list_remove(&l, &c) == DS_OK);
     CHECK(l.head.next == &l.head && l.head.previous == &l.head);
   } else if (!strcmp(argv[1], "modules")) {
-    Service s = {0, 0, 7};
-    DSModule *a = NULL, *b = NULL, *out_module;
+    struct ds_test_service s = {0, 0, 7};
+    struct ds_module *a = NULL, *b = NULL, *out_module;
     int out = 99;
-    CHECK(ds_module_open((DSService){service_read, &s}, &a) == DS_OK);
-    CHECK(ds_module_open((DSService){service_read, &s}, &b) == DS_OK);
+    CHECK(ds_module_open((struct ds_service){service_read, &s}, &a) == DS_OK);
+    CHECK(ds_module_open((struct ds_service){service_read, &s}, &b) == DS_OK);
     out_module = a;
-    CHECK(ds_module_open((DSService){service_read, &s}, &out_module) ==
+    CHECK(ds_module_open((struct ds_service){service_read, &s}, &out_module) ==
               DS_FULL &&
           out_module == a);
     CHECK(ds_module_twice(a, &out) == DS_OK && out == 14 && s.calls == 2);
@@ -169,8 +169,8 @@ int main(int argc, char **argv) {
     ds_module_close(a);
     ds_module_close(b);
   } else if (!strcmp(argv[1], "capabilities")) {
-    DSAuthority root;
-    DSCapability full, read, other;
+    struct ds_authority root;
+    struct ds_capability full, read, other;
     ds_authority_init(&root, 3);
     CHECK(ds_cap_issue(&root, 3, &full) == DS_OK);
     CHECK(ds_cap_attenuate(full, 1, &read) == DS_OK);
@@ -181,8 +181,8 @@ int main(int argc, char **argv) {
     CHECK(ds_cap_revoke(&root) == DS_OK);
     CHECK(ds_cap_add(&root, full, 5) == DS_STALE && root.counter == 5);
   } else if (!strcmp(argv[1], "plugin")) {
-    DSLoaded m;
-    const DSPlugin *api = NULL;
+    struct ds_loaded m;
+    const struct ds_plugin *api = NULL;
     int out = 99;
     ds_loaded_init(&m);
     CHECK(ds_loaded_open(&m, argv[4]) == DS_INVALID && !m.handle);
@@ -194,8 +194,8 @@ int main(int argc, char **argv) {
     CHECK(ds_loaded_release(&m) == DS_OK);
     CHECK(ds_loaded_close(&m) == DS_OK && !m.handle && !m.api);
   } else if (!strcmp(argv[1], "reload")) {
-    DSHost h;
-    DSLoaded candidate;
+    struct ds_host h;
+    struct ds_loaded candidate;
     ds_host_init(&h);
     ds_loaded_init(&candidate);
     h.state = 7;

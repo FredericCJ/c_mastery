@@ -3,7 +3,7 @@
 This required successor retains X-T67-009/R1-R4 and its delayed variant.
 Implement the supplied record stub, retaining the actual PR-T67-09 TLV reader
 and writer. Complete X-T67-008, PR-T03-02 `bytes.cursor` and PR-T20-01
-`codec.records`. The parser calls actual `FCursor/f_take`; the two-edition
+`codec.records`. The parser calls actual `struct f_cursor/f_take`; the two-edition
 relay imports `ar_encode/ar_decode`. Authentication composes the preparatory
 first-principles `replicated/hashing` stage, whose integer/byte prerequisites
 are T03/T04. That stage can be implemented before the later T76 Merkle work;
@@ -48,7 +48,7 @@ Known tags1/2 are singular: any duplicate is rejected, even byte-identical ones.
 Unknown tags may repeat. Their occurrence order within a tag is meaningful and
 is preserved exactly. Parsing uses a local FCursor, takes each complete header
 and payload, calls actual `ad_evolve_read` on that exact TLV, and copies the
-payload into an owned `AdeRecord`. Validate the entire count, lengths, known
+payload into an owned `struct ade_record`. Validate the entire count, lengths, known
 forms, duplicate policy and exact end position before publishing. Every refusal
 leaves the previous output unchanged. Truncated or trailing input is invalid.
 
@@ -56,7 +56,7 @@ All pointers refer to live aligned objects and real extents; input/control/
 output/key/tag/service storage is disjoint and externally serialized. Public
 record fields are inspectable values, not permission to forge an invalid state.
 All active fields must be initialized. Record copies own their inline arrays
-and retain no wire pointer. The original `ADEvolving` view still borrows input:
+and retain no wire pointer. The original `struct ad_evolving` view still borrows input:
 mutating that buffer changes its payload, while mutating the source after
 successful `ade_read` cannot change the copied record. No allocation/destructor,
 asynchronous cancellation or hidden resource ownership is involved.
@@ -109,7 +109,7 @@ for unknown semantics, replay protection, confidentiality or freshness.
 `ade_apply` first authenticates the whole record, then applies a trusted local
 policy: exactly one tag1 amount is required, tag2 may occur once, and every
 unknown tag is refused even with a valid authentication code. Amount is unsigned
-big-endian16. On success add it to `AdeService.total`, leaving privileged
+big-endian16. On success add it to `struct ade_service.total`, leaving privileged
 unchanged. Missing amount/unknowns give POLICY; uint32 addition overflow gives
 RANGE. State changes only after every check. Zero amount is allowed. No error
 may increment either counter. The policy is not supplied by attacker bytes.

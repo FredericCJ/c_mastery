@@ -2,26 +2,26 @@
 #define TL_LIFECYCLE_H
 #include <pthread.h>
 #include <stddef.h>
-typedef struct TLPool TLPool;
-typedef struct { unsigned created, joined, completed, sum; int create_error; } TLStats;
-typedef int (*TLJoin)(pthread_t, void **, void *);
-TLPool *tl_pool_start(unsigned workers, unsigned fail_ordinal, int fail_allocation, int *error);
-int tl_pool_collect(TLPool *, TLJoin, void *, TLStats *);
-int tl_pool_dispose(TLPool **);
-typedef struct {
+struct tl_pool;
+struct tl_stats { unsigned created, joined, completed, sum; int create_error; };
+typedef int (*tl_join_fn)(pthread_t, void **, void *);
+struct tl_pool *tl_pool_start(unsigned workers, unsigned fail_ordinal, int fail_allocation, int *error);
+int tl_pool_collect(struct tl_pool *, tl_join_fn, void *, struct tl_stats *);
+int tl_pool_dispose(struct tl_pool **);
+struct tl_monitor {
     pthread_mutex_t mutex;
     pthread_cond_t changed;
     unsigned created, creator_waiting, release_worker, completed;
     unsigned live_refs, freed, sum;
-} TLMonitor;
-typedef struct {
-    TLMonitor *monitor;
+};
+struct tl_creator {
+    struct tl_monitor *monitor;
     const unsigned char *input;
     size_t length;
     int wait_for_completion;
     int error;
-} TLCreator;
-int tl_monitor_init(TLMonitor *);
-int tl_monitor_destroy(TLMonitor *);
+};
+int tl_monitor_init(struct tl_monitor *);
+int tl_monitor_destroy(struct tl_monitor *);
 void *tl_detached_creator(void *);
 #endif

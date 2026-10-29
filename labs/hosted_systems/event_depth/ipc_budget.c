@@ -1,8 +1,8 @@
 #include "ipc.h"
 #include <errno.h>
-int ei_exchange(EiIo o, const unsigned char request[8],
+int ei_exchange(struct ei_io o, const unsigned char request[8],
                 unsigned char response[4], struct timespec deadline,
-                EiProgress *progress) {
+                struct ei_progress *progress) {
   (void)o;
   (void)request;
   (void)response;

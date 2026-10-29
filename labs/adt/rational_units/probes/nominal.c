@@ -7,14 +7,14 @@
 #define BYPASS 0
 #endif
 int main(void) {
-    AdqTicks ticks={5};AdqMicroseconds us={5};AdqResult result;
+    struct adq_ticks ticks={5};struct adq_microseconds us={5};struct adq_result result;
 #if WRONG
-    AdqStatus status=adq_to_ticks(ticks,(AdqPeriod){3,2},&result);
+    enum adq_status status=adq_to_ticks(ticks,(struct adq_period){3,2},&result);
 #elif BYPASS
     /* Explicitly dismantling a type defeats the dimensional boundary. */
-    AdqStatus status=adq_to_ticks((AdqMicroseconds){ticks.value},(AdqPeriod){3,2},&result);
+    enum adq_status status=adq_to_ticks((struct adq_microseconds){ticks.value},(struct adq_period){3,2},&result);
 #else
-    AdqStatus status=adq_to_ticks(us,(AdqPeriod){3,2},&result);
+    enum adq_status status=adq_to_ticks(us,(struct adq_period){3,2},&result);
 #endif
     (void)ticks;(void)us;
     if(status!=ADQ_OK||result.value!=3||result.inexact!=1)return 1;

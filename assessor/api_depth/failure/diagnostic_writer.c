@@ -3,7 +3,7 @@
 int main(int argc, char **argv) {
   if (argc != 2)
     return 2;
-  AePublic p;
+  struct ae_public p;
   unsigned char b[16] = {0};
   if (ae_capture(1, 104, 9, 2, &p, b + 8) != AE_OK)
     return 3;

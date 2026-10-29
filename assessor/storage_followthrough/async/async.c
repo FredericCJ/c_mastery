@@ -2,7 +2,7 @@
 #ifndef SA_MUTANT
 #define SA_MUTANT 0
 #endif
-int sa_start(SaRead *s, SaPort p, uint32_t page, void *buffer) {
+int sa_start(struct sa_read *s, struct sa_port p, uint32_t page, void *buffer) {
   if (!s || !buffer || !p.submit_read || !p.wait)
     return SA_INVALID;
   if (s->state != SA_EMPTY)
@@ -10,10 +10,10 @@ int sa_start(SaRead *s, SaPort p, uint32_t page, void *buffer) {
   int64_t t = p.submit_read(p.context, page, buffer);
   if (t <= 0)
     return SA_IO;
-  *s = (SaRead){p, buffer, (uint64_t)t, SA_OWNED, 0};
+  *s = (struct sa_read){p, buffer, (uint64_t)t, SA_OWNED, 0};
   return SA_OK;
 }
-int sa_abandon(SaRead *s) {
+int sa_abandon(struct sa_read *s) {
   if (!s || s->state == SA_EMPTY)
     return SA_INVALID;
   s->abandoned = 1;
@@ -23,7 +23,7 @@ int sa_abandon(SaRead *s) {
          : s->state == SA_QUARANTINED ? SA_UNKNOWN
                                       : SA_BUSY;
 }
-int sa_finish(SaRead *s) {
+int sa_finish(struct sa_read *s) {
   if (!s || s->state == SA_EMPTY)
     return SA_INVALID;
   if (s->state == SA_QUARANTINED)
@@ -38,12 +38,12 @@ int sa_finish(SaRead *s) {
   s->state = SA_COMPLETED;
   return s->abandoned && SA_MUTANT != 3 ? SA_DRAINED : SA_READY;
 }
-int sa_release(SaRead *s, void **out) {
+int sa_release(struct sa_read *s, void **out) {
   if (!s || !out)
     return SA_INVALID;
   if (s->state != SA_COMPLETED)
     return s->state == SA_QUARANTINED ? SA_UNKNOWN : SA_BUSY;
   *out = s->buffer;
-  *s = (SaRead){0};
+  *s = (struct sa_read){0};
   return SA_OK;
 }

@@ -29,7 +29,7 @@ static int cursor(void) {
   int p[2];
   CHECK(!pipe2(p, O_NONBLOCK | O_CLOEXEC));
   unsigned char data[3] = {7, 0, 9}, buf[8];
-  RdOperation op;
+  struct rd_operation op;
   CHECK(!rd_operation_init(&op, 3, 0) && write(p[1], data, 2) == 2);
   struct pollfd ready = {p[0], POLLIN, 0};
   CHECK(poll(&ready, 1, 0) == 1);
@@ -88,7 +88,7 @@ static int duplex(void) {
   size_t retained;
   CHECK(!prefill(p[0], &retained));
   unsigned char input[3] = {5, 0, 7}, output[3] = {11, 12, 13}, b;
-  RdOperation rx, tx;
+  struct rd_operation rx, tx;
   CHECK(!rd_operation_init(&rx, 3, 0) && !rd_operation_init(&tx, 3, output));
   CHECK(send(p[0], tx.bytes, tx.goal, MSG_NOSIGNAL) == -1 && would_block() &&
         rd_progress(&tx, -2, 0) == 0 && tx.done == 0);
@@ -142,18 +142,18 @@ static int notification(unsigned et, unsigned oneshot) {
          et, oneshot, second, oneshot);
   return 0;
 }
-static uint64_t token_value(RdToken t) {
+static uint64_t token_value(struct rd_token t) {
   return (uint64_t)t.generation * 4 + t.slot;
 }
-static RdToken token_decode(uint64_t v) {
-  return (RdToken){(unsigned)(v % 4), (unsigned)(v / 4)};
+static struct rd_token token_decode(uint64_t v) {
+  return (struct rd_token){(unsigned)(v % 4), (unsigned)(v / 4)};
 }
 static int reuse(void) {
   int p[2], q[2], ep = epoll_create1(EPOLL_CLOEXEC);
   CHECK(ep >= 0 && !pipe2(p, O_NONBLOCK | O_CLOEXEC) &&
         !pipe2(q, O_NONBLOCK | O_CLOEXEC));
-  RdRegistry registry;
-  RdToken old, fresh;
+  struct rd_registry registry;
+  struct rd_token old, fresh;
   CHECK(!rd_registry_init(&registry, 7, 8) &&
         rd_register(&registry, 2, p[0], &old) == 1);
   struct epoll_event registration = {.events = EPOLLIN,
@@ -174,7 +174,7 @@ static int reuse(void) {
    * event data never contains an unvalidated connection pointer. */
   CHECK(rd_borrow(&registry, token_decode(cached.data.u64)) == 0);
   CHECK(write(q[1], "B", 1) == 1 && epoll_wait(ep, &current, 1, 0) == 1);
-  RdSlot *s = rd_borrow(&registry, token_decode(current.data.u64));
+  struct rd_slot *s = rd_borrow(&registry, token_decode(current.data.u64));
   CHECK(s && s->descriptor == number && read(s->descriptor, &b, 1) == 1 &&
         b == 'B');
   CHECK(!rd_return(&registry, fresh) &&
@@ -193,9 +193,9 @@ static uint64_t now_ns(void) {
 }
 static int overload_policies(void) {
   for (unsigned policy = 0; policy < 3; ++policy) {
-    RdService s;
-    RfMessage m[10];
-    RfFrame frame = {.length = 1, .bytes = {42}};
+    struct rd_service s;
+    struct rf_message m[10];
+    struct rf_frame frame = {.length = 1, .bytes = {42}};
     int pair[4][2], ep = epoll_create1(EPOLL_CLOEXEC);
     unsigned at;
     CHECK(ep >= 0 && !rd_service_init(&s, 256));
@@ -207,7 +207,7 @@ static int overload_policies(void) {
     CHECK(!epoll_ctl(ep, EPOLL_CTL_ADD, pair[0][0], &event));
     for (unsigned i = 0; i < 9; ++i) {
       CHECK(!rf_message_init(&m[i], i + 1, 1, &frame) &&
-            rd_admit(&s, 0, &m[i], (enum RdPolicy)policy) == (i < 8));
+            rd_admit(&s, 0, &m[i], (enum rd_policy)policy) == (i < 8));
     }
     CHECK(m[8].owner == RF_CALLER);
     if (policy == RD_DISCONNECT) {
@@ -242,14 +242,14 @@ static int overload_policies(void) {
               epoll_wait(ep, &observed, 1, 0) == 1);
       }
       CHECK(recv(pair[0][0], received, 2, 0) == 2);
-      RfParser parser;
-      RfFrame parsed;
+      struct rf_parser parser;
+      struct rf_frame parsed;
       size_t consumed;
       CHECK(!rf_parser_init(&parser, 1) &&
             rf_feed(&parser, received, 2, &consumed, &parsed) == 1 &&
             consumed == 2 && parsed.length == 1 && parsed.bytes[0] == 42);
       CHECK(!rf_message_init(&m[9], 10, 1, &parsed) &&
-            rd_admit(&s, 0, &m[9], (enum RdPolicy)policy) ==
+            rd_admit(&s, 0, &m[9], (enum rd_policy)policy) ==
                 (policy == RD_PAUSE_READ));
       CHECK(!epoll_ctl(ep, EPOLL_CTL_DEL, pair[0][0], 0));
     }
@@ -267,9 +267,9 @@ static int overload_policies(void) {
   return 0;
 }
 static int shutdown_service(void) {
-  RdService s;
-  RfMessage m[32], rejected;
-  RfFrame frame = {.length = 8, .bytes = {1, 2, 3, 4, 5, 6, 7, 8}};
+  struct rd_service s;
+  struct rf_message m[32], rejected;
+  struct rf_frame frame = {.length = 8, .bytes = {1, 2, 3, 4, 5, 6, 7, 8}};
   int sockets[4][2], size = 1024;
   size_t pre[4];
   unsigned at;

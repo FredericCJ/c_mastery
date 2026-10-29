@@ -10,7 +10,7 @@ int main(void) {
     if(got!=6 || strlen(encoded)%2)return 2;
     size_t n=strlen(encoded)/2;if(n>sizeof bytes || split>second || second>n)return 2;
     for(size_t i=0;i<n;i++){int a=digit(encoded[2*i]),b=digit(encoded[2*i+1]);if(a<0 || b<0)return 2;bytes[i]=(unsigned char)(a*16+b);}
-    HttpParser p;http_init(&p,authority);size_t total=0,first=0,take=0;int r=http_feed(&p,bytes,split,&first),prefix=r;total=first;
+    struct http_parser p;http_init(&p,authority);size_t total=0,first=0,take=0;int r=http_feed(&p,bytes,split,&first),prefix=r;total=first;
     while(total<n && (r==HTTP_NEED || r==HTTP_CONTINUE)) {size_t end=total<second?second:n;r=http_feed(&p,bytes+total,end-total,&take);total+=take;if(!take)break;}
     if(eof && r!=HTTP_DONE && r!=HTTP_ERROR)r=http_eof(&p);
     size_t z=0;int sr=(r==HTTP_DONE || r==HTTP_ERROR)?hf_response(&p.request,eof==2?0:"Sun, 01 Jan 2023 00:00:00 GMT",0,0,0,output,sizeof output,&z):-2;

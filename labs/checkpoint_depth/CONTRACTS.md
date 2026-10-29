@@ -2,7 +2,7 @@
 
 ## P4 acquisition, target startup and completion boundaries
 
-`CPFRing` has four declared sample objects and a selected physical size2..4;
+`struct cpf_ring` has four declared sample objects and a selected physical size2..4;
 one slot remains unused, so usable capacity is size-1. Exactly one producer
 owns head and exactly one consumer owns tail. The producer writes a complete
 sample before its release store; the consumer acquires head before reading and
@@ -23,7 +23,7 @@ sequence,16-bit value and16-bit acquisition timestamp. `cpf_frame` uses the low
 followed by little-endian value and timestamp. Timestamp acquisition belongs in
 the producer; a DMA-completion timestamp answers a different question.
 
-`CPFTx` owns its encoded wire array at a stable address. Begin copies a message
+`struct cpf_tx` owns its encoded wire array at a stable address. Begin copies a message
 only from IDLE. Polling accepts one byte per TXE observation. The last write
 enters WIRE and cannot consume an earlier TC observation from that same call.
 DMA completion requires a disabled stream and zero remaining count; it releases
@@ -40,7 +40,7 @@ pending and retained, including after a deadline. Generations retire at the
 declared limit; recovery also retires at the retry limit. A recovery discards a
 partial frame and reports failure; it never silently replays accepted bytes.
 
-`CPFClock` supplies a deliberately conservative multiword snapshot: one writer
+`struct cpf_clock` supplies a deliberately conservative multiword snapshot: one writer
 uses sequentially consistent32-bit atomics for sequence, low and high words.
 Odd sequence means an update is in progress; a reader accepts only equal even
 sequence values bracketing the parts. Attempts are bounded and leave output
@@ -71,7 +71,7 @@ external observations; QEMU wall time must not be reported as board latency.
 
 ## P5 copied workers, Linux readiness and asynchronous lifetime
 
-`CPAQueue` owns four inline message slots, a FIFO of two indices and a mutex/
+`struct cpa_queue` owns four inline message slots, a FIFO of two indices and a mutex/
 monotonic condition variable. Each slot is free, queued, worker-owned or retired.
 Offer copies the message; take copies it again and returns a slot/generation
 handle. A worker may use its copy independently, but must finish exactly once
@@ -91,7 +91,7 @@ increments remain representable in size_t; the finite exercises establish that
 bound. This is a bounded reference contract, not an indefinitely accumulating
 production monitoring system.
 
-`CPLReader` is a separately serialized Linux adapter owning one nonblocking fd
+`struct cpl_reader` is a separately serialized Linux adapter owning one nonblocking fd
 after successful epoll registration. Its epoll token carries slot and generation,
 never a dereferenced heap pointer. Token validation precedes read, even after the
 same fd number is reused. Registration failure leaves fd ownership with the
@@ -112,7 +112,7 @@ appears exactly once. `dup2` atomically installs the test's owned descriptor;
 close-plus-dup is not a concurrent replacement algorithm. No network listener,
 third-party service or external data is involved.
 
-`CPOperation` is the changed large-payload/asynchronous-completion adapter. It owns
+`struct cp_operation` is the changed large-payload/asynchronous-completion adapter. It owns
 a copied1..1024-byte allocation, generation and callback context. Allocation
 failure leaves the caller's generation output and operation unchanged. Cancel
 requests completion but does not release. A completion with quiescent=false keeps
@@ -127,7 +127,7 @@ This explicit protocol supplies checks that ISO C does not enforce through types
 
 ## P2 transfer ownership and actual custom-entry images
 
-`CPWTransfer` borrows a live immutable byte extent until completion or an explicit
+`struct cpw_transfer` borrows a live immutable byte extent until completion or an explicit
 owner decision after failure. It stores length, accepted prefix and a bounded
 error record. Every `cpw_step` invokes at most one writer callback, with precisely
 the unaccepted suffix. Positive normalized progress advances by that count only;
@@ -148,7 +148,7 @@ cleanup errors do not replace either original cause. A C enum does not enforce
 exhaustive matches, valid variant fields, cleanup or language-specific Result
 layout. Callback and branch costs remain visible.
 
-`CPWChannel` actually composes the P1 typed pool and FIFO. Values0..255 are copied
+`struct cpw_channel` actually composes the P1 typed pool and FIFO. Values0..255 are copied
 into pool records. Removing a handle from the queue transfers it to the active
 writer state; the live record is released only after its byte is accepted. A
 retry or terminal error retains the same active byte while queued records remain
@@ -194,9 +194,9 @@ host security settings. A different ABI remains a separately named adapter task.
 ## P6 numerical state, ISA dispatch and measurement
 
 The portable C17 core supplies two FIR representations of coefficients[1,2,1]/4.
-`CPNExact` accepts int32 samples and emits an int64 numerator with an implicit
+`struct cpn_exact` accepts int32 samples and emits an int64 numerator with an implicit
 denominator4. Each widened sum lies within [-8589934592,8589934588], so no signed
-overflow occurs. Initial history is zero. `CPNDouble` requires radix2 binary64,
+overflow occurs. Initial history is zero. `struct cpn_double` requires radix2 binary64,
 round-to-nearest mode, preserved subnormals and no floating-point contraction or
 reassociation. All input/history values must be finite and within +/-1e100.
 The result evaluates `(0.25*x + 0.5*previous) + 0.25*older`; cancellation makes

@@ -12,7 +12,7 @@
 #include <sys/socket.h>
 #include <time.h>
 #include <unistd.h>
-typedef struct {int fd;HFHandle handle;HFFlow flow;unsigned char input[32];size_t have,used;} Connection;
+struct hf_connection {int fd;struct hf_handle handle;struct hf_flow flow;unsigned char input[32];size_t have,used;};
 static volatile sig_atomic_t stop;
 static void interrupted(int s){(void)s;stop=1;}
 static uint64_t now_ms(void){struct timespec t;if(clock_gettime(CLOCK_MONOTONIC,&t))abort();return (uint64_t)t.tv_sec*1000+(unsigned)t.tv_nsec/1000000;}
@@ -40,7 +40,7 @@ static int write_socket(void *v,const void *p,size_t n) {
   int fd=*(int *)v;ssize_t r=send(fd,p,n,MSG_NOSIGNAL);
   return r>=0?(int)r:errno==EINTR?-1:errno==EAGAIN || errno==EWOULDBLOCK?-2:-3;
 }
-static void release(HFPool *p,Connection *c) {
+static void release(struct hf_pool *p,struct hf_connection *c) {
   if(c->fd>=0){int fd=-1;if(!hf_close(p,c->handle,&fd))close(fd);c->fd=-1;}
 }
 int main(int argc,char **argv) {
@@ -48,24 +48,24 @@ int main(int argc,char **argv) {
   if(cap<1 || cap>2 || mode>2)return 2;
   int listener=-1;struct sockaddr_in addr={0};if(listener_init(0,0,&listener,&addr))return 2;
   char authority[128];snprintf(authority,sizeof authority,"127.0.0.1:%u",ntohs(addr.sin_port));
-  HFPool pool={0};Connection c[4];memset(c,0,sizeof c);for(unsigned i=0;i<4;i++)c[i].fd=-1;
+  struct hf_pool pool={0};struct hf_connection c[4];memset(c,0,sizeof c);for(unsigned i=0;i<4;i++)c[i].fd=-1;
   signal(SIGINT,interrupted);signal(SIGTERM,interrupted);
   printf("READY %s capacity=%u date=%u ledger=%zu flags=%d,%d\n",authority,cap,mode,sizeof c+sizeof pool,fcntl(listener,F_GETFL),fcntl(listener,F_GETFD));fflush(stdout);
   while(!stop) {
-    struct pollfd f[5]={{listener,POLLIN,0}};HFHandle captured[4];
+    struct pollfd f[5]={{listener,POLLIN,0}};struct hf_handle captured[4];
     for(unsigned i=0;i<4;i++){short events=0;captured[i]=c[i].handle;if(c[i].fd>=0){if(c[i].flow.draining || (!c[i].flow.closing && c[i].flow.count<cap && !c[i].have))events|=POLLIN;if(c[i].flow.count)events|=POLLOUT;}f[i+1]=(struct pollfd){c[i].fd,events,0};}
     int ready=poll(f,5,20);if(ready<0){if(errno==EINTR)continue;break;}
     uint64_t now=now_ms();char date[30];const char *d=utc_date(mode,date);
-    HFHandle admitted[4];unsigned admissions=0;
-    if(f[0].revents&POLLIN){HFAccept ops={accept_socket,accept_flags,accept_close,&listener};(void)hf_accept_batch(&pool,ops,admitted,&admissions);}
+    struct hf_handle admitted[4];unsigned admissions=0;
+    if(f[0].revents&POLLIN){struct hf_accept ops={accept_socket,accept_flags,accept_close,&listener};(void)hf_accept_batch(&pool,ops,admitted,&admissions);}
     for(unsigned a=0;a<admissions;a++) {
-      HFHandle h=admitted[a];int fd=pool.slot[h.index].fd;
-      Connection *s=&c[h.index];memset(s,0,sizeof *s);s->fd=fd;s->handle=h;
+      struct hf_handle h=admitted[a];int fd=pool.slot[h.index].fd;
+      struct hf_connection *s=&c[h.index];memset(s,0,sizeof *s);s->fd=fd;s->handle=h;
       if(hf_init(&s->flow,cap,authority,now)){release(&pool,s);continue;}
       fprintf(stderr,"ACCEPT fd=%d generation=%u flags=%d,%d\n",fd,h.generation,fcntl(fd,F_GETFL),fcntl(fd,F_GETFD));
     }
     for(unsigned i=0;i<4;i++) {
-      Connection *s=&c[i];if(s->fd<0)continue;
+      struct hf_connection *s=&c[i];if(s->fd<0)continue;
       /* A poll snapshot cannot refer to a newly admitted slot incarnation. */
       short ev=captured[i].generation==s->handle.generation && f[i+1].fd==s->fd?f[i+1].revents:0;
       if(ev&(POLLERR|POLLNVAL)){release(&pool,s);continue;}

@@ -4,7 +4,7 @@ int main(void) {
   const unsigned char input[3] = {65, 0, 66};
   unsigned char out[3] = {0};
   size_t n = 0;
-  LCBuffer *owned = lc_create(3);
+  struct lc_buffer *owned = lc_create(3);
   if (!owned)
     return 2;
   if (lc_append(owned, input, 3) != LC_OK ||

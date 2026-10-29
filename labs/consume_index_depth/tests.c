@@ -10,8 +10,8 @@ int main(int argc, char **argv) {
         return 0;
     }
     unsigned a[4] = {11,23,37,53};
-    CINode n = {0,71};
-    _Atomic(CINode *) p;
+    struct ci_node n = {0,71};
+    _Atomic(struct ci_node *) p;
     atomic_init(&p, &n);
     CHECK(ci_pointer(&p) == 71);
     for (unsigned i = 0; i < 4; ++i) {
@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
             CHECK(ci_acquire_branch(&p,a) == 23);
         } else return 2;
     }
-    atomic_store_explicit(&p, (CINode *)0, memory_order_release);
+    atomic_store_explicit(&p, (struct ci_node *)0, memory_order_release);
     CHECK(ci_pointer(&p) == 0);
     CHECK(ci_value_index(&p,a) == 0);
     CHECK(ci_branch_index(&p,a) == 11);

@@ -17,7 +17,7 @@ does not establish range membership or arena identity.
 
 `adf_arena` copies all supplied nodes into staged inline storage, calls actual
 `ad_eval` on the entire copy, then computes and stores every node value by
-topological order. Successful publication creates an `AdfArena` that owns its
+topological order. Successful publication creates an `struct adf_arena` that owns its
 inline nodes and cached values. Later mutation or destruction of the original
 input does not change that copy. `adf_root` checks the index and returns the
 cached value without repeating structural validation. Constructor or root

@@ -2,14 +2,14 @@
 #include <errno.h>
 #include <string.h>
 
-static PFPmuState fail(PFPmu *p, PFPmuState state, int error) {
+static enum pf_pmu_state fail(struct pf_pmu *p, enum pf_pmu_state state, int error) {
     p->state = state;
     p->error = error;
     pf_pmu_close(p);
     return state;
 }
 
-void pf_pmu_close(PFPmu *p) {
+void pf_pmu_close(struct pf_pmu *p) {
     if (!p) return;
     while (p->opened) {
         int fd = p->descriptors[--p->opened];
@@ -20,10 +20,10 @@ void pf_pmu_close(PFPmu *p) {
     }
 }
 
-PFPmuState pf_pmu_open(PFPmu *p, PFPmuOS os,
-                       const PFPmuEvent *events, size_t count) {
+enum pf_pmu_state pf_pmu_open(struct pf_pmu *p, struct pf_pmu_os os,
+                       const struct pf_pmu_event *events, size_t count) {
     if (!p) return PF_PMU_INVALID;
-    *p = (PFPmu){0};
+    *p = (struct pf_pmu){0};
     p->state = PF_PMU_INVALID;
     p->failed_event = SIZE_MAX;
     for (size_t i = 0; i < PF_PMU_MAX; ++i) p->descriptors[i] = -1;
@@ -53,7 +53,7 @@ PFPmuState pf_pmu_open(PFPmu *p, PFPmuOS os,
     return p->state;
 }
 
-PFPmuState pf_pmu_start(PFPmu *p) {
+enum pf_pmu_state pf_pmu_start(struct pf_pmu *p) {
     if (!p || p->state != PF_PMU_READY || p->opened != p->count)
         return PF_PMU_INVALID;
     if (p->os.control(p->os.context, p->descriptors[0], PF_PMU_RESET, NULL) < 0 ||
@@ -63,7 +63,7 @@ PFPmuState pf_pmu_start(PFPmu *p) {
     return p->state;
 }
 
-PFPmuState pf_pmu_stop(PFPmu *p) {
+enum pf_pmu_state pf_pmu_stop(struct pf_pmu *p) {
     uint64_t words[3 + 2 * PF_PMU_MAX];
     unsigned seen = 0;
     ptrdiff_t got = -1;
@@ -105,8 +105,8 @@ static void copy_ring(void *out, const unsigned char *ring, size_t capacity,
 }
 
 int pf_ring_drain(const unsigned char *ring, size_t capacity, uint64_t head,
-                  uint64_t *tail, size_t budget, PFRingStats *stats,
-                  void (*sample)(void *, const PFSample *), void *context) {
+                  uint64_t *tail, size_t budget, struct pf_ring_stats *stats,
+                  void (*sample)(void *, const struct pf_sample *), void *context) {
     if (!ring || !tail || !stats || capacity < 8 || (capacity & (capacity-1)))
         return PF_RING_INVALID;
     if (head - *tail > capacity) return PF_RING_OVERFLOW;
@@ -124,7 +124,7 @@ int pf_ring_drain(const unsigned char *ring, size_t capacity, uint64_t head,
         if (stats->records == UINT64_MAX) return PF_RING_OVERFLOW;
         if (type == 9) { /* PERF_RECORD_SAMPLE, declared fixed sample mask. */
             unsigned char payload[32];
-            PFSample value;
+            struct pf_sample value;
             if (size != 40) return PF_RING_INVALID;
             if (stats->samples == UINT64_MAX) return PF_RING_OVERFLOW;
             copy_ring(payload, ring, capacity, *tail+8, sizeof payload);

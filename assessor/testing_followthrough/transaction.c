@@ -2,11 +2,11 @@
 #ifndef TX_MUTANT
 #define TX_MUTANT 0
 #endif
-void tx_destroy(Tx *t,TxOwner *out){while(out->count)t->release(t->context,out->ids[--out->count]);}
-TxResult tx_run(Tx *t,unsigned fourth,const unsigned char *p,size_t n,TxOwner *out){
- TxOwner staged={{0},0};TxResult r={TX_OK,0};const unsigned ids[4]={10,15,20,30};
- if(!t||!out||!t->acquire||!t->release||!t->write||!t->cancelled||fourth>1||n>16||(!p&&n))return (TxResult){TX_INVALID,0};
- if(t->busy)return (TxResult){TX_BUSY,0};
+void tx_destroy(struct cv_tx *t,struct tx_owner *out){while(out->count)t->release(t->context,out->ids[--out->count]);}
+struct tx_result tx_run(struct cv_tx *t,unsigned fourth,const unsigned char *p,size_t n,struct tx_owner *out){
+ struct tx_owner staged={{0},0};struct tx_result r={TX_OK,0};const unsigned ids[4]={10,15,20,30};
+ if(!t||!out||!t->acquire||!t->release||!t->write||!t->cancelled||fourth>1||n>16||(!p&&n))return (struct tx_result){TX_INVALID,0};
+ if(t->busy)return (struct tx_result){TX_BUSY,0};
  t->busy=1;
  for(size_t i=0;i<4;i++){
   if(!fourth&&i==1)continue;

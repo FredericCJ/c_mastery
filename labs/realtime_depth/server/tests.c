@@ -27,7 +27,7 @@ static int ss_target_compare(const void *a, const void *b, size_t n) {
   } while (0)
 #endif
 static int ledger(void) {
-  SSBudget s;
+  struct ss_budget s;
   CHECK(ss_init(&s,3,10,0,16,SS_REJECT)==CMX_OK);
   CHECK(ss_charge(&s,2,1)==CMX_OK && ss_charge(&s,5,2)==CMX_OK);
   CHECK(ss_invariant(&s) && s.core.remaining==0 && s.core.count==2);
@@ -37,7 +37,7 @@ static int ledger(void) {
   CHECK(ss_update(&s,15)==CMX_OK && s.core.remaining==3 && !s.core.count);
   CHECK(ss_init(&s,20,100,0,16,SS_REJECT)==CMX_OK);
   for(unsigned i=0;i<16;++i) CHECK(ss_charge(&s,i,1)==CMX_OK);
-  SSBudget saved=s;
+  struct ss_budget saved=s;
   CHECK(ss_charge(&s,16,1)==CMX_FULL && !memcmp(&s,&saved,sizeof s));
   CHECK(ss_charge(&s,15,1)==CMX_OK && s.core.count==16 && s.core.amount[15]==2);
   CHECK(ss_init(&s,4,10,UINT32_MAX-3,2,SS_REJECT)==CMX_OK);
@@ -50,7 +50,7 @@ static int ledger(void) {
   puts("SS_LEDGER:pass");return 0;
 }
 static int transaction(void) {
-  SSBudget s;
+  struct ss_budget s;
   CHECK(ss_init(&s,4,10,0,2,SS_DELAY_LATEST)==CMX_OK);
   CHECK(ss_charge(&s,0,1)==CMX_OK && ss_charge(&s,1,1)==CMX_OK);
   CHECK(ss_charge(&s,2,1)==CMX_OK && ss_invariant(&s));
@@ -58,7 +58,7 @@ static int transaction(void) {
   CHECK(ss_update(&s,11)==CMX_OK && s.core.remaining==2);
   CHECK(ss_update(&s,12)==CMX_OK && s.core.remaining==4);
   CHECK(ss_init(&s,3,10,0,16,SS_REJECT)==CMX_OK && ss_charge(&s,0,3)==CMX_OK);
-  SSBudget saved=s;cmx_server raw=s.core;
+  struct ss_budget saved=s;cmx_server raw=s.core;
   CHECK(cmx_server_charge(&raw,10,4)==CMX_FULL && raw.remaining==3 && raw.last==10 && !raw.count);
   CHECK(ss_charge(&s,10,4)==CMX_FULL && !memcmp(&s,&saved,sizeof s));
   CHECK(ss_charge(&s,10,0)==CMX_INVALID && !memcmp(&s,&saved,sizeof s));
@@ -68,32 +68,32 @@ static int transaction(void) {
   puts("SS_TRANSACTION:pass");return 0;
 }
 static int grouped(void) {
-  SSComparison c;
+  struct ss_comparison c;
   uint32_t service[]={4,6};
   CHECK(ss_compare(4,10,4,7,service,2,&c)==CMX_OK);
   CHECK(c.dispatch.core.count==2 && c.dispatch.core.at[0]==14 && c.dispatch.core.at[1]==16);
   CHECK(c.grouped.core.count==1 && c.grouped.core.at[0]==14 && c.grouped.core.amount[0]==2);
   CHECK(ss_update(&c.dispatch,14)==CMX_OK && ss_update(&c.grouped,14)==CMX_OK);
   CHECK(c.dispatch.core.remaining==3 && c.grouped.core.remaining==4);
-  SSComparison saved=c;
+  struct ss_comparison saved=c;
   CHECK(ss_compare(4,10,4,14,service,2,&c)==CMX_INVALID && !memcmp(&c,&saved,sizeof c));
   service[1]=4;
   CHECK(ss_compare(4,10,4,7,service,2,&c)==CMX_INVALID && !memcmp(&c,&saved,sizeof c));
   puts("SS_GROUPED:pass");return 0;
 }
 static int workloads(void) {
-  SSWorkload w={0};w.count=1;w.capacity=2;w.horizon=30;w.q=3;w.period=10;
-  w.request[0]=(SSRequest){2,2};
-  SSTrace background,polling,dispatch;
+  struct ss_workload w={0};w.count=1;w.capacity=2;w.horizon=30;w.q=3;w.period=10;
+  w.request[0]=(struct ss_request){2,2};
+  struct ss_trace background,polling,dispatch;
   CHECK(ss_workload(&w,SS_BACKGROUND,&background)==CMX_OK);
   CHECK(ss_workload(&w,SS_POLLING,&polling)==CMX_OK);
   CHECK(ss_workload(&w,SS_DISPATCH,&dispatch)==CMX_OK);
   CHECK(background.finish[0]==5 && polling.finish[0]==13 && dispatch.finish[0]==4);
   CHECK(polling.supervisor==6 && polling.periodic==6 && !polling.periodic_misses);
   w.count=32;w.horizon=40;
-  for(unsigned i=0;i<w.count;++i)w.request[i]=(SSRequest){i,4};
+  for(unsigned i=0;i<w.count;++i)w.request[i]=(struct ss_request){i,4};
   for(unsigned policy=0;policy<3;++policy) {
-    SSTrace t;
+    struct ss_trace t;
     CHECK(ss_workload(&w,(enum ss_policy)policy,&t)==CMX_OK && t.supervisor==8);
     unsigned rejected=0,admitted=0,work=0,left=0;
     for(unsigned i=0;i<w.count;++i) {
@@ -111,7 +111,7 @@ static int workloads(void) {
       CHECK(sum<=3);
     }
   }
-  SSTrace saved=dispatch;w.capacity=0;
+  struct ss_trace saved=dispatch;w.capacity=0;
   CHECK(ss_workload(&w,SS_DISPATCH,&dispatch)==CMX_INVALID && !memcmp(&dispatch,&saved,sizeof dispatch));
   puts("SS_WORKLOADS:pass");return 0;
 }
@@ -122,7 +122,7 @@ static int stream(void) {
     if(kind==0) {
       unsigned q,p,start,cap,merge,n;
       if(scanf("%u%u%u%u%u%u",&q,&p,&start,&cap,&merge,&n)!=6)return 2;
-      SSBudget s;
+      struct ss_budget s;
       CHECK(ss_init(&s,q,p,start,cap,(enum ss_merge)merge)==CMX_OK);
       for(unsigned i=0;i<n;++i) {
         unsigned now,amount;if(scanf("%u%u",&now,&amount)!=2)return 2;
@@ -132,11 +132,11 @@ static int stream(void) {
         puts("");
       }
     } else if(kind==1) {
-      SSWorkload w={0};unsigned policy;
+      struct ss_workload w={0};unsigned policy;
       if(scanf("%u%u%u%u%u%u",&policy,&w.q,&w.period,&w.capacity,&w.horizon,&w.count)!=6)return 2;
       if(w.count>SS_REQUESTS)return 2;
       for(unsigned i=0;i<w.count;++i)if(scanf("%u%u",&w.request[i].release,&w.request[i].cost)!=2)return 2;
-      SSTrace t;CHECK(ss_workload(&w,(enum ss_policy)policy,&t)==CMX_OK);
+      struct ss_trace t;CHECK(ss_workload(&w,(enum ss_policy)policy,&t)==CMX_OK);
       printf("W %u %u %u %u %u",t.supervisor,t.periodic,t.periodic_misses,t.periodic_dropped,t.periodic_remaining);
       for(unsigned i=0;i<w.count;++i)printf(" %u %u %u %u %u",t.admitted[i],t.rejected[i],t.remaining[i],t.finish[i],t.executed[i]);
       for(unsigned i=0;i<w.horizon;++i)printf(" %u %u %u %u %u",t.service[i],t.budget[i],t.backlog[i],t.replenished[i],t.records[i]);

@@ -57,7 +57,7 @@ distinct address-space identities, and at most one pending request per space.
 Inputs are actor/space, aligned first address, one to four adjacent pages,
 PAGE or GLOBAL scope and a stable port. A request contains the complete
 identity, nonwrapping generation, target mask, range and scope. Outputs are a
-published request or a completed `StPermit`; rejected operations preserve them.
+published request or a completed `struct st_permit`; rejected operations preserve them.
 `ST_SIGNAL` is an exception to ordinary failure: PTE/request publication already
 committed and notification must be retried, without replaying publication.
 

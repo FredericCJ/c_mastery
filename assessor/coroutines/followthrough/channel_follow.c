@@ -2,8 +2,8 @@
 #ifndef CC_MUTANT
 #define CC_MUTANT 0
 #endif
-int ca_channel_deliver(CATicket*t,MsgHub*h,unsigned wait){
- if(!t||!t->owner||!h||wait>1)return CO_INVALID;unsigned which=99,value=0;MsgStatus r=msg_select(h,1,wait!=0,&which,&value);
+int ca_channel_deliver(struct ca_ticket*t,struct msg_hub*h,unsigned wait){
+ if(!t||!t->owner||!h||wait>1)return CO_INVALID;unsigned which=99,value=0;enum msg_status r=msg_select(h,1,wait!=0,&which,&value);
  if(r==MSG_EMPTY){if(CC_MUTANT==2)return ca_notify(t,NULL,0);return CO_PENDING;}
  if(r==MSG_CLOSED||r==MSG_CANCELLED){(void)ca_cancel(t->owner);return ca_notify(t,NULL,0);}
  if(r!=MSG_OK)return CO_IO;

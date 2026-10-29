@@ -6,7 +6,7 @@
 #ifndef DG_HOST_MUTANT
 #define DG_HOST_MUTANT 0
 #endif
-int dg_udp_receive(int fd, DGSession *s, DGMessage *out) {
+int dg_udp_receive(int fd, struct dg_session *s, struct dg_message *out) {
   if (fd < 0 || !s || !out)
     return DG_INVALID;
   uint8_t bytes[36];

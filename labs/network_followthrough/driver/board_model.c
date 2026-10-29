@@ -12,10 +12,10 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-extern EnMemory nb_memory;
-static NbBoard board;
-static EnModel ring_model;
-static EpModel phy_model;
+extern struct en_memory nb_memory;
+static struct nb_board board;
+static struct en_model ring_model;
+static struct ep_model phy_model;
 static uint32_t gpio[7][10], rcc[18], pmc, demcr, ctrl, count, last_write;
 static unsigned violations, frozen;
 uint32_t en_port_load(uint32_t a) {
@@ -30,7 +30,7 @@ uint32_t en_port_load(uint32_t a) {
   }
   if (a >= 0x40028000u && a <= 0x4002901cu) {
     uint32_t v = 0;
-    EnBus b = en_model_bus(&ring_model);
+    struct en_bus b = en_model_bus(&ring_model);
     if (b.read(b.context, a - 0x40028000u, &v))
       violations++;
     return v;
@@ -60,7 +60,7 @@ void en_port_store(uint32_t a, uint32_t v) {
     if ((uint32_t)(count - last_write) < 720)
       violations++;
     last_write = count;
-    EnBus b = en_model_bus(&ring_model);
+    struct en_bus b = en_model_bus(&ring_model);
     if (b.settle(b.context) || b.write(b.context, a - 0x40028000u, v))
       violations++;
     return;
@@ -87,7 +87,7 @@ void en_port_store(uint32_t a, uint32_t v) {
   violations++;
 }
 void en_port_barrier(void) {
-  EnBus b = en_model_bus(&ring_model);
+  struct en_bus b = en_model_bus(&ring_model);
   b.barrier(b.context);
 }
 int ep_test_read(uint32_t a, uint32_t *v) {
@@ -109,9 +109,9 @@ static void setup(void) {
   ep_model_setup(&phy_model, 0);
 }
 static int begin(void) {
-  NaConfig c = {{2, 0, 0, 0, 0, 2}, {192, 0, 2, 2}, {192, 0, 2, 1}};
+  struct na_config c = {{2, 0, 0, 0, 0, 2}, {192, 0, 2, 2}, {192, 0, 2, 1}};
   return nb_board_begin(&board, &nb_memory, 0x20001000,
-                        (EpMmioClock){&phy_model, ep_model_clock}, c, 1, 1000,
+                        (struct ep_mmio_clock){&phy_model, ep_model_clock}, c, 1, 1000,
                         16);
 }
 int nb_board_tests(void) {

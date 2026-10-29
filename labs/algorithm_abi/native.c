@@ -12,13 +12,13 @@ static uint32_t oracle(const uint32_t *a,uint32_t n,uint32_t key,unsigned upper)
 static int search(void){
  const uint32_t a[5]={0,7,7,0x80000000u,UINT32_MAX},keys[5]={0,1,7,8,UINT32_MAX};uint32_t out=99,validation=99;
  CHECK(ab_checked(NULL,0,0,1,0,&out,&validation)==0 && out==0 && validation==0);
- for(unsigned i=0;i<5;++i){ABTrace t;CHECK(ab_trace(a,5,keys[i],0,&t)==0 && t.count==3 && t.index==oracle(a,5,keys[i],0));CHECK(ab_checked(a,5,5,keys[i],0,&out,&validation)==0 && out==t.index && validation==4);
+ for(unsigned i=0;i<5;++i){struct ab_trace t;CHECK(ab_trace(a,5,keys[i],0,&t)==0 && t.count==3 && t.index==oracle(a,5,keys[i],0));CHECK(ab_checked(a,5,5,keys[i],0,&out,&validation)==0 && out==t.index && validation==4);
 #ifdef AB_WITH_C_ORACLE
   uint32_t prior=99;algo_work work={0};CHECK(algo_lower(a,5,keys[i],&prior,&work)==ALGO_OK && prior==out && work.comparisons==t.count);
 #endif
-  for(unsigned s=0;s<t.count;++s){ABStep p=t.steps[s];CHECK(p.lo<=p.mid && p.mid<p.hi && p.hi<=5 && p.next_hi-p.next_lo<p.hi-p.lo);for(unsigned j=0;j<p.lo;++j)CHECK(a[j]<keys[i]);for(unsigned j=p.hi;j<5;++j)CHECK(a[j]>=keys[i]);printf("TRACE %u %u %u %u %u %u %u\n",keys[i],s,p.lo,p.hi,p.mid,p.next_lo,p.next_hi);}
+  for(unsigned s=0;s<t.count;++s){struct ab_step p=t.steps[s];CHECK(p.lo<=p.mid && p.mid<p.hi && p.hi<=5 && p.next_hi-p.next_lo<p.hi-p.lo);for(unsigned j=0;j<p.lo;++j)CHECK(a[j]<keys[i]);for(unsigned j=p.hi;j<5;++j)CHECK(a[j]>=keys[i]);printf("TRACE %u %u %u %u %u %u %u\n",keys[i],s,p.lo,p.hi,p.mid,p.next_lo,p.next_hi);}
  }
- ABTrace lower,upper;CHECK(ab_trace(a,5,7,0,&lower)==0 && ab_trace(a,5,7,1,&upper)==0 && lower.index==1 && upper.index==3);
+ struct ab_trace lower,upper;CHECK(ab_trace(a,5,7,0,&lower)==0 && ab_trace(a,5,7,1,&upper)==0 && lower.index==1 && upper.index==3);
  uint32_t bad[2]={2,1};out=99;validation=99;CHECK(ab_checked(bad,2,2,1,0,&out,&validation)==1 && out==99 && validation==99);
  CHECK(ab_checked(a,5,4,1,0,&out,&validation)==1);CHECK(ab_checked(a,1025,1025,1,0,&out,&validation)==1);
  uint32_t single[1]={0x80000000u};CHECK(algo_asm_lower(single,1,UINT32_MAX)==1);CHECK(algo_asm_lower(single,1,0)==0);
@@ -34,8 +34,8 @@ static int abi(void){const uint32_t a[5]={0,7,7,0x80000000u,UINT32_MAX};uint32_t
  puts("OBS abi preserved-registers nested-alignment baseline-kernel");return 0;
 }
 static int callback(void){const uint32_t a[5]={0,7,7,0x80000000u,UINT32_MAX};
- for(unsigned poison=0;poison<2;++poison)for(unsigned i=0;i<5;++i){ABContext context={0,0,poison?0xdeadbeefu:0x13579bdu};ABTrace trace;CHECK(ab_trace(a,5,a[i],0,&trace)==0);CHECK(ab_callback_lower(a,5,a[i],ab_poison,&context)==trace.index && context.calls==trace.count && context.misaligned==0);}
- ABContext zero={0};CHECK(ab_callback_lower(NULL,0,0,ab_poison,&zero)==0 && zero.calls==0);
+ for(unsigned poison=0;poison<2;++poison)for(unsigned i=0;i<5;++i){struct ab_context context={0,0,poison?0xdeadbeefu:0x13579bdu};struct ab_trace trace;CHECK(ab_trace(a,5,a[i],0,&trace)==0);CHECK(ab_callback_lower(a,5,a[i],ab_poison,&context)==trace.index && context.calls==trace.count && context.misaligned==0);}
+ struct ab_context zero={0};CHECK(ab_callback_lower(NULL,0,0,ab_poison,&zero)==0 && zero.calls==0);
  puts("OBS callback original-assembly nested-live-state scratch-poison2 alignment");return 0;
 }
 static int windows(void){const uint32_t a[5]={0,7,7,0x80000000u,UINT32_MAX};

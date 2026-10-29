@@ -16,8 +16,8 @@ int main(void) {
   int fd[2];
   CHECK(socketpair(AF_UNIX, SOCK_DGRAM, 0, fd) == 0);
   CHECK(fcntl(fd[1], F_SETFL, O_NONBLOCK) == 0);
-  DGSession s = {0};
-  DGMessage m = {0};
+  struct dg_session s = {0};
+  struct dg_message m = {0};
   const uint8_t bytes[6] = {0, 1, 0, 2, 1, 2};
   CHECK(dg_udp_receive(fd[1], &s, &m) == DG_BUSY);
   CHECK(send(fd[0], bytes, 6, 0) == 6);

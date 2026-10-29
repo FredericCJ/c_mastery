@@ -1,9 +1,9 @@
 #include "clinic.h"
-int mc_acquire(McOwner *owner,McAllocator a,int value)
+int mc_acquire(struct mc_owner *owner,struct mc_allocator a,int value)
 {int *p;if(!owner || owner->value || !a.allocate || !a.release)return -1;p=a.allocate(a.context,sizeof *p);if(!p)return -1;*p=value;owner->value=p;owner->allocation=a;return 0;}
-int mc_read(const McOwner *owner,int *out)
+int mc_read(const struct mc_owner *owner,int *out)
 {if(!owner || !owner->value || !out)return -1;*out=*owner->value;return 0;}
-int mc_snapshot(const McOwner *owner,int *out)
+int mc_snapshot(const struct mc_owner *owner,int *out)
 {
 #ifdef MC_MUTANT_ESCAPE
     if(!owner || !owner->value || !out)return -1;
@@ -12,7 +12,7 @@ int mc_snapshot(const McOwner *owner,int *out)
     return mc_read(owner,out);
 #endif
 }
-int mc_release(McOwner *owner)
+int mc_release(struct mc_owner *owner)
 {
     int *p;
     if(!owner || !owner->value){
@@ -24,13 +24,13 @@ int mc_release(McOwner *owner)
     }
     p=owner->value;owner->value=NULL;++owner->releases;owner->allocation.release(owner->allocation.context,p);return 0;
 }
-FDStatus mc_move(unsigned char *base,size_t length,size_t dst,size_t src,size_t count)
+enum fd_status mc_move(unsigned char *base,size_t length,size_t dst,size_t src,size_t count)
 {return fd_move(base,length,dst,src,count);}
-int mc_member(const McContainer *owner,const int *member,int *out)
+int mc_member(const struct mc_container *owner,const int *member,int *out)
 {
     const unsigned char *base;const int *expected;
     if(!owner || !member || !out)return -1;
-    base=(const unsigned char *)owner;expected=(const int *)(const void *)(base+offsetof(McContainer,member));
+    base=(const unsigned char *)owner;expected=(const int *)(const void *)(base+offsetof(struct mc_container,member));
 #ifndef MC_MUTANT_MEMBER
     if(member!=expected)return -1;
 #else
@@ -38,11 +38,11 @@ int mc_member(const McContainer *owner,const int *member,int *out)
 #endif
     *out=owner->member;return 0;
 }
-int mc_initial(const McFirst *owner,const int *member,int *out)
+int mc_initial(const struct mc_first *owner,const int *member,int *out)
 {
-    const McFirst *recovered;
+    const struct mc_first *recovered;
     if(!owner || !member || !out || member!=&owner->first)return -1;
-    recovered=(const McFirst *)(const void *)member;
+    recovered=(const struct mc_first *)(const void *)member;
     if(recovered!=owner)return -1;
     *out=recovered->first;return 0;
 }

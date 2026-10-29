@@ -2,7 +2,7 @@
 
 This required successor implements X-T73-006-DELAYED and X-T73-009-DELAYED using
 `lifetime.h` and learner `src/lifetime_follow.c`. It consumes the X-T73-002
-`MfoValue`/drop contract. X-T73-006 produces the common counted-owner mechanism;
+`struct mfo_value`/drop contract. X-T73-006 produces the common counted-owner mechanism;
 the later pointer snapshot consumes it. Keep the original atomic scalar and weak
 ordering investigations: this changed representation has different progress and
 resource costs. Linux C17 and POSIX mutexes are explicit dependencies. A mutex is
@@ -11,8 +11,8 @@ resurrect an object loaded through an unprotected raw pointer.
 
 ## Counted immutable owner
 
-`MflShared` is an allocated control containing an atomic unsigned reference count,
-one unique `MfoValue` and a copied `MflAllocator`. `mfl_make` allocates control
+`struct mfl_shared` is an allocated control containing an atomic unsigned reference count,
+one unique `struct mfo_value` and a copied `struct mfl_allocator`. `mfl_make` allocates control
 storage; on success it clears the input descriptor and publishes one owned
 reference. INVALID or allocation failure preserves both input and output. Each
 successful `mfl_retain` creates exactly one further ownership token; it requires
@@ -43,7 +43,7 @@ but cannot make concurrent mutation of one token variable valid.
 
 ## Growable pointer deque
 
-`MfgDeque` has a stable mutex, monotonic top/bottom indices, current allocated
+`struct mfg_deque` has a stable mutex, monotonic top/bottom indices, current allocated
 array, capacity and maximum, plus active speculative-thief count. Start at
 capacity2; maximum is a power of two from2 through64. Each array has a reference
 count protected by the queue mutex. The current queue owns one array reference.
@@ -52,7 +52,7 @@ capacity and copies the live pointer slots without duplicating those queue
 ownership tokens. It removes the queue's old-array reference only after publishing
 the new array. Old arrays are freed when their last speculative user leaves.
 
-Push consumes a unique `MfoValue` only after all needed array/control allocation
+Push consumes a unique `struct mfo_value` only after all needed array/control allocation
 succeeds. Inject failure at both growth-array and shared-control allocation:
 capacity, indices, existing payloads, input owner and output state must remain
 unchanged. FULL at maximum and OVERFLOW at SIZE_MAX-1 likewise preserve input.
@@ -92,7 +92,7 @@ owned payloads with real competing thieves and the independent finite deque mode
 
 ## Paused pointer snapshot
 
-`MfpPointer` holds one counted immutable owner, a mutex and a nonwrapping even
+`struct mfp_pointer` holds one counted immutable owner, a mutex and a nonwrapping even
 publication counter. Initialization consumes one existing token only on success.
 Snapshot retains the current object under that mutex before publishing a token.
 Replacement atomically swaps the root under the mutex and releases the former

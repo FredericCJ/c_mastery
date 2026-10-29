@@ -32,19 +32,19 @@ __attribute__((noinline)) static unsigned native(unsigned n) {
   unsigned result = n ? native(n - 1) : 0;
   return result + local[0];
 }
-static VvWork scratch;
-static Vs static_vm;
-static int run(Vs *s) {
-  CvmProgram p = {0};
+static struct vv_work scratch;
+static struct vg_vs static_vm;
+static int run(struct vg_vs *s) {
+  struct cvm_program p = {0};
   p.count = 2;
   p.length = 8;
   const unsigned char b[] = {OP_CALL, 1, 0, OP_RET, OP_CALL, 1, 0, OP_RET};
   for (unsigned i = 0; i < 8; i++)
     p.code[i] = b[i];
-  p.functions[0] = (CvmFunction){0, 4, 0, 0};
-  p.functions[1] = (CvmFunction){4, 4, 0, 0};
-  CvmValue out = cvm_int(91);
-  *s = (Vs){0};
+  p.functions[0] = (struct cvm_function){0, 4, 0, 0};
+  p.functions[1] = (struct cvm_function){4, 4, 0, 0};
+  struct cvm_value out = cvm_int(91);
+  *s = (struct vg_vs){0};
   if (vs_start(s, &p, 0, 100, 0, 0, 0, &scratch) != VS_RUNNING)
     return 1;
   int status = VS_RUNNING;
@@ -52,12 +52,12 @@ static int run(Vs *s) {
     status = vs_step(s, &out);
   if (status != CVM_FRAME_LIMIT || s->vm.depth != 16 || out.integer != 91)
     return 1;
-  Cvm old;
+  struct cvm_cvm old;
   cvm_init(&old, 100, 0, 0);
   return cvm_run(&old, &p, &out) != CVM_FRAME_LIMIT || old.depth != 16;
 }
 __attribute__((noinline)) static int automatic(void) {
-  Vs value = {0};
+  struct vg_vs value = {0};
   return run(&value);
 }
 int main(void) {
@@ -75,7 +75,7 @@ int main(void) {
     return 1;
   printf("VS_STACK_BYTES vm=%zu frame=%zu operands=%zu session=%zu "
          "native_span=%" PRIuPTR "\n",
-         sizeof(Cvm), sizeof(CvmFrame), sizeof static_vm.vm.stack, sizeof(Vs),
+         sizeof(struct cvm_cvm), sizeof(struct cvm_frame), sizeof static_vm.vm.stack, sizeof(struct vg_vs),
          max - min);
   puts("VS_STACK_PASS guest_frames=16 interpreter_c_depth=1 native_depth=17 "
        "storage_modes=2");

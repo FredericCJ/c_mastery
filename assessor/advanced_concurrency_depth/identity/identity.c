@@ -1,5 +1,5 @@
 #include "identity.h"
-int ai_init(AIPool *p, unsigned bits) {
+int ai_init(struct ai_pool *p, unsigned bits) {
   if (!p || (bits != 8 && bits != 24))
     return AI_INVALID;
   p->maximum = (UINT32_C(1) << bits) - 1;
@@ -10,7 +10,7 @@ int ai_init(AIPool *p, unsigned bits) {
   }
   return AI_OK;
 }
-int ai_take(AIPool *p, uint32_t *out) {
+int ai_take(struct ai_pool *p, uint32_t *out) {
   if (!p || !out)
     return AI_INVALID;
   for (unsigned i = 0; i < 16; i++)
@@ -21,7 +21,7 @@ int ai_take(AIPool *p, uint32_t *out) {
     }
   return AI_FULL;
 }
-int ai_valid(const AIPool *p, uint32_t h) {
+int ai_valid(const struct ai_pool *p, uint32_t h) {
   unsigned i = h & 255u;
   if (!p || !i || i > 16)
     return 0;
@@ -32,7 +32,7 @@ int ai_valid(const AIPool *p, uint32_t h) {
   return p->used[i] && !p->retired[i] && (h >> 8) == p->generation[i];
 #endif
 }
-int ai_release(AIPool *p, uint32_t h) {
+int ai_release(struct ai_pool *p, uint32_t h) {
   if (!ai_valid(p, h))
     return AI_INVALID;
   unsigned i = (h & 255u) - 1;

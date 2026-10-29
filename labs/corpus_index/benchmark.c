@@ -39,7 +39,7 @@ int main(void) {
           for (unsigned j = 0; j < 4; j++)
             patterns[k][j] =
                 (k % 2) ? bytes[(k + j) % n] : (unsigned char)(252 + j);
-        CiSuffix s;
+        struct ci_suffix s;
         uint64_t t = now();
         for (unsigned k = 0; k < 1000; k++)
           if (ci_suffix_build(&s, bytes, n) != CI_OK)

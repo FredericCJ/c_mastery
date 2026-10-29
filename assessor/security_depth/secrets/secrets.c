@@ -1,6 +1,6 @@
 #include "secrets.h"
-int ss_compare(const unsigned char token[4],const unsigned char *candidate,size_t length,int early,SSCompare *out) {
-    SSCompare result={1,0}; unsigned diff=0;
+int ss_compare(const unsigned char token[4],const unsigned char *candidate,size_t length,int early,struct ss_compare *out) {
+    struct ss_compare result={1,0}; unsigned diff=0;
     if(!token || !candidate || !out || length!=4 || (early!=0 && early!=1)) return -1;
     for(unsigned i=0;i<4;++i) {
         diff|=(unsigned)(token[i]^candidate[i]); ++result.work;
@@ -20,12 +20,12 @@ int ss_indexed(const unsigned char token[4],const unsigned char candidate[4],vol
     }
     return diff==0;
 }
-int ss_acquire(SSPool *pool,const unsigned char token[4]) {
+int ss_acquire(struct ss_pool *pool,const unsigned char token[4]) {
     if(!pool || !token || pool->live) return -1;
     for(unsigned i=0;i<4;++i) pool->bytes[i]=token[i];
     pool->live=1; return 0;
 }
-int ss_release(SSPool *pool) {
+int ss_release(struct ss_pool *pool) {
     if(!pool || pool->live!=1) return -1;
 #ifndef SS_MUTANT_CLEAR
     ss_wipe(pool->bytes,sizeof pool->bytes);

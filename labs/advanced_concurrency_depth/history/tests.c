@@ -11,10 +11,10 @@
     }                                                                          \
   } while (0)
 static void history(void) {
-  AHOperation h[] = {{0, 3, 0, AH_INSERT, 11, AH_VALUE},
+  struct ah_operation h[] = {{0, 3, 0, AH_INSERT, 11, AH_VALUE},
                      {1, 2, 1, AH_INSERT, 22, AH_VALUE},
                      {4, 5, 0, AH_REMOVE, 11, AH_VALUE}};
-  AHWitness w = {0};
+  struct ah_witness w = {0};
   CHECK(ah_history(h, 3, 2, AH_FIFO, AH_COMPLETE_ONLY, &w) == AH_VALID);
   CHECK(w.length == 3 && w.order[0] < 3 && w.order[1] < 3 && w.order[2] < 3);
   h[0].respond = 1;
@@ -24,7 +24,7 @@ static void history(void) {
   CHECK(ah_history(h, 3, 2, AH_FIFO, AH_COMPLETE_ONLY, &w) == AH_NONLINEAR);
   h[2].value = 11;
   CHECK(ah_history(h, 3, 2, AH_FIFO, AH_COMPLETE_ONLY, &w) == AH_VALID);
-  AHOperation p[] = {{0, AH_PENDING, 0, AH_INSERT, 11, AH_VALUE},
+  struct ah_operation p[] = {{0, AH_PENDING, 0, AH_INSERT, 11, AH_VALUE},
                      {1, 2, 1, AH_REMOVE, 11, AH_VALUE}};
   CHECK(ah_history(p, 2, 2, AH_FIFO, AH_COMPLETE_ONLY, &w) == AH_INCOMPLETE);
   CHECK(ah_history(p, 2, 2, AH_FIFO, AH_EXTEND_PENDING, &w) == AH_VALID &&
@@ -40,7 +40,7 @@ static void history(void) {
   h[2].value = 22;
   h[2].result = AH_ABSENT;
   CHECK(ah_history(h, 3, 2, AH_SET, AH_COMPLETE_ONLY, &w) == AH_VALID);
-  AHWitness before = w;
+  struct ah_witness before = w;
   CHECK(ah_history(h, 3, 0, AH_SET, AH_COMPLETE_ONLY, &w) == AH_INVALID &&
         !memcmp(&w, &before, sizeof w));
   h[1].invoke = h[0].invoke;
@@ -58,10 +58,10 @@ static void separation(void) {
   atomic_store(&length, 2);
   unsigned at = atomic_load(&length) - 1, result = atomic_load(&data[at]);
   atomic_store(&length, at);
-  AHOperation h[] = {{0, 1, 0, AH_INSERT, 11, AH_VALUE},
+  struct ah_operation h[] = {{0, 1, 0, AH_INSERT, 11, AH_VALUE},
                      {2, 3, 0, AH_INSERT, 22, AH_VALUE},
                      {4, 5, 0, AH_REMOVE, result, AH_VALUE}};
-  AHWitness w;
+  struct ah_witness w;
   CHECK(result == 22);
   CHECK(ah_history(h, 3, 2, AH_FIFO, AH_COMPLETE_ONLY, &w) == AH_NONLINEAR);
   CHECK(ah_history(h, 3, 2, AH_SET, AH_COMPLETE_ONLY, &w) == AH_VALID);
@@ -120,8 +120,8 @@ static int driver(void) {
   while (scanf("%u%u%u%u", &n, &cap, &spec, &policy) == 4) {
     if (n > 7)
       return 2;
-    AHOperation op[7];
-    AHWitness w;
+    struct ah_operation op[7];
+    struct ah_witness w;
     for (unsigned i = 0; i < n; i++)
       if (scanf("%u%u%u%u%u%u", &op[i].invoke, &op[i].respond,
                 &op[i].participant, &op[i].operation, &op[i].value,

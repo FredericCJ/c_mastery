@@ -17,13 +17,13 @@ void xd_print(const char *);
 #ifndef XD_ENGINE_MUTANT
 #define XD_ENGINE_MUTANT 0
 #endif
-typedef struct {
-  PdSnapshot snap;
+struct xi_engine {
+  struct pd_snapshot snap;
   uint32_t memory[64], cache[64], valid[2], dirty[2];
   uint32_t cached, base, barriers, invalidations, stop_requests, pending;
-} Engine;
-static void line(void *p, enum FWCacheOp op, uint32_t address) {
-  Engine *e = p;
+};
+static void line(void *p, enum fw_cache_op op, uint32_t address) {
+  struct xi_engine *e = p;
   if (op == FW_DSB || op == FW_ISB) {
     ++e->barriers;
     return;
@@ -39,7 +39,7 @@ static void line(void *p, enum FWCacheOp op, uint32_t address) {
     ++e->invalidations;
   }
 }
-static unsigned read_cpu(Engine *e, unsigned offset) {
+static unsigned read_cpu(struct xi_engine *e, unsigned offset) {
   unsigned n = offset / 32;
   if (!e->cached)
     return e->memory[offset];
@@ -50,7 +50,7 @@ static unsigned read_cpu(Engine *e, unsigned offset) {
   }
   return e->cache[offset];
 }
-static void write_cpu(Engine *e, unsigned offset, unsigned value) {
+static void write_cpu(struct xi_engine *e, unsigned offset, unsigned value) {
   if (!e->cached) {
     e->memory[offset] = value;
     return;
@@ -59,43 +59,43 @@ static void write_cpu(Engine *e, unsigned offset, unsigned value) {
   e->cache[offset] = value;
   e->dirty[offset / 32] = 1;
 }
-static int configure(void *p, const PdExtent *extent, uint32_t token) {
-  Engine *e = p;
+static int configure(void *p, const struct pd_extent *extent, uint32_t token) {
+  struct xi_engine *e = p;
   if (e->snap.enabled || e->pending)
     return 0;
-  e->snap = (PdSnapshot){token, 0, extent->bytes, 0, 1};
+  e->snap = (struct pd_snapshot){token, 0, extent->bytes, 0, 1};
   return 1;
 }
-static void enable(void *p) { ((Engine *)p)->snap.enabled = 1; }
+static void enable(void *p) { ((struct xi_engine *)p)->snap.enabled = 1; }
 static void stop(void *p) {
-  Engine *e = p;
+  struct xi_engine *e = p;
   e->snap.enabled = 0;
   ++e->stop_requests;
 }
-static PdSnapshot snapshot(void *p) { return ((Engine *)p)->snap; }
+static struct pd_snapshot snapshot(void *p) { return ((struct xi_engine *)p)->snap; }
 static void visibility(void *p, unsigned action, uint32_t address,
                        uint32_t bytes) {
-  Engine *e = p;
+  struct xi_engine *e = p;
   if (action == PD_CLEAN || action == PD_INVALIDATE) {
     (void)fw_cache_range(
         address, bytes, action == PD_CLEAN ? FW_CLEAN : H7_INVALIDATE, line, e);
   } else
     ++e->barriers;
 }
-static PdIo io_for(Engine *e) {
-  return (PdIo){e, configure, enable, stop, snapshot, visibility};
+static struct pd_io io_for(struct xi_engine *e) {
+  return (struct pd_io){e, configure, enable, stop, snapshot, visibility};
 }
 static int ordinary(unsigned cached, unsigned partial, unsigned error) {
-  Engine e = {0};
+  struct xi_engine e = {0};
   e.cached = cached;
   e.base = cached ? 0x30040040u : 0x20000000u;
-  PdTransfer pd = {0};
-  XdLease lease = {0};
-  XdFence fence = {0, 1, 1, 1};
-  XdTicket ticket;
-  PdExtent extent = {e.base, e.base + 32, 32, 32, 32, 1};
-  PdIo io = io_for(&e);
-  XdResult result = {0};
+  struct pd_transfer pd = {0};
+  struct xd_lease lease = {0};
+  struct xd_fence fence = {0, 1, 1, 1};
+  struct xd_ticket ticket;
+  struct pd_extent extent = {e.base, e.base + 32, 32, 32, 32, 1};
+  struct pd_io io = io_for(&e);
+  struct xd_result result = {0};
   REQUIRE(xd_recover(&lease, &fence) == XD_OK);
   write_cpu(&e, 0, 42);
   write_cpu(&e, 32, 9);
@@ -132,32 +132,32 @@ static int ordinary(unsigned cached, unsigned partial, unsigned error) {
   else
     REQUIRE(!e.invalidations && e.barriers == 3);
   /* Reuse does not require delivery of every old metadata callback. */
-  XdTicket old = ticket;
+  struct xd_ticket old = ticket;
   REQUIRE(xd_submit(&lease, 32, &ticket) == XD_OK);
-  PdTransfer before = pd;
+  struct pd_transfer before = pd;
   REQUIRE(xd_pd_finish(&lease, old, &pd, io) == XD_STALE);
   REQUIRE(pd.phase == before.phase && lease.phase == XD_DEVICE);
-  XdProof stale = {old, 0, 0, 1, 32, 32};
+  struct xd_proof stale = {old, 0, 0, 1, 32, 32};
   REQUIRE(xd_observe(&lease, old, XD_COMPLETE, &stale) == XD_STALE);
   return 0;
 }
 static int reset_domain(void) {
   /* Supervisor + engine survive. Only the software lease is zeroed. */
-  Engine engine = {0};
-  XdLease software = {0};
-  XdFence fence = {0, 1, 1, 1};
-  XdTicket old;
+  struct xi_engine engine = {0};
+  struct xd_lease software = {0};
+  struct xd_fence fence = {0, 1, 1, 1};
+  struct xd_ticket old;
   uint32_t supervisor_epoch = 1;
   REQUIRE(xd_recover(&software, &fence) == XD_OK);
   REQUIRE(xd_submit(&software, 32, &old) == XD_OK);
   engine.snap.enabled = 1;
   engine.pending = 1;
   engine.memory[32] = 7;
-  software = (XdLease){0};
-  XdTicket unused;
+  software = (struct xd_lease){0};
+  struct xd_ticket unused;
   REQUIRE(xd_submit(&software, 32, &unused) == XD_BUSY);
   stop(&engine); /* EN clears; the pending write remains real in this model. */
-  fence = (XdFence){supervisor_epoch, supervisor_epoch + 1, 1,
+  fence = (struct xd_fence){supervisor_epoch, supervisor_epoch + 1, 1,
                     XD_ENGINE_MUTANT == 1 ? 1u : !engine.pending};
   REQUIRE(xd_recover(&software, &fence) == XD_BUSY);
   REQUIRE(software.phase == XD_QUARANTINE && engine.memory[32] == 7);
@@ -168,7 +168,7 @@ static int reset_domain(void) {
   supervisor_epoch = fence.new_epoch;
   REQUIRE(xd_submit(&software, 32, &unused) == XD_OK &&
           unused.epoch == supervisor_epoch);
-  XdProof stale = {old, 0, 0, 1, 32, 32};
+  struct xd_proof stale = {old, 0, 0, 1, 32, 32};
   REQUIRE(xd_observe(&software, old, XD_COMPLETE, &stale) == XD_STALE);
   /* Deliberately defective local teaching counterexample: a fabricated fence
    * cannot prevent a future engine write. No external address is touched. */
@@ -180,7 +180,7 @@ static int reset_domain(void) {
   return 0;
 }
 static int shared(void) {
-  FWPeer peer = {.generation = 7};
+  struct fw_peer peer = {.generation = 7};
   REQUIRE(fw_peer_step(&peer, 0, 7, FW_BEGIN) == H7_OK);
   REQUIRE(fw_peer_step(&peer, 1, 7, FW_BEGIN) == H7_OK);
   REQUIRE(fw_peer_step(&peer, 0, 7, FW_END) == H7_OK);
@@ -194,14 +194,14 @@ static int shared(void) {
   REQUIRE(fw_peer_step(&peer, 1, 7, FW_END) == H7_OK);
   /* A peer failure is not quiescence, even after its software count drains. */
   REQUIRE(fw_peer_step(&peer, 0, 7, FW_CONFIRM) == H7_FAILED);
-  Engine e = {.cached = 1, .base = 0x30040040u};
+  struct xi_engine e = {.cached = 1, .base = 0x30040040u};
   write_cpu(&e, 31, 77);
   e.memory[0] = 42;
   REQUIRE(fw_cache_range(e.base, 32, H7_INVALIDATE, line, &e));
   REQUIRE(read_cpu(&e, 31) ==
           0); /* dirty neighbour lost: whole-line owner required */
   uint32_t total = 999;
-  PdExtent bad = {e.base, e.base + 33, 1, 32, 1, 1};
+  struct pd_extent bad = {e.base, e.base + 33, 1, 32, 1, 1};
   REQUIRE(pd_validate(PD_H745, 1, &bad, 1, &total) == PD_INVALID &&
           total == 999);
   REQUIRE(!fw_cache_range(e.base + 1, 32, FW_CLEAN, line, &e));

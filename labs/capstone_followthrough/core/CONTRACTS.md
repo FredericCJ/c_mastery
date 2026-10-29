@@ -4,8 +4,8 @@ This required successor implements the concrete system in the retained capstone
 contract. It preserves the eight parent identities, all original criteria and
 their seven-day variants. Use it with `curriculum/v5/expansion/legacy_assessments/
 capstone-contract.md`, the original project card and the learner's P3 protocol
-dossier. P3's actual `CPParser`, `cp_feed`, `cp_peek` and `cp_encode` are imported;
-the signed-decimal `InStream` is not this protocol. Implement `learner.c` against
+dossier. P3's actual `struct cp_parser`, `cp_feed`, `cp_peek` and `cp_encode` are imported;
+the signed-decimal `struct in_stream` is not this protocol. Implement `learner.c` against
 your own P3 provider. No reference implementation belongs in a learner export.
 
 ## Environment and prerequisites
@@ -28,11 +28,11 @@ with a library or to import a hosted runtime into the strict core.
 
 ## Representation, inputs and outputs
 
-`CsService` owns two 42-byte candidates, three 42-byte queued wire arrays and one
+`struct cs_service` owns two 42-byte candidates, three 42-byte queued wire arrays and one
 42-byte active wire array: exactly252 persistent frame-byte backing bytes. The
 actual structure additionally contains lengths, indices, generations, counters
 and state. Count its `sizeof`, padding and stack separately. A persistent full
-`CPParser` would also retain a decoded message; hiding that extra payload in
+`struct cp_parser` would also retain a decoded message; hiding that extra payload in
 "metadata" would understate storage. This adapter restores a temporary parser
 from the exact candidate state produced by the previous call. It publishes or
 explicitly rejects each complete decoded message before that temporary dies.
@@ -90,7 +90,7 @@ does not roll back the accepted bytes. The exact conservation relation is
 `accepted = delivered + discarded + queued + active`, with
 `releases = delivered + discarded`. Repeated close/completion cannot add releases.
 
-All terminal state/counter changes precede `CsDone`. The callback is the last
+All terminal state/counter changes precede `cs_done_fn`. The callback is the last
 object access and may destroy the service. The caller must also abandon its old
 pointer after such notification. An arbitrary late caller cannot safely pass a
 freed service pointer merely because generations exist; its external lifetime

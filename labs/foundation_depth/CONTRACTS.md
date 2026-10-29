@@ -23,7 +23,7 @@ inspection are necessary to check implicit compiler dependencies.
 
 ## Semantic verdict and repair
 
-`FDCase` ordering matches `fixtures/foundation_depth/cases.json`. Classify each
+`enum fd_case` ordering matches `fixtures/foundation_depth/cases.json`. Classify each
 complete supplied case under its stated C17 assumptions; classify the ordering
 of function calls for `CALL_ORDER`. Distinguish a required diagnostic from
 undefined runtime behavior. No executed-output test is prescribed for an
@@ -46,7 +46,7 @@ limit. Reject overflow before executing it. Write the exact extent only on
 `FD_OK`; otherwise return `FD_RANGE`. `fd_from_signed` rejects negative values
 and positive values not representable in `size_t` before conversion.
 
-`FDCursor` describes a borrowed actual byte array with `position <= length`.
+`struct fd_cursor` describes a borrowed actual byte array with `position <= length`.
 The all-zero cursor is valid; a null base with positive length is invalid.
 `fd_take` returns the next `count` bytes and advances only on success. At count
 zero, a non-null cursor returns its current (possibly one-past) pointer; the
@@ -57,7 +57,7 @@ capture the source metadata before changing it. Rejected ranges leave every
 cursor and output unchanged. Costs are constant time and constant storage.
 
 These extend the `bytes.checked` and `bytes.cursor` component concepts. Import
-the learner's accepted implementation and adapt `FStatus`/`FCursor` or another
+the learner's accepted implementation and adapt `enum f_status`/`struct f_cursor` or another
 recorded representation at the boundary; record source and contract digests.
 The stronger output-preservation, nested-view and extent-limit requirements need
 fresh evidence. A new interface name does not discard prerequisite obligations.
@@ -73,16 +73,16 @@ contracts. `fd_decode` and `fd_encode` admit exactly length/capacity eight;
 other sizes return `FD_RANGE`. Non-null input/output is required. Malformed
 version/flags return `FD_INVALID`. Failure changes no output bytes or fields.
 Encoding's record is passed by value. Costs are constant time/storage.
-Decoding requires the output `FDRecord` and input octet array to occupy disjoint
+Decoding requires the output `struct fd_record` and input octet array to occupy disjoint
 storage; overlapping decode is not admitted by this contract.
 The decoder composes the checked extent and cursor operations; record imported
 artifact identities instead of substituting unassessed implementations.
 
 ## Actual allocated typed storage
 
-Initialize `FDSlot` with `FD_SLOT_INITIALIZER`. `FDValue` is one concrete type;
+Initialize `struct fd_slot` with `FD_SLOT_INITIALIZER`. `struct fd_value` is one concrete type;
 the slot is not a promise of generic arbitrary-alignment storage.
-`fd_slot_acquire` requests exactly `sizeof(FDValue)` and `_Alignof(FDValue)`.
+`fd_slot_acquire` requests exactly `sizeof(struct fd_value)` and `_Alignof(struct fd_value)`.
 The allocator must return genuinely allocated, suitably aligned storage with no
 declared type, or null. A cast from a declared character array does not satisfy
 this contract. Callback context remains live until reset. The slot cannot
@@ -91,7 +91,7 @@ repair a lying allocator or detect invalid pointers by numerical alignment alone
 States are empty → acquired → initialized → published. Acquire outside empty
 returns `FD_STATE`. Allocation failure returns `FD_NOMEM`, leaving empty.
 Initialize is legal only while acquired; its callback constructs the actual
-`FDValue` through typed stores and returns zero on success. On failure, the
+`struct fd_value` through typed stores and returns zero on success. On failure, the
 callback rolls back its own partial resource acquisitions; the slot frees its
 storage, becomes empty and returns `FD_INIT_FAILED`. A destructor is **not**
 called for failed initialization. None of the allocator, initializer, destructor
@@ -128,7 +128,7 @@ O(1) auxiliary space. Inspect optimized code only for valid calls.
 
 ## Finite handle pool
 
-`FDPool` contains three actual `FDValue` entries. `fd_pool_init` requires a live,
+`struct fd_pool` contains three actual `struct fd_value` entries. `fd_pool_init` requires a live,
 nonnull pool object; its void interface does not report input errors. Call it once before
 use; keep the owner at one live, stable address until all handles are discarded.
 Copying/reinitializing a pool with outstanding handles is outside the contract.

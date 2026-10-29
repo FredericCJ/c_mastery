@@ -9,7 +9,7 @@ the model branch of the delayed disjunction; do not call it target execution.
 
 ## T15.12.b
 
-Baseline lengths remain0..32. `CPXParser` has configurable admission for both
+Baseline lengths remain0..32. `struct cpx_parser` has configurable admission for both
 versions; the successor contract corrects the earlier imprecise “unchanged”
 wording. New flags/timestamp alter CRC extent. The old parser rejects version2
 after two input bytes; the wrong-extent mutant fails actual round-trip checks.
@@ -46,7 +46,7 @@ as the unchanged original32-byte acceptance contract.
 ## T21.05.b
 
 `cp_deliver` separates frame validity from nonfailing copied admission. Its
-clear-on-full mutant loses a pending message. Later `CPXSink` composes actual
+clear-on-full mutant loses a pending message. Later `struct cpx_sink` composes actual
 receipt/store code: failure retains held input, reopening resolves uncertain
 durability, and an exact retry returns the retained result. Seventy-four finite
 working/stable-image cuts test the composed acknowledgement contract without

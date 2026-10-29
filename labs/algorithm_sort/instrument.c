@@ -1,7 +1,7 @@
 /* Supplied observer. Its own copies are instrumentation overhead, not kernel moves. */
 #include "sort.h"
-ASStats as_stats;
-ASPrefixes as_prefixes;
+struct as_stats as_stats;
+struct as_prefixes as_prefixes;
 void as_prefix(const algo_pair*a,uint32_t n,uint32_t prefix){
  if(n>32 || prefix>n || as_prefixes.used>=32)return;
  uint32_t row=as_prefixes.used++;as_prefixes.length[row]=prefix;

@@ -3,7 +3,7 @@
 #include <string.h>
 #define CHECK(e) do{if(!(e)){printf("SP_CHECK:%u:%s\n",(unsigned)__LINE__,#e);return 1;}}while(0)
 static int trace(void){
- SpPool p;SpId a,b,c,d,unchanged={15,91,82};SpClaim x;SpSnapshot s;
+ struct sp_pool p;struct sp_id a,b,c,d,unchanged={15,91,82};struct sp_claim x;struct sp_snapshot s;
  CHECK(sp_init(&p,1,2,0)==SP_OK);
  CHECK(sp_submit(&p,0,10,1,&a)==SP_OK&&sp_submit(&p,1,20,1,&b)==SP_OK);
  CHECK(sp_claim(&p,0,&x)==SP_OK&&x.payload==10);
@@ -26,7 +26,7 @@ static int trace(void){
  return 0;
 }
 static int cancellation(void){
- SpPool p;SpId a,b,c;SpClaim x;SpSnapshot s;unsigned state=99;uint64_t value=98;
+ struct sp_pool p;struct sp_id a,b,c;struct sp_claim x;struct sp_snapshot s;unsigned state=99;uint64_t value=98;
  CHECK(sp_init(&p,2,1,0)==SP_OK&&sp_submit(&p,0,1,1,&a)==SP_OK&&sp_submit(&p,0,2,1,&b)==SP_OK);
  CHECK(sp_claim(&p,0,&x)==SP_OK&&sp_cancel(&p,a)==SP_REQUESTED);
  CHECK(sp_collect(&p,a)==SP_BUSY&&sp_result(&p,a,&state,&value)==SP_BUSY&&state==99&&value==98);
@@ -39,7 +39,7 @@ static int cancellation(void){
  return 0;
 }
 static int finite(void){
- SpPool p;SpId id={0},old;SpClaim claim;SpSnapshot s;
+ struct sp_pool p;struct sp_id id={0},old;struct sp_claim claim;struct sp_snapshot s;
  CHECK(sp_init(&p,3,0,0)==SP_OK&&sp_submit(&p,0,1,1,&id)==SP_NO_WORKERS);
  CHECK(sp_init(&p,4,1,0)==SP_OK);
  /* White-box finite-limit setup under exclusive ownership, never an API operation. */
@@ -53,7 +53,7 @@ static int finite(void){
  return 0;
 }
 static int nesting(void){
- SpPool p;SpId parent,children[3],out={0,99,99};SpClaim root,child;SpSnapshot s;
+ struct sp_pool p;struct sp_id parent,children[3],out={0,99,99};struct sp_claim root,child;struct sp_snapshot s;
  CHECK(sp_init(&p,5,1,0)==SP_OK&&sp_submit(&p,0,7,1,&parent)==SP_OK&&sp_claim(&p,0,&root)==SP_OK);
  for(unsigned i=0;i<3;i++)CHECK(sp_submit(&p,0,10+i,1,&children[i])==SP_OK);
  CHECK(sp_submit(&p,0,13,1,&out)==SP_FULL&&out.world==99);
@@ -71,14 +71,14 @@ static int nesting(void){
  CHECK(sp_snapshot(&p,&s)==SP_OK&&s.completed==3);
  return 0;
 }
-typedef struct {SpLaunch launch;unsigned alloc_fail,create_fail,join_fail,allocated,alive,released,bad;unsigned char stacks[4];} Mock;
-static void *allocate(void *context,unsigned index){Mock *m=context;if(index==m->alloc_fail)return NULL;m->allocated|=1u<<index;return &m->stacks[index];}
-static int create(void *context,unsigned index,void *stack,uintptr_t *handle){Mock *m=context;if(stack!=&m->stacks[index])m->bad=1;if(index==m->create_fail)return 1;m->alive|=1u<<index;*handle=index+1;return 0;}
-static int join(void *context,uintptr_t handle){Mock *m=context;unsigned i=(unsigned)handle-1;if(i>=4){m->bad=1;return 1;}if(atomic_load_explicit(&m->launch.gate,memory_order_acquire)!=2)m->bad=1;if(i==m->join_fail)return 1;m->alive&=~(1u<<i);return 0;}
-static void release(void *context,unsigned index,void *stack){Mock *m=context;if(stack!=&m->stacks[index]||(m->alive&(1u<<index))||!(m->allocated&(1u<<index)))m->bad=1;m->allocated&=~(1u<<index);m->released++;}
-static int reset(Mock *m){memset(m,0,sizeof *m);m->alloc_fail=m->create_fail=m->join_fail=4;return sp_launch_init(&m->launch,(SpLaunchPort){allocate,create,join,release,m});}
+struct sa_mock {struct sp_launch launch;unsigned alloc_fail,create_fail,join_fail,allocated,alive,released,bad;unsigned char stacks[4];};
+static void *allocate(void *context,unsigned index){struct sa_mock *m=context;if(index==m->alloc_fail)return NULL;m->allocated|=1u<<index;return &m->stacks[index];}
+static int create(void *context,unsigned index,void *stack,uintptr_t *handle){struct sa_mock *m=context;if(stack!=&m->stacks[index])m->bad=1;if(index==m->create_fail)return 1;m->alive|=1u<<index;*handle=index+1;return 0;}
+static int join(void *context,uintptr_t handle){struct sa_mock *m=context;unsigned i=(unsigned)handle-1;if(i>=4){m->bad=1;return 1;}if(atomic_load_explicit(&m->launch.gate,memory_order_acquire)!=2)m->bad=1;if(i==m->join_fail)return 1;m->alive&=~(1u<<i);return 0;}
+static void release(void *context,unsigned index,void *stack){struct sa_mock *m=context;if(stack!=&m->stacks[index]||(m->alive&(1u<<index))||!(m->allocated&(1u<<index)))m->bad=1;m->allocated&=~(1u<<index);m->released++;}
+static int reset(struct sa_mock *m){memset(m,0,sizeof *m);m->alloc_fail=m->create_fail=m->join_fail=4;return sp_launch_init(&m->launch,(struct sp_launch_port){allocate,create,join,release,m});}
 static int launching(void){
- Mock m;
+ struct sa_mock m;
  for(unsigned n=0;n<=4;n++){
   CHECK(reset(&m)==SP_OK&&sp_launch(&m.launch,n)==SP_OK&&atomic_load(&m.launch.gate)==1);
   CHECK(m.alive==(1u<<n)-1&&sp_shutdown(&m.launch)==SP_OK&&m.alive==0&&m.allocated==0&&!m.bad&&m.released==n);

@@ -25,7 +25,7 @@ occupy12384bytes before any additional alignment gaps or state. Validate payload
 0..1460 and check all larger values before computing. Ethernet padding must be
 trimmed by validated IP total length before delivery to TCP/application parsing.
 
-`NwTx` owns up to1600 immutable response bytes. `nw_offer` copies caller bytes;
+`struct nw_tx` owns up to1600 immutable response bytes. `nw_offer` copies caller bytes;
 the input expires on return. It accepts a new response only after all previous
 bytes are acknowledged and no DMA/prepared operation remains. Generation advances
 without wrap. Every prepared segment carries epoch, connection owner, generation
@@ -51,7 +51,7 @@ a physical device. ACK arguments have already passed the full TCB/peer/sequence
 validation; this ledger tracks response offsets and does not validate TCP control
 packets by itself.
 
-`NwRx` owns a circular queue with capacity1..512. Admission copies an entire span
+`struct nw_rx` owns a circular queue with capacity1..512. Admission copies an entire span
 or returns BUSY without consuming it. `nw_rx_window` is unused capacity. A peek
 borrows only the first contiguous portion until the next queue mutation;
 `nw_rx_consume` advances by a checked exact prefix. Failed admission must not
@@ -66,9 +66,9 @@ queue admission. A complete TCB validates ACK/window/control state before using
 this adapter. Its intentionally bounded admission contract does not replace
 SYN/FIN/RST/overlap or congestion processing.
 
-`NwPair` changes the historical one-connection admission limit to two configured
+`struct nw_pair` changes the historical one-connection admission limit to two configured
 remote ports under the fixed peer/local IP profile. It owns two separate actual
-`NetStack` objects and dispatches TCP by remote port; a shared ARP observation
+`struct net_stack` objects and dispatches TCP by remote port; a shared ARP observation
 updates both while emitting one response. Capacity1 refuses the second port.
 Each stack retains its own parser, sequence state and retransmission packet.
 The original stack's lower-send/window/neighbor/date gaps remain explicitly
@@ -77,7 +77,7 @@ adding an array implements every general-host requirement.
 
 ## Required exercises and changed conditions
 
-**T41.01.a (A,B,F,H,I,J).** Build the profile/exclusion table and `NwPair`; run two
+**T41.01.a (A,B,F,H,I,J).** Build the profile/exclusion table and `struct nw_pair`; run two
 actual independent handshakes, GET and binary POST requests, and a wrong-route
 control. Prove parser, retransmission and incarnation isolation. Calculate native
 and32-bit object storage, static placement and stack reserve. Delayed V1 changes

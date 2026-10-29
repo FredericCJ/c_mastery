@@ -14,16 +14,16 @@
       exit(41);                                                                \
     }                                                                          \
   } while (0)
-static ASValue value(unsigned n) {
-  return (ASValue){n, ~(uint32_t)n, n ^ UINT32_C(0x91a337e2), n * UINT32_C(3)};
+static struct as_value value(unsigned n) {
+  return (struct as_value){n, ~(uint32_t)n, n ^ UINT32_C(0x91a337e2), n * UINT32_C(3)};
 }
-static void matches(ASValue v, unsigned n) {
-  ASValue e = value(n);
+static void matches(struct as_value v, unsigned n) {
+  struct as_value e = value(n);
   CHECK(v.sequence == e.sequence && v.inverse == e.inverse &&
         v.salt == e.salt && v.triple == e.triple);
 }
 static void interface(void) {
-  ASQueue q;
+  struct as_queue q;
   q.capacity = 77;
   for (unsigned n = 0; n <= 20; n++) {
     int valid = n && n <= 16 && !(n & (n - 1));
@@ -32,7 +32,7 @@ static void interface(void) {
     if (!valid)
       continue;
     CHECK(q.capacity == n);
-    ASValue out = value(77);
+    struct as_value out = value(77);
     CHECK(as_pop(&q, &out, NULL, NULL) == CMX_RETRY);
     matches(out, 77);
     for (unsigned i = 0; i < n; i++)
@@ -48,23 +48,23 @@ static void interface(void) {
   CHECK(as_pop(&q, NULL, NULL, NULL) == CMX_INVALID);
   printf("LAYOUT head=%zu tail=%zu align=%zu size=%zu line=%ld "
          "lockfree_head=%d lockfree_tail=%d\n",
-         offsetof(ASQueue, head), offsetof(ASQueue, tail), _Alignof(ASQueue),
+         offsetof(struct as_queue, head), offsetof(struct as_queue, tail), _Alignof(struct as_queue),
          sizeof q, sysconf(_SC_LEVEL1_DCACHE_LINESIZE),
          atomic_is_lock_free(&q.head), atomic_is_lock_free(&q.tail));
   puts("OBS interface capacity admission,full/empty,multiword FIFO,output "
        "preservation,actual layout/lock freedom");
 }
-typedef struct {
+struct ag_gate {
   pthread_mutex_t lock;
   pthread_cond_t cond;
   unsigned reached, release;
-  ASQueue *q;
-  ASValue out;
+  struct as_queue *q;
+  struct as_value out;
   enum cmx_result result;
   unsigned pushing;
-} Gate;
+};
 static void pause_at(void *p) {
-  Gate *g = p;
+  struct ag_gate *g = p;
   CHECK(pthread_mutex_lock(&g->lock) == 0);
   g->reached = 1;
   CHECK(pthread_cond_broadcast(&g->cond) == 0);
@@ -73,45 +73,45 @@ static void pause_at(void *p) {
   CHECK(pthread_mutex_unlock(&g->lock) == 0);
 }
 static void *paused(void *p) {
-  Gate *g = p;
+  struct ag_gate *g = p;
   g->result = g->pushing ? as_push(g->q, value(42), pause_at, g)
                          : as_pop(g->q, &g->out, pause_at, g);
   return NULL;
 }
-static void gate_wait(Gate *g) {
+static void gate_wait(struct ag_gate *g) {
   CHECK(pthread_mutex_lock(&g->lock) == 0);
   while (!g->reached)
     CHECK(pthread_cond_wait(&g->cond, &g->lock) == 0);
   CHECK(pthread_mutex_unlock(&g->lock) == 0);
 }
-static void gate_release(Gate *g) {
+static void gate_release(struct ag_gate *g) {
   CHECK(pthread_mutex_lock(&g->lock) == 0);
   g->release = 1;
   CHECK(pthread_cond_broadcast(&g->cond) == 0);
   CHECK(pthread_mutex_unlock(&g->lock) == 0);
 }
-typedef struct {
-  ASQueue *q;
+struct ag_reentry {
+  struct as_queue *q;
   unsigned producer;
   enum cmx_result result;
-} Reentry;
+};
 static void reenter(void *p) {
-  Reentry *r = p;
-  ASValue out = value(77);
+  struct ag_reentry *r = p;
+  struct as_value out = value(77);
   r->result = r->producer ? as_push(r->q, value(99), NULL, NULL)
                           : as_pop(r->q, &out, NULL, NULL);
   if (!r->producer)
     matches(out, 77);
 }
-typedef struct {
-  ASQueue *q;
+struct ag_worker {
+  struct as_queue *q;
   unsigned producer;
-} Worker;
+};
 static void *transfer(void *p) {
-  Worker *w = p;
+  struct ag_worker *w = p;
   for (unsigned i = 0; i < 4000; i++) {
     enum cmx_result r;
-    ASValue out = value(77);
+    struct as_value out = value(77);
     do {
       r = w->producer ? as_push(w->q, value(i), NULL, NULL)
                       : as_pop(w->q, &out, NULL, NULL);
@@ -125,15 +125,15 @@ static void *transfer(void *p) {
   return NULL;
 }
 static void edges(void) {
-  ASQueue q;
+  struct as_queue q;
   CHECK(as_init(&q, 1) == CMX_OK);
-  Gate g = {.q = &q, .pushing = 1};
+  struct ag_gate g = {.q = &q, .pushing = 1};
   CHECK(pthread_mutex_init(&g.lock, NULL) == 0 &&
         pthread_cond_init(&g.cond, NULL) == 0);
   pthread_t t;
   CHECK(pthread_create(&t, NULL, paused, &g) == 0);
   gate_wait(&g);
-  ASValue out = value(77);
+  struct as_value out = value(77);
   CHECK(as_pop(&q, &out, NULL, NULL) == CMX_RETRY);
   matches(out, 77);
   gate_release(&g);
@@ -147,7 +147,7 @@ static void edges(void) {
   matches(g.out, 42);
   CHECK(pthread_cond_destroy(&g.cond) == 0 &&
         pthread_mutex_destroy(&g.lock) == 0);
-  Reentry re = {.q = &q, .producer = 1};
+  struct ag_reentry re = {.q = &q, .producer = 1};
   CHECK(as_push(&q, value(7), reenter, &re) == CMX_OK &&
         re.result == CMX_INVALID);
   re.producer = 0;
@@ -158,7 +158,7 @@ static void edges(void) {
     CHECK(as_init(&q, capacities[k]) == CMX_OK);
     atomic_store(&q.head, UINT_MAX - 2);
     atomic_store(&q.tail, UINT_MAX - 2);
-    Worker w[2] = {{&q, 1}, {&q, 0}};
+    struct ag_worker w[2] = {{&q, 1}, {&q, 0}};
     pthread_t threads[2];
     CHECK(pthread_create(&threads[0], NULL, transfer, &w[0]) == 0 &&
           pthread_create(&threads[1], NULL, transfer, &w[1]) == 0);
@@ -172,7 +172,7 @@ static void edges(void) {
 static void wrap(void) {
   const unsigned capacities[] = {1, 2, 4, 16};
   unsigned states = 0, edges = 0;
-  ASQueue q;
+  struct as_queue q;
   for (unsigned k = 0; k < 4; k++) {
     unsigned cap = capacities[k];
     for (unsigned tail = 0; tail < 64; tail++)
@@ -183,7 +183,7 @@ static void wrap(void) {
         atomic_store(&q.head, absolute + used);
         for (unsigned i = 0; i < used; i++)
           q.data[(absolute + i) & (cap - 1)] = value(i);
-        ASValue out = value(77);
+        struct as_value out = value(77);
         CHECK(as_pop(&q, &out, NULL, NULL) == (used ? CMX_OK : CMX_RETRY));
         if (used) {
           matches(out, 0);
@@ -206,8 +206,8 @@ static void wrap(void) {
          states, edges);
 }
 static void circular(void) {
-  ASCircular q;
-  ASValue out;
+  struct as_circular q;
+  struct as_value out;
   for (unsigned n = 1; n <= 16; n *= 2) {
     CHECK(as_circular_init(&q, n) == CMX_OK);
     for (unsigned cycle = 0; cycle < 100; cycle++) {

@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <time.h>
-static NDRecord aos[4096];
+static struct nd_record aos[4096];
 static double xs[4096], ys[4096];
 static char labels[4096][24];
 static volatile double sink;

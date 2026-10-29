@@ -3,7 +3,7 @@
 #include <string.h>
 #define CHECK(x) do{if(!(x)){fprintf(stderr,"DEPTH_CHECK:%d:%s\n",__LINE__,#x);return 1;}}while(0)
 static int pipeline(void){
- SInstruction p[]={{S_LOAD,1,0,0,0},{S_ALU,2,1,0,0},{S_BRANCH,0,2,0,1},{S_ALU,3,2,0,0}};
+ struct s_instruction p[]={{S_LOAD,1,0,0,0},{S_ALU,2,1,0,0},{S_BRANCH,0,2,0,1},{S_ALU,3,2,0,0}};
  unsigned issue[16]={0},cycles=99;CHECK(!s_pipeline(p,4,1,issue,&cycles));
  CHECK(issue[0]==1&&issue[1]==3&&issue[2]==4&&issue[3]==7&&cycles==11);
  CHECK(!s_pipeline(p,4,0,issue,&cycles));CHECK(issue[1]==4&&issue[2]==7&&issue[3]==10&&cycles==14);
@@ -12,12 +12,12 @@ static int pipeline(void){
  CHECK(!s_pipeline(0,0,1,issue,&cycles)&&cycles==0);return 0;
 }
 static int i2c(void){
- SI2c s={0x80,0,S_I2C_DATA};unsigned release=9;CHECK(!s_i2c_drive(&s,&release)&&release==1);
+ struct s_si2c s={0x80,0,S_I2C_DATA};unsigned release=9;CHECK(!s_i2c_drive(&s,&release)&&release==1);
  CHECK(s_i2c_sample(&s,0,0)==S_PENDING&&s.bit==0&&s.state==S_I2C_DATA);
  CHECK(!s_i2c_sample(&s,1,0)&&s.state==S_I2C_LOST&&s.bit==0);
  CHECK(!s_i2c_drive(&s,&release)&&release==1);
  for(unsigned value=0;value<256;value++){
-  SI2c t={value,0,S_I2C_DATA};for(unsigned i=0;i<8;i++){
+  struct s_si2c t={value,0,S_I2C_DATA};for(unsigned i=0;i<8;i++){
    CHECK(!s_i2c_drive(&t,&release));CHECK(release==((value>>(7-i))&1));
    CHECK(!s_i2c_sample(&t,1,release));
   }
@@ -25,17 +25,17 @@ static int i2c(void){
   CHECK(!s_i2c_sample(&t,1,0)&&t.state==S_I2C_DONE);
   CHECK(s_i2c_sample(&t,1,0)==S_CONFLICT);
  }
- SI2c t={0,8,S_I2C_ACK};CHECK(!s_i2c_sample(&t,1,1)&&t.state==S_I2C_NACK);return 0;
+ struct s_si2c t={0,8,S_I2C_ACK};CHECK(!s_i2c_sample(&t,1,1)&&t.state==S_I2C_NACK);return 0;
 }
 static int checksum(void){
  unsigned char bytes[]={1,2,3,4,5};
  for(size_t a=0;a<=5;a++)for(size_t b=a;b<=5;b++){
-  SChecksum s={0};uint16_t out=0;CHECK(!s_checksum_add(&s,bytes,a));
+  struct s_checksum s={0};uint16_t out=0;CHECK(!s_checksum_add(&s,bytes,a));
   CHECK(!s_checksum_add(&s,bytes+a,b-a));CHECK(!s_checksum_add(&s,bytes+b,5-b));
   CHECK(!s_checksum_finish(&s,&out)&&out==0xf6f9);
   uint16_t again=0;CHECK(!s_checksum_finish(&s,&again)&&again==out);
  }
- SChecksum s={0};uint16_t out=0;CHECK(!s_checksum_finish(&s,&out)&&out==65535);
+ struct s_checksum s={0};uint16_t out=0;CHECK(!s_checksum_finish(&s,&out)&&out==65535);
  unsigned char all[]={255,255,255,255};CHECK(!s_checksum_add(&s,all,4));CHECK(!s_checksum_finish(&s,&out)&&out==0);return 0;
 }
 static int paired(void){
@@ -60,7 +60,7 @@ static int reduce(void){
  CHECK(s_reduce(0,0,failure,0,100,out,&n,&calls)==S_CONFLICT);return 0;
 }
 static int replace(void){
- unsigned char p[]={1,2,3,4,1,2,5,1,2,3,4,5};SReplacement r;
+ unsigned char p[]={1,2,3,4,1,2,5,1,2,3,4,5};struct s_replacement r;
  CHECK(!s_replace(p,12,3,S_FIFO,&r)&&r.faults==9);
  CHECK(!s_replace(p,12,4,S_FIFO,&r)&&r.faults==10);
  CHECK(!s_replace(p,12,3,S_OPTIMAL,&r)&&r.faults==7);
@@ -70,17 +70,17 @@ static int replace(void){
  r.faults=99;CHECK(s_replace(p,12,0,S_FIFO,&r)==S_INVALID&&r.faults==99);return 0;
 }
 static int wait(void){
- SWait s={0};CHECK(!s_wait_event(&s,1,S_LOCK));CHECK(!s_wait_event(&s,1,S_WAIT));
+ struct s_wait s={0};CHECK(!s_wait_event(&s,1,S_LOCK));CHECK(!s_wait_event(&s,1,S_WAIT));
  CHECK(s.waiting&&!s.owner&&!s.ready);CHECK(!s_wait_event(&s,2,S_LOCK));
  CHECK(!s_wait_event(&s,2,S_PUBLISH));CHECK(!s_wait_event(&s,2,S_SIGNAL));CHECK(s.ready&&!s.waiting);
  CHECK(!s_wait_event(&s,2,S_UNLOCK));CHECK(!s_wait_event(&s,1,S_LOCK));CHECK(!s_wait_event(&s,1,S_WAIT)&&s.owner==1&&s.ready);
  /* A spurious wake changes eligibility, not predicate truth. */
- SWait t={0};CHECK(!s_wait_event(&t,1,S_LOCK));CHECK(!s_wait_event(&t,1,S_WAIT));
+ struct s_wait t={0};CHECK(!s_wait_event(&t,1,S_LOCK));CHECK(!s_wait_event(&t,1,S_WAIT));
  CHECK(!s_wait_event(&t,2,S_LOCK));CHECK(!s_wait_event(&t,2,S_SIGNAL)&&t.ready&&!t.predicate);
  CHECK(!s_wait_event(&t,2,S_UNLOCK));CHECK(!s_wait_event(&t,1,S_LOCK));CHECK(!s_wait_event(&t,1,S_WAIT)&&t.waiting&&!t.ready);return 0;
 }
 static int shoot(void){
- SShootdown s={0};CHECK(!s_shoot_begin(&s,3));uint32_t gen=s.generation;
+ struct s_shootdown s={0};CHECK(!s_shoot_begin(&s,3));uint32_t gen=s.generation;
  CHECK(!s_shoot_ack(&s,0,gen));
  unsigned frame_label=1; /* 1=OLD synthetic owner,2=NEW synthetic owner. */
  int reclaimed=s_shoot_reclaim(&s);
@@ -94,7 +94,7 @@ static int shoot(void){
  s.generation=UINT32_MAX;CHECK(s_shoot_begin(&s,1)==S_CONFLICT);return 0;
 }
 static int peer(void){
- SPeer p={1,0,0,0,1};uint32_t epoch=99,seq=99;CHECK(!s_peer_submit(&p,&epoch,&seq)&&epoch==1&&seq==1);
+ struct s_peer p={1,0,0,0,1};uint32_t epoch=99,seq=99;CHECK(!s_peer_submit(&p,&epoch,&seq)&&epoch==1&&seq==1);
  CHECK(s_peer_restart(&p,0)==S_PENDING&&p.outstanding);
  CHECK(!s_peer_restart(&p,1)&&p.epoch==2&&p.uncertain&&!p.outstanding&&!p.ready);
  CHECK(s_peer_ready(&p,1)==S_CONFLICT);CHECK(!s_peer_ready(&p,2));CHECK(!s_peer_submit(&p,&epoch,&seq)&&seq==1);

@@ -1,6 +1,6 @@
 #include "foreign_backend.h"
 void *orx_backend_worker(void *context) {
-  ORXBackend *b = context;
+  struct orx_backend *b = context;
   size_t i;
   unsigned sum = 0;
   if (pthread_mutex_lock(&b->lock))

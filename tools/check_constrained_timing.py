@@ -29,7 +29,7 @@ def validate_campaign(value):
  if len(groups['core'])!=54 or {(r['profile'],r['variant']) for r in groups['core']}!={(p[0],v) for p in PROFILES for v in (*range(8),'stub')}:errors.append('Missing semantic profiles/controls')
  for row in groups['core']:
   compiler,flags=next((p[1],p[2]) for p in PROFILES if p[0]==row['profile']);v=row['variant'];source='labs/constrained_depth/timing/timing.c' if v=='stub' else 'assessor/legacy_constrained/timing.c';build(row,compiler,[*flags,'-DCT_MUTANT='+str(v if isinstance(v,int) else 0)],[source,'labs/constrained_depth/timing/tests.c']);out=text(row['execution']);semantic(out,row['execution']['exit_code'],v==0)
-  if v==0 and any(s not in out for s in ('CT_TORN:unvalidated=0 consistent=256','CT_METRICS:latency=2 CPU=3 interrupt=2 wall=5 response=7 DMA-response=8 jitter=0,1,1','CT_STATS:n=4 resolution=declared1 min=2 mean=4 max=9 not-WCET burst-runs=3,1 longest=1,3')):errors.append('Missing actual changed-condition output')
+  if v==0 and any(s not in out for s in ('CT_TORN:unvalidated=0 consistent=256','CT_METRICS:latency=2 struct lr_cpu=3 interrupt=2 wall=5 response=7 DMA-response=8 jitter=0,1,1','CT_STATS:n=4 resolution=declared1 min=2 mean=4 max=9 not-WCET burst-runs=3,1 longest=1,3')):errors.append('Missing actual changed-condition output')
  for kind in ('replay','measure','persist'):
   if len(groups[kind])!=6 or {r['profile'] for r in groups[kind]}!={p[0] for p in PROFILES}:errors.append('Missing '+kind+' profiles')
   for row in groups[kind]:

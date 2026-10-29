@@ -7,8 +7,8 @@
 static int apb(unsigned n) {
   return n == 1 || n == 2 || n == 4 || n == 8 || n == 16;
 }
-static int valid(PuIo io) { return io.read && io.write; }
-int pu_rates(const PuClock *c, PuRates *r) {
+static int valid(struct pu_io io) { return io.read && io.write; }
+int pu_rates(const struct pu_clock *c, struct pu_rates *r) {
   if (!c || !r || !c->generation || !c->sys_hz || c->sys_hz > 180000000u ||
       !(apb(c->ahb) || c->ahb == 64 || c->ahb == 128 || c->ahb == 256 ||
         c->ahb == 512) ||
@@ -29,14 +29,14 @@ int pu_rates(const PuClock *c, PuRates *r) {
     r->timer1 = 2 * r->apb1;
   return PU_OK;
 }
-int pu_peer_ready(const PuRx *q, unsigned *ready) {
+int pu_peer_ready(const struct pu_rx *q, unsigned *ready) {
   if (!q || !ready || q->count > 2 || q->head > 1 || q->backpressure > 1 ||
       q->reserve > 2)
     return PU_INVALID;
   *ready = !q->backpressure || 2 - q->count > q->reserve;
   return PU_OK;
 }
-int pu_receive(PuRx *q, unsigned status, uint8_t value) {
+int pu_receive(struct pu_rx *q, unsigned status, uint8_t value) {
   unsigned ready;
   if (!q || status > 255 || pu_peer_ready(q, &ready))
     return PU_INVALID;
@@ -59,7 +59,7 @@ int pu_receive(PuRx *q, unsigned status, uint8_t value) {
   q->count++;
   return PU_OK;
 }
-int pu_take(PuRx *q, PuByte *v) {
+int pu_take(struct pu_rx *q, struct pu_byte *v) {
   unsigned ready;
   if (!v || pu_peer_ready(q, &ready))
     return PU_INVALID;
@@ -70,10 +70,10 @@ int pu_take(PuRx *q, PuByte *v) {
   q->count--;
   return PU_OK;
 }
-int pu_open(PuDriver *d, PuIo io, const PuClock *c, uint32_t baud,
+int pu_open(struct pu_driver *d, struct pu_io io, const struct pu_clock *c, uint32_t baud,
             unsigned over8, unsigned polls) {
-  PuRates rates;
-  SDUart frame;
+  struct pu_rates rates;
+  struct sd_uart frame;
   if (!d || !valid(io) || !polls || pu_rates(c, &rates) ||
       sd_uart(rates.apb1, baud, over8, 8, 0, 1, 0, &frame))
     return PU_INVALID;
@@ -100,7 +100,7 @@ source_ready:
   d->ready = 1;
   return PU_OK;
 }
-int pu_submit(PuDriver *d, PuIo io, uint32_t gen, uint32_t token,
+int pu_submit(struct pu_driver *d, struct pu_io io, uint32_t gen, uint32_t token,
               unsigned backend, const uint8_t *buf, unsigned n, uint32_t now,
               uint32_t budget) {
   if (!d || !valid(io) || !buf || !n || n > 8 || backend > PU_DMA || !token ||
@@ -142,7 +142,7 @@ int pu_submit(PuDriver *d, PuIo io, uint32_t gen, uint32_t token,
              (io.read(io.context, PU_CR1) | 0x80u) & ~0x40u);
   return PU_OK;
 }
-int pu_cancel(PuDriver *d, PuIo io, uint32_t token) {
+int pu_cancel(struct pu_driver *d, struct pu_io io, uint32_t token) {
   if (!d || !valid(io))
     return PU_INVALID;
   if (!d->active || token != d->token)
@@ -160,7 +160,7 @@ int pu_cancel(PuDriver *d, PuIo io, uint32_t token) {
     d->memory_owned = 0;
   return PU_OK;
 }
-int pu_reset_notice(PuDriver *d, PuIo io) {
+int pu_reset_notice(struct pu_driver *d, struct pu_io io) {
   if (!d || !valid(io))
     return PU_INVALID;
   d->ready = 0;
@@ -170,7 +170,7 @@ int pu_reset_notice(PuDriver *d, PuIo io) {
   }
   return PU_OK;
 }
-int pu_step(PuDriver *d, PuIo io, uint32_t token, uint32_t now) {
+int pu_step(struct pu_driver *d, struct pu_io io, uint32_t token, uint32_t now) {
   if (!d || !valid(io))
     return PU_INVALID;
   if (!d->active || token != d->token)
@@ -224,7 +224,7 @@ int pu_step(PuDriver *d, PuIo io, uint32_t token, uint32_t now) {
   }
   return PU_BUSY;
 }
-int pu_poll(PuDriver *d, PuIo io, uint32_t token, uint32_t now,
+int pu_poll(struct pu_driver *d, struct pu_io io, uint32_t token, uint32_t now,
             unsigned polls) {
   if (!polls)
     return PU_INVALID;
@@ -241,7 +241,7 @@ int pu_poll(PuDriver *d, PuIo io, uint32_t token, uint32_t now,
   }
   return PU_TIMEOUT;
 }
-int pu_rx_poll(PuRx *q, PuIo io, unsigned polls) {
+int pu_rx_poll(struct pu_rx *q, struct pu_io io, unsigned polls) {
   unsigned ready;
   if (!valid(io) || !polls || pu_peer_ready(q, &ready))
     return PU_INVALID;

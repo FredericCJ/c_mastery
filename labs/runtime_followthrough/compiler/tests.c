@@ -1,10 +1,10 @@
 #include "compiler.h"
 #include <stdio.h>
 #include <string.h>
-static VcWork work;
-static Cvm vm;
-static CvmProgram program;
-static VcReport report;
+static struct vc_work work;
+static struct cvm_cvm vm;
+static struct cvm_program program;
+static struct vc_report report;
 static unsigned effects;
 #define CHECK(x)                                                               \
   do {                                                                         \
@@ -20,12 +20,12 @@ static int host(void *p, uint8_t id, int32_t value, int32_t *out) {
   return 0;
 }
 static int compile(const char *s, unsigned depth, unsigned fold) {
-  VcOptions o = {depth, fold};
+  struct vc_options o = {depth, fold};
   return vc_compile(s, strlen(s), &o, &work, &program, &report);
 }
-static int value(const char *s, unsigned fold, CvmTag tag, int32_t expected) {
+static int value(const char *s, unsigned fold, enum cvm_tag tag, int32_t expected) {
   CHECK(compile(s, 256, fold) == CVM_OK);
-  CvmValue result = cvm_int(-777);
+  struct cvm_value result = cvm_int(-777);
   cvm_init(&vm, 10000, 10000, 100);
   vm.host = host;
   vm.host_context = 0;
@@ -34,10 +34,10 @@ static int value(const char *s, unsigned fold, CvmTag tag, int32_t expected) {
   return 0;
 }
 static int refusal(const char *s, size_t n, unsigned depth) {
-  CvmProgram prior;
+  struct cvm_program prior;
   memset(&program, 0xa5, sizeof program);
   memcpy(&prior, &program, sizeof program);
-  VcOptions o = {depth, 0};
+  struct vc_options o = {depth, 0};
   CHECK(vc_compile(s, n, &o, &work, &program, &report) == CVM_SYNTAX);
   CHECK(!memcmp(&prior, &program, sizeof program));
   return 0;
@@ -135,7 +135,7 @@ static int branches(void) {
         effects == 0);
   CHECK(!value("(fn main () (and true (or false true)))", 0, CVM_BOOL, 1));
   CHECK(compile("(fn main () (and true 3))", 64, 0) == CVM_OK);
-  CvmValue out = cvm_int(99);
+  struct cvm_value out = cvm_int(99);
   cvm_init(&vm, 100, 100, 10);
   CHECK(cvm_run(&vm, &program, &out) == CVM_TYPE && out.integer == 99);
   /* Independent decoder establishes boundaries before a real invalid target. */
@@ -157,7 +157,7 @@ static int branches(void) {
         boundary[program.code[jump + 1] + 256u * program.code[jump + 2]]);
   program.code[jump + 1] = (uint8_t)(jump + 1);
   program.code[jump + 2] = 0;
-  VvReport v;
+  struct vv_report v;
   CHECK(vv_verify(&program, 0, 1, &work.verification, &v) == VV_TARGET);
   puts("VC_VALUES branches 3 0 1 0\nVC_BRANCHES_PASS");
   return 0;
@@ -178,7 +178,7 @@ static int controls(void) {
   const char *bad = "(fn main () (break 1))";
   CHECK(!refusal(bad, strlen(bad), 64));
   CHECK(compile("(fn main () (if 1 2 3))", 64, 0) == CVM_OK);
-  CvmValue out = cvm_int(99);
+  struct cvm_value out = cvm_int(99);
   cvm_init(&vm, 100, 100, 10);
   CHECK(cvm_run(&vm, &program, &out) == CVM_TYPE && out.integer == 99);
   puts("VC_VALUES controls 8 1 7 104 9\nVC_CONTROLS_PASS");
@@ -189,7 +189,7 @@ static int fuel(void) {
       "(fn main () (let n 0 (do (while (< n 4) (set n (+ n 1))) n)))";
   CHECK(compile(counter, 64, 0) == CVM_OK);
   for (unsigned budget = 55; budget <= 57; budget++) {
-    CvmValue out = cvm_int(99);
+    struct cvm_value out = cvm_int(99);
     cvm_init(&vm, budget, 100, 10);
     int rc = cvm_run(&vm, &program, &out);
     CHECK(budget == 55
@@ -198,14 +198,14 @@ static int fuel(void) {
   }
   CHECK(compile("(fn main () (while true nil))", 64, 0) == CVM_OK);
   for (unsigned b = 0; b < 100; b++) {
-    CvmValue out = cvm_int(99);
+    struct cvm_value out = cvm_int(99);
     cvm_init(&vm, b, 100, 10);
     CHECK(cvm_run(&vm, &program, &out) == CVM_FUEL && out.integer == 99 &&
           vm.fuel == 0);
   }
   CHECK(compile("(fn main () (+ 2 3))", 64, 0) == CVM_OK &&
         report.folded == 0 && program.length == 12);
-  CvmValue out = cvm_int(99);
+  struct cvm_value out = cvm_int(99);
   cvm_init(&vm, 2, 100, 10);
   CHECK(cvm_run(&vm, &program, &out) == CVM_FUEL && out.integer == 99);
   CHECK(compile("(fn main () (+ 2 3))", 64, 1) == CVM_OK &&

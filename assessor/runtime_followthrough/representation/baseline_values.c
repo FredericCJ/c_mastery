@@ -1,6 +1,6 @@
 #include "cvm.h"
 #include <stdio.h>
-static void integer(CvmProgram *p) {
+static void integer(struct cvm_program *p) {
   p->code[p->length++] = OP_INT;
   for (unsigned i = 0; i < 4; i++)
     p->code[p->length++] = 0;
@@ -8,9 +8,9 @@ static void integer(CvmProgram *p) {
 int main(void) {
   for (unsigned a = 0; a < 3; a++)
     for (unsigned b = 0; b < 3; b++) {
-      CvmProgram p = {0};
-      Cvm v;
-      CvmValue out = cvm_int(91);
+      struct cvm_program p = {0};
+      struct cvm_cvm v;
+      struct cvm_value out = cvm_int(91);
       p.count = 1;
       if (!a)
         integer(&p);
@@ -28,9 +28,9 @@ int main(void) {
           out.integer != (a == b))
         return 1;
     }
-  CvmProgram p = {0};
-  Cvm v;
-  CvmValue out = cvm_int(91);
+  struct cvm_program p = {0};
+  struct cvm_cvm v;
+  struct cvm_value out = cvm_int(91);
   p.count = 1;
   p.code[p.length++] = OP_TRUE;
   integer(&p);

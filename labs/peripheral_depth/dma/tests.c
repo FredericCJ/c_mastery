@@ -14,32 +14,32 @@ int pm_puts(const char *);
       return 1;                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
-  PdSnapshot snap;
+struct dg_model {
+  struct pd_snapshot snap;
   unsigned configure, enable, stop, clean, invalidate, release, acquire, fail;
-  PdExtent current;
-} Model;
-static int config(void *ctx, const PdExtent *e, uint32_t token) {
-  Model *m = ctx;
+  struct pd_extent current;
+};
+static int config(void *ctx, const struct pd_extent *e, uint32_t token) {
+  struct dg_model *m = ctx;
   m->configure++;
   if (m->configure == m->fail)
     return 0;
   m->current = *e;
-  m->snap = (PdSnapshot){token, 0, e->bytes / e->width, 0, 1};
+  m->snap = (struct pd_snapshot){token, 0, e->bytes / e->width, 0, 1};
   return 1;
 }
 static void enable(void *ctx) {
-  Model *m = ctx;
+  struct dg_model *m = ctx;
   m->enable++;
   m->snap.enabled = 1;
   m->snap.fifo_empty = 0;
 }
 static void stop(void *ctx) {
-  ((Model *)ctx)->stop++;
+  ((struct dg_model *)ctx)->stop++;
 } /* Request only; hardware ack is separate. */
-static PdSnapshot snapshot(void *ctx) { return ((Model *)ctx)->snap; }
+static struct pd_snapshot snapshot(void *ctx) { return ((struct dg_model *)ctx)->snap; }
 static void visible(void *ctx, unsigned op, uint32_t a, uint32_t n) {
-  Model *m = ctx;
+  struct dg_model *m = ctx;
   (void)a;
   (void)n;
   if (op == PD_CLEAN)
@@ -51,20 +51,20 @@ static void visible(void *ctx, unsigned op, uint32_t a, uint32_t n) {
   if (op == PD_ACQUIRE)
     m->acquire++;
 }
-static PdIo bus(Model *m) {
-  PdIo io = {m, config, enable, stop, snapshot, visible};
+static struct pd_io bus(struct dg_model *m) {
+  struct pd_io io = {m, config, enable, stop, snapshot, visible};
   return io;
 }
-static PdExtent item(unsigned board, unsigned n) {
+static struct pd_extent item(unsigned board, unsigned n) {
   uint32_t base = board == PD_F439 ? 0x20000000u : 0x30040100u;
-  PdExtent e = {base, base + 8192, n, n, n, 1};
+  struct pd_extent e = {base, base + 8192, n, n, n, 1};
   return e;
 }
 int main(void) {
   uint32_t total = 777;
-  PdExtent e = item(PD_F439, 16);
+  struct pd_extent e = item(PD_F439, 16);
   CHECK(pd_validate(PD_F439, 0, &e, 1, &total) == PD_OK && total == 16);
-  PdExtent bad = e;
+  struct pd_extent bad = e;
   bad.source = 0x10000000;
   CHECK(pd_validate(PD_F439, 0, &bad, 1, &total) == PD_INVALID);
   bad = e;
@@ -84,10 +84,10 @@ int main(void) {
   CHECK(pd_validate(PD_H745, 1, &bad, 1, &total) == PD_INVALID);
   for (unsigned cancel = 0; cancel < 2; cancel++)
     for (unsigned remaining = 0; remaining <= 16; remaining++) {
-      Model m = {0};
-      PdTransfer s = {0};
-      PdIo io = bus(&m);
-      PdResult r = {99, 99, 99, 99};
+      struct dg_model m = {0};
+      struct pd_transfer s = {0};
+      struct pd_io io = bus(&m);
+      struct pd_result r = {99, 99, 99, 99};
       CHECK(pd_submit(&s, io, PD_F439, 0, &e, 1, 1) == PD_OK && m.enable == 1);
       CHECK(pd_finalize(&s, io, 1, &r) == PD_BUSY && r.token == 99);
       if (cancel)
@@ -110,41 +110,41 @@ int main(void) {
             pd_submit(&s, io, PD_F439, 0, &e, 1, 1) == PD_STALE);
     }
   {
-    Model m = {0};
-    PdTransfer s = {0};
-    PdIo io = bus(&m);
-    PdResult r;
-    PdExtent v[2] = {item(PD_H745, 32), item(PD_H745, 64)};
+    struct dg_model m = {0};
+    struct pd_transfer s = {0};
+    struct pd_io io = bus(&m);
+    struct pd_result r;
+    struct pd_extent v[2] = {item(PD_H745, 32), item(PD_H745, 64)};
     v[1].source += 128;
     v[1].destination += 128;
     CHECK(pd_submit(&s, io, PD_H745, 1, v, 2, UINT32_MAX) == PD_OK &&
           m.clean == 4 && m.invalidate == 2);
     v[1].bytes = 0; /* descriptor array was copied before publication */
-    m.snap = (PdSnapshot){UINT32_MAX, 0, 0, PD_TC, 1};
+    m.snap = (struct pd_snapshot){UINT32_MAX, 0, 0, PD_TC, 1};
     CHECK(pd_poll(&s, io, UINT32_MAX) == PD_BUSY && m.configure == 2 &&
           m.current.bytes == 64);
-    m.snap = (PdSnapshot){UINT32_MAX, 0, 0, PD_TC, 1};
+    m.snap = (struct pd_snapshot){UINT32_MAX, 0, 0, PD_TC, 1};
     CHECK(pd_poll(&s, io, UINT32_MAX) == PD_OK &&
           pd_finalize(&s, io, UINT32_MAX, &r) == PD_OK);
     CHECK(r.complete_bytes == 96 && r.status == PD_OK && m.invalidate == 4 &&
           pd_submit(&s, io, PD_H745, 1, &v[0], 1, 1) == PD_STALE);
   }
   {
-    Model m = {0};
-    PdTransfer s = {0};
-    PdIo io = bus(&m);
-    PdResult r;
+    struct dg_model m = {0};
+    struct pd_transfer s = {0};
+    struct pd_io io = bus(&m);
+    struct pd_result r;
     CHECK(pd_submit(&s, io, PD_F439, 0, &e, 1, 2) == PD_OK);
     m.snap.flags = PD_TE;
     m.snap.remaining = 99;
     CHECK(pd_poll(&s, io, 2) == PD_BUSY && m.stop == 1);
-    m.snap = (PdSnapshot){2, 0, 0, PD_TC, 1};
+    m.snap = (struct pd_snapshot){2, 0, 0, PD_TC, 1};
     CHECK(pd_poll(&s, io, 2) == PD_OK && pd_finalize(&s, io, 2, &r) == PD_OK &&
           r.status == PD_IO && r.complete_bytes == 0 &&
           r.possibly_written_bytes == 16);
   }
   {
-    PdExtent v[2] = {e, e}, out[4];
+    struct pd_extent v[2] = {e, e}, out[4];
     unsigned n = 99;
     v[1].source += 32;
     v[1].destination += 32;
@@ -153,15 +153,15 @@ int main(void) {
     CHECK(pd_suffix(v, 2, 33, out, &n) == PD_INVALID && n == 1);
   }
   {
-    Model m = {0};
+    struct dg_model m = {0};
     m.fail = 1;
-    PdTransfer s = {0};
-    PdIo io = bus(&m);
+    struct pd_transfer s = {0};
+    struct pd_io io = bus(&m);
     CHECK(pd_submit(&s, io, PD_F439, 0, &e, 1, 1) == PD_BUSY && !s.phase &&
           !s.last_token && !m.enable);
   }
   for (unsigned width = 1; width <= 4; width *= 2) {
-    PdExtent v[3] = {e, e, e}, out[4];
+    struct pd_extent v[3] = {e, e, e}, out[4];
     for (unsigned k = 0; k < 3; k++) {
       v[k].width = width;
       v[k].source += k * 32;
@@ -190,16 +190,16 @@ int main(void) {
     CHECK(pd_suffix(v, 3, 48, out, &n) == PD_INVALID && n == 99);
   }
   {
-    Model m = {0};
+    struct dg_model m = {0};
     m.fail = 2;
-    PdTransfer s = {0};
-    PdIo io = bus(&m);
-    PdResult r;
-    PdExtent v[2] = {e, e};
+    struct pd_transfer s = {0};
+    struct pd_io io = bus(&m);
+    struct pd_result r;
+    struct pd_extent v[2] = {e, e};
     v[1].source += 32;
     v[1].destination += 32;
     CHECK(pd_submit(&s, io, PD_F439, 0, v, 2, 1) == PD_OK);
-    m.snap = (PdSnapshot){1, 0, 0, PD_TC, 1};
+    m.snap = (struct pd_snapshot){1, 0, 0, PD_TC, 1};
     CHECK(pd_poll(&s, io, 1) == PD_OK && pd_finalize(&s, io, 1, &r) == PD_OK);
     CHECK(r.status == PD_IO && r.complete_bytes == 16 &&
           r.possibly_written_bytes == 16 && m.enable == 1);

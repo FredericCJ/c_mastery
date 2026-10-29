@@ -44,7 +44,7 @@ allocated payload. No devices, networks, credentials or host settings change.
 
 ## Problem and supplied inputs
 
-Implement `io.h`. For `PCCopy`, a read fills its64-byte owned buffer; a write
+Implement `io.h`. For `struct pc_copy`, a read fills its64-byte owned buffer; a write
 consumes only the pending suffix. Execute the exact script
 `read3, write1, EINTR, write2, read4, write2, EAGAIN, write2, EOF` on `abcdefg`.
 Return a readiness state after `EAGAIN`, preserving `fg`, then resume without
@@ -71,7 +71,7 @@ Blindly retrying Linux `close` can close a different object after descriptor reu
 
 ## Representation, invariants and failure semantics
 
-`PCCopy` owns its inline buffer; `0 <= next <= end <=64`. The half-open range
+`struct pc_copy` owns its inline buffer; `0 <= next <= end <=64`. The half-open range
 `[next,end)` is exactly the read prefix not yet committed to the sink. `committed`
 counts only successful writes; it is bounded by `UINTMAX_MAX`. `pc_resume` borrows
 its callbacks/context for the call, permits no reentrancy or concurrent access,

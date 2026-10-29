@@ -1,6 +1,6 @@
 #include "history.h"
-int ah_history(const AHOperation *ops, size_t n, unsigned capacity,
-               unsigned spec, unsigned pending_policy, AHWitness *out) {
+int ah_history(const struct ah_operation *ops, size_t n, unsigned capacity,
+               unsigned spec, unsigned pending_policy, struct ah_witness *out) {
   (void)ops;
   (void)n;
   (void)capacity;

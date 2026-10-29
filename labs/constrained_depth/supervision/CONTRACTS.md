@@ -88,7 +88,7 @@ hardware flag. Ordinary Sleep, Stop and Standby have different retained state.
 
 ## Representation, invariants, ownership and failure
 
-`CSWorld` is fixed-address, exclusively initialized; count/boot are immutable,
+`struct cs_world` is fixed-address, exclusively initialized; count/boot are immutable,
 one supervisor owns `last[]`. Publishers make one SC admission CAS, update one
 atomic epoch and release the even sequence. They return BUSY on contention;
 an ISR must never spin waiting for a preempted publisher. Supervisor reads one
@@ -106,7 +106,7 @@ tampering, arbitrary correlated corruption or physical durable atomicity.
 Initialize a fresh record only at an authorized lifetime boundary; reboot must
 not silently zero retries. Logical terminal state performs no hazardous action.
 
-`CSBus` callbacks are trusted, live, nonreentrant, do not fail or mutate controller
+`struct cs_bus` callbacks are trusted, live, nonreentrant, do not fail or mutate controller
 state, and own the selected MMIO registers. Portable Stop entry requires ordinary
 interrupts masked; `cs_f439_stop` preserves PRIMASK and rejects handler/BASEPRI/
 FAULTMASK contexts. Quiescence mask31 attests DMA, flash, APB, outputs and a valid

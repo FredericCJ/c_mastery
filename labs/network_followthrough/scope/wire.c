@@ -1,5 +1,5 @@
 #include "wire.h"
-int nw_ingress(NwRx *q, uint32_t *next, uint16_t port, const unsigned char *p,
+int nw_ingress(struct nw_rx *q, uint32_t *next, uint16_t port, const unsigned char *p,
                size_t n) {
   (void)q;
   (void)next;

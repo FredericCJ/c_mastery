@@ -3,8 +3,8 @@
 #ifndef SPG_MUTANT
 #define SPG_MUTANT 0
 #endif
-static SpLaunch launch;
-static SpPool pool;
+static struct sp_launch launch;
+static struct sp_pool pool;
 static unsigned char *arena[4];
 static unsigned leased,created,joined,released,allocate_fail,create_fail,join_fail,cpus,mode;
 static atomic_uint bad,mask,visits[12];
@@ -21,7 +21,7 @@ static void entry(uintptr_t argument){
  atomic_fetch_or(&mask,1u<<(unsigned)cmk_call(CMK2_CPU_INFO,0,0,0));
  unsigned gate;while(!(gate=atomic_load_explicit(&launch.gate,memory_order_acquire)))pause_worker();
  while(gate!=2){
-  if(mode){SpClaim claim;int r=sp_claim(&pool,index,&claim);if(r==SP_OK){
+  if(mode){struct sp_claim claim;int r=sp_claim(&pool,index,&claim);if(r==SP_OK){
    if(claim.payload>=12||atomic_fetch_add(&visits[claim.payload],1))atomic_store(&bad,1);
    else{uint64_t result=work(claim.payload,claim.cost);results[claim.payload]=result;if(sp_complete(&pool,claim,result)!=SP_OK)atomic_store(&bad,1);}
   }else if(r!=SP_EMPTY)atomic_store(&bad,1);}
@@ -43,7 +43,7 @@ static void release(void *unused,unsigned index,void *stack){(void)unused;G_CHEC
 static void reset(unsigned selected){
  G_CHECK(!leased);created=joined=released=0;allocate_fail=create_fail=join_fail=4;mode=selected;
  atomic_init(&bad,0);atomic_init(&mask,0);for(unsigned i=0;i<12;i++){atomic_init(&visits[i],0);results[i]=0;}
- G_CHECK(sp_launch_init(&launch,(SpLaunchPort){allocate,create,join,release,NULL})==SP_OK);
+ G_CHECK(sp_launch_init(&launch,(struct sp_launch_port){allocate,create,join,release,NULL})==SP_OK);
 }
 void _start(void){
  cpus=(unsigned)((uint64_t)cmk_call(CMK2_CPU_INFO,0,0,0)>>32);G_CHECK(cpus==1||cpus==2||cpus==4);
@@ -62,8 +62,8 @@ void _start(void){
  G_CHECK(sp_shutdown(&launch)==SP_DEGRADED&&leased==2&&launch.started==2&&released==2);join_fail=4;
  G_CHECK(sp_shutdown(&launch)==SP_OK&&!leased&&released==3&&!atomic_load(&bad));
  unsigned workers=cpus<4?cpus:3;reset(1);G_CHECK(sp_init(&pool,31,workers,0)==SP_OK&&sp_launch(&launch,workers)==SP_OK);
- SpId ids[12];for(unsigned i=0;i<12;i++){int r;do{r=sp_submit(&pool,0,i,i==0?50000:1000,&ids[i]);if(r==SP_FULL)pause_worker();}while(r==SP_FULL);G_CHECK(r==SP_OK);}
- G_CHECK(sp_close(&pool,0)==SP_OK);SpSnapshot snapshot;
+ struct sp_id ids[12];for(unsigned i=0;i<12;i++){int r;do{r=sp_submit(&pool,0,i,i==0?50000:1000,&ids[i]);if(r==SP_FULL)pause_worker();}while(r==SP_FULL);G_CHECK(r==SP_OK);}
+ G_CHECK(sp_close(&pool,0)==SP_OK);struct sp_snapshot snapshot;
  do{G_CHECK(sp_snapshot(&pool,&snapshot)==SP_OK);pause_worker();}while(snapshot.completed!=12);
  G_CHECK(sp_shutdown(&launch)==SP_OK&&!leased&&!atomic_load(&bad)&&atomic_load(&mask)==(1u<<workers)-1);
  for(unsigned i=0;i<12;i++){unsigned state;uint64_t result;G_CHECK(atomic_load(&visits[i])==1&&sp_result(&pool,ids[i],&state,&result)==SP_OK&&state==SP_COMPLETED&&result==results[i]&&result==work(i,i==0?50000:1000));G_CHECK(sp_collect(&pool,ids[i])==SP_OK);}

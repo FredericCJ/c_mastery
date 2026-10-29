@@ -8,7 +8,7 @@ _Static_assert(CHAR_BIT == 8, "wire octets required");
 static uint16_t read16(const uint8_t *p) {
   return (uint16_t)((uint16_t)p[0] * 256u + p[1]);
 }
-int dg_encode(const DGMessage *m, uint8_t *out, size_t cap, size_t *written) {
+int dg_encode(const struct dg_message *m, uint8_t *out, size_t cap, size_t *written) {
   if (!m || !out || !written || m->length > 32 || !m->sequence)
     return DG_INVALID;
   size_t n = (size_t)m->length + 4;
@@ -26,10 +26,10 @@ int dg_encode(const DGMessage *m, uint8_t *out, size_t cap, size_t *written) {
   *written = n;
   return DG_OK;
 }
-int dg_decode(const uint8_t *wire, size_t n, DGMessage *out) {
+int dg_decode(const uint8_t *wire, size_t n, struct dg_message *out) {
   if (!out || !wire)
     return DG_INVALID;
-  FCursor c = {wire, n, 0};
+  struct f_cursor c = {wire, n, 0};
   const uint8_t *h, *p;
   if (f_take(&c, 4, &h) != F_OK)
     return DG_FRAME;
@@ -38,16 +38,16 @@ int dg_decode(const uint8_t *wire, size_t n, DGMessage *out) {
     return DG_FRAME;
   if (DG_MUTANT != 1 && c.position != c.length)
     return DG_FRAME;
-  DGMessage m = {seq, length, {0}};
+  struct dg_message m = {seq, length, {0}};
   for (size_t i = 0; i < length; ++i)
     m.payload[i] = p[i];
   *out = m;
   return DG_OK;
 }
-int dg_accept(DGSession *s, const uint8_t *wire, size_t n, DGMessage *out) {
+int dg_accept(struct dg_session *s, const uint8_t *wire, size_t n, struct dg_message *out) {
   if (!s || !out || s->accepted > 65535u)
     return DG_INVALID;
-  DGMessage m;
+  struct dg_message m;
   int rc = dg_decode(wire, n, &m);
   if (rc)
     return rc;
@@ -60,7 +60,7 @@ int dg_accept(DGSession *s, const uint8_t *wire, size_t n, DGMessage *out) {
   *out = m;
   return DG_OK;
 }
-int dg_stream_feed(DGStream *s, const uint8_t *p, size_t n, size_t *used) {
+int dg_stream_feed(struct dg_stream *s, const uint8_t *p, size_t n, size_t *used) {
   if (!s || !used || (n && !p) || s->used > 38 || s->needed > 38)
     return DG_INVALID;
   *used = 0;
@@ -87,7 +87,7 @@ int dg_stream_feed(DGStream *s, const uint8_t *p, size_t n, size_t *used) {
     s->ready = 1;
   return DG_OK;
 }
-int dg_stream_take(DGStream *s, DGSession *session, DGMessage *out) {
+int dg_stream_take(struct dg_stream *s, struct dg_session *session, struct dg_message *out) {
   if (!s || !session || !out)
     return DG_INVALID;
   if (s->poisoned)
@@ -100,7 +100,7 @@ int dg_stream_take(DGStream *s, DGSession *session, DGMessage *out) {
   s->ready = 0;
   return rc;
 }
-int dg_stream_end(const DGStream *s) {
+int dg_stream_end(const struct dg_stream *s) {
   if (!s)
     return DG_INVALID;
   if (s->poisoned || (s->used && !s->ready))

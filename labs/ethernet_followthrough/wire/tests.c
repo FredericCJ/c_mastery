@@ -16,7 +16,7 @@ static int stream(void) {
   unsigned char bytes[258], out[256], joined[262] = {0, 1, 7, 0, 0, 0, 2, 8, 9};
   size_t n, k, j, used, got;
   unsigned cases = 0;
-  EwStream s, old;
+  struct ew_stream s, old;
   for (n = 0; n <= 256; ++n) {
     bytes[0] = (unsigned char)(n >> 8);
     bytes[1] = (unsigned char)n;
@@ -83,8 +83,8 @@ static int stream(void) {
 }
 static int vlan(void) {
   unsigned char payload[1500], wire[1522], plain[1518], saved[1522];
-  EwVlan v, old;
-  EDFrame f;
+  struct ew_vlan v, old;
+  struct ed_frame f;
   size_t n, len, got;
   unsigned cases = 0;
   for (n = 0; n < 1500; ++n)
@@ -146,7 +146,7 @@ static int vlan(void) {
 static int frame(void) {
   unsigned char payload[3] = {1, 2, 3}, wire[1518];
   size_t n;
-  EDFrame f, old;
+  struct ed_frame f, old;
   uint32_t crc0, crc1, full;
   unsigned i;
   CHECK(ed_frame_build(b, a, 3, payload, 3, 1, wire, sizeof wire, &n) ==
@@ -194,7 +194,7 @@ static int frame(void) {
   return 0;
 }
 static int bridge(void) {
-  EDBridge s = {0}, before;
+  struct ed_bridge s = {0}, before;
   unsigned mask = 999, i;
   unsigned char mac[6] = {2, 0, 0, 0, 1, 0};
   CHECK(ew_bridge(&s, a, b, 1, 0, 0, &mask) == ED_OK && mask == 6, "flood");
@@ -238,7 +238,7 @@ static int bridge(void) {
   return 0;
 }
 static int loop(void) {
-  EDBridge s[2] = {0};
+  struct ed_bridge s[2] = {0};
   unsigned wave, mask, forwarded = 0, cut = 0, i, ports[2] = {2, 3};
   /* Two parallel links between two bridges. A broadcast has no hop limit. */
   for (wave = 0; wave < 8; ++wave)
@@ -267,8 +267,8 @@ static int loop(void) {
 static int layers(void) {
   uint32_t h[3] = {8, 20, 14}, sizes[3] = {99, 99, 99};
   unsigned ok = 999;
-  EDInterface x = {1, 1, 0, 0}, y = {1, 1, 1, 0};
-  EDBudget budget;
+  struct ed_interface x = {1, 1, 0, 0}, y = {1, 1, 1, 0};
+  struct ed_budget budget;
   CHECK(ed_wrap(12, h, 3, sizes) == ED_OK && sizes[0] == 20 && sizes[1] == 40 &&
             sizes[2] == 54,
         "encapsulation");

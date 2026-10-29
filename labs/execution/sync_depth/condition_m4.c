@@ -2,7 +2,7 @@
 extern uint32_t cl_stack_top, cl_data_start, cl_data_end, cl_data_load,
     cl_bss_start, cl_bss_end;
 static cmx_kernel kernel;
-static CDQueue queue;
+static struct cd_queue queue;
 static cmx_mutex other;
 static void semihost(uint32_t op, const void *arg) {
   register uint32_t r0 __asm__("r0") = op;

@@ -4,22 +4,22 @@
 #endif
 #define HALF UINT32_C(0x80000000)
 static int parameters(uint32_t q,uint32_t d,uint32_t p) {return q&&q<=d&&d<=p&&p<HALF;}
-int cb_invariant(const CBBudget *s) {
+int cb_invariant(const struct cb_budget *s) {
   return s&&parameters(s->core.budget,s->relative_deadline,s->core.period)&&
     (unsigned)s->policy<=CB_HARD_DOCUMENT&&(s->policy==CB_HARD_DOCUMENT||s->relative_deadline==s->core.period)&&
     s->core.remaining<=s->core.budget&&s->core.active<=1&&s->queued<=1&&s->throttled<=1&&
     (!s->queued||s->core.active)&&
     (s->throttled?(s->policy==CB_HARD_DOCUMENT&&!s->core.remaining):s->core.remaining>0);
 }
-enum cmx_result cb_init(CBBudget *s,uint32_t q,uint32_t d,uint32_t p,enum cb_policy policy,uint32_t now) {
+enum cmx_result cb_init(struct cb_budget *s,uint32_t q,uint32_t d,uint32_t p,enum cb_policy policy,uint32_t now) {
   if(!s||!parameters(q,d,p)||(unsigned)policy>CB_HARD_DOCUMENT||(policy!=CB_HARD_DOCUMENT&&d!=p))return CMX_INVALID;
-  CBBudget next={0};enum cmx_result r=cmx_cbs_init(&next.core,q,p);if(r!=CMX_OK)return r;
+  struct cb_budget next={0};enum cmx_result r=cmx_cbs_init(&next.core,q,p);if(r!=CMX_OK)return r;
   next.relative_deadline=d;next.policy=policy;next.last=now;*s=next;return CMX_OK;
 }
-enum cmx_result cb_update(CBBudget *s,uint32_t now) {
+enum cmx_result cb_update(struct cb_budget *s,uint32_t now) {
   if(!cb_invariant(s))return CMX_BROKEN;
   if(now-s->last>=HALF)return CMX_INVALID;
-  CBBudget next=*s;
+  struct cb_budget next=*s;
   if(next.throttled&&now-next.core.deadline<HALF) {
     /* The finite comparison admits observations no later than one period
      * after the replenishment deadline; multiple missed windows require an
@@ -29,9 +29,9 @@ enum cmx_result cb_update(CBBudget *s,uint32_t now) {
   }
   next.last=now;*s=next;return CMX_OK;
 }
-enum cmx_result cb_arrive(CBBudget *s,uint32_t now) {
+enum cmx_result cb_arrive(struct cb_budget *s,uint32_t now) {
   if(!cb_invariant(s))return CMX_BROKEN;
-  CBBudget next=*s;enum cmx_result r=cb_update(&next,now);if(r!=CMX_OK)return r;
+  struct cb_budget next=*s;enum cmx_result r=cb_update(&next,now);if(r!=CMX_OK)return r;
   if(!next.queued&&!next.throttled) {
     uint32_t distance=next.core.deadline-now;
     uint64_t left=(uint64_t)next.core.remaining*next.core.period;
@@ -52,13 +52,13 @@ enum cmx_result cb_arrive(CBBudget *s,uint32_t now) {
   }
   next.queued=1;*s=next;return CMX_OK;
 }
-enum cmx_result cb_idle(CBBudget *s) {
+enum cmx_result cb_idle(struct cb_budget *s) {
   if(!cb_invariant(s))return CMX_BROKEN;
   s->queued=0;return CMX_OK;
 }
-enum cmx_result cb_charge(CBBudget *s,uint32_t now,uint32_t amount) {
+enum cmx_result cb_charge(struct cb_budget *s,uint32_t now,uint32_t amount) {
   if(!cb_invariant(s))return CMX_BROKEN;
-  CBBudget next=*s;enum cmx_result r=cb_update(&next,now);if(r!=CMX_OK)return r;
+  struct cb_budget next=*s;enum cmx_result r=cb_update(&next,now);if(r!=CMX_OK)return r;
   if(!amount||!next.queued||next.throttled)return CMX_INVALID;
   if(amount>next.core.remaining)return CMX_FULL;
   if(amount==next.core.remaining&&next.policy!=CB_HARD_DOCUMENT) {
@@ -77,13 +77,13 @@ enum cmx_result cb_admit(uint32_t q0,uint32_t d0,uint32_t p0,uint32_t q1,uint32_
   if(!out||!parameters(q0,d0,p0)||!parameters(q1,d1,p1))return CMX_INVALID;
   *out=(uint64_t)q0*d1+(uint64_t)q1*d0<=(uint64_t)d0*d1;return CMX_OK;
 }
-enum cmx_result cb_workload(const CBWorkload *w,CBTrace *out) {
+enum cmx_result cb_workload(const struct cb_workload *w,struct cb_trace *out) {
   if(!w||!out||w->count>CB_REQUESTS||!w->horizon||w->horizon>CB_HORIZON||!w->capacity||w->capacity>8)return CMX_INVALID;
-  CBBudget s[2];
+  struct cb_budget s[2];
   for(unsigned c=0;c<2;c++){enum cmx_result r=cb_init(&s[c],w->quota[c],w->deadline[c],w->period[c],w->policy[c],0);if(r!=CMX_OK)return r;}
   for(unsigned i=0;i<w->count;i++)if(w->request[i].client>1||w->request[i].release>=w->horizon||w->request[i].cost>1024||
       w->request[i].application_deadline<w->request[i].release||w->request[i].application_deadline>CB_HORIZON)return CMX_INVALID;
-  CBTrace trace={0};for(unsigned i=0;i<CB_REQUESTS;i++)trace.finish[i]=UINT32_MAX;
+  struct cb_trace trace={0};for(unsigned i=0;i<CB_REQUESTS;i++)trace.finish[i]=UINT32_MAX;
   for(unsigned t=0;t<w->horizon;t++) {
     unsigned pending[2]={0,0};int head[2]={-1,-1};
     for(unsigned i=0;i<w->count;i++)if(trace.admitted[i]&&trace.remaining[i])pending[w->request[i].client]++;
@@ -115,9 +115,9 @@ enum cmx_result cb_workload(const CBWorkload *w,CBTrace *out) {
   for(unsigned i=0;i<w->count;i++)if(trace.admitted[i]&&trace.remaining[i]&&w->request[i].application_deadline<=w->horizon)trace.missed[i]=1;
   *out=trace;return CMX_OK;
 }
-enum cmx_result cb_mutex(unsigned length,CBMutexTrace *out) {
+enum cmx_result cb_mutex(unsigned length,struct cb_mutex_trace *out) {
   if(!out||length<2||length>12)return CMX_INVALID;
-  cmx_kernel kernel;cmx_mutex mutex;CBBudget budget[2];CBMutexTrace trace={0};
+  cmx_kernel kernel;cmx_mutex mutex;struct cb_budget budget[2];struct cb_mutex_trace trace={0};
   cmx_init(&kernel,CMX_EDF);
   if(cmx_task_add(&kernel,2,10,0x1000,1024)!=0||cmx_task_add(&kernel,1,6,0x2000,1024)!=1)return CMX_BROKEN;
   if(cmx_mutex_init(&kernel,&mutex,0,0)!=CMX_OK)return CMX_BROKEN;

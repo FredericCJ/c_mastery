@@ -1,12 +1,12 @@
 #include "bridge.h"
-void mb_region_init(MBRegion *r) {
+void mb_region_init(struct mb_region *r) {
   if (r) {
     r->cursor = r->payload = r->high = r->count = 0;
     r->generation = 1;
     r->busy = false;
   }
 }
-int mb_region_alloc(MBRegion *r, size_t n, size_t a, MBSpan *out) {
+int mb_region_alloc(struct mb_region *r, size_t n, size_t a, struct mb_span *out) {
   if (!r || !out || !n || !a || a > 8 || a > _Alignof(max_align_t) ||
       (a & (a - 1)))
     return MB_INVALID;
@@ -22,10 +22,10 @@ int mb_region_alloc(MBRegion *r, size_t n, size_t a, MBSpan *out) {
   r->payload += n;
   if (r->cursor > r->high)
     r->high = r->cursor;
-  *out = (MBSpan){r, r->generation, offset, n};
+  *out = (struct mb_span){r, r->generation, offset, n};
   return MB_OK;
 }
-int mb_region_cleanup(MBRegion *r, MBCleanup f, void *c) {
+int mb_region_cleanup(struct mb_region *r, mb_cleanup_fn f, void *c) {
   if (!r || !f)
     return MB_INVALID;
   if (r->busy)
@@ -36,7 +36,7 @@ int mb_region_cleanup(MBRegion *r, MBCleanup f, void *c) {
   r->context[r->count++] = c;
   return MB_OK;
 }
-int mb_region_reset(MBRegion *r) {
+int mb_region_reset(struct mb_region *r) {
   if (!r)
     return MB_INVALID;
   if (r->busy)
@@ -56,7 +56,7 @@ int mb_region_reset(MBRegion *r) {
   r->busy = false;
   return MB_OK;
 }
-int mb_region_read(const MBRegion *r, MBSpan s, size_t at, unsigned char *out) {
+int mb_region_read(const struct mb_region *r, struct mb_span s, size_t at, unsigned char *out) {
   if (!r || !out)
     return MB_INVALID;
   if (s.owner != r || s.generation != r->generation || r->generation > 3)
@@ -66,14 +66,14 @@ int mb_region_read(const MBRegion *r, MBSpan s, size_t at, unsigned char *out) {
   *out = r->bytes[s.offset + at];
   return MB_OK;
 }
-void mb_once_init(MBOnce *o, bool retry) {
+void mb_once_init(struct mb_once *o, bool retry) {
   if (o) {
     atomic_init(&o->state, 0);
     o->retry = retry;
     o->values[0] = o->values[1] = 0;
   }
 }
-int mb_once_enter(MBOnce *o, unsigned reader, unsigned *out) {
+int mb_once_enter(struct mb_once *o, unsigned reader, unsigned *out) {
   if (!o || !out || reader >= 3)
     return MB_INVALID;
   unsigned state = atomic_load_explicit(&o->state, memory_order_acquire);
@@ -98,7 +98,7 @@ int mb_once_enter(MBOnce *o, unsigned reader, unsigned *out) {
     return MB_INIT;
   return MB_RETRY;
 }
-int mb_once_finish(MBOnce *o, unsigned reader, bool success, unsigned first,
+int mb_once_finish(struct mb_once *o, unsigned reader, bool success, unsigned first,
                    unsigned second) {
   if (!o || reader >= 3)
     return MB_INVALID;
@@ -117,7 +117,7 @@ int mb_once_finish(MBOnce *o, unsigned reader, bool success, unsigned first,
   }
   return MB_OK;
 }
-void mb_hp_init(MBHazards *h) {
+void mb_hp_init(struct mb_hazards *h) {
   if (!h)
     return;
   atomic_init(&h->source, 0);
@@ -129,7 +129,7 @@ void mb_hp_init(MBHazards *h) {
     h->values[i] = 0;
   }
 }
-int mb_hp_publish(MBHazards *h, unsigned value) {
+int mb_hp_publish(struct mb_hazards *h, unsigned value) {
   if (!h)
     return MB_INVALID;
   if (atomic_load(&h->source))
@@ -145,10 +145,10 @@ int mb_hp_publish(MBHazards *h, unsigned value) {
   atomic_store(&h->source, h->generation[i] * 4 + i + 1);
   return MB_OK;
 }
-unsigned mb_hp_observe(const MBHazards *h) {
+unsigned mb_hp_observe(const struct mb_hazards *h) {
   return h ? atomic_load(&h->source) : 0;
 }
-int mb_hp_protect(MBHazards *h, unsigned reader, unsigned candidate,
+int mb_hp_protect(struct mb_hazards *h, unsigned reader, unsigned candidate,
                   unsigned *out) {
   if (!h || !out || reader >= 2)
     return MB_INVALID;
@@ -167,11 +167,11 @@ int mb_hp_protect(MBHazards *h, unsigned reader, unsigned candidate,
   *out = h->values[i];
   return MB_OK;
 }
-void mb_hp_clear(MBHazards *h, unsigned reader) {
+void mb_hp_clear(struct mb_hazards *h, unsigned reader) {
   if (h && reader < 2)
     atomic_store(&h->hazard[reader], 0);
 }
-int mb_hp_retire(MBHazards *h) {
+int mb_hp_retire(struct mb_hazards *h) {
   if (!h)
     return MB_INVALID;
   unsigned token = atomic_exchange(&h->source, 0);
@@ -180,7 +180,7 @@ int mb_hp_retire(MBHazards *h) {
   h->state[(token - 1) % 4] = 2;
   return MB_OK;
 }
-unsigned mb_hp_collect(MBHazards *h) {
+unsigned mb_hp_collect(struct mb_hazards *h) {
   if (!h)
     return 0;
   unsigned count = 0;
@@ -204,7 +204,7 @@ unsigned mb_hp_collect(MBHazards *h) {
     }
   return count;
 }
-void mb_epoch_init(MBEpoch *e) {
+void mb_epoch_init(struct mb_epoch *e) {
   if (e) {
     e->epoch = 1;
     for (unsigned i = 0; i < 2; i++) {
@@ -217,7 +217,7 @@ void mb_epoch_init(MBEpoch *e) {
     }
   }
 }
-int mb_epoch_enter(MBEpoch *e, unsigned r) {
+int mb_epoch_enter(struct mb_epoch *e, unsigned r) {
   if (!e || r >= 2)
     return MB_INVALID;
   if (e->active[r])
@@ -226,7 +226,7 @@ int mb_epoch_enter(MBEpoch *e, unsigned r) {
   e->reader_epoch[r] = e->epoch;
   return MB_OK;
 }
-int mb_epoch_leave(MBEpoch *e, unsigned r) {
+int mb_epoch_leave(struct mb_epoch *e, unsigned r) {
   if (!e || r >= 2)
     return MB_INVALID;
   if (!e->active[r])
@@ -234,7 +234,7 @@ int mb_epoch_leave(MBEpoch *e, unsigned r) {
   e->active[r] = false;
   return MB_OK;
 }
-int mb_epoch_retire(MBEpoch *e, unsigned node) {
+int mb_epoch_retire(struct mb_epoch *e, unsigned node) {
   if (!e || node >= 3)
     return MB_INVALID;
   if (e->retired[node] || e->reclaimed[node])
@@ -243,7 +243,7 @@ int mb_epoch_retire(MBEpoch *e, unsigned node) {
   e->retired_at[node] = e->epoch;
   return MB_OK;
 }
-int mb_epoch_advance(MBEpoch *e) {
+int mb_epoch_advance(struct mb_epoch *e) {
   if (!e)
     return MB_INVALID;
   if (e->epoch == 3)
@@ -256,7 +256,7 @@ int mb_epoch_advance(MBEpoch *e) {
   e->epoch++;
   return MB_OK;
 }
-unsigned mb_epoch_collect(MBEpoch *e) {
+unsigned mb_epoch_collect(struct mb_epoch *e) {
   if (!e)
     return 0;
   unsigned count = 0;

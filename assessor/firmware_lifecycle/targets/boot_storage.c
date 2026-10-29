@@ -4,7 +4,7 @@
 #endif
 static uint32_t get(const unsigned char*p){return (uint32_t)p[0]|(uint32_t)p[1]<<8|(uint32_t)p[2]<<16|(uint32_t)p[3]<<24;}
 static void put(unsigned char*p,uint32_t n,unsigned count){for(unsigned b=0;b<count;++b)p[b]=(unsigned char)(n>>(8*b));}
-int bs_read_image(EGRead read,void*ctx,const FBPolicy*policy,FBLayout layout,unsigned core,FBImage*out){
+int bs_read_image(eg_read_fn read,void*ctx,const struct fb_policy*policy,struct fb_layout layout,unsigned core,struct fb_image*out){
  if(!read||!policy||!out||core>1||layout.base<32||(layout.base&511u)||layout.limit<=layout.base||layout.limit-layout.base<2112)return 0;
  unsigned char image[2080],signature[64];uint32_t word;
  for(unsigned i=0;i<8;++i){if(read(ctx,layout.base-32+4*i,&word)!=1)return 0;put(image+4*i,word,4);}
@@ -13,9 +13,9 @@ int bs_read_image(EGRead read,void*ctx,const FBPolicy*policy,FBLayout layout,uns
  for(unsigned i=0;i<16;++i){if(read(ctx,layout.base+2048+4*i,&word)!=1)return 0;put(signature+4*i,word,4);}
  return fb_admit(policy,layout,core,image,32u+extent,signature,out);
 }
-int bs_select(EGRead read,void*ctx,const FBPolicy*p,const BSLayouts*choices,const uint32_t bases[2],BSSelection*out){
+int bs_select(eg_read_fn read,void*ctx,const struct fb_policy*p,const struct bs_layouts*choices,const uint32_t bases[2],struct bs_selection*out){
  if(!read||!p||!choices||!bases||!out||bases[0]==bases[1])return 0;
- unsigned char records[2][128];unsigned valid[2]={0,0};FBImage images[2][2];
+ unsigned char records[2][128];unsigned valid[2]={0,0};struct fb_image images[2][2];
  for(unsigned record=0;record<2;++record){
   if(!eg_snapshot(read,ctx,bases[record],records[record])||!fh_record_valid(records[record]))continue;
   if(BS_MUTANT==2)out->sequence=get(records[record]+4);

@@ -2,7 +2,7 @@
 #include <stdio.h>
 int main(void) {
   for (unsigned seq = 0; seq <= 65535; ++seq) {
-    DGMessage m = {(uint16_t)seq, (uint16_t)(seq % 33), {0}}, out = {0};
+    struct dg_message m = {(uint16_t)seq, (uint16_t)(seq % 33), {0}}, out = {0};
     uint8_t wire[36];
     size_t n = 0;
     for (unsigned i = 0; i < m.length; ++i)

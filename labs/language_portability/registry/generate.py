@@ -18,7 +18,7 @@ def render(source):
   aliases.extend((label,ident) for label in extra)
  if len(names)>64:raise ValueError('total names')
  ordered.sort(key=lambda r:r['id']);aliases.sort()
- enum='enum LrCommand {\n'+''.join(' LR_CMD_'+r['name'].upper()+'='+str(r['id'])+',\n' for r in ordered)+'};\n'
+ enum='enum lr_command {\n'+''.join(' LR_CMD_'+r['name'].upper()+'='+str(r['id'])+',\n' for r in ordered)+'};\n'
  names_text=''.join('{'+str(r['id'])+'u,"'+r['name']+'"},\n' for r in ordered)
  dispatch=''.join('{'+str(r['id'])+'u,lr_handle_'+r['handler']+'},\n' for r in ordered)
  alias_text=''.join('{"'+n+'",'+str(i)+'u},\n' for n,i in aliases) or '{(const char *)0,0u},\n'

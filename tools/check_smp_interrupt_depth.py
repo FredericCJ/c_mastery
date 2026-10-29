@@ -43,10 +43,10 @@ def validate_campaign(value):
  if len(groups['guest'])!=36 or {(r['profile'],r['mode'],r['variant'],r['cpus'],r['model']) for r in groups['guest']}!=expected:errors.append('Missing actual guest condition')
  for row in groups['guest']:
   cmd=row['execution']['command'];out=text(row['execution'])
-  if cmd[0]!='qemu-system-x86_64' or cmd[cmd.index('-cpu')+1]!=row['model'] or cmd[cmd.index('-smp')+1]!=('4,sockets=2,cores=3,threads=1,maxcpus=6' if row['cpus']==4 else str(row['cpus'])) or 'tcg,thread=multi' not in cmd or cmd[cmd.index('-net')+1]!='none':errors.append('Wrong actual CPU/isolation')
+  if cmd[0]!='qemu-system-x86_64' or cmd[cmd.index('-cpu')+1]!=row['model'] or cmd[cmd.index('-smp')+1]!=('4,sockets=2,cores=3,threads=1,maxcpus=6' if row['cpus']==4 else str(row['cpus'])) or 'tcg,thread=multi' not in cmd or cmd[cmd.index('-net')+1]!='none':errors.append('Wrong actual struct lr_cpu/isolation')
   try:
    semantic(out,row['execution']['exit_code'],row['variant'],True)
-   if row['variant']==0 and oracle.check_guest(out,row['cpus'],row['mode'])!=row['expected']:errors.append('Wrong actual CPU completion/measurement result')
+   if row['variant']==0 and oracle.check_guest(out,row['cpus'],row['mode'])!=row['expected']:errors.append('Wrong actual struct lr_cpu completion/measurement result')
   except ValueError as error:errors.append(str(error))
   compiler,opt=next((p[1],p[2]) for p in GUEST_PROFILES if p[0]==row['profile']);inst=row['instrumentation'];build=json.loads(content(row['guest_build']));label=row['profile']+'-'+str(row['mode'])+'-'+str(row['build_variant'])+'-build';commands=[c for c in value['commands'] if label in Path(c['log']).name]
   if row['guest_build'] not in logs or build.get('built') is not True or build.get('runtime_linked') or build.get('storage_linked') or 'zero undefined' not in build.get('strict_link',''):errors.append('Wrong freestanding image closure')
@@ -62,7 +62,7 @@ def main(report):
  if not destination.is_relative_to(BASE.resolve()):raise ValueError('Use interrupt evidence directory')
  campaign=BASE/'campaign.json';value=json.loads(campaign.read_text(encoding='utf-8'));validate_campaign(value);checks=[{'name':'92-current-mechanism-observations','passed':True}]
  def pick(data,kind,**fields):return next(r for r in data['observations'] if r['target']==kind and all(r.get(k)==v for k,v in fields.items()))
- controls=[('missing-target',lambda d:d['observations'].pop()),('host-build-failure',lambda d:pick(d,'host')['build'].update(exit_code=1)),('guest-build-failure',lambda d:next(c for c in d['commands'] if c['command'][0]=='ld' and '-nostdlib' in c['command']).update(exit_code=1)),('crash-not-control',lambda d:pick(d,'guest',variant=1)['execution'].update(exit_code=139)),('wrong-CPU',lambda d:pick(d,'guest',cpus=4).update(cpus=3)),('wrong-source',lambda d:d['inspected_paths'].update({'assessor/legacy_smp/interrupts.c':'0'*64})),('wrong-log',lambda d:d['log_sha256'].update({next(iter(d['log_sha256'])):'0'*64})),('wrong-model',lambda d:pick(d,'oracle')['expected'].update(transitions=0)),('wrong-mode',lambda d:pick(d,'guest',mode=1)['instrumentation'].update(mode=0)),('missing-TSan',lambda d:pick(d,'native',profile='gcc-tsan')['build']['command'].remove('-fsanitize=thread')),('missing-sanitizer',lambda d:pick(d,'host',profile='gcc-asan')['build']['command'].remove('-fsanitize=address,undefined')),('wrong-native-binary',lambda d:pick(d,'native')['execution']['command'].__setitem__(0,'/wrong'))]
+ controls=[('missing-target',lambda d:d['observations'].pop()),('host-build-failure',lambda d:pick(d,'host')['build'].update(exit_code=1)),('guest-build-failure',lambda d:next(c for c in d['commands'] if c['command'][0]=='ld' and '-nostdlib' in c['command']).update(exit_code=1)),('crash-not-control',lambda d:pick(d,'guest',variant=1)['execution'].update(exit_code=139)),('wrong-struct lr_cpu',lambda d:pick(d,'guest',cpus=4).update(cpus=3)),('wrong-source',lambda d:d['inspected_paths'].update({'assessor/legacy_smp/interrupts.c':'0'*64})),('wrong-log',lambda d:d['log_sha256'].update({next(iter(d['log_sha256'])):'0'*64})),('wrong-model',lambda d:pick(d,'oracle')['expected'].update(transitions=0)),('wrong-mode',lambda d:pick(d,'guest',mode=1)['instrumentation'].update(mode=0)),('missing-TSan',lambda d:pick(d,'native',profile='gcc-tsan')['build']['command'].remove('-fsanitize=thread')),('missing-sanitizer',lambda d:pick(d,'host',profile='gcc-asan')['build']['command'].remove('-fsanitize=address,undefined')),('wrong-native-binary',lambda d:pick(d,'native')['execution']['command'].__setitem__(0,'/wrong'))]
  for name,mutate in controls:
   changed=deepcopy(value);mutate(changed)
   try:validate_campaign(changed);rejected=False
@@ -73,7 +73,7 @@ def main(report):
   except ValueError:rejected=True
   checks.append({'name':name,'passed':rejected})
  sample=pick(value,'guest',cpus=4,mode=1,variant=0);trace=content(sample['execution']['log']).decode()
- for name,bad in [('duplicate-CPU',trace.replace('index=3 apic=4','index=3 apic=2')),('wrong-work',trace.replace('sum=158','sum=159')),('missing-timeout',trace.replace('SI_TIMEOUT_RETAIN','REMOVED')),('wrong-ack',trace.replace('ack=8','ack=7')),('missing-feature',re.sub(r'cpuid1c=\d+','cpuid1c=0',trace))]:
+ for name,bad in [('duplicate-struct lr_cpu',trace.replace('index=3 apic=4','index=3 apic=2')),('wrong-work',trace.replace('sum=158','sum=159')),('missing-timeout',trace.replace('SI_TIMEOUT_RETAIN','REMOVED')),('wrong-ack',trace.replace('ack=8','ack=7')),('missing-feature',re.sub(r'cpuid1c=\d+','cpuid1c=0',trace))]:
   try:oracle.check_guest(bad,4,1);rejected=False
   except ValueError:rejected=True
   checks.append({'name':name,'passed':rejected})

@@ -20,9 +20,9 @@ volatile uint32_t *ps_test_register(uint32_t address) {
 }
 #define R(a) (*ps_test_register(a))
 int main(void) {
-  PsIo io = ps_f439_io();
-  PsSpi s = {0};
-  PuClock c = {16000000, 1, 1, 1, 1, 0};
+  struct ps_io io = ps_f439_io();
+  struct ps_spi s = {0};
+  struct pu_clock c = {16000000, 1, 1, 1, 1, 0};
   ps_f439_pins();
   CHECK((R(0x40020020u) & 0xfff00000u) == 0x55500000u);
   CHECK((R(0x40020000u) & 0xfc00u) == 0xa800u);

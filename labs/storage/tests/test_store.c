@@ -18,7 +18,7 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-typedef struct medium {
+typedef struct store_medium {
   uint8_t stable[STORE_IMAGE_PAGES][STORE_PAGE_SIZE];
   uint8_t pending[STORE_IMAGE_PAGES][STORE_PAGE_SIZE];
   uint8_t dirty[STORE_IMAGE_PAGES];
@@ -679,11 +679,11 @@ static int file_test(void) {
 #endif
 }
 #if defined(STORAGE_WITH_RUNTIME)
-static CvmStatus vm_call(store *s, uint8_t service, int32_t arg, int32_t *out) {
-  Cvm vm;
-  CvmProgram p = {0};
-  CvmValue v;
-  CvmStatus status;
+static enum cvm_status vm_call(store *s, uint8_t service, int32_t arg, int32_t *out) {
+  struct cvm_cvm vm;
+  struct cvm_program p = {0};
+  struct cvm_value v;
+  enum cvm_status status;
   uint32_t u = (uint32_t)arg;
   unsigned i;
   p.count = 1;

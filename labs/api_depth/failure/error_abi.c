@@ -1,5 +1,5 @@
 #include "public_error.h"
-AeCode ae_capture(unsigned b, int c, unsigned o, unsigned s, AePublic *r,
+enum ae_code ae_capture(unsigned b, int c, unsigned o, unsigned s, struct ae_public *r,
                   unsigned char d[8]) {
   (void)b;
   (void)c;
@@ -9,7 +9,7 @@ AeCode ae_capture(unsigned b, int c, unsigned o, unsigned s, AePublic *r,
   (void)d;
   return AE_UNIMPLEMENTED;
 }
-AeCode ae_decode(const unsigned char *b, size_t n, unsigned *x, int *c,
+enum ae_code ae_decode(const unsigned char *b, size_t n, unsigned *x, int *c,
                  unsigned *o, unsigned *s) {
   (void)b;
   (void)n;

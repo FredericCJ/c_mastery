@@ -47,7 +47,7 @@ def run(report):
                     execute([cc,*flags,ROOT/'labs/corpus_money'/source,ROOT/'assessor/corpus_money/money.c','-o',binary],cc+'.'+name+'-build')
                     if name=='measure':
                         raw=execute([binary],cc+'.measure');assert len(raw.splitlines())==6 and 'recipients=32' in raw
-                        d['measurements'].append(dict(compiler=cc,raw=raw,iterations_per_recipient_count=10000,limits='Bounded host CPU ticks and exact examined-slot costs; not board latency or a universal speed claim.'))
+                        d['measurements'].append(dict(compiler=cc,raw=raw,iterations_per_recipient_count=10000,limits='Bounded host struct lr_cpu ticks and exact examined-slot costs; not board latency or a universal speed claim.'))
                     else:
                         obs=json.loads(execute(['python3',ROOT/'assessor/corpus_money/oracle.py',binary],cc+'.oracle'));assert obs['passed'] and obs['observations']==20883
                         d['independent_oracles'].append(dict(compiler=cc,**obs))

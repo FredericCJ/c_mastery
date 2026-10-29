@@ -12,12 +12,12 @@ static int registered(const cmx_kernel *k, const cmx_mutex *m) {
   return 0;
 }
 enum cmx_result cdpi_reprioritize(cmx_kernel *k, unsigned task,
-                                 unsigned new_base, CDPIStats *out) {
+                                 unsigned new_base, struct cdpi_stats *out) {
   if (!k || !out || !live(k, task) || new_base > 255 ||
       k->mutex_count > CMX_MUTEXES) return CMX_INVALID;
   uint32_t reach[CMX_TASKS];
   unsigned priority[CMX_TASKS];
-  CDPIStats stats = {0, 0, 0, 0};
+  struct cdpi_stats stats = {0, 0, 0, 0};
   for (unsigned t = 0; t < CMX_TASKS; ++t) {
     reach[t] = 0;
     priority[t] = t == task ? new_base : k->task[t].base_priority;

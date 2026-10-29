@@ -11,29 +11,29 @@ enum ak_result {
   AK_EMPTY,
   AK_UNIMPLEMENTED
 };
-typedef size_t (*AKCopy)(void *, unsigned char *, size_t);
-typedef struct {
+typedef size_t (*ak_copy_fn)(void *, unsigned char *, size_t);
+struct ak_packet {
   unsigned char bytes[32];
   size_t length;
-} AKPacket;
-enum ak_result ak_copy(AKPacket *, size_t, AKCopy, void *);
-typedef struct {
-  int (*map)(void *, const ASValue *, unsigned *);
+};
+enum ak_result ak_copy(struct ak_packet *, size_t, ak_copy_fn, void *);
+struct ak_backend {
+  int (*map)(void *, const struct as_value *, unsigned *);
   void (*sync_device)(void *, unsigned);
   int (*submit)(void *, unsigned);
   int (*quiesce)(void *, unsigned);
   void (*sync_cpu)(void *, unsigned);
   void (*unmap)(void *, unsigned);
   void *context;
-} AKBackend;
-typedef struct {
-  ASQueue queue;
-  AKBackend backend;
-  ASValue pending;
+};
+struct ak_service {
+  struct as_queue queue;
+  struct ak_backend backend;
+  struct as_value pending;
   unsigned state, cookie;
-} AKService;
-enum ak_result ak_init(AKService *, AKBackend);
-enum ak_result ak_enqueue(AKService *, ASValue);
-enum ak_result ak_start(AKService *);
-enum ak_result ak_complete(AKService *, ASValue *);
+};
+enum ak_result ak_init(struct ak_service *, struct ak_backend);
+enum ak_result ak_enqueue(struct ak_service *, struct as_value);
+enum ak_result ak_start(struct ak_service *);
+enum ak_result ak_complete(struct ak_service *, struct as_value *);
 #endif

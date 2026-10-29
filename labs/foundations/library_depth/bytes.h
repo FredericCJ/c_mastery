@@ -22,7 +22,7 @@ enum lb_status lb_strlen(const unsigned char *, size_t, size_t *);
 enum lb_status lb_display(const unsigned char *, size_t, char *, size_t,
                           size_t *);
 /* Big-endian two-octet length then payload, consumed transactionally. */
-enum lb_status lb_field_display(FCursor *, char *, size_t, size_t *);
+enum lb_status lb_field_display(struct f_cursor *, char *, size_t, size_t *);
 /* Reject length>width. Copy exact bytes then pad to width, without a C-string
  * promise. */
 enum lb_status lb_record(const unsigned char *, size_t, unsigned char *,

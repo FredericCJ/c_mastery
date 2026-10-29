@@ -34,9 +34,9 @@ static uint64_t oracle(size_t n,unsigned pattern) {
   free(d);
   return hash;
 }
-static int trial(enum TcKind kind,size_t n,unsigned pattern,unsigned repeat,uint64_t expected,int emit) {
-  TdTimer *timers=calloc(n,sizeof *timers);
-  TcToken *tokens=calloc(n,sizeof *tokens);
+static int trial(enum tc_kind kind,size_t n,unsigned pattern,unsigned repeat,uint64_t expected,int emit) {
+  struct td_timer *timers=calloc(n,sizeof *timers);
+  struct tc_token *tokens=calloc(n,sizeof *tokens);
   size_t *index=NULL,*pos=NULL,*next=NULL,*prev=NULL,*heads=NULL;
   size_t retained=n*(sizeof *timers+sizeof *tokens);
   if(kind==TC_HEAP) {
@@ -48,7 +48,7 @@ static int trial(enum TcKind kind,size_t n,unsigned pattern,unsigned repeat,uint
   }
   if(!timers || !tokens || (kind==TC_HEAP && (!index || !pos)) ||
      (kind==TC_WHEEL && (!pos || !next || !prev || !heads))) exit(2);
-  TcCollection q;
+  struct tc_collection q;
   uint64_t preparation=stamp();
   int valid=tc_init(&q,kind,timers,n,index,pos,next,prev,heads,64,16,65535)==0;
   for(size_t i=0;i<n;++i) valid &= tc_arm(&q,i,deadline(i,pattern),0,0,tokens+i)==1;
@@ -59,7 +59,7 @@ static int trial(enum TcKind kind,size_t n,unsigned pattern,unsigned repeat,uint
     size_t slot=((size_t)step*73)%n;
     if(step%4==0) (void)tc_cancel(&q,tokens[slot]);
     else (void)tc_arm(&q,slot,deadline((size_t)step*7,pattern),0,0,tokens+slot);
-    TcToken found={n,0};
+    struct tc_token found={n,0};
     uint64_t d=0;
     (void)tc_peek(&q,&found,&d);
     hash=fold(hash,found.slot,d);
@@ -75,9 +75,9 @@ int main(void) {
   const size_t sizes[]={16,256,4096};
   for(size_t i=0;i<3;++i) for(unsigned pattern=0;pattern<3;++pattern) {
     uint64_t expected=oracle(sizes[i],pattern);
-    for(unsigned k=0;k<3;++k) if(trial((enum TcKind)k,sizes[i],pattern,0,expected,0)) return 1;
+    for(unsigned k=0;k<3;++k) if(trial((enum tc_kind)k,sizes[i],pattern,0,expected,0)) return 1;
     for(unsigned repeat=0;repeat<31;++repeat) for(unsigned offset=0;offset<3;++offset) {
-      enum TcKind kind=(enum TcKind)((repeat+offset)%3);
+      enum tc_kind kind=(enum tc_kind)((repeat+offset)%3);
       if(trial(kind,sizes[i],pattern,repeat,expected,1)) return 1;
     }
   }

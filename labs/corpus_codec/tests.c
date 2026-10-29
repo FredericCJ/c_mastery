@@ -4,7 +4,7 @@
 int main(void)
 {
     uint8_t in[128],out[CC_FRAME_LIMIT],decoded[512],length[16]={0};size_t used=777,n=0;
-    uint16_t freq[16]={0};CcBook book;
+    uint16_t freq[16]={0};struct cc_book book;
     CHECK(cc_lengths(freq,length)==CC_OK);
     for(unsigned i=0;i<16;i++)CHECK(length[i]==0);
     freq[5]=65535;CHECK(cc_lengths(freq,length)==CC_OK&&length[5]==1);

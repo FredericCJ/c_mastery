@@ -6,7 +6,7 @@ def run(c,root,args):
    exe=c.root/(cc+'-'+name+'-taxonomy');c.run([cc,*common,*flags,pub/'taxonomy_tests.c',source,abi,provider,'-o',exe]);c.run([exe],contains='TAXONOMY-PASS:categories=4;namespaces=2;secondary_attempts=40;expiry_duplicate=1;fields=4;')
  for name,flag,selected,chosen_abi in [('taxonomy-primary','AE_MUTANT_PRIMARY',source,abi),('taxonomy-ack','AE_MUTANT_ACK',source,abi),('taxonomy-learner','UNSOLVED',pub/'taxonomy.c',abi),('taxonomy-abi-learner','UNSOLVED',source,pub/'error_abi.c')]:
   exe=c.root/name;c.run(['gcc',*common,'-O2','-D'+flag,pub/'taxonomy_tests.c',selected,chosen_abi,provider,'-o',exe]);c.run([exe],expected=1,contains='TAXONOMY-CHECK:')
- consumer=c.write('taxonomy-consumer.c','#include "public_error.h"\nint main(void){AePublic p;unsigned char saved[8];if(ae_capture(1,104,9,2,&p,saved)!=AE_OK||p.code!=AE_TIMEOUT||p.operation!=9)return 1;unsigned b,o,s;int cause;if(ae_decode(saved,8,&b,&cause,&o,&s)!=AE_OK||b!=1||cause!=104||o!=9||s!=2)return 2;return 0;}\n')
+ consumer=c.write('taxonomy-consumer.c','#include "public_error.h"\nint main(void){struct ae_public p;unsigned char saved[8];if(ae_capture(1,104,9,2,&p,saved)!=AE_OK||p.code!=AE_TIMEOUT||p.operation!=9)return 1;unsigned b,o,s;int cause;if(ae_decode(saved,8,&b,&cause,&o,&s)!=AE_OK||b!=1||cause!=104||o!=9||s!=2)return 2;return 0;}\n')
  for cc in ('gcc','clang'):
   prefix=c.root/(cc+'-error-install');inc=prefix/'include';lib=prefix/'lib';inc.mkdir(parents=True);lib.mkdir();shutil.copyfile(pub/'public_error.h',inc/'public_error.h');old=c.root/(cc+'-old-error-consumer.o');c.run([cc,'-std=c17','-Wall','-Wextra','-Werror','-I'+str(inc),'-c',consumer,'-o',old])
   for version in (1,2):

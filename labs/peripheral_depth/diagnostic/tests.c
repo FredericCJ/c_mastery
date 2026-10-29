@@ -22,7 +22,7 @@ static int same(const uint8_t *a, const uint8_t *b, size_t n) {
 }
 static void barrier(void *v) { ++*(unsigned *)v; }
 int main(void) {
-  DGMessage m = {1, 2, {1, 2}}, out = {99, 0, {0}};
+  struct dg_message m = {1, 2, {1, 2}}, out = {99, 0, {0}};
   uint8_t wire[80];
   size_t n = 99;
   const uint8_t golden[] = {0, 1, 0, 2, 1, 2};
@@ -34,7 +34,7 @@ int main(void) {
   CHECK(dg_decode(wire, 7, &out) == DG_FRAME && out.sequence == 99);
   CHECK(dg_decode(wire, 6, &out) == DG_OK && out.sequence == 1 &&
         out.length == 2);
-  DGSession session = {0};
+  struct dg_session session = {0};
   CHECK(dg_accept(&session, wire, n, &out) == DG_OK);
   CHECK(dg_accept(&session, wire, n, &out) == DG_STALE &&
         session.accepted == 1);
@@ -53,8 +53,8 @@ int main(void) {
     wire[0] = 0;
     wire[1] = (uint8_t)n;
     for (size_t cut = 0; cut <= n + 2; ++cut) {
-      DGStream stream = {0};
-      DGSession s = {0};
+      struct dg_stream stream = {0};
+      struct dg_session s = {0};
       size_t used;
       CHECK(dg_stream_feed(&stream, wire, cut, &used) == DG_OK && used == cut);
       if (cut < n + 2)
@@ -66,20 +66,20 @@ int main(void) {
       CHECK(dg_stream_end(&stream) == DG_END);
     }
   }
-  DGStream stream = {0};
+  struct dg_stream stream = {0};
   size_t used;
   const uint8_t bad[] = {0, 37, 0, 1};
   CHECK(dg_stream_feed(&stream, bad, 4, &used) == DG_FRAME && used == 2);
   CHECK(dg_stream_feed(&stream, wire, 6, &used) == DG_FRAME && used == 0);
   CHECK(dg_stream_end(&stream) == DG_FRAME);
-  stream = (DGStream){0};
+  stream = (struct dg_stream){0};
   CHECK(dg_stream_feed(&stream, wire, 1, &used) == DG_OK);
   CHECK(dg_stream_end(&stream) == DG_FRAME);
   /* Two valid outer frames can arrive together. Reject a replay without losing
      the following frame; never consume that suffix while a frame is ready. */
   const uint8_t coalesced[] = {0, 4, 0, 1, 0, 0, 0, 4, 0, 2, 0, 0};
-  stream = (DGStream){0};
-  session = (DGSession){0};
+  stream = (struct dg_stream){0};
+  session = (struct dg_session){0};
   CHECK(dg_stream_feed(&stream, coalesced, sizeof coalesced, &used) == DG_OK &&
         used == 6);
   CHECK(dg_stream_end(&stream) == DG_BUSY);
@@ -94,9 +94,9 @@ int main(void) {
   CHECK(dg_stream_take(&stream, &session, &out) == DG_OK && out.sequence == 2 &&
         session.accepted == 2);
   CHECK(dg_stream_end(&stream) == DG_END);
-  m = (DGMessage){7, 2, {1, 2}};
+  m = (struct dg_message){7, 2, {1, 2}};
   CHECK(dg_ethernet_build(&m, wire, sizeof wire, &n) == DG_OK && n == 60);
-  session = (DGSession){0};
+  session = (struct dg_session){0};
   CHECK(dg_ethernet_accept(&session, wire, n, &out) == DG_OK &&
         out.sequence == 7);
   for (size_t split = 1; split < 64; ++split) {
@@ -107,11 +107,11 @@ int main(void) {
       complete[i] = wire[i];
     for (size_t i = 0; i < 4; ++i)
       complete[60 + i] = fcs[i];
-    EDDescriptor d[2] = {
+    struct ed_descriptor d[2] = {
         {complete, (uint16_t)split, 1u << 9},
         {complete + split, (uint16_t)(64 - split), (64u << 16) | (1u << 8)}};
-    EDRx rx = {0};
-    session = (DGSession){0};
+    struct ed_rx rx = {0};
+    session = (struct dg_session){0};
     CHECK(dg_descriptors(&session, &rx, d, 2, &out) == DG_OK &&
           out.sequence == 7 && !rx.held);
     CHECK(dg_descriptors(&session, &rx, d, 2, &out) == DG_STALE && !rx.held &&
@@ -119,7 +119,7 @@ int main(void) {
     d[0].status |= 1u << 31;
     CHECK(dg_descriptors(&session, &rx, d, 2, &out) == DG_BUSY && !rx.held);
   }
-  EDTx tx = {0};
+  struct ed_tx tx = {0};
   unsigned barriers = 0;
   CHECK(dg_publish(&tx, 0, 1, &m, barrier, &barriers) == DG_OK &&
         barriers == 1 && tx.slots[0].phase == 3);

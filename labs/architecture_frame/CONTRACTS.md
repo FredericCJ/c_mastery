@@ -12,7 +12,7 @@ in the assessor package. Author execution is not a learner assessment.
 ## Prerequisites and environment
 
 Bring the T08 AAPCS call dossier, T27 declared map/startup artifact and T29
-`XfFrame` decoder/handler. Read the actual boot and frame passages registered in
+`struct xf_frame` decoder/handler. Read the actual boot and frame passages registered in
 `research/v5/expansion/legacy_architecture_frame/resources.json`: R-MF-ARM,
 R-MF-DUI, R-MF-DDI and R-MF-RM21. The register records name precisely inspected
 passages; older book or final published C17/C23 access gaps remain separate.
@@ -45,7 +45,7 @@ Initial MSP must be greater than the stack's low bound, at most its high bound,
 and eight-byte aligned under this **application admission policy**. Hardware
 reset masks the low two MSP bits; it does not itself enforce this stricter policy.
 Require reset-vector Thumb bit and even PC within the owned executable extent.
-Return a staged `MFReset` or an error preserving the complete previous output.
+Return a staged `struct mf_reset` or an error preserving the complete previous output.
 An IRQ lookup address is not permission to invoke its entry. Table content,
 copy/zero initialization and exception vector validity remain startup duties.
 
@@ -80,13 +80,13 @@ must preserve the registers it changes. BL replaces LR; a nested call's LR and
 the interrupted context's LR have distinct lifetimes. Masks are a derivation
 aid, not a runtime enforcement mechanism.
 
-`mf_nested` consumes stable, already validated `XfFrame` records plus their
+`mf_nested` consumes stable, already validated `struct xf_frame` records plus their
 actual captured stack-address labels. Require disjoint occupied intervals, an
 outer Thread/PSP frame, inner Handler/MSP frame whose IPSR identifies the outer
 exception, and a strictly more urgent inner **group** derived through the real
 `xf_priority`. Return the restoration order MSP-handler then PSP-thread. Reject
 wrong ownership, overlap, unrecognized configuration or equal group without
-publishing. It cannot authenticate fabricated `XfFrame` records or replace
+publishing. It cannot authenticate fabricated `struct xf_frame` records or replace
 hardware exception-return integrity checks; the caller supplies their provenance.
 
 Use outer words from the fixture and inner words

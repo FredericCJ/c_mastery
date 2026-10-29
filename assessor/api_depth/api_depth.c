@@ -2,7 +2,7 @@
 #ifndef API_MUTANT
 #define API_MUTANT 0
 #endif
-ApiStatus api_append(ApiBuffer *b, const unsigned char *s, size_t n) {
+enum api_status api_append(struct api_buffer *b, const unsigned char *s, size_t n) {
     if (!b || b->capacity > 32 || b->length > b->capacity || (n && !s))
         return API_INVALID;
     if (n > b->capacity - b->length) {
@@ -19,7 +19,7 @@ ApiStatus api_append(ApiBuffer *b, const unsigned char *s, size_t n) {
     b->length += n;
     return API_OK;
 }
-void api_registry_init(ApiRegistry *r) {
+void api_registry_init(struct api_registry *r) {
     if (!r) return;
     r->dispatching = r->releasing = r->closing = r->closed = 0;
     for (unsigned i = 0; i < 4; ++i) {
@@ -27,8 +27,8 @@ void api_registry_init(ApiRegistry *r) {
         r->slots[i].generation = 0; r->slots[i].active = r->slots[i].removing = 0;
     }
 }
-static void release_slot(ApiRegistry *r, unsigned i) {
-    ApiDrop drop = r->slots[i].drop;
+static void release_slot(struct api_registry *r, unsigned i) {
+    api_drop_fn drop = r->slots[i].drop;
     void *context = r->slots[i].context;
     r->slots[i].active = r->slots[i].removing = 0;
     r->slots[i].callback = 0; r->slots[i].drop = 0; r->slots[i].context = 0;
@@ -36,12 +36,12 @@ static void release_slot(ApiRegistry *r, unsigned i) {
     if (drop) drop(context);
     r->releasing = 0;
 }
-ApiStatus api_add(ApiRegistry *r, ApiCallback callback, void *context, ApiDrop drop, ApiHandle *out) {
+enum api_status api_add(struct api_registry *r, api_callback_fn callback, void *context, api_drop_fn drop, struct api_handle *out) {
     if (!r || !callback || !out) return API_INVALID;
     if (r->releasing) return API_BUSY;
     if (r->closing || r->closed) return API_CLOSED;
     for (unsigned i = 0; i < 4; ++i) {
-        ApiSlot *s = r->slots + i;
+        struct api_slot *s = r->slots + i;
         if (s->active || s->generation == UINT32_MAX) continue;
         s->generation++;
         s->callback = callback; s->context = context; s->drop = drop;
@@ -51,17 +51,17 @@ ApiStatus api_add(ApiRegistry *r, ApiCallback callback, void *context, ApiDrop d
     }
     return API_FULL;
 }
-ApiStatus api_remove(ApiRegistry *r, ApiHandle h) {
+enum api_status api_remove(struct api_registry *r, struct api_handle h) {
     if (!r || h.index >= 4 || !h.generation) return API_INVALID;
     if (r->releasing) return API_BUSY;
     if (r->closed) return API_CLOSED;
-    ApiSlot *s = r->slots + h.index;
+    struct api_slot *s = r->slots + h.index;
     if (!s->active || s->generation != h.generation) return API_STALE;
     if (r->dispatching && API_MUTANT != 3) { s->removing = 1; return API_PENDING; }
     release_slot(r, h.index);
     return API_OK;
 }
-ApiStatus api_destroy(ApiRegistry *r) {
+enum api_status api_destroy(struct api_registry *r) {
     if (!r) return API_INVALID;
     if (r->releasing) return API_BUSY;
     if (r->closed) return API_OK;
@@ -72,8 +72,8 @@ ApiStatus api_destroy(ApiRegistry *r) {
     r->closed = 1; r->closing = 0;
     return API_OK;
 }
-ApiStatus api_dispatch(ApiRegistry *r) {
-    ApiHandle snapshot[4]; unsigned count = 0;
+enum api_status api_dispatch(struct api_registry *r) {
+    struct api_handle snapshot[4]; unsigned count = 0;
     if (!r) return API_INVALID;
     if (r->dispatching || r->releasing) return API_BUSY;
     if (r->closed || r->closing) return API_CLOSED;
@@ -84,8 +84,8 @@ ApiStatus api_dispatch(ApiRegistry *r) {
         }
     r->dispatching = 1;
     for (unsigned k = 0; k < count && !r->closing; ++k) {
-        ApiHandle h = snapshot[k];
-        ApiSlot *s = r->slots + h.index;
+        struct api_handle h = snapshot[k];
+        struct api_slot *s = r->slots + h.index;
         if (s->active && s->generation == h.generation)
             s->callback(s->context, r, h);
     }

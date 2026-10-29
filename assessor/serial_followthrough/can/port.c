@@ -20,4 +20,4 @@ static void port_write(void *unused,unsigned offset,uint32_t value){
  *(volatile uint32_t *)(uintptr_t)(UINT32_C(0x40006400)+offset)=value;
 #endif
 }
-CnIO cn_f439_io(void){CnIO io={0,port_read,port_write};return io;}
+struct cn_io cn_f439_io(void){struct cn_io io={0,port_read,port_write};return io;}

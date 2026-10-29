@@ -9,7 +9,7 @@
     }                                                                          \
   } while (0)
 static int grant(void) {
-  E7Grant s = {0};
+  struct e7_grant s = {0};
   uint32_t t = 77;
   unsigned out = 99;
   CHECK(e7_grant_begin(&s, 0, &t) == E7_OK && t == 1);
@@ -31,8 +31,8 @@ static int grant(void) {
   CHECK(e7_grant_begin(&s, 50000, &t) == E7_FULL);
   return 0;
 }
-static E7Fragment ack_for(const E7Fragment *f, unsigned credit) {
-  E7Fragment a = *f;
+static struct e7_fragment ack_for(const struct e7_fragment *f, unsigned credit) {
+  struct e7_fragment a = *f;
   a.type = 2;
   a.source = f->destination;
   a.destination = f->source;
@@ -41,9 +41,9 @@ static E7Fragment ack_for(const E7Fragment *f, unsigned credit) {
   return a;
 }
 static int offer(void) {
-  E7Sender s = {0};
+  struct e7_sender s = {0};
   uint8_t bytes[25] = {1, 2, 3};
-  E7Fragment f, a;
+  struct e7_fragment f, a;
   uint32_t token = 0;
   CHECK(e7_send_begin(&s, 1, 7, 8, bytes, 25, 0) == E7_OK);
   for (unsigned now = 0; now <= 200; now += 100) {
@@ -77,7 +77,7 @@ static int offer(void) {
   return 0;
 }
 static int session(void) {
-  E7Session s = {0};
+  struct e7_session s = {0};
   uint8_t request[] = {1, 2, 3}, reply[] = {4, 5}, cache[80] = {0};
   uint32_t token = 0;
   size_t n = 77;

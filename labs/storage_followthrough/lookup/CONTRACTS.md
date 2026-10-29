@@ -46,7 +46,7 @@ Stage sixteen output bytes (zero beyond length) and the length; reject unchanged
 Input may overlap the output byte array; the separate length output is live and
 disjoint from bytes/input/control. Native addresses remain caller preconditions.
 
-`SlText` is a borrowed facade over one live externally serialized actual store.
+`struct sl_text` is a borrowed facade over one live externally serialized actual store.
 `sl_text_bind` checks the actual tree, scans existing keys and rejects a store
 containing noncanonical text keys. It does not silently migrate mixed policy
 data or resolve collisions. After binding, all mutations must use this policy;
@@ -60,7 +60,7 @@ occurs. Its scan callback retains the original no-reentry rule.
 
 ## Changed callback lifetime: owned immutable snapshots
 
-`SlSnapshot` contains at most `31*7=217` fully copied `SlRecord` values, a count,
+`struct sl_snapshot` contains at most `31*7=217` fully copied `struct sl_record` values, a count,
 source generation, whether capture was from an active transaction, and a ready
 flag. This loose bound follows from at most31node pages each with seven entries;
 internal pages actually reduce leaf capacity. No pointer into a source page,

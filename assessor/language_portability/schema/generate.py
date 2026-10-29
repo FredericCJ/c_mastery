@@ -47,10 +47,10 @@ def outputs(value):
  for row in sorted(normalized,key=lambda r:r['name']):
   n=row['name'].upper();off=row['offset'];width=row['width'];constants+=['#define LS_'+n+'_SHIFT '+str(off),'#define LS_'+n+'_MAX UINT32_C('+str(2**width-1)+')','#define LS_'+n+'_MASK UINT32_C('+str((2**width-1)*2**off)+')']
  allowed=sum((2**r['width']-1)*2**r['offset'] for r in active);constants+=['#define LS_ALLOWED UINT32_C('+str(allowed)+')','#endif']
- codec=['#ifndef LS_GENERATED_CODEC_H','#define LS_GENERATED_CODEC_H','#include "fields.h"','static int lsg_pack(const LsFields *v,uint16_t *out){uint32_t w;','if(!v || !out)return -1;']
+ codec=['#ifndef LS_GENERATED_CODEC_H','#define LS_GENERATED_CODEC_H','#include "fields.h"','static int lsg_pack(const struct ls_fields *v,uint16_t *out){uint32_t w;','if(!v || !out)return -1;']
  codec+=['if(v->'+r['name']+'>LS_'+r['name'].upper()+'_MAX)return -1;' for r in active]
  terms=['(v->'+r['name']+'<<LS_'+r['name'].upper()+'_SHIFT)' if value['internal_fast'] else '(v->'+r['name']+'*UINT32_C('+str(2**r['offset'])+'))' for r in active]
- codec+=['w='+' | '.join(terms)+';','*out=(uint16_t)w;return 0;}','static int lsg_unpack(uint16_t w,LsFields *out){LsFields v;','if(!out || ((uint32_t)w & ~LS_ALLOWED))return -1;']
+ codec+=['w='+' | '.join(terms)+';','*out=(uint16_t)w;return 0;}','static int lsg_unpack(uint16_t w,struct ls_fields *out){struct ls_fields v;','if(!out || ((uint32_t)w & ~LS_ALLOWED))return -1;']
  codec+=['v.'+r['name']+'=((uint32_t)w & LS_'+r['name'].upper()+'_MASK)>>LS_'+r['name'].upper()+'_SHIFT;' for r in active]
  codec+=['*out=v;return 0;}','#endif']
  files={'config.h':('\n'.join(config)+'\n').encode('ascii'),'rules.h':('\n'.join(rules)+'\n').encode('ascii'),'fields.h':('\n'.join(constants)+'\n').encode('ascii'),'codec.h':('\n'.join(codec)+'\n').encode('ascii')}

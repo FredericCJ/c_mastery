@@ -24,7 +24,7 @@ observations are not physical board measurements.
 
 ## Representation, values and lifetime
 
-`FvRecord` owns four ints and contains a borrowed `int *link`. It does not own or
+`struct fv_record` owns four ints and contains a borrowed `int *link`. It does not own or
 free the linked object. `fv_initialize` copies a designated initializer with
 indices1=7,3=9 into caller storage, initializes link to a null pointer value and
 returns a four-element const view of the caller's array. NULL owner returns an
@@ -78,7 +78,7 @@ extends its lifetime. It is a **live view**: reset/update through the owner chan
 subsequent observations. A detached snapshot uses a distinct caller array and
 `fv_copy`. A view does not become a snapshot merely because its pointer is const.
 
-The separate opaque `FvOwner` handle denotes one static demonstration owner;
+The separate opaque `struct fv_owner` handle denotes one static demonstration owner;
 `fv_owner_view` exposes a live const view, while `fv_owner_mutable` returns a
 mutable alias to the same four ints. NULL gives empty/NULL results. The handle's
 layout is hidden from consumers, but this explicitly granted mutable capability

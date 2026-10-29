@@ -19,13 +19,13 @@ static uint64_t now(void) {
   CHECK(clock_gettime(CLOCK_MONOTONIC, &t) == 0);
   return (uint64_t)t.tv_sec * UINT64_C(1000000000) + (uint64_t)t.tv_nsec;
 }
-typedef struct {
+struct tw_counter {
   _Atomic(unsigned) *counter;
   unsigned iterations;
   pthread_barrier_t *start;
-} Counter;
+};
 static void *count(void *arg) {
-  Counter *c = arg;
+  struct tw_counter *c = arg;
   int e = pthread_barrier_wait(c->start);
   CHECK(e == 0 || e == PTHREAD_BARRIER_SERIAL_THREAD);
   for (unsigned i = 0; i < c->iterations; i++)
@@ -51,12 +51,12 @@ static void layout(void) {
       size_t stride = separated ? line : sizeof(_Atomic(unsigned));
       void *allocation = NULL;
       CHECK(posix_memalign(&allocation, line, 2 * stride) == 0);
-      Counter args[2];
+      struct tw_counter args[2];
       pthread_t threads[2];
       pthread_barrier_t start;
       CHECK(pthread_barrier_init(&start, NULL, 3) == 0);
       for (unsigned i = 0; i < 2; i++) {
-        args[i] = (Counter){
+        args[i] = (struct tw_counter){
             .counter =
                 (_Atomic(unsigned) *)((unsigned char *)allocation + i * stride),
             .iterations = repeat ? 100000 : 1000,
@@ -86,15 +86,15 @@ static void layout(void) {
   puts("OBS layout actual adjacent/separate single-owner atomics; changed line "
        "and multi-hot-byte alignment model; no speedup requirement");
 }
-typedef struct {
+struct tw_acc {
   const unsigned *data;
   size_t n;
   unsigned id, mode, intensity;
   _Atomic(uint64_t) *shared;
-  TPWork work;
-} Acc;
+  struct tp_work work;
+};
 static void *acc(void *p) {
-  Acc *a = p;
+  struct tw_acc *a = p;
   CHECK(tp_accumulate(a->data, a->n, a->id, 2, a->mode, 32, a->intensity,
                       a->shared, &a->work) == TP_OK);
   return NULL;
@@ -122,11 +122,11 @@ static void aggregation(void) {
       for (unsigned mode = 0; mode < 3; mode++) {
         _Atomic(uint64_t) shared;
         atomic_init(&shared, 0);
-        Acc a[2];
+        struct tw_acc a[2];
         pthread_t t[2];
         uint64_t start = now();
         for (unsigned i = 0; i < 2; i++) {
-          a[i] = (Acc){.data = data,
+          a[i] = (struct tw_acc){.data = data,
                        .n = 20000,
                        .id = i,
                        .mode = mode,
@@ -156,19 +156,19 @@ static void aggregation(void) {
   puts("OBS aggregation private/batch32/per-item exact sum; explicit merge and "
        "visibility differences; changed intensity0/32");
 }
-typedef struct {
-  TPTotal *total;
+struct tw_fresh {
+  struct tp_total *total;
   atomic_int *stop;
   unsigned reads;
-} Fresh;
+};
 static void *fresh_writer(void *arg) {
-  TPTotal *t = arg;
+  struct tp_total *t = arg;
   for (unsigned i = 0; i < 10000; i++)
     CHECK(tp_total_add(t, 1) == TP_OK);
   return NULL;
 }
 static void *fresh_reader(void *arg) {
-  Fresh *f = arg;
+  struct tw_fresh *f = arg;
   do {
     uint64_t value, items;
     CHECK(tp_total_read(f->total, &value, &items) == 0);
@@ -178,11 +178,11 @@ static void *fresh_reader(void *arg) {
   return NULL;
 }
 static void freshness(void) {
-  TPTotal total;
+  struct tp_total total;
   CHECK(tp_total_init(&total) == 0);
   atomic_int stop;
   atomic_init(&stop, 0);
-  Fresh f = {.total = &total, .stop = &stop};
+  struct tw_fresh f = {.total = &total, .stop = &stop};
   pthread_t r, w[2];
   CHECK(pthread_create(&r, NULL, fresh_reader, &f) == 0);
   for (unsigned i = 0; i < 2; i++)

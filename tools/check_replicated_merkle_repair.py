@@ -30,7 +30,7 @@ def check(d,files=True):
     for r in metrics:
         q=r['result'];assert all(q[k]>0 for k in ['tree_size','proof_size','cost_size']) and q['max_leaves']==16 and q['leaf_bytes']==32 and q['request_wire']==27 and q['response_wire']==108 and q['runs']==200,'wrong measured cost'
         assert (q['sparse_hashes'],q['full_hashes'],q['direct_hashes'])==(122,64,48) and (q['sparse_requests'],q['full_requests'],q['direct_requests'])==(5,31,16),'unequal cost experiment'
-        assert all(q[k]>=0 for k in ['sparse_cpu_seconds','full_cpu_seconds','direct_cpu_seconds']),'invalid CPU observation'
+        assert all(q[k]>=0 for k in ['sparse_cpu_seconds','full_cpu_seconds','direct_cpu_seconds']),'invalid struct lr_cpu observation'
     assert {c['profile'] for c in d['compiler_dependency_closures']}==PROFILES|{'learner'},'missing actual dependency closure'
     assert d['input_sha256'] and d['external_input_sha256'] and d['generated_artifacts'],'missing source/build evidence'
     for c in d['compiler_dependency_closures']:

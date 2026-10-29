@@ -2,27 +2,27 @@
 #ifndef TD_MUTANT
 #define TD_MUTANT 0
 #endif
-struct TdOpaque {
+struct td_opaque {
   int value;
 };
-static struct TdOpaque owners[2];
-static TdRow row = {1, 2, 3, 4};
+static struct td_opaque owners[2];
+static td_row row = {1, 2, 3, 4};
 static int twice(int x) { return x * 2; } /* admitted x in [-1000,1000] */
 int (*td_row_factory(void))[4] { return &row; }
-TdUnaryPtr td_factory(void) { return twice; }
-TdCallable td_wrapped_factory(void) { return (TdCallable){twice}; }
-struct TdOpaque *td_owner(unsigned i) {
+td_unary_ptr td_factory(void) { return twice; }
+struct td_callable td_wrapped_factory(void) { return (struct td_callable){twice}; }
+struct td_opaque *td_owner(unsigned i) {
   if (i >= 2)
     return NULL;
   return &owners[TD_MUTANT == 1 ? 0 : i];
 }
-TdStatus td_get(const struct TdOpaque *owner, int *out) {
+enum td_status td_get(const struct td_opaque *owner, int *out) {
   if (!owner || !out)
     return TD_INVALID;
   *out = owner->value;
   return TD_OK;
 }
-TdStatus td_add(struct TdOpaque *owner, int delta) {
+enum td_status td_add(struct td_opaque *owner, int delta) {
   if (!owner)
     return TD_INVALID;
   if (delta < -1000 || delta > 1000 || owner->value + delta < -1000 ||
@@ -31,32 +31,32 @@ TdStatus td_add(struct TdOpaque *owner, int delta) {
   owner->value += delta;
   return TD_OK;
 }
-TdStatus td_speed(TdMeters d, TdSeconds t, TdSpeed *out) {
+enum td_status td_speed(struct td_meters d, struct td_seconds t, struct td_speed *out) {
   if (!out)
     return TD_INVALID;
   if (d.value < 0 || d.value > 1000 || t.value < 1 || t.value > 1000)
     return TD_RANGE;
   if (TD_MUTANT != 2 && d.value % t.value)
     return TD_RANGE;
-  *out = (TdSpeed){d.value / t.value};
+  *out = (struct td_speed){d.value / t.value};
   return TD_OK;
 }
-TdStatus td_distance(TdSpeed v, TdSeconds t, TdMeters *out) {
+enum td_status td_distance(struct td_speed v, struct td_seconds t, struct td_meters *out) {
   if (!out)
     return TD_INVALID;
   if (v.value < 0 || v.value > 1000 || t.value < 1 || t.value > 1000 ||
       v.value > 1000 / t.value)
     return TD_RANGE;
-  *out = (TdMeters){v.value * t.value};
+  *out = (struct td_meters){v.value * t.value};
   return TD_OK;
 }
 int td_step(int value, void *context) {
-  TdContext *c = context; /* contract: live context, bounded value/bias/calls */
+  struct td_context *c = context; /* contract: live context, bounded value/bias/calls */
   ++c->calls;
   return value + c->bias;
 }
 int td_adapter(void *context, int value) { return td_step(value, context); }
-TdStatus td_rows(const int (*rows)[4], size_t n, TdDispatch callback,
+enum td_status td_rows(const int (*rows)[4], size_t n, td_dispatch_fn callback,
                  void *context, int *out) {
   if (!out || (n && (!rows || !callback)))
     return TD_INVALID;
@@ -74,7 +74,7 @@ TdStatus td_rows(const int (*rows)[4], size_t n, TdDispatch callback,
   *out = sum;
   return TD_OK;
 }
-TdStatus td_submit(TdJob *j, TdDispatch cb, void *ctx, int arg) {
+enum td_status td_submit(struct td_job *j, td_dispatch_fn cb, void *ctx, int arg) {
   if (!j || !cb)
     return TD_INVALID;
   if (j->state != TD_IDLE)
@@ -85,7 +85,7 @@ TdStatus td_submit(TdJob *j, TdDispatch cb, void *ctx, int arg) {
   j->state = TD_PENDING;
   return TD_OK;
 }
-TdStatus td_run(TdJob *j, int *out) {
+enum td_status td_run(struct td_job *j, int *out) {
   if (!j || !out)
     return TD_INVALID;
   if (j->state == TD_RUNNING)
@@ -100,7 +100,7 @@ TdStatus td_run(TdJob *j, int *out) {
   j->state = TD_DONE;
   return TD_OK;
 }
-TdStatus td_cancel(TdJob *j) {
+enum td_status td_cancel(struct td_job *j) {
   if (!j)
     return TD_INVALID;
   if (j->state == TD_RUNNING)
@@ -114,11 +114,11 @@ TdStatus td_cancel(TdJob *j) {
   }
   return TD_OK;
 }
-TdStatus td_reset(TdJob *j) {
+enum td_status td_reset(struct td_job *j) {
   if (!j)
     return TD_INVALID;
   if (j->state == TD_PENDING || j->state == TD_RUNNING)
     return TD_BUSY;
-  *j = (TdJob)TD_JOB_INIT;
+  *j = (struct td_job)TD_JOB_INIT;
   return TD_OK;
 }

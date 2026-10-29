@@ -15,10 +15,10 @@ int pm_puts(const char *);
     }                                                                          \
   } while (0)
 int main(void) {
-  PuClock clock = {16000000u, 1u, 1u, 1u, 1u, 0u};
-  PtConfig c, n, saved;
-  PtModel m;
-  PtRatio f, t, d[2];
+  struct pu_clock clock = {16000000u, 1u, 1u, 1u, 1u, 0u};
+  struct pt_config c, n, saved;
+  struct pt_model m;
+  struct pt_ratio f, t, d[2];
   unsigned level, v = 777u;
   CHECK(pt_choose(&clock, 15, 1000, 250, 750, 0, 0, &c) == PT_OK);
   CHECK(c.psc == 15 && c.arr == 999 && c.ccr[0] == 250 && c.ccr[1] == 750);

@@ -48,7 +48,7 @@ def main():
     run(tag+'.disassembly',['objdump','-d',binary]);stub=native(tag+'.stub',cc,flags,True)
     for case in CASES:run(tag+'.stub.'+case,[stub,case],41,'MF_ASSERT:')
     for m,(case,marker,definition) in MUTANTS.items():mutant=native(tag+'.mutation.'+m,cc,[*flags,'-D'+definition]);run(tag+'.mutation.'+m,[mutant,case],41,marker)
-    observations.append(dict(profile=tag,independent_packets=PACKETS,reset_fetch=[0,4],extended_core_offset=0,physical=False,actual_producer='XfFrame and xf_priority'))
+    observations.append(dict(profile=tag,independent_packets=PACKETS,reset_fetch=[0,4],extended_core_offset=0,physical=False,actual_producer='struct xf_frame and xf_priority'))
    obj=BUILD/(cc+'.core.o');stack=obj.with_suffix('.su');run(cc+'.core',[cc,*strict,'-O2','-fstack-usage','-ffreestanding','-fno-builtin','-c',PRIVATE/'ledger.c','-o',obj]);harness.OUTPUTS.update([obj,stack]);u=run(cc+'.core.undefined',['nm','-u',obj]);s={q.split()[-1] for q in u.splitlines()};assert {'xf_frame','xf_priority'}<=s and s<={'xf_frame','xf_priority','memcpy','memset','_GLOBAL_OFFSET_TABLE_'};run(cc+'.core.stack',['cat',stack])
   assert {q['id'] for q in harness.COMMANDS}==expected_commands()
  except Exception as ex:failure=str(ex)

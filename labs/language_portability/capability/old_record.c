@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <limits.h>
-struct Record {long value;unsigned present;};
+struct fb_record {long value;unsigned present;};
 int main(void) {
-    struct Record r;int i;long values[3];
+    struct fb_record r;int i;long values[3];
     values[0]=LONG_MIN;values[1]=0;values[2]=LONG_MAX;
     r.value=0;r.present=0;
     if(!r.present) puts("empty");

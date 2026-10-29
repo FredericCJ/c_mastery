@@ -2,7 +2,7 @@
 #ifndef TA_MUTANT
 #define TA_MUTANT 0
 #endif
-TaStatus ta_init(TaQueue *q,TaStorage *s,TaLayout layout,unsigned cap,unsigned extent){
+enum ta_status ta_init(struct ta_queue *q,struct ta_storage *s,enum ta_layout layout,unsigned cap,unsigned extent){
  unsigned need;
  if(!q||!s||layout<TA_RING||layout>TA_COUNTED||cap==0||cap>TA_MAX)return TA_INVALID;
  need=cap+(layout==TA_RING);
@@ -13,8 +13,8 @@ TaStatus ta_init(TaQueue *q,TaStorage *s,TaLayout layout,unsigned cap,unsigned e
  if(layout==TA_LINKED)for(unsigned i=0;i<cap;i++)s->nodes[i].next=i+1<cap?i+1:TA_NONE;
  return TA_OK;
 }
-size_t ta_count(const TaQueue *q){return q->count;}
-TaStatus ta_push(TaQueue *q,unsigned char value){
+size_t ta_count(const struct ta_queue *q){return q->count;}
+enum ta_status ta_push(struct ta_queue *q,unsigned char value){
  if(q->count==q->capacity){
   if(TA_MUTANT==1)q->storage->bytes[0]=value;
   return TA_FULL;
@@ -28,14 +28,14 @@ TaStatus ta_push(TaQueue *q,unsigned char value){
  else {q->storage->bytes[q->tail]=value;q->tail=(q->tail+1)%q->extent;}
  q->count++;return TA_OK;
 }
-TaStatus ta_peek(const TaQueue *q,unsigned char *out){
+enum ta_status ta_peek(const struct ta_queue *q,unsigned char *out){
  if(!out)return TA_INVALID;
  if(!q->count){if(TA_MUTANT==2)*out=0;return TA_EMPTY;}
  *out=q->layout==TA_LINKED?q->storage->nodes[q->head].value:q->storage->bytes[q->layout==TA_COMPACT?0:q->head];
  return TA_OK;
 }
-TaStatus ta_pop(TaQueue *q,unsigned char *out){
- TaStatus s=ta_peek(q,out);if(s!=TA_OK)return s;
+enum ta_status ta_pop(struct ta_queue *q,unsigned char *out){
+ enum ta_status s=ta_peek(q,out);if(s!=TA_OK)return s;
  if(q->layout==TA_LINKED){
   unsigned old=q->head;q->head=q->storage->nodes[old].next;
   q->storage->nodes[old].next=q->free_head;q->free_head=old;
@@ -46,13 +46,13 @@ TaStatus ta_pop(TaQueue *q,unsigned char *out){
  if(TA_MUTANT!=3)q->count--;
  return TA_OK;
 }
-TaStatus ta_batch(TaQueue *q,const unsigned char *p,size_t n,size_t *accepted){
+enum ta_status ta_batch(struct ta_queue *q,const unsigned char *p,size_t n,size_t *accepted){
  if(!accepted)return TA_INVALID;
  *accepted=0;if(n&&!p)return TA_INVALID;
- while(*accepted<n){TaStatus s=ta_push(q,p[*accepted]);if(s!=TA_OK)return s;(*accepted)++;}
+ while(*accepted<n){enum ta_status s=ta_push(q,p[*accepted]);if(s!=TA_OK)return s;(*accepted)++;}
  return TA_OK;
 }
-int ta_invariant(const TaQueue *q){
+int ta_invariant(const struct ta_queue *q){
  if(!q||!q->storage||q->layout<TA_RING||q->layout>TA_COUNTED||!q->capacity||q->capacity>TA_MAX||q->count>q->capacity)return 0;
  if(q->extent!=q->capacity+(q->layout==TA_RING))return 0;
  if(q->layout==TA_LINKED){
@@ -66,11 +66,11 @@ int ta_invariant(const TaQueue *q){
  if(q->layout==TA_COMPACT)return q->head==0&&q->tail==0;
  return q->head<q->extent&&q->tail<q->extent&&q->tail==(q->head+q->count)%q->extent;
 }
-TaStatus ta_decode(const unsigned char *p,size_t n,unsigned char out[2]){
+enum ta_status ta_decode(const unsigned char *p,size_t n,unsigned char out[2]){
  if(!p||!out||n!=3||p[0]!=2)return TA_INVALID;
  out[0]=p[1];out[1]=p[2];return TA_OK;
 }
-TaStatus ta_begin(TaFlow *f,const unsigned char *p,size_t n,TaLayout layout,unsigned budget){
+enum ta_status ta_begin(struct ta_flow *f,const unsigned char *p,size_t n,enum ta_layout layout,unsigned budget){
  unsigned char decoded[2];size_t accepted;
  if(!f||!budget||layout<TA_RING||layout>TA_COUNTED||ta_decode(p,n,decoded)!=TA_OK)return TA_INVALID;
  (void)ta_init(&f->queue,&f->storage,layout,2,2+(layout==TA_RING));
@@ -78,8 +78,8 @@ TaStatus ta_begin(TaFlow *f,const unsigned char *p,size_t n,TaLayout layout,unsi
  (void)ta_pop(&f->queue,&f->bytes[0]);(void)ta_pop(&f->queue,&f->bytes[1]);
  f->offset=0;f->budget=budget;f->state=TA_AGAIN;f->uncertain=0;return TA_OK;
 }
-TaStatus ta_step(TaFlow *f,TaWrite write,void *context){
- TaWriteResult r;size_t remaining;
+enum ta_status ta_step(struct ta_flow *f,ta_write_fn write,void *context){
+ struct ta_write_result r;size_t remaining;
  if(f->state!=TA_AGAIN)return f->state;
  if(!write)return TA_INVALID;
  remaining=2-f->offset;r=write(context,f->bytes+f->offset,remaining);
@@ -93,7 +93,7 @@ TaStatus ta_step(TaFlow *f,TaWrite write,void *context){
  if(!f->budget&&TA_MUTANT!=5)return f->state=TA_TIMEOUT;
  return TA_AGAIN;
 }
-TaStatus ta_cancel(TaFlow *f){
+enum ta_status ta_cancel(struct ta_flow *f){
  if(f->state==TA_AGAIN)f->state=TA_CANCELLED;
  return f->state;
 }

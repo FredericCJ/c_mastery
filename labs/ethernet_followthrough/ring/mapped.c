@@ -27,14 +27,14 @@ int en_mapped(void){
  for(unsigned i=0;i<7;i++)for(unsigned j=0;j<10;j++)gpio[i][j]=0;
  for(unsigned i=0;i<18;i++)rcc[i]=0;
  pmc=0;demcr=0x10000;ctrl=0;count=UINT32_MAX-100;writes=violation=frozen=reads=barriers=0;
- EnTarget t={0};absent=1;CHECK(en_target_open(&t)==ED_INVALID && !t.opened && demcr==0x10000);
+ struct en_target t={0};absent=1;CHECK(en_target_open(&t)==ED_INVALID && !t.opened && demcr==0x10000);
  absent=0;CHECK(en_target_open(&t)==ED_OK && en_target_cold(&t)==ED_OK && !violation);
  CHECK(pmc==0x800000u && (rcc[0x30/4]&0xe000047u)==0xe000047u && !(rcc[0x10/4]&0x2000000u));
  unsigned ports[]={0,0,0,1,2,2,2,6,6},pins[]={1,2,7,13,1,4,5,11,13};
  for(unsigned i=0;i<9;i++){unsigned p=ports[i],n=pins[i];CHECK(((gpio[p][n<8?8:9]>>((n%8)*4))&15u)==11 && ((gpio[p][0]>>(n*2))&3u)==2 && ((gpio[p][2]>>(n*2))&3u)==2 && !(gpio[p][1]&(1u<<n)));}
  CHECK(gpio[0][0]==0x8028u && gpio[1][0]==0x08000000u && gpio[2][0]==0xa08u && gpio[6][0]==0x08800000u);
  unsigned before=writes;CHECK(en_target_cold(&t)==ED_BUSY && writes==before);
- EnBus b=en_target_bus(&t);uint32_t start=count;CHECK(b.settle(b.context)==0 && (uint32_t)(count-start)>=720u);
+ struct en_bus b=en_target_bus(&t);uint32_t start=count;CHECK(b.settle(b.context)==0 && (uint32_t)(count-start)>=720u);
  CHECK(b.write(b.context,0x1018,0x02202002)==0);uint32_t out=0;CHECK(b.read(b.context,0x1018,&out)==0 && out==0x02202002u);
  frozen=1;reads=0;CHECK(b.settle(b.context)!=0 && reads==2049);
  CHECK(b.read(b.context,1,&out)!=0 && b.write(b.context,0x1020,0)!=0 && !violation);

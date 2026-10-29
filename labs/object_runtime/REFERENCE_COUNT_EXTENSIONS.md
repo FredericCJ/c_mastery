@@ -7,7 +7,7 @@ reference count by itself and claim that reclamation follows automatically.
 
 ## Representation and accounting invariant
 
-`ORRHeap` owns sixteen identities, two strong edge fields per object, up to 255
+`struct orr_heap` owns sixteen identities, two strong edge fields per object, up to 255
 external roots per identity, eight pending decrement entries and a sixteen-bit
 candidate set. Generation 1 through 3 admits an identity; 4 retires its slot.
 At every public operation boundary, each live object's stored count equals its
@@ -75,7 +75,7 @@ synthetic pool even if roots or pending counts remain; it is not a substitute fo
 closing external resources or stopping live threads. Close cannot run concurrently
 with any other operation, and reinitialization starts a different owner lifetime.
 
-`ORRConcurrent` serializes all owner operations with the actual POSIX mutex. Its
+`struct orr_concurrent` serializes all owner operations with the actual POSIX mutex. Its
 immutable request and output remain caller-owned for the call. An actual worker
 retains cycle member A after preparation and before commit: commit must refuse,
 then a fresh trial must retain A and B. After that root is released, a fresh trial

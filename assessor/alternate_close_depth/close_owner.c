@@ -3,15 +3,15 @@
 #ifndef QC_MUTATION
 #define QC_MUTATION 0
 #endif
-enum QCStatus qc_init(QCOwner *o,int fd)
+enum qc_status qc_init(struct qc_owner *o,int fd)
 {
     if(!o||fd<0)return QC_INVALID;
-    *o=(QCOwner){fd,QC_OWNED};return QC_OK;
+    *o=(struct qc_owner){fd,QC_OWNED};return QC_OK;
 }
-enum QCStatus qc_once(QCOwner *o,QCClose call,void *context,QCObservation *out)
+enum qc_status qc_once(struct qc_owner *o,qc_close_fn call,void *context,struct qc_observation *out)
 {
-    QCRaw raw;
-    enum QCStatus status;
+    struct qc_raw raw;
+    enum qc_status status;
     if(!o||!call||!out)return QC_INVALID;
     if(QC_MUTATION!=5 && o->state!=QC_OWNED && o->state!=QC_RETRY)return QC_TERMINAL;
     raw=call(context,o->fd);
@@ -24,10 +24,10 @@ enum QCStatus qc_once(QCOwner *o,QCClose call,void *context,QCObservation *out)
         /* No ownership inference for EIO/ENOSPC/ENOSYS, EBADF or malformed seam. */
         o->state=QC_QUARANTINED;status=QC_UNKNOWN;
     }
-    *out=(QCObservation){o->state,raw.result==0?0:raw.error};
+    *out=(struct qc_observation){o->state,raw.result==0?0:raw.error};
     return status;
 }
-enum QCStatus qc_handoff(QCOwner *o,int *fd)
+enum qc_status qc_handoff(struct qc_owner *o,int *fd)
 {
     if(!o||!fd)return QC_INVALID;
     if(o->state!=QC_OWNED && o->state!=QC_RETRY && !(QC_MUTATION==4 && o->state==QC_QUARANTINED))return QC_TERMINAL;

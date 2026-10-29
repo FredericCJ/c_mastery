@@ -43,7 +43,7 @@ live handles, not dereferences through dead owner pointers.
 
 ## Cache and pool
 
-Initialize `EFCache` with generation 1, no storage/borrows/failure and a valid
+Initialize `struct ef_cache` with generation 1, no storage/borrows/failure and a valid
 allocator. `ef_checksum` sums at most 32 unsigned bytes; its maximum is 8160.
 `ef_cached` admits that same input and result but acquires 32 bytes lazily and
 retains them. Every call copies only the admitted bytes; the unused suffix is
@@ -61,7 +61,7 @@ At maximum generation reset returns `EF_FULL` unchanged. The owner is quiescent
 before destruction. Allocation counters in the test backend measure requests,
 acquisitions, releases and live bytes separately.
 
-`EFPool` starts zeroed with 16 one-byte slots. Each admitted take increments
+`struct ef_pool` starts zeroed with 16 one-byte slots. Each admitted take increments
 `requests`, then obtains the lowest free index or returns `EF_FULL`. A full
 request still counts; a saturated request counter refuses before mutation.
 Returning requires an allocated index below 16. This allocator can produce a
@@ -71,7 +71,7 @@ backend acquisition separately.
 
 ## Parser state and bounded callbacks
 
-Initialize `EFParser` with cursor 0, selected seed, generation 1 and no borrow.
+Initialize `struct ef_parser` with cursor 0, selected seed, generation 1 and no borrow.
 `ef_parse` accepts at most 32 bytes, uppercases ASCII lowercase bytes, advances
 the cursor by the admitted length, and returns one borrowed view. Any outstanding
 view makes same-instance parse/reset busy. Independent instances preserve each
@@ -100,7 +100,7 @@ length preserves the array. Both use constant auxiliary storage and at most
 120 key comparisons/shifts for length 16. The record form uses one temporary
 record; code size, compiler frames and copy traffic are separate costs.
 
-Initialize `EFLog.owned` with `ATOMIC_FLAG_INIT`. A valid call attempts ownership
+Initialize `struct ef_log.owned` with `ATOMIC_FLAG_INIT`. A valid call attempts ownership
 once; busy returns 0 without changing the log, success copies at most 32 bytes,
 publishes length, releases and returns 1; invalid input returns -1. Readers must
 obtain the same flag. No software spinning or libc is allowed in this component.

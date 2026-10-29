@@ -36,10 +36,10 @@ def validate(d,files=True):
         section=byid.get(tag+'.sections',{}).get('stdout','')
         need(any('.peer' in l and 'NOBITS' in l and '30040000' in l and '000020' in l for l in section.splitlines()),'actual target reserved section')
     guests=d.get('cpu_model_executions',[])
-    need(len(guests)==4 and {(g.get('core'),g.get('optimization')) for g in guests}=={(c,o) for c in [0,1] for o in ['-O0','-O3']},'four CPU model executions')
+    need(len(guests)==4 and {(g.get('core'),g.get('optimization')) for g in guests}=={(c,o) for c in [0,1] for o in ['-O0','-O3']},'four struct lr_cpu model executions')
     for g in guests:
         r=byid.get('guest'+str(g['core'])+g['optimization']+'.execute',{})
-        need(r.get('returncode')==0 and 'CB_GUEST_PASS:' in r.get('stdout','') and 'not actual STM32' in g.get('scope',''),'CPU execution and limit')
+        need(r.get('returncode')==0 and 'CB_GUEST_PASS:' in r.get('stdout','') and 'not actual STM32' in g.get('scope',''),'struct lr_cpu execution and limit')
     return errors
 
 def main():

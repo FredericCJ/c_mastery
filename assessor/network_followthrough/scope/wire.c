@@ -15,7 +15,7 @@ static int equal(const unsigned char *a, const unsigned char *b, unsigned n) {
       return 0;
   return 1;
 }
-int nw_ingress(NwRx *q, uint32_t *next, uint16_t port, const unsigned char *p,
+int nw_ingress(struct nw_rx *q, uint32_t *next, uint16_t port, const unsigned char *p,
                size_t n) {
   static const unsigned char mac[12] = {2, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 1};
   static const unsigned char addresses[8] = {192, 0, 2, 1, 192, 0, 2, 2};

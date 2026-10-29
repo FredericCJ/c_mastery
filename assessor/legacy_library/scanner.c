@@ -1,6 +1,6 @@
 #include "scanner.h"
 #include "foundation.h"
-static int literal(FCursor *c, const char *s, size_t n) {
+static int literal(struct f_cursor *c, const char *s, size_t n) {
   const uint8_t *p;
   if (f_take(c, n, &p) != F_OK)
     return 0;
@@ -13,7 +13,7 @@ enum ls_status ls_record_parse(const unsigned char *p, size_t n, int escaped,
                                struct ls_record *out) {
   if (!out || (!p && n) || (escaped != 0 && escaped != 1))
     return LS_ARGUMENT;
-  FCursor cursor = {p, n, 0};
+  struct f_cursor cursor = {p, n, 0};
   struct ls_record trial = {0};
   if (!literal(&cursor, "count=", 6))
     return LS_SYNTAX;
@@ -24,7 +24,7 @@ enum ls_status ls_record_parse(const unsigned char *p, size_t n, int escaped,
   size_t digits = cursor.position - first;
   if (!digits || !literal(&cursor, ";name=", 6))
     return LS_SYNTAX;
-  FStatus status = f_parse_i32(p + first, digits, &trial.count);
+  enum f_status status = f_parse_i32(p + first, digits, &trial.count);
   if (status != F_OK)
     return status == F_RANGE ? LS_RANGE : LS_SYNTAX;
 #ifdef LS_MUTANT_COMMIT

@@ -24,12 +24,12 @@ static void sort(unsigned *out, const unsigned *in, unsigned n,
     out[count[k]++] = in[i];
   }
 }
-CiStatus ci_suffix_build(CiSuffix *s, const unsigned char *bytes, unsigned n) {
+enum ci_status ci_suffix_build(struct ci_suffix *s, const unsigned char *bytes, unsigned n) {
   if (!s || (!bytes && n))
     return CI_INVALID;
   if (n > CI_CAP)
     return CI_RANGE;
-  CiSuffix t;
+  struct ci_suffix t;
   unsigned rank[CI_CAP + 1], next[CI_CAP + 1], tmp[CI_CAP + 1],
       inverse[CI_CAP + 1];
   t.n = n;
@@ -76,7 +76,7 @@ CiStatus ci_suffix_build(CiSuffix *s, const unsigned char *bytes, unsigned n) {
   *s = t;
   return CI_OK;
 }
-static int compare(const CiSuffix *s, unsigned pos, const unsigned char *p,
+static int compare(const struct ci_suffix *s, unsigned pos, const unsigned char *p,
                    unsigned n) {
   unsigned i = 0;
   while (i < n && pos + i < s->n && s->bytes[pos + i] == p[i])
@@ -87,7 +87,7 @@ static int compare(const CiSuffix *s, unsigned pos, const unsigned char *p,
     return -1;
   return s->bytes[pos + i] < p[i] ? -1 : 1;
 }
-CiStatus ci_suffix_range(const CiSuffix *s, const unsigned char *p, unsigned n,
+enum ci_status ci_suffix_range(const struct ci_suffix *s, const unsigned char *p, unsigned n,
                          unsigned *lo, unsigned *hi) {
   if (!s || !lo || !hi || (!p && n))
     return CI_INVALID;
@@ -115,7 +115,7 @@ CiStatus ci_suffix_range(const CiSuffix *s, const unsigned char *p, unsigned n,
   *hi = a;
   return CI_OK;
 }
-CiStatus ci_suffix_lce(const CiSuffix *s, unsigned a, unsigned b,
+enum ci_status ci_suffix_lce(const struct ci_suffix *s, unsigned a, unsigned b,
                        unsigned *out) {
   if (!s || !out)
     return CI_INVALID;
@@ -144,7 +144,7 @@ CiStatus ci_suffix_lce(const CiSuffix *s, unsigned a, unsigned b,
   *out = v;
   return CI_OK;
 }
-CiStatus ci_suffix_longest(const CiSuffix *s, unsigned disjoint, unsigned *a,
+enum ci_status ci_suffix_longest(const struct ci_suffix *s, unsigned disjoint, unsigned *a,
                            unsigned *b, unsigned *length) {
   if (!s || !a || !b || !length)
     return CI_INVALID;

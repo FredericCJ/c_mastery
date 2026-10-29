@@ -8,8 +8,8 @@
 enum { SWG_ROUNDS=24 };
 extern void swg_irq(void),swg_sleep(void),swg_bad_sleep(void);
 extern unsigned char swg_after_halt[],swg_after_bad_halt[];
-static SwWorld swg_world;
-static SqHandle swg_ids[4];
+static struct sw_world swg_world;
+static struct sq_handle swg_ids[4];
 static uint64_t *swg_sp[4],*swg_idle;
 static unsigned char swg_stack[4][8192] ALIGN(16);
 static unsigned swg_go,swg_ready,swg_command,swg_round,swg_stage,swg_published,swg_done,swg_finished,swg_busy,swg_bad,swg_rescue;
@@ -17,7 +17,7 @@ static unsigned swg_current,swg_actions[4],swg_interrupts,swg_halted,swg_early,s
 static unsigned swg_background[4];
 static uint64_t swg_publish[SWG_ROUNDS],swg_notify[SWG_ROUNDS],swg_observed[SWG_ROUNDS],swg_dispatch[SWG_ROUNDS],swg_irq_time[SWG_ROUNDS];
 static unsigned swg_irq_count[SWG_ROUNDS],swg_halt_count[SWG_ROUNDS],swg_count[SWG_ROUNDS];
-static SlStats swg_stats[2];
+static struct sl_stats swg_stats[2];
 static void swg_fail(const char *s){text("SW_GUEST_CHECK:");text(s);text("\n");unsigned v=17;__asm__ volatile("outl %0,$0xf4"::"a"(v));for(;;)__asm__ volatile("cli;hlt");}
 static uint64_t swg_ticks(void){unsigned lo,hi;__asm__ volatile("lfence;rdtsc":"=a"(lo),"=d"(hi)::"memory");return (uint64_t)hi<<32|lo;}
 static void swg_delay(void){uint64_t begin=swg_ticks();while(swg_ticks()-begin<UINT64_C(2000000))pause_cpu();}
@@ -55,7 +55,7 @@ static void swg_task(void){
  }
 }
 static int swg_step(unsigned round,int boot){
- SqHandle id;SqEvent event;int r=sw_dispatch(&swg_world,1,&id,&event,&swg_stats[1]);if(r==SQ_IDLE)return 0;if(r!=SQ_OK)swg_fail("dispatch-refused");
+ struct sq_handle id;struct sq_event event;int r=sw_dispatch(&swg_world,1,&id,&event,&swg_stats[1]);if(r==SQ_IDLE)return 0;if(r!=SQ_OK)swg_fail("dispatch-refused");
  swg_current=id.slot;if(!boot&&!swg_dispatch[round])swg_dispatch[round]=swg_ticks();
  cmk2_switch(&swg_idle,swg_sp[id.slot]);
  if(sw_finish(&swg_world,1,id,SQ_BLOCKED,&event,&swg_stats[1])!=SQ_OK)swg_fail("saved-block-refused");
@@ -97,15 +97,15 @@ static void swg_worker(unsigned c){
 }
 void swg_bsp(void){
  if(topology.count<2)swg_fail("remote-experiment-needs-two-CPUs");
- if(sw_init(&swg_world,topology.count,4,(SwPort){swg_ring,swg_ack,0})!=SQ_OK)swg_fail("init");
- for(unsigned slot=0;slot<4;slot++){SqEvent event;if(sw_create(&swg_world,0,1,slot,&swg_ids[slot],&event)!=SQ_OK)swg_fail("create");uint64_t *sp=(uint64_t *)(swg_stack[slot]+8192);*--sp=0;*--sp=(uintptr_t)swg_task;for(unsigned k=0;k<6;k++)*--sp=0;swg_sp[slot]=sp;}
+ if(sw_init(&swg_world,topology.count,4,(struct sw_port){swg_ring,swg_ack,0})!=SQ_OK)swg_fail("init");
+ for(unsigned slot=0;slot<4;slot++){struct sq_event event;if(sw_create(&swg_world,0,1,slot,&swg_ids[slot],&event)!=SQ_OK)swg_fail("create");uint64_t *sp=(uint64_t *)(swg_stack[slot]+8192);*--sp=0;*--sp=(uintptr_t)swg_task;for(unsigned k=0;k<6;k++)*--sp=0;swg_sp[slot]=sp;}
  __atomic_store_n(&swg_go,1,__ATOMIC_RELEASE);while(!__atomic_load_n(&swg_ready,__ATOMIC_ACQUIRE))pause_cpu();
  for(unsigned round=0;round<SWG_ROUNDS;round++) {
   unsigned mode=swg_mode(round),batch=swg_batch(round);__atomic_store_n(&swg_round,round,__ATOMIC_RELEASE);__atomic_store_n(&swg_command,round+1,__ATOMIC_RELEASE);
   while(__atomic_load_n(&swg_stage,__ATOMIC_ACQUIRE)!=round+1)pause_cpu();if(mode==2)swg_delay();
   swg_publish[round]=swg_ticks();
   for(unsigned slot=0;slot<batch;slot++){
-   SqEvent event;if(sw_wake(&swg_world,0,1,swg_ids[slot],&event,&swg_stats[0])!=SQ_OK)swg_fail("remote-publication");
+   struct sq_event event;if(sw_wake(&swg_world,0,1,swg_ids[slot],&event,&swg_stats[0])!=SQ_OK)swg_fail("remote-publication");
    if(mode==3&&slot==0){while(__atomic_load_n(&swg_busy,__ATOMIC_ACQUIRE)!=round+1)pause_cpu();if(sw_wake(&swg_world,0,1,swg_ids[slot],&event,&swg_stats[0])!=SQ_DUPLICATE)swg_fail("running-wake-duplicated");}
   }
   __atomic_store_n(&swg_published,round+1,__ATOMIC_RELEASE);

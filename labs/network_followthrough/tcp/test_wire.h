@@ -67,11 +67,11 @@ static size_t nc_wire(unsigned char *p, uint32_t seq, uint32_t ack,
   nc_fix(p, total);
   return total;
 }
-static int nc_establish(NcStack *s, unsigned cap, uint32_t isn, uint32_t peer,
+static int nc_establish(struct nc_stack *s, unsigned cap, uint32_t isn, uint32_t peer,
                         unsigned mss) {
   unsigned char p[300];
-  NcPacket out;
-  NiConfig config = {0xc0000202, 0xc0000201};
+  struct nc_packet out;
+  struct ni_config config = {0xc0000202, 0xc0000201};
   CHECK(nc_init(s, config, 7, isn, cap, 0) == NC_OK);
   size_t n = nc_wire(p, peer, 0, 2, 512, 0, 0, mss);
   CHECK(nc_receive(s, p, n, 0) == NC_OK);

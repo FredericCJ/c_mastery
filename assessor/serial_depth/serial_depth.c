@@ -1,8 +1,8 @@
 #include "serial_depth.h"
 #include <limits.h>
 int sd_uart(uint32_t clock, uint32_t baud, unsigned over8, unsigned width,
-            unsigned parity, unsigned stop, uint16_t value, SDUart *out) {
-  SDUart r = {0};
+            unsigned parity, unsigned stop, uint16_t value, struct sd_uart *out) {
+  struct sd_uart r = {0};
   uint32_t n, rem;
   unsigned i, p = 0, scale = over8 ? 8u : 16u;
   if (!out || !clock || !baud || over8 > 1 || (width != 7 && width != 8) ||
@@ -38,8 +38,8 @@ int sd_uart(uint32_t clock, uint32_t baud, unsigned over8, unsigned width,
   *out = r;
   return SD_OK;
 }
-int sd_uart_receive(unsigned status, uint16_t data, SDReceive *out) {
-  SDReceive r = {0};
+int sd_uart_receive(unsigned status, uint16_t data, struct sd_receive *out) {
+  struct sd_receive r = {0};
   if (!out || status > 63u || data > 255u)
     return SD_INVALID;
   r.error = (uint8_t)(status & (SD_ORE | SD_FE | SD_PE));
@@ -49,8 +49,8 @@ int sd_uart_receive(unsigned status, uint16_t data, SDReceive *out) {
   return SD_OK;
 }
 int sd_sync(unsigned cpol, unsigned cpha, unsigned lbcl, unsigned tx,
-            unsigned rx, unsigned changing, uint8_t value, SDSync *out) {
-  SDSync r = {0};
+            unsigned rx, unsigned changing, uint8_t value, struct sd_sync *out) {
+  struct sd_sync r = {0};
   unsigned i;
   if (!out || cpol > 1 || cpha > 1 || lbcl > 1 || tx > 1 || rx > 1 ||
       changing > 1)
@@ -80,7 +80,7 @@ int sd_sync(unsigned cpol, unsigned cpha, unsigned lbcl, unsigned tx,
   *out = r;
   return SD_OK;
 }
-int sd_i2c_begin(SDI2c *s, uint32_t token, uint8_t address, uint8_t reg,
+int sd_i2c_begin(struct sd_sdi2c *s, uint32_t token, uint8_t address, uint8_t reg,
                  uint8_t *action, uint8_t *wire) {
   if (!s || !action || !wire || !token || address > 127)
     return SD_INVALID;
@@ -96,7 +96,7 @@ int sd_i2c_begin(SDI2c *s, uint32_t token, uint8_t address, uint8_t reg,
   *wire = (uint8_t)(address << 1);
   return SD_OK;
 }
-int sd_i2c_event(SDI2c *s, uint32_t token, unsigned event, uint8_t value,
+int sd_i2c_event(struct sd_sdi2c *s, uint32_t token, unsigned event, uint8_t value,
                  uint8_t *action, uint8_t *out) {
   if (!s || !action || !out || event < 1 || event > 5)
     return SD_INVALID;
@@ -161,7 +161,7 @@ int sd_i2c_clear(unsigned scl, unsigned sda, unsigned after, unsigned *pulses) {
 #endif
   return after > 0 && after <= 9 ? SD_OK : SD_RESET;
 }
-int sd_spi_begin(SDSpi *s, uint32_t token, unsigned mode, size_t count) {
+int sd_spi_begin(struct sd_spi *s, uint32_t token, unsigned mode, size_t count) {
   if (!s || !token || mode > 3 || !count || count > 16)
     return SD_INVALID;
   if (s->state)
@@ -192,7 +192,7 @@ int sd_spi_edge(unsigned mode, uint8_t tx, uint8_t peer, uint8_t levels[16],
   *rx = r;
   return SD_OK;
 }
-int sd_spi_poll(SDSpi *s, uint32_t token, unsigned txe, unsigned rxne,
+int sd_spi_poll(struct sd_spi *s, uint32_t token, unsigned txe, unsigned rxne,
                 unsigned bsy, uint8_t value) {
   if (!s || txe > 1 || rxne > 1 || bsy > 1)
     return SD_INVALID;
@@ -220,7 +220,7 @@ int sd_spi_poll(SDSpi *s, uint32_t token, unsigned txe, unsigned rxne,
 #endif
   return SD_BUSY;
 }
-int sd_spi_cancel(SDSpi *s, uint32_t token, unsigned stopped) {
+int sd_spi_cancel(struct sd_spi *s, uint32_t token, unsigned stopped) {
   if (!s || stopped > 1)
     return SD_INVALID;
   if (!s->state || s->token != token)
@@ -258,14 +258,14 @@ int sd_electrical(unsigned kind, int32_t mv, unsigned drivers,
   *decision = d;
   return SD_OK;
 }
-static int sd_time(SDRs485 *s, uint32_t now) { return now >= s->last; }
-static int sd_485_event(SDRs485 *s, unsigned event) {
+static int sd_time(struct sd_rs485 *s, uint32_t now) { return now >= s->last; }
+static int sd_485_event(struct sd_rs485 *s, unsigned event) {
   if (s->event_count >= 32)
     return SD_FULL;
   s->events[s->event_count++] = (uint8_t)event;
   return SD_OK;
 }
-int sd_485_begin(SDRs485 *s, uint32_t token, const uint8_t *data, size_t n,
+int sd_485_begin(struct sd_rs485 *s, uint32_t token, const uint8_t *data, size_t n,
                  uint32_t now) {
   size_t i;
   if (!s || !data || !n || n > 16 || !token || now > UINT32_MAX - 600u ||
@@ -286,7 +286,7 @@ int sd_485_begin(SDRs485 *s, uint32_t token, const uint8_t *data, size_t n,
     s->tx[i] = data[i];
   return SD_OK;
 }
-int sd_485_poll(SDRs485 *s, uint32_t token, uint32_t now, unsigned txe,
+int sd_485_poll(struct sd_rs485 *s, uint32_t token, uint32_t now, unsigned txe,
                 unsigned tc) {
   if (!s || txe > 1 || tc > 1 || !sd_time(s, now) || s->phase > 4)
     return SD_INVALID;
@@ -326,7 +326,7 @@ int sd_485_poll(SDRs485 *s, uint32_t token, uint32_t now, unsigned txe,
   }
   return SD_BUSY;
 }
-int sd_485_receive(SDRs485 *s, unsigned event, uint8_t value) {
+int sd_485_receive(struct sd_rs485 *s, unsigned event, uint8_t value) {
   if (!s || event < 1 || event > 3)
     return SD_INVALID;
   if (s->phase)
@@ -337,7 +337,7 @@ int sd_485_receive(SDRs485 *s, unsigned event, uint8_t value) {
     s->rx[s->rxcount++] = value;
   return sd_485_event(s, event);
 }
-int sd_485_cancel(SDRs485 *s, uint32_t token, uint32_t now, unsigned stopped) {
+int sd_485_cancel(struct sd_rs485 *s, uint32_t token, uint32_t now, unsigned stopped) {
   if (!s || stopped > 1 || !sd_time(s, now))
     return SD_INVALID;
   if (!s->phase || s->token != token)
@@ -358,7 +358,7 @@ int sd_485_cancel(SDRs485 *s, uint32_t token, uint32_t now, unsigned stopped) {
   s->pending_event = SD_485_ABORTED;
   return SD_BUSY;
 }
-static int can_valid(const SDCan *f) {
+static int can_valid(const struct sd_can *f) {
   return f && f->extended <= 1 && f->remote <= 1 && f->length <= 8 &&
          f->identifier <= (f->extended ? 0x1fffffffu : 0x7ffu);
 }
@@ -367,7 +367,7 @@ static size_t append(uint8_t *b, size_t n, uint32_t v, unsigned width) {
     b[n++] = (uint8_t)((v >> (--width)) & 1u);
   return n;
 }
-static size_t arb(const SDCan *f, uint8_t *b) {
+static size_t arb(const struct sd_can *f, uint8_t *b) {
   size_t n = 0;
   n = append(b, n, f->extended ? f->identifier >> 18 : f->identifier, 11);
   b[n++] = f->extended ? 1 : f->remote;
@@ -378,7 +378,7 @@ static size_t arb(const SDCan *f, uint8_t *b) {
   }
   return n;
 }
-int sd_can_arbitration(const SDCan *a, const SDCan *b, int *winner) {
+int sd_can_arbitration(const struct sd_can *a, const struct sd_can *b, int *winner) {
   uint8_t x[32], y[32];
   size_t i, n, m;
   if (!winner || !can_valid(a) || !can_valid(b))
@@ -404,7 +404,7 @@ static uint16_t crc15(const uint8_t *b, size_t n) {
   }
   return c;
 }
-int sd_can_encode(const SDCan *f, uint8_t *bits, size_t capacity,
+int sd_can_encode(const struct sd_can *f, uint8_t *bits, size_t capacity,
                   size_t *count) {
   uint8_t raw[128], stuffed[160];
   size_t n = 0, k = 0, i;
@@ -450,9 +450,9 @@ static uint32_t extract(const uint8_t *b, size_t off, unsigned width) {
     v = (v << 1) | b[off++];
   return v;
 }
-int sd_can_decode(const uint8_t *bits, size_t count, SDCan *out) {
+int sd_can_decode(const uint8_t *bits, size_t count, struct sd_can *out) {
   uint8_t raw[128];
-  SDCan f = {0};
+  struct sd_can f = {0};
   size_t n = 0, i = 0, header = 19, needed = 0, j;
   unsigned run = 0, last = 2, expect = 0;
   uint16_t crc;
@@ -520,8 +520,8 @@ int sd_can_decode(const uint8_t *bits, size_t count, SDCan *out) {
   return SD_OK;
 }
 int sd_can_timing(uint32_t clock, unsigned pre, unsigned bs1, unsigned bs2,
-                  unsigned sjw, SDTiming *out) {
-  SDTiming t;
+                  unsigned sjw, struct sd_timing *out) {
+  struct sd_timing t;
   if (!out || !clock || pre < 1 || pre > 1024 || bs1 < 1 || bs1 > 16 ||
       bs2 < 1 || bs2 > 8 || sjw < 1 || sjw > 4 || sjw > bs2)
     return SD_INVALID;
@@ -545,7 +545,7 @@ int sd_can_filter(uint32_t id, uint32_t filter, uint32_t mask,
   *accepted = (id & mask) == (filter & mask);
   return SD_OK;
 }
-int sd_can_push(SDFifo *f, uint32_t value) {
+int sd_can_push(struct sd_fifo *f, uint32_t value) {
   if (!f || f->count > 3 || f->locked > 1)
     return SD_INVALID;
   if (f->count == 3) {
@@ -561,7 +561,7 @@ int sd_can_push(SDFifo *f, uint32_t value) {
     f->items[f->count++] = value;
   return SD_OK;
 }
-int sd_can_pop(SDFifo *f, uint32_t *value) {
+int sd_can_pop(struct sd_fifo *f, uint32_t *value) {
   unsigned i;
   if (!f || !value || f->count > 3 || f->locked > 1)
     return SD_INVALID;
@@ -574,10 +574,10 @@ int sd_can_pop(SDFifo *f, uint32_t *value) {
   return SD_OK;
 }
 int sd_fd(unsigned dlc, unsigned fdf, unsigned brs, unsigned esi,
-          unsigned remote, unsigned capable, SDFd *out) {
+          unsigned remote, unsigned capable, struct sd_fd *out) {
   static const uint8_t lengths[16] = {0, 1,  2,  3,  4,  5,  6,  7,
                                       8, 12, 16, 20, 24, 32, 48, 64};
-  SDFd r;
+  struct sd_fd r;
   if (!out || dlc > 15 || fdf != 1 || brs > 1 || esi > 1 || remote ||
       capable > 1)
     return SD_INVALID;
@@ -623,7 +623,7 @@ int sd_uart_decode(const uint8_t *bits, size_t count, unsigned width,
   *value = v;
   return SD_OK;
 }
-int sd_485_take(SDRs485 *s, uint8_t *event, uint8_t *value) {
+int sd_485_take(struct sd_rs485 *s, uint8_t *event, uint8_t *value) {
   unsigned i;
   uint8_t e, v = 0;
   if (!s || !event || !value || s->event_count > 32 || s->rxcount > 16)
@@ -646,7 +646,7 @@ int sd_485_take(SDRs485 *s, uint8_t *event, uint8_t *value) {
   *value = v;
   return SD_OK;
 }
-int sd_can_submit(SDMailbox *m, uint32_t token) {
+int sd_can_submit(struct sd_mailbox *m, uint32_t token) {
   if (!m || !token)
     return SD_INVALID;
   if (m->state)
@@ -657,7 +657,7 @@ int sd_can_submit(SDMailbox *m, uint32_t token) {
   m->token = token;
   return SD_OK;
 }
-int sd_can_complete(SDMailbox *m, uint32_t token, unsigned outcome) {
+int sd_can_complete(struct sd_mailbox *m, uint32_t token, unsigned outcome) {
   if (!m || outcome > 3)
     return SD_INVALID;
   if (m->state != 1 || token != m->token)
@@ -668,7 +668,7 @@ int sd_can_complete(SDMailbox *m, uint32_t token, unsigned outcome) {
   m->state = 2;
   return SD_OK;
 }
-int sd_can_take(SDMailbox *m, uint32_t token, uint8_t *outcome) {
+int sd_can_take(struct sd_mailbox *m, uint32_t token, uint8_t *outcome) {
   if (!m || !outcome)
     return SD_INVALID;
   if (!m->state || token != m->token)

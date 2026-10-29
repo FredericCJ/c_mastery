@@ -11,7 +11,7 @@ static pthread_cond_t changed=PTHREAD_COND_INITIALIZER;
 static int ready,finished;static double waited;
 static double now(void){struct timespec t;CHECK(clock_gettime(CLOCK_MONOTONIC,&t)==0);return(double)t.tv_sec+(double)t.tv_nsec/1e9;}
 static void*waiter(void*ignored){(void)ignored;CHECK(pthread_mutex_lock(&gate)==0);ready=1;CHECK(pthread_cond_signal(&changed)==0);CHECK(pthread_mutex_unlock(&gate)==0);double start=now();CHECK(pthread_mutex_lock(&held)==0);waited=now()-start;finished=1;CHECK(pthread_mutex_unlock(&held)==0);return NULL;}
-static EFLog log_buffer={ATOMIC_FLAG_INIT,{0},0};
+static struct ef_log log_buffer={ATOMIC_FLAG_INIT,{0},0};
 static void*logger(void*v){unsigned char marker=(unsigned char)(size_t)v;for(unsigned i=0;i<10000;++i){int result=ef_log(&log_buffer,&marker,1);CHECK(result==0||result==1);}return NULL;}
 int main(void){
  CHECK(pthread_mutex_lock(&held)==0);pthread_t worker;CHECK(pthread_create(&worker,NULL,waiter,NULL)==0);

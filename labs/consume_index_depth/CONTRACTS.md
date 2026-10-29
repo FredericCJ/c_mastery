@@ -11,7 +11,7 @@ N1570; exact published C17/C23 comparison remains unavailable, not inferred.
 
 Implement the five access functions and `ci_dependency_graph` in `learner.c`.
 All controls, nodes and four-element arrays are live, initialized and immutable
-for each call. The atomic pointer is null or names a `CINode` whose `index` is
+for each call. The atomic pointer is null or names a `struct ci_node` whose `index` is
 0..3. No control aliases array storage. There is no allocation, ownership
 transfer, callback or retry. Node and array lifetime are caller obligations.
 The functions do not publish a pointer or retain a borrow. Do not use a library

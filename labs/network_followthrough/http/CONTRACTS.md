@@ -1,7 +1,7 @@
 # T41.08: HTTP over the actual embedded packet stack
 
 Required predecessor artifacts: completed T41 driver/ARP/IP/TCP and original
-`HttpParser`; the separately identified T42 `hf_response` encoder is an author
+`struct http_parser`; the separately identified T42 `hf_response` encoder is an author
 reference dependency until replaced by a learner artifact. This is the existing
 PR-T41-08 ordinary and seven-day changed assessment, with its IDs unchanged.
 It implements the previously missing binary/chunk/half-close, Date and actual
@@ -9,7 +9,7 @@ link-incarnation integrations rather than crediting the old bytewise GET alone.
 
 ## Problem and concrete input/output
 
-Implement `NhHttp` using the declared dependencies, C17 fixed storage and the
+Implement `struct nh_http` using the declared dependencies, C17 fixed storage and the
 strict freestanding target profile. Supply `learner.c`, an ownership/state
 diagram, criterion-indexed reasoning, raw test/capture evidence and a linked
 runtime/resource audit. Run the supplied original raw peer over actual EnRing,
@@ -35,7 +35,7 @@ the stricter parser resource limits are original curriculum policy.
 
 ## State, ownership and failure contracts
 
-`NhHttp` owns its parser and1600-byte pending output, borrows a stable `NbNet`,
+`struct nh_http` owns its parser and1600-byte pending output, borrows a stable `struct nb_net`,
 and binds its transport epoch. All calls are serialized and non-reentrant;
 this application is the transport's only application writer/consumer. The
 state progression is handshake → parse → interim/final → closing → finished,

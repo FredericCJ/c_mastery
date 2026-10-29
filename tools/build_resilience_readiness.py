@@ -21,7 +21,7 @@ SPECS={
        anchors=['resilience.pressure','resilience.pressure_owned'],gap='IW-53694610af4bcd2c',
        demonstration=[
            'Five copied/owned policies explicitly separate caller-retained BLOCK/REJECT from consumed DROP/OVERWRITE/DEGRADE and distinguish queue, transport and leased state.',
-           'Actual RZQueue and MsgHub move a head only after accepted send; owned values are disposed exactly once under all five policies and closed draining.',
+           'Actual struct rz_queue and struct msg_hub move a head only after accepted send; owned values are disposed exactly once under all five policies and closed draining.',
            'Two registered producer slots and native poll waiters are retained until terminal collection; four generation-checked credits partition queued/transport/leased/retired storage. Stale and duplicate returns cannot create credit.',
            'The same eight-offer/four-consume schedule reports accepted, rejected, discarded, coalesced and caller-pending counts for every policy;121554 independent histories and owned disposer counters check the accounting.'],
        variant='Two endpoint actors fill their outbound capacity and wait on retained sends. Forwarding alone releases no credit; explicit receive/release progress breaks the demonstrated wait-for cycle and joins both waiters.',
@@ -48,7 +48,7 @@ SPECS={
        anchors=['resilience.retry','resilience.retry_transport'],gap='IW-1cad76fc08b89d61',
        demonstration=[
            'Original work and capped retry work are counted separately; checked exponential windows, common inherited deadline and idempotency precondition expose nested amplification and uncertain side effects.',
-           'Actual deterministic PRNG rejection sampling has an explicit64-draw refusal bound and draw-counter retirement. Rzr imports retained NetStack retransmission and real ACK parsing, charges every dispatch and retains its scope until ACK or reset.',
+           'Actual deterministic PRNG rejection sampling has an explicit64-draw refusal bound and draw-counter retirement. Rzr imports retained struct net_stack retransmission and real ACK parsing, charges every dispatch and retains its scope until ACK or reset.',
            '312 random,6000 plan and10080 history cases cover draws, caps, deadline boundaries and a receiver whose effect commits while its ACK is lost; repeated sends replay the result.',
            '60 equal-budget population workloads compare no/full/equal jitter with independent and correlated seeds, reporting synchronized work and completion observations rather than claiming cryptographic randomness.'],
        variant='A Retry-After9000 at time1000 with deadline10000 refuses without advancing attempts, but an already outstanding transport accepts its later ACK and releases only after finish.',
@@ -84,7 +84,7 @@ SPECS={
        anchors=['resilience.service','resilience.service_outbox','resilience.service_io','resilience.service_transport'],gap='IW-89d3bfa32a89f5b1',
        demonstration=[
            'Actual owner/event ledger separates admission, effect commit, reply, queued/delivered/ACKed notification and late backend cleanup; each response, scope, permit, wheel event and device has an explicit owner.',
-           'Real MsgHub, retained NetStack retry/ACK and retained hosted deadline/completion-byte APIs are linked. Original18-byte local framing/partial sends and durable outbox adapters fill concrete integration boundaries; no absent general reactor is relabeled.',
+           'Real struct msg_hub, retained struct net_stack retry/ACK and retained hosted deadline/completion-byte APIs are linked. Original18-byte local framing/partial sends and durable outbox adapters fill concrete integration boundaries; no absent general reactor is relabeled.',
            '9096 independent transport histories,79896 outbox histories,11714 parser cases, native partial-I/O/cancel/fork cases and allocation/write cuts account for each effect and owner. Six queued socketpair requests additionally test two burst orders, four accepted events and delayed ACK release.',
            'Disclosed author cost decision precedes280 new host timing samples across ten workloads/four builds. All13 dimensions distinguish operation counts, virtual reply/quiet/notification ticks and measured host cost; learner independence is explicitly separate.'],
        variant='Commit/deliver before process or logical-service restart preserves event sequence and yields at-least-once redelivery until a durable ACK. Three epochs execute45 logical requests with reused IDs after quiescence and durable issuer rotation; finite journal capacity remains explicit.',

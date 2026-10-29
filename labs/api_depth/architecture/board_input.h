@@ -2,5 +2,5 @@
 #define CMASTERY_ARCH_BOARD_INPUT
 #include "arch.h"
 #include "f439_port.h"
-ArResult ar_f439_read(FHIO, unsigned char *, size_t);
+struct ar_result ar_f439_read(struct fh_io, unsigned char *, size_t);
 #endif

@@ -25,9 +25,9 @@ int main(void) {
         text[lengths[l] - 3] = 'a';
         text[lengths[l] - 2] = text[lengths[l] - 1] = 'b';
       }
-      RxNfa n;
-      RxDfa d;
-      PdDiagnostic diag;
+      struct rx_nfa n;
+      struct rx_dfa d;
+      struct pd_diagnostic diag;
       if (rx_compile((const unsigned char *)patterns[p], strlen(patterns[p]),
                      &n, &diag) ||
           rx_determinize(&n, 16, &d))
@@ -53,8 +53,8 @@ int main(void) {
         printf("%u,%u,%u,1000,%" PRIu64 ",%" PRIu64
                ",%u,%u,%u,%zu,%zu,%zu,%zu,%zu\n",
                p, lengths[l], round, times[0], times[1], sums[0], n.count,
-               d.count, sizeof n, sizeof d, sizeof(LrTable), sizeof(PdTree),
-               sizeof(PsResult));
+               d.count, sizeof n, sizeof d, sizeof(struct lr_table), sizeof(struct pd_tree),
+               sizeof(struct ps_result));
       }
     }
   return 0;

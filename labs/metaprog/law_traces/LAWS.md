@@ -83,7 +83,7 @@ here has an additional explicitly specified byte/width contract.
 
 ## Deterministic fault adapter and trace operations
 
-`MptTrace` is a fully initialized array of at most12 steps and fail_at0..12.
+`struct mpt_trace` is a fully initialized array of at most12 steps and fail_at0..12.
 fail_at0 disables scheduled refusal; otherwise the numbered allocation attempt
 returns null. A positive ordinal beyond the trace's attempts causes no refusal.
 SET(slot,value) chooses slot0/1 and one of five immutable synthetic strings:

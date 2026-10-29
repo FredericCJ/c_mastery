@@ -1,6 +1,6 @@
 #include "lc.h"
 #include "test.h"
-static void done(void *v, LCStatus s) {
+static void done(void *v, enum lc_status s) {
   unsigned *p = v;
   *p = (unsigned)s + 1;
 }
@@ -12,12 +12,12 @@ int main(void) {
                                     {1, 2, 0}, {2, 0, 1}, {2, 1, 0}};
   for (unsigned i = 0; i < 6; i++) {
     unsigned result = 0;
-    LCOperation *p = lc_start(done, &result);
+    struct lc_operation *p = lc_start(done, &result);
     CHECK(p);
     unsigned state = 0;
     for (unsigned j = 0; j < 3; j++) {
       unsigned event = schedules[i][j];
-      LCStatus expected;
+      enum lc_status expected;
       if (event == 0) {
         expected = state == 2 ? LC_OK : LC_PENDING;
         if (state != 2)

@@ -48,7 +48,7 @@ deadline≤nominal and deadlines beyond256. Model horizons are1..256. No implici
 periodic release is manufactured; the complete explicit job list is the input.
 
 `ge_simulate` validates everything before publishing output. Invalid input
-leaves the prior `GEResult` unchanged. At each tick before the horizon, admit
+leaves the prior `struct ge_result` unchanged. At each tick before the horizon, admit
 releases in input order. If an earlier generation of that task is still active,
 reject the new release and retain both identities and the earlier work. A new
 release exactly when prior work has completed is admissible. Releases at the

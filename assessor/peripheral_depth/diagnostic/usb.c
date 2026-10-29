@@ -10,11 +10,11 @@ static const uint8_t device[18] = {18,  1, 0, 2, 0, 0, 0, 8, 255,
 static const uint8_t configuration[32] = {
     9, 2, 32, 0, 1, 1, 0, 128, 50, 9, 4, 0,   0, 2, 255, 0,
     0, 0, 7,  5, 1, 2, 8, 0,   0,  7, 5, 129, 2, 8, 0,   0};
-static void endpoints(DGUsb *u) {
+static void endpoints(struct dg_usb *u) {
   u->halt_out = u->halt_in = u->toggle_out = u->toggle_in = u->out_overflow = 0;
   u->out_used = 0;
 }
-int dg_usb_setup(DGUsb *u, const uint8_t q[8], DGControl *out) {
+int dg_usb_setup(struct dg_usb *u, const uint8_t q[8], struct dg_control *out) {
   if (!u || !q || !out)
     return DG_INVALID;
   /* Arrival of any new SETUP cancels the earlier control status callback. */
@@ -26,7 +26,7 @@ int dg_usb_setup(DGUsb *u, const uint8_t q[8], DGControl *out) {
     return DG_FULL;
   unsigned type = q[0], request = q[1];
   uint16_t value = le16(q + 2), index = le16(q + 4), length = le16(q + 6);
-  DGControl r = {{0}, 0, 0};
+  struct dg_control r = {{0}, 0, 0};
   unsigned kind = 0;
   const uint8_t *descriptor = 0;
   size_t count = 0;
@@ -98,7 +98,7 @@ int dg_usb_setup(DGUsb *u, const uint8_t q[8], DGControl *out) {
   *out = r;
   return DG_OK;
 }
-int dg_usb_status(DGUsb *u, uint32_t token, unsigned acknowledged) {
+int dg_usb_status(struct dg_usb *u, uint32_t token, unsigned acknowledged) {
   if (!u || acknowledged > 1)
     return DG_INVALID;
   if (!token || token != u->pending_control)
@@ -109,7 +109,7 @@ int dg_usb_status(DGUsb *u, uint32_t token, unsigned acknowledged) {
   u->pending_kind = 0;
   return DG_OK;
 }
-int dg_usb_reset(DGUsb *u, unsigned quiesced) {
+int dg_usb_reset(struct dg_usb *u, unsigned quiesced) {
   if (!u || quiesced > 1)
     return DG_INVALID;
   u->address = u->configured = 0;
@@ -126,8 +126,8 @@ int dg_usb_reset(DGUsb *u, unsigned quiesced) {
   u->resetting = 0;
   return DG_OK;
 }
-int dg_usb_out(DGUsb *u, unsigned toggle, const uint8_t *p, size_t n,
-               unsigned crc, DGSession *s, DGMessage *m, unsigned *handshake,
+int dg_usb_out(struct dg_usb *u, unsigned toggle, const uint8_t *p, size_t n,
+               unsigned crc, struct dg_session *s, struct dg_message *m, unsigned *handshake,
                int *application) {
   if (!u || !s || !m || !handshake || !application || toggle > 1 || crc > 1 ||
       n > 8 || (n && !p))
@@ -163,7 +163,7 @@ int dg_usb_out(DGUsb *u, unsigned toggle, const uint8_t *p, size_t n,
   }
   return DG_OK;
 }
-int dg_usb_in_queue(DGUsb *u, uint32_t token, const DGMessage *m) {
+int dg_usb_in_queue(struct dg_usb *u, uint32_t token, const struct dg_message *m) {
   if (!u || !token)
     return DG_INVALID;
   if (!u->configured || u->resetting || u->in_phase || u->halt_in)
@@ -180,7 +180,7 @@ int dg_usb_in_queue(DGUsb *u, uint32_t token, const DGMessage *m) {
   u->in_phase = 1;
   return DG_OK;
 }
-int dg_usb_in_packet(const DGUsb *u, uint32_t token, const uint8_t **p,
+int dg_usb_in_packet(const struct dg_usb *u, uint32_t token, const uint8_t **p,
                      size_t *n, unsigned *toggle) {
   if (!u || !p || !n || !toggle)
     return DG_INVALID;
@@ -194,7 +194,7 @@ int dg_usb_in_packet(const DGUsb *u, uint32_t token, const uint8_t **p,
   *toggle = u->toggle_in;
   return DG_OK;
 }
-int dg_usb_in_ack(DGUsb *u, uint32_t token, unsigned ack) {
+int dg_usb_in_ack(struct dg_usb *u, uint32_t token, unsigned ack) {
   if (!u || ack > 1)
     return DG_INVALID;
   const uint8_t *p;
@@ -211,7 +211,7 @@ int dg_usb_in_ack(DGUsb *u, uint32_t token, unsigned ack) {
     u->in_phase = 0;
   return DG_OK;
 }
-int dg_usb_in_cancel(DGUsb *u, uint32_t token, unsigned quiesced) {
+int dg_usb_in_cancel(struct dg_usb *u, uint32_t token, unsigned quiesced) {
   if (!u || quiesced > 1)
     return DG_INVALID;
   if (!token || token != u->in_token || !u->in_phase)

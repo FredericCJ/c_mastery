@@ -5,82 +5,82 @@
 
 /* Inert encodings: neither serialized handles nor binary32 payloads are
  * pointers. */
-typedef struct {
+struct orx_handle {
   uint8_t slot, generation;
-} ORXHandle;
-typedef struct {
+};
+struct orx_value {
   unsigned tag;
   union {
     int32_t integer;
     uint32_t binary32;
-    ORXHandle handle;
+    struct orx_handle handle;
   } as;
-} ORXValue;
+};
 uint32_t orx_binary32(uint32_t bits);
-ORStatus orx_value_decode(const unsigned char wire[6], ORXValue *out);
-ORStatus orx_value_encode(ORXValue value, unsigned char wire[6]);
-ORStatus orx_double_bits(double value, uint64_t *out);
-ORStatus orx_bits_double(uint64_t bits, double *out);
+enum or_status orx_value_decode(const unsigned char wire[6], struct orx_value *out);
+enum or_status orx_value_encode(struct orx_value value, unsigned char wire[6]);
+enum or_status orx_double_bits(double value, uint64_t *out);
+enum or_status orx_bits_double(uint64_t bits, double *out);
 
-typedef struct {
+struct orx_cell {
   unsigned char bytes[15];
   uint8_t length;
-  ORXHandle edge[2];
-} ORXCell;
-typedef struct {
+  struct orx_handle edge[2];
+};
+struct orx_entry {
   uint8_t live, generation, position, roots, pins;
-} ORXEntry;
-typedef struct {
-  OwPin pin;
-  ORXHandle object;
+};
+struct orx_lease {
+  struct ow_pin pin;
+  struct orx_handle object;
   uint8_t active, generation;
-} ORXLease;
-typedef struct {
-  ORXCell cell[8];
-  ORXEntry entry[8];
-  ORXLease lease[4];
+};
+struct orx_heap {
+  struct orx_cell cell[8];
+  struct orx_entry entry[8];
+  struct orx_lease lease[4];
   uint8_t epoch;
-} ORXHeap;
-typedef struct {
-  ORXHeap *heap;
+};
+struct orx_ticket {
+  struct orx_heap *heap;
   uint8_t slot, generation;
-} ORXTicket;
-typedef struct {
-  ORXHeap *heap;
-  ORXHandle object;
-} ORXGrant;
-void orx_heap_init(ORXHeap *heap);
-ORStatus orx_new(ORXHeap *heap, const unsigned char *bytes, size_t length,
-                 ORXHandle *out);
-ORStatus orx_retain(ORXHeap *heap, ORXHandle object);
-ORStatus orx_release(ORXHeap *heap, ORXHandle object);
-ORStatus orx_read(const ORXHeap *heap, ORXHandle object, unsigned char out[15],
+};
+struct orx_grant {
+  struct orx_heap *heap;
+  struct orx_handle object;
+};
+void orx_heap_init(struct orx_heap *heap);
+enum or_status orx_new(struct orx_heap *heap, const unsigned char *bytes, size_t length,
+                 struct orx_handle *out);
+enum or_status orx_retain(struct orx_heap *heap, struct orx_handle object);
+enum or_status orx_release(struct orx_heap *heap, struct orx_handle object);
+enum or_status orx_read(const struct orx_heap *heap, struct orx_handle object, unsigned char out[15],
                   size_t *length);
-ORStatus orx_edge(ORXHeap *heap, ORXHandle from, unsigned field, ORXHandle to);
-ORStatus orx_collect(ORXHeap *heap, unsigned *reclaimed);
-ORStatus orx_pack(ORXHeap *heap, unsigned *moved);
-ORStatus orx_import(ORXHeap *heap, ORXValue value, const ORXGrant *grant,
-                    ORXHandle *out);
-ORStatus orx_foreign_begin(ORXHeap *heap, ORXHandle object, uint64_t controller,
-                           ORXTicket *ticket, const unsigned char **bytes,
+enum or_status orx_edge(struct orx_heap *heap, struct orx_handle from, unsigned field, struct orx_handle to);
+enum or_status orx_collect(struct orx_heap *heap, unsigned *reclaimed);
+enum or_status orx_pack(struct orx_heap *heap, unsigned *moved);
+enum or_status orx_import(struct orx_heap *heap, struct orx_value value, const struct orx_grant *grant,
+                    struct orx_handle *out);
+enum or_status orx_foreign_begin(struct orx_heap *heap, struct orx_handle object, uint64_t controller,
+                           struct orx_ticket *ticket, const unsigned char **bytes,
                            size_t *length);
-ORStatus orx_foreign_cancel(ORXTicket ticket, uint64_t controller);
+enum or_status orx_foreign_cancel(struct orx_ticket ticket, uint64_t controller);
 /* Call only after the backend is joined/acknowledged and cannot access bytes
  * again. */
-ORStatus orx_foreign_finish(ORXTicket ticket, uint64_t controller);
+enum or_status orx_foreign_finish(struct orx_ticket ticket, uint64_t controller);
 
-typedef struct {
-  ORXHeap *heap;
-  V4Allocator allocator;
+struct orx_intern {
+  struct orx_heap *heap;
+  struct v4_allocator allocator;
   int32_t *bucket;
   unsigned capacity, used;
   uint8_t observed_epoch;
-} ORXIntern;
-ORStatus orx_intern_init(ORXIntern *table, ORXHeap *heap,
-                         V4Allocator allocator);
-ORStatus orx_intern_get(ORXIntern *table, const unsigned char *bytes,
-                        size_t length, ORXHandle *out);
-ORStatus orx_intern_reserve(ORXIntern *table, unsigned capacity);
-ORStatus orx_intern_sweep(ORXIntern *table, unsigned *removed);
-ORStatus orx_intern_close(ORXIntern *table);
+};
+enum or_status orx_intern_init(struct orx_intern *table, struct orx_heap *heap,
+                         struct v4_allocator allocator);
+enum or_status orx_intern_get(struct orx_intern *table, const unsigned char *bytes,
+                        size_t length, struct orx_handle *out);
+enum or_status orx_intern_reserve(struct orx_intern *table, unsigned capacity);
+enum or_status orx_intern_sweep(struct orx_intern *table, unsigned *removed);
+enum or_status orx_intern_close(struct orx_intern *table);
 #endif

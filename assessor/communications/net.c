@@ -34,20 +34,20 @@ uint16_t net_checksum(const void *v, size_t n, uint32_t sum) {
     sum = (sum & 65535) + (sum >> 16);
   return (uint16_t)~sum;
 }
-void net_init(NetStack *s, uint32_t isn) {
+void net_init(struct net_stack *s, uint32_t isn) {
   memset(s, 0, sizeof *s);
   s->isn = isn;
   s->mss = 256;
   s->rto = 1000;
   http_init(&s->http, "192.0.2.2:8080");
 }
-void net_link_down(NetStack *s) {
+void net_link_down(struct net_stack *s) {
   unsigned incarnation = s->incarnation + 1;
   uint32_t isn = s->isn + 65537;
   net_init(s, isn);
   s->incarnation = incarnation;
 }
-void net_rtt(NetStack *s, uint32_t r) {
+void net_rtt(struct net_stack *s, uint32_t r) {
   if (!r)
     r = 1;
   if (!s->rtt_samples) {
@@ -63,13 +63,13 @@ void net_rtt(NetStack *s, uint32_t r) {
   uint64_t v = s->srtt + (variation ? variation : 1);
   s->rto = (uint32_t)(v < 1000 ? 1000 : v > 60000 ? 60000 : v);
 }
-static void ethernet(NetPacket *o, unsigned type) {
+static void ethernet(struct net_packet *o, unsigned type) {
   memset(o, 0, sizeof *o);
   memcpy(o->bytes, peer_mac, 6);
   memcpy(o->bytes + 6, local_mac, 6);
   w16(o->bytes + 12, type);
 }
-static void ip_header(NetPacket *o, unsigned protocol, size_t size) {
+static void ip_header(struct net_packet *o, unsigned protocol, size_t size) {
   ethernet(o, 0x800);
   uint8_t *p = o->bytes + 14;
   p[0] = 0x45;
@@ -84,7 +84,7 @@ static void ip_header(NetPacket *o, unsigned protocol, size_t size) {
   if (o->length < 60)
     o->length = 60;
 }
-static void tcp(NetStack *s, NetPacket *o, unsigned flags, const void *data,
+static void tcp(struct net_stack *s, struct net_packet *o, unsigned flags, const void *data,
                 size_t n, int retain) {
   size_t hdr = (flags & 2) ? 24 : 20;
   ip_header(o, 6, hdr + n);
@@ -116,7 +116,7 @@ static void tcp(NetStack *s, NetPacket *o, unsigned flags, const void *data,
     s->snd_nxt += (uint32_t)n + !!(flags & 2) + !!(flags & 1);
   }
 }
-static int output_next(NetStack *s, NetPacket *o) {
+static int output_next(struct net_stack *s, struct net_packet *o) {
   if (s->flight || !(s->state == NET_ESTABLISHED || s->state == NET_CLOSE_WAIT))
     return 0;
   if (s->interim_pending) {
@@ -151,17 +151,17 @@ static int output_next(NetStack *s, NetPacket *o) {
   }
   return 0;
 }
-static int response(NetStack *s) {
+static int response(struct net_stack *s) {
   s->http.request.close = 1;
   return http_response(&s->http.request, "Sat, 10 Oct 2026 00:00:00 GMT", 1,
                        s->response, sizeof s->response, &s->response_length);
 }
-static int drop(NetStack *s) {
+static int drop(struct net_stack *s) {
   s->drops++;
   return 0;
 }
-int net_receive(NetStack *s, const void *v, size_t n, uint64_t now,
-                NetPacket *o) {
+int net_receive(struct net_stack *s, const void *v, size_t n, uint64_t now,
+                struct net_packet *o) {
   const uint8_t *p = v;
   o->length = 0;
   if (now < s->now)
@@ -413,7 +413,7 @@ int net_receive(NetStack *s, const void *v, size_t n, uint64_t now,
   }
   return 0;
 }
-int net_tick(NetStack *s, uint64_t now, NetPacket *o) {
+int net_tick(struct net_stack *s, uint64_t now, struct net_packet *o) {
   o->length = 0;
   if (now < s->now)
     return -1;

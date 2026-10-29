@@ -2,7 +2,7 @@
 #ifndef NW_STREAM_MUTANT
 #define NW_STREAM_MUTANT 0
 #endif
-int nw_http_pump(NwRx *s, HttpParser *p, size_t budget, size_t *consumed) {
+int nw_http_pump(struct nw_rx *s, struct http_parser *p, size_t budget, size_t *consumed) {
   if (!s || !p || !consumed || !budget)
     return HTTP_ERROR;
   *consumed = 0;

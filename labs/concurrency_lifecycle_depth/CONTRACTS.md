@@ -68,7 +68,7 @@ ISO C does not provide POSIX cancellation or robust owner-death recovery.
 
 ## Copied queue: representation, operations and invariants
 
-`CLQueue` borrows exactly two caller-owned `CLMessage` slots until all use ends.
+`struct cl_queue` borrows exactly two caller-owned `struct cl_message` slots until all use ends.
 Each accepted message contains `(producer, sequence, length, bytes[4])`.
 Length zero is valid; a nonzero length needs a live input array. `cl_send`
 copies at acceptance, then increments `accepted`; mutating the caller's array
@@ -97,7 +97,7 @@ limits, not a proof over arbitrary executions or integer states.
 
 ## Blocking, cancellation and actual multi-threaded execution
 
-`CLPQueue` encloses the same core with one mutex and separate readable/writable
+`struct clp_queue` encloses the same core with one mutex and separate readable/writable
 conditions. Calls enroll in the relevant wait predicate while holding the
 mutex, recheck after wakeup, and use an optional absolute `CLOCK_MONOTONIC`
 deadline. This adapter chooses an unaccepted timeout if the timed wait returns
@@ -131,7 +131,7 @@ fault containment or change host scheduling/security policy for these tests.
 
 ## Owned-buffer and variable-backing changed conditions
 
-`CLPool` has sixteen byte cells and four allocation descriptors. Each handle
+`struct cl_pool` has sixteen byte cells and four allocation descriptors. Each handle
 contains a descriptor index and nonwrapping generation. Allocation of 0..8
 bytes uses the first contiguous run; zero length still consumes a descriptor.
 An unavailable descriptor or insufficient total free bytes is `CL_FULL`.
@@ -155,7 +155,7 @@ zero-length transfers. A copied handle is not a second ownership grant.
 
 ## Application acknowledgement changed condition
 
-`CLAck` is a four-receipt, single-client, serialized **volatile** service. Its
+`struct cl_ack` is a four-receipt, single-client, serialized **volatile** service. Its
 request identity is `(epoch, positive increasing id)` and the payload is an
 unsigned delta. Admission records PENDING or reports FULL without advancing
 highwater. Repeating the same pending request does not apply it. `cl_apply`
@@ -172,7 +172,7 @@ retry an arbitrary external side effect after losing process state.
 
 ## Lifetime leases and restart
 
-`CLLife` remains in stable registry storage through OPEN → CLOSING → SHUT →
+`struct cl_life` remains in stable registry storage through OPEN → CLOSING → SHUT →
 DESTROYED and subsequent checked restart. Eight lease slots carry separate
 generations and ACTIVE, SEND_WAIT, RECV_WAIT, COND_RELOCK or TIMER obligations.
 Close rejects acquisition and wakes queue waiters into WAKE_CLOSED; it does
@@ -197,7 +197,7 @@ against the new generation. No stale pointer is dereferenced to test this.
 
 ## Owner failure, poisoning and repair
 
-`CLRecord` protects `(value, complement checksum, committed shadow)`. An owner
+`struct cl_record` protects `(value, complement checksum, committed shadow)`. An owner
 begins, changes value, and commits checksum/shadow. A trusted death observation
 between those steps makes the record unavailable to ordinary readers. Exactly
 one supervisor can acquire repair ownership. Its policy rolls back to the

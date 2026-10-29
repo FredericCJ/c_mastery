@@ -10,7 +10,7 @@ struct lr_record {
 enum lr_status { LR_OK, LR_ARGUMENT, LR_RETRY, LR_SOURCE, LR_NOT_IMPLEMENTED };
 int lr_compare_i32(const void *, const void *);
 int lr_compare_record(const void *, const void *);
-enum lr_status lr_sort(int32_t *, size_t, FWork *);
+enum lr_status lr_sort(int32_t *, size_t, struct f_work *);
 /* Draw returns0..7, or a negative source failure. At most budget calls. */
 typedef int (*lr_draw)(void *);
 enum lr_status lr_three(lr_draw, void *, unsigned budget, unsigned *out);

@@ -19,7 +19,7 @@ REFINEMENTS={
    prerequisites='First study PR-T74-03 and the original X-T74-004 cache contract. The required deferred X-T74-013 integration is assessed only after X-T74-003, X-T74-004 and X-T74-008 artifacts exist; it does not introduce a backwards PR-T74-08 -> PR-T74-04 project prerequisite.',
    steps=[
     'Required later integration X-T74-013: derive ordered shape keys/attributes and descriptor generations; conserve one descriptor reference for each live receiver, including an empty receiver. Keep field values separate from immutable layout.',
-    'Stage replacement fields and acquire the replacement shape before dropping the old shape. Demonstrate deletion, readonly rejection, independent descriptor retirement and acyclic prototype admission using the actual ORXHeap contract.',
+    'Stage replacement fields and acquire the replacement shape before dropping the old shape. Demonstrate deletion, readonly rejection, independent descriptor retirement and acyclic prototype admission using the actual struct orx_heap contract.',
     'At the later X-T74-013 assessment, retain temporary receiver/holder roots through a mutating accessor, then validate weak-cache epoch/generations. Do not award these criteria for the original object_runtime.cache anchor alone.'],
    checks=[
     'For X-T74-013 R1-R3, compare the 3600 independent deletion/shadowing/readonly lookups, descriptor-reference counts and generation retirement; reject the readonly and cycle-admission mutants with the stated harmless local counterexamples.',
@@ -28,7 +28,7 @@ REFINEMENTS={
    deliverable='Submit X-T74-013 D1-D4, all six exact criteria and its delayed accessor variant as the required later integration dossier. Preserve original LAB-OR-12 evidence separately; no current learner pass or elapsed delayed assessment is inferred.',
    variant='After X-T74-008, assess X-T74-013 with an accessor that consumes its owned roots, changes the prototype and returns failure; require the exact output, root-count and persistent-side-effect arguments in the separate assessor analysis.'),
  'replicated':dict(unit='LAB-RP-14',exercise='X-T76-010',
-   prerequisites='Retain the original X-T76-007 hashing/Merkle artifact and PR-T14-04 collision/tombstone-table knowledge. Complete X-T76-010 through its distinct corpus_ring workspace and explicit prior RphSha provider; a hash-table lookup is not a ring placement operation.',
+   prerequisites='Retain the original X-T76-007 hashing/Merkle artifact and PR-T14-04 collision/tombstone-table knowledge. Complete X-T76-010 through its distinct corpus_ring workspace and explicit prior struct rph_sha provider; a hash-table lookup is not a ring placement operation.',
    steps=[
     'Required X-T76-010 transfer: derive token identity (owner,ordinal), ordered position collisions and clockwise successor lookup. Prove insertion monotonicity only while all preexisting tokens remain fixed.',
     'Implement adjacent-view migration plans and distinct physical replica selection in the separate corpus_ring exercise. Stage every output before publication and retain the exact view/epoch and digest-byte-order premises.',

@@ -12,18 +12,18 @@
 #ifndef PC_MUTANT
 #define PC_MUTANT 0
 #endif
-static int collect(pid_t pid,PCLaunch *o){int status;pid_t r;do{r=waitpid(pid,&status,0);}while(r<0&&errno==EINTR);if(r<0)return errno;o->pid=pid;if(WIFEXITED(status)){o->kind=1;o->value=WEXITSTATUS(status);}else if(WIFSIGNALED(status)){o->kind=3;o->value=WTERMSIG(status);}else return EIO;return 0;}
-int pc_reap(PCTicket *ticket,PCWait callback,void *context,PCLaunch *out){
+static int collect(pid_t pid,struct pc_launch *o){int status;pid_t r;do{r=waitpid(pid,&status,0);}while(r<0&&errno==EINTR);if(r<0)return errno;o->pid=pid;if(WIFEXITED(status)){o->kind=1;o->value=WEXITSTATUS(status);}else if(WIFSIGNALED(status)){o->kind=3;o->value=WTERMSIG(status);}else return EIO;return 0;}
+int pc_reap(struct pc_ticket *ticket,pc_wait_fn callback,void *context,struct pc_launch *out){
  int status;pid_t r;if(!ticket||!out)return EINVAL;if(ticket->phase!=1)return EALREADY;if(ticket->pid<=0)return EINVAL;
  do{r=callback?callback(ticket->pid,&status,context):waitpid(ticket->pid,&status,0);}while(r<0&&errno==EINTR);
  if(r<0){int e=errno;if(e==ECHILD){ticket->phase=3;ticket->pid=0;}else if(PC_MUTANT==5){ticket->phase=2;ticket->pid=0;}return e;}
  if(r!=ticket->pid)return EPROTO;
- PCLaunch result={0,0,r};if(WIFEXITED(status)){result.kind=1;result.value=WEXITSTATUS(status);}else if(WIFSIGNALED(status)){result.kind=3;result.value=WTERMSIG(status);}else return EPROTO;
+ struct pc_launch result={0,0,r};if(WIFEXITED(status)){result.kind=1;result.value=WEXITSTATUS(status);}else if(WIFSIGNALED(status)){result.kind=3;result.value=WTERMSIG(status);}else return EPROTO;
  ticket->phase=2;ticket->pid=0;*out=result;return 0;
 }
 /* The child path calls only prepared, async-signal-safe operations. */
-int pc_launch(const char *path,char *const argv[],char *const env[],int cwd,int output,PCLaunch *out){
- int p[2],error=0;size_t used=0;pid_t pid;PCLaunch value;
+int pc_launch(const char *path,char *const argv[],char *const env[],int cwd,int output,struct pc_launch *out){
+ int p[2],error=0;size_t used=0;pid_t pid;struct pc_launch value;
  if(!path||!argv||!env||!out||cwd<3||output<3||cwd==output)return EINVAL;
  if(pipe2(p,O_CLOEXEC))return errno;
  pid=fork();if(pid<0){error=errno;close(p[0]);close(p[1]);return error;}
@@ -44,8 +44,8 @@ int pc_launch(const char *path,char *const argv[],char *const env[],int cwd,int 
  if(used){value.kind=2;value.value=error;}
  *out=value;return 0;
 }
-int pc_spawn(const char *path,char *const argv[],char *const env[],int cwd,int output,PCLaunch *out){
- posix_spawn_file_actions_t a;pid_t pid;PCLaunch value;int r;
+int pc_spawn(const char *path,char *const argv[],char *const env[],int cwd,int output,struct pc_launch *out){
+ posix_spawn_file_actions_t a;pid_t pid;struct pc_launch value;int r;
  if(!path||!argv||!env||!out||cwd<3||output<3||cwd==output)return EINVAL;
  r=posix_spawn_file_actions_init(&a);if(r)return r;
  r=posix_spawn_file_actions_addfchdir_np(&a,cwd);
@@ -53,11 +53,11 @@ int pc_spawn(const char *path,char *const argv[],char *const env[],int cwd,int o
  if(!r&&output!=STDOUT_FILENO)r=posix_spawn_file_actions_addclose(&a,output);
  if(!r)r=posix_spawn(&pid,path,&a,NULL,argv,env);
  (void)posix_spawn_file_actions_destroy(&a);
- if(r){*out=(PCLaunch){2,r,0};return 0;}
+ if(r){*out=(struct pc_launch){2,r,0};return 0;}
  r=collect(pid,&value);if(!r)*out=value;return r;
 }
-int pc_replace(int dir,int lock,const unsigned char *data,size_t n,unsigned failure,PCStep step,void *ctx,PCReplace *out){
- PCReplace r={0,0,0};int fd=-1,created=0;size_t done=0;
+int pc_replace(int dir,int lock,const unsigned char *data,size_t n,unsigned failure,pc_step_fn step,void *ctx,struct pc_replace *out){
+ struct pc_replace r={0,0,0};int fd=-1,created=0;size_t done=0;
  if(dir<0||lock<0||(!data&&n)||n>4096||failure>4||!out)return EINVAL;
  if(flock(lock,LOCK_EX))return errno;
  fd=openat(dir,"temporary",O_WRONLY|O_CREAT|O_EXCL|O_CLOEXEC,0600);
@@ -84,7 +84,7 @@ finish:
 }
 int pc_deadline(uint64_t now,uint64_t budget,uint64_t *out){if(!out)return EINVAL;if(budget>UINT64_MAX-now)return ERANGE;*out=now+budget;return 0;}
 uint64_t pc_remaining(uint64_t d,uint64_t n){if(PC_MUTANT==3)return d-n;return n>=d?0:d-n;}
-int pc_choose(PCCapability *c,unsigned epoch,int probe,int equivalent,int in_progress){
+int pc_choose(struct pc_capability *c,unsigned epoch,int probe,int equivalent,int in_progress){
  if(!c||!epoch||probe<0)return EINVAL;
  if(c->backend&&c->epoch==epoch)return c->error;
  if(in_progress)return EBUSY;

@@ -2,7 +2,7 @@
 #ifndef PT_MUTANT
 #define PT_MUTANT 0
 #endif
-static int valid(const PtConfig *c) {
+static int valid(const struct pt_config *c) {
   unsigned n;
   if (!c || !c->clock || c->clock > 180000000u || !c->generation ||
       c->psc > 65535u || !c->arr || c->center > 1u ||
@@ -11,10 +11,10 @@ static int valid(const PtConfig *c) {
   n = c->arr + (c->center ? 0u : 1u);
   return c->ccr[0] <= n && c->ccr[1] <= n;
 }
-int pt_choose(const PuClock *clock, unsigned psc, unsigned hz, unsigned d0,
-              unsigned d1, unsigned center, unsigned ppm, PtConfig *out) {
-  PuRates rates;
-  PtConfig c;
+int pt_choose(const struct pu_clock *clock, unsigned psc, unsigned hz, unsigned d0,
+              unsigned d1, unsigned center, unsigned ppm, struct pt_config *out) {
+  struct pu_rates rates;
+  struct pt_config c;
   uint64_t base, actual, error;
   uint32_t b, n, rem;
   if (!clock || !out || psc > 65535u || !hz || d0 > 1000u || d1 > 1000u ||
@@ -44,7 +44,7 @@ int pt_choose(const PuClock *clock, unsigned psc, unsigned hz, unsigned d0,
   *out = c;
   return PT_OK;
 }
-int pt_ratios(const PtConfig *c, PtRatio *f, PtRatio *tick, PtRatio d[2]) {
+int pt_ratios(const struct pt_config *c, struct pt_ratio *f, struct pt_ratio *tick, struct pt_ratio d[2]) {
   uint32_t n;
   if (!valid(c) || !f || !tick || !d)
     return PT_INVALID;
@@ -62,7 +62,7 @@ int pt_ratios(const PtConfig *c, PtRatio *f, PtRatio *tick, PtRatio d[2]) {
   d[0].denominator = d[1].denominator = c->arr + (c->center ? 0u : 1u);
   return PT_OK;
 }
-int pt_init(PtModel *m, const PtConfig *c) {
+int pt_init(struct pt_model *m, const struct pt_config *c) {
   if (!m || !valid(c))
     return PT_INVALID;
   m->active = *c;
@@ -77,7 +77,7 @@ int pt_init(PtModel *m, const PtConfig *c) {
   m->updates = 0;
   return PT_OK;
 }
-int pt_stage(PtModel *m, const PtConfig *c) {
+int pt_stage(struct pt_model *m, const struct pt_config *c) {
   if (!m || !valid(c))
     return PT_INVALID;
   if (c->generation != m->active.generation || c->clock != m->active.clock)
@@ -89,7 +89,7 @@ int pt_stage(PtModel *m, const PtConfig *c) {
     m->active = *c;
   return PT_OK;
 }
-static void update(PtModel *m, unsigned software) {
+static void update(struct pt_model *m, unsigned software) {
   if (m->udis)
     return;
   if (PT_MUTANT == 4) {
@@ -103,7 +103,7 @@ static void update(PtModel *m, unsigned software) {
   if (!software || !m->urs)
     m->uif = 1;
 }
-int pt_ug(PtModel *m) {
+int pt_ug(struct pt_model *m) {
   if (!m)
     return PT_INVALID;
   update(m, 1);
@@ -112,7 +112,7 @@ int pt_ug(PtModel *m) {
   m->prescale = 0;
   return PT_OK;
 }
-int pt_tick(PtModel *m) {
+int pt_tick(struct pt_model *m) {
   if (!m)
     return PT_INVALID;
   if (!m->running)
@@ -138,7 +138,7 @@ int pt_tick(PtModel *m) {
     --m->counter;
   return PT_OK;
 }
-int pt_input(PtModel *m) {
+int pt_input(struct pt_model *m) {
   if (!m)
     return PT_INVALID;
   if (!m->running)
@@ -150,7 +150,7 @@ int pt_input(PtModel *m) {
   ++m->prescale;
   return PT_OK;
 }
-int pt_level(const PtModel *m, unsigned channel, unsigned *out) {
+int pt_level(const struct pt_model *m, unsigned channel, unsigned *out) {
   unsigned c;
   if (!m || !out || channel > 1u)
     return PT_INVALID;

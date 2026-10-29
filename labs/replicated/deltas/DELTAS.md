@@ -35,7 +35,7 @@ The public packet is a typed in-process value, not a portable wire struct.
 Canonical snapshots below are byte encodings. Do not label this harness as a
 socket transport, a distributed deployment or physical power-failure test.
 
-`RpdSet` composes two actual RPSets: the first supplies writer0/1 slots and the
+`struct rpd_set` composes two actual RPSets: the first supplies writer0/1 slots and the
 second supplies writer2 in slot0; second.slot1 remains zero. Each writer has
 eight never-reused tags, for24 lifetime adds across values0..3. For each value,
 membership is adds minus removed. Tags must not appear under two distinct
@@ -43,8 +43,8 @@ values; masks are bounded by known frontiers. A remove delta carries exact
 observed tombstones plus known counter frontiers, so it remains structurally
 self-contained before its matching add arrives. All tombstones remain retained.
 
-`RpdState` owns namespace UUID, fixed self0..2, positive transport epoch,
-uint64 transition sequence and the set. `RpdReplica` exclusively borrows one
+`struct rpd_state` owns namespace UUID, fixed self0..2, positive transport epoch,
+uint64 transition sequence and the set. `struct rpd_replica` exclusively borrows one
 already-open actual store, owns that state, a four-entry consecutive delta
 history, and three-entry sent/acknowledged/received marks. No dynamic allocation
 occurs. Controls and store callbacks are stable, live, aligned, nonreentrant,

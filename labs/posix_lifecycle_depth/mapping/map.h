@@ -3,17 +3,17 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <sys/types.h>
-typedef struct {unsigned char *base;size_t mapped,logical;off_t offset;dev_t device;ino_t inode;uint64_t generation;int active;} PMMap;
-typedef struct {size_t offset,length;uint64_t generation;} PMBorrow;
-typedef struct {uint64_t session;size_t length;unsigned char payload[64];} PMRecord;
-typedef void (*PMCut)(unsigned,void *);
-int pm_map(int,off_t,size_t,size_t,PMMap *);
-int pm_remap(PMMap *,int,size_t,size_t);
-int pm_copy(const PMMap *,PMBorrow,void *,size_t);
-int pm_unmap(PMMap *);
-int pm_encode(unsigned char[128],const PMRecord *,unsigned);
-int pm_decode(const unsigned char *,size_t,PMRecord *);
-int pm_publish(int,uint64_t,const void *,size_t,PMCut,void *);
-int pm_read_record(int,uint64_t,PMRecord *);
+struct pm_map {unsigned char *base;size_t mapped,logical;off_t offset;dev_t device;ino_t inode;uint64_t generation;int active;};
+struct pm_borrow {size_t offset,length;uint64_t generation;};
+struct pm_record {uint64_t session;size_t length;unsigned char payload[64];};
+typedef void (*pm_cut_fn)(unsigned,void *);
+int pm_map(int,off_t,size_t,size_t,struct pm_map *);
+int pm_remap(struct pm_map *,int,size_t,size_t);
+int pm_copy(const struct pm_map *,struct pm_borrow,void *,size_t);
+int pm_unmap(struct pm_map *);
+int pm_encode(unsigned char[128],const struct pm_record *,unsigned);
+int pm_decode(const unsigned char *,size_t,struct pm_record *);
+int pm_publish(int,uint64_t,const void *,size_t,pm_cut_fn,void *);
+int pm_read_record(int,uint64_t,struct pm_record *);
 int pm_replace(int,uint64_t,uint64_t,const void *,size_t);
 #endif

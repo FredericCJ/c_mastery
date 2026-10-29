@@ -1,5 +1,5 @@
 #include "workflow.h"
-int sw_create(SwFlow *f, store *s, Vh *a, Vh *b, int32_t n, unsigned d) {
+int sw_create(struct sw_flow *f, store *s, struct vg_vh *a, struct vg_vh *b, int32_t n, unsigned d) {
   (void)f;
   (void)s;
   (void)a;
@@ -8,14 +8,14 @@ int sw_create(SwFlow *f, store *s, Vh *a, Vh *b, int32_t n, unsigned d) {
   (void)d;
   return SW_UNIMPLEMENTED;
 }
-int sw_open(SwFlow *f, store *s, Vh *a, Vh *b) {
+int sw_open(struct sw_flow *f, store *s, struct vg_vh *a, struct vg_vh *b) {
   (void)f;
   (void)s;
   (void)a;
   (void)b;
   return SW_UNIMPLEMENTED;
 }
-int sw_step(SwFlow *f) {
+int sw_step(struct sw_flow *f) {
   (void)f;
   return SW_UNIMPLEMENTED;
 }

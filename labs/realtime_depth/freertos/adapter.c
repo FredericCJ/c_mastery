@@ -1,5 +1,5 @@
 #include "comparison.h"
-void fc_run(FCReport *result){(void)result;}
+void fc_run(struct fc_report *result){(void)result;}
 
 #ifdef FC_VENDOR
 void fc_irq(void){}

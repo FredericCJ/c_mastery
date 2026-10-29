@@ -8,7 +8,7 @@ The baseline tracker advances at most one epoch beyond a stalled reader's announ
 
 ## T26.07.b
 
-Reclamation requires the conjunction of removed publication, completed declared read-side protocol, no retained references, and exclusive reuse ownership. The publication event supplies visibility, not those lifetime facts. `AGBorrow` checks section/registration/version identity; calling copy after outer exit fails while preserving output. A raw C pointer lacks even that check. Capturing a callback obtains the version reference while the borrow is valid; add failure rolls it back. Its owned reference persists across read exit and pending removal. Drop ends that reference, after which collection still checks epoch eligibility. No native invalid pointer is executed.
+Reclamation requires the conjunction of removed publication, completed declared read-side protocol, no retained references, and exclusive reuse ownership. The publication event supplies visibility, not those lifetime facts. `struct ag_borrow` checks section/registration/version identity; calling copy after outer exit fails while preserving output. A raw C pointer lacks even that check. Capturing a callback obtains the version reference while the borrow is valid; add failure rolls it back. Its owned reference persists across read exit and pending removal. Drop ends that reference, after which collection still checks epoch eligibility. No native invalid pointer is executed.
 
 ## T26.07.c
 

@@ -23,7 +23,7 @@ static unsigned sum(const unsigned char *p, size_t n, unsigned value) {
     value = (value & 65535) + (value >> 16);
   return 65535 - value;
 }
-static void arp(NetPacket *p) {
+static void arp(struct net_packet *p) {
   static const unsigned char packet[42] = {
       255, 255, 255, 255, 255, 255, 2, 0, 0, 0, 0,   1, 8, 6,
       0,   1,   8,   0,   6,   4,   0, 1, 2, 0, 0,   0, 0, 1,
@@ -32,7 +32,7 @@ static void arp(NetPacket *p) {
   memcpy(p->bytes, packet, sizeof packet);
   p->length = 60;
 }
-static void packet(NetPacket *p, uint16_t port, uint32_t seq, uint32_t ack,
+static void packet(struct net_packet *p, uint16_t port, uint32_t seq, uint32_t ack,
                    unsigned flags, const void *data, size_t n) {
   static const unsigned char mac[14] = {2, 0, 0, 0, 0, 2, 2,
                                         0, 0, 0, 0, 1, 8, 0};
@@ -61,13 +61,13 @@ static void packet(NetPacket *p, uint16_t port, uint32_t seq, uint32_t ack,
   if (p->length < 60)
     p->length = 60;
 }
-static NwPair pair;
+static struct nw_pair pair;
 #ifdef NW_TARGET
 int nw_pair_test(void) {
 #else
 int main(void) {
 #endif
-  NetPacket p, out;
+  struct net_packet p, out;
   CHECK(nw_pair_init(&pair, 1, 7, 40000, 40001) == NW_OK);
   packet(&p, 40001, 200, 0, 2, 0, 0);
   out.length = 999;
@@ -92,7 +92,7 @@ int main(void) {
   packet(&p, 40000, 101, pair.flows[0].snd_nxt, 24, get, sizeof get - 1);
   CHECK(nw_pair_receive(&pair, p.bytes, p.length, 50, &out) == NW_OK &&
         pair.flows[0].response_length > 0);
-  NetPacket retained = pair.flows[0].retained;
+  struct net_packet retained = pair.flows[0].retained;
   CHECK(pair.flows[1].http.state == HTTP_LINE &&
         pair.flows[1].response_length == 0);
   const char post[] = "POST /echo HTTP/1.1\r\nHost: "
@@ -109,7 +109,7 @@ int main(void) {
 #else
   printf("NW_PAIR_PASS actual_handshakes=2 distinct_requests=2 "
          "one_slot_refusal sizeof_stack=%zu sizeof_pair=%zu\n",
-         sizeof(NetStack), sizeof(NwPair));
+         sizeof(struct net_stack), sizeof(struct nw_pair));
 #endif
   return 0;
 }

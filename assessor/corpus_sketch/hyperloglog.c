@@ -4,7 +4,7 @@
 #define SK_MUTANT 0
 #endif
 _Static_assert(DBL_MANT_DIG>=53 && DBL_MAX_EXP>=1024,"53-bit double required");
-static int valid(const SkHll *s) {
+static int valid(const struct sk_hll *s) {
     unsigned i;
     if(s->p<4 || s->p>8) return 0;
     for(i=0;i<(1u<<s->p);i++) if(s->reg[i]>33u-s->p) return 0;
@@ -20,12 +20,12 @@ static double logarithm(double x) {
     for(i=0;i<24;i++) { total+=term/(double)(2u*i+1u); term*=z*z; }
     return 2.0*total+(double)exponent*0.69314718055994530942;
 }
-int sk_hll_init(SkHll *s,unsigned p,uint32_t identity) {
-    SkHll next={0};
+int sk_hll_init(struct sk_hll *s,unsigned p,uint32_t identity) {
+    struct sk_hll next={0};
     if(p<4 || p>8) return SK_INVALID;
     next.p=p; next.identity=identity; *s=next; return SK_OK;
 }
-int sk_hll_add(SkHll *s,uint32_t hash) {
+int sk_hll_add(struct sk_hll *s,uint32_t hash) {
     unsigned index,rank=1,q; uint32_t bit;
     if(!valid(s)) return SK_INVALID;
     q=32u-s->p; index=(unsigned)(hash>>q); bit=UINT32_C(1)<<(q-1u);
@@ -34,7 +34,7 @@ int sk_hll_add(SkHll *s,uint32_t hash) {
     if(rank>s->reg[index]) s->reg[index]=(uint8_t)rank;
     return SK_OK;
 }
-int sk_hll_estimate(const SkHll *s,double *out) {
+int sk_hll_estimate(const struct sk_hll *s,double *out) {
     unsigned i,j,m,zeros=0; double sum=0.0,alpha,value;
     if(!valid(s)) return SK_INVALID;
     m=1u<<s->p;
@@ -53,7 +53,7 @@ int sk_hll_estimate(const SkHll *s,double *out) {
     }
     *out=value; return SK_OK;
 }
-int sk_hll_fold(SkHll *dst,const SkHll *src) {
+int sk_hll_fold(struct sk_hll *dst,const struct sk_hll *src) {
     unsigned i,d,mask;
     if(!valid(dst)||!valid(src)||dst->identity!=src->identity||dst->p>src->p) return SK_INVALID;
     d=src->p-dst->p; mask=(1u<<d)-1u;
@@ -69,7 +69,7 @@ int sk_hll_fold(SkHll *dst,const SkHll *src) {
     }
     return SK_OK;
 }
-int sk_hll_merge(SkHll *dst,const SkHll *src) {
+int sk_hll_merge(struct sk_hll *dst,const struct sk_hll *src) {
     if(dst->p!=src->p) return SK_INVALID;
     return sk_hll_fold(dst,src);
 }

@@ -1,6 +1,6 @@
 #include "edition.h"
-int pe_close(enum PEVersion v,enum PECall c,unsigned r,enum PEOutcome o,PEDecision *out){
- PEDecision d={PE_RETIRED,o!=PE_OK};
+int pe_close(enum pe_version v,enum pe_call c,unsigned r,enum pe_outcome o,struct pe_decision *out){
+ struct pe_decision d={PE_RETIRED,o!=PE_OK};
  if(!out||r>1||v<PE_2017||v>PE_2024||c<PE_CLOSE||c>PE_PC_INVALID||o<PE_OK||o>PE_AGAIN)return 1;
  if(v!=PE_2024&&c!=PE_CLOSE)return 1;
  if(o==PE_AGAIN)return 1; /* Out of the selected old/Linux outcome set too. */
@@ -26,8 +26,8 @@ int pe_close(enum PEVersion v,enum PECall c,unsigned r,enum PEOutcome o,PEDecisi
 #endif
  *out=d;return 0;
 }
-int pe_read(unsigned init,unsigned sw,unsigned ow,unsigned sr,unsigned waiting,unsigned tps,unsigned pri,enum PERead *out){
- enum PERead d;
+int pe_read(unsigned init,unsigned sw,unsigned ow,unsigned sr,unsigned waiting,unsigned tps,unsigned pri,enum pe_read *out){
+ enum pe_read d;
  if(!out||init>1||sw>1||ow>1||sr>1||waiting>1||tps>1||pri>1||
     (sw&&(ow||sr))||(ow&&sr)||(pri&&!waiting))return 1;
  if(!init)d=PE_UNDEFINED;

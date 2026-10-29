@@ -10,7 +10,7 @@ int main(int argc, char **argv) {
   char word[128];
   unsigned row = 0;
   while (fgets(word, sizeof word, f)) {
-    RfSequence s;
+    struct rf_sequence s;
     if (rf_sequence_init(&s, 1, 7))
       return 3;
     unsigned out[3] = {999, 999, 999}, count = 0, missing = 999;

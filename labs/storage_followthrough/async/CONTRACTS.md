@@ -2,7 +2,7 @@
 
 ## Exact obligation and prerequisites
 
-This required changed-condition assessment implements `AX-PR-T47-12-T47.12.b-DELAYED` from `PR-T47-12`: replace a synchronous page service with actual queued I/O and preserve borrowed storage through completion. Core prerequisites are T03 object lifetimes and PR-T47-01/02 page/backend contracts. The actual guest stage additionally requires PR-T48-09 block I/O and the retained T53 CMK2 async ABI in `labs/kernel_smp/include/cmk2_abi.h`, plus a completed `SaRead`. The supplied public CMK2 workload and build producer are copied into an isolated workspace; the kernel implementation remains an explicit external completed provider. This is a changed adapter, not a claim that the original synchronous store API became asynchronous.
+This required changed-condition assessment implements `AX-PR-T47-12-T47.12.b-DELAYED` from `PR-T47-12`: replace a synchronous page service with actual queued I/O and preserve borrowed storage through completion. Core prerequisites are T03 object lifetimes and PR-T47-01/02 page/backend contracts. The actual guest stage additionally requires PR-T48-09 block I/O and the retained T53 CMK2 async ABI in `labs/kernel_smp/include/cmk2_abi.h`, plus a completed `struct sa_read`. The supplied public CMK2 workload and build producer are copied into an isolated workspace; the kernel implementation remains an explicit external completed provider. This is a changed adapter, not a claim that the original synchronous store API became asynchronous.
 
 ## Representation, operations and authority
 

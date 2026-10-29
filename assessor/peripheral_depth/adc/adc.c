@@ -2,14 +2,14 @@
 #ifndef PA_MUTANT
 #define PA_MUTANT 0
 #endif
-static int io_valid(PaIo io) { return io.read && io.write; }
-static int time_valid(PaAdc *s, uint32_t now) {
+static int io_valid(struct pa_io io) { return io.read && io.write; }
+static int time_valid(struct pa_adc *s, uint32_t now) {
   return now - s->last < UINT32_C(0x80000000);
 }
-int pa_timing(const PuClock *clock, const PaConfig *cfg, PaTiming *out) {
+int pa_timing(const struct pu_clock *clock, const struct pa_config *cfg, struct pa_timing *out) {
   static const unsigned samples[8] = {3, 15, 28, 56, 84, 112, 144, 480};
-  PuRates rates;
-  PaTiming t;
+  struct pu_rates rates;
+  struct pa_timing t;
   if (!clock || !cfg || !out || cfg->sample > 7 || cfg->channels < 1 ||
       cfg->channels > 2 || cfg->timer > 1 || pu_rates(clock, &rates) != 0)
     return PA_INVALID;
@@ -28,9 +28,9 @@ int pa_timing(const PuClock *clock, const PaConfig *cfg, PaTiming *out) {
   *out = t;
   return PA_OK;
 }
-int pa_open(PaAdc *s, PaIo io, const PuClock *clock, const PaConfig *cfg,
+int pa_open(struct pa_adc *s, struct pa_io io, const struct pu_clock *clock, const struct pa_config *cfg,
             uint32_t now) {
-  PaTiming timing;
+  struct pa_timing timing;
   if (!s || !io_valid(io) || pa_timing(clock, cfg, &timing) != PA_OK)
     return PA_INVALID;
   if (s->phase)
@@ -59,7 +59,7 @@ int pa_open(PaAdc *s, PaIo io, const PuClock *clock, const PaConfig *cfg,
   s->output = 0;
   return PA_OK;
 }
-int pa_ready(PaAdc *s, uint32_t now) {
+int pa_ready(struct pa_adc *s, uint32_t now) {
   if (!s || !time_valid(s, now))
     return PA_INVALID;
   if (s->phase != 1)
@@ -76,7 +76,7 @@ int pa_ready(PaAdc *s, uint32_t now) {
   s->phase = 2;
   return PA_OK;
 }
-int pa_begin(PaAdc *s, PaIo io, uint32_t generation, uint32_t token,
+int pa_begin(struct pa_adc *s, struct pa_io io, uint32_t generation, uint32_t token,
              uint16_t *out, uint32_t now, uint32_t budget) {
   if (!s || !io_valid(io) || !out || !token || !budget ||
       budget >= UINT32_C(0x80000000) || !time_valid(s, now))
@@ -96,7 +96,7 @@ int pa_begin(PaAdc *s, PaIo io, uint32_t generation, uint32_t token,
            PA_ADON | PA_EOCS | (s->timer ? PA_EXTERNAL : PA_SWSTART));
   return PA_OK;
 }
-static int finish(PaAdc *s, PaIo io, int result) {
+static int finish(struct pa_adc *s, struct pa_io io, int result) {
   /* ADON=0 stops conversion; software trigger source must be stopped by its
      owner before another open. No DMA borrower exists in this PIO successor. */
   io.write(io.context, PA_CR2, 0);
@@ -108,7 +108,7 @@ static int finish(PaAdc *s, PaIo io, int result) {
   s->output = 0;
   return result;
 }
-int pa_step(PaAdc *s, PaIo io, uint32_t token, uint32_t now) {
+int pa_step(struct pa_adc *s, struct pa_io io, uint32_t token, uint32_t now) {
   if (!s || !io_valid(io) || !time_valid(s, now))
     return PA_INVALID;
   if (s->phase != 3 || token != s->token)
@@ -134,7 +134,7 @@ int pa_step(PaAdc *s, PaIo io, uint32_t token, uint32_t now) {
   }
   return PA_BUSY;
 }
-int pa_cancel(PaAdc *s, PaIo io, uint32_t token) {
+int pa_cancel(struct pa_adc *s, struct pa_io io, uint32_t token) {
   if (!s || !io_valid(io))
     return PA_INVALID;
   if (s->phase != 3 || token != s->token)

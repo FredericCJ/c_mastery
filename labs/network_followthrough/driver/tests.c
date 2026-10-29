@@ -11,25 +11,25 @@
     }                                                                          \
   } while (0)
 #ifdef NB_TARGET
-EnMemory nb_memory __attribute__((section(".eth"), aligned(4)));
+struct en_memory nb_memory __attribute__((section(".eth"), aligned(4)));
 #else
-EnMemory nb_memory;
+struct en_memory nb_memory;
 #endif
 #define memory nb_memory
-static EnModel model;
-static EpModel phy_model;
-static EpPhy phy;
-static EnRing ring;
-static NbNet net;
+static struct en_model model;
+static struct ep_model phy_model;
+static struct ep_phy phy;
+static struct en_ring ring;
+static struct nb_net net;
 static const unsigned char local_mac[6] = {2, 0, 0, 0, 0, 2},
                            peer_mac[6] = {2, 0, 0, 0, 0, 1};
-static const NaConfig config = {
+static const struct na_config config = {
     {2, 0, 0, 0, 0, 2}, {192, 0, 2, 2}, {192, 0, 2, 1}};
 static int boot(void) {
   memset(&phy, 0, sizeof phy);
   memset(&ring, 0, sizeof ring);
   ep_model_setup(&phy_model, 0);
-  EDBus pb = ep_model_bus(&phy_model);
+  struct ed_bus pb = ep_model_bus(&phy_model);
   CHECK(ep_init(&phy, &pb, 168000000, 0, 4, 100) == ED_OK);
   CHECK(ep_begin(&phy, 16, 1000) == ED_BUSY);
   int e = ED_BUSY;
@@ -37,7 +37,7 @@ static int boot(void) {
     e = ep_step(&phy);
   CHECK(e == ED_OK);
   en_model_init(&model, &memory, 0x20001000);
-  EnBus bus = en_model_bus(&model);
+  struct en_bus bus = en_model_bus(&model);
   CHECK(en_init(&ring, &memory, 0x20001000, &bus, &phy, local_mac) == ED_OK);
   CHECK(en_reset_begin(&ring, 0, 4, 100) == ED_BUSY);
   CHECK(en_reset_step(&ring, 1) == ED_BUSY &&
@@ -119,7 +119,7 @@ static int ownership(void) {
   unsigned char p[300];
   size_t n = nc_wire(p, 30, 0, 2, 512, 0, 0, 100);
   CHECK(inject(p, n) == ED_OK && nb_step(&net, 0) == NB_OK);
-  NcTicket before = net.offered.ticket;
+  struct nc_ticket before = net.offered.ticket;
   n = nc_wire(p, 30, 0, 2, 512, 0, 0, 100);
   CHECK(inject(p, n) == ED_OK && nb_step(&net, 1) == NB_OK);
   CHECK(net.paused_tcp == 1 && net.pending_tcp && net.tcp.pending_valid &&
@@ -136,10 +136,10 @@ static int pressure(void) {
    */
   unsigned char f[60] = {0};
   for (unsigned i = 0; i < 2; i++) {
-    EnTicket t;
+    struct en_ticket t;
     CHECK(en_tx_copy(&ring, f, sizeof f, &t) == ED_OK &&
           en_tx_publish(&ring, t) == ED_OK);
-    net.copies[t.slot] = (NbCopy){1, 0, t, {0, 0}};
+    net.copies[t.slot] = (struct nb_copy){1, 0, t, {0, 0}};
   }
   unsigned char payload[8] = {1, 2, 3};
   CHECK(nb_offer(&net, payload, 8) == NB_OK);
@@ -155,7 +155,7 @@ static int stop_ownership(void) {
   CHECK(!boot() && !handshake(0));
   unsigned char data[4] = {1, 2, 3, 4};
   CHECK(nb_offer(&net, data, 4) == NB_OK && nb_step(&net, 4) == NB_OK);
-  NcTicket copy =
+  struct nc_ticket copy =
       net.copies[0].tcp ? net.copies[0].transport : net.copies[1].transport;
   model.stop_stuck = 1;
   phy_model.phy[0][1] = 0x20;
@@ -198,13 +198,13 @@ static int boundaries(void) {
   /* A borrowed frame stalls its slot across DMA wrap. It may be returned during
    * stop, but that return must not republish OWN to a stopping engine. */
   CHECK(inject(p, n) == ED_OK);
-  EnFrame held;
+  struct en_frame held;
   CHECK(en_rx_take(&ring, &held) == ED_OK);
   unsigned char saved[60];
   memcpy(saved, held.bytes, 60);
   for (unsigned i = 0; i < 3; i++) {
     CHECK(inject(p, n) == ED_OK);
-    EnFrame f;
+    struct en_frame f;
     CHECK(en_rx_take(&ring, &f) == ED_OK &&
           en_rx_release(&ring, f.ticket) == ED_OK);
   }
@@ -318,7 +318,7 @@ static int write_failure(void) {
 }
 int main(void) {
   /* The retained helper independently verifies the predecessor handshake. */
-  NcStack prior;
+  struct nc_stack prior;
   CHECK(!nc_establish(&prior, 16, 1000, 30, 100));
   CHECK(!ownership());
   CHECK(!pressure());

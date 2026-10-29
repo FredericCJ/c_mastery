@@ -30,7 +30,7 @@ static void wr(void *p, unsigned r, uint32_t v) {
   written = v;
 }
 int main(void) {
-  PmModel m = {0};
+  struct pm_model m = {0};
   m.revision = 1;
   uint32_t v = 1;
   CK(pm_access(&m, PM_CTRL, 16, 1, &v) == -1 && !m.log_count && !m.control);
@@ -60,7 +60,7 @@ int main(void) {
   m.rtc = 5;
   CK(pm_access(&m, PM_RTC, 32, 0, &v) == 0 && v == 5);
   CK(pm_access(&m, PM_RTC, 32, 0, &v) == 0 && !v);
-  FwIo io = {0, rd, wr};
+  struct fw_io io = {0, rd, wr};
   CK(pm_gpio(io, 4, 1) == 0 && !reads && writes == 1 && written == 0x10004);
   CK(pm_gpio(io, 0x8000, 0) == 0 && written == 0x8000);
   CK(pm_gpio(io, 0, 0) == 0 && written == 0);
@@ -79,8 +79,8 @@ int main(void) {
   CK(pm_access(&m, PM_BSRR, 32, 1, &v) == 0 && (m.odr & 1));
   /* Hardware set priority differs from service's rejected overlapping mask. */
   for (unsigned ready = 1; ready <= 4; ++ready) {
-    PmRequest r = {0};
-    m = (PmModel){0};
+    struct pm_request r = {0};
+    m = (struct pm_model){0};
     m.revision = 1;
     m.control = 1;
     CK(pm_begin(&r, 65, 3) == 0);
@@ -94,15 +94,15 @@ int main(void) {
     CK(m.tx_count == (ready <= 3));
     CK(pm_step(&r, &m) == -1);
   }
-  PmInterrupt irq = {0};
-  m = (PmModel){0};
+  struct pm_interrupt irq = {0};
+  m = (struct pm_model){0};
   m.revision = 1;
   m.control = 1;
   m.status = 1;
   CK(pm_irq_begin(&irq, &m, 77, UINT32_MAX - 4, 10) == 0 && !irq.armed &&
      m.tx_count == 1);
   CK(pm_irq_event(&irq, &m, 0) == -1);
-  m = (PmModel){0};
+  m = (struct pm_model){0};
   m.revision = 1;
   m.control = 1;
   CK(pm_irq_begin(&irq, &m, 88, UINT32_MAX - 4, 10) == 1 && irq.armed);
@@ -114,7 +114,7 @@ int main(void) {
   CK(pm_irq_begin(&irq, &m, 99, 10, 2) == 1);
   CK(pm_irq_event(&irq, &m, 9) == -1 && irq.armed);
   CK(pm_irq_event(&irq, &m, 12) == -2 && !irq.armed && m.tx_count == 1);
-  PmFilter d;
+  struct pm_filter d;
   unsigned changed;
   CK(pm_filter_init(&d, 3, 0, 0) == 0);
   unsigned samples[] = {0, 1, 0, 1, 1, 1};

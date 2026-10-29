@@ -4,9 +4,9 @@
 #include <stdio.h>
 #include <string.h>
 #define REQUIRE(x) do{if(!(x)){fprintf(stderr,"ES_ASSERT:composition:%d:%s\n",__LINE__,#x);return 41;}}while(0)
-typedef struct {unsigned char bytes[64];size_t n,starts,ends,documents;} Capture;
-static EvAction take(void *context,const EvEvent *event) {
- Capture *c=context;
+struct es_capture {unsigned char bytes[64];size_t n,starts,ends,documents;};
+static enum ev_action take(void *context,const struct ev_event *event) {
+ struct es_capture *c=context;
  if(event->kind==EV_START)c->starts++;
  else if(event->kind==EV_END)c->ends++;
  else if(event->kind==EV_DOCUMENT)c->documents++;
@@ -16,8 +16,8 @@ static EvAction take(void *context,const EvEvent *event) {
  }
  return EV_ACCEPT;
 }
-static EvStatus parse(const unsigned char *s,size_t n,size_t split,Capture *c) {
- EvParser p;EvStatus status=ev_init(&p,8);size_t used;
+static enum ev_status parse(const unsigned char *s,size_t n,size_t split,struct es_capture *c) {
+ struct ev_parser p;enum ev_status status=ev_init(&p,8);size_t used;
  if(status!=EV_OK)return status;
  status=ev_feed(&p,s,split,take,c,&used);
  if(status!=EV_OK||used!=split)return status==EV_OK?EV_INVALID:status;
@@ -26,11 +26,11 @@ static EvStatus parse(const unsigned char *s,size_t n,size_t split,Capture *c) {
  return ev_finish(&p,take,c);
 }
 int main(void) {
- TcProgram program;REQUIRE(tc_template_compile((const unsigned char *)"{a}",3,&program)==TC_OK);
+ struct tc_program program;REQUIRE(tc_template_compile((const unsigned char *)"{a}",3,&program)==TC_OK);
  const char *cases[]={"","'","&","<a/>","&#39;","&apos;","&lt;x&gt;","&<>\"'\n\t","</a><b/>"};
  size_t observations=0;
  for(size_t k=0;k<sizeof cases/sizeof *cases;k++) {
-  TcModel model={0};TcText html;EsText canonical,direct,plain;
+  struct tc_model model={0};struct tc_text html;struct es_text canonical,direct,plain;
   size_t n=strlen(cases[k]);model.fields[0].count=1;model.fields[0].values[0].length=n;
   memcpy(model.fields[0].values[0].bytes,cases[k],n);
   REQUIRE(tc_template_render(&program,1,0,&model,1,4096,&html)==TC_OK);
@@ -40,14 +40,14 @@ int main(void) {
   REQUIRE(es_decode(canonical.bytes,canonical.length,64,&plain)==ES_OK&&plain.length==n&&!memcmp(plain.bytes,cases[k],n));
   unsigned char doc[391];memcpy(doc,"<a>",3);memcpy(doc+3,canonical.bytes,canonical.length);memcpy(doc+3+canonical.length,"</a>",4);
   for(size_t split=0;split<=canonical.length+7;split++) {
-   Capture c={0};REQUIRE(parse(doc,canonical.length+7,split,&c)==EV_DONE);
+   struct es_capture c={0};REQUIRE(parse(doc,canonical.length+7,split,&c)==EV_DONE);
    REQUIRE(c.starts==1&&c.ends==1&&c.documents==1&&c.n==n&&!memcmp(c.bytes,cases[k],n));observations++;
   }
   if(k==1) {
    REQUIRE(html.length==5&&!memcmp(html.bytes,"&#39;",5));
    REQUIRE(es_decode(html.bytes,html.length,64,&plain)==ES_SYNTAX);
    memcpy(doc+3,html.bytes,html.length);memcpy(doc+3+html.length,"</a>",4);
-   Capture c={0};REQUIRE(parse(doc,html.length+7,0,&c)==EV_SYNTAX);
+   struct es_capture c={0};REQUIRE(parse(doc,html.length+7,0,&c)==EV_SYNTAX);
   }
  }
  printf("ES_COMPOSE:%zu:actual template numeric spelling, checked adapter, event text exactly once; EV_TEXT=%d\n",observations,EV_TEXT);return 0;

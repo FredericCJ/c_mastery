@@ -10,7 +10,7 @@ private technical analysis is withheld in `assessor/architecture_bytes/ANALYSIS.
 ## Prerequisites and environment
 
 Complete the B01 integer/extent/object exercises and PR-T36-08 typed wrapper
-work. Import the exact `AWRecord { int32_t id, rank; }` declaration from
+work. Import the exact `struct aw_record { int32_t id, rank; }` declaration from
 `labs/algorithm_wrappers/wrappers.h`; this batch consumes its type, not the
 wrapper's container implementation. Explain lifetime, effective type, unsigned
 arithmetic, promotion and shift bounds before touching instruction bytes.
@@ -47,13 +47,13 @@ the exact original fixture in `fixtures/algorithms/PR-T37-02.json`.
    overflow. These synthetic numeric coordinates never become native pointers.
 3. Encode/decode an eight-byte record: signed 32-bit ID then rank, each in
    chosen wire order, two's-complement wire representation. Both record APIs
-   require exactly eight bytes. Decode into an actual declared `AWRecord`.
+   require exactly eight bytes. Decode into an actual declared `struct aw_record`.
    `ab_record_copy` copies bytes between two live valid typed records; identical
    source/destination is allowed. Demonstrate a typed pool and genuinely
-   allocated backing initialized through an `AWRecord` lvalue, and contrast
+   allocated backing initialized through an `struct aw_record` lvalue, and contrast
    compile-only `bad_cast.c`. Neither `_Alignas` nor a successful load changes
    the declared type of an unsigned-character array.
-4. Write a bounded offline decoder with `ABInstruction` as its explicit result.
+4. Write a bounded offline decoder with `struct ab_instruction` as its explicit result.
    x86-64 base scope accepts only `48 3D imm32` (CMP RAX, sign-extended immediate)
    and `77 rel8` (JA). The extension flag adds `3C imm8` (CMP AL) only. Thumb
    base scope accepts only CMP-immediate T1: `00101 Rn imm8`. Its encoding is

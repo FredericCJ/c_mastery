@@ -1,15 +1,15 @@
 #include "taxonomy.h"
 /* These are intentionally unfinished learner mechanisms. */
-AeCode ae_map(unsigned b, int c) {
+enum ae_code ae_map(unsigned b, int c) {
   (void)b;
   (void)c;
   return AE_UNIMPLEMENTED;
 }
-AeOutcome ae_outcome(AeCode c) {
+enum ae_outcome ae_outcome(enum ae_code c) {
   (void)c;
   return AE_TERMINAL;
 }
-AeCode ae_first(AeError *e, AeCode c, unsigned o, unsigned s, unsigned b,
+enum ae_code ae_first(struct ae_error *e, enum ae_code c, unsigned o, unsigned s, unsigned b,
                 int x) {
   (void)e;
   (void)c;
@@ -19,13 +19,13 @@ AeCode ae_first(AeError *e, AeCode c, unsigned o, unsigned s, unsigned b,
   (void)x;
   return AE_UNIMPLEMENTED;
 }
-AeCode ae_secondary(AeError *e, unsigned s, int c) {
+enum ae_code ae_secondary(struct ae_error *e, unsigned s, int c) {
   (void)e;
   (void)s;
   (void)c;
   return AE_UNIMPLEMENTED;
 }
-AeCode ae_boundary(const unsigned char *p, size_t n, unsigned c, unsigned a,
+enum ae_code ae_boundary(const unsigned char *p, size_t n, unsigned c, unsigned a,
                    unsigned d, unsigned *o) {
   (void)p;
   (void)n;
@@ -35,36 +35,36 @@ AeCode ae_boundary(const unsigned char *p, size_t n, unsigned c, unsigned a,
   (void)o;
   return AE_UNIMPLEMENTED;
 }
-AeCode ae_admit_digit(const unsigned char *p, size_t n, AeDigit *o) {
+enum ae_code ae_admit_digit(const unsigned char *p, size_t n, struct ae_digit *o) {
   (void)p;
   (void)n;
   (void)o;
   return AE_UNIMPLEMENTED;
 }
-AeCode ae_trusted_digit(AeDigit d, unsigned *o) {
+enum ae_code ae_trusted_digit(struct ae_digit d, unsigned *o) {
   (void)d;
   (void)o;
   return AE_UNIMPLEMENTED;
 }
-AeCode ae_submit(AeCounter *c, unsigned i, unsigned d, AeTransportMode m) {
+enum ae_code ae_submit(struct ae_counter *c, unsigned i, unsigned d, enum ae_transport_mode m) {
   (void)c;
   (void)i;
   (void)d;
   (void)m;
   return AE_UNIMPLEMENTED;
 }
-AeCode ae_write_result(size_t o, size_t a, AeCode c, AeWriteResult *r) {
+enum ae_code ae_write_result(size_t o, size_t a, enum ae_code c, struct ae_write_result *r) {
   (void)o;
   (void)a;
   (void)c;
   (void)r;
   return AE_UNIMPLEMENTED;
 }
-AeLookup ae_lookup(unsigned k) {
+struct ae_lookup ae_lookup(unsigned k) {
   (void)k;
-  return (AeLookup){0, 0};
+  return (struct ae_lookup){0, 0};
 }
-AeCode ae_fields(const AvText *f, size_t n, AeFields *o) {
+enum ae_code ae_fields(const struct av_text *f, size_t n, struct ae_fields *o) {
   (void)f;
   (void)n;
   (void)o;

@@ -3,12 +3,12 @@
 #include "checks.h"
 static void sa_checksum_at(unsigned char *p,size_t n,size_t at){unsigned sum=0;p[at]=0;for(size_t i=0;i<n;++i)sum=(sum+p[i])&255u;p[at]=(unsigned char)(0u-sum);}
 static int sa_root_checks(void){
- unsigned char p[52],root[52],rsdp[36];SaTopology t={0},old={0};
+ unsigned char p[52],root[52],rsdp[36];struct sa_topology t={0},old={0};
  sa_base(p,52);p[44]=0;p[45]=8;p[46]=17;p[47]=6;sa_w32(p+48,1);sa_sum(p,52);
  sa_base(root,40);root[0]='R';root[1]='S';root[2]='D';root[3]='T';sa_w32(root+36,0x4000);sa_sum(root,40);
  for(unsigned i=0;i<36;++i)rsdp[i]=0;
  const char signature[]="RSD PTR ";for(unsigned i=0;i<8;++i)rsdp[i]=(unsigned char)signature[i];sa_w32(rsdp+16,0x2000);sa_checksum_at(rsdp,20,8);
- SaRegion regions[]={{0x2000,root,40},{0x4000,p,52}};
+ struct sa_region regions[]={{0x2000,root,40},{0x4000,p,52}};
  SAC(sa_discover(rsdp,20,regions,2,16,0,&t)==SA_OK&&t.count==1&&t.cpu[0].apic==6&&t.cpu[0].uid==17);old=t;
  for(unsigned n=0;n<20;++n){SAC(sa_discover(rsdp,n,regions,2,16,0,&t)==SA_INVALID);SAC(sa_same(&t,&old,sizeof t));}
  for(unsigned n=1;n<52;++n){regions[1].length=n;SAC(sa_discover(rsdp,20,regions,2,16,0,&t)==SA_INVALID&&sa_same(&t,&old,sizeof t));}regions[1].length=52;

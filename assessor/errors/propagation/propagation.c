@@ -32,16 +32,16 @@ er_result epr_pair_macro(const unsigned char *s,size_t n,uint32_t *sum){
     *sum=a.as.value+b.as.value;return er_ok(*sum);
 failed:return r;
 }
-er_code epr_init(EprParser *p,unsigned signed_first){
+er_code epr_init(struct epr_parser *p,unsigned signed_first){
     if(!p||signed_first>1)return ER_INVALID;
-    EprParser empty={0};empty.signed_first=signed_first;empty.terminal=ER_AGAIN;*p=empty;return ER_OK;
+    struct epr_parser empty={0};empty.signed_first=signed_first;empty.terminal=ER_AGAIN;*p=empty;return ER_OK;
 }
-static EprStep answer(EprParser *p,size_t consumed){EprStep r={p->terminal,consumed,p->position,p->error};return r;}
-static EprStep fail(EprParser *p,size_t consumed,er_code code){
+static struct epr_step answer(struct epr_parser *p,size_t consumed){struct epr_step r={p->terminal,consumed,p->position,p->error};return r;}
+static struct epr_step fail(struct epr_parser *p,size_t consumed,er_code code){
     p->phase=3;p->terminal=code;p->error=EPR_MUTATION==2?consumed:p->position;return answer(p,consumed);
 }
-EprStep epr_feed(EprParser *p,const unsigned char *s,size_t n,unsigned final,uint32_t *sum){
-    EprStep invalid={ER_INVALID,0,p?p->position:0,0};size_t used=0;
+struct epr_step epr_feed(struct epr_parser *p,const unsigned char *s,size_t n,unsigned final,uint32_t *sum){
+    struct epr_step invalid={ER_INVALID,0,p?p->position:0,0};size_t used=0;
     if(!p||(!s&&n)||!sum||final>1)return invalid;
     if(n>SIZE_MAX-p->position){invalid.code=ER_RANGE;invalid.error=p->position;return invalid;}
     if(p->phase>=2){if(p->phase==2)*sum=p->sum;return answer(p,0);}

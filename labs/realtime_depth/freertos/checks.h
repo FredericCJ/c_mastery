@@ -2,7 +2,7 @@
 #define FC_CHECKS_H
 #include "comparison.h"
 #include <limits.h>
-static int fc_checks(const FCReport *r){
+static int fc_checks(const struct fc_report *r){
  unsigned out=91;
  if(!fc_ticks(21,100,&out)||out!=3||!fc_ticks(1,100,&out)||out!=1)return 1;
  if(!fc_ticks(0,100,&out)||out||fc_ticks(UINT_MAX,100,&out)||out)return 2;

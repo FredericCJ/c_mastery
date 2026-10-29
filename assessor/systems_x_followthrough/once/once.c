@@ -3,13 +3,13 @@
 #ifndef SX_ONCE_MUTANT
 #define SX_ONCE_MUTANT 0
 #endif
-int sx_once_init(SxOnce*o,SxJournal*j,unsigned id,unsigned tag,int retry){
+int sx_once_init(struct sx_once*o,struct sx_journal*j,unsigned id,unsigned tag,int retry){
  if(!o||!j||id<1||id>3||tag>255||(retry!=0&&retry!=1))return MB_INVALID;
  mb_once_init(&o->once,retry!=0);o->journal=j;o->id=id;o->tag=tag;o->owner=3;o->stage=0;o->attempts=0;o->publications=0;o->checksum=0;
  for(unsigned i=0;i<8;i++)o->table[i]=0;
  return MB_OK;
 }
-int sx_once_enter(SxOnce*o,unsigned participant,unsigned out[8],unsigned*checksum){
+int sx_once_enter(struct sx_once*o,unsigned participant,unsigned out[8],unsigned*checksum){
  unsigned pair[2];int rc;if(!o||!out||!checksum||participant>=3)return MB_INVALID;
  if(o->attempts==UINT_MAX&&atomic_load(&o->once.state)==0)return MB_FULL;
  rc=mb_once_enter(&o->once,participant,pair);
@@ -17,12 +17,12 @@ int sx_once_enter(SxOnce*o,unsigned participant,unsigned out[8],unsigned*checksu
  if(rc==MB_OK){for(unsigned i=0;i<8;i++)out[i]=o->table[i];*checksum=o->checksum;}
  return rc;
 }
-static int owner(SxOnce*o,unsigned p){return o&&p<3&&o->owner==p&&atomic_load(&o->once.state)==p+1;}
-int sx_once_cancel(SxOnce*o,unsigned p){int rc;if(!owner(o,p))return MB_STALE;
+static int owner(struct sx_once*o,unsigned p){return o&&p<3&&o->owner==p&&atomic_load(&o->once.state)==p+1;}
+int sx_once_cancel(struct sx_once*o,unsigned p){int rc;if(!owner(o,p))return MB_STALE;
  rc=mb_once_finish(&o->once,p,false,0,0);if(rc!=MB_OK)return rc;
  o->owner=3;o->stage=0;o->checksum=0;for(unsigned i=0;i<8;i++)o->table[i]=0;return MB_OK;
 }
-int sx_once_step(SxOnce*o,unsigned p){
+int sx_once_step(struct sx_once*o,unsigned p){
  if(!owner(o,p))return MB_STALE;
  if(o->stage==0){
   unsigned i;for(i=0;i<o->journal->count;i++)if(o->journal->id[i]==o->id)break;

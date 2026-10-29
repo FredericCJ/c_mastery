@@ -2,13 +2,13 @@
 #include "../../../labs/peripheral_depth/dma/tests.c"
 #undef main
 #include "h745_cache.h"
-typedef struct {
-  Model bus;
+struct dg_cache {
+  struct dg_model bus;
   unsigned char ram[64], cache[64];
   unsigned valid[2], dirty[2], barriers, operations;
-} Cache;
+};
 static unsigned line(uint32_t a) { return a >= 0x30042000u ? 1 : 0; }
-static unsigned load(Cache *c, unsigned i) {
+static unsigned load(struct dg_cache *c, unsigned i) {
   unsigned l = i / 32;
   if (!c->valid[l]) {
     for (unsigned k = l * 32; k < (l + 1) * 32; k++)
@@ -18,13 +18,13 @@ static unsigned load(Cache *c, unsigned i) {
   }
   return c->cache[i];
 }
-static void store(Cache *c, unsigned i, unsigned x) {
+static void store(struct dg_cache *c, unsigned i, unsigned x) {
   (void)load(c, i);
   c->cache[i] = (unsigned char)x;
   c->dirty[i / 32] = 1;
 }
-static void emit(void *ctx, enum FWCacheOp op, uint32_t a) {
-  Cache *c = ctx;
+static void emit(void *ctx, enum fw_cache_op op, uint32_t a) {
+  struct dg_cache *c = ctx;
   if (op == FW_DSB || op == FW_ISB) {
     c->barriers++;
     return;
@@ -41,14 +41,14 @@ static void emit(void *ctx, enum FWCacheOp op, uint32_t a) {
     c->valid[l] = 0;
   }
 }
-static int setup(void *ctx, const PdExtent *e, uint32_t t) {
-  return config(&((Cache *)ctx)->bus, e, t);
+static int setup(void *ctx, const struct pd_extent *e, uint32_t t) {
+  return config(&((struct dg_cache *)ctx)->bus, e, t);
 }
-static void go(void *ctx) { enable(&((Cache *)ctx)->bus); }
-static void halt(void *ctx) { stop(&((Cache *)ctx)->bus); }
-static PdSnapshot snap(void *ctx) { return snapshot(&((Cache *)ctx)->bus); }
+static void go(void *ctx) { enable(&((struct dg_cache *)ctx)->bus); }
+static void halt(void *ctx) { stop(&((struct dg_cache *)ctx)->bus); }
+static struct pd_snapshot snap(void *ctx) { return snapshot(&((struct dg_cache *)ctx)->bus); }
 static void vis(void *ctx, unsigned op, uint32_t a, uint32_t n) {
-  Cache *c = ctx;
+  struct dg_cache *c = ctx;
   if (op == PD_RELEASE || op == PD_ACQUIRE) {
     c->barriers++;
     return;
@@ -57,11 +57,11 @@ static void vis(void *ctx, unsigned op, uint32_t a, uint32_t n) {
                        c);
 }
 int main(void) {
-  Cache c = {0};
-  PdTransfer s = {0};
-  PdResult result;
-  PdExtent e = item(PD_H745, 32);
-  PdIo io = {&c, setup, go, halt, snap, vis};
+  struct dg_cache c = {0};
+  struct pd_transfer s = {0};
+  struct pd_result result;
+  struct pd_extent e = item(PD_H745, 32);
+  struct pd_io io = {&c, setup, go, halt, snap, vis};
   store(&c, 0, 7);
   store(&c, 32, 9);
   store(&c, 63, 55);
@@ -72,7 +72,7 @@ int main(void) {
   CHECK(load(&c, 32) == 9);
   c.ram[32] = 42;
   CHECK(pd_cancel(&s, io, 1) == PD_BUSY);
-  c.bus.snap = (PdSnapshot){1, 0, 31, PD_TC, 1};
+  c.bus.snap = (struct pd_snapshot){1, 0, 31, PD_TC, 1};
   CHECK(pd_poll(&s, io, 1) == PD_OK &&
         pd_finalize(&s, io, 1, &result) == PD_OK && result.complete_bytes == 1);
   CHECK(load(&c, 32) == 42 && load(&c, 63) == 55 && c.operations == 4 &&

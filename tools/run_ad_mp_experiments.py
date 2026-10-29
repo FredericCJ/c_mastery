@@ -42,8 +42,8 @@ def main():
             common=[compiler,'-std=c17','-Wall','-Wextra','-Wpedantic','-Werror','-fsyntax-only']
             run(common+['-Ilabs/adt/include','labs/adt/tests/probes/positive.c'])
             run(common+['-Wswitch-enum','-Ilabs/adt/include','labs/adt/tests/probes/missing_case.c'],1,'AD_PAIR.*not handled|enumeration value.*AD_PAIR')
-            run(common+['-Ilabs/adt/include','labs/adt/tests/probes/wrong_quantity.c'],1,'incompatible|ADMillis.*ADSeconds')
-            run(common+['-Ilabs/adt/include','labs/adt/tests/probes/wrong_brand.c'],1,'incompatible|ADNodeIndex.*ADBrand')
+            run(common+['-Ilabs/adt/include','labs/adt/tests/probes/wrong_quantity.c'],1,'incompatible|struct ad_millis.*struct ad_seconds')
+            run(common+['-Ilabs/adt/include','labs/adt/tests/probes/wrong_brand.c'],1,'incompatible|struct ad_node_index.*struct ad_brand')
             run(common+['-Ilabs/metaprog/include','labs/metaprog/tests/probes/constant_capacity.c'])
             run(common+['-Ilabs/metaprog/include','-DPROBE_CAPACITY=3','labs/metaprog/tests/probes/constant_capacity.c'],1,'static assertion|static_assert')
             run(common+['-Ilabs/metaprog/include','labs/metaprog/tests/probes/wrong_argument.c'],1,'_Generic|generic association')

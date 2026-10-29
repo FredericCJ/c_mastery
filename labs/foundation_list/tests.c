@@ -10,11 +10,11 @@
   } while (0)
 static void cases(void) {
   const char *normal[] = {"2", "-5", "9"}, *bad[] = {"32767", "1", "-1"};
-  FtResult out = {91, 92};
-  FtErrors e;
+  struct ft_result out = {91, 92};
+  struct ft_errors e;
   CHECK(ft_tokens(normal, 3, 0, &out, &e) == FT_OK && out.count == 3 &&
         out.sum == 6 && e.total == 0);
-  out = (FtResult){91, 92};
+  out = (struct ft_result){91, 92};
   CHECK(ft_tokens(bad, 3, 0, &out, &e) == FT_PREFIX && out.count == 91 &&
         out.sum == 92);
   CHECK(e.total == 1 && e.items[0].token == 3 &&
@@ -31,7 +31,7 @@ static void cases(void) {
   const char *limits[] = {"-32768", "32767", "1", "+00000"};
   CHECK(ft_tokens(limits, 4, 0, &out, &e) == FT_OK && out.sum == 0);
   const char *too_many[] = {"0", "0", "0", "0", "0"};
-  out = (FtResult){91, 92};
+  out = (struct ft_result){91, 92};
   CHECK(ft_tokens(too_many, 5, 0, &out, &e) == FT_CAPACITY_ERROR &&
         out.count == 91 && out.sum == 92);
   const char *errors[] = {"bad", "99999", "+", "1", "2", "--3",
@@ -46,8 +46,8 @@ static void cases(void) {
 static void streams(void) {
   const unsigned char bytes[] = "2 -5 9";
   for (size_t split = 0; split <= sizeof bytes - 1; split++) {
-    FtStream s;
-    FtResult r = {91, 92};
+    struct ft_stream s;
+    struct ft_result r = {91, 92};
     ft_stream_init(&s);
     CHECK(ft_stream_feed(&s, bytes, split) == FT_OK);
     CHECK(ft_stream_feed(&s, bytes + split, sizeof bytes - 1 - split) == FT_OK);
@@ -55,14 +55,14 @@ static void streams(void) {
     CHECK(ft_stream_finish(&s, &r) == FT_STATE && r.sum == 6);
     CHECK(ft_stream_feed(&s, NULL, 0) == FT_STATE);
   }
-  FtStream s;
-  FtResult r = {91, 92};
+  struct ft_stream s;
+  struct ft_result r = {91, 92};
   ft_stream_init(&s);
   CHECK(ft_stream_feed(&s, (const unsigned char *)" \t\r\n", 4) == FT_OK);
   CHECK(ft_stream_finish(&s, &r) == FT_EMPTY && r.sum == 0);
   ft_stream_init(&s);
   CHECK(ft_stream_feed(&s, (const unsigned char *)"+", 1) == FT_OK);
-  r = (FtResult){91, 92};
+  r = (struct ft_result){91, 92};
   CHECK(ft_stream_finish(&s, &r) == FT_MALFORMED && r.sum == 92);
   ft_stream_init(&s);
   const unsigned char embedded[] = {'1', 0, '2'};
@@ -74,11 +74,11 @@ static void streams(void) {
   CHECK(ft_stream_feed(&s, (const unsigned char *)"7", 1) == FT_OK);
   CHECK(ft_stream_finish(&s, &r) == FT_OK && r.sum == 7 && r.count == 1);
   const char *failures[] = {"32768", "0 0 0 0 0", "32767 1 -1"};
-  const FtStatus statuses[] = {FT_RANGE, FT_CAPACITY_ERROR, FT_PREFIX};
+  const enum ft_status statuses[] = {FT_RANGE, FT_CAPACITY_ERROR, FT_PREFIX};
   for (unsigned j = 0; j < 3; ++j) {
     ft_stream_init(&s);
-    r = (FtResult){91, 92};
-    FtStatus feed = FT_OK;
+    r = (struct ft_result){91, 92};
+    enum ft_status feed = FT_OK;
     for (const unsigned char *p = (const unsigned char *)failures[j]; *p; ++p) {
       feed = ft_stream_feed(&s, p, 1);
       if (feed != FT_OK)

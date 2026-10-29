@@ -33,8 +33,8 @@ static void packet(unsigned char *p, uint32_t src, uint32_t dst) {
   p[11] = (unsigned char)s;
 }
 static int route(void) {
-  EhRoute r = {0xc0000202, 0xffffff00, 0xc0000201};
-  EhNeighbor n = {0xc0000201, {2, 0, 0, 0, 1, 1}};
+  struct eh_route r = {0xc0000202, 0xffffff00, 0xc0000201};
+  struct eh_neighbor n = {0xc0000201, {2, 0, 0, 0, 1, 1}};
   uint32_t next = 9;
   unsigned char p[40], out[100], old[100];
   size_t written = 999;
@@ -75,7 +75,7 @@ static int route(void) {
 static int clocks(void) {
   uint32_t t[3] = {0, 5, 20};
   uint64_t low[3], high[3];
-  EhClock c = {0, 100, 98, 102};
+  struct eh_clock c = {0, 100, 98, 102};
   ECHECK(ed_capture(t, 3, 100, 1, 0, low, high) == ED_OK && low[0] == 100 &&
              low[1] == 105 && low[2] == 120,
          "constant_offset");
@@ -103,7 +103,7 @@ static int clocks(void) {
   t[0] = 1;
   ECHECK(eh_correlate(&c, t, 1, low, high) == EH_INVALID && low[0] == 999,
          "clock_overflow");
-  c = (EhClock){0, 1000, 0, 0};
+  c = (struct eh_clock){0, 1000, 0, 0};
   t[0] = UINT32_MAX;
   ECHECK(eh_correlate(&c, t, 1, low, high) == EH_OK &&
              low[0] == 4290672327ULL && high[0] == 4299262263ULL,
@@ -116,8 +116,8 @@ static int divergence(void) {
   unsigned first = 99;
   unsigned char p[40], f[100];
   size_t n;
-  EDFrame v;
-  EhRoute r = {0xc0000202, 0xffffff00, 0};
+  struct ed_frame v;
+  struct eh_route r = {0xc0000202, 0xffffff00, 0};
   uint32_t next = 9;
   packet(p, r.local, 0xc6336409);
   ECHECK(ed_first_failure(0, &first) == ED_OK && first == 0, "first_link");
@@ -139,7 +139,7 @@ static int divergence(void) {
   return 0;
 }
 static int budget(void) {
-  EDBudget b;
+  struct ed_budget b;
   ECHECK(ed_budget(32, 100, &b) == ED_OK && b.ip == 72 && b.frame == 90 &&
              b.slot == 110 && b.nanoseconds == 8800,
          "ordinary_budget");

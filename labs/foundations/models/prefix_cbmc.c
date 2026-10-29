@@ -17,7 +17,7 @@ int main(void) {
     if (sum < INT32_MIN || sum > INT32_MAX)
       valid = 0;
   }
-  FStatus status = f_prefix(input, n, output, 4);
+  enum f_status status = f_prefix(input, n, output, 4);
   if (!valid) {
     assert(status == F_RANGE);
     for (unsigned i = 0; i < 4; i++)

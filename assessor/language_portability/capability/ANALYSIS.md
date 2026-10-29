@@ -6,7 +6,7 @@ IDs and shared contract; do not award all six objectives from one executable.
 ## T05.04.a ordinary and delayed
 
 The output structure receives a value copy while the literal is alive. Returning
-`&(LpValue){...}` from a function instead makes the caller's access occur after
+`&(struct lp_value){...}` from a function instead makes the caller's access occur after
 the automatic object's lifetime. That counterexample requires explanation,
 not an attempted output prediction. Restricted source/destination spans must
 be disjoint when destination writes modify objects also accessed through source.

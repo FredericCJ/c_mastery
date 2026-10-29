@@ -14,13 +14,13 @@ enum {
   CF_BUSY,
   CF_UNIMPLEMENTED = 99
 };
-typedef struct {
+struct cf_value {
   uint32_t sequence, inverse;
-} CfValue;
+};
 #ifndef CF_PAD
 #define CF_PAD 1
 #endif
-typedef struct {
+struct cf_ring {
 #if CF_PAD
   _Alignas(64)
 #endif
@@ -30,14 +30,14 @@ typedef struct {
 #endif
       atomic_uint tail;
   unsigned storage, limit, mask;
-  CfValue values[32];
-} CfRing;
+  struct cf_value values[32];
+};
 /* Exactly one producer and consumer, no reentry. Hook is bounded test-only,
  * returns normally and never accesses queue/payload or retains arguments. */
-typedef void (*CfHook)(void *);
-int cf_ring_init(CfRing *, unsigned storage, unsigned limit, unsigned bits);
-int cf_push(CfRing *, const CfValue *, unsigned n, CfHook, void *);
-int cf_pop(CfRing *, CfValue *, unsigned n, CfHook, void *);
+typedef void (*cf_hook_fn)(void *);
+int cf_ring_init(struct cf_ring *, unsigned storage, unsigned limit, unsigned bits);
+int cf_push(struct cf_ring *, const struct cf_value *, unsigned n, cf_hook_fn, void *);
+int cf_pop(struct cf_ring *, struct cf_value *, unsigned n, cf_hook_fn, void *);
 
 /* Checked counter: injected spuriosity is a test-side weak-CAS implementation
  * contract; actual C weak CAS still executes. Successful calls never wrap. */
@@ -45,22 +45,22 @@ int cf_increment(atomic_uint *, unsigned *old_value, unsigned *attempts,
                  unsigned injected_spurious);
 
 enum { CF_FREE, CF_RESERVED, CF_LINKED, CF_RETIRED, CF_RETIRED_FOREVER };
-typedef struct {
+struct cf_pool {
   atomic_uint state[32];
   unsigned generation_limit;
-} CfPool;
-typedef struct {
-  const CfPool *owner;
+};
+struct cf_ticket {
+  const struct cf_pool *owner;
   unsigned index, generation;
-} CfTicket;
-int cf_pool_init(CfPool *, unsigned generation_limit);
-int cf_take(CfPool *, unsigned worker, unsigned steal, CfTicket *,
+};
+int cf_pool_init(struct cf_pool *, unsigned generation_limit);
+int cf_take(struct cf_pool *, unsigned worker, unsigned steal, struct cf_ticket *,
             unsigned *scans);
-int cf_publish(CfPool *, CfTicket);
-int cf_cancel(CfPool *, CfTicket);
-int cf_retire(CfPool *, CfTicket);
+int cf_publish(struct cf_pool *, struct cf_ticket);
+int cf_cancel(struct cf_pool *, struct cf_ticket);
+int cf_retire(struct cf_pool *, struct cf_ticket);
 /* Sole retirement owner, after an external proof of no possible remaining
  * access. This predicate is a precondition, not a hazard-pointer
  * implementation. */
-int cf_reclaim(CfPool *, CfTicket);
+int cf_reclaim(struct cf_pool *, struct cf_ticket);
 #endif

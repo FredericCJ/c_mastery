@@ -9,7 +9,7 @@ implementations and technical answers are separately held by the assessor.
 
 ## Prerequisites and environment
 
-Use the retained `ed_mdio_word`, `ed_mdio_read`, `ed_phy_query` and `EDTx`
+Use the retained `ed_mdio_word`, `ed_mdio_read`, `ed_phy_query` and `struct ed_tx`
 interfaces from `ethernet_depth.h`. Submit the actual producer sources and
 contract recall, not a similarly named replacement. Knowledge: fixed-width
 arithmetic, register side effects, nonwrapping time, ownership and generation
@@ -44,7 +44,7 @@ controls and callback context are disjoint. The bus, clock context and owner
 outlive all calls and snapshots. One serialized owner performs all operations;
 callbacks terminate and neither reenter nor alter the control, and retain no
 borrowed pointer. Inputs and public control fields are not adversary-writable
-inside this contract. `EpLink` is an ordinary copyable C record, not an
+inside this contract. `struct ep_link` is an ordinary copyable C record, not an
 unforgeable authority token. Reinitializing an owner to make old snapshots
 appear current violates the contract.
 
@@ -96,7 +96,7 @@ owner identity, incarnation, mode and current-ready state. No snapshot can
 guarantee that a physical cable remains attached after the observation.
 
 MDIO/PHY readiness never acknowledges MAC DMA quiescence. The lease exercise
-composes the actual retained `EDTx`: link loss refuses further admission but
+composes the actual retained `struct ed_tx`: link loss refuses further admission but
 does not free an already published copy. Unconfirmed abort retains the lease;
 only the separate device-stop confirmation permits release. This experiment
 does not supply a normal descriptor ring or establish a physical DMA stop.
@@ -125,19 +125,19 @@ RMII/MDIO distinction, citing the named inspected source passages. Derive the
 four-stage reset/restart/query state machine and plausible wrong explanations.
 D2: implement the public API and actual imports; provide a pre/postcondition,
 ownership, output-publication and no-wrap argument for every function. Include
-a counterexample to treating `EpLink` or writable IDs as authentication.
+a counterexample to treating `struct ep_link` or writable IDs as authentication.
 D3: replay the exact fixtures and failure prefixes, provide independent expected
 packets and identify the first divergence for each flawed implementation.
 D4: submit native and target build commands, maps, retained assembly, undefined
 symbols, stack usage and code size. Account for one fixed control and snapshot;
-copy cost is constant, while `EDTx` separately owns two1514-byte slots.
+copy cost is constant, while `struct ed_tx` separately owns two1514-byte slots.
 D5: submit the original task, delayed variant and physical observation dossier
 as separate evidence dimensions; retain unavailable observations as gaps.
 
 A write has at most budget+1 CSR reads and three writes. Discovery has64
 read transactions. A PHY query has at most five. An outer step has at most
 five such transactions, so a steps×5 bound is conservative; reset/restart
-steps are cheaper. State storage is O(1), with no retained frame in `EpPhy`.
+steps are cheaper. State storage is O(1), with no retained frame in `struct ep_phy`.
 The teaching model stores32×32 synthetic registers and is a host/verification
 cost, not an embedded-driver requirement. The target harness reserves16KiB
 stack for these large synthetic test frames; this does not revise a historical

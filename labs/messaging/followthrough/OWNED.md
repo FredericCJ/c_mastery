@@ -1,7 +1,7 @@
 # Owned channel buffers and actor mailboxes
 
 This successor implements X-T73-002-R4 and X-T73-004-R2/R4 with the actual
-`MsgHub` and `MsgActor`, introducing the shared `MfoValue` owner representation in
+`struct msg_hub` and `struct msg_actor`, introducing the shared `struct mfo_value` owner representation in
 `owned_value.h`. X-T73-003 then consumes this representation and drop operation;
 the channel exercise does not depend on the later operation-state exercise.
 It is required work, not a replacement for the core channel/select and actor
@@ -12,7 +12,7 @@ destructors; incorrect owners can be demonstrated without using real data.
 
 ## Shared value owner
 
-`MfoValue` is a unique descriptor containing `data` and `drop`.
+`struct mfo_value` is a unique descriptor containing `data` and `drop`.
 A nonnull `data` requires a nonnull `drop`; a null `data` may still carry a drop
 callback representing another owned resource. An all-zero descriptor owns nothing.
 `mfo_drop` first copies the descriptor and clears the caller's descriptor, then
@@ -101,7 +101,7 @@ lifetimes separately, then draw both possible sender/receiver completion orders.
 
 ## Actor representation and restart
 
-A serialized `MfaActor` owns the actual four-message actor and five record slots
+A serialized `struct mfa_actor` owns the actual four-message actor and five record slots
 (four pending plus one current allowance). Messages carry record indices. The
 handler borrows the current value for its call and may enqueue another unique
 owner, including to itself, but cannot recursively dispatch, destroy or restart

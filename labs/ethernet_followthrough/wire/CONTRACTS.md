@@ -39,7 +39,7 @@ those functions without separate OSI protocol instances. HTTP connection
 identity is not user identity; TCP does not certify a command's authorization.
 
 The changed frame-to-stream service uses two big-endian length octets followed
-by 0..256 payload octets. `EwStream` owns one copied record; `ew_feed` consumes
+by 0..256 payload octets. `struct ew_stream` owns one copied record; `ew_feed` consumes
 only through its first completed record, reports `EW_READY`, and leaves a
 concatenated suffix with the caller. Further feed while ready consumes zero.
 `ew_take` copies the record and returns the control to empty; insufficient
@@ -63,7 +63,7 @@ symptom can originate upstream without changing the violated contract.
 
 Moving this boundary into the MCU transfers checksum/sequence/window/timer,
 ARP/routing/reassembly, frame-buffer and device lifetime responsibilities from
-the hosted stack. T41's actual `NbNet`/`NhHttp` composition is a later required
+the hosted stack. T41's actual `struct nb_net`/`struct nh_http` composition is a later required
 consumer, not an imported prerequisite that reverses the curriculum order.
 The local adapter does not claim to implement TCP or an HTTP server.
 

@@ -47,7 +47,7 @@ same entry. On **every** refusal the prior output representation is unchanged.
 On success all fields and retained entries are initialized in one final commit.
 
 `sa_discover` is an original finite mapping adapter: callers supply immutable
-`SaRegion` spans with exact physical bases. There are 1..16 nonempty regions,
+`struct sa_region` spans with exact physical bases. There are 1..16 nonempty regions,
 each with a live byte object, nonoverflowing exclusive end and no physical
 overlap. C object overlap with output is prohibited. It resolves complete
 headers then complete tables entirely within one region; it never converts an

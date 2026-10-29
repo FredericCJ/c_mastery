@@ -5,8 +5,8 @@ int main(int argc,char **argv) {
   FILE *input=fopen(argv[1],"r");if(!input) return 5;
   unsigned start,delay,elapsed;unsigned long cases=0;
   while(fscanf(input,"%u %u %u",&start,&delay,&elapsed)==3) {
-    AcDeadline d;int expired=77;
-    AcStatus status=ac_deadline(start,(AcWait){AC_FINITE,delay},&d);
+    struct ac_deadline d;int expired=77;
+    enum ac_status status=ac_deadline(start,(struct ac_wait){AC_FINITE,delay},&d);
     if(status==AC_OK) status=ac_expired(d,(start+elapsed)%256,&expired);
     printf("%u %d\n",(unsigned)status,expired);++cases;
   }

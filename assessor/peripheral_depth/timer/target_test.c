@@ -7,11 +7,11 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
+struct dg_reg {
   uintptr_t a;
   uint32_t v;
-} Reg;
-static Reg regs[64];
+};
+static struct dg_reg regs[64];
 static unsigned used, logn;
 static struct {
   uintptr_t a;
@@ -19,7 +19,7 @@ static struct {
   unsigned write;
 } logbook[256];
 static unsigned inject_capture, bad, stages;
-static Reg *reg(uintptr_t a) {
+static struct dg_reg *reg(uintptr_t a) {
   for (unsigned i = 0; i < used; i++)
     if (regs[i].a == a)
       return &regs[i];
@@ -53,7 +53,7 @@ void pt_write(uintptr_t a, uint32_t v) {
     reg(a)->v = v;
 }
 int main(void) {
-  PtConfig c = {16000000, 1, 15, 999, {250, 750}, 0};
+  struct pt_config c = {16000000, 1, 15, 999, {250, 750}, 0};
   unsigned out = 777, old;
   CHECK(pt_f439_start(&c) == PT_OK);
   CHECK(reg(0x40000418u)->v == 0x6868u && reg(0x40000400u)->v == 0x81u &&

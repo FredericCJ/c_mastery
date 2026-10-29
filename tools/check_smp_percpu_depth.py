@@ -1,4 +1,4 @@
-"""Validate per-CPU evidence, falsification controls and learner-only export."""
+"""Validate per-struct lr_cpu evidence, falsification controls and learner-only export."""
 import argparse,hashlib,json,re,subprocess,sys,tempfile
 from copy import deepcopy
 from datetime import datetime,timezone
@@ -52,7 +52,7 @@ def validate_campaign(value):
  if len(groups['guest'])!=36 or {(r['profile'],r['simd'],r['variant'],r['cpus'],r['model']) for r in groups['guest']}!=expected_guests:errors.append('Missing actual private/context/fault condition')
  for row in groups['guest']:
   cmd=row['execution']['command'];out=text(row['execution']);positive=row['variant']==0
-  if cmd[0]!='qemu-system-x86_64' or cmd[cmd.index('-machine')+1]!='pc-i440fx-10.2' or cmd[cmd.index('-cpu')+1]!=row['model'] or cmd[cmd.index('-smp')+1]!=('4,sockets=2,cores=3,threads=1,maxcpus=6' if row['cpus']==4 else str(row['cpus'])) or 'tcg,thread=multi' not in cmd or cmd[cmd.index('-net')+1]!='none':errors.append('Wrong isolated actual CPU matrix')
+  if cmd[0]!='qemu-system-x86_64' or cmd[cmd.index('-machine')+1]!='pc-i440fx-10.2' or cmd[cmd.index('-cpu')+1]!=row['model'] or cmd[cmd.index('-smp')+1]!=('4,sockets=2,cores=3,threads=1,maxcpus=6' if row['cpus']==4 else str(row['cpus'])) or 'tcg,thread=multi' not in cmd or cmd[cmd.index('-net')+1]!='none':errors.append('Wrong isolated actual struct lr_cpu matrix')
   try:
    semantic(out,row['execution']['exit_code'],row['variant'],True)
    if positive and oracle.check_guest(out,row['cpus'],row['simd'])!=row['expected']:errors.append('Wrong actual extent/frame/progress expectation')
@@ -75,10 +75,10 @@ def validate_campaign(value):
 def main(report):
  from research.v5.expansion.legacy_smp_percpu.author_support import attach,SUPPORT
  destination=(ROOT/report).resolve()
- if not destination.is_relative_to(BASE.resolve()):raise ValueError('Use per-CPU evidence directory')
+ if not destination.is_relative_to(BASE.resolve()):raise ValueError('Use per-struct lr_cpu evidence directory')
  campaign=BASE/'campaign.json';value=json.loads(campaign.read_text(encoding='utf-8'));validate_campaign(value);checks=[{'name':'86-current-mechanism-observations','passed':True}]
  def pick(d,kind,**fields):return next(r for r in d['observations'] if r['target']==kind and all(r.get(k)==v for k,v in fields.items()))
- controls=[('missing-target',lambda d:d['observations'].pop()),('host-build-failure',lambda d:pick(d,'host')['build'].update(exit_code=1)),('guest-build-failure',lambda d:next(c for c in d['commands'] if c['command'][0]=='ld' and '-nostdlib' in c['command']).update(exit_code=1)),('crash-not-mutant',lambda d:pick(d,'guest',variant=1)['execution'].update(exit_code=139)),('wrong-CPU-count',lambda d:pick(d,'guest',cpus=4).update(cpus=3)),('wrong-source',lambda d:d['inspected_paths'].update({'assessor/legacy_smp/percpu.c':'0'*64})),('wrong-log',lambda d:d['log_sha256'].update({next(iter(d['log_sha256'])):'0'*64})),('wrong-oracle',lambda d:pick(d,'oracle')['expected'].update(rows=0)),('wrong-frame-budget',lambda d:pick(d,'frame-audit')['expected'].update(finite_task_bytes=1)),('wrong-SIMD-mode',lambda d:pick(d,'guest',simd=1)['instrumentation'].update(simd=0)),('missing-sanitizer',lambda d:pick(d,'host',profile='gcc-asan')['build']['command'].remove('-fsanitize=address,undefined')),('wrong-ABI',lambda d:pick(d,'abi',abi='aapcs32').update(abi='sysv-amd64'))]
+ controls=[('missing-target',lambda d:d['observations'].pop()),('host-build-failure',lambda d:pick(d,'host')['build'].update(exit_code=1)),('guest-build-failure',lambda d:next(c for c in d['commands'] if c['command'][0]=='ld' and '-nostdlib' in c['command']).update(exit_code=1)),('crash-not-mutant',lambda d:pick(d,'guest',variant=1)['execution'].update(exit_code=139)),('wrong-struct lr_cpu-count',lambda d:pick(d,'guest',cpus=4).update(cpus=3)),('wrong-source',lambda d:d['inspected_paths'].update({'assessor/legacy_smp/percpu.c':'0'*64})),('wrong-log',lambda d:d['log_sha256'].update({next(iter(d['log_sha256'])):'0'*64})),('wrong-oracle',lambda d:pick(d,'oracle')['expected'].update(rows=0)),('wrong-frame-budget',lambda d:pick(d,'frame-audit')['expected'].update(finite_task_bytes=1)),('wrong-SIMD-mode',lambda d:pick(d,'guest',simd=1)['instrumentation'].update(simd=0)),('missing-sanitizer',lambda d:pick(d,'host',profile='gcc-asan')['build']['command'].remove('-fsanitize=address,undefined')),('wrong-ABI',lambda d:pick(d,'abi',abi='aapcs32').update(abi='sysv-amd64'))]
  for name,mutate in controls:
   changed=deepcopy(value);mutate(changed)
   try:validate_campaign(changed);rejected=False
@@ -89,7 +89,7 @@ def main(report):
   except ValueError:rejected=True
   checks.append({'name':name,'passed':rejected})
  sample=pick(value,'guest',cpus=4,simd=1,variant=0);trace=content(sample['execution']['log']).decode()
- for name,bad in [('duplicate-CPU',trace.replace('index=3 apic=4','index=3 apic=2')),('missing-emergency-fault',trace.replace('gp=1','gp=0')),('false-peer-progress',re.sub(r'peer_after=\d+','peer_after=0',trace)),('missing-range',re.sub(r'SP_RANGE cpu=3 kind=8[^\n]*\n','',trace))]:
+ for name,bad in [('duplicate-struct lr_cpu',trace.replace('index=3 apic=4','index=3 apic=2')),('missing-emergency-fault',trace.replace('gp=1','gp=0')),('false-peer-progress',re.sub(r'peer_after=\d+','peer_after=0',trace)),('missing-range',re.sub(r'SP_RANGE cpu=3 kind=8[^\n]*\n','',trace))]:
   try:oracle.check_guest(bad,4,1);rejected=False
   except ValueError:rejected=True
   checks.append({'name':name,'passed':rejected})
@@ -101,6 +101,6 @@ def main(report):
   cmd=['gcc','-std=c17','-Wall','-Wextra','-Werror','-pedantic','-I'+str(public),str(public/'percpu.c'),str(public/'tests.c'),'-o',str(binary)];build=subprocess.run(cmd,capture_output=True,text=True,timeout=30);execution=subprocess.run([binary],capture_output=True,text=True,timeout=10) if build.returncode==0 else None;checks.append({'name':'exported-stub-semantic-rejection','passed':build.returncode==0 and execution is not None and execution.returncode==1 and 'SP_CHECK:' in execution.stderr,'build':cmd,'build_exit':build.returncode,'output':build.stdout+build.stderr+(execution.stdout+execution.stderr if execution else '')})
  support=ROOT/SUPPORT;data=json.loads(support.read_text(encoding='utf-8'));ids={c['id'] for c in current['criteria']}|{v['id'] for c in current['criteria'] for v in c['variants']}|{'G-LCON-PR-T53-03'}
  checks.extend([{'name':'exact-seven-original-identities','passed':len(data['updates'])==7 and {r['id'] for r in data['updates']}==ids and all(r['dimensions']['independent_learner']['state']=='not-assessed' for r in data['updates'])},{'name':'support-pins-current','passed':all(hashlib.sha256(local_file(p).read_bytes()).hexdigest()==h for p,h in data['source_sha256'].items())}])
- paths=[Path(__file__).resolve(),ROOT/'tools/check_expansion_campaigns.py',ROOT/'tools/run_smp_percpu_depth.py',ROOT/'cmastery/assessments.py',ROOT/'research/v5/expansion/legacy_concurrency/author_supplements.py',ROOT/'research/v5/expansion/legacy_smp_percpu/author_support.py',support,path,campaign];result={'schema_version':1,'created_utc':datetime.now(timezone.utc).isoformat(),'passed':all(r['passed'] for r in checks),'checks':checks,'inspected_paths':{p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in paths},'scope':'Per-CPU finite author evidence, negative controls and public export; no independent learner/physical or arbitrary-fault recovery claim.'};destination.write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8',newline='\n');print(json.dumps({'passed':result['passed'],'checks':len(checks),'failed':[r['name'] for r in checks if not r['passed']]}));return 0 if result['passed'] else 1
+ paths=[Path(__file__).resolve(),ROOT/'tools/check_expansion_campaigns.py',ROOT/'tools/run_smp_percpu_depth.py',ROOT/'cmastery/assessments.py',ROOT/'research/v5/expansion/legacy_concurrency/author_supplements.py',ROOT/'research/v5/expansion/legacy_smp_percpu/author_support.py',support,path,campaign];result={'schema_version':1,'created_utc':datetime.now(timezone.utc).isoformat(),'passed':all(r['passed'] for r in checks),'checks':checks,'inspected_paths':{p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in paths},'scope':'Per-struct lr_cpu finite author evidence, negative controls and public export; no independent learner/physical or arbitrary-fault recovery claim.'};destination.write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8',newline='\n');print(json.dumps({'passed':result['passed'],'checks':len(checks),'failed':[r['name'] for r in checks if not r['passed']]}));return 0 if result['passed'] else 1
 if __name__=='__main__':
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--report',required=True);raise SystemExit(main(p.parse_args().report))

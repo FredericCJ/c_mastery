@@ -15,15 +15,15 @@ static void tasks(cmx_kernel *k, unsigned count) {
   for (unsigned t = 0; t < count; ++t)
     CHECK(cmx_task_add(k, 9 - t % 8, 0, 4096 + t * 512, 256) == (int)t);
 }
-static void ledger(const CDSem *s) {
-  const CWObject *o = &s->wait.objects[0];
+static void ledger(const struct cd_sem *s) {
+  const struct cw_object *o = &s->wait.objects[0];
   CHECK((uint64_t)s->initial + o->posts == o->acquired + o->semaphore.count);
 }
 static void counting(void) {
   cmx_kernel k;
-  CDSem s;
-  CWToken a, b;
-  CDPost post;
+  struct cd_sem s;
+  struct cw_token a, b;
+  struct cd_post post;
   tasks(&k, 2);
   CHECK(cds_init(&s, &k, 1, 2, 0) == CMX_OK);
   CHECK(cds_take(&s, 0, cmx_forever(), &a) == CMX_OK);
@@ -37,7 +37,7 @@ static void counting(void) {
   ledger(&s);
   CHECK(cds_post(&s, &post) == CMX_OK);
   ledger(&s);
-  post = (CDPost){99, 98, 97, 96};
+  post = (struct cd_post){99, 98, 97, 96};
   CHECK(cds_post(&s, &post) == CMX_FULL && post.scanned == 99 &&
         post.eligible == 98 && post.woke == 97 && post.defer_schedule == 96);
   ledger(&s);
@@ -56,7 +56,7 @@ static void counting(void) {
   CHECK(cds_init(&s, &k, 1, 1, 0) == CMX_OK);
   CHECK(cds_post(&s, &post) == CMX_FULL);
   CHECK(cds_take(&s, 0, cmx_forever(), &a) == CMX_OK);
-  CWToken sentinel = a;
+  struct cw_token sentinel = a;
   CHECK(cds_take(&s, 0, cmx_at(k.now), &a) == CMX_TIMEOUT &&
         a.operation == sentinel.operation);
   ledger(&s);
@@ -73,9 +73,9 @@ static void orders(void) {
             unsigned fourth = 6 - first - second - third;
             unsigned order[4] = {first, second, third, fourth};
             cmx_kernel k;
-            CDSem s;
-            CWToken token;
-            CDPost post;
+            struct cd_sem s;
+            struct cw_token token;
+            struct cd_post post;
             tasks(&k, 1);
             CHECK(cds_init(&s, &k, 0, 2, 0) == CMX_OK);
             CHECK(cds_take(&s, 0, cmx_at(1), &token) == CMX_BLOCKED);
@@ -118,9 +118,9 @@ static void priority(void) {
   unsigned probes = 0;
   for (unsigned count = 0; count <= CMX_TASKS; ++count) {
     cmx_kernel k;
-    CDSem s;
-    CWToken tokens[CMX_TASKS];
-    CDPost post;
+    struct cd_sem s;
+    struct cw_token tokens[CMX_TASKS];
+    struct cd_post post;
     tasks(&k, count);
     CHECK(cds_init(&s, &k, 0, 2, 1) == CMX_OK);
     for (unsigned t = 0; t < count; ++t)
@@ -142,9 +142,9 @@ static void priority(void) {
   CHECK(probes == 272);
   /* An endless supply of urgent waiters may starve the same low waiter. */
   cmx_kernel k;
-  CDSem s;
-  CWToken low, high;
-  CDPost post;
+  struct cd_sem s;
+  struct cw_token low, high;
+  struct cd_post post;
   tasks(&k, 2);
   CHECK(cds_init(&s, &k, 0, 1, 1) == CMX_OK);
   CHECK(cds_take(&s, 0, cmx_forever(), &low) == CMX_BLOCKED);
@@ -160,9 +160,9 @@ static void priority(void) {
 }
 static void deferred(void) {
   cmx_kernel k;
-  CDSem s;
-  CDDeferred d;
-  CWToken token;
+  struct cd_sem s;
+  struct cd_deferred d;
+  struct cw_token token;
   unsigned done = 99;
   tasks(&k, 1);
   CHECK(cds_init(&s, &k, 1, 1, 0) == CMX_OK &&

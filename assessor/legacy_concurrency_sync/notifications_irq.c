@@ -16,7 +16,7 @@ void cdn_irq_restore(uint32_t value) {
 static unsigned exception(void) {
   unsigned value;__asm__ volatile("mrs %0,ipsr":"=r"(value));return value;
 }
-int cdn_irq_post(CDNHandle h,uint32_t count,CDNPost *out) {
+int cdn_irq_post(struct cdn_handle h,uint32_t count,struct cdn_post *out) {
   unsigned number=exception();
   if(CDN_IRQ_MUTANT!=3 && number!=0 && number!=14)
     if(number<16 || number>=256 || REG8(0xe000e400u+number-16)<CDN_KERNEL_THRESHOLD)
@@ -30,7 +30,7 @@ int cdn_irq_post(CDNHandle h,uint32_t count,CDNPost *out) {
   }
   cdn_irq_restore(saved);return result;
 }
-int cdn_thread_wait(CDNHandle h,uint32_t up_to,cmx_deadline deadline) {
+int cdn_thread_wait(struct cdn_handle h,uint32_t up_to,cmx_deadline deadline) {
   uint32_t primask,basepri,faultmask;
   __asm__ volatile("mrs %0,primask\nmrs %1,basepri\nmrs %2,faultmask":"=r"(primask),"=r"(basepri),"=r"(faultmask));
   if(exception()||primask||basepri||faultmask)return CMX_INVALID;

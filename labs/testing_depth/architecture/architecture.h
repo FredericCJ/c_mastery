@@ -5,35 +5,35 @@
 /* Caller-owned typed objects, disjoint and live; serialized calls only.
    Read CONTRACTS.md before using these operations. No hidden allocation. */
 enum { TA_MAX=8, TA_NONE=8 };
-typedef enum { TA_OK, TA_FULL, TA_EMPTY, TA_INVALID, TA_AGAIN,
-               TA_TIMEOUT, TA_IO, TA_DONE, TA_CANCELLED } TaStatus;
-typedef enum { TA_RING, TA_COMPACT, TA_LINKED, TA_COUNTED } TaLayout;
-typedef struct { unsigned char value; unsigned next; } TaNode;
-typedef struct { unsigned char bytes[TA_MAX+1]; TaNode nodes[TA_MAX]; } TaStorage;
-typedef struct {
- TaStorage *storage; TaLayout layout;
+enum ta_status { TA_OK, TA_FULL, TA_EMPTY, TA_INVALID, TA_AGAIN,
+               TA_TIMEOUT, TA_IO, TA_DONE, TA_CANCELLED };
+enum ta_layout { TA_RING, TA_COMPACT, TA_LINKED, TA_COUNTED };
+struct ta_node { unsigned char value; unsigned next; };
+struct ta_storage { unsigned char bytes[TA_MAX+1]; struct ta_node nodes[TA_MAX]; };
+struct ta_queue {
+ struct ta_storage *storage; enum ta_layout layout;
  unsigned capacity,extent,head,tail,count,free_head;
-} TaQueue;
-TaStatus ta_init(TaQueue *,TaStorage *,TaLayout,unsigned capacity,unsigned extent);
-TaStatus ta_push(TaQueue *,unsigned char);
-TaStatus ta_pop(TaQueue *,unsigned char *);
-TaStatus ta_peek(const TaQueue *,unsigned char *);
-size_t ta_count(const TaQueue *);
+};
+enum ta_status ta_init(struct ta_queue *,struct ta_storage *,enum ta_layout,unsigned capacity,unsigned extent);
+enum ta_status ta_push(struct ta_queue *,unsigned char);
+enum ta_status ta_pop(struct ta_queue *,unsigned char *);
+enum ta_status ta_peek(const struct ta_queue *,unsigned char *);
+size_t ta_count(const struct ta_queue *);
 /* Batch: accepted prefix is committed; *accepted is defined on every result. */
-TaStatus ta_batch(TaQueue *,const unsigned char *,size_t,size_t *accepted);
+enum ta_status ta_batch(struct ta_queue *,const unsigned char *,size_t,size_t *accepted);
 /* Separate representation-specific diagnostic, not the behavioral oracle. */
-int ta_invariant(const TaQueue *);
+int ta_invariant(const struct ta_queue *);
 /* Original packet: exactly {2,a,b}; staged decoder output on valid input. */
-TaStatus ta_decode(const unsigned char *,size_t,unsigned char out[2]);
-typedef enum { TA_WRITE_OK, TA_WRITE_WAIT, TA_WRITE_ERROR } TaWriteStatus;
-typedef struct { TaWriteStatus status; size_t count; } TaWriteResult;
-typedef TaWriteResult (*TaWrite)(void *,const unsigned char *,size_t);
-typedef struct {
- TaQueue queue; TaStorage storage; unsigned char bytes[2];
- size_t offset; unsigned budget; TaStatus state; int uncertain;
-} TaFlow;
+enum ta_status ta_decode(const unsigned char *,size_t,unsigned char out[2]);
+enum ta_write_status { TA_WRITE_OK, TA_WRITE_WAIT, TA_WRITE_ERROR };
+struct ta_write_result { enum ta_write_status status; size_t count; };
+typedef struct ta_write_result (*ta_write_fn)(void *,const unsigned char *,size_t);
+struct ta_flow {
+ struct ta_queue queue; struct ta_storage storage; unsigned char bytes[2];
+ size_t offset; unsigned budget; enum ta_status state; int uncertain;
+};
 /* Fresh destination; admitted begin copies packet and retains no input borrow. */
-TaStatus ta_begin(TaFlow *,const unsigned char *,size_t,TaLayout,unsigned budget);
-TaStatus ta_step(TaFlow *,TaWrite,void *);
-TaStatus ta_cancel(TaFlow *);
+enum ta_status ta_begin(struct ta_flow *,const unsigned char *,size_t,enum ta_layout,unsigned budget);
+enum ta_status ta_step(struct ta_flow *,ta_write_fn,void *);
+enum ta_status ta_cancel(struct ta_flow *);
 #endif

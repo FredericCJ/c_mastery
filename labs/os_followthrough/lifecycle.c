@@ -17,12 +17,12 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
+struct of_arg {
   atomic_uint *counter;
   unsigned id;
-} Arg;
+};
 static void *worker(void *v) {
-  Arg *a = v;
+  struct of_arg *a = v;
   for (unsigned i = 0; i < 1000; i++)
     atomic_fetch_add_explicit(a->counter, 1, memory_order_relaxed);
   pthread_exit(a);
@@ -31,7 +31,7 @@ static int threads(unsigned fail) {
   atomic_uint count;
   atomic_init(&count, 0);
   pthread_t owned[2];
-  Arg args[2] = {{&count, 0}, {&count, 1}};
+  struct of_arg args[2] = {{&count, 0}, {&count, 1}};
   unsigned made = 0, joined = 0;
   int first_error = 0;
   for (; made < 2; made++) {
@@ -55,12 +55,12 @@ static int threads(unsigned fail) {
          made, joined, atomic_load(&count), first_error);
   return 0;
 }
-typedef struct {
+struct of_shared {
   sem_t ready;
   unsigned published, value;
-} Shared;
+};
 static int process(unsigned fail, unsigned shared_result) {
-  Shared *shared = mmap(NULL, sizeof *shared, PROT_READ | PROT_WRITE,
+  struct of_shared *shared = mmap(NULL, sizeof *shared, PROT_READ | PROT_WRITE,
                         MAP_SHARED | MAP_ANONYMOUS, -1, 0);
   CHECK(shared != MAP_FAILED);
   memset(shared, 0, sizeof *shared);

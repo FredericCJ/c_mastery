@@ -10,8 +10,8 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-static RpmPermit permit(uint64_t id) {
-  RpmPermit p = {0};
+static struct rpm_permit permit(uint64_t id) {
+  struct rpm_permit p = {0};
   unsigned i;
   p.uuid = 9;
   p.writer = id;
@@ -21,13 +21,13 @@ static RpmPermit permit(uint64_t id) {
     p.key[i] = (unsigned char)(i + id);
   return p;
 }
-static int equal(const RpmCounter *a, const RpmCounter *b) {
+static int equal(const struct rpm_counter *a, const struct rpm_counter *b) {
   unsigned char x[160], y[160];
   return rpm_encode(a, x) == RPM_OK && rpm_encode(b, y) == RPM_OK &&
          !memcmp(x, y, 160);
 }
 static int join(void) {
-  RpmCounter a, b, c, d, saved;
+  struct rpm_counter a, b, c, d, saved;
   int64_t value;
   unsigned i;
   CHECK(rpm_make(9, 10, &a) == RPM_OK);
@@ -57,7 +57,7 @@ static int join(void) {
   return 0;
 }
 static int laws(void) {
-  RpmCounter states[16], a, b, c, d;
+  struct rpm_counter states[16], a, b, c, d;
   unsigned i, j, k;
   for (i = 0; i < 16; ++i) {
     CHECK(rpm_make(9, 10, &states[i]) == RPM_OK);
@@ -85,7 +85,7 @@ static int laws(void) {
   return 0;
 }
 static int wire(void) {
-  RpmCounter a, b, saved;
+  struct rpm_counter a, b, saved;
   unsigned char bytes[160], changed[160];
   unsigned i;
   CHECK(rpm_make(9, 10, &a) == RPM_OK);
@@ -108,8 +108,8 @@ static int wire(void) {
   return 0;
 }
 static int auth(void) {
-  RpmCounter a, b, out, saved;
-  RpmPermit p = permit(20), unlimited;
+  struct rpm_counter a, b, out, saved;
+  struct rpm_permit p = permit(20), unlimited;
   unsigned char bytes[64], changed[64];
   unsigned i;
   int64_t value;
@@ -150,8 +150,8 @@ static int auth(void) {
   return 0;
 }
 static int replay(void) {
-  RpmCounter a, b, next, out;
-  RpmPermit p = permit(20);
+  struct rpm_counter a, b, next, out;
+  struct rpm_permit p = permit(20);
   unsigned char old[64], newer[64];
   int64_t value;
   CHECK(rpm_make(9, 10, &a) == RPM_OK);
@@ -182,14 +182,14 @@ static void printhex(const unsigned char *p, size_t n) {
     printf("%02x", p[i]);
 }
 static int oracle(void) {
-  RpmCounter state[3], next;
+  struct rpm_counter state[3], next;
   char op;
   unsigned a, b;
   uint64_t amount;
   unsigned char wirebytes[160], packet[64];
   int status = 0;
   int64_t value;
-  RpmPermit p;
+  struct rpm_permit p;
   while (scanf(" %c %u %u %" SCNu64, &op, &a, &b, &amount) == 4) {
     CHECK(a < 3);
     if (op == 'I') {
@@ -228,7 +228,7 @@ static int oracle(void) {
 static int metrics(void) {
   printf("{\"counter_size\":%zu,\"permit_size\":%zu,\"component_bytes\":16,"
          "\"snapshot_bytes\":160,\"packet_bytes\":64,\"capacity\":6}\n",
-         sizeof(RpmCounter), sizeof(RpmPermit));
+         sizeof(struct rpm_counter), sizeof(struct rpm_permit));
   return 0;
 }
 int main(int argc, char **argv) {

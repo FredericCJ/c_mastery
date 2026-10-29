@@ -13,7 +13,7 @@ output or admitted attempt. A malicious uniform-source claim should lose R2
 credit even when the residue test passes.
 
 The actual implementation borrows the immutable cancellation chain through
-`RzfBorrow`, and separately borrows its transport and limiter. Every send is
+`struct rzf_borrow`, and separately borrows its transport and limiter. Every send is
 charged before calling the sink, including dropped original/retry sends.
 Cancellation changes admissible future starts; it cannot release the flight's
 scope or reverse a previously observed receiver effect. The16 loss masks make

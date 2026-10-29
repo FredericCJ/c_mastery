@@ -10,14 +10,14 @@
   } while (0)
 static int run_case(unsigned count, unsigned swapped, unsigned fail,
                     unsigned mask, unsigned consumes, unsigned style) {
-  AcLedger ledger = {0};
+  struct ac_ledger ledger = {0};
   for (unsigned i = 0; i < 4; ++i)
     ledger.consume_on_error[i] = !!(consumes & (1u << i));
-  AeConstruction c;
+  struct ae_construction c;
   ae_construction_init(&c, &ledger);
-  AeConstructionHandle out = {0, 99};
-  AeCode r = ae_construct(&c, count, swapped, fail, mask,
-                          (AeConstructionStyle)style, &out);
+  struct ae_construction_handle out = {0, 99};
+  enum ae_code r = ae_construct(&c, count, swapped, fail, mask,
+                          (enum ae_construction_style)style, &out);
   unsigned order[4] = {swapped ? 1u : 0u, swapped ? 0u : 1u, 2, 3};
   unsigned acquired = fail && fail <= count ? fail - 1 : count;
   unsigned remaining = 0;
@@ -71,15 +71,15 @@ int main(void) {
               CHECK(!run_case(count, swapped, fail, mask, consumes, style));
               ++cases;
             }
-  AcLedger ledger = {0};
-  AeConstruction c;
+  struct ac_ledger ledger = {0};
+  struct ae_construction c;
   ae_construction_init(&c, &ledger);
-  AeConstructionHandle h = {0};
+  struct ae_construction_handle h = {0};
   CHECK(ae_construct(&c, 3, 0, 2, 0, AE_LABELS, &h) == AE_EXHAUSTED);
   CHECK(ae_cleanup(&c, 0) == AE_OK && ae_cleanup(&c, 0) == AE_OK);
   CHECK(ae_construct(&c, 3, 0, 0, 0, AE_LABELS, &h) == AE_OK &&
         h.generation == 2);
-  AeConstructionHandle old = h;
+  struct ae_construction_handle old = h;
   CHECK(ae_construct(&c, 3, 0, 0, 0, AE_NESTED, &h) == AE_CONFLICT &&
         h.generation == 2);
   CHECK(ae_cleanup(&c, 0) == AE_OK && ae_cleanup(&c, 0) == AE_OK);
@@ -90,7 +90,7 @@ int main(void) {
   CHECK(ae_construction_read(h, &value) == AE_OK && value == 7);
   CHECK(ae_cleanup(&c, 0) == AE_OK);
   CHECK(ae_construct(&c, 3, 0, 0, 0, AE_LOOP, &h) == AE_FULL);
-  ledger = (AcLedger){0};
+  ledger = (struct ac_ledger){0};
   ae_construction_init(&c, &ledger);
   CHECK(ae_construct(&c, 3, 0, 0, 0, AE_NESTED, &h) == AE_OK);
   CHECK(ae_transfer(&c, 2) == AE_OK && c.transfers[0].resource == 2 &&
@@ -100,7 +100,7 @@ int main(void) {
   CHECK(ae_cleanup(&c, 0) == AE_OK);
   for (unsigned i = 0; i < 3; ++i)
     CHECK(ledger.acquisitions[i] == 1 && ledger.releases[i] == 1);
-  ledger = (AcLedger){0};
+  ledger = (struct ac_ledger){0};
   ae_construction_init(&c, &ledger);
   CHECK(ae_construct(&c, 3, 0, 0, 0, AE_LOOP, &h) == AE_OK);
   CHECK(ae_after_publish(&c, 1) == AE_AMBIGUOUS && c.committed && c.published &&

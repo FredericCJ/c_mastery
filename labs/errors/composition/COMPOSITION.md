@@ -5,14 +5,14 @@ The early scalar stage uses the actual `er_map`/`er_then` contract after
 X-T65-003. Return for the owning stage after X-T66-009/PR-T66-09
 `memory.adversarial_allocator` and X-T65-001's owning-option stage. Supply the
 completed `ownership` workspace explicitly. Reuse the learner's actual
-`EopOwner` implementation in the errors workspace. This later return does not
+`struct eop_owner` implementation in the errors workspace. This later return does not
 create a reverse prerequisite from early T65 to T66. C17 hosted Linux with exact
 int32_t/uint32_t, GCC and Clang; no strict freestanding or hardware claim.
 
 ## Representation, operations and invariants
 
-`ErcResult` is EMPTY, VALUE with one live uniquely owned EopOwner, or ERROR with
-an `ErcError`. The error contains 1..4 causes, oldest/innermost first. Each cause
+`struct erc_result` is EMPTY, VALUE with one live uniquely owned EopOwner, or ERROR with
+an `struct erc_error`. The error contains 1..4 causes, oldest/innermost first. Each cause
 has nonzero domain and code and an exact size_t offset; SIZE_MAX is meaningful.
 No error string, allocator, pointer or padding is part of error equality. Empty
 destination controls are zero initialized or previously dropped. Controls and

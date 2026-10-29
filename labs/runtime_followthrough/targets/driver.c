@@ -19,7 +19,7 @@ int main(void) {
   }
   zeroed = initialized;
   puts("VX_STARTUP_PASS data=305419896 bss=0");
-  KfVmReport r;
+  struct kf_vm_report r;
   volatile const uint8_t *wire = kf_vm_bytes;
   printf("VX_BYTES");
   for (unsigned i = 0; i < sizeof kf_vm_bytes; i++)
@@ -31,7 +31,7 @@ int main(void) {
     return 1;
   }
   for (unsigned i = 0; i < 6; i++) {
-    KfVmResult *c = &r.cases[i];
+    struct kf_vm_result *c = &r.cases[i];
     printf("KF_VM:%u:%u:", i, (unsigned)c->status);
     signed_value(c->value);
     printf(":%u:%u:%u:%u\n", c->calls, c->loop_iterations,

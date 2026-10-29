@@ -5,8 +5,8 @@
 #ifndef BF_MODEL
 #define BF_MODEL 0
 #endif
-static BfBox box;
-static B3Mailbox old;
+static struct bf_box box;
+static struct b3_mailbox old;
 static void *first(void*v){(void)v;
 #if BF_MODEL
  (void)b3_publish(&old,1);(void)b3_publish(&old,2);

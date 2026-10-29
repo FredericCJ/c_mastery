@@ -6,11 +6,11 @@ __attribute__((noreturn)) static void stop(unsigned code){uint32_t args[2]={0x20
 static void exercise(void){
  const uint32_t a[5]={0,7,7,0x80000000u,UINT32_MAX};uint32_t out,validation;
  CHECK(ab_checked(NULL,0,0,8,0,&out,&validation)==0 && !out);
- for(unsigned i=0;i<5;++i){uint32_t expected=0;while(expected<5 && a[expected]<a[i])++expected;ABTrace trace;CHECK(ab_trace(a,5,a[i],0,&trace)==0 && trace.index==expected && trace.count==3);CHECK(algo_abi_probe(a,5,a[i],&out)==1 && out==expected);CHECK(ab_callback_abi_probe(a,5,a[i],&out)==1 && out==expected);CHECK(ab_checked(a,5,5,a[i],0,&out,&validation)==0 && out==expected && validation==4);
-  for(unsigned poison=0;poison<2;++poison){ABContext context={0,0,poison?0xdeadbeefu:0x13579bdu};CHECK(ab_callback_lower(a,5,a[i],ab_poison,&context)==expected && context.calls==3 && context.misaligned==0);}
+ for(unsigned i=0;i<5;++i){uint32_t expected=0;while(expected<5 && a[expected]<a[i])++expected;struct ab_trace trace;CHECK(ab_trace(a,5,a[i],0,&trace)==0 && trace.index==expected && trace.count==3);CHECK(algo_abi_probe(a,5,a[i],&out)==1 && out==expected);CHECK(ab_callback_abi_probe(a,5,a[i],&out)==1 && out==expected);CHECK(ab_checked(a,5,5,a[i],0,&out,&validation)==0 && out==expected && validation==4);
+  for(unsigned poison=0;poison<2;++poison){struct ab_context context={0,0,poison?0xdeadbeefu:0x13579bdu};CHECK(ab_callback_lower(a,5,a[i],ab_poison,&context)==expected && context.calls==3 && context.misaligned==0);}
  }
  uint32_t single[1]={0x80000000u};CHECK(algo_asm_lower(single,1,UINT32_MAX)==1 && algo_asm_lower(single,1,0)==0);
- ABTrace upper;CHECK(ab_trace(a,5,7,1,&upper)==0 && upper.index==3);
+ struct ab_trace upper;CHECK(ab_trace(a,5,7,1,&upper)==0 && upper.index==3);
  const algo_pair records[3]={{0,1},{7,2},{7,3}};size_t index=99;CHECK(ab_records_checked(records,3,3,7,&index)==0 && index==1);CHECK(ab_records_checked(records,SIZE_MAX,SIZE_MAX,7,&index)==1 && index==1);
  uint32_t repeated[1024];for(unsigned i=0;i<1024;++i)repeated[i]=7;CHECK(algo_abi_probe(repeated,1024,7,&out)==1 && out==0);CHECK(algo_abi_probe(repeated,1024,8,&out)==1 && out==1024);
  uint32_t bad[2]={2,1};out=99;CHECK(ab_checked(bad,2,2,1,0,&out,&validation)==1 && out==99);

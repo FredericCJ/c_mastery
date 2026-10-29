@@ -21,7 +21,7 @@ static int before(uint32_t a, uint32_t b) {
   return a != b && b - a < UINT32_C(0x80000000);
 }
 static unsigned sum(const void *p, size_t n) {
-  SChecksum s = {0, 0, 0};
+  struct s_checksum s = {0, 0, 0};
   (void)s_checksum_add(&s, p, n);
   uint16_t value = 0;
   (void)s_checksum_finish(&s, &value);
@@ -30,7 +30,7 @@ static unsigned sum(const void *p, size_t n) {
 static unsigned tcp_sum(const unsigned char *ip, const unsigned char *p,
                         size_t n) {
   unsigned char tail[4] = {0, 6, (unsigned char)(n >> 8), (unsigned char)n};
-  SChecksum s = {0, 0, 0};
+  struct s_checksum s = {0, 0, 0};
   (void)s_checksum_add(&s, ip + 12, 8);
   (void)s_checksum_add(&s, tail, 4);
   (void)s_checksum_add(&s, p, n);
@@ -38,17 +38,17 @@ static unsigned tcp_sum(const unsigned char *ip, const unsigned char *p,
   (void)s_checksum_finish(&s, &value);
   return value;
 }
-static int time_ok(const NcStack *s, uint64_t now) {
+static int time_ok(const struct nc_stack *s, uint64_t now) {
   return now >= s->now && now <= UINT64_MAX - 240000;
 }
 static uint32_t twice(uint32_t r) { return r > 30000 ? 60000 : r * 2; }
-int nc_rtt_init(NcRtt *r, unsigned g, unsigned shift) {
+int nc_rtt_init(struct nc_rtt *r, unsigned g, unsigned shift) {
   if (!r || !g || g > 1000 || (shift != 0 && shift != 8))
     return NC_INVALID;
-  *r = (NcRtt){0, 0, 1000, 0, g, shift};
+  *r = (struct nc_rtt){0, 0, 1000, 0, g, shift};
   return NC_OK;
 }
-int nc_rtt_sample(NcRtt *r, unsigned ms, unsigned retransmitted) {
+int nc_rtt_sample(struct nc_rtt *r, unsigned ms, unsigned retransmitted) {
   if (!r || ms > 60000 || retransmitted > 1)
     return NC_INVALID;
   if (retransmitted && NC_MUTANT != 1)
@@ -77,7 +77,7 @@ int nc_rtt_sample(NcRtt *r, unsigned ms, unsigned retransmitted) {
     r->samples++;
   return NC_OK;
 }
-int nc_init(NcStack *s, NiConfig c, uint32_t epoch, uint32_t isn, unsigned cap,
+int nc_init(struct nc_stack *s, struct ni_config c, uint32_t epoch, uint32_t isn, unsigned cap,
             unsigned shift) {
   if (!s || !epoch || !cap || cap > 512 || (shift != 0 && shift != 8) ||
       c.local == c.peer)
@@ -92,7 +92,7 @@ int nc_init(NcStack *s, NiConfig c, uint32_t epoch, uint32_t isn, unsigned cap,
   (void)nw_rx_init(&s->rx, cap);
   return nc_rtt_init(&s->rtt, 1, shift);
 }
-static void abort_connection(NcStack *s) {
+static void abort_connection(struct nc_stack *s) {
   s->state = NC_CLOSED;
   s->flight = s->pending_valid = s->ack_needed = 0;
   s->due = s->probe_due = 0;
@@ -100,17 +100,17 @@ static void abort_connection(NcStack *s) {
   s->rx.head = s->rx.count = 0;
   /* Lower DMA is a distinct owner and must still be reaped. */
 }
-int nc_abort(NcStack *s, uint64_t now) {
+int nc_abort(struct nc_stack *s, uint64_t now) {
   if (!s || !s->epoch || !time_ok(s, now)) return NC_RANGE;
   s->now = now;
   abort_connection(s);
   return NC_OK;
 }
-unsigned nc_usable(const NcStack *s) {
+unsigned nc_usable(const struct nc_stack *s) {
   uint32_t flight = s->snd_nxt - s->snd_una;
   return flight >= s->peer_window ? 0 : s->peer_window - flight;
 }
-int nc_tick(NcStack *s, uint64_t now) {
+int nc_tick(struct nc_stack *s, uint64_t now) {
   if (!s || !time_ok(s, now))
     return NC_RANGE;
   s->now = now;
@@ -124,9 +124,9 @@ int nc_tick(NcStack *s, uint64_t now) {
   }
   return NC_OK;
 }
-static void packet(NcStack *s, unsigned flags, uint32_t seq, const void *data,
+static void packet(struct nc_stack *s, unsigned flags, uint32_t seq, const void *data,
                    size_t n) {
-  NcPacket *o = &s->pending;
+  struct nc_packet *o = &s->pending;
   unsigned h = (flags & 2) ? 24 : 20;
   memset(o, 0, sizeof *o);
   unsigned char *ip = o->bytes, *p = ip + 20;
@@ -155,7 +155,7 @@ static void packet(NcStack *s, unsigned flags, uint32_t seq, const void *data,
   w16(p + 16, tcp_sum(ip, p, h + n));
   o->length = 20 + h + n;
 }
-int nc_offer(NcStack *s, const void *v, size_t n) {
+int nc_offer(struct nc_stack *s, const void *v, size_t n) {
   if (!s || !v || !n || n > sizeof s->tx)
     return NC_INVALID;
   if ((s->state != NC_ESTABLISHED && s->state != NC_CLOSE_WAIT) ||
@@ -171,13 +171,13 @@ int nc_offer(NcStack *s, const void *v, size_t n) {
   }
   return NC_OK;
 }
-int nc_close(NcStack *s) {
+int nc_close(struct nc_stack *s) {
   if (!s || (s->state != NC_ESTABLISHED && s->state != NC_CLOSE_WAIT))
     return NC_INVALID;
   s->close_requested = 1;
   return NC_OK;
 }
-int nc_prepare(NcStack *s, NcPacket *out) {
+int nc_prepare(struct nc_stack *s, struct nc_packet *out) {
   if (!s || !out)
     return NC_INVALID;
   if (s->state == NC_CLOSED || s->state == NC_LISTEN)
@@ -227,7 +227,7 @@ int nc_prepare(NcStack *s, NcPacket *out) {
     s->pending_kind = NC_PROBE;
   } else
     return NC_WAIT;
-  s->pending.ticket = (NcTicket){s->epoch, ++s->serial};
+  s->pending.ticket = (struct nc_ticket){s->epoch, ++s->serial};
   s->pending_valid = 1;
   if (NC_MUTANT == 4 && s->pending_kind == NC_NEW) {
     s->flight = 1;
@@ -237,7 +237,7 @@ int nc_prepare(NcStack *s, NcPacket *out) {
   *out = s->pending;
   return NC_OK;
 }
-int nc_submit(NcStack *s, NcTicket t, unsigned copied, uint64_t now) {
+int nc_submit(struct nc_stack *s, struct nc_ticket t, unsigned copied, uint64_t now) {
   if (!s || copied > 1 || !time_ok(s, now))
     return NC_INVALID;
   if (!s->pending_valid || t.epoch != s->epoch ||
@@ -277,7 +277,7 @@ int nc_submit(NcStack *s, NcTicket t, unsigned copied, uint64_t now) {
   s->pending_valid = 0;
   return NC_OK;
 }
-int nc_dma_done(NcStack *s, NcTicket t) {
+int nc_dma_done(struct nc_stack *s, struct nc_ticket t) {
   if (!s || !s->dma || t.epoch != s->epoch || t.serial != s->dma_serial)
     return NC_STALE;
   s->dma = 0;
@@ -287,7 +287,7 @@ int nc_dma_done(NcStack *s, NcTicket t) {
   }
   return NC_OK;
 }
-int nc_consume(NcStack *s, size_t n) {
+int nc_consume(struct nc_stack *s, size_t n) {
   if (!s || nw_rx_consume(&s->rx, n) != NW_OK)
     return NC_INVALID;
   if (n) {
@@ -296,7 +296,7 @@ int nc_consume(NcStack *s, size_t n) {
   }
   return NC_OK;
 }
-int nc_http_pump(NcStack *s, HttpParser *p, size_t budget, size_t *used) {
+int nc_http_pump(struct nc_stack *s, struct http_parser *p, size_t budget, size_t *used) {
   if (!s || !p || !used || !budget)
     return HTTP_ERROR;
   int rc = nw_http_pump(&s->rx, p, budget, used);
@@ -306,16 +306,16 @@ int nc_http_pump(NcStack *s, HttpParser *p, size_t budget, size_t *used) {
   }
   return rc;
 }
-int nc_http_eof(NcStack *s, HttpParser *p) {
+int nc_http_eof(struct nc_stack *s, struct http_parser *p) {
   if (!s || !p || !s->peer_fin || s->rx.count)
     return HTTP_NEED;
   return http_eof(p);
 }
-int nc_receive(NcStack *s, const unsigned char *bytes, size_t length,
+int nc_receive(struct nc_stack *s, const unsigned char *bytes, size_t length,
                uint64_t now) {
   if (!s || !bytes || !time_ok(s, now))
     return NC_INVALID;
-  NiView v;
+  struct ni_view v;
   if (ni_parse(&s->config, bytes, length, 0, &v) != NI_OK || v.protocol != 6 ||
       v.length < 20)
     return NC_INVALID;

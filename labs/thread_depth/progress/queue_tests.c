@@ -13,30 +13,30 @@
       exit(41);                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
-  TPEndQueue *q;
+struct tw_call {
+  struct tp_end_queue *q;
   int value, result;
-} Call;
+};
 static void *pop(void *p) {
-  Call *c = p;
+  struct tw_call *c = p;
   c->result = tp_queue_pop(c->q, &c->value);
   return NULL;
 }
 static void *push(void *p) {
-  Call *c = p;
+  struct tw_call *c = p;
   int e = tp_queue_push(c->q, c->value);
   pthread_testcancel();
   c->result = e;
   return NULL;
 }
 static void shutdown_case(void) {
-  TPEndQueue q;
+  struct tp_end_queue q;
   CHECK(tp_queue_init(&q) == 0);
   CHECK(tp_queue_push(&q, -1) == EINVAL &&
         tp_queue_push(&q, 1000001) == EINVAL);
   for (int i = 1; i <= 3; i++)
     CHECK(tp_queue_push(&q, i) == 0);
-  Call c = {.q = &q, .value = 4};
+  struct tw_call c = {.q = &q, .value = 4};
   pthread_t t;
   CHECK(pthread_create(&t, NULL, push, &c) == 0);
   CHECK(tw_wait_entries(&q.queue, 1) == 0);
@@ -51,7 +51,7 @@ static void shutdown_case(void) {
   CHECK(tp_queue_abort(&q) == EALREADY);
   tp_queue_destroy(&q);
   CHECK(tp_queue_init(&q) == 0);
-  c = (Call){.q = &q, .value = 77};
+  c = (struct tw_call){.q = &q, .value = 77};
   CHECK(pthread_create(&t, NULL, pop, &c) == 0);
   CHECK(tw_wait_entries(&q.queue, 1) == 0);
   CHECK(tp_queue_abort(&q) == 0);
@@ -62,7 +62,7 @@ static void shutdown_case(void) {
   CHECK(tp_queue_init(&q) == 0);
   for (int i = 1; i <= 3; i++)
     CHECK(tp_queue_push(&q, i) == 0);
-  c = (Call){.q = &q, .value = 4, .result = 99};
+  c = (struct tw_call){.q = &q, .value = 4, .result = 99};
   CHECK(pthread_create(&t, NULL, push, &c) == 0);
   CHECK(tw_wait_entries(&q.queue, 1) == 0);
   CHECK(pthread_cancel(t) == 0);
@@ -76,19 +76,19 @@ static void shutdown_case(void) {
       "OBS shutdown admitted blocked producer/consumer settle; residual copied "
       "values discarded once; no new admissions; destroy only after join");
 }
-typedef struct {
-  TWQueue *q;
+struct tw_stress {
+  struct tw_queue *q;
   unsigned id;
   unsigned seen[2][1000];
-} Stress;
-typedef struct {
-  TWQueue *queue;
+};
+struct history_call {
+  struct tw_queue *queue;
   pthread_mutex_t *clock_lock;
   unsigned *clock;
-  TPOp *record;
-} HistoryCall;
+  struct tp_op *record;
+};
 static void *history_call(void *arg) {
-  HistoryCall *h = arg;
+  struct history_call *h = arg;
   CHECK(pthread_mutex_lock(h->clock_lock) == 0);
   h->record->invocation = ++*h->clock;
   CHECK(pthread_mutex_unlock(h->clock_lock) == 0);
@@ -106,27 +106,27 @@ static void *history_call(void *arg) {
 }
 static void actual_histories(void) {
   for (unsigned repeat = 0; repeat < 20; repeat++) {
-    TWQueue q;
-    TWInit init;
+    struct tw_queue q;
+    struct tw_init init;
     CHECK(tw_queue_init(&q, 0, &init) == 0);
     pthread_mutex_t clock_lock;
     CHECK(pthread_mutex_init(&clock_lock, NULL) == 0);
     unsigned clock = 0;
-    TPOp records[4] = {{.thread = 0, .kind = TP_DEQUEUE},
+    struct tp_op records[4] = {{.thread = 0, .kind = TP_DEQUEUE},
                        {.thread = 1, .kind = TP_DEQUEUE},
                        {.thread = 2, .kind = TP_ENQUEUE, .value = 1},
                        {.thread = 3, .kind = TP_ENQUEUE, .value = 2}};
-    HistoryCall calls[4];
+    struct history_call calls[4];
     pthread_t threads[4];
     for (unsigned i = 0; i < 4; i++) {
-      calls[i] = (HistoryCall){&q, &clock_lock, &clock, &records[i]};
+      calls[i] = (struct history_call){&q, &clock_lock, &clock, &records[i]};
       if (i == 2)
         CHECK(tw_wait_entries(&q, 2) == 0);
       CHECK(pthread_create(&threads[i], NULL, history_call, &calls[i]) == 0);
     }
     for (unsigned i = 0; i < 4; i++)
       CHECK(pthread_join(threads[i], NULL) == 0);
-    TPWitness witness;
+    struct tp_witness witness;
     CHECK(clock == 8 &&
           tp_history(records, 4, TP_REQUIRE_COMPLETE, &witness) == TP_OK);
     CHECK(tw_close(&q) == 0 && tw_unref(&q) == 0 && tw_retire(&q) == 0);
@@ -135,7 +135,7 @@ static void actual_histories(void) {
   }
 }
 static void *producer(void *arg) {
-  Stress *s = arg;
+  struct tw_stress *s = arg;
   uint32_t seed = UINT32_C(0x12345678) + s->id;
   for (unsigned i = 0; i < 1000; i++) {
     seed = seed * 1664525u + 1013904223u;
@@ -146,7 +146,7 @@ static void *producer(void *arg) {
   return NULL;
 }
 static void *consumer(void *arg) {
-  Stress *s = arg;
+  struct tw_stress *s = arg;
   for (;;) {
     int value = 0;
     int e = tw_pop(s->q, &value, NULL, NULL, NULL);
@@ -158,13 +158,13 @@ static void *consumer(void *arg) {
   return NULL;
 }
 static void stress(void) {
-  TWQueue q;
-  TWInit init;
+  struct tw_queue q;
+  struct tw_init init;
   CHECK(tw_queue_init(&q, 0, &init) == 0);
   CHECK(tw_push(&q, 7, NULL) == 0);
   int probe = 0;
   CHECK(tw_pop(&q, &probe, NULL, NULL, NULL) == 0 && probe == 7);
-  Stress p[2] = {{.q = &q, .id = 0}, {.q = &q, .id = 1}},
+  struct tw_stress p[2] = {{.q = &q, .id = 0}, {.q = &q, .id = 1}},
          c[2] = {{.q = &q}, {.q = &q}};
   pthread_t pt[2], ct[2];
   for (unsigned i = 0; i < 2; i++)

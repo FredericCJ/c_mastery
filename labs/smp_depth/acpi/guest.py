@@ -45,7 +45,7 @@ def decode(log):
  return {'rsdp':rsdp[0],'regions':regions}
 
 def capture(guest,work,machine,cpus):
- if machine not in ('pc-i440fx-10.2','pc-q35-10.2') or cpus not in (1,2,4):raise ValueError('Use the bounded declared machine/CPU matrix')
+ if machine not in ('pc-i440fx-10.2','pc-q35-10.2') or cpus not in (1,2,4):raise ValueError('Use the bounded declared machine/struct lr_cpu matrix')
  guest.MACHINE=machine;os.environ['CMASTERY_CPUS']=str(cpus);guest.stage(work/'guest','madt')
  log=(work/'guest/stage-madt.log').read_text(encoding='utf-8');record=decode(log)
  record.update(machine=machine,cpus=cpus,stage=json.loads((work/'guest/stage-madt.json').read_text(encoding='utf-8')))

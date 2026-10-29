@@ -3,14 +3,14 @@
 #undef main
 int main(void) {
   CHECK(!http());
-  NetStack s;NetPacket p,o;CHECK(!prepare(&s,100));
+  struct net_stack s;struct net_packet p,o;CHECK(!prepare(&s,100));
   const char request[]="GET /health HTTP/1.1\r\nHost: 192.0.2.2:8080\r\n\r\n";
   tcp(&p,101,s.snd_nxt,24,512,request,sizeof request-1);CHECK(net_receive(&s,p.bytes,p.length,30,&o)==1);
   CHECK(s.response_length && s.flight && s.response_acked==0);unsigned char stable[1600];memcpy(stable,s.response,s.response_length);
   /* Original copied packet/input storage may now be reused. Response and flight
      are owned by the stack until ACK/abort, not by the borrowed input packet. */
   memset(p.bytes,0xa5,sizeof p.bytes);CHECK(!memcmp(stable,s.response,s.response_length));
-  NetPacket flight=s.retained;uint32_t sent=s.snd_nxt;CHECK(net_tick(&s,s.due,&o)==1);
+  struct net_packet flight=s.retained;uint32_t sent=s.snd_nxt;CHECK(net_tick(&s,s.due,&o)==1);
   CHECK(s.snd_nxt==sent && s.response_acked==0 && o.length==flight.length && !memcmp(o.bytes,flight.bytes,o.length));
   CHECK(!memcmp(stable,s.response,s.response_length));
   CHECK(!memcmp(stable,"HTTP/1.1 200 OK\r\n",17));

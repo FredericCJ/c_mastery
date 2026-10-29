@@ -11,39 +11,39 @@ enum {
   RPK_MISSING,
   RPK_UNIMPLEMENTED
 };
-typedef struct {
+struct rpk_leaf {
   unsigned length;
   unsigned char bytes[32];
-} RpkLeaf;
-typedef struct {
+};
+struct rpk_tree {
   uint32_t domain;
   unsigned count;
-  RpkLeaf leaves[16];
-} RpkTree;
-typedef struct {
+  struct rpk_leaf leaves[16];
+};
+struct rpk_commitment {
   uint32_t domain;
   unsigned count;
   unsigned char root[32];
-} RpkCommitment;
-typedef struct {
+};
+struct rpk_proof {
   uint32_t domain;
   unsigned count, index, depth;
   unsigned char siblings[4][32];
-} RpkProof;
-typedef struct {
+};
+struct rpk_cost {
   unsigned hashes, requests, request_bytes, response_bytes, leaves_received;
-} RpkCost;
-int rpk_commit(const RpkTree *tree, RpkCommitment *out);
-int rpk_prove(const RpkTree *tree, unsigned index, RpkProof *out);
-int rpk_verify(const RpkLeaf *leaf, const RpkProof *proof,
-               const RpkCommitment *trusted);
+};
+int rpk_commit(const struct rpk_tree *tree, struct rpk_commitment *out);
+int rpk_prove(const struct rpk_tree *tree, unsigned index, struct rpk_proof *out);
+int rpk_verify(const struct rpk_leaf *leaf, const struct rpk_proof *proof,
+               const struct rpk_commitment *trusted);
 /* Callback borrows request/reply only during this synchronous finite call.
    Zero success writes exact reply length; nonzero means unavailable response.
    Neither callbacks nor concurrent actors may mutate target/control objects. */
-typedef int (*RpkExchange)(void *context, const unsigned char *request,
+typedef int (*rpk_exchange_fn)(void *context, const unsigned char *request,
                            size_t request_length, unsigned char *reply,
                            size_t capacity, size_t *reply_length);
-int rpk_serve(const RpkTree *tree, const unsigned char *request,
+int rpk_serve(const struct rpk_tree *tree, const unsigned char *request,
               size_t request_length, unsigned chunk, unsigned char *reply,
               size_t capacity, size_t *reply_length);
 /* chunk1..108 changes stream segmentation; force_full0 skips proven-equal
@@ -51,7 +51,7 @@ int rpk_serve(const RpkTree *tree, const unsigned char *request,
    final staged-root check. All use the same final-root publication contract.
    All target/cost publication is atomic on success; no persistent store here.
  */
-int rpk_repair(RpkTree *target, const RpkCommitment *trusted, unsigned chunk,
-               unsigned force_full, RpkExchange exchange, void *context,
-               RpkCost *cost);
+int rpk_repair(struct rpk_tree *target, const struct rpk_commitment *trusted, unsigned chunk,
+               unsigned force_full, rpk_exchange_fn exchange, void *context,
+               struct rpk_cost *cost);
 #endif

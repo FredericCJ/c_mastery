@@ -12,7 +12,7 @@ MAP={
  'R1':('b45:i2c i2c:arbitration,electrical','Actual bit drive/sample with identical-prefix wired-AND and low-SCL nonprogress, distinct from sampled electrical bounds.'),
  'R2':('b45:i2c i2c:arbitration,transaction,failure','Arbitration loss releases without STOP; ACK/NACK and incomplete stretch remain separate results.'),
  'V1':('retry:stretch','Actual earlier T30 elapsed primitive, overall/continuous-low budgets, exact expiry, wrap and distinct lost-arbitration outcome.'),
- 'V2':('retry:transaction','Actual SI2c bytes feed SDI2c address/register/repeated START and final NACK/read publication; no receiver waveform claim.')},
+ 'V2':('retry:transaction','Actual struct s_si2c bytes feed struct sd_sdi2c address/register/repeated START and final NACK/read publication; no receiver waveform claim.')},
  '38-002':{
  'R1':('sd:uart uart:frames','LSB-first width/parity/stop derivation, asymmetric payload and malformed-frame output canaries.'),
  'R2':('sd:uart uart:baud','Integer divisor/OVER8 packing and rational error; physical period remains separately unobserved.'),

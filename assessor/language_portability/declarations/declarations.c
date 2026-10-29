@@ -2,7 +2,7 @@
 #ifndef LD_MUTANT
 #define LD_MUTANT 0
 #endif
-LdStatus ld_encode(int32_t v,unsigned char out[2]){
+enum ld_status ld_encode(int32_t v,unsigned char out[2]){
  if(!out)return LD_INVALID;
 #if LD_MUTANT==4
  out[0]=0;
@@ -11,7 +11,7 @@ LdStatus ld_encode(int32_t v,unsigned char out[2]){
  uint32_t u=v<0?(uint32_t)(v+8192):(uint32_t)v;
  out[0]=(unsigned char)(u>>8);out[1]=(unsigned char)(u&255u);return LD_OK;
 }
-LdStatus ld_decode(const unsigned char in[2],int32_t *out){
+enum ld_status ld_decode(const unsigned char in[2],int32_t *out){
  if(!in || !out)return LD_INVALID;
 #if LD_MUTANT!=1
  if(in[0]>31)return LD_INVALID;
@@ -24,7 +24,7 @@ LdStatus ld_decode(const unsigned char in[2],int32_t *out){
 #endif
  return LD_OK;
 }
-LdStatus ld_triangle(uint32_t n,uint32_t *out){
+enum ld_status ld_triangle(uint32_t n,uint32_t *out){
  if(!out)return LD_INVALID;
 #if LD_MUTANT==3
  *out=0;

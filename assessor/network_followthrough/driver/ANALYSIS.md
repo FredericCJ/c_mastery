@@ -16,7 +16,7 @@ revision-specific derivation and an explicitly changed port implementation.
 
 ## 02b
 
-`NbBoard` uses actual EpPhy and F439 MDIO functions, not a ready boolean stub.
+`struct nb_board` uses actual EpPhy and F439 MDIO functions, not a ready boolean stub.
 The composition model routes the emitted selected addresses to the original
 EpModel/EnModel, checks pin configuration/base registers and rejects frozen
 counter, stuck MDIO, elapsed PHY deadline and stuck DMA reset. Logical failure
@@ -41,7 +41,7 @@ Neither native code, QEMU nor MMIO-object disassembly supplies those observation
 12384 is a structural buffer/descriptor budget, not the total application RAM.
 Require linked `.eth` address/size, entire interval reachability, all other
 state and stack. The negative CCM link must fail with `EN_DMA_REACHABILITY`.
-The actual `EvVisibility` changes the premise to noncoherent cache lines:
+The actual `struct ev_visibility` changes the premise to noncoherent cache lines:
 publishing dirty data fails; byte31 shares ownership with byte0; returned9 is
 invisible until invalidate; stale clean7 loses9. A DSB cannot repair that loss
 or make CCM DMA-reachable. These two-line arrays are an explicit semantic
@@ -65,7 +65,7 @@ truncation; a much later call saturates its100ms deadline and fails closed.
 ## 03c
 
 The ring exposes60 bytes from retained-FCS FL64 and1514 fromFL1518. It has
-already normalized the length before `NbNet`: mutant5 subtracts again and
+already normalized the length before `struct nb_net`: mutant5 subtracts again and
 breaks the handshake. Actual changed `ev_span` takes validated stored bytes:
 CSTF1 type0800 permits60 unchanged; length46 and0600 still subtract4. A learner
 must not fabricate how changed hardware RDES0 reports FL. Upper parse rejection

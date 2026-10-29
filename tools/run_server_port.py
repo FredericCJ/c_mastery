@@ -35,7 +35,7 @@ def main(report):
     pins={p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
     value={'schema_version':1,'created_utc':datetime.now(timezone.utc).isoformat(),'inspected_paths':pins,'commands':[],'host':[],'target':[],
       'scope':'Actual SVC/PendSV/SysTick/PSP bounded budget port, exact lifecycle and refusal checks, independent unit-right histories, actual pending-bit-collapse counterexample.',
-      'limits':['Controlled saturated nonblocking task with short masking; broader accounting is not supplied.','Emulator instruction-count timing is not physical CPU timing or WCET.','No SMP, physical board, independent human review or learner assessment.']}
+      'limits':['Controlled saturated nonblocking task with short masking; broader accounting is not supplied.','Emulator instruction-count timing is not physical struct lr_cpu timing or WCET.','No SMP, physical board, independent human review or learner assessment.']}
     env=dict(os.environ,ASAN_OPTIONS='detect_leaks=1:abort_on_error=1',UBSAN_OPTIONS='halt_on_error=1')
     def run(command,label,expected=0,marker=None,input_text=None):
         command=[str(x) for x in command];r=subprocess.run(command,capture_output=True,text=True,input=input_text,env=env,timeout=90);output=r.stdout+r.stderr

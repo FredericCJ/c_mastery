@@ -2,7 +2,7 @@
 #ifndef TS_MUTANT
 #define TS_MUTANT 0
 #endif
-TsStatus ts_init(TsStack *s,unsigned n){
+enum ts_status ts_init(struct ts_stack *s,unsigned n){
  if(!s||!n||n>TS_NODES)return TS_INVALID;
  s->capacity=n;atomic_init(&s->head,TS_NONE);
  int supported=atomic_is_lock_free(&s->head);
@@ -13,7 +13,7 @@ TsStatus ts_init(TsStack *s,unsigned n){
  }
  return supported?TS_OK:TS_UNSUPPORTED;
 }
-TsStatus ts_push(TsStack *s,uint32_t value){
+enum ts_status ts_push(struct ts_stack *s,uint32_t value){
  if(!s)return TS_INVALID;
  unsigned n=TS_NONE;
  for(unsigned i=0;i<s->capacity;i++){
@@ -29,7 +29,7 @@ TsStatus ts_push(TsStack *s,uint32_t value){
          TS_MUTANT==5?memory_order_relaxed:memory_order_seq_cst));
  return TS_OK;
 }
-TsStatus ts_begin(TsStack *s,unsigned p,TsPop *out){
+enum ts_status ts_begin(struct ts_stack *s,unsigned p,struct ts_pop *out){
  if(!s||!out||p>=TS_THREADS)return TS_INVALID;
  unsigned n;
  do {
@@ -42,13 +42,13 @@ TsStatus ts_begin(TsStack *s,unsigned p,TsPop *out){
  out->next=s->node[n].next;out->value=s->node[n].value;
  return TS_OK;
 }
-TsStatus ts_cancel(TsPop *v){
+enum ts_status ts_cancel(struct ts_pop *v){
  if(!v||!v->owner)return TS_INVALID;
  atomic_store(&v->owner->hazard[v->participant],TS_NONE);v->owner=0;return TS_OK;
 }
-TsStatus ts_commit(TsPop *v,uint32_t *out){
+enum ts_status ts_commit(struct ts_pop *v,uint32_t *out){
  if(!v||!v->owner||!out)return TS_INVALID;
- TsStack *s=v->owner;unsigned expected=v->node;
+ struct ts_stack *s=v->owner;unsigned expected=v->node;
  if(!atomic_compare_exchange_strong(&s->head,&expected,v->next)){
   (void)ts_cancel(v);return TS_RETRY;
  }
@@ -57,28 +57,28 @@ TsStatus ts_commit(TsPop *v,uint32_t *out){
  uint32_t value=v->value;
  (void)ts_cancel(v);*out=TS_MUTANT==2?value^1u:value;return TS_OK;
 }
-TsStatus ts_pop(TsStack *s,unsigned p,uint32_t *out){
+enum ts_status ts_pop(struct ts_stack *s,unsigned p,uint32_t *out){
  if(!s||!out||p>=TS_THREADS)return TS_INVALID;
- for(;;){TsPop v;TsStatus r=ts_begin(s,p,&v);if(r!=TS_OK)return r;
+ for(;;){struct ts_pop v;enum ts_status r=ts_begin(s,p,&v);if(r!=TS_OK)return r;
   r=ts_commit(&v,out);if(r!=TS_RETRY)return r;}
 }
-TsStatus ts_scan(TsStack *s,unsigned n,TsRetired *out){
+enum ts_status ts_scan(struct ts_stack *s,unsigned n,struct ts_retired *out){
  if(!s||!out||n>=s->capacity)return TS_INVALID;
  unsigned state=atomic_load(&s->node[n].state);
  if((state&3u)!=2u||state/4u==TS_GEN_MAX)return TS_RETRY;
  for(unsigned p=0;p<TS_THREADS;p++)if(atomic_load(&s->hazard[p])==n)return TS_RETRY;
  out->owner=s;out->node=n;out->state=state;return TS_OK;
 }
-TsStatus ts_reclaim(TsRetired *r){
+enum ts_status ts_reclaim(struct ts_retired *r){
  if(!r||!r->owner)return TS_INVALID;
- TsStack *s=r->owner;unsigned expected=r->state,n=r->node;r->owner=0;
+ struct ts_stack *s=r->owner;unsigned expected=r->state,n=r->node;r->owner=0;
  if(TS_MUTANT==4)expected=atomic_load(&s->node[n].state);
  if((expected&3u)!=2u||expected/4u==TS_GEN_MAX)return TS_RETRY;
  return atomic_compare_exchange_strong(&s->node[n].state,&expected,(expected&~3u)+4u)?TS_OK:TS_RETRY;
 }
-unsigned ts_collect(TsStack *s){
+unsigned ts_collect(struct ts_stack *s){
  if(!s)return 0;
  unsigned count=0;
- for(unsigned i=0;i<s->capacity;i++){TsRetired r;if(ts_scan(s,i,&r)==TS_OK&&ts_reclaim(&r)==TS_OK)count++;}
+ for(unsigned i=0;i<s->capacity;i++){struct ts_retired r;if(ts_scan(s,i,&r)==TS_OK&&ts_reclaim(&r)==TS_OK)count++;}
  return count;
 }

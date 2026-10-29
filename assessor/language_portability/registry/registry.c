@@ -7,16 +7,16 @@ int lr_handle_start(int x){return x+1;}
 int lr_handle_stop(int x){return x+4;}
 int lr_handle_status(int x){return x+7;}
 int lr_handle_reset(int x){return x+9;}
-typedef struct {uint32_t id;const char *name;} Name;
-typedef struct {uint32_t id;int(*handler)(int);} Dispatch;
-typedef struct {const char *name;uint32_t id;} Alias;
-static const Name names[]={
+struct lp_name {uint32_t id;const char *name;};
+struct lp_dispatch {uint32_t id;int(*handler)(int);};
+struct lp_alias {const char *name;uint32_t id;};
+static const struct lp_name names[]={
 #include "generated/names.inc"
 };
-static const Dispatch dispatch[]={
+static const struct lp_dispatch dispatch[]={
 #include "generated/dispatch.inc"
 };
-static const Alias aliases[]={
+static const struct lp_alias aliases[]={
 #include "generated/aliases.inc"
 };
 _Static_assert(sizeof names/sizeof *names==LR_COMMAND_COUNT,"name count");

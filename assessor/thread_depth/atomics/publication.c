@@ -1,11 +1,11 @@
 #include "atomics.h"
 #include <limits.h>
-void ta_snapshot_init(TASnapshot *s) {
+void ta_snapshot_init(struct ta_snapshot *s) {
   atomic_init(&s->sequence, 0);
   atomic_init(&s->a, 50);
   atomic_init(&s->b, 50);
 }
-int ta_snapshot_write(TASnapshot *s, int a) {
+int ta_snapshot_write(struct ta_snapshot *s, int a) {
   unsigned n = atomic_load(&s->sequence);
   if (a < 0 || a > 100)
     return TA_INVALID;
@@ -17,7 +17,7 @@ int ta_snapshot_write(TASnapshot *s, int a) {
   atomic_store(&s->sequence, n + 2);
   return TA_SUCCESS;
 }
-int ta_snapshot_try(TASnapshot *s, unsigned attempts, int *out) {
+int ta_snapshot_try(struct ta_snapshot *s, unsigned attempts, int *out) {
   if (!attempts || attempts > 16 || !out)
     return TA_INVALID;
   for (unsigned i = 0; i < attempts; i++) {
@@ -37,7 +37,7 @@ int ta_snapshot_try(TASnapshot *s, unsigned attempts, int *out) {
   }
   return TA_LIMIT;
 }
-int ta_slot_init(TASlot *s, unsigned readers) {
+int ta_slot_init(struct ta_slot *s, unsigned readers) {
   if (readers < 1 || readers > 2)
     return TA_INVALID;
   atomic_init(&s->pending, 0);
@@ -45,7 +45,7 @@ int ta_slot_init(TASlot *s, unsigned readers) {
   s->payload = 0;
   return TA_SUCCESS;
 }
-int ta_slot_publish(TASlot *s, int value) {
+int ta_slot_publish(struct ta_slot *s, int value) {
   if (atomic_load_explicit(&s->pending, memory_order_acquire) != 0
 #ifdef TA_MUTANT_HANDOFF
       && 0
@@ -57,7 +57,7 @@ int ta_slot_publish(TASlot *s, int value) {
                         memory_order_release);
   return TA_SUCCESS;
 }
-int ta_slot_read(TASlot *s, unsigned reader, int *out) {
+int ta_slot_read(struct ta_slot *s, unsigned reader, int *out) {
   if (reader >= s->readers || !out)
     return TA_INVALID;
   unsigned mask = 1u << reader;

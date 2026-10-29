@@ -20,7 +20,7 @@ int main(void)
         else if(strcmp(op,"ce")==0)status=cc_compress(input,n,out,sizeof out,&used);
         else if(strcmp(op,"co")==0)status=cc_compress_optimal(input,n,out,sizeof out,&used);
         else if(strcmp(op,"cd")==0)status=cc_expand(input,n,out,sizeof out,&used);
-        else if(strcmp(op,"book")==0&&n==16){CcBook b;status=cc_book(input,&b);if(status==CC_OK){used=48;for(unsigned i=0;i<16;i++){out[3*i]=b.length[i];out[3*i+1]=(uint8_t)(b.code[i]>>8);out[3*i+2]=(uint8_t)b.code[i];}}}
+        else if(strcmp(op,"book")==0&&n==16){struct cc_book b;status=cc_book(input,&b);if(status==CC_OK){used=48;for(unsigned i=0;i<16;i++){out[3*i]=b.length[i];out[3*i+1]=(uint8_t)(b.code[i]>>8);out[3*i+2]=(uint8_t)b.code[i];}}}
         else if(strcmp(op,"lengths")==0&&n==16){uint16_t f[16];for(unsigned i=0;i<16;i++)f[i]=input[i];status=cc_lengths(f,out);if(status==CC_OK)used=16;}
         printf("%d ",status);if(status==CC_OK){for(size_t i=0;i<used;i++)printf("%02x",out[i]);}else printf("-");puts("");
     }

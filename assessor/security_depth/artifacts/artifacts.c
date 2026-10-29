@@ -14,10 +14,10 @@ int sa_digest(const unsigned char *p,size_t n,unsigned char out[32]) {
     if(EVP_Q_digest(NULL,"SHA256",NULL,p,n,result,&length)!=1 || length!=32)return -1;
     memcpy(out,result,32);return 0;
 }
-void sa_manifest(const SAArtifact *a,unsigned char out[44]) {
+void sa_manifest(const struct sa_artifact *a,unsigned char out[44]) {
     memcpy(out,"CM35",4);be32(out+4,a->version);be32(out+8,a->epoch);memcpy(out+12,a->digest,32);
 }
-void sa_transition(const SATrust *old,const unsigned char key[32],uint32_t epoch,uint32_t minimum,unsigned char out[49]) {
+void sa_transition(const struct sa_trust *old,const unsigned char key[32],uint32_t epoch,uint32_t minimum,unsigned char out[49]) {
     memcpy(out,"ROT35",5);be32(out+5,old->epoch);be32(out+9,epoch);be32(out+13,minimum);memcpy(out+17,key,32);
 }
 static int signature(const unsigned char pub[32],const unsigned char sig[64],const unsigned char *message,size_t length) {
@@ -31,8 +31,8 @@ static int signature(const unsigned char pub[32],const unsigned char sig[64],con
     result=EVP_DigestVerify(ctx,sig,64,message,length);
 done:EVP_MD_CTX_free(ctx);EVP_PKEY_free(key);return result;
 }
-int sa_verify(const SATrust *trust,const SAArtifact *a,const unsigned char *bytes,size_t n,SAReport *out) {
-    unsigned char digest[32],message[44];SAReport r;int verified;
+int sa_verify(const struct sa_trust *trust,const struct sa_artifact *a,const unsigned char *bytes,size_t n,struct sa_report *out) {
+    unsigned char digest[32],message[44];struct sa_report r;int verified;
     if(!trust || !a || !out || a->committed>1 || !trust->epoch || !a->epoch || (!bytes && n) || n>32)return -1;
     if(sa_digest(bytes,n,digest))return -1;
     sa_manifest(a,message);verified=signature(a->public_key,a->signature,message,sizeof message);if(verified<0)return -1;
@@ -46,8 +46,8 @@ int sa_verify(const SATrust *trust,const SAArtifact *a,const unsigned char *byte
 #endif
     *out=r;return 0;
 }
-int sa_rotate(SATrust *trust,const unsigned char key[32],uint32_t epoch,uint32_t minimum,const unsigned char sig[64]) {
-    unsigned char message[49];SATrust next;
+int sa_rotate(struct sa_trust *trust,const unsigned char key[32],uint32_t epoch,uint32_t minimum,const unsigned char sig[64]) {
+    unsigned char message[49];struct sa_trust next;
     if(!trust || !key || !sig || !trust->epoch || trust->epoch==UINT32_MAX || epoch!=trust->epoch+1 || minimum<trust->minimum || !memcmp(key,trust->public_key,32))return -1;
     sa_transition(trust,key,epoch,minimum,message);
 #ifndef SA_MUTANT_ROTATE

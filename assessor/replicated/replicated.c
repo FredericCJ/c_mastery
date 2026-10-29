@@ -6,8 +6,8 @@
 #endif
 _Static_assert(CHAR_BIT == 8 && INT_MAX == 2147483647, "Laboratory requires 8-bit bytes and 32-bit int");
 
-void rp_log_init(RPLog *log) { memset(log, 0, sizeof *log); d_hamt_init(&log->arena); }
-int rp_log_append(RPLog *log, unsigned key, int value) {
+void rp_log_init(struct rp_log *log) { memset(log, 0, sizeof *log); d_hamt_init(&log->arena); }
+int rp_log_append(struct rp_log *log, unsigned key, int value) {
     unsigned root; int status;
     if (key > 31) return RP_INVALID;
     if (log->count == 16) return RP_FULL;
@@ -16,19 +16,19 @@ int rp_log_append(RPLog *log, unsigned key, int value) {
         if (MOD_MUTATION == 1) ++log->count;
         return RP_FAILED;
     }
-    log->events[log->count] = (RPEvent){log->count + 1, key, value};
+    log->events[log->count] = (struct rp_event){log->count + 1, key, value};
     log->roots[++log->count] = root;
     return RP_OK;
 }
-int rp_log_get(const RPLog *log, unsigned position, unsigned key, int *value) {
+int rp_log_get(const struct rp_log *log, unsigned position, unsigned key, int *value) {
     if (position > log->count || key > 31) return RP_INVALID;
     if (MOD_MUTATION == 2) position = log->count;
     return d_hamt_get(&log->arena, log->roots[position], key, value) == D_OK ? RP_OK : RP_GAP;
 }
-int rp_project(RPProjection *projection, RPEvent event) {
+int rp_project(struct rp_projection *projection, struct rp_event event) {
     if (event.position == 0 || event.position > 16 || event.key > 31) return RP_INVALID;
     if (event.position <= projection->count) {
-        RPEvent prior = projection->applied[event.position - 1];
+        struct rp_event prior = projection->applied[event.position - 1];
         if (prior.key != event.key || prior.value != event.value) return RP_CONFLICT;
         if (MOD_MUTATION == 3) projection->total += event.value;
         return RP_OK;
@@ -44,20 +44,20 @@ int rp_lamport(uint64_t local, uint64_t remote, uint64_t *result) {
     if (maximum == UINT64_MAX) return RP_RANGE;
     *result = maximum + 1; return RP_OK;
 }
-int rp_vector_receive(RPVector local, RPVector remote, unsigned replica, RPVector *result) {
+int rp_vector_receive(struct rp_vector local, struct rp_vector remote, unsigned replica, struct rp_vector *result) {
     unsigned i;
     if (replica >= 3) return RP_INVALID;
     for (i = 0; i < 3; ++i) if (remote.v[i] > local.v[i]) local.v[i] = remote.v[i];
     if (local.v[replica] == UINT64_MAX) return RP_RANGE;
     ++local.v[replica]; *result = local; return RP_OK;
 }
-int rp_vector_order(RPVector a, RPVector b) {
+int rp_vector_order(struct rp_vector a, struct rp_vector b) {
     unsigned i; int less = 0, greater = 0;
     for (i = 0; i < 3; ++i) { less |= a.v[i] < b.v[i]; greater |= a.v[i] > b.v[i]; }
     return less && greater ? 2 : less ? -1 : greater ? 1 : 0;
 }
-int rp_hlc(RPHLC local, const RPHLC *remote, uint64_t wall, RPHLC *result) {
-    RPHLC next = {wall, 0}; uint32_t counter = 0; int increment = 0;
+int rp_hlc(struct rp_hlc local, const struct rp_hlc *remote, uint64_t wall, struct rp_hlc *result) {
+    struct rp_hlc next = {wall, 0}; uint32_t counter = 0; int increment = 0;
     if (local.physical > next.physical) next.physical = local.physical;
     if (remote && remote->physical > next.physical) next.physical = remote->physical;
     if (next.physical == local.physical) { counter = local.logical; increment = 1; }
@@ -69,14 +69,14 @@ int rp_hlc(RPHLC local, const RPHLC *remote, uint64_t wall, RPHLC *result) {
     if (increment) { if (counter == UINT32_MAX) return RP_RANGE; next.logical = counter + 1; }
     *result = next; return RP_OK;
 }
-int rp_pn_add(RPPN *state, unsigned replica, int negative, uint32_t amount) {
+int rp_pn_add(struct rp_pn *state, unsigned replica, int negative, uint32_t amount) {
     uint32_t *component;
     if (replica >= 3 || (negative != 0 && negative != 1)) return RP_INVALID;
     component = negative ? &state->negative[replica] : &state->positive[replica];
     if (amount > UINT32_MAX - *component) return RP_RANGE;
     *component += amount; return RP_OK;
 }
-void rp_pn_merge(RPPN *state, const RPPN *other) {
+void rp_pn_merge(struct rp_pn *state, const struct rp_pn *other) {
     unsigned i;
     for (i = 0; i < 3; ++i) {
         if (MOD_MUTATION == 7) { state->positive[i] += other->positive[i]; state->negative[i] += other->negative[i]; }
@@ -86,19 +86,19 @@ void rp_pn_merge(RPPN *state, const RPPN *other) {
         }
     }
 }
-int64_t rp_pn_value(const RPPN *state) {
+int64_t rp_pn_value(const struct rp_pn *state) {
     unsigned i; int64_t value = 0;
     for (i = 0; i < 3; ++i) value += (int64_t)state->positive[i] - state->negative[i];
     return value;
 }
-int rp_register_merge(RPRegister *state, RPRegister other) {
+int rp_register_merge(struct rp_register *state, struct rp_register other) {
     if (state->replica >= 3 || other.replica >= 3) return RP_INVALID;
     if (state->time == other.time && state->replica == other.replica && state->value != other.value) return RP_CONFLICT;
     if (other.time > state->time || (MOD_MUTATION != 8 && other.time == state->time && other.replica > state->replica)) *state = other;
     return RP_OK;
 }
-int rp_set_add(RPSet *state, unsigned replica, unsigned value, RPSet *delta) {
-    RPSet change = {{0},{0},{0}}; unsigned bit;
+int rp_set_add(struct rp_set *state, unsigned replica, unsigned value, struct rp_set *delta) {
+    struct rp_set change = {{0},{0},{0}}; unsigned bit;
     if (replica >= 2 || value >= 4) return RP_INVALID;
     if (state->next[replica] >= 8) return RP_FULL;
     bit = replica * 8 + state->next[replica];
@@ -106,13 +106,13 @@ int rp_set_add(RPSet *state, unsigned replica, unsigned value, RPSet *delta) {
     change.next[replica] = state->next[replica] + 1;
     rp_set_merge(state, &change); *delta = change; return RP_OK;
 }
-int rp_set_remove(RPSet *state, unsigned value, RPSet *delta) {
-    RPSet change = {{0},{0},{0}};
+int rp_set_remove(struct rp_set *state, unsigned value, struct rp_set *delta) {
+    struct rp_set change = {{0},{0},{0}};
     if (value >= 4) return RP_INVALID;
     change.removed[value] = MOD_MUTATION == 9 ? UINT16_MAX : state->adds[value];
     rp_set_merge(state, &change); *delta = change; return RP_OK;
 }
-void rp_set_merge(RPSet *state, const RPSet *other) {
+void rp_set_merge(struct rp_set *state, const struct rp_set *other) {
     unsigned i;
     for (i = 0; i < 4; ++i) {
         state->adds[i] |= other->adds[i];
@@ -120,26 +120,26 @@ void rp_set_merge(RPSet *state, const RPSet *other) {
     }
     for (i = 0; i < 2; ++i) if (other->next[i] > state->next[i]) state->next[i] = other->next[i];
 }
-int rp_set_contains(const RPSet *state, unsigned value) { return value < 4 && (state->adds[value] & (uint16_t)~state->removed[value]) != 0; }
-static int node_index(const RPSequence *sequence, unsigned id) {
+int rp_set_contains(const struct rp_set *state, unsigned value) { return value < 4 && (state->adds[value] & (uint16_t)~state->removed[value]) != 0; }
+static int node_index(const struct rp_sequence *sequence, unsigned id) {
     unsigned i; for (i = 0; i < sequence->count; ++i) if (sequence->nodes[i].id == id) return (int)i;
     return -1;
 }
-int rp_sequence_insert(RPSequence *sequence, unsigned id, unsigned parent, unsigned char value) {
+int rp_sequence_insert(struct rp_sequence *sequence, unsigned id, unsigned parent, unsigned char value) {
     int existing;
     if (id == 0 || parent >= id) return RP_INVALID;
     existing = node_index(sequence, id);
     if (existing >= 0) return sequence->nodes[existing].parent == parent && sequence->nodes[existing].value == value ? RP_OK : RP_CONFLICT;
     if (parent && node_index(sequence, parent) < 0) return RP_GAP;
     if (sequence->count == 16) return RP_FULL;
-    sequence->nodes[sequence->count++] = (RPNode){id,parent,value,0}; return RP_OK;
+    sequence->nodes[sequence->count++] = (struct rp_node){id,parent,value,0}; return RP_OK;
 }
-int rp_sequence_remove(RPSequence *sequence, unsigned id) {
+int rp_sequence_remove(struct rp_sequence *sequence, unsigned id) {
     int index = node_index(sequence, id);
     if (index < 0) return RP_GAP;
     sequence->nodes[index].removed = 1; return RP_OK;
 }
-static void render_children(const RPSequence *sequence, unsigned parent, unsigned char out[16], size_t *length) {
+static void render_children(const struct rp_sequence *sequence, unsigned parent, unsigned char out[16], size_t *length) {
     unsigned used = 0, k, i;
     for (k = 0; k < sequence->count; ++k) {
         int best = -1;
@@ -152,7 +152,7 @@ static void render_children(const RPSequence *sequence, unsigned parent, unsigne
         if (MOD_MUTATION != 12 || !sequence->nodes[best].removed) render_children(sequence, sequence->nodes[best].id, out, length);
     }
 }
-int rp_sequence_render(const RPSequence *sequence, unsigned char *out, size_t capacity, size_t *length) {
+int rp_sequence_render(const struct rp_sequence *sequence, unsigned char *out, size_t capacity, size_t *length) {
     unsigned char buffer[16]; size_t count = 0;
     render_children(sequence, 0, buffer, &count);
     if (count > capacity) return RP_FULL;
@@ -247,15 +247,15 @@ static int read_varint(const unsigned char *bytes, size_t length, size_t *positi
     }
     return RP_INVALID;
 }
-int rp_decode(const unsigned char *bytes, size_t length, RPMessage *message) {
-    RPMessage next={{{0,0}},0};size_t position=0;unsigned seen=0;
+int rp_decode(const unsigned char *bytes, size_t length, struct rp_message *message) {
+    struct rp_message next={{{0,0}},0};size_t position=0;unsigned seen=0;
     while (position<length) {
         uint32_t tag,value;int status=read_varint(bytes,length,&position,&tag);
         if (status!=RP_OK) return status;
         if ((tag&7u)!=0 || tag<8 || tag>120 || (seen&(1u<<(tag>>3)))) return RP_INVALID;
         status=read_varint(bytes,length,&position,&value);if(status!=RP_OK)return status;
         if(next.count==8)return RP_FULL;
-        seen|=1u<<(tag>>3);next.fields[next.count++]=(RPField){tag>>3,value};
+        seen|=1u<<(tag>>3);next.fields[next.count++]=(struct rp_field){tag>>3,value};
     }
     if((seen&6u)!=6u)return RP_INVALID;
     *message=next;return RP_OK;
@@ -263,7 +263,7 @@ int rp_decode(const unsigned char *bytes, size_t length, RPMessage *message) {
 static void write_varint(uint32_t value,unsigned char bytes[48],size_t *position) {
     do { unsigned char byte=(unsigned char)(value&127u);value>>=7;if(value)byte|=128u;bytes[(*position)++]=byte; }while(value);
 }
-int rp_encode(const RPMessage *message, unsigned char *bytes, size_t capacity, size_t *length) {
+int rp_encode(const struct rp_message *message, unsigned char *bytes, size_t capacity, size_t *length) {
     unsigned seen=0,i,tag;unsigned char buffer[48];size_t position=0;
     if(message->count>8)return RP_INVALID;
     for(i=0;i<message->count;++i){tag=message->fields[i].tag;if(tag<1||tag>15||(seen&(1u<<tag)))return RP_INVALID;seen|=1u<<tag;}
@@ -272,22 +272,22 @@ int rp_encode(const RPMessage *message, unsigned char *bytes, size_t capacity, s
     if(position>capacity)return RP_FULL;
     memcpy(bytes,buffer,position);*length=position;return RP_OK;
 }
-int rp_step(RPState state, int movement, RPState *result, RPEffect *effect) {
+int rp_step(struct rp_state state, int movement, struct rp_state *result, struct rp_effect *effect) {
     if(state.tick>=8||state.position>=16||state.score>65535||movement < -1||movement>1)return RP_INVALID;
     state.position=(unsigned)((int)state.position+16+movement)%16;
     state.random=state.random*UINT32_C(1664525)+UINT32_C(1013904223);
     if(state.score>65535-(state.random&3u))return RP_RANGE;
     if(MOD_MUTATION!=17)state.score+=state.random&3u;
-    ++state.tick;*result=state;*effect=(RPEffect){state.tick,state.score};return RP_OK;
+    ++state.tick;*result=state;*effect=(struct rp_effect){state.tick,state.score};return RP_OK;
 }
-int rp_replay(RPState initial, const int *movements, size_t count, RPState *result, RPEffect *effects) {
-    RPState state=initial;RPEffect staged[8];size_t i;
+int rp_replay(struct rp_state initial, const int *movements, size_t count, struct rp_state *result, struct rp_effect *effects) {
+    struct rp_state state=initial;struct rp_effect staged[8];size_t i;
     if(count>8)return RP_RANGE;
     for(i=0;i<count;++i){int status=rp_step(state,movements[i],&state,&staged[i]);if(status!=RP_OK)return status;}
     if(count)memcpy(effects,staged,count*sizeof *effects);
     *result=state;return RP_OK;
 }
-int rp_checkpoint(DHamt *arena, unsigned root, RPState state, unsigned fail_ordinal, unsigned *new_root) {
+int rp_checkpoint(struct d_hamt *arena, unsigned root, struct rp_state state, unsigned fail_ordinal, unsigned *new_root) {
     unsigned saved_used=arena->used,saved_fail=arena->fail_after,first,second;int status;
     if(state.tick>8||state.position>=16||state.score>65535||fail_ordinal>6)return RP_INVALID;
     arena->fail_after=fail_ordinal<=3?fail_ordinal:0;

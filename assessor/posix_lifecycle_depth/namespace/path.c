@@ -26,14 +26,14 @@ int pn_open_confined(int directory,const char *relative,int *owned_fd){
     if(!S_ISREG(info.st_mode)){close(fd);return EINVAL;}
     *owned_fd=fd;return 0;
 }
-int pn_info(int directory,const char *path,bool follow,PNInfo *out){
-    struct stat s; PNInfo result;
+int pn_info(int directory,const char *path,bool follow,struct pn_info *out){
+    struct stat s; struct pn_info result;
     if(!path||!out)return EINVAL;
 #if PN_MUTANT == 3
     follow=true;
 #endif
     if(fstatat(directory,path,&s,follow?0:AT_SYMLINK_NOFOLLOW)<0)return errno;
-    result=(PNInfo){.device=s.st_dev,.inode=s.st_ino,.mode=s.st_mode,.owner=s.st_uid,.group=s.st_gid,
+    result=(struct pn_info){.device=s.st_dev,.inode=s.st_ino,.mode=s.st_mode,.owner=s.st_uid,.group=s.st_gid,
       .links=s.st_nlink,.logical_bytes=s.st_size,.blocks_512=s.st_blocks,.preferred_io=s.st_blksize,
       .access=s.st_atim,.modification=s.st_mtim,.status_change=s.st_ctim};
 #if PN_MUTANT == 4
@@ -48,7 +48,7 @@ int pn_creation_mode(unsigned requested,unsigned mask,bool has_default,unsigned 
 #endif
     *installed=requested&(has_default?permissions:(~mask&0777u));return 0;
 }
-int pn_authorize(PNAuthority a,enum PNOperation operation){
+int pn_authorize(struct pn_authority a,enum pn_operation operation){
     if(operation<PN_READ||operation>PN_REPLACE)return EINVAL;
     if(!a.searchable)return EACCES;
     if(operation==PN_READ)return a.file_read?0:EACCES;

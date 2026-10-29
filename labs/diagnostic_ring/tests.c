@@ -10,18 +10,18 @@ void dr_note(const char *);
       return 41;                                                               \
     }                                                                          \
   } while (0)
-static EnMemory memory;
-static EnModel model;
-static EpModel pm;
-static EpPhy phy;
-static EnRing ring;
-static DgRing bridge;
+static struct en_memory memory;
+static struct en_model model;
+static struct ep_model pm;
+static struct ep_phy phy;
+static struct en_ring ring;
+static struct dg_ring bridge;
 static int boot(void) {
   memset(&ring, 0, sizeof ring);
   memset(&phy, 0, sizeof phy);
   memset(&bridge, 0, sizeof bridge);
   ep_model_setup(&pm, 0);
-  EDBus p = ep_model_bus(&pm);
+  struct ed_bus p = ep_model_bus(&pm);
   CHECK(ep_init(&phy, &p, 168000000, 0, 4, 100) == ED_OK);
   CHECK(ep_begin(&phy, 16, 1000) == ED_BUSY);
   int rc = ED_BUSY;
@@ -29,7 +29,7 @@ static int boot(void) {
     rc = ep_step(&phy);
   CHECK(rc == ED_OK);
   en_model_init(&model, &memory, 0x20001000);
-  EnBus b = en_model_bus(&model);
+  struct en_bus b = en_model_bus(&model);
   unsigned char mac[6] = {2, 0, 0, 0, 0, 2};
   CHECK(en_init(&ring, &memory, 0x20001000, &b, &phy, mac) == ED_OK);
   CHECK(en_reset_begin(&ring, 0, 4, 100) == ED_BUSY);
@@ -41,7 +41,7 @@ static int boot(void) {
 }
 static int transmit(void) {
   CHECK(!boot());
-  DGMessage m = {7, 3, {1, 2, 3}};
+  struct dg_message m = {7, 3, {1, 2, 3}};
   CHECK(dr_send(&bridge, &m) == DG_OK && bridge.phase == 1);
   unsigned slot = bridge.ticket.slot;
   m.payload[0] = 99;
@@ -84,8 +84,8 @@ static int transmit(void) {
 }
 static int receive(void) {
   CHECK(!boot());
-  DGSession session = {0};
-  DGMessage m = {1, 2, {0xaa, 0x55}}, out = {99, 1, {9}};
+  struct dg_session session = {0};
+  struct dg_message m = {1, 2, {0xaa, 0x55}}, out = {99, 1, {9}};
   unsigned char f[64] = {0};
   size_t n = 0;
   CHECK(dg_ethernet_build(&m, f, 60, &n) == DG_OK && n == 60);
@@ -95,7 +95,7 @@ static int receive(void) {
   CHECK(memory.rx[0].word[0] == 0x80000000u);
   for (unsigned i = 0; i < 8; i++) {
     CHECK(en_model_rx(&model, f, 64, (64u << 16) | 0x300u) == ED_OK);
-    DGMessage prior;
+    struct dg_message prior;
     memcpy(&prior, &out, sizeof out);
     CHECK(dr_receive(&bridge, &session, &out) == DG_STALE &&
           !memcmp(&prior, &out, sizeof out) && session.accepted == 1 &&
@@ -113,7 +113,7 @@ static int receive(void) {
   CHECK(dg_ethernet_build(&m, f, 60, &n) == DG_OK);
   CHECK(en_model_rx(&model, f, 64, (64u << 16) | 0x300u) == ED_OK);
   model.fail_at = model.calls + 1;
-  DGMessage prior;
+  struct dg_message prior;
     memcpy(&prior, &out, sizeof out);
   CHECK(dr_receive(&bridge, &session, &out) == DG_IO && session.last == 1 &&
         !memcmp(&prior, &out, sizeof out));

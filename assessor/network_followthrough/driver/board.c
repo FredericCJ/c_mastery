@@ -1,10 +1,10 @@
 #include "board.h"
-static int failed(NbBoard *b) {
+static int failed(struct nb_board *b) {
   b->phase = NB_BOARD_FAILED;
   return NB_FAULT;
 }
-int nb_board_begin(NbBoard *b, EnMemory *m, uint32_t base, EpMmioClock clock,
-                   NaConfig c, uint32_t epoch, uint32_t isn,
+int nb_board_begin(struct nb_board *b, struct en_memory *m, uint32_t base, struct ep_mmio_clock clock,
+                   struct na_config c, uint32_t epoch, uint32_t isn,
                    unsigned capacity) {
   if (!b || !m || !clock.clock || b->phase != NB_BOARD_COLD ||
       b->target.opened || !epoch || !capacity || capacity > 512 ||
@@ -23,7 +23,7 @@ int nb_board_begin(NbBoard *b, EnMemory *m, uint32_t base, EpMmioClock clock,
    * 'cleanup' rewrites clocks that an incompletely observed engine may use. */
   if (en_target_cold(&b->target) != ED_OK)
     return failed(b);
-  EDBus phy_bus;
+  struct ed_bus phy_bus;
   if (ep_f439_bus(&b->clock, &phy_bus) != ED_OK)
     return failed(b);
   if (ep_init(&b->phy, &phy_bus, 168000000, 0, 1024, 10) != ED_OK ||
@@ -33,7 +33,7 @@ int nb_board_begin(NbBoard *b, EnMemory *m, uint32_t base, EpMmioClock clock,
   b->phase = NB_BOARD_PHY;
   return NB_WAIT;
 }
-int nb_board_step(NbBoard *b) {
+int nb_board_step(struct nb_board *b) {
   if (!b || !b->clock.clock)
     return NB_INVALID;
   if (b->phase == NB_BOARD_FAILED)
@@ -52,7 +52,7 @@ int nb_board_step(NbBoard *b) {
       return NB_WAIT;
     if (e != ED_OK)
       return failed(b);
-    EnBus bus = en_target_bus(&b->target);
+    struct en_bus bus = en_target_bus(&b->target);
     if (en_init(&b->ring, b->memory, b->base, &bus, &b->phy,
                 b->config.local_mac) != ED_OK ||
         en_reset_begin(&b->ring, 0, 100, 100) != ED_BUSY)

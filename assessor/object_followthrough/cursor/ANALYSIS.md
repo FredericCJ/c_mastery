@@ -12,7 +12,7 @@ Offset5 is a useful mathematical linearization but `matrix[0]` has the first thr
 
 ## T03.04.c
 
-The table accessor first reads a real `int*` object; a nested array contains ints at that location. A cast cannot create the absent pointer objects. The common `OcMatrix` dispatch stores a real context pointer and a compatible callback, which applies the representation's own checks. Withhold a shortened row and test that the outer rectangle alone cannot authorize its final column. The negative translation demonstrates the ordinary uncast mismatch, not every possible warning after explicit casts.
+The table accessor first reads a real `int*` object; a nested array contains ints at that location. A cast cannot create the absent pointer objects. The common `struct oc_matrix` dispatch stores a real context pointer and a compatible callback, which applies the representation's own checks. Withhold a shortened row and test that the outer rectangle alone cannot authorize its final column. The negative translation demonstrates the ordinary uncast mismatch, not every possible warning after explicit casts.
 
 ## T03.05.a
 

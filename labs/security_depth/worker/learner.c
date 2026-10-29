@@ -6,7 +6,7 @@ int sd_exclusive(int d, const char *n, int *o) {
   (void)o;
   return ENOSYS;
 }
-int sd_request(unsigned a, enum SDOperation op, int fd, char o[4]) {
+int sd_request(unsigned a, enum sd_operation op, int fd, char o[4]) {
   (void)a;
   (void)op;
   (void)fd;
@@ -14,7 +14,7 @@ int sd_request(unsigned a, enum SDOperation op, int fd, char o[4]) {
   return ENOSYS;
 }
 int sd_spawn(const char *p, char *const a[], char *const e[], int l, int t,
-             unsigned f, SDChild *o) {
+             unsigned f, struct sd_child *o) {
   (void)p;
   (void)a;
   (void)e;

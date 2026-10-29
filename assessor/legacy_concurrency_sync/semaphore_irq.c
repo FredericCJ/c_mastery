@@ -23,7 +23,7 @@ static void pend(void) {
   REG32(0xe000ed04u) = UINT32_C(1) << 28;
   __asm__ volatile("dsb\nisb" ::: "memory");
 }
-int cds_irq_post(CDSem *s, CDPost *out) {
+int cds_irq_post(struct cd_sem *s, struct cd_post *out) {
   unsigned number = exception();
   if (number != 0 && number != 14) {
     if (number < 16 || number >= 256 ||
@@ -37,7 +37,7 @@ int cds_irq_post(CDSem *s, CDPost *out) {
   cds_irq_restore(saved);
   return result;
 }
-int cds_high_offer(CDDeferred *d) {
+int cds_high_offer(struct cd_deferred *d) {
   /* No CMX object access or scheduler call occurs in this urgent handler. */
   uint32_t saved = cds_irq_save();
   int result = cds_deferred_offer(d);

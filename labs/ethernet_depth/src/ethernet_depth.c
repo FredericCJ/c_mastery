@@ -8,7 +8,7 @@ int ed_wrap(uint32_t application, const uint32_t *headers, size_t count,
   (void)sizes;
   return ED_UNIMPLEMENTED;
 }
-int ed_compatible(EDInterface provided, EDInterface required,
+int ed_compatible(struct ed_interface provided, struct ed_interface required,
                   unsigned *compatible) {
   (void)provided;
   (void)required;
@@ -31,7 +31,7 @@ int ed_frame_build(const uint8_t destination[6], const uint8_t source[6],
   return ED_UNIMPLEMENTED;
 }
 int ed_frame_parse(const uint8_t *frame, size_t length, unsigned fcs,
-                   EDFrame *out) {
+                   struct ed_frame *out) {
   (void)frame;
   (void)length;
   (void)fcs;
@@ -44,7 +44,7 @@ int ed_crc32(const uint8_t *bytes, size_t length, uint32_t *out) {
   (void)out;
   return ED_UNIMPLEMENTED;
 }
-int ed_bridge(EDBridge *bridge, const uint8_t source[6],
+int ed_bridge(struct ed_bridge *bridge, const uint8_t source[6],
               const uint8_t destination[6], unsigned ingress, uint32_t now,
               unsigned *output_mask) {
   (void)bridge;
@@ -65,7 +65,7 @@ int ed_mdio_word(uint32_t hclk, unsigned phy, unsigned reg, unsigned busy,
   (void)divisor;
   return ED_UNIMPLEMENTED;
 }
-int ed_mdio_read(const EDBus *bus, uint32_t hclk, unsigned phy, unsigned reg,
+int ed_mdio_read(const struct ed_bus *bus, uint32_t hclk, unsigned phy, unsigned reg,
                  unsigned budget, uint32_t timeout, uint16_t *value) {
   (void)bus;
   (void)hclk;
@@ -76,8 +76,8 @@ int ed_mdio_read(const EDBus *bus, uint32_t hclk, unsigned phy, unsigned reg,
   (void)value;
   return ED_UNIMPLEMENTED;
 }
-int ed_phy_query(const EDBus *bus, uint32_t hclk, unsigned phy, unsigned budget,
-                 uint32_t timeout, EDPhy *out) {
+int ed_phy_query(const struct ed_bus *bus, uint32_t hclk, unsigned phy, unsigned budget,
+                 uint32_t timeout, struct ed_phy *out) {
   (void)bus;
   (void)hclk;
   (void)phy;
@@ -86,20 +86,20 @@ int ed_phy_query(const EDBus *bus, uint32_t hclk, unsigned phy, unsigned budget,
   (void)out;
   return ED_UNIMPLEMENTED;
 }
-int ed_rx_acquire(EDRx *state, const EDDescriptor *descriptors, size_t count,
-                  EDBorrow *out) {
+int ed_rx_acquire(struct ed_rx *state, const struct ed_descriptor *descriptors, size_t count,
+                  struct ed_borrow *out) {
   (void)state;
   (void)descriptors;
   (void)count;
   (void)out;
   return ED_UNIMPLEMENTED;
 }
-int ed_rx_release(EDRx *state, uint32_t token) {
+int ed_rx_release(struct ed_rx *state, uint32_t token) {
   (void)state;
   (void)token;
   return ED_UNIMPLEMENTED;
 }
-int ed_tx_prepare(EDTx *state, unsigned slot, uint32_t token,
+int ed_tx_prepare(struct ed_tx *state, unsigned slot, uint32_t token,
                   const uint8_t *frame, size_t length) {
   (void)state;
   (void)slot;
@@ -108,13 +108,13 @@ int ed_tx_prepare(EDTx *state, unsigned slot, uint32_t token,
   (void)length;
   return ED_UNIMPLEMENTED;
 }
-int ed_tx_tail(EDTx *state, unsigned slot, uint32_t token) {
+int ed_tx_tail(struct ed_tx *state, unsigned slot, uint32_t token) {
   (void)state;
   (void)slot;
   (void)token;
   return ED_UNIMPLEMENTED;
 }
-int ed_tx_publish(EDTx *state, unsigned slot, uint32_t token,
+int ed_tx_publish(struct ed_tx *state, unsigned slot, uint32_t token,
                   void (*barrier)(void *), void *context) {
   (void)state;
   (void)slot;
@@ -123,7 +123,7 @@ int ed_tx_publish(EDTx *state, unsigned slot, uint32_t token,
   (void)context;
   return ED_UNIMPLEMENTED;
 }
-int ed_tx_complete(EDTx *state, unsigned slot, uint32_t token,
+int ed_tx_complete(struct ed_tx *state, unsigned slot, uint32_t token,
                    unsigned returned, unsigned error) {
   (void)state;
   (void)slot;
@@ -132,7 +132,7 @@ int ed_tx_complete(EDTx *state, unsigned slot, uint32_t token,
   (void)error;
   return ED_UNIMPLEMENTED;
 }
-int ed_tx_abort(EDTx *state, unsigned slot, uint32_t token, unsigned stopped) {
+int ed_tx_abort(struct ed_tx *state, unsigned slot, uint32_t token, unsigned stopped) {
   (void)state;
   (void)slot;
   (void)token;
@@ -150,7 +150,7 @@ int ed_initialize(const uint8_t *events, size_t count, size_t *first_bad) {
   (void)first_bad;
   return ED_UNIMPLEMENTED;
 }
-int ed_budget(uint32_t application, unsigned megabits, EDBudget *out) {
+int ed_budget(uint32_t application, unsigned megabits, struct ed_budget *out) {
   (void)application;
   (void)megabits;
   (void)out;

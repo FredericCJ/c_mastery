@@ -48,7 +48,7 @@ The complete versioned record/page-store adapter, positioned snapshot contract,
 three executable anchors, six semantic controls, independent dictionary/byte
 oracle and bounded persistence-prefix investigation are specified in
 [DURABLE.md](../../../labs/replicated/followthrough/DURABLE.md). It calls the
-actual T20 ar_encode/ar_decode, T47 store and RPLog/DOD producers; their exact
+actual T20 ar_encode/ar_decode, T47 store and struct rp_log/DOD producers; their exact
 interfaces and changed assumptions are explicit. Run the original memory anchor
 as well. Source-bound successor reports establish only their stated author
 execution scope; the delayed unaided attempt, published-edition access gaps,

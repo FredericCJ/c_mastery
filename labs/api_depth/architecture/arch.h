@@ -24,111 +24,111 @@ enum {
   AR_STATE,
   AR_UNIMPLEMENTED
 };
-typedef struct {
+struct ar_record {
   int32_t value;
-} ArRecord;
-typedef struct {
+};
+struct ar_storage {
   void *context;
-  int (*get)(void *, size_t, ArRecord *);
-} ArStorage;
-typedef struct {
+  int (*get)(void *, size_t, struct ar_record *);
+};
+struct ar_reader {
   unsigned char bytes[5];
   size_t used;
   unsigned version;
-} ArReader;
-typedef struct {
+};
+struct ar_window {
   int32_t previous;
   unsigned present;
-} ArWindow;
+};
 int ar_double(const int32_t *, size_t, int32_t *);
-int ar_window(ArWindow *, int32_t, int32_t *);
-int ar_encode(unsigned, ArRecord, unsigned char *, size_t);
-int ar_decode(unsigned, const unsigned char *, size_t, ArRecord *);
-int ar_feed(ArReader *, const unsigned char *, size_t, ArRecord *);
-int ar_process(ArStorage, size_t, int32_t *);
-typedef struct {
+int ar_window(struct ar_window *, int32_t, int32_t *);
+int ar_encode(unsigned, struct ar_record, unsigned char *, size_t);
+int ar_decode(unsigned, const unsigned char *, size_t, struct ar_record *);
+int ar_feed(struct ar_reader *, const unsigned char *, size_t, struct ar_record *);
+int ar_process(struct ar_storage, size_t, int32_t *);
+struct ar_item {
   unsigned id, priority;
-} ArItem;
-typedef struct {
-  ArItem items[AR_CAP];
+};
+struct ar_queue {
+  struct ar_item items[AR_CAP];
   size_t length, capacity;
-} ArQueue;
-typedef struct {
+};
+struct ar_eviction {
   unsigned valid;
-  ArItem item;
-} ArEviction;
-int ar_queue_init(ArQueue *, size_t);
-int ar_push(ArQueue *, ArItem, unsigned, ArEviction *);
-int ar_pop(ArQueue *, ArItem *);
-typedef struct {
+  struct ar_item item;
+};
+int ar_queue_init(struct ar_queue *, size_t);
+int ar_push(struct ar_queue *, struct ar_item, unsigned, struct ar_eviction *);
+int ar_pop(struct ar_queue *, struct ar_item *);
+struct ar_result {
   ptrdiff_t count;
   unsigned state;
-} ArResult;
-typedef struct {
+};
+struct ar_ops {
   void *context;
   void *(*allocate)(void *, size_t);
   void (*release)(void *, void *);
   uint64_t (*clock_ms)(void *);
-  ArResult (*write)(void *, const unsigned char *, size_t);
+  struct ar_result (*write)(void *, const unsigned char *, size_t);
   int (*notify)(void *, unsigned);
-} ArOps;
-typedef struct {
-  ArOps ops;
+};
+struct ar_task {
+  struct ar_ops ops;
   unsigned char *data;
   size_t length, offset;
   uint64_t last_ms;
   unsigned active, cancelling, terminal, version, allow_partial_failure;
-} ArTask;
-int ar_begin(ArTask *, ArOps, const unsigned char *, size_t, unsigned,
+};
+int ar_begin(struct ar_task *, struct ar_ops, const unsigned char *, size_t, unsigned,
              unsigned);
-int ar_poll(ArTask *);
-int ar_cancel(ArTask *);
-int ar_cancel_ack(ArTask *);
-typedef struct {
+int ar_poll(struct ar_task *);
+int ar_cancel(struct ar_task *);
+int ar_cancel_ack(struct ar_task *);
+struct ar_event {
   uint32_t incarnation, request;
   unsigned type;
-} ArEvent;
-typedef struct {
+};
+struct ar_machine {
   uint32_t incarnation, next_request, request;
   unsigned stage, cancelling, releases;
-  ArEvent queue[2], acknowledgement;
+  struct ar_event queue[2], acknowledgement;
   unsigned queued, ack_present;
-} ArMachine;
-void ar_machine_init(ArMachine *);
-int ar_acquire(ArMachine *, uint32_t *);
-int ar_submit(ArMachine *);
-int ar_machine_cancel(ArMachine *);
-int ar_event(ArMachine *, ArEvent);
-int ar_step(ArMachine *);
-int ar_restart(ArMachine *);
-typedef struct {
+};
+void ar_machine_init(struct ar_machine *);
+int ar_acquire(struct ar_machine *, uint32_t *);
+int ar_submit(struct ar_machine *);
+int ar_machine_cancel(struct ar_machine *);
+int ar_event(struct ar_machine *, struct ar_event);
+int ar_step(struct ar_machine *);
+int ar_restart(struct ar_machine *);
+struct ar_field {
   unsigned key;
   uint32_t value;
-} ArField;
-typedef struct {
+};
+struct ar_config {
   uint32_t timeout_ms;
   unsigned limit, policy;
 #if AR_FEATURE
   uint64_t extended_counter;
 #endif
-} ArConfig;
-int ar_config(const ArField *, size_t, ArConfig *);
-int ar_identity(ArConfig, unsigned char[8]);
-typedef struct {
+};
+int ar_config(const struct ar_field *, size_t, struct ar_config *);
+int ar_identity(struct ar_config, unsigned char[8]);
+struct ar_supervisor {
   unsigned mode, streak, lost_logs, attempts;
-} ArSupervisor;
-typedef struct {
+};
+struct ar_recovery {
   void *context;
   int (*init_a)(void *);
   int (*init_b)(void *);
   void (*drop_a)(void *);
-} ArRecovery;
-int ar_supervise(ArSupervisor *, unsigned, int (*)(void *, unsigned), void *);
-int ar_recover(ArSupervisor *, ArRecovery);
-typedef struct {
+};
+int ar_supervise(struct ar_supervisor *, unsigned, int (*)(void *, unsigned), void *);
+int ar_recover(struct ar_supervisor *, struct ar_recovery);
+struct ar_indicator {
   void *context;
   int (*set)(void *, unsigned);
-} ArIndicator;
-int ar_service(int32_t, int32_t, ArIndicator);
+};
+int ar_service(int32_t, int32_t, struct ar_indicator);
 int ar_centimilli(int32_t, int32_t *);
 #endif

@@ -6,12 +6,12 @@ static uint32_t minimum(uint32_t a, uint32_t b) { return a < b ? a : b; }
 static uint32_t bounded_add(uint32_t a, uint32_t b) {
   return a > NR_LIMIT - b ? NR_LIMIT : a + b;
 }
-uint32_t nr_flight(const NrControl *s) { return s->nxt - s->una; }
-static uint32_t normal_usable(const NrControl *s) {
+uint32_t nr_flight(const struct nr_control *s) { return s->nxt - s->una; }
+static uint32_t normal_usable(const struct nr_control *s) {
   uint32_t limit = minimum(s->cwnd, s->rwnd), flight = nr_flight(s);
   return flight >= limit ? 0 : limit - flight;
 }
-uint32_t nr_usable(const NrControl *s) {
+uint32_t nr_usable(const struct nr_control *s) {
   uint32_t limit = NR_MUTANT == 1 ? s->cwnd : minimum(s->cwnd, s->rwnd),
            flight = nr_flight(s);
   uint32_t available = flight >= limit ? 0 : limit - flight;
@@ -24,17 +24,17 @@ uint32_t nr_usable(const NrControl *s) {
   }
   return available;
 }
-int nr_init(NrControl *s, uint32_t mss, uint32_t isn, uint32_t window) {
+int nr_init(struct nr_control *s, uint32_t mss, uint32_t isn, uint32_t window) {
   if (!s || !mss || mss > 1460 || window > 65535)
     return NR_INVALID;
-  *s = (NrControl){0};
+  *s = (struct nr_control){0};
   s->mss = s->iw = s->cwnd = mss;
   s->ssthresh = 65535;
   s->rwnd = window;
   s->una = s->nxt = isn;
   return NR_OK;
 }
-int nr_policy(NrControl *s, unsigned enabled) {
+int nr_policy(struct nr_control *s, unsigned enabled) {
   if (!s || enabled > 1)
     return NR_INVALID;
   if (nr_flight(s))
@@ -43,7 +43,7 @@ int nr_policy(NrControl *s, unsigned enabled) {
   s->quota = 0;
   return NR_OK;
 }
-int nr_send(NrControl *s, uint32_t bytes, unsigned copied, uint64_t now,
+int nr_send(struct nr_control *s, uint32_t bytes, unsigned copied, uint64_t now,
             uint32_t *sequence) {
   if (!s || !sequence || !bytes || bytes > s->mss || copied > 1 || now < s->now)
     return NR_INVALID;
@@ -62,14 +62,14 @@ int nr_send(NrControl *s, uint32_t bytes, unsigned copied, uint64_t now,
   s->now = s->last_send = now;
   return NR_OK;
 }
-static uint32_t threshold(const NrControl *s, unsigned fast) {
+static uint32_t threshold(const struct nr_control *s, unsigned fast) {
   uint32_t flight = nr_flight(s);
   if (fast && NR_MUTANT != 8)
     flight -= s->limited_length[0] + s->limited_length[1];
   uint32_t half = (NR_MUTANT == 2 ? s->cwnd : flight) / 2;
   return half < 2 * s->mss ? 2 * s->mss : half;
 }
-int nr_ack(NrControl *s, uint32_t ack, uint32_t window, unsigned payload,
+int nr_ack(struct nr_control *s, uint32_t ack, uint32_t window, unsigned payload,
            unsigned flags, uint64_t now) {
   if (!s || window > 65535 || now < s->now || !(flags & 16) || (flags & ~0x18u))
     return NR_INVALID;
@@ -137,7 +137,7 @@ int nr_ack(NrControl *s, uint32_t ack, uint32_t window, unsigned payload,
   }
   return NR_WAIT;
 }
-int nr_timeout(NrControl *s, uint64_t now) {
+int nr_timeout(struct nr_control *s, uint64_t now) {
   if (!s || now < s->now)
     return NR_INVALID;
   if (!nr_flight(s))
@@ -151,7 +151,7 @@ int nr_timeout(NrControl *s, uint64_t now) {
   s->now = now;
   return NR_OK;
 }
-int nr_restart(NrControl *s, uint64_t now, uint32_t rto) {
+int nr_restart(struct nr_control *s, uint64_t now, uint32_t rto) {
   if (!s || now < s->now || rto < 1000 || rto > 60000)
     return NR_INVALID;
   if (nr_flight(s))

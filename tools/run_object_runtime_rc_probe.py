@@ -18,11 +18,11 @@ static volatile uint64_t checksum;
 static uint64_t ns(void){struct timespec t;if(clock_gettime(CLOCK_MONOTONIC,&t))return 0;return (uint64_t)t.tv_sec*UINT64_C(1000000000)+(uint64_t)t.tv_nsec;}
 #define REQUIRE(c) do{if(!(c))return 1;}while(0)
 int main(void){unsigned shape,mode,trial,round;
- printf("LAYOUT %zu %zu %zu %zu %zu\n",sizeof(ORRHeap),sizeof(ORCounts),sizeof(ORRTrial),sizeof(ORRConcurrent),sizeof(ORRHandle));
+ printf("LAYOUT %zu %zu %zu %zu %zu\n",sizeof(struct orr_heap),sizeof(struct or_counts),sizeof(struct orr_trial),sizeof(struct orr_concurrent),sizeof(struct orr_handle));
  for(shape=0;shape<2;shape++)for(mode=0;mode<3;mode++)for(trial=0;trial<16;trial++){
   unsigned zero_retired=0,cycle_retired=0,flushed=0,drains=0;uint64_t start=ns(),end;
   for(round=0;round<PROBE_ROUNDS;round++){
-   ORRHeap h;ORRHandle a[8];ORRTrial t;ORStatus s;unsigned i,n;uint16_t dead;
+   struct orr_heap h;struct orr_handle a[8];struct orr_trial t;enum or_status s;unsigned i,n;uint16_t dead;
    orr_init(&h);for(i=0;i<8;i++)REQUIRE(orr_new(&h,&a[i])==OR_OK);
    for(i=0;i<7;i++)REQUIRE(orr_store(&h,a[i],0,a[i+1],0,&dead)==OR_OK);
    if(shape)REQUIRE(orr_store(&h,a[7],0,a[0],0,&dead)==OR_OK);

@@ -2,9 +2,9 @@
 #include "signals.h"
 #include <errno.h>
 #include <string.h>
-int ei_exchange(EiIo o, const unsigned char request[8],
+int ei_exchange(struct ei_io o, const unsigned char request[8],
                 unsigned char response[4], struct timespec deadline,
-                EiProgress *p) {
+                struct ei_progress *p) {
   if (!o.now || !o.transfer || !o.wait || !request || !response || !p ||
       deadline.tv_sec < 0 || deadline.tv_nsec < 0 ||
       deadline.tv_nsec >= 1000000000L || p->sent > 8 || p->received > 4 ||

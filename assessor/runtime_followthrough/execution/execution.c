@@ -46,14 +46,14 @@ int vs_arithmetic(unsigned mode, unsigned op, int32_t a, int32_t b,
   *out = (int32_t)n;
   return CVM_OK;
 }
-static void frame(CvmFrame *f, unsigned fn, unsigned ip, unsigned base) {
-  *f = (CvmFrame){0};
+static void frame(struct cvm_frame *f, unsigned fn, unsigned ip, unsigned base) {
+  *f = (struct cvm_frame){0};
   f->function = (uint8_t)fn;
   f->ip = (uint16_t)ip;
   f->base = (uint16_t)base;
 }
-int vs_start(Vs *s, const CvmProgram *p, unsigned mode, uint32_t fuel,
-             uint32_t gc, uint32_t host, uint32_t capabilities, VvWork *w) {
+int vs_start(struct vg_vs *s, const struct cvm_program *p, unsigned mode, uint32_t fuel,
+             uint32_t gc, uint32_t host, uint32_t capabilities, struct vv_work *w) {
   if (!s || !p || !w || mode > VS_WRAP_V2)
     return CVM_RANGE;
   if (s->state == VS_RUNNING || (s->state == VS_PENDING && VS_MUTANT != 5) ||
@@ -64,7 +64,7 @@ int vs_start(Vs *s, const CvmProgram *p, unsigned mode, uint32_t fuel,
     return CVM_VERIFY;
   const uint8_t widths[25] = {0, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2,
                               1, 3, 3, 3, 1, 1, 1, 1, 1, 2, 0, 3};
-  CvmProgram normal = *p;
+  struct cvm_program normal = *p;
   for (unsigned pc = 0; pc < p->length;) {
     unsigned op = p->code[pc];
     if (op > VS_TAIL || !widths[op] || widths[op] > p->length - pc)
@@ -73,7 +73,7 @@ int vs_start(Vs *s, const CvmProgram *p, unsigned mode, uint32_t fuel,
       normal.code[pc] = OP_CALL;
     pc += widths[op];
   }
-  VvReport report;
+  struct vv_report report;
   if (vv_verify(&normal, 0, 0, w, &report) != VV_OK)
     return CVM_VERIFY;
   for (unsigned fn = 0; fn < p->count; fn++) {
@@ -102,25 +102,25 @@ int vs_start(Vs *s, const CvmProgram *p, unsigned mode, uint32_t fuel,
   frame(s->vm.frames, 0, p->functions[0].entry, 0);
   return VS_RUNNING;
 }
-static int fail(Vs *s, unsigned reason) {
+static int fail(struct vg_vs *s, unsigned reason) {
   s->state = 1;
   s->reason = reason;
   return (int)reason;
 }
-static int push(Cvm *v, CvmValue x) {
+static int push(struct cvm_cvm *v, struct cvm_value x) {
   if (v->sp >= CVM_STACK)
     return CVM_STACK_LIMIT;
   v->stack[v->sp++] = x;
   return CVM_OK;
 }
-int vs_take(Vs *s, VsRequest *out) {
+int vs_take(struct vg_vs *s, struct vs_request *out) {
   if (!s || !out || s->state != VS_PENDING || (s->taken && VS_MUTANT != 6))
     return VS_STATE;
   *out = s->request;
   s->taken = 1;
   return VS_PENDING;
 }
-int vs_complete(Vs *s, uint32_t epoch, uint32_t serial, int failed,
+int vs_complete(struct vg_vs *s, uint32_t epoch, uint32_t serial, int failed,
                 int32_t value) {
   if (!s || s->state != VS_PENDING || !s->taken ||
       (VS_MUTANT != 2 && (epoch != s->epoch || serial != s->serial)))
@@ -134,19 +134,19 @@ int vs_complete(Vs *s, uint32_t epoch, uint32_t serial, int failed,
   s->taken = 0;
   return VS_RUNNING;
 }
-int vs_step(Vs *s, CvmValue *out) {
+int vs_step(struct vg_vs *s, struct cvm_value *out) {
   if (!s || !out)
     return CVM_RANGE;
   if (s->state != VS_RUNNING)
     return s->state == 1 ? (int)s->reason : VS_STATE;
-  Cvm *v = &s->vm;
-  const CvmProgram *p = &s->image;
+  struct cvm_cvm *v = &s->vm;
+  const struct cvm_program *p = &s->image;
   if (!v->fuel)
     return fail(s, CVM_FUEL);
   v->fuel--;
-  CvmFrame *f = &v->frames[v->depth - 1];
+  struct cvm_frame *f = &v->frames[v->depth - 1];
   unsigned op = p->code[f->ip++], k;
-  CvmValue a, b, r = {CVM_NIL, 0, 0};
+  struct cvm_value a, b, r = {CVM_NIL, 0, 0};
   int status = CVM_OK;
   if (VS_MUTANT == 3)
     *out = r;
@@ -225,7 +225,7 @@ int vs_step(Vs *s, CvmValue *out) {
     int tail = op == VS_TAIL && VS_MUTANT != 4;
     if ((!tail && v->depth == CVM_FRAMES) || s->next_invocation == UINT32_MAX)
       return fail(s, CVM_FRAME_LIMIT);
-    CvmValue args[CVM_LOCALS];
+    struct cvm_value args[CVM_LOCALS];
     for (k = 0; k < argc; k++)
       args[k] = v->stack[base + k];
     if (tail) {
@@ -281,7 +281,7 @@ int vs_step(Vs *s, CvmValue *out) {
     if (k >= 32 || !(s->capabilities & (UINT32_C(1) << k)) ||
         s->serial == UINT32_MAX)
       return fail(s, CVM_HOST_ERROR);
-    s->request = (VsRequest){s->epoch, ++s->serial, (uint8_t)k, a.integer};
+    s->request = (struct vs_request){s->epoch, ++s->serial, (uint8_t)k, a.integer};
     s->taken = 0;
     s->state = VS_PENDING;
     return VS_PENDING;

@@ -42,35 +42,35 @@ enum {
   PS_OVR = 64,
   PS_BSY = 128
 };
-typedef struct {
+struct ps_io {
   void *context;
   uint32_t (*read)(void *, unsigned);
   void (*write)(void *, unsigned, uintptr_t);
-} PsIo;
-typedef struct {
+};
+struct ps_spi {
   uint32_t generation, clock, last_token, token, last, deadline, due;
   unsigned ready, mode, divider, phase, dma, count, sent, received, tx_owned,
       rx_owned, cs_owned, hold, result, dma_started;
   const uint8_t *tx;
   uint8_t *rx;
-} PsSpi;
-int ps_open(PsSpi *, PsIo, const PuClock *, unsigned mode, unsigned divider);
-int ps_begin(PsSpi *, PsIo, uint32_t generation, uint32_t token,
+};
+int ps_open(struct ps_spi *, struct ps_io, const struct pu_clock *, unsigned mode, unsigned divider);
+int ps_begin(struct ps_spi *, struct ps_io, uint32_t generation, uint32_t token,
              const uint8_t *tx, uint8_t *rx, unsigned count, unsigned dma,
              uint32_t now, unsigned budget, unsigned setup, unsigned hold);
-int ps_step(PsSpi *, PsIo, uint32_t token, uint32_t now);
-int ps_cancel(PsSpi *, PsIo, uint32_t token);
-int ps_abort_reset(PsSpi *, PsIo, uint32_t token, uint32_t now);
+int ps_step(struct ps_spi *, struct ps_io, uint32_t token, uint32_t now);
+int ps_cancel(struct ps_spi *, struct ps_io, uint32_t token);
+int ps_abort_reset(struct ps_spi *, struct ps_io, uint32_t token, uint32_t now);
 /* Original teaching sensor wire protocol; no real product compatibility. */
 int ps_command(unsigned version, unsigned reg, uint8_t out[3]);
 int ps_decode(unsigned version, const uint8_t in[3], uint16_t *value);
-PsIo ps_f439_io(void);
+struct ps_io ps_f439_io(void);
 void ps_f439_pins(void);
-int ps_f439_begin(PsSpi *, uint32_t generation, uint32_t token, const uint8_t *,
+int ps_f439_begin(struct ps_spi *, uint32_t generation, uint32_t token, const uint8_t *,
                   uint8_t *, unsigned count, unsigned dma, uint32_t now,
                   unsigned budget, unsigned setup, unsigned hold);
 /* DMA uses one aligned halfword per wire octet, low8 bits significant. */
-int ps_f439_begin_dma(PsSpi *, uint32_t generation, uint32_t token,
+int ps_f439_begin_dma(struct ps_spi *, uint32_t generation, uint32_t token,
                       const uint16_t *, uint16_t *, unsigned count,
                       uint32_t now, unsigned budget, unsigned setup,
                       unsigned hold);

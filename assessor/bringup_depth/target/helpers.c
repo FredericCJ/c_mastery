@@ -1,6 +1,6 @@
 #include <stdint.h>
-typedef struct {
+struct bu_big {
   unsigned char bytes[257];
-} Big;
-void wider(Big *d, const Big *s) { *d = *s; }
+};
+void wider(struct bu_big *d, const struct bu_big *s) { *d = *s; }
 uint64_t divide(uint64_t x, uint64_t y) { return x / y; }

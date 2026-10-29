@@ -5,7 +5,7 @@
 int main(void){
  unsigned cases=0;
  for(unsigned owner=0;owner<3;owner++)for(unsigned cut=0;cut<=9;cut++)for(int retry=0;retry<=1;retry++){
-  SxJournal journal={0};SxOnce o;unsigned table[8]={99,99,99,99,99,99,99,99},checksum=999;
+  struct sx_journal journal={0};struct sx_once o;unsigned table[8]={99,99,99,99,99,99,99,99},checksum=999;
   CHECK(sx_once_init(&o,&journal,1,77,retry)==MB_OK);
   CHECK(sx_once_enter(&o,owner,table,&checksum)==MB_INIT);
   CHECK(sx_once_enter(&o,owner,table,&checksum)==MB_RECURSIVE);
@@ -24,7 +24,7 @@ int main(void){
   }else CHECK(sx_once_enter(&o,(owner+1)%3,table,&checksum)==MB_FAILED&&o.attempts==1);
   cases++;
  }
- {SxJournal j={0};SxOnce a,b;unsigned t[8]={0},sum=99;CHECK(sx_once_init(&a,&j,1,7,1)==MB_OK&&sx_once_enter(&a,0,t,&sum)==MB_INIT&&sx_once_step(&a,0)==MB_BUSY&&sx_once_cancel(&a,0)==MB_OK);CHECK(sx_once_init(&b,&j,1,8,0)==MB_OK&&sx_once_enter(&b,1,t,&sum)==MB_INIT&&sx_once_step(&b,1)==MB_FAILED&&j.effects==1);}
- {SxJournal j={0};SxOnce o;unsigned t[8]={0},sum=99;CHECK(sx_once_init(&o,&j,1,7,1)==MB_OK);o.attempts=UINT_MAX;CHECK(sx_once_enter(&o,0,t,&sum)==MB_FULL&&sum==99);}
+ {struct sx_journal j={0};struct sx_once a,b;unsigned t[8]={0},sum=99;CHECK(sx_once_init(&a,&j,1,7,1)==MB_OK&&sx_once_enter(&a,0,t,&sum)==MB_INIT&&sx_once_step(&a,0)==MB_BUSY&&sx_once_cancel(&a,0)==MB_OK);CHECK(sx_once_init(&b,&j,1,8,0)==MB_OK&&sx_once_enter(&b,1,t,&sum)==MB_INIT&&sx_once_step(&b,1)==MB_FAILED&&j.effects==1);}
+ {struct sx_journal j={0};struct sx_once o;unsigned t[8]={0},sum=99;CHECK(sx_once_init(&o,&j,1,7,1)==MB_OK);o.attempts=UINT_MAX;CHECK(sx_once_enter(&o,0,t,&sum)==MB_FULL&&sum==99);}
  printf("ONCE_X_PASS cuts=%u permanent_and_retry=1 dedup_effects=1\n",cases);return 0;
 }

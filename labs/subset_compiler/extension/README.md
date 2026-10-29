@@ -22,7 +22,7 @@ assembler, linker and QEMU are verification tools, not generated dependencies.
 
 ## Problem and exact language
 
-Compile a nonterminated source span into `CEProgram` using the public header.
+Compile a nonterminated source span into `struct ce_program` using the public header.
 Four earlier-defined, nonrecursive unary functions are permitted; the last is
 `main`. `fn name(x) { ... }` is teaching notation, not an ISO C translation unit.
 Each invocation owns an initially zeroed eight-element unsigned32 array `a`.

@@ -1,6 +1,6 @@
 /* Diagnostic experiment: default does not list the ERROR alternative. */
-enum Tag { INTEGER, TEXT, ERROR };
-int enum_consumer(enum Tag tag){
+enum bf_tag { INTEGER, TEXT, ERROR };
+int enum_consumer(enum bf_tag tag){
  switch(tag){case INTEGER:return 1;case TEXT:return 2;
 #ifdef BF_COMPLETE
  case ERROR:return 3;

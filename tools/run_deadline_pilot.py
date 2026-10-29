@@ -104,7 +104,7 @@ def main():
         error=str(exc)
     value=dict(schema_version=1,recorded_at=datetime.now(timezone.utc).isoformat(),passed=error is None,
         error=error,source_sha256=hashes,commands=commands,observations=observations,
-        reference_provider='Explicit separate assessor collection and retained TdTimer implementation',
+        reference_provider='Explicit separate assessor collection and retained struct td_timer implementation',
         gates=dict(author_execution='passed' if error is None else 'failed',hardware_pmu='separate PMU campaign',
                    independent_learner='not-assessed',external_review='not-run'))
     report.write_text(json.dumps(value,indent=2)+'\n')

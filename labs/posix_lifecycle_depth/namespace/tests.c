@@ -91,9 +91,9 @@ static void confinement(int outer){
        deliberately permitted: path confinement is not provenance/authenticity. */
     CHECK(linkat(other,"value",root,"hard",0)==0);CHECK(pn_open_confined(root,"hard",&fd)==0);value(fd,"OTHER");CHECK(close(fd)==0&&close(other)==0&&close(root)==0);
 }
-static void print_info(const char *name,PNInfo p){printf("PN_META %s dev=%ju inode=%ju mode=%jo owner=%ju group=%ju links=%ju bytes=%jd blocks512=%jd preferred=%jd atime=%jd.%09ld mtime=%jd.%09ld ctime=%jd.%09ld\n",name,(uintmax_t)p.device,(uintmax_t)p.inode,(uintmax_t)p.mode,(uintmax_t)p.owner,(uintmax_t)p.group,(uintmax_t)p.links,(intmax_t)p.logical_bytes,(intmax_t)p.blocks_512,(intmax_t)p.preferred_io,(intmax_t)p.access.tv_sec,p.access.tv_nsec,(intmax_t)p.modification.tv_sec,p.modification.tv_nsec,(intmax_t)p.status_change.tv_sec,p.status_change.tv_nsec);}
+static void print_info(const char *name,struct pn_info p){printf("PN_META %s dev=%ju inode=%ju mode=%jo owner=%ju group=%ju links=%ju bytes=%jd blocks512=%jd preferred=%jd atime=%jd.%09ld mtime=%jd.%09ld ctime=%jd.%09ld\n",name,(uintmax_t)p.device,(uintmax_t)p.inode,(uintmax_t)p.mode,(uintmax_t)p.owner,(uintmax_t)p.group,(uintmax_t)p.links,(intmax_t)p.logical_bytes,(intmax_t)p.blocks_512,(intmax_t)p.preferred_io,(intmax_t)p.access.tv_sec,p.access.tv_nsec,(intmax_t)p.modification.tv_sec,p.modification.tv_nsec,(intmax_t)p.status_change.tv_sec,p.status_change.tv_nsec);}
 static void metadata(int d){
-    int fd=file_at(d,"regular","SAFE");PNInfo regular,link,directory,sparse,saved;struct stat independent;struct statfs fs;struct timespec requested[2]={{123456789,123456789},{123456790,987654321}};
+    int fd=file_at(d,"regular","SAFE");struct pn_info regular,link,directory,sparse,saved;struct stat independent;struct statfs fs;struct timespec requested[2]={{123456789,123456789},{123456790,987654321}};
     CHECK(symlinkat("regular",d,"link")==0&&mkdirat(d,"directory",0700)==0);
     CHECK(pn_info(d,"regular",true,&regular)==0);CHECK(pn_info(d,"link",false,&link)==0);CHECK(pn_info(d,"directory",false,&directory)==0);
     CHECK(S_ISREG(regular.mode)&&S_ISLNK(link.mode)&&S_ISDIR(directory.mode));CHECK(regular.logical_bytes==4&&link.logical_bytes==7);CHECK(fstat(fd,&independent)==0);
@@ -104,13 +104,13 @@ static void metadata(int d){
     print_info("regular-before",saved);print_info("symlink",link);print_info("directory",directory);print_info("sparse-after",sparse);printf("PN_FS type=%lx requested_mtime=123456790.987654321\n",(unsigned long)fs.f_type);CHECK(close(fd)==0);
 }
 static void policy(int d){
-    unsigned installed=1234;pid_t child;int fd;PNAuthority a={true,false,false,true};struct stat s;
+    unsigned installed=1234;pid_t child;int fd;struct pn_authority a={true,false,false,true};struct stat s;
     CHECK(pn_creation_mode(0666,0027,false,0,&installed)==0&&installed==0640);
     CHECK(pn_creation_mode(0666,0077,true,0755,&installed)==0&&installed==0644);
     CHECK(pn_creation_mode(0600,0000,true,0777,&installed)==0&&installed==0600);
     installed=1234;CHECK(pn_creation_mode(01000,0,false,0,&installed)==EINVAL&&installed==1234);
     CHECK(pn_authorize(a,PN_READ)==EACCES&&pn_authorize(a,PN_WRITE)==EACCES&&pn_authorize(a,PN_REPLACE)==0);
-    a.file_write=true;a.parent_write=false;CHECK(pn_authorize(a,PN_WRITE)==0&&pn_authorize(a,PN_REPLACE)==EACCES);a.searchable=false;CHECK(pn_authorize(a,PN_WRITE)==EACCES);CHECK(pn_authorize(a,(enum PNOperation)9)==EINVAL);
+    a.file_write=true;a.parent_write=false;CHECK(pn_authorize(a,PN_WRITE)==0&&pn_authorize(a,PN_REPLACE)==EACCES);a.searchable=false;CHECK(pn_authorize(a,PN_WRITE)==EACCES);CHECK(pn_authorize(a,(enum pn_operation)9)==EINVAL);
     errno=0;CHECK(fgetxattr(d,"system.posix_acl_default",NULL,0)<0&&errno==ENODATA); /* Explicit no-default-ACL precondition. */
     child=fork();CHECK(child>=0);if(child==0){umask(0027);fd=openat(d,"mode",O_WRONLY|O_CREAT|O_EXCL|O_CLOEXEC,0666);CHECK(fd>=0);CHECK(fstat(fd,&s)==0&&(s.st_mode&0777)==0640);CHECK(close(fd)==0);_exit(0);}reap(child);
     CHECK(fstatat(d,"mode",&s,0)==0);printf("PN_AUTH actual_child_mode=%jo injected_read_error=%d replacement_model=parent-write-and-search\n",(uintmax_t)(s.st_mode&0777),EACCES);

@@ -3,7 +3,7 @@
 This is a separate build profile. Its verification-dependent entry points must
 be entered through kf_load_scratch/kf_run_scratch. No baseline provider is edited.
 The borrowed workspace and machine are non-reentrant; a callback cannot reacquire
-the port. VM recursion still uses the original explicit CvmFrame array.
+the port. VM recursion still uses the original explicit struct cvm_frame array.
 """
 import hashlib
 import sys
@@ -25,22 +25,22 @@ NEW = '''  if (!kf_borrowed_workspace)
   uint16_t *queue = kf_borrowed_workspace->queue;'''
 PREFIX = '''/* Generated explicit workspace profile; see port_registration.py. */
 #include "probe.h"
-static KfVerifierWorkspace *kf_borrowed_workspace;
+static struct kf_verifier_workspace *kf_borrowed_workspace;
 '''
 SUFFIX = '''
-CvmStatus kf_load_scratch(KfVerifierWorkspace *workspace, const uint8_t *bytes,
-                          size_t count, CvmProgram *program) {
+enum cvm_status kf_load_scratch(struct kf_verifier_workspace *workspace, const uint8_t *bytes,
+                          size_t count, struct cvm_program *program) {
   if (!workspace || kf_borrowed_workspace) return CVM_RANGE;
   kf_borrowed_workspace = workspace;
-  CvmStatus status = cvm_load(bytes, count, program);
+  enum cvm_status status = cvm_load(bytes, count, program);
   kf_borrowed_workspace = 0;
   return status;
 }
-CvmStatus kf_run_scratch(KfVerifierWorkspace *workspace, Cvm *machine,
-                         const CvmProgram *program, CvmValue *result) {
+enum cvm_status kf_run_scratch(struct kf_verifier_workspace *workspace, Cvm *machine,
+                         const struct cvm_program *program, struct cvm_value *result) {
   if (!workspace || kf_borrowed_workspace) return CVM_RANGE;
   kf_borrowed_workspace = workspace;
-  CvmStatus status = cvm_run(machine, program, result);
+  enum cvm_status status = cvm_run(machine, program, result);
   kf_borrowed_workspace = 0;
   return status;
 }

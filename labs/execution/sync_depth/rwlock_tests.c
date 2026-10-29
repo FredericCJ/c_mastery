@@ -8,20 +8,20 @@
 #include <string.h>
 #define CHECK(c) do{if(!(c)){fprintf(stderr,"CDR_CHECK:%d:%s\n",__LINE__,#c);return 1;}}while(0)
 #endif
-static int rw_setup(cmx_kernel *k,CDRW *r,CDRHandle h[4],unsigned limit){
+static int rw_setup(cmx_kernel *k,struct cd_rw *r,struct cdr_handle h[4],unsigned limit){
   cmx_init(k,CMX_FIXED);
   for(unsigned i=0;i<4;i++)if(cmx_task_add(k,5+i,0,0x1000+256*i,256)!=(int)i)return 0;
   if(cdr_init(r,k,limit)!=CMX_OK)return 0;
   for(unsigned i=0;i<4;i++)if(cdr_register(r,i,&h[i])!=CMX_OK)return 0;
   return 1;
 }
-static int rw_close_all(CDRW *r,CDRHandle h[4]){
+static int rw_close_all(struct cd_rw *r,struct cdr_handle h[4]){
   if(cdr_close(r)!=CMX_OK)return 0;
   for(unsigned i=0;i<4;i++)if(cdr_release(&h[i])!=CMX_OK)return 0;
   return cdr_destroy(r)==CMX_OK;
 }
 static int rw_policy(void){
-  cmx_kernel k;CDRW r;CDRHandle h[4];CDRTicket a,b,c;
+  cmx_kernel k;struct cd_rw r;struct cdr_handle h[4];struct cdr_ticket a,b,c;
   CHECK(rw_setup(&k,&r,h,4));
   CHECK(cdr_begin(h[0],CDR_READ,cmx_forever(),&a)==CMX_OK&&cdr_result(a)==CMX_OK);
   CHECK(cdr_begin(h[0],CDR_WRITE,cmx_forever(),&b)==CMX_DEADLOCK);
@@ -35,7 +35,7 @@ static int rw_policy(void){
 }
 static int rw_cancelled(void){
   for(unsigned timeout=0;timeout<2;timeout++){
-    cmx_kernel k;CDRW r;CDRHandle h[4];CDRTicket a,b,c,d;
+    cmx_kernel k;struct cd_rw r;struct cdr_handle h[4];struct cdr_ticket a,b,c,d;
     CHECK(rw_setup(&k,&r,h,4));
     CHECK(cdr_begin(h[0],CDR_READ,cmx_forever(),&a)==CMX_OK&&cdr_result(a)==CMX_OK);
     CHECK(cdr_begin(h[1],CDR_WRITE,timeout?cmx_at(5):cmx_forever(),&b)==CMX_BLOCKED);
@@ -50,7 +50,7 @@ static int rw_cancelled(void){
   puts("CDR_CANCEL:timeout+cancel;remaining-writer-gate;last-writer-removal-read-admission");return 0;
 }
 static int rw_bounds(void){
-  cmx_kernel k;CDRW r;CDRHandle h[4];CDRTicket a,b,c;
+  cmx_kernel k;struct cd_rw r;struct cdr_handle h[4];struct cdr_ticket a,b,c;
   CHECK(rw_setup(&k,&r,h,2));
   CHECK(cdr_begin(h[0],CDR_READ,cmx_forever(),&a)==CMX_OK&&cdr_result(a)==CMX_OK);
   CHECK(cdr_begin(h[1],CDR_READ,cmx_forever(),&b)==CMX_OK&&cdr_result(b)==CMX_OK);
@@ -58,7 +58,7 @@ static int rw_bounds(void){
   CHECK(cdr_unlock(h[3])==CMX_NOT_OWNER&&r.raw.readers==3);
   CHECK(cdr_unlock(h[0])==CMX_OK&&cdr_begin(h[2],CDR_READ,cmx_forever(),&c)==CMX_OK&&cdr_result(c)==CMX_OK);
   CHECK(cdr_unlock(h[1])==CMX_OK&&cdr_unlock(h[2])==CMX_OK);
-  k.task[3].owned_sync=UINT_MAX;c=(CDRTicket){h[2],17};
+  k.task[3].owned_sync=UINT_MAX;c=(struct cdr_ticket){h[2],17};
   CHECK(cdr_begin(h[3],CDR_READ,cmx_forever(),&c)==CMX_FULL&&r.raw.readers==0&&r.raw.writer==CMX_NONE&&
     c.handle.task==2&&c.serial==17&&k.task[3].owned_sync==UINT_MAX&&r.slot[3].phase==CDR_IDLE);
   k.task[3].owned_sync=0;
@@ -67,7 +67,7 @@ static int rw_bounds(void){
   puts("CDR_BOUNDS:two-reader-reservation-limit;overflow-no-mutation;nonowner-refusal;operation-retirement-cleanup");return 0;
 }
 static int rw_starvation(void){
-  cmx_kernel k;CDRW r;CDRHandle h[4];CDRTicket read,writer,next;
+  cmx_kernel k;struct cd_rw r;struct cdr_handle h[4];struct cdr_ticket read,writer,next;
   CHECK(rw_setup(&k,&r,h,4));
   CHECK(cdr_begin(h[0],CDR_READ,cmx_forever(),&read)==CMX_OK&&cdr_result(read)==CMX_OK);
   CHECK(cdr_begin(h[1],CDR_WRITE,cmx_forever(),&writer)==CMX_BLOCKED);

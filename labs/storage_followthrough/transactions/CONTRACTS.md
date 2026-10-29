@@ -40,7 +40,7 @@ until natural exhaustion; do not substitute only a simulated admission failure.
 
 ## Changed contract: operation rollback
 
-`StTxn` is a stable-address, noncopied borrowed facade over one valid inactive
+`struct st_txn` is a stable-address, noncopied borrowed facade over one valid inactive
 `store`. `st_init` initializes fresh/unowned wrapper storage, checking the actual
 store invariant before publishing the wrapper. The check may populate clean cache
 and instrumentation; only wrapper output preservation is promised on failure.
@@ -73,7 +73,7 @@ numeric logical identity from the authoritative generation and physical view.
 ## One savepoint with finite identity
 
 `st_savepoint` admits one active savepoint, copies the complete current engine
-workspace into `StTxn.undo`, increments its nonwrapping serial, and returns
+workspace into `struct st_txn.undo`, increments its nonwrapping serial, and returns
 `{owner address, serial}`. An existing saved point or inactive/poisoned transaction
 returns STATE with output unchanged. At `UINT64_MAX`, a new point returns FULL;
 the final identity may be issued once. The wrapper must not be copied, relocated,

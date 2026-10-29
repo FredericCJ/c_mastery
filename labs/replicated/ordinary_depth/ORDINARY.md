@@ -8,7 +8,7 @@ substitute original nominal tests for the separate durable, membership, delta,
 sequence, Merkle, wire or replay successors. No new executable mechanism is
 invented merely to increase an exercise count.
 
-For X-T76-004-R1/R2/R3, implement the existing `RPPN`/`RPRegister` contracts first.
+For X-T76-004-R1/R2/R3, implement the existing `struct rp_pn`/`struct rp_register` contracts first.
 Derive the partial order over six unsigned components and the lexicographic
 register event order. Enumerate every triple of the64 binary-component states,
 six delivery permutations and self-retransmission. The independently expected

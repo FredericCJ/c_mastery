@@ -3,7 +3,7 @@
 This required PR-T28-01 successor addresses T28.01, .02 and .04, retaining all
 nine original criteria and nine delayed tasks. Read their exact task/rubric and
 the source register before construction. The prerequisite artifacts are the
-T27 identity/image dossier and the FW-03 GPIO interface; use `FwIo` rather than
+T27 identity/image dossier and the FW-03 GPIO interface; use `struct fw_io` rather than
 inventing an incompatible port. C17 is the baseline. Hosted tests use libc;
 restricted target objects/images must have no external runtime imports. GNU
 volatile MMIO conventions, Arm ABI, and F439 device rules are separate contracts.
@@ -29,7 +29,7 @@ The synthetic peripheral is explicitly distinct from STM32 GPIO:
 |16|ODR|32|0|Read/write low16 bits, ordinary assignment.|
 |20|BSRR|32|0|Write low16 set/high16 clear; set wins overlap. Reads reject in this stricter model.|
 
-`pm_access` accepts a caller-owned `PmModel` initialized to zero except revision1/2
+`pm_access` accepts a caller-owned `struct pm_model` initialized to zero except revision1/2
 and explicitly injected status/RX/RTC events. Invalid width/offset/mask/direction,
 empty read, unavailable transmit, exhausted transmit counter, or full64-entry
 access log rejects without changing the model or supplied value. Accepted reads
@@ -46,7 +46,7 @@ acknowledgment and synchronization contract; this model does not supply them.
 
 ## GPIO and electrical distinctions
 
-`pm_gpio(FwIo,set,clear)` rejects bits outside16 and overlapping masks. Success
+`pm_gpio(struct fw_io,set,clear)` rejects bits outside16 and overlapping masks. Success
 performs exactly one FW_GPIO write with set|(clear<<16), including an empty mask,
 and no read. The stronger service overlap policy differs from the selected
 hardware's set-priority rule. With ODR3, interrupt-set bit3, then foreground-set
@@ -54,7 +54,7 @@ bit2/clear bit0, an ODR read/modify/write loses the interrupt and yields6; the
 BSRR transaction preserves14. A later whole-ODR writer can still overwrite that
 result. Two ports require two transactions; BSRR provides no cross-port atomicity.
 
-The target adapter uses `PmGpio` offset assertions and explicit32-bit volatile
+The target adapter uses `struct pm_gpio` offset assertions and explicit32-bit volatile
 accesses. RM0090 Rev21 §8.4 has a broad access-width statement, but §8.4.5 restricts
 IDR reads to word mode and §8.4.8 restricts the lock sequence. Do not infer every
 width from a field type or the overview. The supplied target stub must implement
@@ -123,7 +123,7 @@ level3. Board timing, non-author review and actual learner evidence remain pendi
 ## Interrupt adapter changed condition
 
 Implement `pm_irq_begin` and `pm_irq_event` with an initially zeroed, single-owner
-`PmInterrupt`. The model controller must already be enabled. Arming sets its IRQ
+`struct pm_interrupt`. The model controller must already be enabled. Arming sets its IRQ
 bit, then rechecks readiness: data ready before arming must not wait for an edge
 that already happened. Tick limit lies in1..2^31-1. A serialized dispatcher calls
 `event` for IRQ notifications and for the independent deadline timer; it must

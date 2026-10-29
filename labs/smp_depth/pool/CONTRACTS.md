@@ -26,7 +26,7 @@ implementations explicitly; a learner export never copies a private answer.
 ## Environment and dependency profile
 
 The pool core uses C17, `<stdint.h>`, `<stddef.h>`, `<stdatomic.h>` and the explicit
-`SlLock` producer only. It has no heap, pthread, libc or implicit helper allowance
+`struct sl_lock` producer only. It has no heap, pthread, libc or implicit helper allowance
 in the target. Audit the final guest and user ELF with `nm -u`, dynamic-section
 inspection and generated assembly. Native verification uses pthreads, private
 custom stacks, process/thread/monotonic clocks and existing allowed CPU affinity.
@@ -103,7 +103,7 @@ owner-newest/thief-oldest order checks and runs under both thread sanitizers.
 
 ## Worker-startup and recovery contract
 
-`SpLaunch` has one controller and a stable callback context. Workers acquire-read
+`struct sp_launch` has one controller and a stable callback context. Workers acquire-read
 gate0(wait),1(run),2(stop). Allocate distinct stacks, create workers without
 publishing RUN, then publish RUN only after all requested creates succeed.
 Create failure starts no worker and its handle output is invalid. On any failed

@@ -2,9 +2,9 @@
 extern uint32_t cl_stack_top, cl_data_start, cl_data_end, cl_data_load,
     cl_bss_start, cl_bss_end;
 static cmx_kernel kernel;
-static CDRecursive recursive;
+static struct cd_recursive recursive;
 static cmx_mutex a, b;
-static CDRecord record;
+static struct cd_record record;
 static void semihost(uint32_t op, const void *arg) {
   register uint32_t r0 __asm__("r0") = op;
   register const void *r1 __asm__("r1") = arg;

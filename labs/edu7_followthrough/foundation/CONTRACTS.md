@@ -56,7 +56,7 @@ bytes and adds2+length when present. With extra8 canonical45, session52 and
 24+24+4. An absent extra uses0; schema1 rejects the new field. Do not confuse the
 conservative envelope with a valid schema1 record or silently extend it.
 
-**T40.01.c and T40.04.c:** implement a single egress `EfRoute` slot, copied or
+**T40.01.c and T40.04.c:** implement a single egress `struct ef_route` slot, copied or
 borrowed by explicit mode. `ef_enqueue` first decodes the complete network PDU,
 applies routing and copies the decremented header. Copy mode owns its payload
 before return: poisoning the caller input while a grant is delayed must not
@@ -64,7 +64,7 @@ change egress. Borrow mode retains only the input payload pointer; caller keeps
 it live and immutable until exact-token release. Source/header/control memory
 must not overlap. FULL generation exhaustion, BUSY slot occupancy and DROP
 admission failure preserve state and token output. Tokens increase without
-wrap. `ef_peek` copies a complete local `EduFrame` into caller storage without
+wrap. `ef_peek` copies a complete local `struct edu_frame` into caller storage without
 consuming the slot. `ef_release` requires the current nonzero generation and
 actual end of all downstream access; stale or duplicate releases change nothing.
 Lower BUSY cannot release. A lower copy-accept may end a borrow; a retained
@@ -114,7 +114,7 @@ route. Source identities are untrusted packet claims, not verified principals.
 
 **T40.07.a:** `ef_encode` stages actual schema1 encoding into33 bytes before
 publishing; `has_value`/`has_unit` must be boolean. SET42/-4000/unit1 is15 octets
-with valuef060. No native struct representation is sent. In schema2, `EfWide`
+with valuef060. No native struct representation is sent. In schema2, `struct ef_wide`
 retains the original verb/request/unit/label fields, but `value` is int64 input
 admitted only in INT32_MIN..INT32_MAX and encoded as four big-endian octets.
 `base.value` is ignored during encoding and is zero in decoded schema2 output;

@@ -8,25 +8,25 @@ static int checksum(void){
   unsigned char bytes[33];for(unsigned i=0;i<33;i++)bytes[i]=(unsigned char)(i*83+1);
   unsigned cases=0;
   for(size_t n=0;n<=33;n++)for(size_t a=0;a<=n;a++)for(size_t b=a;b<=n;b++){
-    NVSum x,y,z,ab,bc,left,right,whole;
+    struct nv_sum x,y,z,ab,bc,left,right,whole;
     CHECK(!nv_sum(bytes,a,&x) && !nv_sum(bytes+a,b-a,&y) && !nv_sum(bytes+b,n-b,&z));
     CHECK(!nv_combine(x,y,&ab) && !nv_combine(ab,z,&left));
     CHECK(!nv_combine(y,z,&bc) && !nv_combine(x,bc,&right));
     CHECK(!nv_sum(bytes,n,&whole));CHECK(left.sum==whole.sum && right.sum==whole.sum && left.odd==whole.odd && right.odd==whole.odd);cases++;
   }
-  const unsigned char allones[]={255,255,255,255},zero[]={0,0};NVSum s;
+  const unsigned char allones[]={255,255,255,255},zero[]={0,0};struct nv_sum s;
   CHECK(!nv_sum(allones,4,&s) && s.sum==65535);CHECK(!nv_sum(zero,2,&s) && s.sum==0);
-  s=(NVSum){19,1};CHECK(nv_combine((NVSum){0,2},s,&s)==NV_INVALID && s.sum==19 && s.odd==1);
+  s=(struct nv_sum){19,1};CHECK(nv_combine((struct nv_sum){0,2},s,&s)==NV_INVALID && s.sum==19 && s.odd==1);
   CHECK(!nv_sum(0,0,&s) && s.sum==0 && s.odd==0);
-  SChecksum streaming={0,0,0};uint16_t first,last;const unsigned char pair[]={1,2};
-  CHECK(!s_checksum_add(&streaming,pair,1));SChecksum saved=streaming;
+  struct s_checksum streaming={0,0,0};uint16_t first,last;const unsigned char pair[]={1,2};
+  CHECK(!s_checksum_add(&streaming,pair,1));struct s_checksum saved=streaming;
   CHECK(!s_checksum_finish(&streaming,&first) && first==0xfeff);
   CHECK(streaming.sum==saved.sum && streaming.pending==saved.pending && streaming.octet==saved.octet);
   CHECK(!s_checksum_finish(&streaming,&last) && last==first);
   CHECK(!s_checksum_add(&streaming,pair+1,1) && !s_checksum_finish(&streaming,&last) && last==0xfefd);
   /* IPv4 TCP pseudoheader + synthetic 20-byte TCP header + odd payload. */
   unsigned char packet[37]={192,0,2,1,198,51,100,2,0,6,0,25,0x12,0x34,0,80,0,0,0,1,0,0,0,0,0x50,0x02,0x10,0,0,0,0,0,1,2,3,4,5};
-  NVSum a,b,c,all;CHECK(!nv_sum(packet,12,&a) && !nv_sum(packet+12,20,&b) && !nv_sum(packet+32,5,&c));
+  struct nv_sum a,b,c,all;CHECK(!nv_sum(packet,12,&a) && !nv_sum(packet+12,20,&b) && !nv_sum(packet+32,5,&c));
   CHECK(!nv_combine(a,b,&a) && !nv_combine(a,c,&a) && !nv_sum(packet,37,&all) && a.sum==all.sum);
   printf("NV_OK:checksum:%u:pseudoheader=%u\n",cases,(unsigned)(uint16_t)~a.sum);return 0;
 }
@@ -50,7 +50,7 @@ static int date(void){
   CHECK(!nv_date(1,2932896,86399,a,30,&n) && !strcmp(a,"Fri, 31 Dec 9999 23:59:59 GMT"));
   a[0]='!';n=77;CHECK(nv_date(1,2932897,0,a,30,&n)==NV_INVALID && a[0]=='!' && n==77);
   CHECK(!nv_date(0,UINT32_MAX,UINT32_MAX,0,0,&n) && n==0);
-  NVStamp s={1,1,NV_POSITIVE_LEAP,17166,86400};
+  struct nv_stamp s={1,1,NV_POSITIVE_LEAP,17166,86400};
   CHECK(!nv_stamp(s,17166,a,30,&n) && !strcmp(a,"Sat, 31 Dec 2016 23:59:60 GMT"));
   a[0]='!';n=77;CHECK(nv_stamp(s,UINT32_MAX,a,30,&n)==NV_INVALID && a[0]=='!' && n==77);
   s.scale=NV_ORDINARY_UTC;CHECK(nv_stamp(s,17166,a,30,&n)==NV_INVALID);

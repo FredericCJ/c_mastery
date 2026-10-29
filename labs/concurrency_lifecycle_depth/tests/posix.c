@@ -11,17 +11,17 @@
       exit(1);                                                                 \
     }                                                                          \
   } while (0)
-typedef struct {
+struct cl_delivery {
   uint32_t producer, sequence;
-} Delivery;
-typedef struct {
-  CLPQueue *queue;
+};
+struct cl_worker {
+  struct clp_queue *queue;
   unsigned id;
-  Delivery *trace;
+  struct cl_delivery *trace;
   int result;
-} Worker;
+};
 static void *producer(void *arg) {
-  Worker *w = arg;
+  struct cl_worker *w = arg;
   for (unsigned i = 0; i < 500; i++) {
     unsigned char b[4] = {(unsigned char)w->id, (unsigned char)i,
                           (unsigned char)(i >> 8), 0};
@@ -31,7 +31,7 @@ static void *producer(void *arg) {
   return 0;
 }
 static void *consumer(void *arg) {
-  Worker *w = arg;
+  struct cl_worker *w = arg;
   for (;;) {
     unsigned char b[4];
     size_t n = 99;
@@ -44,22 +44,22 @@ static void *consumer(void *arg) {
           ticket <= 1500);
     CHECK(b[0] == p && b[1] == (unsigned char)s &&
           b[2] == (unsigned char)(s >> 8) && b[3] == 0);
-    w->trace[ticket - 1] = (Delivery){p, s};
+    w->trace[ticket - 1] = (struct cl_delivery){p, s};
   }
   return 0;
 }
 static void *one_sender(void *arg);
-static void enrolled(CLPQueue *q, unsigned send);
+static void enrolled(struct clp_queue *q, unsigned send);
 static void backpressure_publication(void) {
   /* Force a completed blocked send before the stress workload. A wakeup-only
    * mutant otherwise may strand later producers instead of exposing its
    * missing publication through the semantic assertion. */
-  CLPQueue q;
+  struct clp_queue q;
   CHECK(clp_init(&q, 0) == 0);
   unsigned char b = 1;
   CHECK(clp_send(&q, 0, 1, &b, 1, 0) == 0);
   CHECK(clp_send(&q, 0, 2, &b, 1, 0) == 0);
-  Worker w = {&q, 0, 0, -1};
+  struct cl_worker w = {&q, 0, 0, -1};
   pthread_t thread;
   CHECK(pthread_create(&thread, 0, one_sender, &w) == 0);
   enrolled(&q, 1);
@@ -74,15 +74,15 @@ static void backpressure_publication(void) {
 }
 static void threaded(void) {
   backpressure_publication();
-  CLPQueue q;
+  struct clp_queue q;
   CHECK(clp_init(&q, 0) == 0);
-  Delivery trace[1500];
+  struct cl_delivery trace[1500];
   for (unsigned i = 0; i < 1500; i++)
-    trace[i] = (Delivery){99, 99};
-  Worker w[5];
+    trace[i] = (struct cl_delivery){99, 99};
+  struct cl_worker w[5];
   pthread_t threads[5];
   for (unsigned i = 0; i < 5; i++) {
-    w[i] = (Worker){&q, i, trace, -1};
+    w[i] = (struct cl_worker){&q, i, trace, -1};
     CHECK(pthread_create(&threads[i], 0, i < 3 ? producer : consumer, &w[i]) ==
           0);
   }
@@ -104,13 +104,13 @@ static void threaded(void) {
        "ordered=1500");
 }
 static void *one_sender(void *arg) {
-  Worker *w = arg;
+  struct cl_worker *w = arg;
   unsigned char b = 3;
   w->result = clp_send(w->queue, 0, 3, &b, 1, 0);
   return 0;
 }
 static void *one_receiver(void *arg) {
-  Worker *w = arg;
+  struct cl_worker *w = arg;
   unsigned char b;
   size_t n = 99;
   uint32_t p, s;
@@ -119,7 +119,7 @@ static void *one_receiver(void *arg) {
   CHECK(w->result != EPIPE || n == 99);
   return 0;
 }
-static void enrolled(CLPQueue *q, unsigned send) {
+static void enrolled(struct clp_queue *q, unsigned send) {
   struct timespec deadline;
   CHECK(clock_gettime(CLOCK_MONOTONIC, &deadline) == 0);
   deadline.tv_sec += 5;
@@ -128,13 +128,13 @@ static void enrolled(CLPQueue *q, unsigned send) {
     CHECK(pthread_cond_timedwait(&q->enrolled, &q->mutex, &deadline) == 0);
   CHECK(pthread_mutex_unlock(&q->mutex) == 0);
 }
-typedef struct {
+struct cl_timer {
   pthread_mutex_t lock;
   pthread_cond_t condition;
   unsigned entered, stop;
-} Timer;
+};
 static void *timer(void *arg) {
-  Timer *t = arg;
+  struct cl_timer *t = arg;
   CHECK(pthread_mutex_lock(&t->lock) == 0);
   t->entered = 1;
   CHECK(pthread_cond_broadcast(&t->condition) == 0);
@@ -144,7 +144,7 @@ static void *timer(void *arg) {
   return 0;
 }
 static void waiting(void) {
-  CLPQueue q;
+  struct clp_queue q;
   for (unsigned i = 1; i <= 4; i++)
     CHECK(clp_init(&q, i) == EAGAIN && q.initialized == 0);
   CHECK(clp_init(&q, 0) == 0 && clp_destroy(&q) == EBUSY);
@@ -155,7 +155,7 @@ static void waiting(void) {
   deadline.tv_sec--;
   CHECK(clp_send(&q, 0, 3, &b, 1, &deadline) == ETIMEDOUT &&
         q.core.accepted == 2);
-  Worker w = {&q, 0, 0, -1};
+  struct cl_worker w = {&q, 0, 0, -1};
   pthread_t thread;
   CHECK(pthread_create(&thread, 0, one_sender, &w) == 0);
   enrolled(&q, 1);
@@ -193,12 +193,12 @@ static void waiting(void) {
   CHECK(clp_close(&q, 0) == 0);
   CHECK(pthread_join(thread, 0) == 0 && w.result == EPIPE &&
         clp_destroy(&q) == 0);
-  CLLife life;
-  CLLease lease;
+  struct cl_life life;
+  struct cl_lease lease;
   cl_life_init(&life);
   CHECK(cl_acquire(&life, &lease) == CL_OK);
   CHECK(cl_transition(&life, lease, CL_ACTIVE, CL_TIMER) == CL_OK);
-  Timer t = {PTHREAD_MUTEX_INITIALIZER, PTHREAD_COND_INITIALIZER, 0, 0};
+  struct cl_timer t = {PTHREAD_MUTEX_INITIALIZER, PTHREAD_COND_INITIALIZER, 0, 0};
   CHECK(pthread_create(&thread, 0, timer, &t) == 0);
   CHECK(pthread_mutex_lock(&t.lock) == 0);
   while (!t.entered)
@@ -217,21 +217,21 @@ static void waiting(void) {
   puts("CL_OBSERVATION timeout=unaccepted cancelled=joined close=drained "
        "abort=2 timer=joined");
 }
-typedef struct {
+struct cl_test_owner {
   pthread_mutex_t *mutex;
-  CLPRecord *record;
+  struct clp_record *record;
   unsigned repairer;
   int result;
-} Owner;
+};
 static void *dead_owner(void *arg) {
-  Owner *o = arg;
+  struct cl_test_owner *o = arg;
   int r = pthread_mutex_lock(o->mutex);
   CHECK(r == (o->repairer ? EOWNERDEAD : 0));
   o->record->value = o->repairer ? 19 : 13;
   return 0; /* intentionally exit owning the robust mutex */
 }
 static void *supervisor(void *arg) {
-  Owner *o = arg;
+  struct cl_test_owner *o = arg;
   o->result = clp_record_recover(o->mutex, o->record, 1);
   return 0;
 }
@@ -241,9 +241,9 @@ static void robust(void) {
         pthread_mutexattr_setrobust(&attr, PTHREAD_MUTEX_ROBUST) == 0);
   for (unsigned mode = 0; mode < 3; mode++) {
     pthread_mutex_t mutex;
-    CLPRecord r = {7, ~UINT32_C(7), 7};
+    struct clp_record r = {7, ~UINT32_C(7), 7};
     CHECK(pthread_mutex_init(&mutex, &attr) == 0);
-    Owner o = {&mutex, &r, 0, -1};
+    struct cl_test_owner o = {&mutex, &r, 0, -1};
     pthread_t thread;
     CHECK(pthread_create(&thread, 0, dead_owner, &o) == 0 &&
           pthread_join(thread, 0) == 0);
@@ -257,7 +257,7 @@ static void robust(void) {
       CHECK(clp_record_recover(&mutex, &r, 0) == ENOTRECOVERABLE);
       CHECK(pthread_mutex_lock(&mutex) == ENOTRECOVERABLE);
     } else {
-      Owner second = {&mutex, &r, 0, -1};
+      struct cl_test_owner second = {&mutex, &r, 0, -1};
       pthread_t other;
       CHECK(pthread_create(&thread, 0, supervisor, &o) == 0 &&
             pthread_create(&other, 0, supervisor, &second) == 0);

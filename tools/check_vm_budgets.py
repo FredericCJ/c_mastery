@@ -57,7 +57,7 @@ def validate(d,files=True):
    if files:need(('reaped_before_failure=1' if 'cancel' in label else 'reaped=1') in text and 'observed_wait_ms=' in text,'native quiescence observation')
   if files and label.endswith(' resources'):
    dest=Path(cmd[-1]);audit=json.loads((dest/'resource-audit.json').read_text());need(audit['passed'] and 0<audit['conservative_bytes']<audit['reserve']==32768 and not audit['undefined'] and not audit['dynamic'],'stack/closure scope')
-   port=json.loads((dest/'registration_port.port.json').read_text());need(port['id']=='R-VG-ORVM-ENUM-2026-01' and port['source']==str(ROOT/PROVIDERS['registrations']) and port['source_sha256']==sha(ROOT/PROVIDERS['registrations']) and port['output_sha256']==sha(dest/'registration_port.c'),'explicit source successor')
+   port=json.loads((dest/'registration_port.port.json').read_text());need(port['id']=='R-VG-struct or_vm-ENUM-2026-01' and port['source']==str(ROOT/PROVIDERS['registrations']) and port['source_sha256']==sha(ROOT/PROVIDERS['registrations']) and port['output_sha256']==sha(dest/'registration_port.c'),'explicit source successor')
    for i in range(14):need((dest/(str(i)+'.o')).is_file(),'missing generated object')
  return errors
 def main():

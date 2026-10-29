@@ -25,7 +25,7 @@ static unsigned checksum(const unsigned char *p, size_t n, unsigned sum) {
     sum = (sum & 65535) + (sum >> 16);
   return 65535 - sum;
 }
-static int offer(NwRx *q, uint32_t *seq, const unsigned char *data, size_t n) {
+static int offer(struct nw_rx *q, uint32_t *seq, const unsigned char *data, size_t n) {
   unsigned char packet[600] = {2, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 1, 8, 0};
   unsigned char *ip = packet + 14, *tcp = packet + 34;
   ip[0] = 0x45;
@@ -66,8 +66,8 @@ int main(void) {
     for (size_t second = first; second < length; second += stride) {
       for (unsigned budget_case = 0; budget_case < 3; ++budget_case) {
         const unsigned budgets[3] = {1, 7, 512};
-        NwRx q;
-        HttpParser parser;
+        struct nw_rx q;
+        struct http_parser parser;
         uint32_t seq = UINT32_MAX - 10;
         CHECK(nw_rx_init(&q, 512) == NW_OK);
         http_init(&parser, "192.0.2.2:8080");
@@ -105,7 +105,7 @@ int main(void) {
    * net_checksum's result is compared with a byte-oriented independent sum. */
   unsigned char odd[5] = {0, 1, 2, 3, 4};
   CHECK(net_checksum(odd, 5, 0) == (uint16_t)(65535 - (1 + 515 + 1024)));
-  NwRx small;
+  struct nw_rx small;
   uint32_t seq = 100;
   CHECK(nw_rx_init(&small, 1) == NW_OK);
   CHECK(offer(&small, &seq, odd, 5) == NW_BUSY && seq == 100 &&

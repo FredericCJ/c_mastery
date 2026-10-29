@@ -8,7 +8,7 @@ The separate assessor directory contains the reference and technical analysis.
 
 ## Exact storage and arithmetic contract
 
-`AdvView` borrows a live writable uint32 array with a real capacity in elements,
+`struct adv_view` borrows a live writable uint32 array with a real capacity in elements,
 shape and positive element strides. It owns no storage. A nonempty shape uses
 offset `r*row_stride+c*column_stride`; required extent is one beyond the largest
 offset, not the logical element count. Empty shapes have required extent0 and
@@ -60,7 +60,7 @@ compares a weighted checksum of the entire backing range, including holes.
 ## Reduction and vector boundary
 
 `adv_reduce` receives an admitted immutable-for-the-call ADView and returns a
-transactional `AdvReduction {sum,backend,vector_blocks,scalar_elements}`. The
+transactional `struct adv_reduction {sum,backend,vector_blocks,scalar_elements}`. The
 mathematical sum must fit uint32; any overflow leaves the whole output unchanged.
 Empty shapes return0 without access. Logical count must fit size_t, so check
 `columns<=SIZE_MAX/rows` before counting nonempty work. No per-element allocation,

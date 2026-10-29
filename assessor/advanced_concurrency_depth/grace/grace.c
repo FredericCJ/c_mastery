@@ -1,11 +1,11 @@
 #include "grace.h"
 #include <limits.h>
-static int lease_valid(const AGDomain *d, AGLease l) {
+static int lease_valid(const struct ag_domain *d, struct ag_lease l) {
   return d && l.owner == d && l.participant < 4 &&
          d->registered[l.participant] &&
          d->generation[l.participant] == l.generation;
 }
-void ag_init(AGDomain *d, unsigned nested) {
+void ag_init(struct ag_domain *d, unsigned nested) {
   cmx_epoch_init(&d->retained);
   d->nested = !!nested;
   for (unsigned p = 0; p < 4; p++) {
@@ -13,7 +13,7 @@ void ag_init(AGDomain *d, unsigned nested) {
     d->generation[p] = 1;
   }
 }
-int ag_register(AGDomain *d, AGLease *out) {
+int ag_register(struct ag_domain *d, struct ag_lease *out) {
   if (!d || !out)
     return AG_INVALID;
   for (unsigned p = 0; p < 4; p++)
@@ -26,7 +26,7 @@ int ag_register(AGDomain *d, AGLease *out) {
     }
   return AG_FULL;
 }
-int ag_enter(AGDomain *d, AGLease l) {
+int ag_enter(struct ag_domain *d, struct ag_lease l) {
   if (!lease_valid(d, l))
     return AG_INVALID;
   unsigned p = l.participant;
@@ -46,7 +46,7 @@ int ag_enter(AGDomain *d, AGLease l) {
   d->section[p]++;
   return AG_OK;
 }
-int ag_leave(AGDomain *d, AGLease l) {
+int ag_leave(struct ag_domain *d, struct ag_lease l) {
   if (!lease_valid(d, l) || !d->depth[l.participant])
     return AG_INVALID;
   unsigned p = l.participant;
@@ -59,7 +59,7 @@ int ag_leave(AGDomain *d, AGLease l) {
 #endif
   return AG_OK;
 }
-int ag_depart(AGDomain *d, AGLease l) {
+int ag_depart(struct ag_domain *d, struct ag_lease l) {
   if (!lease_valid(d, l))
     return AG_INVALID;
   if (d->depth[l.participant])
@@ -68,14 +68,14 @@ int ag_depart(AGDomain *d, AGLease l) {
   d->generation[l.participant]++;
   return AG_OK;
 }
-int ag_advance(AGDomain *d) {
+int ag_advance(struct ag_domain *d) {
   if (!d)
     return AG_INVALID;
   if (d->retained.epoch == UINT32_MAX)
     return AG_EXHAUSTED;
   return cmx_epoch_advance(&d->retained) ? AG_OK : AG_PENDING;
 }
-int ag_reclaimable(const AGDomain *d, unsigned retired) {
+int ag_reclaimable(const struct ag_domain *d, unsigned retired) {
   if (!d || retired > d->retained.epoch)
     return 0;
   for (unsigned p = 0; p < 4; p++)
@@ -89,14 +89,14 @@ int ag_reclaimable(const AGDomain *d, unsigned retired) {
       return 0;
   return 1;
 }
-void ag_store_init(AGStore *s, unsigned nested, unsigned char initial) {
+void ag_store_init(struct ag_store *s, unsigned nested, unsigned char initial) {
   ag_init(&s->domain, nested);
   s->current = 0;
   s->writer = AG_NONE;
   s->drops = s->invocations = 0;
   api_registry_init(&s->callbacks);
   for (unsigned i = 0; i < AG_VERSIONS; i++) {
-    AGObject *o = &s->objects[i];
+    struct ag_object *o = &s->objects[i];
     o->active = i == 0;
     o->generation = i == 0;
     o->retired = o->retired_epoch = o->refs = 0;
@@ -106,7 +106,7 @@ void ag_store_init(AGStore *s, unsigned nested, unsigned char initial) {
   for (unsigned i = 0; i < 4; i++)
     s->capture[i].occupied = 0;
 }
-int ag_writer_acquire(AGStore *s, unsigned writer) {
+int ag_writer_acquire(struct ag_store *s, unsigned writer) {
   if (!s || writer == AG_NONE)
     return AG_INVALID;
   if (s->writer != AG_NONE
@@ -118,13 +118,13 @@ int ag_writer_acquire(AGStore *s, unsigned writer) {
   s->writer = writer;
   return AG_OK;
 }
-int ag_writer_release(AGStore *s, unsigned writer) {
+int ag_writer_release(struct ag_store *s, unsigned writer) {
   if (!s || writer == AG_NONE || s->writer != writer)
     return AG_INVALID;
   s->writer = AG_NONE;
   return AG_OK;
 }
-int ag_publish(AGStore *s, unsigned writer, unsigned char value) {
+int ag_publish(struct ag_store *s, unsigned writer, unsigned char value) {
   if (!s || writer == AG_NONE || s->writer != writer)
     return AG_INVALID;
   if (s->domain.retained.epoch == UINT32_MAX)
@@ -137,7 +137,7 @@ int ag_publish(AGStore *s, unsigned writer, unsigned char value) {
     }
   if (at == AG_NONE)
     return AG_FULL;
-  AGObject *fresh = &s->objects[at], *old = &s->objects[s->current];
+  struct ag_object *fresh = &s->objects[at], *old = &s->objects[s->current];
   fresh->generation++;
   fresh->active = 1;
   fresh->retired = fresh->retired_epoch = fresh->refs = 0;
@@ -149,17 +149,17 @@ int ag_publish(AGStore *s, unsigned writer, unsigned char value) {
   (void)ag_advance(&s->domain);
   return AG_OK;
 }
-static int version_valid(AGStore *s, AGVersion v) {
+static int version_valid(struct ag_store *s, struct ag_version v) {
   return v.index < AG_VERSIONS && s->objects[v.index].active &&
          s->objects[v.index].generation == v.generation;
 }
-static int borrow_valid(AGStore *s, AGBorrow b) {
+static int borrow_valid(struct ag_store *s, struct ag_borrow b) {
   return s && lease_valid(&s->domain, b.lease) &&
          s->domain.depth[b.lease.participant] &&
          s->domain.section[b.lease.participant] == b.section &&
          version_valid(s, b.version);
 }
-int ag_read(AGStore *s, AGLease l, AGBorrow *out) {
+int ag_read(struct ag_store *s, struct ag_lease l, struct ag_borrow *out) {
   if (!s || !out)
     return AG_INVALID;
   int r = ag_enter(&s->domain, l);
@@ -167,25 +167,25 @@ int ag_read(AGStore *s, AGLease l, AGBorrow *out) {
     return r;
   out->lease = l;
   out->section = s->domain.section[l.participant];
-  out->version = (AGVersion){s->current, s->objects[s->current].generation};
+  out->version = (struct ag_version){s->current, s->objects[s->current].generation};
   return AG_OK;
 }
-int ag_copy(AGStore *s, AGBorrow b, unsigned char out[32]) {
+int ag_copy(struct ag_store *s, struct ag_borrow b, unsigned char out[32]) {
   if (!out || !borrow_valid(s, b))
     return AG_INVALID;
   for (unsigned i = 0; i < 32; i++)
     out[i] = s->objects[b.version.index].bytes[i];
   return AG_OK;
 }
-int ag_read_end(AGStore *s, AGBorrow b) {
+int ag_read_end(struct ag_store *s, struct ag_borrow b) {
   if (!borrow_valid(s, b))
     return AG_INVALID;
   return ag_leave(&s->domain, b.lease);
 }
-unsigned ag_collect(AGStore *s) {
+unsigned ag_collect(struct ag_store *s) {
   unsigned count = 0;
   for (unsigned i = 0; i < AG_VERSIONS; i++) {
-    AGObject *o = &s->objects[i];
+    struct ag_object *o = &s->objects[i];
     if (o->active && o->retired && ag_reclaimable(&s->domain, o->retired_epoch)
 #ifndef AG_MUTANT_REFS
         && !o->refs
@@ -197,33 +197,33 @@ unsigned ag_collect(AGStore *s) {
   }
   return count;
 }
-static void captured(void *ctx, ApiRegistry *r, ApiHandle h) {
+static void captured(void *ctx, struct api_registry *r, struct api_handle h) {
   (void)r;
-  AGCapture *c = ctx;
-  AGStore *s = c->owner;
+  struct ag_capture *c = ctx;
+  struct ag_store *s = c->owner;
   if (version_valid(s, c->version) && s->objects[c->version.index].refs) {
     s->invocations++;
     c->callback(c->context, s, h, s->objects[c->version.index].bytes);
   }
 }
 static void released(void *ctx) {
-  AGCapture *c = ctx;
-  AGStore *s = c->owner;
-  AGObject *o = &s->objects[c->version.index];
+  struct ag_capture *c = ctx;
+  struct ag_store *s = c->owner;
+  struct ag_object *o = &s->objects[c->version.index];
   o->refs--;
   c->occupied = 0;
   s->drops++;
 }
-ApiStatus ag_capture(AGStore *s, AGBorrow b, AGCallback cb, void *ctx,
-                     ApiHandle *out) {
+enum api_status ag_capture(struct ag_store *s, struct ag_borrow b, ag_callback_fn cb, void *ctx,
+                     struct api_handle *out) {
   if (!cb || !out || !borrow_valid(s, b))
     return API_INVALID;
-  AGObject *o = &s->objects[b.version.index];
+  struct ag_object *o = &s->objects[b.version.index];
   if (o->refs == UINT_MAX)
     return API_FULL;
   for (unsigned i = 0; i < 4; i++)
     if (!s->capture[i].occupied) {
-      AGCapture *c = &s->capture[i];
+      struct ag_capture *c = &s->capture[i];
       c->owner = s;
       c->version = b.version;
       c->callback = cb;
@@ -232,7 +232,7 @@ ApiStatus ag_capture(AGStore *s, AGBorrow b, AGCallback cb, void *ctx,
 #ifndef AG_MUTANT_CAPTURE
       o->refs++;
 #endif
-      ApiStatus result = api_add(&s->callbacks, captured, c, released, out);
+      enum api_status result = api_add(&s->callbacks, captured, c, released, out);
       if (result != API_OK) {
         o->refs--;
         c->occupied = 0;
@@ -241,12 +241,12 @@ ApiStatus ag_capture(AGStore *s, AGBorrow b, AGCallback cb, void *ctx,
     }
   return API_FULL;
 }
-ApiStatus ag_dispatch(AGStore *s) {
+enum api_status ag_dispatch(struct ag_store *s) {
   return s ? api_dispatch(&s->callbacks) : API_INVALID;
 }
-ApiStatus ag_remove(AGStore *s, ApiHandle h) {
+enum api_status ag_remove(struct ag_store *s, struct api_handle h) {
   return s ? api_remove(&s->callbacks, h) : API_INVALID;
 }
-ApiStatus ag_destroy_callbacks(AGStore *s) {
+enum api_status ag_destroy_callbacks(struct ag_store *s) {
   return s ? api_destroy(&s->callbacks) : API_INVALID;
 }

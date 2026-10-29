@@ -7,26 +7,26 @@
 #include <stdio.h>
 #include <string.h>
 enum { MSS = 64, BLOCKS = 128, EVENTS = 1024 };
-typedef struct {
+struct nc_event {
   unsigned used, flow, index, ack;
   uint64_t due;
-  NiPacket packet;
-} Event;
-typedef struct {
-  NrControl control;
+  struct ni_packet packet;
+};
+struct nc_flow {
+  struct nr_control control;
   unsigned char received[BLOCKS][MSS], present[BLOCKS];
   unsigned next, delivered, sent, fast, timeouts, drops, wire, high_flight,
       at100, retransmitted[BLOCKS], ack_wait, ack_packets;
   uint32_t rto;
   uint64_t due, finished, ack_due;
-} Flow;
-typedef struct {
+};
+struct nc_queued {
   unsigned flow, index;
-  NiPacket packet;
-} Queued;
-static Flow flows[2];
-static Event events[EVENTS];
-static Queued queue[64];
+  struct ni_packet packet;
+};
+static struct nc_flow flows[2];
+static struct nc_event events[EVENTS];
+static struct nc_queued queue[64];
 static unsigned head, count, capacity, mode, flow_count, asymmetric, order_bias;
 static unsigned delayed_ack, limited_transmit;
 static uint64_t now;
@@ -45,7 +45,7 @@ static uint32_t u32(const unsigned char *p) {
   return (uint32_t)u16(p) << 16 | u16(p + 2);
 }
 static unsigned checksum(const unsigned char *p, size_t n) {
-  SChecksum s = {0, 0, 0};
+  struct s_checksum s = {0, 0, 0};
   uint16_t out;
   (void)s_checksum_add(&s, p, n);
   (void)s_checksum_finish(&s, &out);
@@ -53,7 +53,7 @@ static unsigned checksum(const unsigned char *p, size_t n) {
 }
 static unsigned tcp_sum(const unsigned char *p, size_t n) {
   unsigned char tail[4] = {0, 6, 0, (unsigned char)n};
-  SChecksum s = {0, 0, 0};
+  struct s_checksum s = {0, 0, 0};
   uint16_t out;
   (void)s_checksum_add(&s, p + 12, 8);
   (void)s_checksum_add(&s, tail, 4);
@@ -64,7 +64,7 @@ static unsigned tcp_sum(const unsigned char *p, size_t n) {
 static unsigned char byte(unsigned flow, unsigned index, unsigned offset) {
   return (unsigned char)(flow * 71 + index * 17 + offset);
 }
-static void packet(NiPacket *out, unsigned flow, unsigned index, unsigned ack) {
+static void packet(struct ni_packet *out, unsigned flow, unsigned index, unsigned ack) {
   memset(out, 0, sizeof *out);
   unsigned char *p = out->bytes;
   size_t n = ack ? 40 : 40 + MSS;
@@ -89,24 +89,24 @@ static void packet(NiPacket *out, unsigned flow, unsigned index, unsigned ack) {
   w16(p + 10, checksum(p, 20));
   w16(p + 36, tcp_sum(p, n - 20));
 }
-static int valid(const NiPacket *p) {
-  NiConfig c = {0xc0000202, 0xc0000201};
-  NiView v;
+static int valid(const struct ni_packet *p) {
+  struct ni_config c = {0xc0000202, 0xc0000201};
+  struct ni_view v;
   return ni_parse(&c, p->bytes, p->length, 0, &v) == NI_OK && v.protocol == 6 &&
          v.length >= 20 && v.payload[12] == 0x50 &&
          u16(v.payload + 2) == 8080 && !tcp_sum(p->bytes, v.length);
 }
 static int schedule(unsigned flow, unsigned index, unsigned ack, uint64_t due,
-                    const NiPacket *p) {
+                    const struct ni_packet *p) {
   for (unsigned i = 0; i < EVENTS; i++)
     if (!events[i].used) {
-      events[i] = (Event){1, flow, index, ack, due, *p};
+      events[i] = (struct nc_event){1, flow, index, ack, due, *p};
       return 0;
     }
   return 1;
 }
 static int enqueue(unsigned flow, unsigned index) {
-  Flow *f = &flows[flow];
+  struct nc_flow *f = &flows[flow];
   f->wire++;
   if (count == capacity) {
     f->drops++;
@@ -120,7 +120,7 @@ static int enqueue(unsigned flow, unsigned index) {
   return 0;
 }
 static int retransmit(unsigned flow) {
-  Flow *f = &flows[flow];
+  struct nc_flow *f = &flows[flow];
   unsigned index = (f->control.una - 0xfffff000u) / MSS;
   if (index >= BLOCKS)
     return 1;
@@ -128,8 +128,8 @@ static int retransmit(unsigned flow) {
   return enqueue(flow, index);
 }
 static int acknowledge(unsigned flow) {
-  Flow *f = &flows[flow];
-  NiPacket ack;
+  struct nc_flow *f = &flows[flow];
+  struct ni_packet ack;
   packet(&ack, flow, f->next, 1);
   f->ack_wait = 0;
   f->ack_due = 0;
@@ -142,11 +142,11 @@ static int step(void) {
    */
   for (unsigned i = 0; i < EVENTS; i++)
     if (events[i].used && events[i].due <= now) {
-      Event e = events[i];
+      struct nc_event e = events[i];
       events[i].used = 0;
       if (!valid(&e.packet))
         return 10;
-      Flow *f = &flows[e.flow];
+      struct nc_flow *f = &flows[e.flow];
       if (e.ack) {
         uint32_t ack = u32(e.packet.bytes + 28), old = f->control.una;
         int rc = nr_ack(&f->control, ack, 16384, 0, 16, now);
@@ -195,7 +195,7 @@ static int step(void) {
                     : order_bias
                         ? j
                         : (j + (unsigned)(now % flow_count)) % flow_count;
-    Flow *f = &flows[flow];
+    struct nc_flow *f = &flows[flow];
     if (nr_flight(&f->control) && f->due && now >= f->due) {
       if (nr_timeout(&f->control, now) != NR_OK)
         return 16;
@@ -222,10 +222,10 @@ static int step(void) {
   /* One packet per tick shared bottleneck; accepted NIC copies can be dropped
    * later by this finite network queue. That is not a lower-copy refusal. */
   if (count) {
-    Queued q = queue[head];
+    struct nc_queued q = queue[head];
     head = (head + 1) % capacity;
     count--;
-    Flow *f = &flows[q.flow];
+    struct nc_flow *f = &flows[q.flow];
     unsigned discard = (mode == 1 && q.index == 8 && !f->retransmitted[8]) ||
                        (mode == 2 && (q.index == 8 || q.index == 10) &&
                         !f->retransmitted[q.index]);
@@ -280,7 +280,7 @@ static int run(unsigned case_id, unsigned selected, unsigned cap,
   if (now == 200000)
     return 22;
   for (unsigned f = 0; f < nflow; f++) {
-    Flow *s = &flows[f];
+    struct nc_flow *s = &flows[f];
     if (s->delivered != BLOCKS * MSS || nr_flight(&s->control))
       return 23;
     for (unsigned i = 0; i < BLOCKS; i++)
@@ -305,7 +305,7 @@ static int run(unsigned case_id, unsigned selected, unsigned cap,
 }
 int main(void) {
   printf("NR_COST state=%zu flows=%zu events=%zu queue=%zu event_slots=%u\n",
-         sizeof(NrControl), sizeof flows, sizeof events, sizeof queue, EVENTS);
+         sizeof(struct nr_control), sizeof flows, sizeof events, sizeof queue, EVENTS);
   for (unsigned m = 0; m < 4; m++) {
     int rc = run(m, m, 64, 1, 0, 0, 0, 0);
     if (rc) {

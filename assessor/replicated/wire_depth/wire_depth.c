@@ -3,7 +3,7 @@
 #ifndef RPW_MUTATION
 #define RPW_MUTATION 0
 #endif
-static int limits(RpwLimits l) {
+static int limits(struct rpw_limits l) {
   return l.depth >= 1 && l.depth <= 4 && l.bytes >= 4 && l.bytes <= 256 &&
          l.fields >= 2 && l.fields <= 32;
 }
@@ -58,8 +58,8 @@ static int field_kind(unsigned tag, unsigned wire, unsigned *kind) {
   }
   return RPW_OK;
 }
-static int parse(const unsigned char *p, size_t n, RpwLimits l, unsigned depth,
-                 RpwDoc *d, unsigned index, unsigned *fields) {
+static int parse(const unsigned char *p, size_t n, struct rpw_limits l, unsigned depth,
+                 struct rpw_doc *d, unsigned index, unsigned *fields) {
   size_t at = 0;
   unsigned seen = 0;
   if (depth > l.depth && RPW_MUTATION != 3)
@@ -67,7 +67,7 @@ static int parse(const unsigned char *p, size_t n, RpwLimits l, unsigned depth,
   while (at < n) {
     uint32_t key, x;
     unsigned kind, tag;
-    RpwField f = {0};
+    struct rpw_field f = {0};
     int r = var(p, n, &at, &key);
     if (r)
       return r;
@@ -115,8 +115,8 @@ static int parse(const unsigned char *p, size_t n, RpwLimits l, unsigned depth,
   }
   return (seen & 6u) == 6u ? RPW_OK : RPW_INVALID;
 }
-int rpw_decode(const unsigned char *p, size_t n, RpwLimits l, RpwDoc *out) {
-  RpwDoc d = {0};
+int rpw_decode(const unsigned char *p, size_t n, struct rpw_limits l, struct rpw_doc *out) {
+  struct rpw_doc d = {0};
   unsigned fields = 0;
   int r;
   if ((!p && n) || !out || !limits(l))
@@ -132,7 +132,7 @@ int rpw_decode(const unsigned char *p, size_t n, RpwLimits l, RpwDoc *out) {
   *out = d;
   return RPW_OK;
 }
-static int emit(const RpwDoc *d, unsigned index, RpwLimits l, unsigned depth,
+static int emit(const struct rpw_doc *d, unsigned index, struct rpw_limits l, unsigned depth,
                 unsigned *seen_nodes, unsigned *fields, unsigned char out[256],
                 size_t *length) {
   unsigned seen = 0, i, tag;
@@ -145,7 +145,7 @@ static int emit(const RpwDoc *d, unsigned index, RpwLimits l, unsigned depth,
   if (d->records[index].count > 8)
     return RPW_INVALID;
   for (i = 0; i < d->records[index].count; ++i) {
-    const RpwField *f = &d->records[index].fields[i];
+    const struct rpw_field *f = &d->records[index].fields[i];
     unsigned kind;
     int r;
     if (f->kind > 2)
@@ -168,7 +168,7 @@ static int emit(const RpwDoc *d, unsigned index, RpwLimits l, unsigned depth,
     return RPW_INVALID;
   for (tag = 1; tag <= 15; ++tag)
     for (i = 0; i < d->records[index].count; ++i) {
-      const RpwField *f = &d->records[index].fields[i];
+      const struct rpw_field *f = &d->records[index].fields[i];
       unsigned char child[256], head[10];
       size_t n = 0;
       unsigned h;
@@ -201,7 +201,7 @@ static int emit(const RpwDoc *d, unsigned index, RpwLimits l, unsigned depth,
   *length = at;
   return RPW_OK;
 }
-int rpw_encode(const RpwDoc *d, RpwLimits l, unsigned char *out, size_t cap,
+int rpw_encode(const struct rpw_doc *d, struct rpw_limits l, unsigned char *out, size_t cap,
                size_t *length) {
   unsigned char staged[256];
   unsigned seen = 0, fields = 0;
@@ -224,10 +224,10 @@ int rpw_encode(const RpwDoc *d, RpwLimits l, unsigned char *out, size_t cap,
   *length = n;
   return RPW_OK;
 }
-int rpw_update(RpwDoc *d, RpwLimits l, uint32_t id, int32_t delta) {
+int rpw_update(struct rpw_doc *d, struct rpw_limits l, uint32_t id, int32_t delta) {
   unsigned char bytes[256];
   size_t n;
-  RpwDoc next;
+  struct rpw_doc next;
   unsigned i;
   int r;
   if (!d)
@@ -237,7 +237,7 @@ int rpw_update(RpwDoc *d, RpwLimits l, uint32_t id, int32_t delta) {
     return r;
   next = *d;
   for (i = 0; i < next.records[0].count; ++i) {
-    RpwField *f = &next.records[0].fields[i];
+    struct rpw_field *f = &next.records[0].fields[i];
     if (f->tag == 1)
       f->value = id;
     if (f->tag == 2)
@@ -253,10 +253,10 @@ int rpw_update(RpwDoc *d, RpwLimits l, uint32_t id, int32_t delta) {
   *d = next;
   return RPW_OK;
 }
-int rpw_project(const RpwDoc *d, RpwLimits l, RPMessage *out) {
+int rpw_project(const struct rpw_doc *d, struct rpw_limits l, struct rp_message *out) {
   unsigned char bytes[256];
   size_t n;
-  RPMessage m = {0};
+  struct rp_message m = {0};
   unsigned tag, i;
   int r;
   if (!out)
@@ -267,7 +267,7 @@ int rpw_project(const RpwDoc *d, RpwLimits l, RPMessage *out) {
   for (tag = 1; tag <= 2; ++tag)
     for (i = 0; i < d->records[0].count; ++i)
       if (d->records[0].fields[i].tag == tag)
-        m.fields[m.count++] = (RPField){tag, d->records[0].fields[i].value};
+        m.fields[m.count++] = (struct rp_field){tag, d->records[0].fields[i].value};
   *out = m;
   return RPW_OK;
 }
@@ -316,8 +316,8 @@ int rpw_utf8(const unsigned char *p, size_t n) {
   }
   return RPW_OK;
 }
-int rpw_stream_init(RpwStream *s, RpwLimits l) {
-  RpwStream n = {0};
+int rpw_stream_init(struct rpw_stream *s, struct rpw_limits l) {
+  struct rpw_stream n = {0};
   if (!s || !limits(l))
     return RPW_INVALID;
   n.limits = l;
@@ -326,15 +326,15 @@ int rpw_stream_init(RpwStream *s, RpwLimits l) {
   *s = n;
   return RPW_OK;
 }
-int rpw_feed(RpwStream *s, const unsigned char *p, size_t n, size_t *consumed,
-             RpwDoc *out) {
+int rpw_feed(struct rpw_stream *s, const unsigned char *p, size_t n, size_t *consumed,
+             struct rpw_doc *out) {
   size_t at = 0;
   if (!s || (!p && n) || !consumed || !out)
     return RPW_INVALID;
   if (s->phase)
     return RPW_STATE;
   while (at < n) {
-    RfFrame frame;
+    struct rf_frame frame;
     size_t used = 0;
     int r = rf_feed(&s->parser, p + at, n - at, &used, &frame);
     at += used;
@@ -345,7 +345,7 @@ int rpw_feed(RpwStream *s, const unsigned char *p, size_t n, size_t *consumed,
     }
     if (r == 1) {
       if (!frame.length) {
-        RpwDoc d;
+        struct rpw_doc d;
         r = rpw_decode(s->bytes, s->used, s->limits, &d);
         s->phase = r ? 2 : 1;
         *consumed = at;
@@ -365,7 +365,7 @@ int rpw_feed(RpwStream *s, const unsigned char *p, size_t n, size_t *consumed,
   *consumed = at;
   return RPW_MORE;
 }
-int rpw_eof(RpwStream *s) {
+int rpw_eof(struct rpw_stream *s) {
   if (!s)
     return RPW_INVALID;
   if (s->phase == 1)
@@ -377,7 +377,7 @@ int rpw_eof(RpwStream *s) {
   s->phase = 2;
   return RPW_INVALID;
 }
-int rpw_cancel(RpwStream *s) {
+int rpw_cancel(struct rpw_stream *s) {
   if (!s)
     return RPW_INVALID;
   if (s->phase)
@@ -387,7 +387,7 @@ int rpw_cancel(RpwStream *s) {
   s->phase = 3;
   return RPW_OK;
 }
-int rpw_frame(const RpwDoc *d, RpwLimits l, unsigned char *out, size_t cap,
+int rpw_frame(const struct rpw_doc *d, struct rpw_limits l, unsigned char *out, size_t cap,
               size_t *length) {
   unsigned char raw[256], wire[289];
   size_t n, at = 0, pos = 0;
@@ -398,8 +398,8 @@ int rpw_frame(const RpwDoc *d, RpwLimits l, unsigned char *out, size_t cap,
   if (r)
     return r;
   while (at < n) {
-    RfFrame f = {0};
-    RfMessage m;
+    struct rf_frame f = {0};
+    struct rf_message m;
     unsigned take = n - at > 8 ? 8 : (unsigned)(n - at);
     f.length = take;
     memcpy(f.bytes, raw + at, take);

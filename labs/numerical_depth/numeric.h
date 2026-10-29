@@ -8,38 +8,38 @@ int nd_sum(const double *, size_t, unsigned, double *);
 int nd_qmul(int16_t, int16_t, unsigned, int16_t *);
 int nd_qmac(const int16_t *, const int16_t *, size_t, unsigned, int16_t *);
 int nd_quantize(double, unsigned, int16_t *);
-typedef struct {
+struct nd_view {
   double *data;
   size_t extent, rows, cols, rs, cs;
-} NDView;
-int nd_view(NDView);
-int nd_matrix(NDView, NDView, NDView, unsigned);
-int nd_scale(NDView, double);
-int nd_dot(NDView, NDView, double *);
+};
+int nd_view(struct nd_view);
+int nd_matrix(struct nd_view, struct nd_view, struct nd_view, unsigned);
+int nd_scale(struct nd_view, double);
+int nd_dot(struct nd_view, struct nd_view, double *);
 int nd_interp(const double *, const double *, size_t, double, int, double *);
-typedef struct {
+struct nd_cost {
   size_t adds, multiplies, divisions, row_moves;
-} NDCost;
-int nd_solve(NDView, const double *, size_t, double, double *, NDCost *);
-int nd_jacobi(NDView, const double *, size_t, double, unsigned, double *,
+};
+int nd_solve(struct nd_view, const double *, size_t, double, double *, struct nd_cost *);
+int nd_jacobi(struct nd_view, const double *, size_t, double, unsigned, double *,
               unsigned *);
 int nd_euler(double, double, double, size_t, double *, size_t);
 int nd_iir(double *, const double *, size_t, double, double, double *, size_t);
 #define ND_ITEMS 16
-typedef struct {
+struct nd_record {
   double x, y;
   unsigned id;
   char label[24];
-} NDRecord;
-typedef struct {
+};
+struct nd_store {
   double x[ND_ITEMS], y[ND_ITEMS];
   unsigned id[ND_ITEMS];
   char label[ND_ITEMS][24];
   size_t count;
   unsigned serial;
-} NDStore;
-int nd_insert(NDStore *, double, double, const char[24], unsigned *);
-int nd_remove(NDStore *, unsigned);
-int nd_reorder(NDStore *, const unsigned *, size_t);
-int nd_record(const NDStore *, unsigned, NDRecord *);
+};
+int nd_insert(struct nd_store *, double, double, const char[24], unsigned *);
+int nd_remove(struct nd_store *, unsigned);
+int nd_reorder(struct nd_store *, const unsigned *, size_t);
+int nd_record(const struct nd_store *, unsigned, struct nd_record *);
 #endif

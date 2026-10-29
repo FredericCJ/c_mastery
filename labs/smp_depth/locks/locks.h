@@ -4,23 +4,23 @@
 #include <stdatomic.h>
 enum { SL_OK,SL_INVALID,SL_BUSY,SL_FULL,SL_PENDING,SL_ORDER };
 enum { SL_TAS,SL_TICKET,SL_MCS };
-typedef struct SlNode SlNode;
-struct SlNode {_Atomic(SlNode *) next;atomic_uint waiting,active;};
-typedef struct {unsigned kind,rank;atomic_uint word,next,serving,admitted;_Atomic(SlNode *) tail;} SlLock;
-typedef struct {uint64_t exchanges,failed_exchanges,waiting_loads;} SlStats;
-typedef struct {SlLock *lock;SlNode *node;unsigned ticket,phase;} SlGuard;
-typedef struct SlIrqGuard SlIrqGuard;
-struct SlIrqGuard {SlGuard guard;uint64_t saved;};
-typedef struct {SlIrqGuard *stack[4];unsigned depth;} SlContext;
-typedef struct {uint64_t (*save)(void *);void (*restore)(void *,uint64_t);void *context;} SlPort;
+struct sl_node;
+struct sl_node {_Atomic(struct sl_node *) next;atomic_uint waiting,active;};
+struct sl_lock {unsigned kind,rank;atomic_uint word,next,serving,admitted;_Atomic(struct sl_node *) tail;};
+struct sl_stats {uint64_t exchanges,failed_exchanges,waiting_loads;};
+struct sl_guard {struct sl_lock *lock;struct sl_node *node;unsigned ticket,phase;};
+struct sl_irq_guard;
+struct sl_irq_guard {struct sl_guard guard;uint64_t saved;};
+struct sl_context {struct sl_irq_guard *stack[4];unsigned depth;};
+struct sl_port {uint64_t (*save)(void *);void (*restore)(void *,uint64_t);void *context;};
 /* Initialize exclusively before sharing. All guards/contexts start zeroed.
  * A live guard is neither copied nor moved and is released only by its owner. */
-int sl_init(SlLock *,unsigned kind,unsigned rank,unsigned start);
-void sl_node_init(SlNode *);
-int sl_ticket_reserve(SlLock *,SlGuard *);
-int sl_ticket_ready(SlGuard *,SlStats *);
-int sl_enter(SlLock *,SlNode *,SlGuard *,SlStats *);
-int sl_leave(SlGuard *,SlStats *);
-int sl_irq_enter(SlContext *,SlPort,SlLock *,SlNode *,SlIrqGuard *,SlStats *);
-int sl_irq_leave(SlContext *,SlPort,SlIrqGuard *,SlStats *);
+int sl_init(struct sl_lock *,unsigned kind,unsigned rank,unsigned start);
+void sl_node_init(struct sl_node *);
+int sl_ticket_reserve(struct sl_lock *,struct sl_guard *);
+int sl_ticket_ready(struct sl_guard *,struct sl_stats *);
+int sl_enter(struct sl_lock *,struct sl_node *,struct sl_guard *,struct sl_stats *);
+int sl_leave(struct sl_guard *,struct sl_stats *);
+int sl_irq_enter(struct sl_context *,struct sl_port,struct sl_lock *,struct sl_node *,struct sl_irq_guard *,struct sl_stats *);
+int sl_irq_leave(struct sl_context *,struct sl_port,struct sl_irq_guard *,struct sl_stats *);
 #endif

@@ -20,7 +20,7 @@ construction/key-policy passages. The identity-tagged membership and formats
 below are original teaching contracts, not an attributed distributed membership
 protocol from those sources.
 
-Implement `RpmCounter`: nonzero uint64 namespace and local writer identity,
+Implement `struct rpm_counter`: nonzero uint64 namespace and local writer identity,
 six sorted unique identity tags, two actual three-component RPPN blocks, and
 count1..6. Unused tags/components are zero. The self identity must occur in the
 active representation. Every retained component has one globally provisioned
@@ -80,7 +80,7 @@ The64-byte cumulative-component packet begins ASCII RPA1,zeros4..7,
 namespace BE64 at8,writer BE64 at16,positive BE32 at24,negative BE32 at28,
 and HMAC-SHA256 over bytes0..31 at32. `rpm_seal` signs only self's component.
 There is no native-layout cast, unauthenticated field or forwarded third-party
-component claim. `RpmPermit` is trusted local policy: namespace, one writer ID,
+component claim. `struct rpm_permit` is trusted local policy: namespace, one writer ID,
 synthetic32-byte key, positive/negative absolute limits and active0/1.
 
 `rpm_admit` checks canonical framing, namespace and exact permit writer,

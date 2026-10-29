@@ -27,8 +27,8 @@ static void drive(void *p,unsigned on){
     REG(0x40020c18u)=1u<<(R5_PORT_MUTANT==1?(on?26:10):(on?10:26));
     barrier();
 }
-R5Io r5_f439_io(void){R5Io io={pu_f439_io(),0,drive};return io;}
-int r5_f439_send(R5Channel *s,uint32_t token,const uint8_t *data,size_t n,
+struct r5_io r5_f439_io(void){struct r5_io io={pu_f439_io(),0,drive};return io;}
+int r5_f439_send(struct r5_channel *s,uint32_t token,const uint8_t *data,size_t n,
                  unsigned backend,uint32_t now,uint32_t budget,size_t *accepted){
     if(!s)return R5_INVALID;
     uintptr_t p=(uintptr_t)s->tx_bytes;

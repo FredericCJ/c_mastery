@@ -3,7 +3,7 @@
 #ifndef BF_MUTANT
 #define BF_MUTANT 0
 #endif
-int bf_turn(BfRound *r,B3Write f[2],void *c[2],unsigned quota,unsigned *chosen){
+int bf_turn(struct bf_round *r,b3_write_fn f[2],void *c[2],unsigned quota,unsigned *chosen){
  unsigned n;
  if(!r||!f||!c||!chosen||r->next>1||!f[0]||!f[1]||quota>64)return B3_INVALID;
  n=r->next;*chosen=n;
@@ -12,7 +12,7 @@ int bf_turn(BfRound *r,B3Write f[2],void *c[2],unsigned quota,unsigned *chosen){
 #endif
  return b3_pump(&r->writer[n],f[n],c[n],quota);
 }
-int bf_message(BfMessage *m,unsigned id,const unsigned char *p,unsigned n,
+int bf_message(struct bf_message *m,unsigned id,const unsigned char *p,unsigned n,
                unsigned quota,int lose,unsigned *out){
  unsigned i;
  if(!m||!out||(!p&&n)||n>6||quota>6||(lose!=0&&lose!=1)||!id||id>3)return B3_INVALID;
@@ -35,12 +35,12 @@ int bf_message(BfMessage *m,unsigned id,const unsigned char *p,unsigned n,
  if(!m->complete||lose)return B3_WAIT;
  *out=m->total;return B3_OK;
 }
-int bf_start(BfOperation *o){
+int bf_start(struct bf_operation *o){
  if(!o)return B3_INVALID;
  if(o->owned||o->generation==3)return B3_FAILED;
  o->generation++;o->phase=BF_ACTIVE;o->owned=1;return B3_OK;
 }
-int bf_event(BfOperation *o,unsigned generation,enum BfEvent e){
+int bf_event(struct bf_operation *o,unsigned generation,enum bf_event e){
  if(!o||e<BF_TIMEOUT||e>BF_QUIESCENT)return B3_INVALID;
  if(generation!=o->generation||!o->owned)return B3_STALE;
  if(e==BF_TIMEOUT){if(o->phase==BF_ACTIVE)o->phase=BF_REQUESTED;return B3_WAIT;}
@@ -56,11 +56,11 @@ int bf_event(BfOperation *o,unsigned generation,enum BfEvent e){
  if(e==BF_QUIESCENT&&o->phase!=BF_QUEUED)return B3_STALE;
  o->phase=e==BF_COMPLETE?BF_DONE:BF_CANCELLED;o->owned=0;o->reports++;return B3_OK;
 }
-int bf_clear_read(BfRegister *r,unsigned *out){
+int bf_clear_read(struct bf_register *r,unsigned *out){
  if(!r||!out)return B3_INVALID;
  *out=r->status;r->status=0;r->reads++;return B3_OK;
 }
-int bf_w0c(BfRegister *r,unsigned mask){
+int bf_w0c(struct bf_register *r,unsigned mask){
  unsigned wire;
  if(!r||mask>15)return B3_INVALID;
  wire=255u^mask;
@@ -69,7 +69,7 @@ int bf_w0c(BfRegister *r,unsigned mask){
 #endif
  r->last_write=wire;r->writes++;r->status&=wire;return B3_OK;
 }
-int bf_coherent(BfReadHalf read,void *ctx,unsigned budget,uint16_t *out){
+int bf_coherent(bf_read_half_fn read,void *ctx,unsigned budget,uint16_t *out){
  unsigned a,b,lo,i;
  if(!read||!out||budget>8)return B3_INVALID;
  for(i=0;i<budget;i++){

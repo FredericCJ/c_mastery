@@ -67,7 +67,7 @@ Unsigned sums follow `uint32_t` modular arithmetic; no security checksum is clai
 
 ## Representation and operations
 
-`DCManifest.known` has exactly ten bits, one per nonzero identity handle. A zero
+`struct dc_manifest.known` has exactly ten bits, one per nonzero identity handle. A zero
 handle is unknown; unknown transport requires zero stored latency. Handles name
 immutable caller-owned records: the configuration record contains its hash and
 actual command, and the probe/device/power records distinguish observations from

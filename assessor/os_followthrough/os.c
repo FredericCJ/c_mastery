@@ -21,12 +21,12 @@ static void admit(const os_job *jobs, size_t n, unsigned time, unsigned *seen,
     tickets[best] = (*next)++;
   }
 }
-OfStatus of_schedule(const os_job *jobs, size_t n, os_policy policy,
-                     unsigned quantum, unsigned overhead, OfSchedule *out) {
+enum of_status of_schedule(const os_job *jobs, size_t n, os_policy policy,
+                     unsigned quantum, unsigned overhead, struct of_schedule *out) {
   if (!out || (!jobs && n) || n > 16 || policy > OS_RR || policy < OS_FCFS ||
       !quantum || quantum > 256 || overhead > 16)
     return OF_INPUT;
-  OfSchedule r = {0};
+  struct of_schedule r = {0};
   for (unsigned i = 0; i < 256; i++)
     r.schedule.timeline[i] = -1;
   for (size_t i = 0; i < n; i++)
@@ -120,9 +120,9 @@ OfStatus of_schedule(const os_job *jobs, size_t n, os_policy policy,
   *out = r;
   return OF_OK;
 }
-OfStatus of_fair(unsigned stride, unsigned ticks, const unsigned weights[3],
-                 uint64_t seed, unsigned scale, const OfEvent *events,
-                 size_t count, unsigned mutant, OfFair *out) {
+enum of_status of_fair(unsigned stride, unsigned ticks, const unsigned weights[3],
+                 uint64_t seed, unsigned scale, const struct of_event *events,
+                 size_t count, unsigned mutant, struct of_fair *out) {
   if (!out || !weights || ticks > 256 || !ticks || stride > 1 || !scale ||
       scale > 65536 || count > 768 || (!events && count) || mutant > 1)
     return OF_INPUT;
@@ -137,7 +137,7 @@ OfStatus of_fair(unsigned stride, unsigned ticks, const unsigned weights[3],
           events[i].value > scale)) ||
         (events[i].kind == OF_SLEEP && events[i].value > 256))
       return OF_INPUT;
-  OfFair r = {0};
+  struct of_fair r = {0};
   unsigned weight[3], level[3] = {0}, used[3] = {0}, wake[3] = {0},
                       ticket[3] = {1, 2, 3}, next = 4;
   uint64_t pass[3];
@@ -227,15 +227,15 @@ OfStatus of_fair(unsigned stride, unsigned ticks, const unsigned weights[3],
   *out = r;
   return OF_OK;
 }
-OfStatus of_pages(const OfReference *refs, size_t n, unsigned frames,
-                  OfPagePolicy policy, OfPages *out) {
+enum of_status of_pages(const struct of_reference *refs, size_t n, unsigned frames,
+                  enum of_page_policy policy, struct of_pages *out) {
   if (!out || (!refs && n) || n > 64 || !frames || frames > 8 ||
       policy > OF_OPT || policy < OF_FIFO)
     return OF_INPUT;
   for (size_t i = 0; i < n; i++)
     if (refs[i].write > 1)
       return OF_INPUT;
-  OfPages r = {0};
+  struct of_pages r = {0};
   uint8_t pages[8] = {0};
   unsigned valid = 0, dirty = 0, referenced = 0, hand = 0, born[8] = {0},
            last[8] = {0};
@@ -246,7 +246,7 @@ OfStatus of_pages(const OfReference *refs, size_t n, unsigned frames,
         slot = j;
         break;
       }
-    OfPageStep *s = &r.steps[i];
+    struct of_page_step *s = &r.steps[i];
     s->victim = -1;
     s->hit = slot < frames;
     if (slot == frames) {
@@ -307,7 +307,7 @@ OfStatus of_pages(const OfReference *refs, size_t n, unsigned frames,
   *out = r;
   return OF_OK;
 }
-OfStatus of_progress(OfTransfer *t, ptrdiff_t raw, unsigned record) {
+enum of_status of_progress(struct of_transfer *t, ptrdiff_t raw, unsigned record) {
   if (!t || t->done > t->wanted || record > 1 || raw < -4095)
     return OF_INPUT;
   if (t->terminal)

@@ -15,62 +15,62 @@ enum {
   AG_EXHAUSTED,
   AG_UNIMPLEMENTED
 };
-typedef struct AGDomain AGDomain;
-typedef struct {
-  const AGDomain *owner;
+struct ag_domain;
+struct ag_lease {
+  const struct ag_domain *owner;
   unsigned participant, generation;
-} AGLease;
-struct AGDomain {
+};
+struct ag_domain {
   cmx_epoch retained;
   unsigned registered[4], generation[4], depth[4], section[4], nested;
 };
-void ag_init(AGDomain *, unsigned nested);
-int ag_register(AGDomain *, AGLease *);
-int ag_enter(AGDomain *, AGLease);
-int ag_leave(AGDomain *, AGLease);
-int ag_depart(AGDomain *, AGLease);
-int ag_advance(AGDomain *);
-int ag_reclaimable(const AGDomain *, unsigned retired_epoch);
-typedef struct {
+void ag_init(struct ag_domain *, unsigned nested);
+int ag_register(struct ag_domain *, struct ag_lease *);
+int ag_enter(struct ag_domain *, struct ag_lease);
+int ag_leave(struct ag_domain *, struct ag_lease);
+int ag_depart(struct ag_domain *, struct ag_lease);
+int ag_advance(struct ag_domain *);
+int ag_reclaimable(const struct ag_domain *, unsigned retired_epoch);
+struct ag_version {
   unsigned index, generation;
-} AGVersion;
-typedef struct {
-  AGLease lease;
+};
+struct ag_borrow {
+  struct ag_lease lease;
   unsigned section;
-  AGVersion version;
-} AGBorrow;
-typedef struct {
+  struct ag_version version;
+};
+struct ag_object {
   unsigned active, generation, retired, retired_epoch, refs;
   unsigned char bytes[32];
-} AGObject;
-typedef struct AGStore AGStore;
-typedef void (*AGCallback)(void *, AGStore *, ApiHandle,
+};
+struct ag_store;
+typedef void (*ag_callback_fn)(void *, struct ag_store *, struct api_handle,
                            const unsigned char[32]);
-typedef struct {
-  AGStore *owner;
-  AGVersion version;
-  AGCallback callback;
+struct ag_capture {
+  struct ag_store *owner;
+  struct ag_version version;
+  ag_callback_fn callback;
   void *context;
   unsigned occupied;
-} AGCapture;
-struct AGStore {
-  AGDomain domain;
-  AGObject objects[AG_VERSIONS];
+};
+struct ag_store {
+  struct ag_domain domain;
+  struct ag_object objects[AG_VERSIONS];
   unsigned current, writer;
-  ApiRegistry callbacks;
-  AGCapture capture[4];
+  struct api_registry callbacks;
+  struct ag_capture capture[4];
   unsigned drops, invocations;
 };
-void ag_store_init(AGStore *, unsigned nested, unsigned char initial);
-int ag_writer_acquire(AGStore *, unsigned writer);
-int ag_writer_release(AGStore *, unsigned writer);
-int ag_publish(AGStore *, unsigned writer, unsigned char value);
-int ag_read(AGStore *, AGLease, AGBorrow *);
-int ag_copy(AGStore *, AGBorrow, unsigned char out[32]);
-int ag_read_end(AGStore *, AGBorrow);
-unsigned ag_collect(AGStore *);
-ApiStatus ag_capture(AGStore *, AGBorrow, AGCallback, void *, ApiHandle *);
-ApiStatus ag_dispatch(AGStore *);
-ApiStatus ag_remove(AGStore *, ApiHandle);
-ApiStatus ag_destroy_callbacks(AGStore *);
+void ag_store_init(struct ag_store *, unsigned nested, unsigned char initial);
+int ag_writer_acquire(struct ag_store *, unsigned writer);
+int ag_writer_release(struct ag_store *, unsigned writer);
+int ag_publish(struct ag_store *, unsigned writer, unsigned char value);
+int ag_read(struct ag_store *, struct ag_lease, struct ag_borrow *);
+int ag_copy(struct ag_store *, struct ag_borrow, unsigned char out[32]);
+int ag_read_end(struct ag_store *, struct ag_borrow);
+unsigned ag_collect(struct ag_store *);
+enum api_status ag_capture(struct ag_store *, struct ag_borrow, ag_callback_fn, void *, struct api_handle *);
+enum api_status ag_dispatch(struct ag_store *);
+enum api_status ag_remove(struct ag_store *, struct api_handle);
+enum api_status ag_destroy_callbacks(struct ag_store *);
 #endif

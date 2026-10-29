@@ -11,13 +11,13 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-static int equal(const RpcClock *a, const RpcClock *b) {
+static int equal(const struct rpc_clock *a, const struct rpc_clock *b) {
   unsigned char x[160], y[160];
   return rpc_encode(a, x) == RPC_OK && rpc_encode(b, y) == RPC_OK &&
          !memcmp(x, y, 160);
 }
 static int identity_case(void) {
-  RpcClock a, b, c, old, sentinel;
+  struct rpc_clock a, b, c, old, sentinel;
   CHECK(rpc_make(9, 10, &a) == RPC_OK);
   CHECK(rpc_make(9, 20, &b) == RPC_OK);
   CHECK(rpc_step(&a, 0, 5, 4, RPC_REJECT, &old) == RPC_OK);
@@ -29,7 +29,7 @@ static int identity_case(void) {
   CHECK(b.vector.count == 2 && b.vector.entries[0].identity == 10 &&
         b.vector.entries[0].value == 1);
   CHECK(rpc_step(&b, 0, 6, 4, RPC_REJECT, &c) == RPC_OK);
-  RpcClock after_old_message;
+  struct rpc_clock after_old_message;
   CHECK(rpc_step(&c, &a, 7, 4, RPC_REJECT, &after_old_message) == RPC_OK);
   CHECK(after_old_message.self == 30 && after_old_message.vector.count == 2 &&
         after_old_message.vector.entries[0].identity == 10 &&
@@ -38,8 +38,8 @@ static int identity_case(void) {
   int order = 9;
   CHECK(rpc_order(&a.vector, &c.vector, &order) == RPC_OK && order == -1);
   /* A numeric slot reset conflates a later event with the old identity. */
-  RPVector before = {{1, 0, 0}}, bad = {{0, 0, 0}}, after;
-  CHECK(rp_vector_receive(bad, (RPVector){{0, 0, 0}}, 0, &after) == RP_OK);
+  struct rp_vector before = {{1, 0, 0}}, bad = {{0, 0, 0}}, after;
+  CHECK(rp_vector_receive(bad, (struct rp_vector){{0, 0, 0}}, 0, &after) == RP_OK);
   CHECK(rp_vector_order(before, after) == 0);
   sentinel = c;
   CHECK(rpc_replace(&a, 10, &sentinel) == RPC_IDENTITY && equal(&sentinel, &c));
@@ -51,16 +51,16 @@ static int identity_case(void) {
   CHECK(a.vector.count == 6);
   sentinel = a;
   CHECK(rpc_replace(&a, 80, &sentinel) == RPC_FULL && equal(&sentinel, &a));
-  RpcClock other;
+  struct rpc_clock other;
   CHECK(rpc_make(10, 90, &other) == RPC_OK);
   CHECK(rpc_step(&a, &other, 6, 4, RPC_REJECT, &sentinel) == RPC_IDENTITY &&
         equal(&sentinel, &a));
   return 0;
 }
 static int policy_case(void) {
-  RpcClock a, b, sentinel;
+  struct rpc_clock a, b, sentinel;
   CHECK(rpc_make(9, 10, &a) == RPC_OK);
-  a.hlc = (RPHLC){10, UINT32_MAX};
+  a.hlc = (struct rp_hlc){10, UINT32_MAX};
   sentinel = a;
   CHECK(rpc_step(&a, 0, 10, 4, RPC_REJECT, &sentinel) == RPC_RANGE &&
         equal(&a, &sentinel));
@@ -70,9 +70,9 @@ static int policy_case(void) {
         b.hlc.physical == 11 && b.hlc.logical == 0);
   CHECK(rpc_step(&a, 0, 5, 4, RPC_WAIT_FOR_WALL, &sentinel) == RPC_SKEW &&
         equal(&a, &sentinel));
-  a.hlc = (RPHLC){UINT64_MAX, UINT32_MAX};
+  a.hlc = (struct rp_hlc){UINT64_MAX, UINT32_MAX};
   CHECK(rpc_step(&a, 0, UINT64_MAX, 0, RPC_WAIT_FOR_WALL, &b) == RPC_RANGE);
-  a.hlc = (RPHLC){10, 0};
+  a.hlc = (struct rp_hlc){10, 0};
   a.lamport = UINT64_MAX;
   CHECK(rpc_step(&a, 0, 11, 4, RPC_WAIT_FOR_WALL, &b) == RPC_RANGE);
   a.lamport = 0;
@@ -83,16 +83,16 @@ static int policy_case(void) {
   /* Closeness needs the declared wall premise; resetting a bad sample is not
    * proof. */
   a.vector.entries[0].value = 1;
-  a.hlc = (RPHLC){1000, 0};
+  a.hlc = (struct rp_hlc){1000, 0};
   CHECK(rpc_step(&a, 0, 10, 4, RPC_REJECT, &b) == RPC_SKEW);
   return 0;
 }
-typedef struct {
+struct rp_disk {
   unsigned char stable[STORE_IMAGE_PAGES][STORE_PAGE_SIZE],
       pending[STORE_IMAGE_PAGES][STORE_PAGE_SIZE], dirty[STORE_IMAGE_PAGES];
   unsigned cut, event, mode, dead;
-} Disk;
-static Disk disk;
+};
+static struct rp_disk disk;
 static store pages;
 static void persist(void) {
   for (unsigned i = 0; i < STORE_IMAGE_PAGES; ++i)
@@ -149,7 +149,7 @@ static int reopen(void) {
 }
 static int store_case(void) {
   CHECK(!setup());
-  RpcClock a, b, sentinel;
+  struct rpc_clock a, b, sentinel;
   CHECK(rpc_make(9, 10, &a) == RPC_OK);
   CHECK(rpc_save(&pages, &a) == RPC_OK);
   CHECK(rpc_replace_durable(&pages, &a, 20, &b) == RPC_OK);
@@ -200,7 +200,7 @@ static int store_case(void) {
   return 0;
 }
 static int oracle(void) {
-  RpcClock nodes[3], events[64];
+  struct rpc_clock nodes[3], events[64];
   for (unsigned i = 0; i < 3; ++i)
     CHECK(rpc_make(9, 10 + i * 10, &nodes[i]) == RPC_OK);
   unsigned count = 0, node;
@@ -209,7 +209,7 @@ static int oracle(void) {
   while (scanf("%u %d %" SCNu64, &node, &remote, &wall) == 3) {
     CHECK(node < 3 && remote >= -1 &&
           (remote < 0 || (unsigned)remote < count) && count < 64);
-    RpcClock next;
+    struct rpc_clock next;
     int r = rpc_step(&nodes[node], remote < 0 ? 0 : &events[remote], wall, 4,
                      RPC_REJECT, &next);
     CHECK(r == RPC_OK);
@@ -244,7 +244,7 @@ static int oracle(void) {
 }
 static int metrics(void) {
   CHECK(!setup());
-  RpcClock a, b;
+  struct rpc_clock a, b;
   CHECK(rpc_make(9, 10, &a) == RPC_OK);
   CHECK(rpc_save(&pages, &a) == RPC_OK);
   CHECK(store_checkpoint(&pages) == STORE_OK);
@@ -255,7 +255,7 @@ static int metrics(void) {
          "identity\":12,\"vector_wire_bytes_per_identity\":16,\"snapshot_wire_"
          "bytes\":160,\"observed_reads\":%" PRIu64
          ",\"observed_writes\":%" PRIu64 ",\"observed_flushes\":%" PRIu64 "}\n",
-         sizeof(RpcClock), _Alignof(RpcClock), sizeof(RpcVector),
+         sizeof(struct rpc_clock), _Alignof(struct rpc_clock), sizeof(struct rpc_vector),
          pages.reads - reads, pages.writes - writes, pages.flushes - flushes);
   return 0;
 }

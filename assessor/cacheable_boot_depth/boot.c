@@ -12,25 +12,25 @@
 #define CSSELR UINT32_C(0xE000ED84)
 #define CCSIDR UINT32_C(0xE000ED80)
 #define DCISW UINT32_C(0xE000EF60)
-static int valid(CBIO x){return x.registers.read&&x.registers.write&&x.registers.sync&&x.isb;}
-static uint32_t rd(CBIO x,uint32_t a){return x.registers.read(x.registers.ctx,a);}
-static void wr(CBIO x,uint32_t a,uint32_t v){x.registers.write(x.registers.ctx,a,v);}
-static void dsb(CBIO x){x.registers.sync(x.registers.ctx);}
-static void isb(CBIO x){x.isb(x.registers.ctx);}
-static int regions(CBIO x){uint32_t t=rd(x,TYPE);unsigned n=(unsigned)((t>>8)&255u);return (t&1u)||(CB_MUTANT==6?(n<8u||n>16u):(n!=8u&&n!=16u))?0:(int)n;}
-static void map(CBIO x,unsigned n,uint32_t attr){
+static int valid(struct cb_io x){return x.registers.read&&x.registers.write&&x.registers.sync&&x.isb;}
+static uint32_t rd(struct cb_io x,uint32_t a){return x.registers.read(x.registers.ctx,a);}
+static void wr(struct cb_io x,uint32_t a,uint32_t v){x.registers.write(x.registers.ctx,a,v);}
+static void dsb(struct cb_io x){x.registers.sync(x.registers.ctx);}
+static void isb(struct cb_io x){x.isb(x.registers.ctx);}
+static int regions(struct cb_io x){uint32_t t=rd(x,TYPE);unsigned n=(unsigned)((t>>8)&255u);return (t&1u)||(CB_MUTANT==6?(n<8u||n>16u):(n!=8u&&n!=16u))?0:(int)n;}
+static void map(struct cb_io x,unsigned n,uint32_t attr){
     dsb(x);
     for(unsigned i=0;i<n;++i){wr(x,RNR,i);wr(x,RASR,0);}
     wr(x,RNR,7);wr(x,RBAR,CB_LINE);wr(x,RASR,attr);
     wr(x,CTRL,5);dsb(x);isb(x);
 }
-static void emit(void *v,enum FWCacheOp op,uint32_t a){
-    CBIO *x=v;
+static void emit(void *v,enum fw_cache_op op,uint32_t a){
+    struct cb_io *x=v;
     if(op==FW_DSB)dsb(*x);
     else if(op==FW_ISB)isb(*x);
     else wr(*x,op==FW_CLEAN?UINT32_C(0xE000EF68):UINT32_C(0xE000EF5C),a);
 }
-int cb_boot(CBIO x,uint32_t g){
+int cb_boot(struct cb_io x,uint32_t g){
     if(!valid(x)||!g)return 0;
     int n=regions(x);
     if(!n||(rd(x,CCR)&UINT32_C(0x30000))||rd(x,CTRL)||(rd(x,RCC+0xA0u)&8u))return 0;
@@ -56,7 +56,7 @@ int cb_boot(CBIO x,uint32_t g){
     if(CB_MUTANT!=1)wr(x,RCC+0xA0u,rd(x,RCC+0xA0u)|8u);
     dsb(x);return 1;
 }
-int cb_peer(CBIO x,uint32_t g){
+int cb_peer(struct cb_io x,uint32_t g){
     if(!valid(x)||!g)return 0;
     int n=regions(x);
     if(!n||rd(x,CTRL)||(rd(x,CCR)&UINT32_C(0x30000))||!(rd(x,RCC+0xA0u)&8u)||

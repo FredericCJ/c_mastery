@@ -11,11 +11,11 @@ uint32_t o=99;CHECK(md_extent(3,8,24,&o)&&o==24);CHECK(!md_extent(8193,8,64,&o)&
 return 0;
 }
 static int test_generation(void) {
-MDArena a={2,1,7,{77}};unsigned char o=99;CHECK(md_read(&a,2,0,&o)&&o==77);o=99;CHECK(!md_read(&a,1,0,&o)&&o==99);a.live=0;CHECK(!md_read(&a,2,0,&o));
+struct md_arena a={2,1,7,{77}};unsigned char o=99;CHECK(md_read(&a,2,0,&o)&&o==77);o=99;CHECK(!md_read(&a,1,0,&o)&&o==99);a.live=0;CHECK(!md_read(&a,2,0,&o));
 return 0;
 }
 static int test_arena(void) {
-MDArena a={2,1,7,{0}};CHECK(md_authorize(&a,7,2,15,1));CHECK(!md_authorize(&a,8,2,0,1));CHECK(!md_authorize(&a,7,1,0,1));CHECK(!md_authorize(&a,7,2,16,1));CHECK(md_authorize(&a,7,2,16,0));
+struct md_arena a={2,1,7,{0}};CHECK(md_authorize(&a,7,2,15,1));CHECK(!md_authorize(&a,8,2,0,1));CHECK(!md_authorize(&a,7,1,0,1));CHECK(!md_authorize(&a,7,2,16,1));CHECK(md_authorize(&a,7,2,16,0));
 return 0;
 }
 static int test_dispatch(void) {
@@ -27,7 +27,7 @@ char out[8]={'Q'};CHECK(md_log_copy("%n",2,out,8)&&out[0]=='%'&&out[1]=='n'&&out
 return 0;
 }
 static int test_release(void) {
-MDOwner o={1,0};CHECK(md_release(&o)&&o.owned==0&&o.releases==1);CHECK(!md_release(&o)&&o.releases==1);o.owned=1;o.releases=UINT_MAX;CHECK(!md_release(&o)&&o.owned==1);
+struct md_owner o={1,0};CHECK(md_release(&o)&&o.owned==0&&o.releases==1);CHECK(!md_release(&o)&&o.releases==1);o.owned=1;o.releases=UINT_MAX;CHECK(!md_release(&o)&&o.owned==1);
 return 0;
 }
 static int test_compare(void) {

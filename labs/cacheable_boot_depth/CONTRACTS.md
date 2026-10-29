@@ -21,7 +21,7 @@ remain masked for this finite teaching workload. NMI/fault handlers may not
 enter the protocol. No DMA, debugger memory writer, second HSEM user, aliased
 mapping, speculative user, or other bus master may own the reserved line.
 
-Each ELF declares the same typed32-byte `FWPeer cb_shared` in `.peer` at
+Each ELF declares the same typed32-byte `struct fw_peer cb_shared` in `.peer` at
 0x30040000. Both linker scripts reserve exactly32 bytes as NOLOAD, outside
 private BSS/data/stack. M7 uses private DTCM at0x20000000; M4 uses private
 SRAM1 at0x30000000. This is one logical inter-core object, not two copies in RAM.
@@ -35,7 +35,7 @@ explicitly implemented by HSEM and whole-line maintenance.
 
 ## Operations, ordering and failure
 
-`cb_boot(CBIO,g)` requires live callbacks/context, no reentry, no callback failure,
+`cb_boot(struct cb_io,g)` requires live callbacks/context, no reentry, no callback failure,
 and exclusive cold startup. `g` must be nonzero and selected by trusted policy.
 It checks disabled caches/MPU and held CPU2, admits8 or16 MPU regions, selects
 the data cache and admits the five documented four-way,32-byte-line geometries
@@ -53,7 +53,7 @@ returning an error. Unsupported assumptions, asynchronous BusFaults, or a late
 external change require fail-stop and a separately controlled reset; return0
 does not restore earlier clock/selector/MPU writes. No hot remapping is supported.
 
-`cb_peer(CBIO,g)` executes on released M4 with its own reset system registers.
+`cb_peer(struct cb_io,g)` executes on released M4 with its own reset system registers.
 It verifies release and clock premises, programs its own noncached32-byte map,
 and checks the existing generation without writing any peer word. A mismatch
 refuses; it never repairs a stale generation by overwriting it. Firmware startup

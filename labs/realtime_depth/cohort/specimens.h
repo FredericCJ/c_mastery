@@ -2,12 +2,12 @@
 #define CMASTERY_REALTIME_COHORT_SPECIMENS_H
 /* Original intentionally flawed teaching specimen, not a deployable server.
  * Only the bounded scripted traces in the supplied driver are admitted. */
-typedef struct {
+struct su_flawed {
  unsigned q,p,remaining,begin,usage,active,count;
  unsigned at[16],amount[16];
-} SUFlawed;
-void su_flawed_init(SUFlawed *,unsigned,unsigned);
-void su_flawed_update(SUFlawed *,unsigned);
-void su_flawed_active(SUFlawed *,unsigned,unsigned);
-void su_flawed_run(SUFlawed *,unsigned,unsigned);
+};
+void su_flawed_init(struct su_flawed *,unsigned,unsigned);
+void su_flawed_update(struct su_flawed *,unsigned);
+void su_flawed_active(struct su_flawed *,unsigned,unsigned);
+void su_flawed_run(struct su_flawed *,unsigned,unsigned);
 #endif

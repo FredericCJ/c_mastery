@@ -33,7 +33,7 @@ Initialized service invariants are caller obligations, not arbitrary-byte valida
 
 ## Problem and representation
 
-Implement `SATrust`, `SAArtifact` and `SAReport` operations exactly as declared.
+Implement `struct sa_trust`, `struct sa_artifact` and `struct sa_report` operations exactly as declared.
 Payloads contain 0..32 bytes; null is allowed only with zero length. Digest output
 has 32 bytes. The signed artifact message has 44 bytes: ASCII `CM35`, version and
 epoch as four-byte big-endian unsigned values, then the 32-byte digest. A candidate
@@ -58,7 +58,7 @@ that does not decrease. Commit all new trust fields together after verification;
 reject without mutation otherwise. Rotation immediately revokes the old key. There
 is no dual-key interval, revocation server, persisted transaction or power-loss claim.
 
-Compose the actual queue and descriptor operation in `SAService`. Ordinary opcodes
+Compose the actual queue and descriptor operation in `struct sa_service`. Ordinary opcodes
 retain their producer contracts. Add opcode 6 with bytes `[6,width,count,payload...]`:
 width is 1 or 2, count is 0..4, and total length is exactly `3+width*count`.
 Its opaque copied staging payload consumes a separate four-byte global resource

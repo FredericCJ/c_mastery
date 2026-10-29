@@ -4,14 +4,14 @@
 #endif
 static int white(unsigned char c) { return c == ' ' || c == '\t' || c == '\n'; }
 int tc_recover(const unsigned char *input, size_t length, unsigned newline_sync,
-               unsigned budget, TcBatch *out) {
+               unsigned budget, struct tc_batch *out) {
   if (!out || (!input && length) || newline_sync > 1)
     return TC_INVALID;
   if (length > 512)
     return TC_RANGE;
   if (budget <= length)
     return TC_FUEL;
-  TcBatch result = {0};
+  struct tc_batch result = {0};
   size_t begin = 0;
   for (size_t i = 0; i <= length; i++) {
     if (budget == 0)
@@ -26,9 +26,9 @@ int tc_recover(const unsigned char *input, size_t length, unsigned newline_sync,
       end--;
     if (start == end && i == length)
       break;
-    PdTokens tokens;
-    PdTree tree;
-    PdDiagnostic diagnostic = {0};
+    struct pd_tokens tokens;
+    struct pd_tree tree;
+    struct pd_diagnostic diagnostic = {0};
     int32_t value = 0;
     int status = PD_NO_MATCH;
     if (i == length) {
@@ -55,7 +55,7 @@ int tc_recover(const unsigned char *input, size_t length, unsigned newline_sync,
       if (result.errors == 16)
         return TC_RANGE;
       result.diagnostics[result.errors++] =
-          (TcError){start, i, start + diagnostic.offset, status};
+          (struct tc_error){start, i, start + diagnostic.offset, status};
     }
     begin = i + 1;
     if (TC_MUTANT == 1 && status != PD_OK && begin < length)

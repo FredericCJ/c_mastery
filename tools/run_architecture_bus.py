@@ -46,7 +46,7 @@ def main():
     for case in CASES:run(tag+'.stub.'+case,[stub,case],41,'MB_ASSERT:')
     for m,(case,marker,definition) in MUTANTS.items():
      mutant=BUILD/(tag+'.mutation.'+m);compile(tag+'.mutation.'+m+'.compile',cc,[*flags,'-D'+definition],[*sources(),PUBLIC/'native.c'],mutant);run(tag+'.mutation.'+m,[mutant,case],41,marker)
-    observations.append(dict(profile=tag,independent_packets=PACKETS,ordinary_sram_bytes=[196608,131072],physical=False,actual_provider='PdTransfer',ready_retains_lease=True,cpu_temporary_only_relocated=True))
+    observations.append(dict(profile=tag,independent_packets=PACKETS,ordinary_sram_bytes=[196608,131072],physical=False,actual_provider='struct pd_transfer',ready_retains_lease=True,cpu_temporary_only_relocated=True))
    obj=BUILD/(cc+'.core.o');stack=obj.with_suffix('.su');run(cc+'.core',[cc,*strict,'-O2','-fstack-usage','-ffreestanding','-fno-builtin','-c',PRIVATE/'bus.c','-o',obj]);harness.OUTPUTS.update([obj,stack]);u=run(cc+'.core.undefined',['nm','-u',obj]);symbols=set(x.split()[-1] for x in u.splitlines());assert {'pd_validate','pd_submit','pd_poll','pd_finalize'}<=symbols and symbols<={'pd_validate','pd_submit','pd_poll','pd_finalize','memcpy','memset','_GLOBAL_OFFSET_TABLE_'};run(cc+'.core.stack',['cat',stack]);run(cc+'.core.sizes',['nm','-S','--size-sort',obj])
   assert {x['id'] for x in harness.COMMANDS}==expected_commands()
  except Exception as ex:failure=str(ex)

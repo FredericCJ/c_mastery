@@ -28,7 +28,7 @@ PPC64 ELFv2 big endian is a separate executed profile, not all-ABI evidence.
 The original pair handle contains slot and full32-bit generation. Allocation
 increments generation; reclamation leaves it intact. A free slot at generation
 `UINT32_MAX` is retired. Reset starts another lifetime and can repeat the same
-slot/generation. `VgRef` therefore also carries the address of an immovable,
+slot/generation. `struct vg_ref` therefore also carries the address of an immovable,
 live `Vg` controller and its nonwrapping epoch. Zero-initialize the controller
 before its first reset; never copy a live controller. Native code can forge these
 fields, so this is a checked ownership contract, not authentication or memory

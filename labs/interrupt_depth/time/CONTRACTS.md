@@ -27,7 +27,7 @@ linearization point. A resetting counter, an unbounded delay, or independently
 written software words violates this proof's premises. `volatile` does not repair
 those violations or impose atomic multiword publication in ISO C.
 
-`XkIo` reads are serialized, linearized callbacks. A caller supplies the counter's
+`struct xk_io` reads are serialized, linearized callbacks. A caller supplies the counter's
 widths and a bound on its advance while the independent guard clock advances by
 at most `max_guard_span`. Derive this bound from documented clock ratios and worst
 case execution/preemption assumptions. `xk_snapshot` cannot authenticate it. It
@@ -37,7 +37,7 @@ reads and one low read. Outputs are unchanged on failure. A reduced-width
 fixture deliberately exceeds the allowed bound and must be refused before I/O.
 
 Software publication needs a different contract. After P4, inspect actual
-`CPFClock`: one writer, atomic high/low/sequence fields, sequentially consistent
+`struct cpf_clock`: one writer, atomic high/low/sequence fields, sequentially consistent
 operations, odd sequence during update, even sequence on publication, no sequence
 wrap before retirement. A bounded reader may return “busy” when interrupting an
 odd writer; it must not spin waiting for the interrupted writer to resume. The
@@ -45,7 +45,7 @@ integration deliberately pauses the writer after its low-word store. Equal high
 words alone would wrongly accept this state. Explain why merely making the high
 word volatile would not establish the SC proof or remove a non-atomic data race.
 
-`XkSequence` tracks event identifiers, separately from timestamp coherence.
+`struct xk_sequence` tracks event identifiers, separately from timestamp coherence.
 An externally justified maximum forward distance below `2^31` disambiguates
 32-bit residues within one epoch. Duplicates, stale/out-of-bound inputs, epoch
 changes and total-missing overflow leave state unchanged. First observation
@@ -74,9 +74,9 @@ cross-epoch calibration; the API refuses direct ordering.
 
 All structs contain values, no owning pointers; callers own output storage and
 callback context throughout a call. Inputs must point to live properly aligned
-objects. No allocation occurs. `XkSequence` needs external serialization if shared.
+objects. No allocation occurs. `struct xk_sequence` needs external serialization if shared.
 API calls do not mask interrupts, stop DMA, synchronize clocks or authenticate
-reset-domain fences. `XkInterval.epoch` identifies the calibration domain, not an
+reset-domain fences. `struct xk_interval.epoch` identifies the calibration domain, not an
 unforgeable capability. Space is constant; snapshot time is bounded by the chosen
 attempt count and callback costs. Calibration uses checked 64-bit division;
 on the selected M4 compiler profiles that introduces original T11 helper calls.

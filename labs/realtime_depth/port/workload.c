@@ -3,7 +3,7 @@
 #ifndef SR_SCENARIO
 #define SR_SCENARIO 0
 #endif
-static SRPort port;
+static struct sr_port port;
 static uint32_t stacks[3][512] __attribute__((aligned(8)));
 static unsigned sampled[3], work[3], activations;
 static struct {unsigned tick,ran,remaining,sleeping,wake,charged,closed;} trace[128];
@@ -82,7 +82,7 @@ static void supervisor(void) {
   CHECK(cmx_machine.task[1].state==CMX_READY);
   cmx_port_unlock(mask);sleep_until(cmx_port_ticks+2);
   mask=cmx_port_lock();CHECK(cmx_machine.task[1].state==CMX_EXITED);
-  SRPort old=port;CHECK(sr_detach(&port)==CMX_OK);CHECK(cmx_reap(&cmx_machine,1)==CMX_OK);
+  struct sr_port old=port;CHECK(sr_detach(&port)==CMX_OK);CHECK(cmx_reap(&cmx_machine,1)==CMX_OK);
   CHECK(sr_close(&port)==CMX_INVALID);CHECK(port.throttles>1&&port.charged>3);
   /* A stopped control-slot reuse is not a new port task: no context is
    * installed or dispatched. It tests the stale binding after real reap. */

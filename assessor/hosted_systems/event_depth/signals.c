@@ -44,7 +44,7 @@ static void handler(int signal) {
 #endif
 }
 
-int es_open(EsSignals *p) {
+int es_open(struct es_signals *p) {
   if (!atomic_is_lock_free(&pipe_writer)) {
     errno = ENOTSUP;
     return -1;
@@ -108,7 +108,7 @@ mask_fail: {
 }
 }
 
-int es_wait(EsSignals *p, const struct timespec *relative) {
+int es_wait(struct es_signals *p, const struct timespec *relative) {
   if (!p || !p->active) {
     errno = EINVAL;
     return -1;
@@ -122,7 +122,7 @@ int es_wait(EsSignals *p, const struct timespec *relative) {
   return stop_pending || other_pending || child_pending || result > 0;
 }
 
-unsigned es_take(EsSignals *p, unsigned selected) {
+unsigned es_take(struct es_signals *p, unsigned selected) {
   if (!p || !p->active)
     return 0;
   unsigned found = 0;
@@ -147,7 +147,7 @@ unsigned es_take(EsSignals *p, unsigned selected) {
   return found;
 }
 
-int es_close(EsSignals *p) {
+int es_close(struct es_signals *p) {
   if (!p || !p->active) {
     errno = EINVAL;
     return -1;
@@ -206,7 +206,7 @@ int es_remaining(struct timespec now, struct timespec deadline,
   return 1;
 }
 
-int es_wait_until(EsWait ops, struct timespec deadline) {
+int es_wait_until(struct es_wait ops, struct timespec deadline) {
   if (!ops.now || !ops.wait) {
     errno = EINVAL;
     return -1;
@@ -251,7 +251,7 @@ int es_wait_fd(int fd, struct timespec deadline) {
     errno = EINVAL;
     return -1;
   }
-  return es_wait_until((EsWait){real_now, real_wait, &fd}, deadline);
+  return es_wait_until((struct es_wait){real_now, real_wait, &fd}, deadline);
 }
 int es_reap(pid_t *pids, int *statuses, unsigned count) {
   if (count > 64 || ((!pids || !statuses) && count)) {
@@ -283,7 +283,7 @@ int es_reap(pid_t *pids, int *statuses, unsigned count) {
   }
   return reaped;
 }
-int es_counted_push(EsCounted *q, unsigned value) {
+int es_counted_push(struct es_counted *q, unsigned value) {
   if (!q || q->count > 2 || q->head > 1) {
     errno = EINVAL;
     return -1;
@@ -294,7 +294,7 @@ int es_counted_push(EsCounted *q, unsigned value) {
   ++q->count;
   return 1;
 }
-int es_counted_pop(EsCounted *q, unsigned *value) {
+int es_counted_pop(struct es_counted *q, unsigned *value) {
   if (!q || !value || q->count > 2 || q->head > 1) {
     errno = EINVAL;
     return -1;

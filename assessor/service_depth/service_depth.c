@@ -11,7 +11,7 @@ static void zero_bytes(void *to, size_t n) {
   for (size_t i = 0; i < n; i++)
     d[i] = 0;
 }
-static unsigned take(SDMemory *m) {
+static unsigned take(struct sd_memory *m) {
   for (unsigned i = 0; i < 16; i++)
     if (!m->refs[i]) {
       m->refs[i] = 1;
@@ -19,7 +19,7 @@ static unsigned take(SDMemory *m) {
     }
   return 16;
 }
-int sd_release(SDMemory *m, SDImage *p) {
+int sd_release(struct sd_memory *m, struct sd_image *p) {
   if (!m || !p || !p->active || p->count > 4)
     return SD_INVALID;
   for (unsigned i = 0; i < p->count; i++)
@@ -33,11 +33,11 @@ int sd_release(SDMemory *m, SDImage *p) {
   p->active = 0;
   return SD_OK;
 }
-int sd_load(SDMemory *m, const unsigned char *data, size_t n, int fail_after,
-            SDImage *out) {
+int sd_load(struct sd_memory *m, const unsigned char *data, size_t n, int fail_after,
+            struct sd_image *out) {
   if (!m || !data || !out || !n || n > 256 || fail_after < -1)
     return SD_INVALID;
-  SDImage image = {0};
+  struct sd_image image = {0};
   image.active = 1;
   image.length = (unsigned)n;
   for (unsigned page = 0; page < (n + 63) / 64; page++) {
@@ -59,7 +59,7 @@ int sd_load(SDMemory *m, const unsigned char *data, size_t n, int fail_after,
   *out = image;
   return SD_OK;
 }
-int sd_clone(SDMemory *m, SDImage *p, unsigned threads, SDImage *out) {
+int sd_clone(struct sd_memory *m, struct sd_image *p, unsigned threads, struct sd_image *out) {
   if (!m || !p || !out || !p->active || !p->count || p->count > 4 ||
       threads != 1)
     return SD_INVALID;
@@ -72,7 +72,7 @@ int sd_clone(SDMemory *m, SDImage *p, unsigned threads, SDImage *out) {
       return SD_DENIED;
 #endif
   }
-  SDImage child = *p;
+  struct sd_image child = *p;
   for (unsigned i = 0; i < p->count; i++) {
     m->refs[p->frames[i]]++;
     p->cow[i] = child.cow[i] = 1;
@@ -80,7 +80,7 @@ int sd_clone(SDMemory *m, SDImage *p, unsigned threads, SDImage *out) {
   *out = child;
   return SD_OK;
 }
-int sd_write(SDMemory *m, SDImage *p, unsigned off, unsigned char value,
+int sd_write(struct sd_memory *m, struct sd_image *p, unsigned off, unsigned char value,
              int allowed) {
   if (!m || !p || !p->active || off >= p->length || allowed < 0 || allowed > 1)
     return SD_INVALID;
@@ -102,7 +102,7 @@ int sd_write(SDMemory *m, SDImage *p, unsigned off, unsigned char value,
   m->bytes[f][off % 64] = value;
   return SD_OK;
 }
-static int cap_check(const SDChannel *q, SDCap c, unsigned right) {
+static int cap_check(const struct sd_channel *q, struct sd_cap c, unsigned right) {
   if (!q)
     return SD_INVALID;
   if (q->retired || c.epoch != q->epoch)
@@ -111,23 +111,23 @@ static int cap_check(const SDChannel *q, SDCap c, unsigned right) {
     return SD_DENIED;
   return SD_OK;
 }
-int sd_channel_init(SDChannel *q) {
+int sd_channel_init(struct sd_channel *q) {
   if (!q)
     return SD_INVALID;
-  *q = (SDChannel){0};
+  *q = (struct sd_channel){0};
   q->epoch = 1;
   return SD_OK;
 }
-int sd_grant(const SDChannel *q, SDCap c, unsigned rights, SDCap *out) {
+int sd_grant(const struct sd_channel *q, struct sd_cap c, unsigned rights, struct sd_cap *out) {
   if (!out || !rights || rights > 7)
     return SD_INVALID;
   int r = cap_check(q, c, rights);
   if (r)
     return r;
-  *out = (SDCap){q->epoch, rights};
+  *out = (struct sd_cap){q->epoch, rights};
   return SD_OK;
 }
-int sd_send(SDChannel *q, SDCap c, const unsigned char *data, size_t n) {
+int sd_send(struct sd_channel *q, struct sd_cap c, const unsigned char *data, size_t n) {
   int r = cap_check(q, c, 1);
   if (r)
     return r;
@@ -137,14 +137,14 @@ int sd_send(SDChannel *q, SDCap c, const unsigned char *data, size_t n) {
     return SD_CLOSED;
   if (q->count == 2)
     return SD_FULL;
-  SDMessage *m = &q->slots[(q->head + q->count) % 2];
+  struct sd_message *m = &q->slots[(q->head + q->count) % 2];
   m->length = (unsigned)n;
   copy_bytes(m->bytes, data, n);
   q->count++;
   return SD_OK;
 }
-int sd_receive(SDChannel *q, SDCap c, void *out, size_t cap, size_t *n,
-               SDValidate check, void *ctx) {
+int sd_receive(struct sd_channel *q, struct sd_cap c, void *out, size_t cap, size_t *n,
+               sd_validate_fn check, void *ctx) {
 #ifdef SD_MUTATE_CHANNEL2
   int r = cap_check(q, c, 0);
 #else
@@ -156,7 +156,7 @@ int sd_receive(SDChannel *q, SDCap c, void *out, size_t cap, size_t *n,
     return SD_INVALID;
   if (!q->count)
     return q->closed ? SD_CLOSED : SD_EMPTY;
-  SDMessage *m = &q->slots[q->head];
+  struct sd_message *m = &q->slots[q->head];
   if (cap < m->length || (!out && m->length))
     return SD_FULL;
 #ifdef SD_MUTATE_CHANNEL
@@ -173,14 +173,14 @@ int sd_receive(SDChannel *q, SDCap c, void *out, size_t cap, size_t *n,
 #endif
   return SD_OK;
 }
-int sd_channel_close(SDChannel *q, SDCap c) {
+int sd_channel_close(struct sd_channel *q, struct sd_cap c) {
   int r = cap_check(q, c, 4);
   if (r)
     return r;
   q->closed = 1;
   return SD_OK;
 }
-int sd_channel_reopen(SDChannel *q) {
+int sd_channel_reopen(struct sd_channel *q) {
   if (!q || !q->closed || q->count)
     return SD_INVALID;
   if (q->retired)
@@ -213,10 +213,10 @@ static int same(const char *a, const char *b) {
     i++;
   return a[i] == b[i];
 }
-int sd_files_init(SDFiles *fs, const SDEntry *entries, unsigned n) {
+int sd_files_init(struct sd_files *fs, const struct sd_entry *entries, unsigned n) {
   if (!fs || !entries || !n || n > 4)
     return SD_INVALID;
-  SDFiles next = {0};
+  struct sd_files next = {0};
   for (unsigned i = 0; i < n; i++) {
     if (!name_valid(entries[i].name) || entries[i].length > 256 ||
         (!entries[i].data && entries[i].length))
@@ -230,19 +230,19 @@ int sd_files_init(SDFiles *fs, const SDEntry *entries, unsigned n) {
   *fs = next;
   return SD_OK;
 }
-static unsigned file_handle(const SDFiles *fs, SDHandle h) {
+static unsigned file_handle(const struct sd_files *fs, struct sd_handle h) {
   return fs && h.index < 8 && fs->handles[h.index].active &&
                  fs->handles[h.index].generation == h.generation
              ? h.index
              : 8;
 }
-static unsigned free_handle(const SDFiles *fs) {
+static unsigned free_handle(const struct sd_files *fs) {
   for (unsigned i = 0; i < 8; i++)
     if (!fs->handles[i].active && fs->handles[i].generation < UINT32_MAX)
       return i;
   return 8;
 }
-int sd_open(SDFiles *fs, const char *name, SDHandle *out) {
+int sd_open(struct sd_files *fs, const char *name, struct sd_handle *out) {
   if (!fs || !out || !name_valid(name))
     return SD_INVALID;
   unsigned e = 0;
@@ -255,15 +255,15 @@ int sd_open(SDFiles *fs, const char *name, SDHandle *out) {
     d++;
   if (h == 8 || d == 4)
     return SD_FULL;
-  fs->descriptions[d] = (SDOpen){1, e, 0, 1};
-  SDFileHandle *v = &fs->handles[h];
+  fs->descriptions[d] = (struct sd_open){1, e, 0, 1};
+  struct sd_file_handle *v = &fs->handles[h];
   v->active = 1;
   v->open = d;
   v->generation++;
-  *out = (SDHandle){h, v->generation};
+  *out = (struct sd_handle){h, v->generation};
   return SD_OK;
 }
-int sd_dup(SDFiles *fs, SDHandle h, SDHandle *out) {
+int sd_dup(struct sd_files *fs, struct sd_handle h, struct sd_handle *out) {
   if (!fs || !out)
     return SD_INVALID;
   unsigned old = file_handle(fs, h);
@@ -272,7 +272,7 @@ int sd_dup(SDFiles *fs, SDHandle h, SDHandle *out) {
   unsigned n = free_handle(fs);
   if (n == 8)
     return SD_FULL;
-  SDFileHandle *v = &fs->handles[n];
+  struct sd_file_handle *v = &fs->handles[n];
   v->active = 1;
   v->open = fs->handles[old].open;
   v->generation++;
@@ -287,16 +287,16 @@ int sd_dup(SDFiles *fs, SDHandle h, SDHandle *out) {
   }
 #endif
   fs->descriptions[v->open].refs++;
-  *out = (SDHandle){n, v->generation};
+  *out = (struct sd_handle){n, v->generation};
   return SD_OK;
 }
-int sd_seek(SDFiles *fs, SDHandle h, unsigned origin, int32_t delta) {
+int sd_seek(struct sd_files *fs, struct sd_handle h, unsigned origin, int32_t delta) {
   if (!fs || origin > 2)
     return SD_INVALID;
   unsigned i = file_handle(fs, h);
   if (i == 8)
     return SD_STALE;
-  SDOpen *d = &fs->descriptions[fs->handles[i].open];
+  struct sd_open *d = &fs->descriptions[fs->handles[i].open];
   int64_t base = origin == 0   ? 0
                  : origin == 1 ? d->offset
                                : fs->entries[d->entry].length;
@@ -306,15 +306,15 @@ int sd_seek(SDFiles *fs, SDHandle h, unsigned origin, int32_t delta) {
   d->offset = (unsigned)offset;
   return SD_OK;
 }
-int sd_read(SDFiles *fs, SDHandle h, void *out, size_t cap, size_t requested,
-            size_t *n, SDValidate check, void *ctx) {
+int sd_read(struct sd_files *fs, struct sd_handle h, void *out, size_t cap, size_t requested,
+            size_t *n, sd_validate_fn check, void *ctx) {
   if (!fs || !n || !check || requested > cap)
     return SD_INVALID;
   unsigned i = file_handle(fs, h);
   if (i == 8)
     return SD_STALE;
-  SDOpen *d = &fs->descriptions[fs->handles[i].open];
-  SDEntry *e = &fs->entries[d->entry];
+  struct sd_open *d = &fs->descriptions[fs->handles[i].open];
+  struct sd_entry *e = &fs->entries[d->entry];
   size_t amount = e->length - d->offset;
   if (amount > requested)
     amount = requested;
@@ -338,14 +338,14 @@ int sd_read(SDFiles *fs, SDHandle h, void *out, size_t cap, size_t requested,
   *n = amount;
   return SD_OK;
 }
-int sd_close(SDFiles *fs, SDHandle h) {
+int sd_close(struct sd_files *fs, struct sd_handle h) {
   if (!fs)
     return SD_INVALID;
   unsigned i = file_handle(fs, h);
   if (i == 8)
     return SD_STALE;
-  SDFileHandle *v = &fs->handles[i];
-  SDOpen *d = &fs->descriptions[v->open];
+  struct sd_file_handle *v = &fs->handles[i];
+  struct sd_open *d = &fs->descriptions[v->open];
   v->active = 0;
   if (!--d->refs)
     d->active = 0;
@@ -368,10 +368,10 @@ static uint32_t checksum(const unsigned char *p) {
     n = (n ^ p[i]) * 16777619u;
   return n;
 }
-int sd_recover(const SDJournal *j, SDReceipt *out) {
+int sd_recover(const struct sd_journal *j, struct sd_receipt *out) {
   if (!j || !out)
     return SD_INVALID;
-  SDReceipt r = {0};
+  struct sd_receipt r = {0};
   for (unsigned i = 0; i < 2; i++) {
     const unsigned char *p = j->durable[i];
     if (read32(p + 20) != 0xc017c017u)
@@ -383,16 +383,16 @@ int sd_recover(const SDJournal *j, SDReceipt *out) {
     if (id == r.last)
       return SD_CORRUPT;
     if (id > r.last)
-      r = (SDReceipt){id, signed32(read32(p + 8)), signed32(read32(p + 12))};
+      r = (struct sd_receipt){id, signed32(read32(p + 8)), signed32(read32(p + 12))};
   }
   *out = r;
   return SD_OK;
 }
-int sd_apply(SDJournal *j, uint32_t id, int32_t delta, unsigned fault,
+int sd_apply(struct sd_journal *j, uint32_t id, int32_t delta, unsigned fault,
              int32_t *out) {
   if (!j || !out || fault > 4 || !id)
     return SD_INVALID;
-  SDReceipt r;
+  struct sd_receipt r;
   int s = sd_recover(j, &r);
   if (s)
     return s;

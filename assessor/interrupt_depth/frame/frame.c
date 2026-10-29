@@ -2,12 +2,12 @@
 #ifndef XF_MUTANT
 #define XF_MUTANT 0
 #endif
-static int config(XfPriorityConfig c) {
+static int config(struct xf_priority_config c) {
   return c.bits >= 3 && c.bits <= 8 && c.grouping <= 7;
 }
 int xf_frame(const uint32_t *w, size_t n, uint32_t sp, uint32_t er,
              unsigned fpu, unsigned material, unsigned align, unsigned fault,
-             XfFrame *out) {
+             struct xf_frame *out) {
   if (!w || !out || fpu > 1 || material > 1 || align > 1 || fault > 1 || sp % 4)
     return XF_INVALID;
   if (fault)
@@ -39,7 +39,7 @@ int xf_frame(const uint32_t *w, size_t n, uint32_t sp, uint32_t er,
     return XF_SHORT;
   if (sp > UINT32_MAX - 4u * (count + padding))
     return XF_FRAME;
-  XfFrame r = {0};
+  struct xf_frame r = {0};
   for (unsigned i = 0; i < 4; ++i)
     r.r[i] = w[offset + i];
   r.r12 = w[offset + 4];
@@ -61,14 +61,14 @@ int xf_frame(const uint32_t *w, size_t n, uint32_t sp, uint32_t er,
   *out = r;
   return XF_OK;
 }
-int xf_priority(XfPriorityConfig c, unsigned raw, XfPriority *out) {
+int xf_priority(struct xf_priority_config c, unsigned raw, struct xf_priority *out) {
   if (!config(c) || raw > 255 || !out)
     return XF_INVALID;
   unsigned low = 8 - c.bits, group_bits = 7 - c.grouping;
   if (group_bits > c.bits)
     group_bits = c.bits;
   unsigned sub_bits = c.bits - group_bits;
-  XfPriority r = {0};
+  struct xf_priority r = {0};
   r.logical = raw >> low;
   r.encoded = (uint8_t)(r.logical << low);
   r.group = r.logical >> sub_bits;
@@ -76,7 +76,7 @@ int xf_priority(XfPriorityConfig c, unsigned raw, XfPriority *out) {
   *out = r;
   return XF_OK;
 }
-int xf_urgency(XfPriorityConfig c, unsigned urgency, unsigned opposite,
+int xf_urgency(struct xf_priority_config c, unsigned urgency, unsigned opposite,
                uint8_t *out) {
   if (!config(c) || !out || opposite > 1 || urgency >= (1u << c.bits))
     return XF_INVALID;
@@ -84,9 +84,9 @@ int xf_urgency(XfPriorityConfig c, unsigned urgency, unsigned opposite,
   *out = (uint8_t)(level << (8 - c.bits));
   return XF_OK;
 }
-int xf_api_allowed(XfPriorityConfig c, unsigned raw, unsigned threshold,
+int xf_api_allowed(struct xf_priority_config c, unsigned raw, unsigned threshold,
                    unsigned *out) {
-  XfPriority p, t;
+  struct xf_priority p, t;
   if (!out || xf_priority(c, raw, &p) || xf_priority(c, threshold, &t) ||
       !t.encoded || t.sub)
     return XF_INVALID;
@@ -95,9 +95,9 @@ int xf_api_allowed(XfPriorityConfig c, unsigned raw, unsigned threshold,
   *out = p.encoded >= t.encoded;
   return XF_OK;
 }
-int xf_pick(XfPriorityConfig c, const XfIrq *v, size_t n, int active,
+int xf_pick(struct xf_priority_config c, const struct xf_irq *v, size_t n, int active,
             unsigned primask, unsigned basepri, unsigned *out) {
-  XfPriority threshold, current;
+  struct xf_priority threshold, current;
   if (!out || (n && !v) || n > 16 || primask > 1 || basepri > 255 ||
       active < -1 || active > 255 || !config(c))
     return XF_INVALID;
@@ -117,7 +117,7 @@ int xf_pick(XfPriorityConfig c, const XfIrq *v, size_t n, int active,
     return XF_INVALID;
   unsigned winner = 0, best = 256;
   for (size_t i = 0; i < n; ++i) {
-    XfPriority p;
+    struct xf_priority p;
     if (xf_priority(c, v[i].priority, &p))
       return XF_INVALID;
     if (!v[i].pending || v[i].active || (!v[i].enabled && XF_MUTANT != 4) ||
@@ -138,13 +138,13 @@ int xf_pick(XfPriorityConfig c, const XfIrq *v, size_t n, int active,
   *out = winner;
   return XF_OK;
 }
-int xf_pend(XfIrq *v, unsigned value) {
+int xf_pend(struct xf_irq *v, unsigned value) {
   if (!v || value > 1)
     return XF_INVALID;
   v->pending = value;
   return XF_OK;
 }
-int xf_source(XfIrq *v, unsigned asserted) {
+int xf_source(struct xf_irq *v, unsigned asserted) {
   if (!v || asserted > 1)
     return XF_INVALID;
   v->source = asserted;

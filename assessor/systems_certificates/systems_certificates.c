@@ -1,6 +1,6 @@
 #include "systems_certificates.h"
-static int walk(const SCTree *t,int id,int parent,int64_t lo,int64_t hi,uint64_t *seen,unsigned *height){
- unsigned left,right;const SCNode *n;
+static int walk(const struct sc_tree *t,int id,int parent,int64_t lo,int64_t hi,uint64_t *seen,unsigned *height){
+ unsigned left,right;const struct sc_node *n;
  if(id==-1){*height=0;return 1;}
  if(id<0||id>=64||(*seen&(UINT64_C(1)<<(unsigned)id)))return 0;
  n=&t->nodes[id];if(!n->live||n->parent!=parent||n->key<=lo||n->key>=hi)return 0;
@@ -13,14 +13,14 @@ static int walk(const SCTree *t,int id,int parent,int64_t lo,int64_t hi,uint64_t
  if(t->balanced&&(left>right+1||right>left+1))return 0;
  return 1;
 }
-SCStatus sc_tree_check(const SCTree *t,unsigned *height){
+enum sc_status sc_tree_check(const struct sc_tree *t,unsigned *height){
  uint64_t seen=0,live=0;unsigned i,n=0,h;
  if(!t||!height||t->count>64||t->balanced>1)return SC_INVALID;
  for(i=0;i<64;i++)if(t->nodes[i].live){live|=UINT64_C(1)<<i;n++;}
  if(n!=t->count||!walk(t,t->root,-1,INT64_MIN,INT64_MAX,&seen,&h)||seen!=live)return SC_INVALID;
  *height=h;return SC_OK;
 }
-SCStatus sc_unique_insert(void *context,SCContains contains,SCInsert insert,int32_t key){
+enum sc_status sc_unique_insert(void *context,sc_contains_fn contains,sc_insert_fn insert,int32_t key){
  int present,result;if(!context||!contains||!insert)return SC_INVALID;present=contains(context,key);if(present<0||present>1)return SC_INVALID;
 #ifndef SC_MUTATE_TREE2
  if(present)return SC_DUPLICATE;
@@ -28,7 +28,7 @@ SCStatus sc_unique_insert(void *context,SCContains contains,SCInsert insert,int3
  result=insert(context,key);return result==0?SC_OK:result==2?SC_FULL:SC_INVALID;
 }
 static int equal_at(const uint8_t *t,const uint8_t *p,size_t position,size_t n){size_t i;for(i=0;i<n;i++)if(t[position+i]!=p[i])return 0;return 1;}
-SCStatus sc_matches(const uint8_t *t,size_t n,const uint8_t *p,size_t m,uint8_t *positions,size_t capacity,size_t *count){
+enum sc_status sc_matches(const uint8_t *t,size_t n,const uint8_t *p,size_t m,uint8_t *positions,size_t capacity,size_t *count){
  size_t i,total=0,written=0;
  if(!count||(!t&&n)||(!p&&m)||n>64||m>16||(!positions&&capacity))return SC_INVALID;
  if(m<=n)for(i=0;i<=n-m;i++)if(equal_at(t,p,i,m)){
@@ -52,8 +52,8 @@ SCStatus sc_matches(const uint8_t *t,size_t n,const uint8_t *p,size_t m,uint8_t 
  }
  *count=written;return SC_OK;
 }
-SCStatus sc_clock(SCMachine *m,const SCInstruction *program,size_t length,SCControl *control){
- SCMachine next;SCControl c={0};SCInstruction op;
+enum sc_status sc_clock(struct sc_machine *m,const struct sc_instruction *program,size_t length,struct sc_control *control){
+ struct sc_machine next;struct sc_control c={0};struct sc_instruction op;
  if(!m||!control||!program||!length||length>16||m->halted>1)return SC_INVALID;
  if(m->halted)return SC_DONE;
  if(m->pc>=length||m->commits==UINT32_MAX)return SC_INVALID;
@@ -81,8 +81,8 @@ SCStatus sc_clock(SCMachine *m,const SCInstruction *program,size_t length,SCCont
  if(!next.halted&&next.pc>=length)return SC_INVALID;
  next.commits++;c.pc_after=next.pc;*m=next;*control=c;return SC_OK;
 }
-SCStatus sc_run(SCMachine *m,const SCInstruction *program,size_t length,unsigned budget,unsigned *executed){
- unsigned n=0;SCControl c;SCStatus status;
+enum sc_status sc_run(struct sc_machine *m,const struct sc_instruction *program,size_t length,unsigned budget,unsigned *executed){
+ unsigned n=0;struct sc_control c;enum sc_status status;
  if(!m||!executed||!program||!length||length>16||m->halted>1||(!m->halted&&m->pc>=length))return SC_INVALID;
  while(n<budget){status=sc_clock(m,program,length,&c);if(status!=SC_OK){*executed=n;return status;}n++;if(m->halted){*executed=n;return SC_DONE;}}
  *executed=n;return m->halted?SC_DONE:SC_BUDGET;

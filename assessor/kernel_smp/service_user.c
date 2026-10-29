@@ -3,9 +3,9 @@
 #include "store.h"
 #include "store_host.h"
 static store database;
-static Cvm vm;
-static CvmProgram program;
-static CvmValue result;
+static struct cvm_cvm vm;
+static struct cvm_program program;
+static struct cvm_value result;
 void *memcpy(void *d, const void *s, size_t n) {
   unsigned char *p = d;
   const unsigned char *q = s;
@@ -77,7 +77,7 @@ void _start(void){
   uint8_t bytes[]={'C','V','M','1',1,0,0,8,0,0,0,OP_INT,42,0,0,0,OP_HOST,1,OP_RET};
   if(verify)bytes[17]=2;CHECK(cvm_load(bytes,sizeof bytes,&program)==CVM_OK);
   cvm_init(&vm,32,128,1);vm.host=client_host;vm.host_context=0;
-  CvmStatus status=cvm_run(&vm,&program,&result);
+  enum cvm_status status=cvm_run(&vm,&program,&result);
   if(verify)CHECK(status==CVM_OK&&result.tag==CVM_INT&&result.integer==42);else CHECK(status==CVM_HOST_ERROR);
   print("PASS v2-VM-client-no-disk-capability\n");finish(0);
  }

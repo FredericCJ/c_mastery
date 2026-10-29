@@ -3,7 +3,7 @@ import pathlib,re,sys
 ROOT=pathlib.Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT/'tools'))
 from c_source import find_all,function_span
 NAMES=['ring_valid','spans','cd_ring_init','cd_ring_read','cd_ring_reserve','cd_ring_commit','cd_ring_push','cd_ring_pop','vector_valid','cd_vector_init','cd_vector_reserve','cd_vector_insert','cd_vector_erase','cd_vector_shrink','cd_vector_destroy']
-EXPECTED={'r->capacity?':2,'r->head>=r->capacity-r->count?':1,'n>first?':1,'first?':1,'s.first[i]=values[i]':1,'s.second[i]=values[s.first_count+i]':1,'out[i]=r->data[r->head]':1,'q->nodes[at].live))':1,'q->nodes[at]=(CDQueueNode){value,-1,1}':1,'q->head=q->nodes[at].next':1,'*out=value':1}
+EXPECTED={'r->capacity?':2,'r->head>=r->capacity-r->count?':1,'n>first?':1,'first?':1,'s.first[i]=values[i]':1,'s.second[i]=values[s.first_count+i]':1,'out[i]=r->data[r->head]':1,'q->nodes[at].live))':1,'q->nodes[at]=(struct cd_queue_node){value,-1,1}':1,'q->head=q->nodes[at].next':1,'*out=value':1}
 def function(text,name):
  start,end=function_span(text,name);return text[start:end]
 def rewrite(code,before,after,found):
@@ -35,7 +35,7 @@ def main():
  for name in ['cd_queue_init','cd_queue_push','cd_queue_pop']:
   code=controls(function(linked,name),'ai_link_counts')
   code=rewrite(code,'q->nodes[at].live))','(ai_link_counts.slot_probes++,q->nodes[at].live)))',found)
-  code=rewrite(code,'q->nodes[at]=(CDQueueNode){value,-1,1}','(ai_link_counts.transfers++,q->nodes[at]=(CDQueueNode){value,-1,1})',found)
+  code=rewrite(code,'q->nodes[at]=(struct cd_queue_node){value,-1,1}','(ai_link_counts.transfers++,q->nodes[at]=(struct cd_queue_node){value,-1,1})',found)
   code=rewrite(code,'q->head=q->nodes[at].next','q->head=(ai_link_counts.links++,q->nodes[at].next)',found)
   code=rewrite(code,'*out=value','(ai_link_counts.transfers++,*out=value)',found);parts.append(code)
  output='\n\n'.join(parts)+'\n';assert found==EXPECTED,found;assert output.count('slot_probes++')==1 and output.count('transfers++')==5 and output.count('links++')==1

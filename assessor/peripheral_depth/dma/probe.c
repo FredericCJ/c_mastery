@@ -12,7 +12,7 @@ int main(void) {
           for (unsigned len = 0; len < 68; len++)
             for (unsigned width = 1; width < 5; width++) {
               uint32_t total = 777;
-              PdExtent e = {bases[b] + offset,
+              struct pd_extent e = {bases[b] + offset,
                             board ? 0x30046000u : 0x20010000u,
                             len,
                             64,
@@ -27,15 +27,15 @@ int main(void) {
       for (unsigned empty = 0; empty < 2; empty++)
         for (unsigned flags = 0; flags < 64; flags++)
           for (unsigned remaining = 0; remaining <= 18; remaining++) {
-            Model m = {0};
-            PdTransfer s = {0};
-            PdIo io = bus(&m);
-            PdExtent e = item(PD_F439, 16);
-            PdResult out = {99, 99, 99, 99};
+            struct dg_model m = {0};
+            struct pd_transfer s = {0};
+            struct pd_io io = bus(&m);
+            struct pd_extent e = item(PD_F439, 16);
+            struct pd_result out = {99, 99, 99, 99};
             int start = pd_submit(&s, io, PD_F439, 0, &e, 1, 1);
             if (cancel)
               (void)pd_cancel(&s, io, 1);
-            m.snap = (PdSnapshot){1, en, remaining, flags, empty};
+            m.snap = (struct pd_snapshot){1, en, remaining, flags, empty};
             int r = pd_poll(&s, io, 1);
             int f = pd_finalize(&s, io, 1, &out);
             printf("S %u %u %u %u %u %d %d %d %u %u %u\n", cancel, en, empty,
@@ -44,7 +44,7 @@ int main(void) {
           }
   for (unsigned width = 1; width <= 4; width *= 2)
     for (unsigned cut = 0; cut <= 49; cut++) {
-      PdExtent v[3], out[4];
+      struct pd_extent v[3], out[4];
       unsigned n = 99;
       for (unsigned k = 0; k < 3; k++) {
         v[k] = item(PD_F439, 16);

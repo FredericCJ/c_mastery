@@ -5,9 +5,9 @@ int main(void) {
   for (unsigned hz = 1000000; hz <= 180000000; hz += 1000000)
     for (unsigned sample = 0; sample < 8; sample++)
       for (unsigned n = 1; n <= 2; n++) {
-        PuClock c = {hz, 1, 1, 2, 2, 0};
-        PaConfig cfg = {sample, n, 0};
-        PaTiming t = {0};
+        struct pu_clock c = {hz, 1, 1, 2, 2, 0};
+        struct pa_config cfg = {sample, n, 0};
+        struct pa_timing t = {0};
         int r = pa_timing(&c, &cfg, &t);
         printf("T %u %u %u %d %u %u %u %u\n", hz, sample, n, r, t.hz,
                t.total_cycles, t.conversion_us, t.prescaler);
@@ -43,11 +43,11 @@ int main(void) {
     for (unsigned flag = 0; flag < 64; flag++)
       for (unsigned late = 0; late < 2; late++)
         for (unsigned timeout = 0; timeout < 2; timeout++) {
-          PaModel m = {0};
-          PaAdc s = {0};
-          PaIo io = io_for(&m);
-          PuClock c = {64000000, 1, 1, 2, 2, 0};
-          PaConfig cfg = {4, n, 1};
+          struct pa_model m = {0};
+          struct pa_adc s = {0};
+          struct pa_io io = io_for(&m);
+          struct pu_clock c = {64000000, 1, 1, 2, 2, 0};
+          struct pa_config cfg = {4, n, 1};
           uint16_t out[2] = {77, 88};
           int a = pa_open(&s, io, &c, &cfg, 0), b = pa_ready(&s, 0),
               z = pa_ready(&s, 4), d = pa_begin(&s, io, 1, 1, out, 4, 10);
@@ -64,11 +64,11 @@ int main(void) {
   for (unsigned k = 0; k < 8; k++) {
     unsigned n = schedules[k][0], period = schedules[k][1],
              service = schedules[k][2];
-    PaModel m = {0};
-    PaAdc s = {0};
-    PaIo io = io_for(&m);
-    PuClock c = {64000000, 1, 1, 2, 2, 0};
-    PaConfig cfg = {4, n, 1};
+    struct pa_model m = {0};
+    struct pa_adc s = {0};
+    struct pa_io io = io_for(&m);
+    struct pu_clock c = {64000000, 1, 1, 2, 2, 0};
+    struct pa_config cfg = {4, n, 1};
     uint16_t out[2] = {77, 88};
     if (pa_open(&s, io, &c, &cfg, 0) != PA_OK || pa_ready(&s, 0) != PA_BUSY ||
         pa_ready(&s, 4) != PA_OK ||

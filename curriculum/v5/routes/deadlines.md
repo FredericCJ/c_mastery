@@ -1,6 +1,6 @@
 # Pilot B: event-loop deadlines to measured representations
 
-PR-T24-05 already has an absolute deadline adapter and `TdTimer` state machine.
+PR-T24-05 already has an absolute deadline adapter and `struct td_timer` state machine.
 Keep its timer identities, lowest-slot tie policy, periodic accounting and callback
 borrow semantics. A cancellation request while a callback is running is not
 permission to destroy that callback's storage.

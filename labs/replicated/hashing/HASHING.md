@@ -31,9 +31,9 @@ secure. Preserve the published-C17/C23 access gaps.
 ## Environment and concrete representation
 
 Use ISO C17 with 8-bit bytes and exact uint32/uint64 types on hosted Linux,
-GCC/Clang, extensions disabled. The header exposes `RphSha`: eight uint32
+GCC/Clang, extensions disabled. The header exposes `struct rph_sha`: eight uint32
 chaining words, uint64 byte count, 64-byte partial block, used count and final
-flag. `RphHmac` owns two such values. Contexts own no pointers and can be copied
+flag. `struct rph_hmac` owns two such values. Contexts own no pointers and can be copied
 by value to fork a prefix; copies of keyed state are additional secrets.
 Objects and byte spans must be live and correctly aligned. Distinct parameters
 and their object spans are disjoint; in particular input/output cannot overlap

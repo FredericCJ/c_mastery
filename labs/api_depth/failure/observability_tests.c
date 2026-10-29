@@ -13,15 +13,15 @@ static int sink(void *v, const unsigned char *p, size_t n) {
   (void)n;
   return *(int *)v;
 }
-typedef struct {
-  AeReporter *reporter;
-  AeRecord *record;
+struct ac_broken {
+  struct ae_reporter *reporter;
+  struct ae_record *record;
   unsigned calls, depth, maxdepth;
-} Broken;
+};
 static int broken(void *v, const unsigned char *p, size_t n) {
   (void)p;
   (void)n;
-  Broken *b = v;
+  struct ac_broken *b = v;
   ++b->calls;
   ++b->depth;
   if (b->depth > b->maxdepth)
@@ -32,14 +32,14 @@ static int broken(void *v, const unsigned char *p, size_t n) {
 }
 int main(void) {
   unsigned cases = 0;
-  AeRecord r = {3, 1, 16, 3, 4, 65535, {1, 4, 9, 2}}, out = {0};
+  struct ae_record r = {3, 1, 16, 3, 4, 65535, {1, 4, 9, 2}}, out = {0};
   unsigned char b[12];
   const unsigned char golden[12] = {1, 3, 1, 16, 3, 4, 255, 255, 1, 4, 9, 2};
   CHECK(ae_record_encode(&r, b, 12) == AE_OK && !memcmp(b, golden, 12));
   CHECK(ae_record_decode(b, 12, &out) == AE_OK && out.tick == 65535 &&
         out.payload[2] == 9);
   for (unsigned n = 0; n < 12; ++n) {
-    out = (AeRecord){0};
+    out = (struct ae_record){0};
     CHECK(ae_record_decode(b, n, &out) == AE_INVALID && out.tick == 0);
   }
   for (unsigned severity = 0; severity < 4; ++severity)
@@ -47,7 +47,7 @@ int main(void) {
       for (unsigned width = 8; width <= 16; width += 8)
         for (unsigned gen = 1; gen <= 3; ++gen)
           for (unsigned length = 0; length <= 4; ++length) {
-            r = (AeRecord){severity,    unit,   width,
+            r = (struct ae_record){severity,    unit,   width,
                            gen,         length, width == 8 ? 255u : 65535u,
                            {1, 4, 9, 2}};
             CHECK(ae_record_encode(&r, b, 12) == AE_OK &&
@@ -60,7 +60,7 @@ int main(void) {
     for (unsigned z = 0; z < 256; ++z) {
       int order = 99;
       unsigned d = (a + 256 - z) % 256;
-      AeCode code = ae_tick_order(a, z, 8, &order);
+      enum ae_code code = ae_tick_order(a, z, 8, &order);
       CHECK(code == (d == 128 ? AE_AMBIGUOUS : AE_OK));
       if (d == 128)
         CHECK(order == 99);
@@ -70,8 +70,8 @@ int main(void) {
   int order = 99;
   CHECK(ae_tick_order(0, 65535, 16, &order) == AE_OK && order == 1);
   CHECK(ae_tick_order(32768, 0, 16, &order) == AE_AMBIGUOUS);
-  AeLog l = {.rate = {3, 0}};
-  r = (AeRecord){0, 1, 8, 1, 1, 0, {0}};
+  struct ae_log l = {.rate = {3, 0}};
+  r = (struct ae_record){0, 1, 8, 1, 1, 0, {0}};
   for (unsigned i = 0; i < 5; ++i) {
     r.payload[0] = (unsigned char)('A' + i);
     CHECK(ae_rate_refill(&l.rate, 2) == AE_OK &&
@@ -100,14 +100,14 @@ int main(void) {
   r.severity = 0;
   CHECK(ae_log(&l, &r, AE_PROTECT_HIGH) == AE_FULL &&
         l.records[0].severity == 3);
-  AeReporter reporter = {.fallback_available = 1};
-  Broken x = {&reporter, &r, 0, 0, 0};
+  struct ae_reporter reporter = {.fallback_available = 1};
+  struct ac_broken x = {&reporter, &r, 0, 0, 0};
   CHECK(ae_report(&reporter, &r, broken, &x) == AE_DEVICE && x.calls == 1 &&
         x.maxdepth == 1 && reporter.stored == 2 && !reporter.busy);
   for (unsigned i = 0; i < 5; ++i)
     CHECK(ae_report(&reporter, &r, broken, &x) == AE_DEVICE);
   CHECK(reporter.lost == 10 && x.calls == 6 && x.maxdepth == 1);
-  reporter = (AeReporter){0};
+  reporter = (struct ae_reporter){0};
   CHECK(ae_report(&reporter, &r, broken, &x) == AE_DEVICE &&
         reporter.stored == 0 && reporter.lost == 2);
   printf("OBSERVABILITY-PASS:codec_cases=%u;clock_pairs=65536;backend_depth=1;"

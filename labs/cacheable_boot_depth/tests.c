@@ -4,11 +4,11 @@
 #include <stdlib.h>
 #endif
 #define CHECK(x) do{if(!(x))return __LINE__;}while(0)
-static CBModel m;
+static struct cb_model m;
 int cb_suite(void){
  const unsigned sizes[5]={32,64,128,256,512};
  for(unsigned z=0;z<5;++z){
-  cb_model_init(&m,sizes[z]);CBIO x=cb_model_io(&m);
+  cb_model_init(&m,sizes[z]);struct cb_io x=cb_model_io(&m);
   CHECK(cb_boot(x,7));CHECK(!m.bad&&!m.enabled_before_invalidation);
   CHECK(m.attrs[7]==CB_M7_RASR&&m.bases[7]==CB_LINE);
   for(unsigned i=0;i<7;++i)CHECK(!m.attrs[i]);
@@ -29,10 +29,10 @@ int cb_suite(void){
  cb_model_init(&m,128);cb_model_set(&m,0xE000ED90u,16u<<8);CHECK(cb_boot(cb_model_io(&m),UINT32_MAX));
  CHECK(m.release_generation==UINT32_MAX);for(unsigned i=8;i<16;++i)CHECK(!m.attrs[i]);
  cb_model_init(&m,128);CHECK(!cb_boot(cb_model_io(&m),0));CHECK(!m.writes);
- CBIO missing=cb_model_io(&m);missing.isb=0;CHECK(!cb_boot(missing,7));CHECK(!m.writes);
+ struct cb_io missing=cb_model_io(&m);missing.isb=0;CHECK(!cb_boot(missing,7));CHECK(!m.writes);
  /* Actual imported peer state: health is neither reservation return nor persistence. */
  for(unsigned first=0;first<2;++first){
-  FWPeer p;p.generation=7;p.health=0;p.failed=0;p.outstanding[0]=0;p.outstanding[1]=0;p.confirmed=0;p.reserved[0]=0;p.reserved[1]=0;
+  struct fw_peer p;p.generation=7;p.health=0;p.failed=0;p.outstanding[0]=0;p.outstanding[1]=0;p.confirmed=0;p.reserved[0]=0;p.reserved[1]=0;
   CHECK(fw_peer_step(&p,first,6,FW_BEGIN)==H7_STALE);
   CHECK(fw_peer_step(&p,first,7,FW_BEGIN)==H7_OK);
   CHECK(fw_peer_step(&p,first,7,FW_HEALTHY)==H7_BUSY);

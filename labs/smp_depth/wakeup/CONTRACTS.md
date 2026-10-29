@@ -16,7 +16,7 @@ Inspected Intel2016 Volume2B STI description/footnote requires IF=0 for the guar
 
 ## Problem, supplied inputs and outputs
 
-Implement `wakeup.c`, `wakeup_guest.c` and its assembly adapter against `wakeup.h`, using the explicit completed queue/lock inputs. The world contains up to four CPUs and the queue's fixed task slots/capacity. A stable `SwPort` supplies `ring(context,cpu)` and `ack(context,cpu)`. The core serializes queue operations plus doorbell state under one additional control lock; queue storage remains per-CPU. This intentionally simple publication boundary is not a scalable kernel scheduler claim.
+Implement `wakeup.c`, `wakeup_guest.c` and its assembly adapter against `wakeup.h`, using the explicit completed queue/lock inputs. The world contains up to four CPUs and the queue's fixed task slots/capacity. A stable `struct sw_port` supplies `ring(context,cpu)` and `ack(context,cpu)`. The core serializes queue operations plus doorbell state under one additional control lock; queue storage remains per-CPU. This intentionally simple publication boundary is not a scalable kernel scheduler claim.
 
 Initial host fixture: four generation1 tasks at CPU1 are dispatched and saved BLOCKED. Publish all four while CPU1 has acknowledged an empty queue. Require four READY entries but only one initial rising-doorbell notification. Repeated wake of READY or RUNNING returns DUPLICATE without another insertion. A stale generation/home is rejected. During TRANSFER, wake returns MOVING, an explicit unaccepted request; after commit the caller resolves the current home and a retry observes the one READY insertion. Notification failure leaves admitted work queued and is separately retried.
 
@@ -26,7 +26,7 @@ One notification need not mean one item: the destination drains durable queue st
 
 ## Representation, ownership and reasoning
 
-`SwWorld.queues` retains all PR-T53-06 invariants. After initialization and creation, **all** queue operations use the wrapper; bypassing it invalidates the protocol. One caller owns each actor CPU; ISR code never calls a wrapper or acquires its control lock. The port and its context remain live and unchanged. Callbacks are nonreentrant and cannot call queue operations. The selected target callback is a bounded APIC operation; the hosted condition-variable adapter has a separate blocking-host contract and never calls a wrapper while holding its predicate mutex.
+`struct sw_world.queues` retains all PR-T53-06 invariants. After initialization and creation, **all** queue operations use the wrapper; bypassing it invalidates the protocol. One caller owns each actor CPU; ISR code never calls a wrapper or acquires its control lock. The port and its context remain live and unchanged. Callbacks are nonreentrant and cannot call queue operations. The selected target callback is a bounded APIC operation; the hosted condition-variable adapter has a separate blocking-host contract and never calls a wrapper while holding its predicate mutex.
 
 The atomic `work[cpu]` mirrors READY count after each admitted queue transition, with release publication. It permits the controlled ISR/port to observe publication without touching ordinary protected queue fields. It is not an independently writable queue. `bell[cpu]` is a coalescing Boolean under the control lock, not a monotonically accumulating item counter. Queue publication precedes an SC fence and the selected port's ordering before ringing. ISO C alone does not specify MMIO ordering; the actual adapter uses the declared x86 fence/APIC operation separately.
 

@@ -46,7 +46,7 @@ def validate(d,r):
  for m,(_,marker,definition) in runner.MUTANTS.items():
   tag='thumb.'+m;command(tag+'.execute',1,'MF_TARGET_FAIL');args=commands.get(tag+'.build',{}).get('command',[]);need('--define' in args and definition in args and marker in logs.get(tag+'.execute',''),'actual target intended mutant '+m)
  command('thumb.stub.execute',1,'MF_TARGET_FAIL');obs=r.get('observations',[]);need(len(obs)==6 and {q.get('profile') for q in obs}=={cc+'.'+p for cc in ['gcc','clang'] for p,_ in runner.PROFILES},'six actual profiles')
- for q in obs:need(q==dict(profile=q.get('profile'),independent_packets=runner.PACKETS,reset_fetch=[0,4],extended_core_offset=0,physical=False,actual_producer='XfFrame and xf_priority'),'exact bounded observations')
+ for q in obs:need(q==dict(profile=q.get('profile'),independent_packets=runner.PACKETS,reset_fetch=[0,4],extended_core_offset=0,physical=False,actual_producer='struct xf_frame and xf_priority'),'exact bounded observations')
  e=read(HERE/'exports.json');need(e.get('status')=='pass' and len(e.get('commands',[]))==8 and all(q.get('passed') is True for q in e['commands']),'actual learner export')
  for key in ['source_sha256','outputs_sha256']:
   for n,h in e.get(key,{}).items():p=ROOT/n;need(p.is_file() and sha(p)==h,'stale export '+n)

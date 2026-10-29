@@ -7,7 +7,7 @@ static int sum(int a, int b, int *out) {
   *out = a + b;
   return DS_OK;
 }
-int ds_measure(DSView v, int *out) {
+int ds_measure(struct ds_view v, int *out) {
   int value, status;
   if (!out || !v.object || !v.ops || !v.ops->measure)
     return DS_INVALID;
@@ -29,7 +29,7 @@ int ds_measure(DSView v, int *out) {
 #endif
   return DS_OK;
 }
-int ds_embedded(const DSBox *b, int *out) {
+int ds_embedded(const struct ds_box *b, int *out) {
   if (!b)
     return DS_INVALID;
 #ifdef DS_MUTATE_FAT1
@@ -40,17 +40,17 @@ int ds_embedded(const DSBox *b, int *out) {
 #else
 
 #ifdef DS_MUTATE_FAT2
-  int result = ds_measure((DSView){&b->value, b->ops}, out);
+  int result = ds_measure((struct ds_view){&b->value, b->ops}, out);
   if (result == DS_OK)
     *out = 0;
   return result;
 #else
-  return ds_measure((DSView){&b->value, b->ops}, out);
+  return ds_measure((struct ds_view){&b->value, b->ops}, out);
 #endif
 
 #endif
 }
-int ds_fold(const int *p, size_t n, int initial, DSCombine operation,
+int ds_fold(const int *p, size_t n, int initial, ds_combine_fn operation,
             int *out) {
   int value = initial, next, status;
   size_t i;
@@ -91,13 +91,13 @@ int ds_sum(const int *p, size_t n, int initial, int *out) {
   *out = value;
   return DS_OK;
 }
-int ds_closure_init(DSClosure *c, int capture, enum DSMode mode) {
+int ds_closure_init(struct ds_closure *c, int capture, enum ds_mode mode) {
   if (!c || mode < DS_SHARED || mode > DS_ONCE)
     return DS_INVALID;
-  *c = (DSClosure){capture, mode, 1};
+  *c = (struct ds_closure){capture, mode, 1};
   return DS_OK;
 }
-int ds_closure_call(DSClosure *c, int arg, int *out) {
+int ds_closure_call(struct ds_closure *c, int arg, int *out) {
   int value, status;
   if (!c || !out)
     return DS_INVALID;
@@ -128,15 +128,15 @@ int ds_closure_call(DSClosure *c, int arg, int *out) {
 #endif
   return DS_OK;
 }
-void ds_erased_init(DSErased *e, DAllocator a) {
+void ds_erased_init(struct ds_erased *e, struct d_allocator a) {
   d_small_init(&e->capture, a);
   e->call = 0;
   e->destroy = 0;
   e->resource = 0;
   e->active = 0;
 }
-int ds_erased_assign(DSErased *e, const unsigned char *p, size_t n,
-                     DSThunk call, void (*destroy)(void *), void *resource) {
+int ds_erased_assign(struct ds_erased *e, const unsigned char *p, size_t n,
+                     ds_thunk_fn call, void (*destroy)(void *), void *resource) {
   int status;
   if (!e || !call || e->active || (!p && n))
     return DS_INVALID;
@@ -149,7 +149,7 @@ int ds_erased_assign(DSErased *e, const unsigned char *p, size_t n,
   e->active = 1;
   return DS_OK;
 }
-int ds_erased_call(const DSErased *e, int arg, int *out) {
+int ds_erased_call(const struct ds_erased *e, int arg, int *out) {
   int value, status;
   if (!e || !out)
     return DS_INVALID;
@@ -161,7 +161,7 @@ int ds_erased_call(const DSErased *e, int arg, int *out) {
   *out = value;
   return DS_OK;
 }
-int ds_erased_move(DSErased *d, DSErased *s) {
+int ds_erased_move(struct ds_erased *d, struct ds_erased *s) {
   if (!d || !s || d == s || d->active || !s->active)
     return DS_INVALID;
   if (d_small_move(&d->capture, &s->capture) != D_OK)
@@ -180,7 +180,7 @@ int ds_erased_move(DSErased *d, DSErased *s) {
   s->resource = 0;
   return DS_OK;
 }
-void ds_erased_drop(DSErased *e) {
+void ds_erased_drop(struct ds_erased *e) {
 #ifdef DS_MUTATE_ERASED1
 /* leaked logical resource: destroy omitted */
 #else
@@ -193,15 +193,15 @@ void ds_erased_drop(DSErased *e) {
   e->destroy = 0;
   e->resource = 0;
 }
-void ds_methods_init(DSMethods *m) {
+void ds_methods_init(struct ds_methods *m) {
   unsigned i, j;
   m->epoch = 1;
   for (i = 0; i < 3; i++)
     for (j = 0; j < 3; j++)
       m->entries[i][j] = 0;
 }
-int ds_methods_set(DSMethods *m, unsigned left, unsigned right,
-                   DSCombine method) {
+int ds_methods_set(struct ds_methods *m, unsigned left, unsigned right,
+                   ds_combine_fn method) {
   if (!m || left >= 3 || right >= 3)
     return DS_INVALID;
   if (m->epoch == 3)
@@ -210,9 +210,9 @@ int ds_methods_set(DSMethods *m, unsigned left, unsigned right,
   m->epoch++;
   return DS_OK;
 }
-int ds_dispatch(const DSMethods *m, DSCache *c, unsigned left, unsigned right,
+int ds_dispatch(const struct ds_methods *m, struct ds_cache *c, unsigned left, unsigned right,
                 int a, int b, int *out) {
-  DSCombine f;
+  ds_combine_fn f;
   int value, status;
   if (!m || !c || !out || left >= 3 || right >= 3)
     return DS_INVALID;
@@ -232,7 +232,7 @@ int ds_dispatch(const DSMethods *m, DSCache *c, unsigned left, unsigned right,
     f = c->method;
   else {
     f = m->entries[left][right];
-    *c = (DSCache){m->epoch, left, right, f};
+    *c = (struct ds_cache){m->epoch, left, right, f};
   }
   if (!f)
     return DS_UNSUPPORTED;
@@ -242,16 +242,16 @@ int ds_dispatch(const DSMethods *m, DSCache *c, unsigned left, unsigned right,
   *out = value;
   return DS_OK;
 }
-void ds_list_init(DSList *l) {
-  l->head = (DSLink){&l->head, &l->head, l};
+void ds_list_init(struct ds_list *l) {
+  l->head = (struct ds_link){&l->head, &l->head, l};
   l->count = 0;
 }
-void ds_item_init(DSItem *i, int value) {
-  i->link = (DSLink){0, 0, 0};
+void ds_item_init(struct ds_item *i, int value) {
+  i->link = (struct ds_link){0, 0, 0};
   i->value = value;
 }
-int ds_list_push(DSList *l, DSItem *i) {
-  DSLink *last;
+int ds_list_push(struct ds_list *l, struct ds_item *i) {
+  struct ds_link *last;
 #ifdef DS_MUTATE_INTRUSIVE2
   if (!l || !i)
     return DS_INVALID;
@@ -264,13 +264,13 @@ int ds_list_push(DSList *l, DSItem *i) {
   if (l->count == 4)
     return DS_FULL;
   last = l->head.previous;
-  i->link = (DSLink){last, &l->head, l};
+  i->link = (struct ds_link){last, &l->head, l};
   last->next = &i->link;
   l->head.previous = &i->link;
   l->count++;
   return DS_OK;
 }
-int ds_list_remove(DSList *l, DSItem *i) {
+int ds_list_remove(struct ds_list *l, struct ds_item *i) {
   if (!l || !i || i->link.owner != l)
     return DS_INVALID;
   i->link.previous->next = i->link.next;
@@ -279,17 +279,17 @@ int ds_list_remove(DSList *l, DSItem *i) {
 #else
   i->link.next->previous = i->link.previous;
 #endif
-  i->link = (DSLink){0, 0, 0};
+  i->link = (struct ds_link){0, 0, 0};
   l->count--;
   return DS_OK;
 }
-int ds_list_sum(const DSList *l, int *out) {
-  const DSLink *p;
+int ds_list_sum(const struct ds_list *l, int *out) {
+  const struct ds_link *p;
   int value = 0, next, status;
   if (!l || !out)
     return DS_INVALID;
   for (p = l->head.next; p != &l->head; p = p->next) {
-    const DSItem *item = (const DSItem *)p;
+    const struct ds_item *item = (const struct ds_item *)p;
     status = sum(value, item->value, &next);
     if (status != DS_OK)
       return status;
@@ -298,24 +298,24 @@ int ds_list_sum(const DSList *l, int *out) {
   *out = value;
   return DS_OK;
 }
-struct DSModule {
+struct ds_module {
   unsigned live;
-  DSService service;
+  struct ds_service service;
 };
-static DSModule modules[2];
-int ds_module_open(DSService s, DSModule **out) {
+static struct ds_module modules[2];
+int ds_module_open(struct ds_service s, struct ds_module **out) {
   unsigned i;
   if (!out || !s.read)
     return DS_INVALID;
   for (i = 0; i < 2; i++)
     if (!modules[i].live) {
-      modules[i] = (DSModule){1, s};
+      modules[i] = (struct ds_module){1, s};
       *out = &modules[i];
       return DS_OK;
     }
   return DS_FULL;
 }
-int ds_module_twice(DSModule *m, int *out) {
+int ds_module_twice(struct ds_module *m, int *out) {
   int a, b, value, status;
   if (!m || !out || !m->live)
     return DS_INVALID;
@@ -344,24 +344,24 @@ int ds_module_twice(DSModule *m, int *out) {
   *out = value;
   return DS_OK;
 }
-void ds_module_close(DSModule *m) {
+void ds_module_close(struct ds_module *m) {
   m->live = 0;
-  m->service = (DSService){0, 0};
+  m->service = (struct ds_service){0, 0};
 }
-void ds_authority_init(DSAuthority *a, unsigned rights) {
+void ds_authority_init(struct ds_authority *a, unsigned rights) {
   a->rights = rights & 3;
   a->epoch = 1;
   a->counter = 0;
 }
-int ds_cap_issue(const DSAuthority *a, unsigned rights, DSCapability *out) {
+int ds_cap_issue(const struct ds_authority *a, unsigned rights, struct ds_capability *out) {
   if (!a || !out || rights > 3)
     return DS_INVALID;
   if (a->epoch > 3 || (rights & ~a->rights))
     return DS_DENIED;
-  *out = (DSCapability){a, rights, a->epoch};
+  *out = (struct ds_capability){a, rights, a->epoch};
   return DS_OK;
 }
-int ds_cap_attenuate(DSCapability c, unsigned rights, DSCapability *out) {
+int ds_cap_attenuate(struct ds_capability c, unsigned rights, struct ds_capability *out) {
   if (!out || !c.owner || rights > 3)
     return DS_INVALID;
 #ifdef DS_MUTATE_CAPABILITIES1
@@ -370,10 +370,10 @@ int ds_cap_attenuate(DSCapability c, unsigned rights, DSCapability *out) {
   if (rights & ~c.rights)
     return DS_DENIED;
 #endif
-  *out = (DSCapability){c.owner, rights, c.epoch};
+  *out = (struct ds_capability){c.owner, rights, c.epoch};
   return DS_OK;
 }
-int ds_cap_add(DSAuthority *a, DSCapability c, int amount) {
+int ds_cap_add(struct ds_authority *a, struct ds_capability c, int amount) {
   int value, status;
   if (!a)
     return DS_INVALID;
@@ -392,7 +392,7 @@ int ds_cap_add(DSAuthority *a, DSCapability c, int amount) {
   a->counter = value;
   return DS_OK;
 }
-int ds_cap_revoke(DSAuthority *a) {
+int ds_cap_revoke(struct ds_authority *a) {
   if (!a)
     return DS_INVALID;
   if (a->epoch > 3)
@@ -400,10 +400,10 @@ int ds_cap_revoke(DSAuthority *a) {
   a->epoch++;
   return DS_OK;
 }
-void ds_loaded_init(DSLoaded *m) { *m = (DSLoaded){0, 0, 0}; }
-int ds_loaded_open(DSLoaded *m, const char *path) {
+void ds_loaded_init(struct ds_loaded *m) { *m = (struct ds_loaded){0, 0, 0}; }
+int ds_loaded_open(struct ds_loaded *m, const char *path) {
   void *h;
-  const DSPlugin *api;
+  const struct ds_plugin *api;
   const char *error;
   if (!m || !path || m->handle)
     return DS_INVALID;
@@ -423,10 +423,10 @@ int ds_loaded_open(DSLoaded *m, const char *path) {
     dlclose(h);
     return DS_INVALID;
   }
-  *m = (DSLoaded){h, api, 0};
+  *m = (struct ds_loaded){h, api, 0};
   return DS_OK;
 }
-int ds_loaded_acquire(DSLoaded *m, const DSPlugin **out) {
+int ds_loaded_acquire(struct ds_loaded *m, const struct ds_plugin **out) {
   if (!m || !out)
     return DS_INVALID;
   if (!m->handle)
@@ -437,13 +437,13 @@ int ds_loaded_acquire(DSLoaded *m, const DSPlugin **out) {
   *out = m->api;
   return DS_OK;
 }
-int ds_loaded_release(DSLoaded *m) {
+int ds_loaded_release(struct ds_loaded *m) {
   if (!m || !m->handle || !m->borrows)
     return DS_INVALID;
   m->borrows--;
   return DS_OK;
 }
-int ds_loaded_close(DSLoaded *m) {
+int ds_loaded_close(struct ds_loaded *m) {
   if (!m)
     return DS_INVALID;
 #ifdef DS_MUTATE_PLUGIN2
@@ -459,13 +459,13 @@ int ds_loaded_close(DSLoaded *m) {
   ds_loaded_init(m);
   return DS_OK;
 }
-void ds_host_init(DSHost *h) {
+void ds_host_init(struct ds_host *h) {
   ds_loaded_init(&h->current);
   ds_loaded_init(&h->retired);
   h->state = 0;
   h->generation = 0;
 }
-int ds_host_reload(DSHost *h, DSLoaded *candidate) {
+int ds_host_reload(struct ds_host *h, struct ds_loaded *candidate) {
   int state, status;
   unsigned old_schema;
   if (!h || !candidate || !candidate->handle || candidate == &h->current ||
@@ -497,7 +497,7 @@ int ds_host_reload(DSHost *h, DSLoaded *candidate) {
   h->generation++;
   return DS_OK;
 }
-int ds_host_collect(DSHost *h) {
+int ds_host_collect(struct ds_host *h) {
   if (!h)
     return DS_INVALID;
   return ds_loaded_close(&h->retired);

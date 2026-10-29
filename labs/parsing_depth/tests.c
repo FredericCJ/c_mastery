@@ -12,9 +12,9 @@
     }                                                                          \
   } while (0)
 static int regex_test(void) {
-  RxNfa n, old;
-  RxDfa d, keep;
-  PdDiagnostic diag;
+  struct rx_nfa n, old;
+  struct rx_dfa d, keep;
+  struct pd_diagnostic diag;
   unsigned out = 7;
   CHECK(rx_compile((const unsigned char *)"(a|b)*abb", 9, &n, &diag) == PD_OK);
   CHECK(rx_match(&n, (const unsigned char *)"aabb", 4, 0, &out) == PD_OK &&
@@ -43,10 +43,10 @@ static int regex_test(void) {
   return 0;
 }
 static int lr_test(void) {
-  LrGrammar g = pd_grammar(0);
-  LrTable t, old;
-  LrTree tree, prior;
-  PdDiagnostic d;
+  struct lr_grammar g = pd_grammar(0);
+  struct lr_table t, old;
+  struct lr_tree tree, prior;
+  struct pd_diagnostic d;
   CHECK(lr_build(&g, &t, &d) == PD_OK && t.count == 12);
   CHECK(t.follow[0] == ((1u << 1) | (1u << 4) | (1u << 7)));
   const unsigned char input[] = {0, 1, 0, 2, 0};
@@ -69,9 +69,9 @@ static int lr_test(void) {
   return 0;
 }
 static int pratt_test(void) {
-  PdTokens t, old;
-  PdTree tree, prior;
-  PdDiagnostic d;
+  struct pd_tokens t, old;
+  struct pd_tree tree, prior;
+  struct pd_diagnostic d;
   int32_t value = 123;
   CHECK(pd_lex((const unsigned char *)"2^3^2", 5, &t, &d) == PD_OK);
   CHECK(pd_pratt(&t, 1, &tree, &d) == PD_OK &&
@@ -105,14 +105,14 @@ static int pratt_test(void) {
 }
 static int scannerless_test(void) {
   /* ((capture(a) x) / (a b)) then EOF: failed branch must discard capture. */
-  const PsNode g[] = {{PS_SEQ, 1, 10, 0, 0},   {PS_CHOICE, 2, 7, 0, 0},
+  const struct ps_node g[] = {{PS_SEQ, 1, 10, 0, 0},   {PS_CHOICE, 2, 7, 0, 0},
                       {PS_SEQ, 3, 6, 0, 0},    {PS_CAPTURE, 4, 0, 1, 0},
                       {PS_BYTE, 0, 0, 'a', 0}, {PS_EMPTY, 0, 0, 0, 0},
                       {PS_BYTE, 0, 0, 'x', 0}, {PS_SEQ, 8, 9, 0, 0},
                       {PS_BYTE, 0, 0, 'a', 0}, {PS_BYTE, 0, 0, 'b', 0},
                       {PS_NOT, 11, 0, 0, 0},   {PS_ANY, 0, 0, 0, 0}};
-  PsResult out, prior;
-  PdDiagnostic d;
+  struct ps_result out, prior;
+  struct pd_diagnostic d;
   memset(&out, 0x5a, sizeof out);
   prior = out;
   CHECK(ps_parse(g, 12, (const unsigned char *)"ab", 2, 1, 100, &out, &d) ==
@@ -126,9 +126,9 @@ static int scannerless_test(void) {
         PD_PENDING);
   CHECK(ps_parse(g, 12, (const unsigned char *)"ab", 2, 1, 1, &out, &d) ==
         PD_FUEL);
-  const PsNode loop[] = {{PS_STAR, 1, 0, 0, 0}, {PS_EMPTY, 0, 0, 0, 0}};
+  const struct ps_node loop[] = {{PS_STAR, 1, 0, 0, 0}, {PS_EMPTY, 0, 0, 0, 0}};
   CHECK(ps_parse(loop, 2, NULL, 0, 1, 10, &out, &d) == PD_EMPTY_LOOP);
-  const PsNode capture[] = {{PS_SEQ, 1, 3, 0, 0},
+  const struct ps_node capture[] = {{PS_SEQ, 1, 3, 0, 0},
                             {PS_NOT, 2, 0, 0, 0},
                             {PS_BYTE, 0, 0, 'b', 0},
                             {PS_CAPTURE, 4, 0, 9, 0},
@@ -137,7 +137,7 @@ static int scannerless_test(void) {
             PD_OK &&
         out.count == 1 && out.captures[0].tag == 9 &&
         out.captures[0].begin == 0 && out.captures[0].end == 1);
-  const PsNode many[] = {
+  const struct ps_node many[] = {
       {PS_STAR, 1, 0, 0, 0}, {PS_CAPTURE, 2, 0, 1, 0}, {PS_BYTE, 0, 0, 'a', 0}};
   unsigned char bytes[33];
   memset(bytes, 'a', sizeof bytes);

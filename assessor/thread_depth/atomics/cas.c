@@ -9,12 +9,12 @@ int ta_order_pair(unsigned success, unsigned failure) {
   return (allowed[success] & (1u << failure)) != 0;
 #endif
 }
-int ta_increment(TACas operation, void *context, unsigned initial,
-                 unsigned limit, int one_attempt, TAReport *out) {
+int ta_increment(ta_cas_fn operation, void *context, unsigned initial,
+                 unsigned limit, int one_attempt, struct ta_report *out) {
   if (!operation || !out || limit == 0 || limit > 16 ||
       (one_attempt != 0 && one_attempt != 1))
     return TA_INVALID;
-  TAReport report = {.expected = initial};
+  struct ta_report report = {.expected = initial};
   for (unsigned i = 0; i < (one_attempt ? 1 : limit); i++) {
     report.attempts++;
 #ifdef TA_MUTANT_RETRY
@@ -31,13 +31,13 @@ int ta_increment(TACas operation, void *context, unsigned initial,
   *out = report;
   return TA_LIMIT;
 }
-int ta_publish(TANodeCas operation, void *context, TANode *owned,
-               TANode *expected, TANode *const *leases, size_t count,
-               int derive, unsigned limit, TANodeReport *out) {
+int ta_publish(ta_node_cas_fn operation, void *context, struct ta_node *owned,
+               struct ta_node *expected, struct ta_node *const *leases, size_t count,
+               int derive, unsigned limit, struct ta_node_report *out) {
   if (!operation || !owned || !out || !limit || limit > 16 || count > 4 ||
       (count && !leases) || (derive != 0 && derive != 1))
     return TA_INVALID;
-  TANodeReport report = {0};
+  struct ta_node_report report = {0};
   for (unsigned i = 0; i < limit; i++) {
     if (derive) {
       int protected = 0;

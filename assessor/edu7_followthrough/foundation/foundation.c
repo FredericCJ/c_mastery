@@ -3,16 +3,16 @@
 #ifndef EF_MUTANT
 #define EF_MUTANT 0
 #endif
-int ef_budget(unsigned schema,unsigned extra,EfBudget *out) {
+int ef_budget(unsigned schema,unsigned extra,struct ef_budget *out) {
   if(!out || (schema!=1 && schema!=2) || extra>8 || (schema==1 && extra)) return EF_INVALID;
   unsigned n=schema==1?33:35+(extra?2+extra:0);
-  EfBudget b={n,n+7,(n+7+23)/24,(n+7)%24,32,38,45,96};
+  struct ef_budget b={n,n+7,(n+7+23)/24,(n+7)%24,32,38,45,96};
   if(!b.last)b.last=24;
   if(EF_MUTANT==1)b.canonical=80;
   *out=b;return EF_OK;
 }
-int ef_enqueue(EfRoute *s,const uint8_t *p,size_t n,unsigned ingress,unsigned copy,unsigned version,uint32_t *token) {
-  EduDatagram in,out;unsigned port;uint8_t next;
+int ef_enqueue(struct ef_route *s,const uint8_t *p,size_t n,unsigned ingress,unsigned copy,unsigned version,uint32_t *token) {
+  struct edu_datagram in,out;unsigned port;uint8_t next;
   if(!s||!p||!token||copy>1||(version!=1&&version!=2)||ingress>1) return EF_INVALID;
   if(s->active)return EF_BUSY;
   if(s->generation==UINT32_MAX)return EF_FULL;
@@ -24,28 +24,28 @@ int ef_enqueue(EfRoute *s,const uint8_t *p,size_t n,unsigned ingress,unsigned co
   if(EF_MUTANT==2)s->borrow=p+6;
   s->egress=port;s->next=next;s->active=1;*token=++s->generation;return EF_OK;
 }
-int ef_peek(const EfRoute *s,uint32_t token,EduFrame *out) {
+int ef_peek(const struct ef_route *s,uint32_t token,struct edu_frame *out) {
   if(!s||!out)return EF_INVALID;
   if(!s->active||!token||token!=s->generation)return EF_STALE;
-  EduDatagram d=s->packet;EduFrame f={0};size_t n;
+  struct edu_datagram d=s->packet;struct edu_frame f={0};size_t n;
   if(s->borrow)memcpy(d.payload,s->borrow,d.length);
   if(edu_network_encode(&d,f.payload,&n))return EF_INVALID;
   f.kind=0;f.source=(uint8_t)(s->egress?1:2);f.destination=(uint8_t)s->next;f.length=(uint8_t)n;
   if(EF_MUTANT==3)f.destination=d.destination;
   *out=f;return EF_OK;
 }
-int ef_release(EfRoute *s,uint32_t token) {
+int ef_release(struct ef_route *s,uint32_t token) {
   if(!s)return EF_INVALID;
   if(!s->active||!token||(EF_MUTANT!=4&&token!=s->generation))return EF_STALE;
   s->active=0;s->borrow=0;return EF_OK;
 }
-int ef_local(const uint8_t *p,size_t n,unsigned node,EduDatagram *out) {
-  EduDatagram d;
+int ef_local(const uint8_t *p,size_t n,unsigned node,struct edu_datagram *out) {
+  struct edu_datagram d;
   if(!p||!out||(node!=17&&node!=51&&node!=68))return EF_INVALID;
   if(edu_network_decode(p,n,&d)||d.destination!=node)return EF_DROP;
   *out=d;return EF_OK;
 }
-int ef_encode(const EduRecord *r,uint8_t *out,size_t cap,size_t *length) {
+int ef_encode(const struct edu_record *r,uint8_t *out,size_t cap,size_t *length) {
   uint8_t b[33];size_t n;
   if(!r||!out||!length||r->has_value>1||r->has_unit>1)return EF_INVALID;
   if(edu_record_encode(r,b,&n))return EF_INVALID;
@@ -53,10 +53,10 @@ int ef_encode(const EduRecord *r,uint8_t *out,size_t cap,size_t *length) {
   if(cap<n)return EF_FULL;
   memcpy(out,b,n);*length=n;return EF_OK;
 }
-int ef_wide_encode(const EfWide *w,uint8_t *out,size_t cap,size_t *length) {
+int ef_wide_encode(const struct ef_wide *w,uint8_t *out,size_t cap,size_t *length) {
   uint8_t base[33],b[45];size_t n,z=1;
   if(!w||!out||!length||w->extra_length>8||w->value<INT32_MIN||w->value>INT32_MAX)return EF_INVALID;
-  EduRecord r=w->base;r.value=0;
+  struct edu_record r=w->base;r.value=0;
   if(ef_encode(&r,base,sizeof base,&n))return EF_INVALID;
   b[0]=2;
   for(size_t i=1;i<n;) {
@@ -71,8 +71,8 @@ int ef_wide_encode(const EfWide *w,uint8_t *out,size_t cap,size_t *length) {
   if(z>cap)return EF_FULL;
   memcpy(out,b,z);*length=z;return EF_OK;
 }
-int ef_wide_decode(const uint8_t *p,size_t n,EfWide *out) {
-  uint8_t base[33];size_t z=1;unsigned prior=0;EfWide w={0};
+int ef_wide_decode(const uint8_t *p,size_t n,struct ef_wide *out) {
+  uint8_t base[33];size_t z=1;unsigned prior=0;struct ef_wide w={0};
   if(!p||!out||n<1||n>45||p[0]!=2)return EF_INVALID;
   base[0]=1;
   for(size_t i=1;i<n;) {
@@ -95,7 +95,7 @@ int ef_wide_decode(const uint8_t *p,size_t n,EfWide *out) {
   if(edu_record_decode(base,z,&w.base))return EF_INVALID;
   *out=w;return EF_OK;
 }
-int ef_frame_encode(const EduFrame *f,unsigned version,uint8_t *out,size_t cap,size_t *length) {
+int ef_frame_encode(const struct edu_frame *f,unsigned version,uint8_t *out,size_t cap,size_t *length) {
   if(!f||!out||!length||(version!=1&&version!=2))return EF_INVALID;
   if(version==1){uint8_t b[96];size_t n;if(edu_frame_encode(f,b,sizeof b,&n))return EF_INVALID;if(cap<n)return EF_FULL;memcpy(out,b,n);*length=n;return EF_OK;}
   if(f->kind>2||f->length>40||f->source<1||f->source>2||f->destination<1||f->destination>2||f->source==f->destination||(f->kind&&f->length))return EF_INVALID;
@@ -107,7 +107,7 @@ int ef_frame_encode(const EduFrame *f,unsigned version,uint8_t *out,size_t cap,s
   for(size_t i=0;i<n;i++){if(b[i]==0x7e||b[i]==0x7d){out[z++]=0x7d;out[z++]=b[i]^(EF_MUTANT==7?0x20:0x40);}else out[z++]=b[i];}
   out[z++]=0x7e;*length=z;return EF_OK;
 }
-int ef_frame_byte(EfFramer *s,unsigned version,uint8_t b,unsigned fault,EduFrame *out) {
+int ef_frame_byte(struct ef_framer *s,unsigned version,uint8_t b,unsigned fault,struct edu_frame *out) {
   if(!s||!out||fault>1||(version!=1&&version!=2))return -1;
   if(version==1){
     if(EF_MUTANT!=8 && !fault && s->legacy.active && !s->legacy.discard && s->legacy.escape && b!=0x7e && b!=0x5e && b!=0x5d)fault=1;
@@ -119,7 +119,7 @@ int ef_frame_byte(EfFramer *s,unsigned version,uint8_t b,unsigned fault,EduFrame
     if(s->active&&(n||s->discard||s->escape)) {
       uint8_t *p=s->bytes;
       if(s->discard||s->escape||n<7||p[0]!=version||p[1]>2||p[2]<1||p[2]>2||p[3]<1||p[3]>2||p[2]==p[3]||p[4]>40||n!=7u+p[4]||(p[1]&&p[4])||edu_crc(p,n-2)!=((unsigned)p[n-2]*256+p[n-1]))result=-1;
-      else {EduFrame f={p[1],p[2],p[3],p[4],{0}};memcpy(f.payload,p+5,f.length);*out=f;result=1;}
+      else {struct edu_frame f={p[1],p[2],p[3],p[4],{0}};memcpy(f.payload,p+5,f.length);*out=f;result=1;}
     }
     s->active=1;s->length=s->escape=s->discard=0;return result;
   }

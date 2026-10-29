@@ -1,5 +1,5 @@
 #include "port.h"
-static TQTimer timer;static TPClock clock;
+static struct tq_timer timer;static struct tp_clock clock;
 static void say(const char *s){register unsigned r0 __asm__("r0")=4;register const void *r1 __asm__("r1")=s;__asm__ volatile("bkpt 0xab":"+r"(r0),"+r"(r1)::"memory");}
 static void finish(unsigned code){unsigned args[2]={0x20026u,code};register unsigned r0 __asm__("r0")=0x20;register const void *r1 __asm__("r1")=args;__asm__ volatile("bkpt 0xab":"+r"(r0),"+r"(r1)::"memory");for(;;){}}
 static void number(uint32_t value){char b[11];unsigned i=10;b[i]=0;do{b[--i]=(char)('0'+value%10);value/=10;}while(value);say(b+i);say(" ");}

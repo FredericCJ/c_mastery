@@ -12,7 +12,7 @@ All mutating failures preserve the entire owner; output arguments also remain un
 
 ## Skip list and deterministic generator
 
-`SsSkip` holds at most 32 distinct uint32_t keys, int32_t values and six ordered forward levels. Index32 is the end sentinel, never a key restriction. Every live node appears at all levels below its height; level zero contains every key once. `ss_skip_put` inserts or replaces, with replacement preserving height even at capacity. `ss_skip_erase` removes every level or returns `SS_MISSING`. `ss_skip_get` returns a value or `SS_MISSING`; `cost` records key comparisons on both outcomes. No pointer/iterator escapes.
+`struct ss_skip` holds at most 32 distinct uint32_t keys, int32_t values and six ordered forward levels. Index32 is the end sentinel, never a key restriction. Every live node appears at all levels below its height; level zero contains every key once. `ss_skip_put` inserts or replaces, with replacement preserving height even at capacity. `ss_skip_erase` removes every level or returns `SS_MISSING`. `ss_skip_get` returns a value or `SS_MISSING`; `cost` records key comparisons on both outcomes. No pointer/iterator escapes.
 
 `ss_height(bits,quarter)` consumes low bits: start at height1, promote while the next bit is zero (quarter0) or next two bits are zero (quarter1), capped at6. Its `quarter` input is 0 or1; put checks that domain. Supplied bits are explicit experimental input, not a secret randomness source. `ss_skip_scan(lo,hi,keys,values,capacity,count)` returns increasing entries in [lo,hi); equal endpoints are empty, lo>hi invalid. Both arrays may be null only at capacity0. Insufficient capacity preserves both arrays/count. Because hi is uint32_t, this range operation cannot include UINT32_MAX; exact lookup can. Derive a separate inclusive-bound API before changing this fact.
 
@@ -22,7 +22,7 @@ All mutating failures preserve the entire owner; output arguments also remain un
 
 ## Path-copy B-tree and retained roots
 
-`SsTree` has256 typed pages, three records/four children per page, current root slot0 and seven retained-root slots. Keys and values live in both internal and leaf pages: this is a B-tree, not a B+tree. Nonroot pages have1..3 sorted keys, strict child ranges and equal leaf depth. On a four-key split promote key index1, leaving1 key left and2 right. A published page is immutable until unreachable from every live root.
+`struct ss_tree` has256 typed pages, three records/four children per page, current root slot0 and seven retained-root slots. Keys and values live in both internal and leaf pages: this is a B-tree, not a B+tree. Nonroot pages have1..3 sorted keys, strict child ranges and equal leaf depth. On a four-key split promote key index1, leaving1 key left and2 right. A published page is immutable until unreachable from every live root.
 
 `ss_tree_put` replaces/inserts with path copies and splits; it atomically publishes a new current root at the C function boundary. `ss_tree_snapshot` acquires the current root in a free slot and returns owner/slot/generation. `ss_tree_get` takes null version for current or a live matching retained token. Wrong owner, released/reused generation or invalid slot returns `SS_STALE` without touching the output. The owner must still be alive. `ss_tree_release` frees the root right, not pages. Generation never wraps: a slot at UINT32_MAX retires after release. Exhausted root slots return `SS_FULL`.
 
@@ -34,7 +34,7 @@ The reference stages the whole owner (16,484 bytes on the selected tested ABI), 
 
 ## Ordered memtable and immutable runs
 
-`SsLsm` represents keys0..31 with a four-entry sorted memtable and three immutable runs of up to32 sorted records. Each successful write assigns a strictly increasing uint32_t sequence. A tombstone is a versioned deletion record, including for an absent key. Replacement in a full memtable is allowed; a new key at capacity returns `SS_FULL`. Sequence exhaustion returns `SS_EXHAUSTED`, never wraparound. No automatic flush, compaction, durability or background thread is hidden in write.
+`struct ss_lsm` represents keys0..31 with a four-entry sorted memtable and three immutable runs of up to32 sorted records. Each successful write assigns a strictly increasing uint32_t sequence. A tombstone is a versioned deletion record, including for an absent key. Replacement in a full memtable is allowed; a new key at capacity returns `SS_FULL`. Sequence exhaustion returns `SS_EXHAUSTED`, never wraparound. No automatic flush, compaction, durability or background thread is hidden in write.
 
 `ss_lsm_get` selects the highest sequence for the key across memory and all active runs; a winning tombstone means missing. It reports actual record probes even for a missing key, leaving value unchanged. `ss_lsm_flush` copies a nonempty memtable into the first free run then clears memory. No free run means unchanged `SS_FULL`; empty flush is a no-op. Written counts emitted records, not device writes. Counter overflow is refused.
 

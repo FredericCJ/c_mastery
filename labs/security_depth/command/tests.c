@@ -11,9 +11,9 @@
   } while (0)
 static void base(void) {
   unsigned char p[11] = {1, 2, 0, 1, 0, 2};
-  SCBatch b;
-  SCMeter m;
-  SCAuthority a = {1, 0};
+  struct sc_batch b;
+  struct sc_meter m;
+  struct sc_authority a = {1, 0};
   unsigned count, n, op, i;
   unsigned tests = 0;
   CHECK(sc_decode(p, 6, &a, 0, &b, &m) == SC_OK);
@@ -22,7 +22,7 @@ static void base(void) {
   for (op = 0; op < 5; ++op)
     for (count = 0; count < 6; ++count)
       for (n = 0; n <= 11; ++n) {
-        SCBatch old;
+        struct sc_batch old;
         enum sc_result expected;
         p[0] = (unsigned char)op;
         p[1] = (unsigned char)count;
@@ -44,19 +44,19 @@ static void base(void) {
       }
   printf("OBS base cases=%u exact_grammar=1 failure_preserved=1\n", tests);
 }
-static SCBatch returned_copy(void) {
+static struct sc_batch returned_copy(void) {
   unsigned char p[] = {1, 1, 0, 42};
-  SCBatch b;
-  SCMeter m;
-  SCAuthority a = {1, 0};
+  struct sc_batch b;
+  struct sc_meter m;
+  struct sc_authority a = {1, 0};
   CHECK(sc_decode(p, sizeof p, &a, 0, &b, &m) == SC_OK);
   return b;
 }
 static void authority(void) {
   unsigned char p[] = {2, 0};
-  SCBatch b, accepted;
-  SCMeter m;
-  SCAuthority a = {1, 0};
+  struct sc_batch b, accepted;
+  struct sc_meter m;
+  struct sc_authority a = {1, 0};
   uint32_t ordinary = 0, protected = 7;
   b = returned_copy();
   CHECK(sc_apply(&b, &a, &ordinary, &protected) == SC_OK && ordinary == 42);
@@ -90,7 +90,7 @@ static void authority(void) {
         !a.allowed);
   /* Same-process arbitrary writes can forge ordinary public fields; explicit
    * limit. */
-  a = (SCAuthority){5, 1};
+  a = (struct sc_authority){5, 1};
   accepted.commands[0].generation = 5;
   CHECK(sc_apply(&accepted, &a, &ordinary, &protected) == SC_OK &&
         protected == 10);
@@ -98,9 +98,9 @@ static void authority(void) {
        "finite_generation=terminal shared_memory_forgery=residual");
 }
 static void extensions(void) {
-  SCAuthority a = {1, 0};
-  SCBatch b;
-  SCMeter m;
+  struct sc_authority a = {1, 0};
+  struct sc_batch b;
+  struct sc_meter m;
   unsigned char role[] = {4, 0, 255, 0}, option[] = {4, 1, 255, 1, 0, 9, 0, 7},
                 nested[] = {3, 2, 4, 1, 1, 0, 4, 4, 1, 1, 0, 7},
                 deep[] = {3, 1, 6, 3, 1, 3, 3, 1, 0},

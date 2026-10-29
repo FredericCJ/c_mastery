@@ -1,25 +1,25 @@
 #ifndef ADVANCED_SPSC_H
 #define ADVANCED_SPSC_H
 #include "cmx.h"
-typedef struct {
+struct as_value {
   uint32_t sequence, inverse, salt, triple;
-} ASValue;
-typedef void (*ASHook)(void *);
-typedef struct {
+};
+typedef void (*as_hook_fn)(void *);
+struct as_queue {
   _Alignas(64) atomic_uint head;
   _Alignas(64) atomic_uint tail;
   unsigned capacity, producer_active, consumer_active;
-  ASValue data[16];
-} ASQueue;
-enum cmx_result as_init(ASQueue *, unsigned);
-enum cmx_result as_push(ASQueue *, ASValue, ASHook, void *);
-enum cmx_result as_pop(ASQueue *, ASValue *, ASHook, void *);
-typedef struct {
+  struct as_value data[16];
+};
+enum cmx_result as_init(struct as_queue *, unsigned);
+enum cmx_result as_push(struct as_queue *, struct as_value, as_hook_fn, void *);
+enum cmx_result as_pop(struct as_queue *, struct as_value *, as_hook_fn, void *);
+struct as_circular {
   atomic_uint head, tail;
   unsigned storage;
-  ASValue data[16];
-} ASCircular;
-enum cmx_result as_circular_init(ASCircular *, unsigned);
-enum cmx_result as_circular_push(ASCircular *, ASValue);
-enum cmx_result as_circular_pop(ASCircular *, ASValue *);
+  struct as_value data[16];
+};
+enum cmx_result as_circular_init(struct as_circular *, unsigned);
+enum cmx_result as_circular_push(struct as_circular *, struct as_value);
+enum cmx_result as_circular_pop(struct as_circular *, struct as_value *);
 #endif

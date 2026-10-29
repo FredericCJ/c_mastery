@@ -13,11 +13,11 @@
 /* Same-executable, same-host ABI object; not a persistent portable mutex
  * format. Restart only after all previous participants have exited and been
  * joined. */
-typedef struct {
+struct rd_record {
   uint32_t magic, layout, epoch, request_epoch, state;
   pthread_mutex_t mutex;
   unsigned char request[8], response[4];
-} Record;
+};
 #define MAGIC UINT32_C(0x434d4950)
 #define CHECK(c)                                                               \
   do {                                                                         \
@@ -34,8 +34,8 @@ static int serve(const char *name, unsigned epoch, int forbidden) {
   int fd = shm_open(name, O_RDWR, 0);
   CHECK(fd >= 0);
   struct stat st;
-  CHECK(fstat(fd, &st) == 0 && st.st_size == (off_t)sizeof(Record));
-  Record *r = mmap(0, sizeof *r, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+  CHECK(fstat(fd, &st) == 0 && st.st_size == (off_t)sizeof(struct rd_record));
+  struct rd_record *r = mmap(0, sizeof *r, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
   CHECK(r != MAP_FAILED && close(fd) == 0 && r->magic == MAGIC &&
         r->layout == 1 && r->epoch == epoch);
   CHECK(pthread_mutex_lock(&r->mutex) == 0 && r->state == 1);
@@ -66,7 +66,7 @@ static int start(const char *program, const char *name, unsigned epoch,
     return -1;
   return 0;
 }
-static int initialize_mutex(Record *r) {
+static int initialize_mutex(struct rd_record *r) {
   pthread_mutexattr_t a;
   int result = pthread_mutexattr_init(&a);
   if (result)
@@ -85,8 +85,8 @@ int main(int argc, char **argv) {
   char name[64];
   snprintf(name, sizeof name, "/cmastery-original-ipc-%ld", (long)getpid());
   int fd = shm_open(name, O_RDWR | O_CREAT | O_EXCL, 0600);
-  CHECK(fd >= 0 && ftruncate(fd, sizeof(Record)) == 0);
-  Record *r = mmap(0, sizeof *r, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+  CHECK(fd >= 0 && ftruncate(fd, sizeof(struct rd_record)) == 0);
+  struct rd_record *r = mmap(0, sizeof *r, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
   CHECK(r != MAP_FAILED && close(fd) == 0);
   memset(r, 0, sizeof *r);
   r->magic = MAGIC;

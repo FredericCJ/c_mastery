@@ -10,13 +10,13 @@ the effect argument. Neither source specifies this original finite protocol.
 
 ## Prerequisites and dependency boundary
 
-Retain X-T76-008 and PR-T76-09's `RPState`, `rp_step`, `rp_checkpoint`, actual
+Retain X-T76-008 and PR-T76-09's `struct rp_state`, `rp_step`, `rp_checkpoint`, actual
 T70 `persist.hamt`, T48 `storage.pages`, and PR-T24-03 `io.frame` parser.
 PR-T20-01 covers T20.03: compose its actual `ar_double` through `ar_decide`,
 `ar_retry`, `ar_feedback` from the T20.04 effect adapter. Do not replace those
 implementations by lookalike local helpers. The pure session stage needs only
 the reducer and effect decision code. Durable and process stages additionally
-need X-T76-001's `RplPages`/`RplLog`, the completed SHA-256 exercise, and the
+need X-T76-001's `struct rpl_pages`/`struct rpl_log`, the completed SHA-256 exercise, and the
 learner's local-process I/O skills. Their public interfaces live in
 `include/replicated.h`, `hashing/hashing.h`, `followthrough/durable.h`,
 `../storage/include/store.h`, `../api_depth/architecture/{arch,effects}.h`, and
@@ -56,7 +56,7 @@ disjoint objects, externally serialized; no callbacks may reenter or retain
 borrowed storage. Invalid pointer fabrication is outside the API. Nullable
 required pointers reject before access where specified by the implementation.
 
-`RprNotice` replaces speculative presentation for inclusive `[from,to]`; from0
+`struct rpr_notice` replaces speculative presentation for inclusive `[from,to]`; from0
 means no replacement. It includes old/new revision and final presentation
 values. The adapter discards the old speculative range before presenting the
 new one. This is replacement data, not revocation of already committed effects.
@@ -80,13 +80,13 @@ reconstructs the complete history and compares canonical encoding before output.
 This detects inconsistencies; unkeyed SHA does not authenticate an adversary.
 
 Remote input is16 bytes: `RPI1`, timeline BE64 at4, tick1..8 at12, movement+1 at13,
-zero14/15. Actual `RfParser`/`RfMessage` carry it in exactly two eight-byte frames
+zero14/15. Actual `struct rf_parser`/`struct rf_message` carry it in exactly two eight-byte frames
 with one-byte lengths:18 wire bytes. Reject alternative segmentation, truncation
 and trailing bytes. Stream harness reads one18-byte record at a time; it does
 not confuse a partial `recv` with message end. Each local callback may accept a
 prefix; finite retry/call limits are explicit. No borrowed input survives a call.
 
-`RprDurable` exclusively borrows an already-open store with eight reserved
+`struct rpr_durable` exclusively borrows an already-open store with eight reserved
 two-byte keys `{'R',0..7}`, each holding64 snapshot bytes. Create requires those
 keys absent. Every operation verifies stored canonical state against its local
 copy, stages the transition, writes all eight keys in one actual store transaction,
@@ -98,7 +98,7 @@ nonempty WAL can cause extra checkpoint I/O before the transaction;37 is not a
 universal operation cost. Failure at a supplied page write models discarded or
 fully persisted accepted writes, not arbitrary physical sector behavior.
 
-`rpr_sink_apply` consumes a separate, live, exclusive `RplLog` with matching
+`rpr_sink_apply` consumes a separate, live, exclusive `struct rpl_log` with matching
 timeline and schema `0x52505245`. Its prefix holds SET events key=tick1..8 and
 the exact even effect value. Admit only the next tick; exact historical retry
 returns `newly_applied=0`; changed content conflicts; a gap is STALE. Durable

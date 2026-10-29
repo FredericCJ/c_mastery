@@ -45,7 +45,7 @@ time and checked deadline/expiry overflow fail explicitly; no wraparound clock
 is silently treated as monotonic. The queued payload is an already validated
 IPv4 datagram for the configured peer; ARP does not redo the IPv4 mechanism.
 
-`prepare` produces a copied `NetPacket` and epoch/serial/kind ticket. `submit(0)`
+`prepare` produces a copied `struct net_packet` and epoch/serial/kind ticket. `submit(0)`
 releases preparation but retains pending ownership and attempt eligibility.
 `submit(1)` means the lower channel owns a complete copy. It does not mean DMA
 completion, a TCP ACK, or peer receipt. Each ticket is resolved exactly once.

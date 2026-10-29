@@ -1,9 +1,9 @@
-typedef unsigned (*HhExperiment)(unsigned);
+typedef unsigned (*hh_experiment_fn)(unsigned);
 unsigned hh_experiment_a(unsigned);
 unsigned hh_experiment_b(unsigned);
 #if !HH_CALL_ONLY
-HhExperiment hh_experiment_address_a(void);
-HhExperiment hh_experiment_address_b(void);
+hh_experiment_fn hh_experiment_address_a(void);
+hh_experiment_fn hh_experiment_address_b(void);
 #endif
 int main(void)
 {

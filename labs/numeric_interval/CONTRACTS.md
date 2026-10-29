@@ -4,7 +4,7 @@ This is required X-T17-003 work, mapped to PR-T17-01. Historical project hours d
 
 ## Representation and ownership
 
-`NiInterval {lo,hi,bits}` denotes every REAL number in the closed interval `[lo/2^bits,hi/2^bits]`, including values between representable grid points. Valid values have `0<=bits<=16` and `lo<=hi`. Empty sets are returned as a status, never as a reversed interval. The type contains no pointer or hidden allocation. Inputs are passed by value; `out` may therefore name a caller input object. A nonnull output must point to one live writable properly aligned object. Arbitrary dangling pointers cannot be validated in portable C. Calls have no shared mutable state.
+`struct ni_interval {lo,hi,bits}` denotes every REAL number in the closed interval `[lo/2^bits,hi/2^bits]`, including values between representable grid points. Valid values have `0<=bits<=16` and `lo<=hi`. Empty sets are returned as a status, never as a reversed interval. The type contains no pointer or hidden allocation. Inputs are passed by value; `out` may therefore name a caller input object. A nonnull output must point to one live writable properly aligned object. Arbitrary dangling pointers cannot be validated in portable C. Calls have no shared mutable state.
 
 Every successful operation publishes one valid interval. Every error preserves all output members; no partial endpoint is published. Output padding bytes carry no contract. Statuses are OK0, INVALID1, SCALE2, ZERO3, RANGE4, EMPTY5. Admission precedence is null output, invalid input representation or unsupported operation; then incompatible scales; then division by an interval containing zero; then result range. EMPTY is used only for a disjoint intersection.
 

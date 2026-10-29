@@ -18,18 +18,18 @@ static void release(void *p, void *object) {
 }
 int main(void) {
   struct allocator a = {0, 0, 1};
-  AcAllocate alloc = {&a, allocate, release};
-  AcOpaque *p = NULL;
+  struct ac_allocate alloc = {&a, allocate, release};
+  struct ac_opaque *p = NULL;
   if (ac_opaque_create(17, 0, alloc, &p) != 2 || p || a.calls != 1 ||
       a.releases)
     return 1;
   a.deny = 0;
   if (ac_opaque_create(17, 0, alloc, &p) || !p)
     return 2;
-  AcExposedV1 value;
+  struct ac_exposed_v1 value;
   if (ac_opaque_get(p, &value) || value.identity != 17 || value.count)
     return 3;
-  a.deny=1;AcOpaque *unchanged=p;
+  a.deny=1;struct ac_opaque *unchanged=p;
   int rejected=ac_opaque_create(18,1,alloc,&unchanged);
   if(rejected!=2||unchanged!=p) {ac_opaque_destroy(p);fputs("REPRESENTATION-CHECK:failed output changed\n",stderr);return 5;}
   ac_opaque_destroy(p);

@@ -11,76 +11,76 @@
   } while (0)
 static int arithmetic(void) {
   uint16_t a[65], b[65], s[132], v[132], r[132];
-  BlOutput o = {v, 132, 0}, rem = {r, 132, 0};
+  struct bl_output o = {v, 132, 0}, rem = {r, 132, 0};
   for (size_t n = 1; n <= 64; n++) {
     for (size_t i = 0; i < n; i++)
       a[i] = (uint16_t)BL_MASK;
     b[0] = 1;
-    CHECK(bl_add((BlView){a, n}, (BlView){b, 1}, &o, s, 132) == BL_OK);
+    CHECK(bl_add((struct bl_view){a, n}, (struct bl_view){b, 1}, &o, s, 132) == BL_OK);
     CHECK(o.used == n + 1 && v[n] == 1);
     for (size_t i = 0; i < n; i++)
       CHECK(v[i] == 0);
     for (size_t i = 0; i <= n; i++)
       a[i] = 0;
     a[n] = 1;
-    CHECK(bl_sub((BlView){a, n + 1}, (BlView){b, 1}, &o, s, 132) == BL_OK);
+    CHECK(bl_sub((struct bl_view){a, n + 1}, (struct bl_view){b, 1}, &o, s, 132) == BL_OK);
     CHECK(o.used == n);
     for (size_t i = 0; i < n; i++)
       CHECK(v[i] == BL_MASK);
   }
   a[0] = (uint16_t)BL_MASK;
   b[0] = (uint16_t)BL_MASK;
-  CHECK(bl_mul((BlView){a, 1}, (BlView){b, 1}, &o, s, 132) == BL_OK);
+  CHECK(bl_mul((struct bl_view){a, 1}, (struct bl_view){b, 1}, &o, s, 132) == BL_OK);
   CHECK(o.used == 2 && v[0] == 1 && v[1] == BL_MASK - 1);
   a[0] = 7;
   b[0] = 3;
-  CHECK(bl_div((BlView){a, 1}, (BlView){b, 1}, &o, &rem, s, 132) == BL_OK &&
+  CHECK(bl_div((struct bl_view){a, 1}, (struct bl_view){b, 1}, &o, &rem, s, 132) == BL_OK &&
         o.used == 1 && v[0] == 2 && rem.used == 1 && r[0] == 1);
   a[0] = 6;
-  CHECK(bl_div((BlView){a, 1}, (BlView){b, 1}, &o, &rem, s, 132) == BL_OK &&
+  CHECK(bl_div((struct bl_view){a, 1}, (struct bl_view){b, 1}, &o, &rem, s, 132) == BL_OK &&
         v[0] == 2 && rem.used == 0);
   a[0] = 1;
   v[0] = 91;
   o.used = 1;
   o.capacity = 0;
-  CHECK(bl_add((BlView){a, 1}, (BlView){b, 1}, &o, s, 132) == BL_INVALID &&
+  CHECK(bl_add((struct bl_view){a, 1}, (struct bl_view){b, 1}, &o, s, 132) == BL_INVALID &&
         v[0] == 91 && o.used == 1);
   o.used = 0;
-  CHECK(bl_add((BlView){a, 1}, (BlView){b, 1}, &o, s, 132) == BL_FULL &&
+  CHECK(bl_add((struct bl_view){a, 1}, (struct bl_view){b, 1}, &o, s, 132) == BL_FULL &&
         v[0] == 91 && o.used == 0);
   o.capacity = 132;
   o.used = 1;
   rem.used = 1;
   r[0] = 92;
-  CHECK(bl_div((BlView){a, 1}, (BlView){NULL, 0}, &o, &rem, s, 132) ==
+  CHECK(bl_div((struct bl_view){a, 1}, (struct bl_view){NULL, 0}, &o, &rem, s, 132) ==
             BL_ZERO_DIVISOR &&
         v[0] == 91 && r[0] == 92);
-  CHECK(bl_div((BlView){a, 1}, (BlView){b, 1}, &o, &rem, s, 2) == BL_FULL &&
+  CHECK(bl_div((struct bl_view){a, 1}, (struct bl_view){b, 1}, &o, &rem, s, 2) == BL_FULL &&
         v[0] == 91 && r[0] == 92);
   rem.capacity = 0;
   rem.used = 0;
-  CHECK(bl_div((BlView){a, 1}, (BlView){b, 1}, &o, &rem, s, 132) == BL_FULL &&
+  CHECK(bl_div((struct bl_view){a, 1}, (struct bl_view){b, 1}, &o, &rem, s, 132) == BL_FULL &&
         v[0] == 91 && o.used == 1);
-  CHECK(bl_sub((BlView){a, 1}, (BlView){b, 1}, &o, s, 132) == BL_NEGATIVE &&
+  CHECK(bl_sub((struct bl_view){a, 1}, (struct bl_view){b, 1}, &o, s, 132) == BL_NEGATIVE &&
         v[0] == 91);
   a[1] = 0;
-  CHECK(bl_add((BlView){a, 2}, (BlView){b, 1}, &o, s, 132) == BL_INVALID &&
+  CHECK(bl_add((struct bl_view){a, 2}, (struct bl_view){b, 1}, &o, s, 132) == BL_INVALID &&
         v[0] == 91);
-  BlOutput empty = {NULL, 0, 0};
-  CHECK(bl_mul((BlView){NULL, 0}, (BlView){NULL, 0}, &empty, NULL, 0) ==
+  struct bl_output empty = {NULL, 0, 0};
+  CHECK(bl_mul((struct bl_view){NULL, 0}, (struct bl_view){NULL, 0}, &empty, NULL, 0) ==
             BL_OK &&
         empty.used == 0);
-  CHECK(bl_add((BlView){NULL, 0}, (BlView){NULL, 0}, &empty, s, 1) == BL_OK &&
+  CHECK(bl_add((struct bl_view){NULL, 0}, (struct bl_view){NULL, 0}, &empty, s, 1) == BL_OK &&
         empty.used == 0);
   return 0;
 }
-typedef struct {
+struct bl_alloc {
   void *p[4];
   size_t n[4], live, attempt;
   int fail;
-} Alloc;
+};
 static uint16_t *allocate(void *arg, size_t n) {
-  Alloc *a = arg;
+  struct bl_alloc *a = arg;
   a->attempt++;
   if (a->fail)
     return NULL;
@@ -95,7 +95,7 @@ static uint16_t *allocate(void *arg, size_t n) {
   return NULL;
 }
 static void release(void *arg, uint16_t *p, size_t n) {
-  Alloc *a = arg;
+  struct bl_alloc *a = arg;
   for (size_t i = 0; i < 4; i++)
     if (a->p[i] == p && a->n[i] == n) {
       free(p);
@@ -107,36 +107,36 @@ static void release(void *arg, uint16_t *p, size_t n) {
 }
 static int ownership(void) {
   uint16_t a[2] = {7, 1}, b[2] = {3, 1}, s[8], qv[4], rv[4];
-  BlSignedOutput q = {0, {qv, 4, 0}}, r = {0, {rv, 4, 0}};
-  CHECK(bl_signed_div((BlSigned){-1, {a, 2}}, (BlSigned){1, {b, 2}}, &q, &r, s,
+  struct bl_signed_output q = {0, {qv, 4, 0}}, r = {0, {rv, 4, 0}};
+  CHECK(bl_signed_div((struct bl_signed){-1, {a, 2}}, (struct bl_signed){1, {b, 2}}, &q, &r, s,
                       8) == BL_OK);
   CHECK(q.sign == -1 && q.magnitude.used == 1 && qv[0] == 1 && r.sign == -1 &&
         rv[0] == 4);
-  CHECK(bl_signed_add((BlSigned){-1, {a, 2}}, (BlSigned){1, {a, 2}}, &q, s,
+  CHECK(bl_signed_add((struct bl_signed){-1, {a, 2}}, (struct bl_signed){1, {a, 2}}, &q, s,
                       8) == BL_OK &&
         q.sign == 0 && q.magnitude.used == 0);
-  CHECK(bl_signed_add((BlSigned){0, {a, 2}}, (BlSigned){1, {b, 2}}, &q, s, 8) ==
+  CHECK(bl_signed_add((struct bl_signed){0, {a, 2}}, (struct bl_signed){1, {b, 2}}, &q, s, 8) ==
         BL_INVALID);
   for (int sa = -1; sa <= 1; sa += 2) {
     for (int sb = -1; sb <= 1; sb += 2) {
-      CHECK(bl_signed_div((BlSigned){sa, {a, 1}}, (BlSigned){sb, {b, 1}}, &q,
+      CHECK(bl_signed_div((struct bl_signed){sa, {a, 1}}, (struct bl_signed){sb, {b, 1}}, &q,
                           &r, s, 8) == BL_OK);
       CHECK(q.sign == sa * sb && q.magnitude.used == 1 && qv[0] == 2 &&
             r.sign == sa && r.magnitude.used == 1 && rv[0] == 1);
     }
   }
-  Alloc allocator = {{NULL}, {0}, 0, 0, 0};
-  BlOwner o;
+  struct bl_alloc allocator = {{NULL}, {0}, 0, 0, 0};
+  struct bl_owner o;
   CHECK(bl_owner_init(&o, &allocator, allocate, release) == BL_OK);
-  CHECK(bl_owner_set(&o, (BlView){a, 2}, SIZE_MAX) == BL_FULL &&
+  CHECK(bl_owner_set(&o, (struct bl_view){a, 2}, SIZE_MAX) == BL_FULL &&
         allocator.attempt == 0 && o.digits == NULL);
-  CHECK(bl_owner_set(&o, (BlView){a, 2}, 4) == BL_OK && allocator.live == 1);
+  CHECK(bl_owner_set(&o, (struct bl_view){a, 2}, 4) == BL_OK && allocator.live == 1);
   uint16_t *old = o.digits;
   allocator.fail = 1;
-  CHECK(bl_owner_set(&o, (BlView){b, 2}, 8) == BL_ALLOCATION &&
+  CHECK(bl_owner_set(&o, (struct bl_view){b, 2}, 8) == BL_ALLOCATION &&
         o.digits == old && old[0] == 7 && o.capacity == 4);
   allocator.fail = 0;
-  CHECK(bl_owner_set(&o, (BlView){o.digits, o.used}, 8) == BL_OK &&
+  CHECK(bl_owner_set(&o, (struct bl_view){o.digits, o.used}, 8) == BL_OK &&
         o.capacity == 8 && o.digits[0] == 7);
   /* Do not compare or dereference the revoked old pointer after replacement. */
   old = NULL;
@@ -170,7 +170,7 @@ static size_t parse(const char *text, uint16_t *a) {
   }
   return n;
 }
-static void print(const BlOutput *o) {
+static void print(const struct bl_output *o) {
   printf("%zu", o->used);
   for (size_t i = 0; i < o->used; i++)
     printf(" %u", (unsigned)o->digits[i]);
@@ -181,10 +181,10 @@ static int driver(void) {
   while (fgets(line, sizeof line, stdin)) {
     if (sscanf(line, "%c %2499s %2499s", &op, left, right) != 3)
       return 42;
-    BlView x = {a, strcmp(left, "-") ? parse(left, a) : 0},
+    struct bl_view x = {a, strcmp(left, "-") ? parse(left, a) : 0},
            y = {b, strcmp(right, "-") ? parse(right, b) : 0};
-    BlOutput qo = {q, 512, 0}, ro = {r, 512, 0};
-    BlStatus status;
+    struct bl_output qo = {q, 512, 0}, ro = {r, 512, 0};
+    enum bl_status status;
     if (op == '+')
       status = bl_add(x, y, &qo, s, 514);
     else if (op == '-')

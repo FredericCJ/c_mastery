@@ -40,7 +40,7 @@ The new implementation is ISO C17 hosted portable logic with fixed storage,
 no heap, threads or library-provided diagnostic mechanism. Verification uses
 GCC/Clang debug, optimized and AddressSanitizer/UndefinedBehaviorSanitizer
 profiles. Test `memcpy` and printing are host tools. No host pointer is formed
-from a target address. `PdExtent` numerical addresses are keys in a scripted
+from a target address. `struct pd_extent` numerical addresses are keys in a scripted
 memory model. Actual F439 MMIO and H745 cache ports are deliberately not invoked
 on the host. Their existing producer contracts are dependencies, not newly
 executed silicon evidence. Exact published C17 text remains unavailable; no
@@ -95,8 +95,8 @@ For `.05.a`, change exactly one fault from the valid configuration and predict
 all four observations. Wrong mode and wrong route have equal software evidence;
 this non-identifiability is the reason to add an external probe rather than
 claim a unique root cause. For `.05.b`, an old status snapshot may precede the
-write it is supposed to acknowledge. Actual `PuDriver` preserves line ownership
-after the last data-register write until a later TC. Actual `PsSpi` consumes each
+write it is supposed to acknowledge. Actual `struct pu_driver` preserves line ownership
+after the last data-register write until a later TC. Actual `struct ps_spi` consumes each
 receive item even in a transmit-oriented request and delays chip-select release.
 For `.05.c`, matching intervals admit timing compatibility, not causality or
 correct pin selection. For `.06.a`, cancellation selects a result but does not
@@ -112,7 +112,7 @@ prediction/correlation/end policy take O(1), progress O(steps) with explicit64
 bound. A correlation result does not establish a device's analog threshold,
 probe capacitance, timebase accuracy or valid event identification.
 
-Trace actual `PdTransfer`:1running→2stopping→3ready→0finalized. A cancellation
+Trace actual `struct pd_transfer`:1running→2stopping→3ready→0finalized. A cancellation
 request preserves borrowed payload. Under the selected FIFO contract, EN0 alone
 does not suffice: FIFOempty+TC are also required. The first admitted terminal
 choice is defined by serialized adapter order, not an inferred physical event

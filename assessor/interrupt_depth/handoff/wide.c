@@ -1,5 +1,5 @@
 #include "handoff.h"
-int xi_wide_add(XiWide *p, uint32_t n) {
+int xi_wide_add(struct xi_wide *p, uint32_t n) {
   if (!p)
     return XI_INVALID;
   uint32_t mask = xi_primask_enter(), low = p->low + n;
@@ -12,9 +12,9 @@ int xi_wide_add(XiWide *p, uint32_t n) {
   xi_primask_leave(mask);
   return rc;
 }
-XiWide xi_wide_read(const XiWide *p) {
+struct xi_wide xi_wide_read(const struct xi_wide *p) {
   uint32_t mask = xi_primask_enter();
-  XiWide value = *p;
+  struct xi_wide value = *p;
   xi_primask_leave(mask);
   return value;
 }

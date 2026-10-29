@@ -1,4 +1,4 @@
-"""Reject stale, incomplete or inflated evidence for actual DG/EnRing composition."""
+"""Reject stale, incomplete or inflated evidence for actual DG/struct en_ring composition."""
 import argparse,copy,functools,hashlib,json,pathlib,sys
 from close_diagnostic_ring import ROOT,HERE,PROJECT,ATTACH,OLD,rows,original
 import run_diagnostic_ring as runner

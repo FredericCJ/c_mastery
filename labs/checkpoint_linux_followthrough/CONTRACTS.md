@@ -15,7 +15,7 @@ artifacts. Record each actual provider's hash, public contract and test result.
 The author campaign imports the existing `checkpoint_depth`, `checkpoint_async`,
 `checkpoint_linux`, `checkpoint_operation`, `integration`, `foundation` and `algo`
 implementations explicitly. Those are assessor references, never learner work.
-The P1 baseline `algo_ring` and T21 `FAsync` are used by `in_shutdown`; the richer
+The P1 baseline `algo_ring` and T21 `struct f_async` are used by `in_shutdown`; the richer
 CPA pool is a distinct four-slot representation, not a claim that P1's typed pool
 API was called. A learner substituting another representation must map its capacity,
 ownership and retirement behavior at the adapter boundary.

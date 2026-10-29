@@ -2,12 +2,12 @@
 #ifndef BU_MUTANT
 #define BU_MUTANT 0
 #endif
-static int valid(BuRange r) { return r.size <= UINT32_MAX - r.base; }
-int bu_contains(BuRange o, BuRange i) {
+static int valid(struct bu_range r) { return r.size <= UINT32_MAX - r.base; }
+int bu_contains(struct bu_range o, struct bu_range i) {
   return valid(o) && valid(i) && i.base >= o.base && i.size <= o.size &&
          i.base - o.base <= o.size - i.size;
 }
-int bu_overlap(BuRange a, BuRange b) {
+int bu_overlap(struct bu_range a, struct bu_range b) {
   return valid(a) && valid(b) && a.size && b.size && a.base < b.base + b.size &&
          b.base < a.base + a.size;
 }
@@ -15,18 +15,18 @@ static uint32_t le32(const unsigned char *p) {
   return (uint32_t)p[0] | ((uint32_t)p[1] << 8) | ((uint32_t)p[2] << 16) |
          ((uint32_t)p[3] << 24);
 }
-BuResult bu_vectors(const unsigned char *b, size_t n, unsigned encoding,
-                    uint32_t base, BuRange code, BuRange stack,
-                    BuVectors *out) {
+enum bu_result bu_vectors(const unsigned char *b, size_t n, unsigned encoding,
+                    uint32_t base, struct bu_range code, struct bu_range stack,
+                    struct bu_vectors *out) {
   if (encoding != 1)
     return BU_UNSUPPORTED;
   if (!b || !out || n < 8 || n > UINT32_MAX || base % 512 ||
-      !bu_contains(code, (BuRange){base, (uint32_t)n}))
+      !bu_contains(code, (struct bu_range){base, (uint32_t)n}))
     return BU_INVALID;
   uint32_t sp = le32(b), pc = le32(b + 4);
   if (!valid(stack) || !stack.size || sp % 8 || sp != stack.base + stack.size ||
       (!(pc & 1) && BU_MUTANT != 1) ||
-      !bu_contains(code, (BuRange){pc & ~UINT32_C(1), 2}))
+      !bu_contains(code, (struct bu_range){pc & ~UINT32_C(1), 2}))
     return BU_INVALID;
   out->stack = sp;
   out->reset = pc;
@@ -35,19 +35,19 @@ BuResult bu_vectors(const unsigned char *b, size_t n, unsigned encoding,
 static int fits(size_t total, uint32_t at, uint32_t n) {
   return at <= total && n <= total - at;
 }
-BuResult bu_memory(unsigned char *ram, size_t nr, const unsigned char *rom,
-                   size_t nf, const BuCopy *cp, size_t nc, const BuRange *zp,
-                   size_t nz, BuRange kept) {
+enum bu_result bu_memory(unsigned char *ram, size_t nr, const unsigned char *rom,
+                   size_t nf, const struct bu_copy *cp, size_t nc, const struct bu_range *zp,
+                   size_t nz, struct bu_range kept) {
   if (!ram || !rom || (nc && !cp) || (nz && !zp) || nc > 4 || nz > 4 ||
       !fits(nr, kept.base, kept.size))
     return BU_INVALID;
   for (size_t i = 0; i < nc; i++) {
-    BuRange dst = {cp[i].run, cp[i].size};
+    struct bu_range dst = {cp[i].run, cp[i].size};
     if (!fits(nf, cp[i].load, cp[i].size) || !fits(nr, dst.base, dst.size) ||
         bu_overlap(dst, kept))
       return BU_INVALID;
     for (size_t j = 0; j < i; j++)
-      if (bu_overlap(dst, (BuRange){cp[j].run, cp[j].size}))
+      if (bu_overlap(dst, (struct bu_range){cp[j].run, cp[j].size}))
         return BU_INVALID;
     for (size_t j = 0; j < nz; j++)
       if (bu_overlap(dst, zp[j]))
@@ -70,10 +70,10 @@ BuResult bu_memory(unsigned char *ram, size_t nr, const unsigned char *rom,
     ram[zp[0].base + zp[0].size] = 0;
   return BU_OK;
 }
-int bu_f439_dma(BuRange r) {
-  return r.size && bu_contains((BuRange){0x20000000, 0x30000}, r);
+int bu_f439_dma(struct bu_range r) {
+  return r.size && bu_contains((struct bu_range){0x20000000, 0x30000}, r);
 }
-BuResult bu_clock_start(BuClock *c, unsigned limit, unsigned bypass) {
+enum bu_result bu_clock_start(struct bu_clock *c, unsigned limit, unsigned bypass) {
   if (!c || !limit || bypass > 1)
     return BU_INVALID;
   c->phase = 1;
@@ -84,7 +84,7 @@ BuResult bu_clock_start(BuClock *c, unsigned limit, unsigned bypass) {
   c->epoch = 0;
   return BU_OK;
 }
-BuResult bu_clock_step(BuClock *c, unsigned osc, unsigned pll) {
+enum bu_result bu_clock_step(struct bu_clock *c, unsigned osc, unsigned pll) {
   if (!c || osc > 1 || pll > 1 || c->phase < 1 || c->phase > 3)
     return BU_INVALID;
   if (c->phase == 3)
@@ -105,7 +105,7 @@ BuResult bu_clock_step(BuClock *c, unsigned osc, unsigned pll) {
   }
   return BU_OK;
 }
-BuResult bu_clock_reconfigure(BuClock *c, unsigned bypass) {
+enum bu_result bu_clock_reconfigure(struct bu_clock *c, unsigned bypass) {
   if (!c || bypass > 1)
     return BU_INVALID;
   /* phase1 includes enabled HSE, phase2 enabled PLL: no live reconfiguration.
@@ -115,7 +115,7 @@ BuResult bu_clock_reconfigure(BuClock *c, unsigned bypass) {
   c->bypass = bypass;
   return BU_OK;
 }
-BuResult bu_clock_failure(BuClock *c) {
+enum bu_result bu_clock_failure(struct bu_clock *c) {
   if (!c || c->phase != 3 || c->epoch == UINT32_MAX)
     return BU_INVALID;
   c->phase = 4;
@@ -123,7 +123,7 @@ BuResult bu_clock_failure(BuClock *c) {
   ++c->epoch;
   return BU_OK;
 }
-BuResult bu_hooks(const BuHook *h, unsigned n, unsigned services,
+enum bu_result bu_hooks(const struct bu_hook *h, unsigned n, unsigned services,
                   unsigned *completed) {
   unsigned order[8], done = 0;
   if (!completed || n > 8 || (n && !h))
@@ -161,7 +161,7 @@ static void put32(unsigned char *p, uint32_t v) {
   for (unsigned i = 0; i < 4; i++)
     p[i] = (unsigned char)(v >> (8 * i));
 }
-BuResult bu_decode(const unsigned char *b, size_t n, BuRecord *out) {
+enum bu_result bu_decode(const unsigned char *b, size_t n, struct bu_record *out) {
   if (!b || !out || n < BU_RECORD || b[23] != 0xa5 || b[0] != 'B' ||
       b[1] != 'U' || b[2] != '2' || b[3] != '7' || (b[4] != 1 && b[4] != 2) ||
       b[5] > 8 || (b[4] == 1 && b[5] != 4) || (b[4] == 2 && b[5] != 8) ||
@@ -177,7 +177,7 @@ BuResult bu_decode(const unsigned char *b, size_t n, BuRecord *out) {
     out->payload[i] = i < out->length ? b[11 + i] : 0;
   return BU_OK;
 }
-BuResult bu_store(unsigned char *b, size_t n, const BuRecord *v,
+enum bu_result bu_store(unsigned char *b, size_t n, const struct bu_record *v,
                   unsigned allowance, unsigned *writes) {
   unsigned char encoded[BU_RECORD];
   if (!b || !v || !writes || n < BU_RECORD ||
@@ -212,8 +212,8 @@ BuResult bu_store(unsigned char *b, size_t n, const BuRecord *v,
   }
   return BU_OK;
 }
-BuResult bu_select(const unsigned char b[2][BU_RECORD], unsigned *selected) {
-  BuRecord x, y;
+enum bu_result bu_select(const unsigned char b[2][BU_RECORD], unsigned *selected) {
+  struct bu_record x, y;
   if (!b || !selected)
     return BU_INVALID;
   int a = bu_decode(b[0], BU_RECORD, &x) == BU_OK,
@@ -230,7 +230,7 @@ BuResult bu_select(const unsigned char b[2][BU_RECORD], unsigned *selected) {
   *selected = delta < 128 ? 0 : 1;
   return BU_OK;
 }
-BuResult bu_migrate(const BuRecord *a, BuRecord *b) {
+enum bu_result bu_migrate(const struct bu_record *a, struct bu_record *b) {
   if (!a || !b || a == b || a->version != 1 || a->length != 4)
     return BU_UNSUPPORTED;
   b->version = 2;
@@ -240,11 +240,11 @@ BuResult bu_migrate(const BuRecord *a, BuRecord *b) {
     b->payload[i] = i < 4 ? a->payload[i] : 0;
   return BU_OK;
 }
-BuResult bu_handoff(const BuHandoff *h, BuRange code, BuRange stack) {
+enum bu_result bu_handoff(const struct bu_handoff *h, struct bu_range code, struct bu_range stack) {
   if (!h || !valid(stack) || !stack.size ||
       h->stack != stack.base + stack.size || h->stack % 8 || h->vector % 512 ||
-      !bu_contains(code, (BuRange){h->vector, 8}) || !(h->entry & 1) ||
-      !bu_contains(code, (BuRange){h->entry & ~UINT32_C(1), 2}) ||
+      !bu_contains(code, (struct bu_range){h->vector, 8}) || !(h->entry & 1) ||
+      !bu_contains(code, (struct bu_range){h->entry & ~UINT32_C(1), 2}) ||
       h->privileged != 1 || h->thread_mode != 1 || h->masks_closed != 1 ||
       h->pending_clear != 1 || (BU_MUTANT != 5 && h->dma_active) ||
       h->clock_known != 1 || h->cache_clean != 1 || h->peer_quiescent != 1)

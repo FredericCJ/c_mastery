@@ -29,7 +29,7 @@ static uint32_t s0(uint32_t v) {
 static uint32_t s1(uint32_t v) {
   return rotate(v, 17) ^ rotate(v, 19) ^ (v >> 10);
 }
-static void compress(RphSha *s) {
+static void compress(struct rph_sha *s) {
   uint32_t w[RPH_SCHEDULE64 ? 64 : 16],
       a = s->words[0], b = s->words[1], c = s->words[2], d = s->words[3],
       e = s->words[4], f = s->words[5], g = s->words[6], h = s->words[7];
@@ -72,11 +72,11 @@ static void compress(RphSha *s) {
   s->words[6] += g;
   s->words[7] += h;
 }
-static int active(const RphSha *s) {
+static int active(const struct rph_sha *s) {
   return s && s->final == 0 && s->bytes <= RPH_MAX_BYTES && s->used < 64 &&
          s->used == s->bytes % 64;
 }
-int rph_init(RphSha *s) {
+int rph_init(struct rph_sha *s) {
   static const uint32_t initial[8] = {0x6a09e667, 0xbb67ae85, 0x3c6ef372,
                                       0xa54ff53a, 0x510e527f, 0x9b05688c,
                                       0x1f83d9ab, 0x5be0cd19};
@@ -92,7 +92,7 @@ int rph_init(RphSha *s) {
   s->final = 0;
   return RPH_OK;
 }
-int rph_update(RphSha *s, const unsigned char *bytes, size_t n) {
+int rph_update(struct rph_sha *s, const unsigned char *bytes, size_t n) {
   size_t i;
   if (!s || (!bytes && n))
     return RPH_INVALID;
@@ -110,8 +110,8 @@ int rph_update(RphSha *s, const unsigned char *bytes, size_t n) {
   }
   return RPH_OK;
 }
-int rph_final(RphSha *s, unsigned char out[32]) {
-  RphSha t;
+int rph_final(struct rph_sha *s, unsigned char out[32]) {
+  struct rph_sha t;
   uint64_t bits;
   unsigned i;
   if (!s || !out)
@@ -142,7 +142,7 @@ int rph_final(RphSha *s, unsigned char out[32]) {
   return RPH_OK;
 }
 int rph_hash(const unsigned char *bytes, size_t n, unsigned char out[32]) {
-  RphSha s;
+  struct rph_sha s;
   int status;
   if (!out || (!bytes && n))
     return RPH_INVALID;
@@ -155,8 +155,8 @@ int rph_hash(const unsigned char *bytes, size_t n, unsigned char out[32]) {
   rph_clear(&s, sizeof s);
   return status;
 }
-int rph_hmac_init(RphHmac *s, const unsigned char *key, size_t n) {
-  RphHmac next;
+int rph_hmac_init(struct rph_hmac *s, const unsigned char *key, size_t n) {
+  struct rph_hmac next;
   unsigned char shortkey[32], pad[64];
   unsigned i;
   if (!s || (!key && n))
@@ -187,19 +187,19 @@ int rph_hmac_init(RphHmac *s, const unsigned char *key, size_t n) {
   rph_clear(&next, sizeof next);
   return RPH_OK;
 }
-static int hactive(const RphHmac *s) {
+static int hactive(const struct rph_hmac *s) {
   return s && active(&s->inner) && active(&s->outer) && s->inner.bytes >= 64 &&
          s->outer.bytes == 64;
 }
-int rph_hmac_update(RphHmac *s, const unsigned char *bytes, size_t n) {
+int rph_hmac_update(struct rph_hmac *s, const unsigned char *bytes, size_t n) {
   if (!s || (!bytes && n))
     return RPH_INVALID;
   if (!hactive(s))
     return RPH_STATE;
   return rph_update(&s->inner, bytes, n);
 }
-int rph_hmac_final(RphHmac *s, unsigned char out[32]) {
-  RphHmac next;
+int rph_hmac_final(struct rph_hmac *s, unsigned char out[32]) {
+  struct rph_hmac next;
   unsigned char inner[32], result[32];
   unsigned i;
   if (!s || !out)
@@ -220,14 +220,14 @@ int rph_hmac_final(RphHmac *s, unsigned char out[32]) {
 }
 int rph_hmac(const unsigned char *key, size_t kn, const unsigned char *bytes,
              size_t n, unsigned char out[32]) {
-  RphHmac s;
+  struct rph_hmac s;
   int status;
   if (!out || (!key && kn) || (!bytes && n))
     return RPH_INVALID;
   if (kn > RPH_MAX_BYTES || n > RPH_MAX_BYTES - 64)
     return RPH_RANGE;
   if (RPH_MUTATION == 7 && kn <= RPH_MAX_BYTES - n) {
-    RphSha prefix;
+    struct rph_sha prefix;
     (void)rph_init(&prefix);
     (void)rph_update(&prefix, key, kn);
     (void)rph_update(&prefix, bytes, n);

@@ -15,12 +15,12 @@ int pm_puts(const char *);
       return 1;                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
+struct pa_model {
   uint32_t r[10];
   unsigned reads, writes, late_overrun;
-} PaModel;
+};
 static uint32_t read_reg(void *p, unsigned r) {
-  PaModel *m = p;
+  struct pa_model *m = p;
   if (r >= 10)
     return 0;
   unsigned v = m->r[r];
@@ -33,7 +33,7 @@ static uint32_t read_reg(void *p, unsigned r) {
   return v;
 }
 static void write_reg(void *p, unsigned r, uint32_t v) {
-  PaModel *m = p;
+  struct pa_model *m = p;
   if (r >= 10)
     return;
   m->writes++;
@@ -42,23 +42,23 @@ static void write_reg(void *p, unsigned r, uint32_t v) {
   else
     m->r[r] = v;
 }
-static PaIo io_for(PaModel *m) {
-  PaIo io = {m, read_reg, write_reg};
+static struct pa_io io_for(struct pa_model *m) {
+  struct pa_io io = {m, read_reg, write_reg};
   return io;
 }
-static void complete(PaModel *m, unsigned v) {
+static void complete(struct pa_model *m, unsigned v) {
   if (m->r[PA_SR] & PA_EOC)
     m->r[PA_SR] |= PA_OVR;
   m->r[PA_SR] |= PA_EOC;
   m->r[PA_DR] = v;
 }
 int main(void) {
-  PuClock clock = {64000000, 1, 1, 2, 2, 0};
-  PaConfig cfg = {4, 1, 0};
-  PaTiming t;
+  struct pu_clock clock = {64000000, 1, 1, 2, 2, 0};
+  struct pa_config cfg = {4, 1, 0};
+  struct pa_timing t;
   CHECK(pa_timing(&clock, &cfg, &t) == PA_OK && t.hz == 16000000 &&
         t.total_cycles == 96 && t.conversion_us == 6);
-  PuClock alternate = {76000000, 1, 1, 2, 1, 0};
+  struct pu_clock alternate = {76000000, 1, 1, 2, 1, 0};
   CHECK(pa_timing(&alternate, &cfg, &t) == PA_OK && t.hz == 9500000 &&
         t.prescaler == 3);
   cfg.channels = 2;
@@ -70,9 +70,9 @@ int main(void) {
   for (unsigned wrap = 0; wrap < 2; wrap++)
     for (unsigned n = 1; n <= 2; n++)
       for (unsigned timer = 0; timer < 2; timer++) {
-        PaModel m = {0};
-        PaAdc s = {0};
-        PaIo io = io_for(&m);
+        struct pa_model m = {0};
+        struct pa_adc s = {0};
+        struct pa_io io = io_for(&m);
         uint32_t start = wrap ? UINT32_MAX - 1 : 0;
         uint16_t out[2] = {77, 88};
         cfg.channels = n;
@@ -113,9 +113,9 @@ int main(void) {
               out[1] == 88 && !m.r[PA_CR2]);
       }
   for (unsigned late = 0; late < 2; late++) {
-    PaModel m = {0};
-    PaAdc s = {0};
-    PaIo io = io_for(&m);
+    struct pa_model m = {0};
+    struct pa_adc s = {0};
+    struct pa_io io = io_for(&m);
     uint16_t out[2] = {77, 88};
     cfg.channels = 1;
     cfg.timer = 1;
@@ -130,9 +130,9 @@ int main(void) {
     CHECK(pa_step(&s, io, 1, 5) == PA_OVERRUN && out[0] == 77 && !m.r[PA_CR2]);
   }
   {
-    PaModel m = {0};
-    PaAdc s = {0};
-    PaIo io = io_for(&m);
+    struct pa_model m = {0};
+    struct pa_adc s = {0};
+    struct pa_io io = io_for(&m);
     uint16_t out[2] = {77, 88};
     CHECK(pa_open(&s, io, &clock, &cfg, 0) == PA_OK &&
           pa_ready(&s, 0) == PA_BUSY && pa_ready(&s, 4) == PA_OK &&

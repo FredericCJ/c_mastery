@@ -14,7 +14,7 @@ static int fenwick(void) {
     uint32_t v[CI_CAP];
     for (unsigned i = 0; i < n; i++)
       v[i] = (i * 7u) % 5u;
-    CiFenwick f;
+    struct ci_fenwick f;
     CHECK(ci_fenwick_init(&f, v, n) == CI_OK);
     uint32_t total = 0;
     for (unsigned i = 0; i <= n; i++) {
@@ -34,7 +34,7 @@ static int fenwick(void) {
     unsigned untouched = 999;
     CHECK(ci_fenwick_select(&f, total, &untouched) == CI_RANGE &&
           untouched == 999);
-    CiFenwick old = f;
+    struct ci_fenwick old = f;
     CHECK(ci_fenwick_add(&f, n, 1) == CI_RANGE && !memcmp(&f, &old, sizeof f));
     if (n) {
       CHECK(ci_fenwick_add(&f, 0, -1) == CI_RANGE &&
@@ -52,9 +52,9 @@ static int fenwick(void) {
     }
   }
   uint32_t v[2] = {UINT32_MAX, 0};
-  CiFenwick f;
+  struct ci_fenwick f;
   CHECK(ci_fenwick_init(&f, v, 2) == CI_OK);
-  CiFenwick old = f;
+  struct ci_fenwick old = f;
   CHECK(ci_fenwick_add(&f, 1, 1) == CI_RANGE && !memcmp(&f, &old, sizeof f));
   v[1] = 1;
   CHECK(ci_fenwick_init(&f, v, 2) == CI_RANGE && !memcmp(&f, &old, sizeof f));
@@ -71,7 +71,7 @@ static int segment(void) {
     uint32_t v[CI_CAP];
     for (unsigned i = 0; i < n; i++)
       v[i] = i + 1;
-    CiSegment s;
+    struct ci_segment s;
     CHECK(ci_segment_init(&s, v, n) == CI_OK);
     for (unsigned pass = 0; pass < 5; pass++) {
       unsigned lo = n ? pass % n : 0, hi = n;
@@ -81,7 +81,7 @@ static int segment(void) {
         v[i] = (uint32_t)(((uint64_t)a * v[i] + b) % CI_MOD);
       for (unsigned l = 0; l <= n; l++)
         for (unsigned r = l; r <= n; r++) {
-          CiAggregate x;
+          struct ci_aggregate x;
           CHECK(ci_segment_query(&s, l, r, &x) == CI_OK &&
                 x.hash == flat_hash(v, l, r) && x.length == r - l);
           uint32_t power = 1, geometric = 0;
@@ -92,16 +92,16 @@ static int segment(void) {
           CHECK(x.power == power && x.geometric == geometric);
         }
     }
-    CiSegment old = s;
+    struct ci_segment old = s;
     CHECK(ci_segment_apply(&s, 0, n + 1, 1, 0) == CI_RANGE &&
           !memcmp(&s, &old, sizeof s));
-    CiAggregate x = {17, 19, 23, 29}, prev = x;
+    struct ci_aggregate x = {17, 19, 23, 29}, prev = x;
     CHECK(ci_segment_query(&s, n + 1, n + 1, &x) == CI_RANGE &&
           !memcmp(&x, &prev, sizeof x));
   }
   return 0;
 }
-static int invariant(const CiIntervals *t, int p, int *height, int32_t *maximum,
+static int invariant(const struct ci_intervals *t, int p, int *height, int32_t *maximum,
                      unsigned *seen) {
   if (p < 0) {
     *height = 0;
@@ -111,7 +111,7 @@ static int invariant(const CiIntervals *t, int p, int *height, int32_t *maximum,
   if ((unsigned)p >= CI_CAP || !t->node[p].live || seen[p])
     return 0;
   seen[p] = 1;
-  const CiIntervalNode *n = &t->node[p];
+  const struct ci_interval_node *n = &t->node[p];
   int lh, rh;
   int32_t lm, rm;
   if (!invariant(t, n->left, &lh, &lm, seen) ||
@@ -128,14 +128,14 @@ static int invariant(const CiIntervals *t, int p, int *height, int32_t *maximum,
 }
 static int interval(void) {
   for (unsigned closed = 0; closed < 2; closed++) {
-    CiIntervals t;
+    struct ci_intervals t;
     CHECK(ci_intervals_init(&t, closed) == CI_OK);
-    CiInterval values[CI_CAP];
+    struct ci_interval values[CI_CAP];
     unsigned live[CI_CAP] = {0};
     for (unsigned stage = 0; stage < 2; stage++)
       for (unsigned k = 0; k < CI_CAP; k++) {
         unsigned j = stage ? k : (k * 17u) % CI_CAP;
-        CiInterval v = {(int32_t)j - 32, (int32_t)j - 31 + (int32_t)(j % 9), j};
+        struct ci_interval v = {(int32_t)j - 32, (int32_t)j - 31 + (int32_t)(j % 9), j};
         values[j] = v;
         if (!stage) {
           CHECK(ci_intervals_insert(&t, v) == CI_OK);
@@ -163,7 +163,7 @@ static int interval(void) {
         }
         CHECK(count + free_count == CI_CAP);
         for (int q = -34; q < 37; q++) {
-          CiInterval out[CI_CAP], one;
+          struct ci_interval out[CI_CAP], one;
           unsigned got = 999;
           CHECK(ci_intervals_all(&t, q, q + 1, out, CI_CAP, &got) == CI_OK);
           unsigned want = 0;
@@ -175,24 +175,24 @@ static int interval(void) {
               want++;
             }
           CHECK(got == want);
-          CiStatus st = ci_intervals_find(&t, q, q + 1, &one);
+          enum ci_status st = ci_intervals_find(&t, q, q + 1, &one);
           CHECK(st == (want ? CI_OK : CI_MISSING));
           if (want)
             CHECK(closed ? one.low <= q + 1 && q <= one.high
                          : one.low < q + 1 && q < one.high);
         }
       }
-    CiInterval v = {0, closed ? 0 : 1, 99};
+    struct ci_interval v = {0, closed ? 0 : 1, 99};
     CHECK(ci_intervals_insert(&t, v) == CI_OK);
-    CiIntervals old = t;
+    struct ci_intervals old = t;
     CHECK(ci_intervals_insert(&t, v) == CI_DUPLICATE &&
           !memcmp(&t, &old, sizeof t));
-    CiInterval out = {0, 0, 0};
+    struct ci_interval out = {0, 0, 0};
     unsigned got = 88;
     CHECK(ci_intervals_all(&t, 0, 1, &out, 0, &got) == CI_FULL && got == 88);
     CHECK(ci_intervals_remove(&t, 0, 100) == CI_MISSING &&
           !memcmp(&t, &old, sizeof t));
-    CiInterval extreme = {INT32_MIN, INT32_MAX, 123};
+    struct ci_interval extreme = {INT32_MIN, INT32_MAX, 123};
     CHECK(ci_intervals_insert(&t, extreme) == CI_OK);
     CHECK(ci_intervals_find(&t, INT32_MIN, INT32_MIN + 1, &out) == CI_OK &&
           out.id == 123);
@@ -206,7 +206,7 @@ static int suffix(void) {
     unsigned char b[CI_CAP];
     for (unsigned i = 0; i < n; i++)
       b[i] = (unsigned char)((i * 17 + i / 3) % 4);
-    CiSuffix s;
+    struct ci_suffix s;
     CHECK(ci_suffix_build(&s, b, n) == CI_OK);
     unsigned seen[CI_CAP + 1] = {0};
     for (unsigned i = 0; i <= n; i++) {
@@ -257,7 +257,7 @@ static int suffix(void) {
       CHECK(ci_suffix_longest(&s, disjoint, &a, &z, &got) == CI_OK &&
             got == want && a == wa && z == wb);
     }
-    CiSuffix old = s;
+    struct ci_suffix old = s;
     CHECK(ci_suffix_build(&s, b, CI_CAP + 1) == CI_RANGE &&
           !memcmp(&old, &s, sizeof s));
   }

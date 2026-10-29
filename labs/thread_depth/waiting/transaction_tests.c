@@ -1,17 +1,17 @@
 #include "test_support.h"
 #include <limits.h>
-typedef struct {
-  TWBank *bank;
+struct tw_transfer {
+  struct tw_bank *bank;
   pthread_barrier_t gate;
   int split;
-} Transfer;
+};
 static void bank_hook(void *p) {
-  Transfer *t = p;
+  struct tw_transfer *t = p;
   gate(&t->gate);
   gate(&t->gate);
 }
 static void *transfer(void *p) {
-  Transfer *t = p;
+  struct tw_transfer *t = p;
   if (t->split) {
     CHECK(pthread_mutex_lock(&t->bank->lock) == 0);
     t->bank->a -= 10;
@@ -24,13 +24,13 @@ static void *transfer(void *p) {
     CHECK(tw_transfer(t->bank, 10, bank_hook, t) == 0);
   return NULL;
 }
-typedef struct {
-  TWSnapshot *state;
+struct snapshot_run {
+  struct tw_snapshot *state;
   atomic_int stop;
   unsigned samples;
-} SnapshotRun;
+};
 static void *snap_reader(void *p) {
-  SnapshotRun *r = p;
+  struct snapshot_run *r = p;
   do {
     int n = -1;
     CHECK(tw_snapshot_read(r->state, &n) == 0 && n == 100);
@@ -40,9 +40,9 @@ static void *snap_reader(void *p) {
 }
 void test_bank(void) {
   for (int split = 0; split < 2; split++) {
-    TWBank b;
+    struct tw_bank b;
     CHECK(tw_bank_init(&b) == 0);
-    Transfer x = {.bank = &b, .split = split};
+    struct tw_transfer x = {.bank = &b, .split = split};
     CHECK(pthread_barrier_init(&x.gate, NULL, 2) == 0);
     pthread_t thread;
     CHECK(pthread_create(&thread, NULL, transfer, &x) == 0);
@@ -61,9 +61,9 @@ void test_bank(void) {
     CHECK(tw_bank_total(&b) == 100);
     tw_bank_destroy(&b);
   }
-  TWSnapshot s;
+  struct tw_snapshot s;
   tw_snapshot_init(&s);
-  SnapshotRun run = {.state = &s};
+  struct snapshot_run run = {.state = &s};
   atomic_init(&run.stop, 0);
   pthread_t reader;
   CHECK(pthread_create(&reader, NULL, snap_reader, &run) == 0);
@@ -82,14 +82,14 @@ void test_bank(void) {
   CHECK(tw_snapshot_read(&s, &n) == 0 && n == 100);
   puts("OBS bank split90 transaction100 snapshot100 wrap-rejected");
 }
-typedef struct {
+struct tw_order {
   pthread_mutex_t *a, *b;
   pthread_barrier_t *gate;
   int blocked, ordered;
   uint64_t ka, kb;
-} Order;
+};
 static void *order_worker(void *p) {
-  Order *o = p;
+  struct tw_order *o = p;
   pthread_mutex_t *first = o->a, *second = o->b;
   if (o->ordered && !tw_order(o->ka, o->kb)) {
     first = o->b;
@@ -115,7 +115,7 @@ void test_order(void) {
   CHECK(pthread_mutex_init(&b, NULL) == 0);
   pthread_barrier_t g;
   CHECK(pthread_barrier_init(&g, NULL, 2) == 0);
-  Order x = {.a = &a, .b = &b, .gate = &g, .ka = 11, .kb = 12},
+  struct tw_order x = {.a = &a, .b = &b, .gate = &g, .ka = 11, .kb = 12},
         y = {.a = &b, .b = &a, .gate = &g, .ka = 12, .kb = 11};
   pthread_t threads[2];
   CHECK(pthread_create(&threads[0], NULL, order_worker, &x) == 0);

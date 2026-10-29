@@ -3,7 +3,7 @@
 #include <limits.h>
 #include <math.h>
 #include <string.h>
-int oa_resize(OaOwner *owner,size_t n,const OaAllocator *a)
+int oa_resize(struct oa_owner *owner,size_t n,const struct oa_allocator *a)
 {
     unsigned char *next;
     size_t i,copy;
@@ -21,13 +21,13 @@ int oa_resize(OaOwner *owner,size_t n,const OaAllocator *a)
     if(owner->data)a->put(a->context,owner->data);
     owner->data=next;owner->length=n;++owner->generation;return 0;
 }
-void oa_release(OaOwner *owner,const OaAllocator *a)
+void oa_release(struct oa_owner *owner,const struct oa_allocator *a)
 {
     if(!owner || !a || !a->put)return;
     if(owner->data)a->put(a->context,owner->data);
     owner->data=NULL;owner->length=0;
 }
-int oa_deep_copy(OaView source,char *dest,size_t cap,OaView *out)
+int oa_deep_copy(struct oa_view source,char *dest,size_t cap,struct oa_view *out)
 {
     if(!out || !dest || !source.data || source.length>cap)return -1;
 #ifdef OA_MUTANT_BORROW
@@ -37,14 +37,14 @@ int oa_deep_copy(OaView source,char *dest,size_t cap,OaView *out)
     out->data=dest;out->length=source.length;return 0;
 #endif
 }
-int oa_label(char *dest,size_t cap,OaView *out)
+int oa_label(char *dest,size_t cap,struct oa_view *out)
 {
     const char text[4]={'c','a','t','\0'};
     if(!out || !dest || cap<4)return -1;
     for(size_t i=0;i<4;++i)dest[i]=text[i];
     out->data=dest;out->length=3;return 0;
 }
-int oa_equal(const OaRecord *a,const OaRecord *b)
+int oa_equal(const struct oa_record *a,const struct oa_record *b)
 {
     if(!a || !b)return 0;
 #ifdef OA_MUTANT_BYTES
@@ -54,7 +54,7 @@ int oa_equal(const OaRecord *a,const OaRecord *b)
            (a->measure==b->measure || (isnan(a->measure)&&isnan(b->measure)));
 #endif
 }
-int oa_encode(const OaRecord *record,unsigned char *out,size_t cap)
+int oa_encode(const struct oa_record *record,unsigned char *out,size_t cap)
 {
     unsigned char encoded[13];uint64_t bits,onebits;double one=1.0;uint32_t number;
     if(!record || !out || cap!=13)return -1;
@@ -84,17 +84,17 @@ int oa_place(size_t total,size_t start,size_t length,size_t width,size_t alignme
     if(padding>length || width>length-padding)return -1;
     *out=start+padding;return 0;
 }
-int oa_slot(OaStorage *storage,size_t offset,size_t capacity,OaRecord **out)
+int oa_slot(struct oa_storage *storage,size_t offset,size_t capacity,struct oa_record **out)
 {
-    if(!storage || !out || offset%sizeof(OaRecord) || offset>sizeof(*storage)-sizeof(OaRecord) || capacity<sizeof(OaRecord) || capacity>sizeof(*storage)-offset)return -1;
-    *out=&storage->records[offset/sizeof(OaRecord)];return 0;
+    if(!storage || !out || offset%sizeof(struct oa_record) || offset>sizeof(*storage)-sizeof(struct oa_record) || capacity<sizeof(struct oa_record) || capacity>sizeof(*storage)-offset)return -1;
+    *out=&storage->records[offset/sizeof(struct oa_record)];return 0;
 }
 int oa_wide_admit(size_t guarantee)
 {
 #ifdef OA_MUTANT_WIDE
     return guarantee>=_Alignof(max_align_t);
 #else
-    return guarantee && !(guarantee&(guarantee-1)) && guarantee>=_Alignof(OaWide);
+    return guarantee && !(guarantee&(guarantee-1)) && guarantee>=_Alignof(struct oa_wide);
 #endif
 }
 int oa_decode_u32(const unsigned char *bytes,size_t length,uint32_t *out)

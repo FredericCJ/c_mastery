@@ -2,13 +2,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-typedef struct {
+struct cm_output {
   char bytes[8192];
   size_t used, window, pause;
   unsigned paused, calls;
-} Output;
+};
 static size_t accept(void *context, const char *bytes, size_t length) {
-  Output *o = context;
+  struct cm_output *o = context;
   ++o->calls;
   if (!o->paused && o->used == o->pause) {
     o->paused = 1;
@@ -36,9 +36,9 @@ int main(int argc, char **argv) {
   size_t length = fread(text, 1, sizeof text, stdin), position = 0;
   if (ferror(stdin) || length == sizeof text)
     return 2;
-  CmSession session;
+  struct cm_session session;
   cm_session_init(&session);
-  Output out = {{0}, 0, window, pause, 0, 0};
+  struct cm_output out = {{0}, 0, window, pause, 0, 0};
   unsigned steps = 0;
   while (!session.closed || session.reply_length) {
     if (++steps > 50000)

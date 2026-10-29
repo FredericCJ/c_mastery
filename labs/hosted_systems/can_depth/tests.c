@@ -15,7 +15,7 @@ static void decode(void) {
   struct can_frame raw = {.can_id = 0x123, .len = 2, .data = {0x12, 0x34}};
   unsigned char bytes[CANFD_MTU + 1] = {0};
   memcpy(bytes + 1, &raw, sizeof raw);
-  CaFrame out;
+  struct ca_frame out;
   memset(&out, 0x55, sizeof out);
   unsigned char before[sizeof out];
   memcpy(before, &out, sizeof out);
@@ -62,7 +62,7 @@ static void roundtrip(void) {
   for (unsigned e = 0; e < 2; ++e)
     for (unsigned r = 0; r < 2; ++r)
       for (unsigned n = 0; n <= 8; ++n) {
-        CaFrame f = {.kind = r ? CA_REMOTE : CA_DATA,
+        struct ca_frame f = {.kind = r ? CA_REMOTE : CA_DATA,
                      .extended = e,
                      .id = e ? CAN_EFF_MASK : CAN_SFF_MASK,
                      .length = n},
@@ -85,10 +85,10 @@ static void filters(void) {
   for (unsigned id = 0; id < 2048; ++id)
     for (unsigned e = 0; e < 2; ++e)
       for (unsigned r = 0; r < 2; ++r) {
-        CaFrame f = {.kind = r ? CA_REMOTE : CA_DATA, .id = id, .extended = e};
+        struct ca_frame f = {.kind = r ? CA_REMOTE : CA_DATA, .id = id, .extended = e};
         CHECK(ca_accept(&f, &exact, 0) == (id == 0x123 && !e && !r));
       }
-  CaFrame extended = {.kind = CA_DATA, .id = 0x1abc0123, .extended = 1};
+  struct ca_frame extended = {.kind = CA_DATA, .id = 0x1abc0123, .extended = 1};
   struct can_filter broad = {0x123, CAN_SFF_MASK};
   CHECK(ca_accept(&extended, &broad, 0) == 1 &&
         ca_accept(&extended, &exact, 0) == 0);
@@ -96,7 +96,7 @@ static void filters(void) {
     for (unsigned receiver = 0; receiver < 2; ++receiver)
       for (unsigned enabled = 0; enabled < 2; ++enabled)
         for (unsigned own = 0; own < 2; ++own) {
-          CaFrame f = {.kind = CA_DATA, .id = 0x123}, out = {.id = 99};
+          struct ca_frame f = {.kind = CA_DATA, .id = 0x123}, out = {.id = 99};
           int want = enabled && (sender != receiver || own);
           CHECK(ca_loopback(sender, receiver, enabled, own, &f, &exact, 0,
                             &out) == want);

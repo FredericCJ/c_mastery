@@ -4,15 +4,15 @@
 #include <stdlib.h>
 #define CHECK(x) do { if (!(x)) { fprintf(stderr,"MF_CHECK:%s:%d:%s\n",__func__,__LINE__,#x); return 1; } } while (0)
 static _Alignas(8) uint32_t stacks[CMX_TASKS+2][160];
-static int initialize(Mf *m) { return mf_init(m,stacks[0],160,CMX_RR)!=CMX_OK; }
-static MfHandle add(Mf *m,unsigned slot,unsigned detached) {
-  MfHandle h=0;
+static int initialize(struct mf_mf *m) { return mf_init(m,stacks[0],160,CMX_RR)!=CMX_OK; }
+static mf_handle_id add(struct mf_mf *m,unsigned slot,unsigned detached) {
+  mf_handle_id h=0;
   if(mf_add(m,stacks[slot],160,0x101,0x201,4,detached,2,&h)!=CMX_OK) return 0;
   return h;
 }
 static int admission(void) {
-  Mf m,before; CHECK(!initialize(&m)); CHECK(mf_invariant(&m));
-  MfHandle h=999; memcpy(&before,&m,sizeof m);
+  struct mf_mf m,before; CHECK(!initialize(&m)); CHECK(mf_invariant(&m));
+  mf_handle_id h=999; memcpy(&before,&m,sizeof m);
   CHECK(mf_add(&m,stacks[1],127,0x101,0x201,4,0,2,&h)==CMX_INVALID);
   CHECK(h==999 && !memcmp(&m,&before,sizeof m));
   CHECK(mf_add(&m,stacks[1]+1,159,0x101,0x201,4,0,2,&h)==CMX_INVALID);
@@ -37,7 +37,7 @@ static int admission(void) {
   return 0;
 }
 static int lifecycle(void) {
-  Mf m; CHECK(!initialize(&m)); MfHandle a=add(&m,1,0),b=add(&m,2,0),c=add(&m,3,0); CHECK(a&&b&&c);
+  struct mf_mf m; CHECK(!initialize(&m)); mf_handle_id a=add(&m,1,0),b=add(&m,2,0),c=add(&m,3,0); CHECK(a&&b&&c);
   int value=999; CHECK(mf_join(&m,a,a,cmx_forever(),&value)==CMX_INVALID);
   CHECK(mf_join(&m,a,b,cmx_forever(),&value)==CMX_BLOCKED && value==999);
   CHECK(mf_join(&m,c,b,cmx_forever(),&value)==CMX_INVALID);
@@ -48,7 +48,7 @@ static int lifecycle(void) {
   CHECK(mf_join_result(&m,c,b,&value)==CMX_INVALID);
   m.executing=2; CHECK(mf_reap(&m,b)==CMX_INVALID); m.executing=3;
   CHECK(mf_reap(&m,b)==CMX_OK && mf_lookup(&m,b)==-1);
-  MfHandle newer=add(&m,2,0); CHECK(newer && newer!=b);
+  mf_handle_id newer=add(&m,2,0); CHECK(newer && newer!=b);
   CHECK(mf_exit(&m,newer,91)==CMX_OK);
   CHECK(mf_join(&m,a,newer,cmx_forever(),&value)==CMX_OK && value==91);
   CHECK(mf_join(&m,a,newer,cmx_forever(),&value)==CMX_INVALID);
@@ -64,14 +64,14 @@ static int lifecycle(void) {
   return 0;
 }
 static int scheduling(void) {
-  Mf m; CHECK(!initialize(&m)); CHECK(mf_schedule(&m)==0);
-  MfHandle a=add(&m,1,1),b=add(&m,2,1); CHECK(a&&b);
+  struct mf_mf m; CHECK(!initialize(&m)); CHECK(mf_schedule(&m)==0);
+  mf_handle_id a=add(&m,1,1),b=add(&m,2,1); CHECK(a&&b);
   for(unsigned i=0;i<20;++i) { CHECK(mf_schedule(&m)==(int)(1+i%2)); CHECK(mf_invariant(&m)); }
   CHECK(cmx_sleep(&m.kernel,1,cmx_at(5))==CMX_BLOCKED);
   for(unsigned i=0;i<4;++i) CHECK(mf_schedule(&m)==2);
   CHECK(mf_exit(&m,b,0)==CMX_OK && mf_schedule(&m)==0);
   cmx_tick(&m.kernel,5); CHECK(mf_schedule(&m)==1);
-  m.kernel.policy=CMX_FIXED; MfHandle c=add(&m,3,1); CHECK(c);
+  m.kernel.policy=CMX_FIXED; mf_handle_id c=add(&m,3,1); CHECK(c);
   m.kernel.task[3].base_priority=m.kernel.task[3].priority=2;
   CHECK(mf_schedule(&m)==3); CHECK(mf_invariant(&m));
   /* Every serialized ordering of give/cancel/timeout has exactly one result. */
@@ -95,7 +95,7 @@ static int scheduling(void) {
   return 0;
 }
 static int faults(void) {
-  Mf m; CHECK(!initialize(&m)); MfHandle a=add(&m,1,1),b=add(&m,2,1); CHECK(a&&b);
+  struct mf_mf m; CHECK(!initialize(&m)); mf_handle_id a=add(&m,1,1),b=add(&m,2,1); CHECK(a&&b);
   CHECK(cmx_sleep(&m.kernel,1,cmx_forever())==CMX_BLOCKED);
   CHECK(mf_fault(&m,a,6,0x123)==CMX_OK && m.kernel.task[1].state==CMX_EXITED);
   CHECK(mf_fault(&m,a,7,0x456)==CMX_INVALID && m.fault_code[1]==6 && m.fault_pc[1]==0x123);
@@ -117,7 +117,7 @@ static int faults(void) {
   return 0;
 }
 static int timers(void) {
-  MfTimers t,before; MfHandle a,b,c,out[MF_TIMERS]; size_t n;
+  struct mf_timers t,before; mf_handle_id a,b,c,out[MF_TIMERS]; size_t n;
   mf_timers_init(&t,UINT32_MAX-2);
   CHECK(mf_timer_arm(&t,2,&a)==CMX_OK && mf_timer_arm(&t,2,&b)==CMX_OK && mf_timer_arm(&t,0,&c)==CMX_OK);
   n=MF_TIMERS; CHECK(mf_timer_poll(&t,1,out,&n)==CMX_OK && n==1 && out[0]==c);
@@ -172,7 +172,7 @@ static int masks_sleep(void) {
   CHECK(mf_basepri(0,64,3,&result)==CMX_OK && result==64);
   CHECK(mf_basepri(0,1,8,&result)==CMX_OK && result==1);
   for(unsigned boundary=0;boundary<7;++boundary) {
-    MfSleep s; mf_sleep_init(&s);
+    struct mf_sleep s; mf_sleep_init(&s);
     if(boundary==0) mf_sleep_wake(&s);
     CHECK(mf_sleep_arm(&s,UINT32_MAX-10,100)==CMX_OK);
     if(boundary==1 || boundary==2 || boundary==3 || boundary==4) mf_sleep_wake(&s);
@@ -184,7 +184,7 @@ static int masks_sleep(void) {
     CHECK(mf_sleep_arm(&s,100,100)==CMX_OK && !mf_sleep_enter(&s));
     CHECK(mf_sleep_finish(&s,200)==CMX_OK && s.elapsed==140);
   }
-  MfSleep s; mf_sleep_init(&s); CHECK(mf_sleep_arm(&s,0,10)==CMX_OK);
+  struct mf_sleep s; mf_sleep_init(&s); CHECK(mf_sleep_arm(&s,0,10)==CMX_OK);
   CHECK(mf_sleep_finish(&s,11)==CMX_INVALID && s.elapsed==0);
   return 0;
 }

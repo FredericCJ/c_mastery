@@ -9,17 +9,17 @@ int en_order(void){
  en_note("OBS ring_order 0 98 7 8");return 0;
 }
 int en_chain(void){
- unsigned char bytes[1536]={0};EDRx rx={0};EDBorrow out={0};
- EDDescriptor pieces[2]={{bytes,32,0x200},{bytes+32,32,0}};
+ unsigned char bytes[1536]={0};struct ed_rx rx={0};struct ed_borrow out={0};
+ struct ed_descriptor pieces[2]={{bytes,32,0x200},{bytes+32,32,0}};
  CHECK(ed_rx_acquire(&rx,pieces,2,&out)==ED_BUSY && rx.dropping && !out.first);
- EDDescriptor late={bytes+32,64,(64u<<16)|0x100u};CHECK(ed_rx_acquire(&rx,&late,1,&out)==ED_IO && !out.first);
+ struct ed_descriptor late={bytes+32,64,(64u<<16)|0x100u};CHECK(ed_rx_acquire(&rx,&late,1,&out)==ED_IO && !out.first);
  unsigned tested=0;
  for(unsigned first=4;first<=96;first+=4){
-  EDRx fresh={0};rx=fresh;pieces[0]=(EDDescriptor){bytes,(uint16_t)first,0x200u|0x3fff0000u};pieces[1]=(EDDescriptor){bytes+first,(uint16_t)(100-first),(100u<<16)|0x100u};
+  struct ed_rx fresh={0};rx=fresh;pieces[0]=(struct ed_descriptor){bytes,(uint16_t)first,0x200u|0x3fff0000u};pieces[1]=(struct ed_descriptor){bytes+first,(uint16_t)(100-first),(100u<<16)|0x100u};
   CHECK(ed_rx_acquire(&rx,pieces,2,&out)==ED_OK && out.first_length+out.second_length==96 && out.first_length==(first<96?first:96));
   CHECK(ed_rx_release(&rx,out.token)==ED_OK && ed_rx_release(&rx,out.token)==ED_STALE);tested++;
  }
- EDRx fresh={0};rx=fresh;EDBorrow sentinel={bytes,0,9,8,77};out=sentinel;pieces[0]=(EDDescriptor){bytes,32,0x200};pieces[1]=(EDDescriptor){bytes+32,32,(100u<<16)|0x100};
+ struct ed_rx fresh={0};rx=fresh;struct ed_borrow sentinel={bytes,0,9,8,77};out=sentinel;pieces[0]=(struct ed_descriptor){bytes,32,0x200};pieces[1]=(struct ed_descriptor){bytes+32,32,(100u<<16)|0x100};
  CHECK(ed_rx_acquire(&rx,pieces,2,&out)==ED_IO && out.token==77 && out.first_length==9);
  pieces[1].status|=0x80000000u;CHECK(ed_rx_acquire(&rx,pieces,2,&out)==ED_BUSY && out.token==77);
  bytes[12]=8;size_t length=99;CHECK(ev_span(bytes,64,0,&length)==ED_OK && length==60 && ev_span(bytes,60,1,&length)==ED_OK && length==60);
@@ -32,14 +32,14 @@ int en_chain(void){
 static void count_barrier(void *p){unsigned *n=p;(*n)++;}
 int en_publication(void){
  unsigned char bytes[64]={9};unsigned histories=0;
- EDTx retained={0};unsigned barriers=0;
+ struct ed_tx retained={0};unsigned barriers=0;
  CHECK(ed_tx_prepare(&retained,0,1,bytes,64)==ED_OK && ed_tx_publish(&retained,0,1,count_barrier,&barriers)==ED_BUSY && !barriers);
  CHECK(ed_tx_tail(&retained,0,1)==ED_OK && ed_tx_publish(&retained,0,1,count_barrier,&barriers)==ED_OK && barriers==1);
  CHECK(ed_tx_prepare(&retained,1,2,bytes,64)==ED_OK && ed_tx_tail(&retained,1,2)==ED_OK && ed_tx_publish(&retained,1,2,count_barrier,&barriers)==ED_BUSY);
  CHECK(ed_tx_complete(&retained,0,1,0,0)==ED_BUSY && ed_tx_complete(&retained,0,1,1,1)==ED_IO);
  CHECK(ed_tx_publish(&retained,1,2,count_barrier,&barriers)==ED_OK && ed_tx_abort(&retained,1,2,0)==ED_BUSY && retained.slots[1].phase==4 && ed_tx_abort(&retained,1,2,1)==ED_OK);
  for(unsigned n=2;n<=3;n++){
-  EvChain s={0};CHECK(ev_prepare(&s,bytes,64,n,1)==ED_OK);
+  struct ev_chain s={0};CHECK(ev_prepare(&s,bytes,64,n,1)==ED_OK);
   CHECK(ev_own(&s,0)==ED_BUSY && s.owned==0 && s.borrow==bytes);
   for(unsigned i=n-1;i>0;i--){CHECK(ev_own(&s,i)==ED_OK);if(i>1)CHECK(ev_own(&s,0)==ED_BUSY);histories++;}
   CHECK(ev_own(&s,0)==ED_OK && ev_complete(&s,0,0)==ED_BUSY && s.borrow==bytes);
@@ -51,7 +51,7 @@ int en_publication(void){
  CHECK(histories==3);en_note("OBS ring_publication 2 3 1 0");return 0;
 }
 int en_visibility(void){
- EvVisibility s={0};CHECK(ev_store(&s,0,7)==ED_OK && s.device[0]==0 && ev_publish(&s,0)==ED_BUSY);
+ struct ev_visibility s={0};CHECK(ev_store(&s,0,7)==ED_OK && s.device[0]==0 && ev_publish(&s,0)==ED_BUSY);
  CHECK(ev_clean(&s,0)==ED_OK && s.device[0]==7 && ev_publish(&s,0)==ED_OK);
  CHECK(ev_store(&s,31,3)==ED_BUSY && ev_store(&s,32,5)==ED_OK && ev_clean(&s,0)==ED_BUSY);
  CHECK(ev_device_store(&s,0,9)==ED_OK && s.cpu[0]==7 && ev_invalidate(&s,0)==ED_BUSY && ev_return(&s,0,0)==ED_BUSY);

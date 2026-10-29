@@ -8,6 +8,6 @@ int lr_id(const char *,uint32_t *);
 int lr_at(size_t,uint32_t *,const char **);
 size_t lr_count(void);
 size_t lr_probes(uint32_t);
-typedef struct {int selection,value;double real;unsigned evaluated;} LrGeneric;
-int lr_generic(unsigned,LrGeneric *);
+struct lr_generic {int selection,value;double real;unsigned evaluated;};
+int lr_generic(unsigned,struct lr_generic *);
 #endif

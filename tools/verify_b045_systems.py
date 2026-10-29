@@ -73,6 +73,6 @@ def main():
     assert s.pending==sum(1<<i for i in remaining)
    assert lib.s_shoot_reclaim(C.byref(s))==0 and s.reclaimed
    count+=1
- print(json.dumps({'passed':True,'independent_cases':count,'scope':['all alphabet4 checksum inputs length0..6 at every two-chunk split','offline replacement DP alphabet3 length0..6','paired statistics32 lengths16 seeds','all8-CPU masks in two acknowledgement orders'],
+ print(json.dumps({'passed':True,'independent_cases':count,'scope':['all alphabet4 checksum inputs length0..6 at every two-chunk split','offline replacement DP alphabet3 length0..6','paired statistics32 lengths16 seeds','all8-struct lr_cpu masks in two acknowledgement orders'],
                    'limits':'Finite serialized host models; no independent human examiner, timing observation or hardware execution.'}))
 if __name__=='__main__':main()

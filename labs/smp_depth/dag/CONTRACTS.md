@@ -20,7 +20,7 @@ reference gap. C99 lacks these ISO atomic operations; C11 introduced them. No C2
 feature or compiler extension silently replaces a dependency/ownership argument.
 
 Supply completed `PR-T53-05` lock and `PR-T53-11` launcher implementations and
-the CMK ring3/thread substrate. The actual target imports `SpLaunch` for startup,
+the CMK ring3/thread substrate. The actual target imports `struct sp_launch` for startup,
 stop and joined stack ownership. It does not label a new synthetic launcher as
 the prerequisite. Learner exports supply interfaces/stubs and explicit paths;
 private implementations remain in the assessor distribution.
@@ -56,7 +56,7 @@ leases returned after joins; CMK has no free syscall to infer.
 
 ## Concrete input, output and implementation task
 
-Implement `dag.c` and `dag_guest.c` against `dag.h`. `DgSpec` contains0–16 nodes,
+Implement `dag.c` and `dag_guest.c` against `dag.h`. `struct dg_spec` contains0–16 nodes,
 0–32 directed edges, unsigned64-bit node costs and payloads. Copy all admitted
 input; do not retain graph-description pointers. Node IDs are their original
 indices. Reject out-of-range endpoints, every duplicate edge and every cycle,

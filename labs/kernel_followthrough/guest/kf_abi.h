@@ -22,10 +22,10 @@
 #ifndef KF_FAULT_SLOT
 #define KF_FAULT_SLOT 3
 #endif
-typedef struct {
+struct kf_stats {
   uint32_t version, size;
   uint64_t pid, free_frames, ticks, preemptions, device_submissions;
-} KfStats;
+};
 enum {
   KF_NORMAL = 0,
   KF_USER_DIVIDE = 1,

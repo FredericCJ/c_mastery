@@ -1,10 +1,10 @@
 #include "timer.h"
 /* Intentionally unfinished learner scaffold. */
-int pt_f439_start(const PtConfig *c) {
+int pt_f439_start(const struct pt_config *c) {
   (void)c;
   return PT_UNIMPLEMENTED;
 }
-int pt_f439_stage(const PtConfig *c, uint32_t current) {
+int pt_f439_stage(const struct pt_config *c, uint32_t current) {
   (void)c;
   (void)current;
   return PT_UNIMPLEMENTED;

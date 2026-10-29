@@ -22,14 +22,14 @@ static void gate(uint32_t bits) {
   pt_write(RESET, pt_read(RESET) | bits);
   pt_write(RESET, pt_read(RESET) & ~bits);
 }
-static void values(const PtConfig *c) {
+static void values(const struct pt_config *c) {
   pt_write(T3 + 0x28u, c->psc);
   pt_write(T3 + 0x2cu, c->arr);
   pt_write(T3 + 0x34u, c->ccr[0]);
   pt_write(T3 + 0x38u, c->ccr[1]);
 }
-int pt_f439_start(const PtConfig *c) {
-  PtRatio f, t, d[2];
+int pt_f439_start(const struct pt_config *c) {
+  struct pt_ratio f, t, d[2];
   if (pt_ratios(c, &f, &t, d) != PT_OK)
     return PT_INVALID;
   if (generation)
@@ -47,8 +47,8 @@ int pt_f439_start(const PtConfig *c) {
   pt_write(T3, 0x81u | (c->center ? 0x20u : 0u));
   return PT_OK;
 }
-int pt_f439_stage(const PtConfig *c, uint32_t current) {
-  PtRatio f, t, d[2];
+int pt_f439_stage(const struct pt_config *c, uint32_t current) {
+  struct pt_ratio f, t, d[2];
   uint32_t control;
   if (pt_ratios(c, &f, &t, d) != PT_OK)
     return PT_INVALID;

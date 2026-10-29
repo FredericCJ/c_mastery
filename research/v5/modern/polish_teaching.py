@@ -48,7 +48,7 @@ REPLACEMENTS = {
     'an internal validated descriptor': 'an internal validated range record',
     'a validated in-range descriptor, but no unchecked descriptor': 'a validated in-range record, but no unchecked range record',
     'Move the descriptor across an FFI': 'Move the validated range record across a foreign-function interface',
-    'Descriptor count2, offsets areoffsetof(MPRecord,code/value), independent of wire positions0/2.': 'The field schema table has two records; native offsets are offsetof(MPRecord,code/value), independent of wire positions0/2.',
+    'Descriptor count2, offsets areoffsetof(struct mp_record,code/value), independent of wire positions0/2.': 'The field schema table has two records; native offsets are offsetof(struct mp_record,code/value), independent of wire positions0/2.',
     'Generate descriptor count from the actual array.': 'derive the field schema table length from the actual array.',
     'Add a parsed format DSL with typed placeholder descriptors and partial streaming sinks.': 'Add a parsed format domain-specific language with typed placeholder records specifying each argument category and format operation. Add partial streaming sinks with explicit capacity and progress.',
     'Add a parsed format DSL with typed placeholder records specifying each argument category and format operation and partial streaming sinks.': 'Add a parsed format domain-specific language with typed placeholder records specifying each argument category and format operation. Add partial streaming sinks with explicit capacity and progress.',

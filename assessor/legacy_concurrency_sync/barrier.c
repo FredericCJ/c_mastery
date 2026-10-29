@@ -12,38 +12,38 @@ static int members_valid(cmx_kernel *k,uint32_t members) {
     if(k->task[i].state!=CMX_READY&&k->task[i].state!=CMX_RUNNING)return 0;
   return 1;
 }
-static int valid(CDBMember h) {
-  CDBarrier *b=h.owner;
+static int valid(struct cdb_member h) {
+  struct cd_barrier *b=h.owner;
   return b&&b->live&&h.task<CMX_TASKS&&h.epoch==b->epoch&&
     (b->registered&BIT(h.task))&&b->slot[h.task].task_generation==b->kernel->task[h.task].generation&&
     b->kernel->task[h.task].state!=CMX_UNUSED&&b->kernel->task[h.task].state!=CMX_EXITED;
 }
-static void settle(CDBarrier *b) {
+static void settle(struct cd_barrier *b) {
   for(unsigned i=0;i<CMX_TASKS;i++)
     if(b->slot[i].state==CDB_PENDING&&b->kernel->task[i].state!=CMX_WAITING){
       b->slot[i].state=CDB_DONE;b->slot[i].result=b->kernel->task[i].result;
     }
 }
-static int drained(CDBarrier *b) {
+static int drained(struct cd_barrier *b) {
   settle(b);
   if(b->raw.arrived)return 0;
   for(unsigned i=0;i<CMX_TASKS;i++)if(b->slot[i].state!=CDB_IDLE)return 0;
   return 1;
 }
-int cdb_init(CDBarrier *b,cmx_kernel *k,uint32_t members,unsigned limit) {
+int cdb_init(struct cd_barrier *b,cmx_kernel *k,uint32_t members,unsigned limit) {
   if(!b||!members_valid(k,members)||!limit||limit>255)return CMX_INVALID;
-  *b=(CDBarrier){.kernel=k,.members=members,.epoch=1,.generation_limit=limit,.live=1};
+  *b=(struct cd_barrier){.kernel=k,.members=members,.epoch=1,.generation_limit=limit,.live=1};
   cmx_barrier_init(&b->raw,count(members));return CMX_OK;
 }
-int cdb_register(CDBarrier *b,unsigned t,CDBMember *out) {
+int cdb_register(struct cd_barrier *b,unsigned t,struct cdb_member *out) {
   if(!b||!b->live||!out||t>=CMX_TASKS||b->changing||!(b->members&BIT(t))||
      (b->registered&BIT(t))||!members_valid(b->kernel,BIT(t)))return CMX_INVALID;
   b->slot[t].task_generation=b->kernel->task[t].generation;b->registered|=BIT(t);
-  *out=(CDBMember){b,t,b->epoch};return CMX_OK;
+  *out=(struct cdb_member){b,t,b->epoch};return CMX_OK;
 }
-int cdb_arrive(CDBMember h,cmx_deadline deadline,CDBTicket *out) {
+int cdb_arrive(struct cdb_member h,cmx_deadline deadline,struct cdb_ticket *out) {
   if(!valid(h))return CDB_STALE;
-  CDBarrier *b=h.owner;settle(b);CDBSlot *s=&b->slot[h.task];
+  struct cd_barrier *b=h.owner;settle(b);struct cdb_slot *s=&b->slot[h.task];
   if(!out||b->changing||b->registered!=b->members||s->state!=CDB_IDLE)return CMX_INVALID;
   if(b->raw.broken)return CMX_BROKEN;
   if(b->raw.generation>=b->generation_limit){
@@ -55,11 +55,11 @@ int cdb_arrive(CDBMember h,cmx_deadline deadline,CDBTicket *out) {
   b->raw.parties=parties;
   if(result!=CMX_OK&&result!=CMX_BLOCKED)return result; /* No admitted arrival. */
   s->round=round;s->state=result==CMX_BLOCKED?CDB_PENDING:CDB_DONE;s->result=result;
-  *out=(CDBTicket){h,round};settle(b);return result;
+  *out=(struct cdb_ticket){h,round};settle(b);return result;
 }
-int cdb_result(CDBTicket ticket,unsigned *out) {
+int cdb_result(struct cdb_ticket ticket,unsigned *out) {
   if(!valid(ticket.member))return CDB_STALE;
-  CDBarrier *b=ticket.member.owner;settle(b);CDBSlot *s=&b->slot[ticket.member.task];
+  struct cd_barrier *b=ticket.member.owner;settle(b);struct cdb_slot *s=&b->slot[ticket.member.task];
   if(!out)return CMX_INVALID;
   if(s->state==CDB_IDLE||(CDB_MUTANT!=1&&ticket.round!=s->round))return CDB_STALE;
   if(s->state==CDB_PENDING)return CMX_BLOCKED;
@@ -67,9 +67,9 @@ int cdb_result(CDBTicket ticket,unsigned *out) {
   if(result==CMX_OK)*out=s->round;
   s->state=CDB_IDLE;return result;
 }
-int cdb_cancel(CDBTicket ticket) {
+int cdb_cancel(struct cdb_ticket ticket) {
   if(!valid(ticket.member))return CDB_STALE;
-  CDBarrier *b=ticket.member.owner;settle(b);CDBSlot *s=&b->slot[ticket.member.task];
+  struct cd_barrier *b=ticket.member.owner;settle(b);struct cdb_slot *s=&b->slot[ticket.member.task];
   if(s->state==CDB_IDLE||ticket.round!=s->round)return CDB_STALE;
   if(s->state==CDB_PENDING){
     if(CDB_MUTANT==3)return CMX_OK;
@@ -79,19 +79,19 @@ int cdb_cancel(CDBTicket ticket) {
   }
   return s->result;
 }
-int cdb_stage(CDBarrier *b,uint32_t next) {
+int cdb_stage(struct cd_barrier *b,uint32_t next) {
   if(!b||!b->live||b->changing||!next||(next>>CMX_TASKS))return CMX_INVALID;
   if(CDB_MUTANT!=4&&!drained(b))return CMX_BLOCKED;
   if(!members_valid(b->kernel,next))return CMX_INVALID;
   b->next_members=next;b->changing=1;return CMX_OK;
 }
-int cdb_release(CDBMember *h) {
+int cdb_release(struct cdb_member *h) {
   if(!h||!valid(*h))return CDB_STALE;
-  CDBarrier *b=h->owner;
+  struct cd_barrier *b=h->owner;
   if(!b->changing||!drained(b))return CMX_BLOCKED;
-  b->registered&=~BIT(h->task);*h=(CDBMember){0};return CMX_OK;
+  b->registered&=~BIT(h->task);*h=(struct cdb_member){0};return CMX_OK;
 }
-int cdb_apply(CDBarrier *b) {
+int cdb_apply(struct cd_barrier *b) {
   if(!b||!b->live||!b->changing||!b->next_members)return CMX_INVALID;
   if(b->registered||!drained(b))return CMX_BLOCKED;
   if(b->epoch==UINT32_MAX||b->raw.generation>=b->generation_limit)return CDB_RETIRED;
@@ -99,12 +99,12 @@ int cdb_apply(CDBarrier *b) {
   b->members=b->next_members;b->next_members=0;b->epoch++;b->changing=0;
   b->raw.parties=count(b->members);b->raw.broken=0;return CMX_OK;
 }
-int cdb_close(CDBarrier *b) {
+int cdb_close(struct cd_barrier *b) {
   if(!b||!b->live)return CMX_INVALID;
   if(!drained(b))return CMX_BLOCKED;
   b->changing=1;b->next_members=0;return CMX_OK;
 }
-int cdb_destroy(CDBarrier *b) {
+int cdb_destroy(struct cd_barrier *b) {
   if(!b||!b->live)return CMX_INVALID;
   if(!b->changing||b->next_members||b->registered||!drained(b))return CMX_BLOCKED;
   b->live=0;return CMX_OK;

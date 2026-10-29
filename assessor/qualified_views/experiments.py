@@ -6,7 +6,7 @@ NEGATIVE={
  'const-pointer':('void f(void){int a=1,b=2;int *const p=&a;p=&b;}','read-only'),
  'both-const':('void f(void){int a=1;const int *const p=&a;*p=2;}','read-only'),
  'qualifier-drop':('void mutate(int *);void f(const int *p){mutate(p);}','qualifier'),
- 'opaque-size':('#include "views.h"\nint f(void){return sizeof(FvOwner);}','incomplete')}
+ 'opaque-size':('#include "views.h"\nint f(void){return sizeof(struct fv_owner);}','incomplete')}
 POSITIVE='''#include "views.h"
 int main(void){int a=1,b=2;const int *p=&a;int *const q=&a;const int *const r=&a;
  p=&b;*q=3;return *p==2 && *r==3?0:1;}

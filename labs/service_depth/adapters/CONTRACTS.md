@@ -1,7 +1,7 @@
 # Real service adapters: explicit successor contracts
 
 These required adapters extend X-T56-002 through X-T56-005. The portable
-`SDMemory`, `SDChannel`, `SDFiles` and `SDJournal` exercises retain their original
+`struct sd_memory`, `struct sd_channel`, `struct sd_files` and `struct sd_journal` exercises retain their original
 contracts. This layer implements actual checked images, x86-64 mappings, protected
 kernel tables, and transactions in the retained page store. Read the parent
 exercise and its D1–D4 rubric first. The author adapter imports **reference**

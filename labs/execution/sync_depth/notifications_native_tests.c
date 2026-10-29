@@ -7,12 +7,12 @@
 #include <inttypes.h>
 #define CHECK(c) do { if (!(c)) { fprintf(stderr,"CDNN_CHECK:%d:%s\n",__LINE__,#c); return 1; } } while (0)
 enum { EACH = 2000, SAMPLES = 31 };
-typedef struct {
-  CDNNative *port;
+struct cmx_worker {
+  struct cdn_native *port;
   int cpu, producer, failed;
   unsigned accepted, refusals, samples;
   uint64_t wait[SAMPLES], work[SAMPLES];
-} Worker;
+};
 static int pin(int cpu) {
   cpu_set_t set, actual; CPU_ZERO(&set); CPU_SET(cpu, &set);
   return !pthread_setaffinity_np(pthread_self(),sizeof set,&set) &&
@@ -20,11 +20,11 @@ static int pin(int cpu) {
          CPU_COUNT(&actual)==1 && CPU_ISSET(cpu,&actual) && sched_getcpu()==cpu;
 }
 static void *work(void *arg) {
-  Worker *w = arg;
+  struct cmx_worker *w = arg;
   if (!pin(w->cpu)) { w->failed=1; return 0; }
   unsigned limit = w->producer ? EACH : 2*EACH;
   for (unsigned attempts = 0; w->accepted < limit && attempts < 1000000; attempts++) {
-    CDNNObservation observation;
+    struct cdnn_observation observation;
     int status = w->producer ? cdnn_post(w->port,1,&observation) : cdnn_take(w->port,7,&observation);
     if (status != CMX_OK && status != (w->producer ? CMX_FULL : CMX_TIMEOUT)) { w->failed=2; return 0; }
     if (observation.cpu != w->cpu) { w->failed=3; return 0; }
@@ -45,15 +45,15 @@ static void *work(void *arg) {
 /* Race-free controlled counterexample: two relaxed atomic loads followed by
    stores do not form an atomic increment. A mutex/condition fixes the schedule
    so both loads observe zero, without introducing a C data race. */
-typedef struct {
+struct cmx_counter {
   atomic_uint count;
   pthread_mutex_t mutex;
   pthread_cond_t condition;
   unsigned loaded, repair;
   int failed;
-} Counter;
+};
 static void *counter_worker(void *arg) {
-  Counter *c = arg;
+  struct cmx_counter *c = arg;
   if (pthread_mutex_lock(&c->mutex)) return c;
   unsigned old=atomic_load_explicit(&c->count,memory_order_relaxed);
   c->loaded++;
@@ -65,7 +65,7 @@ static void *counter_worker(void *arg) {
   return 0;
 }
 static int counter(unsigned repair) {
-  Counter c={0}; pthread_t threads[2];
+  struct cmx_counter c={0}; pthread_t threads[2];
   atomic_init(&c.count,0);c.repair=repair;
   CHECK(!pthread_mutex_init(&c.mutex,0) && !pthread_cond_init(&c.condition,0));
   for(unsigned i=0;i<2;i++)CHECK(!pthread_create(&threads[i],0,counter_worker,&c));
@@ -86,10 +86,10 @@ int main(int argc,char **argv) {
     if(cpus[0]<0)cpus[0]=i;else {cpus[1]=i;break;}
   }
   CHECK(cpus[1]>=0); /* Missing two allowed CPUs is not a passing variant. */
-  cmx_kernel k; CDNotify n; CDNHandle h; CDNNative port; CDNPost post;
+  cmx_kernel k; struct cd_notify n; struct cdn_handle h; struct cdn_native port; struct cdn_post post;
   cmx_init(&k,CMX_FIXED);CHECK(cmx_task_add(&k,5,0,0x1000,256)==0);
   cdn_init(&n,&k);CHECK(cdn_attach(&n,0,8,&h)==CMX_OK && cdnn_init(&port,h)==CMX_OK);
-  CDNNObservation observed;CDNNState state;
+  struct cdnn_observation observed;struct cdnn_state state;
   CHECK(cdnn_post(&port,3,&observed)==CMX_OK);
   CHECK(cdnn_snapshot(&port,&state)==CMX_OK && state.pending==3 && state.accepted==3);
   CHECK(cdnn_take(&port,UINT32_MAX,&observed)==CMX_OK && observed.count==3);
@@ -97,7 +97,7 @@ int main(int argc,char **argv) {
   CHECK(cdnn_destroy(&port)==CMX_OK && cdn_close(h)==CMX_OK && cdn_detach(h)==CMX_OK);
   CHECK(cmx_exit(&k,0,0)==CMX_OK && cmx_reap(&k,0)==CMX_OK && cmx_task_add(&k,5,0,0x1000,256)==0);
   CHECK(cdn_attach(&n,0,8,&h)==CMX_OK && cdnn_init(&port,h)==CMX_OK);
-  Worker workers[3]={{.port=&port,.cpu=cpus[1],.producer=1},
+  struct cmx_worker workers[3]={{.port=&port,.cpu=cpus[1],.producer=1},
                      {.port=&port,.cpu=cpus[1],.producer=1},
                      {.port=&port,.cpu=cpus[0],.producer=0}};
   pthread_t threads[3];

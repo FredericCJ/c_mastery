@@ -3,7 +3,7 @@
 #ifndef EW_MUTANT
 #define EW_MUTANT 0
 #endif
-int ew_feed(EwStream *s, const unsigned char *b, size_t n, size_t *used) {
+int ew_feed(struct ew_stream *s, const unsigned char *b, size_t n, size_t *used) {
   size_t i = 0;
   if (!s || !used || (!b && n) || s->phase > 4 || s->prefix > 2)
     return EW_INVALID;
@@ -49,7 +49,7 @@ int ew_feed(EwStream *s, const unsigned char *b, size_t n, size_t *used) {
   *used = i;
   return s->phase == 2 ? EW_READY : EW_MORE;
 }
-int ew_take(EwStream *s, unsigned char *b, size_t cap, size_t *n) {
+int ew_take(struct ew_stream *s, unsigned char *b, size_t cap, size_t *n) {
   if (!s || !n || (!b && cap) || s->phase > 4)
     return EW_INVALID;
   if (s->phase != 2)
@@ -62,7 +62,7 @@ int ew_take(EwStream *s, unsigned char *b, size_t cap, size_t *n) {
   memset(s, 0, sizeof *s);
   return EW_OK;
 }
-int ew_end(EwStream *s) {
+int ew_end(struct ew_stream *s) {
   if (!s || s->phase > 4)
     return EW_INVALID;
   if (s->phase == 2)
@@ -120,8 +120,8 @@ int ew_vlan_build(const unsigned char *d, const unsigned char *s, unsigned pri,
   *written = total;
   return EW_OK;
 }
-int ew_vlan_parse(const unsigned char *b, size_t n, EwVlan *out) {
-  EwVlan t;
+int ew_vlan_parse(const unsigned char *b, size_t n, struct ew_vlan *out) {
+  struct ew_vlan t;
   uint32_t c = 0, got = 0;
   unsigned i, field, tag;
   size_t stored;
@@ -153,7 +153,7 @@ int ew_vlan_parse(const unsigned char *b, size_t n, EwVlan *out) {
 }
 int ew_vlan_pop(const unsigned char *b, size_t n, unsigned char *out,
                 size_t cap, size_t *written) {
-  EwVlan v;
+  struct ew_vlan v;
   int r = ew_vlan_parse(b, n, &v);
   if (r != EW_OK)
     return r;
@@ -169,9 +169,9 @@ static int equal(const unsigned char *a, const unsigned char *b) {
       return 0;
   return 1;
 }
-int ew_bridge(EDBridge *s, const unsigned char *src, const unsigned char *dst,
+int ew_bridge(struct ed_bridge *s, const unsigned char *src, const unsigned char *dst,
               unsigned port, uint32_t now, unsigned evict, unsigned *mask) {
-  EDBridge t;
+  struct ed_bridge t;
   unsigned i, j, victim = 0;
   int r;
   if (!s || !src || !dst || !mask || evict > 1)

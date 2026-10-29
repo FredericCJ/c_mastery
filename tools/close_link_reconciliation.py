@@ -12,7 +12,7 @@ for key,folder,lab in [('wire','ethernet_wire','ethernet_followthrough/wire'),('
 MAP={
  '39-001':{
  'R1':('b4:dma ring:rx,recovery,visibility','Actual lease completion/invalidation, stale and duplicate release, exhaustion and late epoch refusal.'),
- 'R2':('ring:init,visibility,port','Whole-interval placement and object/link audit remain separate from the two-line CPU/device visibility model.'),
+ 'R2':('ring:init,visibility,port','Whole-interval placement and object/link audit remain separate from the two-line struct lr_cpu/device visibility model.'),
  'V1':('ring:visibility analysis:witness','Two live payload extents sharing a32-byte line; separate rounded reservations or whole-line ownership prevents collateral maintenance.'),
  'V2':('analysis:witness','Explicit hypothetical coherent-domain visibility plus device release/acquire order; early-doorbell and early-reuse counterexamples. Target execution remains separately gated.')},
  '39-002':{
@@ -49,7 +49,7 @@ MAP={
  'R3':('ed:tx ring:publication','Tail metadata/ownership before final head publication, retained barrier calls and premature-head refusal.'),
  'R4':('ed:tx ring:tx,publication','Copied admission, actual publication and returned ownership are separate from peer delivery.'),
  'R5':('ed:tx ring:recovery,bounds,publication','Two-slot backpressure, unconfirmed abort retains storage and late-incarnation rejection.'),
- 'V1':('ring:publication','Actual EvChain borrow until all returned or stop-confirmed; partial publication cancellation and caller-mutation prohibition.'),
+ 'V1':('ring:publication','Actual struct ev_chain borrow until all returned or stop-confirmed; partial publication cancellation and caller-mutation prohibition.'),
  'V2':('ring:publication,recovery','Three-descriptor final-head model, separate reset/drain and newer generation; explicit changed device-format proof before target use.')},
  '39-008':{
  'R1':('ed:handoff handoff:clock','Origin-relative timestamp intervals, negative/overflow/nonmonotonic refusal.'),
@@ -65,7 +65,7 @@ MAP={
  'R1':('e7:grant physical:grant','Guard, first byte and whole reply use distinct origins and exact inclusive boundaries.'),
  'R2':('e7:grant physical:physical,grant','Retained framing then local grant address/echo/fault gate; UART corruption never promotes valid input.'),
  'R3':('physical:physical,port','Local admission and actual target object audits do not supply physical timing or peer delivery.'),
- 'V1':('physical:tx,grant,port pipeline:exchange','Actual PuDriver TXE/TC and DE, POLL final TC timestamp and receiver guard composition.'),
+ 'V1':('physical:tx,grant,port pipeline:exchange','Actual struct pu_driver TXE/TC and DE, POLL final TC timestamp and receiver guard composition.'),
  'V2':('physical:physical analysis:witness','Exact42MHz/729 occupancy exceeds original10ms; separately negotiated20ms/50ms turn recomputation retains physical measurement gate.')},
  '40-003':{
  'R1':('e7:offer transport:retry','Copied immutable staged offer and index through admission refusal, acceptance and retry.'),

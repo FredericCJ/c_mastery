@@ -50,7 +50,7 @@ The lower channel's copy contract is essential. It is not satisfied by handing a
 pointer to a DMA engine. The planned physical T39 bridge must retain its own
 frame and wait for actual completion/quiescence; that producer's implementation
 and physical evidence are separate obligations. Existing author composition uses
-an explicit owned `NetPacket` assignment as a reference copy port, not a device.
+an explicit owned `struct net_packet` assignment as a reference copy port, not a device.
 
 Absolute slots, not poll counts, define request eligibility. Successful service
 at0/1000/2000 yields three requests; failure at3000 clears pending bytes. At2500,

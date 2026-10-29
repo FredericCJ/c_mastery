@@ -3,20 +3,20 @@
 void en_note(const char *);
 #define CHECK(x) do{if(!(x)){en_note("EN_ASSERT: " #x);return 41;}}while(0)
 #ifdef EN_TARGET_IMAGE
-static EnMemory memory __attribute__((section(".eth"),aligned(4)));
+static struct en_memory memory __attribute__((section(".eth"),aligned(4)));
 #else
-static EnMemory memory;
+static struct en_memory memory;
 #endif
-static EnModel model;
-static EnRing ring;
-static EpModel phy_model;
-static EpPhy phy;
+static struct en_model model;
+static struct en_ring ring;
+static struct ep_model phy_model;
+static struct ep_phy phy;
 static int boot(void){
- EnRing rz={0};EpPhy pz={0};ring=rz;phy=pz;
- ep_model_setup(&phy_model,0);EDBus b=ep_model_bus(&phy_model);
+ struct en_ring rz={0};struct ep_phy pz={0};ring=rz;phy=pz;
+ ep_model_setup(&phy_model,0);struct ed_bus b=ep_model_bus(&phy_model);
  CHECK(ep_init(&phy,&b,168000000,0,4,100)==ED_OK && ep_begin(&phy,16,1000)==ED_BUSY);
  int e=ED_BUSY;for(unsigned i=0;i<16 && e==ED_BUSY;i++)e=ep_step(&phy);CHECK(e==ED_OK);
- en_model_init(&model,&memory,0x20001000);EnBus bus=en_model_bus(&model);unsigned char mac[]={2,0,0,0,0,1};
+ en_model_init(&model,&memory,0x20001000);struct en_bus bus=en_model_bus(&model);unsigned char mac[]={2,0,0,0,0,1};
  CHECK(en_init(&ring,&memory,0x20001000,&bus,&phy,mac)==ED_OK);
  CHECK(en_reset_begin(&ring,0,4,100)==ED_BUSY && en_reset_step(&ring,1)==ED_BUSY && en_reset_step(&ring,2)==ED_BUSY && en_reset_step(&ring,3)==ED_OK);
  CHECK(en_start(&ring)==ED_OK && !model.violation);return 0;
@@ -35,7 +35,7 @@ int en_initialization(void){
 }
 int en_transmit(void){
  CHECK(boot()==0);unsigned char bytes[100];for(unsigned i=0;i<100;i++)bytes[i]=(unsigned char)i;
- EnTicket a={0},b={0},out={0};CHECK(en_tx_copy(&ring,bytes,100,&a)==ED_OK);bytes[0]=99;
+ struct en_ticket a={0},b={0},out={0};CHECK(en_tx_copy(&ring,bytes,100,&a)==ED_OK);bytes[0]=99;
  CHECK(memory.tx_bytes[a.slot][0]==0 && memory.tx[a.slot].word[0]==0 && en_tx_copy(&ring,bytes,14,&b)==ED_OK);
  CHECK(en_tx_copy(&ring,bytes,64,&out)==ED_BUSY && !out.owner && !out.serial);
  CHECK(en_tx_publish(&ring,a)==ED_OK && en_tx_publish(&ring,b)==ED_OK);
@@ -50,9 +50,9 @@ int en_transmit(void){
  en_note("OBS ring_tx 34 33 1 60");return 0;
 }
 int en_receive(void){
- CHECK(boot()==0);unsigned char frame[1518]={0};EnFrame out={0};EnTicket held[4];
+ CHECK(boot()==0);unsigned char frame[1518]={0};struct en_frame out={0};struct en_ticket held[4];
  for(unsigned i=0;i<4;i++){frame[0]=(unsigned char)i;CHECK(en_model_rx(&model,frame,64,(64u<<16)|0x300u)==ED_OK && en_rx_take(&ring,&out)==ED_OK && out.length==60 && out.bytes[0]==i);held[i]=out.ticket;}
- EnFrame unchanged=out;CHECK(en_rx_take(&ring,&out)==ED_BUSY && out.ticket.serial==unchanged.ticket.serial && out.bytes==unchanged.bytes);
+ struct en_frame unchanged=out;CHECK(en_rx_take(&ring,&out)==ED_BUSY && out.ticket.serial==unchanged.ticket.serial && out.bytes==unchanged.bytes);
  frame[0]=99;CHECK(en_model_rx(&model,frame,64,(64u<<16)|0x300u)==ED_BUSY && memory.rx_bytes[0][0]==0);
  CHECK(en_rx_release(&ring,held[0])==ED_OK && en_rx_release(&ring,held[0])==ED_STALE);
  CHECK(en_model_rx(&model,frame,1518,(1518u<<16)|0x300u)==ED_OK && en_rx_take(&ring,&out)==ED_OK && out.length==1514);
@@ -64,11 +64,11 @@ int en_receive(void){
  CHECK(ring.accepted==21 && ring.released==21 && !model.violation);en_note("OBS ring_rx 21 60 1514 21");return 0;
 }
 int en_recovery(void){
- CHECK(boot()==0);unsigned char bytes[64]={0};EnTicket ticket;EnFrame frame={0};
+ CHECK(boot()==0);unsigned char bytes[64]={0};struct en_ticket ticket;struct en_frame frame={0};
  CHECK(en_tx_copy(&ring,bytes,64,&ticket)==ED_OK && en_tx_publish(&ring,ticket)==ED_OK);
  CHECK(en_model_rx(&model,bytes,64,(64u<<16)|0x300u)==ED_OK && en_rx_take(&ring,&frame)==ED_OK);
  phy_model.phy[0][1]=0x20;CHECK(ep_poll(&phy)==ED_LINK_DOWN);
- EnTicket absent={0};CHECK(en_tx_copy(&ring,bytes,64,&absent)==ED_STALE && !absent.owner && ring.tx_phase[ticket.slot]==2);
+ struct en_ticket absent={0};CHECK(en_tx_copy(&ring,bytes,64,&absent)==ED_STALE && !absent.owner && ring.tx_phase[ticket.slot]==2);
  model.stop_stuck=1;CHECK(en_stop_begin(&ring,0,3,100)==ED_BUSY && en_stop_step(&ring,1)==ED_BUSY);
  CHECK(en_tx_copy(&ring,bytes,64,&absent)==ED_BUSY && (memory.tx[ticket.slot].word[0]&0x80000000u));
  model.reg[0x1014/4]&=~0x7e0000u;CHECK(en_stop_step(&ring,2)==ED_BUSY);
@@ -80,7 +80,7 @@ int en_recovery(void){
  CHECK(!model.violation);en_note("OBS ring_recovery 2 1 0 0");return 0;
 }
 int en_drop_status(void){
- CHECK(boot()==0);unsigned char frame[2048]={0};EnFrame out={0};
+ CHECK(boot()==0);unsigned char frame[2048]={0};struct en_frame out={0};
  uint32_t bad[]={0x200u,(64u<<16)|0x100u,(64u<<16)|0x8300u,(64u<<16)|0x4300u,(63u<<16)|0x300u,(1519u<<16)|0x300u};
  for(unsigned i=0;i<6;i++)CHECK(en_model_rx(&model,frame,64,bad[i])==ED_OK && en_rx_take(&ring,&out)==ED_IO && !out.bytes);
  CHECK(ring.dropped==6 && en_model_rx(&model,frame,64,(64u<<16)|0x300u)==ED_OK && en_rx_take(&ring,&out)==ED_OK && en_rx_release(&ring,out.ticket)==ED_OK);
@@ -101,7 +101,7 @@ int en_boundaries(void){
  CHECK(en_start(&ring)==ED_BUSY && en_stop_begin(&ring,4,2,100)==ED_BUSY && model.writes==writes);
  model.reset_stuck=0;CHECK(en_reset_begin(&ring,4,4,100)==ED_BUSY && model.writes==writes && ring.epoch==2);
  CHECK(en_reset_step(&ring,5)==ED_BUSY && en_reset_step(&ring,6)==ED_BUSY && en_reset_step(&ring,7)==ED_OK && !ring.reset_pending && en_start(&ring)==ED_OK);
- unsigned char bytes[64]={0};EnTicket ticket={0};ring.serial=UINT32_MAX;
+ unsigned char bytes[64]={0};struct en_ticket ticket={0};ring.serial=UINT32_MAX;
  CHECK(en_tx_copy(&ring,bytes,64,&ticket)==ED_FULL && !ticket.owner);
  CHECK(en_stop_begin(&ring,8,2,100)==ED_BUSY && en_stop_step(&ring,9)==ED_OK);ring.epoch=UINT32_MAX;
  CHECK(en_reset_begin(&ring,10,2,100)==ED_FULL && ring.epoch==UINT32_MAX);
@@ -112,14 +112,14 @@ int en_failures(void){
   CHECK(boot()==0 && stop_reset()==0);model.calls=0;model.fail_at=fault;
   CHECK(en_start(&ring)==ED_IO && ring.phase==EN_FAULT && !(model.reg[0x1018/4]&0x2002u));
  }
- CHECK(boot()==0);unsigned char bytes[64]={0};EnTicket ticket;
+ CHECK(boot()==0);unsigned char bytes[64]={0};struct en_ticket ticket;
  CHECK(en_tx_copy(&ring,bytes,64,&ticket)==ED_OK);model.calls=0;model.fail_at=2;
  CHECK(en_tx_publish(&ring,ticket)==ED_IO && ring.phase==EN_FAULT && ring.tx_phase[ticket.slot]==2 && (memory.tx[ticket.slot].word[0]&0x80000000u));
  uint32_t out=99;CHECK(en_tx_reap(&ring,ticket,&out)==ED_BUSY && out==99);
  en_note("OBS ring_failures 27 27 2 1");return 0;
 }
 int en_consumer(void){
- CHECK(boot()==0);unsigned char bytes[64]={0};bytes[12]=8;bytes[14]=0x65;EnFrame frame;
+ CHECK(boot()==0);unsigned char bytes[64]={0};bytes[12]=8;bytes[14]=0x65;struct en_frame frame;
  CHECK(en_model_rx(&model,bytes,64,(64u<<16)|0x300u)==ED_OK && en_rx_take(&ring,&frame)==ED_OK);
  /* Original bounded upper-layer version discriminator, not a full IP parser. */
  unsigned upper_rejected=(frame.length>=34 && (frame.bytes[14]>>4)!=4);

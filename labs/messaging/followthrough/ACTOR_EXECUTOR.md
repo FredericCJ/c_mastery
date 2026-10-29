@@ -1,13 +1,13 @@
 # Channel-to-actor owner and incarnation boundary
 
-This required X-T73-004-R2/R3/R4 successor consumes the actual `MfcHub`,
-`MfaActor` and unique `MfoValue` APIs from X-T73-002 and X-T73-004. Implement
+This required X-T73-004-R2/R3/R4 successor consumes the actual `struct mfc_hub`,
+`struct mfa_actor` and unique `struct mfo_value` APIs from X-T73-002 and X-T73-004. Implement
 `src/actor_executor_follow.c` against `actor_executor.h`, without replacing
 channel or actor behavior with a mock queue. Hosted C17/POSIX assumptions and
 the existing `OWNED.md` callback/owner contracts apply. Inputs are original
 synthetic messages, actor incarnation numbers, close/cancel transitions and
 two destinations. Outputs are explicit send statuses and per-dequeued-message
-`MfeEvent` records; failure to dequeue preserves the event output.
+`struct mfe_event` records; failure to dequeue preserves the event output.
 
 ## Representation and ownership
 

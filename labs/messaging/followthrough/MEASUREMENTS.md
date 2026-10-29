@@ -31,7 +31,7 @@ host security, physical hardware or deployed services.
 | --- | --- |
 | T73.01.d | `thread_stack`: eight actual nursery children report their live stack/guard attributes, wait for cooperative cancellation, then join. Record spawn-to-ready and cancel-to-join intervals and the inline nursery/tree metadata sizes. An attribute size is a virtual stack reservation, not resident pages or a stack high-water mark. |
 | T73.02.d | `select_shared` versus `select_registered`: two real producers each submit N distinct unsigned values to capacity4 queues; one selector drains exactly2N, preserving each channel identity. Both use nonblocking sends with explicit FULL retry, blocking select, close/drain, no rendezvous and no payload allocator. Retain retry counts and each participant's latency distribution. The registry adds per-channel locks and O(W) notification work; it does not promise improved parallelism. |
-| T73.03.d | `operation_owned`: N actual inline backend/completion cycles transfer unique synthetic resource descriptors through `MfoOperation`, invoke receivers and destroy each exactly once. Report control size, dispatch sequence, resource count and latency. Synthetic constant-time destructors bound this workload only. |
+| T73.03.d | `operation_owned`: N actual inline backend/completion cycles transfer unique synthetic resource descriptors through `struct mfo_operation`, invoke receivers and destroy each exactly once. Report control size, dispatch sequence, resource count and latency. Synthetic constant-time destructors bound this workload only. |
 | T73.04.d | `actor_owned`: N actual owned mailbox admission/step cycles invoke the handler and destroy each descriptor exactly once. Explain the five stable records versus four queued messages and the active-message lifetime. No allocating payload or cross-thread actor safety is implied. |
 | T73.05.d | `supervisor_tree`: a live 4x4 tree repeatedly replaces the final two children of one branch, outside its restart window. Each iteration must contain four ordered events and two constructor calls; initialization/final teardown add16 each. Separate callback cost and metadata scans from the abstract restart policy. Failure cuts remain assessed by `supervisor_tree` correctness tests. |
 | T73.06.d | `deque_sc`, `deque_weak`, `deque_mutex`: one owner pushes N distinct unsigned values into capacity8; two thieves consume all exactly once. Record successful work distribution and retries, actual atomic lock-free queries, emitted atomic instructions and fixed storage. The mutex alternative has a different progress class; equal value/ownership behavior on this workload does not make the progress guarantees equal. |
@@ -66,7 +66,7 @@ cannot be concluded from this host experiment; an empty cell is not zero cost.
 4. **Mutation and aliasing:** name the protecting mutex/atomic order and the
    caller precondition for unique descriptors and valid borrowed outputs.
 5. **Allocation:** distinguish allocation-free inline operations from actual
-   `MflAllocator` control/array/clone allocations tested in the lifetime and
+   `struct mfl_allocator` control/array/clone allocations tested in the lifetime and
    version campaigns. Trace all failure cuts; this timing workload does not
    measure arbitrary allocator behavior.
 6. **Movement/copying:** count unsigned copies, the two-field snapshot copy,

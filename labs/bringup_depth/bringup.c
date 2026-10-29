@@ -1,17 +1,17 @@
 #include "bringup.h"
 /* Intentionally unfinished learner artifact. Implement against CONTRACTS.md. */
-int bu_contains(BuRange a, BuRange b) {
+int bu_contains(struct bu_range a, struct bu_range b) {
   (void)a;
   (void)b;
   return 0;
 }
-int bu_overlap(BuRange a, BuRange b) {
+int bu_overlap(struct bu_range a, struct bu_range b) {
   (void)a;
   (void)b;
   return 0;
 }
-BuResult bu_vectors(const unsigned char *a, size_t b, unsigned c, uint32_t d,
-                    BuRange e, BuRange f, BuVectors *g) {
+enum bu_result bu_vectors(const unsigned char *a, size_t b, unsigned c, uint32_t d,
+                    struct bu_range e, struct bu_range f, struct bu_vectors *g) {
   (void)a;
   (void)b;
   (void)c;
@@ -21,9 +21,9 @@ BuResult bu_vectors(const unsigned char *a, size_t b, unsigned c, uint32_t d,
   (void)g;
   return BU_UNSUPPORTED;
 }
-BuResult bu_memory(unsigned char *a, size_t b, const unsigned char *c, size_t d,
-                   const BuCopy *e, size_t f, const BuRange *g, size_t h,
-                   BuRange i) {
+enum bu_result bu_memory(unsigned char *a, size_t b, const unsigned char *c, size_t d,
+                   const struct bu_copy *e, size_t f, const struct bu_range *g, size_t h,
+                   struct bu_range i) {
   (void)a;
   (void)b;
   (void)c;
@@ -35,45 +35,45 @@ BuResult bu_memory(unsigned char *a, size_t b, const unsigned char *c, size_t d,
   (void)i;
   return BU_UNSUPPORTED;
 }
-int bu_f439_dma(BuRange a) {
+int bu_f439_dma(struct bu_range a) {
   (void)a;
   return 0;
 }
-BuResult bu_clock_start(BuClock *a, unsigned b, unsigned c) {
+enum bu_result bu_clock_start(struct bu_clock *a, unsigned b, unsigned c) {
   (void)a;
   (void)b;
   (void)c;
   return BU_UNSUPPORTED;
 }
-BuResult bu_clock_step(BuClock *a, unsigned b, unsigned c) {
+enum bu_result bu_clock_step(struct bu_clock *a, unsigned b, unsigned c) {
   (void)a;
   (void)b;
   (void)c;
   return BU_UNSUPPORTED;
 }
-BuResult bu_clock_reconfigure(BuClock *a, unsigned b) {
+enum bu_result bu_clock_reconfigure(struct bu_clock *a, unsigned b) {
   (void)a;
   (void)b;
   return BU_UNSUPPORTED;
 }
-BuResult bu_clock_failure(BuClock *a) {
+enum bu_result bu_clock_failure(struct bu_clock *a) {
   (void)a;
   return BU_UNSUPPORTED;
 }
-BuResult bu_hooks(const BuHook *a, unsigned b, unsigned c, unsigned *d) {
+enum bu_result bu_hooks(const struct bu_hook *a, unsigned b, unsigned c, unsigned *d) {
   (void)a;
   (void)b;
   (void)c;
   (void)d;
   return BU_UNSUPPORTED;
 }
-BuResult bu_decode(const unsigned char *a, size_t b, BuRecord *c) {
+enum bu_result bu_decode(const unsigned char *a, size_t b, struct bu_record *c) {
   (void)a;
   (void)b;
   (void)c;
   return BU_UNSUPPORTED;
 }
-BuResult bu_store(unsigned char *a, size_t b, const BuRecord *c, unsigned d,
+enum bu_result bu_store(unsigned char *a, size_t b, const struct bu_record *c, unsigned d,
                   unsigned *e) {
   (void)a;
   (void)b;
@@ -82,17 +82,17 @@ BuResult bu_store(unsigned char *a, size_t b, const BuRecord *c, unsigned d,
   (void)e;
   return BU_UNSUPPORTED;
 }
-BuResult bu_select(const unsigned char a[2][BU_RECORD], unsigned *b) {
+enum bu_result bu_select(const unsigned char a[2][BU_RECORD], unsigned *b) {
   (void)a;
   (void)b;
   return BU_UNSUPPORTED;
 }
-BuResult bu_migrate(const BuRecord *a, BuRecord *b) {
+enum bu_result bu_migrate(const struct bu_record *a, struct bu_record *b) {
   (void)a;
   (void)b;
   return BU_UNSUPPORTED;
 }
-BuResult bu_handoff(const BuHandoff *a, BuRange b, BuRange c) {
+enum bu_result bu_handoff(const struct bu_handoff *a, struct bu_range b, struct bu_range c) {
   (void)a;
   (void)b;
   (void)c;

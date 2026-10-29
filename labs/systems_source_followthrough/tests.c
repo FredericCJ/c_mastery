@@ -3,14 +3,14 @@
 #include <string.h>
 #define CHECK(x) do { if(!(x)){fprintf(stderr,"SOURCE_HEX_ASSERT:%d:%s\n",__LINE__,#x);return 1;} }while(0)
 static const char end[] = ":00000001FF\n";
-static int reject(const char *s,enum SfMode mode,enum SfStatus status)
+static int reject(const char *s,enum sf_mode mode,enum sf_status status)
 {
- struct SfImage x,before;memset(&x,0xA5,sizeof x);memcpy(&before,&x,sizeof x);
+ struct sf_image x,before;memset(&x,0xA5,sizeof x);memcpy(&before,&x,sizeof x);
  return sf_hex(s,strlen(s),mode,&x)==status&&!memcmp(&x,&before,sizeof x);
 }
 int main(void)
 {
- struct SfImage x;
+ struct sf_image x;
  CHECK(sf_hex(end,strlen(end),SF_PLAIN,&x)==SF_OK&&x.count==0&&x.entry_kind==0);
  CHECK(sf_hex(":021000000102EB\n:02101000FEFFE1\n:00000001FF\n",44,SF_PLAIN,&x)==SF_OK);
  CHECK(x.count==4&&x.bytes[0].address==0x1000&&x.bytes[3].address==0x1011&&x.bytes[3].value==255);

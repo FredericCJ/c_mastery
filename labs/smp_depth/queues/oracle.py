@@ -12,12 +12,12 @@ def fields(line):
 def check_guest(text,cpus,coarse,sampled=False):
  events=[fields(s) for s in text.splitlines() if s.startswith('SQ_EVENT ')]
  cpu=[fields(s) for s in text.splitlines() if s.startswith('SQ_CPU ')]
- if not events or len(cpu)!=cpus or {r['actor'] for r in cpu}!=set(range(cpus)) or {r['apic'] for r in cpu}!={0,1,2,4}.intersection({0} if cpus==1 else {0,1} if cpus==2 else {0,1,2,4}):raise ValueError('Missing/duplicate actual CPU records')
+ if not events or len(cpu)!=cpus or {r['actor'] for r in cpu}!=set(range(cpus)) or {r['apic'] for r in cpu}!={0,1,2,4}.intersection({0} if cpus==1 else {0,1} if cpus==2 else {0,1,2,4}):raise ValueError('Missing/duplicate actual struct lr_cpu records')
  if 'SQ_GUEST_PASS:saved-context-percpu-queues coarse='+str(coarse)+' tasks='+str(2*cpus) not in text:raise ValueError('Wrong guest result')
  if sampled:return {'status':'inconclusive','observed_events':len(events),'reason':'Omitted transitions can hide duplicate dispatch or lost enqueue; endpoints do not establish history.'}
  by_actor=defaultdict(list);by_task=defaultdict(list)
  for i,e in enumerate(events):
-  if not 0<=e['actor']<cpus or not 0<=e['source']<cpus or not 0<=e['destination']<cpus:raise ValueError('Unknown CPU')
+  if not 0<=e['actor']<cpus or not 0<=e['source']<cpus or not 0<=e['destination']<cpus:raise ValueError('Unknown struct lr_cpu')
   by_actor[e['actor']].append((i,e));by_task[e['slot']].append((i,e))
  edges=defaultdict(set);indegree=[0]*len(events)
  def connect(a,b):
@@ -42,7 +42,7 @@ def check_guest(text,cpus,coarse,sampled=False):
    elif new!=5 and e['destination']!=home:raise ValueError('Unannounced movement')
    state=new
   if state!=4 or sum(e['to']==2 for _,e in rows)!=7:raise ValueError('Incomplete task history')
-  if slot==0 and cpus>1 and home!=1:raise ValueError('Changed-CPU continuation absent')
+  if slot==0 and cpus>1 and home!=1:raise ValueError('Changed-struct lr_cpu continuation absent')
   for a,b in zip(rows,rows[1:]):connect(a[0],b[0])
  work=[i for i,d in enumerate(indegree) if not d];visited=0
  while work:
@@ -53,7 +53,7 @@ def check_guest(text,cpus,coarse,sampled=False):
  if visited!=len(events):raise ValueError('Contradictory causal edges')
  for row in cpu:
   if row['switches']!=2*dispatch[row['actor']] or row['empty']!=1 or not 0<row['active']<=row['elapsed'] or row['idle']+row['active']>row['elapsed']:raise ValueError('Incorrect actual switch/clock accounting')
- return {'status':'consistent-complete-recorded-history','events':len(events),'tasks':2*cpus,'switches':sum(r['switches'] for r in cpu),'causal_edges':sum(map(len,edges.values())),'clock':'per-CPU virtual TSC intervals, no cross-CPU timestamp ordering','active_fraction':[r['active']/r['elapsed'] for r in cpu]}
+ return {'status':'consistent-complete-recorded-history','events':len(events),'tasks':2*cpus,'switches':sum(r['switches'] for r in cpu),'causal_edges':sum(map(len,edges.values())),'clock':'per-struct lr_cpu virtual TSC intervals, no cross-struct lr_cpu timestamp ordering','active_fraction':[r['active']/r['elapsed'] for r in cpu]}
 
 def check_cost(text):
  rows=[fields(s) for s in text.splitlines() if s.startswith('SQ_COST ')]

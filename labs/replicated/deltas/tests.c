@@ -10,16 +10,16 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
+struct rp_disk {
   unsigned char stable[STORE_IMAGE_PAGES][STORE_PAGE_SIZE],
       pending[STORE_IMAGE_PAGES][STORE_PAGE_SIZE], dirty[STORE_IMAGE_PAGES];
   unsigned cut, event, mode, dead;
-} Disk;
-static Disk disks[3];
+};
+static struct rp_disk disks[3];
 static store pages[3];
-static RpdReplica nodes[3];
+static struct rpd_replica nodes[3];
 static unsigned char baseline[STORE_IMAGE_PAGES][STORE_PAGE_SIZE];
-static void persist(Disk *d) {
+static void persist(struct rp_disk *d) {
   unsigned i;
   for (i = 0; i < STORE_IMAGE_PAGES; ++i)
     if (d->dirty[i]) {
@@ -27,7 +27,7 @@ static void persist(Disk *d) {
       d->dirty[i] = 0;
     }
 }
-static int fault(Disk *d) {
+static int fault(struct rp_disk *d) {
   if (++d->event != d->cut || !d->cut)
     return 0;
   if (d->mode)
@@ -36,14 +36,14 @@ static int fault(Disk *d) {
   return 1;
 }
 static int rd(void *c, uint32_t p, void *out) {
-  Disk *d = c;
+  struct rp_disk *d = c;
   if (d->dead || p >= STORE_IMAGE_PAGES)
     return -1;
   memcpy(out, d->dirty[p] ? d->pending[p] : d->stable[p], STORE_PAGE_SIZE);
   return 0;
 }
 static int wr(void *c, uint32_t p, const void *in) {
-  Disk *d = c;
+  struct rp_disk *d = c;
   if (d->dead || p >= STORE_IMAGE_PAGES)
     return -1;
   memcpy(d->pending[p], in, STORE_PAGE_SIZE);
@@ -51,7 +51,7 @@ static int wr(void *c, uint32_t p, const void *in) {
   return fault(d) ? -1 : 0;
 }
 static int fl(void *c) {
-  Disk *d = c;
+  struct rp_disk *d = c;
   if (d->dead || fault(d))
     return -1;
   persist(d);
@@ -70,12 +70,12 @@ static int setup(void) {
   }
   return 0;
 }
-static int equal(const RpdState *a, const RpdState *b) {
+static int equal(const struct rpd_state *a, const struct rpd_state *b) {
   unsigned char x[128], y[128];
   return !rpd_encode(a, x) && !rpd_encode(b, y) && !memcmp(x, y, 128);
 }
 /* Test-only durable boundary injection; this does not simulate 2^64 events. */
-static int install(unsigned node, const RpdState *state) {
+static int install(unsigned node, const struct rpd_state *state) {
   unsigned char bytes[128];
   unsigned i;
   CHECK(rpd_encode(state, bytes) == RPD_OK);
@@ -88,7 +88,7 @@ static int install(unsigned node, const RpdState *state) {
   return 0;
 }
 static int sets(void) {
-  RpdSet empty = {0}, a, b, c, old, removed, third, delta, bad;
+  struct rpd_set empty = {0}, a, b, c, old, removed, third, delta, bad;
   unsigned i;
   CHECK(rpd_set_add(&empty, 0, 2, &a, &old) == RPD_OK);
   CHECK(rpd_set_remove(&a, 2, &b, &removed) == RPD_OK);
@@ -116,8 +116,8 @@ static int sets(void) {
   return 0;
 }
 static int wire(void) {
-  RpdState a = {0}, out, saved;
-  RpdSet delta;
+  struct rpd_state a = {0}, out, saved;
+  struct rpd_set delta;
   unsigned char b[128], bad[128];
   unsigned i;
   a.uuid = 9;
@@ -141,8 +141,8 @@ static int wire(void) {
   return 0;
 }
 static int protocol(void) {
-  RpdPacket first, p, old;
-  RpdAck ack, oldack;
+  struct rpd_packet first, p, old;
+  struct rpd_ack ack, oldack;
   uint64_t before;
   unsigned i;
   CHECK(setup() == 0);
@@ -194,9 +194,9 @@ static int protocol(void) {
 }
 static int durable(void) {
   unsigned operation, cut, mode, cases = 0;
-  RpdReplica source, saved, reopened;
-  RpdPacket packet;
-  RpdAck ack, ack_before;
+  struct rpd_replica source, saved, reopened;
+  struct rpd_packet packet;
+  struct rpd_ack ack, ack_before;
   int status;
   uint64_t sequence;
   for (operation = 0; operation < 3; ++operation) {
@@ -290,8 +290,8 @@ static int durable(void) {
   return 0;
 }
 static int oracle(void) {
-  RpdPacket packets[12];
-  RpdAck acknowledgments[12];
+  struct rpd_packet packets[12];
+  struct rpd_ack acknowledgments[12];
   unsigned have_packet[12] = {0}, have_ack[12] = {0};
   char op;
   unsigned a, b, c, i;
@@ -356,8 +356,8 @@ static int metrics(void) {
   printf("{\"set_size\":%zu,\"state_size\":%zu,\"replica_size\":%zu,\"packet_"
          "size\":%zu,\"ack_size\":%zu,\"history_capacity\":4,\"tag_capacity\":"
          "24,\"snapshot_bytes\":128}\n",
-         sizeof(RpdSet), sizeof(RpdState), sizeof(RpdReplica),
-         sizeof(RpdPacket), sizeof(RpdAck));
+         sizeof(struct rpd_set), sizeof(struct rpd_state), sizeof(struct rpd_replica),
+         sizeof(struct rpd_packet), sizeof(struct rpd_ack));
   return 0;
 }
 int main(int argc, char **argv) {

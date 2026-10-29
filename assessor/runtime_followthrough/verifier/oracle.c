@@ -1,13 +1,13 @@
 #include "verifier.h"
 #include <stdio.h>
-static VvWork work;
+static struct vv_work work;
 int main(void) {
   unsigned count = 0, accepted = 0;
   unsigned char header[3], image[1100];
   while (fread(header, 1, 3, stdin) == 3) {
     size_t n = (size_t)header[0] | ((size_t)header[1] << 8);
-    CvmProgram p;
-    VvReport r;
+    struct cvm_program p;
+    struct vv_report r;
     if (!n || n > sizeof image || header[2] > 1 ||
         fread(image, 1, n, stdin) != n || cvm_decode(image, n, &p) != CVM_OK)
       return 2;

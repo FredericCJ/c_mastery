@@ -5,7 +5,7 @@
 #define VH_MUTANT 0
 #endif
 static const char value_key[] = "vm-result", receipt_key[] = "vm-operation";
-static int ready(const Vh *h) {
+static int ready(const struct vg_vh *h) {
   return h && h->database && h->mode <= VH_VERSIONED5 && h->allow_legacy <= 1;
 }
 static void put32(uint8_t *p, int32_t n) {
@@ -32,7 +32,7 @@ static uint64_t get64(const uint8_t *p) {
     u |= (uint64_t)p[i] << (8 * i);
   return u;
 }
-static int read_value(Vh *h, int32_t *out, int *legacy) {
+static int read_value(struct vg_vh *h, int32_t *out, int *legacy) {
   uint8_t bytes[STORE_VALUE_MAX] = {0};
   size_t length = 0;
   int r = store_get(h->database, value_key, sizeof value_key - 1, bytes,
@@ -59,7 +59,7 @@ static int commit(store *s) {
   int r = store_commit(s);
   return VH_MUTANT == 4 ? STORE_OK : r;
 }
-static int assign(Vh *h, int32_t value, int32_t *out) {
+static int assign(struct vg_vh *h, int32_t value, int32_t *out) {
   int r = store_begin(h->database);
   if (r)
     return r;
@@ -73,7 +73,7 @@ static int assign(Vh *h, int32_t value, int32_t *out) {
     *out = value;
   return r;
 }
-int vh_migrate(Vh *h, int32_t *out) {
+int vh_migrate(struct vg_vh *h, int32_t *out) {
   if (!ready(h) || !out || h->mode != VH_VERSIONED5 || !h->allow_legacy)
     return STORE_INVALID;
   int32_t value;
@@ -86,7 +86,7 @@ int vh_migrate(Vh *h, int32_t *out) {
   *out = value;
   return STORE_OK;
 }
-int vh_increment(Vh *h, uint64_t id, int32_t delta, int32_t *out) {
+int vh_increment(struct vg_vh *h, uint64_t id, int32_t delta, int32_t *out) {
   if (!ready(h) || !out || h->mode != VH_VERSIONED5 || !id)
     return STORE_INVALID;
   uint8_t receipt[STORE_VALUE_MAX] = {0};
@@ -142,7 +142,7 @@ int vh_increment(Vh *h, uint64_t id, int32_t delta, int32_t *out) {
   return r;
 }
 int vh_host(void *context, uint8_t service, int32_t input, int32_t *out) {
-  Vh *h = context;
+  struct vg_vh *h = context;
   if (!ready(h) || !out)
     return STORE_INVALID;
   if (VH_MUTANT != 1 &&

@@ -2,7 +2,7 @@
 #ifndef PW_MUTANT
 #define PW_MUTANT 0
 #endif
-int pw_translate(const PWMemory*m,uint64_t root,uint64_t va,unsigned supervisor,unsigned sum,unsigned mxr,unsigned op,uint64_t*out){
+int pw_translate(const struct pw_memory*m,uint64_t root,uint64_t va,unsigned supervisor,unsigned sum,unsigned mxr,unsigned op,uint64_t*out){
  if(!m||!out||supervisor>1||sum>1||mxr>1||op>2||(root&4095)||(root>>56)||m->present>255||m->read_blocked>255)return PW_INVALID;
  uint64_t high=va>>39,sign=(va>>38)&1;
  if(PW_MUTANT!=1&&high!=(sign?UINT64_C(0x1ffffff):0))return PW_PAGE_FAULT;

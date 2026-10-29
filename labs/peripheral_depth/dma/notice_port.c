@@ -1,6 +1,6 @@
 #include "dma.h"
-int pd_h745_notice(unsigned a, uint32_t b, uint32_t c, const PdNotice *d,
-                   PdNotice *e) {
+int pd_h745_notice(unsigned a, uint32_t b, uint32_t c, const struct pd_notice *d,
+                   struct pd_notice *e) {
   (void)a;
   (void)b;
   (void)c;

@@ -2,7 +2,7 @@
 #ifndef RP_MUTANT
 #define RP_MUTANT 0
 #endif
-static int valid(const RPTask *t,unsigned n,unsigned cpus,uint32_t h,unsigned demand){
+static int valid(const struct rp_task *t,unsigned n,unsigned cpus,uint32_t h,unsigned demand){
  if(!t||!n||n>RP_TASKS||!cpus||cpus>RP_CPUS||!h||h>RP_HORIZON||demand>1)return 0;
  for(unsigned i=0;i<n;i++){
   const cmx_job *j=&t[i].job;
@@ -12,7 +12,7 @@ static int valid(const RPTask *t,unsigned n,unsigned cpus,uint32_t h,unsigned de
  }
  return 1;
 }
-static int fits(const RPTask *t,const RPPlan *p,unsigned count,unsigned demand){
+static int fits(const struct rp_task *t,const struct rp_plan *p,unsigned count,unsigned demand){
  uint32_t used[RP_CPUS]={0};
  for(unsigned i=0;i<count;i++){
   unsigned c=p->cpu[i];if(c>=p->cpus||(!(t[i].affinity&(1u<<c))&&RP_MUTANT!=4))return 0;
@@ -30,18 +30,18 @@ static int fits(const RPTask *t,const RPPlan *p,unsigned count,unsigned demand){
  }
  return 1;
 }
-static void loads(const RPTask *t,RPPlan *p){
+static void loads(const struct rp_task *t,struct rp_plan *p){
  for(unsigned c=0;c<RP_CPUS;c++)p->used[c]=0;
  for(unsigned i=0;i<p->n;i++)p->used[p->cpu[i]]+=(p->horizon/t[i].job.period)*t[i].cost[p->cpu[i]];
 }
-enum rp_status rp_verify(const RPTask *t,unsigned n,const RPPlan *p,unsigned demand){
+enum rp_status rp_verify(const struct rp_task *t,unsigned n,const struct rp_plan *p,unsigned demand){
  if(!p||p->n!=n||!valid(t,n,p->cpus,p->horizon,demand))return RP_INVALID;
  if(!fits(t,p,n,demand))return RP_IMPOSSIBLE;
- RPPlan expected=*p;loads(t,&expected);
+ struct rp_plan expected=*p;loads(t,&expected);
  for(unsigned c=0;c<RP_CPUS;c++)if(p->used[c]!=expected.used[c])return RP_INVALID;
  return RP_OK;
 }
-enum rp_status rp_fit(const RPTask *t,unsigned n,unsigned cpus,uint32_t h,unsigned demand,RPPlan *out){
+enum rp_status rp_fit(const struct rp_task *t,unsigned n,unsigned cpus,uint32_t h,unsigned demand,struct rp_plan *out){
  if(!out||!valid(t,n,cpus,h,demand))return RP_INVALID;
  unsigned order[RP_TASKS];uint32_t weight[RP_TASKS];
  for(unsigned i=0;i<n;i++){
@@ -54,7 +54,7 @@ enum rp_status rp_fit(const RPTask *t,unsigned n,unsigned cpus,uint32_t h,unsign
    unsigned tmp=order[at];order[at]=order[at-1];order[at-1]=tmp;at--;
   }
  }
- RPPlan p={.n=n,.cpus=cpus,.horizon=h};
+ struct rp_plan p={.n=n,.cpus=cpus,.horizon=h};
  unsigned homogeneous=!demand;
  for(unsigned i=0;i<n;i++){
   if(t[i].affinity!=(1u<<cpus)-1u)homogeneous=0;
@@ -67,7 +67,7 @@ enum rp_status rp_fit(const RPTask *t,unsigned n,unsigned cpus,uint32_t h,unsign
   if(result!=CMX_OK){if(RP_MUTANT==2){for(unsigned i=0;i<n;i++)p.cpu[order[i]]=placed[i];*out=p;}return result==CMX_FULL?RP_FULL:RP_INVALID;}
   for(unsigned i=0;i<n;i++)p.cpu[order[i]]=placed[i];
  }else{
-  RPTask sorted[RP_TASKS]={0};RPPlan staged={.n=n,.cpus=cpus,.horizon=h};
+  struct rp_task sorted[RP_TASKS]={0};struct rp_plan staged={.n=n,.cpus=cpus,.horizon=h};
   for(unsigned i=0;i<n;i++){
    sorted[i]=t[order[i]];unsigned c;
    for(c=0;c<cpus;c++){staged.cpu[i]=c;if(fits(sorted,&staged,i+1,demand))break;}
@@ -77,59 +77,59 @@ enum rp_status rp_fit(const RPTask *t,unsigned n,unsigned cpus,uint32_t h,unsign
  }
  loads(t,&p);*out=p;return RP_OK;
 }
-static int search(const RPTask *t,RPPlan *p,unsigned i,unsigned demand){
+static int search(const struct rp_task *t,struct rp_plan *p,unsigned i,unsigned demand){
  if(i==p->n)return 1;
  for(unsigned c=0;c<p->cpus;c++){
   p->cpu[i]=c;if(fits(t,p,i+1,demand)&&search(t,p,i+1,demand))return 1;
  }
  return 0;
 }
-enum rp_status rp_exact(const RPTask *t,unsigned n,unsigned cpus,uint32_t h,unsigned demand,RPPlan *out){
+enum rp_status rp_exact(const struct rp_task *t,unsigned n,unsigned cpus,uint32_t h,unsigned demand,struct rp_plan *out){
  if(!out||!valid(t,n,cpus,h,demand))return RP_INVALID;
- RPPlan p={.n=n,.cpus=cpus,.horizon=h};
+ struct rp_plan p={.n=n,.cpus=cpus,.horizon=h};
  if(!search(t,&p,0,demand))return RP_IMPOSSIBLE;
  loads(t,&p);*out=p;return RP_OK;
 }
-enum rp_status rp_simulate(const RPTask *t,unsigned n,const RPPlan *p,cmx_sim_result *out){
+enum rp_status rp_simulate(const struct rp_task *t,unsigned n,const struct rp_plan *p,cmx_sim_result *out){
  if(!out||rp_verify(t,n,p,1)!=RP_OK)return RP_INVALID;
  cmx_job jobs[RP_TASKS]={0};for(unsigned i=0;i<n;i++){jobs[i]=t[i].job;jobs[i].cost=t[i].cost[p->cpu[i]];}
  cmx_sim_result result;enum cmx_result s=cmx_simulate(jobs,n,p->cpus,p->cpu,p->horizon,&result);
  if(s!=CMX_OK)return RP_INVALID;
  *out=result;return RP_OK;
 }
-enum rp_status rp_lease_init(RPLease *p,unsigned owner){
+enum rp_status rp_lease_init(struct rp_lease *p,unsigned owner){
  if(!p||owner>=RP_CPUS)return RP_INVALID;
- *p=(RPLease){.owner=owner,.target=owner,.epoch=1};return RP_OK;
+ *p=(struct rp_lease){.owner=owner,.target=owner,.epoch=1};return RP_OK;
 }
-static enum rp_status identity(const RPLease *p,unsigned owner,uint64_t epoch){
+static enum rp_status identity(const struct rp_lease *p,unsigned owner,uint64_t epoch){
  if(!p||owner>=RP_CPUS)return RP_INVALID;
  return owner!=p->owner||epoch!=p->epoch?RP_STALE:RP_OK;
 }
-enum rp_status rp_begin(RPLease *p,unsigned owner,uint64_t epoch){
+enum rp_status rp_begin(struct rp_lease *p,unsigned owner,uint64_t epoch){
  enum rp_status s=identity(p,owner,epoch);if(s!=RP_OK)return s;
  if(p->busy||p->prepared)return RP_BUSY;
  p->busy=1;return RP_OK;
 }
-enum rp_status rp_finish(RPLease *p,unsigned owner,uint64_t epoch,uint32_t work){
+enum rp_status rp_finish(struct rp_lease *p,unsigned owner,uint64_t epoch,uint32_t work){
  enum rp_status s=identity(p,owner,epoch);if(s!=RP_OK)return s;
  if(!p->busy)return RP_INVALID;
  if(work>UINT64_MAX-p->work)return RP_FULL;
  p->work+=work;p->busy=0;return RP_OK;
 }
-enum rp_status rp_prepare(RPLease *p,unsigned owner,uint64_t epoch,unsigned target){
+enum rp_status rp_prepare(struct rp_lease *p,unsigned owner,uint64_t epoch,unsigned target){
  enum rp_status s=identity(p,owner,epoch);if(s!=RP_OK)return s;
  if(target>=RP_CPUS||target==owner)return RP_INVALID;
  if((p->busy&&RP_MUTANT!=5)||p->prepared)return RP_BUSY;
  if(p->epoch==UINT64_MAX)return RP_FULL;
  p->prepared=1;p->target=target;return RP_OK;
 }
-enum rp_status rp_accept(RPLease *p,unsigned target,uint64_t epoch){
+enum rp_status rp_accept(struct rp_lease *p,unsigned target,uint64_t epoch){
  if(!p||target>=RP_CPUS)return RP_INVALID;
  if(!p->prepared||target!=p->target||epoch!=p->epoch)return RP_STALE;
  if(p->busy)return RP_BUSY;
  p->owner=target;if(RP_MUTANT!=6)p->epoch++;p->prepared=0;return RP_OK;
 }
-enum rp_status rp_abort(RPLease *p,unsigned owner,uint64_t epoch){
+enum rp_status rp_abort(struct rp_lease *p,unsigned owner,uint64_t epoch){
  enum rp_status s=identity(p,owner,epoch);if(s!=RP_OK)return s;
  if(!p->prepared)return RP_INVALID;
  p->prepared=0;p->target=owner;return RP_OK;

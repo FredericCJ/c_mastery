@@ -29,7 +29,7 @@ int cc_lengths(const uint16_t frequency[16],uint8_t length[16])
     }
     copy_bytes(length,result,16);return CC_OK;
 }
-int cc_book(const uint8_t length[16],CcBook *book)
+int cc_book(const uint8_t length[16],struct cc_book *book)
 {
     unsigned count[16],next[16],code=0;
     for(unsigned i=0;i<16;i++){count[i]=0;next[i]=0;}
@@ -51,7 +51,7 @@ int cc_book(const uint8_t length[16],CcBook *book)
 }
 int cc_hencode(const uint8_t *symbols,size_t n,uint8_t *out,size_t cap,size_t *used)
 {
-    uint16_t frequency[16];uint8_t length[16],frame[CC_FRAME_LIMIT];CcBook book;
+    uint16_t frequency[16];uint8_t length[16],frame[CC_FRAME_LIMIT];struct cc_book book;
     for(unsigned i=0;i<16;i++)frequency[i]=0;
     size_t bits=0,total,bit=0;
     if(!spans(symbols,n,out,cap,used)||n>CC_SYMBOL_LIMIT)return CC_INVALID;
@@ -69,7 +69,7 @@ int cc_hencode(const uint8_t *symbols,size_t n,uint8_t *out,size_t cap,size_t *u
 }
 int cc_hdecode(const uint8_t *frame,size_t n,uint8_t *out,size_t cap,size_t *used)
 {
-    uint8_t decoded[CC_SYMBOL_LIMIT];CcBook book;size_t count,bit=0,available;
+    uint8_t decoded[CC_SYMBOL_LIMIT];struct cc_book book;size_t count,bit=0,available;
     if(!spans(frame,n,out,cap,used)||n<18||n>CC_FRAME_LIMIT)return CC_INVALID;
     count=(size_t)frame[0]+((size_t)frame[1]<<8);
     if(count>CC_SYMBOL_LIMIT||cc_book(frame+2,&book)!=CC_OK)return CC_INVALID;

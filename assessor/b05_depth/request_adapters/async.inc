@@ -2,7 +2,7 @@
 #include "request.c"
 /* Two independent three-descriptor chains in the retained eight-entry queue. */
 struct rqa_request {
-  Rq control;unsigned owner,owner_generation,waiter,type;
+  struct b5_rq control;unsigned owner,owner_generation,waiter,type;
   uint64_t buffer,deadline;struct {uint32_t type,reserved;uint64_t sector;} header;
   volatile unsigned char status;
 };

@@ -14,14 +14,14 @@
       exit(41);                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
-  CfEpoch *e;
-  AGLease lease;
+struct cf_actor {
+  struct cf_epoch *e;
+  struct ag_lease lease;
   unsigned loops;
   atomic_uint *done;
-} Actor;
+};
 static void *actor(void *p) {
-  Actor *a = p;
+  struct cf_actor *a = p;
   for (unsigned i = 0; i < a->loops; i++) {
     int r;
     while ((r = cf_epoch_enter(a->e, a->lease)) == AG_BUSY)
@@ -35,9 +35,9 @@ static void *actor(void *p) {
   return NULL;
 }
 static void registration(void) {
-  CfEpoch e;
+  struct cf_epoch e;
   cf_epoch_init(&e, 1);
-  AGLease a, b;
+  struct ag_lease a, b;
   CK(cf_epoch_register(&e, &a) == AG_OK);
   CK(cf_epoch_enter(&e, a) == AG_OK && cf_epoch_enter(&e, a) == AG_OK);
   CK(cf_epoch_advance(&e) == AG_OK && e.domain.retained.epoch == 1);
@@ -65,16 +65,16 @@ static void registration(void) {
        "stale_rejection busy_preserved");
 }
 static void threads(void) {
-  CfEpoch e;
+  struct cf_epoch e;
   cf_epoch_init(&e, 0);
-  Actor a[2];
+  struct cf_actor a[2];
   pthread_t t[2];
   atomic_uint done;
   atomic_init(&done, 0);
   for (unsigned i = 0; i < 2; i++) {
-    AGLease l;
+    struct ag_lease l;
     CK(cf_epoch_register(&e, &l) == AG_OK);
-    a[i] = (Actor){&e, l, 10000, &done};
+    a[i] = (struct cf_actor){&e, l, 10000, &done};
   }
   for (unsigned i = 0; i < 2; i++) {
     CK(!pthread_create(&t[i], NULL, actor, &a[i]));
@@ -101,15 +101,15 @@ static void threads(void) {
 }
 static void retention(void) {
   for (unsigned period = 3; period <= 12; period *= 2) {
-    AGStore s;
-    AGLease reader;
-    AGBorrow borrow;
+    struct ag_store s;
+    struct ag_lease reader;
+    struct ag_borrow borrow;
     ag_store_init(&s, 0, 0);
     CK(ag_register(&s.domain, &reader) == AG_OK);
     CK(ag_read(&s, reader, &borrow) == AG_OK);
     CK(ag_writer_acquire(&s, 7) == AG_OK);
-    APQueue q;
-    APLease hold, actor;
+    struct ap_queue q;
+    struct ap_lease hold, actor;
     CK(ap_init(&q, 2, 100, NULL, NULL) == AP_OK);
     CK(ap_register(&q, &hold) == AP_OK);
     CK(ap_register(&q, &actor) == AP_OK);
@@ -119,7 +119,7 @@ static void retention(void) {
       unsigned retired_epoch = s.domain.retained.epoch;
       CK(ag_publish(&s, 7, (unsigned char)i) == AG_OK);
       CK(ag_collect(&s) == 0);
-      APValue out, v = {i, ~i};
+      struct ap_value out, v = {i, ~i};
       CK(ap_push(&q, actor, v) == AP_OK && ap_pop(&q, actor, &out) == AP_OK &&
          out.sequence == i);
       ap_collect(&q);
@@ -154,9 +154,9 @@ static void retention(void) {
   }
 }
 static void arrivals(void) {
-  AGStore s;
-  AGLease old, newer[2];
-  AGBorrow a, b, next;
+  struct ag_store s;
+  struct ag_lease old, newer[2];
+  struct ag_borrow a, b, next;
   ag_store_init(&s, 1, 1);
   CK(ag_register(&s.domain, &old) == AG_OK);
   for (unsigned i = 0; i < 2; i++)

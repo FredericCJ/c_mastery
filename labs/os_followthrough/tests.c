@@ -13,7 +13,7 @@ static int schedules(void) {
   os_job jobs[] = {{0, 8, 1}, {1, 2, 1}, {2, 1, 1}};
   for (unsigned policy = 0; policy < 4; policy++)
     for (unsigned overhead = 0; overhead <= 2; overhead++) {
-      OfSchedule r;
+      struct of_schedule r;
       CHECK(of_schedule(jobs, 3, (os_policy)policy, 2, overhead, &r) == OF_OK);
       unsigned service[3] = {0}, first[3] = {UINT_MAX, UINT_MAX, UINT_MAX},
                finish[3] = {0}, idle = 0, switching = 0, dispatches = 0;
@@ -50,7 +50,7 @@ static int schedules(void) {
         CHECK(finish[0] == 11 && finish[1] == 3 && finish[2] == 4 &&
               first[0] == 0 && first[1] == 1 && first[2] == 3);
     }
-  OfSchedule out;
+  struct of_schedule out;
   memset(&out, 0x5a, sizeof out);
   unsigned char snapshot[sizeof out];
   memcpy(snapshot, &out, sizeof out);
@@ -67,22 +67,22 @@ static int schedules(void) {
 }
 static int fairness(void) {
   unsigned weights[] = {1, 2, 4};
-  OfFair a, b;
+  struct of_fair a, b;
   CHECK(of_fair(1, 14, weights, 0, 28, NULL, 0, 0, &a) == OF_OK &&
         a.service[0] == 2 && a.service[1] == 4 && a.service[2] == 8);
   CHECK(of_fair(1, 14, weights, UINT64_MAX - 4, 28, NULL, 0, 0, &b) == OF_OK &&
         b.normalizations &&
         memcmp(a.timeline, b.timeline, 14 * sizeof(int)) == 0);
-  OfEvent events[256];
+  struct of_event events[256];
   for (unsigned i = 0; i < 256; i++)
-    events[i] = (OfEvent){i, 0, OF_YIELD, 0};
+    events[i] = (struct of_event){i, 0, OF_YIELD, 0};
   CHECK(of_fair(0, 256, weights, 0, 1024, events, 256, 0, &a) == OF_OK &&
         a.boosts == 15);
   CHECK(of_fair(0, 256, weights, 0, 1024, events, 256, 1, &b) == OF_OK);
   CHECK(memcmp(a.timeline, b.timeline, sizeof a.timeline) != 0);
   for (unsigned i = 0; i < 3; i++)
     CHECK(a.service[i] > 0);
-  OfEvent changes[] = {{20, 0, OF_SLEEP, 30}, {80, 0, OF_WEIGHT, 4}};
+  struct of_event changes[] = {{20, 0, OF_SLEEP, 30}, {80, 0, OF_WEIGHT, 4}};
   CHECK(of_fair(1, 128, weights, 0, 1024, changes, 2, 0, &a) == OF_OK);
   for (unsigned t = 20; t < 50; t++)
     CHECK(a.timeline[t] != 0);
@@ -93,19 +93,19 @@ static int fairness(void) {
 }
 static int pages(void) {
   uint8_t values[] = {1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5};
-  OfReference refs[12];
+  struct of_reference refs[12];
   for (unsigned i = 0; i < 12; i++)
-    refs[i] = (OfReference){values[i], (uint8_t)(i % 3 == 0)};
+    refs[i] = (struct of_reference){values[i], (uint8_t)(i % 3 == 0)};
   for (unsigned cap = 3; cap <= 4; cap++)
     for (unsigned policy = 0; policy < 4; policy++) {
-      OfPages r;
-      CHECK(of_pages(refs, 12, cap, (OfPagePolicy)policy, &r) == OF_OK);
+      struct of_pages r;
+      CHECK(of_pages(refs, 12, cap, (enum of_page_policy)policy, &r) == OF_OK);
       if (policy == OF_FIFO)
         CHECK(r.faults == (cap == 3 ? 9u : 10u));
       if (policy == OF_CLOCK)
         CHECK(r.faults == os_clock_faults(values, 12, cap));
       for (unsigned i = 0; i < 12; i++) {
-        OfPageStep *step = &r.steps[i];
+        struct of_page_step *step = &r.steps[i];
         CHECK(step->live_mask < (1u << cap) &&
               !(step->dirty_mask & ~step->live_mask));
         for (unsigned j = 0; j < cap; j++)
@@ -116,7 +116,7 @@ static int pages(void) {
       printf("OF:pages:policy%u:frames%u:faults%u:writebacks%u\n", policy, cap,
              r.faults, r.writebacks);
     }
-  OfPages out;
+  struct of_pages out;
   memset(&out, 0x5a, sizeof out);
   unsigned char old[sizeof out];
   memcpy(old, &out, sizeof out);
@@ -127,18 +127,18 @@ static int pages(void) {
   return 0;
 }
 static int transfers(void) {
-  OfTransfer t = {7, 0, 0, 0};
+  struct of_transfer t = {7, 0, 0, 0};
   ptrdiff_t events[] = {-4, 2, -11, 2, -5};
   size_t expected[] = {0, 2, 2, 4, 4};
   for (unsigned i = 0; i < 5; i++) {
-    OfStatus s = of_progress(&t, events[i], 0);
+    enum of_status s = of_progress(&t, events[i], 0);
     CHECK(t.done == expected[i] && t.wanted - t.done == 7 - expected[i]);
     CHECK(s == (i == 4 ? OF_ERROR : i == 0 || i == 2 ? OF_WAIT : OF_OK));
   }
   CHECK(t.error == 5 && t.terminal);
-  t = (OfTransfer){7, 0, 0, 0};
+  t = (struct of_transfer){7, 0, 0, 0};
   CHECK(of_progress(&t, 3, 1) == OF_ERROR && t.done == 3 && t.error == 71);
-  t = (OfTransfer){7, 0, 0, 0};
+  t = (struct of_transfer){7, 0, 0, 0};
   CHECK(of_progress(&t, PTRDIFF_MIN, 0) == OF_INPUT && !t.done && !t.terminal);
   puts("OF:transfer:done0,2,2,4,4:EINTR-EAGAIN-terminal:record-partial-is-"
        "protocol-error");

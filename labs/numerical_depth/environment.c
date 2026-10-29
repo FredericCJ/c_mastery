@@ -5,13 +5,13 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
-typedef struct {
+struct nd_work {
   const double *x;
   size_t n;
   double result;
-} Work;
+};
 static void *worker(void *p) {
-  Work *w = p;
+  struct nd_work *w = p;
   if (nd_sum(w->x, w->n, ND_NAIVE, &w->result))
     abort();
   return NULL;
@@ -31,7 +31,7 @@ int main(void) {
   double separate = a * b + c, fused = fma(a, b, c), v[] = {0x1p53, 1, -0x1p53};
   double reductions[2];
   for (size_t split = 1; split <= 2; split++) {
-    Work w[2] = {{v, split, 0}, {v + split, 3 - split, 0}};
+    struct nd_work w[2] = {{v, split, 0}, {v + split, 3 - split, 0}};
     pthread_t t[2];
     for (size_t i = 0; i < 2; i++)
       if (pthread_create(t + i, NULL, worker, w + i))
@@ -44,7 +44,7 @@ int main(void) {
   double comp;
   if (nd_sum(v, 3, ND_NEUMAIER, &comp))
     return 4;
-  Work three[3] = {{v, 1, 0}, {v + 1, 1, 0}, {v + 2, 1, 0}};
+  struct nd_work three[3] = {{v, 1, 0}, {v + 1, 1, 0}, {v + 2, 1, 0}};
   pthread_t workers[3];
   for (size_t i = 0; i < 3; i++)
     if (pthread_create(workers + i, NULL, worker, three + i))

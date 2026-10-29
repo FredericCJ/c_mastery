@@ -11,17 +11,17 @@
       exit(41);                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
+struct ag_gate {
   pthread_mutex_t mutex;
   pthread_cond_t cv;
   unsigned reached, go;
-} Gate;
+};
 static void hook(void *ctx, unsigned point, unsigned p, unsigned ticket) {
   (void)point;
   (void)p;
   if (ticket)
     return;
-  Gate *g = ctx;
+  struct ag_gate *g = ctx;
   CHECK(!pthread_mutex_lock(&g->mutex));
   g->reached = 1;
   CHECK(!pthread_cond_broadcast(&g->cv));
@@ -29,14 +29,14 @@ static void hook(void *ctx, unsigned point, unsigned p, unsigned ticket) {
     CHECK(!pthread_cond_wait(&g->cv, &g->mutex));
   CHECK(!pthread_mutex_unlock(&g->mutex));
 }
-typedef struct {
-  ARQueue *q;
-  ARTicket ticket;
+struct ag_work {
+  struct ar_queue *q;
+  struct ar_ticket ticket;
   int result;
-} Work;
+};
 static void *finish(void *ptr) {
-  Work *w = ptr;
-  w->result = ar_finish(w->q, w->ticket, (APValue){11, ~11u});
+  struct ag_work *w = ptr;
+  w->result = ar_finish(w->q, w->ticket, (struct ap_value){11, ~11u});
   return NULL;
 }
 int main(void) {
@@ -50,16 +50,16 @@ int main(void) {
   CHECK(cmx_publish(&retained, a, 11) == CMX_OK);
   CHECK(cmx_reserved_pop(&retained, &out) == CMX_OK && out == 11);
   CHECK(cmx_reserved_pop(&retained, &out) == CMX_OK && out == 22);
-  Gate g = {PTHREAD_MUTEX_INITIALIZER, PTHREAD_COND_INITIALIZER, 0, 0};
-  ARQueue q;
+  struct ag_gate g = {PTHREAD_MUTEX_INITIALIZER, PTHREAD_COND_INITIALIZER, 0, 0};
+  struct ar_queue q;
   ar_init(&q, hook, &g);
-  ARTicket first, second;
-  APValue v = {99, ~99u};
+  struct ar_ticket first, second;
+  struct ap_value v = {99, ~99u};
   CHECK(ar_pop(&q, &v) == AR_EMPTY && v.sequence == 99);
   CHECK(ar_reserve(&q, &first) == AR_OK && ar_reserve(&q, &second) == AR_OK);
-  CHECK(ar_finish(&q, second, (APValue){22, ~22u}) == AR_OK);
+  CHECK(ar_finish(&q, second, (struct ap_value){22, ~22u}) == AR_OK);
   CHECK(ar_pop(&q, &v) == AR_PENDING && v.sequence == 99);
-  Work w = {&q, first, AR_UNIMPLEMENTED};
+  struct ag_work w = {&q, first, AR_UNIMPLEMENTED};
   pthread_t worker;
   CHECK(!pthread_create(&worker, NULL, finish, &w));
   CHECK(!pthread_mutex_lock(&g.mutex));
@@ -82,20 +82,20 @@ int main(void) {
   CHECK(ar_pop(&q, &v) == AR_EMPTY);
   q.hook = NULL;
   for (unsigned i = 0; i < 32; i++) {
-    ARTicket t;
+    struct ar_ticket t;
     CHECK(ar_reserve(&q, &t) == AR_OK);
-    CHECK(ar_finish(&q, t, (APValue){i, ~i}) == AR_OK);
+    CHECK(ar_finish(&q, t, (struct ap_value){i, ~i}) == AR_OK);
     CHECK(ar_pop(&q, &v) == AR_OK && v.sequence == i);
     CHECK(ar_cancel(&q, first) == AR_INVALID);
   }
-  ARTicket tickets[4], unchanged = first;
+  struct ar_ticket tickets[4], unchanged = first;
   for (unsigned i = 0; i < 4; i++)
     CHECK(ar_reserve(&q, &tickets[i]) == AR_OK);
   CHECK(ar_reserve(&q, &unchanged) == AR_FULL &&
         unchanged.sequence == first.sequence);
   for (unsigned i = 0; i < 4; i++) {
     CHECK(ar_cancel(&q, tickets[i]) == AR_OK);
-    CHECK(ar_finish(&q, tickets[i], (APValue){0, 0}) == AR_CANCELLED);
+    CHECK(ar_finish(&q, tickets[i], (struct ap_value){0, 0}) == AR_CANCELLED);
     CHECK(ar_pop(&q, &v) == AR_CANCELLED);
   }
   atomic_store(&q.head, AR_LIMIT);

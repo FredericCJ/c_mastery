@@ -14,7 +14,7 @@
     }                                                                          \
   } while (0)
 int main(void) {
-  ElAddress v4, v6, unix_address;
+  struct el_address v4, v6, unix_address;
   CHECK(el_loopback(AF_INET, 0x1234, &v4) == 0 &&
         v4.length == sizeof(struct sockaddr_in));
   struct sockaddr_in a;

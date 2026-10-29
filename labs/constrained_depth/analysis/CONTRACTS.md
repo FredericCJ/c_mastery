@@ -46,7 +46,7 @@ owned disposable QEMU instance is started, interrupted and terminated.
 
 ## Problem, inputs and outputs
 
-Implement `analysis.c` and `target.c` from the public declarations. `CAConfig`
+Implement `analysis.c` and `target.c` from the public declarations. `struct ca_config`
 identifies an image, clock, interrupt/cache/probe policy and clock resolution.
 The all-zero image field is not a certificate; callers supply the real digest.
 The type compares identities; it does not authenticate their provenance.

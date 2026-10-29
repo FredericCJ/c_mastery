@@ -26,14 +26,14 @@ int main(int argc,char **argv){
         for(unsigned sample=0;sample<13;++sample)for(unsigned mode=0;mode<2;++mode)for(unsigned order=0;order<3;++order){
             /* Rotate paired backend order; no cherry-picked best sample. */
             unsigned which=(order+sample)%3;
-            CPVBackend requested=which==0?CPV_SCALAR:which==1?CPV_COMPILER:CPV_AVX;
-            CPVPlan plan;if(cpv_plan(&plan,requested)==CPN_UNSUPPORTED)continue;
+            enum cpv_backend requested=which==0?CPV_SCALAR:which==1?CPV_COMPILER:CPV_AVX;
+            struct cpv_plan plan;if(cpv_plan(&plan,requested)==CPN_UNSUPPORTED)continue;
             if(mode){for(size_t i=0;i<evict_size;i+=64)evict[i]=(unsigned char)(evict[i]+1);barrier(evict);}
-            else{CPNDouble warm={0,0};CHECK(cpv_run(&plan,&warm,in,n,out,n)==CPN_OK);}
+            else{struct cpn_double warm={0,0};CHECK(cpv_run(&plan,&warm,in,n,out,n)==CPN_OK);}
             unsigned long long a=now();for(size_t r=0;r<repeats;++r)for(size_t b=0;b<count;++b)barrier(in+b*n);unsigned long long overhead=now()-a;
             a=now();
             for(size_t r=0;r<repeats;++r)for(size_t b=0;b<count;++b){
-                CPNDouble s={0,0};barrier(in+b*n);CHECK(cpv_run(&plan,&s,in+b*n,n,out+b*n,n)==CPN_OK);
+                struct cpn_double s={0,0};barrier(in+b*n);CHECK(cpv_run(&plan,&s,in+b*n,n,out+b*n,n)==CPN_OK);
             }
             unsigned long long elapsed=now()-a;
             CHECK(!memcmp(out,expected,elements*sizeof(double)));

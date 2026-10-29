@@ -10,7 +10,7 @@ obligations below are required, not optional topics or historical evidence edits
 ## Prerequisites and environment
 
 Use C17, octets, the exact-width types and the original first-principles
-`CPParser`, `CPQueue`, `cp_crc32` and codec. The portable core has no allocation,
+`struct cp_parser`, `struct cp_queue`, `cp_crc32` and codec. The portable core has no allocation,
 I/O or parser/CRC library dependency. Host verification may use Python/zlib,
 GCC/Clang, sanitizers and a separate byte-stream driver. All controls and extents
 are live, aligned, disjoint, initialized and accessed by one serialized owner.
@@ -41,8 +41,8 @@ adds flags and an optional timestamp, includes every extension byte in the CRC,
 and makes the unchanged v1 decoder reject v2 after the version octet.
 
 **Current clarification of the earlier transfer wording “Keep v1 unchanged”:**
-the baseline `CPParser` keeps its32-byte limit and wire layout. The experimental
-`CPXParser` source applies its configured16/64 payload limit to both versions;
+the baseline `struct cp_parser` keeps its32-byte limit and wire layout. The experimental
+`struct cpx_parser` source applies its configured16/64 payload limit to both versions;
 that is a changed-admission experiment, not identical acceptance to baseline v1.
 When testing compatibility, explicitly use the original v1 parser or a32-byte
 admission limit and record the difference. No claim of backwards-compatible
@@ -103,7 +103,7 @@ different from globally shortest input. Your minimizer receipt must contain
 `check_replay.py` accepts that receipt and an independently implemented oracle;
 it does not supply a private reference implementation or an assessor answer.
 
-Implement `cpa_admit` from `learner.c`. It wraps the actual fixed `CPQueue` with
+Implement `cpa_admit` from `learner.c`. It wraps the actual fixed `struct cp_queue` with
 an explicit admission capacity1 or2. Refuse invalid capacity/count; preserve
 ready state on full; otherwise invoke the actual producer delivery operation.
 Do not mutate the admission limit while messages are owned. This changes the

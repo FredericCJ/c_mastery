@@ -15,7 +15,7 @@ void pd_port_write(uint32_t, uint32_t);
 uint32_t pd_port_mask(void);
 void pd_port_restore(uint32_t);
 void pd_port_barrier(void);
-PdNotice *pd_port_memory(void);
+struct pd_notice *pd_port_memory(void);
 #else
 _Static_assert(sizeof(uintptr_t) == 4, "Selected32-bit target");
 #define WORD(a) (*(volatile uint32_t *)(uintptr_t)(a))
@@ -31,12 +31,12 @@ static void pd_port_restore(uint32_t v) {
   __asm__ volatile("msr primask, %0" ::"r"(v) : "memory");
 }
 static void pd_port_barrier(void) { __asm__ volatile("dsb sy" ::: "memory"); }
-static PdNotice *pd_port_memory(void) {
-  return (PdNotice *)(uintptr_t)0x30040020u;
+static struct pd_notice *pd_port_memory(void) {
+  return (struct pd_notice *)(uintptr_t)0x30040020u;
 }
 #endif
 static int operate(unsigned op, uint32_t epoch, uint32_t seq,
-                   const PdNotice *message, PdNotice *out, int boot) {
+                   const struct pd_notice *message, struct pd_notice *out, int boot) {
   if (!epoch)
     return PD_INVALID;
   uint32_t mask = pd_port_mask(), id = PD_PEER_M7 ? 3u : 1u;
@@ -49,7 +49,7 @@ static int operate(unsigned op, uint32_t epoch, uint32_t seq,
     (void)fw_h745_cache(0x30040020u, 32, H7_INVALIDATE);
   int r;
   if (boot) {
-    PdNotice initial = {epoch, 0, 0, 0, 0, 0, 0, 0};
+    struct pd_notice initial = {epoch, 0, 0, 0, 0, 0, 0, 0};
     *pd_port_memory() = initial;
     r = PD_OK;
   } else
@@ -65,7 +65,7 @@ static int operate(unsigned op, uint32_t epoch, uint32_t seq,
   return r;
 }
 int pd_h745_notice(unsigned op, uint32_t epoch, uint32_t seq,
-                   const PdNotice *message, PdNotice *out) {
+                   const struct pd_notice *message, struct pd_notice *out) {
   return operate(op, epoch, seq, message, out, 0);
 }
 /* Only trusted cold start: peer held in reset, DMA idle, no outstanding leases.

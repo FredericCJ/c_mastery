@@ -23,5 +23,5 @@ def main():
    actual=values[1+7*step:1+7*(step+1)];assert actual[:3]==[status,out,len(model)] and actual[4:]==state and 1<=actual[3]<=7,(h,step,actual,model)
    maxprobes=max(maxprobes,actual[3]);expected.extend([status,out,len(model),*state]);transitions+=1
   digest.update((' '.join(map(str,[len(h),*expected]))+'\n').encode())
- print(json.dumps(dict(passed=True,histories=len(histories),transitions=transitions,max_history_probes=maxprobes,trace_sha256=digest.hexdigest(),model='independent association list; actual B02 plus actual CDHash and CDChain compared at each transition')))
+ print(json.dumps(dict(passed=True,histories=len(histories),transitions=transitions,max_history_probes=maxprobes,trace_sha256=digest.hexdigest(),model='independent association list; actual B02 plus actual struct cd_hash and struct cd_chain compared at each transition')))
 if __name__=='__main__':main()

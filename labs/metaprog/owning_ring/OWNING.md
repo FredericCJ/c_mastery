@@ -11,7 +11,7 @@ queue. Real pointers, live objects and admitted callback behavior are premises.
 
 ## Representation, operations and exact failure contract
 
-`MpoBlob` owns its byte allocation; `MpoWords` owns its uint32_t allocation. An
+`struct mpo_blob` owns its byte allocation; `struct mpo_words` owns its uint32_t allocation. An
 empty owner has a null pointer and zero extent. A live owner has an extent valid
 for its allocation. The two rings each contain four actual elements, head, count
 and matching typed clone/drop operations. Derive `head < 4`, `count <= 4`, and
@@ -44,7 +44,7 @@ their callback allocates a zero-size representation. Callbacks may not reenter o
 mutate this ring, retain borrowed inputs/staged pointers, throw/longjmp, or access
 owners after drop. The context outlives every possible callback.
 
-`MpoErasedRing` has four pointers to actual, empty typed objects and a fifth actual
+`struct mpo_erased_ring` has four pointers to actual, empty typed objects and a fifth actual
 typed scratch object. All five must be pairwise disjoint and disjoint from control,
 inputs and outputs; pointer equality checks cannot prove full object disjointness.
 Its matching erased clone/drop/move callbacks are caller obligations. Move cannot

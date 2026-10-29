@@ -1,4 +1,4 @@
 #include "object_runtime_rc_concurrent.h"
-ORStatus orrc_init(ORRConcurrent *h){(void)h;return OR_UNIMPLEMENTED;}
-ORStatus orrc_call(ORRConcurrent *h,const ORRRequest *q,ORRResponse *r){(void)h;(void)q;(void)r;return OR_UNIMPLEMENTED;}
-ORStatus orrc_close(ORRConcurrent *h){(void)h;return OR_UNIMPLEMENTED;}
+enum or_status orrc_init(struct orr_concurrent *h){(void)h;return OR_UNIMPLEMENTED;}
+enum or_status orrc_call(struct orr_concurrent *h,const struct orr_request *q,struct orr_response *r){(void)h;(void)q;(void)r;return OR_UNIMPLEMENTED;}
+enum or_status orrc_close(struct orr_concurrent *h){(void)h;return OR_UNIMPLEMENTED;}

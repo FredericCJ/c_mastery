@@ -1,15 +1,15 @@
 # Allocated reference graphs and last-owner races
 
 This required X-T66-006 investigation supplements `../CONTRACTS.md`. Use hosted
-ISO C17, GCC and Clang, actual POSIX threads, and the actual `OwShared`,
-`OwAtomicShared` and typed `OwAllocator` producer. The public compilation stub is
+ISO C17, GCC and Clang, actual POSIX threads, and the actual `struct ow_shared`,
+`struct ow_atomic_shared` and typed `struct ow_allocator` producer. The public compilation stub is
 unsolved. `tests/model.c` and `tests/fence.c` are diagnostic clients, not target
 dependencies. Reference counting itself may not be delegated to a library.
 
 ## Representation and ownership
 
 Construct two distinct allocated `Node` controls and two separately allocated
-`int32_t` payloads containing 11 and 12. `OrcMemory.take` returns suitably aligned
+`int32_t` payloads containing 11 and 12. `struct orc_memory.take` returns suitably aligned
 fresh allocated storage of the requested size, or NULL; its matching release
 consumes that allocation. The actual typed allocator supplies the two one-cell
 payloads. Allocator contexts, controls, output and payloads are live and disjoint.

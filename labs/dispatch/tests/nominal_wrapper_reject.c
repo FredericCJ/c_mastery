@@ -1,2 +1,2 @@
 #include "dispatch_extensions.h"
-DSIntInterface invalid(DSBytesReceiver *p){return ds_byte_interface(p);}
+struct ds_int_interface invalid(struct ds_bytes_receiver *p){return ds_byte_interface(p);}

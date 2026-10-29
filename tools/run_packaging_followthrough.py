@@ -76,7 +76,7 @@ class Campaign:
    for name in paths:
     p=pathlib.Path(name)
     if p.is_file():self.external[name]=sha(p)
-   self.observations[tag+'.provenance']=dict(target_source='original adapter plus hash-pinned earlier ApiBuffer producer',runtime_files=paths,host_tools=['CMake','Doxygen','Python','Git','compiler/binutils'],distribution_permission='unresolved; local experimental artifacts only',oracle='independently formulated Python byte-sequence model; never called by target')
+   self.observations[tag+'.provenance']=dict(target_source='original adapter plus hash-pinned earlier struct api_buffer producer',runtime_files=paths,host_tools=['CMake','Doxygen','Python','Git','compiler/binutils'],distribution_permission='unresolved; local experimental artifacts only',oracle='independently formulated Python byte-sequence model; never called by target')
    self.observations[tag+'.ffi']=json.loads(self.run(tag+'.ffi',[sys.executable,PUB/'tests/ffi.py',lib]))
    debug=self.keep(BUILD/(tag+'.debug'));stripped=self.keep(BUILD/(tag+'.stripped.so'));shutil.copy2(lib,stripped)
    self.run(tag+'.debug_extract',['objcopy','--only-keep-debug',lib,debug]);self.run(tag+'.strip',['strip','--strip-debug',stripped]);self.run(tag+'.debuglink',['objcopy','--add-gnu-debuglink='+str(debug),stripped]);a=self.run(tag+'.build_id',['readelf','-n',stripped]);b=self.run(tag+'.debug_id',['readelf','-n',debug]);aid=re.search(r'Build ID: (\w+)',a);bid=re.search(r'Build ID: (\w+)',b);assert aid and bid and aid[1]==bid[1];self.observations[tag+'.debug_identity']=aid[1]
@@ -98,7 +98,7 @@ class Campaign:
   for mode in ['before','after']:
    header=self.keep(BUILD/(mode+'.h'));text=(PUB/'include/lc.h').read_text()
    if mode=='after':
-    text=re.sub(r'LCBuffer \*buffer,\s*const unsigned char \*borrowed_bytes,\s*size_t length_bytes','LCBuffer *buffer /**< [in] Live library-owned object; may not alias input. */,\n                         const unsigned char *borrowed_bytes /**< [in] Readable byte span; null only at length0. */,\n                         size_t length_bytes /**< [in] Byte count, never element count. */',text)
+    text=re.sub(r'struct lc_buffer \*buffer,\s*const unsigned char \*borrowed_bytes,\s*size_t length_bytes','struct lc_buffer *buffer /**< [in] Live library-owned object; may not alias input. */,\n                         const unsigned char *borrowed_bytes /**< [in] Readable byte span; null only at length0. */,\n                         size_t length_bytes /**< [in] Byte count, never element count. */',text)
     assert '/**< [in] Byte count' in text
     text=re.sub(r' \* @param (?:buffer|borrowed_bytes|length_bytes).*\n','',text)
    header.write_text(text);output=BUILD/('doxy-'+mode);pages=self.keep(BUILD/(mode+'.dox'));pages.write_text('/** @page architecture Architecture decisions\n'+(PUB/'ARCHITECTURE.md').read_text()+'\n*/\n/** @page exercise_contract Exercise contract\n'+(PUB/'CONTRACTS.md').read_text()+'\n*/\n');config=self.keep(BUILD/('Doxyfile.'+mode));config.write_text((PUB/'Doxyfile.in').read_text().replace('@HEADER@',str(header)).replace('@OUTPUT@',str(output)).replace('@ARCHDOC@',str(pages)))

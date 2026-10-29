@@ -4,12 +4,12 @@
 #define MOD_MUTATION 0
 #endif
 #define MP_PREFIX mp_u32
-#define MP_RING MPU32Ring
+#define MP_RING struct mpu32_ring
 #define MP_ELEMENT uint32_t
 #include "ring_template.inc"
 #define MP_PREFIX mp_pair
-#define MP_RING MPPairRing
-#define MP_ELEMENT MPPair
+#define MP_RING struct mp_pair_ring
+#define MP_ELEMENT struct mp_pair
 #include "ring_template.inc"
 
 int mp_storage_bound(size_t count, size_t width, size_t limit, size_t *out) {
@@ -17,7 +17,7 @@ int mp_storage_bound(size_t count, size_t width, size_t limit, size_t *out) {
     if (MOD_MUTATION != 4 && count * width > limit) return 0;
     *out = count * width; return 1;
 }
-int mp_reduce(const uint32_t *input, size_t count, MPPolicy policy, uint32_t *out) {
+int mp_reduce(const uint32_t *input, size_t count, struct mp_policy policy, uint32_t *out) {
     uint32_t value = 0; size_t i;
     if (policy.saturate > 1 || (count && !input)) return 0;
     for (i = 0; i < count; ++i) {
@@ -31,7 +31,7 @@ int mp_reduce(const uint32_t *input, size_t count, MPPolicy policy, uint32_t *ou
 }
 #define MP_POLICY_WRAPPER(name,mode) \
     int name(const uint32_t *input,size_t count,uint32_t limit,uint32_t *out) { \
-        const MPPolicy policy={limit,mode}; return mp_reduce(input,count,policy,out); \
+        const struct mp_policy policy={limit,mode}; return mp_reduce(input,count,policy,out); \
     }
 MP_POLICY_WRAPPER(mp_reduce_reject,0)
 MP_POLICY_WRAPPER(mp_reduce_saturating,1)
@@ -68,37 +68,37 @@ int mp_generic_receivers(uint32_t *mutable_value,const uint32_t *fixed_value,uns
     if (MOD_MUTATION == 10) (void)mp_const_pointer(fixed_value,&calls);
     *out=a+b; *evaluations=calls; return 1;
 }
-#define MP_FIELD(name,type,width) {#name,offsetof(MPRecord,name),width},
-static const MPField mp_descriptors[] = {MP_RECORD_FIELDS(MP_FIELD)};
+#define MP_FIELD(name,type,width) {#name,offsetof(struct mp_record,name),width},
+static const struct mp_field mp_descriptors[] = {MP_RECORD_FIELDS(MP_FIELD)};
 #undef MP_FIELD
-size_t mp_fields(const MPField **out) { *out=mp_descriptors; return MOD_MUTATION == 12 ? 1 : sizeof mp_descriptors/sizeof mp_descriptors[0]; }
-int mp_record_encode(MPRecord record,unsigned char *output,size_t capacity) {
+size_t mp_fields(const struct mp_field **out) { *out=mp_descriptors; return MOD_MUTATION == 12 ? 1 : sizeof mp_descriptors/sizeof mp_descriptors[0]; }
+int mp_record_encode(struct mp_record record,unsigned char *output,size_t capacity) {
     if(capacity<6) return 0;
     output[0]=(unsigned char)(MOD_MUTATION==11 ? record.code : record.code>>8);
     output[1]=(unsigned char)(MOD_MUTATION==11 ? record.code>>8 : record.code);
     output[2]=(unsigned char)(record.value>>24); output[3]=(unsigned char)(record.value>>16);
     output[4]=(unsigned char)(record.value>>8); output[5]=(unsigned char)record.value; return 1;
 }
-int mp_equal(MPKey a,MPKey b) { return a.x==b.x && (MOD_MUTATION==13 || a.y==b.y); }
+int mp_equal(struct mp_key a,struct mp_key b) { return a.x==b.x && (MOD_MUTATION==13 || a.y==b.y); }
 static uint64_t mp_hash_byte(uint64_t hash,unsigned char byte) { return (hash ^ byte)*UINT64_C(1099511628211); }
 static uint64_t mp_hash_word(uint64_t hash,uint64_t value) {
     unsigned i; for(i=0;i<8;++i) { hash=mp_hash_byte(hash,(unsigned char)value); value>>=8; } return hash;
 }
-uint64_t mp_hash(MPKey value) {
+uint64_t mp_hash(struct mp_key value) {
     uint64_t hash=mp_hash_word(UINT64_C(14695981039346656037),value.x);
     hash=mp_hash_word(hash,value.y);
     if(MOD_MUTATION==14) hash=mp_hash_word(hash,value.cache);
     return hash;
 }
-int mp_find_counterexample(MPProperty property,void *context,unsigned bound,MPPair *out) {
+int mp_find_counterexample(mp_property_fn property,void *context,unsigned bound,struct mp_pair *out) {
     unsigned x,y;
     if(!property || bound>255) return -1;
     for(x=0;x<=bound;++x) for(y=0;y<=bound;++y) {
-        MPPair candidate={x,y};
+        struct mp_pair candidate={x,y};
         if(!property(candidate,context)) {
             int changed=1;
             while(changed) {
-                MPPair trial=candidate; changed=0;
+                struct mp_pair trial=candidate; changed=0;
                 if(candidate.x) { --trial.x; if(!property(trial,context)) { candidate=trial; changed=1; continue; } }
                 trial=candidate;
                 if(candidate.y) { --trial.y; if(!property(trial,context)) { candidate=trial; changed=1; } }
@@ -108,9 +108,9 @@ int mp_find_counterexample(MPProperty property,void *context,unsigned bound,MPPa
     }
     return 0;
 }
-MPArg mp_arg_number(uint32_t value) { MPArg a={1,value,NULL}; return a; }
-MPArg mp_arg_text(const char *value) { MPArg a={2,0,value}; return a; }
-int mp_format(MPSink *sink,MPArg argument) {
+struct mp_arg mp_arg_number(uint32_t value) { struct mp_arg a={1,value,NULL}; return a; }
+struct mp_arg mp_arg_text(const char *value) { struct mp_arg a={2,0,value}; return a; }
+int mp_format(struct mp_sink *sink,struct mp_arg argument) {
     unsigned char temporary[10]; size_t n=0,i; const unsigned char *text;
     if(sink->used>sink->capacity || (sink->capacity && !sink->bytes)) return 0;
     if(argument.kind==1) {
@@ -125,9 +125,9 @@ int mp_format(MPSink *sink,MPArg argument) {
     } else return 0;
     sink->used+=n; return 1;
 }
-int mp_expand(const MPToken *pattern,size_t count,const MPToken *arguments,size_t argument_count,
-              unsigned *next_context,MPToken *output,size_t capacity,size_t *used) {
-    MPToken temporary[32]; size_t i; unsigned fresh=*next_context;
+int mp_expand(const struct mp_token *pattern,size_t count,const struct mp_token *arguments,size_t argument_count,
+              unsigned *next_context,struct mp_token *output,size_t capacity,size_t *used) {
+    struct mp_token temporary[32]; size_t i; unsigned fresh=*next_context;
     if(count>32 || count>capacity || (count&&!pattern) || (argument_count&&!arguments) || !fresh ||
        (MOD_MUTATION!=18 && fresh==UINT_MAX)) return 0;
     for(i=0;i<count;++i) {
@@ -142,7 +142,7 @@ int mp_expand(const MPToken *pattern,size_t count,const MPToken *arguments,size_
     for(i=0;i<count;++i) output[i]=temporary[i];
     *next_context=fresh+1; *used=count; return 1;
 }
-int mp_build(const MPBuildNode *nodes,size_t count,unsigned *order,uint64_t *keys) {
+int mp_build(const struct mp_build_node *nodes,size_t count,unsigned *order,uint64_t *keys) {
     unsigned done=0,valid; size_t step,j; unsigned temporary_order[8]; uint64_t temporary_keys[8]={0};
     if(count>8 || (count&&!nodes)) return 0;
     valid=(1u<<(unsigned)count)-1u;

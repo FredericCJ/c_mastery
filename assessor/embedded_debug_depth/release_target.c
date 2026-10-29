@@ -2,11 +2,11 @@
 #ifndef DT_TARGET_MUTANT
 #define DT_TARGET_MUTANT 0
 #endif
-static DtTrace trace;
+static struct dt_trace trace;
 static volatile unsigned injected,done;
 static volatile uint32_t cookie=42,zero;
 static volatile uint32_t values[300];
-__attribute__((section(".noinit"))) static DtRetained retained;
+__attribute__((section(".noinit"))) static struct dt_retained retained;
 static uint32_t enter(void*v){
  (void)v;uint32_t mask;__asm__ volatile("mrs %0,primask":"=r"(mask));
  if(DT_TARGET_MUTANT!=1)__asm__ volatile("cpsid i":::"memory");
@@ -14,11 +14,11 @@ static uint32_t enter(void*v){
  return mask;
 }
 static void leave(void*v,uint32_t mask){(void)v;__asm__ volatile("msr primask,%0"::"r"(mask):"memory");}
-static DtCritical port={0,enter,leave};
+static struct dt_critical port={0,enter,leave};
 void dt_irq0(void){injected=1;if(dt_irq_emit(&trace,port,1,100,10)!=DT_OK)done=99;else done|=1;}
 void dt_irq1(void){if(dt_irq_emit(&trace,port,2,101,20)!=DT_OK)done=99;else done|=2;}
 __attribute__((noinline)) static uint32_t workload(unsigned mode){
- uint32_t sum=0;DtRecord record;
+ uint32_t sum=0;struct dt_record record;
  for(unsigned i=0;i<300;i++){sum+=values[i];if(mode){(void)dt_irq_emit(&trace,port,3,i,i);if(mode==2)(void)dt_irq_take(&trace,port,&record);}}
  return sum;
 }
@@ -38,7 +38,7 @@ int dt_target(void){
  __asm__ volatile("cpsie i\ndsb\nisb":::"memory");
  for(unsigned i=0;done!=3&&i<100000;i++)__asm__ volatile("nop":::"memory");
  if(done!=3)return 1;
- DtRecord record;if(dt_irq_take(&trace,port,&record)!=DT_OK||record.kind!=1)return 1;
+ struct dt_record record;if(dt_irq_take(&trace,port,&record)!=DT_OK||record.kind!=1)return 1;
  if(dt_irq_take(&trace,port,&record)!=DT_OK||record.kind!=2)return 1;
  __asm__ volatile("cpsid i":::"memory");
  if(dt_irq_emit(&trace,port,4,0,0)!=DT_OK)return 1;
@@ -47,7 +47,7 @@ int dt_target(void){
  volatile uint32_t*timer=(volatile uint32_t*)0x40000000u;timer[0]=0;timer[2]=0x00ffffffu;timer[3]=1;timer[0]=1;
  for(unsigned i=0;i<300;i++)values[i]=i;
  for(unsigned sample=0;sample<7;sample++)for(unsigned mode=0;mode<3;mode++){
-  trace=(DtTrace){0};uint32_t before=timer[1],sum=workload(mode),after=timer[1];
+  trace=(struct dt_trace){0};uint32_t before=timer[1],sum=workload(mode),after=timer[1];
   if(sum!=44850||before<after||before==after)return 1;
   dt_output("DT_COST:");dt_hex(sample);dt_output(":");dt_hex(mode);dt_output(":");dt_hex(before-after);dt_output(":");dt_hex(trace.dropped);dt_output("\n");
  }

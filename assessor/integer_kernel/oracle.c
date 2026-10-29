@@ -6,19 +6,19 @@
 #define REQUIRE(x) do{if(!(x)){fprintf(stderr,"FI_ORACLE_FAIL line=%d a=%d b=%d op=%u\n",__LINE__,a,b,op);return 1;}}while(0)
 static int magnitude(int n){return n<0?-n:n;}
 int main(void) {
- const FiRange ranges[]={{-128,127},{-127,127},{-12,3}};
+ const struct fi_range ranges[]={{-128,127},{-127,127},{-12,3}};
  unsigned long arithmetic=0,division=0,saturation=0;
  for(unsigned k=0;k<3;++k) {
-  FiRange range=ranges[k];
+  struct fi_range range=ranges[k];
   for(int a=range.low;a<=range.high;++a)for(int b=range.low;b<=range.high;++b) {
    for(unsigned op=0;op<3;++op) {
     /* Max magnitude16384, representable even by minimum ISO int range. */
     int exact=op==FI_ADD?a+b:op==FI_SUBTRACT?a-b:a*b;
     int admitted=exact>=range.low&&exact<=range.high,out=917;
-    REQUIRE(fi_binary(range,(FiOperation)op,a,b,&out)==(admitted?FI_OK:FI_RANGE));
+    REQUIRE(fi_binary(range,(enum fi_operation)op,a,b,&out)==(admitted?FI_OK:FI_RANGE));
     REQUIRE(out==(admitted?exact:917));++arithmetic;
     unsigned clipped=99;out=917;
-    REQUIRE(fi_saturate(range,(FiOperation)op,a,b,&out,&clipped)==FI_OK);
+    REQUIRE(fi_saturate(range,(enum fi_operation)op,a,b,&out,&clipped)==FI_OK);
     REQUIRE(out==(exact<range.low?range.low:exact>range.high?range.high:exact));
     REQUIRE(clipped==(unsigned)!admitted);++saturation;
    }
@@ -36,7 +36,7 @@ int main(void) {
     int q=917,r=919;
     /* Baseline rejects unrepresentable truncating quotient before either / or %,
      * even if another application's rounding convention could otherwise differ. */
-    REQUIRE(fi_divide(range,(FiDivision)op,a,b,&q,&r)==(found?FI_OK:FI_RANGE));
+    REQUIRE(fi_divide(range,(enum fi_division)op,a,b,&q,&r)==(found?FI_OK:FI_RANGE));
     REQUIRE(q==wantq&&r==wantr);++division;
    }
   }

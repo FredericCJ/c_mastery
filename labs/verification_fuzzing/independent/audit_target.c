@@ -1,6 +1,6 @@
 /* Original intentionally defective local teaching target; synthetic values only. */
 #include "audit.h"
-int audit_packet(const unsigned char*b,size_t n,AuditState*s){
+int audit_packet(const unsigned char*b,size_t n,struct audit_state*s){
  if(!b||!s||s->present>15||n<3||b[0]!=0xb6||b[1]!=1||b[2]>4)return 0;
  size_t at=3;
  for(unsigned i=0;i<b[2];i++){

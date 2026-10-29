@@ -41,18 +41,18 @@ static int atomic_case(void){
  CHECK(sf_leaf_encode(7,GEN,&n,b)==STORE_OK);b[4]=4;seal(b);before=out;CHECK(sf_leaf_decode(7,GEN,b,4096,&out)==STORE_CORRUPT);CHECK(memcmp(&out,&before,sizeof out)==0);
  puts("SFC atomic validated");return 0;
 }
-typedef struct {uint8_t bytes[STORE_IMAGE_PAGES][4096];unsigned event,fail,reads,read_fail,writes,discards,acquires;uint64_t identity;int acquired;} Image;
-static Image image,established;
-static int rd(void *p,uint32_t page,void *out){Image *m=p;if(page>=STORE_IMAGE_PAGES)return 1;m->reads++;if(m->read_fail==m->reads){memcpy(out,m->bytes[page],137);return 1;}memcpy(out,m->bytes[page],4096);return 0;}
-static int wr(void *p,uint32_t page,const void *in){Image *m=p;if(page>=STORE_IMAGE_PAGES)return 1;m->event++;m->writes++;if(m->event==m->fail){memcpy(m->bytes[page],in,137);return 1;}memcpy(m->bytes[page],in,4096);return 0;}
-static int fl(void *p){Image *m=p;m->event++;return m->event==m->fail;}
-static store_io io(Image *m){store_io r={m,rd,wr,fl,STORE_IMAGE_PAGES};return r;}
-static int acquire(void *p,SfImage *out){Image *m=p;m->acquires++;if(m->acquired)return 0;m->acquired=1;m->identity++;memset(m->bytes,0xa5,sizeof m->bytes);m->event=m->writes=m->reads=0;out->io=io(m);out->identity=m->identity;return 1;}
-static void discard(void *p,SfImage out){Image *m=p;if(out.identity!=m->identity||out.io.ctx!=m||!m->acquired)abort();m->discards++;m->acquired=0;}
+struct store_image {uint8_t bytes[STORE_IMAGE_PAGES][4096];unsigned event,fail,reads,read_fail,writes,discards,acquires;uint64_t identity;int acquired;};
+static struct store_image image,established;
+static int rd(void *p,uint32_t page,void *out){struct store_image *m=p;if(page>=STORE_IMAGE_PAGES)return 1;m->reads++;if(m->read_fail==m->reads){memcpy(out,m->bytes[page],137);return 1;}memcpy(out,m->bytes[page],4096);return 0;}
+static int wr(void *p,uint32_t page,const void *in){struct store_image *m=p;if(page>=STORE_IMAGE_PAGES)return 1;m->event++;m->writes++;if(m->event==m->fail){memcpy(m->bytes[page],in,137);return 1;}memcpy(m->bytes[page],in,4096);return 0;}
+static int fl(void *p){struct store_image *m=p;m->event++;return m->event==m->fail;}
+static store_io io(struct store_image *m){store_io r={m,rd,wr,fl,STORE_IMAGE_PAGES};return r;}
+static int acquire(void *p,struct sf_image *out){struct store_image *m=p;m->acquires++;if(m->acquired)return 0;m->acquired=1;m->identity++;memset(m->bytes,0xa5,sizeof m->bytes);m->event=m->writes=m->reads=0;out->io=io(m);out->identity=m->identity;return 1;}
+static void discard(void *p,struct sf_image out){struct store_image *m=p;if(out.identity!=m->identity||out.io.ctx!=m||!m->acquired)abort();m->discards++;m->acquired=0;}
 static int fresh(void){
- SfFactory f={&image,acquire,discard};SfImage out={0},before;unsigned cases=0;
+ struct sf_factory f={&image,acquire,discard};struct sf_image out={0},before;unsigned cases=0;
  memset(&image,0,sizeof image);CHECK(sf_format_fresh(f,&out)==STORE_OK);CHECK(image.event==38&&out.identity==1);unsigned verification_reads=image.reads;CHECK(verification_reads>0);discard(&image,out);
- for(unsigned cut=1;cut<=38;cut++){image.fail=cut;out=(SfImage){.identity=UINT64_MAX};before=out;unsigned discarded=image.discards;CHECK(sf_format_fresh(f,&out)==STORE_IO);CHECK(memcmp(&out,&before,sizeof out)==0&&image.discards==discarded+1&&!image.acquired);uint64_t failed_id=image.identity;image.fail=0;CHECK(sf_format_fresh(f,&out)==STORE_OK);CHECK(out.identity==failed_id+1);store opened;CHECK(store_open(&opened,out.io)==STORE_OK&&opened.root==1&&opened.used==3);discard(&image,out);cases++;}
+ for(unsigned cut=1;cut<=38;cut++){image.fail=cut;out=(struct sf_image){.identity=UINT64_MAX};before=out;unsigned discarded=image.discards;CHECK(sf_format_fresh(f,&out)==STORE_IO);CHECK(memcmp(&out,&before,sizeof out)==0&&image.discards==discarded+1&&!image.acquired);uint64_t failed_id=image.identity;image.fail=0;CHECK(sf_format_fresh(f,&out)==STORE_OK);CHECK(out.identity==failed_id+1);store opened;CHECK(store_open(&opened,out.io)==STORE_OK&&opened.root==1&&opened.used==3);discard(&image,out);cases++;}
  for(unsigned read=1;read<=verification_reads;read++){image.read_fail=read;before=out;unsigned discarded=image.discards;CHECK(sf_format_fresh(f,&out)==STORE_IO&&image.discards==discarded+1);CHECK(memcmp(&out,&before,sizeof out)==0);}image.read_fail=0;
  unsigned d;
  image.acquired=1;before=out;d=image.discards;CHECK(sf_format_fresh(f,&out)==STORE_FULL&&image.discards==d&&memcmp(&out,&before,sizeof out)==0);image.acquired=0;
@@ -67,10 +67,10 @@ static int reopen_case(void){
   if(test==1){w32(established.bytes[3]+16,31);seal(established.bytes[3]);}
   if(test==2)established.read_fail=1;
   if(test==3)established.bytes[0][4095]^=1; /* Valid newest checkpoint remains. */
-  Image *saved=malloc(sizeof *saved);CHECK(saved!=NULL);memcpy(saved,&established,sizeof *saved);int r=store_open(&s,io(&established));CHECK(r==(test==2?STORE_IO:test==3?STORE_OK:STORE_CORRUPT));CHECK(established.writes==0&&memcmp(saved->bytes,established.bytes,sizeof established.bytes)==0);free(saved);
+  struct store_image *saved=malloc(sizeof *saved);CHECK(saved!=NULL);memcpy(saved,&established,sizeof *saved);int r=store_open(&s,io(&established));CHECK(r==(test==2?STORE_IO:test==3?STORE_OK:STORE_CORRUPT));CHECK(established.writes==0&&memcmp(saved->bytes,established.bytes,sizeof established.bytes)==0);free(saved);
   if(test==3){uint8_t value[8];size_t n=0;CHECK(store_get(&s,"key",3,value,sizeof value,&n)==STORE_OK&&n==5&&memcmp(value,"value",5)==0);}
  }
- free(snapshot);SfImage out={0};image.fail=0;CHECK(sf_format_fresh((SfFactory){&image,acquire,discard},&out)==STORE_OK);discard(&image,out);puts("SFC reopen validated");return 0;
+ free(snapshot);struct sf_image out={0};image.fail=0;CHECK(sf_format_fresh((struct sf_factory){&image,acquire,discard},&out)==STORE_OK);discard(&image,out);puts("SFC reopen validated");return 0;
 }
 static int oracle(void){uint8_t b[4096];size_t n;while((n=fread(b,1,4096,stdin))!=0){if(n!=4096)return 2;store_node out,before;memset(&out,0xa5,sizeof out);before=out;int r=sf_leaf_decode(7,GEN,b,4096,&out);printf("%d %u %u %u %d\n",r,out.n,out.klen[0],out.vlen[0],memcmp(&out,&before,sizeof out)==0);}return ferror(stdin)?2:0;}
 int main(int argc,char **argv){if(argc!=2)return 2;

@@ -1,6 +1,6 @@
 #include "move.h"
-OwOwner permitted_struct_copy(OwOwner source){return source;}
-void ignored_result(OwOwner *old,OmmValue *value){
+struct ow_owner permitted_struct_copy(struct ow_owner source){return source;}
+void ignored_result(struct ow_owner *old,struct omm_value *value){
 #ifdef OMM_DIAGNOSTIC
  (void)value;ow_consume(old);
 #else

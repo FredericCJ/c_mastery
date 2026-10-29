@@ -54,7 +54,7 @@ not a userspace signal handler, a physical board or an asynchronous task schedul
 
 ## 5. Problem, inputs and outputs
 
-Implement `interrupts.h` in the supplied core stub. A `SiBox` has one serialized
+Implement `interrupts.h` in the supplied core stub. A `struct si_box` has one serialized
 producer and exactly one destination consumer. It contains one outstanding batch
 of one to four copied 32-bit work values and a nonzero 64-bit generation. There
 are no borrowed payloads. Different boxes identify different destination CPUs.
@@ -81,7 +81,7 @@ storage or permit reuse. Late completion returns `SI_OK` while the historical
 `timed_out` flag stays set until a successful next publication. At the terminal
 generation, completion and status remain legal; only new publication is refused.
 
-`SiRound` is an externally serialized, trusted acknowledgement collector for up
+`struct si_round` is an externally serialized, trusted acknowledgement collector for up
 to four CPU indices. Initialize a nonzero generation and nonempty four-bit
 required mask. Reject wrong generation and CPUs outside the required mask;
 duplicate observations cannot advance the mask. Completion is exact equality of

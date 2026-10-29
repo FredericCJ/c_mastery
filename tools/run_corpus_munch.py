@@ -47,7 +47,7 @@ def run(report):
                     execute([cc,*flags,ROOT/'labs/corpus_munch'/source,ROOT/'assessor/corpus_munch/munch.c',ROOT/'assessor/parsing_depth/regex.c','-o',binary],cc+'.'+name+'-build')
                     if name=='measure':
                         raw=execute([binary],cc+'.measure');assert len(raw.splitlines())==18 and 'bytes=243 mode=1' in raw
-                        d['measurements'].append(dict(compiler=cc,raw=raw,iterations_per_token_count=1000,limits='Bounded host CPU ticks, scanned transitions, rollback and memo table work; not board latency or a universal speed claim.'))
+                        d['measurements'].append(dict(compiler=cc,raw=raw,iterations_per_token_count=1000,limits='Bounded host struct lr_cpu ticks, scanned transitions, rollback and memo table work; not board latency or a universal speed claim.'))
                     else:
                         obs=json.loads(execute(['python3',ROOT/'assessor/corpus_munch/oracle.py',binary],cc+'.oracle'));assert obs['passed'] and obs['observations']==11960
                         d['independent_oracles'].append(dict(compiler=cc,**obs))

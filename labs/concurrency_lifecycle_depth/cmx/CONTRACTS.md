@@ -53,11 +53,11 @@ disassemblers and QEMU are verification tools, not target dependencies.
 ## 5. Concrete problem and supplied inputs
 
 Implement the three supplied unsolved adapters `cl_cmx.c`, `cl_cmx_irq.c`,
-`cl_cmx_task.c` against their public headers. A `CCQueue` embeds two original
-`CLMessage` slots (0–4 bytes each), a lifetime registry of eight leases, and
-sixteen per-task operation records. `CCHandle` binds a live queue, actual CMX
-task slot/generation and object/lease generations. `CCTicket` additionally
-binds a nonzero operation serial. `CCPort` owns an implicit callback lease.
+`cl_cmx_task.c` against their public headers. A `struct cc_queue` embeds two original
+`struct cl_message` slots (0–4 bytes each), a lifetime registry of eight leases, and
+sixteen per-task operation records. `struct cc_handle` binds a live queue, actual CMX
+task slot/generation and object/lease generations. `struct cc_ticket` additionally
+binds a nonzero operation serial. `struct cc_port` owns an implicit callback lease.
 Caller-owned queue/kernel/storage remain live and stable even when checking
 a stale handle. Invalid raw pointers are not made safe by a generation tag.
 
@@ -101,7 +101,7 @@ unrelated peripheral access excluded from the participating set.
   scratch fields are not part of a byte-for-byte control-object promise.
 * `CC_BLOCKED` means collect the eventual result using the same ticket, never
   reenter the original operation. Successful receive publishes its stored
-  `CLMessage` on collection only. Old/consumed tickets return `CL_STALE`.
+  `struct cl_message` on collection only. Old/consumed tickets return `CL_STALE`.
   A failed or closed receive leaves the caller's output untouched.
 * Progress first caches selected timeout/cancel outcomes, then services the
   oldest eligible receiver/sender using retained nonwrapping wait order.

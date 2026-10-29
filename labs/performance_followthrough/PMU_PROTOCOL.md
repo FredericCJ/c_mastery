@@ -25,7 +25,7 @@ deadline collection comparison and the representation/performance dossier.
 
 ## Strict grouped acquisition
 
-Implement `pmu.h` using only the supplied `PFPmuOS` operations for descriptor
+Implement `pmu.h` using only the supplied `struct pf_pmu_os` operations for descriptor
 access. A request contains one to eight events from one PMU type, for the calling
 thread on any allowed CPU, excluding kernel and hypervisor execution. The Linux
 adapter does not inherit child-thread work. An event type/config identifies an
@@ -167,8 +167,8 @@ work and join; these are identical lifecycle boundaries for both layouts. The
 64-byte separation is an explicit tested layout intervention, not a universal
 cache-line-size assumption. Check the detected target before calling it false
 sharing. The service is a bounded in-process deadline-driven stream consumer,
-not a socket throughput claim. It uses actual `TcCollection`, `EvParser`,
-`EvQueue` and `EvSum` implementations selected as author reference adapters;
+not a socket throughput claim. It uses actual `struct tc_collection`, `struct ev_parser`,
+`struct ev_queue` and `struct ev_sum` implementations selected as author reference adapters;
 their learner exports remain unfinished. Cancelled items never enter the parser.
 
 Counted groups contain instructions and cycles. Further branch/cache/target raw

@@ -24,7 +24,7 @@ int lt_ack(unsigned m, unsigned *base, unsigned *outstanding, unsigned next) {
   *outstanding -= d;
   return LT_OK;
 }
-int lt_sizes(uint32_t n, const LtLayer *p, size_t count, uint32_t *out) {
+int lt_sizes(uint32_t n, const struct lt_layer *p, size_t count, uint32_t *out) {
   if (count > 8 || (count && (!p || !out)))
     return LT_INVALID;
   uint32_t staged[8];
@@ -51,12 +51,12 @@ int lt_sizes(uint32_t n, const LtLayer *p, size_t count, uint32_t *out) {
     out[i] = staged[i];
   return LT_OK;
 }
-int lt_begin(LtBorrow *s, const unsigned char *p, size_t n) {
+int lt_begin(struct lt_borrow *s, const unsigned char *p, size_t n) {
   if (!s || (!p && n) || n > 256)
     return LT_INVALID;
   if (s->phase)
     return LT_BUSY;
-  LtBorrow t = {0};
+  struct lt_borrow t = {0};
   t.bytes = p;
   t.length = n;
   t.phase = 1;
@@ -65,7 +65,7 @@ int lt_begin(LtBorrow *s, const unsigned char *p, size_t n) {
   *s = t;
   return LT_OK;
 }
-int lt_offer(LtBorrow *s, const unsigned char **p, size_t *n) {
+int lt_offer(struct lt_borrow *s, const unsigned char **p, size_t *n) {
   if (!s || !p || !n)
     return LT_INVALID;
   if (s->phase != 1)
@@ -80,7 +80,7 @@ int lt_offer(LtBorrow *s, const unsigned char **p, size_t *n) {
   s->offered = *n;
   return LT_OK;
 }
-int lt_accept(LtBorrow *s, size_t n) {
+int lt_accept(struct lt_borrow *s, size_t n) {
   if (!s || s->phase != 1 || n > s->offered)
     return LT_INVALID;
   if (LT_MUTANT == 3 && n)
@@ -94,24 +94,24 @@ int lt_accept(LtBorrow *s, size_t n) {
   }
   return LT_OK;
 }
-int lt_cancel(LtBorrow *s, unsigned reset) {
+int lt_cancel(struct lt_borrow *s, unsigned reset) {
   if (!s || reset > 1)
     return LT_INVALID;
   if (!s->phase)
     return LT_OK;
   if (s->phase == 2 || !s->used || reset) {
-    LtBorrow z = {0};
+    struct lt_borrow z = {0};
     *s = z;
     return LT_OK;
   }
   s->phase = 3;
   return LT_BUSY;
 }
-int lt_bridge(LtBridge *s, unsigned vid, const uint8_t *src, const uint8_t *dst,
+int lt_bridge(struct lt_bridge *s, unsigned vid, const uint8_t *src, const uint8_t *dst,
               unsigned port, uint32_t now, unsigned *mask) {
   if (!s || !src || !dst || !mask || (vid != 10 && vid != 20) || now < s->now)
     return LT_INVALID;
-  LtBridge t = *s;
+  struct lt_bridge t = *s;
   unsigned selected = vid == 20, result = 0;
   if (LT_MUTANT == 4)
     selected = 0;
@@ -123,8 +123,8 @@ int lt_bridge(LtBridge *s, unsigned vid, const uint8_t *src, const uint8_t *dst,
   *mask = result;
   return LT_OK;
 }
-int lt_dp83848(const EDBus *b, uint32_t h, unsigned phy, unsigned budget,
-               uint32_t timeout, EDPhy *out) {
+int lt_dp83848(const struct ed_bus *b, uint32_t h, unsigned phy, unsigned budget,
+               uint32_t timeout, struct ed_phy *out) {
   if (!out)
     return ED_INVALID;
   uint16_t id1, id2, first, current, status;
@@ -153,26 +153,26 @@ int lt_dp83848(const EDBus *b, uint32_t h, unsigned phy, unsigned budget,
     return ED_NEGOTIATING;
   if ((status & 8) || !(status & 4))
     return ED_UNSUPPORTED;
-  EDPhy t = {(uint8_t)((first & 4) != 0), 1, 1,
+  struct ed_phy t = {(uint8_t)((first & 4) != 0), 1, 1,
              (uint16_t)((status & 2) ? 10 : 100)};
   if (LT_MUTANT == 5)
     t.speed = (status & 2) ? 100 : 10;
   *out = t;
   return ED_OK;
 }
-int lt_partial_begin(LtPartial *s, E7Sender *sender, uint32_t now) {
+int lt_partial_begin(struct lt_partial *s, struct e7_sender *sender, uint32_t now) {
   if (!s || !sender || now > UINT32_MAX - 500)
     return LT_INVALID;
   if (s->active)
     return LT_BUSY;
-  LtPartial t = {0};
-  E7Sender staged = *sender;
-  E7Fragment f;
+  struct lt_partial t = {0};
+  struct e7_sender staged = *sender;
+  struct e7_fragment f;
   uint32_t token;
   int r = e7_send_offer(&staged, now, &f, &token);
   if (r != E7_OK)
     return r == E7_WAIT || r == E7_BUSY ? LT_BUSY : LT_INVALID;
-  EduFragment ef = {0};
+  struct edu_fragment ef = {0};
   ef.type = f.type;
   ef.source_port = f.source;
   ef.destination_port = f.destination;
@@ -196,7 +196,7 @@ int lt_partial_begin(LtPartial *s, E7Sender *sender, uint32_t now) {
   /* Repair the self-relative borrow after the staging copy. */
   return lt_begin(&s->lower, s->bytes, n);
 }
-int lt_partial_progress(LtPartial *s, size_t accepted, uint32_t now) {
+int lt_partial_progress(struct lt_partial *s, size_t accepted, uint32_t now) {
   if (!s || !s->active || now < s->last || now > UINT32_MAX - 500)
     return LT_INVALID;
   if (s->poison)
@@ -224,7 +224,7 @@ int lt_partial_progress(LtPartial *s, size_t accepted, uint32_t now) {
   }
   return r;
 }
-int lt_partial_abort(LtPartial *s, unsigned reset, uint32_t now) {
+int lt_partial_abort(struct lt_partial *s, unsigned reset, uint32_t now) {
   if (!s || reset > 1 || now < s->last || now > UINT32_MAX - 500)
     return LT_INVALID;
   if (!s->active)

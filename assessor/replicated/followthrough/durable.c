@@ -57,7 +57,7 @@ static int zero(const unsigned char *p, size_t n) {
       return 0;
   return 1;
 }
-int rpl_event_encode(uint64_t uuid, uint32_t schema, RplEvent e,
+int rpl_event_encode(uint64_t uuid, uint32_t schema, struct rpl_event e,
                      unsigned char out[64]) {
   if (!out || !uuid || !schema || !e.position || e.position > 16 ||
       e.key > 31 || (e.kind != RPL_SET && e.kind != RPL_QUERY_RESULT))
@@ -67,21 +67,21 @@ int rpl_event_encode(uint64_t uuid, uint32_t schema, RplEvent e,
   p[24] = (unsigned char)e.key;
   p[25] = (unsigned char)e.kind;
   p[26] = 2;
-  if (ar_encode(2, (ArRecord){e.value}, p + 27, 5) != AR_OK)
+  if (ar_encode(2, (struct ar_record){e.value}, p + 27, 5) != AR_OK)
     return RPL_INVALID;
   seal(p);
   memcpy(out, p, 64);
   return RPL_OK;
 }
 int rpl_event_decode(uint64_t uuid, uint32_t schema, const unsigned char in[64],
-                     RplEvent *out) {
+                     struct rpl_event *out) {
   if (!in || !out || !uuid || !schema)
     return RPL_INVALID;
   int r = header(in, 1, uuid, schema);
   if (r)
     return r;
-  RplEvent e = {get32(in + 20), in[24], in[25], 0};
-  ArRecord value;
+  struct rpl_event e = {get32(in + 20), in[24], in[25], 0};
+  struct ar_record value;
   if (!e.position || e.position > 16 || e.key > 31 ||
       (e.kind != 1 && e.kind != 2) || in[26] != 2 || !zero(in + 32, 28) ||
       ar_decode(2, in + 27, 5, &value) != AR_OK)
@@ -98,7 +98,7 @@ static int translate(int r) {
          : r == STORE_CORRUPT       ? RPL_CORRUPT
                                     : RPL_STATE;
 }
-static int valid(const RplLog *l) {
+static int valid(const struct rpl_log *l) {
   return l && l->pages && !l->poisoned && !l->pages->poisoned &&
          !l->pages->active;
 }
@@ -115,7 +115,7 @@ static int empty(void *ctx, const unsigned char *k, size_t kn,
   *(int *)ctx = 0;
   return 1;
 }
-static int finish(RplLog *l, int result) {
+static int finish(struct rpl_log *l, int result) {
   if (result != STORE_OK) {
     store_abort(l->pages);
     if (l->pages->poisoned)
@@ -123,7 +123,7 @@ static int finish(RplLog *l, int result) {
   }
   return translate(result);
 }
-int rpl_create(store *s, uint64_t uuid, uint32_t schema, RplLog *out) {
+int rpl_create(store *s, uint64_t uuid, uint32_t schema, struct rpl_log *out) {
   if (!s || !out || !uuid || !schema)
     return RPL_INVALID;
   if (s->poisoned || s->active)
@@ -145,7 +145,7 @@ int rpl_create(store *s, uint64_t uuid, uint32_t schema, RplLog *out) {
     store_abort(s);
   if (r)
     return translate(r);
-  RplLog built = {0};
+  struct rpl_log built = {0};
   built.pages = s;
   built.uuid = uuid;
   built.schema = schema;
@@ -153,17 +153,17 @@ int rpl_create(store *s, uint64_t uuid, uint32_t schema, RplLog *out) {
   *out = built;
   return RPL_OK;
 }
-typedef struct {
+struct rp_scan {
   uint64_t uuid;
   uint32_t schema;
   unsigned seen, count, mask, meta, snapshot, chunks, snapshot_position;
-  RplEvent events[16];
-  RplSnapshot image;
+  struct rpl_event events[16];
+  struct rpl_snapshot image;
   int status;
-} Scan;
+};
 static int visit(void *ctx, const unsigned char *key, size_t kn,
                  const unsigned char *p, size_t n) {
-  Scan *s = ctx;
+  struct rp_scan *s = ctx;
   int r = RPL_CORRUPT;
   if (n != 64)
     goto fail;
@@ -178,7 +178,7 @@ static int visit(void *ctx, const unsigned char *key, size_t kn,
     return 0;
   }
   if (kn == 2 && key[0] == 'E' && key[1] >= 1 && key[1] <= 16) {
-    RplEvent e;
+    struct rpl_event e;
     r = rpl_event_decode(s->uuid, s->schema, p, &e);
     if (r)
       goto fail;
@@ -210,7 +210,7 @@ static int visit(void *ctx, const unsigned char *key, size_t kn,
       goto corrupt;
     s->image.position = get32(p + 20);
     for (unsigned i = 0; i < 4; ++i) {
-      ArRecord value;
+      struct ar_record value;
       if (ar_decode(2, p + 28 + 5 * i, 5, &value) != AR_OK)
         goto corrupt;
       if (!(p[25] & (1u << i)) && value.value != 0)
@@ -227,7 +227,7 @@ fail:
   s->status = r;
   return 1;
 }
-static int scan(store *pages, uint64_t uuid, uint32_t schema, Scan *s) {
+static int scan(store *pages, uint64_t uuid, uint32_t schema, struct rp_scan *s) {
   memset(s, 0, sizeof *s);
   s->uuid = uuid;
   s->schema = schema;
@@ -242,9 +242,9 @@ static int scan(store *pages, uint64_t uuid, uint32_t schema, Scan *s) {
     if (s->chunks != 255 || s->image.position != s->snapshot_position ||
         s->image.position > s->count)
       return RPL_CORRUPT;
-    RplSnapshot expected = {s->image.position, 0, {0}};
+    struct rpl_snapshot expected = {s->image.position, 0, {0}};
     for (unsigned i = 0; i < expected.position; ++i) {
-      RplEvent e = s->events[i];
+      struct rpl_event e = s->events[i];
       expected.present |= UINT32_C(1) << e.key;
       expected.values[e.key] = e.value;
     }
@@ -255,16 +255,16 @@ static int scan(store *pages, uint64_t uuid, uint32_t schema, Scan *s) {
     return RPL_CORRUPT;
   return RPL_OK;
 }
-int rpl_open(store *pages, uint64_t uuid, uint32_t schema, RplLog *out) {
+int rpl_open(store *pages, uint64_t uuid, uint32_t schema, struct rpl_log *out) {
   if (!pages || !out || !uuid || !schema)
     return RPL_INVALID;
   if (pages->poisoned || pages->active)
     return RPL_STATE;
-  Scan s;
+  struct rp_scan s;
   int r = scan(pages, uuid, schema, &s);
   if (r)
     return r;
-  RplLog built = {0};
+  struct rpl_log built = {0};
   built.pages = pages;
   built.uuid = uuid;
   built.schema = schema;
@@ -278,7 +278,7 @@ int rpl_open(store *pages, uint64_t uuid, uint32_t schema, RplLog *out) {
   *out = built;
   return RPL_OK;
 }
-int rpl_append(RplLog *l, unsigned kind, unsigned key, int32_t value) {
+int rpl_append(struct rpl_log *l, unsigned kind, unsigned key, int32_t value) {
   if (!l || key > 31 || (kind != 1 && kind != 2))
     return RPL_INVALID;
   if (!valid(l))
@@ -292,7 +292,7 @@ int rpl_append(RplLog *l, unsigned kind, unsigned key, int32_t value) {
   int r = store_begin(l->pages);
   if (!r) {
     (void)rpl_event_encode(l->uuid, l->schema,
-                           (RplEvent){count + 1, key, kind, value}, b);
+                           (struct rpl_event){count + 1, key, kind, value}, b);
     r = write_record(l->pages, k, 2, b);
   }
   if (!r) {
@@ -311,7 +311,7 @@ int rpl_append(RplLog *l, unsigned kind, unsigned key, int32_t value) {
   l->kinds[count] = kind;
   return RPL_OK;
 }
-int rpl_get(const RplLog *l, unsigned position, unsigned key, int32_t *out) {
+int rpl_get(const struct rpl_log *l, unsigned position, unsigned key, int32_t *out) {
   if (!out || !l || key > 31 || position > l->memory.count)
     return RPL_INVALID;
   if (!valid(l))
@@ -323,7 +323,7 @@ int rpl_get(const RplLog *l, unsigned position, unsigned key, int32_t *out) {
   *out = (int32_t)value;
   return RPL_OK;
 }
-int rpl_snapshot_save(RplLog *l, unsigned position) {
+int rpl_snapshot_save(struct rpl_log *l, unsigned position) {
   if (!l || position > l->memory.count)
     return RPL_INVALID;
   if (!valid(l))
@@ -339,7 +339,7 @@ int rpl_snapshot_save(RplLog *l, unsigned position) {
       unsigned k = chunk * 4 + i;
       if (rp_log_get(&l->memory, actual, k, &v) == RP_OK)
         b[25] |= (unsigned char)(1u << i);
-      (void)ar_encode(2, (ArRecord){v}, b + 28 + 5 * i, 5);
+      (void)ar_encode(2, (struct ar_record){v}, b + 28 + 5 * i, 5);
     }
     seal(b);
     key[1] = (unsigned char)chunk;
@@ -354,12 +354,12 @@ int rpl_snapshot_save(RplLog *l, unsigned position) {
     r = store_commit(l->pages);
   return finish(l, r);
 }
-int rpl_snapshot_load(RplLog *l, RplSnapshot *out) {
+int rpl_snapshot_load(struct rpl_log *l, struct rpl_snapshot *out) {
   if (!l || !out)
     return RPL_INVALID;
   if (!valid(l))
     return RPL_STATE;
-  Scan s;
+  struct rp_scan s;
   int r = scan(l->pages, l->uuid, l->schema, &s);
   if (r)
     return r;
@@ -368,19 +368,19 @@ int rpl_snapshot_load(RplLog *l, RplSnapshot *out) {
   *out = s.image;
   return RPL_OK;
 }
-int rpl_state(RplLog *l, unsigned use_snapshot, RplSnapshot *out) {
+int rpl_state(struct rpl_log *l, unsigned use_snapshot, struct rpl_snapshot *out) {
   if (!l || !out || use_snapshot > 1)
     return RPL_INVALID;
   if (!valid(l))
     return RPL_STATE;
-  RplSnapshot s = {0, 0, {0}};
+  struct rpl_snapshot s = {0, 0, {0}};
   if (use_snapshot) {
     int r = rpl_snapshot_load(l, &s);
     if (r)
       return r;
   }
   for (unsigned i = s.position; i < l->memory.count; ++i) {
-    RPEvent e = l->memory.events[i];
+    struct rp_event e = l->memory.events[i];
     s.present |= UINT32_C(1) << e.key;
     s.values[e.key] = e.value;
   }
@@ -389,7 +389,7 @@ int rpl_state(RplLog *l, unsigned use_snapshot, RplSnapshot *out) {
   return RPL_OK;
 }
 static int page_read(void *ctx, uint32_t page, void *out) {
-  RplPages *a = ctx;
+  struct rpl_pages *a = ctx;
   if (page >= STORE_IMAGE_PAGES)
     return -1;
   unsigned char bytes[STORE_PAGE_SIZE];
@@ -410,7 +410,7 @@ static int page_read(void *ctx, uint32_t page, void *out) {
   return 0;
 }
 static int page_write(void *ctx, uint32_t page, const void *in) {
-  RplPages *a = ctx;
+  struct rpl_pages *a = ctx;
   if (page >= STORE_IMAGE_PAGES)
     return -1;
   const unsigned char *bytes = in;
@@ -429,10 +429,10 @@ static int page_write(void *ctx, uint32_t page, const void *in) {
   return done == STORE_PAGE_SIZE ? 0 : -1;
 }
 static int page_flush(void *ctx) {
-  RplPages *a = ctx;
+  struct rpl_pages *a = ctx;
   return a->bytes.flush(a->bytes.context);
 }
-int rpl_pages(RplPages *a, RplBytes bytes, store_io *out) {
+int rpl_pages(struct rpl_pages *a, struct rpl_bytes bytes, store_io *out) {
   if (!a || !out || !bytes.read || !bytes.write || !bytes.flush ||
       !bytes.call_limit ||
       bytes.extent < (size_t)STORE_IMAGE_PAGES * STORE_PAGE_SIZE)

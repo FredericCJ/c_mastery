@@ -23,7 +23,7 @@ static long raw_write(long fd,const unsigned char *data,size_t n){
     __asm__ volatile("syscall":"=a"(result):"a"(1L),"D"(fd),"S"(data),"d"(n):"rcx","r11","memory");
     return result;
 }
-static CPWResult writer(void *context,const unsigned char *data,size_t n){
+static struct cpw_result writer(void *context,const unsigned char *data,size_t n){
     (void)context;return cpw_raw(raw_write(1,data,n));
 }
 int cpw_image(uintptr_t *initial){
@@ -34,12 +34,12 @@ int cpw_image(uintptr_t *initial){
     const unsigned char *argument=(const unsigned char *)initial[2];
     for(size_t i=0;i<9;++i)if(argument[i]!=(unsigned char)('A'+i))return 71;
     if(argument[9])return 72;
-    CPWTransfer transfer;
+    struct cpw_transfer transfer;
     if(cpw_begin(&transfer,argument,9,91)!=CPW_PENDING)return 73;
     for(unsigned turns=0;turns<16 && transfer.status==CPW_PENDING;++turns)(void)cpw_step(&transfer,writer,0);
     if(transfer.status!=CPW_DONE || transfer.accepted!=9)return 74;
     /* Actual failure is a raw Linux -EBADF, not the libc -1/errno convention. */
-    CPWResult bad=cpw_raw(raw_write(-1,argument,1));
+    struct cpw_result bad=cpw_raw(raw_write(-1,argument,1));
     if(bad.kind!=CPW_ERROR || bad.cause!=9)return 75;
     unsigned char marker[]="CP_ENTRY_OK 0000000000000000\n";
     uintptr_t address=(uintptr_t)&cpw_data;

@@ -10,7 +10,7 @@ static int status(store *p, int r) {
     return RPR_UNCERTAIN;
   return r == STORE_FULL ? RPR_FULL : r == STORE_STATE ? RPR_STATE : RPR_IO;
 }
-static int save(store *p, const RprSession *s) {
+static int save(store *p, const struct rpr_session *s) {
   unsigned char wire[512];
   unsigned i;
   int r;
@@ -30,7 +30,7 @@ static int save(store *p, const RprSession *s) {
     store_abort(p);
   return status(p, r);
 }
-static int load(store *p, uint64_t timeline, RprSession *out) {
+static int load(store *p, uint64_t timeline, struct rpr_session *out) {
   unsigned char wire[512];
   unsigned i;
   if (!p || p->active || p->poisoned)
@@ -44,8 +44,8 @@ static int load(store *p, uint64_t timeline, RprSession *out) {
   }
   return rpr_decode(timeline, wire, out);
 }
-static int current(RprDurable *d) {
-  RprSession stored;
+static int current(struct rpr_durable *d) {
+  struct rpr_session stored;
   unsigned char a[512], b[512];
   int r;
   if (!d || !d->pages || !rpr_invariant(&d->session))
@@ -59,7 +59,7 @@ static int current(RprDurable *d) {
     return RPR_CORRUPT;
   return memcmp(a, b, 512) ? RPR_STATE : RPR_OK;
 }
-static int publish(RprDurable *d, const RprSession *next) {
+static int publish(struct rpr_durable *d, const struct rpr_session *next) {
   unsigned char a[512], b[512];
   int r;
   if (rpr_encode(&d->session, a) || rpr_encode(next, b))
@@ -74,8 +74,8 @@ static int publish(RprDurable *d, const RprSession *next) {
   return r;
 }
 int rpr_create(store *p, uint64_t timeline, unsigned horizon,
-               const RPState initial[2], RprDurable *out) {
-  RprSession s;
+               const struct rp_state initial[2], struct rpr_durable *out) {
+  struct rpr_session s;
   unsigned i;
   int r;
   if (!p || !out)
@@ -94,22 +94,22 @@ int rpr_create(store *p, uint64_t timeline, unsigned horizon,
   }
   r = save(p, &s);
   if (!r)
-    *out = (RprDurable){p, s};
+    *out = (struct rpr_durable){p, s};
   return r;
 }
-int rpr_open(store *p, uint64_t timeline, RprDurable *out) {
-  RprSession s;
+int rpr_open(store *p, uint64_t timeline, struct rpr_durable *out) {
+  struct rpr_session s;
   int r;
   if (!out || !timeline)
     return RPR_INVALID;
   r = load(p, timeline, &s);
   if (!r)
-    *out = (RprDurable){p, s};
+    *out = (struct rpr_durable){p, s};
   return r;
 }
-int rpr_advance_durable(RprDurable *d, int movement, RprNotice *out) {
-  RprSession next;
-  RprNotice n;
+int rpr_advance_durable(struct rpr_durable *d, int movement, struct rpr_notice *out) {
+  struct rpr_session next;
+  struct rpr_notice n;
   int r;
   if (!out)
     return RPR_INVALID;
@@ -124,10 +124,10 @@ int rpr_advance_durable(RprDurable *d, int movement, RprNotice *out) {
     *out = n;
   return r;
 }
-int rpr_correct_durable(RprDurable *d, uint64_t timeline, unsigned tick,
-                        int movement, RprNotice *out) {
-  RprSession next;
-  RprNotice n;
+int rpr_correct_durable(struct rpr_durable *d, uint64_t timeline, unsigned tick,
+                        int movement, struct rpr_notice *out) {
+  struct rpr_session next;
+  struct rpr_notice n;
   int r;
   if (!out)
     return RPR_INVALID;
@@ -142,9 +142,9 @@ int rpr_correct_durable(RprDurable *d, uint64_t timeline, unsigned tick,
     *out = n;
   return r;
 }
-int rpr_prepare_durable(RprDurable *d, RprEffect *out) {
-  RprSession next;
-  RprEffect e;
+int rpr_prepare_durable(struct rpr_durable *d, struct rpr_effect *out) {
+  struct rpr_session next;
+  struct rpr_effect e;
   int r;
   if (!out)
     return RPR_INVALID;
@@ -159,8 +159,8 @@ int rpr_prepare_durable(RprDurable *d, RprEffect *out) {
     *out = e;
   return r;
 }
-int rpr_feedback_durable(RprDurable *d, RprEffect effect, unsigned result) {
-  RprSession next;
+int rpr_feedback_durable(struct rpr_durable *d, struct rpr_effect effect, unsigned result) {
+  struct rpr_session next;
   int r = current(d);
   if (r)
     return r;

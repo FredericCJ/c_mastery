@@ -1,2 +1,2 @@
 #include "references.h"
-OwStatus orc_cycle(OrcMemory m,V4Allocator a,int w,OrcCycleReport *r){(void)m;(void)a;(void)w;(void)r;return OW_NOT_IMPLEMENTED;}
+enum ow_status orc_cycle(struct orc_memory m,struct v4_allocator a,int w,struct orc_cycle_report *r){(void)m;(void)a;(void)w;(void)r;return OW_NOT_IMPLEMENTED;}

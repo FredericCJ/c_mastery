@@ -31,10 +31,10 @@ int ta_litmus(unsigned litmus, unsigned model, unsigned first,
       return 0;
   return 1;
 }
-void ta_counter_init(TACounter *p, unsigned value) {
+void ta_counter_init(struct ta_counter *p, unsigned value) {
   atomic_init(&p->value, value);
 }
-unsigned ta_counter_add(TACounter *p, unsigned value) {
+unsigned ta_counter_add(struct ta_counter *p, unsigned value) {
 #ifdef TA_MUTANT_COUNTER
   return atomic_fetch_add_explicit(&p->value, value, memory_order_relaxed) +
          value;
@@ -42,7 +42,7 @@ unsigned ta_counter_add(TACounter *p, unsigned value) {
   return atomic_fetch_add_explicit(&p->value, value, memory_order_relaxed);
 #endif
 }
-unsigned ta_counter_read(const TACounter *p) {
+unsigned ta_counter_read(const struct ta_counter *p) {
   return atomic_load_explicit(&p->value, memory_order_relaxed);
 }
 int ta_lockfree_admit(unsigned query, unsigned helpers, unsigned authorized) {

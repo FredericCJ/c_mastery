@@ -5,7 +5,7 @@ ROOT=pathlib.Path(__file__).resolve().parents[1];HERE=ROOT/'research/v5/expansio
 FD=ROOT/'assessor/foundation_depth/depth.c';FDINC=ROOT/'labs/foundation_depth/include'
 PROFILES=[('debug',['-O0','-g']),('optimized',['-O3','-DNDEBUG']),('sanitized',['-O1','-g','-fsanitize=address,undefined','-fno-omit-frame-pointer'])]
 CASES=['matrix','allocated','cursors','order','conversions']
-MUTANTS={'ROW':(0,'oc_read(&m,1,2,&out)==0 && out==6'),'REVERSE':(2,'oc_previous(&c,3,&p)==FD_RANGE && c.position==2 && p==a+2'),'FRAGMENT':(3,'oc_order(lengths,3,(OcPosition){0,2},(OcPosition){2,0},&order)==0 && order==0'),'NULL':(4,'oc_decode_index(values,3,wire,&out)==0 && out==NULL'),'FD_CURSOR':(2,'oc_take(&c,4,&p)==FD_RANGE && p==a && c.position==1')}
+MUTANTS={'ROW':(0,'oc_read(&m,1,2,&out)==0 && out==6'),'REVERSE':(2,'oc_previous(&c,3,&p)==FD_RANGE && c.position==2 && p==a+2'),'FRAGMENT':(3,'oc_order(lengths,3,(struct oc_position){0,2},(struct oc_position){2,0},&order)==0 && order==0'),'NULL':(4,'oc_decode_index(values,3,wire,&out)==0 && out==NULL'),'FD_CURSOR':(2,'oc_take(&c,4,&p)==FD_RANGE && p==a && c.position==1')}
 SYSROOT=ROOT/'build/posix-io-toolchain/sysroot';LIBS=SYSROOT/'usr/lib32';GCCDIR=SYSROOT/'usr/lib/gcc/x86_64-linux-gnu/15/32';LOADER=LIBS/'ld-linux.so.2';LLD=ROOT/'build/b06-tools/root/usr/bin/ld.lld-21'
 IMPORTS=['assessor/foundation_depth/depth.c','labs/foundation_depth/include/depth.h','labs/foundation_depth/src/depth.c','labs/foundation_depth/CONTRACTS.md']
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()

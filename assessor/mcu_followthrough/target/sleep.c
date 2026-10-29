@@ -11,13 +11,13 @@ uint32_t mf_clock_now(void){return UINT32_MAX-R(0x40000004);}
 void Timer1_Handler(void){R(0x40001000)=0;R(0x4000100c)=1;ready=1;mf_sleep_irqs++;}
 void SysTick_Handler(void){R(0xe000e010)=0;ready=1;mf_sleep_early++;}
 static void inject(unsigned wanted,unsigned at){if(wanted==at){R(0xe000ed04)=1u<<26;__asm__ volatile("dsb\nisb":::"memory");}}
-int mf_nap_finish(MfNap *s){if(!s->armed||s->credited)return 0;
+int mf_nap_finish(struct mf_nap *s){if(!s->armed||s->credited)return 0;
  R(0x40001000)=0;uint32_t elapsed=mf_clock_now()-s->start;
  mf_require(elapsed<0x80000000u,201);s->elapsed=elapsed;s->remaining=elapsed>=s->requested?0:s->requested-elapsed;
  s->armed=0;s->credited=1;return 1;}
-void mf_nap(MfNap *s,uint32_t count,unsigned boundary){
+void mf_nap(struct mf_nap *s,uint32_t count,unsigned boundary){
  mf_require(count>100&&count<0x80000000u&&boundary<=7,202);
- *s=(MfNap){0};ready=0;R(0xe000e010)=0;R(0x40001000)=0;R(0x4000100c)=1;
+ *s=(struct mf_nap){0};ready=0;R(0xe000e010)=0;R(0x40001000)=0;R(0x4000100c)=1;
  R(0xe000e280)=1u<<9;R(0xe000ed04)=1u<<25;inject(boundary,0);
  uint32_t p=lock();inject(boundary,1);s->start=mf_clock_now();s->requested=count;s->armed=1;
  inject(boundary,2);R(0x40001008)=0;R(0x40001004)=count;R(0x40001000)=9;

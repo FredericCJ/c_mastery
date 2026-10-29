@@ -2,8 +2,8 @@
 void su_note(const char *);
 void su_values(const char *,unsigned,unsigned,unsigned,unsigned);
 #define CHECK(x) do { if (!(x)) { su_note("SU_MAP_ASSERT: " #x); return 41; } } while (0)
-typedef struct { volatile uint32_t sr,dr,brr,cr1,cr2,cr3,gtpr; } Registers;
-static Registers u;
+struct ep_registers { volatile uint32_t sr,dr,brr,cr1,cr2,cr3,gtpr; };
+static struct ep_registers u;
 static uint32_t addresses[32],values[32];
 static unsigned used;
 volatile uint32_t *pu_test_register(uint32_t a) {
@@ -12,10 +12,10 @@ volatile uint32_t *pu_test_register(uint32_t a) {
   addresses[used]=a;return values+used++;
 }
 volatile uint32_t *su_test_register(uint32_t a) { return pu_test_register(a); }
-Registers *pu_test_usart(void) { return &u; }
+struct ep_registers *pu_test_usart(void) { return &u; }
 #define R(a) (*pu_test_register(a))
 int su_mapped(void) {
-  Su s={0}; PuIo io=pu_f439_io(); PuClock c={42000000,1,1,1,1,0};
+  struct mc_su s={0}; struct pu_io io=pu_f439_io(); struct pu_clock c={42000000,1,1,1,1,0};
   R(0x40023800u)=2; R(0x40023808u)=0;
   CHECK(pu_open(&s.byte,io,&c,115200,0,1)==PU_OK);
   CHECK(u.brr==0x16d && u.cr1==0x200c);

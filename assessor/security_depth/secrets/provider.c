@@ -3,9 +3,9 @@
 #include <openssl/evp.h>
 #include <openssl/core_names.h>
 #include <openssl/params.h>
-int ss_mac(const unsigned char key[4],const unsigned char *message,size_t length,unsigned fault,unsigned char out[32],SSLedger *ledger) {
+int ss_mac(const unsigned char key[4],const unsigned char *message,size_t length,unsigned fault,unsigned char out[32],struct ss_ledger *ledger) {
     unsigned char working[4]={0},result[32]={0};size_t written=0;int status=-1;
-    EVP_MAC *algorithm=NULL;EVP_MAC_CTX *context=NULL;SSLedger l={0};
+    EVP_MAC *algorithm=NULL;EVP_MAC_CTX *context=NULL;struct ss_ledger l={0};
     char digest[]="SHA256";char absent[]="CM_NOT_A_DIGEST";
     if(!key || (!message && length) || length>64 || !out || !ledger || fault>7) return -1;
     for(unsigned i=0;i<4;++i)working[i]=key[i];

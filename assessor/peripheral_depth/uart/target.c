@@ -1,17 +1,17 @@
 #include "uart.h"
 #include <stddef.h>
-typedef struct {
+struct ep_registers {
   volatile uint32_t sr, dr, brr, cr1, cr2, cr3, gtpr;
-} Registers;
-_Static_assert(offsetof(Registers, dr) == 4 && offsetof(Registers, cr3) == 20,
+};
+_Static_assert(offsetof(struct ep_registers, dr) == 4 && offsetof(struct ep_registers, cr3) == 20,
                "USART layout");
 #ifndef PU_TARGET_MODEL
 _Static_assert(sizeof(uintptr_t) == 4, "F439 pointer width");
 #define REG(a) (*(volatile uint32_t *)(uintptr_t)(a))
-#define USART ((Registers *)(uintptr_t)0x40004800u)
+#define USART ((struct ep_registers *)(uintptr_t)0x40004800u)
 #else
 volatile uint32_t *pu_test_register(uint32_t);
-Registers *pu_test_usart(void);
+struct ep_registers *pu_test_usart(void);
 #define REG(a) (*pu_test_register(a))
 #define USART pu_test_usart()
 #endif
@@ -107,8 +107,8 @@ static void write_reg(void *context, unsigned r, uintptr_t v) {
     break;
   }
 }
-PuIo pu_f439_io(void) {
-  PuIo io = {0, read_reg, write_reg};
+struct pu_io pu_f439_io(void) {
+  struct pu_io io = {0, read_reg, write_reg};
   return io;
 }
 void pu_f439_pins(void) {
@@ -133,7 +133,7 @@ void pu_f439_rts_init(void) {
   REG(0x40020c0cu) &= ~(3u << 24);
   REG(0x40020c00u) = (REG(0x40020c00u) & ~(3u << 24)) | (1u << 24);
 }
-int pu_f439_rts(const PuRx *q) {
+int pu_f439_rts(const struct pu_rx *q) {
   unsigned ready;
   int result = pu_peer_ready(q, &ready);
   if (result)
@@ -141,7 +141,7 @@ int pu_f439_rts(const PuRx *q) {
   REG(0x40020c18u) = 1u << (ready ? 28 : 12);
   return PU_OK;
 }
-int pu_f439_dma_submit(PuDriver *d, uint32_t gen, uint32_t token,
+int pu_f439_dma_submit(struct pu_driver *d, uint32_t gen, uint32_t token,
                        const uint8_t *data, unsigned count, uint32_t now,
                        uint32_t budget) {
   uintptr_t p = (uintptr_t)data;

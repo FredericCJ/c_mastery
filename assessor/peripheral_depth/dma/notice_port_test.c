@@ -11,7 +11,7 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-static PdNotice ram, local;
+static struct pd_notice ram, local;
 static unsigned locked, mask = 1, invalid, cleans, barriers, cache_calls, bad,
                         payload, force_busy;
 uint32_t pd_port_mask(void) {
@@ -35,12 +35,12 @@ void pd_port_write(uint32_t a, uint32_t v) {
     bad++;
   locked = 0;
 }
-PdNotice *pd_port_memory(void) {
+struct pd_notice *pd_port_memory(void) {
   if (!locked || !mask)
     bad++;
   return &local;
 }
-int fw_h745_cache(uint32_t a, uint32_t n, enum FWCacheOp op) {
+int fw_h745_cache(uint32_t a, uint32_t n, enum fw_cache_op op) {
   cache_calls++;
   if (!locked || !mask)
     bad++;
@@ -63,7 +63,7 @@ int main(void) {
   CHECK(pd_h745_notice_cold_start(0) == PD_INVALID && !cache_calls);
   CHECK(pd_h745_notice_cold_start(9) == PD_OK && ram.epoch == 9 && mask == 1 &&
         !locked);
-  PdNotice m = {9, 1, 1, PD_OK, 32, 32, 0x30040100, 32}, out = {0};
+  struct pd_notice m = {9, 1, 1, PD_OK, 32, 32, 0x30040100, 32}, out = {0};
   mask = 0;
   force_busy = 1;
   unsigned before = cache_calls;

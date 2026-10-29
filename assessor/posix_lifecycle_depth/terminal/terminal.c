@@ -11,13 +11,13 @@
 #ifndef PT_MUTANT
 #define PT_MUTANT 0
 #endif
-void pt_guard_init(PTGuard *g){if(g)*g=(PTGuard){.fd=-1};}
+void pt_guard_init(struct pt_guard *g){if(g)*g=(struct pt_guard){.fd=-1};}
 bool pt_attributes_equal(const struct termios *a,const struct termios *b){
     if(a->c_iflag!=b->c_iflag||a->c_oflag!=b->c_oflag||a->c_cflag!=b->c_cflag||a->c_lflag!=b->c_lflag||cfgetispeed(a)!=cfgetispeed(b)||cfgetospeed(a)!=cfgetospeed(b))return false;
     for(size_t i=0;i<NCCS;++i){if(a->c_cc[i]!=b->c_cc[i])return false;}
     return true;
 }
-int pt_enter(PTGuard *g,int fd,enum PTMode mode,unsigned minimum,unsigned deciseconds){
+int pt_enter(struct pt_guard *g,int fd,enum pt_mode mode,unsigned minimum,unsigned deciseconds){
     struct termios wanted,actual;
     if(!g||g->restore_pending||(mode!=PT_RAW&&mode!=PT_CANONICAL)||minimum>UCHAR_MAX||deciseconds>UCHAR_MAX)return EINVAL;
     if(tcgetattr(fd,&wanted)<0)return errno;
@@ -36,7 +36,7 @@ int pt_enter(PTGuard *g,int fd,enum PTMode mode,unsigned minimum,unsigned decise
 #endif
     return 0;
 }
-int pt_restore(PTGuard *g){
+int pt_restore(struct pt_guard *g){
     if(!g)return EINVAL;
     if(!g->restore_pending)return 0;
     if(!g->saved_valid)return EINVAL;
@@ -53,9 +53,9 @@ int pt_restore(PTGuard *g){
 static long long now(void){struct timespec t;if(clock_gettime(CLOCK_MONOTONIC,&t)<0)return -1;return (long long)t.tv_sec*1000+t.tv_nsec/1000000;}
 static int send_all(int fd,const unsigned char *b,size_t n){size_t done=0;while(done<n){ssize_t r=write(fd,b+done,n-done);if(r<0){if(errno==EINTR)continue;return errno;}if(!r)return EIO;done+=(size_t)r;}return 0;}
 static void close_if(int *fd){if(*fd>=0){close(*fd);*fd=-1;}}
-static void reap_all(PTPipeline *r){for(unsigned i=0;i<3;++i)if(r->children[i]>0&&!(r->reaped_mask&(1u<<i))){pid_t p;do{p=waitpid(r->children[i],&r->status[i],0);}while(p<0&&errno==EINTR);if(p==r->children[i])r->reaped_mask|=1u<<i;}}
-int pt_pipeline(size_t bytes,bool early,unsigned timeout,PTPipeline *out){
-    int pipes[3][2]={{-1,-1},{-1,-1},{-1,-1}},error=0;PTPipeline r={0};long long start;
+static void reap_all(struct pt_pipeline *r){for(unsigned i=0;i<3;++i)if(r->children[i]>0&&!(r->reaped_mask&(1u<<i))){pid_t p;do{p=waitpid(r->children[i],&r->status[i],0);}while(p<0&&errno==EINTR);if(p==r->children[i])r->reaped_mask|=1u<<i;}}
+int pt_pipeline(size_t bytes,bool early,unsigned timeout,struct pt_pipeline *out){
+    int pipes[3][2]={{-1,-1},{-1,-1},{-1,-1}},error=0;struct pt_pipeline r={0};long long start;
     if(!out||bytes>1024*1024||timeout==0||timeout>10000)return EINVAL;
     start=now();if(start<0)return errno;
     for(unsigned i=0;i<3;++i)if(pipe2(pipes[i],O_CLOEXEC)<0){error=errno;goto cleanup;}

@@ -14,7 +14,7 @@ uint32_t tp_mix(uint32_t a, unsigned b) {
 }
 int tp_accumulate(const unsigned *a, size_t n, unsigned b, unsigned c,
                   unsigned d, unsigned e, unsigned f, _Atomic(uint64_t) *g,
-                  TPWork *h) {
+                  struct tp_work *h) {
   (void)a;
   (void)n;
   (void)b;
@@ -26,22 +26,22 @@ int tp_accumulate(const unsigned *a, size_t n, unsigned b, unsigned c,
   (void)h;
   return TP_INVALID;
 }
-int tp_total_init(TPTotal *p) {
+int tp_total_init(struct tp_total *p) {
   (void)p;
   return TP_INVALID;
 }
-int tp_total_add(TPTotal *p, uint64_t n) {
+int tp_total_add(struct tp_total *p, uint64_t n) {
   (void)p;
   (void)n;
   return TP_INVALID;
 }
-int tp_total_read(TPTotal *p, uint64_t *a, uint64_t *b) {
+int tp_total_read(struct tp_total *p, uint64_t *a, uint64_t *b) {
   (void)p;
   (void)a;
   (void)b;
   return TP_INVALID;
 }
-int tp_total_destroy(TPTotal *p) {
+int tp_total_destroy(struct tp_total *p) {
   (void)p;
   return TP_INVALID;
 }

@@ -1,6 +1,6 @@
 #include "compiler.h"
-CvmStatus vc_compile(const char *s, size_t n, const VcOptions *o, VcWork *w,
-                     CvmProgram *p, VcReport *r) {
+enum cvm_status vc_compile(const char *s, size_t n, const struct vc_options *o, struct vc_work *w,
+                     struct cvm_program *p, struct vc_report *r) {
   (void)s;
   (void)n;
   (void)o;

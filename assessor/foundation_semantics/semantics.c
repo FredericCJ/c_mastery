@@ -3,7 +3,7 @@
 #ifndef FS_MUTANT
 #define FS_MUTANT 0
 #endif
-FsIndex fs_index(intmax_t i, size_t n) {
+enum fs_index fs_index(intmax_t i, size_t n) {
   if (i < 0 || (uintmax_t)i > (uintmax_t)n)
     return FS_OUTSIDE;
   if ((uintmax_t)i == (uintmax_t)n)
@@ -16,7 +16,7 @@ static int add(int a, int b, int *out) {
   *out = a + b;
   return 1;
 }
-FsStatus fs_sum(const int *p, size_t n, int *out) {
+enum fs_status fs_sum(const int *p, size_t n, int *out) {
   if (!out || (n && !p))
     return FS_INVALID;
   int total = 0;
@@ -26,12 +26,12 @@ FsStatus fs_sum(const int *p, size_t n, int *out) {
   *out = total;
   return FS_OK;
 }
-FsStatus fs_row(const int (*row)[3], int *out) {
+enum fs_status fs_row(const int (*row)[3], int *out) {
   if (!row)
     return FS_INVALID;
   return fs_sum(*row, 3, out);
 }
-FsStatus fs_matrix(const int (*rows)[3], size_t count, int *out) {
+enum fs_status fs_matrix(const int (*rows)[3], size_t count, int *out) {
   if (!out || (count && !rows))
     return FS_INVALID;
   int total = 0;
@@ -42,7 +42,7 @@ FsStatus fs_matrix(const int (*rows)[3], size_t count, int *out) {
   *out = total;
   return FS_OK;
 }
-FsStatus fs_branch(int branch, int *out) {
+enum fs_status fs_branch(int branch, int *out) {
   if (!out || (branch != 0 && branch != 1))
     return FS_INVALID;
   int value;
@@ -54,26 +54,26 @@ FsStatus fs_branch(int branch, int *out) {
   *out = value;
   return FS_OK;
 }
-static int first(FsCalls *s) {
+static int first(struct fs_calls *s) {
   s->order = s->order * 10 + 1;
   return ++s->x;
 }
-static int second(FsCalls *s) {
+static int second(struct fs_calls *s) {
   s->order = s->order * 10 + 2;
   s->y *= 2;
   return s->y;
 }
-FsStatus fs_calls(FsCalls *out) {
+enum fs_status fs_calls(struct fs_calls *out) {
   if (!out)
     return FS_INVALID;
-  FsCalls stage = {0, 1, 2, 0};
+  struct fs_calls stage = {0, 1, 2, 0};
   stage.sum = first(&stage) + second(&stage);
   if (FS_MUTANT == 5)
     stage.sum--;
   *out = stage;
   return FS_OK;
 }
-FsStatus fs_comma(int *value, int *final) {
+enum fs_status fs_comma(int *value, int *final) {
   if (!value || !final || value == final)
     return FS_INVALID;
   int i = 1;

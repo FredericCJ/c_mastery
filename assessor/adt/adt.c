@@ -4,7 +4,7 @@
 #define MOD_MUTATION 0
 #endif
 
-int ad_measure(ADValue value, uint64_t *out) {
+int ad_measure(struct ad_value value, uint64_t *out) {
     uint64_t result;
     switch (value.tag) {
     case AD_EMPTY: result = 0; break;
@@ -15,20 +15,20 @@ int ad_measure(ADValue value, uint64_t *out) {
     }
     *out = result; return 1;
 }
-int ad_number(ADValue value, uint32_t *out) {
+int ad_number(struct ad_value value, uint32_t *out) {
     if (value.tag != AD_NUMBER) return 0;
     *out = value.data.number; return 1;
 }
-int ad_milliseconds(ADSeconds value, ADMillis *out) {
+int ad_milliseconds(struct ad_seconds value, struct ad_millis *out) {
     if (MOD_MUTATION != 3 && value.value > UINT32_MAX / 1000u) return 0;
     out->value = value.value * (MOD_MUTATION == 4 ? 100u : 1000u); return 1;
 }
-int ad_flags(uint32_t raw, ADFlags *out) {
+int ad_flags(uint32_t raw, struct ad_flags *out) {
     if (MOD_MUTATION != 5 && (raw & ~UINT32_C(7)) != 0) return 0;
     if (MOD_MUTATION == 6 && raw == 0) return 0;
     out->bits = raw & UINT32_C(7); return 1;
 }
-int ad_text(const unsigned char *bytes, size_t length, ADText *out) {
+int ad_text(const unsigned char *bytes, size_t length, struct ad_text *out) {
     size_t i = 0, count = 0;
     if (length > 65535 || (length != 0 && bytes == NULL)) return 0;
     while (i < length) {
@@ -50,11 +50,11 @@ int ad_text(const unsigned char *bytes, size_t length, ADText *out) {
     }
     out->bytes = bytes; out->length = length; out->scalars = count; return 1;
 }
-void ad_pool_init(ADPool *pool) {
+void ad_pool_init(struct ad_pool *pool) {
     unsigned i;
     for (i = 0; i < 4; ++i) { pool->slot[i].generation = 1; pool->slot[i].live = 0; pool->slot[i].retired = 0; pool->slot[i].value = 0; }
 }
-int ad_pool_acquire(ADPool *pool, uint32_t value, ADBrand *out) {
+int ad_pool_acquire(struct ad_pool *pool, uint32_t value, struct ad_brand *out) {
     unsigned i;
     for (i = 0; i < 4; ++i) if (!pool->slot[i].live && !pool->slot[i].retired) {
         pool->slot[i].live = 1; pool->slot[i].value = value;
@@ -62,17 +62,17 @@ int ad_pool_acquire(ADPool *pool, uint32_t value, ADBrand *out) {
     }
     return 0;
 }
-static int ad_brand_valid(const ADPool *pool, ADBrand handle) {
+static int ad_brand_valid(const struct ad_pool *pool, struct ad_brand handle) {
     return (MOD_MUTATION == 9 || handle.owner == pool) && handle.index < 4 &&
         pool->slot[handle.index].live &&
         (MOD_MUTATION == 10 || handle.generation == pool->slot[handle.index].generation);
 }
-int ad_pool_get(const ADPool *pool, ADBrand handle, uint32_t *out) {
+int ad_pool_get(const struct ad_pool *pool, struct ad_brand handle, uint32_t *out) {
     if (!ad_brand_valid(pool, handle)) return 0;
     *out = pool->slot[handle.index].value; return 1;
 }
-int ad_pool_release(ADPool *pool, ADBrand handle) {
-    ADSlot *slot;
+int ad_pool_release(struct ad_pool *pool, struct ad_brand handle) {
+    struct ad_slot *slot;
     if (!ad_brand_valid(pool, handle)) return 0;
     slot = &pool->slot[handle.index]; slot->live = 0;
     if (slot->generation == UINT_MAX) slot->retired = 1;
@@ -80,7 +80,7 @@ int ad_pool_release(ADPool *pool, ADBrand handle) {
     return 1;
 }
 int ad_view(const uint32_t *data, size_t capacity, size_t rows, size_t columns,
-            size_t row_stride, size_t column_stride, ADView *out) {
+            size_t row_stride, size_t column_stride, struct ad_view *out) {
     size_t a = 0, b = 0;
     if (rows && columns) {
         if (!data || !row_stride || !column_stride) return 0;
@@ -92,14 +92,14 @@ int ad_view(const uint32_t *data, size_t capacity, size_t rows, size_t columns,
     out->data = data; out->capacity = capacity; out->rows = rows; out->columns = columns;
     out->row_stride = row_stride; out->column_stride = column_stride; return 1;
 }
-int ad_view_get(ADView view, size_t row, size_t column, uint32_t *out) {
+int ad_view_get(struct ad_view view, size_t row, size_t column, uint32_t *out) {
     size_t offset;
     if (row >= view.rows || column >= view.columns) return 0;
     offset = row * (MOD_MUTATION == 11 ? view.columns : view.row_stride) + column * view.column_stride;
     if (offset >= view.capacity) return 0;
     *out = view.data[offset]; return 1;
 }
-int ad_eval(const ADNode *nodes, size_t count, ADNodeIndex root, uint32_t *out) {
+int ad_eval(const struct ad_node *nodes, size_t count, struct ad_node_index root, uint32_t *out) {
     uint32_t values[32] = {0}; size_t i;
     if (!nodes || count == 0 || count > 32 || root.index >= count) return 0;
     for (i = 0; i < count; ++i) {
@@ -114,19 +114,19 @@ int ad_eval(const ADNode *nodes, size_t count, ADNodeIndex root, uint32_t *out) 
     }
     *out = values[root.index]; return 1;
 }
-ADPair ad_lens_x(ADPair source, uint32_t replacement) {
+struct ad_pair ad_lens_x(struct ad_pair source, uint32_t replacement) {
     source.x = replacement;
     if (MOD_MUTATION == 15) source.y = replacement;
     return source;
 }
-ADValue ad_review_number(uint32_t value) {
-    ADValue result; result.tag = AD_NUMBER; result.data.number = value; return result;
+struct ad_value ad_review_number(uint32_t value) {
+    struct ad_value result; result.tag = AD_NUMBER; result.data.number = value; return result;
 }
-int ad_preview_number(ADValue value, uint32_t *out) {
+int ad_preview_number(struct ad_value value, uint32_t *out) {
     if (MOD_MUTATION == 16 && value.tag == AD_EMPTY) { *out = 0; return 1; }
     return ad_number(value, out);
 }
-int ad_evolve_read(const unsigned char *bytes, size_t length, ADEvolving *out) {
+int ad_evolve_read(const unsigned char *bytes, size_t length, struct ad_evolving *out) {
     unsigned tag; size_t payload;
     if (length < 2 || !bytes) return 0;
     tag = bytes[0]; payload = bytes[1];
@@ -136,7 +136,7 @@ int ad_evolve_read(const unsigned char *bytes, size_t length, ADEvolving *out) {
     out->tag = tag; out->payload = bytes + 2;
     out->length = (MOD_MUTATION == 17 && tag > 2) ? 0 : payload; return 1;
 }
-int ad_evolve_write(ADEvolving value, unsigned char *bytes, size_t capacity, size_t *used) {
+int ad_evolve_write(struct ad_evolving value, unsigned char *bytes, size_t capacity, size_t *used) {
     size_t i;
     if (value.tag == 0 || value.tag > 127 || value.length > 255 ||
         (value.tag == 1 && value.length != 2) || (value.tag == 2 && value.length != 0) ||
@@ -145,7 +145,7 @@ int ad_evolve_write(ADEvolving value, unsigned char *bytes, size_t capacity, siz
     for (i = 0; i < value.length; ++i) bytes[i+2] = value.payload[i];
     *used = value.length + 2; return 1;
 }
-ADPacketError ad_packet(const unsigned char *bytes, size_t length, ADPacket *out) {
+enum ad_packet_error ad_packet(const unsigned char *bytes, size_t length, struct ad_packet *out) {
     size_t payload; unsigned kind;
     if (length < 3 || !bytes) return AD_PACKET_HEADER;
     kind = bytes[0]; payload = ((size_t)bytes[1] << 8) | bytes[2];

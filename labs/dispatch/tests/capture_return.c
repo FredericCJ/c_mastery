@@ -4,4 +4,4 @@ static int *call(const unsigned char *p,size_t n,int a,int *out){static int valu
 #else
 static int call(const unsigned char *p,size_t n,int a,int *out){(void)p;(void)n;*out=a;return DS_OK;}
 #endif
-DSThunk callback=call;
+ds_thunk_fn callback=call;

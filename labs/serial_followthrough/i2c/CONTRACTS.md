@@ -60,7 +60,7 @@ publish inward-rounded integer-ohm limits, `IA_OK` when minimum≤maximum and
 `IA_EMPTY` otherwise. Use the original nominal0.8473RC30–70% assumption and
 the sink-current constraint. Derive all unit conversions before coding.
 
-The changed `IaEnvelope` admits vmin1..vmax≤6000mV,0≤vol<vmin,
+The changed `struct ia_envelope` admits vmin1..vmax≤6000mV,0≤vol<vmin,
 the same iol/rise/cap bounds, source and sink leakage0..20000µA and tolerance
 0..250000ppm. Leakage bounds are explicit original worst-case assumptions,
 not manufacturer specifications. Supply and component tolerances are independent.
@@ -82,7 +82,7 @@ Both scalar functions are O(1) with bounded iteration and storage under this API
 Input is at most three arrays of at most32 bit symbols, plus positive low/high
 hold durations. Symbols0/1 mean pull low/release;2/3 denote START/STOP and return
 `IA_UNSUPPORTED`; larger symbols return `IA_INVALID`. Validate before publishing.
-The successful `IaTrace` contains observed wired-AND bus bits, newly lost masks,
+The successful `struct ia_trace` contains observed wired-AND bus bits, newly lost masks,
 survivor masks after each bit and final survivors. A lost controller releases SDA
 and does not manufacture STOP. Equal streams need not elect a unique winner.
 

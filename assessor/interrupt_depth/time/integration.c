@@ -18,7 +18,7 @@ void xk_print(const char *);
     }                                                                          \
   } while (0)
 int xk_integration(void) {
-  CPFClock clock;
+  struct cpf_clock clock;
   uint64_t sample = 999;
   REQUIRE(cpf_clock_init(&clock));
   REQUIRE(cpf_clock_write(&clock, UINT64_C(0x7ffffffff)));
@@ -37,12 +37,12 @@ int xk_integration(void) {
   atomic_store(&clock.sequence, UINT32_MAX - 1);
   REQUIRE(!cpf_clock_write(&clock, 1));
   LOG("XK_SCHEDULE software-writer-paused odd-refused retire-before-wrap");
-  XiQueue q;
-  XiRecord out;
-  XkSequence sequence = {0};
+  struct xi_queue q;
+  struct xi_record out;
+  struct xk_sequence sequence = {0};
   REQUIRE(xi_init(&q, 4) == XI_OK);
   for (unsigned i = 0; i < 6; ++i) {
-    XiRecord r = {.sequence = i, .timestamp = 100 + i};
+    struct xi_record r = {.sequence = i, .timestamp = 100 + i};
     int rc = xi_push(&q, &r);
     REQUIRE(rc == (i < 3 ? XI_OK : XI_FULL));
   }
@@ -56,31 +56,31 @@ int xk_integration(void) {
     REQUIRE(xi_pop(&q, &out) == XI_OK && out.sequence == i);
     REQUIRE(xk_sequence(&sequence, 1, out.sequence, 16) == XK_OK);
   }
-  XiRecord r = {.sequence = 6, .timestamp = 200};
+  struct xi_record r = {.sequence = 6, .timestamp = 200};
   REQUIRE(xi_push(&q, &r) == XI_OK && xi_pop(&q, &out) == XI_OK);
   REQUIRE(xk_sequence(&sequence, 1, out.sequence, 16) == XK_GAP &&
           sequence.missing == 3);
   LOG("XK_SCHEDULE delayed-service queue-full missing=3 "
       "stable-counter-not-completeness");
-  XdLease lease = {0};
-  XdFence fence = {0, 1, 1, 1};
-  XdTicket ticket;
-  XdResult result;
+  struct xd_lease lease = {0};
+  struct xd_fence fence = {0, 1, 1, 1};
+  struct xd_ticket ticket;
+  struct xd_result result;
   REQUIRE(xd_recover(&lease, &fence) == XD_OK &&
           xd_submit(&lease, 32, &ticket) == XD_OK);
   REQUIRE(xd_cancel(&lease, ticket) == XD_OK && lease.phase == XD_STOPPING);
-  XdProof proof = {ticket, 0, 0, 1, 32, 32};
+  struct xd_proof proof = {ticket, 0, 0, 1, 32, 32};
   REQUIRE(xd_observe(&lease, ticket, XD_COMPLETE, &proof) == XD_OK);
   REQUIRE(xd_observe(&lease, ticket, XD_STOPPED, &proof) == XD_DUPLICATE);
   REQUIRE(xd_reclaim(&lease, ticket, &result) == XD_OK &&
           result.terminal == XD_COMPLETE);
   LOG("XK_SCHEDULE cancel-before-complete complete-before-stop "
       "terminal=complete");
-  XdTicket old = ticket;
+  struct xd_ticket old = ticket;
   REQUIRE(xd_submit(&lease, 32, &ticket) == XD_OK);
   REQUIRE(xd_observe(&lease, old, XD_COMPLETE, &proof) == XD_STALE);
   REQUIRE(xd_cancel(&lease, ticket) == XD_OK);
-  proof = (XdProof){ticket, 0, 0, 1, 8, 8};
+  proof = (struct xd_proof){ticket, 0, 0, 1, 8, 8};
   REQUIRE(xd_observe(&lease, ticket, XD_STOPPED, &proof) == XD_OK);
   proof.complete = proof.possible = 32;
   REQUIRE(xd_observe(&lease, ticket, XD_COMPLETE, &proof) == XD_STALE);
@@ -88,8 +88,8 @@ int xk_integration(void) {
           result.terminal == XD_STOPPED);
   LOG("XK_SCHEDULE stale-generation stop-before-complete terminal=stopped");
   REQUIRE(xd_submit(&lease, 32, &ticket) == XD_OK);
-  lease = (XdLease){0};
-  XdFence pending = {1, 2, 1, 0};
+  lease = (struct xd_lease){0};
+  struct xd_fence pending = {1, 2, 1, 0};
   REQUIRE(xd_recover(&lease, &pending) == XD_BUSY);
   pending.writes_drained = 1;
   REQUIRE(xd_recover(&lease, &pending) == XD_OK);
@@ -99,10 +99,10 @@ int xk_integration(void) {
   /* Late-return adapter after PR-T31-03: identify a degenerate calibration
    * supported by both actual APIs; no promotion of MODEL to MEASURED. */
   for (unsigned tick = 100; tick < 132; ++tick) {
-    DpCalibration dp = {1000, 100, 10, 2, DP_MODEL};
-    DpCorrelation dc;
-    XkCalibration xk = {100, 998, 1002, 10, 0, 7};
-    XkInterval xc;
+    struct dp_calibration dp = {1000, 100, 10, 2, DP_MODEL};
+    struct dp_correlation dc;
+    struct xk_calibration xk = {100, 998, 1002, 10, 0, 7};
+    struct xk_interval xc;
     REQUIRE(dp_correlate(&dp, tick, 0, UINT64_MAX, &dc) == DP_OK &&
             dc.provenance == DP_MODEL);
     REQUIRE(xk_calibrate(&xk, tick, tick, &xc) == XK_OK &&

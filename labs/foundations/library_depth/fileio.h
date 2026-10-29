@@ -27,7 +27,7 @@ struct li_copy {
   enum li_status terminal;
 };
 void li_init(struct li_copy *);
-enum li_status li_pump(struct li_copy *, LIRead, void *, FWriter, void *,
+enum li_status li_pump(struct li_copy *, LIRead, void *, f_writer_fn, void *,
                        unsigned);
 struct li_owner {
   void *handle;

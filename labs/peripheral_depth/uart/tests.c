@@ -14,16 +14,16 @@ int pm_puts(const char *);
       return 1;                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
+struct dg_device {
   uint32_t source_after, source_reads, sr, cr1, cr3, brr, dma_busy, dma_count,
       dma_flags;
   unsigned gate, synced, reset, bad, dr_reads, writes, dma_stop, log_n,
       log[128];
   uint8_t incoming, wire[8];
   uintptr_t address;
-} Device;
+};
 static uint32_t rd(void *ctx, unsigned r) {
-  Device *m = ctx;
+  struct dg_device *m = ctx;
   if (m->log_n < 128)
     m->log[m->log_n++] = r;
   if (r == PU_SOURCE)
@@ -52,7 +52,7 @@ static uint32_t rd(void *ctx, unsigned r) {
   return 0;
 }
 static void wr(void *ctx, unsigned r, uintptr_t v) {
-  Device *m = ctx;
+  struct dg_device *m = ctx;
   if (m->log_n < 128)
     m->log[m->log_n++] = r + 32;
   if (r == PU_GATE) {
@@ -99,8 +99,8 @@ static void wr(void *ctx, unsigned r, uintptr_t v) {
   }
 }
 int main(void) {
-  PuClock c = {168000000, 1, 1, 4, 2, 0};
-  PuRates rates = {0};
+  struct pu_clock c = {168000000, 1, 1, 4, 2, 0};
+  struct pu_rates rates = {0};
   CHECK(pu_rates(&c, &rates) == PU_OK && rates.apb1 == 42000000 &&
         rates.timer1 == 84000000 && rates.timer2 == 168000000);
   c.timpre = 1;
@@ -110,10 +110,10 @@ int main(void) {
         rates.timer1 == 84000000);
   c.apb1 = 0;
   CHECK(pu_rates(&c, &rates) == PU_INVALID);
-  c = (PuClock){16000000, 1, 1, 1, 1, 0};
-  Device m = {0};
-  PuIo io = {&m, rd, wr};
-  PuDriver d = {0};
+  c = (struct pu_clock){16000000, 1, 1, 1, 1, 0};
+  struct dg_device m = {0};
+  struct pu_io io = {&m, rd, wr};
+  struct pu_driver d = {0};
   uint8_t data[3] = {0, 65, 255};
   CHECK(pu_open(&d, io, &c, 115200, 0, 2) == PU_TIMEOUT && !d.ready &&
         m.writes == 0);
@@ -134,8 +134,8 @@ int main(void) {
   m.sr = PU_TXE | PU_TC;
   CHECK(pu_step(&d, io, 1, 20) == PU_OK && !d.active);
   CHECK(pu_step(&d, io, 1, 20) == PU_STALE);
-  PuRx q = {0};
-  PuByte b = {99, 99};
+  struct pu_rx q = {0};
+  struct pu_byte b = {99, 99};
   unsigned ready = 99;
   CHECK(pu_receive(&q, PU_RXNE, 0) == PU_OK &&
         pu_receive(&q, PU_RXNE | PU_ORE, 65) == PU_OK &&

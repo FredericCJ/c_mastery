@@ -1,10 +1,10 @@
 #include "allocation.h"
 int al_image(void) {
   _Alignas(8) unsigned char storage[24];
-  ALArena arena;
-  ALHandle h;
-  ALHeap heap;
-  ALBuddy buddy;
+  struct al_arena arena;
+  struct al_handle h;
+  struct al_heap heap;
+  struct al_buddy buddy;
   size_t at, charged;
   if (al_arena_init(&arena, storage, 24, 8) ||
       al_arena_take(&arena, 5, 8, 0, 0, &h) || al_arena_reset(&arena))

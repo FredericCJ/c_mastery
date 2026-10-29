@@ -1,5 +1,5 @@
 #include "ipc.h"
-int ei_invariant(const EiRequest *r) {
+int ei_invariant(const struct ei_request *r) {
   if (!r || r->epoch < 1 || r->epoch > 65535 || r->request_id < 1 ||
       r->request_id > 65535 || (unsigned)r->state > EI_ABANDONED ||
       (unsigned)r->owner > EI_NO_OWNER || (unsigned)r->outcome > EI_UNCERTAIN ||
@@ -26,11 +26,11 @@ int ei_invariant(const EiRequest *r) {
   return r->owner == EI_NO_OWNER &&
          r->outcome == (r->effect_done ? EI_UNCERTAIN : EI_DEFINITELY_NOT_DONE);
 }
-int ei_init(EiRequest *r, const unsigned char p[8], unsigned epoch,
+int ei_init(struct ei_request *r, const unsigned char p[8], unsigned epoch,
             unsigned id) {
   if (!r || !p || epoch < 1 || epoch > 65535 || id < 1 || id > 65535)
     return -1;
-  EiRequest next = {0};
+  struct ei_request next = {0};
   next.epoch = epoch;
   next.request_id = id;
   next.state = EI_ALLOCATED;
@@ -42,10 +42,10 @@ int ei_init(EiRequest *r, const unsigned char p[8], unsigned epoch,
   *r = next;
   return 0;
 }
-int ei_transition(EiRequest *r, enum EiEvent event) {
+int ei_transition(struct ei_request *r, enum ei_event event) {
   if (!ei_invariant(r) || (unsigned)event > EI_STOP_CONFIRMED)
     return -1;
-  EiRequest next = *r;
+  struct ei_request next = *r;
   switch (event) {
   case EI_QUEUE:
     if (r->state != EI_ALLOCATED)
@@ -119,26 +119,26 @@ int ei_transition(EiRequest *r, enum EiEvent event) {
   *r = next;
   return 0;
 }
-static int queue_valid(const EiQueue *q) {
+static int queue_valid(const struct ei_queue *q) {
   if (!q || q->head > 3 || q->count > 4 || q->bytes != 8 * q->count)
     return 0;
   for (unsigned i = 0; i < q->count; ++i) {
-    EiRequest *r = q->slots[(q->head + i) % 4];
+    struct ei_request *r = q->slots[(q->head + i) % 4];
     if (!ei_invariant(r) || r->state != EI_QUEUED)
       return 0;
     for (unsigned j = 0; j < i; ++j) {
-      EiRequest *s = q->slots[(q->head + j) % 4];
+      struct ei_request *s = q->slots[(q->head + j) % 4];
       if (r == s || (r->epoch == s->epoch && r->request_id == s->request_id))
         return 0;
     }
   }
   return 1;
 }
-int ei_enqueue(EiQueue *q, EiRequest *r) {
+int ei_enqueue(struct ei_queue *q, struct ei_request *r) {
   if (!queue_valid(q) || !ei_invariant(r) || r->state != EI_ALLOCATED)
     return -1;
   for (unsigned i = 0; i < q->count; ++i) {
-    EiRequest *s = q->slots[(q->head + i) % 4];
+    struct ei_request *s = q->slots[(q->head + i) % 4];
     if (s == r || (s->epoch == r->epoch && s->request_id == r->request_id))
       return -1;
   }
@@ -151,12 +151,12 @@ int ei_enqueue(EiQueue *q, EiRequest *r) {
   q->bytes += 8;
   return 1;
 }
-int ei_dequeue(EiQueue *q, EiRequest **r) {
+int ei_dequeue(struct ei_queue *q, struct ei_request **r) {
   if (!r || !queue_valid(q))
     return -1;
   if (!q->count)
     return 0;
-  EiRequest *owned = q->slots[q->head];
+  struct ei_request *owned = q->slots[q->head];
   if (ei_transition(owned, EI_ACCEPT))
     return -1;
   q->slots[q->head] = 0;

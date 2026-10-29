@@ -36,7 +36,7 @@ int main(void) {
     } else if (op == 'g') {
       size_t n;
       double a[9], b[3], tol;
-      NDCost cost;
+      struct nd_cost cost;
       if (scanf("%zu%la", &n, &tol) != 2 || n < 2 || n > 3)
         return 2;
       for (size_t i = 0; i < n * n; i++)
@@ -45,7 +45,7 @@ int main(void) {
       for (size_t i = 0; i < n; i++)
         if (scanf("%la", b + i) != 1)
           return 2;
-      status = nd_solve((NDView){a, n * n, n, n, n, 1}, b, n, tol, out, &cost);
+      status = nd_solve((struct nd_view){a, n * n, n, n, n, 1}, b, n, tol, out, &cost);
       count = n;
     } else
       return 2;

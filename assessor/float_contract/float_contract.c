@@ -18,7 +18,7 @@ static int admitted(const double *x, size_t n) {
     }
     return 1;
 }
-FfStatus ff_sum(const double *x,size_t n,FfMethod method,double *out) {
+enum ff_status ff_sum(const double *x,size_t n,enum ff_method method,double *out) {
     if (!out || method<FF_NAIVE || method>FF_NEUMAIER) return FF_RANGE;
     if (FF_MUTANT==2) *out=0;
     if (!admitted(x,n)) return FF_RANGE;
@@ -40,14 +40,14 @@ FfStatus ff_sum(const double *x,size_t n,FfMethod method,double *out) {
     *out=method==FF_NEUMAIER && FF_MUTANT!=1 ? sum+correction : sum;
     return FF_OK;
 }
-FfStatus ff_dot(const double *a,const double *b,size_t n,double *out) {
+enum ff_status ff_dot(const double *a,const double *b,size_t n,double *out) {
     if (!out || !admitted(a,n) || !admitted(b,n)) return FF_RANGE;
     if (fegetround()!=FE_TONEAREST) return FF_MODEL;
     double sum=0;
     for (size_t i=0;i<n;i++) { volatile double product=a[i]*b[i];sum+=product; }
     *out=sum;return FF_OK;
 }
-FfStatus ff_compare(double a,double b,double absolute,double relative,int signed_zero,int *out) {
+enum ff_status ff_compare(double a,double b,double absolute,double relative,int signed_zero,int *out) {
     if (!out || !isfinite(a) || !isfinite(b) || !isfinite(absolute) || !isfinite(relative) || absolute<0 || relative<0 || relative>1) return FF_RANGE;
     if (signed_zero && a==0 && b==0 && FF_MUTANT!=3) {
         *out=!!signbit(a)==!!signbit(b);return FF_OK;
@@ -60,7 +60,7 @@ FfStatus ff_compare(double a,double b,double absolute,double relative,int signed
     *out=abs_ok || fabs(a/scale-b/scale)<=relative;
     return FF_OK;
 }
-FfStatus ff_ulps(double a,double b,uint64_t *out) {
+enum ff_status ff_ulps(double a,double b,uint64_t *out) {
     uint64_t one=0,ua,ub,sign=UINT64_C(1)<<63;
     double d=1;
     if (!out || !isfinite(a) || !isfinite(b)) return FF_RANGE;
@@ -71,8 +71,8 @@ FfStatus ff_ulps(double a,double b,uint64_t *out) {
     if (FF_MUTANT!=4) { ua=ua&sign?~ua+1:sign+ua;ub=ub&sign?~ub+1:sign+ub; }
     *out=ua>ub?ua-ub:ub-ua;return FF_OK;
 }
-FfStatus ff_probe_ops(double x,double y,FfRound *out,const FfEnvOps *ops) {
-    int saved_errno=errno;fenv_t saved,held;FfRound result={{0},{0},0};FfStatus status=FF_OK;
+enum ff_status ff_probe_ops(double x,double y,struct ff_round *out,const struct ff_env_ops *ops) {
+    int saved_errno=errno;fenv_t saved,held;struct ff_round result={{0},{0},0};enum ff_status status=FF_OK;
     if (!out || !ops || !ops->save || !ops->hold || !ops->mode || !ops->restore || !isfinite(x) || !isfinite(y) || fabs(x)>1 || fabs(y)>1) { errno=saved_errno;return FF_RANGE; }
     if (ops->save(&saved)!=0) { errno=saved_errno;return FF_ENV; }
     if (ops->hold(&held)!=0) status=FF_ENV;
@@ -100,7 +100,7 @@ FfStatus ff_probe_ops(double x,double y,FfRound *out,const FfEnvOps *ops) {
     if (status==FF_OK) *out=result;
     return status;
 }
-FfStatus ff_round_probe(double x,double y,FfRound *out) {
-    const FfEnvOps ops={fegetenv,feholdexcept,fesetround,fesetenv};
+enum ff_status ff_round_probe(double x,double y,struct ff_round *out) {
+    const struct ff_env_ops ops={fegetenv,feholdexcept,fesetround,fesetenv};
     return ff_probe_ops(x,y,out,&ops);
 }

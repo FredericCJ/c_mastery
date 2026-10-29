@@ -1,5 +1,5 @@
 #include "uart_adapter.h"
-int pl_uart_open(PlUart *a, PuIo b, const PuClock *c, uint32_t d, unsigned e,
+int pl_uart_open(struct pl_uart *a, struct pu_io b, const struct pu_clock *c, uint32_t d, unsigned e,
                  unsigned f) {
   (void)a;
   (void)b;
@@ -9,8 +9,8 @@ int pl_uart_open(PlUart *a, PuIo b, const PuClock *c, uint32_t d, unsigned e,
   (void)f;
   return PL_UNIMPLEMENTED;
 }
-PlTransport pl_uart_transport(PlUart *u) {
+struct pl_transport pl_uart_transport(struct pl_uart *u) {
   (void)u;
-  PlTransport t = {0};
+  struct pl_transport t = {0};
   return t;
 }

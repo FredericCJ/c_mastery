@@ -3,5 +3,5 @@
 #include "diagnostic.h"
 /* POSIX host-only. Caller owns a connected nonblocking local datagram socket.
  */
-int dg_udp_receive(int, DGSession *, DGMessage *);
+int dg_udp_receive(int, struct dg_session *, struct dg_message *);
 #endif

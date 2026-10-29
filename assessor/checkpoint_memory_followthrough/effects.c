@@ -6,12 +6,12 @@
 #ifndef P1_EFFECT
 #define P1_EFFECT 0
 #endif
-typedef struct {unsigned comparisons,logs,heap,waits,releases;} Effects;
-typedef struct {void *context;int (*compare)(void *,int,int);void (*log)(void *,int);} Hooks;
+struct p1_effects {unsigned comparisons,logs,heap,waits,releases;};
+struct p1_hooks {void *context;int (*compare)(void *,int,int);void (*log)(void *,int);};
 /* The signatures contain no effect information. These original teaching
    callbacks deliberately violate a claimed no-allocation/no-wait contract. */
 static int compare(void *context,int a,int b) {
-    Effects *e=context;++e->comparisons;
+    struct p1_effects *e=context;++e->comparisons;
     if(P1_EFFECT==1) {
         volatile unsigned char *p=malloc(1);if(!p)exit(2);
         ++e->heap;*p=17;free((void *)p);++e->releases;
@@ -19,11 +19,11 @@ static int compare(void *context,int a,int b) {
     return (a>b)-(a<b);
 }
 static void logger(void *context,int value) {
-    Effects *e=context;(void)value;++e->logs;
+    struct p1_effects *e=context;(void)value;++e->logs;
     if(P1_EFFECT==2) {++e->waits;if(poll(NULL,0,1)!=0)exit(2);}
 }
-static unsigned consume(CPMPool *p,CPMRing *q,Hooks hooks) {
-    unsigned matches=0;CPMHandle h;const CPMRecord *r;
+static unsigned consume(struct cpm_pool *p,struct cpm_ring *q,struct p1_hooks hooks) {
+    unsigned matches=0;struct cpm_handle h;const struct cpm_record *r;
     while(cpm_pop(q,&h)==CPM_OK) {
         if(cpm_lookup(p,h,&r)!=CPM_OK)exit(2);
         int same=hooks.compare(hooks.context,r->value,22)==0;
@@ -33,10 +33,10 @@ static unsigned consume(CPMPool *p,CPMRing *q,Hooks hooks) {
     return matches;
 }
 int main(void) {
-    CPMPool p;CPMRing q;cpm_pool_init(&p);cpm_ring_init(&q);
-    int values[]={11,22,33,44};size_t accepted=0;Effects effects={0};
+    struct cpm_pool p;struct cpm_ring q;cpm_pool_init(&p);cpm_ring_init(&q);
+    int values[]={11,22,33,44};size_t accepted=0;struct p1_effects effects={0};
     if(cpm_prefix(&p,&q,values,4,&accepted)!=CPM_OK || accepted!=4)return 2;
-    unsigned matches=consume(&p,&q,(Hooks){&effects,compare,logger});
+    unsigned matches=consume(&p,&q,(struct p1_hooks){&effects,compare,logger});
     if(matches!=1 || effects.comparisons!=4 || effects.logs!=4 || q.count)return 2;
     for(unsigned i=0;i<4;i++)if(p.state[i]!=0)return 2;
     if(effects.heap || effects.waits) {

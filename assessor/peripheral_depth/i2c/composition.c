@@ -3,7 +3,7 @@
 #undef main
 #include "firmware_io.h"
 #include "serial_depth.h"
-static Lines old_lines;
+static struct dg_lines old_lines;
 static uint32_t fwread(void *p, unsigned r) {
   (void)p;
   return line_read(&old_lines, r == FW_SCL ? PI_SCL : PI_SDA);
@@ -14,11 +14,11 @@ static void fwwrite(void *p, unsigned r, uint32_t v) {
 }
 int main(void) {
   for (unsigned address = 8; address < 120; address++) {
-    SDI2c sd = {0};
-    PiI2c pi = {0};
-    Model m = {0};
-    PiIo io = {&m, rd, wr};
-    PuClock c = {16000000, 1, 1, 1, 1, 0};
+    struct sd_sdi2c sd = {0};
+    struct pi_i2c pi = {0};
+    struct dg_model m = {0};
+    struct pi_io io = {&m, rd, wr};
+    struct pu_clock c = {16000000, 1, 1, 1, 1, 0};
     uint8_t action = 0, wire = 0, out = 0;
     CHECK(sd_i2c_begin(&sd, 1, (uint8_t)address, 0x10, &action, &wire) ==
               SD_OK &&
@@ -40,13 +40,13 @@ int main(void) {
     CHECK(event(&pi, &m, PI_ARLO, 6) == PI_ARBITRATION && !m.stop);
   }
   for (unsigned needed = 1; needed <= 9; needed++) {
-    PiRecovery p = {0};
-    Lines l = {{1, 1}, 0, needed, 0, 0};
-    PiLines io = {&l, line_read, line_release};
+    struct pi_recovery p = {0};
+    struct dg_lines l = {{1, 1}, 0, needed, 0, 0};
+    struct pi_lines io = {&l, line_read, line_release};
     unsigned old = 99;
     int rc = PI_BUSY;
-    old_lines = (Lines){{1, 1}, 0, needed, 0, 0};
-    FwIo fw = {0, fwread, fwwrite};
+    old_lines = (struct dg_lines){{1, 1}, 0, needed, 0, 0};
+    struct fw_io fw = {0, fwread, fwwrite};
     CHECK(sd_i2c_clear(1, 0, needed, &old) == SD_OK && old == needed);
     CHECK(fw_i2c_recover(fw, 9) == 0);
     CHECK(!pi_recover_begin(&p, io, 1, 0, 0, 200, 2));
@@ -57,9 +57,9 @@ int main(void) {
   /* Old primitives assume exclusive access; explicit second-master policy is
    * new. */
   {
-    PiRecovery p = {0};
-    Lines l = {{1, 1}, 0, 3, 0, 0};
-    PiLines io = {&l, line_read, line_release};
+    struct pi_recovery p = {0};
+    struct dg_lines l = {{1, 1}, 0, 3, 0, 0};
+    struct pi_lines io = {&l, line_read, line_release};
     CHECK(pi_recover_begin(&p, io, 1, 1, 0, 100, 2) == PI_FORBIDDEN &&
           !l.writes);
   }

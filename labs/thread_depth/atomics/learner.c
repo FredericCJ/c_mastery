@@ -12,13 +12,13 @@ int ta_litmus(unsigned a, unsigned b, unsigned c, unsigned d) {
   (void)d;
   return -1;
 }
-void ta_counter_init(TACounter *p, unsigned n) { atomic_init(&p->value, n); }
-unsigned ta_counter_add(TACounter *p, unsigned n) {
+void ta_counter_init(struct ta_counter *p, unsigned n) { atomic_init(&p->value, n); }
+unsigned ta_counter_add(struct ta_counter *p, unsigned n) {
   (void)p;
   (void)n;
   return 0;
 }
-unsigned ta_counter_read(const TACounter *p) {
+unsigned ta_counter_read(const struct ta_counter *p) {
   (void)p;
   return 0;
 }
@@ -28,29 +28,29 @@ int ta_dependency(unsigned a, unsigned b, unsigned c) {
   (void)c;
   return -1;
 }
-void ta_snapshot_init(TASnapshot *p) { (void)p; }
-int ta_snapshot_write(TASnapshot *p, int n) {
+void ta_snapshot_init(struct ta_snapshot *p) { (void)p; }
+int ta_snapshot_write(struct ta_snapshot *p, int n) {
   (void)p;
   (void)n;
   return TA_INVALID;
 }
-int ta_snapshot_try(TASnapshot *p, unsigned n, int *out) {
+int ta_snapshot_try(struct ta_snapshot *p, unsigned n, int *out) {
   (void)p;
   (void)n;
   (void)out;
   return TA_INVALID;
 }
-int ta_slot_init(TASlot *p, unsigned n) {
+int ta_slot_init(struct ta_slot *p, unsigned n) {
   (void)p;
   (void)n;
   return TA_INVALID;
 }
-int ta_slot_publish(TASlot *p, int n) {
+int ta_slot_publish(struct ta_slot *p, int n) {
   (void)p;
   (void)n;
   return TA_INVALID;
 }
-int ta_slot_read(TASlot *p, unsigned n, int *out) {
+int ta_slot_read(struct ta_slot *p, unsigned n, int *out) {
   (void)p;
   (void)n;
   (void)out;
@@ -74,8 +74,8 @@ int ta_order_pair(unsigned success, unsigned failure) {
   (void)failure;
   return 0;
 }
-int ta_increment(TACas operation, void *context, unsigned initial,
-                 unsigned limit, int one_attempt, TAReport *out) {
+int ta_increment(ta_cas_fn operation, void *context, unsigned initial,
+                 unsigned limit, int one_attempt, struct ta_report *out) {
   (void)operation;
   (void)context;
   (void)initial;
@@ -84,9 +84,9 @@ int ta_increment(TACas operation, void *context, unsigned initial,
   (void)out;
   return TA_INVALID;
 }
-int ta_publish(TANodeCas operation, void *context, TANode *owned,
-               TANode *expected, TANode *const *leases, size_t count,
-               int derive, unsigned limit, TANodeReport *out) {
+int ta_publish(ta_node_cas_fn operation, void *context, struct ta_node *owned,
+               struct ta_node *expected, struct ta_node *const *leases, size_t count,
+               int derive, unsigned limit, struct ta_node_report *out) {
   (void)operation;
   (void)context;
   (void)owned;

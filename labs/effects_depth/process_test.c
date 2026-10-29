@@ -26,7 +26,7 @@ int main(int argc,char**argv){
  if(argc!=2)return 2;
  if(!strcmp(argv[1],"callbacks")){unsigned before=requests;int a=entry(pure_callback);unsigned pure=requests-before;before=requests;int b=entry(effect_callback);unsigned effects=requests-before;CHECK(a==7&&b==7&&pure==0&&effects==1&&tls_calls==2);printf("{\"same_result\":7,\"pure_requests\":%u,\"effect_requests\":%u,\"tls_calls\":%u,\"changed_callback_timed_wait\":true}\n",pure,effects,tls_calls);return 0;}
  if(!strcmp(argv[1],"cache")||!strcmp(argv[1],"startup")){
-  EFCache c={{NULL,take,release},NULL,1,0,0,0};uint32_t out;unsigned before=requests;
+  struct ef_cache c={{NULL,take,release},NULL,1,0,0,0};uint32_t out;unsigned before=requests;
   unsigned startup=0;if(!strcmp(argv[1],"startup")){CHECK(ef_cached(&c,NULL,0,&out)==EF_OK);startup=requests-before;before=requests;}
   struct timespec start,end;CHECK(clock_gettime(CLOCK_MONOTONIC,&start)==0);
   CHECK(ef_cached(&c,(const unsigned char*)"abc",3,&out)==EF_OK);unsigned cold=requests-before;
@@ -39,7 +39,7 @@ int main(int argc,char**argv){
  }
  if(!strcmp(argv[1],"bypass")){
   unsigned before=requests;void*p=ef_hidden_take(37);CHECK(p);memset(p,3,37);ef_hidden_release(p);unsigned hidden=requests-before;
-  EFPool pool={0};unsigned char*b;before=requests;CHECK(ef_pool_take(&pool,&b)==EF_OK);*b=7;
+  struct ef_pool pool={0};unsigned char*b;before=requests;CHECK(ef_pool_take(&pool,&b)==EF_OK);*b=7;
   CHECK(hidden==0&&requests==before&&pool.requests==1);printf("{\"dso_hook_requests\":%u,\"pool_requests\":%u,\"pool_hook_requests\":%u}\n",hidden,pool.requests,requests-before);return 0;
  }
  if(!strcmp(argv[1],"stdio")){
@@ -50,10 +50,10 @@ int main(int argc,char**argv){
  }
  if(!strcmp(argv[1],"console")){printf("terminal=%d\n",isatty(STDOUT_FILENO));printf("one\n");printf("two\n");return fflush(stdout)!=0;}
  if(!strcmp(argv[1],"refill")){
-  EFPool pool={0};unsigned char*p;for(unsigned i=0;i<16;++i)CHECK(ef_pool_take(&pool,&p)==EF_OK);
+  struct ef_pool pool={0};unsigned char*p;for(unsigned i=0;i<16;++i)CHECK(ef_pool_take(&pool,&p)==EF_OK);
   unsigned before=requests;for(unsigned i=0;i<100;++i){CHECK(ef_pool_return(&pool,0)==EF_OK&&ef_pool_take(&pool,&p)==EF_OK);}
   CHECK(requests==before&&ef_pool_take(&pool,&p)==EF_FULL);
-  EFPool*second=malloc(sizeof*second);CHECK(second);memset(second,0,sizeof*second);CHECK(ef_pool_take(second,&p)==EF_OK);unsigned acquisition=requests-before;free(second);
+  struct ef_pool*second=malloc(sizeof*second);CHECK(second);memset(second,0,sizeof*second);CHECK(ef_pool_take(second,&p)==EF_OK);unsigned acquisition=requests-before;free(second);
   CHECK(acquisition==1);printf("{\"first_pool_requests\":%u,\"warm_backend_requests\":0,\"refill_backend_requests\":%u}\n",pool.requests,acquisition);return 0;
  }
  if(!strcmp(argv[1],"resources")){

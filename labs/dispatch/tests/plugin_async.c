@@ -13,4 +13,4 @@ static int migrate(unsigned previous,int value,int *out){
  if(PLUGIN_SCHEMA==2 && (value<0 || value>500))return DS_RANGE;
  *out=PLUGIN_SCHEMA==2?value*2:value;return DS_OK;
 }
-const DSPlugin dispatch_plugin={1,sizeof(DSPlugin),PLUGIN_SCHEMA,apply,migrate};
+const struct ds_plugin dispatch_plugin={1,sizeof(struct ds_plugin),PLUGIN_SCHEMA,apply,migrate};

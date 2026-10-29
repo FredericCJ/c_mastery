@@ -103,9 +103,9 @@ All three objectives require independent explanation for a mastery-level result.
 
 ## Resources, source and execution limits
 
-`VvWork` is caller-owned scratch: three byte arrays, one int16 height array,
+`struct vv_work` is caller-owned scratch: three byte arrays, one int16 height array,
 two uint16 arrays, one of length1025. It has no allocation or C recursion.
-`vv_load` and `vv_lower` each stage one bounded `CvmProgram`; the report is
+`vv_load` and `vv_lower` each stage one bounded `struct cvm_program`; the report is
 diagnostic output and is explicitly not failure-atomic. New code does not invoke
 64-bit division, but the linked actual VM's checked arithmetic may emit it. M4
 uses the already validated original signed-division ABI bridge and T11 limb

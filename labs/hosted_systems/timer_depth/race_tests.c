@@ -10,17 +10,17 @@
       exit(1);                                                                 \
     }                                                                          \
   } while (0)
-typedef struct {
+struct rd_shared {
   pthread_mutex_t lock;
   pthread_cond_t changed;
   pthread_barrier_t start;
-  TdTimer timer;
+  struct td_timer timer;
   unsigned token;
   int entered, release, started, calls;
-} Shared;
+};
 static void *callback(void *arg) {
-  Shared *s = arg;
-  TdDispatch d;
+  struct rd_shared *s = arg;
+  struct td_dispatch d;
   int b = pthread_barrier_wait(&s->start);
   CHECK(b == 0 || b == PTHREAD_BARRIER_SERIAL_THREAD);
   CHECK(!pthread_mutex_lock(&s->lock));
@@ -39,7 +39,7 @@ static void *callback(void *arg) {
   return NULL;
 }
 static int one(int force) {
-  Shared s = {0};
+  struct rd_shared s = {0};
   pthread_t thread;
   unsigned replacement = 99;
   CHECK(!pthread_mutex_init(&s.lock, NULL) &&

@@ -17,7 +17,7 @@ uint16_t edu_crc(const void *v, size_t n) {
   }
   return c;
 }
-int edu_frame_encode(const EduFrame *f, void *v, size_t cap, size_t *length) {
+int edu_frame_encode(const struct edu_frame *f, void *v, size_t cap, size_t *length) {
   if (f->length > 40 || f->kind > 2 || f->source < 1 || f->source > 2 ||
       f->destination < 1 || f->destination > 2 || f->source == f->destination ||
       (f->kind && f->length))
@@ -45,7 +45,7 @@ int edu_frame_encode(const EduFrame *f, void *v, size_t cap, size_t *length) {
   *length = z;
   return 0;
 }
-int edu_frame_byte(EduFramer *p, uint8_t c, int fault, EduFrame *out) {
+int edu_frame_byte(struct edu_framer *p, uint8_t c, int fault, struct edu_frame *out) {
   if (fault) {
     p->discard = 1;
     p->length = 0;
@@ -62,7 +62,7 @@ int edu_frame_byte(EduFramer *p, uint8_t c, int fault, EduFrame *out) {
           edu_crc(b, n - 2) != be16(b + n - 2))
         r = -1;
       else {
-        EduFrame f = {b[1], b[2], b[3], b[4], {0}};
+        struct edu_frame f = {b[1], b[2], b[3], b[4], {0}};
         memcpy(f.payload, b + 5, f.length);
         *out = f;
         r = 1;
@@ -89,7 +89,7 @@ int edu_frame_byte(EduFramer *p, uint8_t c, int fault, EduFrame *out) {
   p->bytes[p->length++] = c;
   return 0;
 }
-int edu_network_encode(const EduDatagram *d, void *v, size_t *n) {
+int edu_network_encode(const struct edu_datagram *d, void *v, size_t *n) {
   if (!d->hop || d->length > 34)
     return -1;
   uint8_t *p = v;
@@ -103,17 +103,17 @@ int edu_network_encode(const EduDatagram *d, void *v, size_t *n) {
   *n = 6 + d->length;
   return 0;
 }
-int edu_network_decode(const void *v, size_t n, EduDatagram *d) {
+int edu_network_decode(const void *v, size_t n, struct edu_datagram *d) {
   const uint8_t *p = v;
   if (n < 6 || p[0] != 1 || !p[3] || p[4] != 4 || p[5] > 34 ||
       n != (size_t)p[5] + 6)
     return -1;
-  EduDatagram x = {p[1], p[2], p[3], p[5], {0}};
+  struct edu_datagram x = {p[1], p[2], p[3], p[5], {0}};
   memcpy(x.payload, p + 6, x.length);
   *d = x;
   return 0;
 }
-int edu_route(const EduDatagram *in, unsigned ingress, EduDatagram *out,
+int edu_route(const struct edu_datagram *in, unsigned ingress, struct edu_datagram *out,
               unsigned *egress, uint8_t *next) {
   if (in->hop <= 1 || in->source == 34 || ingress > 1)
     return -1;
@@ -132,7 +132,7 @@ int edu_route(const EduDatagram *in, unsigned ingress, EduDatagram *out,
   *next = port ? 2 : 1;
   return 0;
 }
-static int fragment_valid(const EduFragment *f) {
+static int fragment_valid(const struct edu_fragment *f) {
   return f->type >= 1 && f->type <= 3 &&
          ((f->source_port == 7 && f->destination_port == 8) ||
           (f->source_port == 8 && f->destination_port == 7)) &&
@@ -142,7 +142,7 @@ static int fragment_valid(const EduFragment *f) {
                           (f->index + 1 == f->count || f->length == 24))
                        : f->length == 0);
 }
-int edu_fragment_encode(const EduFragment *f, void *v, size_t *n) {
+int edu_fragment_encode(const struct edu_fragment *f, void *v, size_t *n) {
   if (!fragment_valid(f))
     return -1;
   uint8_t *p = v;
@@ -157,18 +157,18 @@ int edu_fragment_encode(const EduFragment *f, void *v, size_t *n) {
   *n = 8 + f->length;
   return 0;
 }
-int edu_fragment_decode(const void *v, size_t n, EduFragment *f) {
+int edu_fragment_decode(const void *v, size_t n, struct edu_fragment *f) {
   const uint8_t *p = v;
   if (n < 8 || n > 32)
     return -1;
-  EduFragment x = {p[0], p[1], p[2], p[5], p[6], p[7], be16(p + 3), {0}, n - 8};
+  struct edu_fragment x = {p[0], p[1], p[2], p[5], p[6], p[7], be16(p + 3), {0}, n - 8};
   memcpy(x.data, p + 8, n - 8);
   if (!fragment_valid(&x))
     return -1;
   *f = x;
   return 0;
 }
-int edu_tx_begin(EduTx *t, uint16_t id, uint8_t src, uint8_t dst, const void *v,
+int edu_tx_begin(struct edu_tx *t, uint16_t id, uint8_t src, uint8_t dst, const void *v,
                  size_t n, uint64_t now) {
   if (t->active || !id || id <= t->id || !n || n > 120 ||
       !((src == 7 && dst == 8) || (src == 8 && dst == 7)))
@@ -185,7 +185,7 @@ int edu_tx_begin(EduTx *t, uint16_t id, uint8_t src, uint8_t dst, const void *v,
   t->due = now;
   return 0;
 }
-int edu_tx_poll(EduTx *t, uint64_t now, EduFragment *out) {
+int edu_tx_poll(struct edu_tx *t, uint64_t now, struct edu_fragment *out) {
   if (!t->active)
     return 0;
   if (t->blocked && now - t->blocked_since >= 500) {
@@ -198,7 +198,7 @@ int edu_tx_poll(EduTx *t, uint64_t now, EduFragment *out) {
     t->active = 0;
     return -1;
   }
-  EduFragment f = {t->credit ? 1 : 3,
+  struct edu_fragment f = {t->credit ? 1 : 3,
                    t->source,
                    t->destination,
                    t->index,
@@ -219,7 +219,7 @@ int edu_tx_poll(EduTx *t, uint64_t now, EduFragment *out) {
   *out = f;
   return 1;
 }
-int edu_tx_ack(EduTx *t, const EduFragment *a, uint64_t now) {
+int edu_tx_ack(struct edu_tx *t, const struct edu_fragment *a, uint64_t now) {
   if (!t->active || !fragment_valid(a) || a->type != 2 ||
       a->source_port != t->destination || a->destination_port != t->source ||
       a->id != t->id || a->index != t->index || a->count != t->count)
@@ -247,10 +247,10 @@ int edu_tx_ack(EduTx *t, const EduFragment *a, uint64_t now) {
   t->due = now;
   return 0;
 }
-int edu_rx_accept(EduRx *r, const EduFragment *f, EduFragment *ack) {
+int edu_rx_accept(struct edu_rx *r, const struct edu_fragment *f, struct edu_fragment *ack) {
   if (!fragment_valid(f) || f->type == 2)
     return -1;
-  *ack = (EduFragment){2,        f->destination_port, f->source_port, f->index,
+  *ack = (struct edu_fragment){2,        f->destination_port, f->source_port, f->index,
                        f->count, (uint8_t)!r->ready,  f->id,          {0},
                        0};
   if (f->type == 3)
@@ -310,7 +310,7 @@ int edu_rx_accept(EduRx *r, const EduFragment *f, EduFragment *ack) {
   }
   return 0;
 }
-void edu_rx_release(EduRx *r) { r->ready = 0; }
+void edu_rx_release(struct edu_rx *r) { r->ready = 0; }
 static int utf8(const uint8_t *p, size_t n) {
   for (size_t i = 0; i < n;) {
     uint32_t cp;
@@ -345,11 +345,11 @@ static int utf8(const uint8_t *p, size_t n) {
   }
   return 1;
 }
-int edu_record_decode(const void *v, size_t n, EduRecord *out) {
+int edu_record_decode(const void *v, size_t n, struct edu_record *out) {
   const uint8_t *p = v;
   if (!n || n > 80 || p[0] != 1)
     return -1;
-  EduRecord r = {0};
+  struct edu_record r = {0};
   unsigned seen = 0, prior = 0;
   for (size_t i = 1; i < n;) {
     if (n - i < 2)
@@ -396,7 +396,7 @@ int edu_record_decode(const void *v, size_t n, EduRecord *out) {
   *out = r;
   return 0;
 }
-int edu_record_encode(const EduRecord *r, void *v, size_t *n) {
+int edu_record_encode(const struct edu_record *r, void *v, size_t *n) {
   uint8_t p[33];
   size_t i = 0;
   p[i++] = 1;
@@ -426,17 +426,17 @@ int edu_record_encode(const EduRecord *r, void *v, size_t *n) {
     memcpy(p + i, r->label, r->label_length);
     i += r->label_length;
   }
-  EduRecord check;
+  struct edu_record check;
   if (edu_record_decode(p, i, &check))
     return -1;
   memcpy(v, p, i);
   *n = i;
   return 0;
 }
-int edu_application(const EduRecord *r, int16_t *set, EduRecord *reply) {
+int edu_application(const struct edu_record *r, int16_t *set, struct edu_record *reply) {
   if (r->verb != 1 && r->verb != 2)
     return -1;
-  *reply = (EduRecord){3, r->request, 1800, 1, 1, {0}, 0};
+  *reply = (struct edu_record){3, r->request, 1800, 1, 1, {0}, 0};
   if (r->verb == 2) {
     if (!r->has_value || !r->has_unit)
       return -1;
@@ -448,7 +448,7 @@ int edu_application(const EduRecord *r, int16_t *set, EduRecord *reply) {
   }
   return 0;
 }
-int edu_session_receive(EduSession *s, uint8_t sender, const void *v, size_t n,
+int edu_session_receive(struct edu_session *s, uint8_t sender, const void *v, size_t n,
                         const uint8_t **data, size_t *len) {
   const uint8_t *p = v;
   if (n < 7 || n > 87 || !(sender == 17 || sender == 51))
@@ -508,19 +508,19 @@ int edu_session_receive(EduSession *s, uint8_t sender, const void *v, size_t n,
   }
   return p[0] == 7 && n == 7 ? 0 : -1;
 }
-int edu_session_token_begin(EduSession *s, uint8_t sender) {
+int edu_session_token_begin(struct edu_session *s, uint8_t sender) {
   if (!s->open || s->holder != sender || s->token_pending)
     return -1;
   s->token_pending = 1;
   return 0;
 }
-void edu_session_token_complete(EduSession *s, uint8_t holder, int ok) {
+void edu_session_token_complete(struct edu_session *s, uint8_t holder, int ok) {
   if (s->token_pending && ok && (holder == 17 || holder == 51)) {
     s->holder = holder;
     s->token_pending = 0;
   }
 }
-int edu_phy_begin(EduPhysical *p, uint64_t now) {
+int edu_phy_begin(struct edu_physical *p, uint64_t now) {
   if (!edu_phy_ready(p, now))
     return -1;
   p->driving = 1;
@@ -528,13 +528,13 @@ int edu_phy_begin(EduPhysical *p, uint64_t now) {
   p->due = now + 200;
   return 0;
 }
-int edu_phy_started(EduPhysical *p, uint64_t now) {
+int edu_phy_started(struct edu_physical *p, uint64_t now) {
   if (p->phase != 1 || now < p->due)
     return -1;
   p->phase = 2;
   return 0;
 }
-int edu_phy_complete(EduPhysical *p, uint64_t now, int tc) {
+int edu_phy_complete(struct edu_physical *p, uint64_t now, int tc) {
   if (p->phase != 2 || !tc)
     return -1;
   p->driving = 0;
@@ -542,7 +542,7 @@ int edu_phy_complete(EduPhysical *p, uint64_t now, int tc) {
   p->due = now + 200;
   return 0;
 }
-int edu_phy_ready(EduPhysical *p, uint64_t now) {
+int edu_phy_ready(struct edu_physical *p, uint64_t now) {
   if (p->phase == 3 && now >= p->due)
     p->phase = 0;
   return p->phase == 0;

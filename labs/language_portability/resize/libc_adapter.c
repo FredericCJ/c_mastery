@@ -1,16 +1,16 @@
 #include "resize.h"
 #include <stdio.h>
 #include <stdlib.h>
-typedef struct {unsigned attempts,zero,release,fail;} Real;
+struct lp_real {unsigned attempts,zero,release,fail;};
 static void *resize(void *v,void *p,size_t before,size_t after){
-    Real *r=v;(void)before;r->attempts++;
+    struct lp_real *r=v;(void)before;r->attempts++;
     if(!after){r->zero++;return NULL;}
     if(r->fail){r->fail=0;return NULL;}
     return realloc(p,after);
 }
-static void release(void *v,void *p,size_t n){Real *r=v;(void)n;r->release++;free(p);}
+static void release(void *v,void *p,size_t n){struct lp_real *r=v;(void)n;r->release++;free(p);}
 int main(void){
-    Real real={0};LrBuffer b;LrAllocator a={&real,resize,release};int failed=0;
+    struct lp_real real={0};struct lr_buffer b;struct lr_allocator a={&real,resize,release};int failed=0;
     if(lr_init(&b,a)!=LR_OK)return 1;
     if(lr_resize(&b,4)!=LR_OK)return 2;
     for(size_t i=0;i<4;i++)b.data[i]=(unsigned char)(i+31);

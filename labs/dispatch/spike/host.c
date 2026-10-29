@@ -3,7 +3,7 @@
 #include <stdio.h>
 int main(int argc, char **argv) {
   void *h;
-  const SpikeAPI *api;
+  const struct spike_api *api;
   const char *error;
   int n;
   if (argc != 2)

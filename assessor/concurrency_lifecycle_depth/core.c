@@ -2,7 +2,7 @@
 #ifndef CL_MUTANT
 #define CL_MUTANT 0
 #endif
-void cl_queue_init(CLQueue *q, CLMessage storage[2]) {
+void cl_queue_init(struct cl_queue *q, struct cl_message storage[2]) {
   q->slots = storage;
   q->head = 0;
   q->count = 0;
@@ -11,7 +11,7 @@ void cl_queue_init(CLQueue *q, CLMessage storage[2]) {
   q->delivered = 0;
   q->discarded = 0;
 }
-enum cl_result cl_send(CLQueue *q, uint32_t p, uint32_t seq,
+enum cl_result cl_send(struct cl_queue *q, uint32_t p, uint32_t seq,
                        const unsigned char *in, size_t n) {
   if (n > 4 || (n && !in))
     return CL_RANGE;
@@ -21,7 +21,7 @@ enum cl_result cl_send(CLQueue *q, uint32_t p, uint32_t seq,
     return CL_FULL;
   if (q->accepted == UINT64_MAX)
     return CL_RANGE;
-  CLMessage *s = &q->slots[(q->head + q->count) % 2];
+  struct cl_message *s = &q->slots[(q->head + q->count) % 2];
   s->producer = p;
   s->sequence = seq;
   s->length = n;
@@ -31,13 +31,13 @@ enum cl_result cl_send(CLQueue *q, uint32_t p, uint32_t seq,
   q->accepted++;
   return CL_OK;
 }
-enum cl_result cl_recv(CLQueue *q, unsigned char *out, size_t cap, size_t *n,
+enum cl_result cl_recv(struct cl_queue *q, unsigned char *out, size_t cap, size_t *n,
                        uint32_t *p, uint32_t *seq) {
   if (!n || !p || !seq)
     return CL_RANGE;
   if (!q->count)
     return q->closed ? CL_CLOSED : CL_EMPTY;
-  CLMessage *s = &q->slots[q->head];
+  struct cl_message *s = &q->slots[q->head];
   if (cap < s->length || (s->length && !out))
     return CL_RANGE;
   for (size_t i = 0; i < s->length; i++)
@@ -52,8 +52,8 @@ enum cl_result cl_recv(CLQueue *q, unsigned char *out, size_t cap, size_t *n,
   q->delivered++;
   return CL_OK;
 }
-void cl_close(CLQueue *q) { q->closed = 1; }
-uint64_t cl_abort(CLQueue *q) {
+void cl_close(struct cl_queue *q) { q->closed = 1; }
+uint64_t cl_abort(struct cl_queue *q) {
   unsigned n = q->count;
   q->discarded += n;
   q->count = 0;
@@ -62,19 +62,19 @@ uint64_t cl_abort(CLQueue *q) {
   return n;
 }
 
-static CLAllocation *allocation(CLPool *p, CLBuffer h) {
+static struct cl_allocation *allocation(struct cl_pool *p, struct cl_buffer h) {
   if (h.slot >= 4 || p->slots[h.slot].generation != h.generation ||
       p->slots[h.slot].owner == CL_FREE)
     return 0;
   return &p->slots[h.slot];
 }
-void cl_pool_init(CLPool *p) {
+void cl_pool_init(struct cl_pool *p) {
   for (unsigned i = 0; i < 4; i++)
-    p->slots[i] = (CLAllocation){0, 0, 1, CL_FREE};
+    p->slots[i] = (struct cl_allocation){0, 0, 1, CL_FREE};
   p->allocations = 0;
   p->releases = 0;
 }
-enum cl_result cl_alloc(CLPool *p, unsigned n, CLBuffer *out) {
+enum cl_result cl_alloc(struct cl_pool *p, unsigned n, struct cl_buffer *out) {
   if (!out || n > 8)
     return CL_RANGE;
   if (p->allocations == UINT64_MAX)
@@ -82,7 +82,7 @@ enum cl_result cl_alloc(CLPool *p, unsigned n, CLBuffer *out) {
   uint32_t used = 0;
   unsigned free_slot = 4, free_bytes = 0;
   for (unsigned i = 0; i < 4; i++) {
-    CLAllocation *a = &p->slots[i];
+    struct cl_allocation *a = &p->slots[i];
     if (a->owner == CL_FREE) {
       if (a->generation != UINT64_MAX && free_slot == 4)
         free_slot = i;
@@ -106,19 +106,19 @@ enum cl_result cl_alloc(CLPool *p, unsigned n, CLBuffer *out) {
   }
   if (offset == 16 && n)
     return CL_MUTANT == 12 ? CL_FULL : CL_FRAGMENTED;
-  CLAllocation *a = &p->slots[free_slot];
+  struct cl_allocation *a = &p->slots[free_slot];
   a->offset = offset;
   a->length = n;
   a->owner = CL_CALLER;
   for (unsigned i = 0; i < n; i++)
     p->bytes[offset + i] = 0;
-  *out = (CLBuffer){free_slot, a->generation};
+  *out = (struct cl_buffer){free_slot, a->generation};
   p->allocations++;
   return CL_OK;
 }
-enum cl_result cl_buffer_write(CLPool *p, CLBuffer h, const unsigned char *in,
+enum cl_result cl_buffer_write(struct cl_pool *p, struct cl_buffer h, const unsigned char *in,
                                unsigned n) {
-  CLAllocation *a = allocation(p, h);
+  struct cl_allocation *a = allocation(p, h);
   if (!a)
     return CL_STALE;
   if (a->owner != CL_CALLER)
@@ -129,12 +129,12 @@ enum cl_result cl_buffer_write(CLPool *p, CLBuffer h, const unsigned char *in,
     p->bytes[a->offset + i] = in[i];
   return CL_OK;
 }
-enum cl_result cl_buffer_read(const CLPool *p, CLBuffer h, unsigned char *out,
+enum cl_result cl_buffer_read(const struct cl_pool *p, struct cl_buffer h, unsigned char *out,
                               unsigned cap, unsigned *n) {
   if (h.slot >= 4 || p->slots[h.slot].generation != h.generation ||
       p->slots[h.slot].owner == CL_FREE)
     return CL_STALE;
-  const CLAllocation *a = &p->slots[h.slot];
+  const struct cl_allocation *a = &p->slots[h.slot];
   if (a->owner != CL_CALLER && a->owner != CL_CONSUMER)
     return CL_BUSY;
   if (!n || cap < a->length || (a->length && !out))
@@ -144,8 +144,8 @@ enum cl_result cl_buffer_read(const CLPool *p, CLBuffer h, unsigned char *out,
   *n = a->length;
   return CL_OK;
 }
-enum cl_result cl_release(CLPool *p, CLBuffer h) {
-  CLAllocation *a = allocation(p, h);
+enum cl_result cl_release(struct cl_pool *p, struct cl_buffer h) {
+  struct cl_allocation *a = allocation(p, h);
   if (!a)
     return CL_STALE;
   if (a->owner == CL_QUEUED && CL_MUTANT != 3)
@@ -155,13 +155,13 @@ enum cl_result cl_release(CLPool *p, CLBuffer h) {
   p->releases++;
   return CL_OK;
 }
-void cl_owned_init(CLOwnedQueue *q) {
+void cl_owned_init(struct cl_owned_queue *q) {
   q->head = 0;
   q->count = 0;
   q->closed = 0;
 }
-enum cl_result cl_owned_send(CLPool *p, CLOwnedQueue *q, CLBuffer h) {
-  CLAllocation *a = allocation(p, h);
+enum cl_result cl_owned_send(struct cl_pool *p, struct cl_owned_queue *q, struct cl_buffer h) {
+  struct cl_allocation *a = allocation(p, h);
   if (!a)
     return CL_STALE;
   if (a->owner != CL_CALLER)
@@ -175,13 +175,13 @@ enum cl_result cl_owned_send(CLPool *p, CLOwnedQueue *q, CLBuffer h) {
   a->owner = CL_QUEUED;
   return CL_OK;
 }
-enum cl_result cl_owned_recv(CLPool *p, CLOwnedQueue *q, CLBuffer *out) {
+enum cl_result cl_owned_recv(struct cl_pool *p, struct cl_owned_queue *q, struct cl_buffer *out) {
   if (!out)
     return CL_RANGE;
   if (!q->count)
     return q->closed ? CL_CLOSED : CL_EMPTY;
-  CLBuffer h = q->slots[q->head];
-  CLAllocation *a = allocation(p, h);
+  struct cl_buffer h = q->slots[q->head];
+  struct cl_allocation *a = allocation(p, h);
   if (!a || a->owner != CL_QUEUED)
     return CL_STALE;
   a->owner = CL_CONSUMER;
@@ -190,11 +190,11 @@ enum cl_result cl_owned_recv(CLPool *p, CLOwnedQueue *q, CLBuffer *out) {
   q->count--;
   return CL_OK;
 }
-void cl_owned_close(CLOwnedQueue *q) { q->closed = 1; }
-unsigned cl_owned_abort(CLPool *p, CLOwnedQueue *q) {
+void cl_owned_close(struct cl_owned_queue *q) { q->closed = 1; }
+unsigned cl_owned_abort(struct cl_pool *p, struct cl_owned_queue *q) {
   unsigned n = q->count;
   while (q->count) {
-    CLBuffer h;
+    struct cl_buffer h;
     if (cl_owned_recv(p, q, &h) != CL_OK)
       break;
     (void)cl_release(p, h);
@@ -203,20 +203,20 @@ unsigned cl_owned_abort(CLPool *p, CLOwnedQueue *q) {
   return n - q->count;
 }
 
-static CLLeaseSlot *lease(CLLife *l, CLLease h) {
+static struct cl_lease_slot *lease(struct cl_life *l, struct cl_lease h) {
   if (l->generation != h.object_generation || h.slot >= 8 ||
       l->leases[h.slot].generation != h.generation ||
       l->leases[h.slot].state == CL_UNUSED)
     return 0;
   return &l->leases[h.slot];
 }
-void cl_life_init(CLLife *l) {
+void cl_life_init(struct cl_life *l) {
   l->generation = 1;
   l->phase = CL_OPEN;
   for (unsigned i = 0; i < 8; i++)
-    l->leases[i] = (CLLeaseSlot){1, CL_UNUSED};
+    l->leases[i] = (struct cl_lease_slot){1, CL_UNUSED};
 }
-enum cl_result cl_acquire(CLLife *l, CLLease *out) {
+enum cl_result cl_acquire(struct cl_life *l, struct cl_lease *out) {
   if (!out)
     return CL_RANGE;
   if (l->phase != CL_OPEN)
@@ -225,14 +225,14 @@ enum cl_result cl_acquire(CLLife *l, CLLease *out) {
     if (l->leases[i].state == CL_UNUSED &&
         l->leases[i].generation != UINT64_MAX) {
       l->leases[i].state = CL_ACTIVE;
-      *out = (CLLease){l->generation, l->leases[i].generation, i};
+      *out = (struct cl_lease){l->generation, l->leases[i].generation, i};
       return CL_OK;
     }
   return CL_FULL;
 }
-enum cl_result cl_transition(CLLife *l, CLLease h, enum cl_lease_state from,
+enum cl_result cl_transition(struct cl_life *l, struct cl_lease h, enum cl_lease_state from,
                              enum cl_lease_state to) {
-  CLLeaseSlot *s = lease(l, h);
+  struct cl_lease_slot *s = lease(l, h);
   if (!s)
     return CL_STALE;
   if (s->state != from)
@@ -245,8 +245,8 @@ enum cl_result cl_transition(CLLife *l, CLLease h, enum cl_lease_state from,
   s->state = to;
   return CL_OK;
 }
-enum cl_result cl_drop(CLLife *l, CLLease h) {
-  CLLeaseSlot *s = lease(l, h);
+enum cl_result cl_drop(struct cl_life *l, struct cl_lease h) {
+  struct cl_lease_slot *s = lease(l, h);
   if (!s)
     return CL_STALE;
   if (s->state != CL_ACTIVE && s->state != CL_WAKE_CLOSED)
@@ -255,7 +255,7 @@ enum cl_result cl_drop(CLLife *l, CLLease h) {
   s->generation++;
   return CL_OK;
 }
-void cl_life_close(CLLife *l) {
+void cl_life_close(struct cl_life *l) {
   if (l->phase != CL_OPEN)
     return;
   l->phase = CL_CLOSING;
@@ -265,13 +265,13 @@ void cl_life_close(CLLife *l) {
         (CL_MUTANT == 9 && l->leases[i].state == CL_COND_RELOCK))
       l->leases[i].state = CL_WAKE_CLOSED;
 }
-enum cl_result cl_life_drained(CLLife *l) {
+enum cl_result cl_life_drained(struct cl_life *l) {
   if (l->phase != CL_CLOSING)
     return CL_CLOSED;
   l->phase = CL_SHUT;
   return CL_OK;
 }
-enum cl_result cl_destroy(CLLife *l) {
+enum cl_result cl_destroy(struct cl_life *l) {
   if (l->phase != CL_SHUT)
     return CL_BUSY;
   for (unsigned i = 0; i < 8; i++)
@@ -280,7 +280,7 @@ enum cl_result cl_destroy(CLLife *l) {
   l->phase = CL_DESTROYED;
   return CL_OK;
 }
-enum cl_result cl_restart(CLLife *l) {
+enum cl_result cl_restart(struct cl_life *l) {
   if (l->phase != CL_DESTROYED)
     return CL_BUSY;
   if (l->generation == UINT64_MAX)
@@ -288,10 +288,10 @@ enum cl_result cl_restart(CLLife *l) {
   l->generation++;
   l->phase = CL_OPEN;
   for (unsigned i = 0; i < 8; i++)
-    l->leases[i] = (CLLeaseSlot){1, CL_UNUSED};
+    l->leases[i] = (struct cl_lease_slot){1, CL_UNUSED};
   return CL_OK;
 }
-enum cl_result cl_restart_group(CLLife *objects, unsigned count) {
+enum cl_result cl_restart_group(struct cl_life *objects, unsigned count) {
   if (!objects || !count || count > 3)
     return CL_RANGE;
   for (unsigned i = 0; i < count; i++) {
@@ -305,10 +305,10 @@ enum cl_result cl_restart_group(CLLife *objects, unsigned count) {
     (void)cl_restart(&objects[i - 1]);
   return CL_OK;
 }
-void cl_record_init(CLRecord *r, uint32_t v) {
-  *r = (CLRecord){v, ~v, v, 0, 0, CL_HEALTHY};
+void cl_record_init(struct cl_record *r, uint32_t v) {
+  *r = (struct cl_record){v, ~v, v, 0, 0, CL_HEALTHY};
 }
-enum cl_result cl_record_begin(CLRecord *r, uint32_t owner) {
+enum cl_result cl_record_begin(struct cl_record *r, uint32_t owner) {
   if (!owner)
     return CL_RANGE;
   if (r->state == CL_BROKEN)
@@ -321,14 +321,14 @@ enum cl_result cl_record_begin(CLRecord *r, uint32_t owner) {
   r->state = CL_OWNED;
   return CL_OK;
 }
-enum cl_result cl_record_stage(CLRecord *r, uint32_t owner, uint32_t v) {
+enum cl_result cl_record_stage(struct cl_record *r, uint32_t owner, uint32_t v) {
   if (r->owner != owner || r->state != CL_OWNED)
     return CL_BUSY;
   r->value = v;
   r->state = CL_DIRTY;
   return CL_OK;
 }
-enum cl_result cl_record_commit(CLRecord *r, uint32_t owner) {
+enum cl_result cl_record_commit(struct cl_record *r, uint32_t owner) {
   if (r->owner != owner || (r->state != CL_OWNED && r->state != CL_DIRTY))
     return CL_BUSY;
   r->checksum = ~r->value;
@@ -338,7 +338,7 @@ enum cl_result cl_record_commit(CLRecord *r, uint32_t owner) {
   r->state = CL_HEALTHY;
   return CL_OK;
 }
-enum cl_result cl_record_dead(CLRecord *r, uint32_t dead) {
+enum cl_result cl_record_dead(struct cl_record *r, uint32_t dead) {
   if (!dead || r->owner != dead ||
       (r->state != CL_OWNED && r->state != CL_DIRTY &&
        r->state != CL_REPAIRING))
@@ -347,7 +347,7 @@ enum cl_result cl_record_dead(CLRecord *r, uint32_t dead) {
   r->state = CL_NEEDS_REPAIR;
   return CL_OK;
 }
-enum cl_result cl_repair_begin(CLRecord *r, uint32_t owner) {
+enum cl_result cl_repair_begin(struct cl_record *r, uint32_t owner) {
   if (!owner)
     return CL_RANGE;
   if (r->state == CL_BROKEN)
@@ -363,7 +363,7 @@ enum cl_result cl_repair_begin(CLRecord *r, uint32_t owner) {
   r->state = CL_REPAIRING;
   return CL_OK;
 }
-enum cl_result cl_repair_finish(CLRecord *r, uint32_t owner, unsigned repair) {
+enum cl_result cl_repair_finish(struct cl_record *r, uint32_t owner, unsigned repair) {
   if (r->owner != owner || r->state != CL_REPAIRING)
     return CL_BUSY;
   r->owner = 0;
@@ -376,7 +376,7 @@ enum cl_result cl_repair_finish(CLRecord *r, uint32_t owner, unsigned repair) {
   r->state = CL_HEALTHY;
   return CL_OK;
 }
-enum cl_result cl_record_read(const CLRecord *r, uint32_t *v) {
+enum cl_result cl_record_read(const struct cl_record *r, uint32_t *v) {
   if (!v)
     return CL_RANGE;
   if (r->state == CL_BROKEN)
@@ -386,14 +386,14 @@ enum cl_result cl_record_read(const CLRecord *r, uint32_t *v) {
   *v = r->value;
   return CL_OK;
 }
-void cl_ack_init(CLAck *a, uint32_t epoch) {
+void cl_ack_init(struct cl_ack *a, uint32_t epoch) {
   a->epoch = epoch;
   a->value = 0;
   a->highwater = 0;
   for (unsigned i = 0; i < 4; i++)
-    a->receipts[i] = (CLReceipt){0, 0, 0, 0};
+    a->receipts[i] = (struct cl_receipt){0, 0, 0, 0};
 }
-enum cl_result cl_request(CLAck *a, uint32_t epoch, uint32_t id, uint32_t delta,
+enum cl_result cl_request(struct cl_ack *a, uint32_t epoch, uint32_t id, uint32_t delta,
                           uint32_t *out) {
   if (!id || !epoch || !out)
     return CL_RANGE;
@@ -401,7 +401,7 @@ enum cl_result cl_request(CLAck *a, uint32_t epoch, uint32_t id, uint32_t delta,
     return CL_STALE;
   unsigned free_slot = 4;
   for (unsigned i = 0; i < 4; i++) {
-    CLReceipt *r = &a->receipts[i];
+    struct cl_receipt *r = &a->receipts[i];
     if (!r->state) {
       if (free_slot == 4)
         free_slot = i;
@@ -424,13 +424,13 @@ enum cl_result cl_request(CLAck *a, uint32_t epoch, uint32_t id, uint32_t delta,
     return CL_STALE;
   if (free_slot == 4)
     return CL_FULL;
-  a->receipts[free_slot] = (CLReceipt){1, id, delta, 0};
+  a->receipts[free_slot] = (struct cl_receipt){1, id, delta, 0};
   a->highwater = id;
   return CL_PENDING;
 }
-enum cl_result cl_apply(CLAck *a, uint32_t id) {
+enum cl_result cl_apply(struct cl_ack *a, uint32_t id) {
   for (unsigned i = 0; i < 4; i++) {
-    CLReceipt *r = &a->receipts[i];
+    struct cl_receipt *r = &a->receipts[i];
     if (!r->state || r->id != id)
       continue;
     if (r->state == 2)
@@ -448,7 +448,7 @@ enum cl_result cl_apply(CLAck *a, uint32_t id) {
   }
   return CL_STALE;
 }
-enum cl_result cl_acknowledge(CLAck *a, uint32_t id) {
+enum cl_result cl_acknowledge(struct cl_ack *a, uint32_t id) {
   for (unsigned i = 0; i < 4; i++)
     if (a->receipts[i].state && a->receipts[i].id == id) {
       if (a->receipts[i].state == 1)

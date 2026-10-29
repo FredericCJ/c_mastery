@@ -6,7 +6,7 @@ static void put16(unsigned char *p, unsigned n) {
   p[0] = (unsigned char)n;
   p[1] = (unsigned char)(n >> 8);
 }
-static void tag(ALHeap *h, unsigned at, unsigned total, unsigned n) {
+static void tag(struct al_heap *h, unsigned at, unsigned total, unsigned n) {
   unsigned char *p = h->bytes + at;
   put16(p, total);
   put16(p + 2, n);
@@ -19,7 +19,7 @@ static void tag(ALHeap *h, unsigned at, unsigned total, unsigned n) {
   p[2] = (unsigned char)(n != 0);
   p[3] = 0xc3;
 }
-int al_heap_check(const ALHeap *h) {
+int al_heap_check(const struct al_heap *h) {
   if (!h || h->capacity < 16 || h->capacity > 256 || h->capacity % 8 ||
       h->free_count > 16 || h->policy > 1 || h->deferred > 1)
     return AL_CORRUPT;
@@ -73,7 +73,7 @@ int al_heap_check(const ALHeap *h) {
              ? AL_OK
              : AL_CORRUPT;
 }
-static void rebuild(ALHeap *h, int merge) {
+static void rebuild(struct al_heap *h, int merge) {
   unsigned at = 0;
   h->free_count = 0;
   h->payload = 0;
@@ -98,12 +98,12 @@ static void rebuild(ALHeap *h, int merge) {
   if (h->charged > h->peak_charged)
     h->peak_charged = h->charged;
 }
-int al_heap_init(ALHeap *h, unsigned n, unsigned best, unsigned deferred,
+int al_heap_init(struct al_heap *h, unsigned n, unsigned best, unsigned deferred,
                  unsigned instrument) {
   if (!h || n < 16 || n > 256 || n % 8 || best > 1 || deferred > 1 ||
       instrument > 1)
     return AL_BAD;
-  *h = (ALHeap){0};
+  *h = (struct al_heap){0};
   h->capacity = n;
   h->policy = best;
   h->deferred = deferred;
@@ -112,7 +112,7 @@ int al_heap_init(ALHeap *h, unsigned n, unsigned best, unsigned deferred,
   rebuild(h, 0);
   return AL_OK;
 }
-static int slot(const ALHeap *h, ALHandle handle) {
+static int slot(const struct al_heap *h, struct al_handle handle) {
   if (!h || handle.owner != h || !handle.id)
     return -1;
   for (unsigned i = 0; i < 16; ++i)
@@ -120,7 +120,7 @@ static int slot(const ALHeap *h, ALHandle handle) {
       return (int)i;
   return -1;
 }
-static int reserve(ALHeap *h, unsigned n, unsigned *idx) {
+static int reserve(struct al_heap *h, unsigned n, unsigned *idx) {
   unsigned need = (n + 12 + 7) & ~7u, choice = 256, best = 257, steps = 0,
            empty = 16;
   for (unsigned i = 0; i < 16; ++i)
@@ -160,7 +160,7 @@ static int reserve(ALHeap *h, unsigned n, unsigned *idx) {
   *idx = empty;
   return AL_OK;
 }
-int al_heap_take(ALHeap *h, size_t n, size_t alignment, ALHandle *out) {
+int al_heap_take(struct al_heap *h, size_t n, size_t alignment, struct al_handle *out) {
   if (!h || !out || !n || n > 244 || !alignment || alignment > 8 ||
       (alignment & (alignment - 1)))
     return AL_BAD;
@@ -168,16 +168,16 @@ int al_heap_take(ALHeap *h, size_t n, size_t alignment, ALHandle *out) {
     return AL_CORRUPT;
   if (h->serial == UINT32_MAX)
     return AL_RETIRED;
-  ALHeap t = *h;
+  struct al_heap t = *h;
   unsigned i;
   int status = reserve(&t, (unsigned)n, &i);
   if (status)
     return status;
   *h = t;
-  *out = (ALHandle){h, h->live[i].id};
+  *out = (struct al_handle){h, h->live[i].id};
   return AL_OK;
 }
-int al_heap_view(ALHeap *h, ALHandle handle, unsigned char **out, size_t *n) {
+int al_heap_view(struct al_heap *h, struct al_handle handle, unsigned char **out, size_t *n) {
   if (!h || !out || !n)
     return AL_BAD;
   if (al_heap_check(h))
@@ -190,7 +190,7 @@ int al_heap_view(ALHeap *h, ALHandle handle, unsigned char **out, size_t *n) {
   *n = get16(h->bytes + at + 2);
   return AL_OK;
 }
-int al_heap_release(ALHeap *h, ALHandle handle) {
+int al_heap_release(struct al_heap *h, struct al_handle handle) {
   if (!h)
     return AL_BAD;
   if (al_heap_check(h))
@@ -204,13 +204,13 @@ int al_heap_release(ALHeap *h, ALHandle handle) {
   rebuild(h, !h->deferred);
   return AL_OK;
 }
-int al_heap_collect(ALHeap *h) {
+int al_heap_collect(struct al_heap *h) {
   if (al_heap_check(h))
     return AL_CORRUPT;
   rebuild(h, 1);
   return AL_OK;
 }
-int al_heap_stats(const ALHeap *h, size_t *total, size_t *largest) {
+int al_heap_stats(const struct al_heap *h, size_t *total, size_t *largest) {
   if (!total || !largest)
     return AL_BAD;
   if (al_heap_check(h))
@@ -226,8 +226,8 @@ int al_heap_stats(const ALHeap *h, size_t *total, size_t *largest) {
   *largest = big;
   return AL_OK;
 }
-int al_heap_resize_copy(ALHeap *h, ALHandle handle, size_t n, int fail_acquire,
-                        ALCopy copier, void *context, ALHandle *out) {
+int al_heap_resize_copy(struct al_heap *h, struct al_handle handle, size_t n, int fail_acquire,
+                        al_copy_fn copier, void *context, struct al_handle *out) {
   if (!h || !out || !n || n > 244 || !copier)
     return AL_BAD;
   if (al_heap_check(h))
@@ -237,7 +237,7 @@ int al_heap_resize_copy(ALHeap *h, ALHandle handle, size_t n, int fail_acquire,
     return AL_STALE;
   if (h->serial == UINT32_MAX)
     return AL_RETIRED;
-  ALHeap t = *h;
+  struct al_heap t = *h;
   unsigned at = t.live[i].offset, old = get16(t.bytes + at + 2),
            size = get16(t.bytes + at), need = ((unsigned)n + 19) & ~7u,
            available = size;
@@ -271,7 +271,7 @@ int al_heap_resize_copy(ALHeap *h, ALHandle handle, size_t n, int fail_acquire,
     i = (int)j;
   }
   *h = t;
-  *out = (ALHandle){h, h->live[i].id};
+  *out = (struct al_handle){h, h->live[i].id};
   return AL_OK;
 }
 static int byte_copy(void *context, unsigned char *dest,
@@ -284,8 +284,8 @@ static int byte_copy(void *context, unsigned char *dest,
   }
   return 0;
 }
-int al_heap_resize(ALHeap *h, ALHandle handle, size_t n, int fail_acquire,
-                   size_t fail_after, ALHandle *out) {
+int al_heap_resize(struct al_heap *h, struct al_handle handle, size_t n, int fail_acquire,
+                   size_t fail_after, struct al_handle *out) {
   return al_heap_resize_copy(h, handle, n, fail_acquire, byte_copy, &fail_after,
                              out);
 }

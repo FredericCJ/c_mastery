@@ -1,8 +1,8 @@
 #include "cl.h"
 #include <stdio.h>
 int main(void) {
-  CLQueue q = {0};
-  CLMessage slots[2] = {{0}};
+  struct cl_queue q = {0};
+  struct cl_message slots[2] = {{0}};
   int op;
   while ((op = getchar()) != EOF) {
     if (op == '\n')

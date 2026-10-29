@@ -64,13 +64,13 @@ flag returns AMBIGUOUS; a true flag records a caller premise, not runtime proof.
 
 ## Coherent epoch representation and reset
 
-`CtStamp` contains positive boot identity, epoch, low counter, bit width and
+`struct ct_stamp` contains positive boot identity, epoch, low counter, bit width and
 positive nanoseconds-per-tick. Its lifted count is epoch*modulus+low, checked
 before multiplication/addition. `ct_duration` requires matching boot, width and
 resolution, ordered lifted counters and representable nanoseconds. It supports
 long intervals such as255→772 (517ticks) without guessing wrap history.
 
-`CtClock` holds all fields and a sequence as atomic objects. Every access uses
+`struct ct_clock` holds all fields and a sequence as atomic objects. Every access uses
 sequential consistency. A writer snapshots and validates first, then a successful
 CAS changes even sequence to odd, publishes the fields, and advances to the next
 even sequence. Same-boot time cannot go backward or change representation;

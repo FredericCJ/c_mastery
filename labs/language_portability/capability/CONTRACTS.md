@@ -22,7 +22,7 @@ dependencies, not target runtime libraries.
 
 ## Representation, operations and publication
 
-`LpValue` owns no allocation: `present` is 0 or 1, and empty records have value
+`struct lp_value` owns no allocation: `present` is 0 or 1, and empty records have value
 zero. `lp_record` accepts a live caller-owned output, rejects invalid presence
 without modifying it, and copies a designated compound literal into that
 storage. The internal automatic literal does not escape. When `LP_LAYOUT2` is
@@ -55,7 +55,7 @@ two different counters, so no unsequenced conflicting modification is executed.
 
 | Exact objective | Ordinary deliverable and expected observation | Delayed changed assumption |
 |---|---|---|
-| T05.04.a | Implement designated `LpValue`, block literal copying, the checked disjoint transform and variadic trace. Empty record is `{0,0}`; late overflow leaves all three destination values91,92,93. Trace returns9 with one call and counters3,8. Explain the returned-pointer lifetime defect and overlapping restrict call as reasoning-only counterexamples. | Replace an interface returning a pointer to its automatic literal with the supplied caller-storage API. Prove the output outlives the internal literal; repeat bounds/refusal tests. |
+| T05.04.a | Implement designated `struct lp_value`, block literal copying, the checked disjoint transform and variadic trace. Empty record is `{0,0}`; late overflow leaves all three destination values91,92,93. Trace returns9 with one call and counters3,8. Explain the returned-pointer lifetime defect and overlapping restrict call as reasoning-only counterexamples. | Replace an interface returning a pointer to its automatic literal with the supplied caller-storage API. Prove the output outlives the internal literal; repeat bounds/refusal tests. |
 | T05.04.b | Compile separate static-inline header consumers in C99, C17 and GNU89, recording object symbols and linked values5,7. Admit VLA lengths1..16 only; reject0/17 before declaring the array. Observe exact-width type availability and use its actual PRI macro. | Move the public inline body into two translation units. Record C99/C17 external-provider linkage, GNU89 duplicate-definition failure, and the explicit GNU89 extern-inline repair. Preserve identical function bodies and exact values. |
 | T05.04.c | Compare original strict C90 `long` construction/printing with the C17 designated/intmax port for empty,LONG_MIN,0,LONG_MAX. Compare actual textual output, not padding or unrelated wider values. Exercise INTMAX_MIN/MAX separately. | Compile producer and consumer again with the field order reversed. Named initialization must retain meaning; positional old initialization would not. Rebuild all affected objects, not only the header consumer. |
 | T05.05.a | Isolate alignment, `_Generic`, `_Static_assert`, atomic increment and actual two-thread creation. For each C11 and C17 probe retain preprocessing, semantic translation, object, link and run results. Atomic increment returns old0/new2; joined workers return7 and sum20000. | Use an atomic aggregate large enough to emit actual helpers. Inspect undefined object symbols; require the intended missing-helper link rejection and an explicitly linked `libatomic` positive run. This changes the dependency profile; it is not an inline or lock-free claim. |

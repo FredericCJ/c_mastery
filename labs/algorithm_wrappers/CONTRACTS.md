@@ -9,7 +9,7 @@ renaming of an existing container. Original fixture data remains canonical.
 
 ## Prerequisites and environment
 
-Import the completed T14 `CDTree`, `CDRing` and `CDQueue` artifacts, and explain
+Import the completed T14 `struct cd_tree`, `struct cd_ring` and `struct cd_queue` artifacts, and explain
 the T18 ownership/view contract in `labs/api_depth/contracts/OWNERSHIP.md`.
 Do not substitute a newly written queue/tree or an external container library.
 The ID membership index uses the actual AVL tree with multiplicity disabled.
@@ -20,7 +20,7 @@ implementations and their failure/identity contracts before composing them.
 
 Use the active ISO C17 Profile C baseline, actual typed caller storage, and the
 selected Linux System V x86-64 and Cortex-M4 AAPCS32 targets. These targets have
-eight-bit bytes, 32-bit `int`/`int32_t`, and an eight-byte `AWRecord` with fields
+eight-bit bytes, 32-bit `int`/`int32_t`, and an eight-byte `struct aw_record` with fields
 at offsets0/4. Assert those assumptions; they are not universal ISO layouts.
 The Cortex image uses only original reset/semihost code and explicit byte
 helpers for compiler-generated copies. Audit final unresolved symbols, ELF
@@ -30,9 +30,9 @@ draft, not final C17; exact published C17/C23 comparison remains a source gap.
 
 ## Problem and operations
 
-Implement `wrappers.h` and the assembly `aw_lower` kernel. `AWRecord` contains
-signed32 ID/rank values. No byte arena is cast to a Record array. `AWBank` has
-real `AWRecord values[3]` and real `const AWRecord *pointers[3]`; only the
+Implement `wrappers.h` and the assembly `aw_lower` kernel. `struct aw_record` contains
+signed32 ID/rank values. No byte arena is cast to a Record array. `struct aw_bank` has
+real `struct aw_record values[3]` and real `const struct aw_record *pointers[3]`; only the
 selected representation is active. Value insertion copies both fields. Borrow
 insertion retains the caller's live Record pointer without owning the object.
 Both interfaces produce the same observable sorted values for valid inputs.
@@ -98,7 +98,7 @@ must still obey the contract. Changing comparison state is permitted through
 advances generation. A direct epoch/direction change while populated is
 COMPARE. Restore the old context or destroy; do not silently reorder an owner.
 
-`AWView` is a read-only index/generation/owner token, not a raw payload pointer.
+`struct aw_view` is a read-only index/generation/owner token, not a raw payload pointer.
 `aw_read` checks still-live owner control, generation and index before reading
 storage. A successful growth invalidates the token even when values and count
 are unchanged; a failed growth and a no-op reserve retain it. Destroy makes it

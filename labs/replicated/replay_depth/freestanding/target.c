@@ -27,20 +27,20 @@ int memcmp(const void *a, const void *b, size_t n) {
   return 0;
 }
 extern long sa_raw_write(const char *, size_t);
-static int capture(const RprSession *s, RphSha *h) {
+static int capture(const struct rpr_session *s, struct rph_sha *h) {
   unsigned char b[512];
-  RprSession got;
+  struct rpr_session got;
   if (rpr_encode(s, b) || rpr_decode(9, b, &got))
     return 1;
   return rph_update(h, b, 512);
 }
 static int cases(void) {
-  const RPState initial[2] = {{0, 0, 0, 1}, {0, 7, 0, 9}};
+  const struct rp_state initial[2] = {{0, 0, 0, 1}, {0, 7, 0, 9}};
   for (unsigned row = 0; row < sizeof vectors / sizeof vectors[0]; ++row) {
-    RprSession s;
-    RprNotice notice;
-    RprEffect effect;
-    RphSha h;
+    struct rpr_session s;
+    struct rpr_notice notice;
+    struct rpr_effect effect;
+    struct rph_sha h;
     unsigned char digest[32];
     int local[8], remote[8];
     unsigned n = vectors[row].n, lc = vectors[row].local,

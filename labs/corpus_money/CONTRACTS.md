@@ -9,7 +9,7 @@ exercise implements an in-memory transfer, not an accounting standard or ledger.
 
 ## Representation and admitted environment
 
-`CmMoney` contains signed 64-bit minor units, three uppercase ASCII currency
+`struct cm_money` contains signed 64-bit minor units, three uppercase ASCII currency
 bytes and a decimal scale 0..9. Codes are labels, not a currency database: USD/2
 and USD/3 are incompatible. There is no exchange-rate inference, silent rescale,
 saturation or floating conversion. `cm_make` checks representation; public C

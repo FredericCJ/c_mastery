@@ -11,9 +11,9 @@ static int wr(void *p,uint32_t id,const void *in){(void)p;if(id>=67)return 1;mem
 static int fl(void *p){(void)p;return 0;}
 static int empty(store *s){store_io io={NULL,rd,wr,fl,67};fail_at=0;memset(disk,0,sizeof disk);observed=s;return store_format(io)||store_open(s,io)||store_begin(s);}
 static int model[128];
-typedef struct {unsigned next,count;int bad;} Scan;
-static int visit(void *ctx,const uint8_t *key,size_t n,const uint8_t *value,size_t z){Scan *v=ctx;while(v->next<128&&model[v->next]<0)v->next++;if(n!=1||z!=1||v->next>=128||key[0]!=v->next||value[0]!=model[v->next])v->bad=1;v->next++;v->count++;return 0;}
-static int verify(store *s){if(store_check(s))return 1;unsigned count=0;for(unsigned i=0;i<128;i++){uint8_t k=(uint8_t)i,v=0xa5;size_t n=777;int r=store_get(s,&k,1,&v,1,&n);if(model[i]<0){if(r!=STORE_NOT_FOUND||v!=0xa5||n!=777)return 1;}else{count++;if(r||n!=1||v!=model[i])return 1;}}Scan q={0};return store_scan(s,NULL,0,visit,&q)||q.bad||q.count!=count;}
+struct store_scan {unsigned next,count;int bad;};
+static int visit(void *ctx,const uint8_t *key,size_t n,const uint8_t *value,size_t z){struct store_scan *v=ctx;while(v->next<128&&model[v->next]<0)v->next++;if(n!=1||z!=1||v->next>=128||key[0]!=v->next||value[0]!=model[v->next])v->bad=1;v->next++;v->count++;return 0;}
+static int verify(store *s){if(store_check(s))return 1;unsigned count=0;for(unsigned i=0;i<128;i++){uint8_t k=(uint8_t)i,v=0xa5;size_t n=777;int r=store_get(s,&k,1,&v,1,&n);if(model[i]<0){if(r!=STORE_NOT_FOUND||v!=0xa5||n!=777)return 1;}else{count++;if(r||n!=1||v!=model[i])return 1;}}struct store_scan q={0};return store_scan(s,NULL,0,visit,&q)||q.bad||q.count!=count;}
 static unsigned total(unsigned event){return events[event][0]+events[event][1];}
 static int update(store *s,unsigned k,int value){uint8_t key=(uint8_t)k,v=(uint8_t)value;int r=value<0?store_delete(s,&key,1):store_put(s,&key,1,&v,1);if(r==STORE_OK)model[k]=value;return r;}
 static int exercise(int metrics){

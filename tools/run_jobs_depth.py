@@ -28,7 +28,7 @@ def main(report):
       ROOT/'labs/realtime_depth/response/response.h',ROOT/'assessor/execution/support.c',ROOT/'labs/concurrency_lifecycle_depth/targets/m4.ld']
     pins={p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
     value={'schema_version':1,'created_utc':datetime.now(timezone.utc).isoformat(),'inspected_paths':pins,'commands':[],'host':[],'target':[],
-      'scope':'Finite one-CPU explicit job ledger, actual stable CMX priority and finite demand imports, actual checked RTA comparison; bounded model executed hosted and Cortex-M4.',
+      'scope':'Finite one-struct lr_cpu explicit job ledger, actual stable CMX priority and finite demand imports, actual checked RTA comparison; bounded model executed hosted and Cortex-M4.',
       'limits':['No physical WCET, real scheduler port, global feasibility proof, independent human review or learner attempt.']}
     env=dict(os.environ,ASAN_OPTIONS='detect_leaks=1:abort_on_error=1',UBSAN_OPTIONS='halt_on_error=1')
     def run(command,label,expected=0,marker=None,input_text=None):

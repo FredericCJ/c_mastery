@@ -2,8 +2,8 @@
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
-HhFunction hh_a_address(void);
-HhFunction hh_b_address(void);
+hh_fn hh_a_address(void);
+hh_fn hh_b_address(void);
 unsigned *hh_a_state(void);
 unsigned *hh_b_state(void);
 unsigned hh_a_call(unsigned);

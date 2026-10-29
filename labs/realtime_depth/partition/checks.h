@@ -1,15 +1,15 @@
 #ifndef RP_CHECKS_H
 #define RP_CHECKS_H
 #include "partition.h"
-static RPTask job(uint32_t cost,uint32_t period,uint32_t deadline,unsigned affinity){
- RPTask t={.job={.cost=cost,.period=period,.deadline=deadline},.affinity=affinity};
+static struct rp_task job(uint32_t cost,uint32_t period,uint32_t deadline,unsigned affinity){
+ struct rp_task t={.job={.cost=cost,.period=period,.deadline=deadline},.affinity=affinity};
  for(unsigned c=0;c<RP_CPUS;c++)t.cost[c]=cost;
  return t;
 }
 static int same(const void *a,const void *b,unsigned n){const unsigned char *x=a,*y=b;for(unsigned i=0;i<n;i++)if(x[i]!=y[i])return 0;return 1;}
 #define RC(x) do{if(!(x))return __LINE__;}while(0)
 static int packing(void){
- RPTask t[4]={job(4,10,10,3),job(4,10,10,3),job(6,10,10,3),job(6,10,10,3)};RPPlan p;
+ struct rp_task t[4]={job(4,10,10,3),job(4,10,10,3),job(6,10,10,3),job(6,10,10,3)};struct rp_plan p;
  RC(rp_fit(t,4,2,10,0,&p)==RP_OK);
  RC(p.cpu[0]==0&&p.cpu[1]==1&&p.cpu[2]==0&&p.cpu[3]==1&&p.used[0]==10&&p.used[1]==10);
  cmx_job raw[4];for(unsigned i=0;i<4;i++)raw[i]=t[i].job;
@@ -18,8 +18,8 @@ static int packing(void){
  return 0;
 }
 static int transaction(void){
- RPTask t[3]={job(6,10,10,3),job(6,10,10,3),job(6,10,10,3)};
- RPPlan p={.n=77},saved=p;RC(rp_fit(t,3,2,10,0,&p)==RP_FULL&&same(&p,&saved,sizeof(p)));
+ struct rp_task t[3]={job(6,10,10,3),job(6,10,10,3),job(6,10,10,3)};
+ struct rp_plan p={.n=77},saved=p;RC(rp_fit(t,3,2,10,0,&p)==RP_FULL&&same(&p,&saved,sizeof(p)));
  RC(rp_exact(t,3,2,10,0,&p)==RP_IMPOSSIBLE&&same(&p,&saved,sizeof(p)));
  t[0].job.period=0;RC(rp_fit(t,3,2,10,0,&p)==RP_INVALID&&same(&p,&saved,sizeof(p)));
  t[0]=job(1,3,3,3);RC(rp_fit(t,3,2,10,0,&p)==RP_INVALID&&same(&p,&saved,sizeof(p)));
@@ -28,7 +28,7 @@ static int transaction(void){
  return 0;
 }
 static int demand(void){
- RPTask t[2]={job(2,5,2,1),job(2,5,2,1)};RPPlan p={0},saved=p;
+ struct rp_task t[2]={job(2,5,2,1),job(2,5,2,1)};struct rp_plan p={0},saved=p;
  RC(rp_fit(t,2,1,5,1,&p)==RP_FULL&&same(&p,&saved,sizeof(p)));
  RC(rp_exact(t,2,1,5,1,&p)==RP_IMPOSSIBLE);
  t[0]=job(5,10,5,1);t[1]=job(1,10,10,1);
@@ -38,7 +38,7 @@ static int demand(void){
  return 0;
 }
 static int affinity(void){
- RPTask t[2]={job(6,10,10,3),job(5,10,10,1)};RPPlan p={0},saved=p;
+ struct rp_task t[2]={job(6,10,10,3),job(5,10,10,1)};struct rp_plan p={0},saved=p;
  RC(rp_fit(t,2,2,10,0,&p)==RP_FULL&&same(&p,&saved,sizeof(p)));
  RC(rp_exact(t,2,2,10,0,&p)==RP_OK&&p.cpu[0]==1&&p.cpu[1]==0);
  RC(rp_verify(t,2,&p,0)==RP_OK);
@@ -48,8 +48,8 @@ static int affinity(void){
  return 0;
 }
 static int handoff(void){
- RPLease p;RC(rp_lease_init(&p,0)==RP_OK&&rp_begin(&p,0,1)==RP_OK);
- RPLease saved=p;RC(rp_prepare(&p,0,1,1)==RP_BUSY&&same(&p,&saved,sizeof(p)));
+ struct rp_lease p;RC(rp_lease_init(&p,0)==RP_OK&&rp_begin(&p,0,1)==RP_OK);
+ struct rp_lease saved=p;RC(rp_prepare(&p,0,1,1)==RP_BUSY&&same(&p,&saved,sizeof(p)));
  RC(rp_finish(&p,0,1,7)==RP_OK&&rp_prepare(&p,0,1,1)==RP_OK);
  RC(rp_begin(&p,0,1)==RP_BUSY&&rp_accept(&p,0,1)==RP_STALE);
  RC(rp_abort(&p,0,1)==RP_OK&&p.owner==0&&p.epoch==1);

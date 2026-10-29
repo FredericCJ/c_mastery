@@ -122,8 +122,8 @@ static void write_reg(void *context, unsigned r, uintptr_t value) {
     break;
   }
 }
-PsIo ps_f439_io(void) {
-  PsIo io = {0, read_reg, write_reg};
+struct ps_io ps_f439_io(void) {
+  struct ps_io io = {0, read_reg, write_reg};
   return io;
 }
 void ps_f439_pins(void) {
@@ -146,7 +146,7 @@ void ps_f439_pins(void) {
   REG(0x4002000cu) &= ~0xfc00u;
   REG(0x40020000u) = (REG(0x40020000u) & ~0xfc00u) | 0xa800u;
 }
-int ps_f439_begin(PsSpi *s, uint32_t generation, uint32_t token,
+int ps_f439_begin(struct ps_spi *s, uint32_t generation, uint32_t token,
                   const uint8_t *tx, uint8_t *rx, unsigned count, unsigned dma,
                   uint32_t now, unsigned budget, unsigned setup,
                   unsigned hold) {
@@ -163,7 +163,7 @@ int ps_f439_begin(PsSpi *s, uint32_t generation, uint32_t token,
                   budget, setup, hold);
 }
 
-int ps_f439_begin_dma(PsSpi *s, uint32_t generation, uint32_t token,
+int ps_f439_begin_dma(struct ps_spi *s, uint32_t generation, uint32_t token,
                       const uint16_t *tx, uint16_t *rx, unsigned count,
                       uint32_t now, unsigned budget, unsigned setup,
                       unsigned hold) {

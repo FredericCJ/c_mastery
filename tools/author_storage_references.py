@@ -85,12 +85,12 @@ static int node(store *s,uint32_t id,store_node *out){
  change('      if (n->leaf&&TREE_MUTANT!=3)\n        n->next = q->next;','      if (n->leaf&&TREE_MUTANT!=3){\n        n->next = q->next;\n        n->next_incarnation=q->next_incarnation;\n      }')
  change('    s->root = n->child[0];','    s->root = n->child[0];\n    s->root_incarnation=n->child_incarnation[0];')
  s+='''
-int store_ref_make(store *s,uint32_t id,StoreRef *out){
+int store_ref_make(store *s,uint32_t id,struct store_ref *out){
  if(!s||!out||s->poisoned||s->active)return STORE_STATE;
  store_node n;int r=node(s,id,&n);if(r)return r;
- *out=(StoreRef){s,id,n.incarnation};return STORE_OK;
+ *out=(struct store_ref){s,id,n.incarnation};return STORE_OK;
 }
-int store_ref_read(StoreRef ref,store_node *out){
+int store_ref_read(struct store_ref ref,store_node *out){
  store *s=ref.owner;if(!s||!out||s->poisoned||s->active)return STORE_STATE;
  if(!reference_ok(s,ref.id,ref.incarnation))return STORE_STALE;
  store_node n;int r=node(s,ref.id,&n);if(r)return r;*out=n;return STORE_OK;
@@ -111,7 +111,7 @@ int store_ref_read(StoreRef ref,store_node *out){
  emit(public/'include/tree.h',(ROOT/'labs/storage_followthrough/tree/include/tree.h').read_text(encoding='utf8'))
  emit(public/'tree_cases.c',(ROOT/'labs/storage_followthrough/tree/tests.c').read_text(encoding='utf8'))
  stub=edit((ROOT/'labs/storage_followthrough/tree/tree.c').read_text(encoding='utf8'),'#include "store.h"','#include "refs.h"')
- stub+='\nint store_ref_make(store *s,uint32_t id,StoreRef *out){(void)s;(void)id;(void)out;return STORE_UNIMPLEMENTED;}\nint store_ref_read(StoreRef ref,store_node *out){(void)ref;(void)out;return STORE_UNIMPLEMENTED;}\n'
+ stub+='\nint store_ref_make(store *s,uint32_t id,struct store_ref *out){(void)s;(void)id;(void)out;return STORE_UNIMPLEMENTED;}\nint store_ref_read(struct store_ref ref,store_node *out){(void)ref;(void)out;return STORE_UNIMPLEMENTED;}\n'
  emit(public/'refs.c',stub)
  print(dict(parent_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),output_sha256=hashlib.sha256((private/'refs.c').read_bytes()).hexdigest()))
 if __name__=='__main__':

@@ -43,13 +43,13 @@ _Static_assert(USART_SR_TXE == PL_F439_TXE && USART_SR_TC == PL_F439_TC,
                "inspected flags");
 #endif
 #endif
-typedef struct {
+struct dg_model {
   volatile uint32_t *status, *data;
   uint32_t clock, ready, complete, calls, frozen;
-} Model;
-static Model *current;
+};
+static struct dg_model *current;
 uint32_t HAL_GetTick(void) {
-  Model *m = current;
+  struct dg_model *m = current;
   m->calls++;
   if (m->calls >= m->ready)
     *m->status |= 128;
@@ -86,7 +86,7 @@ int main(void) {
               volatile uint32_t words[12] = {0};
               unsigned so = revision ? 7 : 0, d = revision ? 10 : 1;
               words[d] = 999;
-              Model m = {words + so, words + d, wrap ? UINT32_MAX - 2 : 0,
+              struct dg_model m = {words + so, words + d, wrap ? UINT32_MAX - 2 : 0,
                          ready,      complete,  0,
                          0};
               current = &m;
@@ -115,7 +115,7 @@ int main(void) {
               } else
 #endif
               {
-                PlBytePort p =
+                struct pl_byte_port p =
                     mode == 1 ? (revision ? pl_direct_g474(words, tick, &m)
                                           : pl_direct_f439(words, tick, &m))
                               : pl_generated(words, revision, tick, &m);
@@ -163,7 +163,7 @@ int main(void) {
   {
     USART_TypeDef device = {0};
     device.DATA_FIELD = 999;
-    Model m = {&device.STATUS_FIELD, &device.DATA_FIELD, 0, 1, 99, 0, 0};
+    struct dg_model m = {&device.STATUS_FIELD, &device.DATA_FIELD, 0, 1, 99, 0, 0};
     current = &m;
     UART_HandleTypeDef uart = {0};
     uart.Instance = &device;

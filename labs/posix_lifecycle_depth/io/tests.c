@@ -25,31 +25,31 @@ ssize_t __wrap_pwrite(int fd,const void *data,size_t count,off_t offset){
     if(write_limit&&count>write_limit)count=write_limit;
     return __real_pwrite(fd,data,count,offset);
 }
-typedef struct{char op;int result;}Event;
-typedef struct{const Event *events;size_t total,next,source,used;unsigned char output[64];}Script;
-static int event(Script *s,char op){CHECK(s->next<s->total&&s->events[s->next].op==op);return s->events[s->next++].result;}
-static ssize_t scripted_read(void *context,unsigned char *b,size_t n){Script *s=context;int r=event(s,'r');if(r<0){errno=-r;return -1;}CHECK((size_t)r<=n&&s->source+(size_t)r<=7);memcpy(b,&"abcdefg"[s->source],(size_t)r);s->source+=(size_t)r;return r;}
-static ssize_t scripted_write(void *context,const unsigned char *b,size_t n){Script *s=context;int r=event(s,'w');if(r<0){errno=-r;return -1;}CHECK((size_t)r<=n&&s->used+(size_t)r<=sizeof s->output);memcpy(s->output+s->used,b,(size_t)r);s->used+=(size_t)r;return r;}
-typedef struct{int read_fd,write_fd;}Descriptors;
-static ssize_t actual_read(void *p,unsigned char *b,size_t n){return read(((Descriptors*)p)->read_fd,b,n);}
-static ssize_t actual_write(void *p,const unsigned char *b,size_t n){return write(((Descriptors*)p)->write_fd,b,n);}
+struct pt_event{char op;int result;};
+struct pt_script{const struct pt_event *events;size_t total,next,source,used;unsigned char output[64];};
+static int event(struct pt_script *s,char op){CHECK(s->next<s->total&&s->events[s->next].op==op);return s->events[s->next++].result;}
+static ssize_t scripted_read(void *context,unsigned char *b,size_t n){struct pt_script *s=context;int r=event(s,'r');if(r<0){errno=-r;return -1;}CHECK((size_t)r<=n&&s->source+(size_t)r<=7);memcpy(b,&"abcdefg"[s->source],(size_t)r);s->source+=(size_t)r;return r;}
+static ssize_t scripted_write(void *context,const unsigned char *b,size_t n){struct pt_script *s=context;int r=event(s,'w');if(r<0){errno=-r;return -1;}CHECK((size_t)r<=n&&s->used+(size_t)r<=sizeof s->output);memcpy(s->output+s->used,b,(size_t)r);s->used+=(size_t)r;return r;}
+struct pt_descriptors{int read_fd,write_fd;};
+static ssize_t actual_read(void *p,unsigned char *b,size_t n){return read(((struct pt_descriptors*)p)->read_fd,b,n);}
+static ssize_t actual_write(void *p,const unsigned char *b,size_t n){return write(((struct pt_descriptors*)p)->write_fd,b,n);}
 static void stream(void){
-    const Event events[]={{'r',3},{'w',1},{'w',-EINTR},{'w',2},{'r',4},{'w',2},{'w',-EAGAIN},{'w',2},{'r',0}};
-    const Event failed[]={{'r',3},{'w',1},{'w',2},{'r',4},{'w',2},{'w',-EIO}};
-    const Event waiting[]={{'r',-EAGAIN},{'r',-EINTR},{'r',0}};
-    const Event zero[]={{'r',3},{'w',0}};
-    Script s={events,sizeof events/sizeof *events,0,0,0,{0}};PCCopy c;PCOps ops={&s,scripted_read,scripted_write};enum PCStatus status;unsigned calls=0;
+    const struct pt_event events[]={{'r',3},{'w',1},{'w',-EINTR},{'w',2},{'r',4},{'w',2},{'w',-EAGAIN},{'w',2},{'r',0}};
+    const struct pt_event failed[]={{'r',3},{'w',1},{'w',2},{'r',4},{'w',2},{'w',-EIO}};
+    const struct pt_event waiting[]={{'r',-EAGAIN},{'r',-EINTR},{'r',0}};
+    const struct pt_event zero[]={{'r',3},{'w',0}};
+    struct pt_script s={events,sizeof events/sizeof *events,0,0,0,{0}};struct pc_copy c;struct pc_ops ops={&s,scripted_read,scripted_write};enum pc_status status;unsigned calls=0;
     pc_init(&c);CHECK(pc_resume(&c,ops,0)==PC_YIELD&&s.next==0);
     do{status=pc_resume(&c,ops,2);CHECK(++calls<20);}while(status==PC_YIELD);
     CHECK(status==PC_WAIT_WRITE&&c.committed==5&&c.end-c.next==2&&memcmp(c.bytes+c.next,"fg",2)==0);
     do{status=pc_resume(&c,ops,1);CHECK(++calls<40);}while(status==PC_YIELD);
     CHECK(status==PC_DONE&&c.committed==7&&s.used==7&&memcmp(s.output,"abcdefg",7)==0&&s.next==s.total);
-    s=(Script){failed,sizeof failed/sizeof *failed,0,0,0,{0}};pc_init(&c);CHECK(pc_resume(&c,ops,20)==PC_ERROR&&c.error==EIO&&c.committed==5&&c.end-c.next==2);CHECK(memcmp(c.bytes+c.next,"fg",2)==0);size_t consumed=s.next;CHECK(pc_resume(&c,ops,20)==PC_ERROR&&s.next==consumed);
-    s=(Script){waiting,sizeof waiting/sizeof *waiting,0,0,0,{0}};pc_init(&c);CHECK(pc_resume(&c,ops,20)==PC_WAIT_READ);CHECK(pc_resume(&c,ops,1)==PC_YIELD);CHECK(pc_resume(&c,ops,1)==PC_DONE);
-    s=(Script){zero,sizeof zero/sizeof *zero,0,0,0,{0}};pc_init(&c);CHECK(pc_resume(&c,ops,20)==PC_ERROR&&c.error==EIO);
+    s=(struct pt_script){failed,sizeof failed/sizeof *failed,0,0,0,{0}};pc_init(&c);CHECK(pc_resume(&c,ops,20)==PC_ERROR&&c.error==EIO&&c.committed==5&&c.end-c.next==2);CHECK(memcmp(c.bytes+c.next,"fg",2)==0);size_t consumed=s.next;CHECK(pc_resume(&c,ops,20)==PC_ERROR&&s.next==consumed);
+    s=(struct pt_script){waiting,sizeof waiting/sizeof *waiting,0,0,0,{0}};pc_init(&c);CHECK(pc_resume(&c,ops,20)==PC_WAIT_READ);CHECK(pc_resume(&c,ops,1)==PC_YIELD);CHECK(pc_resume(&c,ops,1)==PC_DONE);
+    s=(struct pt_script){zero,sizeof zero/sizeof *zero,0,0,0,{0}};pc_init(&c);CHECK(pc_resume(&c,ops,20)==PC_ERROR&&c.error==EIO);
     pc_init(&c);c.end=2;c.committed=UINTMAX_MAX-1;consumed=s.next;CHECK(pc_resume(&c,ops,1)==PC_ERROR&&c.error==EOVERFLOW&&s.next==consumed);
     int source[2],sink[2];unsigned char scratch[512]={0};size_t filled=0;ssize_t n;CHECK(pipe2(source,O_NONBLOCK|O_CLOEXEC)==0&&pipe2(sink,O_NONBLOCK|O_CLOEXEC)==0);
-    Descriptors descriptors={source[0],sink[1]};ops=(PCOps){&descriptors,actual_read,actual_write};pc_init(&c);CHECK(pc_resume(&c,ops,10)==PC_WAIT_READ);
+    struct pt_descriptors descriptors={source[0],sink[1]};ops=(struct pc_ops){&descriptors,actual_read,actual_write};pc_init(&c);CHECK(pc_resume(&c,ops,10)==PC_WAIT_READ);
     while((n=write(sink[1],scratch,sizeof scratch))>0){filled+=(size_t)n;CHECK(filled<=4*1024*1024);}CHECK(n<0&&(errno==EAGAIN||errno==EWOULDBLOCK));
     CHECK(write(source[1],"abcdefg",7)==7&&close(source[1])==0);CHECK(pc_resume(&c,ops,10)==PC_WAIT_WRITE&&c.committed==0&&c.end==7);
     size_t drained=0;while((n=read(sink[0],scratch,sizeof scratch))>0)drained+=(size_t)n;CHECK(drained==filled&&n<0&&(errno==EAGAIN||errno==EWOULDBLOCK));

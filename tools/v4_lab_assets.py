@@ -19,7 +19,7 @@ specs={
  ('LAB-FW-06','PR-T38-04','i2c','Conditional I2C bus recovery','With exclusive bus authority, clock at most nine pulses, observe release and produce STOP; fail on stuck lines.'),
  ('LAB-FW-07','PR-T28-03','timer','Timer/PWM arithmetic and update order','Reject inexact or out-of-range divisors; configure disabled then publish period/duty atomically at the adapter boundary.'),
  ('LAB-FW-08','PR-T28-05','adc','ADC deadline and unchanged output','Start conversion, poll bounded completion, mask sample width and preserve output on timeout.'),
- ('LAB-FW-09','PR-T29-04','dma','DMA generation and cancellation','Model CPU, device and cancelling ownership; require matching generation and observed quiescence before reuse.'),
+ ('LAB-FW-09','PR-T29-04','dma','DMA generation and cancellation','Model struct lr_cpu, device and cancelling ownership; require matching generation and observed quiescence before reuse.'),
  ('LAB-FW-10','PR-T39-07','ethernet','MDIO readiness and TX descriptors','Wait bounded MDIO readiness and populate descriptor length/generation before publishing ownership; reject device-owned reuse.'),
  ('LAB-FW-11','PR-T38-08','rs485','RS-485 true-completion turnaround','Keep driver enable asserted until TC, not merely TXE. A timeout after publication remains uncertain and requires explicit recovery.'),
  ('LAB-FW-12','PR-T30-05','watchdog','Progress-qualified watchdog and fault trace','Feed only after all required progress bits; retain the first supplied fault observation without feeding.')],
@@ -37,7 +37,7 @@ specs={
  ('LAB-EX-10','PR-T38-11','canfd','CAN FD configuration and loopback','Respect INIT/CCE configuration order, bounded acknowledgement and supported FD lengths; keep H745 clock/cache/message-RAM/cable obligations open.')],
  'foundations':[
  ('LAB-EX-11','PR-T44-10','diagnosis','Sealed causal diagnosis and admission repair','Before inspecting the test source, seal predictions and the first invalid state. Repair failure-atomic admission and retain a delayed changed-capacity variant.'),
- ('LAB-EX-12','PR-T43-08','measurement','Reusable component measurement differences','Capture wall/CPU time, one-wrap cycle difference, read bytes, accepted/completed writes and I/O counts separately. Reject clock or counter reset without changing output.')],
+ ('LAB-EX-12','PR-T43-08','measurement','Reusable component measurement differences','Capture wall/struct lr_cpu time, one-wrap cycle difference, read bytes, accepted/completed writes and I/O counts separately. Reject clock or counter reset without changing output.')],
  'integration':[
  ('LAB-IN-01','PR-P1-02','p1','Byte cursor and queue boundary','Import the earlier cursor, decimal parser and ring. Publish complete records only; preserve prior commits and report the exact accepted prefix on exhaustion.'),
  ('LAB-IN-02','PR-P2-02','p2','Queue to short-transfer adapter','Import the ring and write-all component. Retain the active byte across retryable failure and resume without replaying an accepted prefix.'),
@@ -133,16 +133,16 @@ if not stub.exists():
  body='''#include "firmware_io.h"
 int fw_startup(uint8_t*a,const uint8_t*b,size_t n,uint8_t*c,size_t m){(void)a;(void)b;(void)n;(void)c;(void)m;return -1;}
 int fw_vector(uint32_t a,uint32_t b,uint32_t c,uint32_t d,uint32_t e,uint32_t f){(void)a;(void)b;(void)c;(void)d;(void)e;(void)f;return -1;}
-int fw_gpio(FwIo a,unsigned b,int c){(void)a;(void)b;(void)c;return -1;}
-int fw_uart(FwIo a,uint8_t b,unsigned c){(void)a;(void)b;(void)c;return -1;}
-int fw_spi(FwIo a,uint8_t b,uint8_t*c,unsigned d){(void)a;(void)b;(void)c;(void)d;return -1;}
-int fw_i2c_recover(FwIo a,unsigned b){(void)a;(void)b;return -1;}
-int fw_timer(FwIo a,uint32_t b,uint32_t c,uint32_t d){(void)a;(void)b;(void)c;(void)d;return -1;}
-int fw_adc(FwIo a,uint16_t*b,unsigned c){(void)a;(void)b;(void)c;return -1;}
-int fw_dma(FwDma*a,FwIo b,unsigned c,uint32_t d){(void)a;(void)b;(void)c;(void)d;return -1;}
-int fw_ethernet(FwDescriptor*a,FwIo b,uint32_t c,uint32_t d,unsigned e){(void)a;(void)b;(void)c;(void)d;(void)e;return -1;}
-int fw_rs485(FwIo a,uint8_t b,unsigned c){(void)a;(void)b;(void)c;return -1;}
-int fw_watchdog(FwWatchdog*a,FwIo b,uint32_t c,uint32_t d){(void)a;(void)b;(void)c;(void)d;return -1;}
+int fw_gpio(struct fw_io a,unsigned b,int c){(void)a;(void)b;(void)c;return -1;}
+int fw_uart(struct fw_io a,uint8_t b,unsigned c){(void)a;(void)b;(void)c;return -1;}
+int fw_spi(struct fw_io a,uint8_t b,uint8_t*c,unsigned d){(void)a;(void)b;(void)c;(void)d;return -1;}
+int fw_i2c_recover(struct fw_io a,unsigned b){(void)a;(void)b;return -1;}
+int fw_timer(struct fw_io a,uint32_t b,uint32_t c,uint32_t d){(void)a;(void)b;(void)c;(void)d;return -1;}
+int fw_adc(struct fw_io a,uint16_t*b,unsigned c){(void)a;(void)b;(void)c;return -1;}
+int fw_dma(struct fw_dma*a,struct fw_io b,unsigned c,uint32_t d){(void)a;(void)b;(void)c;(void)d;return -1;}
+int fw_ethernet(struct fw_descriptor*a,struct fw_io b,uint32_t c,uint32_t d,unsigned e){(void)a;(void)b;(void)c;(void)d;(void)e;return -1;}
+int fw_rs485(struct fw_io a,uint8_t b,unsigned c){(void)a;(void)b;(void)c;return -1;}
+int fw_watchdog(struct fw_watchdog*a,struct fw_io b,uint32_t c,uint32_t d){(void)a;(void)b;(void)c;(void)d;return -1;}
 '''
  write('labs/firmware_io/src/firmware_io.c',body)
 for family,stem,var,extra in [('algorithms','v4_algo','ENGINE_DIR',''),('communications','v4_com','COM_SOURCE','target_link_libraries(v4_communications_tests PRIVATE com_core)'),('foundations','v4_foundation','V4_FOUNDATION_SOURCE','')]:

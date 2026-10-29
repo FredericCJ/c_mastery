@@ -49,7 +49,7 @@ def validate(d):
   if len(rows)!=2 or any(r['observed']['counts']!={'scalar_encodings':1112064,'utf16_encodings':1112064,'stream_calls':153457,'invalid_rejections':47836,'capacity_rejections':7939,'incomplete_prefixes':23453,'codec_deferred_impossible_prefix':71} or r['observed']['seed']!=120617 for r in rows):errors.append('Missing exact independent codec bounds')
   names={r['name'] for r in checks}
   if not {'actual wchar object manifest linux','actual wchar object manifest windows','original decoder M4 object has no runtime imports'}<=names:errors.append('Missing portability/import observation')
- if 'bytes' in selected and not any(r['name']=='actual accepted FCursor imported without cloning' for r in checks):errors.append('Missing actual prerequisite integration')
+ if 'bytes' in selected and not any(r['name']=='actual accepted struct f_cursor imported without cloning' for r in checks):errors.append('Missing actual prerequisite integration')
  if 'allocation' in selected and not any(r['name']=='actual accepted checked-size provider imported' for r in checks):errors.append('Missing allocation predecessor integration')
  if 'conversion' in selected:
   rows=[r for r in checks if r['name']=='independent numeric grammar and unbounded range oracle']

@@ -4,7 +4,7 @@
 #ifndef RPR_MUTATION
 #define RPR_MUTATION 0
 #endif
-int rpr_input_frame(RprInput input, unsigned char out[18]) {
+int rpr_input_frame(struct rpr_input input, unsigned char out[18]) {
   unsigned char raw[16], wire[18];
   unsigned i;
   int r;
@@ -14,8 +14,8 @@ int rpr_input_frame(RprInput input, unsigned char out[18]) {
   if (r)
     return r;
   for (i = 0; i < 2; ++i) {
-    RfFrame f = {0};
-    RfMessage m;
+    struct rf_frame f = {0};
+    struct rf_message m;
     f.length = 8;
     memcpy(f.bytes, raw + 8 * i, 8);
     if (rf_message_init(&m, i + 1, 1, &f))
@@ -26,8 +26,8 @@ int rpr_input_frame(RprInput input, unsigned char out[18]) {
   return RPR_OK;
 }
 int rpr_input_unframe(const unsigned char *wire, size_t n, unsigned chunk,
-                      RprInput *out) {
-  RfParser p;
+                      struct rpr_input *out) {
+  struct rf_parser p;
   unsigned char raw[16];
   size_t at = 0, count = 0;
   unsigned frames = 0;
@@ -36,7 +36,7 @@ int rpr_input_unframe(const unsigned char *wire, size_t n, unsigned chunk,
   if (rf_parser_init(&p, 1))
     return RPR_STATE;
   while (at < n) {
-    RfFrame f;
+    struct rf_frame f;
     size_t used, take = n - at < chunk ? n - at : chunk;
     int r = rf_feed(&p, wire + at, take, &used, &f);
     at += used;

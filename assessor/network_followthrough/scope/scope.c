@@ -2,11 +2,11 @@
 #ifndef NW_MUTANT
 #define NW_MUTANT 0
 #endif
-int nw_lengths(uint32_t n, NwLengths *out) {
+int nw_lengths(uint32_t n, struct nw_lengths *out) {
   if (!out || n > 1460)
     return NW_INVALID;
   uint32_t ip = n + 40, raw = ip + 14, pad = raw < 60 ? 60 - raw : 0;
-  *out = (NwLengths){ip,
+  *out = (struct nw_lengths){ip,
                      raw,
                      pad,
                      raw + pad,
@@ -14,20 +14,20 @@ int nw_lengths(uint32_t n, NwLengths *out) {
                      6 * 2048 + 6 * 16};
   return NW_OK;
 }
-static int identity(const NwTx *s, NwTicket t) {
+static int identity(const struct nw_tx *s, struct nw_ticket t) {
   return t.epoch == s->epoch && (NW_MUTANT == 5 || t.owner == s->owner) &&
          t.generation == s->generation;
 }
-static int current(const NwTx *s, NwTicket t) {
+static int current(const struct nw_tx *s, struct nw_ticket t) {
   return identity(s, t) && t.serial == s->serial;
 }
-int nw_tx_init(NwTx *s, uint32_t epoch, uint32_t owner) {
+int nw_tx_init(struct nw_tx *s, uint32_t epoch, uint32_t owner) {
   if (!s || !epoch || !owner)
     return NW_INVALID;
-  *s = (NwTx){.epoch = epoch, .owner = owner};
+  *s = (struct nw_tx){.epoch = epoch, .owner = owner};
   return NW_OK;
 }
-int nw_offer(NwTx *s, const void *data, size_t n) {
+int nw_offer(struct nw_tx *s, const void *data, size_t n) {
   if (!s || !s->epoch || !s->owner || !data || !n || n > sizeof s->bytes)
     return NW_INVALID;
   if (s->dma || s->prepared || s->acknowledged != s->length)
@@ -44,7 +44,7 @@ int nw_offer(NwTx *s, const void *data, size_t n) {
   s->prepared = s->flight = s->dma = 0;
   return NW_OK;
 }
-int nw_prepare(NwTx *s, unsigned mss, unsigned window, NwSegment *out) {
+int nw_prepare(struct nw_tx *s, unsigned mss, unsigned window, struct nw_segment *out) {
   if (!s || !out || !mss || mss > 256 || window > 65535 || !s->epoch)
     return NW_INVALID;
   if (s->prepared || s->flight || s->dma)
@@ -58,7 +58,7 @@ int nw_prepare(NwTx *s, unsigned mss, unsigned window, NwSegment *out) {
     n = mss;
   if (n > window)
     n = window;
-  NwSegment result = {
+  struct nw_segment result = {
       .length = (uint16_t)n,
       .offset = s->sent,
       .ticket = {s->epoch, s->owner, s->generation, s->serial + 1}};
@@ -70,7 +70,7 @@ int nw_prepare(NwTx *s, unsigned mss, unsigned window, NwSegment *out) {
   s->prepared = 1;
   return NW_OK;
 }
-int nw_submit(NwTx *s, NwTicket t, unsigned accepted) {
+int nw_submit(struct nw_tx *s, struct nw_ticket t, unsigned accepted) {
   if (!s || accepted > 1)
     return NW_INVALID;
   if (!current(s, t) || !s->prepared)
@@ -84,7 +84,7 @@ int nw_submit(NwTx *s, NwTicket t, unsigned accepted) {
   s->prepared_length = 0;
   return NW_OK;
 }
-int nw_dma_done(NwTx *s, NwTicket t) {
+int nw_dma_done(struct nw_tx *s, struct nw_ticket t) {
   if (!s)
     return NW_INVALID;
   if (!current(s, t))
@@ -98,7 +98,7 @@ int nw_dma_done(NwTx *s, NwTicket t) {
   }
   return NW_OK;
 }
-int nw_ack(NwTx *s, NwTicket t, uint32_t n) {
+int nw_ack(struct nw_tx *s, struct nw_ticket t, uint32_t n) {
   if (!s)
     return NW_INVALID;
   if (!identity(s, t))
@@ -114,13 +114,13 @@ int nw_ack(NwTx *s, NwTicket t, uint32_t n) {
     s->dma = 0;
   return NW_OK;
 }
-int nw_rx_init(NwRx *s, unsigned capacity) {
+int nw_rx_init(struct nw_rx *s, unsigned capacity) {
   if (!s || !capacity || capacity > 512)
     return NW_INVALID;
-  *s = (NwRx){.capacity = (uint16_t)capacity};
+  *s = (struct nw_rx){.capacity = (uint16_t)capacity};
   return NW_OK;
 }
-int nw_rx_offer(NwRx *s, const void *data, size_t n) {
+int nw_rx_offer(struct nw_rx *s, const void *data, size_t n) {
   if (!s || (!data && n) || !s->capacity || s->capacity > 512)
     return NW_INVALID;
   if (n > (size_t)(s->capacity - s->count))
@@ -132,7 +132,7 @@ int nw_rx_offer(NwRx *s, const void *data, size_t n) {
     s->count += (uint16_t)n;
   return NW_OK;
 }
-int nw_rx_peek(const NwRx *s, const unsigned char **out, size_t *length) {
+int nw_rx_peek(const struct nw_rx *s, const unsigned char **out, size_t *length) {
   if (!s || !out || !length || !s->capacity)
     return NW_INVALID;
   size_t n = s->capacity - s->head;
@@ -142,7 +142,7 @@ int nw_rx_peek(const NwRx *s, const unsigned char **out, size_t *length) {
   *length = n;
   return NW_OK;
 }
-int nw_rx_consume(NwRx *s, size_t n) {
+int nw_rx_consume(struct nw_rx *s, size_t n) {
   if (!s || !s->capacity)
     return NW_INVALID;
   if (n > s->count)
@@ -151,6 +151,6 @@ int nw_rx_consume(NwRx *s, size_t n) {
   s->count -= (uint16_t)n;
   return NW_OK;
 }
-unsigned nw_rx_window(const NwRx *s) {
+unsigned nw_rx_window(const struct nw_rx *s) {
   return s && s->capacity ? s->capacity - s->count : 0;
 }

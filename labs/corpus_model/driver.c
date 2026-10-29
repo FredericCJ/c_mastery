@@ -4,18 +4,18 @@
 /* One process consumes a model batch via each frontend and the direct API.
  * Driver protocol uses bounded trusted oracle data, not the learner grammar. */
 int main(void) {
-  CmModel model;
+  struct cm_model model;
   cm_init(&model);
   char op;
   while (scanf(" %c", &op) == 1) {
     int rc = CM_INVALID;
     if (op == 'A') {
       unsigned count;
-      CmEdit edits[16];
+      struct cm_edit edits[16];
       if (scanf("%u", &count) != 1 || count > 16)
         return 2;
       for (unsigned i = 0; i < count; ++i) {
-        CmEdit *e = &edits[i];
+        struct cm_edit *e = &edits[i];
         int b, w0, w1;
         if (scanf("%u%u%u%u%d%d%d", &e->id, &e->kind, &e->a, &e->b, &w0, &w1,
                   &b) != 7)

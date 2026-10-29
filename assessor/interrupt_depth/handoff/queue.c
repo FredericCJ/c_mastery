@@ -4,12 +4,12 @@
 #endif
 _Static_assert(sizeof(unsigned) == 4 && UINT_MAX == UINT32_MAX,
                "declared32-bit index");
-static void clear_record(XiRecord *r) {
+static void clear_record(struct xi_record *r) {
   r->sequence = r->timestamp = r->original_length = r->copied = r->flags = 0;
   for (unsigned i = 0; i < XI_RECORD_BYTES; ++i)
     r->bytes[i] = 0;
 }
-static void copy_record(XiRecord *d, const XiRecord *s) {
+static void copy_record(struct xi_record *d, const struct xi_record *s) {
   d->sequence = s->sequence;
   d->timestamp = s->timestamp;
   d->original_length = s->original_length;
@@ -18,7 +18,7 @@ static void copy_record(XiRecord *d, const XiRecord *s) {
   for (unsigned i = 0; i < XI_RECORD_BYTES; ++i)
     d->bytes[i] = s->bytes[i];
 }
-int xi_init(XiQueue *q, unsigned slots) {
+int xi_init(struct xi_queue *q, unsigned slots) {
   if (!q || slots < 2 || slots > XI_QUEUE_SLOTS || (slots & (slots - 1)))
     return XI_INVALID;
   if (ATOMIC_INT_LOCK_FREE != 2)
@@ -31,7 +31,7 @@ int xi_init(XiQueue *q, unsigned slots) {
     clear_record(&q->records[i]);
   return XI_OK;
 }
-int xi_reserve(XiQueue *q) {
+int xi_reserve(struct xi_queue *q) {
   if (!q)
     return XI_INVALID;
   if (q->p_phase && XI_MUTANT != 4)
@@ -47,7 +47,7 @@ int xi_reserve(XiQueue *q) {
                           memory_order_release);
   return XI_OK;
 }
-int xi_fill(XiQueue *q, const XiRecord *r) {
+int xi_fill(struct xi_queue *q, const struct xi_record *r) {
   if (!q || !r || r->copied > XI_RECORD_BYTES)
     return XI_INVALID;
   if (q->p_phase != 1)
@@ -56,7 +56,7 @@ int xi_fill(XiQueue *q, const XiRecord *r) {
   q->p_phase = 2;
   return XI_OK;
 }
-int xi_commit(XiQueue *q) {
+int xi_commit(struct xi_queue *q) {
   if (!q)
     return XI_INVALID;
   if (q->p_phase != 2)
@@ -67,7 +67,7 @@ int xi_commit(XiQueue *q) {
   q->p_phase = 0;
   return XI_OK;
 }
-int xi_cancel(XiQueue *q) {
+int xi_cancel(struct xi_queue *q) {
   if (!q)
     return XI_INVALID;
   if (!q->p_phase)
@@ -75,7 +75,7 @@ int xi_cancel(XiQueue *q) {
   q->p_phase = 0;
   return XI_OK;
 }
-int xi_take(XiQueue *q, XiRecord *out) {
+int xi_take(struct xi_queue *q, struct xi_record *out) {
   if (!q || !out)
     return XI_INVALID;
   if (q->c_active)
@@ -92,7 +92,7 @@ int xi_take(XiQueue *q, XiRecord *out) {
                           memory_order_release);
   return XI_OK;
 }
-int xi_release(XiQueue *q) {
+int xi_release(struct xi_queue *q) {
   if (!q)
     return XI_INVALID;
   if (!q->c_active)
@@ -103,7 +103,7 @@ int xi_release(XiQueue *q) {
   q->c_active = 0;
   return XI_OK;
 }
-int xi_push(XiQueue *q, const XiRecord *r) {
+int xi_push(struct xi_queue *q, const struct xi_record *r) {
   if (!r || r->copied > XI_RECORD_BYTES)
     return XI_INVALID;
   int rc = xi_reserve(q);
@@ -116,7 +116,7 @@ int xi_push(XiQueue *q, const XiRecord *r) {
   }
   return xi_commit(q);
 }
-int xi_pop(XiQueue *q, XiRecord *r) {
+int xi_pop(struct xi_queue *q, struct xi_record *r) {
   int rc = xi_take(q, r);
   return rc ? rc : xi_release(q);
 }

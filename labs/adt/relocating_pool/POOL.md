@@ -1,7 +1,7 @@
 # T67.05: Pool identity, relocation and copied concurrent access
 
 This required successor implements X-T67-005-R4 and its delayed variant without
-changing the retained fixed-address `ADPool` contract. Complete R1–R3 using the
+changing the retained fixed-address `struct ad_pool` contract. Complete R1–R3 using the
 actual `ad_pool_*` functions first. Retain `memory.pool`, the ownership ledger and
 the original independent occupancy model; implement this adapter locally. The
 public scaffold is `relocating_pool.c`, the header and five `adt.pool_*` tests.
@@ -9,7 +9,7 @@ The reference implementation and technical answers remain assessor-only.
 
 ## Representation and admitted objects
 
-Use C17 hosted Linux and POSIX mutexes. A live `AdpPool` owns one heap allocation
+Use C17 hosted Linux and POSIX mutexes. A live `struct adp_pool` owns one heap allocation
 containing four typed slots and one initialized mutex. Slots are FREE, LIVE or
 RETIRED; each has a positive uint64 generation and a uint32 payload. A handle is
 an ordinary copyable triple `(nonzero pool identity, index, generation)`. There
@@ -17,7 +17,7 @@ is no raw slot pointer or borrowed payload in this API. `get` copies a value
 while holding the mutex. A copied handle is neither a second allocation owner
 nor an independently authorized release: after one release, both copies stale.
 
-The `AdpIds` issuer is externally serialized. Initialize it at a positive first
+The `struct adp_ids` issuer is externally serialized. Initialize it at a positive first
 identity, issue successive identities, issue UINT64_MAX once, then return FULL
 without changing the output forever. Resetting an issuer while issued handles
 can survive violates its precondition. Nonreuse across process restart requires

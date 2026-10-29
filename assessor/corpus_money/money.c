@@ -2,12 +2,12 @@
 #ifndef CM_MUTANT
 #define CM_MUTANT 0
 #endif
-static int valid(CmMoney x)
+static int valid(struct cm_money x)
 {
     return x.scale<=9 && x.currency[0]>='A' && x.currency[0]<='Z' &&
         x.currency[1]>='A' && x.currency[1]<='Z' && x.currency[2]>='A' && x.currency[2]<='Z';
 }
-static int compatible(CmMoney a,CmMoney b)
+static int compatible(struct cm_money a,struct cm_money b)
 {
     return valid(a)&&valid(b) && (CM_MUTANT==1 || (a.scale==b.scale &&
         a.currency[0]==b.currency[0] && a.currency[1]==b.currency[1] && a.currency[2]==b.currency[2]));
@@ -20,7 +20,7 @@ static uint64_t div32(uint64_t value,uint32_t divisor,uint32_t *remainder)
     for(unsigned i=64;i!=0;i--){r=(r<<1)|((value>>(i-1))&1u);if(r>=divisor){r-=divisor;q|=UINT64_C(1)<<(i-1);}}
     *remainder=(uint32_t)r;return q;
 }
-static CmStatus signed_value(uint64_t value,int negative,int64_t *out)
+static enum cm_status signed_value(uint64_t value,int negative,int64_t *out)
 {
     uint64_t limit=negative?UINT64_C(1)<<63:(uint64_t)INT64_MAX;
     if(value>limit)return CM_OVERFLOW;
@@ -28,7 +28,7 @@ static CmStatus signed_value(uint64_t value,int negative,int64_t *out)
     return CM_OK;
 }
 /* floor(|amount| * n / d), with an exact fractional numerator. */
-static CmStatus product(uint64_t amount,uint32_t n,uint32_t d,uint64_t *out,uint32_t *rem)
+static enum cm_status product(uint64_t amount,uint32_t n,uint32_t d,uint64_t *out,uint32_t *rem)
 {
     uint32_t r,junk;uint64_t q=div32(amount,d,&r);
     if(n && q>div32(UINT64_MAX,n,&junk))return CM_OVERFLOW;
@@ -36,24 +36,24 @@ static CmStatus product(uint64_t amount,uint32_t n,uint32_t d,uint64_t *out,uint
     if(high>UINT64_MAX-low)return CM_OVERFLOW;
     *out=high+low;return CM_OK;
 }
-CmStatus cm_make(int64_t amount,const char currency[3],unsigned scale,CmMoney *out)
+enum cm_status cm_make(int64_t amount,const char currency[3],unsigned scale,struct cm_money *out)
 {
     if(!currency||!out||scale>9)return CM_INVALID;
-    CmMoney v={amount,{currency[0],currency[1],currency[2]},(uint8_t)scale};
+    struct cm_money v={amount,{currency[0],currency[1],currency[2]},(uint8_t)scale};
     if(!valid(v))return CM_INVALID;
     *out=v;return CM_OK;
 }
-CmStatus cm_add(CmMoney a,CmMoney b,CmMoney *out)
+enum cm_status cm_add(struct cm_money a,struct cm_money b,struct cm_money *out)
 {
     if(!out||!compatible(a,b))return CM_INVALID;
     if((b.minor>0 && a.minor>INT64_MAX-b.minor)||(b.minor<0 && a.minor<INT64_MIN-b.minor))return CM_OVERFLOW;
     if(CM_MUTANT==2 && b.minor==0)return CM_OVERFLOW;
     a.minor+=b.minor;*out=a;return CM_OK;
 }
-CmStatus cm_ratio(CmMoney a,uint32_t n,uint32_t d,CmRound mode,CmMoney *out)
+enum cm_status cm_ratio(struct cm_money a,uint32_t n,uint32_t d,enum cm_round mode,struct cm_money *out)
 {
     if(!out||!valid(a)||!d||(mode!=CM_ZERO&&mode!=CM_FLOOR&&mode!=CM_EVEN))return CM_INVALID;
-    uint64_t q;uint32_t r;CmStatus s=product(magnitude(a.minor),n,d,&q,&r);if(s!=CM_OK)return s;
+    uint64_t q;uint32_t r;enum cm_status s=product(magnitude(a.minor),n,d,&q,&r);if(s!=CM_OK)return s;
     int up=mode==CM_FLOOR && a.minor<0 && r;
     if(mode==CM_EVEN)up=(uint64_t)r*2>d || ((uint64_t)r*2==d && ((q&1u)||CM_MUTANT==3));
     if(CM_MUTANT==4 && mode==CM_FLOOR)up=0;
@@ -61,13 +61,13 @@ CmStatus cm_ratio(CmMoney a,uint32_t n,uint32_t d,CmRound mode,CmMoney *out)
     s=signed_value(q,a.minor<0,&a.minor);if(s!=CM_OK)return s;
     *out=a;return CM_OK;
 }
-CmStatus cm_allocate(CmMoney a,const uint32_t *weights,size_t n,CmMoney *out)
+enum cm_status cm_allocate(struct cm_money a,const uint32_t *weights,size_t n,struct cm_money *out)
 {
     if(!out||!weights||!valid(a)||n==0||n>CM_MAX)return CM_INVALID;
     uint32_t sum=0;for(size_t i=0;i<n;i++){if(weights[i]>UINT32_MAX-sum)return CM_OVERFLOW;sum+=weights[i];}
     if(!sum)return CM_INVALID;
     uint64_t parts[CM_MAX],used=0;uint32_t remainders[CM_MAX];unsigned chosen[CM_MAX]={0};
-    for(size_t i=0;i<n;i++){CmStatus s=product(magnitude(a.minor),weights[i],sum,&parts[i],&remainders[i]);if(s!=CM_OK)return s;used+=parts[i];}
+    for(size_t i=0;i<n;i++){enum cm_status s=product(magnitude(a.minor),weights[i],sum,&parts[i],&remainders[i]);if(s!=CM_OK)return s;used+=parts[i];}
     uint64_t left=magnitude(a.minor)-used;
     if(CM_MUTANT==5)left=0;
     for(uint64_t k=0;k<left;k++){
@@ -76,12 +76,12 @@ CmStatus cm_allocate(CmMoney a,const uint32_t *weights,size_t n,CmMoney *out)
         if(best==n)return CM_INVALID;
         chosen[best]=1;parts[best]++;
     }
-    CmMoney staged[CM_MAX];
-    for(size_t i=0;i<n;i++){staged[i]=a;CmStatus s=signed_value(parts[i],a.minor<0,&staged[i].minor);if(s!=CM_OK)return s;}
+    struct cm_money staged[CM_MAX];
+    for(size_t i=0;i<n;i++){staged[i]=a;enum cm_status s=signed_value(parts[i],a.minor<0,&staged[i].minor);if(s!=CM_OK)return s;}
     for(size_t i=0;i<n;i++)out[i]=staged[i];
     return CM_OK;
 }
-CmStatus cm_settle(CmMoney *accounts,size_t n,size_t from,const size_t *dest,const uint32_t *weights,size_t k,CmMoney amount,size_t abort_after)
+enum cm_status cm_settle(struct cm_money *accounts,size_t n,size_t from,const size_t *dest,const uint32_t *weights,size_t k,struct cm_money amount,size_t abort_after)
 {
     if(!accounts||!dest||!weights||n==0||n>CM_MAX||from>=n||k==0||k>CM_MAX||amount.minor<0||!compatible(accounts[from],amount))return CM_INVALID;
     for(size_t i=0;i<n;i++)if(!valid(accounts[i]))return CM_INVALID;
@@ -90,7 +90,7 @@ CmStatus cm_settle(CmMoney *accounts,size_t n,size_t from,const size_t *dest,con
         for(size_t j=0;j<i;j++)if(dest[j]==dest[i] && CM_MUTANT!=7)return CM_INVALID;
     }
     if(accounts[from].minor<amount.minor)return CM_FUNDS;
-    CmMoney parts[CM_MAX],staged[CM_MAX];CmStatus s=cm_allocate(amount,weights,k,parts);if(s!=CM_OK)return s;
+    struct cm_money parts[CM_MAX],staged[CM_MAX];enum cm_status s=cm_allocate(amount,weights,k,parts);if(s!=CM_OK)return s;
     for(size_t i=0;i<n;i++)staged[i]=accounts[i];
     staged[from].minor-=amount.minor;
     if(CM_MUTANT==8)accounts[from]=staged[from];

@@ -36,7 +36,7 @@ model does not reproduce a whole operating system or certify physical timing.
 
 ## 5. Concrete problem and supplied inputs
 
-Implement the unsolved `cohort.c` against `cohort.h`. `SUState` owns Q distinct
+Implement the unsolved `cohort.c` against `cohort.h`. `struct su_state` owns Q distinct
 unit rights, `1<=Q<=32`, period `P>=Q`, a declared maximum overrun `0..Q`, a
 nonwrapping32-bit clock,64-bit service/debt counters and active-priority state.
 Each unit has its earliest eligible time and, when activated, its own anchor.

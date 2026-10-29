@@ -8,7 +8,7 @@
     }                                                                          \
   } while (0)
 int main(void) {
-  NrControl s;
+  struct nr_control s;
   uint32_t seq = 123;
   CHECK(nr_init(&s, 100, 0xfffffff0, 50) == NR_OK);
   CHECK(nr_usable(&s) == 50);

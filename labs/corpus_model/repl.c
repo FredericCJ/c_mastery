@@ -3,7 +3,7 @@
 static size_t output(void *context, const char *s, size_t n) {
   return fwrite(s, 1, n, context);
 }
-static int flush(CmSession *s) {
+static int flush(struct cm_session *s) {
   int rc;
   do {
     rc = cm_drain(s, output, stdout);
@@ -11,7 +11,7 @@ static int flush(CmSession *s) {
   return rc || fflush(stdout) == EOF;
 }
 int main(void) {
-  CmSession session;
+  struct cm_session session;
   cm_session_init(&session);
   while (!session.closed) {
     int c = fgetc(stdin);

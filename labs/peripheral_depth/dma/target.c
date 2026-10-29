@@ -1,6 +1,6 @@
 #include "dma.h"
-PdIo pd_target_io(PdPort *p) {
-  PdIo io = {0};
+struct pd_io pd_target_io(struct pd_port *p) {
+  struct pd_io io = {0};
   (void)p;
   return io;
 }

@@ -1,23 +1,23 @@
 #include "merkle_repair.h"
-int rpk_commit(const RpkTree *tree, RpkCommitment *out) {
+int rpk_commit(const struct rpk_tree *tree, struct rpk_commitment *out) {
   (void)tree;
   (void)out;
   return RPK_UNIMPLEMENTED;
 }
-int rpk_prove(const RpkTree *tree, unsigned index, RpkProof *out) {
+int rpk_prove(const struct rpk_tree *tree, unsigned index, struct rpk_proof *out) {
   (void)tree;
   (void)index;
   (void)out;
   return RPK_UNIMPLEMENTED;
 }
-int rpk_verify(const RpkLeaf *leaf, const RpkProof *proof,
-               const RpkCommitment *trusted) {
+int rpk_verify(const struct rpk_leaf *leaf, const struct rpk_proof *proof,
+               const struct rpk_commitment *trusted) {
   (void)leaf;
   (void)proof;
   (void)trusted;
   return RPK_UNIMPLEMENTED;
 }
-int rpk_serve(const RpkTree *tree, const unsigned char *request,
+int rpk_serve(const struct rpk_tree *tree, const unsigned char *request,
               size_t request_length, unsigned chunk, unsigned char *reply,
               size_t capacity, size_t *reply_length) {
   (void)tree;
@@ -29,9 +29,9 @@ int rpk_serve(const RpkTree *tree, const unsigned char *request,
   (void)reply_length;
   return RPK_UNIMPLEMENTED;
 }
-int rpk_repair(RpkTree *target, const RpkCommitment *trusted, unsigned chunk,
-               unsigned force_full, RpkExchange exchange, void *context,
-               RpkCost *cost) {
+int rpk_repair(struct rpk_tree *target, const struct rpk_commitment *trusted, unsigned chunk,
+               unsigned force_full, rpk_exchange_fn exchange, void *context,
+               struct rpk_cost *cost) {
   (void)target;
   (void)trusted;
   (void)chunk;

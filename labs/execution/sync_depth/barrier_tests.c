@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #define CHECK(c) do{if(!(c)){fprintf(stderr,"CDB_CHECK:%d:%s\n",__LINE__,#c);return 1;}}while(0)
-static int setup(cmx_kernel *k,CDBarrier *b,CDBMember h[4],unsigned mask,unsigned limit){
+static int setup(cmx_kernel *k,struct cd_barrier *b,struct cdb_member h[4],unsigned mask,unsigned limit){
   cmx_init(k,CMX_FIXED);
   for(unsigned i=0;i<4;i++)if(cmx_task_add(k,5+i,0,0x1000+256*i,256)!=(int)i)return 0;
   if(cdb_init(b,k,mask,limit)!=CMX_OK)return 0;
@@ -13,7 +13,7 @@ static int rounds(void){
   static const unsigned order[6][3]={{0,1,2},{0,2,1},{1,0,2},{1,2,0},{2,0,1},{2,1,0}};
   unsigned histories=0;
   for(unsigned a=0;a<6;a++)for(unsigned z=0;z<6;z++){
-    cmx_kernel k;CDBarrier b;CDBMember h[4];CDBTicket old[3],next[3],duplicate;
+    cmx_kernel k;struct cd_barrier b;struct cdb_member h[4];struct cdb_ticket old[3],next[3],duplicate;
     unsigned out=999;
     CHECK(setup(&k,&b,h,7,3));
     for(unsigned j=0;j<3;j++){
@@ -41,7 +41,7 @@ static int rounds(void){
   return 0;
 }
 static int terminal(void){
-  cmx_kernel k;CDBarrier b;CDBMember h[4];CDBTicket t[3];unsigned out=999;
+  cmx_kernel k;struct cd_barrier b;struct cdb_member h[4];struct cdb_ticket t[3];unsigned out=999;
   CHECK(setup(&k,&b,h,7,5));
   CHECK(cdb_arrive(h[0],cmx_at(5),&t[0])==CMX_BLOCKED);
   CHECK(cdb_arrive(h[1],cmx_forever(),&t[1])==CMX_BLOCKED);
@@ -53,7 +53,7 @@ static int terminal(void){
   CHECK(cdb_result(t[0],&out)==CMX_TIMEOUT&&out==999);
   CHECK(cdb_result(t[1],&out)==CMX_BROKEN&&out==999);
   CHECK(cdb_stage(&b,7)==CMX_OK&&cdb_apply(&b)==CMX_BLOCKED);
-  CDBMember copied=h[0];
+  struct cdb_member copied=h[0];
   for(unsigned i=0;i<3;i++)CHECK(cdb_release(&h[i])==CMX_OK);
   CHECK(cdb_apply(&b)==CMX_OK&&!b.raw.broken&&b.raw.generation==1);
   for(unsigned i=0;i<3;i++)CHECK(cdb_register(&b,i,&h[i])==CMX_OK);
@@ -69,7 +69,7 @@ static int terminal(void){
   puts("CDB_TERMINAL:timeout-versus-broken;cancel-versus-broken;result-drain-before-reset;old-epoch-refusal");return 0;
 }
 static int membership(void){
-  cmx_kernel k;CDBarrier b;CDBMember h[4],stale;CDBTicket t[4];unsigned out;
+  cmx_kernel k;struct cd_barrier b;struct cdb_member h[4],stale;struct cdb_ticket t[4];unsigned out;
   CHECK(setup(&k,&b,h,7,8));
   for(unsigned i=0;i<3;i++)CHECK(cdb_arrive(h[i],cmx_forever(),&t[i])==(i==2?CMX_OK:CMX_BLOCKED));
   CHECK(cdb_stage(&b,5)==CMX_BLOCKED);
@@ -90,7 +90,7 @@ static int membership(void){
   puts("CDB_MEMBERSHIP:three-to-two-withdrawal;quiescent-registration-epoch;two-to-three-join;no-midround-change");return 0;
 }
 static int generation(void){
-  cmx_kernel k;CDBarrier b;CDBMember h[4];CDBTicket t;unsigned out=999;
+  cmx_kernel k;struct cd_barrier b;struct cdb_member h[4];struct cdb_ticket t;unsigned out=999;
   CHECK(setup(&k,&b,h,1,3));
   CHECK(cdb_init(&b,&k,0,3)==CMX_INVALID);
   for(unsigned i=0;i<3;i++)CHECK(cdb_arrive(h[0],cmx_forever(),&t)==CMX_OK&&cdb_result(t,&out)==CMX_OK&&out==i);

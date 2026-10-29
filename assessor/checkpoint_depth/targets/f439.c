@@ -2,12 +2,12 @@
 #define REG(address) (*(volatile uint32_t *)(uintptr_t)(address))
 /* Dedicated STM32F439, reset HSI profile, PA2 AF7 USART2 TX, DMA1 stream6/channel4.
  * No driver executes on the host. The runner builds/audits but never flashes it. */
-static CPFRing ring;
-static CPFTx tx __attribute__((section(".dma"),aligned(4)));
+static struct cpf_ring ring;
+static struct cpf_tx tx __attribute__((section(".dma"),aligned(4)));
 static volatile unsigned calls;
 volatile uint32_t cp_board_fault;
 void cp_fault(void){cp_board_fault=UINT32_C(0xdead0001);__asm__ volatile("cpsid i":::"memory");for(;;){}}
-void cp_pendsv(void){unsigned n=calls;(void)cpf_irq_push(&ring,(CPFSample){n,(uint16_t)(100+n),(uint16_t)n});calls=n+1;}
+void cp_pendsv(void){unsigned n=calls;(void)cpf_irq_push(&ring,(struct cpf_sample){n,(uint16_t)(100+n),(uint16_t)n});calls=n+1;}
 static int wait_mask(uintptr_t address,uint32_t mask,uint32_t value){for(unsigned n=0;n<1000000;++n)if((REG(address)&mask)==value)return 1;return 0;}
 static void write_byte(void *context,unsigned char byte){(void)context;REG(0x40004404)=byte;}
 static int setup(void){
@@ -29,7 +29,7 @@ static int setup(void){
     REG(0x4000440c)=(UINT32_C(1)<<13)|(UINT32_C(1)<<3);
     return 1;
 }
-static int transfer(const CPMessage *message,int dma){
+static int transfer(const struct cp_message *message,int dma){
     if(cpf_tx_begin(&tx,message,dma)!=CPF_OK)return 0;
     if(dma){
         if(REG(0x400260a0)&1)return 0;
@@ -41,7 +41,7 @@ static int transfer(const CPMessage *message,int dma){
         __asm__ volatile("dmb":::"memory");REG(0x40004414)|=UINT32_C(0x80);REG(0x400260a0)|=1;
     }
     for(unsigned budget=0;budget<1000000;++budget){
-        uint32_t status=REG(0x40004400);CPFStatus result;
+        uint32_t status=REG(0x40004400);enum cpf_status result;
         if(dma){uint32_t flags=REG(0x40026004);result=cpf_tx_dma(&tx,tx.generation,(REG(0x400260a0)&1)!=0,REG(0x400260a4),(status&64)!=0,(flags&(UINT32_C(0xd)<<16))!=0);}
         else result=cpf_tx_poll(&tx,tx.generation,(status&128)!=0,(status&64)!=0,write_byte,0);
         if(result==CPF_OK){REG(0x40004414)&=~UINT32_C(0x80);return cpf_tx_next(&tx)==CPF_OK;}
@@ -60,9 +60,9 @@ void cp_target_main(void){
     cpf_tx_init(&tx,16,2);
     *(volatile uint8_t *)UINT32_C(0xe000ed22)=255;__asm__ volatile("cpsie i":::"memory");
     for(unsigned i=0;i<5;++i){REG(0xe000ed04)=UINT32_C(1)<<28;__asm__ volatile("dsb\nisb":::"memory");while(calls!=i+1){}}
-    CPFSample sample;unsigned selected=0;
+    struct cpf_sample sample;unsigned selected=0;
     while(cpf_take(&ring,&sample)){
-        CPMessage message={.sequence=(uint16_t)sample.sequence,.length=4,.payload={(unsigned char)sample.value,(unsigned char)(sample.value>>8),(unsigned char)sample.tick,(unsigned char)(sample.tick>>8)}};
+        struct cp_message message={.sequence=(uint16_t)sample.sequence,.length=4,.payload={(unsigned char)sample.value,(unsigned char)(sample.value>>8),(unsigned char)sample.tick,(unsigned char)(sample.tick>>8)}};
         if(!transfer(&message,selected++!=0))cp_fault();
     }
     cp_board_fault=0;for(;;){__asm__ volatile("wfi");}

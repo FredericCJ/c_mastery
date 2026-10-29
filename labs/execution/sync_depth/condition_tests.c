@@ -8,7 +8,7 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-static int setup(cmx_kernel *k, CDQueue *q, unsigned capacity,
+static int setup(cmx_kernel *k, struct cd_queue *q, unsigned capacity,
                  unsigned broadcast) {
   cmx_init(k, CMX_FIXED);
   for (unsigned t = 0; t < 4; t++)
@@ -16,11 +16,11 @@ static int setup(cmx_kernel *k, CDQueue *q, unsigned capacity,
       return 0;
   return cdq_init(q, k, capacity, broadcast) == CMX_OK;
 }
-static int ledger(const CDQueue *q) {
+static int ledger(const struct cd_queue *q) {
   return q->count <= q->capacity &&
          q->accepted == q->count + q->claimed + q->consumed;
 }
-static int collect(CDQueue *q, unsigned t, int expected, uint32_t value) {
+static int collect(struct cd_queue *q, unsigned t, int expected, uint32_t value) {
   int result = -1;
   uint32_t out = 777;
   return cdq_result(q, t, &result, &out) == CMX_OK && result == expected &&
@@ -28,7 +28,7 @@ static int collect(CDQueue *q, unsigned t, int expected, uint32_t value) {
 }
 static int mesa(void) {
   cmx_kernel k;
-  CDQueue q;
+  struct cd_queue q;
   uint32_t value;
   CHECK(setup(&k, &q, 1, 1));
   CHECK(cmx_mutex_lock(&k, &q.mutex, 3, cmx_forever()) == CMX_OK);
@@ -54,7 +54,7 @@ static int mesa(void) {
 }
 static int broadcast(void) {
   cmx_kernel k;
-  CDQueue q;
+  struct cd_queue q;
   CHECK(setup(&k, &q, 1, 1));
   for (unsigned t = 0; t < 3; t++)
     CHECK(cdq_begin(&q, t, CDQ_GET, 0, cmx_forever()) == CMX_BLOCKED);
@@ -84,7 +84,7 @@ static int broadcast(void) {
 static int terminal(void) {
   for (unsigned action = 0; action < 3; action++) {
     cmx_kernel k;
-    CDQueue q;
+    struct cd_queue q;
     cmx_mutex other;
     CHECK(setup(&k, &q, 2, 1));
     CHECK(cmx_mutex_init(&k, &other, 0, 0) == CMX_OK);
@@ -125,7 +125,7 @@ static int terminal(void) {
 static int predicates(void) {
   for (unsigned broad = 0; broad < 2; broad++) {
     cmx_kernel k;
-    CDQueue q;
+    struct cd_queue q;
     uint32_t value;
     CHECK(setup(&k, &q, 1, broad));
     CHECK(cmx_mutex_lock(&k, &q.mutex, 3, cmx_forever()) == CMX_OK);
@@ -169,7 +169,7 @@ static int predicates(void) {
 }
 static int shutdown(void) {
   cmx_kernel k;
-  CDQueue q;
+  struct cd_queue q;
   uint32_t value;
   int result;
   CHECK(setup(&k, &q, 2, 1));

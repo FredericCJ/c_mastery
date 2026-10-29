@@ -47,7 +47,7 @@ def check_native(text):
  for r in floats:
   p,c=int(r['workers']),int(r['compensated']);actual=float.fromhex(r['value']);expected=2 if c else 0 if p==2 else 1
   if actual!=expected or r['exact']!='2':raise ValueError('Wrong floating cancellation observation')
- return {'samples':rows,'placements':places,'launch_failures':launch,'floating':floats,'scope':'Native process clocks, eligible CPU placement and packed/padded atomic histogram rows. No physical coherence attribution or speedup claim; binary64 fixture accuracy is separate from reproducibility.'}
+ return {'samples':rows,'placements':places,'launch_failures':launch,'floating':floats,'scope':'Native process clocks, eligible struct lr_cpu placement and packed/padded atomic histogram rows. No physical coherence attribution or speedup claim; binary64 fixture accuracy is separate from reproducibility.'}
 def check_guest(text,cpus):
  cases=[fields(s) for s in text.splitlines() if s.startswith('SR_CASE ')];parts=[fields(s) for s in text.splitlines() if s.startswith('SR_PART ')];hist=[fields(s) for s in text.splitlines() if s.startswith('SR_HIST')];final=[fields(s) for s in text.splitlines() if s.startswith('SR_GUEST_PASS:')]
  if final!=[{'cpus':cpus,'cases':6}] or len(cases)!=6 or len(parts)!=6*cpus:raise ValueError('Wrong guest shape')
@@ -62,5 +62,5 @@ def check_guest(text,cpus):
    i=row['worker'];lo,hi=ranges[i];failed=failure and i+1==cpus
    if row['cpu']!=i or (row['begin'],row['end'])!=(lo,hi) or row['completed']!=(0 if failed else hi-lo) or row['status']!=(4 if failed else 0) or row['active_ticks']<=0:raise ValueError('Wrong per-index partition or actual execution identity')
  if hist!=[{f'b{i}':data(257).count(i) for i in range(16)}]:raise ValueError('Wrong actual histogram')
- return {'cases':cases,'parts':parts,'histogram':hist,'scope':'Actual original virtual CPU execution and local virtual TSC only; no physical speedup.'}
+ return {'cases':cases,'parts':parts,'histogram':hist,'scope':'Actual original virtual struct lr_cpu execution and local virtual TSC only; no physical speedup.'}
 if __name__=='__main__':print(json.dumps(model(),sort_keys=True))

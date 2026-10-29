@@ -20,7 +20,7 @@ does not claim physical board execution.
 
 The original ambiguous adapter `Old.p/n` and explicit `Named.owned_buffer/
 capacity_bytes` deliberately preserve units and behavior. The `LCElements` versus
-`LCBytes` translation failure is additional enforcement. Creating a wrapper with
+`struct lc_bytes` translation failure is additional enforcement. Creating a wrapper with
 the wrong number still passes the type checker; runtime checked multiplication
 and available-byte admission address a different defect. A timeout name alone
 cannot establish duration units; no timeout API is introduced unnecessarily.

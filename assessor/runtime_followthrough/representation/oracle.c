@@ -6,8 +6,8 @@ int main(void) {
   int32_t a, b, result;
   while (scanf("%u %u %" SCNd32 " %u %" SCNd32 " %u %u %" SCNd32, &op, &ta, &a,
                &tb, &b, &status, &tag, &result) == 8) {
-    RvValue out = {RV_REF, 7, 19};
-    int got = rv_arithmetic(op, (RvValue){ta, a, 0}, (RvValue){tb, b, 0}, &out);
+    struct rv_value out = {RV_REF, 7, 19};
+    int got = rv_arithmetic(op, (struct rv_value){ta, a, 0}, (struct rv_value){tb, b, 0}, &out);
     if (got != (int)status ||
         (got == RV_OK
              ? (out.tag != tag || out.payload != result || out.generation)

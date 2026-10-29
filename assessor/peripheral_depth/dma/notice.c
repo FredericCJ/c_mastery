@@ -2,8 +2,8 @@
 #ifndef PD_NOTICE_MUTANT
 #define PD_NOTICE_MUTANT 0
 #endif
-int pd_notice(PdNotice *s, unsigned op, uint32_t epoch, uint32_t sequence,
-              const PdNotice *message, PdNotice *out) {
+int pd_notice(struct pd_notice *s, unsigned op, uint32_t epoch, uint32_t sequence,
+              const struct pd_notice *message, struct pd_notice *out) {
   if (!s || op > PD_NOTICE_QUERY || !epoch || !sequence)
     return PD_INVALID;
   if (PD_NOTICE_MUTANT != 1 && epoch != s->epoch)

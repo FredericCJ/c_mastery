@@ -1,13 +1,13 @@
 #include "object_runtime_rc_concurrent.h"
 #include <stdlib.h>
-static void unlock(ORRConcurrent *h) { if(pthread_mutex_unlock(&h->mutex))abort(); }
-ORStatus orrc_init(ORRConcurrent *h) {
+static void unlock(struct orr_concurrent *h) { if(pthread_mutex_unlock(&h->mutex))abort(); }
+enum or_status orrc_init(struct orr_concurrent *h) {
   if(!h)return OR_INVALID;
   if(pthread_mutex_init(&h->mutex,NULL))return OR_FULL;
   orr_init(&h->heap);h->initialized=1;return OR_OK;
 }
-ORStatus orrc_call(ORRConcurrent *h,const ORRRequest *q,ORRResponse *out) {
-  ORRResponse r={0};ORStatus s;
+enum or_status orrc_call(struct orr_concurrent *h,const struct orr_request *q,struct orr_response *out) {
+  struct orr_response r={0};enum or_status s;
   if(!h || !q || !out || !h->initialized)return OR_INVALID;
   if(pthread_mutex_lock(&h->mutex))return OR_STATE;
   switch(q->operation) {
@@ -24,8 +24,8 @@ ORStatus orrc_call(ORRConcurrent *h,const ORRRequest *q,ORRResponse *out) {
   if(s==OR_OK || s==OR_DONE)*out=r;
   unlock(h);return s;
 }
-ORStatus orrc_close(ORRConcurrent *h) {
-  ORStatus s;
+enum or_status orrc_close(struct orr_concurrent *h) {
+  enum or_status s;
   if(!h || !h->initialized)return OR_INVALID;
   if(pthread_mutex_lock(&h->mutex))return OR_STATE;
   s=orr_close(&h->heap);unlock(h);if(s!=OR_OK)return s;

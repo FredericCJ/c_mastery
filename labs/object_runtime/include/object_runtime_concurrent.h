@@ -2,12 +2,12 @@
 #define CMASTERY_OBJECT_RUNTIME_CONCURRENT_H
 #include "object_runtime_marking.h"
 #include <pthread.h>
-typedef struct {
+struct orc_concurrent {
   pthread_mutex_t mutex;
-  ORCHeap heap;
+  struct orc_heap heap;
   int initialized;
-} ORCConcurrent;
-typedef enum {
+};
+enum orc_operation {
   ORC_ALLOCATE,
   ORC_RETAIN,
   ORC_RELEASE,
@@ -18,22 +18,22 @@ typedef enum {
   ORC_PREPARE,
   ORC_COMMIT,
   ORC_INSPECT
-} ORCOperation;
-typedef struct {
-  ORCOperation operation;
-  ORCHandle object, target, second;
+};
+struct orc_request {
+  enum orc_operation operation;
+  struct orc_handle object, target, second;
   unsigned field, budget;
-  ORCFinish finish;
-} ORCRequest;
-typedef struct {
-  ORCHandle object, edge[2];
-  ORCFinish finish;
+  struct orc_finish finish;
+};
+struct orc_response {
+  struct orc_handle object, edge[2];
+  struct orc_finish finish;
   unsigned scanned, work, invariant;
   uint16_t live, roots, dead;
   uint32_t revision;
-} ORCResponse;
-ORStatus orcm_concurrent_init(ORCConcurrent *, ORCPolicy);
-ORStatus orcm_concurrent_call(ORCConcurrent *, const ORCRequest *,
-                              ORCResponse *);
-ORStatus orcm_concurrent_close(ORCConcurrent *);
+};
+enum or_status orcm_concurrent_init(struct orc_concurrent *, enum orc_policy);
+enum or_status orcm_concurrent_call(struct orc_concurrent *, const struct orc_request *,
+                              struct orc_response *);
+enum or_status orcm_concurrent_close(struct orc_concurrent *);
 #endif

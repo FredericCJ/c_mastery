@@ -19,11 +19,11 @@
 #include <time.h>
 #include <unistd.h>
 
-typedef struct {uint64_t value;unsigned char padding[56];} Wide;
-typedef struct {
-    size_t n; uint64_t *values; Wide *wide; algo_pair *records;
+struct pf_wide {uint64_t value;unsigned char padding[56];};
+struct pf_work {
+    size_t n; uint64_t *values; struct pf_wide *wide; algo_pair *records;
     unsigned family,variant; uint64_t (*dispatch[2])(uint64_t);
-} Work;
+};
 static volatile uint64_t observable;
 static uint64_t clock_ns(void){
     struct timespec t;
@@ -32,7 +32,7 @@ static uint64_t clock_ns(void){
 }
 __attribute__((noinline)) static uint64_t operation0(uint64_t v){return v*33+17;}
 __attribute__((noinline)) static uint64_t operation1(uint64_t v){return v*33+19;}
-static uint64_t execute(Work *w,unsigned repetitions){
+static uint64_t execute(struct pf_work *w,unsigned repetitions){
     if(w->family==6)return pf_concurrency_work(w->n,w->variant,repetitions);
     if(w->family==7)return pf_service_work(w->n,w->variant,repetitions);
     uint64_t sum=0;
@@ -75,7 +75,7 @@ static uint64_t execute(Work *w,unsigned repetitions){
     }
     return sum;
 }
-static uint64_t oracle(const Work *w,unsigned repetitions){
+static uint64_t oracle(const struct pf_work *w,unsigned repetitions){
     uint64_t n=w->n,total=0;
     for(unsigned r=0;r<repetitions;++r){
         if(w->family==0){for(unsigned q=0;q<256;++q){uint64_t key=((uint64_t)q*2654435761u+r)%(2*n+1);total+=(key+1)/2;}}
@@ -89,7 +89,7 @@ static uint64_t oracle(const Work *w,unsigned repetitions){
     }
     return total;
 }
-static void emit_sample(void *unused,const PFSample *s){
+static void emit_sample(void *unused,const struct pf_sample *s){
     (void)unused;
     printf("{\"kind\":\"sample\",\"ip\":%"PRIu64",\"pid\":%u,\"tid\":%u,\"time\":%"PRIu64",\"period\":%"PRIu64"}\n",s->ip,s->pid,s->tid,s->time,s->period);
 }
@@ -107,7 +107,7 @@ static void mapping_identity(void){
     }
     fclose(maps);
 }
-static int sampled(Work *w,unsigned precision){
+static int sampled(struct pf_work *w,unsigned precision){
     struct perf_event_attr a={0};
     a.size=sizeof a;a.type=PERF_TYPE_HARDWARE;a.config=PERF_COUNT_HW_CPU_CYCLES;
     a.disabled=1;a.exclude_kernel=1;a.exclude_hv=1;a.sample_period=100000;
@@ -126,7 +126,7 @@ static int sampled(Work *w,unsigned precision){
     struct perf_event_mmap_page *meta=mapping;
     uint64_t offset=meta->data_offset,size=meta->data_size;
     int rc=0,error=0;
-    PFRingStats stats={0};uint64_t tail=0;
+    struct pf_ring_stats stats={0};uint64_t tail=0;
     if(offset>length||size>length-offset||!size||(size&(size-1)))rc=PF_RING_INVALID;
     if(!rc&&(ioctl(fd,PERF_EVENT_IOC_RESET,0)||ioctl(fd,PERF_EVENT_IOC_ENABLE,0))){rc=PF_RING_INVALID;error=errno;}
     /* Print only after disable: serialization is outside measured workload. */
@@ -151,7 +151,7 @@ static int sampled(Work *w,unsigned precision){
 int main(int argc,char **argv){
     const char *families[]={"search","layout","numeric","dispatch","allocation","sort","concurrency","service"};
     if(argc<5){fprintf(stderr,"usage: %s count|work|sample FAMILY N VARIANT [REPETITIONS]\n",argv[0]);return 2;}
-    Work w={0};for(;w.family<8&&strcmp(argv[2],families[w.family]);++w.family){}
+    struct pf_work w={0};for(;w.family<8&&strcmp(argv[2],families[w.family]);++w.family){}
     char *end;unsigned long n=strtoul(argv[3],&end,10);if(*end||!n||n>4194304||w.family==8)return 2;
     w.n=(size_t)n;w.variant=(unsigned)strtoul(argv[4],&end,10);if(*end||w.variant>1)return 2;
     unsigned repetitions=argc>5?(unsigned)strtoul(argv[5],&end,10):16;
@@ -178,14 +178,14 @@ int main(int argc,char **argv){
         rc=sampled(&w,precision);
     }
     else{
-        PFPmu group={0};PFPmuState state=PF_PMU_EMPTY;
+        struct pf_pmu group={0};enum pf_pmu_state state=PF_PMU_EMPTY;
         uint64_t brackets[31],overhead=0;struct timespec resolution;
         if(clock_getres(CLOCK_MONOTONIC_RAW,&resolution))return 2;
         uint64_t resolution_ns=(uint64_t)resolution.tv_sec*1000000000u+(uint64_t)resolution.tv_nsec;
         for(unsigned i=0;i<31;++i){uint64_t begin=clock_ns();brackets[i]=clock_ns()-begin;if(brackets[i]>overhead)overhead=brackets[i];}
         int count=!strcmp(argv[1],"count");
         if(!count&&strcmp(argv[1],"work"))return 2;
-        const PFPmuEvent events[]={{PERF_TYPE_HARDWARE,PERF_COUNT_HW_INSTRUCTIONS},{PERF_TYPE_HARDWARE,PERF_COUNT_HW_CPU_CYCLES}};
+        const struct pf_pmu_event events[]={{PERF_TYPE_HARDWARE,PERF_COUNT_HW_INSTRUCTIONS},{PERF_TYPE_HARDWARE,PERF_COUNT_HW_CPU_CYCLES}};
         if(count){state=pf_pmu_open(&group,pf_pmu_linux(),events,2);if(state==PF_PMU_READY)state=pf_pmu_start(&group);}
         else if(pf_perf_control(1)){perror("perf-control enable");return 2;}
         int before=sched_getcpu();uint64_t start=clock_ns(),checksum=execute(&w,repetitions),elapsed=clock_ns()-start;int after=sched_getcpu();

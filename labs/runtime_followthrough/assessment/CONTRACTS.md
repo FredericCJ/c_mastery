@@ -82,7 +82,7 @@ not bind resource semantics. Do not silently call H8 the baseline.
 The separate changed condition composes the actual `Vs` continuation with an
 asynchronous real file-backed store. Implement `async_store.h` in `learner.c`.
 `Va` is an immovable, single-owner control object containing a mutex, one joinable
-worker, copied `VsRequest` and `Vh` configuration, borrowed session/store pointers,
+worker, copied `struct vs_request` and `Vh` configuration, borrowed session/store pointers,
 result/status, and initialized/active/done/cancelled/joined state. Initialize only
 uninitialized storage; destroy before reuse. The owner serializes all public calls.
 The worker never reads or writes the session: it copies request/config before

@@ -1,7 +1,7 @@
 # From a deadline requirement to a measured representation
 
 An event loop needs to know which registration is due next. Begin with the
-existing `TdTimer` lifecycle and `td_earliest` scan. Its O(N) query is a useful
+existing `struct td_timer` lifecycle and `td_earliest` scan. Its O(N) query is a useful
 baseline: it has no additional index to keep consistent, and cancellation
 already distinguishes an armed registration from a borrowed callback.
 

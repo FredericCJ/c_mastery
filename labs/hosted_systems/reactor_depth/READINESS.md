@@ -7,7 +7,7 @@ The local examples below are original teaching programs, not production peers.
 
 ## T24.07.a — the readiness-to-read gap
 
-Implement `RdOperation` and a nonblocking adapter with the exact sequence:
+Implement `struct rd_operation` and a nonblocking adapter with the exact sequence:
 read-ready, read two octets, EAGAIN, read-ready, read one octet, EOF. The requested
 extent is three octets `[7,0,9]`. Maintain the cursor at two across would-block,
 publish completion only after the third octet, then record EOF separately.

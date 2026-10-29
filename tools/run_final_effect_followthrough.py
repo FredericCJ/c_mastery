@@ -85,7 +85,7 @@ def main():
             source = provider.read_text(encoding='utf8')
             changes = [
                 ('eval-failure-publication', 'if(s==HO_OK)*out=r;return s;', '*out=r;return s;'),
-                ('lambda-partial-publication', 'if(!s){HPFun f=', 'if(1){HPFun f='),
+                ('lambda-partial-publication', 'if(!s){struct hp_fun f=', 'if(1){struct hp_fun f='),
                 ('application-partial-publication', 'if(!s)*out=r;return s;\n}\nHPOps', '*out=r;return s;\n}\nHPOps')]
             for name, old, new in changes:
                 staged = build / f'{cc}-{name}.c'

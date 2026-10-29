@@ -2,15 +2,15 @@
 #define CMASTERY_DISPATCH_RESOLUTION_H
 #include "dispatch.h"
 enum {DS_AMBIGUOUS=10};
-typedef struct {DSCombine method;DSLoaded *module;} DSMethodLease;
-typedef struct {DSMethodLease entries[4][4];unsigned epoch;} DSResolution;
-typedef struct {const DSResolution *owner;unsigned epoch,left,right;int status;DSMethodLease lease;} DSResolutionEntry;
-typedef struct {DSResolutionEntry entries[2];unsigned next,hits,misses;} DSResolutionCache;
-void ds_resolution_init(DSResolution *);
-int ds_resolution_set(DSResolution *,unsigned,unsigned,DSCombine,DSLoaded *);
-void ds_resolution_clear(DSResolution *);
-int ds_resolution_uncached(const DSResolution *,unsigned,unsigned,int,int,int *);
-void ds_resolution_cache_init(DSResolutionCache *);
-void ds_resolution_cache_clear(DSResolutionCache *);
-int ds_resolution_call(const DSResolution *,DSResolutionCache *,unsigned,unsigned,int,int,int *);
+struct ds_method_lease {ds_combine_fn method;struct ds_loaded *module;};
+struct ds_resolution {struct ds_method_lease entries[4][4];unsigned epoch;};
+struct ds_resolution_entry {const struct ds_resolution *owner;unsigned epoch,left,right;int status;struct ds_method_lease lease;};
+struct ds_resolution_cache {struct ds_resolution_entry entries[2];unsigned next,hits,misses;};
+void ds_resolution_init(struct ds_resolution *);
+int ds_resolution_set(struct ds_resolution *,unsigned,unsigned,ds_combine_fn,struct ds_loaded *);
+void ds_resolution_clear(struct ds_resolution *);
+int ds_resolution_uncached(const struct ds_resolution *,unsigned,unsigned,int,int,int *);
+void ds_resolution_cache_init(struct ds_resolution_cache *);
+void ds_resolution_cache_clear(struct ds_resolution_cache *);
+int ds_resolution_call(const struct ds_resolution *,struct ds_resolution_cache *,unsigned,unsigned,int,int,int *);
 #endif

@@ -7,8 +7,8 @@
 extern uint32_t cl_stack_top, cl_data_start, cl_data_end, cl_data_load,
     cl_bss_start, cl_bss_end;
 static cmx_kernel kernel;
-static CDSem semaphore;
-static CDDeferred deferred;
+static struct cd_sem semaphore;
+static struct cd_deferred deferred;
 static volatile unsigned mode, interrupts, pend_calls, overflows, irq_number,
     pend_number;
 static void semihost(uint32_t op, const void *arg) {
@@ -46,7 +46,7 @@ static void basepri(unsigned value) {
 static void irq0(void) {
   irq_number = ipsr();
   CHECK(irq_number == 16);
-  CDPost out = {99, 98, 97, 96};
+  struct cd_post out = {99, 98, 97, 96};
   if (mode == 0) {
     CHECK(cds_irq_post(&semaphore, &out) == CMX_OK && out.woke &&
           out.defer_schedule);
@@ -96,7 +96,7 @@ static void exercise(void) {
   CHECK(cmx_task_add(&kernel, 5, 0, 0x20006400, 256) == 2);
   CHECK(cds_init(&semaphore, &kernel, 0, 2, 1) == CMX_OK &&
         cds_deferred_init(&deferred, 2) == CMX_OK);
-  CWToken one, two;
+  struct cw_token one, two;
   CHECK(cds_take(&semaphore, 1, cmx_forever(), &one) == CMX_BLOCKED);
   CHECK(cds_take(&semaphore, 2, cmx_forever(), &two) == CMX_BLOCKED);
   CHECK(cmx_schedule(&kernel) == 0);

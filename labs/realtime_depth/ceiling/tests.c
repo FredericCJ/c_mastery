@@ -26,8 +26,8 @@ static int sc_target_compare(const void *a, const void *b, size_t n) {
     }                                                                          \
   } while (0)
 #endif
-static SCConfig config(unsigned strict) {
-  SCConfig c = {0};
+static struct sc_config config(unsigned strict) {
+  struct sc_config c = {0};
   c.tasks = 4;
   c.resources = 2;
   c.priority[0] = 2;
@@ -42,8 +42,8 @@ static SCConfig config(unsigned strict) {
   return c;
 }
 static int table(void) {
-  SCConfig c = config(0);
-  SCWorld w;
+  struct sc_config c = config(0);
+  struct sc_world w;
   CHECK(sc_init(&w, &c, SC_IMMEDIATE) == CMX_OK && sc_invariant(&w));
   CHECK(sc_lock(&w, 2, 0, cmx_forever(), SC_TASK_CONTEXT) == CMX_OK &&
         w.kernel.task[2].priority == 2);
@@ -57,7 +57,7 @@ static int table(void) {
         w.mutex[0].owner == CMX_NONE);
   CHECK(sc_lock(&w, 1, 0, cmx_forever(), SC_TASK_CONTEXT) == CMX_INVALID);
   CHECK(sc_lock(&w, 2, 0, cmx_forever(), SC_INTERRUPT_CONTEXT) == CMX_INVALID);
-  SCWorld before = w;
+  struct sc_world before = w;
   c.ceiling[0] = 5;
   CHECK(sc_init(&w, &c, SC_IMMEDIATE) == CMX_INVALID &&
         memcmp(&w, &before, sizeof w) == 0);
@@ -72,8 +72,8 @@ static int table(void) {
 }
 static int nested(void) {
   for (unsigned mode = 0; mode < 2; mode++) {
-    SCConfig c = config(1);
-    SCWorld w;
+    struct sc_config c = config(1);
+    struct sc_world w;
     CHECK(sc_init(&w, &c, (enum sc_mode)mode) == CMX_OK);
     CHECK(sc_lock(&w, 2, 0, cmx_forever(), SC_TASK_CONTEXT) == CMX_OK);
     CHECK(sc_lock(&w, 2, 1, cmx_forever(), SC_TASK_CONTEXT) == CMX_OK);
@@ -95,8 +95,8 @@ static int nested(void) {
   return 0;
 }
 static int admission(void) {
-  SCConfig c = config(1);
-  SCWorld w;
+  struct sc_config c = config(1);
+  struct sc_world w;
   CHECK(sc_init(&w, &c, SC_IMMEDIATE) == CMX_OK);
   CHECK(sc_lock(&w, 2, 1, cmx_forever(), SC_TASK_CONTEXT) == CMX_OK);
   CHECK(sc_lock(&w, 2, 0, cmx_forever(), SC_TASK_CONTEXT) == CMX_DEADLOCK);
@@ -119,8 +119,8 @@ static int admission(void) {
 }
 static int workloads(void) {
   for (unsigned mode = 0; mode < 3; mode++) {
-    SCConfig c = config(1);
-    SCWorld w;
+    struct sc_config c = config(1);
+    struct sc_world w;
     CHECK(sc_init(&w, &c, mode == 2 ? SC_IMMEDIATE : SC_INHERITANCE) == CMX_OK);
     unsigned remaining[] = {1, 3, 4}, release[] = {1, 2, 0}, finish[3] = {0},
              first[3] = {99, 99, 99}, trace[8], blocked = 0, boosted = 0;
@@ -211,8 +211,8 @@ static int stream(void) {
   while (scanf("%u%u%u", &mode, &strict, &length) == 3) {
     if (length > 64)
       return 2;
-    SCConfig c = config(strict);
-    SCWorld w;
+    struct sc_config c = config(strict);
+    struct sc_world w;
     enum cmx_result init = sc_init(&w, &c, (enum sc_mode)mode);
     if (init != CMX_OK)
       return 2;

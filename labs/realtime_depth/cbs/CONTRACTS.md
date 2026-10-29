@@ -46,7 +46,7 @@ behavior remain distinct from ISO C semantics and mathematical EDF assumptions.
 ## 5. Problem, inputs, outputs and operations
 
 Implement `cbs.h` using unsolved `cbs.c`. Storage and pointer arguments are
-live, disjoint and externally serialized. `CBBudget` contains the actual
+live, disjoint and externally serialized. `struct cb_budget` contains the actual
 retained `cmx_cbs`, separate queued/throttled state, last observation and
 relative deadline. Caller mutation and reinitialization of a live object are
 forbidden. Choose one explicit policy:

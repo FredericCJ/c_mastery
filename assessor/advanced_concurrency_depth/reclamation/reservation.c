@@ -3,7 +3,7 @@ enum { FREE, RESERVED, REQUESTED, PUBLISHED, CANCELLED, CONSUMING };
 static unsigned tag(unsigned ticket, unsigned state) {
   return ((ticket + 1u) << 3) | state;
 }
-void ar_init(ARQueue *q, APHook hook, void *context) {
+void ar_init(struct ar_queue *q, ap_hook_fn hook, void *context) {
   atomic_init(&q->head, 0);
   atomic_init(&q->tail, 0);
   for (unsigned i = 0; i < AR_CAPACITY; i++) {
@@ -13,7 +13,7 @@ void ar_init(ARQueue *q, APHook hook, void *context) {
   q->hook = hook;
   q->context = context;
 }
-int ar_reserve(ARQueue *q, ARTicket *out) {
+int ar_reserve(struct ar_queue *q, struct ar_ticket *out) {
   if (!q || !out)
     return AR_INVALID;
   unsigned head = atomic_load(&q->head);
@@ -35,15 +35,15 @@ int ar_reserve(ARQueue *q, ARTicket *out) {
     }
   }
 }
-static int valid(ARQueue *q, ARTicket t) {
+static int valid(struct ar_queue *q, struct ar_ticket t) {
   return q && t.owner == q && t.sequence < AR_LIMIT &&
          t.sequence >= atomic_load(&q->tail) &&
          t.sequence < atomic_load(&q->head);
 }
-int ar_cancel(ARQueue *q, ARTicket t) {
+int ar_cancel(struct ar_queue *q, struct ar_ticket t) {
   if (!valid(q, t))
     return AR_INVALID;
-  ARCell *cell = &q->cells[t.sequence % AR_CAPACITY];
+  struct ar_cell *cell = &q->cells[t.sequence % AR_CAPACITY];
   unsigned expected = tag(t.sequence, RESERVED);
 #ifdef AR_MUTANT_CANCEL
   unsigned desired = tag(t.sequence, CANCELLED);
@@ -60,10 +60,10 @@ int ar_cancel(ARQueue *q, ARTicket t) {
     return AR_TOO_LATE;
   return AR_INVALID;
 }
-int ar_finish(ARQueue *q, ARTicket t, APValue v) {
+int ar_finish(struct ar_queue *q, struct ar_ticket t, struct ap_value v) {
   if (!valid(q, t))
     return AR_INVALID;
-  ARCell *cell = &q->cells[t.sequence % AR_CAPACITY];
+  struct ar_cell *cell = &q->cells[t.sequence % AR_CAPACITY];
   unsigned old = atomic_load(&cell->state);
   if (old != tag(t.sequence, RESERVED) && old != tag(t.sequence, REQUESTED))
     return AR_INVALID;
@@ -81,13 +81,13 @@ int ar_finish(ARQueue *q, ARTicket t, APValue v) {
   }
   return AR_INVALID;
 }
-int ar_pop(ARQueue *q, APValue *out) {
+int ar_pop(struct ar_queue *q, struct ap_value *out) {
   if (!q || !out)
     return AR_INVALID;
   unsigned tail = atomic_load(&q->tail);
   if (tail == atomic_load(&q->head))
     return AR_EMPTY;
-  ARCell *cell = &q->cells[tail % AR_CAPACITY];
+  struct ar_cell *cell = &q->cells[tail % AR_CAPACITY];
   unsigned old = atomic_load(&cell->state);
   int cancelled = old == tag(tail, CANCELLED);
   if (!cancelled && old != tag(tail, PUBLISHED)) {
@@ -99,7 +99,7 @@ int ar_pop(ARQueue *q, APValue *out) {
   }
   if (!atomic_compare_exchange_strong(&cell->state, &old, tag(tail, CONSUMING)))
     return AR_PENDING;
-  APValue v = {0, 0};
+  struct ap_value v = {0, 0};
   if (!cancelled) {
     v.sequence = cell->value.sequence;
     v.inverse = cell->value.inverse;

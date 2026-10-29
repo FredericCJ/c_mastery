@@ -19,13 +19,13 @@ static uint64_t ns(void) { struct timespec t; if(clock_gettime(CLOCK_MONOTONIC,&
 #define REQUIRE(c) do{if(!(c))return 1;}while(0)
 int main(void) {
  unsigned policy,trial,round;
- const ORCHandle nil={0,0};
- printf("LAYOUT %zu %zu %zu %zu %zu\n",sizeof(ORCHeap),_Alignof(ORCHeap),sizeof(ORCHandle),sizeof(ORCFinish),sizeof(ORCConcurrent));
+ const struct orc_handle nil={0,0};
+ printf("LAYOUT %zu %zu %zu %zu %zu\n",sizeof(struct orc_heap),_Alignof(struct orc_heap),sizeof(struct orc_handle),sizeof(struct orc_finish),sizeof(struct orc_concurrent));
  for(policy=0;policy<3;policy++)for(trial=0;trial<16;trial++) {
   uint64_t start=ns(),end,total=0;unsigned scans=0,restarts=0;
   for(round=0;round<PROBE_ROUNDS;round++) {
-   ORCHeap h;ORCHandle a,b,n;ORCFinish token;unsigned done;uint16_t dead;ORStatus status;
-   orcm_init(&h,(ORCPolicy)policy);
+   struct orc_heap h;struct orc_handle a,b,n;struct orc_finish token;unsigned done;uint16_t dead;enum or_status status;
+   orcm_init(&h,(enum orc_policy)policy);
    REQUIRE(orcm_allocate(&h,nil,nil,&a)==OR_OK && orcm_allocate(&h,nil,nil,&b)==OR_OK);
    REQUIRE(orcm_release(&h,b)==OR_OK && orcm_begin(&h)==OR_OK);
    REQUIRE(orcm_step(&h,1,&done)==OR_DONE && done==1);

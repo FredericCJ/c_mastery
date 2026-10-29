@@ -2,12 +2,12 @@
 #include <stdio.h>
 #include <string.h>
 #define CHECK(x) do{if(!(x)){fprintf(stderr,"SW_CHECK:%s:%d\n",#x,__LINE__);return 1;}}while(0)
-typedef struct {SwWorld *world;unsigned rings,acks,early,fail;unsigned level[4];} Port;
-static int ring(void *p,unsigned c){Port *x=p;x->rings++;if(!atomic_load_explicit(&x->world->work[c],memory_order_acquire))x->early++;if(x->fail)return 0;x->level[c]=1;return 1;}
-static void ack(void *p,unsigned c){Port *x=p;x->acks++;x->level[c]=0;}
+struct sa_port {struct sw_world *world;unsigned rings,acks,early,fail;unsigned level[4];};
+static int ring(void *p,unsigned c){struct sa_port *x=p;x->rings++;if(!atomic_load_explicit(&x->world->work[c],memory_order_acquire))x->early++;if(x->fail)return 0;x->level[c]=1;return 1;}
+static void ack(void *p,unsigned c){struct sa_port *x=p;x->acks++;x->level[c]=0;}
 int main(void){
- SwWorld w;Port p={.world=&w};SlStats stats={0};SqHandle ids[4],run;SqEvent event={0},old;SqTransfer ticket;
- CHECK(sw_init(&w,2,4,(SwPort){ring,ack,&p})==SQ_OK);
+ struct sw_world w;struct sa_port p={.world=&w};struct sl_stats stats={0};struct sq_handle ids[4],run;struct sq_event event={0},old;struct sq_transfer ticket;
+ CHECK(sw_init(&w,2,4,(struct sw_port){ring,ack,&p})==SQ_OK);
  for(unsigned i=0;i<4;i++)CHECK(sw_create(&w,0,1,i,&ids[i],&event)==SQ_OK);
  for(unsigned i=0;i<4;i++){CHECK(sw_dispatch(&w,1,&run,&event,&stats)==SQ_OK);CHECK(sw_finish(&w,1,run,SQ_BLOCKED,&event,&stats)==SQ_OK);}
  CHECK(sw_prepare_idle(&w,1,0,&stats)==SQ_INVALID&&sw_prepare_idle(&w,1,1,&stats)==SQ_IDLE&&p.level[1]==0);

@@ -36,7 +36,7 @@ static ptrdiff_t file_write(void *v, const uint8_t *p, size_t n) {
 }
 static int file_close(void *v) { return fclose(v); }
 static int file_flush(void *v) { return fflush(v); }
-static enum li_status copy(struct li_copy *c, LIRead r, void *rc, FWriter w,
+static enum li_status copy(struct li_copy *c, LIRead r, void *rc, f_writer_fn w,
                            void *wc) {
   enum li_status s = LI_PENDING;
   for (unsigned i = 0; i < 64 && s == LI_PENDING; ++i)

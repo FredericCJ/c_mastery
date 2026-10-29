@@ -17,5 +17,5 @@ static int migrate(unsigned previous, int state, int *out) {
   *out = PLUGIN_SCHEMA == 2 ? state * 2 : state;
   return DS_OK;
 }
-const DSPlugin dispatch_plugin = {PLUGIN_ABI, sizeof(DSPlugin), PLUGIN_SCHEMA,
+const struct ds_plugin dispatch_plugin = {PLUGIN_ABI, sizeof(struct ds_plugin), PLUGIN_SCHEMA,
                                   apply, migrate};

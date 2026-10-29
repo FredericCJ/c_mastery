@@ -2,7 +2,7 @@
 import json
 from common import ROOT,dump,sha
 BASE='research/v5/expansion/b02_followthrough';PUBLIC='labs/b02_followthrough/region';BRIEF='curriculum/v5/exercises/X-T16-003.md'
-LOCATORS=['Original objectives and admission','Actual MBRegion and typed batches','Child cohorts and nonzero slices','Fixed versus growing chunks','Fallible cleanup composition','Language comparison and enforcement','Costs and evidence','Verification, rubric and transfer']
+LOCATORS=['Original objectives and admission','Actual struct mb_region and typed batches','Child cohorts and nonzero slices','Fixed versus growing chunks','Fallible cleanup composition','Language comparison and enforcement','Costs and evidence','Verification, rubric and transfer']
 def main():
  path=PUBLIC+'/CONTRACTS.md'
  record=dict(id='R-B02-FOLLOW-REGION',title='Region cohorts and changed allocation assumptions',url=path,authors=['Curriculum authors'],edition='Original repository contract; inspected 2026-10-18',year=2026,kind='manual',access='Passage inspected',domains=['T16'],role='primary',reason='Concrete typed batches, shifted slices, child cohorts, fallible cleanup and fixed/growing ownership contracts.',prerequisites=['PR-T16-01','X-T16-003'],assignable=True,locators=LOCATORS,inspection=dict(date='2026-10-18',method='Read full new core, tests, independent oracle and contract; actual MB region and prior arena implementations; bounded primary C++ draft and bumpalo passages',scope='; '.join(LOCATORS),limits='Exact bounded byte and typed cohorts; no full source-library conformance, published C17/C23 access or physical claim.',local_sha256=sha(ROOT/path)))
@@ -16,6 +16,6 @@ def main():
  d['status']['required_followthrough']=dict(contract=path,readiness=BASE+'/region_readiness.json',report=BASE+'/region_validation.json',target_report=BASE+'/region_target_validation.json',export_report=BASE+'/region_export_validation.json',scope='Exact root/R1-R5, all criterion level3 variants, child-cohort immediate and fallible-cleanup delayed variant; author support only.')
  marker='\n## Required region-cohort follow-through\n'
  if marker in tail:tail=tail.split(marker,1)[0]
- tail+=marker+'\nComplete the supplied [typed cohorts, changed allocation assumptions and retained cleanup contract](../../../labs/b02_followthrough/region/CONTRACTS.md), including its explicit companion build and actual MBRegion, B02 and prior arena provider snapshots. Original rubric and changed-condition tasks remain required; separate assessor implementations and author campaigns are not learner assessment.\n'
+ tail+=marker+'\nComplete the supplied [typed cohorts, changed allocation assumptions and retained cleanup contract](../../../labs/b02_followthrough/region/CONTRACTS.md), including its explicit companion build and actual struct mb_region, B02 and prior arena provider snapshots. Original rubric and changed-condition tasks remain required; separate assessor implementations and author campaigns are not learner assessment.\n'
  p.write_text(head+'```json\n'+json.dumps(d,ensure_ascii=False,indent=2)+'\n```'+tail,encoding='utf8');print(dict(attached='X-T16-003',assets=len(assets)))
 if __name__=='__main__':main()

@@ -1,6 +1,6 @@
 #include "loader.h"
 #include <dlfcn.h>
-int oc_function_lookup(OcModule *m,int *out)
+int oc_function_lookup(struct oc_module *m,int *out)
 {
     void *symbol;int (*function)(int);int value;
     if(!m || !m->handle || !m->table || !out)return OC_LOAD_BAD;

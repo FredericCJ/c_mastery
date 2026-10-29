@@ -9,16 +9,16 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
+struct cm_sink {
   char text[1024];
   size_t used, limit;
   unsigned fail;
-} Sink;
-static int equal(const CmModel *a, const CmModel *b) {
+};
+static int equal(const struct cm_model *a, const struct cm_model *b) {
   if (a->revision != b->revision)
     return 0;
   for (unsigned i = 0; i < CM_NODES; ++i) {
-    const CmNode *x = &a->nodes[i], *y = &b->nodes[i];
+    const struct cm_node *x = &a->nodes[i], *y = &b->nodes[i];
     if (x->kind != y->kind || x->a != y->a || x->b != y->b || x->w0 != y->w0 ||
         x->w1 != y->w1 || x->bias != y->bias || x->value != y->value)
       return 0;
@@ -31,7 +31,7 @@ static size_t invalid_writer(void *context, const char *s, size_t n) {
   return n + 1;
 }
 static size_t write_part(void *context, const char *s, size_t n) {
-  Sink *b = context;
+  struct cm_sink *b = context;
   if (b->fail) {
     --b->fail;
     return 0;
@@ -44,7 +44,7 @@ static size_t write_part(void *context, const char *s, size_t n) {
   b->used += n;
   return n;
 }
-static int drain(CmSession *s, Sink *sink) {
+static int drain(struct cm_session *s, struct cm_sink *sink) {
   for (unsigned i = 0; i < 128; ++i) {
     int rc = cm_drain(s, write_part, sink);
     if (rc == CM_OK)
@@ -55,7 +55,7 @@ static int drain(CmSession *s, Sink *sink) {
   return 1;
 }
 int main(void) {
-  CmModel m, n, before;
+  struct cm_model m, n, before;
   cm_init(&m);
   cm_init(&n);
   CHECK(cm_valid(&m) == CM_OK);
@@ -69,13 +69,13 @@ int main(void) {
   CHECK(cm_eval(&m, (const unsigned char *)"$0^2+2^3^2", 10, &out) == CM_OK &&
         out == 521);
   memcpy(&before, &m, sizeof before);
-  CmEdit cycle = {0, CM_LINEAR, 2, 1, 1, 1, 0};
+  struct cm_edit cycle = {0, CM_LINEAR, 2, 1, 1, 1, 0};
   CHECK(cm_apply(&m, &cycle, 1) == CM_CYCLE &&
         memcmp(&m, &before, sizeof m) == 0);
-  CmEdit missing = {3, CM_LINEAR, 0, 15, 1, 1, 0};
+  struct cm_edit missing = {3, CM_LINEAR, 0, 15, 1, 1, 0};
   CHECK(cm_apply(&m, &missing, 1) == CM_MISSING &&
         memcmp(&m, &before, sizeof m) == 0);
-  CmEdit huge = {0, CM_INPUT, 0, 0, 0, 0, INT32_MAX};
+  struct cm_edit huge = {0, CM_INPUT, 0, 0, 0, 0, INT32_MAX};
   CHECK(cm_apply(&m, &huge, 1) == CM_RANGE &&
         memcmp(&m, &before, sizeof m) == 0);
   CHECK(cm_load(&m, (const unsigned char *)"I,0,2,extra", 11, 1) == CM_SYNTAX &&
@@ -87,9 +87,9 @@ int main(void) {
   CHECK(cm_get(&m, 15, &out) == CM_MISSING && out == 99);
   CHECK(cm_eval(&m, (const unsigned char *)"$15", 3, &out) == CM_MISSING &&
         out == 99);
-  CmModel minimum;
+  struct cm_model minimum;
   cm_init(&minimum);
-  CmEdit low = {0, CM_INPUT, 0, 0, 0, 0, INT32_MIN};
+  struct cm_edit low = {0, CM_INPUT, 0, 0, 0, 0, INT32_MIN};
   CHECK(cm_apply(&minimum, &low, 1) == CM_OK);
   CHECK(cm_eval(&minimum, (const unsigned char *)"$0", 2, &out) == CM_OK &&
         out == INT32_MIN);
@@ -100,9 +100,9 @@ int main(void) {
   memcpy(&before, &minimum, sizeof before);
   CHECK(cm_apply(&minimum, &low, 1) == CM_RANGE &&
         memcmp(&minimum, &before, sizeof before) == 0);
-  CmSession s;
+  struct cm_session s;
   cm_session_init(&s);
-  Sink sink = {{0}, 0, 1, 0};
+  struct cm_sink sink = {{0}, 0, 1, 0};
   size_t used = 99;
   CHECK(cm_feed(&s, (const unsigned char *)"input 0 -3\nget 0\n", 17, &used) ==
             CM_OK &&
@@ -138,7 +138,7 @@ int main(void) {
   CHECK(drain(&s, &sink) == 0);
   CHECK(cm_feed(&s, (const unsigned char *)"x", 1, &used) == CM_CLOSED &&
         used == 0);
-  CmSession longline;
+  struct cm_session longline;
   cm_session_init(&longline);
   unsigned char longtext[258];
   memset(longtext, 'x', 257);

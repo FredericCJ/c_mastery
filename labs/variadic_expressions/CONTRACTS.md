@@ -57,7 +57,7 @@ Concatenate `I=<decimal>;` and `D=<fixed two decimal places>;` using the C local
 For example, one `I` value 3 needs four text bytes and one trailing NUL. No spaces
 or separators beyond those shown are added. `required` excludes the NUL.
 
-`tf_array` takes the same logical values in `TfArg` records and checks
+`tf_array` takes the same logical values in `struct tf_arg` records and checks
 `count <= available` before accessing them. The record has separate integer and
 real fields; it does not pretend to validate an active union member. Count zero
 permits a NULL array. A nonempty array must designate at least `available` live

@@ -5,18 +5,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 enum { ROUNDS=500 };
-typedef struct {pthread_mutex_t mutex;pthread_cond_t condition;unsigned level,rings,acks;} Level;
-static Level line={PTHREAD_MUTEX_INITIALIZER,PTHREAD_COND_INITIALIZER,0,0,0};
-static SwWorld world;
-static SqHandle ids[4];
+struct sa_level {pthread_mutex_t mutex;pthread_cond_t condition;unsigned level,rings,acks;};
+static struct sa_level line={PTHREAD_MUTEX_INITIALIZER,PTHREAD_COND_INITIALIZER,0,0,0};
+static struct sw_world world;
+static struct sq_handle ids[4];
 static atomic_uint complete,failed;
-static SlStats producer_stats,consumer_stats;
+static struct sl_stats producer_stats,consumer_stats;
 static unsigned delivered,sum;
 static int ring(void *unused,unsigned cpu){(void)unused;if(cpu!=1)abort();if(pthread_mutex_lock(&line.mutex))abort();line.level=1;line.rings++;if(pthread_cond_signal(&line.condition)||pthread_mutex_unlock(&line.mutex))abort();return 1;}
 static void ack(void *unused,unsigned cpu){(void)unused;if(cpu!=1)abort();if(pthread_mutex_lock(&line.mutex))abort();line.level=0;line.acks++;if(pthread_mutex_unlock(&line.mutex))abort();}
 static void wait_level(void){if(pthread_mutex_lock(&line.mutex))abort();while(!line.level)if(pthread_cond_wait(&line.condition,&line.mutex))abort();if(pthread_mutex_unlock(&line.mutex))abort();}
 static void *producer(void *unused){
- (void)unused;SqEvent event;
+ (void)unused;struct sq_event event;
  for(unsigned r=0;r<ROUNDS;r++){
   while(atomic_load_explicit(&complete,memory_order_acquire)!=r&&!atomic_load(&failed))sched_yield();
   if(atomic_load(&failed))return NULL;
@@ -25,7 +25,7 @@ static void *producer(void *unused){
  return NULL;
 }
 static void *consumer(void *unused){
- (void)unused;SqEvent event;SqHandle id;
+ (void)unused;struct sq_event event;struct sq_handle id;
  for(unsigned r=0;r<ROUNDS;r++){
   unsigned seen=0;
   while(seen!=15){
@@ -40,8 +40,8 @@ static void *consumer(void *unused){
  return NULL;
 }
 int main(void){
- SqEvent e;SqHandle id;
- if(sw_init(&world,2,4,(SwPort){ring,ack,NULL})!=SQ_OK)return 1;
+ struct sq_event e;struct sq_handle id;
+ if(sw_init(&world,2,4,(struct sw_port){ring,ack,NULL})!=SQ_OK)return 1;
  for(unsigned i=0;i<4;i++)if(sw_create(&world,0,1,i,&ids[i],&e)!=SQ_OK)return 2;
  for(unsigned i=0;i<4;i++)if(sw_dispatch(&world,1,&id,&e,&consumer_stats)!=SQ_OK||sw_finish(&world,1,id,SQ_BLOCKED,&e,&consumer_stats)!=SQ_OK)return 3;
  if(sw_prepare_idle(&world,1,1,&consumer_stats)!=SQ_IDLE)return 4;

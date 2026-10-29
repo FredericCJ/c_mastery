@@ -70,7 +70,7 @@ oracles are not target dependencies.
 
 ## T46.10.c: a failed reply is not a failed effect
 
-Use the supplied original `VhMedium`, which owns stable and pending67-page images.
+Use the supplied original `struct vh_medium`, which owns stable and pending67-page images.
 A write stages a full page; a successful flush persists all pending pages in reverse
 page order. A selected write/flush event returns failure and either loses pending
 writes at restart or persists all of them before losing its reply. The model is

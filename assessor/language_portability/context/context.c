@@ -4,11 +4,11 @@ _Static_assert(CHAR_BIT==8,"octet profile");
 #ifndef LC_MUTANT
 #define LC_MUTANT 0
 #endif
-void lc_utf_init(LcUtf*s){*s=(LcUtf){0,0,0,0,0};}
-int lc_utf_feed(LcUtf*s,const unsigned char*p,size_t n){
+void lc_utf_init(struct lc_utf*s){*s=(struct lc_utf){0,0,0,0,0};}
+int lc_utf_feed(struct lc_utf*s,const unsigned char*p,size_t n){
  if(!s||(n&&!p))return LC_INVALID;
  if(n>64-s->bytes)return LC_RANGE;
- LcUtf next=*s;
+ struct lc_utf next=*s;
  if(LC_MUTANT==2)next.remaining=0;
  for(size_t i=0;i<n;++i){unsigned c=p[i];
   if(!next.remaining){
@@ -33,9 +33,9 @@ int lc_utf_feed(LcUtf*s,const unsigned char*p,size_t n){
  if(LC_MUTANT==4)next.scalars=next.bytes;
  *s=next;return LC_OK;
 }
-int lc_utf_finish(const LcUtf*s,size_t*out){if(!s||!out)return LC_INVALID;if(s->remaining)return LC_INCOMPLETE;*out=s->scalars;return LC_OK;}
-void lc_locale_init(LcLocale*s){*s=(LcLocale){0};}
-int lc_locale_one(LcLocale*s,const char*p,size_t n,wchar_t*out,size_t*used){
+int lc_utf_finish(const struct lc_utf*s,size_t*out){if(!s||!out)return LC_INVALID;if(s->remaining)return LC_INCOMPLETE;*out=s->scalars;return LC_OK;}
+void lc_locale_init(struct lc_locale*s){*s=(struct lc_locale){0};}
+int lc_locale_one(struct lc_locale*s,const char*p,size_t n,wchar_t*out,size_t*used){
  if(!s||!p||!out||!used)return LC_INVALID;
  if(s->poisoned)return LC_POISONED;
  if(LC_MUTANT==3)s->state=(mbstate_t){0};

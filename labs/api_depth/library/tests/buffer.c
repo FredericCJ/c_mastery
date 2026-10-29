@@ -4,7 +4,7 @@
 int main(void) {
   for (size_t cap = 0; cap <= 8; cap++)
     for (size_t n = 0; n <= 9; n++) {
-      LCBuffer *p = lc_create(cap);
+      struct lc_buffer *p = lc_create(cap);
       CHECK(p);
       unsigned char in[10] = {1, 0, 3, 4, 5, 6, 7, 8, 9, 10}, out[20];
       memset(out, 99, sizeof out);
@@ -27,15 +27,15 @@ int main(void) {
       CHECK(lc_append(p, NULL, 1) == LC_INVALID || got == cap);
       lc_release_buffer(p);
     }
-  LCBytes needed = {77};
-  CHECK(lc_extent((LCElements){3}, 4, (LCBytes){12}, &needed) == LC_OK &&
+  struct lc_bytes needed = {77};
+  CHECK(lc_extent((struct lc_elements){3}, 4, (struct lc_bytes){12}, &needed) == LC_OK &&
         needed.value == 12);
-  CHECK(lc_extent((LCElements){SIZE_MAX}, 2, (LCBytes){SIZE_MAX}, &needed) ==
+  CHECK(lc_extent((struct lc_elements){SIZE_MAX}, 2, (struct lc_bytes){SIZE_MAX}, &needed) ==
             LC_FULL &&
         needed.value == 12);
-  CHECK(lc_extent((LCElements){4}, 4, (LCBytes){12}, &needed) == LC_FULL &&
+  CHECK(lc_extent((struct lc_elements){4}, 4, (struct lc_bytes){12}, &needed) == LC_FULL &&
         needed.value == 12);
-  CHECK(lc_extent((LCElements){0}, 0, (LCBytes){12}, &needed) == LC_INVALID);
+  CHECK(lc_extent((struct lc_elements){0}, 0, (struct lc_bytes){12}, &needed) == LC_INVALID);
   puts("LC_BUFFER snapshots, embedded-zero, unit wrappers passed");
   return 0;
 }

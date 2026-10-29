@@ -1,6 +1,6 @@
 #include "fractional.h"
 
-static int valid(const RzfBucket *b) {
+static int valid(const struct rzf_bucket *b) {
     return b && b->capacity && b->capacity <= UINT32_MAX &&
         b->numerator && b->numerator <= UINT16_MAX &&
         b->denominator && b->denominator <= UINT16_MAX &&
@@ -8,15 +8,15 @@ static int valid(const RzfBucket *b) {
         (b->tokens != b->capacity || b->remainder == 0);
 }
 
-int rzf_bucket_init(RzfBucket *out, uint64_t capacity, uint64_t p,
+int rzf_bucket_init(struct rzf_bucket *out, uint64_t capacity, uint64_t p,
                     uint64_t q, uint64_t now) {
-    RzfBucket b = {capacity, p, q, capacity, 0, now};
+    struct rzf_bucket b = {capacity, p, q, capacity, 0, now};
     if (!out || !valid(&b)) return RZ_INVALID;
     *out = b;
     return RZ_OK;
 }
 
-static void refill(RzfBucket *b, uint64_t now) {
+static void refill(struct rzf_bucket *b, uint64_t now) {
     uint64_t elapsed = now - b->last;
     uint64_t needed = (b->capacity - b->tokens) * b->denominator - b->remainder;
     uint64_t saturation = needed / b->numerator + (needed % b->numerator != 0);
@@ -35,7 +35,7 @@ static void refill(RzfBucket *b, uint64_t now) {
     b->last = now;
 }
 
-int rzf_bucket_consume(RzfBucket *b, uint64_t now, uint64_t cost) {
+int rzf_bucket_consume(struct rzf_bucket *b, uint64_t now, uint64_t cost) {
     if (!valid(b)) return RZ_INVALID;
     if (now < b->last || cost > b->capacity) return RZ_RANGE;
     refill(b, now);
@@ -44,11 +44,11 @@ int rzf_bucket_consume(RzfBucket *b, uint64_t now, uint64_t cost) {
     return RZ_OK;
 }
 
-int rzf_bucket_pair(RzfBucket *average, RzfBucket *peak, uint64_t now, uint64_t cost) {
+int rzf_bucket_pair(struct rzf_bucket *average, struct rzf_bucket *peak, uint64_t now, uint64_t cost) {
     if (average == peak || !valid(average) || !valid(peak)) return RZ_INVALID;
     if (now < average->last || now < peak->last ||
         cost > average->capacity || cost > peak->capacity) return RZ_RANGE;
-    RzfBucket a = *average, p = *peak;
+    struct rzf_bucket a = *average, p = *peak;
     refill(&a, now);
     refill(&p, now);
     int status = cost <= a.tokens && cost <= p.tokens ? RZ_OK : RZ_DENIED;
@@ -61,21 +61,21 @@ int rzf_bucket_pair(RzfBucket *average, RzfBucket *peak, uint64_t now, uint64_t 
     return status;
 }
 
-int rzf_credit_export(const RzfBucket *b, uint64_t now, RzfCredit *out) {
+int rzf_credit_export(const struct rzf_bucket *b, uint64_t now, struct rzf_credit *out) {
     if (!out || !valid(b)) return RZ_INVALID;
     if (now < b->last) return RZ_RANGE;
-    RzfBucket copy = *b;
+    struct rzf_bucket copy = *b;
     refill(&copy, now);
-    *out = (RzfCredit){copy.capacity, copy.numerator, copy.denominator,
+    *out = (struct rzf_credit){copy.capacity, copy.numerator, copy.denominator,
                        copy.tokens, copy.remainder};
     return RZ_OK;
 }
 
-int rzf_credit_import(const RzfCredit *credit, uint64_t now, uint64_t downtime,
-                      RzfDowntime policy, RzfBucket *out) {
+int rzf_credit_import(const struct rzf_credit *credit, uint64_t now, uint64_t downtime,
+                      enum rzf_downtime policy, struct rzf_bucket *out) {
     if (!credit || !out || (policy != RZF_FREEZE_DOWNTIME && policy != RZF_REFILL_DOWNTIME))
         return RZ_INVALID;
-    RzfBucket b = {credit->capacity, credit->numerator, credit->denominator,
+    struct rzf_bucket b = {credit->capacity, credit->numerator, credit->denominator,
                     credit->tokens, credit->remainder, 0};
     if (!valid(&b)) return RZ_INVALID;
     if (policy == RZF_REFILL_DOWNTIME) refill(&b, downtime);

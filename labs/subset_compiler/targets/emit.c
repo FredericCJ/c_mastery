@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 int main(int argc,char **argv) {
- CCIns ir[128];size_t n=0;char output[4096];int ok;
+ struct cc_ins ir[128];size_t n=0;char output[4096];int ok;
  if(argc!=3)return 2;
  if(!cc_parse(argv[2],strlen(argv[2]),ir,128,&n))return 3;
  if(strcmp(argv[1],"x86")==0)ok=cc_x86(ir,n,output,sizeof output);

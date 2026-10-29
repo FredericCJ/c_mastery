@@ -1,2 +1,2 @@
 #include "support.h"
-int lc_board_backend(LCBackend *p,int n){(void)p;(void)n;return 0;}
+int lc_board_backend(struct lc_backend *p,int n){(void)p;(void)n;return 0;}

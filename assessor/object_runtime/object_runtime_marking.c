@@ -3,24 +3,24 @@
 #define ORC_MUTANT 0
 #endif
 #define B(i) ((uint16_t)(UINT32_C(1) << (i)))
-static int valid(const ORCHeap *h, ORCHandle p) {
+static int valid(const struct orc_heap *h, struct orc_handle p) {
   return h && p.slot >= 1 && p.slot <= 16 && p.generation &&
          h->generation[p.slot - 1] == p.generation &&
          (h->graph.live & B(p.slot - 1));
 }
-static int nullable(const ORCHeap *h, ORCHandle p) {
+static int nullable(const struct orc_heap *h, struct orc_handle p) {
   return (!p.slot && !p.generation) || valid(h, p);
 }
-static int room(const ORCHeap *h) {
+static int room(const struct orc_heap *h) {
   return h && h->revision && h->revision < ORC_REV_LIMIT;
 }
-static void shade(ORCHeap *h, unsigned node) {
+static void shade(struct orc_heap *h, unsigned node) {
   if (node && h->graph.color[node - 1] == 0) {
     h->graph.color[node - 1] = 1;
     h->work[h->used++] = (uint8_t)node;
   }
 }
-static void restart(ORCHeap *h) {
+static void restart(struct orc_heap *h) {
   unsigned i;
   h->used = 0;
   for (i = 0; i < 16; i++)
@@ -29,17 +29,17 @@ static void restart(ORCHeap *h) {
     if (h->graph.roots & B(i))
       shade(h, i + 1);
 }
-void orcm_init(ORCHeap *h, ORCPolicy policy) {
+void orcm_init(struct orc_heap *h, enum orc_policy policy) {
   unsigned i;
   if (!h)
     return;
-  *h = (ORCHeap){0};
+  *h = (struct orc_heap){0};
   h->revision = 1;
   h->policy = (uint8_t)policy;
   for (i = 0; i < 16; i++)
     h->generation[i] = 1;
 }
-int orcm_invariant(const ORCHeap *h) {
+int orcm_invariant(const struct orc_heap *h) {
   unsigned i, j;
   uint16_t queued = 0;
   if (!h || !h->revision || h->revision > ORC_REV_LIMIT ||
@@ -72,10 +72,10 @@ int orcm_invariant(const ORCHeap *h) {
   }
   return h->graph.active || !h->used;
 }
-ORStatus orcm_allocate(ORCHeap *h, ORCHandle first, ORCHandle second,
-                       ORCHandle *out) {
+enum or_status orcm_allocate(struct orc_heap *h, struct orc_handle first, struct orc_handle second,
+                       struct orc_handle *out) {
   unsigned i;
-  ORCHeap n;
+  struct orc_heap n;
   if (!h || !out || h->policy > ORC_RESTART || !nullable(h, first) ||
       !nullable(h, second))
     return OR_INVALID;
@@ -112,11 +112,11 @@ ORStatus orcm_allocate(ORCHeap *h, ORCHandle first, ORCHandle second,
   }
   n.revision++;
   *h = n;
-  *out = (ORCHandle){(uint8_t)(i + 1), n.generation[i]};
+  *out = (struct orc_handle){(uint8_t)(i + 1), n.generation[i]};
   return OR_OK;
 }
-ORStatus orcm_retain(ORCHeap *h, ORCHandle p) {
-  ORStatus s;
+enum or_status orcm_retain(struct orc_heap *h, struct orc_handle p) {
+  enum or_status s;
   int white;
   if (!valid(h, p))
     return OR_INVALID;
@@ -136,8 +136,8 @@ ORStatus orcm_retain(ORCHeap *h, ORCHandle p) {
   h->revision++;
   return OR_OK;
 }
-ORStatus orcm_release(ORCHeap *h, ORCHandle p) {
-  ORStatus s;
+enum or_status orcm_release(struct orc_heap *h, struct orc_handle p) {
+  enum or_status s;
   if (!valid(h, p))
     return OR_INVALID;
   if (!h->roots[p.slot - 1])
@@ -153,9 +153,9 @@ ORStatus orcm_release(ORCHeap *h, ORCHandle p) {
   h->revision++;
   return OR_OK;
 }
-ORStatus orcm_store(ORCHeap *h, ORCHandle owner, unsigned field,
-                    ORCHandle target) {
-  ORStatus s;
+enum or_status orcm_store(struct orc_heap *h, struct orc_handle owner, unsigned field,
+                    struct orc_handle target) {
+  enum or_status s;
   int white;
   if (!valid(h, owner) || field >= 2 || !nullable(h, target))
     return OR_INVALID;
@@ -171,9 +171,9 @@ ORStatus orcm_store(ORCHeap *h, ORCHandle owner, unsigned field,
   h->revision++;
   return OR_OK;
 }
-ORStatus orcm_read(const ORCHeap *h, ORCHandle owner, ORCHandle edges[2]) {
+enum or_status orcm_read(const struct orc_heap *h, struct orc_handle owner, struct orc_handle edges[2]) {
   unsigned j;
-  ORCHandle result[2];
+  struct orc_handle result[2];
   if (!valid(h, owner) || !edges)
     return OR_INVALID;
   for (j = 0; j < 2; j++) {
@@ -181,14 +181,14 @@ ORStatus orcm_read(const ORCHeap *h, ORCHandle owner, ORCHandle edges[2]) {
     if (target > 16 || (target && !(h->graph.live & B(target - 1))))
       return OR_STATE;
     result[j] =
-        (ORCHandle){(uint8_t)target, target ? h->generation[target - 1] : 0};
+        (struct orc_handle){(uint8_t)target, target ? h->generation[target - 1] : 0};
   }
   edges[0] = result[0];
   edges[1] = result[1];
   return OR_OK;
 }
-ORStatus orcm_begin(ORCHeap *h) {
-  ORStatus s;
+enum or_status orcm_begin(struct orc_heap *h) {
+  enum or_status s;
   unsigned i;
   if (!h)
     return OR_INVALID;
@@ -207,8 +207,8 @@ ORStatus orcm_begin(ORCHeap *h) {
   h->revision++;
   return OR_OK;
 }
-ORStatus orcm_step(ORCHeap *h, unsigned budget, unsigned *scanned) {
-  ORCHeap n;
+enum or_status orcm_step(struct orc_heap *h, unsigned budget, unsigned *scanned) {
+  struct orc_heap n;
   unsigned count = 0, j;
   if (!h || !scanned)
     return OR_INVALID;
@@ -234,7 +234,7 @@ ORStatus orcm_step(ORCHeap *h, unsigned budget, unsigned *scanned) {
   *scanned = count;
   return n.used ? OR_OK : OR_DONE;
 }
-ORStatus orcm_prepare(const ORCHeap *h, ORCFinish *out) {
+enum or_status orcm_prepare(const struct orc_heap *h, struct orc_finish *out) {
   unsigned i;
   uint16_t white = 0;
   if (!h || !out)
@@ -244,10 +244,10 @@ ORStatus orcm_prepare(const ORCHeap *h, ORCFinish *out) {
   for (i = 0; i < 16; i++)
     if ((h->graph.live & B(i)) && h->graph.color[i] == 0)
       white |= B(i);
-  *out = (ORCFinish){h, h->revision, white};
+  *out = (struct orc_finish){h, h->revision, white};
   return OR_OK;
 }
-ORStatus orcm_commit(ORCHeap *h, ORCFinish token, uint16_t *dead) {
+enum or_status orcm_commit(struct orc_heap *h, struct orc_finish token, uint16_t *dead) {
   unsigned i;
   if (!h || !dead || token.owner != h)
     return OR_INVALID;

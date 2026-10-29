@@ -28,7 +28,7 @@ require the separate capture protocol.
 
 ## Numeric addresses and transaction boundaries
 
-`BuRange` is a half-open numeric interval. Reject any overflowing endpoint;
+`struct bu_range` is a half-open numeric interval. Reject any overflowing endpoint;
 zero-length intervals are permitted at a containing interval's endpoint and
 never overlap. `bu_vectors` supports encoding1: little-endian M-profile words.
 Reject other encodings explicitly before interpreting bytes. Require at least
@@ -52,7 +52,7 @@ and direction must still be selected before turning reachability into a driver.
 
 ## Clock and runtime state
 
-`BuClock` is an explicit synthetic ready-bit model, not an RCC register overlay.
+`struct bu_clock` is an explicit synthetic ready-bit model, not an RCC register overlay.
 `start(limit,bypass)` requires limit>=1 and bypass0/1. Phase1 enables the selected
 oscillator; phase2 represents a PLL configured while disabled, then enabled;
 phase3 publishes dependency readiness. Each waiting phase has its own limit;
@@ -163,7 +163,7 @@ reinitializing the struct is not permission to free live DMA memory. A transferr
 transaction rejects further events. The model cannot distinguish fraudulent
 caller observations or establish physical cache/device coherence.
 
-`BuTask` starts zero-initialized, with machine-owned retained state outside it.
+`struct bu_task` starts zero-initialized, with machine-owned retained state outside it.
 Phase0 permits start; phase1 runs; phase2 drains task-owned cleanup. Start increments
 a generation and clears exactly eight task-owned bytes; generation UINT_MAX
 retires the supervisor rather than wrapping. Return requires the current generation

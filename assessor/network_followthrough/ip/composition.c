@@ -1,9 +1,9 @@
 #include "com_net.h"
 #include "specimens.h"
-static NetStack stack;
-static NiReassembly reassembly;
-static const NiConfig config = {0xc0000202u, 0xc0000201u};
-static void frame(NetPacket *p, const unsigned char *ip, size_t n) {
+static struct net_stack stack;
+static struct ni_reassembly reassembly;
+static const struct ni_config config = {0xc0000202u, 0xc0000201u};
+static void frame(struct net_packet *p, const unsigned char *ip, size_t n) {
   const unsigned char h[14] = {2, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 1, 8, 0};
   for (unsigned i = 0; i < 14; i++)
     p->bytes[i] = h[i];
@@ -17,8 +17,8 @@ static void frame(NetPacket *p, const unsigned char *ip, size_t n) {
 }
 int main(void) {
   unsigned char request[100], fragment[100];
-  NetPacket input, actual;
-  NiPacket expected, whole;
+  struct net_packet input, actual;
+  struct ni_packet expected, whole;
   for (unsigned n = 0; n <= 64; n++) {
     ni_test_echo(request, n);
     frame(&input, request, n + 28);
@@ -72,14 +72,14 @@ int main(void) {
   for (unsigned j = 0; j < 5; j++)
     joined[12 + j] = (unsigned char)(0x61 + j);
   for (unsigned split = 0; split <= 17; split++) {
-    SChecksum sum = {0};
+    struct s_checksum sum = {0};
     uint16_t got = 0;
     CHECK(!s_checksum_add(&sum, joined, split));
     CHECK(!s_checksum_add(&sum, joined + split, 17 - split));
     CHECK(!s_checksum_finish(&sum, &got));
     CHECK(got == net_checksum(joined, 17, 0) && got == ni_test_sum(joined, 17));
   }
-  NiPacket errors[2];
+  struct ni_packet errors[2];
   unsigned count = 99, slot;
   CHECK(ni_init(&reassembly, config, 2, NI_STRICT, 0, 60000) == NI_OK);
   ni_test_header(fragment, 8, 8, 0, 1, 6);

@@ -16,7 +16,7 @@ int main(void) {
   while (scanf(" %c", &op) == 1) {
     unsigned char input[257];
     unsigned n;
-    PdDiagnostic diag;
+    struct pd_diagnostic diag;
     if (op == 'R') {
       unsigned plen, cap;
       unsigned char pattern[25];
@@ -24,8 +24,8 @@ int main(void) {
           scanf("%u", &n) != 1 || n > 256 || !bytes(input, n) ||
           scanf("%u", &cap) != 1)
         return 2;
-      RxNfa a;
-      RxDfa d;
+      struct rx_nfa a;
+      struct rx_dfa d;
       unsigned whole = 9, search = 9, dfa = 9;
       int rc = rx_compile(pattern, plen, &a, &diag), dc = 9;
       if (!rc) {
@@ -40,8 +40,8 @@ int main(void) {
       unsigned mode;
       if (scanf("%u %u", &mode, &n) != 2 || n > 256 || !bytes(input, n))
         return 2;
-      PdTokens tokens;
-      PdTree tree;
+      struct pd_tokens tokens;
+      struct pd_tree tree;
       int32_t value = 123;
       int lex = pd_lex(input, n, &tokens, &diag), parse = 9, eval = 9;
       if (!lex) {
@@ -53,7 +53,7 @@ int main(void) {
       if (!lex && !parse) {
         printf(" %u", tree.count);
         for (unsigned i = 0; i < tree.count; ++i) {
-          PdExpr x = tree.nodes[i];
+          struct pd_expr x = tree.nodes[i];
           printf(" %u %u %u %" PRId32 " %zu", x.kind, x.left, x.right, x.value,
                  x.offset);
         }
@@ -64,9 +64,9 @@ int main(void) {
       if (scanf("%u %u", &mode, &n) != 2 || n > 64 || !bytes(input, n) ||
           scanf("%u", &budget) != 1)
         return 2;
-      LrGrammar g = pd_grammar(mode);
-      LrTable table;
-      LrTree tree;
+      struct lr_grammar g = pd_grammar(mode);
+      struct lr_table table;
+      struct lr_tree tree;
       int rc = lr_build(&g, &table, &diag), pc = 9;
       if (!rc)
         pc = lr_parse(&table, input, n, budget, &tree, &diag);
@@ -74,7 +74,7 @@ int main(void) {
       if (!rc && !pc) {
         printf(" %u %u", tree.count, tree.root);
         for (unsigned i = 0; i < tree.count; ++i) {
-          LrNode x = tree.nodes[i];
+          struct lr_node x = tree.nodes[i];
           printf(" %u %u %u %zu %zu", x.symbol, x.production, x.count, x.begin,
                  x.end);
           for (unsigned j = 0; j < x.count; ++j)
@@ -84,7 +84,7 @@ int main(void) {
       puts("");
     } else if (op == 'S') {
       unsigned count, eof, budget;
-      PsNode nodes[64];
+      struct ps_node nodes[64];
       if (scanf("%u", &count) != 1 || count > 64)
         return 2;
       for (unsigned i = 0; i < count; ++i)
@@ -94,7 +94,7 @@ int main(void) {
       if (scanf("%u", &n) != 1 || n > 256 || !bytes(input, n) ||
           scanf("%u %u", &eof, &budget) != 2)
         return 2;
-      PsResult result = {.end = 999, .count = 0};
+      struct ps_result result = {.end = 999, .count = 0};
       int rc = ps_parse(nodes, count, input, n, eof, budget, &result, &diag);
       printf("S %d %zu %u", rc, result.end, result.count);
       for (unsigned i = 0; i < result.count; ++i)

@@ -3,12 +3,12 @@
 #include <stdlib.h>
 #include <string.h>
 int vc_test(unsigned);
-static VcWork work;
-static Cvm vm;
+static struct vc_work work;
+static struct cvm_cvm vm;
 int main(int argc, char **argv) {
   if (argc == 2 && !strcmp(argv[1], "--resources")) {
     printf("VC_RESOURCES work=%zu report=%zu program=%zu nodes=%u frames=%u\n",
-           sizeof(VcWork), sizeof(VcReport), sizeof(CvmProgram), VC_NODES,
+           sizeof(struct vc_work), sizeof(struct vc_report), sizeof(struct cvm_program), VC_NODES,
            VC_DEPTH);
     return 0;
   }
@@ -16,10 +16,10 @@ int main(int argc, char **argv) {
     return vc_test((unsigned)strtoul(argv[1], 0, 10));
   if (argc != 6 || (strcmp(argv[1], "--program") && strcmp(argv[1], "--legacy")))
     return 2;
-  VcOptions o = {256, (unsigned)strtoul(argv[5], 0, 10)};
-  VcReport r;
-  CvmProgram p;
-  CvmValue v = cvm_int(-777);
+  struct vc_options o = {256, (unsigned)strtoul(argv[5], 0, 10)};
+  struct vc_report r;
+  struct cvm_program p;
+  struct cvm_value v = cvm_int(-777);
   int rc = !strcmp(argv[1], "--legacy")
                ? cvm_compile(argv[2], strlen(argv[2]), &p)
                : vc_compile(argv[2], strlen(argv[2]), &o, &work, &p, &r);

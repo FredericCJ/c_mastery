@@ -15,8 +15,8 @@ designs are explicitly analyses, not simulated measurements.
 Retain the original unit prerequisites for checked arithmetic, byte cursors,
 object lifetime, function-pointer contexts and the first-principles ring.
 The actual composition uses `f_checked_size` and `f_take` from
-`labs/foundations/include/foundation.h`, `CDRing` from
-`labs/containers_depth/containers.h`, `SFStream` from
+`labs/foundations/include/foundation.h`, `struct cd_ring` from
+`labs/containers_depth/containers.h`, `struct sf_stream` from
 `labs/api_depth/stream/stream.h`, and the T19 registry adapter from
 `labs/api_depth/abstractions/registry.h`. Submit your own compatible assessed
 producer implementations or explicitly identified earlier learner artifacts.
@@ -59,13 +59,13 @@ board attachment, operational equipment or host security changes are included.
 
 ## Formats, storage and pure core — T20.01 and T20.03
 
-`ArRecord` contains one `int32_t`. Format1 is signed16, big-endian two's-complement
+`struct ar_record` contains one `int32_t`. Format1 is signed16, big-endian two's-complement
 wire bytes followed by their XOR; format2 uses signed32 and four data bytes plus
 XOR. This wire representation is specified independently of the C object
 representation. XOR detects selected accidental corruptions and supplies no
 authenticity. Encoders require exactly3 or5 output bytes, reject out-of-range
 format1 values before publishing, and never copy structure padding. Decoders
-publish a value only after full validation. `ArReader` owns up to5 partial bytes;
+publish a value only after full validation. `struct ar_reader` owns up to5 partial bytes;
 `ar_feed` accepts a chunk no larger than the remaining record. Incomplete input
 commits parser progress and returns `AR_PENDING`; a complete invalid record
 preserves the parser state from before that call. A completed record resets
@@ -75,7 +75,7 @@ retry. End of input with a partial record is truncation, not an empty record.
 
 `ar_double` stages at most8 values, rejects signed overflow before multiplication
 and preserves all output on rejection. `[1,3,5]` produces `[2,6,10]`. Empty input
-requires no pointers. `ArStorage.get(context,index,out)` uses logical indices;
+requires no pointers. `struct ar_storage.get(context,index,out)` uses logical indices;
 the two concrete test stores reverse physical order without changing clients.
 The pipeline gathers all records before publishing transformed output.
 The changed stateful transform explicitly stores the previous value and a
@@ -84,24 +84,24 @@ presence bit; its two-element window sum commits state/output together.
 Produce a before/after change-impact table for wire-format and physical-storage
 changes. Explain the hidden decision, owning module and changed clients. A
 zero-copy view adds a lifetime edge even when source includes remain acyclic.
-`ArBorrow` retains 1..8 immutable caller bytes until complete or acknowledged
+`struct ar_borrow` retains 1..8 immutable caller bytes until complete or acknowledged
 cancellation. Chunk delivery exposes a committed prefix. A cancellation request
 stops new chunks but retains the pointer until `ar_borrow_ack`; retry starts a
 new record with offset zero. Caller reuse is legal only after this terminal
-point. Compare with the actual `SFStream` copied frame, whose input can be reused
+point. Compare with the actual `struct sf_stream` copied frame, whose input can be reused
 after successful start. Its `accepted` result is total committed offset, not
 the number written by the latest pump call.
 
 ## Mechanism and policy — T20.02
 
-`ArQueue` is a bounded array oracle. `ArRingPolicy` composes the unchanged actual
-`CDRing`, stores slot indices in the ring and keeps typed payloads in stable
+`struct ar_queue` is a bounded array oracle. `struct ar_ring_policy` composes the unchanged actual
+`struct cd_ring`, stores slot indices in the ring and keeps typed payloads in stable
 slots. It cannot be moved after initialization. Both expose capacities0..AR_CAP,
 default4. Push policy0 rejects newest unchanged; policy1 evicts oldest; policy2
 admits only when the incoming priority is strictly higher than the minimum
 present priority, evicting the earliest minimum. Remaining identities stay in
 FIFO order. Accepted ownership transfers to the queue; evicted ownership is
-returned through `ArEviction`; rejected input remains caller-owned. Pop transfers
+returned through `struct ar_eviction`; rejected input remains caller-owned. Pop transfers
 one identity out. Empty/full do not modify output. No payload destructor is
 called implicitly. Priority admission does not guarantee fairness: sustained
 higher-priority arrivals can prevent a low-priority item from ever being admitted.
@@ -112,7 +112,7 @@ and context storage, indirect calls and failure traces. The same correctness
 contract permits different partial-progress traces; compare complete bytes and
 declared prefix semantics, not identical invocation counts.
 
-`ArTask` snapshots allocator, monotonic millisecond clock, write and notification
+`struct ar_task` snapshots allocator, monotonic millisecond clock, write and notification
 callbacks with their context and version. Begin allocates/copies1..8 bytes,
 installs a notification and commits only after success. Installation failure
 frees temporary storage. Changing the caller's policy record cannot replace the
@@ -142,7 +142,7 @@ F439 SR/DR receive driver with a bounded byte count; hardware error can accompan
 a valid prefix. The synthetic bus checks register-read order, and the ARM build
 checks linkage. Neither supplies physical UART evidence.
 
-`ArEffects` turns a checked doubling decision into an immutable request ID/value
+`struct ar_effects` turns a checked doubling decision into an immutable request ID/value
 pair. A pending operation refuses another decision. Retry returns that same
 pair; ambiguous/failure feedback does not allocate a new ID or undo external
 work. Successful acknowledgment clears pending state. Request IDs retire rather
@@ -208,7 +208,7 @@ callback invalidates a finite response bound while bounded queue storage can
 remain true. Required resource accounting includes inline capacity, retained
 payloads, callback contexts and maximum deferred events.
 
-`ArMachine` represents empty, acquired and submitted states. Acquisition assigns
+`struct ar_machine` represents empty, acquired and submitted states. Acquisition assigns
 a nonzero never-reused request within an incarnation; the request counter and
 incarnation retire at UINT32_MAX. Submitted ownership remains until exactly one
 valid terminal event. Cancel while acquired releases synchronously; cancel while

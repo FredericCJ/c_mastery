@@ -8,7 +8,7 @@
 #define SI_GUEST_MUTANT 0
 #endif
 extern void si_timer_irq(void),si_ipi_irq(void),si_spurious_irq(void);
-static SiBox si_boxes[CMK2_MAX_CPUS];
+static struct si_box si_boxes[CMK2_MAX_CPUS];
 static struct {
  unsigned ready,command,seen,held,stopped,finished,phase,blocked,features,arat;
  unsigned one,periodic,ipis,eois,work,done;
@@ -44,7 +44,7 @@ static void si_send(unsigned index) {
  for(unsigned spin=0;si_read(0x300)&0x1000;spin++)if(spin==10000000)si_fail("ICR-send-pending");
 }
 static void si_consume(void *context,uint32_t item) {
- unsigned index=(unsigned)(uintptr_t)context;SiBox *box=&si_boxes[index];
+ unsigned index=(unsigned)(uintptr_t)context;struct si_box *box=&si_boxes[index];
  if(atomic_load_explicit(&box->acknowledged,memory_order_acquire)==atomic_load_explicit(&box->published,memory_order_relaxed))si_fail("ack-before-work");
  si_cpu[index].sum+=item;si_cpu[index].work++;
 }

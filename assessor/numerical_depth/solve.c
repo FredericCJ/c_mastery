@@ -3,7 +3,7 @@
 #ifndef ND_MUTANT
 #define ND_MUTANT 0
 #endif
-static int copy(NDView a, const double *b, size_t n, double m[3][4],
+static int copy(struct nd_view a, const double *b, size_t n, double m[3][4],
                 double scale[3]) {
   if (nd_view(a) || !b || n < 2 || n > 3 || a.rows != n || a.cols != n)
     return 0;
@@ -23,10 +23,10 @@ static int copy(NDView a, const double *b, size_t n, double m[3][4],
   }
   return 1;
 }
-int nd_solve(NDView a, const double *b, size_t n, double tolerance, double *out,
-             NDCost *cost) {
+int nd_solve(struct nd_view a, const double *b, size_t n, double tolerance, double *out,
+             struct nd_cost *cost) {
   double m[3][4], s[3], x[3];
-  NDCost c = {0};
+  struct nd_cost c = {0};
   if (!out || !cost || !isfinite(tolerance) || tolerance < 0 ||
       tolerance >= 1 || !copy(a, b, n, m, s))
     return ND_BAD;
@@ -81,7 +81,7 @@ int nd_solve(NDView a, const double *b, size_t n, double tolerance, double *out,
   *cost = c;
   return ND_OK;
 }
-int nd_jacobi(NDView a, const double *b, size_t n, double tol, unsigned limit,
+int nd_jacobi(struct nd_view a, const double *b, size_t n, double tol, unsigned limit,
               double *out, unsigned *steps) {
   double m[3][4], s[3], x[3] = {0}, next[3];
   if (!out || !steps || !isfinite(tol) || tol < 0 || limit > 10000 ||

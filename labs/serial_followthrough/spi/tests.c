@@ -2,10 +2,10 @@
 #include "serial_depth.h"
 void ss_note(const char *);void ss_values(const char *,unsigned,unsigned,unsigned,unsigned);
 #define CHECK(x) do{if(!(x)){ss_note("SS_ASSERT: " #x);return 41;}}while(0)
-typedef struct {uint32_t r[19];uintptr_t addr[2];unsigned calls,reads,writes,reset,stop;uint8_t wire[16];} Model;
-static uint32_t rd(void *p,unsigned reg){Model *m=p;m->calls++;if(reg==PS_DR){m->reads++;m->r[PS_SR]&=~PS_RXNE;}return m->r[reg];}
+struct mc_model {uint32_t r[19];uintptr_t addr[2];unsigned calls,reads,writes,reset,stop;uint8_t wire[16];};
+static uint32_t rd(void *p,unsigned reg){struct mc_model *m=p;m->calls++;if(reg==PS_DR){m->reads++;m->r[PS_SR]&=~PS_RXNE;}return m->r[reg];}
 static void wr(void *p,unsigned reg,uintptr_t value){
- Model *m=p;m->calls++;
+ struct mc_model *m=p;m->calls++;
  if(reg==PS_DR){if(m->writes<16)m->wire[m->writes]=(uint8_t)value;m->writes++;m->r[PS_SR]=(m->r[PS_SR]&(PS_RXNE|PS_OVR))|PS_BSY;return;}
  if((reg==PS_TX_EN || reg==PS_RX_EN) && !value){m->stop++;return;}
  if(reg==PS_TX_ADDR || reg==PS_RX_ADDR){m->addr[reg==PS_RX_ADDR]=value;return;}
@@ -14,8 +14,8 @@ static void wr(void *p,unsigned reg,uintptr_t value){
  if(reg==PS_RX_START)m->r[PS_RX_EN]=1;
  if(reg==PS_RESET){m->reset++;m->r[PS_SR]=PS_TXE;}
 }
-static PsIo io(Model *m){PsIo r={m,rd,wr};return r;}
-static void receive(Model *m,uint8_t value){
+static struct ps_io io(struct mc_model *m){struct ps_io r={m,rd,wr};return r;}
+static void receive(struct mc_model *m,uint8_t value){
  if(m->r[PS_SR]&PS_RXNE)m->r[PS_SR]|=PS_OVR;
  else m->r[PS_DR]=value;
  m->r[PS_SR]|=PS_TXE|PS_RXNE|PS_BSY;
@@ -38,7 +38,7 @@ int ss_edges(void){
 }
 int ss_queue(void){
  for(unsigned n=1;n<=16;n++){
-  SsScheduler q={0};Model m={0};PuClock c={16000000,1,1,1,1,0};uint8_t tx[16],out[16];SsResult result={99,99,99};
+  struct ss_scheduler q={0};struct mc_model m={0};struct pu_clock c={16000000,1,1,1,1,0};uint8_t tx[16],out[16];struct ss_result result={99,99,99};
   for(unsigned i=0;i<16;i++){tx[i]=(uint8_t)(0xa0+i);out[i]=0xcc;}
   CHECK(ss_open(&q,io(&m),&c,3,3)==PS_OK);
   CHECK(ss_enqueue(&q,1,tx,n,0,100,2,3)==PS_OK && ss_enqueue(&q,2,tx,1,0,100,0,0)==PS_OK);
@@ -69,7 +69,7 @@ int ss_queue(void){
   CHECK(!q.active && !q.pending.count);
  }
  /* Original flawed send-only path never drains RX and loses the later value. */
- Model flawed={0};
+ struct mc_model flawed={0};
  /* Intentionally flawed original client: transmit on readiness, never read DR. */
  for(unsigned i=0;i<2;i++){flawed.r[PS_SR]|=PS_TXE;if(rd(&flawed,PS_SR)&PS_TXE)wr(&flawed,PS_DR,i);receive(&flawed,(uint8_t)(0x11*(i+1)));}
  CHECK((flawed.r[PS_SR]&PS_OVR) && flawed.r[PS_DR]==0x11 && flawed.reads==0 && flawed.writes==2);
@@ -77,7 +77,7 @@ int ss_queue(void){
 }
 int ss_quiescence(void){
  for(unsigned order=0;order<2;order++){
-  SsScheduler q={0};Model m={0};PuClock c={16000000,1,1,1,1,0};uint8_t tx[3]={0xc3,0,0},out[16]={0};SsResult r={99,99,99};
+  struct ss_scheduler q={0};struct mc_model m={0};struct pu_clock c={16000000,1,1,1,1,0};uint8_t tx[3]={0xc3,0,0},out[16]={0};struct ss_result r={99,99,99};
   CHECK(ss_open(&q,io(&m),&c,0,3)==PS_OK && ss_enqueue(&q,1,tx,3,1,8,1,3)==PS_OK);
   CHECK(ss_run(&q,io(&m),ss_portable_submit,0)==PS_BUSY);
   m.r[PS_SR]=PS_TXE;CHECK(ss_run(&q,io(&m),ss_portable_submit,0)==PS_BUSY && !m.r[PS_TX_EN]);
@@ -106,10 +106,10 @@ int ss_quiescence(void){
  return 0;
 }
 /* Public finite IRQ probe; target harness invokes its middle operation in IRQ0. */
-static SsScheduler irq_q;static Model irq_m;static unsigned irq_before;static int irq_status;
+static struct ss_scheduler irq_q;static struct mc_model irq_m;static unsigned irq_before;static int irq_status;
 int ss_irq_prepare(void){
- SsScheduler zero={0};Model model={0};irq_q=zero;irq_m=model;PuClock c={16000000,1,1,1,1,0};uint8_t tx=0x55;
- uint8_t out[16]={0};SsResult result={99,99,99};
+ struct ss_scheduler zero={0};struct mc_model model={0};irq_q=zero;irq_m=model;struct pu_clock c={16000000,1,1,1,1,0};uint8_t tx=0x55;
+ uint8_t out[16]={0};struct ss_result result={99,99,99};
  CHECK(ss_open(&irq_q,io(&irq_m),&c,0,3)==PS_OK && ss_enqueue(&irq_q,1,&tx,1,1,100,0,2)==PS_OK);
  CHECK(ss_run(&irq_q,io(&irq_m),ss_portable_submit,0)==PS_BUSY);
  irq_m.r[PS_SR]=PS_TXE;CHECK(ss_event(&irq_q,io(&irq_m),1,1)==PS_BUSY);
@@ -127,7 +127,7 @@ int ss_irq_verify(void){
  CHECK(irq_status==PS_STALE && irq_m.calls==irq_before && irq_q.driver.sent==0 && irq_q.driver.tx_owned);
  CHECK(ss_event(&irq_q,io(&irq_m),2,21)==PS_BUSY && irq_q.driver.sent==1);
  ss_values("irq_stale",(unsigned)irq_status,irq_q.driver.sent,irq_q.driver.tx_owned,irq_q.driver.cs_owned);
- uint8_t out[16]={0};SsResult result={99,99,99};receive(&irq_m,0x22);
+ uint8_t out[16]={0};struct ss_result result={99,99,99};receive(&irq_m,0x22);
  CHECK(ss_event(&irq_q,io(&irq_m),2,22)==PS_BUSY);irq_m.r[PS_SR]=PS_TXE;
  CHECK(ss_event(&irq_q,io(&irq_m),2,23)==PS_OK && ss_take(&irq_q,2,&result,out)==PS_OK);
  return 0;
@@ -135,7 +135,7 @@ int ss_irq_verify(void){
 int ss_irq_native(void){int r=ss_irq_prepare();if(r)return r;ss_irq_old_event();return ss_irq_verify();}
 int ss_device(void){
  for(unsigned n=1;n<=3;n++){
-  SsScheduler q={0};Model m={0};PuClock c={16000000,1,1,1,1,0};uint8_t tx[3],reply[3]={0xa6,0x34,0x12},out[16]={0};SsResult r={99,99,99};uint16_t value=0x7777;
+  struct ss_scheduler q={0};struct mc_model m={0};struct pu_clock c={16000000,1,1,1,1,0};uint8_t tx[3],reply[3]={0xa6,0x34,0x12},out[16]={0};struct ss_result r={99,99,99};uint16_t value=0x7777;
   CHECK(ps_command(1,3,tx)==PS_OK && ss_open(&q,io(&m),&c,1,3)==PS_OK && ss_enqueue(&q,1,tx,n,0,100,0,0)==PS_OK);
   CHECK(ss_run(&q,io(&m),ss_portable_submit,0)==PS_BUSY);m.r[PS_SR]=PS_TXE;
   CHECK(ss_event(&q,io(&m),1,1)==PS_BUSY);

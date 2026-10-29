@@ -1,24 +1,24 @@
 #include "object_runtime_card_epoch.h"
-ORStatus orcc_init(ORCCards *c, unsigned w, int p) {
+enum or_status orcc_init(struct orc_cards *c, unsigned w, int p) {
   (void)c;
   (void)w;
   (void)p;
   return OR_STATE;
 }
-ORStatus orcc_store(ORCCards *c, unsigned o, unsigned f, unsigned t) {
+enum or_status orcc_store(struct orc_cards *c, unsigned o, unsigned f, unsigned t) {
   (void)c;
   (void)o;
   (void)f;
   (void)t;
   return OR_STATE;
 }
-ORStatus orcc_prepare(ORCCards *c, unsigned n, ORCCSnapshot *s) {
+enum or_status orcc_prepare(struct orc_cards *c, unsigned n, struct orcc_snapshot *s) {
   (void)c;
   (void)n;
   (void)s;
   return OR_STATE;
 }
-ORStatus orcc_scan_commit(ORCCards *c, const ORCCSnapshot *s, uint16_t *r,
+enum or_status orcc_scan_commit(struct orc_cards *c, const struct orcc_snapshot *s, uint16_t *r,
                           unsigned *n) {
   (void)c;
   (void)s;
@@ -26,7 +26,7 @@ ORStatus orcc_scan_commit(ORCCards *c, const ORCCSnapshot *s, uint16_t *r,
   (void)n;
   return OR_STATE;
 }
-ORStatus orcc_close(ORCCards *c) {
+enum or_status orcc_close(struct orc_cards *c) {
   (void)c;
   return OR_STATE;
 }

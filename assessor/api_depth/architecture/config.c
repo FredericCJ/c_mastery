@@ -2,7 +2,7 @@
 #ifndef AR_MUTANT
 #define AR_MUTANT 0
 #endif
-int ar_config(const ArField *f, size_t n, ArConfig *out) {
+int ar_config(const struct ar_field *f, size_t n, struct ar_config *out) {
   if (!f || !out || n > 16)
     return AR_INVALID;
   unsigned seen = 0;
@@ -19,14 +19,14 @@ int ar_config(const ArField *f, size_t n, ArConfig *out) {
   if (seen != 15 || values[0] != 1 || values[1] > AR_CAP || values[2] > 2 ||
       !values[3] || values[3] > 1000 || (values[2] == 2 && values[1] < 2))
     return AR_RANGE;
-  ArConfig result = {
+  struct ar_config result = {
       .timeout_ms = values[3], .limit = values[1], .policy = values[2]};
   if (AR_MUTANT == 5)
     result.limit = AR_CAP;
   *out = result;
   return AR_OK;
 }
-int ar_identity(ArConfig c, unsigned char out[8]) {
+int ar_identity(struct ar_config c, unsigned char out[8]) {
   if (!out || c.limit > AR_CAP || c.policy > 2 || !c.timeout_ms ||
       c.timeout_ms > 1000 || (c.policy == 2 && c.limit < 2))
     return AR_INVALID;

@@ -1,11 +1,11 @@
 #include "timer.h"
-int td_init(TdTimer *t, unsigned limit) {
+int td_init(struct td_timer *t, unsigned limit) {
   if (!t || !limit || limit > 65535u)
     return -1;
-  *t = (TdTimer){.limit = limit};
+  *t = (struct td_timer){.limit = limit};
   return 0;
 }
-int td_arm(TdTimer *t, uint64_t deadline, uint64_t period, int skip,
+int td_arm(struct td_timer *t, uint64_t deadline, uint64_t period, int skip,
            unsigned *generation) {
   if (!t || !generation || !deadline || (skip != 0 && skip != 1))
     return -1;
@@ -30,7 +30,7 @@ int td_arm(TdTimer *t, uint64_t deadline, uint64_t period, int skip,
   *generation = t->generation;
   return 1;
 }
-int td_begin(TdTimer *t, unsigned generation, uint64_t now, TdDispatch *out) {
+int td_begin(struct td_timer *t, unsigned generation, uint64_t now, struct td_dispatch *out) {
   if (!t || !out)
     return -1;
 #ifndef TD_MUTANT_GENERATION
@@ -41,7 +41,7 @@ int td_begin(TdTimer *t, unsigned generation, uint64_t now, TdDispatch *out) {
 #endif
   if (t->state != TD_ARMED || now < t->deadline)
     return 0;
-  TdDispatch d = {.generation = t->generation,
+  struct td_dispatch d = {.generation = t->generation,
                   .scheduled = t->deadline,
                   .expirations = 1,
                   .effects = 1};
@@ -67,7 +67,7 @@ int td_begin(TdTimer *t, unsigned generation, uint64_t now, TdDispatch *out) {
   *out = d;
   return 1;
 }
-int td_finish(TdTimer *t, unsigned generation) {
+int td_finish(struct td_timer *t, unsigned generation) {
   if (!t)
     return -1;
   if (generation != t->generation ||
@@ -81,7 +81,7 @@ int td_finish(TdTimer *t, unsigned generation) {
   }
   return 1;
 }
-int td_cancel(TdTimer *t) {
+int td_cancel(struct td_timer *t) {
   if (!t)
     return -1;
   if (t->state == TD_RUNNING || t->state == TD_CANCELLING) {
@@ -98,7 +98,7 @@ int td_cancel(TdTimer *t) {
   t->state = TD_IDLE;
   return 1;
 }
-int td_earliest(const TdTimer *timers, size_t count, size_t *index,
+int td_earliest(const struct td_timer *timers, size_t count, size_t *index,
                 uint64_t *deadline) {
   if ((!timers && count) || !index || !deadline)
     return -1;

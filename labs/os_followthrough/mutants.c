@@ -1,7 +1,7 @@
 #include "os.h"
 #include <stdio.h>
 int main(void) {
-  OfSchedule r;
+  struct of_schedule r;
   os_job ties[] = {{0, 1, 1}, {0, 1, 1}}, idle = {2, 1, 1};
   if (of_schedule(ties, 2, OS_SJF, 1, 1, &r) != OF_OK)
     return 2;

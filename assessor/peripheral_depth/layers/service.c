@@ -23,8 +23,8 @@ int pl_encode(uint8_t seq, uint8_t value, uint8_t out[8]) {
   }
   return PL_OK;
 }
-static int valid(PlTransport t) { return t.submit && t.poll && t.cancel; }
-int pl_send(PlService *s, PlTransport t, uint8_t seq, uint8_t value,
+static int valid(struct pl_transport t) { return t.submit && t.poll && t.cancel; }
+int pl_send(struct pl_service *s, struct pl_transport t, uint8_t seq, uint8_t value,
             uint32_t token, uint32_t now, uint32_t budget) {
   if (!s || !valid(t) || !token || !budget || budget >= 0x80000000u)
     return PL_INVALID;
@@ -47,7 +47,7 @@ int pl_send(PlService *s, PlTransport t, uint8_t seq, uint8_t value,
   s->result = PL_BUSY;
   return PL_OK;
 }
-int pl_cancel(PlService *s, PlTransport t, uint32_t token) {
+int pl_cancel(struct pl_service *s, struct pl_transport t, uint32_t token) {
   if (!s || !valid(t))
     return PL_INVALID;
   if (!s->active || token != s->token)
@@ -57,8 +57,8 @@ int pl_cancel(PlService *s, PlTransport t, uint32_t token) {
     s->active = 0;
   return r;
 }
-int pl_poll(PlService *s, PlTransport t, uint32_t token, uint32_t now,
-            PlResult *out) {
+int pl_poll(struct pl_service *s, struct pl_transport t, uint32_t token, uint32_t now,
+            struct pl_result *out) {
   if (!s || !out || !valid(t))
     return PL_INVALID;
   if (!s->active || token != s->token)
@@ -68,13 +68,13 @@ int pl_poll(PlService *s, PlTransport t, uint32_t token, uint32_t now,
     return r;
   if (r != PL_OK && r != PL_CANCELLED && r != PL_IO && r != PL_TIMEOUT)
     return r;
-  PlResult result = {token, (uint32_t)r, 1};
+  struct pl_result result = {token, (uint32_t)r, 1};
   *out = result;
   s->result = (uint32_t)r;
   s->active = 0;
   return PL_OK;
 }
-int pl_feed(PlParser *p, uint8_t b, PlCommand *out) {
+int pl_feed(struct pl_parser *p, uint8_t b, struct pl_command *out) {
   if (!p || !out)
     return PL_INVALID;
   if (b == 0xf0) {
@@ -89,7 +89,7 @@ int pl_feed(PlParser *p, uint8_t b, PlCommand *out) {
     if (p->nibbles != 6 ||
         (PL_MUTANT != 3 && p->raw[2] != crc(p->raw[0], p->raw[1])))
       return PL_FRAME;
-    *out = (PlCommand){p->raw[0], p->raw[1]};
+    *out = (struct pl_command){p->raw[0], p->raw[1]};
     return PL_OK;
   }
   if (b < 0x10 || b > 0x1f || p->nibbles >= 6) {

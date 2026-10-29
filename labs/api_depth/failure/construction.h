@@ -2,36 +2,36 @@
 #define CMASTERY_FAILURE_CONSTRUCTION_H
 #include "ownership.h"
 #include "taxonomy.h"
-typedef enum {
+enum ae_construction_state {
   AE_CNEW,
   AE_CPARTIAL,
   AE_CACTIVE,
   AE_CFAILED,
   AE_CSTOPPED
-} AeConstructionState;
-typedef struct {
+};
+struct ae_transfer {
   unsigned resource, generation;
-} AeTransfer;
-typedef struct {
-  AcLedger *ledger;
-  AeError error;
+};
+struct ae_construction {
+  struct ac_ledger *ledger;
+  struct ae_error error;
   unsigned mask, generation, count, order[4], published, committed;
-  AeTransfer transfers[4];
+  struct ae_transfer transfers[4];
   unsigned transfer_count, cleanup_style;
-  AeConstructionState state;
-} AeConstruction;
-typedef struct {
-  AeConstruction *owner;
+  enum ae_construction_state state;
+};
+struct ae_construction_handle {
+  struct ae_construction *owner;
   unsigned generation;
-} AeConstructionHandle;
-typedef enum { AE_NESTED, AE_LABELS, AE_LOOP } AeConstructionStyle;
-void ae_construction_init(AeConstruction *, AcLedger *);
-AeCode ae_construct(AeConstruction *, unsigned count, unsigned swapped,
+};
+enum ae_construction_style { AE_NESTED, AE_LABELS, AE_LOOP };
+void ae_construction_init(struct ae_construction *, struct ac_ledger *);
+enum ae_code ae_construct(struct ae_construction *, unsigned count, unsigned swapped,
                     unsigned fail_point, unsigned close_fail_mask,
-                    AeConstructionStyle, AeConstructionHandle *);
-AeCode ae_cleanup(AeConstruction *, unsigned close_fail_mask);
-AeCode ae_construction_read(AeConstructionHandle, unsigned *);
-AeCode ae_transfer(AeConstruction *, unsigned resource);
-AeCode ae_after_publish(AeConstruction *, unsigned fail_notification);
-AeCode ae_compensate(AeConstruction *, unsigned effect_still_present);
+                    enum ae_construction_style, struct ae_construction_handle *);
+enum ae_code ae_cleanup(struct ae_construction *, unsigned close_fail_mask);
+enum ae_code ae_construction_read(struct ae_construction_handle, unsigned *);
+enum ae_code ae_transfer(struct ae_construction *, unsigned resource);
+enum ae_code ae_after_publish(struct ae_construction *, unsigned fail_notification);
+enum ae_code ae_compensate(struct ae_construction *, unsigned effect_still_present);
 #endif

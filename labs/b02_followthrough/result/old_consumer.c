@@ -5,7 +5,7 @@ int bf_old_render_wire(const unsigned char *p,size_t n,unsigned char *o,size_t c
  if(!p||!w||(!o&&c)||n<4)return B2_INVALID;
  if(p[0]!=1||p[1]>2)return B2_INVALID;
  size_t length=(size_t)p[2]*256u+p[3];if(length>256||n!=length+4)return B2_INVALID;
- B2Result r;r.tag=p[1];
+ struct b2_result r;r.tag=p[1];
  if(r.tag==1){r.value.text.data=p+4;r.value.text.length=length;}
  else{if(length!=4)return B2_INVALID;uint32_t raw=(uint32_t)p[4]*UINT32_C(16777216)+(uint32_t)p[5]*65536u+(uint32_t)p[6]*256u+p[7];
   int32_t signed_value=raw<=INT32_MAX?(int32_t)raw:-1-(int32_t)(UINT32_MAX-raw);

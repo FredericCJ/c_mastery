@@ -1,17 +1,17 @@
 #include "command.h"
-static int shape(const SCBatch *b) {
+static int shape(const struct sc_batch *b) {
   unsigned i, min = 0;
   if (!b || !b->count || b->count > 4 || !b->work || b->work > 4)
     return 0;
   for (i = 0; i < b->count; ++i) {
-    const SCCommand *c = &b->commands[i];
+    const struct sc_command *c = &b->commands[i];
     if (c->count > 4 || (c->opcode != 1 && c->opcode != 2))
       return 0;
     min += c->count ? c->count : 1;
   }
   return min <= b->work;
 }
-void sc_service_init(SCService *s) {
+void sc_service_init(struct sc_service *s) {
   unsigned i;
   for (i = 0; i < 3; ++i) {
     s->jobs[i].active = 0;
@@ -21,7 +21,7 @@ void sc_service_init(SCService *s) {
   s->used = s->count = s->terminal = s->released = s->control_pending =
       s->closed = 0;
 }
-enum sc_result sc_submit(SCService *s, const SCBatch *b, SCTicket *out) {
+enum sc_result sc_submit(struct sc_service *s, const struct sc_batch *b, struct sc_ticket *out) {
   unsigned i;
   if (!s || !out || !shape(b))
     return SC_INVALID;
@@ -45,13 +45,13 @@ enum sc_result sc_submit(SCService *s, const SCBatch *b, SCTicket *out) {
     }
   return SC_FULL;
 }
-static SCJob *find(SCService *s, SCTicket t) {
+static struct sc_job *find(struct sc_service *s, struct sc_ticket t) {
   if (!s || t.index >= 3 || !s->jobs[t.index].active ||
       s->jobs[t.index].generation != t.generation)
     return 0;
   return &s->jobs[t.index];
 }
-static void release(SCService *s, SCJob *j) {
+static void release(struct sc_service *s, struct sc_job *j) {
   s->used -= j->request.work;
   --s->count;
   ++s->terminal;
@@ -61,9 +61,9 @@ static void release(SCService *s, SCJob *j) {
   ++j->generation;
 #endif
 }
-enum sc_result sc_finish(SCService *s, SCTicket t, int cancel,
-                         const SCAuthority *a, uint32_t *p, uint32_t *q) {
-  SCJob *j = find(s, t);
+enum sc_result sc_finish(struct sc_service *s, struct sc_ticket t, int cancel,
+                         const struct sc_authority *a, uint32_t *p, uint32_t *q) {
+  struct sc_job *j = find(s, t);
   enum sc_result r;
   if (!j)
     return SC_STALE;
@@ -73,8 +73,8 @@ enum sc_result sc_finish(SCService *s, SCTicket t, int cancel,
   release(s, j);
   return r;
 }
-enum sc_result sc_retry(SCService *s, SCTicket t) {
-  SCJob *j = find(s, t);
+enum sc_result sc_retry(struct sc_service *s, struct sc_ticket t) {
+  struct sc_job *j = find(s, t);
   if (!j)
     return SC_STALE;
 #ifndef SC_MUTANT_RETRY
@@ -84,7 +84,7 @@ enum sc_result sc_retry(SCService *s, SCTicket t) {
   ++j->retries;
   return SC_OK;
 }
-enum sc_result sc_control(SCService *s) {
+enum sc_result sc_control(struct sc_service *s) {
   if (!s)
     return SC_INVALID;
   if (s->closed)
@@ -94,7 +94,7 @@ enum sc_result sc_control(SCService *s) {
   s->control_pending = 1;
   return SC_OK;
 }
-enum sc_result sc_control_complete(SCService *s) {
+enum sc_result sc_control_complete(struct sc_service *s) {
   if (!s)
     return SC_INVALID;
   if (!s->control_pending)
@@ -102,7 +102,7 @@ enum sc_result sc_control_complete(SCService *s) {
   s->control_pending = 0;
   return SC_OK;
 }
-enum sc_result sc_shutdown(SCService *s) {
+enum sc_result sc_shutdown(struct sc_service *s) {
   unsigned i;
   if (!s)
     return SC_INVALID;
@@ -113,7 +113,7 @@ enum sc_result sc_shutdown(SCService *s) {
       release(s, &s->jobs[i]);
   return SC_OK;
 }
-enum sc_result sc_recover(SCRecovery *s, SCResources r, int logger_ok) {
+enum sc_result sc_recover(struct sc_recovery *s, struct sc_resources r, int logger_ok) {
   unsigned i;
   if (!s || !r.acquire || !r.release || s->state > 2 || s->attempts > 2 ||
       s->owned > 2)

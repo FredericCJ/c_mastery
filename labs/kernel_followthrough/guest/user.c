@@ -87,7 +87,7 @@ __attribute__((section(".text.start"), noreturn)) void _start(void) {
   hex((uint64_t)cmk_call(CMK_TICKS, 0, 0, 0));
   finish(0);
 #elif defined(USER_SHELL)
-  KfLine input = {0};
+  struct kf_line input = {0};
   char line[64];
   unsigned length;
   print("KF:SHELL_READY\nkf> ");
@@ -122,9 +122,9 @@ __attribute__((section(".text.start"), noreturn)) void _start(void) {
       print("\n");
     } else if (length == 5 && line[0] == 's' && line[1] == 't' &&
                line[2] == 'a' && line[3] == 't' && line[4] == 's') {
-      KfStats value = {0};
+      struct kf_stats value = {0};
       check(cmk_call(KF_STATS, (uintptr_t)&value, 1, sizeof value) == 0);
-      KfStats saved = value;
+      struct kf_stats saved = value;
       check(cmk_call(KF_STATS, (uintptr_t)&value, 9, sizeof value) == -1);
       check(value.free_frames == saved.free_frames && value.pid == saved.pid &&
             value.version == saved.version);
@@ -134,10 +134,10 @@ __attribute__((section(".text.start"), noreturn)) void _start(void) {
     print("kf> ");
   }
 #else
-  KfStats stats = {0};
+  struct kf_stats stats = {0};
   check(cmk_call(KF_STATS, (uintptr_t)&stats, 1, sizeof stats) == 0 &&
         stats.version == 1 && stats.size == sizeof stats);
-  KfStats before = stats;
+  struct kf_stats before = stats;
   check(cmk_call(KF_STATS, (uintptr_t)&stats, 2, sizeof stats) == -1);
   check(stats.pid == before.pid && stats.ticks == before.ticks &&
         stats.free_frames == before.free_frames);

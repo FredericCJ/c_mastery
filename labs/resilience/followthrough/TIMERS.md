@@ -64,7 +64,7 @@ publication. This adds O(k²) insertion ordering in the bounded implementation;
 it is not a constant-time output claim. The cancellation path remains O(1).
 Tick catch-up costs the number of missed ticks plus visited/cascaded/output work.
 
-All three runtime-selected alternatives use `RztTimers`, which reserves fields
+All three runtime-selected alternatives use `struct rzt_timers`, which reserves fields
 for all representations. Therefore their actual `sizeof` is identical. Report
 that measured fact; do not claim a smaller specialized list object was measured.
 The diagnostic work build counts explicit ordering comparisons, index/link field

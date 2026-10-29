@@ -21,14 +21,14 @@
 #define ORC_STRING(x) ORC_STRING_INNER(x)
 #include ORC_STRING(ORC_PROVIDER)
 #endif
-static OwAtomicShared refs;
+static struct ow_atomic_shared refs;
 static atomic_uint destructions,reclamations;
 static int payload[2];
 static void destroy(void *unused){(void)unused;if(ORC_CASE==2){assert(payload[0]==1);assert(payload[1]==2);}else payload[0]=0;atomic_fetch_add(&destructions,1);}
 static void reclaim(void *unused){(void)unused;atomic_fetch_add(&reclamations,1);}
 static void *one(void *unused){(void)unused;if(ORC_CASE==2)payload[0]=1;assert(ow_atomic_drop(&refs)==OW_OK);return NULL;}
 static void *two(void *unused){(void)unused;if(ORC_CASE==2){payload[1]=2;assert(ow_atomic_drop(&refs)==OW_OK);}else{
- OwStatus status;
+ enum ow_status status;
  if(ORC_RESURRECT){unsigned n=atomic_load_explicit(&refs.strong,memory_order_relaxed);while(!atomic_compare_exchange_weak_explicit(&refs.strong,&n,n+1,memory_order_acquire,memory_order_relaxed)){}status=OW_OK;}
  else status=ow_atomic_upgrade(&refs);
  if(status==OW_OK){assert(payload[0]==41);assert(atomic_load(&destructions)==0);assert(ow_atomic_drop(&refs)==OW_OK);}else assert(status==OW_DEAD);

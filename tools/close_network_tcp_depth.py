@@ -13,11 +13,11 @@ SELECTORS={
 '07.b':['gcc-debug composition execute','gcc-debug mutant3 execute','gcc-debug mutant5 execute'],
 '07.c':['gcc-debug validation execute','gcc-debug composition execute','unobserved capture rejection']}
 RATIONALE={
-'06.a':'Actual Ni/SChecksum wire parser,104 rejection cases,MSS and WL1/WL2 wrap guards.',
+'06.a':'Actual Ni/struct s_checksum wire parser,104 rejection cases,MSS and WL1/WL2 wrap guards.',
 '06.b':'Exact prefix/overlap/capacity transitions;24576 independent absolute-interval queue events per profile.',
 '06.c':'All declared close states, full240000ms timer, actual HTTP truncated-body error and local reset property violation control.',
 '07.a':'Actual lower copied acceptance,12288 rational estimator events, both deadline orders, backoff and SYN floor.',
-'07.b':'Actual NwRx/NwHttpPump consumer pressure, zero-window no-new-byte probes and separate DMA/ACK gates.',
+'07.b':'Actual struct nw_rx/NwHttpPump consumer pressure, zero-window no-new-byte probes and separate DMA/ACK gates.',
 '07.c':'Three-retry retained-byte policy and equal1024-byte MSS64/256 service-model comparison; separate mandatory congestion work remains.'}
 
 

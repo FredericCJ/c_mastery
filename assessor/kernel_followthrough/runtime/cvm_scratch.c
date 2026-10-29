@@ -1,18 +1,18 @@
 /* Generated explicit workspace profile; see port_registration.py. */
 #include "probe.h"
-static KfVerifierWorkspace *kf_borrowed_workspace;
+static struct kf_verifier_workspace *kf_borrowed_workspace;
 #include "cvm.h"
 #include <limits.h>
-static CvmValue nil(void) {
-  CvmValue v = {CVM_NIL, 0, 0};
+static struct cvm_value nil(void) {
+  struct cvm_value v = {CVM_NIL, 0, 0};
   return v;
 }
-CvmValue cvm_int(int32_t n) {
-  CvmValue v = {CVM_INT, n, 0};
+struct cvm_value cvm_int(int32_t n) {
+  struct cvm_value v = {CVM_INT, n, 0};
   return v;
 }
-static CvmValue boolean(int n) {
-  CvmValue v = {CVM_BOOL, n != 0, 0};
+static struct cvm_value boolean(int n) {
+  struct cvm_value v = {CVM_BOOL, n != 0, 0};
   return v;
 }
 static uint16_t u16(const uint8_t *p) {
@@ -28,14 +28,14 @@ static int32_t i32(const uint8_t *p) {
   return n <= INT32_MAX ? (int32_t)n
                         : (int32_t)((int64_t)n - INT64_C(4294967296));
 }
-const char *cvm_status_name(CvmStatus s) {
+const char *cvm_status_name(enum cvm_status s) {
   static const char *const names[] = {
       "OK",          "FORMAT",      "VERIFY", "TYPE",       "RANGE",
       "STACK_LIMIT", "FRAME_LIMIT", "FUEL",   "HEAP_LIMIT", "GC_BUDGET",
       "HOST_BUDGET", "HOST_ERROR",  "STALE",  "SYNTAX",     "NOT_IMPLEMENTED"};
   return (unsigned)s < sizeof names / sizeof names[0] ? names[s] : "UNKNOWN";
 }
-void cvm_init(Cvm *v, uint32_t fuel, uint32_t gc, uint32_t host) {
+void cvm_init(struct cvm_cvm *v, uint32_t fuel, uint32_t gc, uint32_t host) {
   unsigned i, j;
   v->sp = 0;
   v->depth = 0;
@@ -75,7 +75,7 @@ static unsigned width(unsigned op) {
     return op >= OP_TRUE && op <= OP_GC ? 1 : 0;
   }
 }
-CvmStatus cvm_verify(const CvmProgram *p) {
+enum cvm_status cvm_verify(const struct cvm_program *p) {
   if (!kf_borrowed_workspace)
     return CVM_RANGE;
   uint8_t *boundary = kf_borrowed_workspace->boundary;
@@ -90,7 +90,7 @@ CvmStatus cvm_verify(const CvmProgram *p) {
     height[i] = -1;
   }
   for (f = 0; f < p->count; f++) {
-    const CvmFunction *fn = &p->functions[f];
+    const struct cvm_function *fn = &p->functions[f];
     unsigned end = (unsigned)fn->entry + fn->length, pc = fn->entry;
     if (pc != expected || !fn->length || end > p->length ||
         fn->arity > fn->locals || fn->locals > CVM_LOCALS)
@@ -113,7 +113,7 @@ CvmStatus cvm_verify(const CvmProgram *p) {
   if (expected != p->length)
     return CVM_VERIFY;
   for (f = 0; f < p->count; f++) {
-    const CvmFunction *fn = &p->functions[f];
+    const struct cvm_function *fn = &p->functions[f];
     unsigned end = (unsigned)fn->entry + fn->length, head = 0, tail = 0, pc;
     for (pc = fn->entry; pc < end; pc += width(p->code[pc]))
       if (p->code[pc] == OP_JMP || p->code[pc] == OP_JFALSE) {
@@ -199,13 +199,13 @@ CvmStatus cvm_verify(const CvmProgram *p) {
   return CVM_OK;
 }
 /* Container structure is an earlier boundary than instruction verification. */
-static CvmStatus layout(const CvmProgram *p) {
+static enum cvm_status layout(const struct cvm_program *p) {
   unsigned expected = 0;
   if (!p || !p->count || p->count > CVM_FUNCTIONS || !p->length ||
       p->length > CVM_CODE)
     return CVM_FORMAT;
   for (unsigned f = 0; f < p->count; ++f) {
-    const CvmFunction *fn = &p->functions[f];
+    const struct cvm_function *fn = &p->functions[f];
     unsigned end = (unsigned)fn->entry + fn->length;
     if (fn->entry != expected || !fn->length || end > p->length ||
         fn->arity > fn->locals || fn->locals > CVM_LOCALS)
@@ -214,11 +214,11 @@ static CvmStatus layout(const CvmProgram *p) {
   }
   return expected == p->length ? CVM_OK : CVM_FORMAT;
 }
-CvmStatus cvm_decode(const uint8_t *b, size_t n, CvmProgram *out) {
-  CvmProgram p = {0};
+enum cvm_status cvm_decode(const uint8_t *b, size_t n, struct cvm_program *out) {
+  struct cvm_program p = {0};
   size_t header, i;
   unsigned f;
-  CvmStatus s;
+  enum cvm_status s;
   if (!b || !out || n < 5 || b[0] != 'C' || b[1] != 'V' || b[2] != 'M' ||
       b[3] != '1' || !b[4] || b[4] > CVM_FUNCTIONS)
     return CVM_FORMAT;
@@ -241,11 +241,11 @@ CvmStatus cvm_decode(const uint8_t *b, size_t n, CvmProgram *out) {
     *out = p;
   return s;
 }
-CvmStatus cvm_encode(const CvmProgram *p, uint8_t *b, size_t capacity,
+enum cvm_status cvm_encode(const struct cvm_program *p, uint8_t *b, size_t capacity,
                      size_t *written) {
   size_t n, i;
   unsigned f;
-  CvmStatus s = layout(p);
+  enum cvm_status s = layout(p);
   if (s != CVM_OK)
     return s;
   n = 5u + 6u * p->count + p->length;
@@ -268,23 +268,23 @@ CvmStatus cvm_encode(const CvmProgram *p, uint8_t *b, size_t capacity,
   *written = n;
   return CVM_OK;
 }
-CvmStatus cvm_load(const uint8_t *b, size_t n, CvmProgram *out) {
-  CvmProgram p;
+enum cvm_status cvm_load(const uint8_t *b, size_t n, struct cvm_program *out) {
+  struct cvm_program p;
   if (!out)
     return CVM_FORMAT;
-  CvmStatus s = cvm_decode(b, n, &p);
+  enum cvm_status s = cvm_decode(b, n, &p);
   if (s == CVM_OK)
     s = cvm_verify(&p);
   if (s == CVM_OK)
     *out = p;
   return s;
 }
-CvmStatus cvm_save(const CvmProgram *p, uint8_t *b, size_t capacity,
+enum cvm_status cvm_save(const struct cvm_program *p, uint8_t *b, size_t capacity,
                    size_t *written) {
-  CvmStatus s = cvm_verify(p);
+  enum cvm_status s = cvm_verify(p);
   return s == CVM_OK ? cvm_encode(p, b, capacity, written) : s;
 }
-static CvmStatus live(Cvm *v, CvmValue r) {
+static enum cvm_status live(struct cvm_cvm *v, struct cvm_value r) {
   if (r.tag != CVM_REF)
     return CVM_TYPE;
   if (r.integer < 0 || (uint32_t)r.integer >= CVM_HEAP ||
@@ -292,29 +292,29 @@ static CvmStatus live(Cvm *v, CvmValue r) {
     return CVM_STALE;
   return CVM_OK;
 }
-CvmStatus cvm_field(Cvm *v, CvmValue r, int right, CvmValue *out) {
-  CvmStatus s = live(v, r);
+enum cvm_status cvm_field(struct cvm_cvm *v, struct cvm_value r, int right, struct cvm_value *out) {
+  enum cvm_status s = live(v, r);
   if (s == CVM_OK)
     *out = right ? v->heap[r.integer].right : v->heap[r.integer].left;
   return s;
 }
-CvmStatus cvm_root_push(Cvm *v, CvmValue x) {
+enum cvm_status cvm_root_push(struct cvm_cvm *v, struct cvm_value x) {
   if (v->root_count >= CVM_ROOTS)
     return CVM_STACK_LIMIT;
   if (x.tag == CVM_REF) {
-    CvmStatus s = live(v, x);
+    enum cvm_status s = live(v, x);
     if (s != CVM_OK)
       return s;
   }
   v->roots[v->root_count++] = x;
   return CVM_OK;
 }
-void cvm_root_pop(Cvm *v) {
+void cvm_root_pop(struct cvm_cvm *v) {
   if (v->root_count)
     v->root_count--;
 }
-static CvmStatus mark(Cvm *v, CvmValue x, uint8_t *work, unsigned *n) {
-  CvmStatus s;
+static enum cvm_status mark(struct cvm_cvm *v, struct cvm_value x, uint8_t *work, unsigned *n) {
+  enum cvm_status s;
   if (!v->gc_budget)
     return CVM_GC_BUDGET;
   v->gc_budget--;
@@ -329,10 +329,10 @@ static CvmStatus mark(Cvm *v, CvmValue x, uint8_t *work, unsigned *n) {
   }
   return CVM_OK;
 }
-CvmStatus cvm_collect(Cvm *v) {
+enum cvm_status cvm_collect(struct cvm_cvm *v) {
   uint8_t work[CVM_HEAP];
   unsigned n = 0, i, j;
-  CvmStatus s;
+  enum cvm_status s;
   if (v->arena)
     return CVM_HEAP_LIMIT;
   /* Sweep starts only after complete marking. Budget exhaustion never frees a
@@ -359,7 +359,7 @@ CvmStatus cvm_collect(Cvm *v) {
           return s;
       }
   while (n) {
-    CvmObject *o = &v->heap[work[--n]];
+    struct cvm_object *o = &v->heap[work[--n]];
     s = mark(v, o->left, work, &n);
     if (s != CVM_OK)
       return s;
@@ -376,9 +376,9 @@ CvmStatus cvm_collect(Cvm *v) {
   v->collections++;
   return CVM_OK;
 }
-CvmStatus cvm_pair(Cvm *v, CvmValue a, CvmValue b, CvmValue *out) {
+enum cvm_status cvm_pair(struct cvm_cvm *v, struct cvm_value a, struct cvm_value b, struct cvm_value *out) {
   unsigned i, pass;
-  CvmStatus s;
+  enum cvm_status s;
   if (a.tag == CVM_REF && (s = live(v, a)) != CVM_OK)
     return s;
   if (b.tag == CVM_REF && (s = live(v, b)) != CVM_OK)
@@ -386,7 +386,7 @@ CvmStatus cvm_pair(Cvm *v, CvmValue a, CvmValue b, CvmValue *out) {
   for (pass = 0; pass < 2; pass++) {
     for (i = 0; i < CVM_HEAP; i++)
       if (!v->heap[i].used && v->heap[i].generation != UINT32_MAX) {
-        CvmObject *o = &v->heap[i];
+        struct cvm_object *o = &v->heap[i];
         o->generation++;
         o->used = 1;
         o->marked = 0;
@@ -417,13 +417,13 @@ CvmStatus cvm_pair(Cvm *v, CvmValue a, CvmValue b, CvmValue *out) {
   }
   return CVM_HEAP_LIMIT;
 }
-static CvmStatus push(Cvm *v, CvmValue x) {
+static enum cvm_status push(struct cvm_cvm *v, struct cvm_value x) {
   if (v->sp >= CVM_STACK)
     return CVM_STACK_LIMIT;
   v->stack[v->sp++] = x;
   return CVM_OK;
 }
-static void frame(CvmFrame *f, uint8_t fn, uint16_t ip, uint16_t base) {
+static void frame(struct cvm_frame *f, uint8_t fn, uint16_t ip, uint16_t base) {
   unsigned i;
   f->function = fn;
   f->ip = ip;
@@ -431,8 +431,8 @@ static void frame(CvmFrame *f, uint8_t fn, uint16_t ip, uint16_t base) {
   for (i = 0; i < CVM_LOCALS; i++)
     f->initialized[i] = 0;
 }
-CvmStatus cvm_run(Cvm *v, const CvmProgram *p, CvmValue *out) {
-  CvmStatus s = cvm_verify(p);
+enum cvm_status cvm_run(struct cvm_cvm *v, const struct cvm_program *p, struct cvm_value *out) {
+  enum cvm_status s = cvm_verify(p);
   if (s != CVM_OK)
     return s;
   if (!v || !out)
@@ -441,9 +441,9 @@ CvmStatus cvm_run(Cvm *v, const CvmProgram *p, CvmValue *out) {
   v->depth = 1;
   frame(&v->frames[0], 0, p->functions[0].entry, 0);
   while (v->depth) {
-    CvmFrame *f = &v->frames[v->depth - 1];
+    struct cvm_frame *f = &v->frames[v->depth - 1];
     unsigned op = p->code[f->ip++];
-    CvmValue a, b, r;
+    struct cvm_value a, b, r;
     int64_t n = 0;
     unsigned k;
 #ifndef CVM_MUTATE_NO_FUEL
@@ -531,7 +531,7 @@ CvmStatus cvm_run(Cvm *v, const CvmProgram *p, CvmValue *out) {
     case OP_CALL: {
       unsigned fn = p->code[f->ip++], argc = p->code[f->ip++],
                base = v->sp - argc;
-      CvmFrame *nf;
+      struct cvm_frame *nf;
       if (v->depth >= CVM_FRAMES)
         return CVM_FRAME_LIMIT;
       nf = &v->frames[v->depth++];
@@ -595,19 +595,19 @@ CvmStatus cvm_run(Cvm *v, const CvmProgram *p, CvmValue *out) {
   return CVM_VERIFY;
 }
 
-CvmStatus kf_load_scratch(KfVerifierWorkspace *workspace, const uint8_t *bytes,
-                          size_t count, CvmProgram *program) {
+enum cvm_status kf_load_scratch(struct kf_verifier_workspace *workspace, const uint8_t *bytes,
+                          size_t count, struct cvm_program *program) {
   if (!workspace || kf_borrowed_workspace) return CVM_RANGE;
   kf_borrowed_workspace = workspace;
-  CvmStatus status = cvm_load(bytes, count, program);
+  enum cvm_status status = cvm_load(bytes, count, program);
   kf_borrowed_workspace = 0;
   return status;
 }
-CvmStatus kf_run_scratch(KfVerifierWorkspace *workspace, Cvm *machine,
-                         const CvmProgram *program, CvmValue *result) {
+enum cvm_status kf_run_scratch(struct kf_verifier_workspace *workspace, struct cvm_cvm *machine,
+                         const struct cvm_program *program, struct cvm_value *result) {
   if (!workspace || kf_borrowed_workspace) return CVM_RANGE;
   kf_borrowed_workspace = workspace;
-  CvmStatus status = cvm_run(machine, program, result);
+  enum cvm_status status = cvm_run(machine, program, result);
   kf_borrowed_workspace = 0;
   return status;
 }

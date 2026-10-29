@@ -47,7 +47,7 @@ claim inspection of an unavailable exact C17 standard text.
 ## 5. Problem, inputs and outputs
 
 Implement `server.h` using the unsolved public `server.c` and the completed
-retained producer. `SSBudget` owns a `cmx_server`, capacity1..16 and immutable
+retained producer. `struct ss_budget` owns a `cmx_server`, capacity1..16 and immutable
 overflow policy. `ss_init(Q,P,start,capacity,policy)` requires `0<Q<=P<2^31`.
 Calls are externally serialized; caller storage stays live and fields are not
 mutated outside the API. `ss_update(now)` applies due records; `ss_charge(now,n)`

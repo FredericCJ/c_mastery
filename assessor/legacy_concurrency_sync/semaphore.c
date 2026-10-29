@@ -2,7 +2,7 @@
 #ifndef CDSEM_MUTANT
 #define CDSEM_MUTANT 0
 #endif
-int cds_init(CDSem *s, cmx_kernel *k, unsigned initial, unsigned maximum,
+int cds_init(struct cd_sem *s, cmx_kernel *k, unsigned initial, unsigned maximum,
              unsigned priority) {
   if (!s || !k || !maximum || initial > maximum || priority > 1)
     return CMX_INVALID;
@@ -12,14 +12,14 @@ int cds_init(CDSem *s, cmx_kernel *k, unsigned initial, unsigned maximum,
   s->closed = 0;
   return cw_object_init(&s->wait, 0, CW_SEMAPHORE, initial, maximum);
 }
-int cds_take(CDSem *s, unsigned t, cmx_deadline d, CWToken *out) {
+int cds_take(struct cd_sem *s, unsigned t, cmx_deadline d, struct cw_token *out) {
   if (!s)
     return CMX_INVALID;
   if (s->closed)
     return CMX_CLOSED;
   return cw_begin(&s->wait, 0, t, d, 0, out);
 }
-int cds_post(CDSem *s, CDPost *out) {
+int cds_post(struct cd_sem *s, struct cd_post *out) {
   if (!s || !out)
     return CMX_INVALID;
   if (s->closed)
@@ -27,7 +27,7 @@ int cds_post(CDSem *s, CDPost *out) {
   cmx_kernel *k = s->wait.kernel;
   cmx_sem *sem = &s->wait.objects[0].semaphore;
   unsigned fifo = CMX_TASKS, best = CMX_TASKS;
-  CDPost result = {CMX_TASKS, 0, 0, 0};
+  struct cd_post result = {CMX_TASKS, 0, 0, 0};
   for (unsigned t = 0; t < CMX_TASKS; ++t) {
     cmx_task *p = &k->task[t];
     if (p->state != CMX_WAITING || p->wait != CMX_W_SEM || p->object != sem)
@@ -76,7 +76,7 @@ int cds_post(CDSem *s, CDPost *out) {
   *out = result;
   return CMX_OK;
 }
-int cds_close(CDSem *s) {
+int cds_close(struct cd_sem *s) {
   if (!s)
     return CMX_INVALID;
   if (s->closed)
@@ -86,14 +86,14 @@ int cds_close(CDSem *s) {
     s->closed = 1;
   return r;
 }
-int cds_deferred_init(CDDeferred *d, unsigned maximum) {
+int cds_deferred_init(struct cd_deferred *d, unsigned maximum) {
   if (!d || !maximum)
     return CMX_INVALID;
-  *d = (CDDeferred){0};
+  *d = (struct cd_deferred){0};
   d->maximum = maximum;
   return CMX_OK;
 }
-int cds_deferred_offer(CDDeferred *d) {
+int cds_deferred_offer(struct cd_deferred *d) {
   if (!d)
     return CMX_INVALID;
   if (d->closed)
@@ -104,7 +104,7 @@ int cds_deferred_offer(CDDeferred *d) {
   ++d->accepted;
   return CMX_OK;
 }
-int cds_deferred_drain(CDDeferred *d, CDSem *s, unsigned budget,
+int cds_deferred_drain(struct cd_deferred *d, struct cd_sem *s, unsigned budget,
                        unsigned *out) {
   if (!d || !s || !out || !budget)
     return CMX_INVALID;
@@ -113,7 +113,7 @@ int cds_deferred_drain(CDDeferred *d, CDSem *s, unsigned budget,
   unsigned done = 0;
   int status = CMX_OK;
   while (done < budget && d->pending) {
-    CDPost post;
+    struct cd_post post;
     status = cds_post(s, &post);
     if (status != CMX_OK)
       break;
@@ -124,7 +124,7 @@ int cds_deferred_drain(CDDeferred *d, CDSem *s, unsigned budget,
   *out = done;
   return status;
 }
-int cds_deferred_close(CDDeferred *d) {
+int cds_deferred_close(struct cd_deferred *d) {
   if (!d)
     return CMX_INVALID;
   if (d->closed)

@@ -54,7 +54,7 @@ parity0, and16 edges when LBCL0. Reject a payload that requires the parity bit.
 Derive all parameter combinations; do not blindly add two edges to an earlier
 8-bit result.
 
-**Captured clock, X-T38-003-V2.** `SvEdge` supplies a measured or synthetic clock
+**Captured clock, X-T38-003-V2.** `struct sv_edge` supplies a measured or synthetic clock
 level, sample marker, and durations for which data is stable before/after that
 edge. Label their provenance. For a declared bit period1..160000000 ns the
 selected RM0090 synchronous premise requires at least one sixteenth of a bit
@@ -83,7 +83,7 @@ trajectory. Measure actual thresholds, noise, common mode and temperature
 before promoting the synthetic profile. A valid high level or failsafe idle
 never authenticates a peer or proves a working cable.
 
-**Stream reset, X-T38-008-V1.** `SvStream` owns the actual `CnStream` and a
+**Stream reset, X-T38-008-V1.** `struct sv_stream` owns the actual `struct cn_stream` and a
 positive uint32 generation. Reset explicitly abandons its old partial input
 and requires a strictly greater generation; exhaustion cannot wrap to1.
 `sv_stream_feed` requires the exact live generation before invoking `cn_feed`.
@@ -122,7 +122,7 @@ remote/data choices against mask120/7F0, then a list containing both a standard
 and extended frame. Explain why the original11-bit predicate lacked format and
 frame-kind constraints.
 
-Use actual `SDFifo` newest-overwrite and `CnQueue` oldest-drop producers for
+Use actual `struct sd_fifo` newest-overwrite and `struct cn_queue` oldest-drop producers for
 the changed loss policy. Histories [0,1,2,3] and [9,1,2,3] leave the same changed
 queue [1,2,3], yet the original desired queues begin0 and9. No post-overflow
 adapter can reconstruct the lost value without a prior retained copy or extra

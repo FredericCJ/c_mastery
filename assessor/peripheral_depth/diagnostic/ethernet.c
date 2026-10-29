@@ -4,7 +4,7 @@
 #endif
 static const uint8_t destination[6] = {2, 0, 0, 0, 0, 2};
 static const uint8_t source[6] = {2, 0, 0, 0, 0, 1};
-int dg_ethernet_build(const DGMessage *m, uint8_t *out, size_t cap,
+int dg_ethernet_build(const struct dg_message *m, uint8_t *out, size_t cap,
                       size_t *written) {
   uint8_t wire[36];
   size_t n;
@@ -15,9 +15,9 @@ int dg_ethernet_build(const DGMessage *m, uint8_t *out, size_t cap,
                       written);
   return rc == ED_OK ? DG_OK : rc == ED_FULL ? DG_FULL : DG_INVALID;
 }
-int dg_ethernet_accept(DGSession *s, const uint8_t *p, size_t n,
-                       DGMessage *out) {
-  EDFrame f;
+int dg_ethernet_accept(struct dg_session *s, const uint8_t *p, size_t n,
+                       struct dg_message *out) {
+  struct ed_frame f;
   int rc = ed_frame_parse(p, n, 0, &f);
   if (rc != ED_OK)
     return DG_FRAME;
@@ -29,11 +29,11 @@ int dg_ethernet_accept(DGSession *s, const uint8_t *p, size_t n,
   return dg_accept(s, f.payload,
                    DG_MUTANT == 4 ? f.stored_payload : f.payload_length, out);
 }
-int dg_descriptors(DGSession *s, EDRx *rx, const EDDescriptor *d, size_t n,
-                   DGMessage *out) {
+int dg_descriptors(struct dg_session *s, struct ed_rx *rx, const struct ed_descriptor *d, size_t n,
+                   struct dg_message *out) {
   if (!s || !rx || !out)
     return DG_INVALID;
-  EDBorrow b;
+  struct ed_borrow b;
   int rc = ed_rx_acquire(rx, d, n, &b);
   if (rc != ED_OK)
     return rc == ED_BUSY ? DG_BUSY : DG_FRAME;
@@ -52,7 +52,7 @@ int dg_descriptors(DGSession *s, EDRx *rx, const EDDescriptor *d, size_t n,
     return DG_IO;
   return rc;
 }
-int dg_publish(EDTx *tx, unsigned slot, uint32_t token, const DGMessage *m,
+int dg_publish(struct ed_tx *tx, unsigned slot, uint32_t token, const struct dg_message *m,
                void (*barrier)(void *), void *context) {
   if (!tx || !barrier)
     return DG_INVALID;

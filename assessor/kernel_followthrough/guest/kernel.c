@@ -407,12 +407,12 @@ static uint64_t cfg_read64(volatile unsigned char *p,unsigned offset){
  * disables its memory decoding/bus mastering, restores every BAR, then restores
  * the command register. These guest device operations do not configure the
  * host. */
-static void pci_apertures(unsigned d, KfBar bars[6]) {
+static void pci_apertures(unsigned d, struct kf_bar bars[6]) {
   uint32_t command = pci_read(d, 4) & 65535;
   pci_write(d, 4, command & ~6u);
   for (unsigned i = 0; i < 6; ++i) {
     uint32_t low = pci_read(d, 0x10 + 4 * i);
-    bars[i] = (KfBar){0};
+    bars[i] = (struct kf_bar){0};
     if (low & 1)
       continue;
     unsigned wide = (low & 6) == 4;
@@ -433,10 +433,10 @@ static void pci_apertures(unsigned d, KfBar bars[6]) {
     uint64_t size = wide ? (~mask + 1) : (uint32_t)(~(uint32_t)mask + 1);
     if (mask && size)
       bars[i] =
-          (KfBar){(low & ~UINT32_C(15)) | ((uint64_t)high << 32), size, 1};
+          (struct kf_bar){(low & ~UINT32_C(15)) | ((uint64_t)high << 32), size, 1};
     if (wide) {
       ++i;
-      bars[i] = (KfBar){0};
+      bars[i] = (struct kf_bar){0};
     }
   }
   pci_write(d, 4, command);
@@ -451,8 +451,8 @@ static void virtio_init(void) {
   if (!(pci_read(d, 4) & 0x100000))
     panic("PCI capability list absent");
   uint8_t snapshot[256];
-  KfBar bars[6];
-  KfPci parsed;
+  struct kf_bar bars[6];
+  struct kf_pci parsed;
   pci_apertures(d, bars);
   for (unsigned i = 0; i < 256; ++i)
     snapshot[i] = pci_byte(d, i);
@@ -657,9 +657,9 @@ static int64_t syscall(struct frame *f) {
     next_budget = (int)a;
     return 0;
   case KF_STATS: {
-    if (b != 1 || c != sizeof(KfStats) || !user_ok(t, a, c, 1))
+    if (b != 1 || c != sizeof(struct kf_stats) || !user_ok(t, a, c, 1))
       return -1;
-    KfStats value = {1,     sizeof(KfStats), current,           free_count(),
+    struct kf_stats value = {1,     sizeof(struct kf_stats), current,           free_count(),
                      ticks, preemptions,     device_submissions};
     memcpy((void *)(uintptr_t)a, &value, sizeof value);
     return 0;

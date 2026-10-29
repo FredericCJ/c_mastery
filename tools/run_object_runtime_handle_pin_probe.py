@@ -18,11 +18,11 @@ static volatile uint64_t checksum;
 static uint64_t ns(void){struct timespec t;if(clock_gettime(CLOCK_MONOTONIC,&t))return 0;return (uint64_t)t.tv_sec*UINT64_C(1000000000)+(uint64_t)t.tv_nsec;}
 #define REQUIRE(c) do{if(!(c))return 1;}while(0)
 int main(void){unsigned mode,length,read_case,trial,round;
- printf("LAYOUT %zu %zu %zu %zu\n",sizeof(ORXHandle),sizeof(ORXTicket),sizeof(ORXHeap),sizeof(ORXCell));
+ printf("LAYOUT %zu %zu %zu %zu\n",sizeof(struct orx_handle),sizeof(struct orx_ticket),sizeof(struct orx_heap),sizeof(struct orx_cell));
  for(mode=0;mode<2;mode++)for(length=1;length<=15;length+=14)for(read_case=0;read_case<3;read_case++)for(trial=0;trial<16;trial++){
   unsigned reads=read_case==0?1:read_case==1?64:256,moves=0;uint64_t total=0,start=ns(),end;
   for(round=0;round<PROBE_ROUNDS;round++){
-   ORXHeap h;ORXHandle objects[8],job;ORXTicket ticket;const unsigned char *raw=NULL;size_t size=0;unsigned i,j,k,n;unsigned char payload[15],buffer[15];
+   struct orx_heap h;struct orx_handle objects[8],job;struct orx_ticket ticket;const unsigned char *raw=NULL;size_t size=0;unsigned i,j,k,n;unsigned char payload[15],buffer[15];
    orx_heap_init(&h);
    for(i=0;i<8;i++){for(j=0;j<length;j++)payload[j]=(unsigned char)(i+1);REQUIRE(orx_new(&h,payload,length,&objects[i])==OR_OK);}
    job=objects[7];REQUIRE(orx_retain(&h,job)==OR_OK&&orx_release(&h,objects[7])==OR_OK);

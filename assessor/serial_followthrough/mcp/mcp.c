@@ -31,7 +31,7 @@ static int range(uint16_t a, unsigned n) {
   return (a <= 0x2ec && n <= 0x2f0u - a) ||
          (a >= 0xe00 && a <= 0xe17 && n <= 0xe18u - a);
 }
-int mc_read(McBus b, uint16_t a, uint8_t *out, unsigned n) {
+int mc_read(struct mc_bus b, uint16_t a, uint8_t *out, unsigned n) {
   if (!b.transfer || !out || !range(a, n))
     return MC_INVALID;
   uint8_t staged[76];
@@ -64,7 +64,7 @@ int mc_read(McBus b, uint16_t a, uint8_t *out, unsigned n) {
   memcpy(out, staged, n);
   return MC_OK;
 }
-int mc_write(McBus b, uint16_t a, const uint8_t *p, unsigned n) {
+int mc_write(struct mc_bus b, uint16_t a, const uint8_t *p, unsigned n) {
   if (!b.transfer || !p || !range(a, n) ||
       (a < 0xe08 && a + n > 0xe04 && n != 1))
     return MC_INVALID;
@@ -82,22 +82,22 @@ int mc_write(McBus b, uint16_t a, const uint8_t *p, unsigned n) {
   }
   return MC_OK;
 }
-static int rd(McBus b, uint16_t a, uint32_t *out) {
+static int rd(struct mc_bus b, uint16_t a, uint32_t *out) {
   uint8_t p[4];
   int r = mc_read(b, a, p, 4);
   if (!r)
     *out = get(p);
   return r;
 }
-static int wr(McBus b, uint16_t a, uint32_t v) {
+static int wr(struct mc_bus b, uint16_t a, uint32_t v) {
   uint8_t p[4];
   put(p, v);
   return mc_write(b, a, p, 4);
 }
-static int byte(McBus b, uint16_t a, uint8_t v) {
+static int byte(struct mc_bus b, uint16_t a, uint8_t v) {
   return mc_write(b, a, &v, 1);
 }
-static int verify(McBus b, uint16_t a, uint32_t v, uint32_t mask) {
+static int verify(struct mc_bus b, uint16_t a, uint32_t v, uint32_t mask) {
   uint32_t got;
   int r = wr(b, a, v);
   if (r)
@@ -105,7 +105,7 @@ static int verify(McBus b, uint16_t a, uint32_t v, uint32_t mask) {
   r = rd(b, a, &got);
   return r ? r : ((got & mask) == (v & mask) ? MC_OK : MC_DEVICE);
 }
-static int wait_bits(McBus b, uint16_t a, uint32_t mask, uint32_t value,
+static int wait_bits(struct mc_bus b, uint16_t a, uint32_t mask, uint32_t value,
                      unsigned budget) {
   uint32_t start = b.now(b.context), last = start;
   for (unsigned i = 0; i < 1024; i++) {
@@ -121,10 +121,10 @@ static int wait_bits(McBus b, uint16_t a, uint32_t mask, uint32_t value,
   }
   return MC_TIMEOUT;
 }
-int mc_layout(unsigned code, unsigned depth, McLayout *out) {
+int mc_layout(unsigned code, unsigned depth, struct mc_layout *out) {
   if (code > 7 || !depth || depth > 16 || !out)
     return MC_INVALID;
-  McLayout l = {8 + sizes[code],
+  struct mc_layout l = {8 + sizes[code],
                 depth * (8 + sizes[code]),
                 MC_MUTANT == 5 ? 0 : 29 * 16,
                 0,
@@ -140,13 +140,13 @@ int mc_layout(unsigned code, unsigned depth, McLayout *out) {
   *out = l;
   return MC_OK;
 }
-static int poison(McDriver *d, int r) {
+static int poison(struct mc_driver *d, int r) {
   if (r)
     d->state = MC_POISONED;
   return r;
 }
-int mc_init(McDriver *d, McBus b, const McConfig *c, unsigned budget) {
-  McLayout l;
+int mc_init(struct mc_driver *d, struct mc_bus b, const struct mc_config *c, unsigned budget) {
+  struct mc_layout l;
   if (!d || d->state != MC_NEW || !b.transfer || !b.now || !c || !budget ||
       budget >= 0x80000000u || c->loopback > 1 || c->expected_devid > 255 ||
       c->accepted_id > 2047 || c->clock_hz != 40000000 || !c->spi_hz ||
@@ -232,10 +232,10 @@ int mc_init(McDriver *d, McBus b, const McConfig *c, unsigned budget) {
   d->state = MC_READY;
   return MC_OK;
 }
-static int frame(const McFrame *f) {
+static int frame(const struct mc_frame *f) {
   return f && f->id <= 2047 && f->dlc <= 15 && f->brs <= 1 && f->esi <= 1;
 }
-int mc_send(McDriver *d, McBus b, uint32_t token, const McFrame *f) {
+int mc_send(struct mc_driver *d, struct mc_bus b, uint32_t token, const struct mc_frame *f) {
   if (!d || d->state != MC_READY || !b.transfer || !frame(f))
     return MC_INVALID;
   if (d->pending)
@@ -275,7 +275,7 @@ int mc_send(McDriver *d, McBus b, uint32_t token, const McFrame *f) {
     return poison(d, r);
   return MC_OK;
 }
-int mc_poll(McDriver *d, McBus b) {
+int mc_poll(struct mc_driver *d, struct mc_bus b) {
   if (!d || d->state != MC_READY || !d->pending)
     return MC_INVALID;
   if (d->terminal)
@@ -301,7 +301,7 @@ int mc_poll(McDriver *d, McBus b) {
   d->terminal = 1;
   return MC_OK;
 }
-int mc_cancel(McDriver *d, McBus b) {
+int mc_cancel(struct mc_driver *d, struct mc_bus b) {
   if (!d || d->state != MC_READY || !d->pending)
     return MC_INVALID;
   if (d->terminal || d->cancel_requested)
@@ -312,7 +312,7 @@ int mc_cancel(McDriver *d, McBus b) {
   d->cancel_requested = 1;
   return MC_OK;
 }
-int mc_take(McDriver *d, McBus b, uint32_t token, unsigned budget,
+int mc_take(struct mc_driver *d, struct mc_bus b, uint32_t token, unsigned budget,
             unsigned *out) {
   if (!d || d->state != MC_READY || !out || !b.now || !budget ||
       budget >= 0x80000000u)
@@ -332,7 +332,7 @@ int mc_take(McDriver *d, McBus b, uint32_t token, unsigned budget,
   d->terminal = 0;
   return MC_OK;
 }
-int mc_receive(McDriver *d, McBus b, McFrame *out) {
+int mc_receive(struct mc_driver *d, struct mc_bus b, struct mc_frame *out) {
   if (!d || d->state != MC_READY || !out)
     return MC_INVALID;
   uint32_t status, ua;
@@ -353,7 +353,7 @@ int mc_receive(McDriver *d, McBus b, McFrame *out) {
   unsigned n = lengths[ctrl & 15];
   if (!(ctrl & 0x80) || (ctrl & 0x30) || n > d->payload)
     return poison(d, MC_DEVICE);
-  McFrame f = {0};
+  struct mc_frame f = {0};
   f.id = (uint16_t)id;
   f.dlc = (uint8_t)(ctrl & 15);
   f.brs = (uint8_t)((ctrl >> 6) & 1);
@@ -366,7 +366,7 @@ int mc_receive(McDriver *d, McBus b, McFrame *out) {
   *out = f;
   return MC_OK;
 }
-int mc_interrupt(McDriver *d, McBus b, uint32_t *out) {
+int mc_interrupt(struct mc_driver *d, struct mc_bus b, uint32_t *out) {
   if (!d || d->state != MC_READY || !out)
     return MC_INVALID;
   uint32_t flags, ecc;
@@ -385,11 +385,11 @@ int mc_interrupt(McDriver *d, McBus b, uint32_t *out) {
   }
   return MC_OK;
 }
-int mc_bench_frame(unsigned index, unsigned brs, McFrame *out) {
+int mc_bench_frame(unsigned index, unsigned brs, struct mc_frame *out) {
   static const unsigned dlc[] = {0, 8, 9, 10, 11, 15};
   if (index >= 6 || brs > 1 || !out)
     return MC_INVALID;
-  McFrame f = {0};
+  struct mc_frame f = {0};
   f.id = (uint16_t)(0x300 + index);
   f.dlc = (uint8_t)dlc[index];
   f.brs = (uint8_t)brs;
@@ -406,10 +406,10 @@ int mc_bench_frame(unsigned index, unsigned brs, McFrame *out) {
   *out = f;
   return MC_OK;
 }
-int mc_bench_match(unsigned index, unsigned brs, const McFrame *got) {
+int mc_bench_match(unsigned index, unsigned brs, const struct mc_frame *got) {
   if (MC_MUTANT == 8)
     return MC_OK;
-  McFrame f;
+  struct mc_frame f;
   if (!frame(got) || mc_bench_frame(index, brs, &f))
     return MC_INVALID;
   return f.id == got->id && f.dlc == got->dlc && f.brs == got->brs &&

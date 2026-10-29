@@ -17,16 +17,16 @@ static volatile unsigned checksum;
 static uint64_t ns(void){struct timespec t;if(clock_gettime(CLOCK_MONOTONIC,&t))return 0;return (uint64_t)t.tv_sec*UINT64_C(1000000000)+(uint64_t)t.tv_nsec;}
 #define REQUIRE(c) do{if(!(c))return 1;}while(0)
 int main(void){unsigned mask,trial,k,i;
- printf("LAYOUT %zu %zu %zu %zu %zu %zu %zu %zu\n",sizeof(ORXValue),sizeof(ORXHandle),sizeof(ORXCell),sizeof(ORXEntry),sizeof(ORXLease),sizeof(ORXHeap),sizeof(ORXIntern),sizeof(ORXTicket));
+ printf("LAYOUT %zu %zu %zu %zu %zu %zu %zu %zu\n",sizeof(struct orx_value),sizeof(struct orx_handle),sizeof(struct orx_cell),sizeof(struct orx_entry),sizeof(struct orx_lease),sizeof(struct orx_heap),sizeof(struct orx_intern),sizeof(struct orx_ticket));
  for(k=1;k<=8;k++){
-  ORXHeap h;ORXIntern table;OwAllocator a={0};ORXHandle object;orx_heap_init(&h);REQUIRE(orx_intern_init(&table,&h,ow_allocator(&a))==OR_OK);
+  struct orx_heap h;struct orx_intern table;struct ow_allocator a={0};struct orx_handle object;orx_heap_init(&h);REQUIRE(orx_intern_init(&table,&h,ow_allocator(&a))==OR_OK);
   for(i=0;i<k;i++){unsigned char value=(unsigned char)i;REQUIRE(orx_intern_get(&table,&value,1,&object)==OR_OK);}
   printf("ALLOC %u %u %zu %zu %zu %zu\n",k,table.capacity,a.attempts,a.live,a.peak,a.releases);REQUIRE(orx_intern_close(&table)==OR_OK&&a.live==0);
  }
  for(mask=0;mask<4;mask++)for(trial=0;trial<8;trial++){
   uint64_t elapsed=0;unsigned pins=mask==0?0:mask==1?2:mask==2?128:170;unsigned total=0;
   for(k=0;k<1000;k++){
-   ORXHeap h;ORXHandle objects[8];ORXTicket tickets[4];const unsigned char *raw;size_t length;unsigned n,ticket_count=0;uint64_t start,end;
+   struct orx_heap h;struct orx_handle objects[8];struct orx_ticket tickets[4];const unsigned char *raw;size_t length;unsigned n,ticket_count=0;uint64_t start,end;
    orx_heap_init(&h);for(i=0;i<8;i++){unsigned char value=(unsigned char)i;REQUIRE(orx_new(&h,&value,1,&objects[i])==OR_OK);if(!(170u&(1u<<i)))REQUIRE(orx_release(&h,objects[i])==OR_OK);if(pins&(1u<<i))REQUIRE(orx_foreign_begin(&h,objects[i],1,&tickets[ticket_count++],&raw,&length)==OR_OK);}
    REQUIRE(orx_collect(&h,&n)==OR_OK&&n==4);start=ns();REQUIRE(orx_pack(&h,&n)==OR_OK);end=ns();REQUIRE(end>=start&&start);elapsed+=end-start;total+=n;checksum+=h.cell[h.entry[7].position].bytes[0];
    for(i=0;i<ticket_count;i++)REQUIRE(orx_foreign_finish(tickets[i],1)==OR_OK);

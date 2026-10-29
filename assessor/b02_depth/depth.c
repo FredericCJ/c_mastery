@@ -16,12 +16,12 @@ int b2_parse(const unsigned char *p,size_t n,int32_t *out){
  if(negative)*out=v==UINT32_C(2147483648)?INT32_MIN:-(int32_t)v;else *out=(int32_t)v;
  return B2_OK;
 }
-void b2_map_init(B2Map *m){size_t i;for(i=0;i<7;i++)m->slots[i]=(B2Entry){0,0,0};m->count=0;}
-int b2_map_get(const B2Map *m,uint16_t k,int *out){
+void b2_map_init(struct b2_map *m){size_t i;for(i=0;i<7;i++)m->slots[i]=(struct b2_entry){0,0,0};m->count=0;}
+int b2_map_get(const struct b2_map *m,uint16_t k,int *out){
  size_t i,j;if(!m||!out)return B2_INVALID;i=k%7u;
  for(j=0;j<7;j++,i=(i+1)%7){if(m->slots[i].state==0)return B2_ABSENT;if(m->slots[i].state==1&&m->slots[i].key==k){*out=m->slots[i].value;return B2_OK;}}return B2_ABSENT;
 }
-int b2_map_put(B2Map *m,uint16_t k,int v){
+int b2_map_put(struct b2_map *m,uint16_t k,int v){
  size_t i,j,free_slot=7;if(!m)return B2_INVALID;i=k%7u;
  for(j=0;j<7;j++,i=(i+1)%7){if(m->slots[i].state==1&&m->slots[i].key==k){m->slots[i].value=v;return B2_OK;}if(m->slots[i].state!=1&&free_slot==7)free_slot=i;if(m->slots[i].state==0)break;
 #ifdef B2_MUTATE_MAP
@@ -29,20 +29,20 @@ int b2_map_put(B2Map *m,uint16_t k,int v){
 #endif
  }
  if(free_slot==7)return B2_FULL;
- m->slots[free_slot]=(B2Entry){1,k,v};m->count++;return B2_OK;
+ m->slots[free_slot]=(struct b2_entry){1,k,v};m->count++;return B2_OK;
 }
-int b2_map_remove(B2Map *m,uint16_t k){size_t i,j;if(!m)return B2_INVALID;i=k%7u;for(j=0;j<7;j++,i=(i+1)%7){if(m->slots[i].state==0)return B2_ABSENT;if(m->slots[i].state==1&&m->slots[i].key==k){m->slots[i].state=2;m->count--;return B2_OK;}}return B2_ABSENT;}
+int b2_map_remove(struct b2_map *m,uint16_t k){size_t i,j;if(!m)return B2_INVALID;i=k%7u;for(j=0;j<7;j++,i=(i+1)%7){if(m->slots[i].state==0)return B2_ABSENT;if(m->slots[i].state==1&&m->slots[i].key==k){m->slots[i].state=2;m->count--;return B2_OK;}}return B2_ABSENT;}
 #ifdef B2_MUTATE_SORT
 #define LEFT_WINS(a,b) ((a)<(b))
 #else
 #define LEFT_WINS(a,b) ((a)<=(b))
 #endif
-static void merge(B2Item *a,B2Item *s,size_t n){size_t mid=n/2,i=0,j=mid,k=0;if(n<2)return;merge(a,s,mid);merge(a+mid,s+mid,n-mid);while(i<mid&&j<n)s[k++]=LEFT_WINS(a[i].key,a[j].key)?a[i++]:a[j++];while(i<mid)s[k++]=a[i++];while(j<n)s[k++]=a[j++];for(i=0;i<n;i++)a[i]=s[i];}
-int b2_sort(B2Item *a,size_t n,B2Item *s,size_t c){if(n&&!a)return B2_INVALID;if(n<2)return B2_OK;if(!s)return B2_INVALID;if(c<n)return B2_FULL;merge(a,s,n);return B2_OK;}
-void b2_arena_init(B2Arena *a){a->cursor=0;a->depth=0;a->next_id=1;}
-int b2_reserve(B2Arena *a,size_t n,size_t l,size_t *o){size_t pad;if(!a||!o||!l||l>8||(l&(l-1)))return B2_INVALID;pad=(l-a->cursor%l)%l;if(a->cursor>64||pad>64-a->cursor||n>64-a->cursor-pad)return B2_FULL;*o=a->cursor+pad;a->cursor+=pad+n;return B2_OK;}
-int b2_mark(B2Arena *a,B2Mark *o){if(!a||!o)return B2_INVALID;if(a->depth==4||a->next_id>15)return B2_FULL;a->saved[a->depth]=a->cursor;a->ids[a->depth]=a->next_id;*o=(B2Mark){a,a->depth+1,a->next_id};a->next_id++;a->depth++;return B2_OK;}
-int b2_rollback(B2Arena *a,B2Mark m){if(!a)return B2_INVALID;
+static void merge(struct b2_item *a,struct b2_item *s,size_t n){size_t mid=n/2,i=0,j=mid,k=0;if(n<2)return;merge(a,s,mid);merge(a+mid,s+mid,n-mid);while(i<mid&&j<n)s[k++]=LEFT_WINS(a[i].key,a[j].key)?a[i++]:a[j++];while(i<mid)s[k++]=a[i++];while(j<n)s[k++]=a[j++];for(i=0;i<n;i++)a[i]=s[i];}
+int b2_sort(struct b2_item *a,size_t n,struct b2_item *s,size_t c){if(n&&!a)return B2_INVALID;if(n<2)return B2_OK;if(!s)return B2_INVALID;if(c<n)return B2_FULL;merge(a,s,n);return B2_OK;}
+void b2_arena_init(struct b2_arena *a){a->cursor=0;a->depth=0;a->next_id=1;}
+int b2_reserve(struct b2_arena *a,size_t n,size_t l,size_t *o){size_t pad;if(!a||!o||!l||l>8||(l&(l-1)))return B2_INVALID;pad=(l-a->cursor%l)%l;if(a->cursor>64||pad>64-a->cursor||n>64-a->cursor-pad)return B2_FULL;*o=a->cursor+pad;a->cursor+=pad+n;return B2_OK;}
+int b2_mark(struct b2_arena *a,struct b2_mark *o){if(!a||!o)return B2_INVALID;if(a->depth==4||a->next_id>15)return B2_FULL;a->saved[a->depth]=a->cursor;a->ids[a->depth]=a->next_id;*o=(struct b2_mark){a,a->depth+1,a->next_id};a->next_id++;a->depth++;return B2_OK;}
+int b2_rollback(struct b2_arena *a,struct b2_mark m){if(!a)return B2_INVALID;
 #ifdef B2_MUTATE_ARENA
  if(m.owner==a&&m.depth&&m.depth<=a->depth){a->cursor=a->saved[m.depth-1];a->depth=m.depth-1;return B2_OK;}
 #endif
@@ -63,13 +63,13 @@ int b2_q7(const int8_t *a,const int8_t *b,size_t n,int8_t *out){int32_t sum=0,r;
  if(r>127)r=127;
  if(r< -128)r= -128;
  *out=(int8_t)r;return B2_OK;}
-int b2_transaction(B2Backend b,unsigned *p){unsigned i;if(!p||!b.acquire||!b.release)return B2_INVALID;for(i=0;i<3;i++)if(b.acquire(b.context,i)!=0){
+int b2_transaction(struct b2_backend b,unsigned *p){unsigned i;if(!p||!b.acquire||!b.release)return B2_INVALID;for(i=0;i<3;i++)if(b.acquire(b.context,i)!=0){
 #ifdef B2_MUTATE_TRANSACTION
  b.release(b.context,i);
 #endif
  while(i)b.release(b.context,--i);
  return B2_FAILED;}*p=3;return B2_OK;}
-int b2_render(const B2Result *r,unsigned char *o,size_t c,size_t *w){unsigned char temp[16];size_t n=0,i;unsigned magnitude;if(!r||!w||(!o&&c))return B2_INVALID;
+int b2_render(const struct b2_result *r,unsigned char *o,size_t c,size_t *w){unsigned char temp[16];size_t n=0,i;unsigned magnitude;if(!r||!w||(!o&&c))return B2_INVALID;
 #ifdef B2_MUTATE_VARIANT
  if(c)o[0]=0;
 #endif

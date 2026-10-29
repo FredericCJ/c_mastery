@@ -16,7 +16,7 @@ provenance of a capture. Host stdio, Python integer oracles and sanitizers are
 verification dependencies. The MPS2 Cortex-M4 image executes the same code on
 synthetic samples; it does not model analog transceiver physics.
 
-Reuse actual `UaTx`, `ua_format`, `PuDriver` and `sd_uart` from the PR-T38-01
+Reuse actual `struct ua_tx`, `ua_format`, `struct pu_driver` and `sd_uart` from the PR-T38-01
 and T28 UART producers. Their original lifetime, clock-generation and completion
 contracts apply. The author campaign links those actual implementations;
 learner exports contain only prerequisite headers/stubs. Acquire the prepared
@@ -105,7 +105,7 @@ create transitions; an invalid envelope breaks continuity. Repeated crossings
 are compatible with reflection/noise, not unique proof of either. A changed
 sign adapter can explain stable complement but does not repair a cable.
 
-The separate `TrBus` variant is an original three-peer half-duplex scheduling
+The separate `struct tr_bus` variant is an original three-peer half-duplex scheduling
 policy, not a physical RS-485 device. A stable zeroed control grants one peer a
 strictly increasing, nonwrapping token. No grant while active or in turnaround;
 only matching peer/token plus true transmitter completion starts the checked
@@ -135,7 +135,7 @@ disabled/open/idle guarantees. This policy alone establishes none of those.
 
 Pure classifiers take constant space/time; wiring is bounded by three records,
 capture processing is O(n) with constant auxiliary storage and a hard 160-sample
-limit, edge analysis a hard 32-sample limit. `TrBus` has no queue, fairness,
+limit, edge analysis a hard 32-sample limit. `struct tr_bus` has no queue, fairness,
 timeout recovery or crash recovery. Measure object/code/stack costs separately
 from physical link latency; emulator elapsed time is not transceiver timing.
 

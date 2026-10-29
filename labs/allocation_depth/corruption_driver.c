@@ -3,8 +3,8 @@
 int main(int argc, char **argv) {
   if (argc != 2)
     return 2;
-  ALHeap h;
-  ALHandle live = {0};
+  struct al_heap h;
+  struct al_handle live = {0};
   if (al_heap_init(&h, 64, 0, 0, 0))
     return 3;
   for (const char *p = argv[1]; *p; ++p) {

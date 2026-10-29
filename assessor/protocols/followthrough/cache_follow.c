@@ -2,7 +2,7 @@
 #ifndef PC_MUTANT
 #define PC_MUTANT 0
 #endif
-int pf_cached_start(PFDriver *d,unsigned char **owner,size_t n,uint32_t bus,unsigned extent,FWCacheEmit emit,void *ctx,PFRecovery *out)
+int pf_cached_start(struct pf_driver *d,unsigned char **owner,size_t n,uint32_t bus,unsigned extent,fw_cache_emit_fn emit,void *ctx,struct pf_recovery *out)
 {
  if(!d||!owner||!*owner||!out||!emit||!n||n>extent||(extent!=32&&extent!=64))return PT_INVALID;
  if(PC_MUTANT!=2&&(((uintptr_t)*owner&31u)||(bus&31u)))return PT_RANGE;

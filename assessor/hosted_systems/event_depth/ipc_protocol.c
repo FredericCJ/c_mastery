@@ -109,7 +109,7 @@ int main(int argc, char **argv) {
   close(replies[1]);
   close(witness[1]);
   unsigned char data[8] = {0, 1, 2, 3, 128, 254, 255, 0};
-  EiRequest ledger;
+  struct ei_request ledger;
   CHECK(ei_init(&ledger, data, 1, 1) == 0 &&
         ei_transition(&ledger, EI_QUEUE) == 0);
   CHECK(write(request[1], data, 8) == 8);

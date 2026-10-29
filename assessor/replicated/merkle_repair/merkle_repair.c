@@ -4,8 +4,8 @@
 #ifndef RPK_MUTATION
 #define RPK_MUTATION 0
 #endif
-static int leaf_valid(const RpkLeaf *l) { return l && l->length <= 32; }
-static int tree_valid(const RpkTree *t) {
+static int leaf_valid(const struct rpk_leaf *l) { return l && l->length <= 32; }
+static int tree_valid(const struct rpk_tree *t) {
   unsigned i;
   if (!t || t->count > 16)
     return 0;
@@ -35,26 +35,26 @@ static unsigned split(unsigned n) {
   return k;
 }
 static void hash(const unsigned char *b, unsigned n, unsigned char out[32],
-                 RpkCost *cost) {
+                 struct rpk_cost *cost) {
   (void)rph_hash(b, n, out);
   if (cost)
     ++cost->hashes;
 }
-static void leaf_hash(const RpkLeaf *l, unsigned char out[32], RpkCost *cost) {
+static void leaf_hash(const struct rpk_leaf *l, unsigned char out[32], struct rpk_cost *cost) {
   unsigned char b[33] = {0};
   copy(b + 1, l->bytes, l->length);
   hash(b + (RPK_MUTATION == 1), l->length + (RPK_MUTATION != 1), out, cost);
 }
 static void branch(const unsigned char a[32], const unsigned char b[32],
-                   unsigned char out[32], RpkCost *cost) {
+                   unsigned char out[32], struct rpk_cost *cost) {
   unsigned char raw[65];
   raw[0] = 1;
   copy(raw + 1, a, 32);
   copy(raw + 33, b, 32);
   hash(raw, 65, out, cost);
 }
-static void subtree(const RpkTree *t, unsigned first, unsigned count,
-                    unsigned char out[32], RpkCost *cost) {
+static void subtree(const struct rpk_tree *t, unsigned first, unsigned count,
+                    unsigned char out[32], struct rpk_cost *cost) {
   unsigned char a[32], b[32];
   unsigned k;
   if (!count) {
@@ -71,7 +71,7 @@ static void subtree(const RpkTree *t, unsigned first, unsigned count,
   branch(a, b, out, cost);
 }
 static void bind(uint32_t domain, unsigned count, const unsigned char raw[32],
-                 unsigned char out[32], RpkCost *cost) {
+                 unsigned char out[32], struct rpk_cost *cost) {
   unsigned char b[41];
   b[0] = 2;
   put(b + 1, domain);
@@ -79,8 +79,8 @@ static void bind(uint32_t domain, unsigned count, const unsigned char raw[32],
   copy(b + 9, raw, 32);
   hash(b, 41, out, cost);
 }
-int rpk_commit(const RpkTree *t, RpkCommitment *out) {
-  RpkCommitment c;
+int rpk_commit(const struct rpk_tree *t, struct rpk_commitment *out) {
+  struct rpk_commitment c;
   unsigned char raw[32];
   if (!tree_valid(t) || !out)
     return RPK_INVALID;
@@ -91,8 +91,8 @@ int rpk_commit(const RpkTree *t, RpkCommitment *out) {
   *out = c;
   return RPK_OK;
 }
-static void prove(const RpkTree *t, unsigned first, unsigned n, unsigned index,
-                  RpkProof *p) {
+static void prove(const struct rpk_tree *t, unsigned first, unsigned n, unsigned index,
+                  struct rpk_proof *p) {
   unsigned k;
   if (n == 1)
     return;
@@ -105,8 +105,8 @@ static void prove(const RpkTree *t, unsigned first, unsigned n, unsigned index,
     subtree(t, first, k, p->siblings[p->depth++], NULL);
   }
 }
-int rpk_prove(const RpkTree *t, unsigned index, RpkProof *out) {
-  RpkProof p = {0};
+int rpk_prove(const struct rpk_tree *t, unsigned index, struct rpk_proof *out) {
+  struct rpk_proof p = {0};
   if (!tree_valid(t) || !out || index >= t->count)
     return RPK_INVALID;
   p.domain = t->domain;
@@ -116,8 +116,8 @@ int rpk_prove(const RpkTree *t, unsigned index, RpkProof *out) {
   *out = p;
   return RPK_OK;
 }
-int rpk_verify(const RpkLeaf *leaf, const RpkProof *p,
-               const RpkCommitment *trusted) {
+int rpk_verify(const struct rpk_leaf *leaf, const struct rpk_proof *p,
+               const struct rpk_commitment *trusted) {
   unsigned n, i, k, depth = 0, sides[4], at;
   unsigned char raw[32], next[32];
   if (!leaf_valid(leaf) || !p || !trusted || trusted->count > 16 ||
@@ -164,8 +164,8 @@ static int pack(const unsigned char *raw, unsigned length, unsigned char *wire,
   if (cap < length + length / 8)
     return RPK_FULL;
   for (i = 0; i < length; i += 8) {
-    RfFrame f;
-    RfMessage m;
+    struct rf_frame f;
+    struct rf_message m;
     f.length = 8;
     copy(f.bytes, raw + i, 8);
     if (rf_message_init(&m, i / 8 + 1, 1, &f))
@@ -178,8 +178,8 @@ static int pack(const unsigned char *raw, unsigned length, unsigned char *wire,
 }
 static int unpack(const unsigned char *wire, size_t length, unsigned chunk,
                   unsigned char *raw, unsigned expected) {
-  RfParser parser;
-  RfFrame frame;
+  struct rf_parser parser;
+  struct rf_frame frame;
   size_t at = 0, limit, take, used;
   unsigned n = 0;
   int r;
@@ -218,7 +218,7 @@ static int range(unsigned start, unsigned n, unsigned want, unsigned count) {
   k = split(n);
   return range(start, k, want, count) || range(start + k, n - k, want, count);
 }
-int rpk_serve(const RpkTree *t, const unsigned char *request,
+int rpk_serve(const struct rpk_tree *t, const unsigned char *request,
               size_t request_length, unsigned chunk, unsigned char *reply,
               size_t capacity, size_t *reply_length) {
   unsigned char q[24], b[96] = {0}, wire[108];
@@ -258,16 +258,16 @@ int rpk_serve(const RpkTree *t, const unsigned char *request,
   *reply_length = length;
   return RPK_OK;
 }
-typedef struct {
-  RpkTree staged;
-  const RpkTree *original;
-  const RpkCommitment *trusted;
+struct rp_repair {
+  struct rpk_tree staged;
+  const struct rpk_tree *original;
+  const struct rpk_commitment *trusted;
   unsigned chunk, full;
-  RpkExchange exchange;
+  rpk_exchange_fn exchange;
   void *context;
-  RpkCost cost;
-} Repair;
-static int walk(Repair *r, unsigned start, unsigned n,
+  struct rpk_cost cost;
+};
+static int walk(struct rp_repair *r, unsigned start, unsigned n,
                 const unsigned char *expected, int root) {
   unsigned char local[32], q[24] = {0}, wire[27], reply[108], b[96], raw[32],
                            bound[32];
@@ -315,7 +315,7 @@ static int walk(Repair *r, unsigned start, unsigned n,
     if (b[i] && RPK_MUTATION != 6)
       return RPK_PROTOCOL;
   if (n == 1) {
-    RpkLeaf leaf = {0};
+    struct rpk_leaf leaf = {0};
     if (b[24] != 1 || b[25] > 32)
       return RPK_PROTOCOL;
     leaf.length = b[25];
@@ -332,7 +332,7 @@ static int walk(Repair *r, unsigned start, unsigned n,
     r->staged.leaves[start] = leaf;
     ++r->cost.leaves_received;
     if (RPK_MUTATION == 7)
-      ((RpkTree *)r->original)->leaves[start] = leaf;
+      ((struct rpk_tree *)r->original)->leaves[start] = leaf;
     return RPK_OK;
   }
   if (b[24] != 2 || b[25])
@@ -347,17 +347,17 @@ static int walk(Repair *r, unsigned start, unsigned n,
   status = walk(r, start, k, b + 32, 0);
   return status ? status : walk(r, start + k, n - k, b + 64, 0);
 }
-int rpk_repair(RpkTree *target, const RpkCommitment *trusted, unsigned chunk,
-               unsigned full, RpkExchange exchange, void *context,
-               RpkCost *cost) {
-  Repair r;
+int rpk_repair(struct rpk_tree *target, const struct rpk_commitment *trusted, unsigned chunk,
+               unsigned full, rpk_exchange_fn exchange, void *context,
+               struct rpk_cost *cost) {
+  struct rp_repair r;
   unsigned char raw[32], bound[32];
   int status;
   unsigned i;
   if (!tree_valid(target) || !trusted || trusted->count > 16 || !chunk ||
       chunk > 108 || full > 2 || !exchange || !cost)
     return RPK_INVALID;
-  r = (Repair){0};
+  r = (struct rp_repair){0};
   r.original = target;
   r.staged = *target;
   r.staged.count = trusted->count;

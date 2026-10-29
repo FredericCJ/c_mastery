@@ -7,7 +7,7 @@ static unsigned digit(unsigned char b) {
          : b >= 65 && b <= 90 ? b - 65u + 10u
                               : 36u;
 }
-int bf_parse_reset(BfParse *s, unsigned base) {
+int bf_parse_reset(struct bf_parse *s, unsigned base) {
   if (!s || base < 2 || base > 36)
     return B2_INVALID;
   s->base = base;
@@ -21,7 +21,7 @@ int bf_parse_reset(BfParse *s, unsigned base) {
   s->magnitude = 0;
   return B2_OK;
 }
-int bf_parse_feed(BfParse *s, const unsigned char *p, size_t n) {
+int bf_parse_feed(struct bf_parse *s, const unsigned char *p, size_t n) {
   if (!s || (!p && n))
     return B2_INVALID;
   if (s->phase)
@@ -53,7 +53,7 @@ int bf_parse_feed(BfParse *s, const unsigned char *p, size_t n) {
   }
   return B2_OK;
 }
-int bf_parse_finish(BfParse *s, int32_t *out) {
+int bf_parse_finish(struct bf_parse *s, int32_t *out) {
   if (!s || !out)
     return B2_INVALID;
   if (s->phase == 2)
@@ -72,7 +72,7 @@ int bf_parse_finish(BfParse *s, int32_t *out) {
     *out = (int32_t)s->magnitude;
   return B2_OK;
 }
-int bf_parse_cancel(BfParse *s) {
+int bf_parse_cancel(struct bf_parse *s) {
   if (!s)
     return B2_INVALID;
   s->phase = 2;
@@ -81,7 +81,7 @@ int bf_parse_cancel(BfParse *s) {
 }
 int bf_parse_radix(const unsigned char *p, size_t n, unsigned base,
                    int32_t *out) {
-  BfParse s;
+  struct bf_parse s;
   s.invalid = 0;
   if (!out || (!p && n))
     return B2_INVALID;

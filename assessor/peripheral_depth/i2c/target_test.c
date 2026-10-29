@@ -21,8 +21,8 @@ volatile uint32_t *pi_test_register(uint32_t a) {
 }
 #define R(a) (*pi_test_register(a))
 int main(void) {
-  PiI2c s = {0};
-  PuClock clock = {16000000, 1, 1, 1, 1, 0};
+  struct pi_i2c s = {0};
+  struct pu_clock clock = {16000000, 1, 1, 1, 1, 0};
   uint8_t out = 77;
   pi_f439_pins();
   CHECK((R(0x40020424u) & 255u) == 0x44u &&
@@ -42,7 +42,7 @@ int main(void) {
   CHECK(pi_f439_cancel(&s, 1) == PI_BUSY);
   CHECK(pi_f439_recovery_prepare(&s, 1, 0) == PI_OK && !s.ready && !s.phase &&
         (R(0x40020400u) & 0xf0000u) == 0x50000u);
-  PiLines lines = pi_f439_lines();
+  struct pi_lines lines = pi_f439_lines();
   lines.release(0, PI_SCL, 0);
   CHECK(R(0x40020418u) == 1u << 24);
   lines.release(0, PI_SDA, 1);

@@ -6,14 +6,14 @@
 #include <stdckdint.h>
 #endif
 #define CHECK(x) do { if(!(x)) { fprintf(stderr,"FD_COMPARE_CHECK:%d:%s\n",__LINE__,#x);return 1; } } while(0)
-static FDStatus builtin_extent(size_t o,size_t c,size_t w,size_t limit,size_t *out) {
+static enum fd_status builtin_extent(size_t o,size_t c,size_t w,size_t limit,size_t *out) {
     size_t product,end;
     if(!out) return FD_INVALID;
     if(__builtin_mul_overflow(c,w,&product) || __builtin_add_overflow(o,product,&end) || end>limit) return FD_RANGE;
     *out=end;return FD_OK;
 }
 #ifdef FD_C23
-static FDStatus checked_extent(size_t o,size_t c,size_t w,size_t limit,size_t *out) {
+static enum fd_status checked_extent(size_t o,size_t c,size_t w,size_t limit,size_t *out) {
     size_t product,end;
     if(!out) return FD_INVALID;
     if(ckd_mul(&product,c,w) || ckd_add(&end,o,product) || end>limit) return FD_RANGE;
@@ -26,7 +26,7 @@ int main(void) {
     for(size_t o=0;o<16;++o) for(size_t c=0;c<16;++c)
     for(size_t w=0;w<16;++w) for(size_t limit=0;limit<16;++limit) {
         size_t a=917,b=917,exact=o+c*w;
-        FDStatus want=exact<=limit ? FD_OK : FD_RANGE;
+        enum fd_status want=exact<=limit ? FD_OK : FD_RANGE;
         CHECK(fd_extent(o,c,w,limit,&a)==want);
         CHECK(builtin_extent(o,c,w,limit,&b)==want && a==b);
 #ifdef FD_C23
@@ -37,7 +37,7 @@ int main(void) {
     const size_t edge[][4]={{SIZE_MAX,1,1,SIZE_MAX},{0,SIZE_MAX,2,SIZE_MAX},
         {SIZE_MAX,SIZE_MAX,0,SIZE_MAX},{SIZE_MAX,0,0,SIZE_MAX-1},
         {SIZE_MAX-1,1,1,SIZE_MAX},{0,0,SIZE_MAX,0}};
-    const FDStatus want[]={FD_RANGE,FD_RANGE,FD_OK,FD_RANGE,FD_OK,FD_OK};
+    const enum fd_status want[]={FD_RANGE,FD_RANGE,FD_OK,FD_RANGE,FD_OK,FD_OK};
     const size_t result[]={917,917,SIZE_MAX,917,SIZE_MAX,0};
     for(unsigned i=0;i<6;++i) {
         size_t out=917;

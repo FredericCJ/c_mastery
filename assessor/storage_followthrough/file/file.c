@@ -8,13 +8,13 @@
 #define SFI_MUTANT 0
 #endif
 _Static_assert(sizeof(off_t) >= 8, "selected Linux64 file-offset profile");
-void sfi_init(SfiOp *o) { memset(o, 0, sizeof *o); }
-static int valid(SfiTicket t) {
+void sfi_init(struct sfi_op *o) { memset(o, 0, sizeof *o); }
+static int valid(struct sfi_ticket t) {
   return t.owner && t.generation && t.owner->generation == t.generation &&
          t.owner->state;
 }
-int sfi_begin(SfiOp *o, SfiIo io, unsigned writing, uint32_t page,
-              const void *input, void *output, SfiTicket *ticket) {
+int sfi_begin(struct sfi_op *o, struct sfi_io io, unsigned writing, uint32_t page,
+              const void *input, void *output, struct sfi_ticket *ticket) {
   if (!o || !ticket || writing > 1 || !io.pages || page >= io.pages ||
       (writing ? (!input || !io.write) : (!output || !io.read)))
     return SFI_INVALID;
@@ -31,15 +31,15 @@ int sfi_begin(SfiOp *o, SfiIo io, unsigned writing, uint32_t page,
   o->state = 1;
   if (writing)
     memcpy(o->bytes, input, 4096);
-  *ticket = (SfiTicket){o, o->generation};
+  *ticket = (struct sfi_ticket){o, o->generation};
   return SFI_OK;
 }
-int sfi_step(SfiTicket t, unsigned ready, unsigned budget) {
+int sfi_step(struct sfi_ticket t, unsigned ready, unsigned budget) {
   if (!valid(t))
     return SFI_STALE;
   if (ready > 1)
     return SFI_INVALID;
-  SfiOp *o = t.owner;
+  struct sfi_op *o = t.owner;
   if (o->state == 3)
     return SFI_DONE;
   if (o->state == 4)
@@ -78,7 +78,7 @@ int sfi_step(SfiTicket t, unsigned ready, unsigned budget) {
   }
   return SFI_BUDGET;
 }
-int sfi_cancel(SfiTicket t) {
+int sfi_cancel(struct sfi_ticket t) {
   if (!valid(t))
     return SFI_STALE;
   if (t.owner->state >= 3)
@@ -86,7 +86,7 @@ int sfi_cancel(SfiTicket t) {
   t.owner->state = 5;
   return SFI_CANCELLED;
 }
-int sfi_release(SfiTicket t) {
+int sfi_release(struct sfi_ticket t) {
   if (!valid(t))
     return SFI_STALE;
   if (t.owner->state < 3)

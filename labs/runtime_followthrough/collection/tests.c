@@ -15,14 +15,14 @@ int memcmp(const void *, const void *, size_t);
       return 1;                                                                \
     }                                                                          \
   } while (0)
-static Vg a, b;
-static Cvm base, before;
-static int same_value(CvmValue x, CvmValue y) {
+static struct vg_vg a, b;
+static struct cvm_cvm base, before;
+static int same_value(struct cvm_value x, struct cvm_value y) {
   return x.tag == y.tag && x.integer == y.integer &&
          x.generation == y.generation;
 }
 /* Compare semantic fields: C structure padding has no portable golden bytes. */
-static int same_vm(const Cvm *x, const Cvm *y) {
+static int same_vm(const struct cvm_cvm *x, const struct cvm_cvm *y) {
   if (x->sp != y->sp || x->depth != y->depth ||
       x->root_count != y->root_count || x->arena != y->arena ||
       x->fuel != y->fuel || x->gc_budget != y->gc_budget ||
@@ -37,7 +37,7 @@ static int same_vm(const Cvm *x, const Cvm *y) {
     if (!same_value(x->roots[i], y->roots[i]))
       return 0;
   for (unsigned i = 0; i < CVM_FRAMES; i++) {
-    const CvmFrame *p = &x->frames[i], *q = &y->frames[i];
+    const struct cvm_frame *p = &x->frames[i], *q = &y->frames[i];
     if (p->function != q->function || p->ip != q->ip || p->base != q->base)
       return 0;
     for (unsigned j = 0; j < CVM_LOCALS; j++)
@@ -46,7 +46,7 @@ static int same_vm(const Cvm *x, const Cvm *y) {
         return 0;
   }
   for (unsigned i = 0; i < CVM_HEAP; i++) {
-    const CvmObject *p = &x->heap[i], *q = &y->heap[i];
+    const struct cvm_object *p = &x->heap[i], *q = &y->heap[i];
     if (p->used != q->used || p->marked != q->marked ||
         p->generation != q->generation || !same_value(p->left, q->left) ||
         !same_value(p->right, q->right))
@@ -54,11 +54,11 @@ static int same_vm(const Cvm *x, const Cvm *y) {
   }
   return 1;
 }
-static VgRef integer(Vg *g, int32_t n) {
-  VgRef r = {g, g->epoch, {CVM_INT, n, 0}};
+static struct vg_ref integer(struct vg_vg *g, int32_t n) {
+  struct vg_ref r = {g, g->epoch, {CVM_INT, n, 0}};
   return r;
 }
-static int collect(Vg *g, uint16_t *dead) {
+static int collect(struct vg_vg *g, uint16_t *dead) {
   unsigned scanned, total = 0;
   int status;
   CHECK(vg_begin(g) == VG_OK);
@@ -78,7 +78,7 @@ static int identities(void) {
   memset(&a, 0, sizeof a);
   memset(&b, 0, sizeof b);
   CHECK(vg_reset(&a, 1) == VG_OK && vg_reset(&b, 1) == VG_OK);
-  VgRef p, q, out;
+  struct vg_ref p, q, out;
   CHECK(vg_pair(&a, integer(&a, 7), integer(&a, 8), &p) == VG_OK);
   CHECK(vg_field(&b, p, 0, &out) == VG_STALE);
   CHECK(vg_reset(&a, 1) == VG_OK);
@@ -106,7 +106,7 @@ static int identities(void) {
   CHECK(vg_pair(&a, integer(&a, 0), integer(&a, 0), &q) == VG_OK &&
         q.value.integer == 1);
   CHECK(vg_field(&a, p, 0, &out) == VG_STALE);
-  VgLease first, second;
+  struct vg_lease first, second;
   CHECK(vg_acquire(&a, 1, q, &first) == VG_OK);
   CHECK(vg_acquire(&a, 2, q, &second) == VG_OK);
   CHECK(vg_release(&a, 2, first) == VG_STALE);
@@ -129,8 +129,8 @@ static int identities(void) {
 static int barriers(void) {
   memset(&a, 0, sizeof a);
   CHECK(vg_reset(&a, 0) == VG_OK);
-  VgRef x, y, z;
-  VgLease lx, ly;
+  struct vg_ref x, y, z;
+  struct vg_lease lx, ly;
   uint16_t dead;
   unsigned n;
   CHECK(vg_pair(&a, integer(&a, 1), integer(&a, 2), &x) == VG_OK);
@@ -166,7 +166,7 @@ static int barriers(void) {
 static int allocation(void) {
   memset(&a, 0, sizeof a);
   CHECK(vg_reset(&a, 0) == VG_OK);
-  VgRef p[16], parent, out;
+  struct vg_ref p[16], parent, out;
   for (unsigned i = 0; i < 16; i++)
     CHECK(vg_pair(&a, integer(&a, (int32_t)i), integer(&a, 0), &p[i]) == VG_OK);
   CHECK(vg_pair(&a, p[0], p[1], &parent) == VG_OK);
@@ -193,7 +193,7 @@ static int transfer(void) {
   memset(&a, 0, sizeof a);
   memset(&b, 0, sizeof b);
   CHECK(vg_reset(&a, 1) == VG_OK && vg_reset(&b, 1) == VG_OK);
-  VgRef x, y, z, out, copy, field;
+  struct vg_ref x, y, z, out, copy, field;
   CHECK(vg_pair(&a, integer(&a, 11), integer(&a, 12), &x) == VG_OK);
   CHECK(vg_pair(&a, x, x, &y) == VG_OK);
   CHECK(vg_store(&a, x, 1, y) == VG_OK);
@@ -236,7 +236,7 @@ static int transfer(void) {
   return 0;
 }
 static int baseline(void) {
-  CvmValue p[16], out;
+  struct cvm_value p[16], out;
   cvm_init(&base, 0, UINT32_MAX, 0);
   for (unsigned i = 0; i < 16; i++)
     CHECK(cvm_pair(&base, cvm_int((int32_t)i), cvm_int(0), &p[i]) == CVM_OK);

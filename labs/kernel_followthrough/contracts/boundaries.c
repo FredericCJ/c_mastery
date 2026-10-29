@@ -94,8 +94,8 @@ static int scheduling(void) {
        "transactional");
   return 0;
 }
-static KfPool pool;
-static KfSpace space;
+static struct kf_pool pool;
+static struct kf_space space;
 static void init(void) {
   memset(&pool, 0, sizeof pool);
   memset(pool.bytes, 0xa5, sizeof pool.bytes);
@@ -134,7 +134,7 @@ static size_t image(unsigned count) {
   return 4096 * (count + 1);
 }
 static int refusal(size_t n) {
-  KfSpace before = space;
+  struct kf_space before = space;
   cmk_frames state = pool.frames;
   return !kf_load_image(&pool, &space, elf, n, 256) &&
          !memcmp(&space, &before, sizeof space) &&
@@ -202,7 +202,7 @@ static int images(void) {
   for (unsigned fail = 0; fail < 2; ++fail) {
     init();
     n = image(2);
-    KfSpace before = space;
+    struct kf_space before = space;
     cmk_frames state = pool.frames;
     CHECK(!kf_load_image(&pool, &space, elf, n, fail) &&
           !memcmp(&space, &before, sizeof space) &&
@@ -254,13 +254,13 @@ static int archives(void) {
   return 0;
 }
 static int handles(void) {
-  KfHandles owner = {0}, foreign = {0};
+  struct kf_handles owner = {0}, foreign = {0};
   unsigned resource = 999;
   uint32_t token = kf_handle_open(&owner, 0, 42, 3);
   CHECK(token == 65537 && kf_handle_get(&owner, token, 3, &resource) &&
         resource == 42);
   CHECK(!kf_handle_get(&foreign, token, 1, &resource));
-  KfHandles before = owner;
+  struct kf_handles before = owner;
   uint64_t invalid[] = {0, 65536, 65553, UINT64_C(0x100010001), token + 1};
   for (unsigned i = 0; i < 5; ++i) {
     resource = 999;
@@ -288,7 +288,7 @@ static int handles(void) {
   return 0;
 }
 static int lines(void) {
-  KfLine s = {0};
+  struct kf_line s = {0};
   char out[64];
   unsigned n = 999;
   memset(out, 0xa5, sizeof out);

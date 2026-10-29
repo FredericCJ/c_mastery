@@ -11,21 +11,21 @@
 #include <sys/socket.h>
 #include <time.h>
 #include <unistd.h>
-typedef struct {
+struct edu_output {
   unsigned char bytes[1600];
   size_t length, offset;
   uint64_t started;
-} Output;
-typedef struct {
+};
+struct edu_connection {
   int fd, closing, draining, eof;
-  HttpParser parser;
+  struct http_parser parser;
   unsigned char input[2048];
   size_t have, used;
-  Output output[2];
+  struct edu_output output[2];
   unsigned head, count, requests;
   uint64_t started, progress, drain_started;
-} Connection;
-static Connection connections[4];
+};
+static struct edu_connection connections[4];
 static volatile sig_atomic_t stop;
 static void interrupted(int sig) {
   (void)sig;
@@ -44,14 +44,14 @@ static int nonblock(int fd) {
              ? -1
              : 0;
 }
-static void release(Connection *c) {
+static void release(struct edu_connection *c) {
   if (c->fd >= 0)
     close(c->fd);
   memset(c, 0, sizeof *c);
   c->fd = -1;
 }
 static int send_part(void *ctx, const void *p, size_t n) {
-  Connection *c = ctx;
+  struct edu_connection *c = ctx;
   ssize_t r = send(c->fd, p, n, MSG_NOSIGNAL);
   if (r >= 0)
     return (int)r;
@@ -61,10 +61,10 @@ static int send_part(void *ctx, const void *p, size_t n) {
     return -2;
   return -3;
 }
-static int enqueue(Connection *c, int interim, uint64_t now) {
+static int enqueue(struct edu_connection *c, int interim, uint64_t now) {
   if (c->count == 2)
     return -1;
-  Output *o = &c->output[(c->head + c->count) % 2];
+  struct edu_output *o = &c->output[(c->head + c->count) % 2];
   o->offset = 0;
   o->started = now;
   if (interim) {
@@ -84,7 +84,7 @@ static int enqueue(Connection *c, int interim, uint64_t now) {
   c->count++;
   return 0;
 }
-static int parse(Connection *c, uint64_t now, const char *authority) {
+static int parse(struct edu_connection *c, uint64_t now, const char *authority) {
   while (c->used < c->have && c->count < 2 && !c->closing) {
     size_t n = 0;
     int r = http_feed(&c->parser, c->input + c->used, c->have - c->used, &n);
@@ -141,7 +141,7 @@ int main(int argc, char **argv) {
   while (!stop) {
     struct pollfd f[5] = {{listener, POLLIN, 0}};
     for (unsigned i = 0; i < 4; i++) {
-      Connection *c = &connections[i];
+      struct edu_connection *c = &connections[i];
       short events = 0;
       if (c->fd >= 0) {
         if (c->draining || (!c->closing && c->count < 2 && c->have == 0))
@@ -174,7 +174,7 @@ int main(int argc, char **argv) {
           close(fd);
           continue;
         }
-        Connection *c = &connections[i];
+        struct edu_connection *c = &connections[i];
         memset(c, 0, sizeof *c);
         c->fd = fd;
         c->started = c->progress = now;
@@ -182,7 +182,7 @@ int main(int argc, char **argv) {
       }
     }
     for (unsigned i = 0; i < 4; i++) {
-      Connection *c = &connections[i];
+      struct edu_connection *c = &connections[i];
       if (c->fd < 0)
         continue;
       short ev = f[i + 1].revents;
@@ -240,7 +240,7 @@ int main(int argc, char **argv) {
         }
       }
       if (c->count) {
-        Output *o = &c->output[c->head];
+        struct edu_output *o = &c->output[c->head];
         if (now - o->started >= 15000) {
           release(c);
           continue;

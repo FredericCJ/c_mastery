@@ -11,7 +11,7 @@ TRACE='621f8a401e39d3088dfde6dc11b69db8ce0d88ecfa183f9e8edfc2670cb4f50e'
 IMPORTS={'labs/storage/include/store.h','labs/storage_followthrough/durability/medium.h','assessor/storage_followthrough/durability/medium.c','assessor/runtime/cvm.c','assessor/storage/store.c','assessor/runtime_followthrough/services/services.c','labs/runtime/adapters/store_host.c'}
 def check_export(e,files=True):
  assert e['passed'] and e['status']=='passed' and e['source_stable'] and not e['private_sources_copied']
- assert e['input_sha256'] and e['exported_artifacts'] and e['explicit_actual_provider']=='actual-CVM-CST2-Vh-DMedium'
+ assert e['input_sha256'] and e['exported_artifacts'] and e['explicit_actual_provider']=='actual-CVM-CST2-Vh-struct d_medium'
  assert e['physical_validation']=='not-run' and e['independent_review']=='not-run' and e['learner_mastery']=='not-assessed'
  assert len(e['executions'])==16 and e['projects']==['PR-T47-07','PR-T47-12']
  failed=[r for r in e['executions'] if r['exit_code']!=0];assert len(failed)==4 and {r['required_marker'] for r in failed}=={'SW_CHECK','Supply explicit storage runtime services and medium public components'}

@@ -4,7 +4,7 @@
 
 This required successor supplies `X-T12-002`, R1-R3, its immediate separately supplied base variant and `X-T12-002-DELAYED`. It imports the actual unchanged `b2_parse` for the decimal comparison. Prerequisites remain X-T04-001 checked arithmetic and the original B02 counted-span contract. The existing exercise and historical campaign identities are preserved.
 
-`BfParse` owns only scalar tentative state: radix2..36, OPEN/FINISHED/CANCELLED phase, sign/digit/leading-zero flags, sticky invalid/range flags and bounded unsigned magnitude. No input pointer or string is retained. Live control, counted input and output storage are disjoint; lengths describe actual accessible bytes. Control is exclusively accessed and arises from reset/legal transitions. Null input is allowed only at length zero. Reset may initialize fresh storage or discard tentative/final state; there are no external resources to destroy. Arbitrary forged control, concurrent mutation and dangling pointers are outside this API.
+`struct bf_parse` owns only scalar tentative state: radix2..36, OPEN/FINISHED/CANCELLED phase, sign/digit/leading-zero flags, sticky invalid/range flags and bounded unsigned magnitude. No input pointer or string is retained. Live control, counted input and output storage are disjoint; lengths describe actual accessible bytes. Control is exclusively accessed and arises from reset/legal transitions. Null input is allowed only at length zero. Reset may initialize fresh storage or discard tentative/final state; there are no external resources to destroy. Arbitrary forged control, concurrent mutation and dangling pointers are outside this API.
 
 ## Grammar, operations and failures
 

@@ -52,7 +52,7 @@ int main(void) {
     CHECK(before != 99999);
     stage = cut;
     acquisition = 0;
-    EsSignals p = {0};
+    struct es_signals p = {0};
     CHECK(es_open(&p) == -1 && !p.active);
     CHECK(errno == (cut == 1 ? EMFILE : EINVAL));
     CHECK(descriptors() == before);

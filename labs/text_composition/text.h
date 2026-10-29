@@ -12,61 +12,61 @@ enum {
   TC_SYNTAX = 5,
   TC_CYCLE = 6
 };
-typedef struct {
+struct tc_text {
   unsigned char bytes[4096];
   size_t length;
-} TcText;
-typedef struct {
+};
+struct tc_error {
   size_t begin, end, error_offset;
   int status;
-} TcError;
-typedef struct {
+};
+struct tc_batch {
   int32_t values[16];
   size_t begins[16];
   unsigned count, errors;
-  TcError diagnostics[16];
-} TcBatch;
+  struct tc_error diagnostics[16];
+};
 /* newline_sync=0: semicolons only; 1: semicolons or newline. */
 int tc_recover(const unsigned char *input, size_t length, unsigned newline_sync,
-               unsigned budget, TcBatch *out);
+               unsigned budget, struct tc_batch *out);
 enum { TD_NIL, TD_TEXT, TD_LINE, TD_CAT, TD_NEST, TD_GROUP };
-typedef struct {
+struct tc_node {
   unsigned kind, left, right, value;
   size_t offset, length;
-} TcNode;
-typedef struct {
-  TcNode nodes[128];
+};
+struct tc_doc {
+  struct tc_node nodes[128];
   unsigned count, root;
   unsigned char text[512];
   size_t length;
-} TcDoc;
-int tc_layout(const TcDoc *doc, unsigned width, unsigned budget, TcText *out);
+};
+int tc_layout(const struct tc_doc *doc, unsigned width, unsigned budget, struct tc_text *out);
 /* Actual successful PdTree, at most14 nodes; source offsets need not survive.
  */
-int tc_expression_doc(const PdTree *tree, TcDoc *out);
+int tc_expression_doc(const struct pd_tree *tree, struct tc_doc *out);
 enum { TT_LITERAL, TT_VALUE, TT_IF, TT_LOOP, TT_END, TT_INCLUDE };
-typedef struct {
+struct tc_op {
   unsigned kind, value, jump;
-} TcOp;
-typedef struct {
-  TcOp ops[128];
+};
+struct tc_program {
+  struct tc_op ops[128];
   unsigned count;
-} TcProgram;
-typedef struct {
+};
+struct tc_value {
   unsigned char bytes[256];
   size_t length;
-} TcValue;
-typedef struct {
-  TcValue values[4];
+};
+struct tc_field {
+  struct tc_value values[4];
   unsigned count;
-} TcField;
-typedef struct {
-  TcField fields[4];
-} TcModel;
+};
+struct tc_model {
+  struct tc_field fields[4];
+};
 int tc_template_compile(const unsigned char *text, size_t length,
-                        TcProgram *out);
+                        struct tc_program *out);
 /* html_text=1 escapes model values for HTML text; 0 is explicit plain text. */
-int tc_template_render(const TcProgram *bank, unsigned count, unsigned entry,
-                       const TcModel *model, unsigned html_text,
-                       unsigned budget, TcText *out);
+int tc_template_render(const struct tc_program *bank, unsigned count, unsigned entry,
+                       const struct tc_model *model, unsigned html_text,
+                       unsigned budget, struct tc_text *out);
 #endif

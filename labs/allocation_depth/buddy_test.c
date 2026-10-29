@@ -8,8 +8,8 @@
     }                                                                          \
   } while (0)
 int main(void) {
-  ALBuddy b, other;
-  ALHandle a, c, h[8];
+  struct al_buddy b, other;
+  struct al_handle a, c, h[8];
   size_t off, charged;
   CHECK(al_buddy_init(&b) == AL_OK);
   CHECK(al_buddy_init(&other) == AL_OK);

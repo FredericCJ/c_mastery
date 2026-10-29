@@ -2,24 +2,24 @@
 #ifndef AR_MUTANT
 #define AR_MUTANT 0
 #endif
-int ar_ring_init(ArRingPolicy *r, size_t capacity) {
+int ar_ring_init(struct ar_ring_policy *r, size_t capacity) {
   if (!r || capacity > AR_CAP)
     return AR_INVALID;
-  *r = (ArRingPolicy){0};
+  *r = (struct ar_ring_policy){0};
   return cd_ring_init(&r->ring, r->indices, capacity) == CD_OK ? AR_OK
                                                                : AR_INVALID;
 }
-int ar_ring_push(ArRingPolicy *r, ArItem value, unsigned policy,
-                 ArEviction *out) {
+int ar_ring_push(struct ar_ring_policy *r, struct ar_item value, unsigned policy,
+                 struct ar_eviction *out) {
   if (!r || !out || policy > 2)
     return AR_INVALID;
-  CDSpans spans;
+  struct cd_spans spans;
   if (cd_ring_read(&r->ring, &spans) != CD_OK)
     return AR_STATE;
   size_t count = r->ring.count;
   if (!r->ring.capacity)
     return AR_FULL;
-  ArEviction e = {0};
+  struct ar_eviction e = {0};
   if (count == r->ring.capacity) {
     if (!policy)
       return AR_FULL;
@@ -35,7 +35,7 @@ int ar_ring_push(ArRingPolicy *r, ArItem value, unsigned policy,
       if (value.priority <= r->values[slots[victim]].priority)
         return AR_FULL;
     }
-    e = (ArEviction){1, r->values[slots[victim]]};
+    e = (struct ar_eviction){1, r->values[slots[victim]]};
     int discarded[AR_CAP];
     if (cd_ring_pop(&r->ring, discarded, count) != CD_OK)
       return AR_STATE;
@@ -65,11 +65,11 @@ int ar_ring_push(ArRingPolicy *r, ArItem value, unsigned policy,
   *out = e;
   return AR_OK;
 }
-int ar_ring_pop(ArRingPolicy *r, ArItem *out) {
+int ar_ring_pop(struct ar_ring_policy *r, struct ar_item *out) {
   if (!r || !out)
     return AR_INVALID;
   int index;
-  enum CDStatus s = cd_ring_pop(&r->ring, &index, 1);
+  enum cd_status s = cd_ring_pop(&r->ring, &index, 1);
   if (s != CD_OK)
     return s == CD_EMPTY ? AR_EMPTY : AR_STATE;
   *out = r->values[index];

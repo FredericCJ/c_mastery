@@ -10,7 +10,7 @@ contain unsolved sources and no private assessor implementation.
 
 ## Representation, input and ownership
 
-`TmQueue` embeds the actual two-usable-slot/three-physical-slot queue and caller
+`struct tm_queue` embeds the actual two-usable-slot/three-physical-slot queue and caller
 storage, with a nonwrapping revision. Initialize fresh or fully quiescent
 storage only: no old control pointer or borrowed view may survive reuse.
 Controls stay at fixed addresses, are not copied as owners and are externally
@@ -32,7 +32,7 @@ The changed condition demonstrates logical stale views while the underlying
 typed object remains live. Returning to the same ring slot does not revive an
 old revision.
 
-`TmPacket` is a copied record of at most4 uint16 values. Canonical wire is
+`struct tm_packet` is a copied record of at most4 uint16 values. Canonical wire is
 opcode1, count0..4, then exactly that many big-endian two-byte values. The
 external original contract therefore defines length=2+2*count. Error precedence
 is invalid C API arguments, header shorter than2, wrong opcode, count>4,
@@ -52,7 +52,7 @@ length authority. Keep these small negative specimens flawed. Agreement513,
 56574 and rejection of the valid six-byte packet are falsified by the explicit
 external wire contract, not by majority vote between implementations.
 
-`TmFir` stores one prior int32 input. Each input and prior state lies in
+`struct tm_fir` stores one prior int32 input. Each input and prior state lies in
 [-1000000,+1000000]; admitted block length is0..64. Inputs/output/control are
 disjoint. The output is an int64 numerator in units of one half, so no floating
 rounding or integer division hides the original exact rational relation.

@@ -4,7 +4,7 @@
 #ifndef MFW_CASE
 #define MFW_CASE 1
 #endif
-static MfwDeque queue;
+static struct mfw_deque queue;
 static unsigned outputs[6];
 static bool obtained[6];
 static void *owner(void *unused) {

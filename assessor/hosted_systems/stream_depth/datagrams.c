@@ -130,7 +130,7 @@ static int acknowledgments(void) {
   int fd[2];
   CHECK(socketpair(AF_UNIX, SOCK_DGRAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0, fd) ==
         0);
-  RfDedup d;
+  struct rf_dedup d;
   CHECK(rf_dedup_init(&d, 7) == 0);
   unsigned char request[3] = {7, 8, 3}, received[8], ack[6];
   /* Local send succeeds, but the teaching receiver discards before effect. */

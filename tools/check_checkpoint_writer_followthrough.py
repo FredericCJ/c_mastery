@@ -31,7 +31,7 @@ def validate(d,r,pins,ext):
         for n in ['build','progress.build','log.build']:
             need(all(f in args(t+'.'+n) for f in flags+['-std=c17','-ffunction-sections','-Wl,--gc-sections']),'actual profile '+t+n)
         for n,marker in [('byte','CWF_BYTE_PASS'),('span','CWF_SPAN_PASS'),('progress','CWF_PROGRESS_PASS'),('log','log_records=1')]:cmd(t+'.'+n,0,marker)
-        need('CWF_SINK:2:65:66' in logs.get(t+'.byte',''),'exact InTransfer byte sink '+t)
+        need('CWF_SINK:2:65:66' in logs.get(t+'.byte',''),'exact struct in_transfer byte sink '+t)
         for n in ['progress','log']:
             text=logs.get(t+'.'+n,'');need(all('CWF_OS raw='+str(raw)+' cycles=3 callbacks=7 accepted=9 cause=9' in text for raw in [0,1]),'actual alternating OS backends '+t+n);need('callbacks=4 adapter_payload_copies=0 log_records='+str(n=='log' and 1 or 0) in text,'equal product/logger cost '+t+n)
             match=re.search(r'CWF_COST product=(\d+) result=(\d+) adapter=(\d+) core=(\d+)',text);need(match is not None and all(int(v)>0 for v in match.groups()),'actual product sizes '+t+n)

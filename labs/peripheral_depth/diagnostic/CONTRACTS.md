@@ -24,15 +24,15 @@ quiescence adapter. ISO C enforces neither lifetime nor these ownership rules.
 
 ## 12.b — representation, replay policy and changed stream boundaries
 
-`DGMessage` contains sequence1..65535, length0..32 and exactly that many payload
+`struct dg_message` contains sequence1..65535, length0..32 and exactly that many payload
 octets. Encode sequence16BE, length16BE, payload: sequence1 and bytes01,02 yield
 `00 01 00 02 01 02`. The C struct's padding never enters the wire. Encode stages
 all source bytes before publication; insufficient capacity leaves bytes and
-written count unchanged. Decode uses the prior `FCursor/f_take`, accepts exactly
+written count unchanged. Decode uses the prior `struct f_cursor/f_take`, accepts exactly
 4+length bytes, and stages a fully initialized output. Truncation, excess bytes,
 zero sequence and excessive length reject without output publication.
 
-`DGSession` accepts a sequence only if greater than its last sequence; gaps are
+`struct dg_session` accepts a sequence only if greater than its last sequence; gaps are
 allowed, duplicates/reordering rejected, and wraparound never accepted. The count
 cannot exceed65535. Failed decoding/admission changes neither session nor message.
 Sequence exhaustion requires a new independently established session identity;
@@ -70,10 +70,10 @@ binds and connects only its two127.0.0.1 ephemeral sockets, with bounded poll wa
 The Ethernet adapter instead uses original IEEE802.3 **length-frame** formatting
 with fixed synthetic locally administered addresses02:00:00:00:00:01→...:02,
 length4..36 and zero transmit padding. It is not an IPv4/UDP encoder. Received
-padding is ignored through `EDFrame.payload_length`, not decoded as application
+padding is ignored through `struct ed_frame.payload_length`, not decoded as application
 bytes. Wrong MAC/type/length rejects. Addresses alone are not access control.
 
-`dg_descriptors` acquires actual `EDRx` snapshots, copies the60 meaningful frame
+`dg_descriptors` acquires actual `struct ed_rx` snapshots, copies the60 meaningful frame
 bytes across the two descriptor buffers, admits the message, and releases the
 borrow on every successful acquisition path, including malformed/replayed frames.
 The descriptor contract strips its reported retained FCS; the adapter relies on
@@ -81,7 +81,7 @@ the provider's hardware-error checks and does not invent a valid FCS observation
 Every split1..63 includes FCS-straddling boundaries. Logical release is not a
 hardware OWN store, cache operation, or proof of stopped DMA.
 
-`dg_publish` uses actual two-slot `EDTx`: prepare copied frame, publish tail,
+`dg_publish` uses actual two-slot `struct ed_tx`: prepare copied frame, publish tail,
 barrier, publish head. A BUSY publication retains a phase2 slot. Resolve it through
 the original retry/abort API; calling prepare again is not rollback. Completion
 with returned ownership permits reuse; neither local completion nor abort proves

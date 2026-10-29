@@ -10,7 +10,7 @@ def write(p,d):p.write_text(json.dumps(d,indent=2)+'\n',encoding='utf8')
 def canon(p):return ROOT/('curriculum/v5/expansion/legacy_assessments/'+p+'.json')
 def all_rows(r):
  patterns={'T38.06.a':['.edges','.device','.mutation.EDGE','.mutation.ENDIAN','.mutation.STATUS','.mutation.MODE'], 'T38.06.b':['.quiescence','.irq','.mutation.TOKEN','.mutation.CANCEL','.mutation.BSY','.mutation.LEASE','.closure','.stack'], 'T38.06.c':['.queue','.device','.quiescence','.mapped','.mutation.DRAIN','.mutation.LEASE','.mutation.WIDTH','.mutation.CHANNEL']}
- why={'T38.06.a':'All four mode/byte pair traces, actual three-frame peer composition and little-endian payload transfer; wrong sample/status/endian controls.','T38.06.b':'Independent DMA disable acknowledgements, wire/hold ownership and actual cancellation/reset/new-token/late CPU-IRQ sequence using frozen PsSpi.','T38.06.c':'Original no-RX-read loss, incomplete dummy-clock framing and fixed copied-slot scheduler composed with actual algo_ring; deadlines never grant storage reuse.'}
+ why={'T38.06.a':'All four mode/byte pair traces, actual three-frame peer composition and little-endian payload transfer; wrong sample/status/endian controls.','T38.06.b':'Independent DMA disable acknowledgements, wire/hold ownership and actual cancellation/reset/new-token/late struct lr_cpu-IRQ sequence using frozen struct ps_spi.','T38.06.c':'Original no-RX-read loss, incomplete dummy-clock framing and fixed copied-slot scheduler composed with actual algo_ring; deadlines never grant storage reuse.'}
  rows=[]
  for p in PROJECTS:
   for c in read(canon(p))['criteria']:

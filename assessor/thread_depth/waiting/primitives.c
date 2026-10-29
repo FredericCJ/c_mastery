@@ -6,7 +6,7 @@ static void ok(int e) {
   if (e)
     abort();
 }
-int tw_barrier_init(TWBarrier *b, unsigned n) {
+int tw_barrier_init(struct tw_barrier *b, unsigned n) {
   if (!n || n > 4)
     return EINVAL;
   int e = pthread_mutex_init(&b->mutex, NULL);
@@ -21,7 +21,7 @@ int tw_barrier_init(TWBarrier *b, unsigned n) {
   b->arrived = b->generation = b->broken = 0;
   return 0;
 }
-int tw_barrier_wait(TWBarrier *b) {
+int tw_barrier_wait(struct tw_barrier *b) {
   ok(pthread_mutex_lock(&b->mutex));
   unsigned generation = b->generation;
   int e = 0;
@@ -48,24 +48,24 @@ int tw_barrier_wait(TWBarrier *b) {
   ok(pthread_mutex_unlock(&b->mutex));
   return e;
 }
-int tw_barrier_break(TWBarrier *b) {
+int tw_barrier_break(struct tw_barrier *b) {
   ok(pthread_mutex_lock(&b->mutex));
   b->broken = 1;
   ok(pthread_cond_broadcast(&b->condition));
   ok(pthread_mutex_unlock(&b->mutex));
   return 0;
 }
-void tw_barrier_destroy(TWBarrier *b) {
+void tw_barrier_destroy(struct tw_barrier *b) {
   ok(pthread_cond_destroy(&b->condition));
   ok(pthread_mutex_destroy(&b->mutex));
 }
-int tw_permits_init(TWPermits *p) {
+int tw_permits_init(struct tw_permits *p) {
   int e = pthread_mutex_init(&p->mutex, NULL);
   if (!e)
     p->mask = p->settlements = 0;
   return e;
 }
-int tw_permit_take(TWPermits *p, unsigned *token) {
+int tw_permit_take(struct tw_permits *p, unsigned *token) {
   int e = EAGAIN;
   ok(pthread_mutex_lock(&p->mutex));
   for (unsigned i = 0; i < 3; i++)
@@ -78,7 +78,7 @@ int tw_permit_take(TWPermits *p, unsigned *token) {
   ok(pthread_mutex_unlock(&p->mutex));
   return e;
 }
-int tw_permit_release(TWPermits *p, unsigned token) {
+int tw_permit_release(struct tw_permits *p, unsigned token) {
   if (token >= 3)
     return EINVAL;
   int e = 0;
@@ -92,7 +92,7 @@ int tw_permit_release(TWPermits *p, unsigned token) {
   ok(pthread_mutex_unlock(&p->mutex));
   return e;
 }
-void tw_permits_destroy(TWPermits *p) {
+void tw_permits_destroy(struct tw_permits *p) {
   if (p->mask)
     abort();
   ok(pthread_mutex_destroy(&p->mutex));

@@ -1,25 +1,25 @@
 #ifndef CMASTERY_OBJECT_RUNTIME_FINALIZERS_H
 #define CMASTERY_OBJECT_RUNTIME_FINALIZERS_H
 #include "object_runtime.h"
-typedef struct { uint8_t slot, generation; } ORFHandle;
-typedef struct ORFHeap ORFHeap;
-typedef ORStatus (*ORFFinalizer)(ORFHeap *, ORFHandle, void *);
-struct ORFHeap {
-  ORWeak weak;
-  ORFFinalizer callback[16];
+struct orf_handle { uint8_t slot, generation; };
+struct orf_heap;
+typedef enum or_status (*orf_finalizer_fn)(struct orf_heap *, struct orf_handle, void *);
+struct orf_heap {
+  struct or_weak weak;
+  orf_finalizer_fn callback[16];
   void *context[16];
   uint8_t generation[16], busy, closed;
   uint16_t resources, cleanup_pending, callbacks_run, resources_closed;
 };
-void orf_init(ORFHeap *heap);
-ORStatus orf_new(ORFHeap *, ORFFinalizer, void *, int resource, int fail, ORFHandle *);
-ORStatus orf_root(ORFHeap *, ORFHandle, int present);
-ORStatus orf_edge(ORFHeap *, ORFHandle, unsigned field, ORFHandle);
-ORStatus orf_pair(ORFHeap *, unsigned index, ORFHandle key, ORFHandle value);
-ORStatus orf_weak(ORFHeap *, unsigned index, ORFHandle);
-ORStatus orf_collect(ORFHeap *, uint16_t *reclaimed);
-ORStatus orf_run_one(ORFHeap *, ORFHandle *, ORStatus *callback_status);
-ORStatus orf_close_resource(ORFHeap *, ORFHandle);
-ORStatus orf_cleanup(ORFHeap *, unsigned budget, unsigned *released);
-ORStatus orf_close(ORFHeap *);
+void orf_init(struct orf_heap *heap);
+enum or_status orf_new(struct orf_heap *, orf_finalizer_fn, void *, int resource, int fail, struct orf_handle *);
+enum or_status orf_root(struct orf_heap *, struct orf_handle, int present);
+enum or_status orf_edge(struct orf_heap *, struct orf_handle, unsigned field, struct orf_handle);
+enum or_status orf_pair(struct orf_heap *, unsigned index, struct orf_handle key, struct orf_handle value);
+enum or_status orf_weak(struct orf_heap *, unsigned index, struct orf_handle);
+enum or_status orf_collect(struct orf_heap *, uint16_t *reclaimed);
+enum or_status orf_run_one(struct orf_heap *, struct orf_handle *, enum or_status *callback_status);
+enum or_status orf_close_resource(struct orf_heap *, struct orf_handle);
+enum or_status orf_cleanup(struct orf_heap *, unsigned budget, unsigned *released);
+enum or_status orf_close(struct orf_heap *);
 #endif

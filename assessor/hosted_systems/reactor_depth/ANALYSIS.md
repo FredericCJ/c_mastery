@@ -33,7 +33,7 @@ the independent oracle or mutant outputs in the learner package.
 
 ## Reference reasoning and alternatives
 
-`RdOperation` preserves `done <= goal <= 8`. Positive progress is bounded by the
+`struct rd_operation` preserves `done <= goal <= 8`. Positive progress is bounded by the
 remaining extent; would-block changes nothing. Receive bytes are copied before
 advancing its cursor. Separate TX storage is unchanged by RX and remains live
 until its own terminal event. EOF inside an extent is terminal partial progress,
@@ -76,7 +76,7 @@ The flawed unbounded-drain policy is run for a disclosed 16-callback horizon,
 all spent on the persistent producer; the liveness failure is then argued from
 its missing handoff condition rather than from a finite nontermination claim.
 
-`RdService` imports the actual fixed outbox. The terminal ledger includes all
+`struct rd_service` imports the actual fixed outbox. The terminal ledger includes all
 accepted IDs in its finite epoch, so it has its own exhaustion policy. Count-only
 admission cannot implement a variable byte budget; 297 independent limit/length
 cells cover limits0–32 and lengths0–8 in the service wrapper, while the prerequisite
@@ -93,7 +93,7 @@ The native workload has 32 accepted IDs: one complete wire frame, 31 cancellatio
 and no extra terminal records after repeated stop. Actual elapsed time is retained
 without declaring a universal maximum or promising rollback of kernel-copied bytes.
 
-For `RdPort`, enrollment and the state predicate share a mutex. A controller
+For `struct rd_port`, enrollment and the state predicate share a mutex. A controller
 obtaining it after an entry announcement cannot slip a stop notification into a
 check/unlock/wait gap. The notification-without-predicate test requires reentry,
 then a real value42 handoff. The timeout/stop test has 200 barrier-started races

@@ -3,7 +3,7 @@
 #include "oslab.h"
 #include <stddef.h>
 #include <stdint.h>
-typedef enum {
+enum of_status {
   OF_OK,
   OF_INPUT,
   OF_LIMIT,
@@ -11,50 +11,50 @@ typedef enum {
   OF_DONE,
   OF_ERROR,
   OF_UNIMPLEMENTED = 99
-} OfStatus;
-typedef struct {
+};
+struct of_schedule {
   os_schedule schedule;
   unsigned dispatch_charge[OS_MAX_JOBS], queued[OS_MAX_JOBS];
-} OfSchedule;
+};
 /* -1 idle,-2 reserved dispatch overhead. Selection is fixed through overhead;
    arrivals during it are admitted before the next scheduling decision. */
-OfStatus of_schedule(const os_job *, size_t, os_policy, unsigned, unsigned,
-                     OfSchedule *);
-typedef enum { OF_YIELD, OF_SLEEP, OF_WEIGHT } OfEventKind;
-typedef struct {
+enum of_status of_schedule(const os_job *, size_t, os_policy, unsigned, unsigned,
+                     struct of_schedule *);
+enum of_event_kind { OF_YIELD, OF_SLEEP, OF_WEIGHT };
+struct of_event {
   unsigned time, job;
-  OfEventKind kind;
+  enum of_event_kind kind;
   unsigned value;
-} OfEvent;
-typedef struct {
+};
+struct of_fair {
   int timeline[256];
   unsigned level[256], used[256], service[3], boosts, normalizations;
   uint64_t final_pass[3];
-} OfFair;
+};
 /* Three initially runnable workers; events at boundaries; sleep value=duration,
    weight value=new weight; yield preserves consumed allotment. */
-OfStatus of_fair(unsigned, unsigned, const unsigned[3], uint64_t, unsigned,
-                 const OfEvent *, size_t, unsigned, OfFair *);
-typedef enum { OF_FIFO, OF_LRU, OF_CLOCK, OF_OPT } OfPagePolicy;
-typedef struct {
+enum of_status of_fair(unsigned, unsigned, const unsigned[3], uint64_t, unsigned,
+                 const struct of_event *, size_t, unsigned, struct of_fair *);
+enum of_page_policy { OF_FIFO, OF_LRU, OF_CLOCK, OF_OPT };
+struct of_reference {
   uint8_t page, write;
-} OfReference;
-typedef struct {
+};
+struct of_page_step {
   int victim;
   unsigned hit, live_mask, dirty_mask, hand;
   uint8_t resident[8];
-} OfPageStep;
-typedef struct {
-  OfPageStep steps[64];
+};
+struct of_pages {
+  struct of_page_step steps[64];
   unsigned faults, writebacks;
-} OfPages;
-OfStatus of_pages(const OfReference *, size_t, unsigned, OfPagePolicy,
-                  OfPages *);
-typedef struct {
+};
+enum of_status of_pages(const struct of_reference *, size_t, unsigned, enum of_page_policy,
+                  struct of_pages *);
+struct of_transfer {
   size_t wanted, done;
   unsigned terminal;
   int error;
-} OfTransfer;
+};
 /* raw is signed Linux-style return; record contract forbids partial success. */
-OfStatus of_progress(OfTransfer *, ptrdiff_t, unsigned);
+enum of_status of_progress(struct of_transfer *, ptrdiff_t, unsigned);
 #endif

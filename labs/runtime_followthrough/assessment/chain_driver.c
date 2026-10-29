@@ -18,13 +18,13 @@ int main(int argc, char **argv) {
   size_t count, n = 0;
   if (!read_file(argv[1], source, sizeof source, &count))
     return 3;
-  CvmProgram p;
-  CvmStatus status = cvm_compile((const char *)source, count, &p);
+  struct cvm_program p;
+  enum cvm_status status = cvm_compile((const char *)source, count, &p);
   if (status) {
     printf("VP_COMPILE_REFUSE %u\n", (unsigned)status);
     return 1;
   }
-  CvmStatus verified = cvm_verify(&p);
+  enum cvm_status verified = cvm_verify(&p);
   if (verified || cvm_save(&p, image, sizeof image, &n))
     return 4;
   FILE *f = fopen(argv[2], "wbx");
@@ -56,17 +56,17 @@ int main(int argc, char **argv) {
   size_t n;
   if (!read_file(argv[1], bytes, sizeof bytes, &n))
     return 3;
-  CvmProgram p;
-  CvmStatus loaded = cvm_load(bytes, n, &p);
+  struct cvm_program p;
+  enum cvm_status loaded = cvm_load(bytes, n, &p);
   if (loaded) {
     printf("VP_LOAD_REFUSE %u\n", (unsigned)loaded);
     return 1;
   }
-  Cvm vm;
+  struct cvm_cvm vm;
   cvm_init(&vm, 3, 0, 1);
   vm.host = host;
-  CvmValue result = cvm_int(91);
-  CvmStatus status = cvm_run(&vm, &p, &result);
+  struct cvm_value result = cvm_int(91);
+  enum cvm_status status = cvm_run(&vm, &p, &result);
   printf("{\"status\":%u,\"value\":%d,\"fuel_left\":%u,\"host_left\":%u,"
          "\"calls\":%u,\"adapter\":%d}\n",
          (unsigned)status, result.integer, vm.fuel, vm.host_budget, calls,

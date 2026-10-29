@@ -11,22 +11,22 @@ int sfv_submit(struct sfv_service *s,unsigned c,const struct sfv_request *r){
  struct sfv_slot *v=&s->slots[c];if(r->session!=v->session)return SFV_STALE;
  if(r->id==v->high){if(r->length!=v->request.length||r->fuel!=v->request.fuel||r->gc!=v->request.gc||memcmp(r->image,v->request.image,r->length))return SFV_CONFLICT;return v->state==3?SFV_CANCELLED:(v->state==1?SFV_RUNNING:SFV_OK);}
  if(r->id<v->high)return SFV_STALE;if(v->state==1||v->state==2)return SFV_BUSY;
- CvmProgram image;VvReport report;if(vv_load(r->image,r->length,0,1,&s->scratch,&image,&report)!=VV_OK)return CVM_VERIFY;
+ struct cvm_program image;struct vv_report report;if(vv_load(r->image,r->length,0,1,&s->scratch,&image,&report)!=VV_OK)return CVM_VERIFY;
  int result=vs_start(&v->execution,&image,VS_CHECKED_V1,r->fuel,r->gc,0,0,&s->scratch);if(result!=VS_RUNNING)return result;
  v->execution.vm.arena=1;v->request=*r;v->high=r->id;v->state=1;v->length=0;v->status=SFV_RUNNING;return SFV_RUNNING;
 }
-static int encode(Cvm *vm,CvmValue value,uint8_t *out,size_t *length,unsigned depth){
+static int encode(struct cvm_cvm *vm,struct cvm_value value,uint8_t *out,size_t *length,unsigned depth){
  if(depth>CVM_HEAP||*length>=SFV_RESULT)return SFV_CAPACITY;
  out[(*length)++]=(uint8_t)value.tag;
  if(value.tag==CVM_INT||value.tag==CVM_BOOL){if(SFV_RESULT-*length<4)return SFV_CAPACITY;for(unsigned i=0;i<4;i++)out[(*length)++]=(uint8_t)((uint32_t)value.integer>>(8*i));return SFV_OK;}
  if(value.tag==CVM_NIL)return SFV_OK;
  if(value.tag!=CVM_REF)return CVM_TYPE;
- CvmValue left,right;if(cvm_field(vm,value,0,&left)||cvm_field(vm,value,1,&right))return CVM_STALE;
+ struct cvm_value left,right;if(cvm_field(vm,value,0,&left)||cvm_field(vm,value,1,&right))return CVM_STALE;
  int r=encode(vm,left,out,length,depth+1);return r?r:encode(vm,right,out,length,depth+1);
 }
 int sfv_step(struct sfv_service *s,unsigned c){
  if(!s||c>=2)return SFV_ARGUMENT;struct sfv_slot *v=&s->slots[c];if(v->state!=1)return v->state==3?SFV_CANCELLED:SFV_STALE;
- CvmValue out;int r=vs_step(&v->execution,&out);if(r==VS_RUNNING)return SFV_RUNNING;
+ struct cvm_value out;int r=vs_step(&v->execution,&out);if(r==VS_RUNNING)return SFV_RUNNING;
  v->state=2;v->status=r==VS_DONE?SFV_OK:(unsigned)r;v->length=0;
  if(r==VS_DONE){v->result=out;uint8_t bytes[SFV_RESULT];size_t length=0;int e=encode(&v->execution.vm,out,bytes,&length,0);if(e)v->status=(unsigned)e;else{memcpy(v->bytes,bytes,length);v->length=length;}}
  return (int)v->status;
@@ -45,7 +45,7 @@ int sfv_handle(struct sfv_service *s,unsigned c,struct sfv_handle *out){
  if(!s||c>=2||!out)return SFV_ARGUMENT;struct sfv_slot *v=&s->slots[c];if(v->state!=2||v->status||v->result.tag!=CVM_REF)return SFV_STALE;
  *out=(struct sfv_handle){v->session,v->high,c+1,0,v->result};return SFV_OK;
 }
-int sfv_field(struct sfv_service *s,unsigned c,const struct sfv_handle *h,int right,CvmValue *out){
+int sfv_field(struct sfv_service *s,unsigned c,const struct sfv_handle *h,int right,struct cvm_value *out){
  if(!s||c>=2||!h||!out||(right!=0&&right!=1))return SFV_ARGUMENT;struct sfv_slot *v=&s->slots[c];
 #ifndef SFV_MUTANT_FOREIGN
  if(h->instance!=c+1||h->session!=v->session||h->id!=v->high||h->reserved)return SFV_FOREIGN;

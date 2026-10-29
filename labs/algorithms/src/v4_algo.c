@@ -1,28 +1,28 @@
 #include "v4_algo.h"
 /* Implement one unit at a time. Returning failure keeps the scaffold buildable.
  */
-int v4_reserve(V4Array *a, size_t n) {
+int v4_reserve(struct v4_array *a, size_t n) {
   (void)a;
   (void)n;
   return -1;
 }
-int v4_list_push(V4List *a, int32_t n) {
+int v4_list_push(struct v4_list *a, int32_t n) {
   (void)a;
   (void)n;
   return -1;
 }
-int v4_list_pop(V4List *a, int32_t *n) {
+int v4_list_pop(struct v4_list *a, int32_t *n) {
   (void)a;
   (void)n;
   return -1;
 }
-int v4_free_take(V4Free *a, unsigned n, unsigned *p) {
+int v4_free_take(struct v4_free *a, unsigned n, unsigned *p) {
   (void)a;
   (void)n;
   (void)p;
   return -1;
 }
-int v4_free_return(V4Free *a, unsigned n, unsigned p) {
+int v4_free_return(struct v4_free *a, unsigned n, unsigned p) {
   (void)a;
   (void)n;
   (void)p;
@@ -44,7 +44,7 @@ int v4_knapsack(const unsigned *w, const unsigned *v, size_t n, unsigned c,
   (void)p;
   return -1;
 }
-int v4_filter(V4Filter *f, int32_t n, int32_t *a, int32_t *b) {
+int v4_filter(struct v4_filter *f, int32_t n, int32_t *a, int32_t *b) {
   (void)f;
   (void)n;
   (void)a;

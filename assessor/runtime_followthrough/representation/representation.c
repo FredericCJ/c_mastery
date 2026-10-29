@@ -2,16 +2,16 @@
 #ifndef RV_MUTANT
 #define RV_MUTANT 0
 #endif
-static int valid(RvValue v) {
+static int valid(struct rv_value v) {
   return v.tag <= RV_Q16 &&
          (v.tag != RV_BOOL || (v.payload == 0 || v.payload == 1)) &&
          (v.tag != RV_REF ||
           (v.payload >= 0 && v.payload < (int32_t)CVM_HEAP && v.generation));
 }
-int rv_import(CvmValue c, RvValue *out) {
+int rv_import(struct cvm_value c, struct rv_value *out) {
   if (!out)
     return RV_ARGUMENT;
-  RvValue v = {0, 0, 0};
+  struct rv_value v = {0, 0, 0};
   switch (c.tag) {
   case CVM_NIL:
     v.tag = RV_NIL;
@@ -37,7 +37,7 @@ int rv_import(CvmValue c, RvValue *out) {
   *out = v;
   return RV_OK;
 }
-int rv_equal(RvValue a, RvValue b, int *out) {
+int rv_equal(struct rv_value a, struct rv_value b, int *out) {
   if (!out)
     return RV_ARGUMENT;
   if (!valid(a) || !valid(b))
@@ -52,7 +52,7 @@ int rv_equal(RvValue a, RvValue b, int *out) {
                            (a.tag != RV_REF || a.generation == b.generation)));
   return RV_OK;
 }
-int rv_arithmetic(unsigned op, RvValue a, RvValue b, RvValue *out) {
+int rv_arithmetic(unsigned op, struct rv_value a, struct rv_value b, struct rv_value *out) {
   if (!out || op > RV_DIV)
     return RV_ARGUMENT;
   if (!valid(a) || !valid(b))
@@ -98,7 +98,7 @@ int rv_arithmetic(unsigned op, RvValue a, RvValue b, RvValue *out) {
     z--;
   if (z < INT32_MIN || z > INT32_MAX)
     return RV_RANGE;
-  *out = (RvValue){fixed ? RV_Q16 : RV_INT, (int32_t)z, 0};
+  *out = (struct rv_value){fixed ? RV_Q16 : RV_INT, (int32_t)z, 0};
   return RV_OK;
 }
 static unsigned u16(const uint8_t *b) {
@@ -116,7 +116,7 @@ static int text(const uint8_t *b, unsigned n) {
       return 0;
   return 1;
 }
-int rv_decode(const uint8_t *b, size_t n, RvImage *out) {
+int rv_decode(const uint8_t *b, size_t n, struct rv_image *out) {
   if (!b || !out)
     return RV_ARGUMENT;
   if (n < 9 || n > RV_IMAGE_MAX)
@@ -130,7 +130,7 @@ int rv_decode(const uint8_t *b, size_t n, RvImage *out) {
   size_t base = u16(b + 6), pos = 9;
   if (base > n - pos)
     return RV_FORMAT;
-  RvImage result = {0};
+  struct rv_image result = {0};
   if (cvm_decode(b + pos, base, &result.program) != CVM_OK)
     return RV_FORMAT;
   pos += base;
@@ -167,7 +167,7 @@ int rv_decode(const uint8_t *b, size_t n, RvImage *out) {
   *out = result;
   return RV_OK;
 }
-int rv_encode(const RvImage *in, uint8_t *b, size_t cap, size_t *written) {
+int rv_encode(const struct rv_image *in, uint8_t *b, size_t cap, size_t *written) {
   if (!in || !b || !written)
     return RV_ARGUMENT;
   if (in->has_digest > 1 || in->name_length > 31 || in->skipped ||

@@ -4,7 +4,7 @@ int main(void) {
   double impulse[] = {1, 0, 0, 0}, step[] = {1, 1, 1, 1},
          fir[] = {.25, .5, .25, 0}, iir[] = {.5, .75, .875, .9375}, out[4];
   for (unsigned mask = 0; mask < 8; mask++) {
-    CPNDouble f;
+    struct cpn_double f;
     cpn_double_init(&f);
     double state = 0;
     size_t start = 0;
@@ -30,7 +30,7 @@ int main(void) {
         memcmp(out, snapshot, sizeof out) == 0);
   for (size_t fail = 1; fail <= 4; fail++)
     for (int atomic = 0; atomic < 2; atomic++) {
-      CPNDouble f;
+      struct cpn_double f;
       cpn_double_init(&f);
       size_t done = 99;
       for (size_t i = 0; i < 4; i++)
@@ -46,7 +46,7 @@ int main(void) {
       CHECK(memcmp(out, fir, sizeof out) == 0);
     }
   double inplace[] = {1, 0, 0, 0};
-  CPNDouble f;
+  struct cpn_double f;
   cpn_double_init(&f);
   CHECK(cpn_double(&f, inplace, 4, inplace, 4) == 0 &&
         memcmp(inplace, fir, sizeof fir) == 0);

@@ -12,11 +12,11 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-static VhMedium disk, snapshot;
+static struct vh_medium disk, snapshot;
 static store database;
-static Vh host;
-static CvmProgram program(uint8_t service, int32_t n, int boolean) {
-  CvmProgram p = {0};
+static struct vg_vh host;
+static struct cvm_program program(uint8_t service, int32_t n, int boolean) {
+  struct cvm_program p = {0};
   unsigned i = 0;
   uint32_t u = (uint32_t)n;
   if (boolean)
@@ -33,13 +33,13 @@ static CvmProgram program(uint8_t service, int32_t n, int boolean) {
   p.code[i++] = OP_RET;
   p.count = 1;
   p.length = (uint16_t)i;
-  p.functions[0] = (CvmFunction){0, (uint16_t)i, 0, 0};
+  p.functions[0] = (struct cvm_function){0, (uint16_t)i, 0, 0};
   return p;
 }
-static int call(Vh *h, uint8_t service, int32_t n, unsigned budget, int boolean,
-                CvmValue *out) {
-  Cvm vm;
-  CvmProgram p = program(service, n, boolean);
+static int call(struct vg_vh *h, uint8_t service, int32_t n, unsigned budget, int boolean,
+                struct cvm_value *out) {
+  struct cvm_cvm vm;
+  struct cvm_program p = program(service, n, boolean);
   cvm_init(&vm, 3, 0, budget);
   vm.host = vh_host;
   vm.host_context = h;
@@ -49,7 +49,7 @@ static int fresh(unsigned mode) {
   memset(&disk, 0, sizeof disk);
   CHECK(store_format(vh_medium_io(&disk)) == STORE_OK);
   CHECK(store_open(&database, vh_medium_io(&disk)) == STORE_OK);
-  host = (Vh){&database, 14, mode, 0, 0};
+  host = (struct vg_vh){&database, 14, mode, 0, 0};
   return 0;
 }
 static int raw(const uint8_t *p, size_t n) {
@@ -66,18 +66,18 @@ static int recover(void) {
 }
 static int policies(void) {
   CHECK(fresh(VH_LEGACY4) == 0);
-  CvmValue out = cvm_int(91);
+  struct cvm_value out = cvm_int(91);
   unsigned old_events = disk.event;
-  Cvm absent;
-  CvmProgram absent_program = program(1, 7, 0);
+  struct cvm_cvm absent;
+  struct cvm_program absent_program = program(1, 7, 0);
   cvm_init(&absent, 3, 0, 1);
   CHECK(cvm_run(&absent, &absent_program, &out) == CVM_HOST_ERROR &&
         out.integer == 91 && disk.event == old_events);
-  Vh unknown = host;
+  struct vg_vh unknown = host;
   unknown.capabilities = UINT32_C(1) << 31;
   CHECK(call(&unknown, 31, 7, 1, 0, &out) == CVM_HOST_ERROR &&
         out.integer == 91 && disk.event == old_events);
-  Vh writer = host, reader = host;
+  struct vg_vh writer = host, reader = host;
   writer.capabilities = 2;
   reader.capabilities = 4;
   CHECK(call(&reader, 1, 7, 1, 0, &out) == CVM_HOST_ERROR &&
@@ -107,7 +107,7 @@ static int policies(void) {
 }
 static int codecs(void) {
   CHECK(fresh(VH_LEGACY4) == 0);
-  CvmValue out;
+  struct cvm_value out;
   const int32_t values[] = {0, 1, -1, INT32_MIN, INT32_MAX, -91, 16909060};
   for (unsigned i = 0; i < sizeof values / sizeof values[0]; i++) {
     CHECK(call(&host, 1, values[i], 1, 0, &out) == CVM_OK &&
@@ -160,7 +160,7 @@ static int codecs(void) {
 }
 static int uncertain_assignment(void) {
   CHECK(fresh(VH_VERSIONED5) == 0);
-  CvmValue out = cvm_int(91);
+  struct cvm_value out = cvm_int(91);
   CHECK(call(&host, 1, 10, 1, 0, &out) == CVM_OK);
   CHECK(store_checkpoint(&database) == STORE_OK);
   snapshot = disk;
@@ -186,7 +186,7 @@ static int uncertain_assignment(void) {
 }
 static int receipts(void) {
   CHECK(fresh(VH_VERSIONED5) == 0);
-  CvmValue out;
+  struct cvm_value out;
   CHECK(call(&host, 1, 10, 1, 0, &out) == CVM_OK);
   host.operation_id = 1;
   CHECK(call(&host, 3, 5, 1, 0, &out) == CVM_OK && out.integer == 15);
@@ -235,7 +235,7 @@ static int receipts(void) {
 }
 static int crash_increment(void) {
   CHECK(fresh(VH_VERSIONED5) == 0);
-  CvmValue out;
+  struct cvm_value out;
   CHECK(call(&host, 1, 10, 1, 0, &out) == CVM_OK);
   CHECK(store_checkpoint(&database) == STORE_OK);
   snapshot = disk;

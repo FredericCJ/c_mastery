@@ -17,7 +17,7 @@ reference result is not an assertion that learner artifacts were supplied.
 | containers.ring | algo_ring_init/put/take hold bounded result history | Diagnostic overflow counts loss, does not reverse completed work |
 | adt.brand | ad_pool_acquire/get/release retain each message until consumed | Owner object stays live/stable; raw indices are internal only |
 
-`PFSystem` is nonmoving. Its fixed task stacks are aligned owned arrays used for
+`struct pf_system` is nonmoving. Its fixed task stacks are aligned owned arrays used for
 model stack-admission metadata; this does not execute a machine stack switch.
 Message-slot identity and recovery-capability identity are checked separately.
 On queue admission failure, release the newly acquired slot. On processing a

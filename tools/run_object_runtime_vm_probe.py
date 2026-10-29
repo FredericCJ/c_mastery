@@ -18,11 +18,11 @@ static volatile uint64_t checksum;
 static uint64_t ns(void){struct timespec t;if(clock_gettime(CLOCK_MONOTONIC,&t))return 0;return (uint64_t)t.tv_sec*UINT64_C(1000000000)+(uint64_t)t.tv_nsec;}
 #define REQUIRE(c) do{if(!(c))return 1;}while(0)
 int main(void){unsigned count,mode,trial,round;
- printf("LAYOUT %zu %zu %zu %zu %zu\n",sizeof(Cvm),sizeof(ORVM),sizeof(ORVStats),sizeof(ORVDerived),sizeof(algo_pool));
+ printf("LAYOUT %zu %zu %zu %zu %zu\n",sizeof(Cvm),sizeof(struct or_vm),sizeof(struct orv_stats),sizeof(struct orv_derived),sizeof(algo_pool));
  for(count=2;count<=16;count*=2)for(mode=0;mode<2;mode++)for(trial=0;trial<16;trial++){
   unsigned live_total=0,moved=0,work=0,checksum_total=0;uint64_t start=ns(),end;
   for(round=0;round<PROBE_ROUNDS;round++){
-   Cvm vm;ORVM owner;CvmValue value,field;ORVStats stats;unsigned i,live=0;
+   Cvm vm;struct or_vm owner;struct cvm_value value,field;struct orv_stats stats;unsigned i,live=0;
    cvm_init(&vm,1000,1000,100);orv_init(&owner,&vm);
    for(i=0;i<count;i++){REQUIRE(cvm_pair(&vm,cvm_int((int32_t)i),cvm_int((int32_t)(100+i)),&value)==CVM_OK);if(i&1)REQUIRE(cvm_root_push(&vm,value)==CVM_OK);}
    if(mode){REQUIRE(orv_collect(&owner,1000,0,&stats)==OR_OK);moved+=stats.moved;work+=stats.work;}

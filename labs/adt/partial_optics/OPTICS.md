@@ -1,7 +1,7 @@
 # T67.08: Partial optics, preserved versions and observable effects
 
 This required successor implements X-T67-008 and its original delayed variant.
-Complete X-T67-007 and retain the original `ADPair`, `ad_lens_x`,
+Complete X-T67-007 and retain the original `struct ad_pair`, `ad_lens_x`,
 `ad_review_number` and `ad_preview_number` implementation from PR-T67-08.
 The actual retained functions are imported by the reference tests; a learner
 supplies their completed implementation explicitly, never the assessor tree.
@@ -62,7 +62,7 @@ any uint32 context, or TIMEOUT with a uint32 duration. Other versions return
 VERSION; invalid tag/version combinations return INVALID. Out-of-domain IO
 payloads return RANGE. SUCCESS and valid TIMEOUT are nonmatches (ABSENT).
 
-`adl_preview` extracts IO into `AdlIO {version,code,context}`. `adl_review`
+`adl_preview` extracts IO into `struct adl_io {version,code,context}`. `adl_review`
 checks this refined focus domain and rebuilds the exact IO branch. Both leave
 output unchanged on refusal. On valid IO focus f, preview(review(f))=f. On a
 matched source s, review(preview(s))=s under tag/version/active-field equality.
@@ -78,7 +78,7 @@ No inactive union member is used as a semantic equality shortcut.
 
 ## Callbacks: transactional output is not effect rollback
 
-`adl_update` accepts zero to two `AdlStep` entries. Each entry contains a live
+`adl_update` accepts zero to two `struct adl_step` entries. Each entry contains a live
 callback and context. It validates output, count, complete step array and both
 presence flags before invoking any callback. Any missing callback is INVALID
 even if an earlier callback would otherwise fail. An absent focus invokes no

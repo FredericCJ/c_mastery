@@ -11,7 +11,7 @@
     }                                                                          \
   } while (0)
 static int tree(void) {
-  RpsTree t, saved;
+  struct rps_tree t, saved;
   unsigned mode, i;
   unsigned char out[64], want[] = {'b', 'a', 0xf0, 0x9f, 0x98, 0x80};
   size_t n;
@@ -47,7 +47,7 @@ static int tree(void) {
   return 0;
 }
 static int snapshot(void) {
-  RpsTree a, b, c, out, saved;
+  struct rps_tree a, b, c, out, saved;
   unsigned char wire[368], bad[368], render[64];
   unsigned i;
   size_t n;
@@ -99,10 +99,10 @@ static int snapshot(void) {
   puts("SEQUENCE_SNAPSHOT bits2944 quiescent-fence retained-descendants");
   return 0;
 }
-static RpsServer server;
-static RpsClient clients[3];
-static RpsRequest requests[3];
-static RpsCommit commits[16];
+static struct rps_server server;
+static struct rps_client clients[3];
+static struct rps_request requests[3];
+static struct rps_commit commits[16];
 static int setup(void) {
   unsigned i;
   CHECK(rps_server_init(&server, 1) == RPS_OK);
@@ -118,9 +118,9 @@ static int drain(unsigned from, unsigned to) {
   return 0;
 }
 static int context(void) {
-  RpsRequest bad;
-  RpsCommit out, saved;
-  RpsServer original;
+  struct rps_request bad;
+  struct rps_commit out, saved;
+  struct rps_server original;
   unsigned i;
   CHECK(setup() == 0);
   for (i = 0; i < 3; ++i)
@@ -176,8 +176,8 @@ static int context(void) {
   return 0;
 }
 static int delivery(void) {
-  RpsCommit bad;
-  RpsClient saved;
+  struct rps_commit bad;
+  struct rps_client saved;
   unsigned i;
   CHECK(setup() == 0);
   for (i = 0; i < 3; ++i)
@@ -202,7 +202,7 @@ static int delivery(void) {
   return 0;
 }
 static int tree_oracle(void) {
-  RpsTree t;
+  struct rps_tree t;
   char op;
   unsigned a, b, c;
   unsigned char wire[368], bytes[64];
@@ -241,7 +241,7 @@ static int ot_oracle(void) {
     } else if (op == 'P')
       r = rps_prepare(&clients[a], b, c, d, &requests[a]);
     else if (op == 'S') {
-      RpsCommit out;
+      struct rps_commit out;
       r = rps_submit(&server, &requests[a], &out);
       if (!r)
         commits[out.revision - 1] = out;
@@ -254,7 +254,7 @@ static int ot_oracle(void) {
     for (i = 0; i < server.lengths[server.count]; ++i)
       printf(" %u", server.documents[server.count][i]);
     for (i = 0; i < 3; ++i) {
-      RpsClient *x = &clients[i];
+      struct rps_client *x = &clients[i];
       printf(" %u %u %u", x->revision, x->pending, x->length);
       for (j = 0; j < 3; ++j)
         printf(" %u", x->vector[j]);
@@ -283,7 +283,7 @@ int main(int argc, char **argv) {
   if (!strcmp(argv[1], "metrics")) {
     printf("{\"tree_size\":%zu,\"server_size\":%zu,\"client_size\":%zu,"
            "\"snapshot_bytes\":368,\"node_capacity\":16,\"log_capacity\":16}\n",
-           sizeof(RpsTree), sizeof(RpsServer), sizeof(RpsClient));
+           sizeof(struct rps_tree), sizeof(struct rps_server), sizeof(struct rps_client));
     return 0;
   }
   return 2;

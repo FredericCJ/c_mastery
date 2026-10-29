@@ -5,20 +5,20 @@
 #include <stdio.h>
 #include <sys/wait.h>
 #include <unistd.h>
-typedef struct {
+struct rd_port {
   int rx, tx;
   unsigned waits;
-} Port;
+};
 static int now(void *p, struct timespec *t) {
   (void)p;
   return clock_gettime(CLOCK_MONOTONIC, t);
 }
 static ssize_t transfer(void *p, int sending, unsigned char *b, size_t n) {
-  Port *port = p;
+  struct rd_port *port = p;
   return sending ? write(port->tx, b, n) : read(port->rx, b, n);
 }
 static int wait_ready(void *p, int sending, struct timespec left) {
-  Port *port = p;
+  struct rd_port *port = p;
   ++port->waits;
   struct pollfd fd = {sending ? port->tx : port->rx, sending ? POLLOUT : POLLIN,
                       0};
@@ -67,9 +67,9 @@ int main(void) {
   char enrolled;
   CHECK(read(ready[0], &enrolled, 1) == 1 && enrolled == 'R');
   close(ready[0]);
-  Port port = {response[0], request[1], 0};
-  EiIo ops = {now, transfer, wait_ready, &port};
-  EiProgress p = {0};
+  struct rd_port port = {response[0], request[1], 0};
+  struct ei_io ops = {now, transfer, wait_ready, &port};
+  struct ei_progress p = {0};
   const unsigned char request_bytes[8] = {0, 1, 2, 3, 4, 5, 6, 7};
   unsigned char output[4] = {99, 99, 99, 99};
   struct timespec begin, end, deadline;

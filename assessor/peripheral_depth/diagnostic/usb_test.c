@@ -14,16 +14,16 @@ int pm_puts(const char *);
       return 1;                                                                \
     }                                                                          \
   } while (0)
-static int control(DGUsb *u, unsigned type, unsigned request, unsigned value,
-                   unsigned index, unsigned length, DGControl *c) {
+static int control(struct dg_usb *u, unsigned type, unsigned request, unsigned value,
+                   unsigned index, unsigned length, struct dg_control *c) {
   uint8_t q[8] = {(uint8_t)type,   (uint8_t)request,
                   (uint8_t)value,  (uint8_t)(value >> 8),
                   (uint8_t)index,  (uint8_t)(index >> 8),
                   (uint8_t)length, (uint8_t)(length >> 8)};
   return dg_usb_setup(u, q, c);
 }
-static int configured(DGUsb *u) {
-  DGControl c;
+static int configured(struct dg_usb *u) {
+  struct dg_control c;
   CHECK(control(u, 0, 5, 7, 0, 0, &c) == DG_OK && u->address == 0);
   CHECK(dg_usb_status(u, c.token, 1) == DG_OK && u->address == 7);
   CHECK(control(u, 0, 9, 1, 0, 0, &c) == DG_OK && u->configured == 1);
@@ -31,8 +31,8 @@ static int configured(DGUsb *u) {
   return 0;
 }
 int main(void) {
-  DGUsb u = {0};
-  DGControl c;
+  struct dg_usb u = {0};
+  struct dg_control c;
   uint32_t stale;
   for (unsigned length = 0; length <= 40; ++length) {
     CHECK(control(&u, 128, 6, 512, 0, length, &c) == DG_OK &&
@@ -54,8 +54,8 @@ int main(void) {
   CHECK(control(&u, 0, 5, 8, 0, 0, &c) == DG_FRAME && u.address == 7);
   CHECK(control(&u, 0, 9, 2, 0, 0, &c) == DG_FRAME && u.configured);
   {
-    DGSession s = {0};
-    DGMessage m = {9, 0, {0}}, out = {99, 0, {0}};
+    struct dg_session s = {0};
+    struct dg_message m = {9, 0, {0}}, out = {99, 0, {0}};
     unsigned hs = 99;
     int app = 99;
     uint8_t bytes[40] = {0, 9, 0, 32};
@@ -85,10 +85,10 @@ int main(void) {
     CHECK(control(&u, 0, 9, 1, 0, 0, &c) == DG_OK && u.configured);
   }
   for (unsigned length = 0; length <= 32; ++length) {
-    DGMessage m = {(uint16_t)(length + 1), (uint16_t)length, {0}}, out = {0};
+    struct dg_message m = {(uint16_t)(length + 1), (uint16_t)length, {0}}, out = {0};
     for (unsigned i = 0; i < length; ++i)
       m.payload[i] = (uint8_t)(i + 17);
-    DGSession session = {0};
+    struct dg_session session = {0};
     uint8_t wire[36];
     size_t n;
     CHECK(dg_encode(&m, wire, sizeof wire, &n) == DG_OK);
@@ -149,8 +149,8 @@ int main(void) {
   CHECK(control(&u, 2, 1, 0, 1, 0, &c) == DG_OK &&
         !u.toggle_out); /* clear even when not halted */
   CHECK(control(&u, 2, 3, 0, 1, 0, &c) == DG_OK && u.halt_out);
-  DGSession session = {0};
-  DGMessage m = {1, 2, {1, 2}}, out = {0};
+  struct dg_session session = {0};
+  struct dg_message m = {1, 2, {1, 2}}, out = {0};
   unsigned hs;
   int app;
   uint8_t wire[36];

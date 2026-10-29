@@ -3,7 +3,7 @@
 #include <string.h>
 #define CHECK(x) do { if(!(x)){fprintf(stderr,"B06_CHECK %s:%d: %s\n",__FILE__,__LINE__,#x);return 1;} } while(0)
 static int test_iov(void) {
-size_t a[]={0,3,0,4};LIPosition p={0,0};CHECK(li_advance(a,4,&p,4)&&p.index==3&&p.offset==1);CHECK(!li_advance(a,4,&p,4)&&p.offset==1);CHECK(li_advance(a,4,&p,3)&&p.index==4&&p.offset==0);
+size_t a[]={0,3,0,4};struct li_position p={0,0};CHECK(li_advance(a,4,&p,4)&&p.index==3&&p.offset==1);CHECK(!li_advance(a,4,&p,4)&&p.offset==1);CHECK(li_advance(a,4,&p,3)&&p.index==4&&p.offset==0);
 return 0;
 }
 static int test_readiness(void) {
@@ -15,7 +15,7 @@ uint32_t o=99;CHECK(li_slot(UINT32_MAX-1,0,4,&o)&&o==0);CHECK(!li_slot(0,4,4,&o)
 return 0;
 }
 static int test_completion(void) {
-LIRequest r={7,0,0};CHECK(li_event(&r,7,0,0));CHECK(!li_event(&r,6,2,3)&&r.state==1);CHECK(li_event(&r,7,1,0));CHECK(!li_event(&r,7,3,0));CHECK(li_event(&r,7,2,-1));CHECK(li_event(&r,7,3,0));CHECK(!li_event(&r,7,2,4));
+struct li_request r={7,0,0};CHECK(li_event(&r,7,0,0));CHECK(!li_event(&r,6,2,3)&&r.state==1);CHECK(li_event(&r,7,1,0));CHECK(!li_event(&r,7,3,0));CHECK(li_event(&r,7,2,-1));CHECK(li_event(&r,7,3,0));CHECK(!li_event(&r,7,2,4));
 return 0;
 }
 static int test_cancel(void) {

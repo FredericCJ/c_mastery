@@ -18,91 +18,91 @@ enum {
 };
 int ed_wrap(uint32_t application, const uint32_t *headers, size_t count,
             uint32_t *sizes);
-typedef struct {
+struct ed_interface {
   uint16_t protocol, version;
   uint8_t shape, ownership;
-} EDInterface;
-int ed_compatible(EDInterface provided, EDInterface required,
+};
+int ed_compatible(struct ed_interface provided, struct ed_interface required,
                   unsigned *compatible);
-typedef struct {
+struct ed_frame {
   uint8_t destination[6], source[6];
   uint16_t field;
   size_t payload_length, stored_payload;
   const uint8_t *payload;
-} EDFrame;
+};
 int ed_frame_build(const uint8_t destination[6], const uint8_t source[6],
                    uint16_t field, const uint8_t *payload, size_t length,
                    unsigned fcs, uint8_t *out, size_t capacity,
                    size_t *written);
 int ed_frame_parse(const uint8_t *frame, size_t length, unsigned fcs,
-                   EDFrame *out);
+                   struct ed_frame *out);
 int ed_crc32(const uint8_t *bytes, size_t length, uint32_t *out);
-typedef struct {
+struct ed_bridge_entry {
   uint8_t mac[6], port, live;
   uint32_t seen;
-} EDBridgeEntry;
-typedef struct {
-  EDBridgeEntry entries[4];
+};
+struct ed_bridge {
+  struct ed_bridge_entry entries[4];
   uint32_t now;
-} EDBridge;
-int ed_bridge(EDBridge *bridge, const uint8_t source[6],
+};
+int ed_bridge(struct ed_bridge *bridge, const uint8_t source[6],
               const uint8_t destination[6], unsigned ingress, uint32_t now,
               unsigned *output_mask);
-typedef struct {
+struct ed_bus {
   void *context;
   int (*read)(void *, unsigned, uint32_t *);
   int (*write)(void *, unsigned, uint32_t);
   uint32_t (*clock)(void *);
-} EDBus;
-typedef struct {
+};
+struct ed_phy {
   uint8_t historical, current, full;
   uint16_t speed;
-} EDPhy;
+};
 int ed_mdio_word(uint32_t hclk, unsigned phy, unsigned reg, unsigned busy,
                  uint32_t *word, uint32_t *divisor);
-int ed_mdio_read(const EDBus *bus, uint32_t hclk, unsigned phy, unsigned reg,
+int ed_mdio_read(const struct ed_bus *bus, uint32_t hclk, unsigned phy, unsigned reg,
                  unsigned budget, uint32_t timeout, uint16_t *value);
-int ed_phy_query(const EDBus *bus, uint32_t hclk, unsigned phy, unsigned budget,
-                 uint32_t timeout, EDPhy *out);
-typedef struct {
+int ed_phy_query(const struct ed_bus *bus, uint32_t hclk, unsigned phy, unsigned budget,
+                 uint32_t timeout, struct ed_phy *out);
+struct ed_descriptor {
   const uint8_t *bytes;
   uint16_t capacity;
   uint32_t status;
-} EDDescriptor;
-typedef struct {
+};
+struct ed_rx {
   uint32_t generation;
   uint8_t held, dropping;
-} EDRx;
-typedef struct {
+};
+struct ed_borrow {
   const uint8_t *first, *second;
   uint16_t first_length, second_length;
   uint32_t token;
-} EDBorrow;
-int ed_rx_acquire(EDRx *state, const EDDescriptor *descriptors, size_t count,
-                  EDBorrow *out);
-int ed_rx_release(EDRx *state, uint32_t token);
-typedef struct {
+};
+int ed_rx_acquire(struct ed_rx *state, const struct ed_descriptor *descriptors, size_t count,
+                  struct ed_borrow *out);
+int ed_rx_release(struct ed_rx *state, uint32_t token);
+struct ed_tx_slot {
   uint8_t bytes[1514], phase;
   uint16_t length;
   uint32_t token, head, tail;
-} EDTxSlot;
-typedef struct {
-  EDTxSlot slots[2];
-} EDTx;
-int ed_tx_prepare(EDTx *state, unsigned slot, uint32_t token,
+};
+struct ed_tx {
+  struct ed_tx_slot slots[2];
+};
+int ed_tx_prepare(struct ed_tx *state, unsigned slot, uint32_t token,
                   const uint8_t *frame, size_t length);
-int ed_tx_tail(EDTx *state, unsigned slot, uint32_t token);
-int ed_tx_publish(EDTx *state, unsigned slot, uint32_t token,
+int ed_tx_tail(struct ed_tx *state, unsigned slot, uint32_t token);
+int ed_tx_publish(struct ed_tx *state, unsigned slot, uint32_t token,
                   void (*barrier)(void *), void *context);
-int ed_tx_complete(EDTx *state, unsigned slot, uint32_t token,
+int ed_tx_complete(struct ed_tx *state, unsigned slot, uint32_t token,
                    unsigned returned, unsigned error);
-int ed_tx_abort(EDTx *state, unsigned slot, uint32_t token, unsigned stopped);
+int ed_tx_abort(struct ed_tx *state, unsigned slot, uint32_t token, unsigned stopped);
 int ed_reachable(uint32_t address, uint32_t length);
 int ed_initialize(const uint8_t *events, size_t count, size_t *first_bad);
-typedef struct {
+struct ed_budget {
   uint32_t ip, frame, slot, nanoseconds;
-} EDBudget;
-int ed_budget(uint32_t application, unsigned megabits, EDBudget *out);
+};
+int ed_budget(uint32_t application, unsigned megabits, struct ed_budget *out);
 int ed_capture(const uint32_t *times, size_t count, int32_t offset,
                unsigned offset_known, uint32_t uncertainty, uint64_t *lower,
                uint64_t *upper);

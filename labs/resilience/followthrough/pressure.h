@@ -2,40 +2,40 @@
 #define CMASTERY_RESILIENCE_PRESSURE_H
 #include "scope.h"
 
-typedef struct {unsigned value;void *owned;void (*dispose)(void *);} RzpValue;
-typedef struct {RZQueue core;RzpValue values[4];} RzpOwnedQueue;
-void rzp_owned_init(RzpOwnedQueue *);
-int rzp_owned_offer(RzpOwnedQueue *,const RZScope *,uint64_t,RZPolicy,RzpValue *);
-int rzp_owned_pop(RzpOwnedQueue *,RzpValue *);
-void rzp_value_drop(RzpValue *);
-void rzp_owned_close(RzpOwnedQueue *);
+struct rzp_value {unsigned value;void *owned;void (*dispose)(void *);};
+struct rzp_owned_queue {struct rz_queue core;struct rzp_value values[4];};
+void rzp_owned_init(struct rzp_owned_queue *);
+int rzp_owned_offer(struct rzp_owned_queue *,const struct rz_scope *,uint64_t,enum rz_policy,struct rzp_value *);
+int rzp_owned_pop(struct rzp_owned_queue *,struct rzp_value *);
+void rzp_value_drop(struct rzp_value *);
+void rzp_owned_close(struct rzp_owned_queue *);
 
-typedef struct RzpPump RzpPump;
-typedef struct {const RzpPump *owner;unsigned index,generation;} RzpTicket;
-typedef struct {const RzpPump *owner;unsigned index,generation;} RzpCredit;
-typedef struct {RzpValue value;unsigned generation,state;} RzpSlot;
-typedef struct {RzfBorrow scope;RzpValue value;unsigned generation;int result;bool active,pending,polling;} RzpProducer;
-struct RzpPump {
+struct rzp_pump;
+struct rzp_ticket {const struct rzp_pump *owner;unsigned index,generation;};
+struct rzp_credit {const struct rzp_pump *owner;unsigned index,generation;};
+struct rzp_slot {struct rzp_value value;unsigned generation,state;};
+struct rzp_producer {struct rzf_borrow scope;struct rzp_value value;unsigned generation;int result;bool active,pending,polling;};
+struct rzp_pump {
     pthread_mutex_t mutex;
     pthread_cond_t changed;
-    MsgHub hub;
-    RZQueue queue;
-    RzpSlot slots[4];
-    RzpProducer producer[2];
+    struct msg_hub hub;
+    struct rz_queue queue;
+    struct rzp_slot slots[4];
+    struct rzp_producer producer[2];
     unsigned credits,next;
     uint64_t consumed,returned,last;
     bool closed,initialized;
 };
-typedef struct {unsigned queued,transport,leased,pending,terminal,credits,retired;uint64_t consumed,returned;} RzpSnapshot;
-int rzp_init(RzpPump *,size_t);
-int rzp_begin(RzpPump *,unsigned,RzfScope *,uint64_t,RzpValue *,RzpTicket *);
-int rzp_poll(RzpPump *,RzpTicket,bool,int *);
-int rzp_cancel(RzpPump *,RzpTicket);
-int rzp_tick(RzpPump *,uint64_t);
-int rzp_forward(RzpPump *);
-int rzp_receive(RzpPump *,RzpValue *,RzpCredit *);
-int rzp_release(RzpPump *,RzpCredit);
-int rzp_close(RzpPump *);
-int rzp_destroy(RzpPump *);
-int rzp_snapshot(RzpPump *,RzpSnapshot *);
+struct rzp_snapshot {unsigned queued,transport,leased,pending,terminal,credits,retired;uint64_t consumed,returned;};
+int rzp_init(struct rzp_pump *,size_t);
+int rzp_begin(struct rzp_pump *,unsigned,struct rzf_scope *,uint64_t,struct rzp_value *,struct rzp_ticket *);
+int rzp_poll(struct rzp_pump *,struct rzp_ticket,bool,int *);
+int rzp_cancel(struct rzp_pump *,struct rzp_ticket);
+int rzp_tick(struct rzp_pump *,uint64_t);
+int rzp_forward(struct rzp_pump *);
+int rzp_receive(struct rzp_pump *,struct rzp_value *,struct rzp_credit *);
+int rzp_release(struct rzp_pump *,struct rzp_credit);
+int rzp_close(struct rzp_pump *);
+int rzp_destroy(struct rzp_pump *);
+int rzp_snapshot(struct rzp_pump *,struct rzp_snapshot *);
 #endif

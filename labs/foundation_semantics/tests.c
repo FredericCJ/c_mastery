@@ -11,7 +11,7 @@
   } while (0)
 static void arrays(void) {
   const intmax_t indices[5] = {-1, 0, 2, 3, 4};
-  const FsIndex expected[5] = {FS_OUTSIDE, FS_ELEMENT, FS_ELEMENT, FS_ONE_PAST,
+  const enum fs_index expected[5] = {FS_OUTSIDE, FS_ELEMENT, FS_ELEMENT, FS_ONE_PAST,
                                FS_OUTSIDE};
   for (unsigned i = 0; i < 5; i++)
     CHECK(fs_index(indices[i], 3) == expected[i]);
@@ -37,7 +37,7 @@ static void arrays(void) {
   unsigned cases = 0;
   for (int n = 0; n <= 8; n++)
     for (int i = -2; i <= 10; i++) {
-      FsIndex e = i < 0 || i > n ? FS_OUTSIDE
+      enum fs_index e = i < 0 || i > n ? FS_OUTSIDE
                   : i == n       ? FS_ONE_PAST
                                  : FS_ELEMENT;
       CHECK(fs_index(i, (size_t)n) == e);
@@ -58,7 +58,7 @@ static void paths(void) {
        "no_uninitialized_execution");
 }
 static void sequence(void) {
-  FsCalls result;
+  struct fs_calls result;
   CHECK(fs_calls(&result) == FS_OK && result.sum == 6 && result.x == 2 &&
         result.y == 4);
   CHECK(result.order == 12 || result.order == 21);

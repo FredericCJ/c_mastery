@@ -18,56 +18,56 @@ enum {
   RPR_WAIT,
   RPR_UNIMPLEMENTED
 };
-typedef struct {
+struct rpr_session {
   uint64_t timeline;
   uint32_t revision;
   unsigned horizon, head, confirmed;
-  RPState initial[2], snapshots[9][2];
+  struct rp_state initial[2], snapshots[9][2];
   int local[8], remote[8];
   unsigned known[8];
-  ArEffects effects;
-} RprSession;
+  struct ar_effects effects;
+};
 /* One replacement notice invalidates speculative presentation for [from,to].
    It does not call an effect sink or cancel an already committed effect. */
-typedef struct {
+struct rpr_notice {
   unsigned from, to;
   uint32_t old_revision, new_revision;
   int32_t old_value, new_value;
-} RprNotice;
-typedef struct {
+};
+struct rpr_effect {
   uint64_t timeline;
   unsigned tick;
   int32_t value;
-} RprEffect;
-int rpr_init(uint64_t, unsigned, const RPState initial[2], RprSession *);
-int rpr_advance(RprSession *, int local_move, RprNotice *);
-int rpr_correct(RprSession *, uint64_t, unsigned tick, int remote_move,
-                RprNotice *);
-int rpr_prepare(RprSession *, RprEffect *);
-int rpr_feedback(RprSession *, RprEffect, unsigned result);
-int rpr_value(const RprSession *, unsigned tick, int32_t *);
-int rpr_invariant(const RprSession *);
-int rpr_encode(const RprSession *, unsigned char out[512]);
-int rpr_decode(uint64_t, const unsigned char in[512], RprSession *);
-typedef struct {
+};
+int rpr_init(uint64_t, unsigned, const struct rp_state initial[2], struct rpr_session *);
+int rpr_advance(struct rpr_session *, int local_move, struct rpr_notice *);
+int rpr_correct(struct rpr_session *, uint64_t, unsigned tick, int remote_move,
+                struct rpr_notice *);
+int rpr_prepare(struct rpr_session *, struct rpr_effect *);
+int rpr_feedback(struct rpr_session *, struct rpr_effect, unsigned result);
+int rpr_value(const struct rpr_session *, unsigned tick, int32_t *);
+int rpr_invariant(const struct rpr_session *);
+int rpr_encode(const struct rpr_session *, unsigned char out[512]);
+int rpr_decode(uint64_t, const unsigned char in[512], struct rpr_session *);
+struct rpr_durable {
   store *pages;
-  RprSession session;
-} RprDurable;
-int rpr_create(store *, uint64_t, unsigned, const RPState initial[2],
-               RprDurable *);
-int rpr_open(store *, uint64_t, RprDurable *);
-int rpr_advance_durable(RprDurable *, int, RprNotice *);
-int rpr_correct_durable(RprDurable *, uint64_t, unsigned, int, RprNotice *);
-int rpr_prepare_durable(RprDurable *, RprEffect *);
-int rpr_feedback_durable(RprDurable *, RprEffect, unsigned);
-typedef struct {
+  struct rpr_session session;
+};
+int rpr_create(store *, uint64_t, unsigned, const struct rp_state initial[2],
+               struct rpr_durable *);
+int rpr_open(store *, uint64_t, struct rpr_durable *);
+int rpr_advance_durable(struct rpr_durable *, int, struct rpr_notice *);
+int rpr_correct_durable(struct rpr_durable *, uint64_t, unsigned, int, struct rpr_notice *);
+int rpr_prepare_durable(struct rpr_durable *, struct rpr_effect *);
+int rpr_feedback_durable(struct rpr_durable *, struct rpr_effect, unsigned);
+struct rpr_input {
   uint64_t timeline;
   unsigned tick;
   int movement;
-} RprInput;
-int rpr_input_encode(RprInput, unsigned char out[16]);
-int rpr_input_decode(const unsigned char in[16], RprInput *);
-int rpr_input_frame(RprInput, unsigned char out[18]);
+};
+int rpr_input_encode(struct rpr_input, unsigned char out[16]);
+int rpr_input_decode(const unsigned char in[16], struct rpr_input *);
+int rpr_input_frame(struct rpr_input, unsigned char out[18]);
 int rpr_input_unframe(const unsigned char *, size_t, unsigned chunk,
-                      RprInput *);
+                      struct rpr_input *);
 #endif

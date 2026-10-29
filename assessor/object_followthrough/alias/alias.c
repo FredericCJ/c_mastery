@@ -1,20 +1,20 @@
 #include "alias.h"
-static int admits(OsAllocator a,size_t size,size_t alignment)
+static int admits(struct os_allocator a,size_t size,size_t alignment)
 {return a.allocator.allocate && a.allocator.deallocate && a.capacity>=size && a.alignment>=alignment && a.alignment%alignment==0;}
-int os_acquire(FDSlot *s,OsAllocator a)
-{if(!s || !admits(a,sizeof(FDValue),_Alignof(FDValue)))return -1;return fd_slot_acquire(s,a.allocator)==FD_OK?0:-1;}
-int os_wide_acquire(OsWideSlot *s,OsAllocator a,int value,OsDrop drop,void *context)
+int os_acquire(struct fd_slot *s,struct os_allocator a)
+{if(!s || !admits(a,sizeof(struct fd_value),_Alignof(struct fd_value)))return -1;return fd_slot_acquire(s,a.allocator)==FD_OK?0:-1;}
+int os_wide_acquire(struct os_wide_slot *s,struct os_allocator a,int value,os_drop_fn drop,void *context)
 {
-    OsWide *p;
-    if(!s || s->state!=OS_EMPTY || !drop || !admits(a,sizeof(OsWide),_Alignof(OsWide)))return -1;
-    p=a.allocator.allocate(a.allocator.context,sizeof(*p),_Alignof(OsWide));if(!p)return -1;
+    struct os_wide *p;
+    if(!s || s->state!=OS_EMPTY || !drop || !admits(a,sizeof(struct os_wide),_Alignof(struct os_wide)))return -1;
+    p=a.allocator.allocate(a.allocator.context,sizeof(*p),_Alignof(struct os_wide));if(!p)return -1;
     p->value=value;p->resource=NULL;s->value=p;s->allocation=a;s->drop=drop;s->context=context;s->state=OS_LIVE;return 0;
 }
-int os_wide_borrow(OsWideSlot *s,const OsWide **out)
+int os_wide_borrow(struct os_wide_slot *s,const struct os_wide **out)
 {if(!s || !out || s->state!=OS_LIVE)return -1;*out=s->value;s->state=OS_BORROWED;return 0;}
-int os_wide_return(OsWideSlot *s,const OsWide **p)
+int os_wide_return(struct os_wide_slot *s,const struct os_wide **p)
 {if(!s || !p || s->state!=OS_BORROWED || *p!=s->value)return -1;*p=NULL;s->state=OS_LIVE;return 0;}
-int os_wide_reset(OsWideSlot *s)
+int os_wide_reset(struct os_wide_slot *s)
 {
     if(!s)return -1;
     if(s->state==OS_EMPTY)return 0;
@@ -28,7 +28,7 @@ int os_wide_reset(OsWideSlot *s)
     s->allocation.allocator.deallocate(s->allocation.allocator.context,s->value);
     s->value=NULL;s->state=OS_EMPTY;s->drop=NULL;s->context=NULL;return 0;
 }
-int os_clone(void *allocated,const FDValue *source)
+int os_clone(void *allocated,const struct fd_value *source)
 {
     unsigned char *d=allocated;const unsigned char *s=(const unsigned char *)source;
     if(!d || !s)return -1;
@@ -37,9 +37,9 @@ int os_clone(void *allocated,const FDValue *source)
 }
 uint32_t os_wire_integer(const unsigned char *bytes)
 {uint32_t n=0;for(size_t i=0;i<4;++i)n=(n<<8)|bytes[i];return n;}
-int os_wire(const unsigned char *bytes,size_t count,FDValue *out)
+int os_wire(const unsigned char *bytes,size_t count,struct fd_value *out)
 {
-    FDValue v;
+    struct fd_value v;
     uint32_t number;
     if(!bytes || !out || count!=8)return -1;
     number=os_wire_integer(bytes);if(number>INT32_MAX)return -1;
@@ -79,21 +79,21 @@ int os_partition(unsigned char *base,size_t length,size_t dst,size_t src,size_t 
     }
     os_transform(base+dst,base+src,n,mask);return 0;
 }
-FDStatus os_move(unsigned char *base,size_t length,size_t dst,size_t src,size_t n)
+enum fd_status os_move(unsigned char *base,size_t length,size_t dst,size_t src,size_t n)
 {return fd_move(base,length,dst,src,n);}
-int os_member(OsContainer *owner,int *member,int *out)
+int os_member(struct os_container *owner,int *member,int *out)
 {
     const unsigned char *whole;int *expected;
     if(!owner || !member || !out)return -1;
-    whole=(const unsigned char *)owner;expected=(int *)(void *)(whole+offsetof(OsContainer,member));
+    whole=(const unsigned char *)owner;expected=(int *)(void *)(whole+offsetof(struct os_container,member));
     if(member!=expected)return -1;
     *out=owner->member;return 0;
 }
 #ifdef UINTPTR_MAX
-int os_tag_roundtrip(OsContainer *owner,unsigned tag,uintptr_t *representation,int *out)
+int os_tag_roundtrip(struct os_container *owner,unsigned tag,uintptr_t *representation,int *out)
 {
     uintptr_t raw,tagged,restored;void *round;
-    if(!owner || !representation || !out || tag>3 || _Alignof(OsContainer)<4)return -1;
+    if(!owner || !representation || !out || tag>3 || _Alignof(struct os_container)<4)return -1;
     raw=(uintptr_t)(void *)owner;if(raw&3u)return -1;
     tagged=raw|tag;restored=tagged&~(uintptr_t)3u;
     if(restored!=raw)return -1;

@@ -14,12 +14,12 @@ enum {
   NET_LAST_ACK,
   NET_TIME_WAIT
 };
-typedef struct {
+struct net_packet {
   uint8_t bytes[1518];
   size_t length;
-} NetPacket;
-typedef struct {
-  HttpParser http;
+};
+struct net_stack {
+  struct http_parser http;
   uint8_t state, peer_known, flight, retransmitted, retries, peer_fin, fin_sent,
       interim_pending;
   uint16_t peer_port, peer_window, mss;
@@ -27,18 +27,18 @@ typedef struct {
   uint64_t now, arp_expires, due, sent_at, timewait_until;
   uint32_t srtt, rttvar, rto;
   unsigned rtt_samples, drops, resets, incarnation;
-  NetPacket retained;
+  struct net_packet retained;
   uint8_t response[1600];
   size_t response_length, response_sent, response_acked;
-} NetStack;
+};
 uint16_t net_checksum(const void *, size_t, uint32_t initial);
-void net_init(NetStack *, uint32_t fixture_isn);
+void net_init(struct net_stack *, uint32_t fixture_isn);
 /* One owned output packet per call; length=0 means no output. Packet frame
    excludes FCS and preamble supplied by MAC/PHY. Uses fixed peer/local
    addresses. */
-int net_receive(NetStack *, const void *, size_t, uint64_t, NetPacket *);
-int net_tick(NetStack *, uint64_t, NetPacket *);
-void net_link_down(NetStack *);
+int net_receive(struct net_stack *, const void *, size_t, uint64_t, struct net_packet *);
+int net_tick(struct net_stack *, uint64_t, struct net_packet *);
+void net_link_down(struct net_stack *);
 /* RFC6298 arithmetic; Karn suppression is caller-visible in transport state. */
-void net_rtt(NetStack *, uint32_t sample_ms);
+void net_rtt(struct net_stack *, uint32_t sample_ms);
 #endif

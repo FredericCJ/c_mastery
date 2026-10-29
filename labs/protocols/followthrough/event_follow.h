@@ -2,21 +2,21 @@
 #define EVENT_FOLLOW_H
 #include "protocols.h"
 enum {PF_GUARDED=6,PF_LOCAL=7};
-typedef struct {PTMachine machine;unsigned events[4],head,count,in_step;} PFHsm;
-typedef int (*PFEntry)(void *,unsigned);
-int pf_post(PFHsm *,unsigned);
-int pf_dispatch(PFHsm *,unsigned,unsigned guard,unsigned local,PFEntry,void *,unsigned char *,size_t,size_t *);
-typedef struct {void *context;void (*enter)(void *);void (*leave)(void *);} PFLock;
-typedef struct {PFHsm hsm;PFLock lock;uint32_t discarded;} PFActive;
-int pf_active_post(PFActive *,unsigned);
-int pf_active_step(PFActive *,unsigned char *,size_t,size_t *);
-int pf_active_discard(PFActive *,unsigned *);
-typedef struct {unsigned kind,left,right;} PFNode;
-typedef struct {unsigned node,left,right,cursor;} PFOccurrence;
-typedef struct {PFOccurrence frames[16];unsigned count,active,ticking;} PFReactive;
-typedef unsigned (*PFLeaf)(void *,unsigned occurrence,unsigned node);
-typedef void (*PFAbort)(void *,unsigned occurrence,unsigned node);
-int pf_reactive_init(PFReactive *,const PFNode *,size_t);
-int pf_reactive_tick(PFReactive *,const PFNode *,size_t,unsigned,PFLeaf,PFAbort,void *,unsigned *);
-int pf_reactive_cancel(PFReactive *,PFAbort,void *);
+struct pf_hsm {struct pt_machine machine;unsigned events[4],head,count,in_step;};
+typedef int (*pf_entry_fn)(void *,unsigned);
+int pf_post(struct pf_hsm *,unsigned);
+int pf_dispatch(struct pf_hsm *,unsigned,unsigned guard,unsigned local,pf_entry_fn,void *,unsigned char *,size_t,size_t *);
+struct pf_lock {void *context;void (*enter)(void *);void (*leave)(void *);};
+struct pf_active {struct pf_hsm hsm;struct pf_lock lock;uint32_t discarded;};
+int pf_active_post(struct pf_active *,unsigned);
+int pf_active_step(struct pf_active *,unsigned char *,size_t,size_t *);
+int pf_active_discard(struct pf_active *,unsigned *);
+struct pf_node {unsigned kind,left,right;};
+struct pf_occurrence {unsigned node,left,right,cursor;};
+struct pf_reactive {struct pf_occurrence frames[16];unsigned count,active,ticking;};
+typedef unsigned (*pf_leaf_fn)(void *,unsigned occurrence,unsigned node);
+typedef void (*pf_abort_fn)(void *,unsigned occurrence,unsigned node);
+int pf_reactive_init(struct pf_reactive *,const struct pf_node *,size_t);
+int pf_reactive_tick(struct pf_reactive *,const struct pf_node *,size_t,unsigned,pf_leaf_fn,pf_abort_fn,void *,unsigned *);
+int pf_reactive_cancel(struct pf_reactive *,pf_abort_fn,void *);
 #endif

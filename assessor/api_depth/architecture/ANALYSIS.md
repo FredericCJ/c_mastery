@@ -17,7 +17,7 @@ while agreeing on logical outputs. A real change-impact table must identify
 these actual functions rather than count directory names.
 
 The borrowed path adds storage→operation lifetime dependence, although neither
-type mentions a platform. `ArBorrow.data` must remain readable/unchanged while
+type mentions a platform. `struct ar_borrow.data` must remain readable/unchanged while
 active, including cancel-requested. Clearing it at request time is premature.
 The copied SFStream path changes that bound: one start copies payload into66
 inline bytes and subsequent writes need no caller pointer. The parent's pointer
@@ -37,8 +37,8 @@ dispatch or generic safe unload is inferred.
 Reject-newest `[A,B]+C` keepsA/B and leavesC with its caller. Drop-oldest returnsA
 and keepsB/C. The priority transfer returns the earliest minimum only for a
 strictly larger incoming priority; ties reject. Payload release accounting must
-use identity, not only count. `ArQueue` is an independent compact-array oracle;
-`ArRingPolicy` maps stable typed slots to the actual CDRing indices. Its bounded
+use identity, not only count. `struct ar_queue` is an independent compact-array oracle;
+`struct ar_ring_policy` maps stable typed slots to the actual CDRing indices. Its bounded
 rebuild for an interior eviction costs O(capacity), but preserves the ring
 implementation and FIFO order of survivors. Claiming O(1) priority admission
 would be false.12,288 operation histories compare status, returned identities,
@@ -68,7 +68,7 @@ control/output pairs. The explicit window state is deterministic even though
 it evolves. Copying that state permits replay; an implicit static previous value
 would make two clients interfere.
 
-`ArEffects` commits a request ID/value as data. The side-effect adapter can commit
+`struct ar_effects` commits a request ID/value as data. The side-effect adapter can commit
 its file before the reducer learns success. Rolling back only ArEffects would
 not roll back that file. Ambiguous feedback therefore keeps the same pending
 request, and retry does not generate another ID. The journal permits one logical
@@ -174,7 +174,7 @@ a general wait-free protocol.
 Canonical bytes are independent of field ordering and structure padding.
 Optional unknown fields are ignored by policy; required unknown fields reject.
 Do not hash raw C object bytes and call the result semantic identity. The feature
-variant intentionally changes `sizeof(ArConfig)` and requires a compatible ABI
+variant intentionally changes `sizeof(struct ar_config)` and requires a compatible ABI
 or explicit wire adapter. C17 does not enforce that independently built consumers
 used identical macros. Source/tool/generated-header IDs and final artifact hash
 serve distinct provenance roles; none is a correctness or authenticity proof.

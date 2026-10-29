@@ -3,7 +3,7 @@
 #ifndef HC_MUTANT
 #define HC_MUTANT 0
 #endif
-int fw_cache_range(uint32_t a,uint32_t n,enum FWCacheOp op,FWCacheEmit emit,void *ctx)
+int fw_cache_range(uint32_t a,uint32_t n,enum fw_cache_op op,fw_cache_emit_fn emit,void *ctx)
 {
     if (!emit || (op!=FW_CLEAN && op!=H7_INVALIDATE)) return 0;
     if (!n) return 1;
@@ -17,7 +17,7 @@ int fw_cache_range(uint32_t a,uint32_t n,enum FWCacheOp op,FWCacheEmit emit,void
     emit(ctx,FW_ISB,0);
     return 1;
 }
-enum FWPeerResult fw_peer_step(FWPeer *p,unsigned c,uint32_t g,enum FWPeerOp op)
+enum fw_peer_result fw_peer_step(struct fw_peer *p,unsigned c,uint32_t g,enum fw_peer_op op)
 {
     if (!p || c>1u || (unsigned)op>FW_CONFIRM || !p->generation ||
         p->health>3u || p->failed>3u || p->confirmed>1u || p->reserved[0] || p->reserved[1]) return H7_INVALID;

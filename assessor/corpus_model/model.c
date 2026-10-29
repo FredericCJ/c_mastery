@@ -4,9 +4,9 @@
 #ifndef CM_MUTANT
 #define CM_MUTANT 0
 #endif
-void cm_init(CmModel *m) {
+void cm_init(struct cm_model *m) {
   if (m)
-    *m = (CmModel){0};
+    *m = (struct cm_model){0};
 }
 static int bound(int64_t n, int32_t *out) {
   if (n < INT32_MIN || n > INT32_MAX)
@@ -14,10 +14,10 @@ static int bound(int64_t n, int32_t *out) {
   *out = (int32_t)n;
   return CM_OK;
 }
-static int resolve(CmModel *m) {
+static int resolve(struct cm_model *m) {
   unsigned done[CM_NODES] = {0}, left = 0;
   for (unsigned i = 0; i < CM_NODES; ++i) {
-    CmNode *n = &m->nodes[i];
+    struct cm_node *n = &m->nodes[i];
     if (n->kind > CM_LINEAR)
       return CM_INVALID;
     if (n->kind == CM_ABSENT) {
@@ -41,7 +41,7 @@ static int resolve(CmModel *m) {
     unsigned progress = 0;
     for (unsigned i = 0; i < CM_NODES; ++i)
       if (!done[i]) {
-        CmNode *n = &m->nodes[i];
+        struct cm_node *n = &m->nodes[i];
         int32_t x, y, z;
         if (!done[n->a] || !done[n->b])
           continue;
@@ -59,10 +59,10 @@ static int resolve(CmModel *m) {
   }
   return CM_OK;
 }
-int cm_valid(const CmModel *m) {
+int cm_valid(const struct cm_model *m) {
   if (!m)
     return CM_INVALID;
-  CmModel copy = *m;
+  struct cm_model copy = *m;
   int rc = resolve(&copy);
   if (rc)
     return rc;
@@ -71,7 +71,7 @@ int cm_valid(const CmModel *m) {
       return CM_INVALID;
   return CM_OK;
 }
-int cm_apply(CmModel *m, const CmEdit *edits, size_t count) {
+int cm_apply(struct cm_model *m, const struct cm_edit *edits, size_t count) {
   unsigned seen[CM_NODES] = {0};
   if (!m || (!edits && count))
     return CM_INVALID;
@@ -84,9 +84,9 @@ int cm_apply(CmModel *m, const CmEdit *edits, size_t count) {
     return CM_OK;
   if (m->revision == UINT32_MAX)
     return CM_RANGE;
-  CmModel stage = *m;
+  struct cm_model stage = *m;
   for (size_t i = 0; i < count; ++i) {
-    const CmEdit *e = &edits[i];
+    const struct cm_edit *e = &edits[i];
     if (e->id >= CM_NODES || (e->kind != CM_INPUT && e->kind != CM_LINEAR))
       return CM_INVALID;
     if (seen[e->id])
@@ -95,7 +95,7 @@ int cm_apply(CmModel *m, const CmEdit *edits, size_t count) {
     if (e->kind == CM_INPUT && (e->a || e->b || e->w0 || e->w1))
       return CM_INVALID;
     stage.nodes[e->id] =
-        (CmNode){e->kind, e->a, e->b, e->w0, e->w1, e->bias, 0};
+        (struct cm_node){e->kind, e->a, e->b, e->w0, e->w1, e->bias, 0};
   }
   if (CM_MUTANT == 2)
     *m = stage;
@@ -106,17 +106,17 @@ int cm_apply(CmModel *m, const CmEdit *edits, size_t count) {
   *m = stage;
   return CM_OK;
 }
-typedef struct {
+struct cm_reader {
   const unsigned char *s;
   size_t n, p;
   unsigned csv;
-} Reader;
+};
 static int space(unsigned char c) { return c == ' ' || c == '\t' || c == '\r'; }
-static void ws(Reader *r) {
+static void ws(struct cm_reader *r) {
   while (r->p < r->n && space(r->s[r->p]))
     ++r->p;
 }
-static int separator(Reader *r) {
+static int separator(struct cm_reader *r) {
   if (r->csv) {
     if (r->p == r->n || r->s[r->p] != ',')
       return CM_SYNTAX;
@@ -128,7 +128,7 @@ static int separator(Reader *r) {
   }
   return CM_OK;
 }
-static int number(Reader *r, int32_t *out) {
+static int number(struct cm_reader *r, int32_t *out) {
   unsigned negative = 0;
   uint32_t value = 0, limit = INT32_MAX;
   size_t begin;
@@ -152,7 +152,7 @@ static int number(Reader *r, int32_t *out) {
              : (int32_t)value;
   return CM_OK;
 }
-static int word(Reader *r, const char *s) {
+static int word(struct cm_reader *r, const char *s) {
   size_t p = r->p;
   for (size_t i = 0; s[i]; ++i) {
     if (p == r->n || r->s[p] != (unsigned char)s[i])
@@ -165,9 +165,9 @@ static int word(Reader *r, const char *s) {
   return 1;
 }
 static int definition(const unsigned char *s, size_t n, unsigned csv,
-                      CmEdit *out) {
-  Reader r = {s, n, 0, csv};
-  CmEdit e = {0};
+                      struct cm_edit *out) {
+  struct cm_reader r = {s, n, 0, csv};
+  struct cm_edit e = {0};
   int32_t fields[7] = {0};
   unsigned count;
   if (!csv)
@@ -210,8 +210,8 @@ static int definition(const unsigned char *s, size_t n, unsigned csv,
   *out = e;
   return CM_OK;
 }
-int cm_load(CmModel *m, const unsigned char *s, size_t n, unsigned csv) {
-  CmEdit edits[CM_NODES];
+int cm_load(struct cm_model *m, const unsigned char *s, size_t n, unsigned csv) {
+  struct cm_edit edits[CM_NODES];
   size_t count = 0, begin = 0;
   if (!m || (!s && n) || csv > 1)
     return CM_INVALID;
@@ -231,7 +231,7 @@ int cm_load(CmModel *m, const unsigned char *s, size_t n, unsigned csv) {
     }
   return cm_apply(m, edits, count);
 }
-int cm_get(const CmModel *m, unsigned id, int32_t *out) {
+int cm_get(const struct cm_model *m, unsigned id, int32_t *out) {
   if (!out || id >= CM_NODES)
     return CM_INVALID;
   int rc = cm_valid(m);
@@ -259,7 +259,7 @@ static size_t decimal(int32_t value, char *s) {
     s[p++] = reverse[--n];
   return p;
 }
-int cm_eval(const CmModel *m, const unsigned char *s, size_t n, int32_t *out) {
+int cm_eval(const struct cm_model *m, const unsigned char *s, size_t n, int32_t *out) {
   unsigned char expanded[256];
   size_t used = 0;
   if (!out || (!s && n))
@@ -308,9 +308,9 @@ int cm_eval(const CmModel *m, const unsigned char *s, size_t n, int32_t *out) {
     for (size_t i = 0; i < len; ++i)
       expanded[used++] = (unsigned char)text[i];
   }
-  PdTokens tokens;
-  PdTree tree;
-  PdDiagnostic diagnostic;
+  struct pd_tokens tokens;
+  struct pd_tree tree;
+  struct pd_diagnostic diagnostic;
   int32_t result;
   rc = pd_lex(expanded, used, &tokens, &diagnostic);
   if (!rc)
@@ -322,11 +322,11 @@ int cm_eval(const CmModel *m, const unsigned char *s, size_t n, int32_t *out) {
   *out = result;
   return CM_OK;
 }
-void cm_session_init(CmSession *s) {
+void cm_session_init(struct cm_session *s) {
   if (s)
-    *s = (CmSession){0};
+    *s = (struct cm_session){0};
 }
-static void reply(CmSession *s, const char *prefix, int32_t value,
+static void reply(struct cm_session *s, const char *prefix, int32_t value,
                   unsigned numeric) {
   size_t n = 0;
   while (prefix[n]) {
@@ -339,7 +339,7 @@ static void reply(CmSession *s, const char *prefix, int32_t value,
   s->reply_length = n;
   s->sent = 0;
 }
-static int execute_line(CmSession *s, const unsigned char *line, size_t n) {
+static int execute_line(struct cm_session *s, const unsigned char *line, size_t n) {
   if (!s || (!line && n))
     return CM_INVALID;
   if (s->reply_length)
@@ -355,7 +355,7 @@ static int execute_line(CmSession *s, const unsigned char *line, size_t n) {
       reply(s, "ERR ", CM_SYNTAX, 1);
       return CM_OK;
     }
-  Reader r = {line, n, 0, 0};
+  struct cm_reader r = {line, n, 0, 0};
   ws(&r);
   int rc = CM_OK;
   int32_t value = 0;
@@ -396,7 +396,7 @@ static int execute_line(CmSession *s, const unsigned char *line, size_t n) {
       rc = CM_SYNTAX;
     if (!rc) {
       if (set) {
-        CmEdit e = {(unsigned)id, CM_INPUT, 0, 0, 0, 0, value};
+        struct cm_edit e = {(unsigned)id, CM_INPUT, 0, 0, 0, 0, value};
         rc = cm_apply(&s->model, &e, 1);
       } else
         rc = cm_get(&s->model, (unsigned)id, &value);
@@ -411,14 +411,14 @@ static int execute_line(CmSession *s, const unsigned char *line, size_t n) {
     reply(s, "OK", 0, 0);
   return CM_OK;
 }
-int cm_step(CmSession *s, const unsigned char *line, size_t n) {
+int cm_step(struct cm_session *s, const unsigned char *line, size_t n) {
   if (!s || (!line && n))
     return CM_INVALID;
   if (s->used || s->discarding)
     return CM_BUSY;
   return execute_line(s, line, n);
 }
-int cm_feed(CmSession *s, const unsigned char *bytes, size_t n,
+int cm_feed(struct cm_session *s, const unsigned char *bytes, size_t n,
             size_t *consumed) {
   if (!s || !consumed || (!bytes && n))
     return CM_INVALID;
@@ -446,7 +446,7 @@ int cm_feed(CmSession *s, const unsigned char *bytes, size_t n,
   }
   return CM_PENDING;
 }
-int cm_finish(CmSession *s) {
+int cm_finish(struct cm_session *s) {
   if (!s)
     return CM_INVALID;
   if (s->reply_length)
@@ -462,7 +462,7 @@ int cm_finish(CmSession *s) {
   s->closed = 1;
   return CM_OK;
 }
-int cm_drain(CmSession *s, CmWrite writer, void *context) {
+int cm_drain(struct cm_session *s, cm_write_fn writer, void *context) {
   if (!s || !writer)
     return CM_INVALID;
   if (!s->reply_length)

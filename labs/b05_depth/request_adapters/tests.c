@@ -16,7 +16,7 @@ static const int next[7][7]={
 int main(void){unsigned observations=0;
  for(unsigned phase=0;phase<7;phase++)for(unsigned op=0;op<7;op++)
  for(unsigned old=0;old<2;old++)for(unsigned edge=0;edge<2;edge++){
-  Rq r={edge?UINT32_MAX:19,phase,71,phase==RQ_DONE?1u:0u},before=r;
+  struct b5_rq r={edge?UINT32_MAX:19,phase,71,phase==RQ_DONE?1u:0u},before=r;
   int status=rq_apply(&r,op,r.generation-old,37),expect=next[phase][op];
   if(old||expect<0){CHECK(status!=RQ_OK,"reject transition");CHECK(!memcmp(&r,&before,sizeof r),"rejection unchanged");}
   else{CHECK(status==RQ_OK,"admit transition");
@@ -28,7 +28,7 @@ int main(void){unsigned observations=0;
   }
   CHECK(rq_owned(&r)==(r.phase==RQ_INFLIGHT||r.phase==RQ_CANCELLED||r.phase==RQ_UNKNOWN||r.phase==RQ_RESETTING),"ownership states");observations++;
  }
- Rq r={0};CHECK(rq_apply(&r,RQ_SUBMIT,0,0)==RQ_OK,"submit");
+ struct b5_rq r={0};CHECK(rq_apply(&r,RQ_SUBMIT,0,0)==RQ_OK,"submit");
  CHECK(rq_apply(&r,RQ_CANCEL,0,0)==RQ_OK&&rq_owned(&r),"cancel retains ownership");
  CHECK(rq_apply(&r,RQ_REAP,0,0)==RQ_BUSY,"cancel cannot reap");
  CHECK(rq_apply(&r,RQ_TIMEOUT,0,0)==RQ_OK&&rq_owned(&r),"timeout is uncertainty");

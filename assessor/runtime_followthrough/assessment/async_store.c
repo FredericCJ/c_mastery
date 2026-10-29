@@ -3,7 +3,7 @@
 #define VA_MUTANT 0
 #endif
 static void *worker(void *context) {
-  Va *a = context;
+  struct vg_va *a = context;
   pthread_mutex_lock(&a->mutex);
   unsigned cancelled = a->cancelled;
   pthread_mutex_unlock(&a->mutex);
@@ -18,19 +18,19 @@ static void *worker(void *context) {
   pthread_mutex_unlock(&a->mutex);
   return 0;
 }
-int va_init(Va *a) {
+int va_init(struct vg_va *a) {
   if (!a)
     return VA_STATE;
-  *a = (Va){0};
+  *a = (struct vg_va){0};
   if (pthread_mutex_init(&a->mutex, 0))
     return VA_STATE;
   a->initialized = 1;
   return VA_READY;
 }
-int va_submit(Va *a, Vs *s, const Vh *h) {
+int va_submit(struct vg_va *a, struct vg_vs *s, const struct vg_vh *h) {
   if (!a || !a->initialized || a->active || !s || !h || !h->database)
     return VA_STATE;
-  VsRequest request;
+  struct vs_request request;
   if (vs_take(s, &request) != VS_PENDING)
     return VA_STATE;
   a->session = s;
@@ -45,7 +45,7 @@ int va_submit(Va *a, Vs *s, const Vh *h) {
   }
   return VA_BUSY;
 }
-int va_cancel(Va *a) {
+int va_cancel(struct vg_va *a) {
   if (!a || !a->initialized || !a->active)
     return VA_STATE;
   pthread_mutex_lock(&a->mutex);
@@ -53,7 +53,7 @@ int va_cancel(Va *a) {
   pthread_mutex_unlock(&a->mutex);
   return VA_BUSY;
 }
-int va_poll(Va *a) {
+int va_poll(struct vg_va *a) {
   if (!a || !a->initialized || !a->active)
     return VA_STATE;
   pthread_mutex_lock(&a->mutex);
@@ -66,13 +66,13 @@ int va_poll(Va *a) {
   if (pthread_join(a->worker, 0))
     return VA_STATE;
   ++a->joined;
-  Vs *s = a->session;
+  struct vg_vs *s = a->session;
   a->session = 0;
   a->active = 0;
   return vs_complete(s, a->request.epoch + (VA_MUTANT == 3), a->request.serial,
                      status || (cancelled && VA_MUTANT != 2), value);
 }
-int va_destroy(Va *a) {
+int va_destroy(struct vg_va *a) {
   if (!a || !a->initialized || a->active)
     return VA_STATE;
   if (pthread_mutex_destroy(&a->mutex))

@@ -13,22 +13,22 @@ static int same(const unsigned char *a,size_t n,const unsigned char *b,size_t m)
     return 1;
 }
 static void copy(unsigned char *a,const unsigned char *b,size_t n) { for(size_t i=0;i<n;i++)a[i]=b[i]; }
-static EvStatus fail(EvParser *p,EvStatus s) { p->terminal=s;return s; }
-EvStatus ev_init(EvParser *p,size_t limit) {
+static enum ev_status fail(struct ev_parser *p,enum ev_status s) { p->terminal=s;return s; }
+enum ev_status ev_init(struct ev_parser *p,size_t limit) {
     if(!p||!limit||limit>EV_DEPTH)return EV_INVALID;
     p->depth=0;p->limit=limit;p->name_used=0;p->text_used=0;p->entity_used=0;
     p->state=DATA;p->root_seen=0;p->root_closed=0;p->pending=0;p->empty_end=0;
     p->busy=0;p->sequence=0;p->terminal=EV_OK;return EV_OK;
 }
-static EvStatus queue(EvParser *p,EvKind kind,const unsigned char *s,size_t n,size_t depth) {
+static enum ev_status queue(struct ev_parser *p,enum ev_kind kind,const unsigned char *s,size_t n,size_t depth) {
     if(p->sequence==UINT32_MAX)return fail(p,EV_LIMIT);
     p->event.kind=kind;p->event.sequence=++p->sequence;p->event.length=n;p->event.depth=depth;
     copy(p->event.data,s,n);p->pending=1;return EV_OK;
 }
-static EvStatus drain(EvParser *p,EvHandler h,void *ctx) {
+static enum ev_status drain(struct ev_parser *p,ev_handler_fn h,void *ctx) {
     for(;;){
         if(p->pending){
-            EvAction a=h(ctx,&p->event);
+            enum ev_action a=h(ctx,&p->event);
             if(a==EV_WAIT){
                 if(EV_MUTANT==2)p->pending=0;
                 return EV_PAUSED;
@@ -40,32 +40,32 @@ static EvStatus drain(EvParser *p,EvHandler h,void *ctx) {
         if(!p->empty_end)return EV_OK;
         p->empty_end=0;
         size_t d=p->depth;
-        EvStatus s=queue(p,EV_END,p->names[d-1],p->lengths[d-1],d);
+        enum ev_status s=queue(p,EV_END,p->names[d-1],p->lengths[d-1],d);
         if(s!=EV_OK)return s;
         p->depth--;if(!p->depth)p->root_closed=1;
     }
 }
-static EvStatus opened(EvParser *p,int empty) {
+static enum ev_status opened(struct ev_parser *p,int empty) {
     if(p->root_closed||p->depth==p->limit)return fail(p,p->root_closed?EV_SYNTAX:EV_LIMIT);
     size_t d=p->depth;copy(p->names[d],p->name,p->name_used);p->lengths[d]=p->name_used;
     p->depth++;p->root_seen=1;p->state=DATA;p->empty_end=(unsigned)empty;
     return queue(p,EV_START,p->name,p->name_used,p->depth);
 }
-static EvStatus closed(EvParser *p) {
+static enum ev_status closed(struct ev_parser *p) {
     if(!p->depth)return fail(p,EV_SYNTAX);
     size_t d=p->depth;
     if(EV_MUTANT!=1&&!same(p->name,p->name_used,p->names[d-1],p->lengths[d-1]))return fail(p,EV_SYNTAX);
-    EvStatus s=queue(p,EV_END,p->name,p->name_used,d);
+    enum ev_status s=queue(p,EV_END,p->name,p->name_used,d);
     if(s!=EV_OK)return s;
     p->depth--;if(!p->depth)p->root_closed=1;p->state=DATA;return EV_OK;
 }
-static EvStatus character(EvParser *p,unsigned char c) {
+static enum ev_status character(struct ev_parser *p,unsigned char c) {
     if(!p->depth)return space(c)?EV_OK:fail(p,EV_SYNTAX);
     p->text[p->text_used++]=c;
-    if(p->text_used==EV_TEXT){EvStatus s=queue(p,EV_CHARACTERS,p->text,p->text_used,p->depth);p->text_used=0;return s;}
+    if(p->text_used==EV_TEXT){enum ev_status s=queue(p,EV_CHARACTERS,p->text,p->text_used,p->depth);p->text_used=0;return s;}
     return EV_OK;
 }
-static EvStatus byte(EvParser *p,unsigned char c) {
+static enum ev_status byte(struct ev_parser *p,unsigned char c) {
     switch(p->state){
     case DATA:
         if(c=='<'){p->state=LT;return EV_OK;}
@@ -104,11 +104,11 @@ static EvStatus byte(EvParser *p,unsigned char c) {
     default:return fail(p,EV_SYNTAX);
     }
 }
-EvStatus ev_feed(EvParser *p,const unsigned char *data,size_t n,EvHandler h,void *ctx,size_t *used) {
+enum ev_status ev_feed(struct ev_parser *p,const unsigned char *data,size_t n,ev_handler_fn h,void *ctx,size_t *used) {
     if(!p||!h||!used||(!data&&n))return EV_INVALID;
     if(p->busy)return EV_BUSY;
     *used=0;if(p->terminal!=EV_OK)return p->terminal;
-    p->busy=1;EvStatus s=EV_OK;
+    p->busy=1;enum ev_status s=EV_OK;
     for(;;){
         s=drain(p,h,ctx);if(s!=EV_OK||*used==n)break;
         if(p->state==DATA&&data[*used]=='<'&&p->text_used){
@@ -121,40 +121,40 @@ EvStatus ev_feed(EvParser *p,const unsigned char *data,size_t n,EvHandler h,void
     }
     p->busy=0;return s;
 }
-EvStatus ev_finish(EvParser *p,EvHandler h,void *ctx) {
+enum ev_status ev_finish(struct ev_parser *p,ev_handler_fn h,void *ctx) {
     if(!p||!h)return EV_INVALID;
     if(p->busy)return EV_BUSY;
     if(p->terminal!=EV_OK)return p->terminal;
-    p->busy=1;EvStatus s=drain(p,h,ctx);
+    p->busy=1;enum ev_status s=drain(p,h,ctx);
     if(s==EV_OK){
         if(p->state!=DATA||p->depth||!p->root_seen||!p->root_closed)s=fail(p,EV_SYNTAX);
         else {s=queue(p,EV_DOCUMENT,0,0,0);if(s==EV_OK)s=drain(p,h,ctx);}
     }
     p->busy=0;return s;
 }
-EvStatus ev_cancel(EvParser *p) {
+enum ev_status ev_cancel(struct ev_parser *p) {
     if(!p)return EV_INVALID;
     if(p->busy)return EV_BUSY;
     if(p->terminal!=EV_OK)return p->terminal;
     p->pending=0;p->empty_end=0;return fail(p,EV_CANCELLED);
 }
-static void eventcopy(EvEvent *a,const EvEvent *b) {
+static void eventcopy(struct ev_event *a,const struct ev_event *b) {
     a->kind=b->kind;a->sequence=b->sequence;a->depth=b->depth;a->length=b->length;copy(a->data,b->data,b->length);
 }
-void evq_init(EvQueue *q) {q->head=0;q->count=0;}
-EvAction evq_offer(void *ctx,const EvEvent *e) {
-    EvQueue *q=ctx;
+void evq_init(struct ev_queue *q) {q->head=0;q->count=0;}
+enum ev_action evq_offer(void *ctx,const struct ev_event *e) {
+    struct ev_queue *q=ctx;
     if(!q||!e||e->length>EV_DATA)return EV_REJECT;
     if(q->count==2)return EV_WAIT;
     eventcopy(&q->events[(q->head+q->count)%2],e);q->count++;return EV_ACCEPT;
 }
-EvStatus evq_pop(EvQueue *q,EvEvent *e) {
+enum ev_status evq_pop(struct ev_queue *q,struct ev_event *e) {
     if(!q||!e)return EV_INVALID;
     if(!q->count)return EV_PAUSED;
     eventcopy(e,&q->events[q->head]);q->head=(q->head+1)%2;q->count--;return EV_OK;
 }
-void evs_init(EvSum *s) {s->depth=0;s->sequence=0;s->value=0;s->sum=0;s->digits=0;s->seen=0;s->closed=0;s->done=0;}
-EvStatus evs_event(EvSum *s,const EvEvent *e) {
+void evs_init(struct ev_sum *s) {s->depth=0;s->sequence=0;s->value=0;s->sum=0;s->digits=0;s->seen=0;s->closed=0;s->done=0;}
+enum ev_status evs_event(struct ev_sum *s,const struct ev_event *e) {
     if(!s||!e||e->length>EV_DATA)return EV_INVALID;
     if(s->done||s->sequence==UINT32_MAX||e->sequence!=s->sequence+1)return EV_SYNTAX;
     unsigned role=0;

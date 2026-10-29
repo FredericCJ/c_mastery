@@ -7,37 +7,37 @@
 #include <string.h>
 #define CHECK(c) do{if(!(c)){fprintf(stderr,"CDO_CHECK:%d:%s\n",__LINE__,#c);return 1;}}while(0)
 #endif
-typedef struct{CDOCell cells[3];unsigned used[3],calls,drops,fail,invalid;} Pool;
-static CDOCell *allocate(void *ctx){
-  Pool *p=ctx;p->calls++;
+struct cmx_pool{struct cdo_cell cells[3];unsigned used[3],calls,drops,fail,invalid;};
+static struct cdo_cell *allocate(void *ctx){
+  struct cmx_pool *p=ctx;p->calls++;
   if(p->calls==p->fail)return 0;
   for(unsigned i=0;i<3;i++)if(!p->used[i]){p->used[i]=1;return &p->cells[i];}
   return 0;
 }
-static void drop(void *ctx,CDOCell *cell){
-  Pool *p=ctx;
+static void drop(void *ctx,struct cdo_cell *cell){
+  struct cmx_pool *p=ctx;
   for(unsigned i=0;i<3;i++)if(cell==&p->cells[i]){
     if(!p->used[i])p->invalid++;
     p->used[i]=0;p->drops++;return;
   }
   p->invalid++;
 }
-static int clean(Pool *p){return !p->used[0]&&!p->used[1]&&!p->used[2]&&!p->invalid;}
-static int setup(cmx_kernel *k,CDOnce *o,Pool *p,CDOHandle h[3]){
-  *p=(Pool){0};cmx_init(k,CMX_FIXED);
+static int clean(struct cmx_pool *p){return !p->used[0]&&!p->used[1]&&!p->used[2]&&!p->invalid;}
+static int setup(cmx_kernel *k,struct cd_once *o,struct cmx_pool *p,struct cdo_handle h[3]){
+  *p=(struct cmx_pool){0};cmx_init(k,CMX_FIXED);
   for(unsigned i=0;i<3;i++)if(cmx_task_add(k,5+i,0,0x1000+256*i,256)!=(int)i)return 0;
   if(cdo_init(o,k,allocate,drop,p)!=CMX_OK)return 0;
   for(unsigned i=0;i<3;i++)if(cdo_register(o,i,&h[i])!=CMX_OK)return 0;
   return 1;
 }
-static int build(CDOHandle owner){
+static int build(struct cdo_handle owner){
   if(cdo_allocate(owner)!=CMX_OK)return 0;
   for(unsigned i=0;i<8;i++)if(cdo_write(owner,i,17*i+1)!=CMX_OK)return 0;
   return cdo_seal(owner)==CMX_OK&&cdo_seal(owner)==CMX_OK;
 }
 static int publication(void){
   for(unsigned owner=0;owner<3;owner++){
-    cmx_kernel k;CDOnce o={0};Pool p;CDOHandle h[3];CDOTicket t[3],copy;CDOTable out={.count=999};
+    cmx_kernel k;struct cd_once o={0};struct cmx_pool p;struct cdo_handle h[3];struct cdo_ticket t[3],copy;struct cdo_table out={.count=999};
     CHECK(setup(&k,&o,&p,h));
     CHECK(cdo_enter(h[owner],cmx_forever(),&t[owner])==CDO_INIT);
     CHECK(cdo_enter(h[owner],cmx_forever(),&copy)==CMX_DEADLOCK);
@@ -66,7 +66,7 @@ static int publication(void){
 static int failure(void){
   unsigned cases=0;
   for(unsigned cut=0;cut<=10;cut++){
-    cmx_kernel k;CDOnce o={0};Pool p;CDOHandle h[3];CDOTicket t[3];CDOTable out={.count=999};
+    cmx_kernel k;struct cd_once o={0};struct cmx_pool p;struct cdo_handle h[3];struct cdo_ticket t[3];struct cdo_table out={.count=999};
     CHECK(setup(&k,&o,&p,h)&&cdo_enter(h[0],cmx_forever(),&t[0])==CDO_INIT);
     CHECK(cdo_enter(h[1],cmx_forever(),&t[1])==CMX_BLOCKED&&cdo_enter(h[2],cmx_forever(),&t[2])==CMX_BLOCKED);
     CHECK(cdo_allocate(h[0])==CMX_OK);
@@ -84,13 +84,13 @@ static int failure(void){
 }
 static int retry(void){
   for(unsigned fail=1;fail<=3;fail++){
-    cmx_kernel k;CDOnce o={0};Pool p;CDOHandle h[3];CDOTicket old,newticket;CDOTable out={.count=999};
+    cmx_kernel k;struct cd_once o={0};struct cmx_pool p;struct cdo_handle h[3];struct cdo_ticket old,newticket;struct cdo_table out={.count=999};
     CHECK(setup(&k,&o,&p,h));p.fail=fail;
     CHECK(cdo_enter(h[0],cmx_forever(),&old)==CDO_INIT&&cdo_allocate(h[0])==CDO_FAILED);
     CHECK(clean(&p)&&p.drops==fail-1&&cdo_prepare_reset(&o)==CMX_BLOCKED);
     CHECK(cdo_result(old,&out)==CDO_FAILED&&out.count==999&&cdo_prepare_reset(&o)==CMX_OK);
     CHECK(cdo_reset(&o)==CMX_BLOCKED);
-    CDOHandle stale=h[0];for(unsigned i=0;i<3;i++)CHECK(cdo_release(&h[i])==CMX_OK);
+    struct cdo_handle stale=h[0];for(unsigned i=0;i<3;i++)CHECK(cdo_release(&h[i])==CMX_OK);
     CHECK(cdo_reset(&o)==CMX_OK&&o.epoch==2&&clean(&p));p.fail=0;
     for(unsigned i=0;i<3;i++)CHECK(cdo_register(&o,i,&h[i])==CMX_OK);
     CHECK(cdo_enter(stale,cmx_forever(),&newticket)==CDO_STALE);
@@ -103,7 +103,7 @@ static int retry(void){
   puts("CDO_RETRY:three-allocation-failures;rollback-complete;drain+unregister-before-reset;new-epoch;attempts2-success1");return 0;
 }
 static int waiting(void){
-  cmx_kernel k;CDOnce o={0};Pool p;CDOHandle h[3];CDOTicket t[3];CDOTable out={.count=999};
+  cmx_kernel k;struct cd_once o={0};struct cmx_pool p;struct cdo_handle h[3];struct cdo_ticket t[3];struct cdo_table out={.count=999};
   CHECK(setup(&k,&o,&p,h)&&cdo_enter(h[0],cmx_forever(),&t[0])==CDO_INIT);
   CHECK(cdo_enter(h[1],cmx_at(5),&t[1])==CMX_BLOCKED&&cdo_enter(h[2],cmx_forever(),&t[2])==CMX_BLOCKED);
   cmx_tick(&k,5);CHECK(cdo_cancel(t[2])==CMX_CLOSED);
@@ -125,7 +125,7 @@ static int policies(void){
   CHECK(cmx_once_enter(&k,&raw,2,cmx_forever())==CMX_RETRY&&raw.owner==2);
   CHECK(cmx_once_finish(&k,&raw,2,1)==CMX_OK);
   for(unsigned retry=0;retry<2;retry++){
-    MBOnce bridge={0};unsigned out[2]={999,998};mb_once_init(&bridge,retry!=0);
+    struct mb_once bridge={0};unsigned out[2]={999,998};mb_once_init(&bridge,retry!=0);
     CHECK(mb_once_enter(&bridge,0,out)==MB_INIT&&mb_once_enter(&bridge,1,out)==MB_BUSY);
     CHECK(mb_once_finish(&bridge,0,false,0,0)==MB_OK);
     CHECK(mb_once_enter(&bridge,2,out)==(retry?MB_INIT:MB_FAILED)&&out[0]==999);
@@ -134,7 +134,7 @@ static int policies(void){
   puts("CDO_POLICIES:CMX-failure-retry-role;MB-permanent-vs-retry-policy;MB-contention-status-distinct");return 0;
 }
 static int limits(void){
-  cmx_kernel k;CDOnce o={0};Pool p;CDOHandle h[3];CDOTicket t;CDOTable out={.count=999};
+  cmx_kernel k;struct cd_once o={0};struct cmx_pool p;struct cdo_handle h[3];struct cdo_ticket t;struct cdo_table out={.count=999};
   CHECK(setup(&k,&o,&p,h));o.attempts=UINT32_MAX;
   CHECK(cdo_enter(h[0],cmx_forever(),&t)==CDO_RETIRED&&atomic_load(&o.publication.state)==0);
   CHECK(cdo_close(&o)==CMX_OK);

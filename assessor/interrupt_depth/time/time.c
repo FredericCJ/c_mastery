@@ -5,7 +5,7 @@
 static uint32_t mask(unsigned bits) {
   return bits == 32 ? UINT32_MAX : (UINT32_C(1) << bits) - 1;
 }
-int xk_snapshot(XkIo io, XkPolicy p, XkSnapshot *out) {
+int xk_snapshot(struct xk_io io, struct xk_policy p, struct xk_snapshot *out) {
   if (!out || !io.high || !io.low || !io.guard || !p.low_bits ||
       p.low_bits > 32 || !p.high_bits || p.high_bits > 32 || !p.attempts ||
       p.attempts > 8 || !p.max_guard_span)
@@ -25,19 +25,19 @@ int xk_snapshot(XkIo io, XkPolicy p, XkSnapshot *out) {
     if (end - begin > p.max_guard_span)
       continue;
     if (before == after || XK_MUTANT == 1) {
-      XkSnapshot r = {((uint64_t)after << p.low_bits) | low, begin, end, i + 1};
+      struct xk_snapshot r = {((uint64_t)after << p.low_bits) | low, begin, end, i + 1};
       *out = r;
       return XK_OK;
     }
   }
   return XK_BUSY;
 }
-int xk_sequence(XkSequence *s, uint32_t epoch, uint32_t sequence,
+int xk_sequence(struct xk_sequence *s, uint32_t epoch, uint32_t sequence,
                 uint32_t bound) {
   if (!s || !epoch || !bound || bound >= UINT32_C(0x80000000) || s->seen > 1)
     return XK_INVALID;
   if (!s->seen) {
-    *s = (XkSequence){epoch, sequence, 1, 0};
+    *s = (struct xk_sequence){epoch, sequence, 1, 0};
     return XK_OK;
   }
   if (epoch != s->epoch)
@@ -65,8 +65,8 @@ static uint64_t drift(uint64_t delta, uint32_t ppm) {
   uint64_t whole = (delta / 1000000) * ppm, tail = (delta % 1000000) * ppm;
   return whole + tail / 1000000 + (tail % 1000000 != 0);
 }
-int xk_calibrate(const XkCalibration *c, uint64_t begin, uint64_t end,
-                 XkInterval *out) {
+int xk_calibrate(const struct xk_calibration *c, uint64_t begin, uint64_t end,
+                 struct xk_interval *out) {
   if (!c || !out || !c->epoch || !c->quantum_ns ||
       c->rate_error_ppm > 1000000 || c->anchor_lower_ns > c->anchor_upper_ns ||
       begin < c->anchor_tick || end < begin)
@@ -85,20 +85,20 @@ int xk_calibrate(const XkCalibration *c, uint64_t begin, uint64_t end,
   if (hi > UINT64_MAX - c->anchor_upper_ns)
     return XK_RANGE;
   *out =
-      (XkInterval){c->anchor_lower_ns + lo, c->anchor_upper_ns + hi, c->epoch};
+      (struct xk_interval){c->anchor_lower_ns + lo, c->anchor_upper_ns + hi, c->epoch};
   return XK_OK;
 }
-int xk_event(XkInterval sample, uint64_t minimum, uint64_t maximum,
-             XkInterval *out) {
+int xk_event(struct xk_interval sample, uint64_t minimum, uint64_t maximum,
+             struct xk_interval *out) {
   if (!out || !sample.epoch || sample.lower > sample.upper || minimum > maximum)
     return XK_INVALID;
   if (sample.lower < maximum)
     return XK_RANGE;
-  *out = (XkInterval){sample.lower - maximum, sample.upper - minimum,
+  *out = (struct xk_interval){sample.lower - maximum, sample.upper - minimum,
                       sample.epoch};
   return XK_OK;
 }
-int xk_order(XkInterval a, XkInterval b, unsigned *out) {
+int xk_order(struct xk_interval a, struct xk_interval b, unsigned *out) {
   if (!out || !a.epoch || !b.epoch || a.lower > a.upper || b.lower > b.upper)
     return XK_INVALID;
   if (a.epoch != b.epoch)

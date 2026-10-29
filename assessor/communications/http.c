@@ -13,13 +13,13 @@ static int equal(const char *a, size_t n, const char *b) {
       return 0;
   return 1;
 }
-static int fail(HttpParser *p, int status) {
+static int fail(struct http_parser *p, int status) {
   p->state = HTTP_FAILED;
   p->request.status = status;
   p->request.close = 1;
   return HTTP_ERROR;
 }
-void http_init(HttpParser *p, const char *authority) {
+void http_init(struct http_parser *p, const char *authority) {
   memset(p, 0, sizeof *p);
   if (!authority || strlen(authority) >= sizeof p->configured_authority) {
     fail(p, 400);
@@ -51,7 +51,7 @@ static int authority_valid(const char *s, size_t n) {
       return 0;
   return 1;
 }
-static int request_line(HttpParser *p, char *s, size_t n) {
+static int request_line(struct http_parser *p, char *s, size_t n) {
   char *a = memchr(s, ' ', n);
   if (!a)
     return fail(p, 400);
@@ -93,7 +93,7 @@ static int request_line(HttpParser *p, char *s, size_t n) {
   p->state = HTTP_HEADERS;
   return HTTP_NEED;
 }
-static int coding(HttpParser *p, const char *v, size_t n) {
+static int coding(struct http_parser *p, const char *v, size_t n) {
   if (p->te++)
     return fail(p, 400);
   size_t i = 0;
@@ -143,7 +143,7 @@ static int coding(HttpParser *p, const char *v, size_t n) {
   p->te_count = count;
   return HTTP_NEED;
 }
-static int field(HttpParser *p, char *s, size_t n, int trailer) {
+static int field(struct http_parser *p, char *s, size_t n, int trailer) {
   char *c = memchr(s, ':', n);
   if (!c || c == s)
     return fail(p, 400);
@@ -212,7 +212,7 @@ static int field(HttpParser *p, char *s, size_t n, int trailer) {
   }
   return HTTP_NEED;
 }
-static int route(HttpRequest *r) {
+static int route(struct http_request *r) {
   if (strcmp(r->method, "GET") && strcmp(r->method, "HEAD") &&
       strcmp(r->method, "POST"))
     return 501;
@@ -222,7 +222,7 @@ static int route(HttpRequest *r) {
     return strcmp(r->method, "POST") ? 405 : 200;
   return 404;
 }
-static int headers_done(HttpParser *p) {
+static int headers_done(struct http_parser *p) {
   if (p->host != 1 || !equal(p->request.authority, strlen(p->request.authority),
                              p->configured_authority))
     return fail(p, 400);
@@ -296,7 +296,7 @@ static int extensions(const char *s, size_t n) {
   }
   return 1;
 }
-static int line_done(HttpParser *p) {
+static int line_done(struct http_parser *p) {
   char *s = p->line;
   size_t n = p->line_length;
   s[n] = 0;
@@ -337,7 +337,7 @@ static int line_done(HttpParser *p) {
   p->state = len ? HTTP_CHUNK_DATA : HTTP_TRAILERS;
   return HTTP_NEED;
 }
-int http_feed(HttpParser *p, const void *v, size_t n, size_t *used) {
+int http_feed(struct http_parser *p, const void *v, size_t n, size_t *used) {
   const unsigned char *s = v;
   *used = 0;
   if (p->state == HTTP_FAILED)
@@ -399,7 +399,7 @@ int http_feed(HttpParser *p, const void *v, size_t n, size_t *used) {
   }
   return HTTP_NEED;
 }
-int http_eof(HttpParser *p) {
+int http_eof(struct http_parser *p) {
   return p->state == HTTP_FINISHED ? HTTP_DONE : fail(p, 400);
 }
 static const char *reason(int n) {
@@ -445,7 +445,7 @@ static size_t decimal(size_t x, char *s) {
     s[i] = rev[n - 1 - i];
   return n;
 }
-int http_response(const HttpRequest *r, const char *date, int close, void *v,
+int http_response(const struct http_request *r, const char *date, int close, void *v,
                   size_t cap, size_t *length) {
   unsigned char *o = v;
   size_t n = 0;
@@ -505,7 +505,7 @@ int http_expired(uint64_t now, uint64_t start, uint64_t progress,
   return now < start || now < progress || now - start >= total ||
          now - progress >= idle;
 }
-int http_drain(HttpWrite write, void *ctx, const void *v, size_t n,
+int http_drain(http_write_fn write, void *ctx, const void *v, size_t n,
                size_t *off) {
   if (*off > n)
     return -1;

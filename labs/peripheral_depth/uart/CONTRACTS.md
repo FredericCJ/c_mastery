@@ -37,7 +37,7 @@ capture protocol when the required dedicated equipment and authorization exist.
 
 ### Clock record and generation
 
-`PuClock` supplies SYSCLK, generation, AHB divisor, separate APB divisors and
+`struct pu_clock` supplies SYSCLK, generation, AHB divisor, separate APB divisors and
 TIMPRE. Generation is positive and must never wrap into a live old generation.
 AHB accepts 1,2,4,8,16,64,128,256,512; APB accepts 1,2,4,8,16. All rates must be
 integral Hz in this teaching API. SYSCLK is at most 180 MHz; APB1 at most45 MHz,
@@ -84,7 +84,7 @@ divisors; do not assume BRR is always the integer divisor. RM0090 Rev21
 pp973–977,981,1010–1018 distinguish framing, baud updates, status clearing and
 TXE/TC. BRR must not change during communication.
 
-`PuRx` is a capacity-two queue. Initialized zero, it retains each available byte
+`struct pu_rx` is a capacity-two queue. Initialized zero, it retains each available byte
 and its raw PE/FE/NF/ORE mask; the caller decides whether an errored byte is usable.
 An absent RXNE returns BUSY and never manufactures zero. A full queue drops the
 incoming byte, saturates `dropped` at UINT32_MAX and returns FULL. Each received
@@ -117,7 +117,7 @@ automatic RTSE or assume the ST-LINK VCP provides that extra signal.
 
 ### One API, three progress adapters
 
-`PuDriver` begins zero. `pu_submit` accepts1..8 immutable bytes, a strictly newer
+`struct pu_driver` begins zero. `pu_submit` accepts1..8 immutable bytes, a strictly newer
 positive token, matching clock generation, backend POLL/IRQ/DMA, a 32-bit
 monotonic timestamp and positive budget below2^31 ticks. Admission transfers
 buffer and line-use rights to the service. Every call has exclusive access to

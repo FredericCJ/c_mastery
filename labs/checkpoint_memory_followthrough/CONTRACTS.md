@@ -9,7 +9,7 @@ reference executions, not your work.
 
 Use C17. The byte arena, typed pool and ring form the strict freestanding core.
 The allocated-record, asynchronous-registration and ownership comparisons are
-separate hosted programs. `OwOwner` reuse occurs only in the later revisit after
+separate hosted programs. `struct ow_owner` reuse occurs only in the later revisit after
 PR-T66-01, not as a forward prerequisite for the first P1 attempt. Host Python,
 sanitizers, malloc-backed ledgers and clocks never become target dependencies.
 N1570 is an inspected C11 draft; it does not establish access to published C17.
@@ -20,11 +20,11 @@ lifetime, ownership or effect guarantee.
 
 Keep three representations distinct. An arena is declared character storage and
 returns a checked `(offset,length,generation)` byte view. A pool contains actual
-`CPMRecord` objects, with occupancy, generation and pin arrays. A ring contains
+`struct cpm_record` objects, with occupancy, generation and pin arrays. A ring contains
 handles rather than pointers into either backend. Copy an integer's bytes into
 the arena, then back into a declared integer before reading it. Increasing the
 arena's alignment does not change its declared type. For the allocated variant,
-write actual `CPXRecord` and `CPXNode` objects into suitably aligned allocated
+write actual `struct cpx_record` and `struct cpx_node` objects into suitably aligned allocated
 storage; release that storage only after every dependent access has ended.
 See WG14 N1570 §6.5 paragraphs 6–7, including its distinction for objects with
 no declared type, in the source register below.

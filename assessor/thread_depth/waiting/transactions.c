@@ -6,7 +6,7 @@ static void ok(int e) {
   if (e)
     abort();
 }
-int tw_bank_init(TWBank *b) {
+int tw_bank_init(struct tw_bank *b) {
   int e = pthread_mutex_init(&b->lock, NULL);
   if (!e) {
     b->a = 50;
@@ -14,7 +14,7 @@ int tw_bank_init(TWBank *b) {
   }
   return e;
 }
-int tw_transfer(TWBank *b, int amount, TWHook hook, void *arg) {
+int tw_transfer(struct tw_bank *b, int amount, tw_hook_fn hook, void *arg) {
   ok(pthread_mutex_lock(&b->lock));
   if (amount < 0 || amount > b->a) {
     ok(pthread_mutex_unlock(&b->lock));
@@ -33,20 +33,20 @@ int tw_transfer(TWBank *b, int amount, TWHook hook, void *arg) {
   ok(pthread_mutex_unlock(&b->lock));
   return 0;
 }
-int tw_bank_total(TWBank *b) {
+int tw_bank_total(struct tw_bank *b) {
   int n;
   ok(pthread_mutex_lock(&b->lock));
   n = b->a + b->b;
   ok(pthread_mutex_unlock(&b->lock));
   return n;
 }
-void tw_bank_destroy(TWBank *b) { ok(pthread_mutex_destroy(&b->lock)); }
-void tw_snapshot_init(TWSnapshot *s) {
+void tw_bank_destroy(struct tw_bank *b) { ok(pthread_mutex_destroy(&b->lock)); }
+void tw_snapshot_init(struct tw_snapshot *s) {
   atomic_init(&s->sequence, 0);
   atomic_init(&s->a, 50);
   atomic_init(&s->b, 50);
 }
-int tw_snapshot_write(TWSnapshot *s, int a) {
+int tw_snapshot_write(struct tw_snapshot *s, int a) {
   unsigned n = atomic_load(&s->sequence);
   if (a < 0 || a > 100)
     return EINVAL;
@@ -58,7 +58,7 @@ int tw_snapshot_write(TWSnapshot *s, int a) {
   atomic_store(&s->sequence, n + 2);
   return 0;
 }
-int tw_snapshot_read(TWSnapshot *s, int *total) {
+int tw_snapshot_read(struct tw_snapshot *s, int *total) {
   for (;;) {
     unsigned first = atomic_load(&s->sequence);
     if (first & 1u)

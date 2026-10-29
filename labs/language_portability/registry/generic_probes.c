@@ -8,8 +8,8 @@ int main(void){int a[3]={1,2,3};return LG_VALUE(a);}
 #define BAD(x) _Generic((x),int:(x),default:(x).member)
 int main(void){return BAD(3);}
 #elif CASE == 3
-typedef int Alias;
-#define DUP(x) _Generic((x),int:lg_int,Alias:lg_int)((x))
+typedef int lp_alias;
+#define DUP(x) _Generic((x),int:lg_int,lp_alias:lg_int)((x))
 int main(void){return DUP(3);}
 #elif CASE == 4
 int main(void){int a[4]={1,2,3,4};return LG_OBJECT(a);}

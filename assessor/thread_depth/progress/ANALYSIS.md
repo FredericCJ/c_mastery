@@ -76,7 +76,7 @@ has zero updates and needs a final merge; per-item has20000. Checksums use an
 independent arithmetic recurrence with division by128 to express logical
 right shift for uint32 values. The shared relaxed sum is meaningful as a final
 result after joins; it is not publication of other state. Delayed current
-readers need a new linearization contract. `TPTotal` updates value and items
+readers need a new linearization contract. `struct tp_total` updates value and items
 under one mutex; readers observe one committed pair. Overflow preserves both.
 It sacrifices nonblocking progress and adds read synchronization explicitly.
 
@@ -142,7 +142,7 @@ trace minimizer does not model weak visibility; the imported memory model and
 handoff argument supply that separate obligation. Do not reward inserting a
 delay that only hides the witness.
 
-`TPEndQueue` closes its own admission root before closing the underlying
+`struct tp_end_queue` closes its own admission root before closing the underlying
 drain-close queue. Admitted calls finish, decrement inflight and account
 committed copies before cancellation is restored. The controller waits for
 zero inflight, drains residual copies to its discard ledger, releases the

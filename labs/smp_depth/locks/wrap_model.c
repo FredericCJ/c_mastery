@@ -2,11 +2,11 @@
 #include <assert.h>
 #include <locks.c>
 #include <genmc.h>
-static SlLock lock;
+static struct sl_lock lock;
 static unsigned counter;
 static pthread_t first;
 static void turn(unsigned i) {
-  SlGuard guard={0};assert(sl_ticket_reserve(&lock,&guard)==SL_OK);
+  struct sl_guard guard={0};assert(sl_ticket_reserve(&lock,&guard)==SL_OK);
   assert(sl_ticket_ready(&guard,NULL)==SL_OK);
   if(i==15)counter++;
   assert(sl_leave(&guard,NULL)==SL_OK);
@@ -22,7 +22,7 @@ static void *newcomer(void *unused) {
  (void)unused;
  /* Observation constrains allocation order but adds no synchronizes-with. */
  __VERIFIER_assume(atomic_fetch_add_explicit(&lock.next,0,memory_order_relaxed)==16);
- SlGuard guard={0};assert(sl_ticket_reserve(&lock,&guard)==SL_OK);
+ struct sl_guard guard={0};assert(sl_ticket_reserve(&lock,&guard)==SL_OK);
  int result=sl_ticket_ready(&guard,NULL);
  if(result==SL_PENDING) {
   /* Keep the queued guard live; joining supplies progress only after the

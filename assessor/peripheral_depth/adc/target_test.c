@@ -35,10 +35,10 @@ volatile uint32_t *pa_test_register(uint32_t a) {
 int main(void) {
   pa_f439_pins();
   CHECK((R(0x40020000u) & 15) == 15 && (R(0x40023844u) & 256));
-  PaIo io = pa_f439_io();
-  PaAdc s = {0};
-  PuClock clock = {64000000, 1, 1, 2, 2, 0};
-  PaConfig cfg = {4, 2, 1};
+  struct pa_io io = pa_f439_io();
+  struct pa_adc s = {0};
+  struct pu_clock clock = {64000000, 1, 1, 2, 2, 0};
+  struct pa_config cfg = {4, 2, 1};
   CHECK(pa_open(&s, io, &clock, &cfg, 0) == PA_OK && R(0x40012010u) == 36 &&
         R(0x4001202cu) == 1048576 && R(0x40012034u) == 32);
   R(0x4001204cu) = 123;

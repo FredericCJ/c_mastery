@@ -1,8 +1,8 @@
 #include "allocation.h"
 #include <stdio.h>
 int main(void) {
-  ALHeap h;
-  ALHandle handles[12] = {{0}};
+  struct al_heap h;
+  struct al_handle handles[12] = {{0}};
   unsigned cap, policy, defer;
   if (scanf("%u%u%u", &cap, &policy, &defer) != 3 ||
       al_heap_init(&h, cap, policy, defer, 1))
@@ -11,7 +11,7 @@ int main(void) {
   while (scanf("%u%u%u%u", &op, &index, &size, &fail) == 4) {
     if (index >= 12)
       return 2;
-    ALHandle out = {0};
+    struct al_handle out = {0};
     int s = op == 0   ? al_heap_take(&h, size, 8, &out)
             : op == 1 ? al_heap_release(&h, handles[index])
             : op == 2 ? al_heap_resize(&h, handles[index], size, (int)fail,
@@ -20,7 +20,7 @@ int main(void) {
     if (!s && (op == 0 || op == 2))
       handles[index] = out;
     if (!s && op == 1)
-      handles[index] = (ALHandle){0};
+      handles[index] = (struct al_handle){0};
     printf("%d", s);
     for (unsigned i = 0; i < 12; ++i) {
       unsigned char *p;

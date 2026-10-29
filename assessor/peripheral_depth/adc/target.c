@@ -70,8 +70,8 @@ static void wr(void *p, unsigned r, uint32_t v) {
     break;
   }
 }
-PaIo pa_f439_io(void) {
-  PaIo io = {0, rd, wr};
+struct pa_io pa_f439_io(void) {
+  struct pa_io io = {0, rd, wr};
   return io;
 }
 void pa_f439_pins(void) {

@@ -5,12 +5,12 @@
 #ifndef ELIMINATOR
 #define ELIMINATOR 0
 #endif
-typedef enum { OLD_EMPTY, OLD_NUMBER, OLD_PAIR
+enum version_tag { OLD_EMPTY, OLD_NUMBER, OLD_PAIR
 #if ADDED
 , NEW_TEXT
 #endif
-} VersionTag;
-static unsigned measure(VersionTag tag) {
+};
+static unsigned measure(enum version_tag tag) {
     switch(tag) {
     case OLD_EMPTY:return 0;
     case OLD_NUMBER:return 1;
@@ -30,7 +30,7 @@ int main(void) {
 #else
     unsigned observed=measure(OLD_PAIR);
 #endif
-    printf("tag-size%zu value%u\n",sizeof(VersionTag),observed);
+    printf("tag-size%zu value%u\n",sizeof(enum version_tag),observed);
 #if ADDED
     return observed==(ELIMINATOR==1?0u:3u)?0:1;
 #else

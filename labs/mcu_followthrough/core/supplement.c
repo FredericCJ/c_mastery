@@ -5,11 +5,11 @@
 #define C(x) do { if(!(x)){fprintf(stderr,"MF_SUPPLEMENT:%d:%s\n",__LINE__,#x);return 1;} } while(0)
 static _Alignas(8) uint32_t storage[3][160];
 static unsigned totals[3][5];
-static void account(const Mf *m,unsigned delta){
+static void account(const struct mf_mf *m,unsigned delta){
  for(unsigned t=1;t<3;t++)totals[t][m->kernel.task[t].state]+=delta;
 }
 static int service(void){
- Mf m;MfHandle a,b;C(mf_init(&m,storage[0],160,CMX_RR)==CMX_OK);
+ struct mf_mf m;mf_handle_id a,b;C(mf_init(&m,storage[0],160,CMX_RR)==CMX_OK);
  C(mf_add(&m,storage[1],160,0x101,0x201,1,1,2,&a)==CMX_OK);
  C(mf_add(&m,storage[2],160,0x101,0x201,1,1,2,&b)==CMX_OK);
  C(mf_schedule(&m)==1);account(&m,3);
@@ -29,11 +29,11 @@ static int service(void){
  puts("MF_SUPPLEMENT:wrong resumed-call reentry blocks after already successful stored completion");return 0;
 }
 static int expiry(void){
- MfTimers t;MfHandle old,current,events[MF_TIMERS];size_t n;
+ struct mf_timers t;mf_handle_id old,current,events[MF_TIMERS];size_t n;
  mf_timers_init(&t,0);C(mf_timer_arm(&t,3,&old)==CMX_OK);C(mf_timer_cancel(&t,old)==CMX_OK);
  C(mf_timer_arm(&t,4,&current)==CMX_OK&&old!=current&&(old&31u)==(current&31u));
  unsigned completions=0; /* Consumer owns current ticket, not only slot index. */
- MfHandle delayed=old;if(delayed==current)completions++;
+ mf_handle_id delayed=old;if(delayed==current)completions++;
  C(completions==0);n=MF_TIMERS;C(mf_timer_poll(&t,3,events,&n)==CMX_OK&&n==0);
  n=MF_TIMERS;C(mf_timer_poll(&t,4,events,&n)==CMX_OK&&n==1&&events[0]==current);
  if(events[0]==current){completions++;current=0;}

@@ -1,22 +1,22 @@
 #include "contracts.h"
-int kf_boot(const unsigned char *p, size_t n, KfBoot *o) {
+int kf_boot(const unsigned char *p, size_t n, struct kf_boot *o) {
   (void)p;
   (void)n;
   (void)o;
   return 0;
 }
-int kf_frames(cmk_frames *f, const cmk_boot *b, const KfSpan *r, size_t n) {
+int kf_frames(cmk_frames *f, const cmk_boot *b, const struct kf_span *r, size_t n) {
   (void)f;
   (void)b;
   (void)r;
   (void)n;
   return 0;
 }
-size_t kf_free(const KfPool *p) {
+size_t kf_free(const struct kf_pool *p) {
   (void)p;
   return 0;
 }
-int kf_allocate(KfPool *p, KfSpace *s, unsigned a, unsigned n, unsigned b) {
+int kf_allocate(struct kf_pool *p, struct kf_space *s, unsigned a, unsigned n, unsigned b) {
   (void)p;
   (void)s;
   (void)a;
@@ -24,14 +24,14 @@ int kf_allocate(KfPool *p, KfSpace *s, unsigned a, unsigned n, unsigned b) {
   (void)b;
   return 0;
 }
-int kf_reap_user(KfPool *p, KfSpace *s, unsigned i, const KfCpu *c) {
+int kf_reap_user(struct kf_pool *p, struct kf_space *s, unsigned i, const struct kf_cpu *c) {
   (void)p;
   (void)s;
   (void)i;
   (void)c;
   return 0;
 }
-int kf_retire_slot(KfSpace *s, unsigned i, const KfCpu *c) {
+int kf_retire_slot(struct kf_space *s, unsigned i, const struct kf_cpu *c) {
   (void)s;
   (void)i;
   (void)c;
@@ -59,7 +59,7 @@ int kf_weighted(const unsigned *a, const unsigned *w, unsigned n, int64_t *c) {
   (void)c;
   return -1;
 }
-int kf_load_image(KfPool *p, KfSpace *s, const unsigned char *b, size_t n,
+int kf_load_image(struct kf_pool *p, struct kf_space *s, const unsigned char *b, size_t n,
                   unsigned k) {
   (void)p;
   (void)s;
@@ -78,26 +78,26 @@ int kf_archive_typed(const unsigned char *p, size_t n, const char *s,
   (void)z;
   return 0;
 }
-uint32_t kf_handle_open(KfHandles *h, unsigned s, unsigned r, unsigned a) {
+uint32_t kf_handle_open(struct kf_handles *h, unsigned s, unsigned r, unsigned a) {
   (void)h;
   (void)s;
   (void)r;
   (void)a;
   return 0;
 }
-int kf_handle_get(const KfHandles *h, uint64_t t, unsigned a, unsigned *r) {
+int kf_handle_get(const struct kf_handles *h, uint64_t t, unsigned a, unsigned *r) {
   (void)h;
   (void)t;
   (void)a;
   (void)r;
   return 0;
 }
-int kf_handle_close(KfHandles *h, uint64_t t) {
+int kf_handle_close(struct kf_handles *h, uint64_t t) {
   (void)h;
   (void)t;
   return 0;
 }
-uint32_t kf_delegate(const KfHandles *s, uint64_t t, KfHandles *d, unsigned i,
+uint32_t kf_delegate(const struct kf_handles *s, uint64_t t, struct kf_handles *d, unsigned i,
                      unsigned r) {
   (void)s;
   (void)t;
@@ -106,7 +106,7 @@ uint32_t kf_delegate(const KfHandles *s, uint64_t t, KfHandles *d, unsigned i,
   (void)r;
   return 0;
 }
-int kf_line(KfLine *s, unsigned char c, char o[64], unsigned *n) {
+int kf_line(struct kf_line *s, unsigned char c, char o[64], unsigned *n) {
   (void)s;
   (void)c;
   (void)o;

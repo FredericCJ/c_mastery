@@ -89,11 +89,11 @@ static void sp_worker(unsigned c){
 void sp_bsp(void){
  /* BSP initializes before releasing AP workers; it is its own local-table owner. */
  for(unsigned i=1;i<topology.count;++i){unsigned spin=0;while(!__atomic_load_n(&sp_local[i].ready,__ATOMIC_ACQUIRE)){if(++spin==100000000)sp_fail("worker-not-ready");pause_cpu();}}
- SpSpan spans[4*SP_PARTS];
+ struct sp_span spans[4*SP_PARTS];
  for(unsigned c=0;c<topology.count;++c){
   uintptr_t lows[]={ (uintptr_t)sp_local[c].task_stack[0],(uintptr_t)cpus[c].boot,(uintptr_t)cpus[c].irq,(uintptr_t)sp_local[c].emergency,(uintptr_t)cpus[c].gdt,(uintptr_t)&cpus[c].tss,(uintptr_t)cpus[c].idt,(uintptr_t)sp_local[c].task_stack[1],(uintptr_t)cpus[c].tlb_stack};
   size_t sizes[]={8192,sizeof cpus[c].boot,sizeof cpus[c].irq,sizeof sp_local[c].emergency,sizeof cpus[c].gdt,sizeof cpus[c].tss,sizeof cpus[c].idt,8192,sizeof cpus[c].tlb_stack};
-  for(unsigned k=0;k<SP_PARTS;++k)spans[c*SP_PARTS+k]=(SpSpan){lows[k],lows[k]+sizes[k],c,k};
+  for(unsigned k=0;k<SP_PARTS;++k)spans[c*SP_PARTS+k]=(struct sp_span){lows[k],lows[k]+sizes[k],c,k};
  }
  if(sp_validate(spans,topology.count*SP_PARTS)!=SP_OK)sp_fail("actual-storage-alias");
  __atomic_store_n(&sp_go,1,__ATOMIC_RELEASE);sp_worker(0);

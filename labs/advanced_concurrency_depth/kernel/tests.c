@@ -9,11 +9,11 @@
       exit(41);                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
+struct ag_copy {
   size_t residual, calls;
-} Copy;
+};
 static size_t copying(void *p, unsigned char *out, size_t n) {
-  Copy *c = p;
+  struct ag_copy *c = p;
   size_t i;
   ++c->calls;
   for (i = 0; i < n - c->residual; ++i)
@@ -21,8 +21,8 @@ static size_t copying(void *p, unsigned char *out, size_t n) {
   return c->residual;
 }
 static void copy_test(void) {
-  AKPacket p;
-  Copy c;
+  struct ak_packet p;
+  struct ag_copy c;
   size_t n, r, i;
   memset(&p, 0x5a, sizeof p);
   p.length = 17;
@@ -30,8 +30,8 @@ static void copy_test(void) {
   CHECK(ak_copy(&p, 33, copying, &c) == AK_INVALID);
   for (n = 1; n <= 32; ++n)
     for (r = 0; r <= n; ++r) {
-      AKPacket old = p;
-      c = (Copy){r, 0};
+      struct ak_packet old = p;
+      c = (struct ag_copy){r, 0};
       CHECK(ak_copy(&p, n, copying, &c) == (r ? AK_FAULT : AK_OK));
       CHECK(c.calls == 1);
       if (r)
@@ -46,13 +46,13 @@ static void copy_test(void) {
     }
   puts("OBS copy partial_boundaries=560 zero_padding_not_success=1");
 }
-typedef struct {
+struct ag_device {
   unsigned mapped, device, ready, stage, fail_map, fail_submit, maps, unmaps,
       errors;
-  ASValue device_value;
-} Device;
-static int map(void *p, const ASValue *v, unsigned *c) {
-  Device *d = p;
+  struct as_value device_value;
+};
+static int map(void *p, const struct as_value *v, unsigned *c) {
+  struct ag_device *d = p;
   if (d->fail_map)
     return -1;
   CHECK(!d->mapped);
@@ -63,12 +63,12 @@ static int map(void *p, const ASValue *v, unsigned *c) {
   return 0;
 }
 static void sync_device(void *p, unsigned c) {
-  Device *d = p;
+  struct ag_device *d = p;
   CHECK(c == d->maps && d->mapped && d->stage == 1);
   d->stage = 2;
 }
 static int submit(void *p, unsigned c) {
-  Device *d = p;
+  struct ag_device *d = p;
   CHECK(c == d->maps && d->stage == 2);
   if (d->fail_submit)
     return -1;
@@ -77,7 +77,7 @@ static int submit(void *p, unsigned c) {
   return 0;
 }
 static int quiesce(void *p, unsigned c) {
-  Device *d = p;
+  struct ag_device *d = p;
   CHECK(c == d->maps && d->device);
   if (!d->ready)
     return 0;
@@ -86,12 +86,12 @@ static int quiesce(void *p, unsigned c) {
   return 1;
 }
 static void sync_cpu(void *p, unsigned c) {
-  Device *d = p;
+  struct ag_device *d = p;
   CHECK(c == d->maps && !d->device && d->stage == 4);
   d->stage = 5;
 }
 static void unmap(void *p, unsigned c) {
-  Device *d = p;
+  struct ag_device *d = p;
   CHECK(c == d->maps && d->mapped && !d->device &&
         (d->stage == 2 || d->stage == 5));
   d->mapped = 0;
@@ -99,10 +99,10 @@ static void unmap(void *p, unsigned c) {
   d->stage = 0;
 }
 static void backend_test(void) {
-  AKService s;
-  Device d = {0};
-  AKBackend b = {map, sync_device, submit, quiesce, sync_cpu, unmap, &d};
-  ASValue out = {99, 99, 99, 99}, v = {1, ~1u, 3, 3};
+  struct ak_service s;
+  struct ag_device d = {0};
+  struct ak_backend b = {map, sync_device, submit, quiesce, sync_cpu, unmap, &d};
+  struct as_value out = {99, 99, 99, 99}, v = {1, ~1u, 3, 3};
   unsigned i;
   CHECK(ak_init(&s, b) == AK_OK);
   CHECK(ak_start(&s) == AK_EMPTY);

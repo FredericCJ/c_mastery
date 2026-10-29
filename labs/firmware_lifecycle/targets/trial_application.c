@@ -22,6 +22,6 @@ _Noreturn void th_app_main(void){const volatile uint32_t*data=input;uint32_t ans
 #if defined(TH_GUEST)
  th_guest_report(answer,APP_GENERATION);
 #else
- typedef void(*Report)(uint32_t,uint32_t);Report report=(Report)(uintptr_t)(APP_CORE?0x08100401u:0x08120401u);report(answer,APP_GENERATION);
+ typedef void(*f4_report_fn)(uint32_t,uint32_t);f4_report_fn report=(f4_report_fn)(uintptr_t)(APP_CORE?0x08100401u:0x08120401u);report(answer,APP_GENERATION);
 #endif
 for(;;)__asm__ volatile("wfi");}

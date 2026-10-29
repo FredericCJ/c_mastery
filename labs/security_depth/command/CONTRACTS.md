@@ -40,8 +40,8 @@ the admitted interface. Required null arguments return `SC_INVALID` except that
 `sc_service_init` requires a nonnull live destination. Empty decoder input may
 use null storage but is a length error. Initialize the recovery object to zero.
 
-`SCBatch` owns up to four commands, each with at most four `uint16_t` values.
-No decoded pointer borrows packet storage. `SCAuthority` has a nonzero generation
+`struct sc_batch` owns up to four commands, each with at most four `uint16_t` values.
+No decoded pointer borrows packet storage. `struct sc_authority` has a nonzero generation
 and an `allowed` bit owned by the trusted policy controller, not by the packet.
 Generation `UINT_MAX` is terminal. The public C fields are an inspectable
 representation, not unforgeable capabilities: arbitrary same-process writes can
@@ -77,7 +77,7 @@ four work units. A leaf costs `max(1,count)` plus optional metadata. Container
 headers consume bounded parsing work but no decoded work units. First copy at
 most32 stable bytes, then validate the entire tree and reserve all capacities
 before materializing values. Publish the complete batch only on success. Failure
-preserves the prior batch byte-for-byte. `SCMeter` counts copied bytes, preflight
+preserves the prior batch byte-for-byte. `struct sc_meter` counts copied bytes, preflight
 headers and materialized values; rejected packets have zero materialized values.
 Invalid control arguments leave outputs untouched. A packet longer than32 sets
 the meter to zero and returns length in base mode or budget in extended mode.
@@ -103,7 +103,7 @@ not permit converting a negative count into a huge size and hoping it fits.
 
 ## Problem: retained work, cancellation and recovery
 
-`SCService` stores three owned request copies, total work at most6, and one
+`struct sc_service` stores three owned request copies, total work at most6, and one
 separate pending control operation. `sc_submit` admits valid nonempty work1–4
 only when total capacity, a nonretired slot and future terminal-counter headroom
 exist. Rejection leaves the service and output ticket unchanged. Costs2,3,5,1
@@ -128,7 +128,7 @@ pending control is full. `sc_control_complete` consumes it, with stale status
 when none is pending. A closed service admits neither data nor control. Control
 reservation is not a scheduler fairness or latency guarantee.
 
-`SCRecovery` states are RUNNING0, RECOVERING1, SAFE_STOP2. Each fault releases the
+`struct sc_recovery` states are RUNNING0, RECOVERING1, SAFE_STOP2. Each fault releases the
 previously owned prefix of two synthetic resources in reverse order, then may
 start one of at most two lifetime recovery attempts. Acquire resources0 then1;
 failed acquisition owns nothing new, and the component rolls back earlier

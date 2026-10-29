@@ -15,7 +15,7 @@ unsigned r=99,o=99;CHECK(po_arg(7,&r,&o)&&r==7&&o==0);CHECK(po_arg(8,&r,&o)&&r==
 return 0;
 }
 static int test_context(void) {
-POContext c;uint64_t a[32],b[32];unsigned i;for(i=0;i<32;++i){a[i]=i+100;b[i]=999;}CHECK(po_save(&c,0,a));CHECK(po_restore(&c,0,b));CHECK(b[8]==108&&b[10]==999);CHECK(!po_restore(&c,1,b));
+struct po_context c;uint64_t a[32],b[32];unsigned i;for(i=0;i<32;++i){a[i]=i+100;b[i]=999;}CHECK(po_save(&c,0,a));CHECK(po_restore(&c,0,b));CHECK(b[8]==108&&b[10]==999);CHECK(!po_restore(&c,1,b));
 return 0;
 }
 static int test_immediate(void) {
@@ -23,7 +23,7 @@ CHECK(po_sign12(0xfff)==-1);CHECK(po_sign12(0x800)==-2048);CHECK(po_sign12(0x17f
 return 0;
 }
 static int test_trap(void) {
-POStatus s={1,0,0};CHECK(po_trap(&s,1)&&s.sie==0&&s.spie==1&&s.spp==1);CHECK(po_return(&s)&&s.sie==1&&s.spie==1&&s.spp==0);CHECK(!po_trap(&s,2));
+struct po_status s={1,0,0};CHECK(po_trap(&s,1)&&s.sie==0&&s.spie==1&&s.spp==1);CHECK(po_return(&s)&&s.sie==1&&s.spie==1&&s.spp==0);CHECK(!po_trap(&s,2));
 return 0;
 }
 static int test_privilege(void) {

@@ -11,13 +11,13 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-static int exchange(E7Session *s, unsigned sender, uint16_t cp,
+static int exchange(struct e7_session *s, unsigned sender, uint16_t cp,
                     const uint8_t *bytes, size_t n, int16_t *set,
                     unsigned *effects, uint8_t *out, size_t *outlen) {
   uint32_t token;
   uint8_t cached[80], encoded[80];
   size_t cn = 0, en = 0;
-  EduRecord request, response;
+  struct edu_record request, response;
   int16_t staged = *set;
   int r = e7_session_prepare(s, sender, 1, 1, cp, bytes, n, &token, cached,
                              sizeof cached, &cn);
@@ -47,8 +47,8 @@ static int exchange(E7Session *s, unsigned sender, uint16_t cp,
   return 0;
 }
 int main(void) {
-  E7Session s = {0};
-  EduRecord request = {2, 42, -4000, 1, 1, {0}, 0}, response;
+  struct e7_session s = {0};
+  struct edu_record request = {2, 42, -4000, 1, 1, {0}, 0}, response;
   uint8_t wire[80], reply[80], first[80];
   size_t n, rn, fn;
   int16_t set = 2200;

@@ -3,7 +3,7 @@
 This required successor supplies the six original PR-T38-01 criterion/V1 pairs
 T38.01.a–c and T38.02.a–c. Their exact AX identifiers, seven-day delayed tasks,
 project contract and legacy shared assessment contract remain in force. Reuse
-the learner's actual `sd_uart`, `sd_uart_decode`, `PuDriver`, `PuRx`, F439 pin
+the learner's actual `sd_uart`, `sd_uart_decode`, `struct pu_driver`, `struct pu_rx`, F439 pin
 adapter and T27 reset/linker; component names alone do not satisfy composition.
 
 ## Environment and prerequisites
@@ -57,7 +57,7 @@ ready driver, idle ownership and TE/RE clear. It writes disabled CR1, CR2, CR3=0
 BRR, then enables TE/RE. It cannot validate a forged format or roll back physical
 effects from a lying callback. The caller must ensure no receive is in flight.
 
-`UaTx` is deliberately an **8N1 polling aggregate**, not a general-width sender.
+`struct ua_tx` is deliberately an **8N1 polling aggregate**, not a general-width sender.
 Initialize its `byte` producer with `pu_open`; preserve asynchronous CR2=0 and
 do not reconfigure during a request. `ua_begin` borrows 1..16 immutable bytes,
 requires a fresh positive external token and matching clock generation, and
@@ -79,7 +79,7 @@ buffer is already released. A missing TC can retain line ownership indefinitely;
 a finite polling limit is not quiescence. A pre-write TC snapshot cannot release
 the byte written after that observation.
 
-`UaRx` owns 1..32 caller `PuByte` slots and a retained producer bridge. Before
+`struct ua_rx` owns 1..32 caller `struct pu_byte` slots and a retained producer bridge. Before
 each call the bridge is empty; only these APIs mutate it. Full output storage or
 a saturated bridge error counter returns FULL without reading DR. Otherwise
 `ua_rx` observes at most one SR/DR pair, transfers the actual older RDR byte with

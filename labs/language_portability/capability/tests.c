@@ -6,7 +6,7 @@
 #include <inttypes.h>
 #define CHECK(x) do {if (!(x)) {fprintf(stderr,"LP_CHECK %s:%d %s\n",__FILE__,__LINE__,#x);return 1;}} while(0)
 static int record(void) {
-    LpValue v={.value=7,.present=1}; char b[128]="unchanged";
+    struct lp_value v={.value=7,.present=1}; char b[128]="unchanged";
     CHECK(lp_record(0,INTMAX_MIN,&v) && v.present==0 && v.value==0);
     CHECK(lp_format(v,b,sizeof b) && !strcmp(b,"empty"));
     CHECK(lp_record(1,INTMAX_MIN,&v) && v.value==INTMAX_MIN);
@@ -62,6 +62,6 @@ int main(int argc,char **argv) {
     if(!strcmp(argv[1],"matrix"))return matrix();
     if(!strcmp(argv[1],"trace"))return trace();
     if(!strcmp(argv[1],"oracle"))return oracle();
-    if(!strcmp(argv[1],"metrics")){printf("{\"record_bytes\":%zu,\"int_min\":%d,\"int_max\":%d,\"array_limit\":16}\n",sizeof(LpValue),INT_MIN,INT_MAX);return 0;}
+    if(!strcmp(argv[1],"metrics")){printf("{\"record_bytes\":%zu,\"int_min\":%d,\"int_max\":%d,\"array_limit\":16}\n",sizeof(struct lp_value),INT_MIN,INT_MAX);return 0;}
     return 2;
 }

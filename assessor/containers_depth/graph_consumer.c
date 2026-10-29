@@ -1,5 +1,5 @@
 #include "containers.h"
-enum CDStatus cd_csr_bfs(const CDCSR*g,unsigned start,uint32_t out[8]){
+enum cd_status cd_csr_bfs(const struct cd_csr*g,unsigned start,uint32_t out[8]){
  if(!g||!out||g->vertices>8||start>=g->vertices||g->count>32||g->offset[0]!=0||g->offset[g->vertices]!=g->count)return CD_INVALID;
  for(unsigned i=0;i<g->vertices;++i){if(g->offset[i]>g->offset[i+1]||g->offset[i+1]>g->count)return CD_INVALID;}
  for(unsigned i=0;i<g->vertices;++i){for(unsigned j=g->offset[i];j<g->offset[i+1];++j)if(g->edges[j].from!=i||g->edges[j].to>=g->vertices)return CD_INVALID;}

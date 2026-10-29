@@ -5,7 +5,7 @@ _Static_assert(UINT_MAX == UINT32_MAX, "Vg profile requires 32-bit unsigned");
 #define VG_MUTANT 0
 #endif
 #define BIT(i) ((uint16_t)(1u << (i)))
-static int valid(const Vg *g, CvmValue x) {
+static int valid(const struct vg_vg *g, struct cvm_value x) {
   if ((unsigned)x.tag > CVM_REF)
     return 0;
   return x.tag != CVM_REF ||
@@ -13,17 +13,17 @@ static int valid(const Vg *g, CvmValue x) {
           g->vm.heap[x.integer].used &&
           g->vm.heap[x.integer].generation == x.generation);
 }
-static int ref(const Vg *g, VgRef r) {
+static int ref(const struct vg_vg *g, struct vg_ref r) {
   return g && g->epoch && r.owner == g &&
          (VG_MUTANT == 1 || r.epoch == g->epoch) && valid(g, r.value);
 }
-int vg_bind(Vg *g, CvmValue x, VgRef *out) {
+int vg_bind(struct vg_vg *g, struct cvm_value x, struct vg_ref *out) {
   if (!g || !g->epoch || !out || !valid(g, x))
     return VG_STALE;
-  *out = (VgRef){g, g->epoch, x};
+  *out = (struct vg_ref){g, g->epoch, x};
   return VG_OK;
 }
-int vg_reset(Vg *g, unsigned arena) {
+int vg_reset(struct vg_vg *g, unsigned arena) {
   if (!g || arena > 1)
     return VG_BAD;
   if (g->phase != VG_IDLE || g->epoch == UINT32_MAX)
@@ -45,7 +45,7 @@ int vg_reset(Vg *g, unsigned arena) {
   g->inspected = g->scanned = g->commits = 0;
   return VG_OK;
 }
-static int root_value(Vg *g, CvmValue x, uint16_t *roots, unsigned *inspected) {
+static int root_value(struct vg_vg *g, struct cvm_value x, uint16_t *roots, unsigned *inspected) {
   (*inspected)++;
   if (!valid(g, x))
     return VG_STALE;
@@ -53,7 +53,7 @@ static int root_value(Vg *g, CvmValue x, uint16_t *roots, unsigned *inspected) {
     *roots |= BIT(x.integer);
   return VG_OK;
 }
-static int roots(Vg *g, uint16_t *out, unsigned *inspected) {
+static int roots(struct vg_vg *g, uint16_t *out, unsigned *inspected) {
   uint16_t r = 0;
   if (g->vm.root_count > CVM_ROOTS || g->vm.sp > CVM_STACK ||
       g->vm.depth > CVM_FRAMES || g->temporary_count > 2)
@@ -82,7 +82,7 @@ static int roots(Vg *g, uint16_t *out, unsigned *inspected) {
   *out = r;
   return VG_OK;
 }
-static int refresh(Vg *g) {
+static int refresh(struct vg_vg *g) {
   if (g->phase == VG_IDLE)
     return VG_OK;
   uint16_t r;
@@ -100,7 +100,7 @@ static int refresh(Vg *g) {
   g->phase = VG_MARK;
   return VG_OK;
 }
-int vg_acquire(Vg *g, unsigned client, VgRef r, VgLease *out) {
+int vg_acquire(struct vg_vg *g, unsigned client, struct vg_ref r, struct vg_lease *out) {
   if (!g || !out || client < 1 || client > 2)
     return VG_BAD;
   if (!ref(g, r))
@@ -111,10 +111,10 @@ int vg_acquire(Vg *g, unsigned client, VgRef r, VgLease *out) {
       break;
   if (i == 16)
     return VG_FULL;
-  ORVDerived before = g->roots[i];
-  g->roots[i] = (ORVDerived){r.value, 0};
+  struct orv_derived before = g->roots[i];
+  g->roots[i] = (struct orv_derived){r.value, 0};
   uint64_t ticket;
-  ORStatus s = orv_register(&g->registrations, &g->roots[i], &ticket);
+  enum or_status s = orv_register(&g->registrations, &g->roots[i], &ticket);
   if (s != OR_OK) {
     g->roots[i] = before;
     return VG_FULL;
@@ -123,10 +123,10 @@ int vg_acquire(Vg *g, unsigned client, VgRef r, VgLease *out) {
   g->tickets[i] = ticket;
   if (refresh(g) != VG_OK)
     return VG_BAD; /* valid stopped representation makes this unreachable */
-  *out = (VgLease){g, g->epoch, ticket, (uint8_t)client};
+  *out = (struct vg_lease){g, g->epoch, ticket, (uint8_t)client};
   return VG_OK;
 }
-int vg_release(Vg *g, unsigned client, VgLease lease) {
+int vg_release(struct vg_vg *g, unsigned client, struct vg_lease lease) {
   if (!g || lease.owner != g || lease.epoch != g->epoch ||
       client != lease.client || client < 1 || client > 2)
     return VG_STALE;
@@ -140,7 +140,7 @@ int vg_release(Vg *g, unsigned client, VgLease lease) {
   g->tickets[i] = 0;
   return refresh(g);
 }
-int vg_weak_set(Vg *g, unsigned index, VgRef r) {
+int vg_weak_set(struct vg_vg *g, unsigned index, struct vg_ref r) {
   if (!g || index >= 4)
     return VG_BAD;
   if (!ref(g, r) || r.value.tag != CVM_REF)
@@ -149,14 +149,14 @@ int vg_weak_set(Vg *g, unsigned index, VgRef r) {
   g->weak_present[index] = 1;
   return VG_OK;
 }
-int vg_weak_acquire(Vg *g, unsigned index, unsigned client, VgLease *lease,
-                    VgRef *out) {
+int vg_weak_acquire(struct vg_vg *g, unsigned index, unsigned client, struct vg_lease *lease,
+                    struct vg_ref *out) {
   if (!g || !lease || !out || index >= 4)
     return VG_BAD;
   if (!g->weak_present[index] || !valid(g, g->weak[index]))
     return VG_STALE;
-  VgRef r = {g, g->epoch, g->weak[index]};
-  VgLease l;
+  struct vg_ref r = {g, g->epoch, g->weak[index]};
+  struct vg_lease l;
   int s = vg_acquire(g, client, r, &l);
   if (s)
     return s;
@@ -164,12 +164,12 @@ int vg_weak_acquire(Vg *g, unsigned index, unsigned client, VgLease *lease,
   *out = r;
   return VG_OK;
 }
-int vg_begin(Vg *g) {
+int vg_begin(struct vg_vg *g) {
   if (!g || !g->epoch)
     return VG_BAD;
   if (g->phase != VG_IDLE || g->vm.arena)
     return VG_STATE;
-  ORGraph graph = {0};
+  struct or_graph graph = {0};
   unsigned examined = 0;
   int s = roots(g, &graph.roots, &examined);
   if (s)
@@ -179,7 +179,7 @@ int vg_begin(Vg *g) {
       if (g->vm.heap[i].used != 1 || !g->vm.heap[i].generation)
         return VG_BAD;
       graph.live |= BIT(i);
-      CvmValue a[2] = {g->vm.heap[i].left, g->vm.heap[i].right};
+      struct cvm_value a[2] = {g->vm.heap[i].left, g->vm.heap[i].right};
       for (unsigned j = 0; j < 2; j++) {
         examined++;
         if (!valid(g, a[j]))
@@ -196,13 +196,13 @@ int vg_begin(Vg *g) {
   g->scanned = 0;
   return VG_OK;
 }
-int vg_step(Vg *g, unsigned budget, unsigned *scanned) {
+int vg_step(struct vg_vg *g, unsigned budget, unsigned *scanned) {
   if (!g || !scanned)
     return VG_BAD;
   if (g->phase == VG_IDLE)
     return VG_STATE;
   unsigned n;
-  ORStatus s = or_mark_step(&g->graph, budget, &n);
+  enum or_status s = or_mark_step(&g->graph, budget, &n);
   if (s != OR_OK && s != OR_DONE)
     return VG_BAD;
   g->scanned += n;
@@ -213,7 +213,7 @@ int vg_step(Vg *g, unsigned budget, unsigned *scanned) {
   g->phase = s == OR_DONE ? VG_READY : VG_MARK;
   return s == OR_DONE ? VG_DONE : VG_OK;
 }
-int vg_store(Vg *g, VgRef owner, unsigned field, VgRef target) {
+int vg_store(struct vg_vg *g, struct vg_ref owner, unsigned field, struct vg_ref target) {
   if (!g || field > 1)
     return VG_BAD;
   if (!ref(g, owner) || owner.value.tag != CVM_REF || !ref(g, target))
@@ -235,17 +235,17 @@ int vg_store(Vg *g, VgRef owner, unsigned field, VgRef target) {
     g->vm.heap[owner.value.integer].left = target.value;
   return VG_OK;
 }
-int vg_field(Vg *g, VgRef owner, unsigned field, VgRef *out) {
+int vg_field(struct vg_vg *g, struct vg_ref owner, unsigned field, struct vg_ref *out) {
   if (!g || !out || field > 1)
     return VG_BAD;
   if (!ref(g, owner))
     return VG_STALE;
-  CvmValue r;
+  struct cvm_value r;
   if (cvm_field(&g->vm, owner.value, (int)field, &r) != CVM_OK)
     return VG_STALE;
   return vg_bind(g, r, out);
 }
-int vg_commit(Vg *g, uint16_t *out) {
+int vg_commit(struct vg_vg *g, uint16_t *out) {
   if (!g || !out)
     return VG_BAD;
   if (g->phase != VG_READY || g->commits == UINT32_MAX)
@@ -253,7 +253,7 @@ int vg_commit(Vg *g, uint16_t *out) {
   for (unsigned i = 0; i < 16; i++)
     if (g->graph.color[i] == 1)
       return VG_STATE;
-  ORWeak weak = {0};
+  struct or_weak weak = {0};
   weak.graph = g->graph;
   weak.graph.active = 0;
   weak.graph.roots = 0;
@@ -290,7 +290,7 @@ int vg_commit(Vg *g, uint16_t *out) {
   *out = dead;
   return VG_OK;
 }
-int vg_pair(Vg *g, VgRef a, VgRef b, VgRef *out) {
+int vg_pair(struct vg_vg *g, struct vg_ref a, struct vg_ref b, struct vg_ref *out) {
   if (!g || !out)
     return VG_BAD;
   if (g->phase != VG_IDLE)
@@ -326,12 +326,12 @@ int vg_pair(Vg *g, VgRef a, VgRef b, VgRef *out) {
     if (i == 16)
       return VG_FULL;
   }
-  CvmValue r;
+  struct cvm_value r;
   if (cvm_pair(&g->vm, a.value, b.value, &r) != CVM_OK)
     return VG_STALE;
   return vg_bind(g, r, out);
 }
-int vg_transfer(Vg *source, Vg *dest, VgRef root, unsigned cut, VgRef *out) {
+int vg_transfer(struct vg_vg *source, struct vg_vg *dest, struct vg_ref root, unsigned cut, struct vg_ref *out) {
   if (!source || !dest || source == dest || !out)
     return VG_BAD;
   if (source->phase != VG_IDLE || dest->phase != VG_IDLE || !source->vm.arena ||
@@ -347,7 +347,7 @@ int vg_transfer(Vg *source, Vg *dest, VgRef root, unsigned cut, VgRef *out) {
   }
   while (scan < count) {
     unsigned slot = queue[scan++];
-    CvmValue a[2] = {source->vm.heap[slot].left, source->vm.heap[slot].right};
+    struct cvm_value a[2] = {source->vm.heap[slot].left, source->vm.heap[slot].right};
     for (unsigned j = 0; j < 2; j++) {
       if (!valid(source, a[j]))
         return VG_STALE;
@@ -359,8 +359,8 @@ int vg_transfer(Vg *source, Vg *dest, VgRef root, unsigned cut, VgRef *out) {
   }
   if (cut > 3 * count + 1)
     return VG_BAD;
-  Cvm staged = dest->vm;
-  CvmValue map[16];
+  struct cvm_cvm staged = dest->vm;
+  struct cvm_value map[16];
   for (unsigned i = 0; i < count; i++) {
     if (staged.allocations == UINT32_MAX ||
         cvm_pair(&staged, cvm_int(0), cvm_int(0), &map[queue[i]]) != CVM_OK)
@@ -370,9 +370,9 @@ int vg_transfer(Vg *source, Vg *dest, VgRef root, unsigned cut, VgRef *out) {
   }
   for (unsigned i = 0; i < count; i++) {
     unsigned old = queue[i], now = (unsigned)map[old].integer;
-    CvmValue a[2] = {source->vm.heap[old].left, source->vm.heap[old].right};
+    struct cvm_value a[2] = {source->vm.heap[old].left, source->vm.heap[old].right};
     for (unsigned j = 0; j < 2; j++) {
-      CvmValue value = a[j];
+      struct cvm_value value = a[j];
       if (value.tag == CVM_REF)
         value = map[value.integer];
       if (j)
@@ -389,7 +389,7 @@ int vg_transfer(Vg *source, Vg *dest, VgRef root, unsigned cut, VgRef *out) {
     return VG_FULL;
   dest->vm = staged;
   *out =
-      (VgRef){dest, dest->epoch,
+      (struct vg_ref){dest, dest->epoch,
               root.value.tag == CVM_REF ? map[root.value.integer] : root.value};
   return VG_OK;
 }

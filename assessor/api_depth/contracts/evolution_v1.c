@@ -1,6 +1,6 @@
 #include "evolution_v1.h"
 int ac_transform_v1(const unsigned char *input, size_t count,
-                    AcBorrowed callback, void *context, size_t *written) {
+                    ac_borrowed_fn callback, void *context, size_t *written) {
   unsigned char output[8];
 #ifdef AC_MUTANT_FAILURE_OUTPUT
   if (written) *written = 0;

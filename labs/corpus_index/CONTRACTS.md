@@ -40,7 +40,7 @@ approximation to the mathematical frequency sum.
 
 ## Fenwick frequencies
 
-`CiFenwick` represents n nonnegative uint32 frequencies, 0<=n<=64, with total
+`struct ci_fenwick` represents n nonnegative uint32 frequencies, 0<=n<=64, with total
 at most UINT32_MAX. `init` consumes n values and copies their meaning; no input
 borrow survives. `add(i,delta)` applies an int64 delta only if i<n, the resulting
 point frequency is nonnegative and the new total fits uint32. In particular
@@ -62,7 +62,7 @@ separately from this asymptotic family argument at the current capacity64.
 
 ## Ordered segment aggregate
 
-`CiSegment` stores n residues in [0,65521), n<=64. `query(l,r)` returns the
+`struct ci_segment` stores n residues in [0,65521), n<=64. `query(l,r)` returns the
 half-open sequence aggregate with hash H=fold(h,x -> (257*h+x) mod65521),
 power=257^(r-l) mod65521, geometric=sum(257^j,j=0..r-l-1) mod65521 and length.
 The empty aggregate is (0,1,0,0). Joining L followed by R yields
@@ -83,7 +83,7 @@ whose H=67341 mod65521=1820. Verify these independently before coding.
 
 ## Augmented interval tree
 
-`CiIntervals` owns64 actual typed nodes, a free-list and an AVL search tree keyed
+`struct ci_intervals` owns64 actual typed nodes, a free-list and an AVL search tree keyed
 lexicographically by (low,id). The id is a tie breaker within a low endpoint;
 it is not globally unique. Each node stores exact subtree maximum high and AVL
 height. No public operation returns a node pointer or an identity that survives
@@ -107,7 +107,7 @@ O(log n+k) without proving that bound for its actual traversal.
 
 ## Suffix index and repeated spans
 
-`CiSuffix` owns a copied text of n<=64 unsigned bytes, including embedded0 and255.
+`struct ci_suffix` owns a copied text of n<=64 unsigned bytes, including embedded0 and255.
 Its order is a permutation of offsets0..n sorted by lexicographic suffix order;
 offset n is the empty suffix and sorts first. `lcp[0]=0`; other entries are
 the exact adjacent longest common prefix length. Construction must use rank

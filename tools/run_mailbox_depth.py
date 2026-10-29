@@ -41,7 +41,7 @@ def main(report):
            ROOT/'labs/concurrency_lifecycle_depth/src/core.c',ROOT/'labs/concurrency_lifecycle_depth/include/cl.h',ROOT/'labs/concurrency_lifecycle_depth/CONTRACTS.md']
     pins={p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in paths if p.is_file()}
     value={'schema_version':1,'created_utc':datetime.now(timezone.utc).isoformat(),'inspected_paths':pins,
-           'profiles':[],'scope':'Actual CMX queue/semaphore and CLAck receipt composition; mailbox/rendezvous borrow, identity, uncertain outcome and bounded replay contracts.',
+           'profiles':[],'scope':'Actual CMX queue/semaphore and struct cl_ack receipt composition; mailbox/rendezvous borrow, identity, uncertain outcome and bounded replay contracts.',
            'limits':['Six serialized hosted profiles; no native thread scheduling, physical observations or timing-bound certification.',
                      'Controlled transfer/timeout/restart traces do not prove every schedule, distributed exactly-once effects or durable receipts.']}
     with tempfile.TemporaryDirectory(prefix='mailbox-depth-campaign-') as directory:

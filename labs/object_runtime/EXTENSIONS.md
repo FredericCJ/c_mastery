@@ -11,7 +11,7 @@ The first stage is `ext_values`, requiring X-T74-001's arithmetic/representation
 knowledge. Complete the typed moving pool before weak interning and foreign
 borrows. Weak interning consumes the actual typed allocation callbacks from
 X-T66-009 (`ownership.allocator`); foreign borrowing consumes the actual
-X-T66-008 `OwPin` operations. Supply an accepted ownership learner workspace as
+X-T66-008 `struct ow_pin` operations. Supply an accepted ownership learner workspace as
 `CMASTERY_OWNERSHIP_ROOT`, with its existing include/import layout. Assessor
 dependency selection is explicit through `CMASTERY_OWNERSHIP_ASSESSOR_ROOT`.
 The original linear intern kernel is the semantic comparison for copied binary
@@ -32,7 +32,7 @@ released during rollback. No API checks arbitrary pointer validity.
 
 ## Inert values and a separately admitted native bridge
 
-`ORXValue` is a discriminated union. Tag1 selects int32, tag2 selects a binary32
+`struct orx_value` is a discriminated union. Tag1 selects int32, tag2 selects a binary32
 encoding held as uint32, and tag3 selects a two-byte logical handle. Each tag
 requires its corresponding initialized union member. The six-octet wire layout
 is tag, four big-endian payload octets, then generation. Tag1 uses modulo-2^32
@@ -66,7 +66,7 @@ floating environment and compiler options.
 
 ## Typed pool, stable logical handles and pinned packing
 
-`ORXHeap` owns eight genuine typed cells and eight independent identity entries.
+`struct orx_heap` owns eight genuine typed cells and eight independent identity entries.
 Each cell holds0..15 copied bytes and two optional strong handle edges. NULL
 with length0 is legal. Allocation chooses the first unused identity whose
 generation is1..3 and the first free physical cell, with one external root.
@@ -91,12 +91,12 @@ physical positions, staging before mutation. Report the number whose physical
 position changed. This is packing around pins, not a contiguous-prefix promise.
 Derive the holes caused by pinned positions and compare copying two-byte handles
 with pinning larger payload storage. Read returns a copy, never a persistent raw
-pointer. The original `ORCompact` remains the whole-heap-borrow-rejection
+pointer. The original `struct or_compact` remains the whole-heap-borrow-rejection
 alternative and comparison point.
 
 ## Weak hash interning with real allocator failure
 
-`ORXIntern` borrows its heap and a genuine `V4Allocator`. Buckets are allocated
+`struct orx_intern` borrows its heap and a genuine `struct v4_allocator`. Buckets are allocated
 int32 objects, never a character-array-to-struct cast. A bucket stores zero or
 `generation*8 + slot + 1`. Hash starts at0 and folds each byte as
 `(hash*33 + byte) mod256`; use linear probing and compare full length and bytes.
@@ -126,7 +126,7 @@ allocation and retained dead-entry space between collection and sweep.
 ## Foreign bytes: request cancellation, then acknowledge quiescence
 
 Four central lease slots each have generations1..3, then retire4. Begin checks
-the object and pin-count saturation, initializes/submits the actual T66 `OwPin`,
+the object and pin-count saturation, initializes/submits the actual T66 `struct ow_pin`,
 increments the object's pin count and publishes a ticket plus const byte span.
 The ticket names the heap, lease slot and generation. It is safe to copy ticket
 bits because completion validates central state; copying active heap/lease

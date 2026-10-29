@@ -50,7 +50,7 @@ Timers require forward admission and observation distances below half-range.
 Equal deadlines retain insertion identity. Polling emits generation tickets;
 old tickets cannot affect a reused slot. A caller that misses a full unseen
 clock wrap has violated the premise even if unsigned subtraction returns a
-small number. `MfOrder` is a separate fixed-epoch list/heap comparison transfer,
+small number. `struct mf_order` is a separate fixed-epoch list/heap comparison transfer,
 not an alternative generation-owned timer API. Its cost counters count actual
 comparisons/moves; they are not physical time.
 
@@ -85,8 +85,8 @@ different encoding from SysTick LOAD=counts-1. WFI occurs with the saved
 mask held; enabled pending interrupts wake it even before their handler runs.
 Recheck ready/pending state, compensate the observed interval once, then
 restore the incoming mask. A source stopped during sleep fails this contract.
-The pure `MfSleep` model intentionally rejects elapsed>planned; actual
-`MfNap` records overshoot from programming/wake overhead. Keep their scopes
+The pure `struct mf_sleep` model intentionally rejects elapsed>planned; actual
+`struct mf_nap` records overshoot from programming/wake overhead. Keep their scopes
 separate.
 
 The integrated target fixes input/pool capacity4, output capacity2 and

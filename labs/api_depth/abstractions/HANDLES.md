@@ -11,8 +11,8 @@ pthread/heap implementation. Host threads and synthetic bytes are the entire lab
 
 ## Three finite slots cannot supply infinite permanent identity
 
-`AhPool` owns three slots, each generation1..3, occupied and retired flags, and
-an unsigned payload. `AhHandle` is (index,generation,epoch), never a raw payload
+`struct ah_pool` owns three slots, each generation1..3, occupied and retired flags, and
+an unsigned payload. `struct ah_handle` is (index,generation,epoch), never a raw payload
 pointer. Initialize once with epoch1. Allocate the first free nonretired slot;
 failure preserves output. Read/release validate index and both identities before
 access. Release clears occupancy, advances generation when below3, and otherwise
@@ -34,7 +34,7 @@ this serialized region/admission protocol concurrent.
 
 ## Strong references retain payload; weak references retain control
 
-Implement opaque heap `AhShared` with mutex, strong count, weak/control count,
+Implement opaque heap `struct ah_shared` with mutex, strong count, weak/control count,
 payload pointer and borrowed statistics ledger. Construct transactionally: failed
 allocation or mutex initialization releases partial resources and preserves output.
 The ledger outlives all controls. Strong count is1..3 while payload exists. Weak

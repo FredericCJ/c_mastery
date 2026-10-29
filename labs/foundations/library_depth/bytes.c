@@ -32,7 +32,7 @@ enum lb_status lb_display(const unsigned char *s, size_t z, char *d, size_t q,
   (void)n;
   return LB_NOT_IMPLEMENTED;
 }
-enum lb_status lb_field_display(FCursor *c, char *d, size_t q, size_t *n) {
+enum lb_status lb_field_display(struct f_cursor *c, char *d, size_t q, size_t *n) {
   (void)c;
   (void)d;
   (void)q;

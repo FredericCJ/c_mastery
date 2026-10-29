@@ -10,23 +10,23 @@
     }                                                                          \
   } while (0)
 static unsigned log_values[32], log_n;
-typedef struct {
+struct al_cleanup {
   unsigned value;
   int fail;
-} Cleanup;
+};
 static int cleanup(void *v) {
-  Cleanup *c = v;
+  struct al_cleanup *c = v;
   log_values[log_n++] = c->value;
   return c->fail;
 }
-static int local_call(ALArena *a) {
-  ALHandle h;
+static int local_call(struct al_arena *a) {
+  struct al_handle h;
   return al_arena_take(a, 1, 1, 0, 0, &h);
 }
 int main(void) {
   _Alignas(8) unsigned char data[64];
-  ALArena a, other;
-  ALHandle h[16], out = {0};
+  struct al_arena a, other;
+  struct al_handle h[16], out = {0};
   size_t at = 91, end = 92, n;
   unsigned char *p;
   CHECK(al_extent(3, 5, 8, 24, &at, &end) == AL_OK && at == 8 && end == 13);
@@ -54,7 +54,7 @@ int main(void) {
   CHECK(al_arena_init(&a, data, 24, 8) == AL_OK);
   CHECK(al_arena_take(&a, 3, 1, 0, 0, &h[0]) == AL_OK);
   CHECK(al_arena_take(&a, 5, 8, 0, 0, &h[1]) == AL_OK);
-  ALArena saved = a;
+  struct al_arena saved = a;
   CHECK(al_arena_take(&a, 10, 4, 0, 0, &out) == AL_FULL &&
         memcmp(&a, &saved, sizeof a) == 0);
   CHECK(al_arena_take(&a, 1, 1, 0, 0, &h[2]) == AL_OK && a.used == 14 &&
@@ -65,8 +65,8 @@ int main(void) {
   CHECK(al_arena_take(&a, 1, 16, 0, 0, &out) == AL_BAD);
   CHECK(al_arena_init(&other, data + 1, 23, 1) == AL_OK);
   CHECK(al_arena_take(&other, 1, 8, 0, 0, &out) == AL_BAD);
-  ALMark m0, m1, foreign;
-  Cleanup c[3] = {{1, 0}, {2, 1}, {3, 0}};
+  struct al_mark m0, m1, foreign;
+  struct al_cleanup c[3] = {{1, 0}, {2, 1}, {3, 0}};
   CHECK(al_arena_mark(&a, &m0) == AL_OK);
   CHECK(al_arena_take(&a, 2, 1, cleanup, &c[0], &h[0]) == AL_OK);
   CHECK(al_arena_mark(&a, &m1) == AL_OK);

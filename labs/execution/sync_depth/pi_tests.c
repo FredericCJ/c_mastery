@@ -19,7 +19,7 @@ static void mutex(cmx_kernel *k, cmx_mutex *m, unsigned t) {
   CHECK(cmx_mutex_lock(k,m,t,cmx_forever())==CMX_OK);
 }
 static void chain(void) {
-  cmx_kernel k; cmx_mutex a,b; CDPIStats stats;
+  cmx_kernel k; cmx_mutex a,b; struct cdpi_stats stats;
   cmx_init(&k,CMX_FIXED);
   unsigned l=add(&k,9),m=add(&k,7),h=add(&k,3),h5=add(&k,5);
   mutex(&k,&a,l); mutex(&k,&b,m);
@@ -45,7 +45,7 @@ static void chain(void) {
   puts("CDPI_CHAIN:transitive=3;partial=5;base=11;restored=11;closure_probes=256");
 }
 static void nested(void) {
-  cmx_kernel k; cmx_mutex a,b; CDPIStats stats;
+  cmx_kernel k; cmx_mutex a,b; struct cdpi_stats stats;
   cmx_init(&k,CMX_FIXED);
   unsigned l=add(&k,9),h3=add(&k,3),h5=add(&k,5);
   mutex(&k,&a,l);mutex(&k,&b,l);
@@ -62,7 +62,7 @@ static void nested(void) {
   CHECK(cmx_mutex_lock(&k,&a,h3,cmx_forever())==CMX_DEADLOCK);
   CHECK(a.owner==(int)l && b.owner==(int)h3 && k.task[h3].state==CMX_READY);
   CHECK(cmx_cancel(&k,l)==CMX_OK);
-  CDPIStats sentinel={99,98,97,96}; stats=sentinel;
+  struct cdpi_stats sentinel={99,98,97,96}; stats=sentinel;
   CHECK(cdpi_reprioritize(&k,l,256,&stats)==CMX_INVALID && stats.edges==98 && k.task[l].base_priority==12);
   /* Injected graph cycle: extension must reject before changing any priority. */
   k.task[l].state=CMX_WAITING;k.task[l].wait=CMX_W_MUTEX;k.task[l].object=&b;
@@ -72,7 +72,7 @@ static void nested(void) {
   puts("CDPI_NESTED:remaining-donation=5;cycle-refused;invalid-output-preserved");
 }
 static void limits(void) {
-  cmx_kernel k;cmx_mutex mutexes[CMX_TASKS];CDPIStats stats={91,92,93,94};
+  cmx_kernel k;cmx_mutex mutexes[CMX_TASKS];struct cdpi_stats stats={91,92,93,94};
   cmx_init(&k,CMX_FIXED);
   for(unsigned t=0;t<CMX_TASKS;++t){CHECK(add(&k,t?255:0)==t);mutex(&k,&mutexes[t],t);}
   for(unsigned t=0;t+1<CMX_TASKS;++t)CHECK(cmx_mutex_lock(&k,&mutexes[t+1],t,cmx_forever())==CMX_BLOCKED);
@@ -111,7 +111,7 @@ static uint64_t now(void){struct timespec t;CHECK(clock_gettime(CLOCK_MONOTONIC,
 static void costs(void) {
   char on[21],off[21];schedule_trace(1,on);schedule_trace(0,off);
   CHECK(!strcmp(on,"LLLLLH") && !strcmp(off,"MMMMMMLLLLLH"));
-  cmx_kernel k;cmx_mutex a,b;CDPIStats stats;cmx_init(&k,CMX_FIXED);
+  cmx_kernel k;cmx_mutex a,b;struct cdpi_stats stats;cmx_init(&k,CMX_FIXED);
   unsigned l=add(&k,9),h=add(&k,3);mutex(&k,&a,l);mutex(&k,&b,l);
   CHECK(cmx_mutex_lock(&k,&a,h,cmx_forever())==CMX_BLOCKED);
   uint64_t smallest=UINT64_MAX,largest=0,total=0;

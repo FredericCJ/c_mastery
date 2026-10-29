@@ -7,12 +7,12 @@
 #ifndef CP_MUTANT
 #define CP_MUTANT 0
 #endif
-void cpl_init(CPLReader *r,unsigned slot,unsigned limit){
-    *r=(CPLReader){.slot=slot,.generation=1,.generation_limit=limit,.fd=-1,.epfd=-1,.retired=!limit};
+void cpl_init(struct cpl_reader *r,unsigned slot,unsigned limit){
+    *r=(struct cpl_reader){.slot=slot,.generation=1,.generation_limit=limit,.fd=-1,.epfd=-1,.retired=!limit};
     cp_parser_init(&r->parser);
 }
-uint64_t cpl_token(const CPLReader *r){return ((uint64_t)r->generation<<32)|r->slot;}
-int cpl_open(CPLReader *r,int epfd,int fd,int edge){
+uint64_t cpl_token(const struct cpl_reader *r){return ((uint64_t)r->generation<<32)|r->slot;}
+int cpl_open(struct cpl_reader *r,int epfd,int fd,int edge){
     if(!r || r->live || r->retired)return -1;
     int flags=fcntl(fd,F_GETFL);
     if(flags<0 || !(flags&O_NONBLOCK)){r->last_errno=flags<0?errno:EINVAL;return -1;}
@@ -21,26 +21,26 @@ int cpl_open(CPLReader *r,int epfd,int fd,int edge){
     r->epfd=epfd;r->fd=fd;r->live=1;r->cursor=r->end=0;r->eof=0;r->last_errno=r->cleanup_errno=0;
     cp_parser_init(&r->parser);return 0;
 }
-CPLStatus cpl_pump(CPLReader *r,uint64_t token,CPAQueue *q){
+enum cpl_status cpl_pump(struct cpl_reader *r,uint64_t token,struct cpa_queue *q){
     if(!r || !q)return CPL_ERROR;
     /* A saved fd integer never substitutes for this lifetime check. */
     if(!r->live || (CP_MUTANT!=29 && token!=cpl_token(r)))return CPL_STALE;
     for(unsigned work=0;work<32;++work){
-        CPMessage message;
+        struct cp_message message;
         if(cp_peek(&r->parser,&message)==CP_FRAME){
-            CPAStatus offered=cpa_offer(q,&message,0);
+            enum cpa_status offered=cpa_offer(q,&message,0);
             if(offered==CPA_FULL){
-                if(CP_MUTANT==30){CPQueue discard;cp_queue_init(&discard);(void)cp_deliver(&r->parser,&discard);}
+                if(CP_MUTANT==30){struct cp_queue discard;cp_queue_init(&discard);(void)cp_deliver(&r->parser,&discard);}
                 return CPL_BLOCKED;
             }
             if(offered!=CPA_OK)return CPL_ERROR;
-            CPQueue committed;cp_queue_init(&committed);
+            struct cp_queue committed;cp_queue_init(&committed);
             if(cp_deliver(&r->parser,&committed)!=CP_OK)return CPL_ERROR;
             continue;
         }
         /* An empty feed also processes nested candidates already buffered by the parser. */
         size_t used=0;
-        CPStatus status=cp_feed(&r->parser,r->bytes+r->cursor,r->end-r->cursor,&used);
+        enum cp_status status=cp_feed(&r->parser,r->bytes+r->cursor,r->end-r->cursor,&used);
         r->cursor+=used;
         if(status==CP_FRAME || status==CP_REJECT)continue;
         if(status!=CP_NEED_MORE)return CPL_ERROR;
@@ -55,7 +55,7 @@ CPLStatus cpl_pump(CPLReader *r,uint64_t token,CPAQueue *q){
     }
     return CPL_PROGRESS;
 }
-int cpl_close(CPLReader *r){
+int cpl_close(struct cpl_reader *r){
     if(!r || !r->live)return -1;
     /* Invalidate before disposal; external owner serializes reader operations. */
     r->live=0;

@@ -23,7 +23,7 @@ def main():
     dest=logs/su.name;dest.write_bytes(su.read_bytes());stack.append({'path':dest.relative_to(ROOT).as_posix(),'sha256':sha(dest)})
    if kind=='laws':layout=run([binary,'layout'],tag+'-layout').stdout.strip()
    else:
-    layout_source=build/(tag+'-layout.c');layout_source.write_text('#include "dispatch_deferred.h"\n#include <stdio.h>\nint main(void){printf("%zu %zu %zu\\n",sizeof(DSDeferred),sizeof(DSDeferredToken),sizeof(OwShared));return 0;}\n',encoding='utf8')
+    layout_source=build/(tag+'-layout.c');layout_source.write_text('#include "dispatch_deferred.h"\n#include <stdio.h>\nint main(void){printf("%zu %zu %zu\\n",sizeof(struct ds_deferred),sizeof(struct ds_deferred_token),sizeof(struct ow_shared));return 0;}\n',encoding='utf8')
     layout_binary=build/(tag+'-layout');run([compiler,*flags,layout_source,'-o',layout_binary],tag+'-layout-compile');layout=run([layout_binary],tag+'-layout').stdout.strip()
    for case in ['copy_laws','subobjects','capture_admission','closure_histories'] if kind=='laws' else ['retained_closure']:run([binary,case],tag+'-'+case)
    observations.append({'compiler':compiler,'kind':kind,'layout':layout,'size':size,'stack_artifacts':stack})

@@ -42,7 +42,7 @@ physical WCET or schedulability guarantee.
 ## 5. Inputs, outputs and implementation task
 
 Implement `response.c` using only the public `response.h` representation.
-`RTATask` has cost, period, relative deadline, higher-priority release-jitter
+`struct rta_task` has cost, period, relative deadline, higher-priority release-jitter
 bound, target blocking bound and per-job overhead as separate uint64 fields.
 Input tasks are already ordered from highest to lowest fixed priority, with
 at most16 entries. The requested target index selects only earlier interferers.

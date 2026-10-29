@@ -8,7 +8,7 @@ Use the original nine criterion rubrics and delayed IDs. This source is withheld
 |---|---|---|---|
 | `lifetime`'s `automatic` | Entry into the function block, caller's activation | Member23 while that call remains active | Block exit; no escaped pointer is evaluated |
 | `lifetime`'s `fixed` | Static initialization, whole program | Member17 while the program executes | Program termination |
-| `OaOwner.data` | Successful allocator callback, unique owner | Prefix copy before the matching `put` callback | Release; stored numeric history survives, pointer views do not |
+| `struct oa_owner.data` | Successful allocator callback, unique owner | Prefix copy before the matching `put` callback | Release; stored numeric history survives, pointer views do not |
 | worker `owned` | Worker thread creation, worker TLS instance | Main's synchronized write then worker's scalar copy | Worker exit after publication cleared; join reads only `observed` |
 
 Automatic records last through their enclosing block; static records through program execution; allocated records through their release; each worker TLS record through that thread's execution. The worker waits under a predicate after publishing its own object. Main accesses it under the same mutex while the creator remains alive, writes73, clears the publication and releases the predicate. Join observes the copied scalar result, never the ended TLS object. Main's distinct TLS record remains31. This exercises the documented GCC `__thread` contract, not an invented ISO cross-thread permission. Shared-global and omitted-write mutants fail different observations. TSan covers only this schedule and selected access paths.
@@ -43,7 +43,7 @@ N1570 6.3.2.3p7 constrains the converted pointer's alignment; deferring only the
 
 ## T03.03.c
 
-The arithmetic interface proves geometric capacity only. `OaStorage` proves actual type and base alignment by declaration, while its lifetime and exclusive access remain caller obligations. A result at an aligned address inside an arbitrary char array would not supply this declared-record contract. The selected extended-alignment type requires64; max_align_t is16 in the actual native/i386 observations and cannot promise that stronger alignment. The wide-admission mutant confuses fundamental maximum with every supported alignment and must fail without performing an invalid conversion. Integer-pointer mappings are implementation-defined; a modulo observation is not an unconditional ISO address validator.
+The arithmetic interface proves geometric capacity only. `struct oa_storage` proves actual type and base alignment by declaration, while its lifetime and exclusive access remain caller obligations. A result at an aligned address inside an arbitrary char array would not supply this declared-record contract. The selected extended-alignment type requires64; max_align_t is16 in the actual native/i386 observations and cannot promise that stronger alignment. The wide-admission mutant confuses fundamental maximum with every supported alignment and must fail without performing an invalid conversion. Integer-pointer mappings are implementation-defined; a modulo observation is not an unconditional ISO address validator.
 
 ## Assessor evidence limits
 

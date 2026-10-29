@@ -11,13 +11,13 @@ int hd_length(const unsigned char *,size_t,uint32_t,uint32_t *);
    available=0 omits Date: length=0 and output unchanged. Otherwise exactly
    29 ASCII bytes + NUL, length29. No leap-second or clock-accuracy claim. */
 int hd_date(unsigned available,uint32_t days,uint32_t seconds,char *,size_t,size_t *);
-typedef struct { uint32_t index,generation; } HDHandle;
-typedef struct { int fd; uint32_t generation; unsigned live,retired,interest; } HDSlot;
-typedef struct { HDSlot slots[4]; } HDPool;
+struct hd_handle { uint32_t index,generation; };
+struct hd_slot { int fd; uint32_t generation; unsigned live,retired,interest; };
+struct hd_pool { struct hd_slot slots[4]; };
 /* Zero-initialize pool once before use. flags_ready declares adapter verified
    nonblocking+close-on-exec; caller retains descriptor ownership on failure. */
-int hd_admit(HDPool *,int fd,unsigned flags_ready,HDHandle *);
-int hd_interest(HDPool *,HDHandle,unsigned mask);
-int hd_event(const HDPool *,HDHandle,int fd,unsigned ready,unsigned *dispatch);
-int hd_close(HDPool *,HDHandle,int *fd_to_close);
+int hd_admit(struct hd_pool *,int fd,unsigned flags_ready,struct hd_handle *);
+int hd_interest(struct hd_pool *,struct hd_handle,unsigned mask);
+int hd_event(const struct hd_pool *,struct hd_handle,int fd,unsigned ready,unsigned *dispatch);
+int hd_close(struct hd_pool *,struct hd_handle,int *fd_to_close);
 #endif

@@ -8,29 +8,29 @@ enum { AF_CAPACITY=16,AF_PAYLOAD=32,AF_LAYOUT=0x41463220u };
 /* Fixed prefix may be inspected before the payload layout is accepted.
  * Initial construction/reset requires explicit peer AND DMA quiescence.
  * One supervisor writes ready/layout/epoch; peer alone writes ack. */
-typedef struct { _Atomic uint32_t ready,version,layout,epoch,ack,parked; } AfBoot;
-typedef struct { uint32_t next_epoch,stage,start,timeout;unsigned active; } AfBootOwner;
-int af_boot_begin(AfBootOwner *,uint32_t,uint32_t,uint32_t,unsigned,unsigned);
-int af_boot_stage(AfBootOwner *,AfBoot *,unsigned,uint32_t,uint32_t);
-int af_boot_ack(AfBoot *,uint32_t,uint32_t,uint32_t);
-int af_boot_close(AfBootOwner *,AfBoot *,unsigned,unsigned);
-int af_boot_status(const AfBootOwner *,const AfBoot *,uint32_t);
+struct af_boot { _Atomic uint32_t ready,version,layout,epoch,ack,parked; };
+struct af_boot_owner { uint32_t next_epoch,stage,start,timeout;unsigned active; };
+int af_boot_begin(struct af_boot_owner *,uint32_t,uint32_t,uint32_t,unsigned,unsigned);
+int af_boot_stage(struct af_boot_owner *,struct af_boot *,unsigned,uint32_t,uint32_t);
+int af_boot_ack(struct af_boot *,uint32_t,uint32_t,uint32_t);
+int af_boot_close(struct af_boot_owner *,struct af_boot *,unsigned,unsigned);
+int af_boot_status(const struct af_boot_owner *,const struct af_boot *,uint32_t);
 int af_elapsed(uint32_t,uint32_t,uint32_t,unsigned *);
-typedef struct { uint32_t epoch,sequence,length;unsigned char bytes[AF_PAYLOAD]; } AfMessage;
-typedef struct { _Alignas(64) _Atomic uint32_t head;_Alignas(64) _Atomic uint32_t tail;AfMessage slots[AF_CAPACITY]; } AfRing;
+struct af_message { uint32_t epoch,sequence,length;unsigned char bytes[AF_PAYLOAD]; };
+struct af_ring { _Alignas(64) _Atomic uint32_t head;_Alignas(64) _Atomic uint32_t tail;struct af_message slots[AF_CAPACITY]; };
 /* Exactly one producer and one consumer. No object copy/reset while active.
  * Caller input/output/control remain live, disjoint and exclusively owned. */
-void af_ring_init(AfRing *,uint32_t);
-int af_batch(AfRing *,uint32_t,const AfMessage *,unsigned);
-int af_receive(AfRing *,uint32_t,void *,size_t,uint32_t *,size_t *);
-uint32_t af_queued(const AfRing *);
+void af_ring_init(struct af_ring *,uint32_t);
+int af_batch(struct af_ring *,uint32_t,const struct af_message *,unsigned);
+int af_receive(struct af_ring *,uint32_t,void *,size_t,uint32_t *,size_t *);
+uint32_t af_queued(const struct af_ring *);
 int af_cache_span(uint32_t,uint32_t,uint32_t,uint32_t *,uint32_t *);
-typedef struct { uint32_t session,last_id;int32_t total,last_delta,last_result; } AfReceipt;
+struct af_receipt { uint32_t session,last_id;int32_t total,last_delta,last_result; };
 /* Serialized latest-only receipt in survivor-owned memory; peer reset can
  * preserve it, full-machine reset does not imply persistent retention. */
-int af_effect(AfReceipt *,uint32_t,uint32_t,int32_t,int32_t *);
-typedef struct { uint32_t base,bytes;unsigned masters,domain; } AfBank;
-int af_region(const AfBank *,size_t,uint32_t,uint32_t,unsigned,unsigned *);
-typedef struct { unsigned clock_owner,dma_owner,telemetry_owner,compute_owner; } AfOwners;
-int af_owner_claim(AfOwners *,unsigned,unsigned);
+int af_effect(struct af_receipt *,uint32_t,uint32_t,int32_t,int32_t *);
+struct af_bank { uint32_t base,bytes;unsigned masters,domain; };
+int af_region(const struct af_bank *,size_t,uint32_t,uint32_t,unsigned,unsigned *);
+struct af_owners { unsigned clock_owner,dma_owner,telemetry_owner,compute_owner; };
+int af_owner_claim(struct af_owners *,unsigned,unsigned);
 #endif

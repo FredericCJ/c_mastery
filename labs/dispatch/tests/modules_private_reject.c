@@ -1,2 +1,2 @@
 #include "dispatch_modules.h"
-int client(DSModule *m){return m->live;}
+int client(struct ds_module *m){return m->live;}

@@ -4,9 +4,9 @@ int main(void) {
   for (unsigned bits = 3; bits <= 8; ++bits)
     for (unsigned group = 0; group < 8; ++group)
       for (unsigned raw = 0; raw < 256; ++raw) {
-        XfPriority p;
+        struct xf_priority p;
         uint8_t normal, opposite;
-        XfPriorityConfig c = {bits, group};
+        struct xf_priority_config c = {bits, group};
         if (xf_priority(c, raw, &p) ||
             xf_urgency(c, raw >> (8 - bits), 0, &normal) ||
             xf_urgency(c, raw >> (8 - bits), 1, &opposite))
@@ -23,8 +23,8 @@ int main(void) {
         for (unsigned cur = 0; cur < 3; ++cur)
           for (unsigned m = 0; m < 3; ++m)
             for (unsigned state = 0; state < 16; ++state) {
-              XfPriorityConfig c = {bits, group};
-              XfIrq v[3] = {{18, (uint8_t)raw_values[r], state & 1,
+              struct xf_priority_config c = {bits, group};
+              struct xf_irq v[3] = {{18, (uint8_t)raw_values[r], state & 1,
                              (state >> 1) & 1, (state >> 2) & 1, 0},
                             {17, 0x60, 1, 1, 0, 0},
                             {16, 0x60, 1, 1, 0, 0}};

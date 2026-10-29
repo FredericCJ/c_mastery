@@ -3,9 +3,9 @@
 int main(void) {
   for (unsigned slots = 2; slots <= 8; slots *= 2)
     for (unsigned seed = 0; seed < 256; ++seed) {
-      XiQueue q;
-      XiLatest latest;
-      XiRecord out = {0};
+      struct xi_queue q;
+      struct xi_latest latest;
+      struct xi_record out = {0};
       if (xi_init(&q, slots))
         return 1;
       xi_latest_init(&latest);
@@ -13,7 +13,7 @@ int main(void) {
       for (unsigned i = 0; i < 64; ++i) {
         state = state * 1664525u + 1013904223u;
         unsigned op = state >> 31;
-        XiRecord r = {.sequence = i, .timestamp = state, .copied = 0};
+        struct xi_record r = {.sequence = i, .timestamp = state, .copied = 0};
         int rc, lr;
         if (op) {
           rc = xi_push(&q, &r);
@@ -29,9 +29,9 @@ int main(void) {
   for (unsigned prior = 0; prior < 256; prior += 16)
     for (unsigned a = 0; a < 256; a += 16)
       for (unsigned b = 0; b < 256; b += 16) {
-        XiMask m;
+        struct xi_mask m;
         uint32_t t, u;
-        if (xi_mask_init(&m, (XfPriorityConfig){4, 3}, 1, prior) ||
+        if (xi_mask_init(&m, (struct xf_priority_config){4, 3}, 1, prior) ||
             xi_mask_enter(&m, a, &t))
           return 1;
         unsigned first = m.value;

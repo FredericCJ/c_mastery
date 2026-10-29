@@ -21,7 +21,7 @@ int __wrap_close(int fd){
  errno=close_error;return -1;
 }
 static void one(int error){
- int p[2];CHECK(!pipe2(p,O_NONBLOCK|O_CLOEXEC));P5Bridge b;CHECK(!p5_bridge_init(&b,p[0],0));
+ int p[2];CHECK(!pipe2(p,O_NONBLOCK|O_CLOEXEC));struct p5_bridge b;CHECK(!p5_bridge_init(&b,p[0],0));
  CHECK(!p5_bridge_offer(&b,1));uint32_t g=99;fail_create=1;
  CHECK(p5_bridge_begin(&b,&g)==-1 && g==99 && !b.started && b.operation.state==F_DONE && b.operation.releases==1 && b.queue.count==1);
  CHECK(!p5_bridge_begin(&b,&g) && g==2);CHECK(p5_bridge_cancel(&b,g)==1);
@@ -34,7 +34,7 @@ static void one(int error){
 }
 int main(void){
  one(EIO);one(EINTR);
- int p[2];CHECK(!pipe2(p,O_NONBLOCK|O_CLOEXEC));P5Bridge b;CHECK(!p5_bridge_init(&b,p[0],0));
+ int p[2];CHECK(!pipe2(p,O_NONBLOCK|O_CLOEXEC));struct p5_bridge b;CHECK(!p5_bridge_init(&b,p[0],0));
  CHECK(!p5_bridge_offer(&b,1) && !p5_bridge_offer(&b,2));fail_create=1;uint32_t g=77;
  CHECK(p5_bridge_begin(&b,&g)==-1 && g==77 && b.queue.count==2);
  CHECK(!p5_bridge_destroy(&b) && b.discarded==2 && b.operation.releases==1 && !b.initialized && !close(p[0]) && !close(p[1]));

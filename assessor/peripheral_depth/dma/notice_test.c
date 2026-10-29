@@ -9,8 +9,8 @@
     }                                                                          \
   } while (0)
 int main(void) {
-  FWPeer peer = {9, 0, 0, {0, 0}, 0, {0, 0}};
-  PdNotice s = {9, 0, 0, 0, 0, 0, 0, 0},
+  struct fw_peer peer = {9, 0, 0, {0, 0}, 0, {0, 0}};
+  struct pd_notice s = {9, 0, 0, 0, 0, 0, 0, 0},
            m = {9, 1, 1, PD_OK, 32, 32, 0x30040100, 32}, out = {0};
   CHECK(fw_peer_step(&peer, 0, 9, FW_BEGIN) == H7_OK);
   CHECK(pd_notice(&s, PD_NOTICE_PUBLISH, 9, 1, &m, 0) == PD_OK);

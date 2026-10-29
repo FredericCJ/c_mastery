@@ -4,14 +4,14 @@
 #include <stdint.h>
 enum { MPT_OK,MPT_INVALID,MPT_NOMEM,MPT_RANGE,MPT_NO_FAILURE };
 enum { MPT_BYTES,MPT_ASCII_TEXT };
-typedef struct {const unsigned char *bytes;size_t length;unsigned cache;} MptView;
-typedef void *(*MptAllocate)(void *,size_t);
-typedef void (*MptFree)(void *,void *);
-typedef struct {MptAllocate allocate;MptFree release;void *context;} MptAllocator;
-typedef struct {unsigned char *bytes;size_t length;unsigned cache;MptAllocator allocator;} MptOwner;
-int mpt_assign(MptOwner *,MptView,MptAllocator);
-void mpt_drop(MptOwner *);
-MptView mpt_view(const MptOwner *);
-int mpt_equal(MptView,MptView,unsigned,unsigned *);
-int mpt_hash(MptView,unsigned,uint64_t *);
+struct mpt_view {const unsigned char *bytes;size_t length;unsigned cache;};
+typedef void *(*mpt_allocate_fn)(void *,size_t);
+typedef void (*mpt_free_fn)(void *,void *);
+struct mpt_allocator {mpt_allocate_fn allocate;mpt_free_fn release;void *context;};
+struct mpt_owner {unsigned char *bytes;size_t length;unsigned cache;struct mpt_allocator allocator;};
+int mpt_assign(struct mpt_owner *,struct mpt_view,struct mpt_allocator);
+void mpt_drop(struct mpt_owner *);
+struct mpt_view mpt_view(const struct mpt_owner *);
+int mpt_equal(struct mpt_view,struct mpt_view,unsigned,unsigned *);
+int mpt_hash(struct mpt_view,unsigned,uint64_t *);
 #endif

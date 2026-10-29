@@ -9,7 +9,7 @@
     }                                                                          \
   } while (0)
 static int deadline(void) {
-  RZScope parent, child;
+  struct rz_scope parent, child;
   uint64_t remaining = 99;
   CHECK(rz_scope_init(&parent, NULL, 10, 10) == RZ_OK);
   CHECK(rz_scope_init(&child, &parent, 13, 100) == RZ_OK);
@@ -22,29 +22,29 @@ static int deadline(void) {
   return 0;
 }
 static int pressure(void) {
-  RZScope scope;
-  RZQueue q;
+  struct rz_scope scope;
+  struct rz_queue q;
   CHECK(rz_scope_init(&scope, NULL, 0, 10) == RZ_OK);
   rz_queue_init(&q);
   for (unsigned i = 1; i <= 4; i++) {
-    RZOffer o = {&scope, i, true};
+    struct rz_offer o = {&scope, i, true};
     CHECK(rz_offer(&q, &o, RZ_REJECT, 0) == RZ_OK && !o.pending);
   }
-  RZOffer block = {&scope, 9, true};
+  struct rz_offer block = {&scope, 9, true};
   CHECK(rz_offer(&q, &block, RZ_BLOCK, 0) == RZ_PENDING && block.pending);
-  RZOffer drop = {&scope, 9, true};
+  struct rz_offer drop = {&scope, 9, true};
   CHECK(rz_offer(&q, &drop, RZ_DROP, 0) == RZ_DROPPED);
   CHECK(q.values[q.head] == 1 && q.count == 4);
-  RZOffer replace = {&scope, 9, true};
+  struct rz_offer replace = {&scope, 9, true};
   CHECK(rz_offer(&q, &replace, RZ_OVERWRITE, 0) == RZ_OK);
   unsigned value;
   CHECK(rz_pop(&q, &value) == RZ_OK && value == 2);
-  RZOffer a = {&scope, 7, true};
+  struct rz_offer a = {&scope, 7, true};
   CHECK(rz_offer(&q, &a, RZ_REJECT, 1) == RZ_OK);
-  RZOffer degrade = {&scope, 10, true};
+  struct rz_offer degrade = {&scope, 10, true};
   CHECK(rz_offer(&q, &degrade, RZ_DEGRADE, 1) == RZ_DEGRADED && q.count == 4);
   CHECK(q.values[(q.head + 3) % 4] == 10);
-  RZQueue before_expiry = q;
+  struct rz_queue before_expiry = q;
   CHECK(rz_offer(&q, &block, RZ_BLOCK, 10) == RZ_EXPIRED && !block.pending);
   CHECK(q.head == before_expiry.head && q.count == before_expiry.count &&
         q.closed == before_expiry.closed);
@@ -54,8 +54,8 @@ static int pressure(void) {
 }
 static int wheel(void) {
   for (unsigned delay = 1; delay <= 16; delay++) {
-    RZWheel w;
-    RZTimerId id;
+    struct rz_wheel w;
+    struct rz_timer_id id;
     rz_wheel_init(&w, 0);
     CHECK(rz_schedule(&w, delay, &id) == RZ_OK);
     for (unsigned time = 1; time <= 16; time++) {
@@ -64,8 +64,8 @@ static int wheel(void) {
       CHECK(mask == (time == delay ? 1u : 0u));
     }
   }
-  RZWheel w;
-  RZTimerId old, newer;
+  struct rz_wheel w;
+  struct rz_timer_id old, newer;
   rz_wheel_init(&w, 0);
   CHECK(rz_schedule(&w, 1, &old) == RZ_OK);
   CHECK(rz_unschedule(&w, old) == RZ_OK);
@@ -76,7 +76,7 @@ static int wheel(void) {
   return 0;
 }
 static int bucket(void) {
-  RZBucket b;
+  struct rz_bucket b;
   CHECK(rz_bucket_init(&b, 4, 1, 0) == RZ_OK);
   CHECK(rz_consume(&b, 0, 4) == RZ_OK && b.tokens == 0);
   CHECK(rz_consume(&b, 0, 1) == RZ_FULL && b.tokens == 0);
@@ -98,8 +98,8 @@ static int bucket(void) {
   return 0;
 }
 static int retry(void) {
-  RZScope scope;
-  RZRetry r;
+  struct rz_scope scope;
+  struct rz_retry r;
   uint64_t out = 99;
   CHECK(rz_scope_init(&scope, NULL, 0, 10) == RZ_OK);
   CHECK(rz_retry_init(&r, &scope, 3, 2, 8, false) == RZ_OK);
@@ -111,8 +111,8 @@ static int retry(void) {
   CHECK(rz_retry_next(&r, 9, 0, &out) == RZ_FULL);
   /* Independent clock history: rejecting a late start preserves its attempt
      count and output without moving the preceding history backwards. */
-  RZScope late_scope;
-  RZRetry late;
+  struct rz_scope late_scope;
+  struct rz_retry late;
   uint64_t late_out = 99;
   CHECK(rz_scope_init(&late_scope, NULL, 0, 10) == RZ_OK);
   CHECK(rz_retry_init(&late, &late_scope, 3, 2, 8, true) == RZ_OK);
@@ -122,8 +122,8 @@ static int retry(void) {
   return 0;
 }
 static int gate(void) {
-  RZGate g;
-  RZPermit a, b, c;
+  struct rz_gate g;
+  struct rz_permit a, b, c;
   CHECK(rz_gate_init(&g, 1, 0) == RZ_OK);
   CHECK(rz_admit(&g, 0, &a) == RZ_OK);
   CHECK(rz_admit(&g, 0, &b) == RZ_BUSY);
@@ -143,8 +143,8 @@ static int gate(void) {
   return 0;
 }
 static int hedge(void) {
-  RZScope s;
-  RZHedge h;
+  struct rz_scope s;
+  struct rz_hedge h;
   unsigned out = 99;
   CHECK(rz_scope_init(&s, NULL, 0, 10) == RZ_OK);
   CHECK(rz_hedge_init(&h, &s, 0, 2) == RZ_OK);
@@ -164,7 +164,7 @@ static int hedge(void) {
   return 0;
 }
 static int receiver(void) {
-  RZReceiver r;
+  struct rz_receiver r;
   int out = 99;
   bool duplicate = false;
   CHECK(rz_receiver_init(&r, 0, 4) == RZ_OK);
@@ -181,9 +181,9 @@ static int receiver(void) {
   return 0;
 }
 static int service(void) {
-  RZScope scope;
-  RZService s;
-  MsgHub hub;
+  struct rz_scope scope;
+  struct rz_service s;
+  struct msg_hub hub;
   int out = 99;
   unsigned channel = 99, value = 99;
   CHECK(msg_hub_init(&hub, 1, 0) == MSG_OK);

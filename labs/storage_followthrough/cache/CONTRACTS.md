@@ -10,7 +10,7 @@ are distinct from the private reference implementation.
 
 ## Clean storage, identity and admission
 
-`ScCache` owns four complete clean 4096-byte entries and bounded policy metadata.
+`struct sc_cache` owns four complete clean 4096-byte entries and bounded policy metadata.
 It owns no backend, dirty node, heap allocation or outstanding borrow. Initialize
 fresh/unowned caller storage with `sc_init`; invalid policy preserves the object.
 All calls are externally serialized. Cache/control/output/backend storage must
@@ -18,7 +18,7 @@ be live and disjoint; callbacks must not reenter, mutate cache or view, destroy
 owners, retain borrowed output or jump out. Cached bytes are copied to the caller,
 so no lease or reclamation protocol is implied.
 
-A trusted `ScView` binds synchronous read callback/context, nonzero image identity,
+A trusted `struct sc_view` binds synchronous read callback/context, nonzero image identity,
 full64-bit generation, current root1..31 and `wal`0/1. The caller derives these
 from the actual current backend authority and refreshes them after every view
 transition. Identity is unique for the lifetime of retained entries; a newly

@@ -9,17 +9,17 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-static int sid(ORXShapeId a, ORXShapeId b) {
+static int sid(struct orx_shape_id a, struct orx_shape_id b) {
   return a.slot == b.slot && a.generation == b.generation;
 }
 static int shapes(void) {
-  ORXWorld w, before;
-  ORXHandle a, b, c;
-  ORXShapeId stale;
-  ORXPropertyCache cache = {0};
+  struct orx_world w, before;
+  struct orx_handle a, b, c;
+  struct orx_shape_id stale;
+  struct orx_property_cache cache = {0};
   int32_t value = 777;
   unsigned dead, i, retired = 0;
-  ORStatus s;
+  enum or_status s;
   orx_world_init(&w);
   CHECK(orx_world_new(&w, &a) == OR_OK);
   CHECK(orx_world_new(&w, &b) == OR_OK);
@@ -48,7 +48,7 @@ static int shapes(void) {
   CHECK(!sid(w.object[b.slot].shape, stale));
   CHECK(orx_release(&w.heap, a) == OR_OK);
   CHECK(orx_world_collect(&w, &dead) == OR_OK && dead == 0);
-  CHECK(orx_prototype(&w, c, (ORXHandle){0, 0}) == OR_OK);
+  CHECK(orx_prototype(&w, c, (struct orx_handle){0, 0}) == OR_OK);
   CHECK(orx_world_collect(&w, &dead) == OR_OK && dead == 1);
   CHECK(orx_release(&w.heap, b) == OR_OK);
   CHECK(orx_release(&w.heap, c) == OR_OK);
@@ -76,7 +76,7 @@ static int shapes(void) {
   CHECK(orx_world_new(&w, &a) == OR_OK);
   CHECK(orx_world_new(&w, &b) == OR_OK);
   for (i = 0; i < 254; i++)
-    CHECK(orx_prototype(&w, a, i % 2 ? (ORXHandle){0, 0} : b) == OR_OK);
+    CHECK(orx_prototype(&w, a, i % 2 ? (struct orx_handle){0, 0} : b) == OR_OK);
   CHECK(w.epoch == UINT8_MAX);
   memcpy(&before, &w, sizeof w);
   CHECK(orx_prototype(&w, a, b) == OR_FULL && !memcmp(&before, &w, sizeof w));
@@ -86,28 +86,28 @@ static int shapes(void) {
   CHECK(orx_release(&w.heap, a) == OR_OK && orx_release(&w.heap, b) == OR_OK);
   return 0;
 }
-typedef struct {
+struct or_access {
   unsigned calls;
-  ORStatus nested;
+  enum or_status nested;
   int fail;
   int consume_owned_roots;
-  ORXHandle holder;
+  struct orx_handle holder;
   unsigned dead, receiver_live, holder_live;
-} Access;
-static ORStatus mutate(void *context, ORXWorld *w, ORXHandle receiver,
+};
+static enum or_status mutate(void *context, struct orx_world *w, struct orx_handle receiver,
                        int32_t *out) {
-  Access *a = context;
-  ORXPropertyCache nested = {0};
+  struct or_access *a = context;
+  struct orx_property_cache nested = {0};
   int32_t n = 777;
-  ORStatus s;
-  ORXHandle temporary;
+  enum or_status s;
+  struct orx_handle temporary;
   a->calls++;
   a->nested = orx_get(w, receiver, 1, &nested, &n);
   s = orx_define(w, receiver, 1, 0, 99, NULL, NULL);
   if (s != OR_OK)
     return s;
   if (a->consume_owned_roots) {
-    s = orx_prototype(w, receiver, (ORXHandle){0, 0});
+    s = orx_prototype(w, receiver, (struct orx_handle){0, 0});
     if (s != OR_OK)
       return s;
     /* The context explicitly owns these original roots, not the temporary
@@ -133,11 +133,11 @@ static ORStatus mutate(void *context, ORXWorld *w, ORXHandle receiver,
   return a->fail ? OR_FULL : OR_OK;
 }
 static int cache(void) {
-  ORXWorld w, other;
-  ORXHandle receiver, a, b, other_receiver;
-  ORXPropertyCache c = {0};
+  struct orx_world w, other;
+  struct orx_handle receiver, a, b, other_receiver;
+  struct orx_property_cache c = {0};
   int32_t value = 777;
-  Access context = {0};
+  struct or_access context = {0};
   unsigned dead;
   orx_world_init(&w);
   CHECK(orx_world_new(&w, &receiver) == OR_OK);
@@ -188,10 +188,10 @@ static int cache(void) {
   CHECK(orx_world_collect(&other, &dead) == OR_OK && dead == 1 &&
         other.shape[0].refs == 0);
   orx_world_init(&w);
-  c = (ORXPropertyCache){0};
+  c = (struct orx_property_cache){0};
   CHECK(orx_world_new(&w, &receiver) == OR_OK);
   CHECK(orx_world_new(&w, &b) == OR_OK);
-  context = (Access){.fail = 1, .consume_owned_roots = 1, .holder = b};
+  context = (struct or_access){.fail = 1, .consume_owned_roots = 1, .holder = b};
   CHECK(orx_define(&w, b, 1, ORX_ACCESSOR, 0, mutate, &context) == OR_OK);
   CHECK(orx_prototype(&w, receiver, b) == OR_OK);
   value = 777;
@@ -214,10 +214,10 @@ static int oracle(void) {
           for (remove = 0; remove <= 4; remove++)
             for (shadow = 0; shadow < 3; shadow++)
               for (readonly = 0; readonly < 2; readonly++) {
-                ORXWorld w;
-                ORXHandle base, child;
-                ORXPropertyCache cache = {0};
-                ORStatus status;
+                struct orx_world w;
+                struct orx_handle base, child;
+                struct orx_property_cache cache = {0};
+                enum or_status status;
                 unsigned dead;
                 orx_world_init(&w);
                 CHECK(orx_world_new(&w, &base) == OR_OK);
@@ -236,7 +236,7 @@ static int oracle(void) {
                 status = remove ? orx_delete(&w, base, remove) : OR_OK;
                 for (k = 1; k <= 5; k++) {
                   int32_t out = 777;
-                  ORStatus found = orx_get(&w, child, k, &cache, &out);
+                  enum or_status found = orx_get(&w, child, k, &cache, &out);
                   printf("S %u %u %u %u %u %d %d %d\n", index, remove, shadow,
                          readonly, k, status, found, out);
                 }

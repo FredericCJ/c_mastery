@@ -11,7 +11,7 @@
   } while (0)
 #define S(e, w)                                                                \
   do {                                                                         \
-    FStatus status = (e);                                                      \
+    enum f_status status = (e);                                                      \
     if (status != (w)) {                                                       \
       fprintf(stderr, "FAIL %s:%d %s got %s expected %s\n", __FILE__,          \
               __LINE__, #e, f_status_name(status), f_status_name(w));          \
@@ -48,7 +48,7 @@ static int size(void) {
 static int cursor(void) {
   const uint8_t bytes[] = {1, 0, 3};
   const uint8_t *p = 0;
-  FCursor c = {bytes, 3, 0};
+  struct f_cursor c = {bytes, 3, 0};
   S(f_take(&c, 2, &p), F_OK);
   CHECK(p == bytes && c.position == 2);
   S(f_take(&c, 2, &p), F_RANGE);
@@ -57,15 +57,15 @@ static int cursor(void) {
   CHECK(*p == 3);
   S(f_take(&c, 0, &p), F_OK);
   CHECK(p == bytes + 3);
-  FCursor empty = {0, 0, 0};
+  struct f_cursor empty = {0, 0, 0};
   S(f_take(&empty, 0, &p), F_OK);
   CHECK(!p);
   return 0;
 }
 static int owner(void) {
-  FBuffer b = {{0}, 0, 0};
+  struct f_buffer b = {{0}, 0, 0};
   const uint8_t bytes[] = {1, 0, 3};
-  FView v;
+  struct f_view v;
   uint8_t out = 0;
   S(f_append(&b, bytes, 3), F_OK);
   S(f_view(&b, 1, 2, &v), F_OK);
@@ -100,8 +100,8 @@ static int parse(void) {
   return 0;
 }
 static int sort(void) {
-  FRecord a[] = {{4, 0}, {2, 1}, {5, 2}, {2, 3}, {1, 4}, {4, 5}};
-  FWork w;
+  struct f_record a[] = {{4, 0}, {2, 1}, {5, 2}, {2, 3}, {1, 4}, {4, 5}};
+  struct f_work w;
   S(f_sort(a, 6, &w), F_OK);
   CHECK(w.comparisons == 11 && w.shifts == 8 && w.placements == 5);
   CHECK(a[1].ordinal == 1 && a[2].ordinal == 3 && a[3].ordinal == 0 &&
@@ -115,10 +115,10 @@ static uint32_t rng(uint32_t *state) {
 static int properties(void) {
   uint32_t seed = 0x13579bdu;
   for (unsigned round = 0; round < 256; round++) {
-    FRecord a[32];
+    struct f_record a[32];
     unsigned n = rng(&seed) % 33;
     uint64_t inversions = 0;
-    FWork work;
+    struct f_work work;
     for (unsigned i = 0; i < n; i++) {
       a[i].key = (int32_t)(rng(&seed) % 7);
       a[i].ordinal = i;
@@ -136,14 +136,14 @@ static int properties(void) {
   }
   return 0;
 }
-typedef struct {
+struct f_script {
   ptrdiff_t steps[8];
   unsigned i;
   uint8_t output[32];
   size_t n;
-} Script;
+};
 static ptrdiff_t writer(void *ctx, const uint8_t *p, size_t n) {
-  Script *s = ctx;
+  struct f_script *s = ctx;
   ptrdiff_t step = s->steps[s->i++];
   if (step > 0 && (size_t)step <= n) {
     memcpy(s->output + s->n, p, (size_t)step);
@@ -154,22 +154,22 @@ static ptrdiff_t writer(void *ctx, const uint8_t *p, size_t n) {
 static int io(void) {
   const uint8_t b[] = {1, 2, 3, 4, 5};
   size_t accepted;
-  Script s = {{2, -2, 1, 2}, 0, {0}, 0};
+  struct f_script s = {{2, -2, 1, 2}, 0, {0}, 0};
   S(f_write_all(writer, &s, b, 5, 4, &accepted), F_OK);
   CHECK(accepted == 5 && !memcmp(s.output, b, 5));
-  s = (Script){{2, 0}, 0, {0}, 0};
+  s = (struct f_script){{2, 0}, 0, {0}, 0};
   S(f_write_all(writer, &s, b, 5, 2, &accepted), F_IO);
   CHECK(accepted == 2);
-  s = (Script){{-2, -2}, 0, {0}, 0};
+  s = (struct f_script){{-2, -2}, 0, {0}, 0};
   S(f_write_all(writer, &s, b, 5, 2, &accepted), F_PENDING);
   CHECK(accepted == 0);
-  s = (Script){{6}, 0, {0}, 0};
+  s = (struct f_script){{6}, 0, {0}, 0};
   S(f_write_all(writer, &s, b, 5, 1, &accepted), F_IO);
   CHECK(accepted == 0);
   return 0;
 }
 static int async(void) {
-  FAsync a = {F_IDLE, 0, 0};
+  struct f_async a = {F_IDLE, 0, 0};
   uint32_t old, new_ticket;
   S(f_submit(&a, &old), F_OK);
   S(f_cancel(&a, old), F_PENDING);
@@ -186,33 +186,33 @@ static int async(void) {
   CHECK(a.releases == 2);
   return 0;
 }
-typedef struct {
+struct f_acquisitions {
   unsigned fail, live, released[3], count;
-} Acquisitions;
+};
 static int acquire(void *context, unsigned id) {
-  Acquisitions *a = context;
+  struct f_acquisitions *a = context;
   if (id == a->fail)
     return -1;
   a->live |= 1u << id;
   return 0;
 }
 static void release(void *context, unsigned id) {
-  Acquisitions *a = context;
+  struct f_acquisitions *a = context;
   a->released[a->count++] = id;
   a->live &= ~(1u << id);
 }
 static int cleanup(void) {
   for (unsigned fail = 0; fail < 3; fail++) {
-    Acquisitions a = {fail, 0, {0}, 0};
-    FResources r = {&a, acquire, release};
+    struct f_acquisitions a = {fail, 0, {0}, 0};
+    struct f_resources r = {&a, acquire, release};
     unsigned owned = 99;
     S(f_construct(r, &owned), F_IO);
     CHECK(!a.live && owned == 99 && a.count == fail);
     for (unsigned i = 0; i < fail; i++)
       CHECK(a.released[i] == fail - i - 1);
   }
-  Acquisitions a = {3, 0, {0}, 0};
-  FResources r = {&a, acquire, release};
+  struct f_acquisitions a = {3, 0, {0}, 0};
+  struct f_resources r = {&a, acquire, release};
   unsigned owned = 0;
   S(f_construct(r, &owned), F_OK);
   CHECK(owned == 7 && a.live == 7);

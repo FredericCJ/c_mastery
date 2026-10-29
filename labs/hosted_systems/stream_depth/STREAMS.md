@@ -78,7 +78,7 @@ timeline events; then identify the information retained across a connection loss
 
 ## T24.05.c — bound the complete retained set
 
-Implement `RfMessage` and `RfOutbox` operations. The fixed limits are four
+Implement `struct rf_message` and `struct rf_outbox` operations. The fixed limits are four
 connections, eight frames per connection, eight payload octets per frame, and a
 separate global payload limit 0–256. Enqueue returns 1 on transfer, 0 on capacity
 rejection and -1 on an invalid contract. A fifth connection, ninth frame, live

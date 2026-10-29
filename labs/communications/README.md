@@ -58,7 +58,7 @@ are a separately identified extension. Content and output are octets.
 
 EDU7 state is per declared endpoint direction/port tuple and per session epoch.
 After reopen, initialize transport/session objects rather than reuse completed
-IDs across epochs. `EduSession.effects` counts accepted L5 publications, not
+IDs across epochs. `struct edu_session.effects` counts accepted L5 publications, not
 successful L7 changes. Only the application owns setpoint mutation. A complete
 unconsumed message occupies one receiver slot; a new DATA fragment is not ACKed
 until accepted. A PROBE reports current credit. An ACK of an accepted fragment

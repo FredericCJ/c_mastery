@@ -32,13 +32,13 @@ NDEBUG. Neither draft is relabeled as the published C17 standard.
 
 ## Records, time, admission and reporting
 
-An `AeRecord` encodes to12 octets, never a struct dump: version1, severity0..3,
+An `struct ae_record` encodes to12 octets, never a struct dump: version1, severity0..3,
 unit1(milliseconds) or2(microseconds), timestamp width8 or16, operation generation
 1..3, payload length0..4, timestamp little-endian in two bytes, and four payload
 bytes. Unused payload bytes are zero. Decode requires exactly12 bytes and rejects
 noncanonical unused bytes, unknown versions and out-of-range fields without
 changing output. Encoding accepts capacity>=12. An empty payload and maximum
-timestamp are valid. Native `sizeof(AeRecord)` is an implementation cost to measure,
+timestamp are valid. Native `sizeof(struct ae_record)` is an implementation cost to measure,
 not the wire size. Require CHAR_BIT8 and an unsigned type able to represent65536
 for this selected implementation; other data models need a deliberate adaptation.
 

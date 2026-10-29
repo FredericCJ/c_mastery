@@ -6,8 +6,8 @@ static uint32_t u32(const unsigned char *p) {
 static uint64_t u64(const unsigned char *p) {
   return (uint64_t)u32(p) | (uint64_t)u32(p + 4) << 32;
 }
-int kf_boot(const unsigned char *p, size_t n, KfBoot *out) {
-  KfBoot b = {0};
+int kf_boot(const unsigned char *p, size_t n, struct kf_boot *out) {
+  struct kf_boot b = {0};
   if (!p || !out || cmk_boot_parse(p, n, &b.core) != 0)
     return 0;
   size_t total = u32(p), off = 8;
@@ -44,7 +44,7 @@ int kf_boot(const unsigned char *p, size_t n, KfBoot *out) {
   *out = b;
   return 1;
 }
-int kf_frames(cmk_frames *f, const cmk_boot *b, const KfSpan *r, size_t nr) {
+int kf_frames(cmk_frames *f, const cmk_boot *b, const struct kf_span *r, size_t nr) {
   if (!f || !b || (!r && nr) || b->entry_size < 24 ||
       b->map_bytes % b->entry_size)
     return 0;
@@ -75,13 +75,13 @@ int kf_frames(cmk_frames *f, const cmk_boot *b, const KfSpan *r, size_t nr) {
   }
   return 1;
 }
-size_t kf_free(const KfPool *p) {
+size_t kf_free(const struct kf_pool *p) {
   size_t n = 0;
   for (unsigned i = 0; i < CMK_MAX_FRAMES; ++i)
     n += p->frames.state[i] == 1;
   return n;
 }
-int kf_allocate(KfPool *p, KfSpace *s, unsigned first, unsigned count,
+int kf_allocate(struct kf_pool *p, struct kf_space *s, unsigned first, unsigned count,
                 unsigned budget) {
   if (!p || !s || !s->live || !count || count > 16 || first >= 512 ||
       count > 512 - first)
@@ -101,18 +101,18 @@ int kf_allocate(KfPool *p, KfSpace *s, unsigned first, unsigned count,
     unsigned char *bytes = p->bytes[(frame - 0x300000) / 4096];
     for (unsigned j = 0; j < 4096; ++j)
       bytes[j] = 0;
-    s->pages[first + done] = (KfPte){
+    s->pages[first + done] = (struct kf_pte){
         frame, 7}; /* present,user,writable; model NX by lack of execute */
   }
   if (done == count)
     return 1;
   for (unsigned i = 0; i < done; ++i) {
     (void)cmk_frame_put(&p->frames, s->pages[first + i].frame);
-    s->pages[first + i] = (KfPte){0};
+    s->pages[first + i] = (struct kf_pte){0};
   }
   return 0;
 }
-int kf_reap_user(KfPool *p, KfSpace *s, unsigned slot, const KfCpu *c) {
+int kf_reap_user(struct kf_pool *p, struct kf_space *s, unsigned slot, const struct kf_cpu *c) {
   if (!p || !s || !c || s->live || slot == c->current || slot == c->cr3_owner ||
       slot == c->tss_owner)
     return 0;
@@ -122,11 +122,11 @@ int kf_reap_user(KfPool *p, KfSpace *s, unsigned slot, const KfCpu *c) {
     if (s->pages[i].frame) {
       if (cmk_frame_put(&p->frames, s->pages[i].frame) != 0)
         return 0;
-      s->pages[i] = (KfPte){0};
+      s->pages[i] = (struct kf_pte){0};
     }
   return 1;
 }
-int kf_retire_slot(KfSpace *s, unsigned slot, const KfCpu *c) {
+int kf_retire_slot(struct kf_space *s, unsigned slot, const struct kf_cpu *c) {
   if (!s || !c || s->live || slot == c->current || slot == c->cr3_owner ||
       slot == c->tss_owner || slot == c->stack_owner)
     return 0;
@@ -194,7 +194,7 @@ int kf_weighted(const unsigned *alive, const unsigned *weight, unsigned n,
     credit[i] = next[i];
   return selected;
 }
-int kf_load_image(KfPool *pool, KfSpace *space, const unsigned char *p,
+int kf_load_image(struct kf_pool *pool, struct kf_space *space, const unsigned char *p,
                   size_t n, unsigned budget) {
   if (!pool || !space || !space->live)
     return 0;
@@ -212,7 +212,7 @@ int kf_load_image(KfPool *pool, KfSpace *space, const unsigned char *p,
       if (space->pages[i].frame)
         return 0;
   }
-  KfSpace before = *space;
+  struct kf_space before = *space;
   cmk_frames state = pool->frames;
   unsigned used = 0;
   for (unsigned s = 0; s < elf.count; ++s) {
@@ -298,12 +298,12 @@ int kf_archive_typed(const unsigned char *p, size_t n, const char *name,
   *length = found_len;
   return 1;
 }
-uint32_t kf_handle_open(KfHandles *h, unsigned slot, unsigned resource,
+uint32_t kf_handle_open(struct kf_handles *h, unsigned slot, unsigned resource,
                         unsigned rights) {
   if (!h || slot >= 16 || !resource || !rights || (rights & ~3u) ||
       h->slot[slot].open || h->slot[slot].retired)
     return 0;
-  KfHandleSlot *s = &h->slot[slot];
+  struct kf_handle_slot *s = &h->slot[slot];
   if (!s->generation)
     s->generation = 1;
   s->open = 1;
@@ -311,14 +311,14 @@ uint32_t kf_handle_open(KfHandles *h, unsigned slot, unsigned resource,
   s->rights = rights;
   return cmk_handle(slot, s->generation);
 }
-int kf_handle_get(const KfHandles *h, uint64_t token, unsigned rights,
+int kf_handle_get(const struct kf_handles *h, uint64_t token, unsigned rights,
                   unsigned *resource) {
   if (!h || !resource || token > UINT32_MAX || !rights || (rights & ~3u))
     return 0;
   unsigned encoded = (unsigned)(token & 65535);
   if (!encoded || encoded > 16)
     return 0;
-  const KfHandleSlot *s = &h->slot[encoded - 1];
+  const struct kf_handle_slot *s = &h->slot[encoded - 1];
   if (!cmk_handle_valid((uint32_t)token, encoded - 1, s->generation,
                         (int)s->open) ||
       (s->rights & rights) != rights)
@@ -326,12 +326,12 @@ int kf_handle_get(const KfHandles *h, uint64_t token, unsigned rights,
   *resource = s->resource;
   return 1;
 }
-int kf_handle_close(KfHandles *h, uint64_t token) {
+int kf_handle_close(struct kf_handles *h, uint64_t token) {
   unsigned resource;
   if (!kf_handle_get(h, token, 1, &resource) &&
       !kf_handle_get(h, token, 2, &resource))
     return 0;
-  KfHandleSlot *s = &h->slot[(unsigned)(token & 65535) - 1];
+  struct kf_handle_slot *s = &h->slot[(unsigned)(token & 65535) - 1];
   s->open = 0;
   s->rights = 0;
   s->resource = 0;
@@ -341,14 +341,14 @@ int kf_handle_close(KfHandles *h, uint64_t token) {
     ++s->generation;
   return 1;
 }
-uint32_t kf_delegate(const KfHandles *source, uint64_t token, KfHandles *dest,
+uint32_t kf_delegate(const struct kf_handles *source, uint64_t token, struct kf_handles *dest,
                      unsigned slot, unsigned rights) {
   unsigned resource;
   if (!kf_handle_get(source, token, rights, &resource))
     return 0;
   return kf_handle_open(dest, slot, resource, rights);
 }
-int kf_line(KfLine *s, unsigned char c, char out[64], unsigned *length) {
+int kf_line(struct kf_line *s, unsigned char c, char out[64], unsigned *length) {
   if (!s || !out || !length)
     return 0;
   if (s->suppress_lf) {

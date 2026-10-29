@@ -5,7 +5,7 @@
 #endif
 static uint32_t le(const unsigned char *p,unsigned n){uint32_t v=0;for(unsigned i=0;i<n;++i)v|=(uint32_t)p[i]<<(8*i);return v;}
 static void put(unsigned char *p,uint32_t v,unsigned n){for(unsigned i=0;i<n;++i)p[i]=(unsigned char)(v>>(8*i));}
-CPXProtocolStatus cpx_protocol_inplace(unsigned char *bytes,size_t capacity,size_t n,unsigned version,unsigned flags,uint16_t seq,uint32_t stamp,size_t *written){
+enum cpx_protocol_status cpx_protocol_inplace(unsigned char *bytes,size_t capacity,size_t n,unsigned version,unsigned flags,uint16_t seq,uint32_t stamp,size_t *written){
  if(!bytes || !written || n>CPX_MAX_PAYLOAD || (version!=1 && version!=2) || flags>1 || (version==1 && flags))return CPX_P_INVALID;
  size_t header=version==1?6:7+(flags?4:0);size_t total=header+n+4;
  if(capacity<total)return CPX_P_FULL;
@@ -15,15 +15,15 @@ CPXProtocolStatus cpx_protocol_inplace(unsigned char *bytes,size_t capacity,size
  size_t crc_length=header+n-1;if(CPX_MUTANT==5 && version==2)crc_length=n+5;
  put(bytes+header+n,cp_crc32(bytes+1,crc_length),4);*written=total;return CPX_P_OK;
 }
-CPXProtocolStatus cpx_protocol_encode(const CPXMessage *m,unsigned char *bytes,size_t capacity,size_t *written){
+enum cpx_protocol_status cpx_protocol_encode(const struct cpx_message *m,unsigned char *bytes,size_t capacity,size_t *written){
  if(!m || !bytes || !written || m->length>CPX_MAX_PAYLOAD || (m->version!=1 && m->version!=2) || m->flags>1 || (m->version==1 && m->flags))return CPX_P_INVALID;
  size_t total=m->length+(m->version==1?10:11+(m->flags?4:0));if(capacity<total)return CPX_P_FULL;
  for(size_t i=0;i<m->length;++i)bytes[i]=m->payload[i];
  return cpx_protocol_inplace(bytes,capacity,m->length,m->version,m->flags,m->sequence,m->stamp,written);
 }
-CPXProtocolStatus cpx_protocol_init(CPXParser *p,size_t limit){if(!p || limit>CPX_MAX_PAYLOAD)return CPX_P_INVALID;p->used=0;p->limit=limit;p->ready=0;return CPX_P_OK;}
-static void remove_one(CPXParser *p){for(size_t i=1;i<p->used;++i)p->candidate[i-1]=p->candidate[i];--p->used;}
-static CPXProtocolStatus inspect(CPXParser *p){
+enum cpx_protocol_status cpx_protocol_init(struct cpx_parser *p,size_t limit){if(!p || limit>CPX_MAX_PAYLOAD)return CPX_P_INVALID;p->used=0;p->limit=limit;p->ready=0;return CPX_P_OK;}
+static void remove_one(struct cpx_parser *p){for(size_t i=1;i<p->used;++i)p->candidate[i-1]=p->candidate[i];--p->used;}
+static enum cpx_protocol_status inspect(struct cpx_parser *p){
  while(p->used && p->candidate[0]!=0xa5)remove_one(p);
  if(p->used<2)return CPX_P_MORE;
  unsigned v=p->candidate[1];if(v!=1 && v!=2){remove_one(p);return CPX_P_REJECT;}
@@ -38,16 +38,16 @@ static CPXProtocolStatus inspect(CPXParser *p){
  for(size_t i=total;i<p->used;++i)p->candidate[i-total]=p->candidate[i];
  p->used-=total;p->ready=1;return CPX_P_FRAME;
 }
-CPXProtocolStatus cpx_protocol_feed(CPXParser *p,const unsigned char *bytes,size_t n,size_t *used){
+enum cpx_protocol_status cpx_protocol_feed(struct cpx_parser *p,const unsigned char *bytes,size_t n,size_t *used){
  if(!p || !used || (!bytes && n))return CPX_P_INVALID;
  *used=0;if(p->ready)return CPX_P_FRAME;
- for(;;){CPXProtocolStatus result=inspect(p);if(result!=CPX_P_MORE)return result;if(*used==n)return result;if(p->used==CPX_WIRE_MAX)return CPX_P_INVALID;p->candidate[p->used++]=bytes[(*used)++];}
+ for(;;){enum cpx_protocol_status result=inspect(p);if(result!=CPX_P_MORE)return result;if(*used==n)return result;if(p->used==CPX_WIRE_MAX)return CPX_P_INVALID;p->candidate[p->used++]=bytes[(*used)++];}
 }
-CPXProtocolStatus cpx_protocol_queue(CPXQueue *q,size_t capacity){if(!q || !capacity || capacity>4)return CPX_P_INVALID;q->capacity=capacity;q->head=q->count=0;return CPX_P_OK;}
-CPXProtocolStatus cpx_protocol_deliver(CPXParser *p,CPXQueue *q){
+enum cpx_protocol_status cpx_protocol_queue(struct cpx_queue *q,size_t capacity){if(!q || !capacity || capacity>4)return CPX_P_INVALID;q->capacity=capacity;q->head=q->count=0;return CPX_P_OK;}
+enum cpx_protocol_status cpx_protocol_deliver(struct cpx_parser *p,struct cpx_queue *q){
  if(!p || !q)return CPX_P_INVALID;
  if(!p->ready)return CPX_P_MORE;
  if(q->count==q->capacity){if(CPX_MUTANT==6)p->ready=0;return CPX_P_FULL;}
  q->items[(q->head+q->count)%q->capacity]=p->message;++q->count;p->ready=0;return CPX_P_OK;
 }
-CPXProtocolStatus cpx_protocol_take(CPXQueue *q,CPXMessage *out){if(!q || !out)return CPX_P_INVALID;if(!q->count)return CPX_P_MORE;*out=q->items[q->head];q->head=(q->head+1)%q->capacity;--q->count;return CPX_P_OK;}
+enum cpx_protocol_status cpx_protocol_take(struct cpx_queue *q,struct cpx_message *out){if(!q || !out)return CPX_P_INVALID;if(!q->count)return CPX_P_MORE;*out=q->items[q->head];q->head=(q->head+1)%q->capacity;--q->count;return CPX_P_OK;}

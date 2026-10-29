@@ -1,7 +1,7 @@
 #ifndef HH_HEADERS_H
 #define HH_HEADERS_H
 #include <stddef.h>
-typedef unsigned (*HhFunction)(unsigned);
+typedef unsigned (*hh_fn)(unsigned);
 static inline unsigned hh_mix(unsigned value)
 {
 #ifdef HH_MUTANT_HELPER

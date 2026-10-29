@@ -4,7 +4,7 @@ This required continuation of `PR-T59-04`, `PR-T59-05` and `G-B06-T59-TARGET` us
 
 ## Prerequisites and environment
 
-Bring the authenticated `BSSelection` from `bs_select`, both current-policy installed `FBImage` results, exclusive bank1 ownership, fixed unswapped H745xI mapping, disabled caches/MPU under the selected cold profile, and the bank2 execution placement in `inactive_install.ld`. Supply callbacks whose context and storage remain live through terminal completion; no callback reentrancy, concurrent policy/image change, interrupt/DMA/peer flash access or released CPU2 is allowed. `FTWriter` starts all-zero and cannot be copied while active. Inputs, control and outputs are distinct live objects. Host signing is a synthetic fixture only; target links the explicitly permitted FW-BOOT verifier/hash provider, never the signer. Ed25519 internals remain a separate mechanism.
+Bring the authenticated `struct bs_selection` from `bs_select`, both current-policy installed `struct fb_image` results, exclusive bank1 ownership, fixed unswapped H745xI mapping, disabled caches/MPU under the selected cold profile, and the bank2 execution placement in `inactive_install.ld`. Supply callbacks whose context and storage remain live through terminal completion; no callback reentrancy, concurrent policy/image change, interrupt/DMA/peer flash access or released CPU2 is allowed. `struct ft_writer` starts all-zero and cannot be copied while active. Inputs, control and outputs are distinct live objects. Host signing is a synthetic fixture only; target links the explicitly permitted FW-BOOT verifier/hash provider, never the signer. Ed25519 internals remain a separate mechanism.
 
 ## Problem and mechanism
 
@@ -14,7 +14,7 @@ The exact little-endian intent is128bytes: magic `0x31495446` at0, parent sequen
 
 `ft_begin` first stages/validates these bytes, then erases exactly sector5. Restore original qualified PSIZE and lock state only after hardware completion; fail on controller errors. Refresh then verify the entire erased128KiB sector, at most32word reads per poll. Program five256-bit words once each: three body words, intent commit word, then attempt word. Only after the last hardware operation, fresh exact readback of all160bytes and final status check may `ft_poll` return `FH_DONE`. A pending poll budget expiry is not cancellation and does not release ownership. `FH_ERROR` is terminal for this object; a controller error requires separately qualified recovery before another operation.
 
-A live peer calls `ft_probe` through the guarded `EGRead` interface, checks exact parent sequence and complete attempt, then independently re-admits both installed images under current key/floor policy and matches every stored digest/vector/version/generation. It publishes its `BSSelection` only after all checks. It must also match the separately published live mailbox via `st_peer_matches` before handoff. This function is forbidden as a cold-reset trial selector.
+A live peer calls `ft_probe` through the guarded `eg_read_fn` interface, checks exact parent sequence and complete attempt, then independently re-admits both installed images under current key/floor policy and matches every stored digest/vector/version/generation. It publishes its `struct bs_selection` only after all checks. It must also match the separately published live mailbox via `st_peer_matches` before handoff. This function is forbidden as a cold-reset trial selector.
 
 ## Reasoning and reset policy
 

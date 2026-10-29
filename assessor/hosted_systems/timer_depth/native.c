@@ -97,8 +97,8 @@ static void periodic(void) {
   uint64_t low = (before - first) / period + 1,
            high = (dispatch - first) / period + 1;
   CHECK(count >= low && count <= high && count >= 6 && dispatch > first);
-  TdTimer t;
-  TdDispatch catchup, skip;
+  struct td_timer t;
+  struct td_dispatch catchup, skip;
   unsigned g;
   CHECK(td_init(&t, 2) == 0 && td_arm(&t, first, period, 0, &g) == 1);
   CHECK(td_begin(&t, g, first + (count - 1) * period, &catchup) == 1);
@@ -118,7 +118,7 @@ static void rearm(void) {
   int fd = timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC),
       cancel = eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
   CHECK(fd >= 0 && cancel >= 0);
-  TdTimer timers[3];
+  struct td_timer timers[3];
   unsigned token[3];
   size_t index;
   uint64_t deadline;
@@ -139,7 +139,7 @@ static void rearm(void) {
         count == 1);
   uint64_t dispatched = now();
   CHECK(dispatched >= early);
-  TdDispatch d;
+  struct td_dispatch d;
   CHECK(td_begin(&timers[1], token[1], dispatched, &d) == 1 &&
         td_finish(&timers[1], token[1]) == 1);
   CHECK(td_earliest(timers, 3, &index, &deadline) == 1 && index == 0 &&
@@ -163,9 +163,9 @@ static void cached(void) {
   int fd = timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC),
       ep = epoll_create1(EPOLL_CLOEXEC);
   CHECK(fd >= 0 && ep >= 0);
-  TdTimer t;
+  struct td_timer t;
   unsigned token;
-  TdDispatch d;
+  struct td_dispatch d;
   CHECK(td_init(&t, 3) == 0);
   uint64_t first = now() + 1000000;
   CHECK(td_arm(&t, first, 0, 0, &token) == 1);

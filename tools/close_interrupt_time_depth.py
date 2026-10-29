@@ -13,7 +13,7 @@ SELECTORS={
 '10.c':['clang-O3 closure','clang-O3 symbols','clang-O3 missing helper rejected','target interval execute']}
 RATIONALE={
 '09.a':'Separate event/entry/acquisition/service and loss ledgers, actual Xi/Xd/Dp adapters, independent-clock interval derivation in withheld analysis.',
-'09.b':'Bounded coupled-carry proof, reduced-width ABA rejection, distinct actual CPF SC sequence protocol and retirement; native threads/TSan and actual interrupted staged writer.',
+'09.b':'Bounded coupled-carry proof, reduced-width ABA rejection, distinct actual struct cmx_cpf SC sequence protocol and retirement; native threads/TSan and actual interrupted staged writer.',
 '09.c':'Checked outward calibration/event intervals, big-integer/set oracle, prescaler change and actual target large arithmetic using original T11 helper.',
 '10.a':'Actual queue/lease providers, paused consumer, cancel/complete/stop and stale generation, retained-supervisor software-reset schedule and altered-reset analysis.',
 '10.b':'Four actual MPS2 IRQ profiles with independent interval checks, qualified physical acquisition protocol and raw-file/uncertainty checker; no physical observation claimed.',

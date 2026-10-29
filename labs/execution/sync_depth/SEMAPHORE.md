@@ -22,7 +22,7 @@ hosted verification tools are not target dependencies.
 
 ## Representation, lifetime and operations
 
-`CDSem` owns one stable `CWWorld` semaphore and borrows a live CMX kernel.
+`struct cd_sem` owns one stable `struct cw_world` semaphore and borrows a live CMX kernel.
 Initialize before use, with maximum>0, initial<=maximum and either FIFO or
 priority policy. Every wait on this object must use `cds_take`; every post must
 use `cds_post`. Every participant, token and control object remains live under
@@ -60,7 +60,7 @@ they do not disappear from the ledger. Already terminal tokens retain results.
 
 ## Deferred-credit representation and failure policy
 
-`CDDeferred` is a bounded mailbox, independent of the semaphore. Under a saved
+`struct cd_deferred` is a bounded mailbox, independent of the semaphore. Under a saved
 interrupt mask, offer increments pending/accepted or returns FULL unchanged.
 It does not inspect CMX objects. A lower-priority drain makes at most its stated
 budget of posts, retiring a credit only after a successful post. If the target

@@ -70,7 +70,7 @@ def populations():
                               'successful':len(values),'timeouts':timeout,'successful_latency_p50':quantile(50),
                               'successful_latency_p95':quantile(95),'successful_latency_p99':quantile(99),
                               'backend_attempts':backend,'backend_duration_sum':work,'quiescence_duration_sum':cleanup,
-                              'units':'injected ticks; backend durations are work proxy, not CPU or wall-clock measurements',
+                              'units':'injected ticks; backend durations are work proxy, not struct lr_cpu or wall-clock measurements',
                               'cancellation_model':'losing work ignores cancellation and completes normally'})
         original,hedged=summaries[-2:]
         if correlation=='perfectly-correlated':

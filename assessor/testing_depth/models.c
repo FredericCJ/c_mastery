@@ -2,39 +2,39 @@
 #ifndef TM_MUTANT
 #define TM_MUTANT 0
 #endif
-void tm_init(TmQueue *q){(void)ta_init(&q->core,&q->storage,TA_RING,2,3);q->revision=1;}
-TaStatus tm_push(TmQueue *q,unsigned char v){
+void tm_init(struct tm_queue *q){(void)ta_init(&q->core,&q->storage,TA_RING,2,3);q->revision=1;}
+enum ta_status tm_push(struct tm_queue *q,unsigned char v){
  if(q->revision==UINT64_MAX)return TA_INVALID;
- TaStatus status=ta_push(&q->core,v);
+ enum ta_status status=ta_push(&q->core,v);
  if(status==TA_OK)q->revision++;
  else if(TM_MUTANT==1)q->storage.bytes[TA_MAX]^=1;
  return status;
 }
-TaStatus tm_pop(TmQueue *q,unsigned char *v){
+enum ta_status tm_pop(struct tm_queue *q,unsigned char *v){
  if(q->revision==UINT64_MAX)return TA_INVALID;
- TaStatus status=ta_pop(&q->core,v);
+ enum ta_status status=ta_pop(&q->core,v);
  if(status==TA_OK&&TM_MUTANT!=2)q->revision++;
  return status;
 }
-TaStatus tm_clear(TmQueue *q){
+enum ta_status tm_clear(struct tm_queue *q){
  unsigned char v;
  if(!ta_count(&q->core))return TA_OK;
  if(q->revision==UINT64_MAX)return TA_INVALID;
  if(TM_MUTANT!=3)while(ta_pop(&q->core,&v)==TA_OK){}
  q->revision++;return TA_OK;
 }
-TaStatus tm_borrow(const TmQueue *q,TmBorrow *out){
+enum ta_status tm_borrow(const struct tm_queue *q,struct tm_borrow *out){
  if(!out)return TA_INVALID;
  if(!ta_count(&q->core))return TA_EMPTY;
- *out=(TmBorrow){q,&q->storage.bytes[q->core.head],q->revision};return TA_OK;
+ *out=(struct tm_borrow){q,&q->storage.bytes[q->core.head],q->revision};return TA_OK;
 }
-TaStatus tm_read(TmBorrow b,unsigned char *out){
+enum ta_status tm_read(struct tm_borrow b,unsigned char *out){
  if(!out||!b.owner||!b.revision)return TA_INVALID;
  if(b.revision!=b.owner->revision||!ta_count(&b.owner->core)||b.pointer!=&b.owner->storage.bytes[b.owner->core.head])return TA_INVALID;
  *out=*b.pointer;return TA_OK;
 }
-unsigned tm_decode(const unsigned char *p,size_t n,TmPacket *out){
- TmPacket staged={0};size_t expected;
+unsigned tm_decode(const unsigned char *p,size_t n,struct tm_packet *out){
+ struct tm_packet staged={0};size_t expected;
  if(!out||(!p&&n))return TM_INVALID;
  if(n<2)return TM_SHORT;
  if(p[0]!=1)return TM_OPCODE;
@@ -50,8 +50,8 @@ unsigned tm_decode(const unsigned char *p,size_t n,TmPacket *out){
  }
  *out=staged;return TM_OK;
 }
-unsigned tm_reference(const unsigned char *p,size_t n,int permissive,TmPacket *out){
- TmPacket staged={0};unsigned tag=0,count=0,high=0,complete=0;
+unsigned tm_reference(const unsigned char *p,size_t n,int permissive,struct tm_packet *out){
+ struct tm_packet staged={0};unsigned tag=0,count=0,high=0,complete=0;
  if(!out||(!p&&n)||(permissive!=0&&permissive!=1))return TM_INVALID;
  /* Different representation: a byte-state fold with separate error arbitration. */
  for(size_t i=0;i<n;i++){
@@ -67,7 +67,7 @@ unsigned tm_reference(const unsigned char *p,size_t n,int permissive,TmPacket *o
  if(n>2+2*(size_t)count)return TM_TRAILING;
  staged.count=count;*out=staged;return TM_OK;
 }
-unsigned tm_fir(TmFir *f,const int32_t *p,size_t n,int saturated,int64_t *out){
+unsigned tm_fir(struct tm_fir *f,const int32_t *p,size_t n,int saturated,int64_t *out){
  if(!f||(!p&&n)||(!out&&n)||(saturated!=0&&saturated!=1)||n>64)return TM_INVALID;
  for(size_t i=0;i<n;i++)if(p[i]<-1000000||p[i]>1000000)return TM_INVALID;
  if(f->previous<-1000000||f->previous>1000000)return TM_INVALID;

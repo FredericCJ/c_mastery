@@ -14,7 +14,7 @@
       goto done;                                                               \
     }                                                                          \
   } while (0)
-static int receive_ready(int fd, DGSession *s, DGMessage *m) {
+static int receive_ready(int fd, struct dg_session *s, struct dg_message *m) {
   struct pollfd p = {fd, POLLIN, 0};
   if (poll(&p, 1, 1000) != 1 || !(p.revents & POLLIN))
     return DG_IO;
@@ -36,8 +36,8 @@ int main(void) {
   }
   CHECK(connect(fd[0], (struct sockaddr *)&address[1], sizeof address[1]) == 0);
   CHECK(connect(fd[1], (struct sockaddr *)&address[0], sizeof address[0]) == 0);
-  DGSession session = {0};
-  DGMessage m = {1, 32, {0}}, out = {99, 0, {0}};
+  struct dg_session session = {0};
+  struct dg_message m = {1, 32, {0}}, out = {99, 0, {0}};
   uint8_t bytes[37];
   size_t n;
   CHECK(dg_udp_receive(fd[1], &session, &out) == DG_BUSY && !session.accepted);

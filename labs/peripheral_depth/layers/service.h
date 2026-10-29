@@ -12,31 +12,31 @@ enum {
   PL_FRAME,
   PL_UNIMPLEMENTED
 };
-typedef struct {
+struct pl_transport {
   void *context;
   int (*submit)(void *, const uint8_t *, unsigned, uint32_t, uint32_t,
                 uint32_t);
   int (*poll)(void *, uint32_t, uint32_t);
   int (*cancel)(void *, uint32_t);
-} PlTransport;
-typedef struct {
+};
+struct pl_service {
   uint8_t bytes[8];
   uint32_t token, active, result;
-} PlService;
-typedef struct {
+};
+struct pl_result {
   uint32_t token, status, may_have_committed;
-} PlResult;
+};
 int pl_encode(uint8_t, uint8_t, uint8_t[8]);
-int pl_send(PlService *, PlTransport, uint8_t, uint8_t, uint32_t, uint32_t,
+int pl_send(struct pl_service *, struct pl_transport, uint8_t, uint8_t, uint32_t, uint32_t,
             uint32_t);
-int pl_poll(PlService *, PlTransport, uint32_t, uint32_t, PlResult *);
-int pl_cancel(PlService *, PlTransport, uint32_t);
-typedef struct {
+int pl_poll(struct pl_service *, struct pl_transport, uint32_t, uint32_t, struct pl_result *);
+int pl_cancel(struct pl_service *, struct pl_transport, uint32_t);
+struct pl_parser {
   uint8_t raw[3];
   unsigned active, nibbles;
-} PlParser;
-typedef struct {
+};
+struct pl_command {
   uint8_t sequence, value;
-} PlCommand;
-int pl_feed(PlParser *, uint8_t, PlCommand *);
+};
+int pl_feed(struct pl_parser *, uint8_t, struct pl_command *);
 #endif

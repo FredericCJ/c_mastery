@@ -14,11 +14,11 @@ uint32_t cp_crc32(const unsigned char *bytes, size_t n) {
     }
     return crc ^ UINT32_MAX;
 }
-static void copy_message(CPMessage *to, const CPMessage *from) {
+static void copy_message(struct cp_message *to, const struct cp_message *from) {
     to->sequence = from->sequence; to->length = from->length;
     for (size_t i = 0; i < from->length; ++i) to->payload[i] = from->payload[i];
 }
-CPStatus cp_encode(const CPMessage *m, unsigned char *out, size_t capacity, size_t *written) {
+enum cp_status cp_encode(const struct cp_message *m, unsigned char *out, size_t capacity, size_t *written) {
     if (!m || !written || m->length > CP_PAYLOAD || !out) return CP_INVALID;
     size_t total = 10 + m->length;
     if (capacity < total) return CP_FULL;
@@ -33,12 +33,12 @@ CPStatus cp_encode(const CPMessage *m, unsigned char *out, size_t capacity, size
     *written = total;
     return CP_OK;
 }
-void cp_parser_init(CPParser *p) { p->used = 0; p->ready = 0; }
-static void remove_prefix(CPParser *p, size_t n) {
+void cp_parser_init(struct cp_parser *p) { p->used = 0; p->ready = 0; }
+static void remove_prefix(struct cp_parser *p, size_t n) {
     for (size_t i = n; i < p->used; ++i) p->candidate[i-n] = p->candidate[i];
     p->used -= n;
 }
-static CPStatus inspect(CPParser *p) {
+static enum cp_status inspect(struct cp_parser *p) {
     while (p->used && p->candidate[0] != 0xa5) remove_prefix(p, 1);
     if (p->used < 2) return CP_NEED_MORE;
     if (p->candidate[1] != 1) { remove_prefix(p, 1); return CP_REJECT; }
@@ -58,12 +58,12 @@ static CPStatus inspect(CPParser *p) {
     remove_prefix(p, n + 10); p->ready = 1;
     return CP_FRAME;
 }
-CPStatus cp_feed(CPParser *p, const unsigned char *bytes, size_t n, size_t *used) {
+enum cp_status cp_feed(struct cp_parser *p, const unsigned char *bytes, size_t n, size_t *used) {
     if (!p || !used || (!bytes && n)) return CP_INVALID;
     *used = 0;
     if (p->ready) return CP_FRAME;
     for (;;) {
-        CPStatus result = inspect(p);
+        enum cp_status result = inspect(p);
         if (result != CP_NEED_MORE) return result;
         if (*used == n) return CP_NEED_MORE;
         /* inspect consumes or rejects every complete candidate before this append. */
@@ -71,13 +71,13 @@ CPStatus cp_feed(CPParser *p, const unsigned char *bytes, size_t n, size_t *used
         p->candidate[p->used++] = bytes[(*used)++];
     }
 }
-CPStatus cp_peek(const CPParser *p, CPMessage *out) {
+enum cp_status cp_peek(const struct cp_parser *p, struct cp_message *out) {
     if (!p || !out) return CP_INVALID;
     if (!p->ready) return CP_NEED_MORE;
     copy_message(out, &p->message); return CP_FRAME;
 }
-void cp_queue_init(CPQueue *q) { q->head = 0; q->count = 0; }
-CPStatus cp_deliver(CPParser *p, CPQueue *q) {
+void cp_queue_init(struct cp_queue *q) { q->head = 0; q->count = 0; }
+enum cp_status cp_deliver(struct cp_parser *p, struct cp_queue *q) {
     if (!p || !q) return CP_INVALID;
     if (!p->ready) return CP_NEED_MORE;
     if (q->count == CP_QUEUE) {
@@ -87,7 +87,7 @@ CPStatus cp_deliver(CPParser *p, CPQueue *q) {
     copy_message(&q->items[(q->head + q->count) % CP_QUEUE], &p->message);
     ++q->count; p->ready = 0; return CP_OK;
 }
-CPStatus cp_take(CPQueue *q, CPMessage *out) {
+enum cp_status cp_take(struct cp_queue *q, struct cp_message *out) {
     if (!q || !out) return CP_INVALID;
     if (!q->count) return CP_NEED_MORE;
     copy_message(out, &q->items[q->head]);

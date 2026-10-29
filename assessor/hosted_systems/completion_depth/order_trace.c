@@ -12,7 +12,7 @@ static void visit(unsigned *order, unsigned used, unsigned at) {
   unsigned char storage[4][8], *buffers[4];
   for (unsigned i = 0; i < 4; ++i)
     buffers[i] = storage[i];
-  CoPool p;
+  struct co_pool p;
   uint64_t t[2], c[2];
   if (co_init(&p, buffers, 8, 2) != 0)
     return;

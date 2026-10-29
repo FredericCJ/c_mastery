@@ -15,7 +15,7 @@ static int registered(const cmx_kernel *k, const cmx_mutex *m) {
       return 1;
   return 0;
 }
-int cdm_recursive_init(CDRecursive *r, cmx_kernel *k, unsigned maximum) {
+int cdm_recursive_init(struct cd_recursive *r, cmx_kernel *k, unsigned maximum) {
   if (!r || !k || !maximum)
     return CMX_INVALID;
   int result = cmx_mutex_init(k, &r->mutex, 0, 0);
@@ -26,7 +26,7 @@ int cdm_recursive_init(CDRecursive *r, cmx_kernel *k, unsigned maximum) {
   r->depth = 0;
   return CMX_OK;
 }
-int cdm_recursive_lock(CDRecursive *r, unsigned task, cmx_deadline d) {
+int cdm_recursive_lock(struct cd_recursive *r, unsigned task, cmx_deadline d) {
   if (!r || !live(r->kernel, task))
     return CMX_INVALID;
   if (r->mutex.closed)
@@ -42,7 +42,7 @@ int cdm_recursive_lock(CDRecursive *r, unsigned task, cmx_deadline d) {
     r->depth = 1;
   return result;
 }
-int cdm_recursive_unlock(CDRecursive *r, unsigned task) {
+int cdm_recursive_unlock(struct cd_recursive *r, unsigned task) {
   if (!r || task >= CMX_TASKS)
     return CMX_INVALID;
   if (r->mutex.owner != (int)task)
@@ -56,7 +56,7 @@ int cdm_recursive_unlock(CDRecursive *r, unsigned task) {
     r->depth = r->mutex.owner < 0 ? 0 : 1;
   return result;
 }
-int cdm_recursive_close(CDRecursive *r) {
+int cdm_recursive_close(struct cd_recursive *r) {
   return r ? cmx_mutex_close(r->kernel, &r->mutex) : CMX_INVALID;
 }
 int cdm_ordered_lock(cmx_kernel *k, cmx_mutex *const *locks,
@@ -84,11 +84,11 @@ int cdm_ordered_lock(cmx_kernel *k, cmx_mutex *const *locks,
 static uint32_t checksum(int32_t balance) {
   return (uint32_t)balance ^ UINT32_C(0x9e3779b9);
 }
-void cdm_record_init(CDRecord *r, int32_t balance) {
-  *r = (CDRecord){balance, checksum(balance)};
+void cdm_record_init(struct cd_record *r, int32_t balance) {
+  *r = (struct cd_record){balance, checksum(balance)};
 }
 int cdm_record_read(cmx_kernel *k, cmx_mutex *m, unsigned task,
-                    const CDRecord *r, CDRecord *out) {
+                    const struct cd_record *r, struct cd_record *out) {
   if (!k || !m || !r || !out || task >= CMX_TASKS)
     return CMX_INVALID;
   if (m->owner != (int)task)
@@ -98,8 +98,8 @@ int cdm_record_read(cmx_kernel *k, cmx_mutex *m, unsigned task,
   *out = *r;
   return CMX_OK;
 }
-int cdm_record_apply(cmx_kernel *k, cmx_mutex *m, unsigned task, CDRecord *r,
-                     int32_t delta, CDRecordObserver observer, void *context) {
+int cdm_record_apply(cmx_kernel *k, cmx_mutex *m, unsigned task, struct cd_record *r,
+                     int32_t delta, cd_record_observer_fn observer, void *context) {
   if (!k || !m || !r || task >= CMX_TASKS)
     return CMX_INVALID;
   if (m->owner != (int)task)

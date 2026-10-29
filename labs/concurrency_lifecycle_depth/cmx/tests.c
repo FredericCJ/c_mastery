@@ -7,20 +7,20 @@
 #include <string.h>
 #define CHECK(x) do{if(!(x)){fprintf(stderr,"CC_CHECK:%d:%s\n",__LINE__,#x);return 1;}}while(0)
 #endif
-static int cq_setup(CCQueue *q,cmx_kernel *k,CCHandle h[5]){
+static int cq_setup(struct cc_queue *q,cmx_kernel *k,struct cc_handle h[5]){
   cmx_init(k,CMX_FIXED);
   for(unsigned i=0;i<5;i++)if(cmx_task_add(k,5,0,0x1000+256*i,256)!=(int)i)return 0;
   if(cc_init(q,k)!=CL_OK||q->bytes.slots!=q->storage||q->life.generation!=1)return 0;
   for(unsigned i=0;i<5;i++)if(cc_register(q,i,&h[i])!=CL_OK)return 0;
   return 1;
 }
-static int cq_finish(CCQueue *q,CCHandle h[5]){
+static int cq_finish(struct cc_queue *q,struct cc_handle h[5]){
   if(cc_close(q,0)!=CL_OK)return 0;
   for(unsigned i=0;i<5;i++)if(cc_release(&h[i])!=CL_OK)return 0;
   return cc_destroy(q)==CL_OK;
 }
 static int cq_queue(void){
-  cmx_kernel k;CCQueue q;CCHandle h[5];CCTicket a,b,c,r;CLMessage out={.sequence=99};unsigned char bytes[4]={3,0,9,7};
+  cmx_kernel k;struct cc_queue q;struct cc_handle h[5];struct cc_ticket a,b,c,r;struct cl_message out={.sequence=99};unsigned char bytes[4]={3,0,9,7};
   CHECK(cq_setup(&q,&k,h));
   CHECK(cc_send(h[0],0,1,bytes,4,cmx_forever(),&a)==CL_OK&&cc_result(a,0)==CL_OK);bytes[0]=88;
   CHECK(cc_send(h[1],1,1,0,0,cmx_forever(),&b)==CL_OK&&cc_result(b,0)==CL_OK);
@@ -37,7 +37,7 @@ static int cq_queue(void){
 }
 static int cq_terminal(void){
   for(unsigned cause=0;cause<3;cause++){
-    cmx_kernel k;CCQueue q;CCHandle h[5];CCTicket a,b,c,r,old;CLMessage out;unsigned char bytes[4]={1,2,3,4};
+    cmx_kernel k;struct cc_queue q;struct cc_handle h[5];struct cc_ticket a,b,c,r,old;struct cl_message out;unsigned char bytes[4]={1,2,3,4};
     CHECK(cq_setup(&q,&k,h));
     CHECK(cc_send(h[0],0,1,bytes,4,cmx_forever(),&a)==CL_OK&&cc_result(a,0)==CL_OK);
     CHECK(cc_send(h[1],1,1,bytes,4,cmx_forever(),&b)==CL_OK&&cc_result(b,0)==CL_OK);
@@ -56,14 +56,14 @@ static int cq_terminal(void){
     }
     CHECK(cq_finish(&q,h));
   }
-  cmx_kernel k;CCQueue q;CCHandle h[5];CCTicket r;CLMessage out={.sequence=99};
+  cmx_kernel k;struct cc_queue q;struct cc_handle h[5];struct cc_ticket r;struct cl_message out={.sequence=99};
   CHECK(cq_setup(&q,&k,h)&&cc_receive(h[4],4,cmx_forever(),&r)==CC_BLOCKED);
   CHECK(cc_close(&q,0)==CL_OK&&cc_result(r,&out)==CL_CLOSED&&out.sequence==99&&cq_finish(&q,h));
   puts("CC_TERMINAL:timeout-before-capacity;cancel-before-copy;abort-count2;stale-operation;empty-close;no-output-on-failure");return 0;
 }
 static int cq_condition(void){
   for(unsigned signaled=0;signaled<2;signaled++){
-    cmx_kernel k;CCQueue q;CCHandle h[5];CCTicket t;cmx_mutex m;cmx_cond c={0};
+    cmx_kernel k;struct cc_queue q;struct cc_handle h[5];struct cc_ticket t;cmx_mutex m;cmx_cond c={0};
     CHECK(cq_setup(&q,&k,h)&&cmx_mutex_init(&k,&m,0,0)==CMX_OK&&cmx_mutex_lock(&k,&m,0,cmx_forever())==CMX_OK);
     CHECK(cc_condition(h[0],&c,&m,cmx_at(5),&t)==CC_BLOCKED&&m.owner==CMX_NONE);
     CHECK(cmx_mutex_lock(&k,&m,1,cmx_forever())==CMX_OK);
@@ -78,7 +78,7 @@ static int cq_condition(void){
   puts("CC_CONDITION:actual-condition-reacquire;selected-timeout-or-signal-survives-close;lease-held-through-mutex-unlock");return 0;
 }
 static int cq_lifetime(void){
-  cmx_kernel k;CCQueue q;CCHandle h[5],old;CCPort port,stale;CCTicket t;unsigned char bytes[4]={7,0,0,0};CLMessage out;
+  cmx_kernel k;struct cc_queue q;struct cc_handle h[5],old;struct cc_port port,stale;struct cc_ticket t;unsigned char bytes[4]={7,0,0,0};struct cl_message out;
   CHECK(cq_setup(&q,&k,h)&&cc_port_acquire(&q,&port)==CL_OK);stale=port;old=h[0];
   CHECK(cc_receive(h[4],4,cmx_forever(),&t)==CC_BLOCKED&&cc_port_send(port,9,1,bytes,4)==CL_OK);
   CHECK(k.task[4].state==CMX_READY&&cc_result(t,&out)==CL_OK&&out.producer==9&&out.bytes[0]==7);
@@ -93,7 +93,7 @@ static int cq_lifetime(void){
   CHECK(cc_send(h[0],0,1,bytes,4,cmx_forever(),&t)==CC_RETIRED&&cc_close(&q,0)==CL_OK&&cc_release(&h[0])==CL_OK&&cc_destroy(&q)==CL_OK);
   q.life.generation=UINT64_MAX;CHECK(cc_restart(&q)==CL_RANGE&&q.life.phase==CL_DESTROYED);
   CHECK(cq_setup(&q,&k,h));k.sequence=UINT32_MAX;
-  t=(CCTicket){.serial=123};
+  t=(struct cc_ticket){.serial=123};
   CHECK(cc_receive(h[0],4,cmx_forever(),&t)==CC_RETIRED&&t.serial==123&&q.nodes[0].phase==CC_IDLE&&k.task[0].state==CMX_READY);
   cmx_mutex mutex;cmx_cond condition={0};CHECK(cmx_mutex_init(&k,&mutex,0,0)==CMX_OK&&cmx_mutex_lock(&k,&mutex,0,cmx_forever())==CMX_OK);
   CHECK(cc_condition(h[0],&condition,&mutex,cmx_forever(),&t)==CC_RETIRED&&mutex.owner==0&&t.serial==123&&q.nodes[0].phase==CC_IDLE);
@@ -101,8 +101,8 @@ static int cq_lifetime(void){
   puts("CC_LIFETIME:implicit-port-reference;drain-before-destroy;new-object-generation;stale-handle-and-callback;retirement-cleanup");return 0;
 }
 static int cq_dispatch(void){
-  cmx_kernel k;CCQueue q;CCHandle h[5];CCTicket tickets[5];unsigned phase[5]={0},done[5]={0},count[5]={0},expected[3]={0};
-  unsigned char payload[3][4]={{0}};CLMessage out;unsigned steps=0,finished=0;
+  cmx_kernel k;struct cc_queue q;struct cc_handle h[5];struct cc_ticket tickets[5];unsigned phase[5]={0},done[5]={0},count[5]={0},expected[3]={0};
+  unsigned char payload[3][4]={{0}};struct cl_message out;unsigned steps=0,finished=0;
   CHECK(cq_setup(&q,&k,h));
   while(finished<5&&steps++<10000){
     int selected=cmx_schedule(&k);CHECK(selected>=0);unsigned t=(unsigned)selected;CHECK(t<5&&!done[t]);

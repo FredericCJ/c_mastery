@@ -2,18 +2,18 @@
 #ifndef AR_MUTANT
 #define AR_MUTANT 0
 #endif
-ArResult ar_f439_read(FHIO bus, unsigned char *p, size_t n) {
+struct ar_result ar_f439_read(struct fh_io bus, unsigned char *p, size_t n) {
   if (!p || !n || n > 8)
-    return (ArResult){0, AR_INVALID};
+    return (struct ar_result){0, AR_INVALID};
   size_t count = 0;
   while (count < n) {
     uint32_t status;
     int result = f4_uart_rx(bus, p + count, &status);
     if (result < 0)
-      return (ArResult){(ptrdiff_t)count, AR_MUTANT == 10 ? AR_OK : AR_FAILED};
+      return (struct ar_result){(ptrdiff_t)count, AR_MUTANT == 10 ? AR_OK : AR_FAILED};
     if (!result)
-      return (ArResult){(ptrdiff_t)count, count ? AR_OK : AR_PENDING};
+      return (struct ar_result){(ptrdiff_t)count, count ? AR_OK : AR_PENDING};
     ++count;
   }
-  return (ArResult){(ptrdiff_t)count, AR_OK};
+  return (struct ar_result){(ptrdiff_t)count, AR_OK};
 }

@@ -33,7 +33,7 @@ Cost is O(attempts×8) and fixed stack, with no allocation.
 
 ## IO6: fair edge-triggered readiness and two deadline policies
 
-Implement `ITLoop`: two ready bits, alternating selection, monotonic unsigned
+Implement `struct it_loop`: two ready bits, alternating selection, monotonic unsigned
 nanoseconds, start/last/now and positive idle/total limits. Valid initial state
 has start<=last<=now, closed0, next0/1. Earlier time rejects EINVAL unchanged.
 At or beyond either limit close before accepting new progress; positive progress

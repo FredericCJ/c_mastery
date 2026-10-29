@@ -3,7 +3,7 @@
 | Scenario | Actual functions reused | New boundary |
 |---|---|---|
 | P1 | `f_take`, `f_parse_i32`, `algo_ring_put` | One-byte length and signed-decimal payload; publish only complete valid records. |
-| P2 | `algo_ring_take`, `f_write_all` | The active byte is owned by `InTransfer` across writer stalls. Accepted bytes are never replayed. |
+| P2 | `algo_ring_take`, `f_write_all` | The active byte is owned by `struct in_transfer` across writer stalls. Accepted bytes are never replayed. |
 | P3 | Earlier `in_records` | Bytewise input, a 31-byte payload ceiling, and an explicit terminal malformed-input state. |
 | P4 | `fw_dma`, `algo_ring_put` | Transfer completion becomes a queue event only after matching-generation quiescence. |
 | P5 | `f_cancel`, `f_complete`, `algo_ring_take` | `F_PENDING` means cancellation was requested; queue destruction waits for completion. |

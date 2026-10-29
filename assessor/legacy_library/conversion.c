@@ -24,7 +24,7 @@ enum lc_status lc_i8(const unsigned char *s, size_t n, int plus, int32_t *out) {
     if (!digit(s[i]))
       return LC_SYNTAX;
   int32_t value;
-  FStatus status = f_parse_i32(s + (s[0] == '+'), n - (s[0] == '+'), &value);
+  enum f_status status = f_parse_i32(s + (s[0] == '+'), n - (s[0] == '+'), &value);
   if (status == F_RANGE)
     return LC_RANGE;
   if (status != F_OK)

@@ -12,23 +12,23 @@
       exit(41);                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
-  APQueue *q;
-  APLease lease;
-  AHOperation *op;
+struct ag_work {
+  struct ap_queue *q;
+  struct ap_lease lease;
+  struct ah_operation *op;
   atomic_uint *clock, *ready;
   unsigned actor;
-} Work;
+};
 static void *work(void *ptr) {
-  Work *w = ptr;
+  struct ag_work *w = ptr;
   atomic_fetch_add(w->ready, 1);
   while (atomic_load(w->ready) < 4)
     sched_yield();
-  AHOperation *op = w->op;
+  struct ah_operation *op = w->op;
   op->participant = w->actor;
   op->operation = w->actor < 2 ? AH_INSERT : AH_REMOVE;
   op->invoke = atomic_fetch_add(w->clock, 1);
-  APValue v = {w->actor + 1, ~(w->actor + 1)};
+  struct ap_value v = {w->actor + 1, ~(w->actor + 1)};
   if (w->actor < 2) {
     CHECK(ap_push(w->q, w->lease, v) == AP_OK);
     op->value = v.sequence;
@@ -45,7 +45,7 @@ static void *work(void *ptr) {
   CHECK(ap_leave(w->q, w->lease) == AP_OK);
   return NULL;
 }
-static void replay(const AHOperation *ops, const AHWitness *w) {
+static void replay(const struct ah_operation *ops, const struct ah_witness *w) {
   unsigned fifo[4], n = 0, used = 0;
   CHECK(w->length == 4 && w->completed_pending == 0);
   for (unsigned i = 0; i < 4; i++) {
@@ -71,24 +71,24 @@ static void replay(const AHOperation *ops, const AHWitness *w) {
 }
 int main(void) {
   for (unsigned run = 0; run < 64; run++) {
-    APQueue q;
+    struct ap_queue q;
     CHECK(ap_init(&q, 4, UINT_MAX >> 2, NULL, NULL) == AP_OK);
-    AHOperation ops[4];
-    Work args[4];
+    struct ah_operation ops[4];
+    struct ag_work args[4];
     pthread_t threads[4];
     atomic_uint clock, ready;
     atomic_init(&clock, 0);
     atomic_init(&ready, 0);
     for (unsigned i = 0; i < 4; i++) {
-      APLease lease;
+      struct ap_lease lease;
       CHECK(ap_register(&q, &lease) == AP_OK);
-      args[i] = (Work){&q, lease, &ops[i], &clock, &ready, i};
+      args[i] = (struct ag_work){&q, lease, &ops[i], &clock, &ready, i};
     }
     for (unsigned i = 0; i < 4; i++)
       CHECK(!pthread_create(&threads[i], NULL, work, &args[i]));
     for (unsigned i = 0; i < 4; i++)
       CHECK(!pthread_join(threads[i], NULL));
-    AHWitness w;
+    struct ah_witness w;
     CHECK(ah_history(ops, 4, 4, AH_FIFO, AH_COMPLETE_ONLY, &w) == AH_VALID);
     replay(ops, &w);
     printf("TRACE %u", run);
@@ -97,11 +97,11 @@ int main(void) {
              ops[i].participant, ops[i].operation, ops[i].value, ops[i].result);
     puts("");
   }
-  AHOperation bad[] = {{0, 1, 0, AH_INSERT, 11, AH_VALUE},
+  struct ah_operation bad[] = {{0, 1, 0, AH_INSERT, 11, AH_VALUE},
                        {2, 3, 1, AH_INSERT, 22, AH_VALUE},
                        {4, 5, 2, AH_REMOVE, 22, AH_VALUE},
                        {6, 7, 3, AH_REMOVE, 11, AH_VALUE}};
-  AHWitness w;
+  struct ah_witness w;
   CHECK(ah_history(bad, 4, 4, AH_FIFO, AH_COMPLETE_ONLY, &w) == AH_NONLINEAR);
   puts("OBS histories actual_calls=256 histories=64 real_time_fifo=validated "
        "witness_replay=64 reversed_fifo=rejected");

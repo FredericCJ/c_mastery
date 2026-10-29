@@ -3,25 +3,25 @@
 #ifndef RPM_MUTATION
 #define RPM_MUTATION 0
 #endif
-static uint32_t pos(const RpmCounter *s, unsigned i) {
+static uint32_t pos(const struct rpm_counter *s, unsigned i) {
   return s->blocks[i / 3].positive[i % 3];
 }
-static uint32_t neg(const RpmCounter *s, unsigned i) {
+static uint32_t neg(const struct rpm_counter *s, unsigned i) {
   return s->blocks[i / 3].negative[i % 3];
 }
-static void set(RpmCounter *s, unsigned i, uint64_t id, uint32_t p,
+static void set(struct rpm_counter *s, unsigned i, uint64_t id, uint32_t p,
                 uint32_t n) {
   s->ids[i] = id;
   s->blocks[i / 3].positive[i % 3] = p;
   s->blocks[i / 3].negative[i % 3] = n;
 }
-static unsigned find(const RpmCounter *s, uint64_t id) {
+static unsigned find(const struct rpm_counter *s, uint64_t id) {
   unsigned i;
   for (i = 0; i < s->count && s->ids[i] != id; ++i) {
   }
   return i;
 }
-static int valid(const RpmCounter *s) {
+static int valid(const struct rpm_counter *s) {
   unsigned i;
   if (!s || !s->uuid || !s->self || s->count < 1 || s->count > 6)
     return 0;
@@ -33,7 +33,7 @@ static int valid(const RpmCounter *s) {
       return 0;
   return find(s, s->self) < s->count;
 }
-static int insert(RpmCounter *s, uint64_t id) {
+static int insert(struct rpm_counter *s, uint64_t id) {
   unsigned i, j;
   if (s->count == 6)
     return RPM_FULL;
@@ -47,8 +47,8 @@ static int insert(RpmCounter *s, uint64_t id) {
   ++s->count;
   return RPM_OK;
 }
-int rpm_make(uint64_t uuid, uint64_t self, RpmCounter *out) {
-  RpmCounter s = {0};
+int rpm_make(uint64_t uuid, uint64_t self, struct rpm_counter *out) {
+  struct rpm_counter s = {0};
   if (!out || !uuid || !self)
     return RPM_INVALID;
   s.uuid = uuid;
@@ -58,9 +58,9 @@ int rpm_make(uint64_t uuid, uint64_t self, RpmCounter *out) {
   *out = s;
   return RPM_OK;
 }
-int rpm_add(const RpmCounter *s, int negative, uint32_t amount,
-            RpmCounter *out) {
-  RpmCounter t;
+int rpm_add(const struct rpm_counter *s, int negative, uint32_t amount,
+            struct rpm_counter *out) {
+  struct rpm_counter t;
   unsigned i;
   int r;
   if (!out || !valid(s))
@@ -73,8 +73,8 @@ int rpm_add(const RpmCounter *s, int negative, uint32_t amount,
   *out = t;
   return RPM_OK;
 }
-int rpm_replace(const RpmCounter *s, uint64_t fresh, RpmCounter *out) {
-  RpmCounter t;
+int rpm_replace(const struct rpm_counter *s, uint64_t fresh, struct rpm_counter *out) {
+  struct rpm_counter t;
   int r;
   if (!out || !valid(s) || !fresh)
     return RPM_INVALID;
@@ -95,8 +95,8 @@ int rpm_replace(const RpmCounter *s, uint64_t fresh, RpmCounter *out) {
   *out = t;
   return RPM_OK;
 }
-int rpm_merge(const RpmCounter *s, const RpmCounter *other, RpmCounter *out) {
-  RpmCounter t;
+int rpm_merge(const struct rpm_counter *s, const struct rpm_counter *other, struct rpm_counter *out) {
+  struct rpm_counter t;
   unsigned i, j;
   int r;
   if (!out || !valid(s) || !valid(other))
@@ -119,7 +119,7 @@ int rpm_merge(const RpmCounter *s, const RpmCounter *other, RpmCounter *out) {
       set(&t, j, t.ids[j], pos(&t, j) + pos(other, i),
           neg(&t, j) + neg(other, i));
     } else {
-      RPPN delta = {{0}, {0}};
+      struct rp_pn delta = {{0}, {0}};
       delta.positive[j % 3] = pos(other, i);
       delta.negative[j % 3] = neg(other, i);
       rp_pn_merge(&t.blocks[j / 3], &delta);
@@ -128,7 +128,7 @@ int rpm_merge(const RpmCounter *s, const RpmCounter *other, RpmCounter *out) {
   *out = t;
   return RPM_OK;
 }
-int rpm_value(const RpmCounter *s, int64_t *out) {
+int rpm_value(const struct rpm_counter *s, int64_t *out) {
   if (!out || !valid(s))
     return RPM_INVALID;
   *out = rp_pn_value(&s->blocks[0]) + rp_pn_value(&s->blocks[1]);
@@ -158,7 +158,7 @@ static uint32_t get32(const unsigned char *p) {
     v = v << 8 | p[i];
   return v;
 }
-int rpm_encode(const RpmCounter *s, unsigned char out[160]) {
+int rpm_encode(const struct rpm_counter *s, unsigned char out[160]) {
   unsigned char b[160] = {0};
   unsigned i;
   if (!out || !valid(s))
@@ -181,8 +181,8 @@ int rpm_encode(const RpmCounter *s, unsigned char out[160]) {
     out[i] = b[i];
   return RPM_OK;
 }
-int rpm_decode(const unsigned char b[160], RpmCounter *out) {
-  RpmCounter t = {0};
+int rpm_decode(const unsigned char b[160], struct rpm_counter *out) {
+  struct rpm_counter t = {0};
   unsigned char sum[32];
   unsigned i;
   if (!b || !out)
@@ -207,7 +207,7 @@ int rpm_decode(const unsigned char b[160], RpmCounter *out) {
   *out = t;
   return RPM_OK;
 }
-int rpm_seal(const RpmCounter *s, const unsigned char key[32],
+int rpm_seal(const struct rpm_counter *s, const unsigned char key[32],
              unsigned char out[64]) {
   unsigned char b[64] = {0};
   unsigned i, j;
@@ -227,10 +227,10 @@ int rpm_seal(const RpmCounter *s, const unsigned char key[32],
     out[i] = b[i];
   return RPM_OK;
 }
-int rpm_admit(const RpmCounter *s, const RpmPermit *p,
-              const unsigned char b[64], RpmCounter *out) {
+int rpm_admit(const struct rpm_counter *s, const struct rpm_permit *p,
+              const unsigned char b[64], struct rpm_counter *out) {
   unsigned char tag[32];
-  RpmCounter t;
+  struct rpm_counter t;
   uint64_t id;
   uint32_t positive, negative;
   unsigned i, j;
@@ -270,7 +270,7 @@ int rpm_admit(const RpmCounter *s, const RpmPermit *p,
   if (RPM_MUTATION == 7)
     set(&t, j, id, positive, negative);
   else {
-    RPPN delta = {{0}, {0}};
+    struct rp_pn delta = {{0}, {0}};
     delta.positive[j % 3] = positive;
     delta.negative[j % 3] = negative;
     rp_pn_merge(&t.blocks[j / 3], &delta);

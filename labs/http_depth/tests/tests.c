@@ -20,7 +20,7 @@ static int date(void){
   CHECK(hd_date(1,2932896,86399,out,30,&n)==0&&!strcmp(out,"Fri, 31 Dec 9999 23:59:59 GMT"));return 0;
 }
 static int lifecycle(void){
-  HDPool p={0};HDHandle a,b;int fd=-1;unsigned mask=99;
+  struct hd_pool p={0};struct hd_handle a,b;int fd=-1;unsigned mask=99;
   CHECK(hd_admit(&p,11,1,&a)==0);CHECK(hd_event(&p,a,11,15,&mask)==0&&mask==13);
   CHECK(hd_interest(&p,a,0)==0);CHECK(hd_event(&p,a,11,3,&mask)==0&&mask==0);
   CHECK(hd_close(&p,a,&fd)==0&&fd==11);fd=-1;CHECK(hd_close(&p,a,&fd)==HD_STALE&&fd==-1);

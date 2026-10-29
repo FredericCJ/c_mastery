@@ -6,12 +6,12 @@
 /* Original finite device model: reads see the staged image; successful flush
  * persists it all. A chosen write/flush fails and ends access. At a failed
  * flush, mode1 persists first, then reports uncertainty. Neither is hardware. */
-typedef struct{unsigned char stable[STORE_IMAGE_PAGES][STORE_PAGE_SIZE],pending[STORE_IMAGE_PAGES][STORE_PAGE_SIZE];unsigned event,cut,mode;int dead;} Image;
-static Image image,baseline;
+struct pt_image{unsigned char stable[STORE_IMAGE_PAGES][STORE_PAGE_SIZE],pending[STORE_IMAGE_PAGES][STORE_PAGE_SIZE];unsigned event,cut,mode;int dead;};
+static struct pt_image image,baseline;
 static store server;
-static int read_page(void *ctx,uint32_t page,void *out){Image *m=ctx;if(m->dead||page>=STORE_IMAGE_PAGES)return -1;memcpy(out,m->pending[page],STORE_PAGE_SIZE);return 0;}
-static int write_page(void *ctx,uint32_t page,const void *in){Image *m=ctx;if(m->dead||page>=STORE_IMAGE_PAGES)return -1;if(++m->event==m->cut){m->dead=1;return -1;}memcpy(m->pending[page],in,STORE_PAGE_SIZE);return 0;}
-static int flush(void *ctx){Image *m=ctx;if(m->dead)return -1;if(++m->event==m->cut){if(m->mode)memcpy(m->stable,m->pending,sizeof m->stable);m->dead=1;return -1;}memcpy(m->stable,m->pending,sizeof m->stable);return 0;}
+static int read_page(void *ctx,uint32_t page,void *out){struct pt_image *m=ctx;if(m->dead||page>=STORE_IMAGE_PAGES)return -1;memcpy(out,m->pending[page],STORE_PAGE_SIZE);return 0;}
+static int write_page(void *ctx,uint32_t page,const void *in){struct pt_image *m=ctx;if(m->dead||page>=STORE_IMAGE_PAGES)return -1;if(++m->event==m->cut){m->dead=1;return -1;}memcpy(m->pending[page],in,STORE_PAGE_SIZE);return 0;}
+static int flush(void *ctx){struct pt_image *m=ctx;if(m->dead)return -1;if(++m->event==m->cut){if(m->mode)memcpy(m->stable,m->pending,sizeof m->stable);m->dead=1;return -1;}memcpy(m->stable,m->pending,sizeof m->stable);return 0;}
 static store_io device(void){return (store_io){&image,read_page,write_page,flush,STORE_IMAGE_PAGES};}
 static void restart(void){memcpy(image.pending,image.stable,sizeof image.pending);image.dead=0;image.event=image.cut=0;CHECK(store_open(&server,device())==STORE_OK);}
 int main(void){

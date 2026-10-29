@@ -41,7 +41,7 @@ def main():
      mutant=BUILD/(t+'.mutation.'+name);compile(cc,flags+['-DAG_MUTANT_'+define],t+'.mutation.'+name+'.compile',sources,mutant);run(t+'.mutation.'+name,[mutant,case],41,marker)
     if p=='tsan':
      race=BUILD/(t+'.race');compile(cc,flags,t+'.race.compile',[ROOT/'labs/thread_depth/lifecycle/race_control.c'],race);run(t+'.race',[race],66,'WARNING: ThreadSanitizer: data race')
-    observations.append(dict(profile=t,cases=CASES,serialized_core=True,actual_mutex_writers=2,publications=64,retired_versions=16,payload_bytes=512,joined_departure=True,registry='actual ApiRegistry with counted version captures',independent_or_physical=False))
+    observations.append(dict(profile=t,cases=CASES,serialized_core=True,actual_mutex_writers=2,publications=64,retired_versions=16,payload_bytes=512,joined_departure=True,registry='actual struct api_registry with counted version captures',independent_or_physical=False))
   models=json.loads(run('models',[sys.executable,PRIVATE/'models.py'],marker='"status": "pass"'))
   for cc in ['arm-none-eabi-gcc','clang']:
    run(cc+'.target-version',[cc,'--version'])

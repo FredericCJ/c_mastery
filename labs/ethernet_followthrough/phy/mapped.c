@@ -1,7 +1,7 @@
 #include "model.h"
 void ep_note(const char *);
 #define CHECK(x) do{if(!(x)){ep_note("EP_MAP_ASSERT: " #x);return 41;}}while(0)
-static EpModel mapped;
+static struct ep_model mapped;
 int ep_test_read(uint32_t address,uint32_t *value){
  if(address!=0x40028010u && address!=0x40028014u)return 1;
  return ep_model_read(&mapped,(address-0x40028010u)/4,value);
@@ -11,7 +11,7 @@ int ep_test_write(uint32_t address,uint32_t value){
  return ep_model_write(&mapped,(address-0x40028010u)/4,value);
 }
 int ep_mapped(void){
- ep_model_setup(&mapped,0);EpMmioClock clock={&mapped,ep_model_clock};EDBus b={0};EpPhy p={0};EpLink link={0};
+ ep_model_setup(&mapped,0);struct ep_mmio_clock clock={&mapped,ep_model_clock};struct ed_bus b={0};struct ep_phy p={0};struct ep_link link={0};
  CHECK(ep_f439_bus(0,&b)==ED_INVALID && !b.read);
  CHECK(ep_f439_bus(&clock,&b)==ED_OK && ep_init(&p,&b,168000000,0,4,100)==ED_OK);
  CHECK(ep_begin(&p,16,1000)==ED_BUSY);

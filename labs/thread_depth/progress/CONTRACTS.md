@@ -10,7 +10,7 @@ passing its finite tests does not establish mastery or all possible schedules.
 
 ## Prerequisites and environment
 
-Retain the T25.01 lifetime/rollback artifact, T25.03–.05 `TWQueue` and lock-order
+Retain the T25.01 lifetime/rollback artifact, T25.03–.05 `struct tw_queue` and lock-order
 artifact, and T25.06–.09 publication/reuse argument. Import the actual
 `labs/thread_depth/waiting/waiting.h` interface and its
 `labs/thread_depth/waiting/CONTRACTS.md` ownership rules. Submit the implementation
@@ -137,7 +137,7 @@ Private mode needs a final merge and O(workers) result storage; batch mode adds
 partial local totals and publishes only completed batches; per-item updates
 have more shared traffic. Do not compare their intermediate freshness as equal.
 
-For the delayed reader requirement implement `TPTotal`: a mutex protects both
+For the delayed reader requirement implement `struct tp_total`: a mutex protects both
 `value` and `items`; each successful addition linearizes under that mutex,
 each read returns a current committed pair, overflow preserves both fields.
 No lock-free or wait-free claim. Join writers/readers before destruction.
@@ -162,7 +162,7 @@ cost dominates; no universal speedup or worst-case latency follows.
 ## T25.12: complementary evidence and changed shutdown
 
 **D12a — Queue campaigns (D, F, G, I).** Reuse the actual capacity-three
-`TWQueue`, force two consumers to enroll before starting two producers, and
+`struct tw_queue`, force two consumers to enroll before starting two producers, and
 transfer 2,000 distinct copied integer values. Fixed per-producer seeds control
 selected yields, but do not make OS scheduling deterministic. Check each value
 exactly once, then close, join, retire and destroy in that order. Repeat the
@@ -179,7 +179,7 @@ empty capacity-three FIFO and at most six operations. Invocation/response
 numbers are distinct positive event positions; response zero means pending.
 Thread IDs are 0–3 and one thread cannot overlap its own calls. Complete
 responses follow invocations. Enqueue succeeds unless full; dequeue yields
-the oldest value or EMPTY. Validate input before modifying `TPWitness`.
+the oldest value or EMPTY. Validate input before modifying `struct tp_witness`.
 `TP_REQUIRE_COMPLETE` reports `TP_INCOMPLETE` without changing output when a
 call is pending. The delayed `TP_ALLOW_EXTENSION` policy may append responses
 to a subset of pending calls, then remove remaining incomplete calls; it must
@@ -206,7 +206,7 @@ and edges. None substitutes for the other or proves unexecuted behavior.
 publication-before-initialization trace to its first violated dependency;
 repair source ordering plus matching publication synchronization, and separately
 justify last-read-to-reuse ordering. Do not add sleeps. For the original delayed
-shutdown task implement `TPEndQueue`, composing the actual earlier queue:
+shutdown task implement `struct tp_end_queue`, composing the actual earlier queue:
 close admission, let already admitted calls settle under drain-close semantics,
 then discard residual copied integers once and retire the underlying queue.
 This differs from drain-to-consumers and from instantaneous cancellation/drop.

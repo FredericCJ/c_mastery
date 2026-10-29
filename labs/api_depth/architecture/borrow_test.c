@@ -2,7 +2,7 @@
 #include "test.h"
 int main(void) {
   unsigned char p[] = {1, 2, 3}, out[3] = {0};
-  ArBorrow b = {0};
+  struct ar_borrow b = {0};
   size_t n = 99;
   CHECK(ar_borrow(&b, p, 3) == AR_OK && b.data == p);
   CHECK(ar_borrow_chunk(&b, 1, out, &n) == AR_PENDING && n == 1 &&

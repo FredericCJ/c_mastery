@@ -52,7 +52,7 @@ average3 and peak0. The one-sided-debit control loses average credit on the deni
 ## A migration transfers credit, not a timestamp
 
 Export at source time s computes a staged refill and returns
-`RzfCredit{C,p,q,T,r}`. It does not mutate the source. Before activating an imported
+`struct rzf_credit{C,p,q,T,r}`. It does not mutate the source. Before activating an imported
 limiter the owner must quiesce and retire the source; a snapshot is not a second
 independent admission authority. Source and destination clocks may have unrelated
 origins, but use the same tick rate. Import sets `last` to destination time d.

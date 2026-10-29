@@ -51,7 +51,7 @@ The first occurrence, not any occurrence, is the contract.
 Implement `ab_trace` to return the complete half-open interval certificate.
 Its `upper=1` variant returns the first value strictly greater than the key;
 the ordinary mode is lower bound. Stage output: invalid control, count>1024
-or missing nonempty storage returns1 without changing output. `ABTrace`
+or missing nonempty storage returns1 without changing output. `struct ab_trace`
 holds12 steps, sufficient for the admitted count. Sortedness is a trusted
 precondition of this certificate generator; it is not a sorting validator.
 
@@ -66,7 +66,7 @@ each other and input, have valid lifetime/alignment, and are not concurrently
 accessed. An arbitrary pointer's allocation extent cannot be inferred from
 its numeric value or from the caller's capacity integer.
 
-Implement `ab_callback_lower` for both architectures. An `ABRead` callback
+Implement `ab_callback_lower` for both architectures. An `ab_read_fn` callback
 returns exactly `a[mid]`; it may update its own supplied context but must not
 mutate the array, reenter the search, retain borrowed storage, throw or leave
 nonlocally. Every iteration calls once, with `mid<n`; an empty input calls

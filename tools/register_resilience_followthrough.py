@@ -74,7 +74,7 @@ def main():
     imported={'family':'communications','artifact':'communications.tcp_fault','producer':'PR-T41-06',
               'learner_source':'labs/communications/learner/v4_com.c','include':'labs/communications/include',
               'assessor_source':'assessor/communications/v4_com.c','contract':'labs/communications/units/LAB-EX-09.md',
-              'scope':'Actual retained NetStack retransmission/net_receive completion via v4_tcp_delivery; explicit net/http/edu7 source dependencies, no production TCP or physical network claim.'}
+              'scope':'Actual retained struct net_stack retransmission/net_receive completion via v4_tcp_delivery; explicit net/http/edu7 source dependencies, no production TCP or physical network claim.'}
     if not any(row['family']=='communications' for row in family['source_imports']):family['source_imports'].append(imported)
     for artifact,producer,part,contract in [
             ('io.deadline','PR-T24-05','deadline','labs/hosted_systems/CONTRACTS.md'),

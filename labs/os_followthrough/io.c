@@ -17,7 +17,7 @@
   } while (0)
 static int transfer(int fd, const unsigned char *p, size_t n, unsigned inject,
                     size_t *done) {
-  OfTransfer t = {n, 0, 0, 0};
+  struct of_transfer t = {n, 0, 0, 0};
   unsigned step = 0;
   while (t.done < n) {
     ptrdiff_t raw;
@@ -33,20 +33,20 @@ static int transfer(int fd, const unsigned char *p, size_t n, unsigned inject,
       ssize_t got = write(fd, p + t.done, ask);
       raw = got < 0 ? -errno : got;
     }
-    OfStatus rc = of_progress(&t, raw, 0);
+    enum of_status rc = of_progress(&t, raw, 0);
     if (rc == OF_ERROR || rc == OF_INPUT)
       return 1;
   }
   *done = t.done;
   return 0;
 }
-typedef struct {
+struct of_slot {
   unsigned object, open;
   unsigned closes;
-} Slot;
+};
 static int close_model(void) {
   for (unsigned retaining = 0; retaining < 2; retaining++) {
-    Slot slot = {1, 1, 0};
+    struct of_slot slot = {1, 1, 0};
     slot.closes++;
     if (!retaining)
       slot.open = 0;
@@ -59,8 +59,8 @@ static int close_model(void) {
       CHECK(slot.closes == 2);
     } else {
       CHECK(!slot.open);
-      slot = (Slot){2, 1, 1};
-      Slot wrong = slot;
+      slot = (struct of_slot){2, 1, 1};
+      struct of_slot wrong = slot;
       wrong.open = 0;
       wrong.closes++;
       CHECK(!wrong.open && wrong.object == 2);

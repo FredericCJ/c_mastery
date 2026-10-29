@@ -3,14 +3,14 @@
 #define CC_IRQ_MUTANT 0
 #endif
 #define REG(a) (*(volatile uint32_t *)(uintptr_t)(a))
-int cc_irq_receive(CCHandle h,size_t n,cmx_deadline deadline,CCTicket *out){
+int cc_irq_receive(struct cc_handle h,size_t n,cmx_deadline deadline,struct cc_ticket *out){
   uint32_t previous=cw_irq_save();cc_irq_enrollment_hook();
   int result=cc_receive(h,n,deadline,out);cw_irq_restore(previous);return result;
 }
-int cc_irq_publish(CCPort p,uint32_t producer,uint32_t sequence,const unsigned char *bytes,size_t length){
+int cc_irq_publish(struct cc_port p,uint32_t producer,uint32_t sequence,const unsigned char *bytes,size_t length){
   uint32_t previous=cw_irq_save();int result=cc_port_send(p,producer,sequence,bytes,length);cw_irq_restore(previous);return result;
 }
-int cc_irq_join0(CCPort *p){
+int cc_irq_join0(struct cc_port *p){
   uint32_t ipsr;__asm__ volatile("mrs %0,ipsr":"=r"(ipsr)::"memory");
   if(ipsr||!p)return CC_INVALID;
   uint32_t previous=cw_irq_save();cc_irq_join_hook();

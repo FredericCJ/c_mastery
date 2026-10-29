@@ -89,8 +89,8 @@ static void wr(void *p, unsigned r, uint32_t v) {
     break;
   }
 }
-PiIo pi_f439_io(void) {
-  PiIo io = {0, rd, wr};
+struct pi_io pi_f439_io(void) {
+  struct pi_io io = {0, rd, wr};
   return io;
 }
 static void af(void) {
@@ -115,13 +115,13 @@ void pi_f439_pins(void) {
   REG(0x4002040cu) &= ~0xf0000u;
   af();
 }
-int pi_f439_step(PiI2c *s, uint32_t token, uint32_t now) {
+int pi_f439_step(struct pi_i2c *s, uint32_t token, uint32_t now) {
   uint32_t key = irq_save();
   int result = pi_step(s, pi_f439_io(), token, now);
   irq_restore(key);
   return result;
 }
-int pi_f439_open(PiI2c *s, const PuClock *clock) {
+int pi_f439_open(struct pi_i2c *s, const struct pu_clock *clock) {
   uint32_t key = irq_save();
   int result = pi_open(s, pi_f439_io(), clock);
   if (result == PI_OK)
@@ -129,7 +129,7 @@ int pi_f439_open(PiI2c *s, const PuClock *clock) {
   irq_restore(key);
   return result;
 }
-int pi_f439_begin(PiI2c *s, uint32_t generation, uint32_t token,
+int pi_f439_begin(struct pi_i2c *s, uint32_t generation, uint32_t token,
                   unsigned address, unsigned command, unsigned count,
                   uint8_t *out, uint32_t now, unsigned budget) {
   uint32_t key = irq_save();
@@ -138,7 +138,7 @@ int pi_f439_begin(PiI2c *s, uint32_t generation, uint32_t token,
   irq_restore(key);
   return result;
 }
-int pi_f439_cancel(PiI2c *s, uint32_t token) {
+int pi_f439_cancel(struct pi_i2c *s, uint32_t token) {
   uint32_t key = irq_save();
   int result = pi_cancel(s, pi_f439_io(), token);
   irq_restore(key);
@@ -153,11 +153,11 @@ static void line_release(void *p, unsigned line, unsigned high) {
   if (line <= PI_SDA && high <= 1)
     REG(0x40020418u) = 1u << (8u + line + (high ? 0u : 16u));
 }
-PiLines pi_f439_lines(void) {
-  PiLines io = {0, line_read, line_release};
+struct pi_lines pi_f439_lines(void) {
+  struct pi_lines io = {0, line_read, line_release};
   return io;
 }
-int pi_f439_recovery_prepare(PiI2c *s, unsigned exclusive, unsigned peers) {
+int pi_f439_recovery_prepare(struct pi_i2c *s, unsigned exclusive, unsigned peers) {
   if (!s || exclusive > 1 || peers > 1)
     return PI_INVALID;
   if (!exclusive || peers)

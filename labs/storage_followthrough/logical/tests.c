@@ -9,9 +9,9 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-static DMedium initial, work, committed;
-static SlCounter counter, saved;
-static void reset(DMedium *m) {
+static struct d_medium initial, work, committed;
+static struct sl_counter counter, saved;
+static void reset(struct d_medium *m) {
   dm_reboot(m);
   m->reads = m->writes = m->flushes = 0;
 }
@@ -35,7 +35,7 @@ static int setup(void) {
   CHECK(sl_format(dm_io(&initial)) == SL_OK);
   reset(&initial);
   CHECK(sl_open(&counter, dm_io(&initial)) == SL_OK);
-  SlReceipt out;
+  struct sl_receipt out;
   CHECK(sl_apply(&counter, 1, 10, &out) == SL_OK && out.id == 1 &&
         out.total == 10);
   CHECK(sl_checkpoint(&counter) == SL_OK);
@@ -49,14 +49,14 @@ static int begin(void) {
   return 0;
 }
 static int value(uint64_t id, int64_t total) {
-  SlReceipt out;
+  struct sl_receipt out;
   CHECK(sl_get(&counter, &out) == SL_OK && out.id == id && out.total == total);
   return 0;
 }
 static int cuts(int checkpoint, int emit) {
   CHECK(setup() == 0);
   CHECK(begin() == 0);
-  SlReceipt out = {999, 999};
+  struct sl_receipt out = {999, 999};
   if (checkpoint) {
     CHECK(sl_apply(&counter, 2, 7, &out) == SL_OK);
     committed = work;
@@ -70,7 +70,7 @@ static int cuts(int checkpoint, int emit) {
         counter.io = dm_io(&work);
       } else
         CHECK(begin() == 0);
-      out = (SlReceipt){999, 999};
+      out = (struct sl_receipt){999, 999};
       CHECK(dm_arm(&work, cut, mode, 0, 0, 0) == 0);
       int r =
           checkpoint ? sl_checkpoint(&counter) : sl_apply(&counter, 2, 7, &out);
@@ -98,7 +98,7 @@ static int cuts(int checkpoint, int emit) {
 static int repeated(void) {
   CHECK(setup() == 0);
   CHECK(begin() == 0);
-  SlReceipt out;
+  struct sl_receipt out;
   CHECK(sl_apply(&counter, 2, 7, &out) == SL_OK);
   committed = work;
   saved = counter;
@@ -129,7 +129,7 @@ static int repeated(void) {
 static int identity(void) {
   CHECK(setup() == 0);
   CHECK(begin() == 0);
-  SlReceipt out = {888, -888};
+  struct sl_receipt out = {888, -888};
   uint64_t writes = work.writes, flushes = work.flushes;
   CHECK(sl_apply(&counter, 0, 1, &out) == SL_INVALID);
   CHECK(sl_apply(&counter, 3, 1, &out) == SL_GAP);
@@ -152,10 +152,10 @@ static int identity(void) {
 static int limits(void) {
   CHECK(setup() == 0);
   CHECK(begin() == 0);
-  SlReceipt out = {999, 999};
+  struct sl_receipt out = {999, 999};
   CHECK(sl_apply(&counter, 2, INT64_MAX - 10, &out) == SL_OK &&
         out.total == INT64_MAX);
-  out = (SlReceipt){999, 999};
+  out = (struct sl_receipt){999, 999};
   uint64_t w = work.writes, f = work.flushes;
   CHECK(sl_apply(&counter, 3, 1, &out) == SL_FULL && out.id == 999 &&
         out.total == 999 && work.writes == w && work.flushes == f);
@@ -182,7 +182,7 @@ static int limits(void) {
 static int corruption(void) {
   CHECK(setup() == 0);
   CHECK(begin() == 0);
-  SlReceipt out;
+  struct sl_receipt out;
   CHECK(sl_apply(&counter, 2, 7, &out) == SL_OK);
   committed = work;
   for (unsigned which = 0; which < 3; which++) {
@@ -224,7 +224,7 @@ static int histories(int emit) {
       CHECK(begin() == 0);
       unsigned rest = code;
       int64_t expected = 10;
-      SlReceipt out;
+      struct sl_receipt out;
       for (unsigned step = 0; step < n; step++) {
         int64_t delta = (int64_t)(rest % 3) - 1;
         rest /= 3;
@@ -252,7 +252,7 @@ static int histories(int emit) {
 static int page(void) {
   CHECK(setup() == 0);
   CHECK(begin() == 0);
-  SlReceipt out;
+  struct sl_receipt out;
   CHECK(sl_apply(&counter, 2, -7, &out) == SL_OK);
   for (unsigned i = 0; i < 4096; i++)
     printf("%02x", work.stable[2][i]);

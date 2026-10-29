@@ -5,7 +5,7 @@ void ae_integrator_emit(unsigned s, unsigned x) {
   (void)s;
   (void)x;
 }
-AeCode ae_production_capacity(unsigned n) {
+enum ae_code ae_production_capacity(unsigned n) {
   (void)n;
   return AE_UNIMPLEMENTED;
 }

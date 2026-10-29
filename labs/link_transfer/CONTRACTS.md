@@ -61,7 +61,7 @@ extension does not permit reuse of the original EDU7 monotonic message IDs.
 
 ## X-T39-002-V1: borrowed records over a partial-progress stream
 
-Implement `LtBorrow`: two-byte big-endian length0..256 followed by exactly that
+Implement `struct lt_borrow`: two-byte big-endian length0..256 followed by exactly that
 many payload bytes. `lt_begin` retains the caller's immutable live payload;
 only its prefix is copied. It refuses an already active/terminal control.
 `lt_offer` exposes the current contiguous prefix or body suffix and its length;
@@ -102,7 +102,7 @@ the unpadded input is wrong, and investigate exact-alignment and zero inputs.
 
 ## X-T39-004-V2: VLAN-keyed learning
 
-`LtBridge` holds two independent actual `EDBridge` tables for configured VIDs10
+`struct lt_bridge` holds two independent actual `struct ed_bridge` tables for configured VIDs10
 and20; each retains four entries, three ports and TTL10. It supplies a global
 nonwrapping monotonic time boundary and atomically stages the selected table
 and output mask. Other VIDs are invalid. The same source MAC on VID10/port1
@@ -140,7 +140,7 @@ for deployment, and no board is flashed. PHY identifiers are not authentication.
 
 ## X-T40-003-V2: partial-fragment admission
 
-`LtPartial` composes the actual E7 sender with the original fragment codec and
+`struct lt_partial` composes the actual E7 sender with the original fragment codec and
 the borrowed-record emitter above. It owns at most32 encoded fragment bytes
 plus the prefix; its pointer into that array is rebound after staging. This
 changed lower service carries length-delimited fragment records, **not** the

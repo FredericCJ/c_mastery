@@ -9,7 +9,7 @@ int main(void) {
       for (unsigned id = 0; id < 2048; ++id)
         for (unsigned got_e = 0; got_e < 2; ++got_e)
           for (unsigned got_r = 0; got_r < 2; ++got_r) {
-            CaFrame v = {.id = id,
+            struct ca_frame v = {.id = id,
                          .extended = got_e,
                          .kind = got_r ? CA_REMOTE : CA_DATA};
             printf("%u %u %u %u %u %d\n", e, r, id, got_e, got_r,

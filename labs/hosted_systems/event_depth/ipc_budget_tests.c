@@ -2,16 +2,16 @@
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
-typedef struct {
+struct rd_clock {
   unsigned tick, mode, pending, writes, reads, waits;
-} Clock;
+};
 static int now(void *p, struct timespec *t) {
-  Clock *c = p;
+  struct rd_clock *c = p;
   *t = (struct timespec){0, (long)c->tick * 1000000};
   return 0;
 }
 static ssize_t transfer(void *p, int sending, unsigned char *bytes, size_t n) {
-  Clock *c = p;
+  struct rd_clock *c = p;
   (void)n;
   if (c->mode && !c->pending) {
     c->pending = 1;
@@ -33,7 +33,7 @@ static ssize_t transfer(void *p, int sending, unsigned char *bytes, size_t n) {
   return 1;
 }
 static int wait_ready(void *p, int sending, struct timespec left) {
-  Clock *c = p;
+  struct rd_clock *c = p;
   (void)sending;
   if (left.tv_sec < 0 || (left.tv_sec == 0 && left.tv_nsec <= 0)) {
     errno = EPROTO;
@@ -56,9 +56,9 @@ int main(void) {
                       expected[4] = {20, 21, 22, 23};
   for (unsigned mode = 0; mode < 3; ++mode)
     for (unsigned budget = 0; budget <= 26; ++budget) {
-      Clock c = {.mode = mode};
-      EiIo ops = {now, transfer, wait_ready, &c};
-      EiProgress p = {0};
+      struct rd_clock c = {.mode = mode};
+      struct ei_io ops = {now, transfer, wait_ready, &c};
+      struct ei_progress p = {0};
       unsigned char out[4] = {99, 99, 99, 99};
       int r = ei_exchange(ops, request, out,
                           (struct timespec){0, (long)budget * 1000000}, &p);
@@ -74,9 +74,9 @@ int main(void) {
               out[2] == 99 && out[3] == 99);
       ++cases;
     }
-  Clock c = {0};
-  EiIo ops = {now, transfer, wait_ready, &c};
-  EiProgress invalid = {.sent = 9};
+  struct rd_clock c = {0};
+  struct ei_io ops = {now, transfer, wait_ready, &c};
+  struct ei_progress invalid = {.sent = 9};
   unsigned char out[4] = {99, 99, 99, 99};
   CHECK(ei_exchange(ops, request, out, (struct timespec){1, 0}, &invalid) ==
             -1 &&

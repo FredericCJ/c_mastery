@@ -10,34 +10,34 @@
     }                                                                          \
   } while (0)
 #define NIL UINT32_MAX
-static SpIndex index_a, scratch, saved;
+static struct sp_index index_a, scratch, saved;
 static unsigned rng = 913;
 static unsigned next(void) {
   rng = rng * 1664525u + 1013904223u;
   return rng;
 }
 static uint32_t bit(unsigned i) { return UINT32_C(1) << i; }
-static SpItem point(unsigned id, int x, int y, int z) {
-  SpItem a = {id, {{x, y, z}, {x, y, z}}};
+static struct sp_item point(unsigned id, int x, int y, int z) {
+  struct sp_item a = {id, {{x, y, z}, {x, y, z}}};
   return a;
 }
-static int hit(SpBox a, SpBox b, unsigned dim) {
+static int hit(struct sp_box a, struct sp_box b, unsigned dim) {
   for (unsigned k = 0; k < dim; k++)
     if (a.lo[k] > b.hi[k] || a.hi[k] < b.lo[k])
       return 0;
   return 1;
 }
-static int inside(SpBox outer, SpBox inner, unsigned dim) {
+static int inside(struct sp_box outer, struct sp_box inner, unsigned dim) {
   for (unsigned k = 0; k < dim; k++)
     if (outer.lo[k] > inner.lo[k] || outer.hi[k] < inner.hi[k])
       return 0;
   return 1;
 }
 static unsigned nodes_seen, leafdepth;
-static uint32_t treecheck(const SpIndex *t, unsigned at, unsigned depth,
+static uint32_t treecheck(const struct sp_index *t, unsigned at, unsigned depth,
                           int root) {
   CHECK(at < 128);
-  const SpNode *n = &t->nodes[at];
+  const struct sp_node *n = &t->nodes[at];
   CHECK(n->active);
   CHECK(depth < 32);
   nodes_seen++;
@@ -95,7 +95,7 @@ static uint32_t treecheck(const SpIndex *t, unsigned at, unsigned depth,
   }
   return mask;
 }
-static void invariant(const SpIndex *t) {
+static void invariant(const struct sp_index *t) {
   if (t->kind == SP_GRID) {
     unsigned refs = 0;
     uint32_t mask = 0;
@@ -104,7 +104,7 @@ static void invariant(const SpIndex *t) {
       for (unsigned j = t->buckets[h]; j != NIL; j = t->refs[j].next) {
         CHECK(j < t->used && seen[j]++ == 0);
         refs++;
-        const SpRef *r = &t->refs[j];
+        const struct sp_ref *r = &t->refs[j];
         CHECK(r->item < 32);
         mask |= bit(r->item);
         for (unsigned k = 0; k < 3; k++) {
@@ -127,10 +127,10 @@ static void invariant(const SpIndex *t) {
   CHECK(nodes_seen == t->used);
 }
 static void queries(unsigned print) {
-  const SpIndex *t = &index_a;
+  const struct sp_index *t = &index_a;
   invariant(t);
   for (unsigned k = 0; k < 120; k++) {
-    SpBox q = {{0, 0, 0}, {0, 0, 0}};
+    struct sp_box q = {{0, 0, 0}, {0, 0, 0}};
     int32_t p[3] = {0, 0, 0};
     unsigned w[3] = {1, 1, 1};
     for (unsigned d = 0; d < t->dim; d++) {
@@ -143,7 +143,7 @@ static void queries(unsigned print) {
     for (unsigned i = 0; i < 32; i++)
       if ((t->live & bit(i)) && hit(t->items[i].box, q, t->dim))
         expected |= bit(i);
-    SpResult r;
+    struct sp_result r;
     CHECK(sp_query(t, q, &r) == SP_OK);
     CHECK(r.mask == expected);
     CHECK(r.tests <= 32);
@@ -152,7 +152,7 @@ static void queries(unsigned print) {
       printf("Q %d %d %d %d %d %d %u %u %u\n", q.lo[0], q.lo[1], q.lo[2],
              q.hi[0], q.hi[1], q.hi[2], r.mask, r.visits, r.tests);
     if (t->kind == SP_KD || t->kind == SP_BVH) {
-      SpNearest n;
+      struct sp_nearest n;
       CHECK(sp_nearest(t, p, w, &n) == SP_OK);
       uint64_t best = UINT64_MAX;
       unsigned id = NIL;
@@ -211,13 +211,13 @@ static void dumpitems(void) {
   printf("S %u %u %u\n", index_a.kind, index_a.dim, index_a.count);
   for (unsigned i = 0; i < 32; i++)
     if (index_a.live & bit(i)) {
-      SpItem x = index_a.items[i];
+      struct sp_item x = index_a.items[i];
       printf("I %u %d %d %d %d %d %d\n", i, x.box.lo[0], x.box.lo[1],
              x.box.lo[2], x.box.hi[0], x.box.hi[1], x.box.hi[2]);
     }
 }
 static void exercise(unsigned kind, unsigned dim, unsigned print) {
-  SpItem list[32];
+  struct sp_item list[32];
   for (unsigned i = 0; i < 32; i++) {
     list[i] = point(i, (int)(next() % 24) - 12, (int)(next() % 24) - 12,
                     dim == 3 ? (int)(next() % 24) - 12 : 0);
@@ -254,7 +254,7 @@ static void exercise(unsigned kind, unsigned dim, unsigned print) {
     dumpitems();
   queries(print);
   saved = index_a;
-  SpItem invalid = list[0];
+  struct sp_item invalid = list[0];
   invalid.box.lo[0] = 1025;
   CHECK(sp_edit(&index_a, &scratch, 2, invalid) == SP_INVALID);
   CHECK(memcmp(&saved, &index_a, sizeof saved) == 0);
@@ -262,7 +262,7 @@ static void exercise(unsigned kind, unsigned dim, unsigned print) {
     CHECK(sp_edit(&index_a, &scratch, 3, list[i]) == SP_OK);
     invariant(&index_a);
   }
-  SpResult r = {99, 99, 99};
+  struct sp_result r = {99, 99, 99};
   CHECK(sp_query(&index_a, list[0].box, &r) == SP_OK && r.mask == 0);
   CHECK(sp_build(&index_a, &scratch, kind, dim, NULL, 0, 0, 4) == SP_OK);
   saved = index_a;
@@ -278,18 +278,18 @@ static void exercise(unsigned kind, unsigned dim, unsigned print) {
   CHECK(memcmp(&saved, &index_a, sizeof saved) == 0);
 }
 static void boundaries(unsigned kind) {
-  SpItem a[5] = {point(0, -1, 0, 0), point(1, 1, 0, 0), point(2, 0, 1, 0),
+  struct sp_item a[5] = {point(0, -1, 0, 0), point(1, 1, 0, 0), point(2, 0, 1, 0),
                  point(3, 0, 0, 0), point(4, 0, 0, 0)};
   CHECK(sp_build(&index_a, &scratch, kind, 2, a, 5, 128, 2) == SP_OK);
   invariant(&index_a);
   saved = index_a;
   CHECK(sp_edit(&index_a, &scratch, 1, a[0]) == SP_INVALID);
-  SpItem missing = point(31, 0, 0, 0);
+  struct sp_item missing = point(31, 0, 0, 0);
   CHECK(sp_edit(&index_a, &scratch, 2, missing) == SP_MISSING);
   CHECK(sp_edit(&index_a, &scratch, 3, missing) == SP_MISSING);
   CHECK(memcmp(&index_a, &saved, sizeof saved) == 0);
-  SpResult untouched = {77, 88, 99};
-  SpBox invalid = {{1, 0, 0}, {0, 0, 0}};
+  struct sp_result untouched = {77, 88, 99};
+  struct sp_box invalid = {{1, 0, 0}, {0, 0, 0}};
   CHECK(sp_query(&index_a, invalid, &untouched) == SP_INVALID);
   CHECK(untouched.mask == 77 && untouched.visits == 88 &&
         untouched.tests == 99);
@@ -299,7 +299,7 @@ static void boundaries(unsigned kind) {
   if (kind == SP_KD) {
     int32_t p[3] = {0, 0, 0};
     unsigned w[3] = {1, 1, 1};
-    SpNearest n;
+    struct sp_nearest n;
     CHECK(sp_nearest(&index_a, p, w, &n) == SP_OK && n.id == 3);
     a[0] = point(0, 2, 0, 0);
     a[1] = point(1, 0, 3, 0);
@@ -307,15 +307,15 @@ static void boundaries(unsigned kind) {
     w[0] = 4;
     CHECK(sp_nearest(&index_a, p, w, &n) == SP_OK && n.id == 1 &&
           n.distance == 9);
-    SpItem line[32];
+    struct sp_item line[32];
     for (unsigned i = 0; i < 32; i++)
       line[i] = point(i, (int)i - 16, 0, 0);
     CHECK(sp_build(&index_a, &scratch, SP_KD, 3, line, 32, 128, 0) == SP_OK);
     queries(0);
   }
   if (kind == SP_BVH) {
-    SpBox q = {{-1, 0, 0}, {-1, 0, 0}};
-    SpResult r;
+    struct sp_box q = {{-1, 0, 0}, {-1, 0, 0}};
+    struct sp_result r;
     CHECK(sp_query(&index_a, q, &r) == SP_OK && r.mask == 1);
     a[0] = point(0, 1024, 1024, 0);
     CHECK(sp_refit(&index_a, &scratch, a[0]) == SP_OK);
@@ -323,7 +323,7 @@ static void boundaries(unsigned kind) {
     invariant(&index_a);
   }
   if (kind == SP_QUAD) {
-    SpResult r;
+    struct sp_result r;
     CHECK(sp_query(&index_a, a[3].box, &r) == SP_OK &&
           r.mask == (bit(3) | bit(4)));
     a[0] = point(0, -16, -16, 0);
@@ -337,7 +337,7 @@ static void boundaries(unsigned kind) {
   }
   if (kind == SP_GRID) {
     invariant(&index_a);
-    a[0].box = (SpBox){{-2, -2, 0}, {2, 2, 0}};
+    a[0].box = (struct sp_box){{-2, -2, 0}, {2, 2, 0}};
     a[1].box = a[0].box;
     CHECK(sp_build(&index_a, &scratch, kind, 2, a, 2, 128, 2) == SP_OK);
     uint32_t rows[32];
@@ -352,18 +352,18 @@ static void boundaries(unsigned kind) {
       CHECK(sp_pairs(&index_a, rows, &candidates) == SP_OK && rows[0] == 2 &&
             candidates == 1);
     }
-    a[0].box = (SpBox){{0, 0, 0}, {31, 31, 31}};
+    a[0].box = (struct sp_box){{0, 0, 0}, {31, 31, 31}};
     CHECK(sp_build(&index_a, &scratch, kind, 3, a, 1, 256, 16) == SP_OK);
     CHECK(index_a.used == 8);
     saved = index_a;
     CHECK(sp_build(&index_a, &scratch, kind, 3, a, 1, 256, 1) == SP_FULL);
     CHECK(memcmp(&saved, &index_a, sizeof saved) == 0);
-    SpResult r;
+    struct sp_result r;
     CHECK(sp_query(&index_a, a[0].box, &r) == SP_OK && r.mask == 1);
   }
 }
 static void refit_comparison(void) {
-  SpItem items[32];
+  struct sp_item items[32];
   for (unsigned i = 0; i < 32; i++)
     items[i] = point(i, (int)i * 8, 0, 0);
   CHECK(sp_build(&index_a, &scratch, SP_BVH, 3, items, 32, 128, 0) == SP_OK);
@@ -384,7 +384,7 @@ static void refit_comparison(void) {
   uint32_t expected[32];
   unsigned old_visits = 0, new_visits = 0;
   for (unsigned i = 0; i < 32; i++) {
-    SpResult r;
+    struct sp_result r;
     CHECK(sp_query(&index_a, items[i].box, &r) == SP_OK);
     expected[i] = 0;
     for (unsigned j = 0; j < 32; j++)
@@ -395,7 +395,7 @@ static void refit_comparison(void) {
   }
   CHECK(sp_build(&index_a, &scratch, SP_BVH, 3, items, 32, 128, 0) == SP_OK);
   for (unsigned i = 0; i < 32; i++) {
-    SpResult r;
+    struct sp_result r;
     CHECK(sp_query(&index_a, items[i].box, &r) == SP_OK &&
           r.mask == expected[i]);
     new_visits += r.visits;

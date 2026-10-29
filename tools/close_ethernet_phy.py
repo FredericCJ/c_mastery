@@ -10,7 +10,7 @@ def write(p,d):p.write_text(json.dumps(d,indent=2)+'\n',encoding='utf8')
 def canon(p):return ROOT/('curriculum/v5/expansion/legacy_assessments/'+p+'.json')
 def all_rows(r):
  patterns={'T39.05.a':['.access','.mapped','.mutation.ADDRESS','.port.audit'],'T39.05.b':['.access','.lifecycle','.bounded','.faults','.mutation.RESET','.mutation.ACK','.mutation.BUSY','.mutation.BOUND','.closure','.stack'],'T39.05.c':['.lifecycle','.leases','.mutation.EPOCH','.mutation.LATCH','.mutation.READY']}
- why={'T39.05.a':'Actual F439 divisor/command adapter, excluded HCLK and primary route/clock analysis with object access audit.','T39.05.b':'Actual MDIO read/write/reset/restart-ack/identity/current-status implementation, finite-clock/poll budget and78 callback failure positions.','T39.05.c':'Resolved-mode admission, historical/current link retirement and actual retained EDTx copy/abort lease composition; no inference of physical DMA quiescence.'}
+ why={'T39.05.a':'Actual F439 divisor/command adapter, excluded HCLK and primary route/clock analysis with object access audit.','T39.05.b':'Actual MDIO read/write/reset/restart-ack/identity/current-status implementation, finite-clock/poll budget and78 callback failure positions.','T39.05.c':'Resolved-mode admission, historical/current link retirement and actual retained struct ed_tx copy/abort lease composition; no inference of physical DMA quiescence.'}
  rows=[]
  for p in PROJECTS:
   for c in read(canon(p))['criteria']:

@@ -5,6 +5,6 @@
  * ACK or PSH|ACK, exact next sequence, no SYN/FIN/RST/options/reassembly.
  * A complete TCB must validate ACK/window/control state before this adapter.
  * Borrowed Ethernet frame excludes FCS. BUSY retains sequence and queue. */
-int nw_ingress(NwRx *, uint32_t *next_sequence, uint16_t peer_port,
+int nw_ingress(struct nw_rx *, uint32_t *next_sequence, uint16_t peer_port,
                const unsigned char *frame, size_t length);
 #endif

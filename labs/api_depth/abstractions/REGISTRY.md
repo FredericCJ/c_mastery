@@ -1,7 +1,7 @@
 # T19 callbacks, suppression and terminal ownership
 
 PR-T19-01 T19.03.a/b/c ordinary and original changed tasks use families A/B/C/D/F/G/J.
-Bring the T18 callback ownership dossier and actual `ApiRegistry` component. Use
+Bring the T18 callback ownership dossier and actual `struct api_registry` component. Use
 C17 hosted GCC/Clang O0/O2 and ASan/UBSan. Implement `registry.c`; keep assessor
 bodies private. This is original local synthetic software, with no external
 service, deployed system, credentials or host-security changes.

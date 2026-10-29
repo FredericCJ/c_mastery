@@ -4,7 +4,7 @@ This packet supplies T19.01.a–c and T19.02.a–c, ordinary and original change
 tasks, for PR-T19-01. Retain each original AX identifier and minimum-seven-day
 variant. Families A/B/C/D/F/G/H/I apply. Prerequisites: the T18 ownership/API
 contract dossier, compatible function types, object representation and allocation
-alignment. Reuse the actual `AcLedger` resource provider; its implementation is
+alignment. Reuse the actual `struct ac_ledger` resource provider; its implementation is
 an explicit imported reference during author validation, never learner evidence.
 
 Use C17 hosted Linux, strict GCC/Clang warnings, O0/O2 and ASan/UBSan. Public
@@ -14,7 +14,7 @@ does not authorize deployed targets, hardware actions or changes to host policy.
 
 ## A state object is more than fields
 
-Implement a session owning resource IDs0 and1 in a live `AcLedger`. The counter
+Implement a session owning resource IDs0 and1 in a live `struct ac_ledger`. The counter
 is0..15; NEW, ACTIVE, SUSPENDED and STOPPED are explicit states. NEW and STOPPED
 have no resources; construction may internally set ready=1 after resource0 is
 acquired, but the state remains NEW and every public operation rejects until the
@@ -56,8 +56,8 @@ storage. Null opaque destroy is successful. Successful destruction consumes the
 pointer; a second call through that pointer is invalid, unlike repeated stop on
 still-live caller storage.
 
-Compare a caller-owned `AsSession` embedded as a genuine typed aggregate with
-an allocated incomplete `AsOpaque`. Both use the same state core. A legal client
+Compare a caller-owned `struct as_session` embedded as a genuine typed aggregate with
+an allocated incomplete `struct as_opaque`. Both use the same state core. A legal client
 assignment `plain.count=16` breaks the former invariant and must be rejected by
 the next operation. Ordinary field access through the incomplete public type
 must be diagnosed. This is representation hiding, not affine ownership, borrow
@@ -67,8 +67,8 @@ a hidden struct merely to claim heap-free embedding.
 
 ## Exact tables, context and represented extent
 
-Use `AsRun(void *,AsEvent)` exactly. One backend borrows `AsSession *`; another
-borrows a live `AsExtra` containing that session pointer and a bounded invocation
+Use `as_run_fn(void *,enum as_event)` exactly. One backend borrows `struct as_session *`; another
+borrows a live `struct as_extra` containing that session pointer and a bounded invocation
 counter. The adapter converts the object pointer to its real type; it does not
 cast an incompatible function pointer. Diagnose a `long(int *,int)` assignment
 under strict warnings and never invoke it. The extra context must outlive every
@@ -81,10 +81,10 @@ bytes once for the shared case, instance/context bytes per object, and table byt
 per object in the copied case. `const` is an interface promise about mutation
 through that object, not a universal protection against invalid casts or races.
 
-Descriptors are native in-process representations of valid `AsOpsV1/AsOpsV2`
+Descriptors are native in-process representations of valid `struct as_ops_v1/struct as_ops_v2`
 objects. They are **not a wire format**: random bytes cannot supply valid function
 pointers. The extent must refer to live readable storage. Copy the header only
-after `available>=sizeof(AsHeader)`, validate represented bytes against available,
+after `available>=sizeof(struct as_header)`, validate represented bytes against available,
 then copy only the known prefix. Version1 requires run; version2 also represents
 a flush slot that may be null. Missing flush returns unsupported; a missing
 required run is invalid. Reject unsupported versions and every unknown flag.

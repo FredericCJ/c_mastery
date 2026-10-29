@@ -38,7 +38,7 @@ authorization argument. Its effect is only an integer actuator state.
 
 ## Representation, operations and ownership
 
-`CfFirmware` owns a portable CsService, a CPFRing, a PdTransfer and two64-byte DMA
+`struct cf_firmware` owns a portable CsService, a CPFRing, a PdTransfer and two64-byte DMA
 buffers. It also owns finite recovery/replay counters and first-fault state. It
 does not expose Linux descriptors or register addresses through the core API.
 BOOT reaches RUNNING only after bounded clock readiness; a two-observation

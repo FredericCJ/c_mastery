@@ -43,7 +43,7 @@ int ds_broker_process_experiment(void) {
   volatile int private_value=17;pid_t child=fork();
   if(child<0){close(pair[0]);close(pair[1]);return 1;}
   if(child==0){close(pair[0]);private_value=999;(void)private_value;int rc=client(pair[1]);close(pair[1]);_exit(rc);}
-  close(pair[1]);DSBroker authority={0};ds_broker_init(&authority);unsigned frames=0,partial=0;int stream_status=0;
+  close(pair[1]);struct ds_broker authority={0};ds_broker_init(&authority);unsigned frames=0,partial=0;int stream_status=0;
   for(unsigned i=0;i<32;++i){unsigned char request[16],reply[16];stream_status=receive_frame(pair[0],request,3,&partial);if(stream_status!=1)break;
     if(ds_broker_apply(&authority,0,request,reply)!=DS_OK){stream_status=-2;break;}
     ++frames;if(!send_bytes(pair[0],reply,16,2)){stream_status=-3;break;}

@@ -26,9 +26,9 @@ not dependencies of the target component.
 
 ## Representation and API
 
-Implement every declaration in `integer.h`. `FiRange` represents a closed subset
+Implement every declaration in `integer.h`. `struct fi_range` represents a closed subset
 of the native `int` range containing zero (`low<=0<=high`), not a new C integer
-type. `FiOperation` and `FiDivision` must be admitted before use. Caller-owned
+type. `enum fi_operation` and `enum fi_division` must be admitted before use. Caller-owned
 outputs must be live, correctly aligned and writable; output pairs designate
 distinct nonoverlapping objects. Null or identical paired outputs return INVALID.
 The API cannot establish arbitrary pointer validity from numeric range checks.

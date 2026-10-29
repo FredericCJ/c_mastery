@@ -36,7 +36,7 @@ def card(u, edition=4):
         p=u['decision_prompt'];out+=['**Design gate:** '+p['question']+' Alternatives: '+'; '.join(p['alternatives'])+'. '+p['discriminator']+' **Reversal trigger:** '+p['reversal_trigger']]
     scoped=[c for c in u['claims'] if c['scope'] in {'physical','emulator'}]
     if scoped:
-        out+=['**Required target evidence:**\n\n'+'\n'.join('- '+c['scope']+': '+', '.join(c.get('targets',[c.get('target','declared target')]))+(' / interfaces '+', '.join(c['interfaces']) if c.get('interfaces') else '')+(' / CPU counts '+str(c['cpus']) if c.get('cpus') else '')+(' / accepted source units '+', '.join(c['source_units']) if c.get('source_units') else '')+'.' for c in scoped)]
+        out+=['**Required target evidence:**\n\n'+'\n'.join('- '+c['scope']+': '+', '.join(c.get('targets',[c.get('target','declared target')]))+(' / interfaces '+', '.join(c['interfaces']) if c.get('interfaces') else '')+(' / struct lr_cpu counts '+str(c['cpus']) if c.get('cpus') else '')+(' / accepted source units '+', '.join(c['source_units']) if c.get('source_units') else '')+'.' for c in scoped)]
     if u['exports']:out+=['**Reusable exports:** '+', '.join('`'+a+'`' for a in u['exports'])+'. Export requires scoped component acceptance.']
     if u['readings']:
         out+=['**Bounded reading:**\n\n'+'\n'.join('- {ref}`'+r['resource_id']+'`: '+r['locator']+'. '+r.get('purpose','') for r in u['readings'])]

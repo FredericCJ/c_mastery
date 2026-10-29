@@ -4,11 +4,11 @@
 #ifndef SL_KIND
 #define SL_KIND 0
 #endif
-static SlLock lock;
-static SlNode nodes[2];
+static struct sl_lock lock;
+static struct sl_node nodes[2];
 static unsigned counter;
 static void *worker(void *context) {
- unsigned index=(unsigned)(uintptr_t)context;SlGuard guard={0};
+ unsigned index=(unsigned)(uintptr_t)context;struct sl_guard guard={0};
  assert(sl_enter(&lock,&nodes[index],&guard,NULL)==SL_OK);
  counter++;
  assert(sl_leave(&guard,NULL)==SL_OK);return NULL;

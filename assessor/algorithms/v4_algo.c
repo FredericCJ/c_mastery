@@ -1,6 +1,6 @@
 #include "v4_algo.h"
 #include <limits.h>
-int v4_reserve(V4Array *a, size_t cap) {
+int v4_reserve(struct v4_array *a, size_t cap) {
   if (!a || !a->allocator.take || !a->allocator.release ||
       a->length > a->capacity || (a->capacity && !a->data))
     return -1;
@@ -19,7 +19,7 @@ int v4_reserve(V4Array *a, size_t cap) {
   a->capacity = cap;
   return 0;
 }
-int v4_list_push(V4List *q, int32_t x) {
+int v4_list_push(struct v4_list *q, int32_t x) {
   if (!q || q->used == 255)
     return -1;
   unsigned n = 0;
@@ -35,7 +35,7 @@ int v4_list_push(V4List *q, int32_t x) {
   q->used |= 1u << n;
   return 0;
 }
-int v4_list_pop(V4List *q, int32_t *out) {
+int v4_list_pop(struct v4_list *q, int32_t *out) {
   if (!q || !out || !q->used)
     return -1;
   unsigned n = (unsigned)q->head;
@@ -46,7 +46,7 @@ int v4_list_pop(V4List *q, int32_t *out) {
     q->tail = -1;
   return 0;
 }
-int v4_free_take(V4Free *f, unsigned n, unsigned *out) {
+int v4_free_take(struct v4_free *f, unsigned n, unsigned *out) {
   if (!f || !out || !n)
     return -1;
   for (unsigned i = 0; i < f->count; i++)
@@ -65,7 +65,7 @@ int v4_free_take(V4Free *f, unsigned n, unsigned *out) {
     }
   return -1;
 }
-int v4_free_return(V4Free *f, unsigned start, unsigned n) {
+int v4_free_return(struct v4_free *f, unsigned start, unsigned n) {
   if (!f || !n || n > UINT_MAX - start || f->count > 8)
     return -1;
   unsigned i = 0;
@@ -140,7 +140,7 @@ int v4_knapsack(const unsigned *w, const unsigned *v, size_t n, unsigned cap,
   *out = dp[cap];
   return 0;
 }
-int v4_filter(V4Filter *f, int32_t x, int32_t *fir, int32_t *iir) {
+int v4_filter(struct v4_filter *f, int32_t x, int32_t *fir, int32_t *iir) {
   if (!f || !fir || !iir || f->position >= 3)
     return -1;
   unsigned p = f->position;

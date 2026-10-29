@@ -28,7 +28,7 @@ PACKETS=[
    'Transfer rotated/reflected/reversed channels and repeated request reuse; compare independent visibility paths and charge persistent/input/scratch/output regions.'],
   ['Rotate, reflect with repaired winding, scale and reverse the polygon corridor; reconstruct portal ownership and compare shortest length and admitted segments.',
    'Cancel a completed request, overwrite scratch, begin a new generation and exhaust both region budgets; old tickets stay stale while independently copied values survive.'],
-  'Given1..8 ordered strictly convex CCW polygons, construct shared portals and the taut point-agent path. The L-channel and1280 changed geometries supply exact workloads. Retain immutable corridor input across requests, use a typed NvScratch per computation, then publish a copied NvSession path under a nonwrapping ticket.',
+  'Given1..8 ordered strictly convex CCW polygons, construct shared portals and the taut point-agent path. The L-channel and1280 changed geometries supply exact workloads. Retain immutable corridor input across requests, use a typed struct nv_scratch per computation, then publish a copied struct nv_session path under a nonwrapping ticket.',
   'A geometrically valid path can still escape dead scratch or acquire a reused request identity. Corridor lifetime, temporary funnel storage and independently retained output require different region boundaries.')]
 def main():
  resources=[]

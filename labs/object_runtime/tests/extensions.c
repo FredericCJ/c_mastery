@@ -10,11 +10,11 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-static int eq(ORXHandle a, ORXHandle b) {
+static int eq(struct orx_handle a, struct orx_handle b) {
   return a.slot == b.slot && a.generation == b.generation;
 }
 static int values(void) {
-  ORXValue value = {0}, before;
+  struct orx_value value = {0}, before;
   unsigned char wire[6] = {2, 0x7f, 0x81, 0, 1, 0}, round[6];
   uint64_t bits;
   double d;
@@ -62,10 +62,10 @@ static int values(void) {
   return 0;
 }
 static int authority(void) {
-  ORXHeap h, other;
-  ORXHandle object, other_object, out = {99, 99};
-  ORXGrant grant;
-  ORXValue value = {0};
+  struct orx_heap h, other;
+  struct orx_handle object, other_object, out = {99, 99};
+  struct orx_grant grant;
+  struct orx_value value = {0};
   unsigned char round[6];
   orx_heap_init(&h);
   CHECK(orx_new(&h, (const unsigned char *)"local", 5, &object) == OR_OK);
@@ -78,18 +78,18 @@ static int authority(void) {
   orx_heap_init(&other);
   CHECK(orx_new(&other, (const unsigned char *)"other", 5, &other_object) ==
         OR_OK);
-  grant = (ORXGrant){&other, other_object};
+  grant = (struct orx_grant){&other, other_object};
   CHECK(orx_import(&h, value, &grant, &out) == OR_INVALID && out.slot == 99 &&
         h.entry[object.slot].roots == 1);
-  grant = (ORXGrant){&h, object};
+  grant = (struct orx_grant){&h, object};
   CHECK(orx_import(&h, value, &grant, &out) == OR_OK && eq(out, object) &&
         h.entry[object.slot].roots == 2);
   return 0;
 }
 static int pool(void) {
-  ORXHeap h, before;
-  ORXHandle a, b, c, old;
-  ORXTicket ticket;
+  struct orx_heap h, before;
+  struct orx_handle a, b, c, old;
+  struct orx_ticket ticket;
   const unsigned char *raw;
   size_t n;
   unsigned moved, dead;
@@ -134,11 +134,11 @@ static int pool(void) {
   return 0;
 }
 static int intern(void) {
-  ORXHeap h, before;
-  ORXIntern t, oldtable;
-  OwAllocator a = {0};
-  ORXHandle first, second, third, out = {99, 99};
-  ORXTicket ticket;
+  struct orx_heap h, before;
+  struct orx_intern t, oldtable;
+  struct ow_allocator a = {0};
+  struct orx_handle first, second, third, out = {99, 99};
+  struct orx_ticket ticket;
   const unsigned char *pinned;
   unsigned dead, removed, moved;
   unsigned char bytes[15];
@@ -196,29 +196,29 @@ static int intern(void) {
   /* A private rehash allocation must unwind when the independently full pool
    * rejects. */
   orx_heap_init(&h);
-  a = (OwAllocator){0};
+  a = (struct ow_allocator){0};
   CHECK(orx_intern_init(&t, &h, ow_allocator(&a)) == OR_OK);
   for (i = 0; i < 8; i++) {
     unsigned char b = (unsigned char)i;
     CHECK(orx_new(&h, &b, 1, &out) == OR_OK);
   }
-  out = (ORXHandle){99, 99};
+  out = (struct orx_handle){99, 99};
   CHECK(orx_intern_get(&t, NULL, 0, &out) == OR_FULL && a.live == 0 &&
         out.slot == 99 && t.bucket == NULL && t.used == 0);
   CHECK(orx_intern_close(&t) == OR_OK);
   for (i = 0; i < 8; i++)
-    CHECK(orx_release(&h, (ORXHandle){(uint8_t)i, 1}) == OR_OK);
+    CHECK(orx_release(&h, (struct orx_handle){(uint8_t)i, 1}) == OR_OK);
   CHECK(orx_collect(&h, &dead) == OR_OK && dead == 8);
   return 0;
 }
 static int foreign(void) {
-  ORXHeap h;
-  ORXHandle object, filler, other;
-  ORXTicket ticket, stale, next;
+  struct orx_heap h;
+  struct orx_handle object, filler, other;
+  struct orx_ticket ticket, stale, next;
   const unsigned char *raw;
   size_t length;
   unsigned n;
-  ORXBackend backend;
+  struct orx_backend backend;
   pthread_t thread;
   void *result;
   /* Mutation controls never strand a real thread on an intended assertion
@@ -241,7 +241,7 @@ static int foreign(void) {
   CHECK(orx_new(&h, (const unsigned char *)"AB", 2, &object) == OR_OK);
   CHECK(orx_new(&h, (const unsigned char *)"z", 1, &other) == OR_OK);
   CHECK(orx_foreign_begin(&h, object, 7, &ticket, &raw, &length) == OR_OK);
-  backend = (ORXBackend){.bytes = raw, .length = length};
+  backend = (struct orx_backend){.bytes = raw, .length = length};
   CHECK(pthread_mutex_init(&backend.lock, NULL) == 0);
   CHECK(pthread_cond_init(&backend.changed, NULL) == 0);
   CHECK(pthread_create(&thread, NULL, orx_backend_worker, &backend) == 0);
@@ -275,19 +275,19 @@ static int oracle(void) {
   unsigned sequence, fail, k, mask, i;
   for (sequence = 0; sequence < 625; sequence++)
     for (fail = 0; fail < 4; fail++) {
-      ORXHeap h;
-      ORXIntern t;
-      OwAllocator allocator = {0};
+      struct orx_heap h;
+      struct orx_intern t;
+      struct ow_allocator allocator = {0};
       unsigned word = sequence;
-      ORXHandle out;
+      struct orx_handle out;
       orx_heap_init(&h);
       CHECK(orx_intern_init(&t, &h, ow_allocator(&allocator)) == OR_OK);
       allocator.fail_at = fail;
       for (k = 0; k < 4; k++) {
         unsigned choice = word % 5;
-        ORStatus status;
+        enum or_status status;
         word /= 5;
-        out = (ORXHandle){99, 99};
+        out = (struct orx_handle){99, 99};
         status = orx_intern_get(&t, text[choice], length[choice], &out);
         printf("I %u %u %u %d %u %u %u %zu %zu\n", sequence, fail, k, status,
                out.slot, out.generation, t.capacity, allocator.attempts,
@@ -296,8 +296,8 @@ static int oracle(void) {
       CHECK(orx_intern_close(&t) == OR_OK && allocator.live == 0);
     }
   for (mask = 0; mask < 256; mask++) {
-    ORXHeap h;
-    ORXHandle handles[8];
+    struct orx_heap h;
+    struct orx_handle handles[8];
     unsigned dead, moved;
     orx_heap_init(&h);
     for (i = 0; i < 8; i++) {

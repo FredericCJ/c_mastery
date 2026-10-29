@@ -4,12 +4,12 @@
 #ifndef G4_BAUD
 #define G4_BAUD 115200u
 #endif
-volatile G4Capture g4_capture;
+volatile struct g4_capture g4_capture;
 volatile uint32_t g4_release_tx;
 static uint32_t ticks;
 static uint32_t count_tick(void *unused){(void)unused;return ticks++;}
 void g4_target_main(void){
- G4Io io=g4_physical_io();G4Init result={0};int r=g4_initialize(io,G4_BAUD,100000,&result);
+ struct g4_io io=g4_physical_io();struct g4_init result={0};int r=g4_initialize(io,G4_BAUD,100000,&result);
  g4_capture.magic=0x47345532u;g4_capture.version=2;g4_capture.status=(uint32_t)r;
  g4_capture.stage=result.stage;g4_capture.polls=result.polls;g4_capture.brr=result.brr;g4_capture.baud=G4_BAUD;
  if(result.stage>=3){
@@ -31,7 +31,7 @@ void g4_target_main(void){
   while(g4_release_tx!=0x54585245u)__asm__ volatile("nop");
   g4_capture.reserved[1]=1;
   const uint8_t pattern[]={0x55,0x00,0xff,0xa5,0x5a};
-  PlBytePort p=pl_generated((volatile uint32_t *)0x40004400u,1,count_tick,0);
+  struct pl_byte_port p=pl_generated((volatile uint32_t *)0x40004400u,1,count_tick,0);
   for(unsigned n=0;n<sizeof pattern;n++){
    /* W1C TCCF before the next byte avoids crediting an old TC observation. */
    *(volatile uint32_t *)0x40004420u=1u<<6;

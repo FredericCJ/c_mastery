@@ -20,8 +20,8 @@ def main(report):
  logs=BASE/'runs'/datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ');logs.mkdir(parents=True,exist_ok=False)
  pins={p.relative_to(ROOT).as_posix():sha(p) for p in sources()}
  value={'schema_version':1,'created_utc':datetime.now(timezone.utc).isoformat(),'inspected_paths':pins,'commands':[],'observations':[],
- 'scope':'Six hosted controller profiles; three compiler profiles of actual serial/parallel/late AP startup, two regenerated low-page layouts, sparse 1/2/4 CPUs and changed CPU model.',
- 'limits':['QEMU TCG evidence is not physical INIT/SIPI timing, arbitrary CPU compatibility or current errata review.','One-SIPI teaching policy, no retry on failed startup; Intel typical two-SIPI sequence is a separately identified difference.','Controller quiescence requires a trusted port premise; actual guest proves its specific permanent-stack handoff, not arbitrary caller attestations.','Bounded histories and finite machine matrix do not prove all executions, independent assessment or learner mastery.']}
+ 'scope':'Six hosted controller profiles; three compiler profiles of actual serial/parallel/late AP startup, two regenerated low-page layouts, sparse 1/2/4 CPUs and changed struct lr_cpu model.',
+ 'limits':['QEMU TCG evidence is not physical INIT/SIPI timing, arbitrary struct lr_cpu compatibility or current errata review.','One-SIPI teaching policy, no retry on failed startup; Intel typical two-SIPI sequence is a separately identified difference.','Controller quiescence requires a trusted port premise; actual guest proves its specific permanent-stack handoff, not arbitrary caller attestations.','Bounded histories and finite machine matrix do not prove all executions, independent assessment or learner mastery.']}
  env=dict(os.environ,ASAN_OPTIONS='detect_leaks=1:abort_on_error=1',UBSAN_OPTIONS='halt_on_error=1')
  def run(command,label,expected=0,marker=None,input_text=None,timeout=180):
   command=list(map(str,command));result=subprocess.run(command,capture_output=True,text=True,input=input_text,env=env,timeout=timeout);text=result.stdout+result.stderr
@@ -33,7 +33,7 @@ def main(report):
   value['toolchains']={tool:run([tool,'--version'],tool)[0].splitlines()[0] for tool in ('gcc','clang','qemu-system-x86_64','as','ld','objdump')}
   for model,props,available in (('qemu64',{},True),('max',{},True),('qemu64',{'nx':False},False)):
    feature=guest.cpu_features(model,props)
-   if feature['available']!=available or not available and feature['missing']!=['nx']:raise ValueError('CPU preflight did not distinguish unavailable NX')
+   if feature['available']!=available or not available and feature['missing']!=['nx']:raise ValueError('struct lr_cpu preflight did not distinguish unavailable NX')
    value['observations'].append({'target':'preflight','passed':True,**feature})
   with tempfile.TemporaryDirectory(prefix='smp-startup-') as directory:
    work=Path(directory);common=['-std=c17','-Wall','-Wextra','-Werror','-pedantic','-I'+str(PUBLIC)]

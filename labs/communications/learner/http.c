@@ -1,21 +1,21 @@
 #include "com_http.h"
 #include <string.h>
-void http_init(HttpParser *p, const char *authority) {
+void http_init(struct http_parser *p, const char *authority) {
   (void)authority;
   memset(p, 0, sizeof *p);
 }
-int http_feed(HttpParser *p, const void *v, size_t n, size_t *used) {
+int http_feed(struct http_parser *p, const void *v, size_t n, size_t *used) {
   (void)p;
   (void)v;
   (void)n;
   *used = 0;
   return HTTP_ERROR;
 }
-int http_eof(HttpParser *p) {
+int http_eof(struct http_parser *p) {
   (void)p;
   return HTTP_ERROR;
 }
-int http_response(const HttpRequest *r, const char *d, int c, void *o, size_t n,
+int http_response(const struct http_request *r, const char *d, int c, void *o, size_t n,
                   size_t *z) {
   (void)r;
   (void)d;
@@ -33,7 +33,7 @@ int http_expired(uint64_t n, uint64_t s, uint64_t p, uint64_t t, uint64_t i) {
   (void)i;
   return 0;
 }
-int http_drain(HttpWrite w, void *c, const void *v, size_t n, size_t *o) {
+int http_drain(http_write_fn w, void *c, const void *v, size_t n, size_t *o) {
   (void)w;
   (void)c;
   (void)v;

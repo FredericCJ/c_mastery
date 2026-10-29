@@ -14,24 +14,24 @@ enum {
   AR_EXHAUSTED,
   AR_UNIMPLEMENTED
 };
-typedef struct {
+struct ar_cell {
   atomic_uint state;
-  APValue value;
-} ARCell;
-typedef struct ARQueue {
+  struct ap_value value;
+};
+struct ar_queue {
   atomic_uint head, tail;
-  ARCell cells[AR_CAPACITY];
-  APHook hook;
+  struct ar_cell cells[AR_CAPACITY];
+  ap_hook_fn hook;
   void *context;
-} ARQueue;
-typedef struct {
-  const ARQueue *owner;
+};
+struct ar_ticket {
+  const struct ar_queue *owner;
   unsigned sequence;
-} ARTicket;
-void ar_init(ARQueue *, APHook, void *);
-int ar_reserve(ARQueue *, ARTicket *);
+};
+void ar_init(struct ar_queue *, ap_hook_fn, void *);
+int ar_reserve(struct ar_queue *, struct ar_ticket *);
 /* Exactly one producer calls finish once; cancellation does not replace it. */
-int ar_finish(ARQueue *, ARTicket, APValue);
-int ar_cancel(ARQueue *, ARTicket);
-int ar_pop(ARQueue *, APValue *);
+int ar_finish(struct ar_queue *, struct ar_ticket, struct ap_value);
+int ar_cancel(struct ar_queue *, struct ar_ticket);
+int ar_pop(struct ar_queue *, struct ap_value *);
 #endif

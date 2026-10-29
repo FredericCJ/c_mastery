@@ -14,7 +14,7 @@ int main(void) {
     for (unsigned b = 0; b < 3; ++b)
       for (unsigned c = 0; c < 3; ++c)
         for (unsigned order = 0; order < 2; ++order) {
-          NwTx tx[2];
+          struct nw_tx tx[2];
           unsigned char source[1600];
           unsigned segments[2] = {0, 0}, sum[2] = {0, 0};
           for (unsigned owner = 0; owner < 2; ++owner) {
@@ -28,10 +28,10 @@ int main(void) {
           while (tx[0].acknowledged < lengths[a] ||
                  tx[1].acknowledged < lengths[a]) {
             for (unsigned owner = 0; owner < 2; ++owner) {
-              NwTx *s = &tx[owner];
+              struct nw_tx *s = &tx[owner];
               if (s->acknowledged == s->length)
                 continue;
-              NwSegment segment;
+              struct nw_segment segment;
               CHECK(nw_prepare(s, msses[b], 0, &segment) == NW_WAIT);
               CHECK(nw_prepare(s, msses[b], windows[c], &segment) == NW_OK);
               uint16_t before = s->sent;
@@ -44,7 +44,7 @@ int main(void) {
                 sum[owner] += segment.bytes[i];
               }
               CHECK(nw_submit(s, segment.ticket, 1) == NW_OK);
-              NwTicket wrong = segment.ticket;
+              struct nw_ticket wrong = segment.ticket;
               wrong.owner = 40000 + !owner;
               CHECK(nw_ack(s, wrong, s->sent) == NW_STALE);
               if (order == 0)

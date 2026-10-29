@@ -72,7 +72,7 @@ def main():
    if row['instrumented']:continue
    key=json.dumps([row['compiler'],row['parameters'],row['metadata'].get('padded')]);groups.setdefault(key,[]).append(row)
   for key,rows in groups.items():
-   assert len(rows)==5 and {r['repeat'] for r in rows}==set(range(5));summary.append(dict(key=json.loads(key),elapsed_ns=distribution([r['metadata']['elapsed_ns'] for r in rows]),runs=[r['name'] for r in rows],uncertainty='five raw repeats; range and empirical quantiles, shared-host interference and clock/virtual-CPU effects not eliminated'))
+   assert len(rows)==5 and {r['repeat'] for r in rows}==set(range(5));summary.append(dict(key=json.loads(key),elapsed_ns=distribution([r['metadata']['elapsed_ns'] for r in rows]),runs=[r['name'] for r in rows],uncertainty='five raw repeats; range and empirical quantiles, shared-host interference and clock/virtual-struct lr_cpu effects not eliminated'))
   for cc in ('gcc','clang'):
    for size in (8,256):
     for affinity in (1,2):

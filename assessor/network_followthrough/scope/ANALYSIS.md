@@ -10,7 +10,7 @@ but do not satisfy the elapsed-time or learner requirements.
 
 The tuple is local/peer addresses and ports plus an externally assigned local
 incarnation. In the restricted pair adapter, both addresses and local port are
-fixed, so two distinct configured remote ports select two complete `NetStack`
+fixed, so two distinct configured remote ports select two complete `struct net_stack`
 objects. The epoch labels local lifetime; it is not transmitted authentication.
 Initialize only fresh or externally quiescent storage. Changing epoch while an
 old device still writes does not make reuse safe. Inactive capacity still occupies
@@ -28,7 +28,7 @@ specification explicitly relies on congestion-control requirements elsewhere;
 RFC1122 requires IPv4 reassembly. The predecessor profile rejects fragments and
 retains one flight; its successful controlled GET implements neither mechanism.
 Required reassembly and congestion work is registered separately, not downgraded
-to optional. A candidate who calls `NwPair` a general TCP implementation fails the
+to optional. A candidate who calls `struct nw_pair` a general TCP implementation fails the
 scope criterion even when all packet fixtures pass. Also identify the predecessor's
 fixed MAC, literal Date, fixed advertised window and lower-send assumptions.
 
@@ -41,7 +41,7 @@ ELF and must fail the independent reachability checker. This is a runtime-closur
 and layout argument, not a measurement of bandwidth, cache coherence or PHY behavior.
 
 Inspect compiler stack-usage output as well as static object sizes. A previous
-`*s = (NwPair){...}` generated a27768-byte local temporary at GCC O0. Together with
+`*s = (struct nw_pair){...}` generated a27768-byte local temporary at GCC O0. Together with
 its callers this exceeded the declared32768-byte reserve despite a passing pilot.
 The retained `NW_PAIR_MUTANT=2` reproduces this resource defect. The corrected
 initializer assigns scalar metadata and initializes each actual stack in place.

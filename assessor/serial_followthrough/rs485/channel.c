@@ -5,8 +5,8 @@
 #endif
 #define HALF UINT32_C(0x80000000)
 static uint32_t rounded(uint32_t ns,uint32_t tick){return ns/tick+(ns%tick!=0);}
-int r5_delays(const R5Timing *t,R5Delays *out) {
-    R5Delays d;uint32_t enable;
+int r5_delays(const struct r5_timing *t,struct r5_delays *out) {
+    struct r5_delays d;uint32_t enable;
     if(!t||!out||t->device>R5_THVD1400||t->receiver_disabled>1||!t->tick_ns||
        t->tick_ns>1000000||t->guard_ns>=HALF)return R5_INVALID;
     enable=t->device==R5_THVD1410?(t->receiver_disabled?11000u:600u):
@@ -21,23 +21,23 @@ int r5_load(unsigned n,unsigned bias,unsigned *out){
     if(!out||n>256||bias>256||n>256-bias)return R5_INVALID;
     *out=n+bias;return R5_OK;
 }
-static int valid(const R5Channel *s){
+static int valid(const struct r5_channel *s){
     return s&&s->phase>=R5_IDLE&&s->phase<=R5_TURNAROUND&&s->io.uart.read&&
         s->io.uart.write&&s->io.drive&&s->rx_capacity>=1&&s->rx_capacity<=16&&
         s->event_capacity>=3&&s->event_capacity<=32&&s->head<s->event_capacity&&
         s->queued<=s->event_capacity&&s->reserved<=s->event_capacity-s->queued&&
         s->rx_count<=s->rx_capacity;
 }
-static void event(R5Channel *s,unsigned kind,uint8_t value,uint8_t error,uint32_t token){
+static void event(struct r5_channel *s,unsigned kind,uint8_t value,uint8_t error,uint32_t token){
     unsigned at=(s->head+s->queued)%s->event_capacity;
-    s->events[at]=(R5Event){kind,value,error,token};++s->queued;
+    s->events[at]=(struct r5_event){kind,value,error,token};++s->queued;
     if(kind==R5_BYTE)++s->rx_count;
 }
-static int clock_ok(const R5Channel *s,uint32_t now){return now-s->last<HALF;}
+static int clock_ok(const struct r5_channel *s,uint32_t now){return now-s->last<HALF;}
 static int reached(uint32_t now,uint32_t due){return now-due<HALF;}
-int r5_open(R5Channel *s,R5Io io,const PuClock *clock,uint32_t baud,
-            const R5Timing *timing,unsigned rx_cap,unsigned event_cap,uint32_t now){
-    R5Delays delays;
+int r5_open(struct r5_channel *s,struct r5_io io,const struct pu_clock *clock,uint32_t baud,
+            const struct r5_timing *timing,unsigned rx_cap,unsigned event_cap,uint32_t now){
+    struct r5_delays delays;
     if(!s||s->phase!=R5_CLOSED||!io.uart.read||!io.uart.write||!io.drive||
        rx_cap<1||rx_cap>16||event_cap<3||event_cap>32||
        r5_delays(timing,&delays)!=R5_OK)return R5_INVALID;
@@ -46,7 +46,7 @@ int r5_open(R5Channel *s,R5Io io,const PuClock *clock,uint32_t baud,
     s->io=io;s->delays=delays;s->rx_capacity=rx_cap;s->event_capacity=event_cap;
     s->phase=R5_IDLE;s->last=now;io.drive(io.context,0);return R5_OK;
 }
-int r5_send(R5Channel *s,uint32_t token,const uint8_t *data,size_t n,
+int r5_send(struct r5_channel *s,uint32_t token,const uint8_t *data,size_t n,
             unsigned backend,uint32_t now,uint32_t budget,size_t *accepted){
     if(!valid(s)||!accepted||!data||!n||n>16||!budget||budget>=HALF||
        (backend!=PU_POLL&&backend!=PU_DMA)||!clock_ok(s,now))return R5_INVALID;
@@ -60,11 +60,11 @@ int r5_send(R5Channel *s,uint32_t token,const uint8_t *data,size_t n,
     s->reserved=R5_MUTANT==4?1u:2u;s->unavailable=0;s->result=PU_BUSY;s->phase=R5_ENABLING;
     s->io.drive(s->io.context,1);*accepted=n;return R5_OK;
 }
-static void turn(R5Channel *s,uint32_t now,unsigned result){
+static void turn(struct r5_channel *s,uint32_t now,unsigned result){
     s->result=result;s->io.drive(s->io.context,0);s->phase=R5_TURNAROUND;
     s->due=now+s->delays.disable+s->delays.guard;
 }
-static int start_lower(R5Channel *s,uint32_t now){
+static int start_lower(struct r5_channel *s,uint32_t now){
     uint32_t remaining=s->deadline-now;
     if(reached(now,s->deadline)){turn(s,now,PU_TIMEOUT);return R5_BUSY;}
     int r;
@@ -78,7 +78,7 @@ static int start_lower(R5Channel *s,uint32_t now){
     if(r!=PU_OK){turn(s,now,(unsigned)r);return R5_UNAVAILABLE;}
     s->phase=R5_ACTIVE;return R5_BUSY;
 }
-int r5_step(R5Channel *s,uint32_t token,uint32_t now){
+int r5_step(struct r5_channel *s,uint32_t token,uint32_t now){
     if(!valid(s)||!clock_ok(s,now))return R5_INVALID;
     if(s->phase==R5_IDLE||token!=s->token)return R5_STALE;
     s->last=now;
@@ -103,7 +103,7 @@ int r5_step(R5Channel *s,uint32_t token,uint32_t now){
     else if(r==PU_OK){s->offset+=s->chunk;if(s->offset<s->count&&s->result!=PU_CANCELLED)return start_lower(s,now);}
     turn(s,now,s->result==PU_CANCELLED?PU_CANCELLED:(unsigned)r);return R5_BUSY;
 }
-int r5_cancel(R5Channel *s,uint32_t token,uint32_t now){
+int r5_cancel(struct r5_channel *s,uint32_t token,uint32_t now){
     if(!valid(s)||!clock_ok(s,now))return R5_INVALID;
     if(s->phase==R5_IDLE||s->token!=token)return R5_STALE;
     s->last=now;
@@ -114,7 +114,7 @@ int r5_cancel(R5Channel *s,uint32_t token,uint32_t now){
                               pu_cancel(&s->tx.byte,s->io.uart,s->tx.byte.token);
     return r==PU_OK?R5_OK:R5_UNAVAILABLE;
 }
-int r5_receive(R5Channel *s,unsigned status,uint8_t value,size_t *consumed){
+int r5_receive(struct r5_channel *s,unsigned status,uint8_t value,size_t *consumed){
     unsigned errors=status&15u,need=(status&PU_RXNE?1u:0u)+(errors&7u?1u:0u)+(errors&PU_ORE?1u:0u);
     if(!valid(s)||!consumed||(status&~(15u|PU_RXNE))||!need)return R5_INVALID;
     if(s->phase!=R5_IDLE){if(s->echoes==UINT_MAX)return R5_FULL;++s->echoes;*consumed=1;return R5_OK;}
@@ -125,37 +125,37 @@ int r5_receive(R5Channel *s,unsigned status,uint8_t value,size_t *consumed){
     if(errors&PU_ORE)event(s,R5_OVERRUN,value,(uint8_t)errors,0);
     *consumed=1;return R5_OK;
 }
-int r5_receive_poll(R5Channel *s){
+int r5_receive_poll(struct r5_channel *s){
     if(!valid(s))return R5_INVALID;
     if(R5_MUTANT!=6&&(s->event_capacity-s->queued-s->reserved<3||s->rx_count==s->rx_capacity))return R5_FULL;
     int r=pu_rx_poll(&s->rx,s->io.uart,1);if(r==PU_TIMEOUT)return R5_BUSY;if(r!=PU_OK)return R5_UNAVAILABLE;
-    PuByte b;if(pu_take(&s->rx,&b)!=PU_OK)return R5_UNAVAILABLE;
+    struct pu_byte b;if(pu_take(&s->rx,&b)!=PU_OK)return R5_UNAVAILABLE;
     size_t consumed=0;return r5_receive(s,PU_RXNE|b.error,b.value,&consumed);
 }
-int r5_take(R5Channel *s,R5Event *out,size_t *consumed){
+int r5_take(struct r5_channel *s,struct r5_event *out,size_t *consumed){
     if(!valid(s)||!out||!consumed)return R5_INVALID;
     if(!s->queued){*consumed=0;return R5_BUSY;}
     *out=s->events[s->head];s->head=(s->head+1)%s->event_capacity;--s->queued;
     if(out->kind==R5_BYTE)--s->rx_count;
     *consumed=1;return R5_OK;
 }
-int r5_loss(R5Channel *s){
+int r5_loss(struct r5_channel *s){
     if(!valid(s))return R5_INVALID;
     if(s->queued+s->reserved==s->event_capacity)return R5_FULL;
     event(s,R5_LOSS,0,0,0);return R5_OK;
 }
-int r5_link(R5Link *s,const R5Event *e,EduFrame *out){
+int r5_link(struct r5_link *s,const struct r5_event *e,struct edu_frame *out){
     if(!s||!e||!out||s->local<1||s->local>2||s->grant>1||e->kind<R5_BYTE||e->kind>R5_DEVICE_UNAVAILABLE)return R5_INVALID;
     if(e->kind==R5_FRAMING||e->kind==R5_OVERRUN||e->kind==R5_LOSS||
        (e->kind==R5_BYTE&&e->error)){
         if(s->faults==UINT_MAX)return R5_FULL;
         ++s->faults;
-        if(R5_MUTANT!=3){EduFrame ignored;(void)edu_frame_byte(&s->parser,0,1,&ignored);}
+        if(R5_MUTANT!=3){struct edu_frame ignored;(void)edu_frame_byte(&s->parser,0,1,&ignored);}
         return R5_OK;
     }
     if(e->kind!=R5_BYTE)return R5_OK;
     if(s->delivered==UINT_MAX||s->rejected==UINT_MAX)return R5_FULL;
-    EduFrame f;int r=edu_frame_byte(&s->parser,e->value,0,&f);
+    struct edu_frame f;int r=edu_frame_byte(&s->parser,e->value,0,&f);
     if(r<0){++s->rejected;return R5_OK;}
     if(r==1){
         if(f.destination!=s->local||!s->grant){++s->rejected;return R5_OK;}

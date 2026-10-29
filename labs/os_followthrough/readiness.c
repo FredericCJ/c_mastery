@@ -20,12 +20,12 @@ static void notice(int n) {
   (void)n;
   signals++;
 }
-typedef struct {
+struct of_reader {
   unsigned char bytes[8];
   size_t used;
   unsigned complete, rejected;
-} Reader;
-static int step(Reader *r, int fd) {
+};
+static int step(struct of_reader *r, int fd) {
   if (r->complete || r->rejected)
     return -2;
   ssize_t n = read(fd, r->bytes + r->used, sizeof r->bytes - r->used);
@@ -52,7 +52,7 @@ int main(void) {
   CHECK(other >= 0);
   char c;
   CHECK(read(other, &c, 1) == 1 && c == 'x');
-  Reader r = {0};
+  struct of_reader r = {0};
   CHECK(step(&r, p[0]) == 2 && r.used == 0);
   CHECK(close(other) == 0);
   CHECK(write(p[1], "abcd", 4) == 4 && poll(&poller, 1, 1000) == 1 &&
@@ -62,7 +62,7 @@ int main(void) {
         !memcmp(r.bytes, "abcdefgh", 8));
   CHECK(close(p[0]) == 0 && close(p[1]) == 0);
   CHECK(pipe2(p, O_CLOEXEC | O_NONBLOCK) == 0);
-  r = (Reader){0};
+  r = (struct of_reader){0};
   CHECK(write(p[1], "ij", 2) == 2 && close(p[1]) == 0 && step(&r, p[0]) == 1 &&
         r.used == 2 && step(&r, p[0]) == 0 && r.rejected && !r.complete &&
         close(p[0]) == 0);

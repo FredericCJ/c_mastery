@@ -48,8 +48,8 @@ static void visibility(void *ctx, unsigned op, uint32_t address,
 #endif
 #endif
 }
-static int configure(void *ctx, const PdExtent *e, uint32_t token) {
-  PdPort *p = ctx;
+static int configure(void *ctx, const struct pd_extent *e, uint32_t token) {
+  struct pd_port *p = ctx;
   uint32_t total;
   if (!p || !token || pd_validate(PD_BOARD, PD_BOARD, e, 1, &total) != PD_OK)
     return 0;
@@ -69,16 +69,16 @@ static int configure(void *ctx, const PdExtent *e, uint32_t token) {
   return 1;
 }
 static void enable(void *ctx) {
-  PdPort *p = ctx;
+  struct pd_port *p = ctx;
   WR(DMA + 0x10, p->configuration | 1);
 }
 static void stop(void *ctx) {
   (void)ctx;
   WR(DMA + 0x10, RD(DMA + 0x10) & ~1u);
 }
-static PdSnapshot snapshot(void *ctx) {
-  PdPort *p = ctx;
-  PdSnapshot x = {p->token, 0, 0, 0, 0};
+static struct pd_snapshot snapshot(void *ctx) {
+  struct pd_port *p = ctx;
+  struct pd_snapshot x = {p->token, 0, 0, 0, 0};
   x.enabled = RD(DMA + 0x10) & 1;
   x.flags = RD(DMA) & 0x3d;
   if (!x.enabled) {
@@ -92,7 +92,7 @@ static PdSnapshot snapshot(void *ctx) {
   }
   return x;
 }
-PdIo pd_target_io(PdPort *p) {
-  PdIo io = {p, configure, enable, stop, snapshot, visibility};
+struct pd_io pd_target_io(struct pd_port *p) {
+  struct pd_io io = {p, configure, enable, stop, snapshot, visibility};
   return io;
 }

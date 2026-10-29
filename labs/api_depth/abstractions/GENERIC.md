@@ -32,7 +32,7 @@ removal. Exact published-edition access is still recorded separately.
 
 ## Erased storage needs real typed objects
 
-`AsErased` owns a live prefix of a caller-owned array of capacity0..4. Its descriptor
+`struct as_erased` owns a live prefix of a caller-owned array of capacity0..4. Its descriptor
 contains byte size, alignment, exact copy/drop functions and live callback context.
 Caller supplies correctly typed destination, staging and source arrays, mutually
 disjoint. Do not substitute an aligned byte array for a declared array of owning
@@ -60,7 +60,7 @@ relocation bytes; hook work is additional. Temporary bytes are n*element_size,
 bounded by the four-element supplied staging array. Owned strings additionally
 require separately counted allocations. Compare these costs with typed pushes.
 
-Use actual resource-owning `AsValue` elements. Arrange allocation failure on the
+Use actual resource-owning `struct as_value` elements. Arrange allocation failure on the
 second staged clone. The existing destination integer7 must remain, source owners
 must remain, and one staged allocation must be freed. On success, mutate a source
 owned string and show the destination deep copy is independent. A shallow pointer
@@ -71,7 +71,7 @@ already own a resource; constructors/clone/move cannot silently overwrite an own
 
 ## Alternatives and conversion
 
-`AsValue` has explicit tags INT, TEXT, ERROR, OWNED. Validate the tag before reading
+`struct as_value` has explicit tags INT, TEXT, ERROR, OWNED. Validate the tag before reading
 its selected union member. INT carries an int; TEXT borrows0..8 bytes, including
 embedded zero; empty null text is valid. ERROR has a negative code and explicit
 offset. OWNED contains nonnull allocated data,0..8 length and its allocator. Even

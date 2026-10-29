@@ -5,7 +5,7 @@ static void ok(int e) {
   if (e)
     abort();
 }
-int tp_queue_init(TPEndQueue *q) {
+int tp_queue_init(struct tp_end_queue *q) {
   int e = pthread_mutex_init(&q->gate, NULL);
   if (e)
     return e;
@@ -14,7 +14,7 @@ int tp_queue_init(TPEndQueue *q) {
     ok(pthread_mutex_destroy(&q->gate));
     return e;
   }
-  TWInit report;
+  struct tw_init report;
   e = tw_queue_init(&q->queue, 0, &report);
   if (e) {
     ok(pthread_cond_destroy(&q->quiet));
@@ -26,7 +26,7 @@ int tp_queue_init(TPEndQueue *q) {
   q->discarded_sum = 0;
   return 0;
 }
-static int enter(TPEndQueue *q, int writing) {
+static int enter(struct tp_end_queue *q, int writing) {
   ok(pthread_mutex_lock(&q->gate));
   int e = 0;
   if (q->closing)
@@ -40,7 +40,7 @@ static int enter(TPEndQueue *q, int writing) {
   ok(pthread_mutex_unlock(&q->gate));
   return e;
 }
-static void leave(TPEndQueue *q, int e, int write) {
+static void leave(struct tp_end_queue *q, int e, int write) {
   ok(pthread_mutex_lock(&q->gate));
   if (!e) {
     if (write)
@@ -52,7 +52,7 @@ static void leave(TPEndQueue *q, int e, int write) {
   ok(pthread_cond_broadcast(&q->quiet));
   ok(pthread_mutex_unlock(&q->gate));
 }
-int tp_queue_push(TPEndQueue *q, int value) {
+int tp_queue_push(struct tp_end_queue *q, int value) {
   if (value < 0 || value > 1000000)
     return EINVAL;
   int old;
@@ -67,7 +67,7 @@ int tp_queue_push(TPEndQueue *q, int value) {
   ok(pthread_setcancelstate(old, NULL));
   return e;
 }
-int tp_queue_pop(TPEndQueue *q, int *out) {
+int tp_queue_pop(struct tp_end_queue *q, int *out) {
   int old;
   ok(pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &old));
   int e = enter(q, 0);
@@ -80,7 +80,7 @@ int tp_queue_pop(TPEndQueue *q, int *out) {
   ok(pthread_setcancelstate(old, NULL));
   return e;
 }
-int tp_queue_abort(TPEndQueue *q) {
+int tp_queue_abort(struct tp_end_queue *q) {
   int old;
   ok(pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &old));
   ok(pthread_mutex_lock(&q->gate));
@@ -113,7 +113,7 @@ int tp_queue_abort(TPEndQueue *q) {
   ok(pthread_setcancelstate(old, NULL));
   return 0;
 }
-void tp_queue_destroy(TPEndQueue *q) {
+void tp_queue_destroy(struct tp_end_queue *q) {
   if (!q->retired || q->inflight)
     abort();
   ok(pthread_cond_destroy(&q->quiet));

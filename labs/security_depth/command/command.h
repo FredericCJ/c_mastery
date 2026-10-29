@@ -16,56 +16,56 @@ enum sc_result {
   SC_EXHAUSTED,
   SC_UNIMPLEMENTED
 };
-typedef struct {
+struct sc_authority {
   unsigned generation, allowed;
-} SCAuthority;
-typedef struct {
+};
+struct sc_command {
   unsigned opcode, count, generation;
   uint16_t values[4];
-} SCCommand;
-typedef struct {
+};
+struct sc_batch {
   unsigned count, work;
-  SCCommand commands[4];
-} SCBatch;
-typedef struct {
+  struct sc_command commands[4];
+};
+struct sc_meter {
   unsigned headers, values, bytes;
-} SCMeter;
-enum sc_result sc_decode(const unsigned char *, size_t, const SCAuthority *,
-                         int, SCBatch *, SCMeter *);
-enum sc_result sc_revoke(SCAuthority *);
-enum sc_result sc_apply(const SCBatch *, const SCAuthority *, uint32_t *,
+};
+enum sc_result sc_decode(const unsigned char *, size_t, const struct sc_authority *,
+                         int, struct sc_batch *, struct sc_meter *);
+enum sc_result sc_revoke(struct sc_authority *);
+enum sc_result sc_apply(const struct sc_batch *, const struct sc_authority *, uint32_t *,
                         uint32_t *);
 enum sc_result sc_decimal(const unsigned char *, size_t, int, unsigned *,
                           char[2]);
 enum sc_result sc_extent(size_t, size_t, size_t, size_t, size_t *);
 /* Original intentionally flawed authority target; synthetic counter only. */
 enum sc_result sc_flawed_authority(const unsigned char *, size_t, uint32_t *);
-typedef struct {
+struct sc_ticket {
   unsigned index, generation;
-} SCTicket;
-typedef struct {
+};
+struct sc_job {
   unsigned active, generation, retries;
-  SCBatch request;
-} SCJob;
-typedef struct {
-  SCJob jobs[3];
+  struct sc_batch request;
+};
+struct sc_service {
+  struct sc_job jobs[3];
   unsigned used, count, terminal, released, control_pending, closed;
-} SCService;
-void sc_service_init(SCService *);
-enum sc_result sc_submit(SCService *, const SCBatch *, SCTicket *);
-enum sc_result sc_finish(SCService *, SCTicket, int, const SCAuthority *,
+};
+void sc_service_init(struct sc_service *);
+enum sc_result sc_submit(struct sc_service *, const struct sc_batch *, struct sc_ticket *);
+enum sc_result sc_finish(struct sc_service *, struct sc_ticket, int, const struct sc_authority *,
                          uint32_t *, uint32_t *);
-enum sc_result sc_retry(SCService *, SCTicket);
-enum sc_result sc_control(SCService *);
-enum sc_result sc_control_complete(SCService *);
-enum sc_result sc_shutdown(SCService *);
-typedef struct {
+enum sc_result sc_retry(struct sc_service *, struct sc_ticket);
+enum sc_result sc_control(struct sc_service *);
+enum sc_result sc_control_complete(struct sc_service *);
+enum sc_result sc_shutdown(struct sc_service *);
+struct sc_resources {
   int (*acquire)(void *, unsigned);
   void (*release)(void *, unsigned);
   void *context;
-} SCResources;
-typedef struct {
+};
+struct sc_recovery {
   unsigned state, attempts, owned, log_fallbacks;
-} SCRecovery;
-enum sc_result sc_recover(SCRecovery *, SCResources, int);
+};
+enum sc_result sc_recover(struct sc_recovery *, struct sc_resources, int);
 #endif

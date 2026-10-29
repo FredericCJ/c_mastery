@@ -1,5 +1,5 @@
 #include "limbs.h"
-BlStatus bl_add(BlView a, BlView b, BlOutput *o, uint16_t *s, size_t n) {
+enum bl_status bl_add(struct bl_view a, struct bl_view b, struct bl_output *o, uint16_t *s, size_t n) {
   (void)a;
   (void)b;
   (void)o;
@@ -7,7 +7,7 @@ BlStatus bl_add(BlView a, BlView b, BlOutput *o, uint16_t *s, size_t n) {
   (void)n;
   return BL_INVALID;
 }
-BlStatus bl_sub(BlView a, BlView b, BlOutput *o, uint16_t *s, size_t n) {
+enum bl_status bl_sub(struct bl_view a, struct bl_view b, struct bl_output *o, uint16_t *s, size_t n) {
   (void)a;
   (void)b;
   (void)o;
@@ -15,7 +15,7 @@ BlStatus bl_sub(BlView a, BlView b, BlOutput *o, uint16_t *s, size_t n) {
   (void)n;
   return BL_INVALID;
 }
-BlStatus bl_mul(BlView a, BlView b, BlOutput *o, uint16_t *s, size_t n) {
+enum bl_status bl_mul(struct bl_view a, struct bl_view b, struct bl_output *o, uint16_t *s, size_t n) {
   (void)a;
   (void)b;
   (void)o;
@@ -23,7 +23,7 @@ BlStatus bl_mul(BlView a, BlView b, BlOutput *o, uint16_t *s, size_t n) {
   (void)n;
   return BL_INVALID;
 }
-BlStatus bl_div(BlView a, BlView b, BlOutput *q, BlOutput *r, uint16_t *s,
+enum bl_status bl_div(struct bl_view a, struct bl_view b, struct bl_output *q, struct bl_output *r, uint16_t *s,
                 size_t n) {
   (void)a;
   (void)b;
@@ -33,7 +33,7 @@ BlStatus bl_div(BlView a, BlView b, BlOutput *q, BlOutput *r, uint16_t *s,
   (void)n;
   return BL_INVALID;
 }
-BlStatus bl_signed_add(BlSigned a, BlSigned b, BlSignedOutput *o, uint16_t *s,
+enum bl_status bl_signed_add(struct bl_signed a, struct bl_signed b, struct bl_signed_output *o, uint16_t *s,
                        size_t n) {
   (void)a;
   (void)b;
@@ -42,8 +42,8 @@ BlStatus bl_signed_add(BlSigned a, BlSigned b, BlSignedOutput *o, uint16_t *s,
   (void)n;
   return BL_INVALID;
 }
-BlStatus bl_signed_div(BlSigned a, BlSigned b, BlSignedOutput *q,
-                       BlSignedOutput *r, uint16_t *s, size_t n) {
+enum bl_status bl_signed_div(struct bl_signed a, struct bl_signed b, struct bl_signed_output *q,
+                       struct bl_signed_output *r, uint16_t *s, size_t n) {
   (void)a;
   (void)b;
   (void)q;
@@ -52,17 +52,17 @@ BlStatus bl_signed_div(BlSigned a, BlSigned b, BlSignedOutput *q,
   (void)n;
   return BL_INVALID;
 }
-BlStatus bl_owner_init(BlOwner *o, void *c, BlAllocate a, BlFree f) {
+enum bl_status bl_owner_init(struct bl_owner *o, void *c, bl_allocate_fn a, bl_free_fn f) {
   (void)o;
   (void)c;
   (void)a;
   (void)f;
   return BL_INVALID;
 }
-BlStatus bl_owner_set(BlOwner *o, BlView v, size_t n) {
+enum bl_status bl_owner_set(struct bl_owner *o, struct bl_view v, size_t n) {
   (void)o;
   (void)v;
   (void)n;
   return BL_INVALID;
 }
-void bl_owner_drop(BlOwner *o) { (void)o; }
+void bl_owner_drop(struct bl_owner *o) { (void)o; }

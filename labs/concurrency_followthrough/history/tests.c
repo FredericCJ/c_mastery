@@ -9,9 +9,9 @@
       exit(41);                                                                \
     }                                                                          \
   } while (0)
-static ChOp op(unsigned p, unsigned kind, unsigned value, unsigned result,
+static struct ch_op op(unsigned p, unsigned kind, unsigned value, unsigned result,
                unsigned a, unsigned b) {
-  return (ChOp){a, b, a, b, p, kind, value, result, 0};
+  return (struct ch_op){a, b, a, b, p, kind, value, result, 0};
 }
 int main(int argc, char **argv) {
   if (argc == 2 && !strcmp(argv[1], "driver")) {
@@ -21,14 +21,14 @@ int main(int argc, char **argv) {
            6) {
       if (n > 10)
         return 2;
-      ChOp o[10];
+      struct ch_op o[10];
       for (unsigned i = 0; i < n; i++)
         if (scanf("%u%u%u%u%u%u%u%u%u", &o[i].invoke, &o[i].respond,
                   &o[i].invoke_event, &o[i].respond_event, &o[i].participant,
                   &o[i].operation, &o[i].value, &o[i].result,
                   &o[i].pending) != 9)
           return 2;
-      ChWitness w = {0};
+      struct ch_witness w = {0};
       uint32_t visited = 0;
       int r = ch_check(o, n, cap, spec, extend, events, budget, &w, &visited);
       printf("%d %u %u %u", r, visited, w.count, w.selected_pending);
@@ -40,9 +40,9 @@ int main(int argc, char **argv) {
     }
     return 0;
   }
-  ChWitness w = {0}, saved;
+  struct ch_witness w = {0}, saved;
   uint32_t visited = 0;
-  ChOp h[10] = {op(0, CH_INSERT, 7, CH_VALUE, 0, 1),
+  struct ch_op h[10] = {op(0, CH_INSERT, 7, CH_VALUE, 0, 1),
                 op(1, CH_INSERT, 8, CH_VALUE, 2, 3),
                 op(2, CH_REMOVE, 8, CH_VALUE, 4, 5)};
   CK(ch_check(h, 3, 4, CH_FIFO, 0, 1, 10000, &w, &visited) == CH_NONLINEAR);

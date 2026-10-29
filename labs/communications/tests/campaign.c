@@ -11,7 +11,7 @@
     }                                                                          \
   } while (0)
 static int feed(const uint8_t *p, size_t n) {
-  HttpParser h;
+  struct http_parser h;
   http_init(&h, "127.0.0.1:8080");
   size_t off = 0;
   while (off < n) {
@@ -47,20 +47,20 @@ int main(void) {
     }
     size_t n = trial % (sizeof bytes + 1);
     CHECK(!feed(bytes, n));
-    EduRecord r;
+    struct edu_record r;
     edu_record_decode(bytes, n, &r);
-    EduDatagram d;
+    struct edu_datagram d;
     edu_network_decode(bytes, n, &d);
-    EduFragment f;
+    struct edu_fragment f;
     edu_fragment_decode(bytes, n, &f);
-    NetStack s;
-    NetPacket out;
+    struct net_stack s;
+    struct net_packet out;
     net_init(&s, 0);
     net_receive(&s, bytes, n, 0, &out);
   }
   /* Required positive control keeps this campaign from passing inert stubs. */
   CHECK(edu_crc("123456789", 9) == 0x29b1);
-  HttpParser p;
+  struct http_parser p;
   http_init(&p, "127.0.0.1:8080");
   size_t used;
   CHECK(http_feed(&p, seed, sizeof seed - 1, &used) == HTTP_DONE &&

@@ -3,13 +3,13 @@
 #include "atlas.h"
 /* The indirect cross-thread access experiment uses the documented GCC extension. */
 #ifdef OA_TLS_GLOBAL
-static OaRecord owned={'t',31,1.0};
+static struct oa_record owned={'t',31,1.0};
 #else
-static __thread OaRecord owned={'t',31,1.0};
+static __thread struct oa_record owned={'t',31,1.0};
 #endif
 static pthread_mutex_t lock=PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t changed=PTHREAD_COND_INITIALIZER;
-static OaRecord *published;
+static struct oa_record *published;
 static int ready,finish,observed;
 static void *worker(void *unused)
 {

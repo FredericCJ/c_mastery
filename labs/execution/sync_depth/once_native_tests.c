@@ -8,18 +8,18 @@
 #include <stdlib.h>
 #undef CHECK
 #define CHECK(c) do{if(!(c)){fprintf(stderr,"CDON_CHECK:%d:%s\n",__LINE__,#c);return 1;}}while(0)
-typedef struct{
-  cmx_kernel kernel;CDOnce once;CDOHandle handle[3];
+struct cmx_native{
+  cmx_kernel kernel;struct cd_once once;struct cdo_handle handle[3];
   pthread_mutex_t lock;pthread_cond_t changed;
   unsigned waiting,fail,calls,drops,live,owner;
-} Native;
-typedef struct{Native *native;unsigned id;int failed;CDOTable observed;} NativeWorker;
-static CDOCell *heap_alloc(void *ctx){
-  Native *n=ctx;CDOCell *p=malloc(sizeof *p);n->calls++;if(p)n->live++;return p;
+};
+struct native_worker{struct cmx_native *native;unsigned id;int failed;struct cdo_table observed;};
+static struct cdo_cell *heap_alloc(void *ctx){
+  struct cmx_native *n=ctx;struct cdo_cell *p=malloc(sizeof *p);n->calls++;if(p)n->live++;return p;
 }
-static void heap_drop(void *ctx,CDOCell *p){Native *n=ctx;free(p);n->drops++;n->live--;}
+static void heap_drop(void *ctx,struct cdo_cell *p){struct cmx_native *n=ctx;free(p);n->drops++;n->live--;}
 static void *native_worker(void *arg){
-  NativeWorker *w=arg;Native *n=w->native;CDOTicket ticket;
+  struct native_worker *w=arg;struct cmx_native *n=w->native;struct cdo_ticket ticket;
   if(pthread_mutex_lock(&n->lock)){w->failed=1;return 0;}
   int r=cdo_enter(n->handle[w->id],cmx_forever(),&ticket);
   if(r==CDO_INIT){
@@ -49,14 +49,14 @@ int main(int argc,char **argv){
   for(unsigned i=0;i<6;i++){char *args[]={"preflight",(char *)cases[i]};CHECK(cdo_contract_main(2,args)==0);}
   unsigned rounds=30;
   for(unsigned round=0;round<rounds;round++){
-    Native n={.fail=!strcmp(argv[1],"failure"),.owner=99};NativeWorker workers[3];pthread_t threads[3];
+    struct cmx_native n={.fail=!strcmp(argv[1],"failure"),.owner=99};struct native_worker workers[3];pthread_t threads[3];
     cmx_init(&n.kernel,CMX_FIXED);
     for(unsigned i=0;i<3;i++)CHECK(cmx_task_add(&n.kernel,5+i,0,0x1000+256*i,256)==(int)i);
     CHECK(cdo_init(&n.once,&n.kernel,heap_alloc,heap_drop,&n)==CMX_OK);
     for(unsigned i=0;i<3;i++)CHECK(cdo_register(&n.once,i,&n.handle[i])==CMX_OK);
     CHECK(!pthread_mutex_init(&n.lock,0)&&!pthread_cond_init(&n.changed,0));
     for(unsigned j=0;j<3;j++){
-      unsigned i=(j+round)%3;workers[i]=(NativeWorker){.native=&n,.id=i,.observed={.count=999}};
+      unsigned i=(j+round)%3;workers[i]=(struct native_worker){.native=&n,.id=i,.observed={.count=999}};
       CHECK(!pthread_create(&threads[i],0,native_worker,&workers[i]));
     }
     for(unsigned i=0;i<3;i++){
@@ -65,7 +65,7 @@ int main(int argc,char **argv){
       if(!n.fail)CHECK(workers[i].observed.checksum==484);
     }
     CHECK(n.once.attempts==1&&n.waiting==2&&n.owner<3&&n.calls==3&&n.live==(n.fail?0u:3u));
-    CDOTable later={.count=998};CHECK(cdo_read(n.handle[0],&later)==(n.fail?CDO_FAILED:CMX_OK));
+    struct cdo_table later={.count=998};CHECK(cdo_read(n.handle[0],&later)==(n.fail?CDO_FAILED:CMX_OK));
     CHECK(later.count==(n.fail?998u:8u));
     CHECK(cdo_close(&n.once)==CMX_OK);
     for(unsigned i=0;i<3;i++)CHECK(cdo_release(&n.handle[i])==CMX_OK);

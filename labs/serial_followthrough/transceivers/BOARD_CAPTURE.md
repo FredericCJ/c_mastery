@@ -42,7 +42,7 @@ of termination, reflections, noise and probe effects. Test the hypotheses by
 controlled changes, not only by assigning a label to one trace.
 
 Normalize a **copy** of the selected samples to integer nanoseconds/millivolts
-for `TrPoint`, retain rounding/uncertainty bounds, and run `tr_capture`/`tr_edge`.
+for `struct tr_point`, retain rounding/uncertainty bounds, and run `tr_capture`/`tr_edge`.
 Repeat analysis at the uncertainty extremes near thresholds. Integer point
 acceptance is not a physical instrument certificate. The author-generated
 traces are labeled synthetic and cannot fill the physical result fields.

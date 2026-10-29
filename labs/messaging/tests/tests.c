@@ -16,7 +16,7 @@ static int task(void *p, const atomic_bool *cancel) {
   return *(int *)p;
 }
 static int nursery(void) {
-  MsgNursery n;
+  struct msg_nursery n;
   int fail = 5, ok = 0, result = 99;
   msg_nursery_init(&n, 0);
   CHECK(msg_spawn(&n, task, &fail) == MSG_OK);
@@ -32,17 +32,17 @@ static int nursery(void) {
         atomic_load(&n.cancel));
   return 0;
 }
-typedef struct {
-  MsgHub *hub;
-  MsgStatus result;
-} Rendezvous;
+struct msg_rendezvous {
+  struct msg_hub *hub;
+  enum msg_status result;
+};
 static void *offer(void *p) {
-  Rendezvous *r = p;
+  struct msg_rendezvous *r = p;
   r->result = msg_send(r->hub, 0, 42, true);
   return NULL;
 }
 static int channels(void) {
-  MsgHub h;
+  struct msg_hub h;
   unsigned k = 99, v = 99;
   CHECK(msg_hub_init(&h, 2, 2) == MSG_OK);
   CHECK(msg_send(&h, 0, 7, false) == MSG_OK);
@@ -59,7 +59,7 @@ static int channels(void) {
   CHECK(msg_select(&h, 2, false, &k, &v) == MSG_CANCELLED);
   msg_hub_destroy(&h);
   CHECK(msg_hub_init(&h, 0, 1) == MSG_OK);
-  Rendezvous r = {&h, MSG_INVALID};
+  struct msg_rendezvous r = {&h, MSG_INVALID};
   pthread_t t;
   CHECK(pthread_create(&t, NULL, offer, &r) == 0);
   CHECK(msg_select(&h, 1, true, &k, &v) == MSG_OK && v == 42);
@@ -67,24 +67,24 @@ static int channels(void) {
   msg_hub_destroy(&h);
   return 0;
 }
-typedef struct {
+struct msg_received {
   unsigned calls, value;
-  MsgStatus status;
-} Received;
-static void receive(void *p, MsgStatus status, unsigned v) {
-  Received *r = p;
+  enum msg_status status;
+};
+static void receive(void *p, enum msg_status status, unsigned v) {
+  struct msg_received *r = p;
   ++r->calls;
   r->status = status;
   r->value = v;
 }
-static void release_operation(void *p, MsgStatus status, unsigned v) {
+static void release_operation(void *p, enum msg_status status, unsigned v) {
   (void)status;
   (void)v;
   free(p);
 }
 static int operations(void) {
-  MsgOperation o;
-  Received r = {0};
+  struct msg_operation o;
+  struct msg_received r = {0};
   msg_connect(&o, receive, &r);
   CHECK(msg_complete(&o, MSG_OK, 1) == MSG_INVALID);
   CHECK(msg_start(&o) == MSG_OK);
@@ -93,7 +93,7 @@ static int operations(void) {
   CHECK(msg_complete(&o, MSG_CANCELLED, 3) == MSG_OK && r.calls == 1 &&
         r.value == 3);
   CHECK(msg_complete(&o, MSG_OK, 5) == MSG_INVALID && r.calls == 1);
-  MsgOperation *heap = malloc(sizeof *heap);
+  struct msg_operation *heap = malloc(sizeof *heap);
   CHECK(heap != NULL);
   msg_connect(heap, release_operation, heap);
   CHECK(msg_start(heap) == MSG_OK);
@@ -108,7 +108,7 @@ static bool handle(void *p, unsigned v) {
   return true;
 }
 static int actors(void) {
-  MsgActor a;
+  struct msg_actor a;
   unsigned sum = 0;
   msg_actor_init(&a, handle, &sum);
   CHECK(msg_actor_send(&a, 0, 1) == MSG_STALE);
@@ -124,7 +124,7 @@ static int actors(void) {
   return 0;
 }
 static int supervision(void) {
-  MsgSupervisor s;
+  struct msg_supervisor s;
   int a[8] = {0};
   size_t n = 0;
   CHECK(msg_supervisor_init(&s, 2, 10) == MSG_OK);
@@ -143,7 +143,7 @@ static int supervision(void) {
   return 0;
 }
 static int stealing(void) {
-  MsgDeque q;
+  struct msg_deque q;
   unsigned v = 99;
   msg_deque_init(&q);
   CHECK(msg_pop(&q, &v) == MSG_EMPTY && v == 99);
@@ -163,8 +163,8 @@ static int stealing(void) {
   return 0;
 }
 static int transactions(void) {
-  MsgStore s;
-  MsgTxn a, b;
+  struct msg_store s;
+  struct msg_txn a, b;
   unsigned v = 99;
   msg_store_init(&s);
   msg_begin(&s, &a);
@@ -189,8 +189,8 @@ static int transactions(void) {
   return 0;
 }
 static int snapshots(void) {
-  MsgVersions s;
-  MsgSnapshot a, b;
+  struct msg_versions s;
+  struct msg_snapshot a, b;
   unsigned v[2] = {99, 99};
   CHECK(msg_versions_init(&s) == MSG_OK);
   CHECK(msg_snapshot(&s, &a) == MSG_OK);
@@ -207,7 +207,7 @@ static int snapshots(void) {
   return 0;
 }
 static int sequences(void) {
-  MsgSequence s;
+  struct msg_sequence s;
   unsigned v[2] = {99, 99};
   msg_sequence_init(&s);
   atomic_store(&s.sequence, 1);
@@ -219,14 +219,14 @@ static int sequences(void) {
   CHECK(msg_sequence_write(&s, 9, 18) == MSG_OVERFLOW);
   return 0;
 }
-typedef struct {
+struct msg_sink {
   unsigned count, last, ends;
-  MsgStatus end;
-  MsgStream *stream;
+  enum msg_status end;
+  struct msg_stream *stream;
   bool nested_end;
-} Sink;
+};
 static void next(void *p, unsigned v) {
-  Sink *s = p;
+  struct msg_sink *s = p;
   ++s->count;
   s->last = v;
   if (v == 99)
@@ -237,16 +237,16 @@ static void next(void *p, unsigned v) {
       msg_stream_cancel(s->stream);
   }
 }
-static void terminal(void *p, MsgStatus status) {
-  Sink *s = p;
+static void terminal(void *p, enum msg_status status) {
+  struct msg_sink *s = p;
   if (s->stream->delivering)
     s->nested_end = true;
   ++s->ends;
   s->end = status;
 }
 static int streams(void) {
-  MsgStream s;
-  Sink sink = {.stream = &s};
+  struct msg_stream s;
+  struct msg_sink sink = {.stream = &s};
   msg_stream_init(&s, next, terminal, &sink);
   CHECK(msg_emit(&s, 1) == MSG_EMPTY && sink.count == 0);
   CHECK(msg_request(&s, 1) == MSG_OK);
@@ -268,16 +268,16 @@ static int streams(void) {
   CHECK(msg_emit(&s, 101) == MSG_OK && s.cancelled && sink.ends == 3);
   return 0;
 }
-typedef struct {
-  MsgDeque q;
+struct race_deque {
+  struct msg_deque q;
   atomic_bool done;
   atomic_uint seen[4000];
-} RaceDeque;
+};
 static void *thief(void *p) {
-  RaceDeque *r = p;
+  struct race_deque *r = p;
   unsigned v;
   for (;;) {
-    MsgStatus s = msg_steal(&r->q, &v);
+    enum msg_status s = msg_steal(&r->q, &v);
     if (s == MSG_OK) {
       if (v < 4000)
         atomic_fetch_add(&r->seen[v], 1);
@@ -290,19 +290,19 @@ static void *thief(void *p) {
   }
   return NULL;
 }
-typedef struct {
-  MsgSequence sequence;
+struct race_seq {
+  struct msg_sequence sequence;
   atomic_bool done, bad;
-} RaceSeq;
+};
 static void *seqwriter(void *p) {
-  RaceSeq *r = p;
+  struct race_seq *r = p;
   for (unsigned i = 1; i <= 10000; i++)
     (void)msg_sequence_write(&r->sequence, i, 2 * i);
   atomic_store(&r->done, true);
   return NULL;
 }
 static void *seqreader(void *p) {
-  RaceSeq *r = p;
+  struct race_seq *r = p;
   unsigned v[2];
   do {
     if (msg_sequence_read(&r->sequence, 3, v) == MSG_OK && v[1] != 2 * v[0])
@@ -310,14 +310,14 @@ static void *seqreader(void *p) {
   } while (!atomic_load(&r->done));
   return NULL;
 }
-typedef struct {
-  MsgStore store;
+struct race_txn {
+  struct msg_store store;
   atomic_bool bad;
-} RaceTxn;
+};
 static void *transactor(void *p) {
-  RaceTxn *r = p;
+  struct race_txn *r = p;
   for (unsigned i = 0; i < 1000;) {
-    MsgTxn t;
+    struct msg_txn t;
     unsigned a, b;
     msg_begin(&r->store, &t);
     if (msg_read(&t, 0, &a) != MSG_OK || msg_read(&t, 1, &b) != MSG_OK)
@@ -332,7 +332,7 @@ static void *transactor(void *p) {
   return NULL;
 }
 static int threads(void) {
-  RaceDeque r;
+  struct race_deque r;
   msg_deque_init(&r.q);
   atomic_init(&r.done, false);
   for (unsigned i = 0; i < 4000; i++)
@@ -345,7 +345,7 @@ static int threads(void) {
       sched_yield();
     if (i % 3 == 0) {
       unsigned v;
-      MsgStatus s = msg_pop(&r.q, &v);
+      enum msg_status s = msg_pop(&r.q, &v);
       if (s == MSG_OK) {
         CHECK(v < 4000);
         atomic_fetch_add(&r.seen[v], 1);
@@ -356,7 +356,7 @@ static int threads(void) {
   CHECK(pthread_join(a, NULL) == 0 && pthread_join(b, NULL) == 0);
   for (unsigned i = 0; i < 4000; i++)
     CHECK(atomic_load(&r.seen[i]) == 1);
-  RaceSeq sq;
+  struct race_seq sq;
   msg_sequence_init(&sq.sequence);
   atomic_init(&sq.done, false);
   atomic_init(&sq.bad, false);
@@ -364,7 +364,7 @@ static int threads(void) {
         pthread_create(&b, NULL, seqreader, &sq) == 0);
   CHECK(pthread_join(a, NULL) == 0 && pthread_join(b, NULL) == 0 &&
         !atomic_load(&sq.bad));
-  RaceTxn tx;
+  struct race_txn tx;
   msg_store_init(&tx.store);
   atomic_init(&tx.bad, false);
   CHECK(pthread_create(&a, NULL, transactor, &tx) == 0 &&

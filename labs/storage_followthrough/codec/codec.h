@@ -11,7 +11,7 @@ int sf_leaf_downgrade(uint32_t id,uint64_t generation,const uint8_t *,size_t,uin
 /* acquire returns a fresh exclusive image, never an established image. Success
    transfers one candidate to the formatter. discard is nonfailing; callbacks
    do not reenter or jump. Result output owns no prior image. */
-typedef struct { store_io io; uint64_t identity; } SfImage;
-typedef struct { void *context; int (*acquire)(void *,SfImage *); void (*discard)(void *,SfImage); } SfFactory;
-int sf_format_fresh(SfFactory,SfImage *);
+struct sf_image { store_io io; uint64_t identity; };
+struct sf_factory { void *context; int (*acquire)(void *,struct sf_image *); void (*discard)(void *,struct sf_image); };
+int sf_format_fresh(struct sf_factory,struct sf_image *);
 #endif

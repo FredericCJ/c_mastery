@@ -10,11 +10,11 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-static DMedium disks[3], snapshots[3];
+static struct d_medium disks[3], snapshots[3];
 static store databases[3];
-static Vh left, right;
-static SwFlow flow;
-static int32_t read_value(Vh *h) {
+static struct vg_vh left, right;
+static struct sw_flow flow;
+static int32_t read_value(struct vg_vh *h) {
   int32_t v = INT32_MIN;
   if (vh_host(h, 2, 0, &v))
     return INT32_MIN;
@@ -26,8 +26,8 @@ static int open_all(void) {
     CHECK(store_open(databases + i, dm_io(disks + i)) == STORE_OK);
     CHECK(store_check(databases + i) == STORE_OK);
   }
-  left = (Vh){databases + 1, 14, VH_VERSIONED5, 0, 1};
-  right = (Vh){databases + 2, 14, VH_VERSIONED5, 0, 1};
+  left = (struct vg_vh){databases + 1, 14, VH_VERSIONED5, 0, 1};
+  right = (struct vg_vh){databases + 2, 14, VH_VERSIONED5, 0, 1};
   return 0;
 }
 static int init_amount(unsigned decline, int32_t amount) {
@@ -80,7 +80,7 @@ static int ordinary(void) {
   for (unsigned decline = 0; decline < 2; decline++) {
     CHECK(init(decline) == 0);
     CHECK(finish(decline) == 0);
-    SwFlow unused = flow;
+    struct sw_flow unused = flow;
     CHECK(sw_create(&unused, databases, &left, &right, 4, decline) ==
           SW_CONFLICT);
     CHECK(open_all() == 0);
@@ -145,7 +145,7 @@ static int create_cut(void) {
       CHECK(vh_host(&left, 1, 10, &out) == STORE_OK);
       CHECK(vh_host(&right, 1, 20, &out) == STORE_OK);
       CHECK(arm_all(0, cut, mode ? DM_ALL : DM_NONE) == 0);
-      SwFlow before = {0};
+      struct sw_flow before = {0};
       flow = before;
       CHECK(sw_create(&flow, databases, &left, &right, 4, 0) == SW_RECOVER);
       CHECK(!memcmp(&flow, &before, sizeof flow));
@@ -181,13 +181,13 @@ static int observed(void *ctx, uint8_t service, int32_t input, int32_t *out) {
   last_host = vh_host(ctx, service, input, out);
   return last_host;
 }
-static CvmStatus call(Vh *h, unsigned service, unsigned budget, int32_t value,
+static enum cvm_status call(struct vg_vh *h, unsigned service, unsigned budget, int32_t value,
                       int32_t *out) {
-  Cvm vm;
-  CvmProgram p = {0};
+  struct cvm_cvm vm;
+  struct cvm_program p = {0};
   p.count = 1;
   p.length = 8;
-  p.functions[0] = (CvmFunction){0, 8, 0, 0};
+  p.functions[0] = (struct cvm_function){0, 8, 0, 0};
   p.code[0] = OP_INT;
   uint32_t u = (uint32_t)value;
   for (unsigned i = 0; i < 4; i++)
@@ -198,8 +198,8 @@ static CvmStatus call(Vh *h, unsigned service, unsigned budget, int32_t value,
   cvm_init(&vm, 16, 0, budget);
   vm.host = observed;
   vm.host_context = h;
-  CvmValue outv = cvm_int(*out);
-  CvmStatus r = cvm_run(&vm, &p, &outv);
+  struct cvm_value outv = cvm_int(*out);
+  enum cvm_status r = cvm_run(&vm, &p, &outv);
   if (r == CVM_OK)
     *out = outv.integer;
   return r;
@@ -217,7 +217,7 @@ static int capacity(void) {
   CHECK(store_format(dm_io(disks)) == STORE_OK);
   dm_reboot(disks);
   CHECK(store_open(databases, dm_io(disks)) == STORE_OK);
-  Vh owner = {databases, UINT32_MAX, VH_LEGACY4, 0, 0};
+  struct vg_vh owner = {databases, UINT32_MAX, VH_LEGACY4, 0, 0};
   unsigned keys = 0;
   for (unsigned i = 0; i < 512; i++) {
     CHECK(dm_arm(disks, 0, 0, 0, 0, 0) == 0);

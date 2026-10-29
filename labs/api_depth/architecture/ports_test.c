@@ -1,13 +1,13 @@
 #include "test.h"
-typedef struct {
+struct ac_adapter {
   unsigned char storage[8], received[8];
   unsigned allocations, frees, subscribed, calls, fail_alloc, fail_sub;
   uint64_t now;
   size_t received_n;
-  ArResult next;
-} Adapter;
+  struct ar_result next;
+};
 static void *alloc(void *p, size_t n) {
-  Adapter *a = p;
+  struct ac_adapter *a = p;
   CHECK(n <= 8);
   if (a->fail_alloc)
     return 0;
@@ -15,13 +15,13 @@ static void *alloc(void *p, size_t n) {
   return a->storage;
 }
 static void free_data(void *p, void *data) {
-  Adapter *a = p;
+  struct ac_adapter *a = p;
   CHECK(data == a->storage && a->frees < a->allocations);
   ++a->frees;
 }
-static uint64_t clock_ms(void *p) { return ((Adapter *)p)->now; }
+static uint64_t clock_ms(void *p) { return ((struct ac_adapter *)p)->now; }
 static int notify(void *p, unsigned on) {
-  Adapter *a = p;
+  struct ac_adapter *a = p;
   if (on && a->fail_sub)
     return AR_FAILED;
   if (on)
@@ -31,25 +31,25 @@ static int notify(void *p, unsigned on) {
   a->subscribed = on;
   return AR_OK;
 }
-static ArResult write_data(void *p, const unsigned char *bytes, size_t n) {
-  Adapter *a = p;
+static struct ar_result write_data(void *p, const unsigned char *bytes, size_t n) {
+  struct ac_adapter *a = p;
   ++a->calls;
-  ArResult r = a->next;
+  struct ar_result r = a->next;
   if (r.count > 0 && (size_t)r.count <= n) {
     for (ptrdiff_t i = 0; i < r.count; ++i)
       a->received[a->received_n++] = bytes[i];
   }
   return r;
 }
-static ArOps ops(Adapter *a) {
-  return (ArOps){a, alloc, free_data, clock_ms, write_data, notify};
+static struct ar_ops ops(struct ac_adapter *a) {
+  return (struct ar_ops){a, alloc, free_data, clock_ms, write_data, notify};
 }
 int main(void) {
-  Adapter a = {.now = 10, .next = {1, AR_PENDING}}, b = {0};
-  ArTask t = {0};
+  struct ac_adapter a = {.now = 10, .next = {1, AR_PENDING}}, b = {0};
+  struct ar_task t = {0};
   unsigned char input[] = {1, 2, 3};
   a.fail_alloc = 1;
-  ArTask old = t;
+  struct ar_task old = t;
   CHECK(ar_begin(&t, ops(&a), input, 3, 1, 0) == AR_FAILED &&
         !memcmp(&t, &old, sizeof t));
   a.fail_alloc = 0;
@@ -57,7 +57,7 @@ int main(void) {
   CHECK(ar_begin(&t, ops(&a), input, 3, 1, 0) == AR_FAILED && a.frees == 1 &&
         !a.subscribed);
   a.fail_sub = 0;
-  ArOps injected = ops(&a);
+  struct ar_ops injected = ops(&a);
   CHECK(ar_begin(&t, injected, input, 3, 1, 0) == AR_OK);
   input[0] = 99;
   injected = ops(&b);
@@ -78,7 +78,7 @@ int main(void) {
   CHECK(t.offset == 1);
   for (unsigned defect = 0; defect < 3; ++defect) {
     a.received_n = 0;
-    a.next = (ArResult){defect == 0   ? 2
+    a.next = (struct ar_result){defect == 0   ? 2
                         : defect == 1 ? -1
                                       : 0,
                         defect == 2 ? AR_INVALID : AR_OK};
@@ -88,14 +88,14 @@ int main(void) {
     CHECK(ar_poll(&t) == AR_CONTRACT && a.frees == frees);
   }
   a.received_n = 0;
-  a.next = (ArResult){1, AR_FAILED};
+  a.next = (struct ar_result){1, AR_FAILED};
   CHECK(ar_begin(&t, ops(&a), input, 3, 3, 0) == AR_OK &&
         ar_poll(&t) == AR_CONTRACT && t.offset == 0);
   a.received_n = 0;
   CHECK(ar_begin(&t, ops(&a), input, 3, 3, 1) == AR_OK &&
         ar_poll(&t) == AR_FAILED && t.offset == 1);
   a.received_n = 0;
-  a.next = (ArResult){3, AR_OK};
+  a.next = (struct ar_result){3, AR_OK};
   CHECK(ar_begin(&t, ops(&a), input, 3, 4, 0) == AR_OK &&
         ar_poll(&t) == AR_OK && t.offset == 3);
   CHECK(a.allocations == a.frees);

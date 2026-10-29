@@ -10,23 +10,23 @@
 #ifndef SB_GUEST_MUTANT
 #define SB_GUEST_MUTANT 0
 #endif
-static SbWorld sbg_world;
-static SqHandle sbg_ids[4];
+static struct sb_world sbg_world;
+static struct sq_handle sbg_ids[4];
 static uint64_t *sbg_sp[4],*sbg_idle[4];
 static unsigned char sbg_stack[4][8192] ALIGN(16);
 static unsigned sbg_current[4],sbg_requested[4],sbg_executing[4],sbg_actions[4],sbg_seen[4];
 static unsigned sbg_go,sbg_phase,sbg_done,sbg_parked[4],sbg_finished[4],sbg_blocked;
 static unsigned sbg_count[4],sbg_switches[4],sbg_rings[4];
 static uint64_t sbg_elapsed[4],sbg_active[4];
-static SqEvent sbg_events[4][128];
-static SlStats sbg_stats[4];
+static struct sq_event sbg_events[4][128];
+static struct sl_stats sbg_stats[4];
 static void sbg_fail(const char *reason){text("SB_GUEST_CHECK:");text(reason);text("\n");unsigned value=17;__asm__ volatile("outl %0,$0xf4"::"a"(value));for(;;)__asm__ volatile("cli;hlt");}
 static uint64_t sbg_ticks(void){unsigned low,high;__asm__ volatile("lfence;rdtsc":"=a"(low),"=d"(high)::"memory");return (uint64_t)high<<32|low;}
 /* This comparison deliberately polls. The separate T53.07 adapter exercises
  * actual sleeping destinations and IPIs; these callbacks count notifications. */
 static int sbg_ring(void *unused,unsigned c){(void)unused;sbg_rings[c]++;return 1;}
 static void sbg_ack(void *unused,unsigned c){(void)unused;(void)c;}
-static void sbg_log(unsigned c,SqEvent e){if(c!=e.actor||sbg_count[c]==128)sbg_fail("trace-capacity-or-actor");sbg_events[c][sbg_count[c]++]=e;}
+static void sbg_log(unsigned c,struct sq_event e){if(c!=e.actor||sbg_count[c]==128)sbg_fail("trace-capacity-or-actor");sbg_events[c][sbg_count[c]++]=e;}
 static void sbg_task(void){
  unsigned slot=sbg_current[cmk2_cpu_index()];volatile uint64_t canary[8];
  for(unsigned j=0;j<8;j++)canary[j]=UINT64_C(0xabd000)+slot*16+j;
@@ -42,7 +42,7 @@ static void sbg_task(void){
  sbg_fail("exited-context-resumed");
 }
 static int sbg_step(unsigned c){
- SqHandle id;SqEvent e;int result=sb_dispatch(&sbg_world,c,&id,&e,&sbg_stats[c]);
+ struct sq_handle id;struct sq_event e;int result=sb_dispatch(&sbg_world,c,&id,&e,&sbg_stats[c]);
  if(result==SQ_IDLE)return 0;if(result!=SQ_OK)sbg_fail("dispatch-admission");
  sbg_log(c,e);sbg_current[c]=id.slot;
  if(__atomic_exchange_n(&sbg_executing[id.slot],1,__ATOMIC_ACQ_REL))sbg_fail("duplicate-running-stack");
@@ -62,18 +62,18 @@ static void sbg_run(unsigned c){
  if(c==0){
   for(unsigned i=1;i<topology.count;i++)while(!__atomic_load_n(&sbg_parked[i],__ATOMIC_ACQUIRE))pause_cpu();
   if(!sb_invariant(&sbg_world))sbg_fail("blocked-snapshot");
-  SbTimer timer;if(sb_timer_arm(&sbg_world,0,sbg_ids[1],&timer,&sbg_stats[0])!=SQ_OK)sbg_fail("timer-arm");
-  for(unsigned slot=0;slot<4;slot++){SqEvent e;if(SB_GUEST_MUTANT==2&&slot==3)continue;if(sb_wake(&sbg_world,0,sbg_ids[slot],&e,&sbg_stats[0])!=SQ_OK)sbg_fail("remote-wake");sbg_log(0,e);}
+  struct sb_timer timer;if(sb_timer_arm(&sbg_world,0,sbg_ids[1],&timer,&sbg_stats[0])!=SQ_OK)sbg_fail("timer-arm");
+  for(unsigned slot=0;slot<4;slot++){struct sq_event e;if(SB_GUEST_MUTANT==2&&slot==3)continue;if(sb_wake(&sbg_world,0,sbg_ids[slot],&e,&sbg_stats[0])!=SQ_OK)sbg_fail("remote-wake");sbg_log(0,e);}
   if(sbg_world.wake.queues.queue[0].count!=4)sbg_fail("lost-durable-wake");
   if(SB_POLICY){
-   SqTransfer t;SqEvent e;
+   struct sq_transfer t;struct sq_event e;
    if(sb_move_begin(&sbg_world,0,1,sbg_ids[1],0,&t,&e,&sbg_stats[0])!=SQ_OK)sbg_fail("saved-transfer-begin");sbg_log(0,e);
    if(sb_timer_fire(&sbg_world,0,timer,&e,&sbg_stats[0])!=SW_MOVING)sbg_fail("timer-not-retained-during-transfer");
    if(sb_move_end(&sbg_world,0,t,1,&e,&sbg_stats[0])!=SQ_OK)sbg_fail("saved-transfer-end");sbg_log(0,e);
    if(sb_timer_fire(&sbg_world,0,timer,&e,&sbg_stats[0])!=SQ_DUPLICATE)sbg_fail("timer-old-cpu-route");
-   SqEvent first,last;if(sb_balance(&sbg_world,0,&first,&last,&sbg_stats[0])!=SQ_OK||first.slot!=2)sbg_fail("balanced-unpinned-task");sbg_log(0,first);sbg_log(0,last);
+   struct sq_event first,last;if(sb_balance(&sbg_world,0,&first,&last,&sbg_stats[0])!=SQ_OK||first.slot!=2)sbg_fail("balanced-unpinned-task");sbg_log(0,first);sbg_log(0,last);
    if(sb_balance(&sbg_world,0,&first,&last,&sbg_stats[0])!=SQ_IDLE)sbg_fail("unbounded-balancing");
-  }else{SqEvent e;if(sb_timer_fire(&sbg_world,0,timer,&e,&sbg_stats[0])!=SQ_DUPLICATE)sbg_fail("pinned-timer-route");}
+  }else{struct sq_event e;if(sb_timer_fire(&sbg_world,0,timer,&e,&sbg_stats[0])!=SQ_DUPLICATE)sbg_fail("pinned-timer-route");}
   if(!sb_invariant(&sbg_world))sbg_fail("transfer-snapshot");__atomic_store_n(&sbg_phase,1,__ATOMIC_RELEASE);
  }else while(!__atomic_load_n(&sbg_phase,__ATOMIC_ACQUIRE))pause_cpu();
  while(__atomic_load_n(&sbg_done,__ATOMIC_ACQUIRE)<4)if(!sbg_step(c))pause_cpu();
@@ -81,9 +81,9 @@ static void sbg_run(unsigned c){
 }
 static void sbg_worker(unsigned c){while(!__atomic_load_n(&sbg_go,__ATOMIC_ACQUIRE))pause_cpu();sbg_run(c);for(;;)__asm__ volatile("cli;hlt");}
 void sbg_bsp(void){
- if(topology.count<2||sb_init(&sbg_world,topology.count,4,(SwPort){sbg_ring,sbg_ack,NULL})!=SQ_OK)sbg_fail("world-init");
+ if(topology.count<2||sb_init(&sbg_world,topology.count,4,(struct sw_port){sbg_ring,sbg_ack,NULL})!=SQ_OK)sbg_fail("world-init");
  for(unsigned slot=0;slot<4;slot++){
-  SqEvent e;if(sb_create(&sbg_world,0,0,slot,SB_POLICY&&slot?3:1,&sbg_ids[slot],&e)!=SQ_OK)sbg_fail("task-create");sbg_log(0,e);
+  struct sq_event e;if(sb_create(&sbg_world,0,0,slot,SB_POLICY&&slot?3:1,&sbg_ids[slot],&e)!=SQ_OK)sbg_fail("task-create");sbg_log(0,e);
   uint64_t *sp=(uint64_t *)(sbg_stack[slot]+8192);*--sp=0;*--sp=(uintptr_t)sbg_task;for(unsigned i=0;i<6;i++)*--sp=0;sbg_sp[slot]=sp;
  }
  __atomic_store_n(&sbg_go,1,__ATOMIC_RELEASE);sbg_run(0);
@@ -96,7 +96,7 @@ void sbg_bsp(void){
  }
  for(unsigned c=0;c<topology.count;c++){
   text("SB_CPU actor=");number(c);text(" apic=");number(topology.ids[c]);text(" switches=");number(sbg_switches[c]);text(" active=");ss_u64(sbg_active[c]);text(" elapsed=");ss_u64(sbg_elapsed[c]);text("\n");
-  for(unsigned seq=0;seq<sbg_count[c];seq++){SqEvent *e=&sbg_events[c][seq];text("SB_EVENT actor=");number(c);text(" seq=");number(seq);text(" slot=");number(e->slot);text(" generation=");ss_u64(e->generation);text(" revision=");ss_u64(e->revision);text(" from=");number(e->from);text(" to=");number(e->to);text(" source=");number(e->source);text(" destination=");number(e->destination);text("\n");}
+  for(unsigned seq=0;seq<sbg_count[c];seq++){struct sq_event *e=&sbg_events[c][seq];text("SB_EVENT actor=");number(c);text(" seq=");number(seq);text(" slot=");number(e->slot);text(" generation=");ss_u64(e->generation);text(" revision=");ss_u64(e->revision);text(" from=");number(e->from);text(" to=");number(e->to);text(" source=");number(e->source);text(" destination=");number(e->destination);text("\n");}
  }
  text("SB_GUEST_PASS:affinity-migration-timer policy=");number(SB_POLICY);text(" cpus=");number(topology.count);text(" tasks=4\n");unsigned value=16;__asm__ volatile("outl %0,$0xf4"::"a"(value));for(;;)__asm__ volatile("cli;hlt");
 }

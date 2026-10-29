@@ -4,10 +4,10 @@ static uint32_t le32(const uint8_t *p) {
   return (uint32_t)p[0] | (uint32_t)p[1] << 8 | (uint32_t)p[2] << 16 |
          (uint32_t)p[3] << 24;
 }
-int kf_pci(const uint8_t c[256], const KfBar bars[6], KfPci *out) {
+int kf_pci(const uint8_t c[256], const struct kf_bar bars[6], struct kf_pci *out) {
   if (!c || !bars || !out || !(c[6] & 16))
     return 0;
-  KfPci p = {0};
+  struct kf_pci p = {0};
   uint8_t visited[256] = {0};
   unsigned kinds = 0, cap = c[0x34];
   while (cap) {
@@ -62,7 +62,7 @@ int kf_pci(const uint8_t c[256], const KfBar bars[6], KfPci *out) {
   return 1;
 }
 int kf_negotiate(uint64_t features, unsigned queue_size, uint16_t offset,
-                 const KfPci *p, uint64_t *out) {
+                 const struct kf_pci *p, uint64_t *out) {
   if (!p || !out ||
       (features & ((UINT64_C(1) << 32) | (1u << 9))) !=
           ((UINT64_C(1) << 32) | (1u << 9)) ||
@@ -75,14 +75,14 @@ int kf_negotiate(uint64_t features, unsigned queue_size, uint16_t offset,
   *out = p->notify + relative;
   return 1;
 }
-void kf_queue_init(KfQueue *q, uint16_t index) {
+void kf_queue_init(struct kf_queue *q, uint16_t index) {
   memset(q, 0, sizeof *q);
   q->available = q->used = index;
   for (unsigned i = 0; i < 2; ++i)
     q->requests[i].generation = 1;
 }
-int kf_submit(KfQueue *q, unsigned type, uint64_t sector, const uint8_t *bytes,
-              KfTicket *out) {
+int kf_submit(struct kf_queue *q, unsigned type, uint64_t sector, const uint8_t *bytes,
+              struct kf_ticket *out) {
   if (!q || !out || q->poisoned || (type != 0 && type != 1 && type != 4) ||
       (type == 1 && !bytes))
     return 0;
@@ -97,30 +97,30 @@ int kf_submit(KfQueue *q, unsigned type, uint64_t sector, const uint8_t *bytes,
   }
   if (i == 2)
     return 0;
-  KfRequest *r = &q->requests[i];
-  r->header = (KfHeader){type, 0, type == 4 ? 0 : sector};
+  struct kf_request *r = &q->requests[i];
+  r->header = (struct kf_header){type, 0, type == 4 ? 0 : sector};
   r->status = 255;
   if (type == 1)
     memcpy(r->bytes, bytes, 4096);
   else
     memset(r->bytes, 0, 4096);
   unsigned head = i * 3;
-  q->descriptors[head] = (KfDescriptor){(uintptr_t)&r->header, 16, 1,
+  q->descriptors[head] = (struct kf_descriptor){(uintptr_t)&r->header, 16, 1,
                                         (uint16_t)(head + (type == 4 ? 2 : 1))};
   q->descriptors[head + 1] =
-      (KfDescriptor){(uintptr_t)r->bytes, 4096,
+      (struct kf_descriptor){(uintptr_t)r->bytes, 4096,
                      (uint16_t)(1 | (type == 0 ? 2 : 0)), (uint16_t)(head + 2)};
-  q->descriptors[head + 2] = (KfDescriptor){(uintptr_t)&r->status, 1, 2, 0};
+  q->descriptors[head + 2] = (struct kf_descriptor){(uintptr_t)&r->status, 1, 2, 0};
   r->state = KF_SUBMITTED;
   q->ring[q->available % 8] = (uint16_t)head;
   q->available = (uint16_t)(q->available + 1);
-  *out = (KfTicket){i, r->generation};
+  *out = (struct kf_ticket){i, r->generation};
   return 1;
 }
-int kf_complete(KfQueue *q, uint16_t index, uint32_t head, uint8_t status) {
+int kf_complete(struct kf_queue *q, uint16_t index, uint32_t head, uint8_t status) {
   if (!q || index != (uint16_t)(q->used + 1) || (head != 0 && head != 3))
     return 0;
-  KfRequest *r = &q->requests[head / 3];
+  struct kf_request *r = &q->requests[head / 3];
   if (r->state != KF_SUBMITTED && r->state != KF_UNKNOWN)
     return 0;
   q->used = index;
@@ -136,21 +136,21 @@ int kf_complete(KfQueue *q, uint16_t index, uint32_t head, uint8_t status) {
     q->stable_writes = q->completed_writes;
   return 1;
 }
-static KfRequest *ticket(KfQueue *q, KfTicket t) {
+static struct kf_request *ticket(struct kf_queue *q, struct kf_ticket t) {
   return q && t.slot < 2 && t.generation == q->requests[t.slot].generation
              ? &q->requests[t.slot]
              : 0;
 }
-int kf_timeout(KfQueue *q, KfTicket t) {
-  KfRequest *r = ticket(q, t);
+int kf_timeout(struct kf_queue *q, struct kf_ticket t) {
+  struct kf_request *r = ticket(q, t);
   if (!r || r->state != KF_SUBMITTED)
     return 0;
   r->state = KF_UNKNOWN;
   q->poisoned = 1;
   return 1;
 }
-int kf_release(KfQueue *q, KfTicket t) {
-  KfRequest *r = ticket(q, t);
+int kf_release(struct kf_queue *q, struct kf_ticket t) {
+  struct kf_request *r = ticket(q, t);
   if (!r || q->poisoned ||
       (r->state != KF_SUCCESS && r->state != KF_DEVICE_ERROR) ||
       r->generation == UINT32_MAX)
@@ -159,7 +159,7 @@ int kf_release(KfQueue *q, KfTicket t) {
   r->state = KF_FREE;
   return 1;
 }
-int kf_reset(KfQueue *q, int ack) {
+int kf_reset(struct kf_queue *q, int ack) {
   if (!q || ack != 1)
     return 0;
   for (unsigned i = 0; i < 2; ++i)

@@ -115,7 +115,7 @@ padding or pointer width. Decode large unsigned wire values by representable
 arithmetic, not an implementation-defined out-of-range signed cast. Native LP64,
 actual i386 ILP32 and M4 ILP32 observations supplement the byte proof; they do
 not establish every C implementation. Withheld variant inputINT32_MIN-1 must
-leave output/count unchanged. `EfWide.base.value` is not the decoded wide value.
+leave output/count unchanged. `struct ef_wide.base.value` is not the decoded wide value.
 
 <a id="t4007b"></a>
 ## T40.07.b

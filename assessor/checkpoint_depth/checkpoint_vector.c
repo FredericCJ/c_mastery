@@ -30,7 +30,7 @@ static void vector_kernel(const double *restrict history,size_t n,double *restri
 #else
 #define CPV_X86 0
 #endif
-int cpv_detect(CPVProbe p){
+int cpv_detect(struct cpv_probe p){
     uint32_t flags=0;const uint32_t avx=UINT32_C(1)<<28,os=UINT32_C(1)<<27;
     if(!p.leaf1 || !p.xgetbv0 || !p.leaf1(p.context,&flags))return 0;
     if(CP_MUTANT==13)return (flags&avx)!=0;
@@ -40,12 +40,12 @@ int cpv_detect(CPVProbe p){
 }
 int cpv_available(void){
 #if CPV_X86
-    CPVProbe p={0,leaf1,xgetbv0};return cpv_detect(p);
+    struct cpv_probe p={0,leaf1,xgetbv0};return cpv_detect(p);
 #else
     return 0;
 #endif
 }
-CPNStatus cpv_plan(CPVPlan *p,CPVBackend requested){
+enum cpn_status cpv_plan(struct cpv_plan *p,enum cpv_backend requested){
     if(!p || requested<CPV_SCALAR || requested>CPV_COMPILER)return CPN_INVALID;
     if(requested==CPV_AUTO || requested==CPV_AVX){
         int supported=cpv_available();
@@ -72,7 +72,7 @@ static void scalar_kernel(const double *history,size_t n,double *out){
 #endif
     for(size_t i=0;i<n;++i)out[i]=(0.25*history[i+2]+0.5*history[i+1])+0.25*history[i];
 }
-CPNStatus cpv_run(const CPVPlan *plan,CPNDouble *s,const double *in,size_t n,double *out,size_t capacity){
+enum cpn_status cpv_run(const struct cpv_plan *plan,struct cpn_double *s,const double *in,size_t n,double *out,size_t capacity){
     if(!plan || (plan->backend!=CPV_SCALAR && plan->backend!=CPV_AVX && plan->backend!=CPV_COMPILER))return CPN_INVALID;
     if(!s || n>CPN_BLOCK || (n && (!in || !out)))return CPN_INVALID;
     if(capacity<n)return CPN_CAPACITY;

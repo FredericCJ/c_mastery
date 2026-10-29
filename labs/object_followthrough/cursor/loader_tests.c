@@ -8,7 +8,7 @@ int __wrap_dlclose(void *handle){if(fail_close){fail_close=0;return -1;}return _
 #endif
 int main(int argc,char **argv)
 {
-    OcModule m={0};const OcPlugin *a=NULL,*b=NULL;int result=77;
+    struct oc_module m={0};const struct oc_plugin *a=NULL,*b=NULL;int result=77;
     if(argc!=5)return 2;
 #ifdef OC_CLOSE_FAILURE
     fail_close=1;

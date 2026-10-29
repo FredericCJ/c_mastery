@@ -17,9 +17,9 @@ Repeated stop changes neither count. A callback that retains the partial object
 needs a new lifetime/acknowledgment contract and is not supported by this version.
 
 T19.01.c: Plain assignment count16 is legal C but invalid abstraction state.
-Incomplete `AsOpaque` prevents ordinary member access by the client. It cannot
+Incomplete `struct as_opaque` prevents ordinary member access by the client. It cannot
 prevent double-destroy/dangling pointer calls, malicious casts, races or ownership
-copies. Complete typed `AsSession` supports aggregate embedding with no allocation
+copies. Complete typed `struct as_session` supports aggregate embedding with no allocation
 and exposed layout; private allocated state hides layout but costs one allocation.
 Destroy returns failure retaining ownership if it cannot complete cleanup;
 successful destroy reads allocator into a local before consuming memory.

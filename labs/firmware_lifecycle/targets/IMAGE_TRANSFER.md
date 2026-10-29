@@ -12,7 +12,7 @@ dependencies and physical controller behavior remain separate obligations.
 ## FW5: commit metadata only after image program completion
 
 An image is exactly32 immutable bytes in an erased32-byte destination, programmed
-as four- or eight-byte units. `FIImage` stores bytes, selected unit and one
+as four- or eight-byte units. `struct fi_image` stores bytes, selected unit and one
 completion bit per unit. `fi_init` admits only4/8 and otherwise preserves state.
 `fi_program` takes an indexed unit, bit-prefix0..unit×8 and trusted controller
 completion status0/1. Reject invalid index/status/extent or any requested zero-to-
@@ -50,7 +50,7 @@ unfinished image programming. Complexity is O(32) fixed work and storage.
 
 ## FW6: a new trusted epoch after finite counter exhaustion
 
-`FIRotation` contains epoch, sequence, nonzero limit, minimum image version,
+`struct fi_rotation` contains epoch, sequence, nonzero limit, minimum image version,
 active key1/2 and a persistent revoked-key mask. Valid initial policy in this
 exercise is epoch1,sequence0,limit3,floor7,key1,revoked0. `fi_advance` increments
 only below the limit; exhaustion rejects unchanged. Recovery is an explicit

@@ -7,7 +7,7 @@
 #ifndef MFN_MUTANT
 #define MFN_MUTANT 0
 #endif
-void mfn_cancel(MfnTree *t) {
+void mfn_cancel(struct mfn_tree *t) {
   msg_cancel(&t->outer);
   if (MFN_MUTANT != 1) {
     msg_cancel(&t->inner[0]);
@@ -15,8 +15,8 @@ void mfn_cancel(MfnTree *t) {
   }
 }
 static int leaf_main(void *arg, const atomic_bool *cancel) {
-  MfnLink *link = arg;
-  MfnTree *t = link->tree;
+  struct mfn_link *link = arg;
+  struct mfn_tree *t = link->tree;
   unsigned i = link->index;
   int result = t->tasks[i].run(t->tasks[i].ctx, cancel);
   t->results[i] = result;
@@ -24,8 +24,8 @@ static int leaf_main(void *arg, const atomic_bool *cancel) {
   return result;
 }
 static int group_main(void *arg, const atomic_bool *cancel) {
-  MfnLink *link = arg;
-  MfnTree *t = link->tree;
+  struct mfn_link *link = arg;
+  struct mfn_tree *t = link->tree;
   unsigned k = link->index;
   int first = 0;
   (void)cancel; /* Root cancellation is propagated to all descendant flags. */
@@ -46,7 +46,7 @@ static int group_main(void *arg, const atomic_bool *cancel) {
   if (n != 1) t->group_failed[k] = true;
   return first;
 }
-MsgStatus mfn_start(MfnTree *t, const MfnTask tasks[4], size_t fail_outer,
+enum msg_status mfn_start(struct mfn_tree *t, const struct mfn_task tasks[4], size_t fail_outer,
                     const size_t fail_inner[2]) {
   if (!t || !tasks || !fail_inner || fail_outer > 2 ||
       fail_inner[0] > 2 || fail_inner[1] > 2) return MSG_INVALID;
@@ -54,15 +54,15 @@ MsgStatus mfn_start(MfnTree *t, const MfnTask tasks[4], size_t fail_outer,
   int descriptors[2];
   if (pipe2(descriptors, O_CLOEXEC)) return MSG_FAILED;
   /* Successful setup takes all four contexts, even if a later admission fails. */
-  *t = (MfnTree){.pipefd = {descriptors[0], descriptors[1]}, .active = true};
+  *t = (struct mfn_tree){.pipefd = {descriptors[0], descriptors[1]}, .active = true};
   msg_nursery_init(&t->outer, fail_outer);
   for (unsigned k = 0; k < 2; k++) {
     msg_nursery_init(&t->inner[k], fail_inner[k]);
-    t->group[k] = (MfnLink){t, k};
+    t->group[k] = (struct mfn_link){t, k};
   }
   for (unsigned i = 0; i < 4; i++) {
     t->tasks[i] = tasks[i];
-    t->leaf[i] = (MfnLink){t, i};
+    t->leaf[i] = (struct mfn_link){t, i};
   }
   for (unsigned k = 0; k < 2; k++) {
     if (msg_spawn(&t->outer, group_main, &t->group[k]) != MSG_OK) {
@@ -73,8 +73,8 @@ MsgStatus mfn_start(MfnTree *t, const MfnTask tasks[4], size_t fail_outer,
   }
   return MSG_OK;
 }
-MsgStatus mfn_wait(MfnTree *t, int cancel_fd, long long deadline_ns,
-                   MfnOutcome *out) {
+enum msg_status mfn_wait(struct mfn_tree *t, int cancel_fd, long long deadline_ns,
+                   struct mfn_outcome *out) {
   if (!t || !out || cancel_fd < 0) return MSG_INVALID;
   if (!t->active) return MSG_CLOSED;
   if (!t->waited) {
@@ -96,7 +96,7 @@ MsgStatus mfn_wait(MfnTree *t, int cancel_fd, long long deadline_ns,
   if (msg_join(&t->outer, &ignored) != MSG_OK) return MSG_BUSY;
   for (unsigned k = 0; k < 2; k++)
     if (msg_join(&t->inner[k], &ignored) != MSG_OK) return MSG_BUSY;
-  MfnOutcome result = {.stop = t->stop, .spawn_failed = t->start_failed};
+  struct mfn_outcome result = {.stop = t->stop, .spawn_failed = t->start_failed};
   for (unsigned k = 0; k < 2; k++) result.spawn_failed |= t->group_failed[k];
   if (MFN_MUTANT == 4) result.spawn_failed = false;
   for (unsigned i = 0; i < 4; i++) {
@@ -114,7 +114,7 @@ MsgStatus mfn_wait(MfnTree *t, int cancel_fd, long long deadline_ns,
   return MSG_OK;
 }
 int mfn_pool_task(void *arg, const atomic_bool *cancel) {
-  MfnPool *p = arg;
+  struct mfn_pool *p = arg;
   if (atomic_load(cancel)) return -901;
   long sum;
   if (hs_pool_sum(p->values, p->count, p->workers, &sum)) return -902;

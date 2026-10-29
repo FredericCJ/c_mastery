@@ -53,7 +53,7 @@ static int transfer(int fd, unsigned char *b, size_t n, int sending) {
   }
   return 0;
 }
-static int receive_frames(int fd, RfParser *parser, RfFrame frames[2],
+static int receive_frames(int fd, struct rf_parser *parser, struct rf_frame frames[2],
                           unsigned *count) {
   *count = 0;
   struct timespec end = limit();
@@ -74,7 +74,7 @@ static int receive_frames(int fd, RfParser *parser, RfFrame frames[2],
     size_t at = 0;
     while (at < (size_t)n) {
       size_t used;
-      RfFrame frame;
+      struct rf_frame frame;
       int r = rf_feed(parser, bytes + at, (size_t)n - at, &used, &frame);
       if (r < 0 || !used)
         return -1;
@@ -93,8 +93,8 @@ static int half_close(void) {
   unsigned char request[5] = {0, 3, 5, 0, 1};
   CHECK(transfer(fd[0], request, sizeof request, 1) == 0 &&
         shutdown(fd[0], SHUT_WR) == 0);
-  RfParser p;
-  RfFrame frames[2];
+  struct rf_parser p;
+  struct rf_frame frames[2];
   unsigned count;
   CHECK(rf_parser_init(&p, 1) == 0 &&
         receive_frames(fd[1], &p, frames, &count) == 0 && count == 2 &&
@@ -126,15 +126,15 @@ static int half_close(void) {
   return 0;
 }
 static int replay(void) {
-  RfDedup cache;
+  struct rf_dedup cache;
   CHECK(rf_dedup_init(&cache, 9) == 0);
   for (unsigned attempt = 0; attempt < 2; ++attempt) {
     int fd[2];
     CHECK(pair(fd) == 0);
     unsigned char wire[3] = {2, 7, 3};
     CHECK(transfer(fd[0], wire, 3, 1) == 0 && shutdown(fd[0], SHUT_WR) == 0);
-    RfParser p;
-    RfFrame frames[2];
+    struct rf_parser p;
+    struct rf_frame frames[2];
     unsigned count;
     CHECK(rf_parser_init(&p, 1) == 0 &&
           receive_frames(fd[1], &p, frames, &count) == 0 && count == 1 &&
@@ -163,7 +163,7 @@ static int pressure(void) {
   size_t prefill[4] = {0};
   unsigned short_writes = 0;
   unsigned char padding[1024] = {0};
-  RfOutbox q;
+  struct rf_outbox q;
   CHECK(rf_outbox_init(&q, 256) == 0);
   for (unsigned i = 0; i < 4; ++i) {
     CHECK(pair(fd[i]) == 0);
@@ -185,9 +185,9 @@ static int pressure(void) {
       break;
     }
   }
-  RfMessage messages[36];
+  struct rf_message messages[36];
   for (unsigned i = 0; i < 36; ++i) {
-    RfFrame f = {.length = 8};
+    struct rf_frame f = {.length = 8};
     for (unsigned j = 0; j < 8; ++j)
       f.bytes[j] = (unsigned char)(i + j);
     CHECK(rf_message_init(&messages[i], i + 1, 2, &f) == 0);
@@ -209,7 +209,7 @@ static int pressure(void) {
       left -= chunk;
     }
   }
-  RfParser parsers[4];
+  struct rf_parser parsers[4];
   unsigned completed[4] = {0};
   for (unsigned i = 0; i < 4; ++i)
     CHECK(rf_parser_init(&parsers[i], 2) == 0);
@@ -222,7 +222,7 @@ static int pressure(void) {
             rf_advance(&q, i, 1) == 0);
       unsigned char byte;
       CHECK(transfer(fd[i][1], &byte, 1, 0) == 0);
-      RfFrame frame;
+      struct rf_frame frame;
       int r = rf_push(&parsers[i], byte, &frame);
       CHECK(r >= 0);
       if (r) {
@@ -250,7 +250,7 @@ static int pressure(void) {
   size_t expected_bytes = 0;
   unsigned counts[4] = {0};
   for (unsigned attempt = 0; attempt < 256; ++attempt) {
-    RfFrame f = {.length = attempt % 9};
+    struct rf_frame f = {.length = attempt % 9};
     CHECK(admitted < 36 &&
           rf_message_init(&messages[admitted], attempt + 1, 2, &f) == 0);
     unsigned slot = attempt % 4;

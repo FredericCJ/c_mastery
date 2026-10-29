@@ -6,7 +6,7 @@ int in_records(const uint8_t *p, size_t n, algo_ring *q, size_t *u) {
   (void)u;
   return -1;
 }
-int in_drain(algo_ring *q, InTransfer *t, FWriter w, void *p, unsigned n) {
+int in_drain(algo_ring *q, struct in_transfer *t, f_writer_fn w, void *p, unsigned n) {
   (void)q;
   (void)t;
   (void)w;
@@ -14,13 +14,13 @@ int in_drain(algo_ring *q, InTransfer *t, FWriter w, void *p, unsigned n) {
   (void)n;
   return -1;
 }
-int in_stream(InStream *s, uint8_t b, algo_ring *q) {
+int in_stream(struct in_stream *s, uint8_t b, algo_ring *q) {
   (void)s;
   (void)b;
   (void)q;
   return -1;
 }
-int in_shutdown(algo_ring *q, FAsync *s, unsigned c, uint32_t t, unsigned *d) {
+int in_shutdown(algo_ring *q, struct f_async *s, unsigned c, uint32_t t, unsigned *d) {
   (void)q;
   (void)s;
   (void)c;
@@ -28,8 +28,8 @@ int in_shutdown(algo_ring *q, FAsync *s, unsigned c, uint32_t t, unsigned *d) {
   (void)d;
   return -1;
 }
-int in_filter(V4Filter *f, const int32_t *i, size_t n, int32_t *o, size_t c,
-              const V4Sample *a, const V4Sample *b, V4Measurement *m) {
+int in_filter(struct v4_filter *f, const int32_t *i, size_t n, int32_t *o, size_t c,
+              const struct v4_sample *a, const struct v4_sample *b, struct v4_measurement *m) {
   (void)f;
   (void)i;
   (void)n;
@@ -41,14 +41,14 @@ int in_filter(V4Filter *f, const int32_t *i, size_t n, int32_t *o, size_t c,
   return -1;
 }
 #ifdef IN_FIRMWARE
-int in_dma_handoff(FwDma *d, FwIo i, uint32_t t, algo_ring *q) {
+int in_dma_handoff(struct fw_dma *d, struct fw_io i, uint32_t t, algo_ring *q) {
   (void)d;
   (void)i;
   (void)t;
   (void)q;
   return -1;
 }
-int in_gateway(FwIo i, algo_ring *q, V4Filter *f, FwWatchdog *w, int32_t *o) {
+int in_gateway(struct fw_io i, algo_ring *q, struct v4_filter *f, struct fw_watchdog *w, int32_t *o) {
   (void)i;
   (void)q;
   (void)f;

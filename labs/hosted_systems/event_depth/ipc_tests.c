@@ -10,7 +10,7 @@
   } while (0)
 int main(void) {
   unsigned char bytes[8] = {0, 1, 2, 3, 128, 254, 255, 0};
-  EiRequest r;
+  struct ei_request r;
   CHECK(ei_init(&r, bytes, 1, 1) == 0 && ei_invariant(&r));
   CHECK(ei_transition(&r, EI_QUEUE) == 0 && r.owner == EI_TRANSPORT);
   CHECK(ei_transition(&r, EI_ACCEPT) == 0 && r.owner == EI_SERVER);
@@ -53,8 +53,8 @@ int main(void) {
         CHECK(r.owner == EI_NO_OWNER && ei_invariant(&r));
         ++cuts;
       }
-  EiQueue q = {0};
-  EiRequest requests[6], *out = 0;
+  struct ei_queue q = {0};
+  struct ei_request requests[6], *out = 0;
   for (unsigned i = 0; i < 6; ++i)
     CHECK(ei_init(&requests[i], bytes, 3, i + 1) == 0);
   for (unsigned i = 0; i < 4; ++i)

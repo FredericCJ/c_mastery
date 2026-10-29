@@ -1,10 +1,10 @@
 #include "object_runtime_concurrent.h"
 #include <stdlib.h>
-static void unlock(ORCConcurrent *c) {
+static void unlock(struct orc_concurrent *c) {
   if (pthread_mutex_unlock(&c->mutex))
     abort();
 }
-ORStatus orcm_concurrent_init(ORCConcurrent *c, ORCPolicy policy) {
+enum or_status orcm_concurrent_init(struct orc_concurrent *c, enum orc_policy policy) {
   if (!c || policy > ORC_RESTART || policy < ORC_BLACK)
     return OR_INVALID;
   if (pthread_mutex_init(&c->mutex, NULL))
@@ -13,10 +13,10 @@ ORStatus orcm_concurrent_init(ORCConcurrent *c, ORCPolicy policy) {
   c->initialized = 1;
   return OR_OK;
 }
-ORStatus orcm_concurrent_call(ORCConcurrent *c, const ORCRequest *q,
-                              ORCResponse *out) {
-  ORCResponse r = {0};
-  ORStatus s;
+enum or_status orcm_concurrent_call(struct orc_concurrent *c, const struct orc_request *q,
+                              struct orc_response *out) {
+  struct orc_response r = {0};
+  enum or_status s;
   if (!c || !q || !out || !c->initialized)
     return OR_INVALID;
   if (pthread_mutex_lock(&c->mutex))
@@ -66,7 +66,7 @@ ORStatus orcm_concurrent_call(ORCConcurrent *c, const ORCRequest *q,
   unlock(c);
   return s;
 }
-ORStatus orcm_concurrent_close(ORCConcurrent *c) {
+enum or_status orcm_concurrent_close(struct orc_concurrent *c) {
   if (!c || !c->initialized)
     return OR_INVALID;
   if (pthread_mutex_lock(&c->mutex))

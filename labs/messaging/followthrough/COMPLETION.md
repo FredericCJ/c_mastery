@@ -3,7 +3,7 @@
 This required successor supplies the concurrent-adapter clause of
 X-T73-003-R3 and supports the lifetime argument of X-T73-011. Complete
 `src/completion_follow.c` against `completion.h`, after the serialized
-`MsgOperation` and owned-value exercises. Import those actual public interfaces;
+`struct msg_operation` and owned-value exercises. Import those actual public interfaces;
 do not replace the mechanism with a future, task or reference-counting library.
 The environment is hosted C17, Linux/POSIX threads and the existing separate
 GCC/Clang debug, optimized, address/undefined-behavior sanitizer and thread

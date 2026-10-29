@@ -17,7 +17,7 @@ The original ISO/object lifetime and shared exercise contracts still apply.
 
 ## World, shape and object identity
 
-An initialized stationary `ORXWorld` owns an ORXHeap, eight object metadata rows
+An initialized stationary `struct orx_world` owns an ORXHeap, eight object metadata rows
 and16 immutable descriptor slots. A world object uses the same slot/generation
 handle as its actual heap entry; its copied byte payload is empty, and strong
 heap edge0 is its prototype. Metadata generation must match the heap entry.
@@ -72,7 +72,7 @@ while a weak cache can retain its old value.
 
 ## Cache admission and accessor effects
 
-Zero-initialize `ORXPropertyCache`. It weakly records world identity, receiver
+Zero-initialize `struct orx_property_cache`. It weakly records world identity, receiver
 and holder handles, both descriptor identities, key, offset and epoch. A hit
 requires all guards, live receiver/holder generations and matching current
 shapes. It reads the current field; it never owns or caches the returned data

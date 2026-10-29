@@ -19,55 +19,55 @@ enum cl_result {
   CL_PENDING,
   CL_UNIMPLEMENTED
 };
-typedef struct {
+struct cl_message {
   uint32_t producer, sequence;
   size_t length;
   unsigned char bytes[4];
-} CLMessage;
-typedef struct {
-  CLMessage *slots;
+};
+struct cl_queue {
+  struct cl_message *slots;
   unsigned head, count, closed;
   uint64_t accepted, delivered, discarded;
-} CLQueue;
-void cl_queue_init(CLQueue *, CLMessage storage[2]);
-enum cl_result cl_send(CLQueue *, uint32_t producer, uint32_t sequence,
+};
+void cl_queue_init(struct cl_queue *, struct cl_message storage[2]);
+enum cl_result cl_send(struct cl_queue *, uint32_t producer, uint32_t sequence,
                        const unsigned char *, size_t length);
-enum cl_result cl_recv(CLQueue *, unsigned char *, size_t capacity,
+enum cl_result cl_recv(struct cl_queue *, unsigned char *, size_t capacity,
                        size_t *length, uint32_t *producer, uint32_t *sequence);
-void cl_close(CLQueue *);
-uint64_t cl_abort(CLQueue *);
+void cl_close(struct cl_queue *);
+uint64_t cl_abort(struct cl_queue *);
 
-typedef struct {
+struct cl_buffer {
   unsigned slot;
   uint64_t generation;
-} CLBuffer;
+};
 enum cl_owner { CL_FREE, CL_CALLER, CL_QUEUED, CL_CONSUMER };
-typedef struct {
+struct cl_allocation {
   unsigned offset, length;
   uint64_t generation;
   enum cl_owner owner;
-} CLAllocation;
-typedef struct {
+};
+struct cl_pool {
   unsigned char bytes[16];
-  CLAllocation slots[4];
+  struct cl_allocation slots[4];
   uint64_t allocations, releases;
-} CLPool;
-typedef struct {
-  CLBuffer slots[2];
+};
+struct cl_owned_queue {
+  struct cl_buffer slots[2];
   unsigned head, count, closed;
-} CLOwnedQueue;
-void cl_pool_init(CLPool *);
-enum cl_result cl_alloc(CLPool *, unsigned length, CLBuffer *);
-enum cl_result cl_buffer_write(CLPool *, CLBuffer, const unsigned char *,
+};
+void cl_pool_init(struct cl_pool *);
+enum cl_result cl_alloc(struct cl_pool *, unsigned length, struct cl_buffer *);
+enum cl_result cl_buffer_write(struct cl_pool *, struct cl_buffer, const unsigned char *,
                                unsigned);
-enum cl_result cl_buffer_read(const CLPool *, CLBuffer, unsigned char *,
+enum cl_result cl_buffer_read(const struct cl_pool *, struct cl_buffer, unsigned char *,
                               unsigned, unsigned *);
-enum cl_result cl_release(CLPool *, CLBuffer);
-void cl_owned_init(CLOwnedQueue *);
-enum cl_result cl_owned_send(CLPool *, CLOwnedQueue *, CLBuffer);
-enum cl_result cl_owned_recv(CLPool *, CLOwnedQueue *, CLBuffer *);
-void cl_owned_close(CLOwnedQueue *);
-unsigned cl_owned_abort(CLPool *, CLOwnedQueue *);
+enum cl_result cl_release(struct cl_pool *, struct cl_buffer);
+void cl_owned_init(struct cl_owned_queue *);
+enum cl_result cl_owned_send(struct cl_pool *, struct cl_owned_queue *, struct cl_buffer);
+enum cl_result cl_owned_recv(struct cl_pool *, struct cl_owned_queue *, struct cl_buffer *);
+void cl_owned_close(struct cl_owned_queue *);
+unsigned cl_owned_abort(struct cl_pool *, struct cl_owned_queue *);
 
 enum cl_phase { CL_OPEN, CL_CLOSING, CL_SHUT, CL_DESTROYED };
 enum cl_lease_state {
@@ -79,29 +79,29 @@ enum cl_lease_state {
   CL_TIMER,
   CL_WAKE_CLOSED
 };
-typedef struct {
+struct cl_lease {
   uint64_t object_generation, generation;
   unsigned slot;
-} CLLease;
-typedef struct {
+};
+struct cl_lease_slot {
   uint64_t generation;
   enum cl_lease_state state;
-} CLLeaseSlot;
-typedef struct {
+};
+struct cl_life {
   uint64_t generation;
   enum cl_phase phase;
-  CLLeaseSlot leases[8];
-} CLLife;
-void cl_life_init(CLLife *);
-enum cl_result cl_acquire(CLLife *, CLLease *);
-enum cl_result cl_transition(CLLife *, CLLease, enum cl_lease_state from,
+  struct cl_lease_slot leases[8];
+};
+void cl_life_init(struct cl_life *);
+enum cl_result cl_acquire(struct cl_life *, struct cl_lease *);
+enum cl_result cl_transition(struct cl_life *, struct cl_lease, enum cl_lease_state from,
                              enum cl_lease_state to);
-enum cl_result cl_drop(CLLife *, CLLease);
-void cl_life_close(CLLife *);
-enum cl_result cl_life_drained(CLLife *);
-enum cl_result cl_destroy(CLLife *);
-enum cl_result cl_restart(CLLife *);
-enum cl_result cl_restart_group(CLLife *, unsigned count);
+enum cl_result cl_drop(struct cl_life *, struct cl_lease);
+void cl_life_close(struct cl_life *);
+enum cl_result cl_life_drained(struct cl_life *);
+enum cl_result cl_destroy(struct cl_life *);
+enum cl_result cl_restart(struct cl_life *);
+enum cl_result cl_restart_group(struct cl_life *, unsigned count);
 
 enum cl_record_state {
   CL_HEALTHY,
@@ -111,33 +111,33 @@ enum cl_record_state {
   CL_REPAIRING,
   CL_BROKEN
 };
-typedef struct {
+struct cl_record {
   uint32_t value, checksum, committed, owner;
   unsigned repairs;
   enum cl_record_state state;
-} CLRecord;
-void cl_record_init(CLRecord *, uint32_t);
-enum cl_result cl_record_begin(CLRecord *, uint32_t owner);
-enum cl_result cl_record_stage(CLRecord *, uint32_t owner, uint32_t value);
-enum cl_result cl_record_commit(CLRecord *, uint32_t owner);
-enum cl_result cl_record_dead(CLRecord *, uint32_t trusted_dead_owner);
-enum cl_result cl_repair_begin(CLRecord *, uint32_t supervisor);
-enum cl_result cl_repair_finish(CLRecord *, uint32_t supervisor,
+};
+void cl_record_init(struct cl_record *, uint32_t);
+enum cl_result cl_record_begin(struct cl_record *, uint32_t owner);
+enum cl_result cl_record_stage(struct cl_record *, uint32_t owner, uint32_t value);
+enum cl_result cl_record_commit(struct cl_record *, uint32_t owner);
+enum cl_result cl_record_dead(struct cl_record *, uint32_t trusted_dead_owner);
+enum cl_result cl_repair_begin(struct cl_record *, uint32_t supervisor);
+enum cl_result cl_repair_finish(struct cl_record *, uint32_t supervisor,
                                 unsigned repair);
-enum cl_result cl_record_read(const CLRecord *, uint32_t *);
+enum cl_result cl_record_read(const struct cl_record *, uint32_t *);
 
 /* Bounded volatile application-acknowledgement adapter. No crash durability. */
-typedef struct {
+struct cl_receipt {
   unsigned state;
   uint32_t id, delta, result;
-} CLReceipt;
-typedef struct {
-  CLReceipt receipts[4];
+};
+struct cl_ack {
+  struct cl_receipt receipts[4];
   uint32_t epoch, highwater, value;
-} CLAck;
-void cl_ack_init(CLAck *, uint32_t epoch);
-enum cl_result cl_request(CLAck *, uint32_t epoch, uint32_t id, uint32_t delta,
+};
+void cl_ack_init(struct cl_ack *, uint32_t epoch);
+enum cl_result cl_request(struct cl_ack *, uint32_t epoch, uint32_t id, uint32_t delta,
                           uint32_t *result);
-enum cl_result cl_apply(CLAck *, uint32_t id);
-enum cl_result cl_acknowledge(CLAck *, uint32_t id);
+enum cl_result cl_apply(struct cl_ack *, uint32_t id);
+enum cl_result cl_acknowledge(struct cl_ack *, uint32_t id);
 #endif

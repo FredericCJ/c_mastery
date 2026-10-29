@@ -63,7 +63,7 @@ int main(void) {
   }
   const uint8_t field[] = {0, 3, 65, 0, 66, 99};
   for (size_t cap = 0; cap <= 10; ++cap) {
-    FCursor c = {field, sizeof field, 0};
+    struct f_cursor c = {field, sizeof field, 0};
     memset(shown, '#', sizeof shown);
     n = 99;
     enum lb_status st = lb_field_display(&c, cap ? shown : NULL, cap, &n);
@@ -73,7 +73,7 @@ int main(void) {
       CHECK(st == LB_OK && c.position == 5 && n == 6 &&
             !strcmp(shown, "A\\x00B"));
   }
-  FCursor shortc = {field, 4, 0};
+  struct f_cursor shortc = {field, 4, 0};
   CHECK(lb_field_display(&shortc, shown, 16, &n) == LB_RANGE &&
         shortc.position == 0);
   const size_t caps[] = {0, 1, 4, 7};

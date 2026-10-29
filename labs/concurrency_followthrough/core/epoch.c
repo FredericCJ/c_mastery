@@ -1,33 +1,33 @@
 #include "epoch.h"
-void cf_epoch_init(CfEpoch *e, unsigned n) {
+void cf_epoch_init(struct cf_epoch *e, unsigned n) {
   (void)e;
   (void)n;
 }
-int cf_epoch_register(CfEpoch *e, AGLease *l) {
+int cf_epoch_register(struct cf_epoch *e, struct ag_lease *l) {
   (void)e;
   (void)l;
   return AG_UNIMPLEMENTED;
 }
-int cf_epoch_enter(CfEpoch *e, AGLease l) {
+int cf_epoch_enter(struct cf_epoch *e, struct ag_lease l) {
   (void)e;
   (void)l;
   return AG_UNIMPLEMENTED;
 }
-int cf_epoch_leave(CfEpoch *e, AGLease l) {
+int cf_epoch_leave(struct cf_epoch *e, struct ag_lease l) {
   (void)e;
   (void)l;
   return AG_UNIMPLEMENTED;
 }
-int cf_epoch_depart(CfEpoch *e, AGLease l) {
+int cf_epoch_depart(struct cf_epoch *e, struct ag_lease l) {
   (void)e;
   (void)l;
   return AG_UNIMPLEMENTED;
 }
-int cf_epoch_advance(CfEpoch *e) {
+int cf_epoch_advance(struct cf_epoch *e) {
   (void)e;
   return AG_UNIMPLEMENTED;
 }
-int cf_epoch_eligible(CfEpoch *e, unsigned r, unsigned *o) {
+int cf_epoch_eligible(struct cf_epoch *e, unsigned r, unsigned *o) {
   (void)e;
   (void)r;
   (void)o;

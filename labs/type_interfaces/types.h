@@ -1,64 +1,64 @@
 #ifndef TD_TYPES_H
 #define TD_TYPES_H
 #include <stddef.h>
-typedef enum {
+enum td_status {
   TD_OK,
   TD_INVALID,
   TD_RANGE,
   TD_BUSY,
   TD_STATE,
   TD_UNFINISHED
-} TdStatus;
-typedef int TdRow[4];
-typedef int TdUnary(int);
-typedef TdUnary *TdUnaryPtr;
-typedef struct {
-  TdUnaryPtr call;
-} TdCallable;
+};
+typedef int td_row[4];
+typedef int td_unary(int);
+typedef td_unary *td_unary_ptr;
+struct td_callable {
+  td_unary_ptr call;
+};
 int (*td_row_factory(void))[4];
-TdUnaryPtr td_factory(void);
-TdCallable td_wrapped_factory(void);
-struct TdOpaque;
-struct TdOpaque *td_owner(unsigned index);
-TdStatus td_get(const struct TdOpaque *owner, int *out);
-TdStatus td_add(struct TdOpaque *owner, int delta);
-typedef struct {
+td_unary_ptr td_factory(void);
+struct td_callable td_wrapped_factory(void);
+struct td_opaque;
+struct td_opaque *td_owner(unsigned index);
+enum td_status td_get(const struct td_opaque *owner, int *out);
+enum td_status td_add(struct td_opaque *owner, int delta);
+struct td_meters {
   int value;
-} TdMeters;
-typedef struct {
+};
+struct td_seconds {
   int value;
-} TdSeconds;
-typedef struct {
+};
+struct td_speed {
   int value;
-} TdSpeed;
-TdStatus td_speed(TdMeters distance, TdSeconds duration, TdSpeed *out);
-TdStatus td_distance(TdSpeed speed, TdSeconds duration, TdMeters *out);
-typedef struct {
+};
+enum td_status td_speed(struct td_meters distance, struct td_seconds duration, struct td_speed *out);
+enum td_status td_distance(struct td_speed speed, struct td_seconds duration, struct td_meters *out);
+struct td_context {
   int bias;
   unsigned calls;
-} TdContext;
+};
 int td_step(int value, void *context);
 int td_adapter(void *context, int value);
-typedef int (*TdDispatch)(void *, int);
-TdStatus td_rows(const int (*rows)[4], size_t count, TdDispatch callback,
+typedef int (*td_dispatch_fn)(void *, int);
+enum td_status td_rows(const int (*rows)[4], size_t count, td_dispatch_fn callback,
                  void *context, int *out);
-typedef enum {
+enum td_job_state {
   TD_IDLE,
   TD_PENDING,
   TD_RUNNING,
   TD_DONE,
   TD_CANCELED
-} TdJobState;
-typedef struct {
-  TdJobState state;
-  TdDispatch callback;
+};
+struct td_job {
+  enum td_job_state state;
+  td_dispatch_fn callback;
   void *context;
   int argument;
-} TdJob;
+};
 #define TD_JOB_INIT {TD_IDLE, NULL, NULL, 0}
-TdStatus td_submit(TdJob *job, TdDispatch callback, void *context,
+enum td_status td_submit(struct td_job *job, td_dispatch_fn callback, void *context,
                    int argument);
-TdStatus td_run(TdJob *job, int *out);
-TdStatus td_cancel(TdJob *job);
-TdStatus td_reset(TdJob *job);
+enum td_status td_run(struct td_job *job, int *out);
+enum td_status td_cancel(struct td_job *job);
+enum td_status td_reset(struct td_job *job);
 #endif

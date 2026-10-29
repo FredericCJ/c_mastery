@@ -8,12 +8,12 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
-  AeConfig old;
+struct ac_watch {
+  struct ae_config old;
   unsigned calls, bad;
-} Watch;
-static void watch(void *v, const AeConfig *c) {
-  Watch *w = v;
+};
+static void watch(void *v, const struct ae_config *c) {
+  struct ac_watch *w = v;
   ++w->calls;
   if (c->version == w->old.version && memcmp(c, &w->old, sizeof *c))
     ++w->bad;
@@ -25,12 +25,12 @@ int main(void) {
       for (unsigned mode = 0; mode < 3; ++mode)
         for (unsigned fail = 0; fail <= n + 3; ++fail)
           for (unsigned notify = 0; notify < 2; ++notify) {
-            AeConfig c = {{1, 2, 0}, 2, 1}, old = c;
-            Watch w = {old, 0, 0};
-            AeUpdate r = ae_replace(&c, new_values, n, cap, (AeGuarantee)mode,
+            struct ae_config c = {{1, 2, 0}, 2, 1}, old = c;
+            struct ac_watch w = {old, 0, 0};
+            struct ae_update r = ae_replace(&c, new_values, n, cap, (enum ae_guarantee)mode,
                                     fail, notify, watch, &w);
             unsigned copies = n < cap ? n : cap;
-            AeCode code = AE_OK;
+            enum ae_code code = AE_OK;
             if (fail == 1) {
               code = AE_DEVICE;
               copies = 0;
@@ -63,22 +63,22 @@ int main(void) {
             }
             ++cases;
           }
-  AeConfig c = {{1, 2, 0}, 2, 1};
+  struct ae_config c = {{1, 2, 0}, 2, 1};
   CHECK(ae_replace(&c, c.values, 2, 2, AE_STRONG, 0, 0, 0, 0).code == AE_OK &&
         c.values[1] == 2);
   c.version = 3;
-  AeConfig old = c;
+  struct ae_config old = c;
   CHECK(ae_replace(&c, new_values, 3, 3, AE_STRONG, 0, 0, 0, 0).code ==
             AE_FULL &&
         !memcmp(&c, &old, sizeof c));
-  AeJournal j = {0};
+  struct ae_journal j = {0};
   CHECK(ae_journal(&j, 1, 2, 0) == AE_OK && ae_journal(&j, 1, 2, 0) == AE_OK &&
         j.effects == 1);
   CHECK(ae_journal(&j, 1, 3, 0) == AE_CONFLICT);
   CHECK(ae_journal(&j, 2, 1, 0) == AE_OK && ae_journal(&j, 3, 1, 0) == AE_OK);
   CHECK(ae_journal(&j, 1, 2, 0) == AE_OK && j.effects == 4 && j.value == 6);
   for (unsigned crash = 1; crash <= 3; ++crash) {
-    j = (AeJournal){0};
+    j = (struct ae_journal){0};
     CHECK(ae_journal(&j, 1, 2, crash) == AE_AMBIGUOUS);
     unsigned effects = j.effects;
     CHECK(ae_journal(&j, 1, 2, 0) == (crash == 3 ? AE_OK : AE_AMBIGUOUS) &&

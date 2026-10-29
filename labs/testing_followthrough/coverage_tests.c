@@ -3,7 +3,7 @@
 #include <string.h>
 #define CHECK(x) do{if(!(x)){fprintf(stderr,"CV_CHECK:%d:%s\n",__LINE__,#x);return 1;}}while(0)
 int main(int argc,char **argv){
- int weak=argc==2&&strcmp(argv[1],"weak")==0;Cv c={0};
+ int weak=argc==2&&strcmp(argv[1],"weak")==0;struct cv_cv c={0};
  CHECK(cv_push(&c,5)==1&&cv_push(&c,9)==1);
  CHECK(cv_allow(&c,2,0)==0);c.live=3;cv_cleanup(&c);
  if(weak){puts("CV_WEAK_PASS:return-only-two-pushes");return 0;}

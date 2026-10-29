@@ -21,7 +21,7 @@ semihosting, ELFv2 and the kernel system call ABI are target conventions.
 The frozen 19-byte program encodes one zero-argument function, entry zero, code
 length eight: `INT 41; HOST 1; RET`. CVM1 multibyte fields are little endian,
 irrespective of the host. Write the bytes by hand before using the supplied
-fixture. Do not serialize a `CvmProgram` or `CvmValue` C struct. C object padding,
+fixture. Do not serialize a `struct cvm_program` or `struct cvm_value` C struct. C object padding,
 pointer width and native integer order can change while the image stays fixed.
 
 The shared public `labs/kernel_followthrough/runtime/probe.c` executes six cases

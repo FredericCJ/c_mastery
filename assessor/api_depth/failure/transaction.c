@@ -1,8 +1,8 @@
 #include "transaction.h"
-AeUpdate ae_replace(AeConfig *c, const unsigned *input, unsigned n,
-                    unsigned cap, AeGuarantee guarantee, unsigned fail,
-                    unsigned notify, AeObserve observe, void *context) {
-  AeUpdate result = {AE_INVALID, 0, 0};
+struct ae_update ae_replace(struct ae_config *c, const unsigned *input, unsigned n,
+                    unsigned cap, enum ae_guarantee guarantee, unsigned fail,
+                    unsigned notify, ae_observe_fn observe, void *context) {
+  struct ae_update result = {AE_INVALID, 0, 0};
   if (!c || (!input && n) || n > 3 || cap > 3 || c->count > 3 ||
       c->version > 3 || (unsigned)guarantee > AE_PARTIAL || fail > n + 3 ||
       notify > 1)
@@ -23,7 +23,7 @@ AeUpdate ae_replace(AeConfig *c, const unsigned *input, unsigned n,
     result.code = AE_DEVICE;
     return result;
   }
-  AeConfig next = {{0}, 0, c->version + 1};
+  struct ae_config next = {{0}, 0, c->version + 1};
   result.code = AE_OK;
   if (guarantee == AE_STRONG && n > cap)
     result.code = AE_FULL;
@@ -52,7 +52,7 @@ AeUpdate ae_replace(AeConfig *c, const unsigned *input, unsigned n,
   if (result.code != AE_OK && guarantee == AE_STRONG)
     return result;
   if (result.code != AE_OK && guarantee == AE_BASIC)
-    next = (AeConfig){{0}, 0, next.version};
+    next = (struct ae_config){{0}, 0, next.version};
   *c = next;
   result.committed = 1;
   result.accepted = next.count;
@@ -62,7 +62,7 @@ AeUpdate ae_replace(AeConfig *c, const unsigned *input, unsigned n,
     result.code = AE_AMBIGUOUS;
   return result;
 }
-AeCode ae_journal(AeJournal *j, unsigned id, unsigned delta, unsigned crash) {
+enum ae_code ae_journal(struct ae_journal *j, unsigned id, unsigned delta, unsigned crash) {
   if (!j || id < 1 || id > 7 || delta < 1 || delta > 7 || crash > 3 ||
       j->count > 2 || j->next > 1)
     return AE_INVALID;
@@ -87,7 +87,7 @@ AeCode ae_journal(AeJournal *j, unsigned id, unsigned delta, unsigned crash) {
 #endif
     return AE_AMBIGUOUS;
   }
-  j->done[j->next] = (AeDone){id, delta};
+  j->done[j->next] = (struct ae_done){id, delta};
   j->next = (j->next + 1) % 2;
   if (j->count < 2)
     ++j->count;

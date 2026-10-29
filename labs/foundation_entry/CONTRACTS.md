@@ -35,7 +35,7 @@ cannot assess the truth of a complexity or language explanation by themselves.
 
 ## Representation and ownership contracts
 
-`FeStatus` separates capacity, arithmetic, invalid-argument, allocation and empty
+`enum fe_status` separates capacity, arithmetic, invalid-argument, allocation and empty
 results. All status-returning operations preserve the caller's result on failure.
 Trace records are explicitly observation outputs: after admission they reset and
 may contain a partial history when unwinding fails. A failed call before admission

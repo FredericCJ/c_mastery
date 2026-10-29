@@ -42,7 +42,7 @@ for data and control; finally reconcile descriptor incarnations, not just number
 
 ## T24.06.b — ordering needs a declared policy
 
-Implement `RfSequence` with session IDs 1–65535, sequence values 0–65535, a
+Implement `struct rf_sequence` with session IDs 1–65535, sequence values 0–65535, a
 three-value forward reorder window and the last three delivered values for
 duplicate classification. There is no modulo reuse: after sequence 65535 is
 delivered, the session retires. Inputs from another session never enter the

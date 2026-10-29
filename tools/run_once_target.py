@@ -25,7 +25,7 @@ def main(report):
            ROOT/'labs/modern_bridge/include/bridge.h',ROOT/'labs/modern_bridge/src/bridge.c',ROOT/'assessor/modern_bridge/bridge.c']
     pins={p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
     value={'schema_version':1,'created_utc':datetime.now(timezone.utc).isoformat(),'inspected_paths':pins,'commands':[],'outcomes':[],
-           'scope':'Actual logical CMX tasks, MBOnce and once adapters on Cortex-M4 target ABI; original explicit memory helper sources.',
+           'scope':'Actual logical CMX tasks, struct mb_once and once adapters on Cortex-M4 target ABI; original explicit memory helper sources.',
            'limits':['No physical or native context-switch observation, no timing bound; host analysis and target execution remain separate.']}
     def run(command,label,code=0,marker=None):
         command=[str(a) for a in command];result=subprocess.run(command,capture_output=True,text=True,timeout=45);output=result.stdout+result.stderr

@@ -6,12 +6,12 @@ int vh_host(void *ctx, uint8_t service, int32_t input, int32_t *out) {
   (void)out;
   return STORE_UNIMPLEMENTED;
 }
-int vh_migrate(Vh *h, int32_t *out) {
+int vh_migrate(struct vg_vh *h, int32_t *out) {
   (void)h;
   (void)out;
   return STORE_UNIMPLEMENTED;
 }
-int vh_increment(Vh *h, uint64_t id, int32_t delta, int32_t *out) {
+int vh_increment(struct vg_vh *h, uint64_t id, int32_t delta, int32_t *out) {
   (void)h;
   (void)id;
   (void)delta;

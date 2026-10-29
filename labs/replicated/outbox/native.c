@@ -8,15 +8,15 @@
 #include <sys/socket.h>
 #include <sys/wait.h>
 #include <unistd.h>
-typedef struct {
+struct rp_file {
   int fd;
-  RplPages adapter;
+  struct rpl_pages adapter;
   store pages;
-  RplLog log;
-} File;
-static File files[3];
+  struct rpl_log log;
+};
+static struct rp_file files[3];
 static ptrdiff_t file_read(void *c, size_t at, unsigned char *p, size_t n) {
-  File *f = c;
+  struct rp_file *f = c;
   if (n > 113)
     n = 113;
   ssize_t r = pread(f->fd, p, n, (off_t)at);
@@ -24,17 +24,17 @@ static ptrdiff_t file_read(void *c, size_t at, unsigned char *p, size_t n) {
 }
 static ptrdiff_t file_write(void *c, size_t at, const unsigned char *p,
                             size_t n) {
-  File *f = c;
+  struct rp_file *f = c;
   if (n > 257)
     n = 257;
   ssize_t r = pwrite(f->fd, p, n, (off_t)at);
   return r < 0 && errno == EINTR ? -2 : r;
 }
-static int file_flush(void *c) { return fdatasync(((File *)c)->fd); }
-static int attach(File *f, unsigned schema, int create) {
+static int file_flush(void *c) { return fdatasync(((struct rp_file *)c)->fd); }
+static int attach(struct rp_file *f, unsigned schema, int create) {
   store_io io;
   CHECK(rpl_pages(&f->adapter,
-                  (RplBytes){f, file_read, file_write, file_flush,
+                  (struct rpl_bytes){f, file_read, file_write, file_flush,
                              STORE_IMAGE_PAGES * STORE_PAGE_SIZE, 4098},
                   &io) == RPL_OK);
   if (create) {
@@ -76,13 +76,13 @@ static ptrdiff_t socket_read(void *c, unsigned char *p, size_t n) {
 }
 static int receiver_child(int fd, unsigned cut) {
   CHECK(!attach(&files[2], 7, 0));
-  RpoReceiver receiver;
+  struct rpo_receiver receiver;
   CHECK(rpo_receiver(&files[2].log, &receiver) == RPL_OK);
   unsigned char request[64], response[24];
   CHECK(rpo_wire_read(socket_read, &fd, 200, 64, request) == RPL_OK);
-  RplEvent event;
+  struct rpl_event event;
   CHECK(rpl_event_decode(19, 7, request, &event) == RPL_OK);
-  RpoReply reply;
+  struct rpo_reply reply;
   int r = rpo_receive(&receiver, 19, 7, event, &reply);
   CHECK(r == RPL_OK || r == RPO_REPLAY);
   if (cut == 1)
@@ -94,9 +94,9 @@ static int receiver_child(int fd, unsigned cut) {
   return 0;
 }
 static int exchange(unsigned cut, int acknowledge) {
-  RpoSender sender;
+  struct rpo_sender sender;
   CHECK(rpo_sender(&files[0].log, &files[1].log, &sender) == RPL_OK);
-  RplEvent event;
+  struct rpl_event event;
   CHECK(rpo_next(&sender, &event) == RPL_OK);
   unsigned char request[64], response[24];
   CHECK(rpl_event_encode(19, 7, event, request) == RPL_OK);
@@ -121,7 +121,7 @@ static int exchange(unsigned cut, int acknowledge) {
     return 0;
   }
   CHECK(WEXITSTATUS(status) == 0 && r == RPL_OK);
-  RpoReply reply;
+  struct rpo_reply reply;
   CHECK(rpo_reply_decode(response, &reply) == RPL_OK);
   if (acknowledge)
     CHECK(rpo_ack(&sender, reply) == RPL_OK);

@@ -59,7 +59,7 @@ def validate_campaign(value):
     if build not in value['commands'] or build['exit_code'] or any(f not in build['command'] for f in flags) or marker not in output:errors.append('Wrong guard/capture build/result')
  if value['oracle_input'] not in logs or content(value['oracle_input']).decode()!='\n'.join(oracle.inputs())+'\n':errors.append('Wrong independent oracle inputs')
  captures=json.loads(content(value['captures']));actual_guests=groups['guest']
- if len(actual_guests)!=6 or {(r['machine'],r['cpus']) for r in actual_guests}!={(m,c) for m in ('pc-i440fx-10.2','pc-q35-10.2') for c in (1,2,4)}:errors.append('Missing actual machine/CPU change')
+ if len(actual_guests)!=6 or {(r['machine'],r['cpus']) for r in actual_guests}!={(m,c) for m in ('pc-i440fx-10.2','pc-q35-10.2') for c in (1,2,4)}:errors.append('Missing actual machine/struct lr_cpu change')
  for row in actual_guests:
   capture=next(c for c in captures if (c['machine'],c['cpus'])==(row['machine'],row['cpus']));stage=row['stage'];cmd=stage['command']
   if row['log'] not in logs or guest.decode(content(row['log']).decode())!={k:capture[k] for k in ('rsdp','regions')} or capture['stage']!=stage:errors.append('Captured bytes do not match actual raw stage')

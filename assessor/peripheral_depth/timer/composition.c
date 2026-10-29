@@ -11,9 +11,9 @@ static void put(void *p, unsigned a, uint32_t v) {
   r[a] = v;
 }
 int main(void) {
-  PuClock k = {16000000, 1, 1, 1, 1, 0};
-  PtConfig c;
-  FwIo io = {0, get, put};
+  struct pu_clock k = {16000000, 1, 1, 1, 1, 0};
+  struct pt_config c;
+  struct fw_io io = {0, get, put};
   for (unsigned d = 0; d <= 1000; d += 125) {
     if (pt_choose(&k, 15, 1000, d, 1000 - d, 0, 0, &c) ||
         fw_timer(io, 1000000, 1000, d) || r[FW_PERIOD] != c.arr ||

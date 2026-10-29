@@ -31,7 +31,7 @@ def main():
                 assert [r[:7] for r in left['queries']]==[r[:7] for r in right['queries']]
                 observations.append(dict(compiler=cc,dimension=left['dim'],state=index,kinds=[a,b],query_count=len(left['queries']),identical_masks=True,
                     visits=[sum(r[7] for r in d['queries']) for d in [left,right]],exact_item_tests=[sum(r[8] for r in d['queries']) for d in [left,right]]))
-        probe=build/(cc+'-size.c');probe.write_text('#include "spatial.h"\n#include <stdio.h>\nint main(void){printf("%zu %zu %zu\\n",sizeof(SpIndex),sizeof(SpNode),sizeof(SpRef));}\n',encoding='utf8')
+        probe=build/(cc+'-size.c');probe.write_text('#include "spatial.h"\n#include <stdio.h>\nint main(void){printf("%zu %zu %zu\\n",sizeof(struct sp_index),sizeof(struct sp_node),sizeof(struct sp_ref));}\n',encoding='utf8')
         out=build/(cc+'-size');run([cc,'-std=c17','-I',ROOT/'labs/corpus_spatial',probe,'-o',out]);sizes=list(map(int,run([out]).split()))
         observations.append(dict(compiler=cc,experiment='actual hosted ABI sizeof',index=sizes[0],node=sizes[1],reference=sizes[2],two_caller_indices=sizes[0]*2,probe_sha256=sha(probe)))
     assert all(sha(ROOT/p)==h for p,h in pins.items())

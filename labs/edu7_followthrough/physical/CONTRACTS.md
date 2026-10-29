@@ -2,7 +2,7 @@
 
 This required additive contract serves the unchanged PR-T40-02 criteria
 AX-PR-T40-02-T40.02.a/b/c and each original seven-day V1. The accepted parent,
-legacy assessment shared contract, actual `PuDriver` UART contract, R5 timing
+legacy assessment shared contract, actual `struct pu_driver` UART contract, R5 timing
 contract and EDU7 depth grant contract apply explicitly. Historical hours stay
 descriptive. The learner completes `physical.h`, `learner.c`, `port_learner.c` and
 the independently produced prerequisites; the withheld assessor supplies no

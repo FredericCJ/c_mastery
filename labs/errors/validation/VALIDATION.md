@@ -9,10 +9,10 @@ dependency. The retained scalar API and historical accepted identities remain.
 
 ## Input, representation and exact contract
 
-`EvvInput` holds count0..3, three initialized er_config objects and a uint32_t
+`struct evv_input` holds count0..3, three initialized er_config objects and a uint32_t
 limit. All three objects, including unused entries, contain initialized int
 values: a successful publication copies the complete value. `root` is a nonzero
-numeric path token. `EvvDiagnostic` has field/error ID, depth3 and the exact
+numeric path token. `struct evv_diagnostic` has field/error ID, depth3 and the exact
 path `[root, zero_based_item_index, field]`. Fields1/2/3 name age/quota/denominator;
 field4 names the ratio constraint. Each complete diagnostic occupies one slot;
 there are no partial paths, strings, allocation or hidden formatting.

@@ -12,8 +12,8 @@ def run(c,root):
   return p
  case('row-shape','#include "types.h"\nvoid f(void){int *a[4]={0};int (*b)[4]=a;(void)b;}','T02.01.a',1,'incompatible')
  case('alias-compatible','typedef int Unary(int);typedef Unary *Pointer;Pointer factory(void);int (*factory(void))(int);int twice(int n){return n*2;}Pointer factory(void){return twice;}int main(void){return factory()(7)!=14;}','T02.01.c',run=True)
- case('wrapper-not-function','#include "types.h"\nint f(void){TdCallable c=td_wrapped_factory();return c(7);}','T02.01.c',1,'call')
- case('opaque-size','#include "types.h"\nunsigned f(void){return sizeof(struct TdOpaque);}','T02.02.a',1,'incomplete')
+ case('wrapper-not-function','#include "types.h"\nint f(void){struct td_callable c=td_wrapped_factory();return c(7);}','T02.01.c',1,'call')
+ case('opaque-size','#include "types.h"\nunsigned f(void){return sizeof(struct td_opaque);}','T02.02.a',1,'incomplete')
  case('function-size','unsigned f(void){return sizeof(int(int));}','T02.02.a',1,'function')
  case('void-size','unsigned f(void){return sizeof(void);}','T02.02.a',1,'void')
  case('category-positive','struct Opaque;struct Pair{int x,y;};typedef int Row[4];int f(int);int main(void){struct Opaque *p=0;struct Pair v={1,2};Row a={0};return !(sizeof a==4*sizeof(int)&&sizeof v>=2*sizeof(int)&&p==0);}','T02.02.a',run=True)
@@ -22,7 +22,7 @@ def run(c,root):
  case('callback-sign','int step(unsigned x){return x==1;}int (*callback)(int)=step;','T02.02.b',1,'incompatible')
  case('signed-wrapper','static unsigned calls;static int step(unsigned x){++calls;return (int)x+1;}static int bridge(int x){if(x<0||x>1000)return -1;return step((unsigned)x);}int main(void){int (*cb)(int)=bridge;return cb(-1)!=-1||calls!=0||cb(7)!=8||calls!=1;}','T02.02.b',run=True)
  case('units-alias','typedef int Meters;typedef int Seconds;int speed(Meters d,Seconds t){return d/t;}int main(void){Meters d=12;Seconds t=3;return speed(t,d)!=0;}','T02.02.c',run=True)
- case('units-swapped','#include "types.h"\nTdStatus f(void){TdSpeed out;return td_speed((TdSeconds){3},(TdMeters){12},&out);}','T02.02.c',1,'incompatible')
+ case('units-swapped','#include "types.h"\nTdStatus f(void){struct td_speed out;return td_speed((struct td_seconds){3},(struct td_meters){12},&out);}','T02.02.c',1,'incompatible')
  case('prototype-name','int f(int prototype_only);int g(void){return prototype_only;}','T02.03.a',1,'prototype_only')
  case('scope-map','static int value=4;int f(int prototype_only);int main(void){int before=value;{int value=5;before+=value;}goto done;done:return before!=9||value!=4;}','T02.03.a',run=True)
  case('prototype-tag','int f(struct Private *p);struct Private{int n;};int f(struct Private *p){return p->n;}','T02.03.a',1,'conflicting')
@@ -102,7 +102,7 @@ def units(c,root):
  lab=root/'labs/type_interfaces';ref=root/'assessor/type_interfaces/types.c'
  left=c.write('units/opaque-left.c','#include "types.h"\nTdStatus left(void){return td_add(td_owner(0),7);}\n')
  right=c.write('units/opaque-right.c','#include "types.h"\nTdStatus right(int *out){return td_get(td_owner(0),out);}\n')
- main=c.write('units/opaque-main.c','#include "types.h"\nTdStatus left(void);TdStatus right(int*);int main(void){int n=91;return left()!=TD_OK||right(&n)!=TD_OK||n!=7;}\n')
+ main=c.write('units/opaque-main.c','#include "types.h"\nTdStatus left(void);enum td_status right(int*);int main(void){int n=91;return left()!=TD_OK||right(&n)!=TD_OK||n!=7;}\n')
  for cc in ['gcc','clang']:
   objects=[]
   for i,source in enumerate([left,right,main,ref]):

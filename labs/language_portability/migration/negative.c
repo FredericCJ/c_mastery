@@ -7,8 +7,8 @@ int no_arguments(void);
 int call(void){return no_arguments(1.25f);}
 #elif LP_CASE==3
 /* Cast is analysis-only; never call through the resulting incompatible type. */
-typedef int (*WrongComparator)(const void*,const void*);
-WrongComparator cast_only(void){return (WrongComparator)lp_compare;}
+typedef int (*wrong_comparator_fn)(const void*,const void*);
+wrong_comparator_fn cast_only(void){return (wrong_comparator_fn)lp_compare;}
 #elif LP_CASE==4
 implicit_return(value)
 int value;

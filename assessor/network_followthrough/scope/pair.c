@@ -2,12 +2,12 @@
 #ifndef NW_PAIR_MUTANT
 #define NW_PAIR_MUTANT 0
 #endif
-int nw_pair_init(NwPair *s, unsigned cap, uint32_t epoch, uint16_t a,
+int nw_pair_init(struct nw_pair *s, unsigned cap, uint32_t epoch, uint16_t a,
                  uint16_t b) {
   if (!s || cap < 1 || cap > 2 || !epoch || !a || !b || a == b)
     return NW_INVALID;
 #if NW_PAIR_MUTANT == 2
-  *s = (NwPair){.ports = {a, b}, .capacity = cap, .epoch = epoch};
+  *s = (struct nw_pair){.ports = {a, b}, .capacity = cap, .epoch = epoch};
 #else
   s->ports[0] = a;
   s->ports[1] = b;
@@ -18,8 +18,8 @@ int nw_pair_init(NwPair *s, unsigned cap, uint32_t epoch, uint16_t a,
     net_init(&s->flows[i], 1000 + 65536 * i);
   return NW_OK;
 }
-int nw_pair_receive(NwPair *s, const void *data, size_t n, uint64_t now,
-                    NetPacket *out) {
+int nw_pair_receive(struct nw_pair *s, const void *data, size_t n, uint64_t now,
+                    struct net_packet *out) {
   if (!s || !data || !out || s->capacity < 1 || s->capacity > 2 || n < 14)
     return NW_INVALID;
   const unsigned char *p = data;
@@ -27,7 +27,7 @@ int nw_pair_receive(NwPair *s, const void *data, size_t n, uint64_t now,
     /* Shared peer-neighbor event is copied into each bounded historical stack.
      * Exactly one ARP response is emitted, never one response per TCP flow. */
     for (unsigned i = 0; i < s->capacity; ++i) {
-      NetPacket ignored;
+      struct net_packet ignored;
       if (net_receive(&s->flows[i], p, n, now, i ? &ignored : out) < 0)
         return NW_INVALID;
     }

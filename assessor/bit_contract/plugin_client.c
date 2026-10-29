@@ -9,7 +9,7 @@ int main(int argc,char **argv){
  size_t required=fb_plugin_copy(NULL,0);T(required==(version==1||version==4?8u:version==2?12u:4u));
  unsigned char short_out[3]={91,92,93};T(fb_plugin_copy(short_out,3)==required&&short_out[0]==91&&short_out[2]==93);
  bytes=malloc(required);T(bytes!=NULL);T(fb_plugin_copy(bytes,required)==required);
- FbPlugin out={91,92,93,94};FbStatus s=fb_negotiate((FbSpan){bytes,required},&out);
+ struct fb_plugin out={91,92,93,94};enum fb_status s=fb_negotiate((struct fb_span){bytes,required},&out);
  T(s==(version<=2?FB_OK:version==3?FB_UNSUPPORTED:FB_SHORT));
  if(version<=2){T(out.version==version&&out.size==required&&out.features==1&&out.max_items==(version==1?0u:1024u));}
  else{T(out.version==91&&out.size==92&&out.features==93&&out.max_items==94);}

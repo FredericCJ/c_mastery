@@ -21,7 +21,7 @@ types. A live allocation owns its requested prefix. Pool reuse ends the
 protocol lifetime of old borrows even though the actual typed backing array
 continues to exist.
 
-The imported `V4Allocator` declaration is copied byte for byte from the accepted
+The imported `struct v4_allocator` declaration is copied byte for byte from the accepted
 `labs/algorithms/include/v4_algo.h`. `take(context,count)` returns a distinct
 live region suitable for count int32_t values, or null with no acquired region.
 The caller checks count*sizeof(int32_t) before calling. `release` receives the
@@ -35,7 +35,7 @@ the exact adapter revision.
 
 ## Ownership invariants
 
-An `OwOwner` owns exactly block[0..count), with count in0..3, a valid allocator
+An `struct ow_owner` owns exactly block[0..count), with count in0..3, a valid allocator
 when nonempty, and distinct non-null blocks. Construction publishes only after
 all three acquisitions. Destroy pops before release, clears consumed pointers,
 and is idempotent on empty state. Move requires an empty destination and poisons

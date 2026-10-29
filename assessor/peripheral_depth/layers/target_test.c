@@ -7,16 +7,16 @@
 int main(void) {
   R(0x40023800) = 2;
   R(0x40023808) = 0;
-  PuClock clock = {16000000, 1, 1, 1, 1, 0};
+  struct pu_clock clock = {16000000, 1, 1, 1, 1, 0};
   for (unsigned backend = 0; backend < 2; backend++) {
-    PlUart uart = {0};
+    struct pl_uart uart = {0};
     CHECK(pl_f439_open(&uart, &clock, 115200, backend, 2) == PL_OK);
-    PlService service = {0};
-    PlTransport t = pl_f439_transport(&uart);
-    PlResult result = {99, 99, 99};
+    struct pl_service service = {0};
+    struct pl_transport t = pl_f439_transport(&uart);
+    struct pl_result result = {99, 99, 99};
     CHECK(pl_send(&service, t, 4, 5, 1, 0, 100) == PL_OK);
-    PlParser parser = {0};
-    PlCommand command = {99, 99};
+    struct pl_parser parser = {0};
+    struct pl_command command = {99, 99};
     for (unsigned i = 0; i < 8; i++) {
       u.sr = PU_TXE;
       CHECK(pl_poll(&service, t, 1, i + 1, &result) == PL_BUSY);
@@ -29,9 +29,9 @@ int main(void) {
           result.status == PL_OK && !service.active);
   }
   {
-    PlUart uart = {0};
+    struct pl_uart uart = {0};
     CHECK(pl_f439_open(&uart, &clock, 115200, PU_DMA, 2) == PL_OK);
-    PlTransport t = pl_f439_transport(&uart);
+    struct pl_transport t = pl_f439_transport(&uart);
     for (unsigned i = 0; i < 3; i++) {
       uintptr_t bad[] = {0x10000000u, 0x2002fff9u, 0x20030000u};
       CHECK(t.submit(t.context, (const uint8_t *)bad[i], 8, 1, 0, 100) ==

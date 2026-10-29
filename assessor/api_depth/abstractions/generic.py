@@ -33,9 +33,9 @@ raise SystemExit(bool(r.returncode or len(want)!=len(actual) or bad))
  for cc in ('gcc','clang'):
   exe=c.root/(cc+'-generic-oracle');c.run([cc,*common,'-O2',private/'generic_oracle.c',source,'-o',exe]);c.run(['python3',compare,exe,data,oracle,c.root/(cc+'-generic-oracle.json')],contains=f'GENERIC-ORACLE {len(corpus)} {len(corpus)} 0');c.require(True,'independent decimal grammar oracle '+cc,dict(cases=len(corpus),input_sha256=hashlib.sha256(data.read_bytes()).hexdigest(),model='Python unbounded decimal prefixes; signed target interval32768/32767'))
  probes={
- 'wrong-type':'#include "generic.h"\nint main(void){AsInts b={0};return as_generic_push(&b,1.5);}\n',
+ 'wrong-type':'#include "generic.h"\nint main(void){struct as_ints b={0};return as_generic_push(&b,1.5);}\n',
  'unselected':'int main(void){return _Generic(1,int:0,default:((int)0).missing);}\n',
- 'missing-case':'#include "generic.h"\nint bad(AvTag t){switch(t){case AV_INT:return 1;case AV_TEXT:return 2;case AV_ERROR:return 3;}return 0;}\n'}
+ 'missing-case':'#include "generic.h"\nint bad(enum av_tag t){switch(t){case AV_INT:return 1;case AV_TEXT:return 2;case AV_ERROR:return 3;}return 0;}\n'}
  for name,body in probes.items():
   path=c.write(name+'.c',body)
   for cc in ('gcc','clang'):c.run([cc,*common,'-Wswitch-enum','-c',path,'-o',c.root/(cc+'-'+name+'.o')],expected='nonzero',contains={'wrong-type':'compatible','unselected':'member','missing-case':'AV_OWNED'}[name])

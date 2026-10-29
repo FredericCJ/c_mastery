@@ -11,7 +11,7 @@ unsigned char a[4]={9,9,9,9},b[4]={1,2,3,4}; CHECK(kl_copy(a,4,b,4,2)==2); CHECK
 return 0;
 }
 static int test_refs(void) {
-KLRef r={1,0}; CHECK(kl_ref(&r,0)==1 && r.refs==2); CHECK(kl_ref(&r,1)==1 && !r.dead); CHECK(kl_ref(&r,1)==1 && r.dead); CHECK(!kl_ref(&r,0)); r.refs=UINT_MAX;r.dead=0;CHECK(!kl_ref(&r,0));
+struct kl_ref r={1,0}; CHECK(kl_ref(&r,0)==1 && r.refs==2); CHECK(kl_ref(&r,1)==1 && !r.dead); CHECK(kl_ref(&r,1)==1 && r.dead); CHECK(!kl_ref(&r,0)); r.refs=UINT_MAX;r.dead=0;CHECK(!kl_ref(&r,0));
 return 0;
 }
 static int test_locks(void) {
@@ -19,11 +19,11 @@ CHECK(kl_lock_allowed(0,0,0));CHECK(!kl_lock_allowed(1,0,0));CHECK(kl_lock_allow
 return 0;
 }
 static int test_work(void) {
-KLWork w={0,0,0,0}; CHECK(kl_work(&w,0));CHECK(kl_work(&w,1));CHECK(kl_work(&w,3));CHECK(!kl_work(&w,4));CHECK(kl_work(&w,2));CHECK(kl_work(&w,4));CHECK(!kl_work(&w,0));CHECK(!kl_work(&w,4));
+struct kl_work w={0,0,0,0}; CHECK(kl_work(&w,0));CHECK(kl_work(&w,1));CHECK(kl_work(&w,3));CHECK(!kl_work(&w,4));CHECK(kl_work(&w,2));CHECK(kl_work(&w,4));CHECK(!kl_work(&w,0));CHECK(!kl_work(&w,4));
 return 0;
 }
 static int test_grace(void) {
-KLGrace g={0,0};CHECK(kl_grace(&g,0,2));CHECK(kl_grace(&g,2,0));CHECK(!kl_grace(&g,3,0));CHECK(!kl_grace(&g,0,3));CHECK(kl_grace(&g,1,2));CHECK(kl_grace(&g,3,0));
+struct kl_grace g={0,0};CHECK(kl_grace(&g,0,2));CHECK(kl_grace(&g,2,0));CHECK(!kl_grace(&g,3,0));CHECK(!kl_grace(&g,0,3));CHECK(kl_grace(&g,1,2));CHECK(kl_grace(&g,3,0));
 return 0;
 }
 static int test_abi(void) {

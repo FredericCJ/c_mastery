@@ -5,7 +5,7 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-static int event_open(void *context, PFPmuEvent event, int leader) {
+static int event_open(void *context, struct pf_pmu_event event, int leader) {
     struct perf_event_attr attr = {0};
     (void)context;
     attr.type = event.type;
@@ -19,7 +19,7 @@ static int event_open(void *context, PFPmuEvent event, int leader) {
     return (int)syscall(SYS_perf_event_open, &attr, 0, -1, leader,
                         PERF_FLAG_FD_CLOEXEC);
 }
-static int control(void *context, int fd, enum PFPmuControl op, uint64_t *id) {
+static int control(void *context, int fd, enum pf_pmu_control op, uint64_t *id) {
     (void)context;
     if (op == PF_PMU_ID) return ioctl(fd, PERF_EVENT_IOC_ID, id);
     unsigned long request = op == PF_PMU_RESET ? PERF_EVENT_IOC_RESET :
@@ -35,10 +35,10 @@ static int event_close(void *context, int fd) {
     (void)context;
     return close(fd);
 }
-PFPmuOS pf_pmu_linux(void) {
-    return (PFPmuOS){NULL, event_open, control, event_read, event_close};
+struct pf_pmu_os pf_pmu_linux(void) {
+    return (struct pf_pmu_os){NULL, event_open, control, event_read, event_close};
 }
-const char *pf_pmu_state_name(PFPmuState state) {
+const char *pf_pmu_state_name(enum pf_pmu_state state) {
     static const char *const names[] = {
         "empty", "ready", "active", "measured", "denied", "unavailable",
         "io-error", "never-scheduled", "malformed", "invalid", "unimplemented"

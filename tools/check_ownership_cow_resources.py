@@ -46,7 +46,7 @@ def check(d,q,files=True):
         for r in mutants+learners:
             text=(ROOT/r['log']).read_text(encoding='utf8');assert 'OW_CHECK' in text and not any(s in text for s in ['AddressSanitizer','ThreadSanitizer','runtime error:'])
         for r in ctests:
-            text=(ROOT/r['log']).read_text(encoding='utf8');assert all(s in text for s in ['OCR_BASE actual-OwCow','raw-alias-bypass','OCR_SNAPSHOTS actual-owned-resources','OCR_FAILURES raw typed post-acquisition-partial-clone','OCR_IDENTITY four-slot-capacity','OCR_CLOSE no-new-snapshot','OCR_THREADS actual-two-readers','100% tests passed'])
+            text=(ROOT/r['log']).read_text(encoding='utf8');assert all(s in text for s in ['OCR_BASE actual-struct ow_cow','raw-alias-bypass','OCR_SNAPSHOTS actual-owned-resources','OCR_FAILURES raw typed post-acquisition-partial-clone','OCR_IDENTITY four-slot-capacity','OCR_CLOSE no-new-snapshot','OCR_THREADS actual-two-readers','100% tests passed'])
         for r in d['generated_artifacts']:
             if r['path'].endswith('compile_commands.json'):
                 commands=json.loads((ROOT/r['path']).read_text());assert commands and all('-std=c17' in c['command'] for c in commands)

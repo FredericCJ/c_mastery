@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-typedef enum {
+enum rz_status {
   RZ_OK,
   RZ_INVALID,
   RZ_FULL,
@@ -23,120 +23,120 @@ typedef enum {
   RZ_DONE,
   RZ_DENIED,
   RZ_CLOSED
-} RZStatus;
-typedef struct RZScope {
-  const struct RZScope *parent;
+};
+struct rz_scope {
+  const struct rz_scope *parent;
   uint64_t deadline;
   unsigned depth;
   atomic_bool cancelled;
-} RZScope;
-int rz_scope_init(RZScope *, const RZScope *, uint64_t, uint64_t);
-void rz_cancel(RZScope *);
-int rz_check(const RZScope *, uint64_t);
-int rz_remaining(const RZScope *, uint64_t, uint64_t *);
-typedef struct {
+};
+int rz_scope_init(struct rz_scope *, const struct rz_scope *, uint64_t, uint64_t);
+void rz_cancel(struct rz_scope *);
+int rz_check(const struct rz_scope *, uint64_t);
+int rz_remaining(const struct rz_scope *, uint64_t, uint64_t *);
+struct rz_queue {
   unsigned values[4];
   size_t head, count;
   bool closed;
-} RZQueue;
-typedef enum {
+};
+enum rz_policy {
   RZ_BLOCK,
   RZ_REJECT,
   RZ_DROP,
   RZ_OVERWRITE,
   RZ_DEGRADE
-} RZPolicy;
-typedef struct {
-  const RZScope *scope;
+};
+struct rz_offer {
+  const struct rz_scope *scope;
   unsigned value;
   bool pending;
-} RZOffer;
-void rz_queue_init(RZQueue *);
-int rz_offer(RZQueue *, RZOffer *, RZPolicy, uint64_t);
-int rz_pop(RZQueue *, unsigned *);
-int rz_forward(RZQueue *, MsgHub *, unsigned);
-typedef struct {
+};
+void rz_queue_init(struct rz_queue *);
+int rz_offer(struct rz_queue *, struct rz_offer *, enum rz_policy, uint64_t);
+int rz_pop(struct rz_queue *, unsigned *);
+int rz_forward(struct rz_queue *, struct msg_hub *, unsigned);
+struct rz_timer {
   uint64_t due;
   int next, previous;
   unsigned generation;
   bool active;
-} RZTimer;
-typedef struct RZWheel {
+};
+struct rz_wheel {
   uint64_t now;
   int head[4];
-  RZTimer slots[4];
-} RZWheel;
-typedef struct {
-  const RZWheel *owner;
+  struct rz_timer slots[4];
+};
+struct rz_timer_id {
+  const struct rz_wheel *owner;
   unsigned slot, generation;
-} RZTimerId;
-void rz_wheel_init(RZWheel *, uint64_t);
-int rz_schedule(RZWheel *, uint64_t, RZTimerId *);
-int rz_unschedule(RZWheel *, RZTimerId);
-int rz_tick(RZWheel *, unsigned *);
-typedef struct {
+};
+void rz_wheel_init(struct rz_wheel *, uint64_t);
+int rz_schedule(struct rz_wheel *, uint64_t, struct rz_timer_id *);
+int rz_unschedule(struct rz_wheel *, struct rz_timer_id);
+int rz_tick(struct rz_wheel *, unsigned *);
+struct rz_bucket {
   uint64_t capacity, rate, tokens, last;
-} RZBucket;
-int rz_bucket_init(RZBucket *, uint64_t, uint64_t, uint64_t);
-int rz_consume(RZBucket *, uint64_t, uint64_t);
-typedef struct {
-  const RZScope *scope;
+};
+int rz_bucket_init(struct rz_bucket *, uint64_t, uint64_t, uint64_t);
+int rz_consume(struct rz_bucket *, uint64_t, uint64_t);
+struct rz_retry {
+  const struct rz_scope *scope;
   unsigned attempts, maximum;
   uint64_t base, cap;
   bool idempotent;
-} RZRetry;
-int rz_retry_init(RZRetry *, const RZScope *, unsigned, uint64_t, uint64_t,
+};
+int rz_retry_init(struct rz_retry *, const struct rz_scope *, unsigned, uint64_t, uint64_t,
                   bool);
-int rz_retry_next(RZRetry *, uint64_t, uint64_t, uint64_t *);
-typedef struct RZGate {
+int rz_retry_next(struct rz_retry *, uint64_t, uint64_t, uint64_t *);
+struct rz_gate {
   unsigned phase, failures, limit, epoch;
   uint64_t until, last;
   bool active[2], retired;
   unsigned generations[2], epochs[2];
-} RZGate;
-typedef struct {
-  const RZGate *owner;
+};
+struct rz_permit {
+  const struct rz_gate *owner;
   unsigned slot, generation;
-} RZPermit;
-int rz_gate_init(RZGate *, unsigned, uint64_t);
-int rz_admit(RZGate *, uint64_t, RZPermit *);
-int rz_finish(RZGate *, RZPermit, uint64_t, int);
-typedef struct {
-  const RZScope *scope;
+};
+int rz_gate_init(struct rz_gate *, unsigned, uint64_t);
+int rz_admit(struct rz_gate *, uint64_t, struct rz_permit *);
+int rz_finish(struct rz_gate *, struct rz_permit, uint64_t, int);
+struct rz_hedge {
+  const struct rz_scope *scope;
   uint64_t hedge_at;
   unsigned started, completed, cancel_requested;
   int winner;
   unsigned value;
-} RZHedge;
-int rz_hedge_init(RZHedge *, const RZScope *, uint64_t, uint64_t);
-int rz_hedge_start(RZHedge *, uint64_t);
-int rz_hedge_complete(RZHedge *, unsigned, uint64_t, bool, unsigned);
-int rz_hedge_result(const RZHedge *, unsigned *);
-bool rz_hedge_quiescent(const RZHedge *);
-typedef struct {
+};
+int rz_hedge_init(struct rz_hedge *, const struct rz_scope *, uint64_t, uint64_t);
+int rz_hedge_start(struct rz_hedge *, uint64_t);
+int rz_hedge_complete(struct rz_hedge *, unsigned, uint64_t, bool, unsigned);
+int rz_hedge_result(const struct rz_hedge *, unsigned *);
+bool rz_hedge_quiescent(const struct rz_hedge *);
+struct rz_entry {
   bool live;
   unsigned client, id;
   int delta, result;
   uint64_t born;
-} RZEntry;
-typedef struct {
-  RZEntry entries[4];
+};
+struct rz_receiver {
+  struct rz_entry entries[4];
   uint64_t window, last, fence;
   int total;
-} RZReceiver;
-int rz_receiver_init(RZReceiver *, uint64_t, uint64_t);
-int rz_receive(RZReceiver *, uint64_t, unsigned, unsigned, uint64_t, int, int *,
+};
+int rz_receiver_init(struct rz_receiver *, uint64_t, uint64_t);
+int rz_receive(struct rz_receiver *, uint64_t, unsigned, unsigned, uint64_t, int, int *,
                bool *);
-typedef struct {
-  const RZScope *scope;
-  MsgHub *hub;
-  RZQueue pending;
-  RZBucket limiter;
-  RZGate breaker;
-  RZReceiver receiver;
-} RZService;
-int rz_service_init(RZService *, const RZScope *, MsgHub *, uint64_t);
-int rz_service_submit(RZService *, uint64_t, unsigned, unsigned, uint64_t, int,
+struct rz_service {
+  const struct rz_scope *scope;
+  struct msg_hub *hub;
+  struct rz_queue pending;
+  struct rz_bucket limiter;
+  struct rz_gate breaker;
+  struct rz_receiver receiver;
+};
+int rz_service_init(struct rz_service *, const struct rz_scope *, struct msg_hub *, uint64_t);
+int rz_service_submit(struct rz_service *, uint64_t, unsigned, unsigned, uint64_t, int,
                       int *);
-int rz_service_flush(RZService *);
+int rz_service_flush(struct rz_service *);
 #endif

@@ -110,7 +110,7 @@
   },
   "environment": {
     "language": "Active C17. C11 draft and edition comparisons are labeled; compiler atomics/assembly, ABI, ISA, OS and board contracts are distinct authorities.",
-    "target": "Original disposable x86-64 QEMU teaching guest, with separate host span/state models; exact machine/CPU/version recorded. No host-disk/network passthrough.",
+    "target": "Original disposable x86-64 QEMU teaching guest, with separate host span/state models; exact machine/struct lr_cpu/version recorded. No host-disk/network passthrough.",
     "profile": "F",
     "dependencies": "Retain strict parent E/F target restrictions: no linked libc, libgcc, compiler-rt, libatomic, HAL or preexisting kernel implements the taught mechanism. Host Python/verification and explicitly separate FreeRTOS/Linux comparisons are not target dependencies.",
     "toolchain": [
@@ -133,7 +133,7 @@
   "reference_gaps": [
     "Published exact C17/C23 comparisons and full platform standards beyond listed passages remain separately inspected obligations. N1570 is a C11 draft comparison.",
     "No fresh complete baseline target campaign or learner portfolio is asserted by this authoring wave.",
-    "Physical timing, cache effects, electrical behavior and current CPU/board errata remain unvalidated.",
+    "Physical timing, cache effects, electrical behavior and current struct lr_cpu/board errata remain unvalidated.",
     "ACPI6.6 retrieval returned403; current ACPI conformance is not newly established. Intel253668-060US is historical, not current errata.",
     "The early guest gate exercises IPI/CR3 acknowledgement; it does not by itself demonstrate safe frame reuse or the scoped stale-translation exploit."
   ],
@@ -185,7 +185,7 @@
         }
       ],
       "task": "For one address space shared by CPUs0,1,2, derive PTE change, required invalidations and acknowledgements before frame reuse. With generation9 and acks0:9,1:8,2:9, identify CPU1 outstanding. Distinguish page-table memory coherence from cached translation validity.",
-      "purpose": "A coherent PTE store instantly revokes every CPU's old translation.",
+      "purpose": "A coherent PTE store instantly revokes every struct lr_cpu's old translation.",
       "prerequisites": {
         "knowledge": [
           "Retained T53.09 teaching and project prerequisite chain",
@@ -199,15 +199,15 @@
         ]
       },
       "reasoning": [
-        "A coherent PTE store instantly revokes every CPU's old translation. Refute it using the smallest relevant state/trace.",
+        "A coherent PTE store instantly revokes every struct lr_cpu's old translation. Refute it using the smallest relevant state/trace.",
         "State preconditions, postconditions, representation invariant, ownership/lifetime, publication and failure boundaries for this task.",
         "Derive bounded storage, work/progress and timing assumptions where applicable. Mark genuinely inapplicable quantities instead of inventing a timing guarantee."
       ],
       "deliverables": {
-        "D1": "Prediction and causal argument addressing: A coherent PTE store instantly revokes every CPU's old translation.",
+        "D1": "Prediction and causal argument addressing: A coherent PTE store instantly revokes every struct lr_cpu's old translation.",
         "D2": "For one address space shared by CPUs0,1,2, derive PTE change, required invalidations and acknowledgements before frame reuse. With generation9 and acks0:9,1:8,2:9, identify CPU1 outstanding. Distinguish page-table memory coherence from cached translation validity.",
         "D3": "Exact source/model, commands or derivation, original inputs, raw observations, independently expected results and a criterion-specific falsification control. Separate missing tools/targets from observed outcomes.",
-        "D4": "Add CPU entry into the address space concurrent with shootdown and derive membership synchronization."
+        "D4": "Add struct lr_cpu entry into the address space concurrent with shootdown and derive membership synchronization."
       },
       "verification": {
         "procedure": "Predict before observing. Implement or derive every concrete task clause under the parent/shared contract; retain normal, boundary/failure and falsification evidence. Compare the specified expected argument, including negative outcomes and limitations, rather than only a checksum or old fixture. Bind versions, source/image hashes and the observation environment.",
@@ -219,7 +219,7 @@
         "0": "Missing/incorrect artifacts, violated containment/preconditions or a false semantic guarantee.",
         "1": "Reproduces an ordinary case but cannot reject this leaf-specific misconception or explain its boundary.",
         "2": "Other CPUs may retain old translations. Reuse must wait for every relevant participant's completed invalidation or a separately proved nonuse/quiescence path. A stale acknowledgement cannot satisfy the current generation. An IPI is not itself the invalidation. Supplies a distinct falsification control and the concrete task artifacts.",
-        "3": "Add CPU entry into the address space concurrent with shootdown and derive membership synchronization. Independently derives and verifies the changed obligations after the recorded delay."
+        "3": "Add struct lr_cpu entry into the address space concurrent with shootdown and derive membership synchronization. Independently derives and verifies the changed obligations after the recorded delay."
       },
       "hints": [
         "Coherent page-table memory and stale cached translations are different state.",
@@ -229,7 +229,7 @@
         {
           "id": "AX-PR-T53-09-T53.09.a-DELAYED",
           "minimum_days": 7,
-          "task": "Add CPU entry into the address space concurrent with shootdown and derive membership synchronization."
+          "task": "Add struct lr_cpu entry into the address space concurrent with shootdown and derive membership synchronization."
         }
       ],
       "assessor_anchor": "#t5309a",
@@ -423,17 +423,17 @@
       "security": {
         "applicable": true,
         "scope": "One original teaching guest or deterministic translation-cache model; synthetic markers only.",
-        "target": "Original learner two-CPU address-space implementation with one deliberately premature frame-reuse path",
+        "target": "Original learner two-struct lr_cpu address-space implementation with one deliberately premature frame-reuse path",
         "environment": "Disposable emulator guest with its own synthetic physical frames, or a clearly labeled deterministic cache model",
-        "attacker_capabilities": "A teaching user task can repeatedly access its formerly mapped virtual address while the harness delays one CPU invalidation; it cannot target host memory or external systems.",
+        "attacker_capabilities": "A teaching user task can repeatedly access its formerly mapped virtual address while the harness delays one struct lr_cpu invalidation; it cannot target host memory or external systems.",
         "isolation": "Fresh VM, no host-disk/network/device passthrough, bounded execution and synthetic OLD/NEW markers; stop and discard the guest after each case.",
-        "defect": "Reusing a physical frame while another CPU retains authority through a stale translation violates revocation and object isolation.",
+        "defect": "Reusing a physical frame while another struct lr_cpu retains authority through a stale translation violates revocation and object isolation.",
         "exposing_transition": "Cache VA\u2192A on CPU1, revoke its PTE on CPU0, withhold CPU1 invalidation, prematurely repurpose A, then access the old VA.",
         "exploitability_limits": "Requires a still-usable cached mapping, actual or modeled missing invalidation and premature reuse. A model violation is not hardware evidence; a crash or stale marker does not demonstrate arbitrary execution or privilege escalation.",
         "success_condition": "Only the original teaching target observes or modifies the synthetic NEW object through the revoked OLD mapping.",
-        "repair": "Complete appropriate invalidation on every relevant CPU before reuse, with address-space membership, generation and acknowledgement ordering; retain frames on timeout.",
-        "regression": "Compare flawed and repaired paths; delay one CPU, inject stale/duplicate acknowledgements, timeout, CPU membership changes and permission-revocation variants. The repaired target must never expose NEW through OLD.",
-        "residual_limits": "Exact PCID/global-page/large-page and current CPU behavior require separate ISA inspection and target validation. The early retained IPI marker establishes only its narrower gate."
+        "repair": "Complete appropriate invalidation on every relevant struct lr_cpu before reuse, with address-space membership, generation and acknowledgement ordering; retain frames on timeout.",
+        "regression": "Compare flawed and repaired paths; delay one struct lr_cpu, inject stale/duplicate acknowledgements, timeout, struct lr_cpu membership changes and permission-revocation variants. The repaired target must never expose NEW through OLD.",
+        "residual_limits": "Exact PCID/global-page/large-page and current struct lr_cpu behavior require separate ISA inspection and target validation. The early retained IPI marker establishes only its narrower gate."
       },
       "successor_support": {
         "path": "research/v5/expansion/legacy_smp_shootdown/support.json",

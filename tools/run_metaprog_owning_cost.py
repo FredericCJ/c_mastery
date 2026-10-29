@@ -45,15 +45,15 @@ def run():
         def source(name,text):
             p=tmp/name;p.write_text(text,encoding='utf8');q=folder/name;shutil.copyfile(p,q);artifacts.append(dict(path=q.relative_to(ROOT).as_posix(),sha256=sha(q)));return p
         prefix='#include "owning_ring.h"\n#define MPO_MUTATION 0\n'
-        def instance(which='blob',element='MpoBlob',ring='MpoBlobRing',ops='MpoBlobOps',template='ring_template.inc'):
+        def instance(which='blob',element='struct mpo_blob',ring='struct mpo_blob_ring',ops='struct mpo_blob_ops',template='ring_template.inc'):
             return f'#define MPO_PREFIX mpo_{which}\n#define MPO_ELEMENT {element}\n#define MPO_RING {ring}\n#define MPO_OPS {ops}\n#include "{template}"\n'
-        one=source('one.c',prefix+instance());mismatch=source('mismatch.c',prefix+instance(element='MpoWords'));collision=source('collision.c',prefix+'#define MPO_JOIN x\n'+instance())
+        one=source('one.c',prefix+instance());mismatch=source('mismatch.c',prefix+instance(element='struct mpo_words'));collision=source('collision.c',prefix+'#define MPO_JOIN x\n'+instance())
         source('guarded.inc','#ifndef WRONG_TEMPLATE_GUARD\n#define WRONG_TEMPLATE_GUARD\n'+(ROOT/'assessor/metaprog/owning_ring/ring_template.inc').read_text()+'\n#endif\n')
         # Reintroduce parameters only after the suppressed second inclusion to keep
         # the intended failure at link (missing specialization), not macro leakage.
-        guarded=source('guarded.c',prefix+instance(template='guarded.inc')+instance('words','MpoWords','MpoWordsRing','MpoWordsOps','guarded.inc'))
-        a=source('client_a.c','#include "owning_ring.h"\nint probe(void){MpoBlobRing r;MpoBlobOps o={0};return mpo_blob_init(&r,o)==MPO_INVALID;}\n')
-        b=source('client_b.c','#include "owning_ring.h"\nint probe(void);int main(void){MpoWordsRing r;MpoWordsOps o={0};return !(probe()&&mpo_words_init(&r,o)==MPO_INVALID);}\n')
+        guarded=source('guarded.c',prefix+instance(template='guarded.inc')+instance('words','struct mpo_words','struct mpo_words_ring','struct mpo_words_ops','guarded.inc'))
+        a=source('client_a.c','#include "owning_ring.h"\nint probe(void){struct mpo_blob_ring r;struct mpo_blob_ops o={0};return mpo_blob_init(&r,o)==MPO_INVALID;}\n')
+        b=source('client_b.c','#include "owning_ring.h"\nint probe(void);int main(void){struct mpo_words_ring r;struct mpo_words_ops o={0};return !(probe()&&mpo_words_init(&r,o)==MPO_INVALID);}\n')
         core=ROOT/'assessor/metaprog/owning_ring/owning_ring.c'
         for cc in ['gcc','clang']:
             deps=execute([cc,*flags,'-M',core],cc+'-headers').replace('\\\n',' ')

@@ -15,7 +15,7 @@
 #endif
 _Static_assert(AF_BURST>=1&&AF_BURST<=4,"bounded ISR capture");
 static _Alignas(8) uint32_t task_stacks[4][512];
-static AfRing acquisition;
+static struct af_ring acquisition;
 #if !AF_M7 || AF_QEMU
 static _Atomic uint32_t pipe_epoch;
 static _Atomic uint32_t pipe_limit=256;
@@ -31,7 +31,7 @@ void cmx_port_tick_hook(void){
  if(epoch&&atomic_load_explicit(&SH->boot.ready,memory_order_acquire)==epoch){
   for(unsigned n=0;n<AF_BURST;n++){
    uint32_t seq=atomic_load(&SH->samples)+1;if(seq>pipe_limit)break;
-   atomic_store(&SH->samples,seq);AfMessage m={.epoch=epoch,.sequence=seq,.length=4};for(unsigned k=0;k<4;k++)m.bytes[k]=(unsigned char)(seq>>(8*k));
+   atomic_store(&SH->samples,seq);struct af_message m={.epoch=epoch,.sequence=seq,.length=4};for(unsigned k=0;k<4;k++)m.bytes[k]=(unsigned char)(seq>>(8*k));
    if(af_queued(&acquisition)>=2||af_batch(&acquisition,epoch,&m,1)!=AF_OK){SH->rejected[(seq-1)/32]|=1u<<((seq-1)%32);atomic_fetch_add(&SH->dropped,1);}else high(0,af_queued(&acquisition));
   }
  }
@@ -42,13 +42,13 @@ void cmx_board_init(void){machine();}
 static void idle_task(void){for(;;){cmx_port_yield();}}
 #if !AF_M7 || AF_QEMU
 static void producer_task(void){
- uint32_t epoch=0,start=now();AfMessage pending={0};unsigned have=0;
+ uint32_t epoch=0,start=now();struct af_message pending={0};unsigned have=0;
  for(;;){uint32_t ready=atomic_load_explicit(&SH->boot.ready,memory_order_acquire);
   if(!ready){atomic_store(&pipe_epoch,0);if(epoch)atomic_store_explicit(&SH->boot.parked,epoch,memory_order_release);unsigned expired;if(af_elapsed(start,now(),100000000,&expired)!=AF_OK||expired)fail(0xe0);cmx_port_yield();continue;}
   if(ready!=epoch){if(have||af_queued(&acquisition))fail(0xe1);if(af_boot_ack(&SH->boot,2,AF_LAYOUT,ready)!=AF_OK)fail(0xe2);epoch=ready;pipe_limit=epoch==1?256:512;atomic_store(&pipe_epoch,epoch);}
   start=now();
   if(!have){size_t len;uint32_t seq;int r=af_receive(&acquisition,epoch,pending.bytes,32,&seq,&len);if(r==AF_OK){pending.epoch=epoch;pending.sequence=seq;pending.length=(uint32_t)len;have=1;}else if(r!=AF_EMPTY)fail(0xe3);}
-  if(have){AfRing *out=AF_LOCAL?&SH->response:&SH->request;unsigned cap=AF_LOCAL?8:4;
+  if(have){struct af_ring *out=AF_LOCAL?&SH->response:&SH->request;unsigned cap=AF_LOCAL?8:4;
    if(af_queued(out)<cap){if(AF_LOCAL){uint32_t value=pending.sequence+1;for(unsigned k=0;k<4;k++)pending.bytes[k]=(unsigned char)(value>>(8*k));}if(af_batch(out,epoch,&pending,1)!=AF_OK)fail(0xe4);high(AF_LOCAL?2:1,af_queued(out));if(!AF_LOCAL)atomic_fetch_add(&SH->traffic,1);have=0;ring();}
   }
   atomic_fetch_add(&SH->progress[1],1);cmx_port_yield();
@@ -67,7 +67,7 @@ static void print_word(uint32_t value){char text[10];for(unsigned i=0;i<8;i++){u
 static void worker_task(void){uint32_t epoch=1;unsigned booted=0;uint32_t watchdog=now(),progress=0;
  for(;;){
   if(!booted){int r=af_boot_status(&supervisor,&SH->boot,now());if(r==AF_OK)booted=1;else if(r!=AF_BUSY)fail(0xe7);else {cmx_port_yield();continue;}}
-  if(!AF_LOCAL&&af_queued(&SH->response)<8){unsigned char bytes[32];size_t len;uint32_t seq;int r=af_receive(&SH->request,epoch,bytes,32,&seq,&len);if(r==AF_OK){if(len!=4||!seq||seq>512)fail(0xe8);AfMessage m={.epoch=epoch,.sequence=seq,.length=4};uint32_t value=seq+(AF_PIPE_MUTANT==1?2:1);for(unsigned k=0;k<4;k++)m.bytes[k]=(unsigned char)(value>>(8*k));int32_t applied;if(af_effect(&receipt,1,receipt.last_id+1,1,&applied)!=AF_OK)fail(0xe9);if(af_batch(&SH->response,epoch,&m,1)!=AF_OK)fail(0xea);high(2,af_queued(&SH->response));ring();}else if(r!=AF_EMPTY)fail(0xeb);}
+  if(!AF_LOCAL&&af_queued(&SH->response)<8){unsigned char bytes[32];size_t len;uint32_t seq;int r=af_receive(&SH->request,epoch,bytes,32,&seq,&len);if(r==AF_OK){if(len!=4||!seq||seq>512)fail(0xe8);struct af_message m={.epoch=epoch,.sequence=seq,.length=4};uint32_t value=seq+(AF_PIPE_MUTANT==1?2:1);for(unsigned k=0;k<4;k++)m.bytes[k]=(unsigned char)(value>>(8*k));int32_t applied;if(af_effect(&receipt,1,receipt.last_id+1,1,&applied)!=AF_OK)fail(0xe9);if(af_batch(&SH->response,epoch,&m,1)!=AF_OK)fail(0xea);high(2,af_queued(&SH->response));ring();}else if(r!=AF_EMPTY)fail(0xeb);}
   atomic_fetch_add(&SH->progress[0],1);
   uint32_t seen=atomic_load(&SH->progress[1]);if(seen!=progress){progress=seen;watchdog=now();}else {unsigned expired;if(af_elapsed(watchdog,now(),100000000,&expired)!=AF_OK||expired)fail(0xec);}
   uint32_t samples=atomic_load(&SH->samples),done=atomic_load(&SH->done),dropped=atomic_load(&SH->dropped);
@@ -103,7 +103,7 @@ static void device_task(void){for(;;){
 #endif
  cmx_port_yield();}}
 static void primary(void){
- memory_policy();*SH=(AfShared){0};publish(0);af_ring_init(&acquisition,0);XdFence cold={0,1,1,1};if(af_buffers_init(&buffers,&cold)!=AF_OK)fail(0xf2);
+ memory_policy();*SH=(struct af_shared){0};publish(0);af_ring_init(&acquisition,0);struct xd_fence cold={0,1,1,1};if(af_buffers_init(&buffers,&cold)!=AF_OK)fail(0xf2);
  cmx_port_init();
 #if AF_QEMU
  if(cmx_port_task(producer_task,task_stacks[0],512,4)<0||cmx_port_task(sink_task,task_stacks[1],512,4)<0||cmx_port_task(worker_task,task_stacks[2],512,4)<0||cmx_port_task(idle_task,task_stacks[3],512,255)<0)fail(0xf3);

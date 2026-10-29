@@ -4,67 +4,67 @@
 #include <stdint.h>
 #define CI_CAP 64u
 #define CI_MOD 65521u
-typedef enum {
+enum ci_status {
   CI_OK,
   CI_INVALID,
   CI_RANGE,
   CI_FULL,
   CI_DUPLICATE,
   CI_MISSING
-} CiStatus;
-typedef struct {
+};
+struct ci_fenwick {
   unsigned n;
   uint32_t bit[CI_CAP + 1], total;
-} CiFenwick;
-CiStatus ci_fenwick_init(CiFenwick *, const uint32_t *, unsigned);
-CiStatus ci_fenwick_add(CiFenwick *, unsigned, int64_t);
-CiStatus ci_fenwick_prefix(const CiFenwick *, unsigned, uint32_t *);
-CiStatus ci_fenwick_select(const CiFenwick *, uint32_t, unsigned *);
-CiStatus ci_fenwick_rescale(CiFenwick *, unsigned);
-typedef struct {
+};
+enum ci_status ci_fenwick_init(struct ci_fenwick *, const uint32_t *, unsigned);
+enum ci_status ci_fenwick_add(struct ci_fenwick *, unsigned, int64_t);
+enum ci_status ci_fenwick_prefix(const struct ci_fenwick *, unsigned, uint32_t *);
+enum ci_status ci_fenwick_select(const struct ci_fenwick *, uint32_t, unsigned *);
+enum ci_status ci_fenwick_rescale(struct ci_fenwick *, unsigned);
+struct ci_aggregate {
   uint32_t hash, power, geometric;
   unsigned length;
-} CiAggregate;
-typedef struct {
-  CiAggregate value;
+};
+struct ci_segment_node {
+  struct ci_aggregate value;
   uint32_t a, b;
-} CiSegmentNode;
-typedef struct {
+};
+struct ci_segment {
   unsigned n;
-  CiSegmentNode node[4 * CI_CAP];
-} CiSegment;
-CiStatus ci_segment_init(CiSegment *, const uint32_t *, unsigned);
-CiStatus ci_segment_apply(CiSegment *, unsigned, unsigned, uint32_t, uint32_t);
-CiStatus ci_segment_query(const CiSegment *, unsigned, unsigned, CiAggregate *);
-typedef struct {
+  struct ci_segment_node node[4 * CI_CAP];
+};
+enum ci_status ci_segment_init(struct ci_segment *, const uint32_t *, unsigned);
+enum ci_status ci_segment_apply(struct ci_segment *, unsigned, unsigned, uint32_t, uint32_t);
+enum ci_status ci_segment_query(const struct ci_segment *, unsigned, unsigned, struct ci_aggregate *);
+struct ci_interval {
   int32_t low, high;
   uint32_t id;
-} CiInterval;
-typedef struct {
-  CiInterval value;
+};
+struct ci_interval_node {
+  struct ci_interval value;
   int left, right, height, next;
   int32_t maximum;
   unsigned live;
-} CiIntervalNode;
-typedef struct {
-  CiIntervalNode node[CI_CAP];
+};
+struct ci_intervals {
+  struct ci_interval_node node[CI_CAP];
   int root, free_head;
   unsigned count, closed;
-} CiIntervals;
-CiStatus ci_intervals_init(CiIntervals *, unsigned);
-CiStatus ci_intervals_insert(CiIntervals *, CiInterval);
-CiStatus ci_intervals_remove(CiIntervals *, int32_t, uint32_t);
-CiStatus ci_intervals_find(const CiIntervals *, int32_t, int32_t, CiInterval *);
-CiStatus ci_intervals_all(const CiIntervals *, int32_t, int32_t, CiInterval *,
+};
+enum ci_status ci_intervals_init(struct ci_intervals *, unsigned);
+enum ci_status ci_intervals_insert(struct ci_intervals *, struct ci_interval);
+enum ci_status ci_intervals_remove(struct ci_intervals *, int32_t, uint32_t);
+enum ci_status ci_intervals_find(const struct ci_intervals *, int32_t, int32_t, struct ci_interval *);
+enum ci_status ci_intervals_all(const struct ci_intervals *, int32_t, int32_t, struct ci_interval *,
                           unsigned, unsigned *);
-typedef struct {
+struct ci_suffix {
   unsigned n, order[CI_CAP + 1], lcp[CI_CAP + 1];
   unsigned char bytes[CI_CAP];
-} CiSuffix;
-CiStatus ci_suffix_build(CiSuffix *, const unsigned char *, unsigned);
-CiStatus ci_suffix_range(const CiSuffix *, const unsigned char *, unsigned,
+};
+enum ci_status ci_suffix_build(struct ci_suffix *, const unsigned char *, unsigned);
+enum ci_status ci_suffix_range(const struct ci_suffix *, const unsigned char *, unsigned,
                          unsigned *, unsigned *);
-CiStatus ci_suffix_lce(const CiSuffix *, unsigned, unsigned, unsigned *);
-CiStatus ci_suffix_longest(const CiSuffix *, unsigned, unsigned *, unsigned *,
+enum ci_status ci_suffix_lce(const struct ci_suffix *, unsigned, unsigned, unsigned *);
+enum ci_status ci_suffix_longest(const struct ci_suffix *, unsigned, unsigned *, unsigned *,
                            unsigned *);
 #endif

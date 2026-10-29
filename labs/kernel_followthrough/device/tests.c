@@ -24,7 +24,7 @@ static void capability(uint8_t c[256], unsigned at, unsigned next,
   if (kind == 2)
     put32(c + at + 16, 4);
 }
-static void fixture(uint8_t c[256], KfBar b[6]) {
+static void fixture(uint8_t c[256], struct kf_bar b[6]) {
   memset(c, 0, 256);
   memset(b, 0, 6 * sizeof *b);
   c[6] = 16;
@@ -32,19 +32,19 @@ static void fixture(uint8_t c[256], KfBar b[6]) {
   capability(c, 64, 80, 1, 0, 56);
   capability(c, 80, 104, 2, 256, 64);
   capability(c, 104, 0, 4, 512, 8);
-  b[0] = (KfBar){0x80000000, 4096, 1};
+  b[0] = (struct kf_bar){0x80000000, 4096, 1};
 }
 static int pci(void) {
   uint8_t c[256], original[256];
-  KfBar bars[6];
+  struct kf_bar bars[6];
   fixture(c, bars);
   memcpy(original, c, 256);
-  KfPci p;
+  struct kf_pci p;
   memset(&p, 0xa5, sizeof p);
   CHECK(kf_pci(c, bars, &p));
   CHECK(p.common == 0x80000000 && p.notify == 0x80000100 &&
         p.device == 0x80000200 && p.visited == 3);
-  KfPci expected = p;
+  struct kf_pci expected = p;
   for (unsigned change = 0; change < 11; ++change) {
     fixture(c, bars);
     switch (change) {
@@ -109,12 +109,12 @@ static int pci(void) {
   return 0;
 }
 static int queue(void) {
-  static KfQueue q, before;
+  static struct kf_queue q, before;
   static uint8_t bytes[4096];
   for (unsigned i = 0; i < 4096; ++i)
     bytes[i] = (uint8_t)(i * 13 + 7);
   kf_queue_init(&q, 65535);
-  KfTicket a, b, c = {91, 91};
+  struct kf_ticket a, b, c = {91, 91};
   CHECK(kf_submit(&q, 1, 24, bytes, &a));
   CHECK(q.available == 0 && q.ring[7] == 0);
   CHECK(kf_submit(&q, 0, 32, 0, &b));

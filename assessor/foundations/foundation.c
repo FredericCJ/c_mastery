@@ -1,12 +1,12 @@
 #include "foundation.h"
 #include <limits.h>
-const char *f_status_name(FStatus s) {
+const char *f_status_name(enum f_status s) {
   static const char *const names[] = {"OK",      "INVALID",         "RANGE",
                                       "FULL",    "STALE",           "IO",
                                       "PENDING", "NOT_IMPLEMENTED", "DENIED"};
   return (unsigned)s < sizeof names / sizeof names[0] ? names[s] : "UNKNOWN";
 }
-FStatus f_construct(FResources resources, unsigned *owned_mask) {
+enum f_status f_construct(struct f_resources resources, unsigned *owned_mask) {
   unsigned acquired = 0;
   if (!resources.acquire || !resources.release || !owned_mask)
     return F_INVALID;
@@ -21,7 +21,7 @@ FStatus f_construct(FResources resources, unsigned *owned_mask) {
   *owned_mask = 7;
   return F_OK;
 }
-FStatus f_packet(const uint8_t *bytes, size_t n, int authorized,
+enum f_status f_packet(const uint8_t *bytes, size_t n, int authorized,
                  uint16_t *output, size_t *count) {
   uint16_t staged[4];
   unsigned size;
@@ -43,7 +43,7 @@ FStatus f_packet(const uint8_t *bytes, size_t n, int authorized,
   *count = size;
   return F_OK;
 }
-FStatus f_prefix(const int32_t *input, size_t n, int32_t *output,
+enum f_status f_prefix(const int32_t *input, size_t n, int32_t *output,
                  size_t capacity) {
   int32_t stage[16], sum = 0;
   if (n > 16 || n > capacity)
@@ -61,7 +61,7 @@ FStatus f_prefix(const int32_t *input, size_t n, int32_t *output,
     output[i] = stage[i];
   return F_OK;
 }
-FStatus f_checked_size(size_t n, size_t width, size_t extra, size_t *result) {
+enum f_status f_checked_size(size_t n, size_t width, size_t extra, size_t *result) {
   if (!result)
     return F_INVALID;
 #ifndef F_MUTATE_SIZE
@@ -71,7 +71,7 @@ FStatus f_checked_size(size_t n, size_t width, size_t extra, size_t *result) {
   *result = n * width + extra;
   return F_OK;
 }
-FStatus f_take(FCursor *c, size_t n, const uint8_t **out) {
+enum f_status f_take(struct f_cursor *c, size_t n, const uint8_t **out) {
   if (!c || !out || c->position > c->length || (c->length && !c->data))
     return F_INVALID;
   if (n > c->length - c->position)
@@ -80,7 +80,7 @@ FStatus f_take(FCursor *c, size_t n, const uint8_t **out) {
   c->position += n;
   return F_OK;
 }
-FStatus f_append(FBuffer *b, const uint8_t *source, size_t n) {
+enum f_status f_append(struct f_buffer *b, const uint8_t *source, size_t n) {
   uint8_t copy[32];
   if (!b || b->length > 32 || (n && !source))
     return F_INVALID;
@@ -98,7 +98,7 @@ FStatus f_append(FBuffer *b, const uint8_t *source, size_t n) {
   b->generation++;
   return F_OK;
 }
-FStatus f_view(const FBuffer *b, size_t offset, size_t n, FView *out) {
+enum f_status f_view(const struct f_buffer *b, size_t offset, size_t n, struct f_view *out) {
   if (!b || !out || b->length > 32)
     return F_INVALID;
   if (offset > b->length || n > b->length - offset)
@@ -109,7 +109,7 @@ FStatus f_view(const FBuffer *b, size_t offset, size_t n, FView *out) {
   out->generation = b->generation;
   return F_OK;
 }
-FStatus f_view_read(FView view, size_t i, uint8_t *out) {
+enum f_status f_view_read(struct f_view view, size_t i, uint8_t *out) {
   if (!view.owner || !out)
     return F_INVALID;
   if (view.generation != view.owner->generation)
@@ -122,7 +122,7 @@ FStatus f_view_read(FView view, size_t i, uint8_t *out) {
   *out = view.owner->data[view.offset + i];
   return F_OK;
 }
-FStatus f_parse_i32(const uint8_t *b, size_t n, int32_t *out) {
+enum f_status f_parse_i32(const uint8_t *b, size_t n, int32_t *out) {
   size_t i = 0;
   uint32_t value = 0, limit = INT32_MAX;
   int negative = 0;
@@ -147,12 +147,12 @@ FStatus f_parse_i32(const uint8_t *b, size_t n, int32_t *out) {
   *out = negative ? (int32_t)(-(int64_t)value) : (int32_t)value;
   return F_OK;
 }
-FStatus f_sort(FRecord *a, size_t n, FWork *work) {
-  FWork w = {0};
+enum f_status f_sort(struct f_record *a, size_t n, struct f_work *work) {
+  struct f_work w = {0};
   if (!work || (n && !a) || n > 256)
     return F_INVALID;
   for (size_t i = 1; i < n; i++) {
-    FRecord item = a[i];
+    struct f_record item = a[i];
     size_t j = i;
     while (j) {
       w.comparisons++;
@@ -173,7 +173,7 @@ FStatus f_sort(FRecord *a, size_t n, FWork *work) {
   *work = w;
   return F_OK;
 }
-FStatus f_write_all(FWriter writer, void *ctx, const uint8_t *source, size_t n,
+enum f_status f_write_all(f_writer_fn writer, void *ctx, const uint8_t *source, size_t n,
                     unsigned calls, size_t *accepted) {
   size_t done = 0;
   if (!writer || !accepted || (n && !source))
@@ -194,7 +194,7 @@ FStatus f_write_all(FWriter writer, void *ctx, const uint8_t *source, size_t n,
   }
   return F_OK;
 }
-FStatus f_submit(FAsync *a, uint32_t *ticket) {
+enum f_status f_submit(struct f_async *a, uint32_t *ticket) {
   if (!a || !ticket)
     return F_INVALID;
   if (a->state == F_INFLIGHT || a->state == F_CANCEL_REQUESTED)
@@ -206,7 +206,7 @@ FStatus f_submit(FAsync *a, uint32_t *ticket) {
   *ticket = a->generation;
   return F_OK;
 }
-FStatus f_cancel(FAsync *a, uint32_t ticket) {
+enum f_status f_cancel(struct f_async *a, uint32_t ticket) {
   if (!a)
     return F_INVALID;
   if (ticket != a->generation)
@@ -216,7 +216,7 @@ FStatus f_cancel(FAsync *a, uint32_t ticket) {
   a->state = F_CANCEL_REQUESTED;
   return F_PENDING;
 }
-FStatus f_complete(FAsync *a, uint32_t ticket) {
+enum f_status f_complete(struct f_async *a, uint32_t ticket) {
   if (!a)
     return F_INVALID;
   if (ticket != a->generation)

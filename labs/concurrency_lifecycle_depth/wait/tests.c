@@ -9,7 +9,7 @@
     }                                                                          \
   } while (0)
 
-static int setup(cmx_kernel *kernel, CWWorld *world) {
+static int setup(cmx_kernel *kernel, struct cw_world *world) {
   cmx_init(kernel, CMX_FIXED);
   for (unsigned i = 0; i < 3; ++i)
     CHECK(cmx_task_add(kernel, i == 0 ? 9 : (i == 1 ? 3 : 5), 100,
@@ -20,8 +20,8 @@ static int setup(cmx_kernel *kernel, CWWorld *world) {
 
 static int enrollment(void) {
   cmx_kernel kernel;
-  CWWorld world = {0};
-  CWToken token = {0}, second = {0};
+  struct cw_world world = {0};
+  struct cw_token token = {0}, second = {0};
   CHECK(setup(&kernel, &world) == 0);
   CHECK(cw_object_init(&world, 0, CW_SEMAPHORE, 1, 2) == CMX_OK);
   CHECK(cw_begin(&world, 0, 0, cmx_at(0), 0, &token) == CMX_OK);
@@ -35,7 +35,7 @@ static int enrollment(void) {
   CHECK(cw_begin(&world, 0, 1, cmx_at(0), 0, &second) == CMX_TIMEOUT);
   CHECK(world.nodes[1].sequence == 1 && !world.nodes[1].linked);
   CHECK(cw_begin(&world, 0, 1, cmx_at(10), 0, &second) == CMX_BLOCKED);
-  CWToken saved = second;
+  struct cw_token saved = second;
   CHECK(cw_begin(&world, 0, 1, cmx_forever(), 0, &second) == CMX_INVALID);
   CHECK(second.operation == saved.operation && world.nodes[1].linked);
   CHECK(cw_cancel(second) == CMX_OK);
@@ -59,7 +59,7 @@ static int enrollment(void) {
   CHECK(cw_object_init(&world, 0, CW_SEMAPHORE, 0, 1) == CMX_OK);
   CHECK(cw_result(second, &result, &cause) == CW_STALE);
   world.nodes[1].sequence = UINT32_MAX;
-  second = (CWToken){0};
+  second = (struct cw_token){0};
   CHECK(cw_begin(&world, 0, 1, cmx_forever(), 0, &second) == CMX_FULL &&
         !second.owner && !world.nodes[1].linked);
   world.nodes[1].sequence = 0;
@@ -87,8 +87,8 @@ static int terminal(void) {
           if (a == b || a == c || a == d || b == c || b == d || c == d)
             continue;
           cmx_kernel kernel;
-          CWWorld world = {0};
-          CWToken token = {0};
+          struct cw_world world = {0};
+          struct cw_token token = {0};
           CHECK(setup(&kernel, &world) == 0);
           CHECK(cw_object_init(&world, 0, CW_SEMAPHORE, 0, 1) == CMX_OK);
           CHECK(cw_begin(&world, 0, 1, cmx_at(1), 0, &token) == CMX_BLOCKED);
@@ -116,8 +116,8 @@ static int terminal(void) {
   /* Two consumers share one credit; a callback tagged to one enrollment
      publishes to the FIFO object, not a private entitlement to that credit. */
   cmx_kernel kernel;
-  CWWorld world = {0};
-  CWToken first = {0}, second = {0};
+  struct cw_world world = {0};
+  struct cw_token first = {0}, second = {0};
   CHECK(setup(&kernel, &world) == 0);
   CHECK(cw_object_init(&world, 0, CW_SEMAPHORE, 0, 1) == CMX_OK);
   CHECK(cw_begin(&world, 0, 1, cmx_at(10), 0, &first) == CMX_BLOCKED);
@@ -139,15 +139,15 @@ static int terminal(void) {
 
 static int donation(void) {
   cmx_kernel kernel;
-  CWWorld world = {0};
-  CWToken owner = {0}, wait = {0}, lower = {0};
+  struct cw_world world = {0};
+  struct cw_token owner = {0}, wait = {0}, lower = {0};
   CHECK(setup(&kernel, &world) == 0);
   CHECK(cw_object_init(&world, 0, CW_MUTEX, 0, 0) == CMX_OK);
   CHECK(cw_begin(&world, 0, 0, cmx_forever(), 0, &owner) == CMX_OK);
   CHECK(cw_begin(&world, 0, 1, cmx_at(10), 0, &wait) == CMX_BLOCKED &&
         kernel.task[0].priority == 3);
   CHECK(cw_begin(&world, 0, 2, cmx_forever(), 0, &lower) == CMX_BLOCKED);
-  CWToken old = wait;
+  struct cw_token old = wait;
   CHECK(cw_cancel(wait) == CMX_OK && kernel.task[0].priority == 5);
   CHECK(cw_begin(&world, 0, 1, cmx_at(20), 0, &wait) == CMX_BLOCKED &&
         kernel.task[0].priority == 3);

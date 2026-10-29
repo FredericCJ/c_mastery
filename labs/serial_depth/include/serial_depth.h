@@ -14,27 +14,27 @@ enum {
   SD_DONE = 8,
   SD_UNIMPLEMENTED = 9
 };
-typedef struct {
+struct sd_uart {
   uint8_t bits[12], length;
   uint16_t brr;
   uint32_t divisor;
-} SDUart;
+};
 int sd_uart(uint32_t clock, uint32_t baud, unsigned over8, unsigned width,
-            unsigned parity, unsigned stop, uint16_t value, SDUart *out);
+            unsigned parity, unsigned stop, uint16_t value, struct sd_uart *out);
 enum { SD_RXNE = 1, SD_ORE = 2, SD_FE = 4, SD_PE = 8, SD_TXE = 16, SD_TC = 32 };
-typedef struct {
+struct sd_receive {
   uint8_t value, valid, error;
-} SDReceive;
-int sd_uart_receive(unsigned status, uint16_t data, SDReceive *out);
-typedef struct {
+};
+int sd_uart_receive(unsigned status, uint16_t data, struct sd_receive *out);
+struct sd_sync {
   uint8_t level[16], sample[16], data[8], edges;
-} SDSync;
+};
 int sd_sync(unsigned cpol, unsigned cpha, unsigned lbcl, unsigned tx_enabled,
-            unsigned rx_enabled, unsigned changing, uint8_t value, SDSync *out);
-typedef struct {
+            unsigned rx_enabled, unsigned changing, uint8_t value, struct sd_sync *out);
+struct sd_sdi2c {
   uint8_t phase, active, value;
   uint32_t token;
-} SDI2c;
+};
 enum {
   SD_I2C_ACK = 1,
   SD_I2C_NACK = 2,
@@ -50,30 +50,30 @@ enum {
   SD_RELEASE = 5,
   SD_STOP = 6
 };
-int sd_i2c_begin(SDI2c *state, uint32_t token, uint8_t address, uint8_t reg,
+int sd_i2c_begin(struct sd_sdi2c *state, uint32_t token, uint8_t address, uint8_t reg,
                  uint8_t *action, uint8_t *wire);
-int sd_i2c_event(SDI2c *state, uint32_t token, unsigned event, uint8_t value,
+int sd_i2c_event(struct sd_sdi2c *state, uint32_t token, unsigned event, uint8_t value,
                  uint8_t *action, uint8_t *out);
 int sd_i2c_clear(unsigned scl_high, unsigned sda_high, unsigned release_after,
                  unsigned *pulses);
-typedef struct {
+struct sd_spi {
   uint8_t state, count, position, cpol, cpha, rx[16];
   uint32_t token;
-} SDSpi;
-int sd_spi_begin(SDSpi *state, uint32_t token, unsigned mode, size_t count);
+};
+int sd_spi_begin(struct sd_spi *state, uint32_t token, unsigned mode, size_t count);
 int sd_spi_edge(unsigned mode, uint8_t tx, uint8_t peer, uint8_t levels[16],
                 uint8_t samples[16], uint8_t mosi[16], uint8_t *rx);
-int sd_spi_poll(SDSpi *state, uint32_t token, unsigned txe, unsigned rxne,
+int sd_spi_poll(struct sd_spi *state, uint32_t token, unsigned txe, unsigned rxne,
                 unsigned bsy, uint8_t value);
-int sd_spi_cancel(SDSpi *state, uint32_t token, unsigned stopped);
+int sd_spi_cancel(struct sd_spi *state, uint32_t token, unsigned stopped);
 int sd_electrical(unsigned kind, int32_t millivolts, unsigned drivers,
                   unsigned receivers, unsigned swapped, int *decision);
-typedef struct {
+struct sd_rs485 {
   uint32_t token;
   uint32_t due, last;
   uint8_t phase, count, position, rxcount, event_count, pending_event, tx[16],
       rx[16], events[32];
-} SDRs485;
+};
 enum {
   SD_485_RX = 1,
   SD_485_FRAMING = 2,
@@ -81,42 +81,42 @@ enum {
   SD_485_TXDONE = 4,
   SD_485_ABORTED = 5
 };
-int sd_485_begin(SDRs485 *state, uint32_t token, const uint8_t *data,
+int sd_485_begin(struct sd_rs485 *state, uint32_t token, const uint8_t *data,
                  size_t count, uint32_t now);
-int sd_485_poll(SDRs485 *state, uint32_t token, uint32_t now, unsigned txe,
+int sd_485_poll(struct sd_rs485 *state, uint32_t token, uint32_t now, unsigned txe,
                 unsigned tc);
-int sd_485_receive(SDRs485 *state, unsigned event, uint8_t value);
-int sd_485_cancel(SDRs485 *state, uint32_t token, uint32_t now,
+int sd_485_receive(struct sd_rs485 *state, unsigned event, uint8_t value);
+int sd_485_cancel(struct sd_rs485 *state, uint32_t token, uint32_t now,
                   unsigned stopped);
-typedef struct {
+struct sd_can {
   uint32_t identifier;
   uint8_t extended, remote, length, data[8];
-} SDCan;
-int sd_can_arbitration(const SDCan *a, const SDCan *b, int *winner);
-int sd_can_encode(const SDCan *frame, uint8_t *bits, size_t capacity,
+};
+int sd_can_arbitration(const struct sd_can *a, const struct sd_can *b, int *winner);
+int sd_can_encode(const struct sd_can *frame, uint8_t *bits, size_t capacity,
                   size_t *count);
-int sd_can_decode(const uint8_t *bits, size_t count, SDCan *frame);
-typedef struct {
+int sd_can_decode(const uint8_t *bits, size_t count, struct sd_can *frame);
+struct sd_timing {
   uint16_t prescaler;
   uint8_t bs1, bs2, sjw;
   uint32_t btr, rate;
-} SDTiming;
+};
 int sd_can_timing(uint32_t clock, unsigned prescaler, unsigned bs1,
-                  unsigned bs2, unsigned sjw, SDTiming *out);
+                  unsigned bs2, unsigned sjw, struct sd_timing *out);
 int sd_can_filter(uint32_t identifier, uint32_t filter, uint32_t mask,
                   unsigned *accepted);
-typedef struct {
+struct sd_fifo {
   uint32_t items[3];
   uint8_t count, locked, overrun;
-} SDFifo;
-int sd_can_push(SDFifo *fifo, uint32_t value);
-int sd_can_pop(SDFifo *fifo, uint32_t *value);
-typedef struct {
+};
+int sd_can_push(struct sd_fifo *fifo, uint32_t value);
+int sd_can_pop(struct sd_fifo *fifo, uint32_t *value);
+struct sd_fd {
   uint8_t length, crc_width, brs, esi;
   uint16_t spi_bytes;
-} SDFd;
+};
 int sd_fd(unsigned dlc, unsigned fdf, unsigned brs, unsigned esi,
-          unsigned remote, unsigned fd_capable, SDFd *out);
+          unsigned remote, unsigned fd_capable, struct sd_fd *out);
 int sd_uart_decode(const uint8_t *bits, size_t count, unsigned width,
                    unsigned parity, unsigned stop, uint8_t *value);
 enum {
@@ -125,12 +125,12 @@ enum {
   SD_ARBITRATION_LOST = 12,
   SD_TIMEOUT = 13
 };
-int sd_485_take(SDRs485 *state, uint8_t *event, uint8_t *value);
-typedef struct {
+int sd_485_take(struct sd_rs485 *state, uint8_t *event, uint8_t *value);
+struct sd_mailbox {
   uint32_t token;
   uint8_t state, result;
-} SDMailbox;
-int sd_can_submit(SDMailbox *mailbox, uint32_t token);
-int sd_can_complete(SDMailbox *mailbox, uint32_t token, unsigned outcome);
-int sd_can_take(SDMailbox *mailbox, uint32_t token, uint8_t *outcome);
+};
+int sd_can_submit(struct sd_mailbox *mailbox, uint32_t token);
+int sd_can_complete(struct sd_mailbox *mailbox, uint32_t token, unsigned outcome);
+int sd_can_take(struct sd_mailbox *mailbox, uint32_t token, uint8_t *outcome);
 #endif

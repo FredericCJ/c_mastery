@@ -3,7 +3,7 @@
 extern uint32_t cl_stack_top, cl_data_start, cl_data_end, cl_data_load,
     cl_bss_start, cl_bss_end;
 static cmx_kernel kernel;
-static CWWorld world;
+static struct cw_world world;
 static volatile unsigned delivered, last_ipsr, inject;
 
 static void semihost(uint32_t op, const void *arg) {
@@ -57,7 +57,7 @@ static void exercise(void) {
   CHECK(cw_object_init(&world, 0, CW_SEMAPHORE, 0, 2) == CMX_OK);
   REG(0xe000e100) = 1; /* NVIC ISER[0]. Other external IRQs remain disabled. */
   inject = 1;
-  CWToken token = {0};
+  struct cw_token token = {0};
   CHECK(cw_irq_begin(&world, 0, 0, cmx_forever(), 0, &token) == CMX_BLOCKED);
   await_interrupt(1);
   CHECK(mask() == 0 && !world.nodes[0].linked && world.nodes[0].terminals == 1);

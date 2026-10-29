@@ -1,46 +1,46 @@
 #ifndef CMASTERY_OBJECT_RUNTIME_SHAPES_H
 #define CMASTERY_OBJECT_RUNTIME_SHAPES_H
 #include "object_runtime_ext.h"
-typedef struct ORXWorld ORXWorld;
-typedef ORStatus (*ORXGetter)(void *, ORXWorld *, ORXHandle, int32_t *);
-typedef struct {
+struct orx_world;
+typedef enum or_status (*orx_getter_fn)(void *, struct orx_world *, struct orx_handle, int32_t *);
+struct orx_shape_id {
   uint8_t slot, generation;
-} ORXShapeId;
-typedef struct {
+};
+struct orx_descriptor {
   uint8_t live, generation, refs, count, key[4], attributes[4];
-} ORXDescriptor;
-typedef struct {
+};
+struct orx_field {
   int32_t value;
-  ORXGetter getter;
+  orx_getter_fn getter;
   void *context;
-} ORXField;
-typedef struct {
+};
+struct orx_object {
   uint8_t generation;
-  ORXShapeId shape;
-  ORXField field[4];
-} ORXObject;
-struct ORXWorld {
-  ORXHeap heap;
-  ORXDescriptor shape[16];
-  ORXObject object[8];
+  struct orx_shape_id shape;
+  struct orx_field field[4];
+};
+struct orx_world {
+  struct orx_heap heap;
+  struct orx_descriptor shape[16];
+  struct orx_object object[8];
   uint8_t epoch, in_getter;
 };
-typedef struct {
-  const ORXWorld *world;
-  ORXHandle receiver, holder;
-  ORXShapeId receiver_shape, holder_shape;
+struct orx_property_cache {
+  const struct orx_world *world;
+  struct orx_handle receiver, holder;
+  struct orx_shape_id receiver_shape, holder_shape;
   uint8_t epoch, key, offset, valid;
   uint32_t hits, misses;
-} ORXPropertyCache;
+};
 enum { ORX_READONLY = 1, ORX_ACCESSOR = 2 };
-void orx_world_init(ORXWorld *world);
-ORStatus orx_world_new(ORXWorld *world, ORXHandle *out);
-ORStatus orx_world_collect(ORXWorld *world, unsigned *dead);
-ORStatus orx_define(ORXWorld *world, ORXHandle object, unsigned key,
-                    unsigned attributes, int32_t value, ORXGetter getter,
+void orx_world_init(struct orx_world *world);
+enum or_status orx_world_new(struct orx_world *world, struct orx_handle *out);
+enum or_status orx_world_collect(struct orx_world *world, unsigned *dead);
+enum or_status orx_define(struct orx_world *world, struct orx_handle object, unsigned key,
+                    unsigned attributes, int32_t value, orx_getter_fn getter,
                     void *context);
-ORStatus orx_delete(ORXWorld *world, ORXHandle object, unsigned key);
-ORStatus orx_prototype(ORXWorld *world, ORXHandle object, ORXHandle prototype);
-ORStatus orx_get(ORXWorld *world, ORXHandle object, unsigned key,
-                 ORXPropertyCache *cache, int32_t *out);
+enum or_status orx_delete(struct orx_world *world, struct orx_handle object, unsigned key);
+enum or_status orx_prototype(struct orx_world *world, struct orx_handle object, struct orx_handle prototype);
+enum or_status orx_get(struct orx_world *world, struct orx_handle object, unsigned key,
+                 struct orx_property_cache *cache, int32_t *out);
 #endif

@@ -9,7 +9,7 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-static int finish(HttpParser *p, const void *v, size_t n) {
+static int finish(struct http_parser *p, const void *v, size_t n) {
   size_t off = 0;
   int r = HTTP_NEED;
   while (off < n) {
@@ -33,7 +33,7 @@ static int headers(void) {
     const char *s = requests[i];
     size_t len = strlen(s);
     for (size_t split = 0; split <= len; split++) {
-      HttpParser p;
+      struct http_parser p;
       http_init(&p, authority);
       int a = finish(&p, s, split);
       CHECK(a == HTTP_NEED || a == HTTP_DONE);
@@ -52,7 +52,7 @@ static int headers(void) {
       "GET /health HTTP/1.1\r\nX: y\r\n\r\n",
       "GET /health HTTP/1.1\r\nHost: 127.0.0.1:8080\r\n folded\r\n\r\n"};
   for (size_t i = 0; i < sizeof bad / sizeof *bad; i++) {
-    HttpParser p;
+    struct http_parser p;
     http_init(&p, authority);
     CHECK(finish(&p, bad[i], strlen(bad[i])) == HTTP_ERROR);
     CHECK(p.request.status == 400);
@@ -68,7 +68,7 @@ static int framing(void) {
     const char *s = (const char *)req;
     size_t len = sizeof req - 1;
     for (size_t split = 0; split <= len; split++) {
-      HttpParser p;
+      struct http_parser p;
       http_init(&p, authority);
       int a = finish(&p, s, split);
       CHECK(a == HTTP_NEED || a == HTTP_DONE);
@@ -78,7 +78,7 @@ static int framing(void) {
       CHECK(!strcmp(p.request.authority, authority));
     }
   }
-  struct Case {
+  struct edu_case {
     const char *fields;
     int status;
   } cases[] = {{"Content-Length: 0\r\nContent-Length: 0\r\n", 400},
@@ -95,7 +95,7 @@ static int framing(void) {
     char s[512];
     snprintf(s, sizeof s, "POST /echo HTTP/1.1\r\nHost: %s\r\n%s\r\n",
              authority, cases[i].fields);
-    HttpParser p;
+    struct http_parser p;
     http_init(&p, authority);
     CHECK(finish(&p, s, strlen(s)) == HTTP_ERROR);
     CHECK(p.request.status == cases[i].status);
@@ -103,7 +103,7 @@ static int framing(void) {
   const char *s =
       "POST /echo HTTP/1.1\r\nHost: 127.0.0.1:8080\r\nContent-Length: "
       "3\r\nExpect: 100-continue\r\n\r\n";
-  HttpParser p;
+  struct http_parser p;
   http_init(&p, authority);
   size_t used;
   CHECK(http_feed(&p, s, strlen(s), &used) == HTTP_CONTINUE);
@@ -122,7 +122,7 @@ static int chunks(void) {
       "chunked\r\n\r\n2;x=\"a\\\"b\"\r\nab\r\n1\r\nc\r\n0\r\nHost: "
       "irrelevant\r\nX-End: yes\r\n\r\n";
   for (size_t i = 0; i <= strlen(s); i++) {
-    HttpParser p;
+    struct http_parser p;
     http_init(&p, authority);
     finish(&p, s, i);
     int r = finish(&p, s + i, strlen(s) - i);
@@ -138,12 +138,12 @@ static int chunks(void) {
              "POST /echo HTTP/1.1\r\nHost: %s\r\nTransfer-Encoding: "
              "chunked\r\n\r\n%s",
              authority, body[i]);
-    HttpParser p;
+    struct http_parser p;
     http_init(&p, authority);
     CHECK(finish(&p, r, strlen(r)) == HTTP_ERROR);
   }
   for (size_t i = 1; i < strlen(s); i++) {
-    HttpParser p;
+    struct http_parser p;
     http_init(&p, authority);
     finish(&p, s, i);
     CHECK(http_eof(&p) == HTTP_ERROR);
@@ -151,7 +151,7 @@ static int chunks(void) {
   return 0;
 }
 static int response(void) {
-  HttpParser p;
+  struct http_parser p;
   http_init(&p, authority);
   const char *s = "HEAD /health HTTP/1.1\r\nHost: 127.0.0.1:8080\r\n\r\n";
   CHECK(finish(&p, s, strlen(s)) == HTTP_DONE);
@@ -167,13 +167,13 @@ static int response(void) {
                       &n) != 0);
   return 0;
 }
-typedef struct {
+struct edu_sink {
   char out[32];
   size_t n;
   unsigned call;
-} Sink;
+};
 static int write_fake(void *v, const void *p, size_t n) {
-  Sink *s = v;
+  struct edu_sink *s = v;
   s->call++;
   if (s->call == 1)
     return -1;
@@ -185,7 +185,7 @@ static int write_fake(void *v, const void *p, size_t n) {
   return (int)k;
 }
 static int io(void) {
-  Sink s = {0};
+  struct edu_sink s = {0};
   size_t off = 0;
   CHECK(http_drain(write_fake, &s, "abcdef", 6, &off) == 0);
   CHECK(off == 2);

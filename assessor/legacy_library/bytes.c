@@ -74,11 +74,11 @@ enum lb_status lb_display(const unsigned char *s, size_t n, char *d, size_t cap,
   *out = j;
   return LB_OK;
 }
-enum lb_status lb_field_display(FCursor *cursor, char *d, size_t cap,
+enum lb_status lb_field_display(struct f_cursor *cursor, char *d, size_t cap,
                                 size_t *out) {
   if (!cursor)
     return LB_ARGUMENT;
-  FCursor trial = *cursor;
+  struct f_cursor trial = *cursor;
   const uint8_t *header, *payload;
   if (f_take(&trial, 2, &header) != F_OK)
     return LB_RANGE;

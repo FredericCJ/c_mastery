@@ -6,7 +6,7 @@ project and `labs/runtime/SPEC.md` first. Bring your T46.01 raw CVM1 codec,
 instruction decoding, finite queues and set reasoning. The reference campaign
 imports the separately identified author codec/VM; that is not learner work.
 
-The input is a bounded `CvmProgram`: up to eight contiguous function regions,
+The input is a bounded `struct cvm_program`: up to eight contiguous function regions,
 1024 code bytes, eight locals per function and 64 frame-relative operand slots.
 Its data representation is independent of whether its instructions are safe to
 dispatch. A byte inside an immediate operand is not a branch destination merely

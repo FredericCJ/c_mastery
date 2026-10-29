@@ -4,7 +4,7 @@
 #define SW_MUTANT 0
 #endif
 static const char key[] = "workflow";
-static int valid(store *s, Vh *a, Vh *b) {
+static int valid(store *s, struct vg_vh *a, struct vg_vh *b) {
   return s && a && b && a != b && a->database && b->database &&
          s != a->database && s != b->database && a->database != b->database &&
          a->mode == VH_VERSIONED5 && b->mode == VH_VERSIONED5 &&
@@ -51,7 +51,7 @@ static int save(store *s, int32_t amount, unsigned decline, unsigned phase) {
   }
   return store_commit(s);
 }
-int sw_create(SwFlow *f, store *s, Vh *a, Vh *b, int32_t amount,
+int sw_create(struct sw_flow *f, store *s, struct vg_vh *a, struct vg_vh *b, int32_t amount,
               unsigned decline) {
   if (!f || !valid(s, a, b) || amount <= 0 || decline > 1)
     return SW_INVALID;
@@ -72,10 +72,10 @@ int sw_create(SwFlow *f, store *s, Vh *a, Vh *b, int32_t amount,
     return r == STORE_OK ? SW_CONFLICT : SW_RECOVER;
   if (save(s, amount, decline, SW_PREPARED))
     return SW_RECOVER;
-  *f = (SwFlow){s, a, b, amount, decline, SW_PREPARED, 0, STORE_OK};
+  *f = (struct sw_flow){s, a, b, amount, decline, SW_PREPARED, 0, STORE_OK};
   return SW_PROGRESS;
 }
-int sw_open(SwFlow *f, store *s, Vh *a, Vh *b) {
+int sw_open(struct sw_flow *f, store *s, struct vg_vh *a, struct vg_vh *b) {
   if (!f || !valid(s, a, b))
     return SW_INVALID;
   uint8_t p[64];
@@ -87,21 +87,21 @@ int sw_open(SwFlow *f, store *s, Vh *a, Vh *b) {
   unsigned decline, phase;
   if (!decode(p, n, &amount, &decline, &phase))
     return SW_INVALID;
-  *f = (SwFlow){s, a, b, amount, decline, phase, 0, STORE_OK};
+  *f = (struct sw_flow){s, a, b, amount, decline, phase, 0, STORE_OK};
   return SW_PROGRESS;
 }
-static int effect(Vh *h, uint64_t id, int32_t delta) {
-  Vh call = *h;
+static int effect(struct vg_vh *h, uint64_t id, int32_t delta) {
+  struct vg_vh call = *h;
   call.operation_id = id;
   int32_t out;
   return vh_host(&call, 3, delta, &out);
 }
-static int failure(SwFlow *f, int r) {
+static int failure(struct sw_flow *f, int r) {
   f->last_store_result = r;
   f->poisoned = 1;
   return SW_RECOVER;
 }
-int sw_step(SwFlow *f) {
+int sw_step(struct sw_flow *f) {
   if (!f || f->poisoned || !valid(f->journal, f->debit, f->credit))
     return SW_RECOVER;
   if (f->phase == SW_FINISHED)

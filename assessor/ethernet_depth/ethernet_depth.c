@@ -19,7 +19,7 @@ int ed_wrap(uint32_t app, const uint32_t *h, size_t n, uint32_t *out) {
     out[i] = t[i];
   return ED_OK;
 }
-int ed_compatible(EDInterface a, EDInterface b, unsigned *out) {
+int ed_compatible(struct ed_interface a, struct ed_interface b, unsigned *out) {
   if (!out || !a.protocol || !b.protocol || !a.version || !b.version ||
       a.shape > 1 || b.shape > 1 || a.ownership > 1 || b.ownership > 1)
     return ED_INVALID;
@@ -85,8 +85,8 @@ int ed_frame_build(const uint8_t da[6], const uint8_t sa[6], uint16_t field,
   *written = total;
   return ED_OK;
 }
-int ed_frame_parse(const uint8_t *p, size_t n, unsigned fcs, EDFrame *out) {
-  EDFrame r;
+int ed_frame_parse(const uint8_t *p, size_t n, unsigned fcs, struct ed_frame *out) {
+  struct ed_frame r;
   size_t i, data;
   uint32_t expected, actual = 0;
   if (!p || !out || fcs > 1 || n < 60 + 4 * fcs || n > 1514 + 4 * fcs)
@@ -126,16 +126,16 @@ static int same_mac(const uint8_t *a, const uint8_t *b) {
       return 0;
   return 1;
 }
-int ed_bridge(EDBridge *s, const uint8_t source[6], const uint8_t dest[6],
+int ed_bridge(struct ed_bridge *s, const uint8_t source[6], const uint8_t dest[6],
               unsigned ingress, uint32_t now, unsigned *mask) {
-  EDBridge next;
+  struct ed_bridge next;
   unsigned i, free_slot = 4, found = 4, output;
   if (!s || !source || !dest || !mask || ingress < 1 || ingress > 3 ||
       (source[0] & 1) || now < s->now)
     return ED_INVALID;
   next = *s;
   for (i = 0; i < 4; i++) {
-    EDBridgeEntry *e = &next.entries[i];
+    struct ed_bridge_entry *e = &next.entries[i];
     if (e->live) {
       if (e->port < 1 || e->port > 3 || e->seen > s->now)
         return ED_INVALID;
@@ -209,7 +209,7 @@ int ed_mdio_word(uint32_t hz, unsigned phy, unsigned reg, unsigned busy,
   *divisor = div;
   return ED_OK;
 }
-int ed_mdio_read(const EDBus *b, uint32_t hz, unsigned phy, unsigned reg,
+int ed_mdio_read(const struct ed_bus *b, uint32_t hz, unsigned phy, unsigned reg,
                  unsigned budget, uint32_t timeout, uint16_t *value) {
   uint32_t status, word, div, start, now, last, data;
   unsigned i;
@@ -244,10 +244,10 @@ int ed_mdio_read(const EDBus *b, uint32_t hz, unsigned phy, unsigned reg,
   }
   return ED_TIMEOUT;
 }
-int ed_phy_query(const EDBus *b, uint32_t hz, unsigned phy, unsigned budget,
-                 uint32_t timeout, EDPhy *out) {
+int ed_phy_query(const struct ed_bus *b, uint32_t hz, unsigned phy, unsigned budget,
+                 uint32_t timeout, struct ed_phy *out) {
   uint16_t id1, id2, old, current, special;
-  EDPhy r = {0};
+  struct ed_phy r = {0};
   int e;
   unsigned mode;
   if (!out)
@@ -283,8 +283,8 @@ int ed_phy_query(const EDBus *b, uint32_t hz, unsigned phy, unsigned budget,
   *out = r;
   return ED_OK;
 }
-int ed_rx_acquire(EDRx *s, const EDDescriptor *d, size_t n, EDBorrow *out) {
-  EDBorrow r = {0};
+int ed_rx_acquire(struct ed_rx *s, const struct ed_descriptor *d, size_t n, struct ed_borrow *out) {
+  struct ed_borrow r = {0};
   size_t i, total = 0, exposed;
   uint32_t flags, last;
   if (!s || !d || !out || n < 1 || n > 2)
@@ -344,7 +344,7 @@ int ed_rx_acquire(EDRx *s, const EDDescriptor *d, size_t n, EDBorrow *out) {
   *out = r;
   return ED_OK;
 }
-int ed_rx_release(EDRx *s, uint32_t token) {
+int ed_rx_release(struct ed_rx *s, uint32_t token) {
   if (!s)
     return ED_INVALID;
   if (!s->held || !token || token != s->generation)
@@ -352,17 +352,17 @@ int ed_rx_release(EDRx *s, uint32_t token) {
   s->held = 0;
   return ED_OK;
 }
-static int tx_valid(EDTx *s, unsigned slot, uint32_t token) {
+static int tx_valid(struct ed_tx *s, unsigned slot, uint32_t token) {
   if (!s || slot > 1 || !token)
     return ED_INVALID;
   if (s->slots[slot].token != token || !s->slots[slot].phase)
     return ED_STALE;
   return ED_OK;
 }
-int ed_tx_prepare(EDTx *s, unsigned slot, uint32_t token, const uint8_t *p,
+int ed_tx_prepare(struct ed_tx *s, unsigned slot, uint32_t token, const uint8_t *p,
                   size_t n) {
   size_t i;
-  EDTxSlot *t;
+  struct ed_tx_slot *t;
   if (!s || slot > 1 || !p || n < 14 || n > 1514 || !token)
     return ED_INVALID;
   t = &s->slots[slot];
@@ -379,9 +379,9 @@ int ed_tx_prepare(EDTx *s, unsigned slot, uint32_t token, const uint8_t *p,
   t->phase = 1;
   return ED_OK;
 }
-int ed_tx_tail(EDTx *s, unsigned slot, uint32_t token) {
+int ed_tx_tail(struct ed_tx *s, unsigned slot, uint32_t token) {
   int e = tx_valid(s, slot, token);
-  EDTxSlot *t;
+  struct ed_tx_slot *t;
   if (e)
     return e;
   t = &s->slots[slot];
@@ -391,10 +391,10 @@ int ed_tx_tail(EDTx *s, unsigned slot, uint32_t token) {
   t->phase = 2;
   return ED_OK;
 }
-int ed_tx_publish(EDTx *s, unsigned slot, uint32_t token,
+int ed_tx_publish(struct ed_tx *s, unsigned slot, uint32_t token,
                   void (*barrier)(void *), void *context) {
   int e = tx_valid(s, slot, token);
-  EDTxSlot *t;
+  struct ed_tx_slot *t;
   if (e)
     return e;
   if (!barrier)
@@ -414,10 +414,10 @@ int ed_tx_publish(EDTx *s, unsigned slot, uint32_t token,
   t->phase = 3;
   return ED_OK;
 }
-int ed_tx_complete(EDTx *s, unsigned slot, uint32_t token, unsigned returned,
+int ed_tx_complete(struct ed_tx *s, unsigned slot, uint32_t token, unsigned returned,
                    unsigned error) {
   int e = tx_valid(s, slot, token);
-  EDTxSlot *t;
+  struct ed_tx_slot *t;
   if (e)
     return e;
   if (returned > 1 || error > 1)
@@ -431,9 +431,9 @@ int ed_tx_complete(EDTx *s, unsigned slot, uint32_t token, unsigned returned,
   t->head = t->tail = 0;
   return error ? ED_IO : ED_OK;
 }
-int ed_tx_abort(EDTx *s, unsigned slot, uint32_t token, unsigned stopped) {
+int ed_tx_abort(struct ed_tx *s, unsigned slot, uint32_t token, unsigned stopped) {
   int e = tx_valid(s, slot, token);
-  EDTxSlot *t;
+  struct ed_tx_slot *t;
   if (e)
     return e;
   if (stopped > 1)
@@ -477,8 +477,8 @@ int ed_initialize(const uint8_t *events, size_t n, size_t *bad) {
   *bad = n;
   return seen == 1023 ? ED_OK : ED_INVALID;
 }
-int ed_budget(uint32_t app, unsigned mb, EDBudget *out) {
-  EDBudget b;
+int ed_budget(uint32_t app, unsigned mb, struct ed_budget *out) {
+  struct ed_budget b;
   uint32_t data;
   if (!out || app > 1460 || (mb != 10 && mb != 100))
     return ED_INVALID;

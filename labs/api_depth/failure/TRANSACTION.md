@@ -8,7 +8,7 @@ The changed concurrent port in `publication.h/c` is hosted Linux/POSIX and requi
 the mutex, publication and lifetime parts of T51 before independent assessment.
 This dependency does not make the ordinary transaction depend on T51.
 
-`AeConfig` holds at most three values0..9 and a version0..3. Replace a valid
+`struct ae_config` holds at most three values0..9 and a version0..3. Replace a valid
 configuration using input length0..3 and a destination capacity0..3. Input may
 alias the old configuration. Copy admitted input into staging before mutation.
 Fail1 occurs at the validation boundary, fail2 before staging, fail3..n+2 before
@@ -44,7 +44,7 @@ the contract. The writer is single; counters stop at65535 rather than overflow.
 An allocation failure leaves the old root. Count the transient attempted allocation
 separately from admitted nodes when measuring peak memory.
 
-`AeJournal` is an explicit persistent-*state model*, not a filesystem protocol.
+`struct ae_journal` is an explicit persistent-*state model*, not a filesystem protocol.
 IDs1..7 and deltas1..7 use two completion records, value bound63 and effect bound31.
 A retained identical request deduplicates; changed content conflicts. FIFO expiry
 permits an old ID to cause another effect. An intent is recorded before the effect.

@@ -4,5 +4,5 @@
 #include "scope.h"
 /* At most budget input bytes. HTTP_DONE/ERROR preserves unconsumed leftovers;
  * caller owns explicit parser reinitialization and connection-close policy. */
-int nw_http_pump(NwRx *, HttpParser *, size_t budget, size_t *consumed);
+int nw_http_pump(struct nw_rx *, struct http_parser *, size_t budget, size_t *consumed);
 #endif

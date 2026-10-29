@@ -21,7 +21,7 @@ too large a count without touching data. The caller detects this contract violat
 it cannot undo a malicious callback's prior memory accesses in a general case.
 
 Direct dispatch switches on kind0..2 to an exactly typed backend. Erased dispatch
-uses a borrowed immutable `AdOps` with version1, kind and exact function pointer.
+uses a borrowed immutable `struct ad_ops` with version1, kind and exact function pointer.
 Validate descriptor metadata before calling, but recognize that metadata cannot
 prove an arbitrary address is live or that an arbitrary function honors the contract.
 The descriptor and sink outlive every synchronous callback; there is no retention,
@@ -30,7 +30,7 @@ implementations share the same byte/capacity validation routine. Direct switch
 and table metadata admission differ in representation while enforcing the same
 public transport behavior for valid descriptors/kinds.
 
-The stream itself has a common `SFWrite` callback in every variant. The experiment
+The stream itself has a common `sf_write_fn` callback in every variant. The experiment
 compares dispatch *inside that callback*, not a hypothetical stream rewritten to
 eliminate all function pointers. Direct source syntax is not an assertion that the
 compiler will emit a direct call. Keep this scope in every cost conclusion.
@@ -83,7 +83,7 @@ derive its changed proportion rather than assuming it dominates on every backend
 
 ## A removal proposal has a narrower contract
 
-The supplied fixed specialization takes only `AdSink` and calls backend-one: it
+The supplied fixed specialization takes only `struct ad_sink` and calls backend-one: it
 removes the instance kind/table field, preserves failure/progress ownership, and
 passes its65 length cases and all four injected modes. It is an eligible
 simplification only for a requirement that permanently selects backend-one.

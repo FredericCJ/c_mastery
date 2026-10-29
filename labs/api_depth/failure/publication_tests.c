@@ -9,17 +9,17 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
-  AePublication *p;
+struct ac_reader {
+  struct ae_publication *p;
   atomic_uint ready, done;
   unsigned bad, reads;
-} Reader;
+};
 static void *reader(void *v) {
-  Reader *r = v;
+  struct ac_reader *r = v;
   atomic_store_explicit(&r->ready, 1, memory_order_release);
   do {
-    AeReadLease l = {0};
-    AeConfig c;
+    struct ae_read_lease l = {0};
+    struct ae_config c;
     if (ae_publication_acquire(r->p, &l) != AE_OK) {
       ++r->bad;
       break;
@@ -34,33 +34,33 @@ static void *reader(void *v) {
   return 0;
 }
 int main(void) {
-  AeConfig c = {{1, 2, 3}, 3, 1};
-  AePublication *p = ae_publication_new(&c);
+  struct ae_config c = {{1, 2, 3}, 3, 1};
+  struct ae_publication *p = ae_publication_new(&c);
   CHECK(p);
-  AeReadLease first = {0}, second = {0};
+  struct ae_read_lease first = {0}, second = {0};
   CHECK(ae_publication_acquire(p, &first) == AE_OK);
-  c = (AeConfig){{4, 5, 6}, 3, 2};
+  c = (struct ae_config){{4, 5, 6}, 3, 2};
   CHECK(ae_publication_replace(p, &c, 0) == AE_OK);
   CHECK(ae_publication_acquire(p, &second) == AE_OK);
-  c = (AeConfig){{7, 8, 9}, 3, 3};
+  c = (struct ae_config){{7, 8, 9}, 3, 3};
   CHECK(ae_publication_replace(p, &c, 0) == AE_OK);
   unsigned made, freed, live;
   CHECK(ae_publication_counts(p, &made, &freed, &live) == AE_OK && made == 3 &&
         freed == 0 && live == 3);
   CHECK(ae_publication_replace(p, &c, 0) == AE_FULL);
-  AeConfig old;
+  struct ae_config old;
   CHECK(ae_publication_read(&first, &old) == AE_OK && old.values[0] == 1);
   CHECK(ae_publication_release(&first) == AE_OK &&
         ae_publication_release(&second) == AE_OK);
   CHECK(ae_publication_replace(p, &c, 1) == AE_EXHAUSTED);
-  Reader r = {.p = p};
+  struct ac_reader r = {.p = p};
   pthread_t worker;
   CHECK(!pthread_create(&worker, 0, reader, &r));
   while (!atomic_load_explicit(&r.ready, memory_order_acquire)) {
   }
   for (unsigned i = 0; i < 1000; ++i) {
     unsigned x = i % 7;
-    c = (AeConfig){{x, x + 1, x + 2}, 3, i + 4};
+    c = (struct ae_config){{x, x + 1, x + 2}, 3, i + 4};
     CHECK(ae_publication_replace(p, &c, 0) == AE_OK);
   }
   atomic_store_explicit(&r.done, 1, memory_order_release);

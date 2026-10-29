@@ -5,37 +5,37 @@ uint16_t mc_crc(const uint8_t *a, size_t b) {
   UNUSED(b);
   return 0;
 }
-int mc_layout(unsigned a, unsigned b, McLayout *c) {
+int mc_layout(unsigned a, unsigned b, struct mc_layout *c) {
   UNUSED(a);
   UNUSED(b);
   UNUSED(c);
   return MC_UNIMPLEMENTED;
 }
-int mc_init(McDriver *a, McBus b, const McConfig *c, unsigned d) {
-  UNUSED(a);
-  UNUSED(b);
-  UNUSED(c);
-  UNUSED(d);
-  return MC_UNIMPLEMENTED;
-}
-int mc_send(McDriver *a, McBus b, uint32_t c, const McFrame *d) {
+int mc_init(struct mc_driver *a, struct mc_bus b, const struct mc_config *c, unsigned d) {
   UNUSED(a);
   UNUSED(b);
   UNUSED(c);
   UNUSED(d);
   return MC_UNIMPLEMENTED;
 }
-int mc_poll(McDriver *a, McBus b) {
+int mc_send(struct mc_driver *a, struct mc_bus b, uint32_t c, const struct mc_frame *d) {
+  UNUSED(a);
+  UNUSED(b);
+  UNUSED(c);
+  UNUSED(d);
+  return MC_UNIMPLEMENTED;
+}
+int mc_poll(struct mc_driver *a, struct mc_bus b) {
   UNUSED(a);
   UNUSED(b);
   return MC_UNIMPLEMENTED;
 }
-int mc_cancel(McDriver *a, McBus b) {
+int mc_cancel(struct mc_driver *a, struct mc_bus b) {
   UNUSED(a);
   UNUSED(b);
   return MC_UNIMPLEMENTED;
 }
-int mc_take(McDriver *a, McBus b, uint32_t c, unsigned d, unsigned *e) {
+int mc_take(struct mc_driver *a, struct mc_bus b, uint32_t c, unsigned d, unsigned *e) {
   UNUSED(a);
   UNUSED(b);
   UNUSED(c);
@@ -43,39 +43,39 @@ int mc_take(McDriver *a, McBus b, uint32_t c, unsigned d, unsigned *e) {
   UNUSED(e);
   return MC_UNIMPLEMENTED;
 }
-int mc_receive(McDriver *a, McBus b, McFrame *c) {
+int mc_receive(struct mc_driver *a, struct mc_bus b, struct mc_frame *c) {
   UNUSED(a);
   UNUSED(b);
   UNUSED(c);
   return MC_UNIMPLEMENTED;
 }
-int mc_interrupt(McDriver *a, McBus b, uint32_t *c) {
+int mc_interrupt(struct mc_driver *a, struct mc_bus b, uint32_t *c) {
   UNUSED(a);
   UNUSED(b);
   UNUSED(c);
   return MC_UNIMPLEMENTED;
 }
-int mc_read(McBus a, uint16_t b, uint8_t *c, unsigned d) {
-  UNUSED(a);
-  UNUSED(b);
-  UNUSED(c);
-  UNUSED(d);
-  return MC_UNIMPLEMENTED;
-}
-int mc_write(McBus a, uint16_t b, const uint8_t *c, unsigned d) {
+int mc_read(struct mc_bus a, uint16_t b, uint8_t *c, unsigned d) {
   UNUSED(a);
   UNUSED(b);
   UNUSED(c);
   UNUSED(d);
   return MC_UNIMPLEMENTED;
 }
-int mc_bench_frame(unsigned a, unsigned b, McFrame *c) {
+int mc_write(struct mc_bus a, uint16_t b, const uint8_t *c, unsigned d) {
+  UNUSED(a);
+  UNUSED(b);
+  UNUSED(c);
+  UNUSED(d);
+  return MC_UNIMPLEMENTED;
+}
+int mc_bench_frame(unsigned a, unsigned b, struct mc_frame *c) {
   UNUSED(a);
   UNUSED(b);
   UNUSED(c);
   return MC_UNIMPLEMENTED;
 }
-int mc_bench_match(unsigned a, unsigned b, const McFrame *c) {
+int mc_bench_match(unsigned a, unsigned b, const struct mc_frame *c) {
   UNUSED(a);
   UNUSED(b);
   UNUSED(c);

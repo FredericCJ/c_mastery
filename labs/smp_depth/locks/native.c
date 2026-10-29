@@ -8,9 +8,9 @@
 #include <inttypes.h>
 #include <unistd.h>
 enum { PARTICIPANTS=4, ITERATIONS=2000 };
-typedef struct {SlNode node;SlStats stats;unsigned id,cpu,acquired,max_gap,failed;int node_id;uint64_t sum_ns,max_ns;} Worker;
-static SlLock lock;
-static Worker workers[PARTICIPANTS];
+struct sa_worker {struct sl_node node;struct sl_stats stats;unsigned id,cpu,acquired,max_gap,failed;int node_id;uint64_t sum_ns,max_ns;};
+static struct sl_lock lock;
+static struct sa_worker workers[PARTICIPANTS];
 static atomic_uint ready,go;
 static unsigned sequence,order[PARTICIPANTS*ITERATIONS];
 static uint64_t payload;
@@ -21,11 +21,11 @@ static int node_of(unsigned cpu) {
  return -1;
 }
 static void *run(void *context) {
- Worker *w=context;cpu_set_t set;CPU_ZERO(&set);CPU_SET(w->cpu,&set);
+ struct sa_worker *w=context;cpu_set_t set;CPU_ZERO(&set);CPU_SET(w->cpu,&set);
  if(pthread_setaffinity_np(pthread_self(),sizeof set,&set)){w->failed=1;return NULL;}
  atomic_fetch_add_explicit(&ready,1,memory_order_release);while(!atomic_load_explicit(&go,memory_order_acquire))sched_yield();
  for(unsigned i=0;i<ITERATIONS;i++) {
-  SlGuard guard={0};uint64_t begin=now();int result=sl_enter(&lock,&w->node,&guard,&w->stats);uint64_t waited=now()-begin;
+  struct sl_guard guard={0};uint64_t begin=now();int result=sl_enter(&lock,&w->node,&guard,&w->stats);uint64_t waited=now()-begin;
   if(result){w->failed=1;return NULL;}
   if(sequence>=PARTICIPANTS*ITERATIONS){w->failed=1;return NULL;}
   order[sequence++]=w->id;
@@ -44,7 +44,7 @@ int main(int argc,char **argv) {
  for(unsigned kind=0;kind<3;kind++) {
   if(sl_init(&lock,kind,1,kind==SL_TICKET?14:0))return 5;
   sequence=0;payload=0;atomic_store(&ready,0);atomic_store(&go,0);pthread_t threads[PARTICIPANTS];
-  for(unsigned i=0;i<PARTICIPANTS;i++){workers[i]=(Worker){.id=i,.cpu=selected[i],.node_id=node_of(selected[i])};sl_node_init(&workers[i].node);if(pthread_create(&threads[i],NULL,run,&workers[i]))return 6;}
+  for(unsigned i=0;i<PARTICIPANTS;i++){workers[i]=(struct sa_worker){.id=i,.cpu=selected[i],.node_id=node_of(selected[i])};sl_node_init(&workers[i].node);if(pthread_create(&threads[i],NULL,run,&workers[i]))return 6;}
   uint64_t start=now();
   while(atomic_load_explicit(&ready,memory_order_acquire)!=PARTICIPANTS){if(now()-start>UINT64_C(10000000000))return 7;sched_yield();}
   atomic_store_explicit(&go,1,memory_order_release);
@@ -54,7 +54,7 @@ int main(int argc,char **argv) {
   for(unsigned i=0;i<PARTICIPANTS;i++) {
    unsigned seen=0,previous=0;
    for(unsigned j=0;j<sequence;j++)if(order[j]==i){unsigned gap=seen?j-previous-1:j;if(gap>workers[i].max_gap)workers[i].max_gap=gap;previous=j;seen++;}
-   Worker *w=&workers[i];if(w->failed||w->acquired!=ITERATIONS||seen!=ITERATIONS||atomic_load(&w->node.active))return 10;
+   struct sa_worker *w=&workers[i];if(w->failed||w->acquired!=ITERATIONS||seen!=ITERATIONS||atomic_load(&w->node.active))return 10;
    printf("SL_COST kind=%u participant=%u cpu=%u node=%d acquisitions=%u exchanges=%"PRIu64" failed=%"PRIu64" waiting=%"PRIu64" wait_sum_ns=%"PRIu64" wait_max_ns=%"PRIu64" gap=%u elapsed_ns=%"PRIu64" count=%u sum=%"PRIu64"\n",kind,i,w->cpu,w->node_id,w->acquired,w->stats.exchanges,w->stats.failed_exchanges,w->stats.waiting_loads,w->sum_ns,w->max_ns,w->max_gap,elapsed,sequence,payload);
   }
  }

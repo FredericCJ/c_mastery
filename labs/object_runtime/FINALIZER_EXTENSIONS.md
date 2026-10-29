@@ -1,6 +1,6 @@
 # Finalizer execution and ephemeron value graphs
 
-This required X-T74-009 extension implements the existing `ORWeak` collector through
+This required X-T74-009 extension implements the existing `struct or_weak` collector through
 `object_runtime_finalizers.h`. It is a single-threaded C17 model with synthetic
 resource bits. No operating-system resource or third-party runtime is modified.
 

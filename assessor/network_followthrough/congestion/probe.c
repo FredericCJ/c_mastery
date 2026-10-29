@@ -4,13 +4,13 @@
 int main(int argc, char **argv) {
   (void)argv;
   if (argc > 1) {
-    printf("NR_LAYOUT state=%zu alignment=%zu\n", sizeof(NrControl),
-           _Alignof(NrControl));
+    printf("NR_LAYOUT state=%zu alignment=%zu\n", sizeof(struct nr_control),
+           _Alignof(struct nr_control));
     return 0;
   }
   char op;
   unsigned a, b, c;
-  NrControl s;
+  struct nr_control s;
   uint32_t seq;
   while (scanf(" %c%u%u%u", &op, &a, &b, &c) == 4) {
     if (op == 'P') {

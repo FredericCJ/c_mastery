@@ -2,7 +2,7 @@
 #ifndef SC_MUTANT
 #define SC_MUTANT 0
 #endif
-static int config_valid(const SCConfig *c) {
+static int config_valid(const struct sc_config *c) {
   if (!c || !c->tasks || c->tasks > SC_TASKS || !c->resources ||
       c->resources > SC_RESOURCES || c->strict_nesting > 1)
     return 0;
@@ -25,10 +25,10 @@ static int config_valid(const SCConfig *c) {
   }
   return 1;
 }
-enum cmx_result sc_init(SCWorld *out, const SCConfig *c, enum sc_mode mode) {
+enum cmx_result sc_init(struct sc_world *out, const struct sc_config *c, enum sc_mode mode) {
   if (!out || !config_valid(c) || (unsigned)mode > SC_IMMEDIATE)
     return CMX_INVALID;
-  SCWorld w = {0};
+  struct sc_world w = {0};
   w.config = *c;
   w.mode = mode;
   cmx_init(&w.kernel, CMX_FIXED);
@@ -45,10 +45,10 @@ enum cmx_result sc_init(SCWorld *out, const SCConfig *c, enum sc_mode mode) {
     out->kernel.mutex[r] = &out->mutex[r];
   return CMX_OK;
 }
-static int valid(const SCWorld *w, unsigned t) {
+static int valid(const struct sc_world *w, unsigned t) {
   return w && t < w->config.tasks;
 }
-enum cmx_result sc_lock(SCWorld *w, unsigned t, unsigned r, cmx_deadline d,
+enum cmx_result sc_lock(struct sc_world *w, unsigned t, unsigned r, cmx_deadline d,
                         enum sc_context context) {
   if (!valid(w, t) || r >= w->config.resources || context != SC_TASK_CONTEXT ||
       d.infinite > 1)
@@ -68,7 +68,7 @@ enum cmx_result sc_lock(SCWorld *w, unsigned t, unsigned r, cmx_deadline d,
     w->pending[t] = r + 1;
   return result;
 }
-enum cmx_result sc_unlock(SCWorld *w, unsigned t, unsigned r,
+enum cmx_result sc_unlock(struct sc_world *w, unsigned t, unsigned r,
                           enum sc_context context) {
   if (!valid(w, t) || r >= w->config.resources || context != SC_TASK_CONTEXT)
     return CMX_INVALID;
@@ -86,7 +86,7 @@ enum cmx_result sc_unlock(SCWorld *w, unsigned t, unsigned r,
   }
   return result;
 }
-enum cmx_result sc_poll(SCWorld *w, unsigned t) {
+enum cmx_result sc_poll(struct sc_world *w, unsigned t) {
   if (!valid(w, t) || !w->pending[t])
     return CMX_INVALID;
   if (w->kernel.task[t].state == CMX_WAITING)
@@ -101,7 +101,7 @@ enum cmx_result sc_poll(SCWorld *w, unsigned t) {
   w->pending[t] = 0;
   return result;
 }
-enum cmx_result sc_cancel(SCWorld *w, unsigned t) {
+enum cmx_result sc_cancel(struct sc_world *w, unsigned t) {
   if (!valid(w, t) || !w->pending[t])
     return CMX_INVALID;
   unsigned old[SC_TASKS];
@@ -113,13 +113,13 @@ enum cmx_result sc_cancel(SCWorld *w, unsigned t) {
       w->kernel.task[i].priority = old[i];
   return result;
 }
-enum cmx_result sc_tick(SCWorld *w, uint32_t now) {
+enum cmx_result sc_tick(struct sc_world *w, uint32_t now) {
   if (!w || (uint32_t)(now - w->kernel.now) >= UINT32_C(0x80000000))
     return CMX_INVALID;
   cmx_tick(&w->kernel, now);
   return CMX_OK;
 }
-enum cmx_result sc_set_base(SCWorld *w, unsigned t, unsigned p) {
+enum cmx_result sc_set_base(struct sc_world *w, unsigned t, unsigned p) {
   if (!valid(w, t) || p > 255)
     return CMX_INVALID;
   if (p != w->config.priority[t]) {
@@ -130,7 +130,7 @@ enum cmx_result sc_set_base(SCWorld *w, unsigned t, unsigned p) {
   }
   return CMX_OK;
 }
-int sc_invariant(const SCWorld *w) {
+int sc_invariant(const struct sc_world *w) {
   if (!w || !config_valid(&w->config) || !cmx_invariant(&w->kernel))
     return 0;
   unsigned priority[SC_TASKS];
@@ -171,7 +171,7 @@ int sc_invariant(const SCWorld *w) {
       return 0;
   return 1;
 }
-int sc_choose(const SCWorld *w, unsigned mask, int current) {
+int sc_choose(const struct sc_world *w, unsigned mask, int current) {
   if (!w || (mask >> w->config.tasks) || current < CMX_NONE ||
       current >= (int)w->config.tasks)
     return CMX_NONE;

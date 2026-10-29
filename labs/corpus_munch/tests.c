@@ -3,7 +3,7 @@
 #include <string.h>
 #define CHECK(x) do{if(!(x)){fprintf(stderr,"MM_CHECK:%d:%s\n",__LINE__,#x);return 1;}}while(0)
 static int semantics(void) {
-    MmDfa d=mm_example();MmWorkspace w;MmTokens out;MmCost c;unsigned err=999;
+    struct mm_dfa d=mm_example();struct mm_workspace w;struct mm_tokens out;struct mm_cost c;unsigned err=999;
     for(unsigned mode=0;mode<2;++mode){
         CHECK(mm_scan(&d,(const unsigned char *)"abcabcd",7,mode,256,&w,&out,&c,&err)==PD_OK);
         CHECK(out.count==1 && out.token[0].begin==0 && out.token[0].end==7 && out.token[0].rule==1);
@@ -21,7 +21,7 @@ static int semantics(void) {
     return 0;
 }
 static int bounds(void) {
-    MmDfa d=mm_example(),bad;MmWorkspace w;MmTokens out,saved;MmCost c,old;unsigned err=999;
+    struct mm_dfa d=mm_example(),bad;struct mm_workspace w;struct mm_tokens out,saved;struct mm_cost c,old;unsigned err=999;
     CHECK(mm_scan(&d,(const unsigned char *)"abcabc",6,0,2,&w,&out,&c,&err)==PD_OK);
     CHECK(out.count==2 && out.token[0].end==3 && out.token[1].begin==3 && out.token[1].end==6 && c.rollback_bytes==3);
     memset(&out,0x5a,sizeof out);saved=out;memset(&c,0xa5,sizeof c);old=c;
@@ -49,7 +49,7 @@ static int bounds(void) {
     return 0;
 }
 static int memo(void) {
-    MmDfa d=mm_example();MmWorkspace w;MmTokens a,b;MmCost ca,cb;unsigned char text[256];unsigned err=999;
+    struct mm_dfa d=mm_example();struct mm_workspace w;struct mm_tokens a,b;struct mm_cost ca,cb;unsigned char text[256];unsigned err=999;
     for(unsigned i=0;i<255;++i)text[i]=(unsigned char)"abc"[i%3];
     memset(&w,0xff,sizeof w);
     CHECK(mm_scan(&d,text,255,0,256,&w,&a,&ca,&err)==PD_OK);
@@ -60,11 +60,11 @@ static int memo(void) {
     /* Same scratch, new input and accepting-state labels must not reuse failures. */
     text[255]='d';CHECK(mm_scan(&d,text,256,1,1,&w,&b,&cb,NULL)==PD_OK && b.count==1 && b.token[0].end==256);
     d.accept[6]=8;CHECK(mm_scan(&d,text,255,1,256,&w,&b,&cb,NULL)==PD_OK && b.count==1 && b.token[0].rule==3);
-    {RxNfa nfa;RxDfa prior;PdDiagnostic diag;MmDfa imported;
+    {struct rx_nfa nfa;struct rx_dfa prior;struct pd_diagnostic diag;struct mm_dfa imported;
      CHECK(rx_compile((const unsigned char *)"a|ab",4,&nfa,&diag)==PD_OK);
      CHECK(rx_determinize(&nfa,16,&prior)==PD_OK && mm_from_rx(&prior,&imported)==PD_OK);
      CHECK(mm_scan(&imported,(const unsigned char *)"aba",3,1,256,&w,&b,&cb,NULL)==PD_OK && b.count==2 && b.token[0].end==2 && b.token[1].end==3);
-     {MmDfa saved=imported;
+     {struct mm_dfa saved=imported;
       prior.accept[0]=1;CHECK(mm_from_rx(&prior,&imported)==PD_INVALID && !memcmp(&saved,&imported,sizeof saved));
       prior.accept[0]=0;prior.next[0][0]=prior.count;CHECK(mm_from_rx(&prior,&imported)==PD_INVALID && !memcmp(&saved,&imported,sizeof saved));
       CHECK(mm_from_rx(NULL,&imported)==PD_INVALID && !memcmp(&saved,&imported,sizeof saved));}}

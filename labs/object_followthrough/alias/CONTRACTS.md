@@ -46,8 +46,8 @@ ownership unchanged, except explicitly published cleanup state.
    and reset. An initializer may allocate a child, but owns rollback of that
    child on failure; successful initialization transfers its cleanup to the
    registered destructor. Withdraw all published borrows before reset.
-2. `OsWide` has requested alignment64. Admission requires sufficient capacity
-   and an alignment compatible with `_Alignof(OsWide)`. Actual allocation has
+2. `struct os_wide` has requested alignment64. Admission requires sufficient capacity
+   and an alignment compatible with `_Alignof(struct os_wide)`. Actual allocation has
    no declared type. Initialize fields by typed writes. Its slot has EMPTY,
    LIVE, BORROWED and CLEANUP states. Borrow is exclusive. Return consumes the
    exact outstanding pointer. Reset while borrowed fails. A fallible destructor

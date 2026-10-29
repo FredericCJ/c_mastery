@@ -47,7 +47,7 @@ int main(void) {
     for (unsigned code = 0; code < limit; ++code) {
       int32_t a[32] = {0}, b[32] = {0};
       unsigned counts[5] = {0}, q = code;
-      FWork work;
+      struct f_work work;
       for (unsigned i = 0; i < n; ++i) {
         unsigned digit = q % 5;
         q /= 5;

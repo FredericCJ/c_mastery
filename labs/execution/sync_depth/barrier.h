@@ -3,27 +3,27 @@
 #include "cmx.h"
 enum { CDB_IDLE, CDB_PENDING, CDB_DONE };
 enum { CDB_STALE=CMX_UNIMPLEMENTED+1, CDB_RETIRED };
-typedef struct {
+struct cdb_slot {
   unsigned state, round, task_generation;
   int result;
-} CDBSlot;
-typedef struct {
+};
+struct cd_barrier {
   cmx_kernel *kernel;
   cmx_barrier raw;
-  CDBSlot slot[CMX_TASKS];
+  struct cdb_slot slot[CMX_TASKS];
   uint32_t members, registered, next_members, epoch;
   unsigned generation_limit, changing, live;
-} CDBarrier;
-typedef struct { CDBarrier *owner; unsigned task; uint32_t epoch; } CDBMember;
-typedef struct { CDBMember member; unsigned round; } CDBTicket;
-int cdb_init(CDBarrier *,cmx_kernel *,uint32_t members,unsigned generation_limit);
-int cdb_register(CDBarrier *,unsigned task,CDBMember *);
-int cdb_arrive(CDBMember,cmx_deadline,CDBTicket *);
-int cdb_result(CDBTicket,unsigned *completed_round);
-int cdb_cancel(CDBTicket);
-int cdb_stage(CDBarrier *,uint32_t next_members);
-int cdb_release(CDBMember *);
-int cdb_apply(CDBarrier *);
-int cdb_close(CDBarrier *);
-int cdb_destroy(CDBarrier *);
+};
+struct cdb_member { struct cd_barrier *owner; unsigned task; uint32_t epoch; };
+struct cdb_ticket { struct cdb_member member; unsigned round; };
+int cdb_init(struct cd_barrier *,cmx_kernel *,uint32_t members,unsigned generation_limit);
+int cdb_register(struct cd_barrier *,unsigned task,struct cdb_member *);
+int cdb_arrive(struct cdb_member,cmx_deadline,struct cdb_ticket *);
+int cdb_result(struct cdb_ticket,unsigned *completed_round);
+int cdb_cancel(struct cdb_ticket);
+int cdb_stage(struct cd_barrier *,uint32_t next_members);
+int cdb_release(struct cdb_member *);
+int cdb_apply(struct cd_barrier *);
+int cdb_close(struct cd_barrier *);
+int cdb_destroy(struct cd_barrier *);
 #endif

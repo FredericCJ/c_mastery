@@ -14,14 +14,14 @@
 #include <unistd.h>
 /* Original owned-process experiment. No general service accepts external peers.
  */
-typedef struct {
+struct rd_shared {
   pthread_mutex_t lock;
   unsigned char request[4][8], response[4][4];
   unsigned request_epoch[4], response_epoch[4];
-} Shared;
-typedef struct {
+};
+struct rd_channel {
   int rx, tx;
-} Channel;
+};
 static int exact(int fd, void *buffer, size_t length, int sending,
                  struct timespec deadline) {
   unsigned char *p = buffer;
@@ -59,7 +59,7 @@ static struct timespec limit(void) {
   d.tv_sec += 5;
   return d;
 }
-static void close_channel(Channel c) {
+static void close_channel(struct rd_channel c) {
   close(c.rx);
   if (c.tx != c.rx)
     close(c.tx);
@@ -67,7 +67,7 @@ static void close_channel(Channel c) {
 static double seconds(struct timespec a, struct timespec b) {
   return (double)(b.tv_sec - a.tv_sec) + (double)(b.tv_nsec - a.tv_nsec) / 1e9;
 }
-static int server(Channel c, int mode, Shared *shared, unsigned rounds,
+static int server(struct rd_channel c, int mode, struct rd_shared *shared, unsigned rounds,
                   int gate) {
   alarm(12);
   char start;
@@ -124,22 +124,22 @@ int main(int argc, char **argv) {
   CHECK(mode >= 0 && mode <= 2 && rounds >= 4 && rounds <= 4096 &&
         rounds % 4 == 0);
   alarm(15);
-  Channel client, peer;
+  struct rd_channel client, peer;
   int gate[2];
   CHECK(pipe2(gate, O_CLOEXEC | O_NONBLOCK) == 0);
-  Shared *shared = 0;
+  struct rd_shared *shared = 0;
   if (mode == 1) {
     int fd[2];
     CHECK(socketpair(AF_UNIX, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0,
                      fd) == 0);
-    client = (Channel){fd[0], fd[0]};
-    peer = (Channel){fd[1], fd[1]};
+    client = (struct rd_channel){fd[0], fd[0]};
+    peer = (struct rd_channel){fd[1], fd[1]};
   } else {
     int request[2], response[2];
     CHECK(pipe2(request, O_NONBLOCK | O_CLOEXEC) == 0 &&
           pipe2(response, O_NONBLOCK | O_CLOEXEC) == 0);
-    client = (Channel){response[0], request[1]};
-    peer = (Channel){request[0], response[1]};
+    client = (struct rd_channel){response[0], request[1]};
+    peer = (struct rd_channel){request[0], response[1]};
   }
   if (mode == 2) {
     shared = mmap(0, sizeof *shared, PROT_READ | PROT_WRITE,
@@ -171,8 +171,8 @@ int main(int argc, char **argv) {
   size_t wire = 0;
   unsigned char bytes[8] = {0, 1, 2, 3, 128, 254, 255, 0};
   for (unsigned base = 0; base < rounds; base += 4) {
-    EiQueue queue = {0};
-    EiRequest requests[5];
+    struct ei_queue queue = {0};
+    struct ei_request requests[5];
     for (unsigned k = 0; k < 5; ++k)
       CHECK(ei_init(&requests[k], bytes, 1, base + k + 1) == 0);
     for (unsigned k = 0; k < 4; ++k)
@@ -214,7 +214,7 @@ int main(int argc, char **argv) {
       }
       CHECK(answer[0] == 0 && answer[1] == 0 && answer[2] == 2 &&
             answer[3] == 131);
-      EiRequest *owned;
+      struct ei_request *owned;
       CHECK(ei_dequeue(&queue, &owned) == 1 && owned == &requests[k]);
       CHECK(ei_transition(owned, EI_EFFECT) == 0 &&
             ei_transition(owned, EI_COMPLETE) == 0 && owned->result == 643);
@@ -236,7 +236,7 @@ int main(int argc, char **argv) {
   printf("IPC-NATIVE:mode=%d;completed=%u;queue=4;retained_payload=32;fifth_"
          "rejected=%u;wire_bytes=%zu;shared_bytes=%zu;wall_seconds=%.9f;parent_"
          "cpu=%.9f;child_user=%ld.%06ld;child_system=%ld.%06ld;\n",
-         mode, completed, rounds / 4, wire, mode == 2 ? sizeof(Shared) : 0,
+         mode, completed, rounds / 4, wire, mode == 2 ? sizeof(struct rd_shared) : 0,
          seconds(start, end), seconds(cpu0, cpu1),
          (long)child_usage.ru_utime.tv_sec, (long)child_usage.ru_utime.tv_usec,
          (long)child_usage.ru_stime.tv_sec, (long)child_usage.ru_stime.tv_usec);

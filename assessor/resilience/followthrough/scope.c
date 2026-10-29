@@ -1,6 +1,6 @@
 #include "scope.h"
 
-int rzf_scope_retain(RzfScope *scope, RzfScope **out) {
+int rzf_scope_retain(struct rzf_scope *scope, struct rzf_scope **out) {
     if (!scope || !out) return RZ_INVALID;
     size_t n = atomic_load_explicit(&scope->references, memory_order_relaxed);
     do {
@@ -12,32 +12,32 @@ int rzf_scope_retain(RzfScope *scope, RzfScope **out) {
     return RZ_OK;
 }
 
-void rzf_scope_release(RzfScope **owner) {
+void rzf_scope_release(struct rzf_scope **owner) {
     if (!owner || !*owner) return;
-    RzfScope *scope = *owner;
+    struct rzf_scope *scope = *owner;
     *owner = NULL;
     while (scope) {
         if (atomic_fetch_sub_explicit(&scope->references, 1, memory_order_acq_rel) != 1)
             return;
-        RzfScope *parent = scope->parent;
-        RzfAllocator a = scope->allocator;
+        struct rzf_scope *parent = scope->parent;
+        struct rzf_allocator a = scope->allocator;
         a.deallocate(a.context, scope);
         scope = parent;
     }
 }
 
-int rzf_scope_create(RzfScope *parent, uint64_t now, uint64_t budget,
-                     RzfAllocator a, RzfScope **out) {
+int rzf_scope_create(struct rzf_scope *parent, uint64_t now, uint64_t budget,
+                     struct rzf_allocator a, struct rzf_scope **out) {
     if (!out || !a.allocate || !a.deallocate) return RZ_INVALID;
-    RZScope checked;
+    struct rz_scope checked;
     int status = rz_scope_init(&checked, parent ? &parent->core : NULL, now, budget);
     if (status != RZ_OK) return status;
-    RzfScope *owned_parent = NULL;
+    struct rzf_scope *owned_parent = NULL;
     if (parent) {
         status = rzf_scope_retain(parent, &owned_parent);
         if (status != RZ_OK) return status;
     }
-    RzfScope *scope = a.allocate(a.context, sizeof *scope);
+    struct rzf_scope *scope = a.allocate(a.context, sizeof *scope);
     if (!scope) {
         rzf_scope_release(&owned_parent);
         return RZ_FULL;
@@ -50,7 +50,7 @@ int rzf_scope_create(RzfScope *parent, uint64_t now, uint64_t budget,
     return RZ_OK;
 }
 
-int rzf_borrow_begin(RzfBorrow *borrow, RzfScope *scope) {
+int rzf_borrow_begin(struct rzf_borrow *borrow, struct rzf_scope *scope) {
     if (!borrow || borrow->scope) return RZ_INVALID;
 #if RZF_MUTANT == 12
     if (!scope) return RZ_INVALID;
@@ -61,30 +61,30 @@ int rzf_borrow_begin(RzfBorrow *borrow, RzfScope *scope) {
 #endif
 }
 
-int rzf_borrow_ack(RzfBorrow *borrow) {
+int rzf_borrow_ack(struct rzf_borrow *borrow) {
     if (!borrow) return RZ_INVALID;
     if (!borrow->scope) return RZ_STALE;
     rzf_scope_release(&borrow->scope);
     return RZ_OK;
 }
 
-static int budget_valid(const RzfBudget *budget) {
+static int budget_valid(const struct rzf_budget *budget) {
     return budget && budget->remaining && budget->transit_bound < budget->remaining;
 }
 
-int rzf_budget_export(const RzfScope *scope, uint64_t now, uint64_t transit,
-                      RzfBudget *out) {
+int rzf_budget_export(const struct rzf_scope *scope, uint64_t now, uint64_t transit,
+                      struct rzf_budget *out) {
     if (!scope || !out) return RZ_INVALID;
     uint64_t remaining;
     int status = rz_remaining(&scope->core, now, &remaining);
     if (status != RZ_OK) return status;
     if (transit >= remaining) return RZ_EXPIRED;
-    *out = (RzfBudget){remaining, transit};
+    *out = (struct rzf_budget){remaining, transit};
     return RZ_OK;
 }
 
-int rzf_budget_import(const RzfBudget *budget, RzfScope *parent, uint64_t now,
-                      uint64_t processing, RzfAllocator a, RzfScope **out) {
+int rzf_budget_import(const struct rzf_budget *budget, struct rzf_scope *parent, uint64_t now,
+                      uint64_t processing, struct rzf_allocator a, struct rzf_scope **out) {
     if (!out || !budget_valid(budget)) return RZ_INVALID;
     uint64_t remaining = budget->remaining - budget->transit_bound;
     if (processing >= remaining) return RZ_EXPIRED;
@@ -96,7 +96,7 @@ int rzf_budget_import(const RzfBudget *budget, RzfScope *parent, uint64_t now,
     return rzf_scope_create(parent, now, remaining, a, out);
 }
 
-int rzf_budget_encode(const RzfBudget *budget, unsigned char out[16]) {
+int rzf_budget_encode(const struct rzf_budget *budget, unsigned char out[16]) {
     if (!out || !budget_valid(budget)) return RZ_INVALID;
     uint64_t values[2] = {budget->remaining, budget->transit_bound};
     for (unsigned word = 0; word < 2; ++word)
@@ -105,13 +105,13 @@ int rzf_budget_encode(const RzfBudget *budget, unsigned char out[16]) {
     return RZ_OK;
 }
 
-int rzf_budget_decode(const unsigned char wire[16], RzfBudget *out) {
+int rzf_budget_decode(const unsigned char wire[16], struct rzf_budget *out) {
     if (!wire || !out) return RZ_INVALID;
     uint64_t values[2] = {0, 0};
     for (unsigned word = 0; word < 2; ++word)
         for (unsigned byte = 0; byte < 8; ++byte)
             values[word] = (values[word] << 8) | wire[8 * word + byte];
-    RzfBudget value = {values[0], values[1]};
+    struct rzf_budget value = {values[0], values[1]};
     if (!budget_valid(&value)) return RZ_INVALID;
     *out = value;
     return RZ_OK;

@@ -63,7 +63,7 @@ not a dynamic detector for arbitrary programs.
 For .06c reproduce the actual two-atomic-balance history: start50/50, pause the
 writer after storing40 to the first account, observe total90, then permit the
 second store60. Compare with one mutex covering both stores and both reads;
-the observer cannot enter the partial transaction. Implement `TASnapshot` with
+the observer cannot enter the partial transaction. Implement `struct ta_snapshot` with
 one writer, two atomic integer fields and an unsigned sequence. Values range
 0..100 and sum100. A write publishes odd sequence, both fields, then next even
 sequence using SC operations; reject before wrap. `ta_snapshot_try` accepts
@@ -74,10 +74,10 @@ ordinary fields and claim the version test erases a data race.
 
 ## Actual atomic operations and target dependencies — T25.07
 
-For .07a implement `TACounter`: initialize before sharing, relaxed fetch-add
+For .07a implement `struct ta_counter`: initialize before sharing, relaxed fetch-add
 returns the old value, relaxed load returns its observed value, unsigned wrap
 is modulo. The UINT_MAX +2 probe distinguishes old versus new return values.
-The changed aggregate is `_Atomic(TAPair)` with two uint64 fields. Initialize,
+The changed aggregate is `_Atomic(struct ta_pair)` with two uint64 fields. Initialize,
 load, store and initialize a separate destination from the loaded semantic
 value; never memcpy a live atomic representation, infer padding equality or
 assume a lock-free sixteen-byte operation. Host aggregate helpers are explicit.
@@ -118,7 +118,7 @@ modification-order and HB arguments, not only a lookup table. The independent
 SC oracle enumerates total orders; applying that oracle to RA would wrongly
 exclude store-buffering00. Mixed loads do not become members of the SC order.
 
-For .08b `TASlot` has one writer, one or two fixed reader identities, ordinary
+For .08b `struct ta_slot` has one writer, one or two fixed reader identities, ordinary
 payload and an atomic pending bit mask. Initialization is quiescent. Publish
 requires mask0 acquired, writes payload, then releases the full reader mask.
 Each reader acquires its own bit, copies payload and clears only that bit with

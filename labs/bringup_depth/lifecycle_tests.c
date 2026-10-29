@@ -8,7 +8,7 @@
     }                                                                          \
   } while (0)
 int main(void) {
-  BuDrain d;
+  struct bu_drain d;
   CK(bu_drain_begin(&d, 2, 3) == BU_OK);
   CK(d.stopped && !d.transferred);
   CK(bu_drain_step(&d, 1, 0) == BU_FAILED && !d.transferred);
@@ -21,7 +21,7 @@ int main(void) {
   CK(bu_drain_begin(&d, 1, 1) == BU_OK);
   CK(bu_drain_step(&d, 0, 1) == BU_TIMEOUT && !d.transferred);
   CK(bu_drain_step(&d, 1, 0) == BU_TIMEOUT && !d.transferred);
-  BuTask t = {0};
+  struct bu_task t = {0};
   unsigned retained_machine_epoch = 19, startup_calls = 1;
   for (unsigned i = 1; i <= 3; ++i) {
     CK(bu_task_start(&t) == BU_OK && t.generation == i);

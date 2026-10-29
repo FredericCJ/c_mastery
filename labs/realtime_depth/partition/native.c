@@ -11,16 +11,16 @@
 #endif
 static void failure(unsigned line){fprintf(stderr,"RP_NATIVE_CHECK:%u\n",line);exit(1);}
 #define CHECK(x) do{if(!(x))failure(__LINE__);}while(0)
-typedef struct {
- pthread_barrier_t barrier;pthread_mutex_t mutex;RPLease lease;
- RPPlan plan;RPTask tasks[4];int cpus[2];uint64_t payload;
-} Shared;
-typedef struct {Shared *shared;unsigned id;uint64_t count,hash,wall_ns,cpu_ns;unsigned samples;int observed;} Worker;
+struct tq_shared {
+ pthread_barrier_t barrier;pthread_mutex_t mutex;struct rp_lease lease;
+ struct rp_plan plan;struct rp_task tasks[4];int cpus[2];uint64_t payload;
+};
+struct tq_worker {struct tq_shared *shared;unsigned id;uint64_t count,hash,wall_ns,cpu_ns;unsigned samples;int observed;};
 static uint64_t ns(clockid_t clock){struct timespec t;CHECK(clock_gettime(clock,&t)==0);return (uint64_t)t.tv_sec*1000000000u+(unsigned long)t.tv_nsec;}
-static void synchronize(Shared *s){int r=pthread_barrier_wait(&s->barrier);CHECK(r==0||r==PTHREAD_BARRIER_SERIAL_THREAD);}
+static void synchronize(struct tq_shared *s){int r=pthread_barrier_wait(&s->barrier);CHECK(r==0||r==PTHREAD_BARRIER_SERIAL_THREAD);}
 static uint64_t work(uint64_t v,unsigned n){for(unsigned i=0;i<n;i++)v=v*UINT64_C(6364136223846793005)+UINT64_C(1442695040888963407);return v;}
 static void *worker(void *argument){
- Worker *w=argument;Shared *s=w->shared;cpu_set_t set;CPU_ZERO(&set);CPU_SET(s->cpus[w->id],&set);
+ struct tq_worker *w=argument;struct tq_shared *s=w->shared;cpu_set_t set;CPU_ZERO(&set);CPU_SET(s->cpus[w->id],&set);
  CHECK(sched_setaffinity(0,sizeof(set),&set)==0);CPU_ZERO(&set);CHECK(sched_getaffinity(0,sizeof(set),&set)==0&&CPU_COUNT(&set)==1&&CPU_ISSET(s->cpus[w->id],&set));
  synchronize(s);uint64_t wall=ns(CLOCK_MONOTONIC),cpu=ns(CLOCK_THREAD_CPUTIME_ID);w->hash=1;
  for(unsigned repetition=0;repetition<64;repetition++){
@@ -51,16 +51,16 @@ static void *worker(void *argument){
  return NULL;
 }
 int main(void){
- Shared s={0};cpu_set_t allowed;CPU_ZERO(&allowed);
+ struct tq_shared s={0};cpu_set_t allowed;CPU_ZERO(&allowed);
  if(sched_getaffinity(0,sizeof(allowed),&allowed)!=0){puts("RP_NATIVE_ENV:affinity-mask-unavailable");return 77;}
  unsigned found=0;for(unsigned c=0;c<CPU_SETSIZE&&found<2;c++)if(CPU_ISSET(c,&allowed))s.cpus[found++]=(int)c;
  if(found<2){puts("RP_NATIVE_ENV:two-allowed-CPUs-required");return 77;}
  for(unsigned i=0;i<4;i++){
-  unsigned cost=i<2?4:6;s.tasks[i]=(RPTask){.job={.period=10,.deadline=10,.cost=cost},.cost={cost,cost,0,0},.affinity=3};
+  unsigned cost=i<2?4:6;s.tasks[i]=(struct rp_task){.job={.period=10,.deadline=10,.cost=cost},.cost={cost,cost,0,0},.affinity=3};
  }
  CHECK(rp_fit(s.tasks,4,2,10,0,&s.plan)==RP_OK&&rp_lease_init(&s.lease,0)==RP_OK);
  CHECK(pthread_mutex_init(&s.mutex,NULL)==0&&pthread_barrier_init(&s.barrier,NULL,2)==0);
- Worker w[2]={{.shared=&s,.id=0},{.shared=&s,.id=1}};pthread_t threads[2];
+ struct tq_worker w[2]={{.shared=&s,.id=0},{.shared=&s,.id=1}};pthread_t threads[2];
  CHECK(pthread_create(&threads[0],NULL,worker,&w[0])==0&&pthread_create(&threads[1],NULL,worker,&w[1])==0);
  CHECK(pthread_join(threads[0],NULL)==0&&pthread_join(threads[1],NULL)==0);
  CHECK(w[0].count==640&&w[1].count==640&&w[0].hash==work(1,640000)&&w[1].hash==w[0].hash&&w[0].samples==128&&w[1].samples==128);

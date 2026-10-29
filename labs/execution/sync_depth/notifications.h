@@ -3,32 +3,32 @@
 #include "cmx.h"
 enum { CDN_IDLE, CDN_PENDING, CDN_DONE };
 enum { CDN_STALE = CMX_UNIMPLEMENTED + 1, CDN_FAULT_PENDING, CDN_RETIRED };
-typedef struct {
+struct cdn_fault {
   uint64_t sequence;
   uint32_t count;
   int reason;
-} CDNFault;
-typedef struct {
+};
+struct cd_notify {
   cmx_kernel *kernel;
   unsigned task, generation, maximum, attached, seen, closed;
   unsigned phase;
   uint32_t requested, claimed;
   int result;
   uint64_t accepted, consumed, cancelled, rejected, fault_sequence;
-  CDNFault fault;
+  struct cdn_fault fault;
   unsigned fault_pending;
-} CDNotify;
-typedef struct { CDNotify *owner; unsigned generation; } CDNHandle;
-typedef struct { unsigned woke, defer_schedule, object_probes; } CDNPost;
-void cdn_init(CDNotify *, cmx_kernel *);
-int cdn_attach(CDNotify *, unsigned task, unsigned maximum, CDNHandle *);
-int cdn_post(CDNHandle, uint32_t count, CDNPost *);
-int cdn_wait(CDNHandle, uint32_t up_to, cmx_deadline);
-int cdn_result(CDNHandle, uint32_t *count);
-int cdn_cancel(CDNHandle);
-int cdn_close(CDNHandle);
-int cdn_detach(CDNHandle);
-int cdn_fault(CDNHandle, CDNFault *);
-int cdn_ack_fault(CDNHandle, uint64_t sequence);
-int cdn_invariant(const CDNotify *);
+};
+struct cdn_handle { struct cd_notify *owner; unsigned generation; };
+struct cdn_post { unsigned woke, defer_schedule, object_probes; };
+void cdn_init(struct cd_notify *, cmx_kernel *);
+int cdn_attach(struct cd_notify *, unsigned task, unsigned maximum, struct cdn_handle *);
+int cdn_post(struct cdn_handle, uint32_t count, struct cdn_post *);
+int cdn_wait(struct cdn_handle, uint32_t up_to, cmx_deadline);
+int cdn_result(struct cdn_handle, uint32_t *count);
+int cdn_cancel(struct cdn_handle);
+int cdn_close(struct cdn_handle);
+int cdn_detach(struct cdn_handle);
+int cdn_fault(struct cdn_handle, struct cdn_fault *);
+int cdn_ack_fault(struct cdn_handle, uint64_t sequence);
+int cdn_invariant(const struct cd_notify *);
 #endif

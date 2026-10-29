@@ -11,19 +11,19 @@ _Static_assert(UINT_MAX>=UINT32_MAX,"selected unsigned width at least32");
 #define TS_GEN_MAX (UINT_MAX/4u)
 #endif
 _Static_assert(TS_GEN_MAX > 0 && TS_GEN_MAX <= UINT_MAX/4u,"generation extent");
-typedef enum {TS_OK,TS_EMPTY,TS_FULL,TS_RETRY,TS_INVALID,TS_UNSUPPORTED} TsStatus;
-typedef struct {atomic_uint state; unsigned next; uint32_t value;} TsNode;
-typedef struct {atomic_uint head,hazard[TS_THREADS];TsNode node[TS_NODES];unsigned capacity;} TsStack;
+enum ts_status {TS_OK,TS_EMPTY,TS_FULL,TS_RETRY,TS_INVALID,TS_UNSUPPORTED};
+struct ts_node {atomic_uint state; unsigned next; uint32_t value;};
+struct ts_stack {atomic_uint head,hazard[TS_THREADS];struct ts_node node[TS_NODES];unsigned capacity;};
 /* Caller-owned, noncopied live authority; see CONTRACTS.md. */
-typedef struct {TsStack *owner;unsigned participant,node,next;uint32_t value;} TsPop;
-typedef struct {TsStack *owner;unsigned node,state;} TsRetired;
-TsStatus ts_init(TsStack *,unsigned capacity);
-TsStatus ts_push(TsStack *,uint32_t);
-TsStatus ts_begin(TsStack *,unsigned participant,TsPop *fresh);
-TsStatus ts_commit(TsPop *,uint32_t *out);
-TsStatus ts_cancel(TsPop *);
-TsStatus ts_pop(TsStack *,unsigned participant,uint32_t *out);
-TsStatus ts_scan(TsStack *,unsigned node,TsRetired *fresh);
-TsStatus ts_reclaim(TsRetired *);
-unsigned ts_collect(TsStack *);
+struct ts_pop {struct ts_stack *owner;unsigned participant,node,next;uint32_t value;};
+struct ts_retired {struct ts_stack *owner;unsigned node,state;};
+enum ts_status ts_init(struct ts_stack *,unsigned capacity);
+enum ts_status ts_push(struct ts_stack *,uint32_t);
+enum ts_status ts_begin(struct ts_stack *,unsigned participant,struct ts_pop *fresh);
+enum ts_status ts_commit(struct ts_pop *,uint32_t *out);
+enum ts_status ts_cancel(struct ts_pop *);
+enum ts_status ts_pop(struct ts_stack *,unsigned participant,uint32_t *out);
+enum ts_status ts_scan(struct ts_stack *,unsigned node,struct ts_retired *fresh);
+enum ts_status ts_reclaim(struct ts_retired *);
+unsigned ts_collect(struct ts_stack *);
 #endif

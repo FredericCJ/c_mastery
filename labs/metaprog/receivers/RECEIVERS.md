@@ -51,7 +51,7 @@ the callback, hence no promised rollback of its effects.
 
 ## Distinct device command contracts
 
-`MpvRW{word,writable}` supports `mpv_update(view,clear,set)`. Reject any
+`struct mpv_rw{word,writable}` supports `mpv_update(view,clear,set)`. Reject any
 requested clear/set bit outside writable before reading. On success perform
 one read and one store of `(old & ~clear) | set`; set wins overlapping bits.
 Unselected bits are preserved. This API applies only to an externally
@@ -59,7 +59,7 @@ serialized ordinary read/write register whose contract permits that access
 sequence and preserved-bit value. It is not atomic against an interrupt,
 other core or peripheral modification.
 
-`MpvW1C{word,allowed}` instead supports `mpv_ack(view,flags)`: reject flags
+`struct mpv_w1_c{word,allowed}` instead supports `mpv_ack(view,flags)`: reject flags
 outside allowed before access, then store flags once without reading.
 W1C means write-one-to-clear in the proposed device contract. The hosted test
 stores into a synthetic volatile C word and observes the command value; it

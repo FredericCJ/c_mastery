@@ -11,8 +11,8 @@ int dp_predict(unsigned c,unsigned *out) {
   if ((r&DP_EDGE) && (c&DP_TRIGGER)) r|=DP_CAPTURED;
   *out=r;return DP_OK;
 }
-int dp_correlate(const DpCalibration *c,uint64_t tick,uint64_t begin,uint64_t end,DpCorrelation *out) {
-  uint64_t d,center; DpCorrelation r;
+int dp_correlate(const struct dp_calibration *c,uint64_t tick,uint64_t begin,uint64_t end,struct dp_correlation *out) {
+  uint64_t d,center; struct dp_correlation r;
   if (!c||!out||!c->ns_per_tick||c->provenance>DP_MEASURED||begin>end||tick<c->anchor_tick) return DP_INVALID;
   d=tick-c->anchor_tick;
   if (d>UINT64_MAX/c->ns_per_tick) return DP_RANGE;
@@ -33,8 +33,8 @@ int dp_spi_end(unsigned mode,unsigned txe,unsigned busy,unsigned received,unsign
   if (!seen||!txe) return DP_WAIT;
   return !busy||elapsed>=bound?DP_OK:DP_WAIT;
 }
-int dp_progress(unsigned n,uint64_t halted,unsigned frozen,unsigned budget,unsigned bytes,DpProgress *out) {
-  DpProgress r={0};unsigned remaining=bytes,wd=budget;
+int dp_progress(unsigned n,uint64_t halted,unsigned frozen,unsigned budget,unsigned bytes,struct dp_progress *out) {
+  struct dp_progress r={0};unsigned remaining=bytes,wd=budget;
   if (!out||!n||n>64||frozen>1||!budget||budget>64||!bytes||bytes>32) return DP_INVALID;
   for (unsigned i=0;i<n;i++) {
     unsigned stop=(unsigned)((halted>>i)&1u);

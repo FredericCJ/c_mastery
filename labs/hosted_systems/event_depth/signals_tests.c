@@ -10,12 +10,12 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
+struct rd_script {
   unsigned call;
   int error;
-} Script;
+};
 static int now(void *arg, struct timespec *t) {
-  Script *s = arg;
+  struct rd_script *s = arg;
   static const long ticks[] = {0, 400000000, 800000000, 1000000000};
   if (s->call > 3) {
     s->error = 1;
@@ -27,7 +27,7 @@ static int now(void *arg, struct timespec *t) {
   return 0;
 }
 static int wait_step(void *arg, const struct timespec *t) {
-  Script *s = arg;
+  struct rd_script *s = arg;
   static const long nanos[] = {1000000000, 600000000, 200000000};
   if (s->call >= 3 || t->tv_sec * 1000000000 + t->tv_nsec != nanos[s->call])
     s->error = 1;
@@ -40,7 +40,7 @@ int main(void) {
   for (unsigned length = 0; length <= 8; ++length) {
     for (unsigned encoded = 0; encoded < power; ++encoded) {
       unsigned word = encoded, model[2] = {0}, used = 0;
-      EsCounted q = {0};
+      struct es_counted q = {0};
       for (unsigned i = 0; i < length; ++i) {
         unsigned op = word % 3;
         word /= 3;
@@ -79,11 +79,11 @@ int main(void) {
       CHECK(r.tv_sec * 1000 + r.tv_nsec / 1000000 == expected);
       ++cases;
     }
-  Script s = {0, 0};
-  CHECK(es_wait_until((EsWait){now, wait_step, &s}, (struct timespec){1, 0}) ==
+  struct rd_script s = {0, 0};
+  CHECK(es_wait_until((struct es_wait){now, wait_step, &s}, (struct timespec){1, 0}) ==
         0);
   CHECK(!s.error && s.call == 3);
-  EsSignals port = {0};
+  struct es_signals port = {0};
   sigset_t before, after;
   CHECK(pthread_sigmask(SIG_SETMASK, 0, &before) == 0);
   CHECK(es_open(&port) == 0);

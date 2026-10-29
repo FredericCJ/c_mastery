@@ -1,5 +1,5 @@
 #include "target.h"
-int pl_f439_open(PlUart *u, const PuClock *c, uint32_t b, unsigned k,
+int pl_f439_open(struct pl_uart *u, const struct pu_clock *c, uint32_t b, unsigned k,
                  unsigned p) {
   (void)u;
   (void)c;
@@ -8,7 +8,7 @@ int pl_f439_open(PlUart *u, const PuClock *c, uint32_t b, unsigned k,
   (void)p;
   return PL_UNIMPLEMENTED;
 }
-PlTransport pl_f439_transport(PlUart *u) {
+struct pl_transport pl_f439_transport(struct pl_uart *u) {
   (void)u;
-  return (PlTransport){0};
+  return (struct pl_transport){0};
 }

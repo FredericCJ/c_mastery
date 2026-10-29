@@ -19,11 +19,11 @@ allocation, system privileges, external targets or hardware are involved.
 
 ## Representation and operations
 
-`LpRecord` contains an `int key` and an `unsigned serial`; serial identifies
-the original occurrence and must travel with its key. `LpOrder.reverse` is
+`struct lp_record` contains an `int key` and an `unsigned serial`; serial identifies
+the original occurrence and must travel with its key. `struct lp_order.reverse` is
 exactly 0 or 1. Every pointer passed to a comparator refers to a live aligned
-actual `LpRecord`, not an arbitrary byte encoding. The context comparator
-borrows a live `LpOrder` for the call. Callers serialize mutation, keep records
+actual `struct lp_record`, not an arbitrary byte encoding. The context comparator
+borrows a live `struct lp_order` for the call. Callers serialize mutation, keep records
 and context alive and unchanged during a comparison, and do not reenter the
 sort. The sort copies the order before moving records, retaining no pointer.
 

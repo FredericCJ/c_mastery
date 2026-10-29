@@ -1,15 +1,15 @@
 #include "port.h"
 /* Fixture admission/ownership oracle. All shared accesses are in the same
  * saved-PRIMASK domain, including UART and SysTick producers. */
-typedef struct { uint32_t id,value,lease; } Sample;
-typedef struct { Sample row[4];unsigned head,count; } Samples;
-static Samples input,output;
+struct mf_sample { uint32_t id,value,lease; };
+struct mf_samples { struct mf_sample row[4];unsigned head,count; };
+static struct mf_samples input,output;
 static uint32_t pool[4],generation[4];
 static unsigned owner[4],state[128],attempted,accepted,rejected,processed,delivered,output_drop;
 static unsigned logs[2],log_count,log_drop,recovery_done,replacement_done,max_isr_batch;
 static uint32_t received_checksum,expected_checksum,computed,consumed,dropped_sum,values[128];
 static uint32_t stacks[5][768] __attribute__((aligned(8)));
-static MfHandle handles[5],old_fault;
+static mf_handle_id handles[5],old_fault;
 static volatile uint32_t hog_iterations;
 static void log_event(unsigned value){if(log_count<2)logs[log_count++]=value;else log_drop++;}
 static void publish(unsigned value){unsigned id=attempted++;mf_require(id<128,230);values[id]=value;
@@ -17,7 +17,7 @@ static void publish(unsigned value){unsigned id=attempted++;mf_require(id<128,23
  unsigned slot=0;while(slot<4&&owner[slot])slot++;
  if(slot==4){state[id]=2;rejected++;log_event(1);return;}
  pool[slot]=value;owner[slot]=1;
- Sample s={id,value,(generation[slot]<<3)|(slot+1u)};
+ struct mf_sample s={id,value,(generation[slot]<<3)|(slot+1u)};
 #ifdef MF_BORROWED
  s.value=0; /* Stable pool lease replaces copied data; producer cannot reuse. */
 #endif
@@ -36,7 +36,7 @@ void UART0_Handler(void){unsigned p=mf_lock(),n=0;MF_REG(0x4000400c)=2;
  mf_unlock(p);
 }
 static void processor(void){for(;;){unsigned p=mf_lock();if(!input.count){mf_unlock(p);continue;}
- Sample s=input.row[input.head];input.head=(input.head+1u)%4;input.count--;
+ struct mf_sample s=input.row[input.head];input.head=(input.head+1u)%4;input.count--;
  unsigned slot=(s.lease&7u)-1u;mf_require(slot<4&&owner[slot]&&generation[slot]==s.lease>>3,232);
 #ifdef MF_BORROWED
  unsigned value=pool[slot];
@@ -52,7 +52,7 @@ static void processor(void){for(;;){unsigned p=mf_lock();if(!input.count){mf_unl
  mf_unlock(p);
  }}
 static void sink(void){for(;;){if(mf_ticks<18)continue;unsigned p=mf_lock();
- if(output.count){Sample s=output.row[output.head];output.head=(output.head+1u)%4;output.count--;consumed+=s.value;state[s.id]=5;delivered++;}
+ if(output.count){struct mf_sample s=output.row[output.head];output.head=(output.head+1u)%4;output.count--;consumed+=s.value;state[s.id]=5;delivered++;}
  /* Bounded diagnostic consumer starts after the recovery pressure window. */
  if(log_count){mf_require(logs[0]>0,235);logs[0]=logs[1];log_count--;}
  mf_unlock(p);}}

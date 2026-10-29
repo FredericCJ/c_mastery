@@ -8,14 +8,14 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
+struct edu_model {
   uint8_t memory[4096], last[6];
   size_t n;
   unsigned transfers, resets, mode_stuck, fail;
   uint64_t now;
-} Model;
+};
 static int transfer(void *v, const uint8_t *tx, uint8_t *rx, size_t n) {
-  Model *m = v;
+  struct edu_model *m = v;
   m->transfers++;
   m->n = n;
   memcpy(m->last, tx, n);
@@ -41,10 +41,10 @@ static int transfer(void *v, const uint8_t *tx, uint8_t *rx, size_t n) {
     return -1;
   return 0;
 }
-static uint64_t clock_ms(void *v) { return ((Model *)v)->now++; }
+static uint64_t clock_ms(void *v) { return ((struct edu_model *)v)->now++; }
 static int spi(void) {
-  Model m = {0};
-  McpBus b = {&m, transfer, clock_ms};
+  struct edu_model m = {0};
+  struct mcp_bus b = {&m, transfer, clock_ms};
   CHECK(!mcp_write32(&b, 0x123, 0xdeadbeef));
   CHECK(m.last[0] == 0x21 && m.last[1] == 0x23 && m.last[2] == 0xef &&
         m.last[5] == 0xde);
@@ -67,7 +67,7 @@ static int spi(void) {
 }
 static void barrier(void *v) { (*(unsigned *)v)++; }
 static int dma(void) {
-  DmaSlot s = {0};
+  struct dma_slot s = {0};
   uint8_t p[64] = {0};
   unsigned barriers = 0;
   CHECK(!dma_tx_prepare(&s, p, 64));

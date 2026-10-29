@@ -44,7 +44,7 @@ executable PSP stacks. This is not an actual RTOS port or an SMP lock.
 
 ## 5. Inputs, operations and concrete experiment
 
-Implement the unsolved `ceiling.c` under `ceiling.h`. `SCConfig` gives unique
+Implement the unsolved `ceiling.c` under `ceiling.h`. `struct sc_config` gives unique
 base priorities0..255, a nonempty bitset of declared users per resource, the
 exact ceiling (minimum numeric priority among those users), and whether
 releases must be strictly nested. Reject absent users, out-of-range masks,
@@ -54,7 +54,7 @@ no old reference survives a later destruction/reinitialization. The complete
 configuration is frozen. `sc_set_base` accepts an identical value but rejects
 an actual change; rebuilding a new quiescent configuration is a separate step.
 
-`SCWorld` owns the CMX kernel/mutex records and declared-user bookkeeping.
+`struct sc_world` owns the CMX kernel/mutex records and declared-user bookkeeping.
 Its address remains fixed; copying it after initialization is forbidden.
 `sc_init` stages initialization and rebases the core's registered mutex
 pointers when publishing. Validate source imports: an unsolved CMX must fail

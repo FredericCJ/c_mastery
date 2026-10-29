@@ -1,6 +1,6 @@
 # Buffered select with explicit waiter registration
 
-This required X-T73-002 comparison implements the buffered subset of `MsgHub`
+This required X-T73-002 comparison implements the buffered subset of `struct msg_hub`
 from mutexes, condition variables and fixed arrays in `src/registration_follow.c`.
 It is a distinct algorithm, not a call through to `msg_select`. The original
 channel exercise remains responsible for rendezvous and blocking sends.

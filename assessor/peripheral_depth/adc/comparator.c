@@ -9,7 +9,7 @@ volatile uint32_t *pa_test_register(uint32_t);
 _Static_assert(sizeof(uintptr_t) == 4, "G474 pointer width");
 #define REG(a) (*(volatile uint32_t *)(uintptr_t)(a))
 #endif
-int pa_g474_comp_open(PaComparator *s, unsigned hysteresis) {
+int pa_g474_comp_open(struct pa_comparator *s, unsigned hysteresis) {
   if (!s || hysteresis > 7)
     return PA_INVALID;
   if (s->phase)
@@ -30,7 +30,7 @@ int pa_g474_comp_open(PaComparator *s, unsigned hysteresis) {
   s->warm_sampled = 0;
   return PA_OK;
 }
-int pa_g474_comp_poll(PaComparator *s, uint32_t now, unsigned *level) {
+int pa_g474_comp_poll(struct pa_comparator *s, uint32_t now, unsigned *level) {
   if (!s || !level)
     return PA_INVALID;
   if (!s->phase)
@@ -50,7 +50,7 @@ int pa_g474_comp_poll(PaComparator *s, uint32_t now, unsigned *level) {
   s->phase = 2;
   return PA_OK;
 }
-int pa_g474_comp_close(PaComparator *s) {
+int pa_g474_comp_close(struct pa_comparator *s) {
   if (!s)
     return PA_INVALID;
   if (REG(0x40010200u) & UINT32_C(0x80000000))

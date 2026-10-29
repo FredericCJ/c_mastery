@@ -58,7 +58,7 @@ static int range_case(void) {
   int32_t out = 77;
   CHECK(bf_parse_radix(huge, 1000, 10, &out) == B2_RANGE && out == 77);
   CHECK(bf_parse_radix(huge, 1001, 10, &out) == B2_INVALID && out == 77);
-  BfParse s = {0};
+  struct bf_parse s = {0};
   CHECK(bf_parse_reset(&s, 10) == B2_OK);
   CHECK(bf_parse_feed(&s, huge, 1000) == B2_OK);
   CHECK(bf_parse_feed(&s, huge + 1000, 1) == B2_OK);
@@ -67,7 +67,7 @@ static int range_case(void) {
   return 0;
 }
 static int lifecycle(void) {
-  BfParse s = {0};
+  struct bf_parse s = {0};
   int32_t out = 77;
   CHECK(bf_parse_reset(&s, 10) == B2_OK);
   CHECK(bf_parse_feed(&s, (const unsigned char *)"x", 1) == B2_OK);
@@ -142,7 +142,7 @@ static int oracle(void) {
         rb = bf_parse_radix(bytes, n, base, &b);
     errno = ERANGE;
     int rc = bf_parse_libc(bytes, n, base, &c);
-    BfParse s = {0};
+    struct bf_parse s = {0};
     CHECK(bf_parse_reset(&s, base) == B2_OK);
     if (split > n) {
       for (size_t i = 0; i < n; i++)

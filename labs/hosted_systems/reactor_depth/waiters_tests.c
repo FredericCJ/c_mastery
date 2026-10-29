@@ -12,14 +12,14 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
-  RdPort *port;
+struct rd_attempt {
+  struct rd_port *port;
   unsigned producer;
-  RdWait outcome;
+  struct rd_wait outcome;
   struct timespec end;
   int result;
   pthread_barrier_t *gate;
-} Attempt;
+};
 static struct timespec deadline(int seconds) {
   struct timespec t;
   if (clock_gettime(CLOCK_MONOTONIC, &t))
@@ -28,22 +28,22 @@ static struct timespec deadline(int seconds) {
   return t;
 }
 static void *waiter(void *ctx) {
-  Attempt *a = ctx;
+  struct rd_attempt *a = ctx;
   if (a->gate)
     pthread_barrier_wait(a->gate);
   a->result = rd_port_wait(a->port, a->producer, &a->outcome, &a->end);
   return 0;
 }
 static void *stopper(void *ctx) {
-  Attempt *a = ctx;
+  struct rd_attempt *a = ctx;
   pthread_barrier_wait(a->gate);
   a->result = rd_port_stop(a->port);
   return 0;
 }
 static int blocked(unsigned producer, unsigned peer) {
-  RdPort p;
+  struct rd_port p;
   CHECK(!rd_port_init(&p, producer, 7));
-  Attempt a = {.port = &p,
+  struct rd_attempt a = {.port = &p,
                .producer = producer,
                .outcome = {.value = 9},
                .end = deadline(3)};
@@ -67,9 +67,9 @@ static int blocked(unsigned producer, unsigned peer) {
   return 0;
 }
 static int spurious(void) {
-  RdPort p;
+  struct rd_port p;
   CHECK(!rd_port_init(&p, 0, 7));
-  Attempt a = {.port = &p, .end = deadline(3)};
+  struct rd_attempt a = {.port = &p, .end = deadline(3)};
   pthread_t t;
   CHECK(!pthread_create(&t, 0, waiter, &a));
   struct timespec guard = deadline(3);
@@ -80,7 +80,7 @@ static int spurious(void) {
   CHECK(!pthread_mutex_lock(&p.mutex));
   CHECK(a.outcome.result == RD_WAIT_PENDING && p.waiters == 1 && !p.queued);
   CHECK(!pthread_mutex_unlock(&p.mutex));
-  RdWait send = {.value = 42};
+  struct rd_wait send = {.value = 42};
   CHECK(!rd_port_wait(&p, 1, &send, &guard) && send.result == RD_WAIT_SUCCESS);
   CHECK(!pthread_join(t, 0) && !a.result &&
         a.outcome.result == RD_WAIT_SUCCESS && a.outcome.value == 42 &&
@@ -90,11 +90,11 @@ static int spurious(void) {
 static int races(unsigned *stops, unsigned *timeouts) {
   *stops = *timeouts = 0;
   for (unsigned i = 0; i < 200; ++i) {
-    RdPort p;
+    struct rd_port p;
     CHECK(!rd_port_init(&p, 0, 0));
     pthread_barrier_t gate;
     CHECK(!pthread_barrier_init(&gate, 0, 3));
-    Attempt a = {.port = &p, .end = deadline(-1), .gate = &gate},
+    struct rd_attempt a = {.port = &p, .end = deadline(-1), .gate = &gate},
             b = {.port = &p, .gate = &gate};
     pthread_t t, u;
     CHECK(!pthread_create(&t, 0, waiter, &a) &&
@@ -107,14 +107,14 @@ static int races(unsigned *stops, unsigned *timeouts) {
       ++*stops;
     else
       ++*timeouts;
-    enum RdWaitResult winner = a.outcome.result;
+    enum rd_wait_result winner = a.outcome.result;
     CHECK(!rd_port_stop(&p) && a.outcome.result == winner && p.waiters == 0 &&
           !p.queued && !pthread_barrier_destroy(&gate) && !rd_port_destroy(&p));
   }
   /* Force the timeout-first history separately; race scheduling need not
    * produce both outcomes in any finite run. */
-  RdPort p;
-  RdWait w = {0};
+  struct rd_port p;
+  struct rd_wait w = {0};
   struct timespec past = deadline(-1);
   CHECK(!rd_port_init(&p, 0, 0) && !rd_port_wait(&p, 0, &w, &past) &&
         w.result == RD_WAIT_TIMEOUT && !rd_port_stop(&p) &&

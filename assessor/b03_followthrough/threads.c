@@ -6,8 +6,8 @@
 #ifndef COUNT
 #define COUNT 10000
 #endif
-static B3Mailbox old;
-static BfBox box;
+static struct b3_mailbox old;
+static struct bf_box box;
 static atomic_uint failed;
 static void problem(void){atomic_store(&failed,1);}
 static int retry(unsigned *n){(*n)++;if(*n>100000000u||atomic_load(&failed)){problem();return 0;}if(!(*n%128))sched_yield();return 1;}

@@ -1,8 +1,8 @@
 #include "cmk_abi.h"
 #include "cvm.h"
-static Cvm machine;
-static CvmProgram program;
-static CvmValue result;
+static struct cvm_cvm machine;
+static struct cvm_program program;
+static struct cvm_value result;
 void *memcpy(void *d, const void *s, size_t n) {
   unsigned char *p = d;
   const unsigned char *q = s;

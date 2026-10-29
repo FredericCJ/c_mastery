@@ -2,7 +2,7 @@
 extern uint32_t cl_stack_top, cl_data_start, cl_data_end, cl_data_load,
     cl_bss_start, cl_bss_end;
 static cmx_kernel kernel;
-static CDMailbox mailbox;
+static struct cd_mailbox mailbox;
 static void semihost(uint32_t op, const void *arg) {
   register uint32_t r0 __asm__("r0") = op;
   register const void *r1 __asm__("r1") = arg;
@@ -30,8 +30,8 @@ static void exercise(void) {
   CHECK(cdmb_init(&mailbox, &kernel, 0, 1) == CMX_OK);
   unsigned char input[4] = {11, 0, 0, 0}, reply[4] = {22, 0, 0, 0},
                 out[4] = {99, 99, 99, 99};
-  CDMBIdentity first, second;
-  CDMBRequest request;
+  struct cdmb_identity first, second;
+  struct cdmb_request request;
   uint32_t value = 777;
   CHECK(cdmb_begin(&mailbox, 0, input, cmx_forever(), &first) == CMX_BLOCKED);
   CHECK(cdmb_delivery(&mailbox, 0) == CMX_BLOCKED);
@@ -48,7 +48,7 @@ static void exercise(void) {
   CHECK(cdmb_poll(&mailbox, 0, out, 4) == CMX_OK && out[0] == 22);
   mailbox.client[0].generation = CDMB_GENERATION_MAX;
   CHECK(cdmb_begin(&mailbox, 0, input, cmx_forever(), &second) == CMX_FULL);
-  CDMBIdentity effect = {1, 10, 0};
+  struct cdmb_identity effect = {1, 10, 0};
   CHECK(cdmb_effect(&mailbox, effect, 1, &value) == CMX_OK && value == 1 &&
         mailbox.receipts[0].value == 1);
   CHECK(cdmb_acknowledge(&mailbox, effect) == CMX_OK);

@@ -20,16 +20,16 @@ static int file(char name[64]){strcpy(name,"./pm-owned-XXXXXX");int f=mkostemp(n
 static int wait_child(pid_t p){int s;pid_t got;do{got=waitpid(p,&s,0);}while(got<0&&errno==EINTR);return got==p?s:-1;}
 static int views(void){
  long page=sysconf(_SC_PAGESIZE);CHECK(page>0);char name[64];int fd=file(name);CHECK(fd>=0);CHECK(ftruncate(fd,2*page)==0);CHECK(pwrite(fd,"abcdef",6,0)==6);
- PMMap map={0};CHECK(pm_map(fd,0,(size_t)page,6,&map)==0);int closed=close(fd);CHECK(closed==0);
- char out[8]={0};CHECK(pm_copy(&map,(PMBorrow){0,6,map.generation},out,sizeof out)==0&&memcmp(out,"abcdef",6)==0);
- memset(out,0xa5,sizeof out);CHECK(pm_copy(&map,(PMBorrow){6,1,map.generation},out,sizeof out)==ERANGE&&out[0]==(char)0xa5);
- CHECK(pm_copy(&map,(PMBorrow){SIZE_MAX,1,map.generation},out,sizeof out)==ERANGE);
- CHECK(pm_copy(&map,(PMBorrow){6,0,map.generation},NULL,0)==0);
- fd=open(name,O_RDWR|O_CLOEXEC);CHECK(fd>=0);PMBorrow old={0,1,map.generation};uintptr_t address=(uintptr_t)map.base;
+ struct pm_map map={0};CHECK(pm_map(fd,0,(size_t)page,6,&map)==0);int closed=close(fd);CHECK(closed==0);
+ char out[8]={0};CHECK(pm_copy(&map,(struct pm_borrow){0,6,map.generation},out,sizeof out)==0&&memcmp(out,"abcdef",6)==0);
+ memset(out,0xa5,sizeof out);CHECK(pm_copy(&map,(struct pm_borrow){6,1,map.generation},out,sizeof out)==ERANGE&&out[0]==(char)0xa5);
+ CHECK(pm_copy(&map,(struct pm_borrow){SIZE_MAX,1,map.generation},out,sizeof out)==ERANGE);
+ CHECK(pm_copy(&map,(struct pm_borrow){6,0,map.generation},NULL,0)==0);
+ fd=open(name,O_RDWR|O_CLOEXEC);CHECK(fd>=0);struct pm_borrow old={0,1,map.generation};uintptr_t address=(uintptr_t)map.base;
  CHECK(pm_remap(&map,fd,(size_t)(2*page),6)==0);CHECK((uintptr_t)map.base!=address);CHECK(pm_copy(&map,old,out,sizeof out)==ESTALE);
- CHECK(pm_copy(&map,(PMBorrow){0,1,map.generation},out,sizeof out)==0&&out[0]=='a');
+ CHECK(pm_copy(&map,(struct pm_borrow){0,1,map.generation},out,sizeof out)==0&&out[0]=='a');
  uint64_t saved=map.generation;map.generation=UINT64_MAX;CHECK(pm_remap(&map,fd,(size_t)page,6)==EOVERFLOW&&map.generation==UINT64_MAX);map.generation=saved;
- PMMap sentinel=map;CHECK(pm_map(fd,0,0,0,&map)==EINVAL&&map.base==sentinel.base);CHECK(pm_map(fd,1,16,1,&map)==EINVAL&&map.base==sentinel.base);
+ struct pm_map sentinel=map;CHECK(pm_map(fd,0,0,0,&map)==EINVAL&&map.base==sentinel.base);CHECK(pm_map(fd,1,16,1,&map)==EINVAL&&map.base==sentinel.base);
  CHECK(pm_map(fd,0,(size_t)page,(size_t)(2*page),&map)==EINVAL);CHECK(pm_map(fd,0,(size_t)(16*page),SIZE_MAX,&map)==EINVAL);
  char other[64];int wrong=file(other);CHECK(wrong>=0&&ftruncate(wrong,2*page)==0);CHECK(pm_remap(&map,wrong,(size_t)page,6)==EXDEV);CHECK(map.generation==sentinel.generation);
  CHECK(close(wrong)==0&&unlink(other)==0);CHECK(pm_unmap(&map)==0&&!map.active&&pm_unmap(&map)==0);CHECK(close(fd)==0&&unlink(name)==0);
@@ -37,7 +37,7 @@ static int views(void){
 }
 static int codec(void){
  for(unsigned endian=1;endian<=2;++endian)for(unsigned n=0;n<=64;++n){
-  PMRecord input={UINT64_C(0x0102030405060708),n,{0}},out={0};for(unsigned i=0;i<n;++i)input.payload[i]=(unsigned char)(i*7);
+  struct pm_record input={UINT64_C(0x0102030405060708),n,{0}},out={0};for(unsigned i=0;i<n;++i)input.payload[i]=(unsigned char)(i*7);
   unsigned char a[128],b[128];CHECK(pm_encode(a,&input,endian)==0);memcpy(b,a,128);CHECK(pm_decode(b,128,&out)==0);
   CHECK(out.session==input.session&&out.length==input.length&&memcmp(out.payload,input.payload,n)==0);
   /* Independent expected byte order, no native scalar alias. */
@@ -52,15 +52,15 @@ static int codec(void){
  }
  return 0;
 }
-typedef struct {unsigned wanted;int ready,release;} Cut;
-static void stop_at(unsigned stage,void *context){Cut *cut=context;if(stage==cut->wanted){char byte=(char)stage;if(write(cut->ready,&byte,1)!=1)_exit(120);if(read(cut->release,&byte,1)!=1)_exit(121);}}
+struct pt_cut {unsigned wanted;int ready,release;};
+static void stop_at(unsigned stage,void *context){struct pt_cut *cut=context;if(stage==cut->wanted){char byte=(char)stage;if(write(cut->ready,&byte,1)!=1)_exit(120);if(read(cut->release,&byte,1)!=1)_exit(121);}}
 static int publication(const char *self){
  for(unsigned cut=1;cut<=3;++cut){
   char name[64];int fd=file(name);CHECK(fd>=0);int ready[2],release[2];CHECK(pipe2(ready,O_CLOEXEC)==0&&pipe2(release,O_CLOEXEC)==0);
   pid_t child=fork();CHECK(child>=0);
-  if(child==0){close(ready[0]);close(release[1]);Cut state={cut,ready[1],release[0]};int e=pm_publish(fd,42,"abc",3,stop_at,&state);_exit(e?122:0);}
+  if(child==0){close(ready[0]);close(release[1]);struct pt_cut state={cut,ready[1],release[0]};int e=pm_publish(fd,42,"abc",3,stop_at,&state);_exit(e?122:0);}
   close(ready[1]);close(release[0]);char byte;ssize_t observed=read(ready[0],&byte,1);
-  PMRecord record={999,0,{0}};int before=pm_read_record(fd,42,&record);
+  struct pm_record record={999,0,{0}};int before=pm_read_record(fd,42,&record);
   /* Kill only the owned initializer after a confirmed transition. */
   int killed=kill(child,SIGKILL);int status=wait_child(child);close(ready[0]);close(release[1]);
   CHECK(observed==1&&(unsigned char)byte==cut&&killed==0&&WIFSIGNALED(status)&&WTERMSIG(status)==SIGKILL);
@@ -79,7 +79,7 @@ static int publication(const char *self){
  for(unsigned i=0;i<2;++i){children[i]=fork();CHECK(children[i]>=0);if(children[i]==0){close(gate[1]);char token;if(read(gate[0],&token,1)!=1)_exit(125);close(gate[0]);int e=pm_publish(fd,100,i?"red":"blu",3,NULL,NULL);_exit(e==0?0:e==EEXIST?3:124);}}
  close(gate[0]);CHECK(write(gate[1],"GG",2)==2);close(gate[1]);int a=wait_child(children[0]),b=wait_child(children[1]);
  CHECK(WIFEXITED(a)&&WIFEXITED(b));CHECK((WEXITSTATUS(a)==0&&WEXITSTATUS(b)==3)||(WEXITSTATUS(a)==3&&WEXITSTATUS(b)==0));
- PMRecord out;CHECK(pm_read_record(fd,100,&out)==0&&out.length==3);CHECK(!memcmp(out.payload,"red",3)||!memcmp(out.payload,"blu",3));CHECK(close(fd)==0&&unlink(name)==0);
+ struct pm_record out;CHECK(pm_read_record(fd,100,&out)==0&&out.length==3);CHECK(!memcmp(out.payload,"red",3)||!memcmp(out.payload,"blu",3));CHECK(close(fd)==0&&unlink(name)==0);
  CHECK(waitpid(-1,NULL,WNOHANG)==-1&&errno==ECHILD);return 0;
 }
 static int residency(void){
@@ -125,7 +125,7 @@ static int faults(const char *helper){
 }
 int main(int argc,char **argv){
  if(argc!=3)return 2;
- if(!strcmp(argv[1],"--reader")){int f=open(argv[2],O_RDWR|O_CLOEXEC);CHECK(f>=0);PMRecord r;CHECK(pm_read_record(f,43,&r)==0&&r.length==3&&!memcmp(r.payload,"xyz",3));CHECK(close(f)==0);puts("PLM_PASS unrelated-exec-reader");return 0;}
+ if(!strcmp(argv[1],"--reader")){int f=open(argv[2],O_RDWR|O_CLOEXEC);CHECK(f>=0);struct pm_record r;CHECK(pm_read_record(f,43,&r)==0&&r.length==3&&!memcmp(r.payload,"xyz",3));CHECK(close(f)==0);puts("PLM_PASS unrelated-exec-reader");return 0;}
  int e;if(!strcmp(argv[1],"views"))e=views();else if(!strcmp(argv[1],"codec"))e=codec();else if(!strcmp(argv[1],"publication"))e=publication(argv[0]);else if(!strcmp(argv[1],"residency"))e=residency();else if(!strcmp(argv[1],"sharing"))e=sharing();else if(!strcmp(argv[1],"faults"))e=faults(argv[2]);else return 2;
  if(!e)printf("PLM_PASS %s\n",argv[1]);
  return e;

@@ -10,14 +10,14 @@ author reference executions are not learner artifacts.
 
 Separate generation, the kernel's pending state, acceptance/delivery and the
 application predicate. For a blocked ordinary signal, generating the same signal
-twice does not encode two units of work. Implement `EsCounted`: two slots, a head
+twice does not encode two units of work. Implement `struct es_counted`: two slots, a head
 index and an occupied count. `push` returns 1 on admission, 0 when full and -1 for
 an invalid representation; `pop` returns 0 without changing its output when empty.
 Prove `head<2`, `count<=2`, FIFO order across wrap, and no publication on rejection.
 Both operations use constant space and time, require serialized ordinary code,
 and are not a handler-safe queue.
 
-For the handler port, one single-threaded process owns an `EsSignals` object,
+For the handler port, one single-threaded process owns an `struct es_signals` object,
 two nonblocking close-on-exec pipe descriptors, saved dispositions and a saved
 mask. Initialize the object to zero. The managed set is SIGUSR1 (stop), SIGUSR2
 (a distinct wake condition), and SIGCHLD (child state changed). A second live port

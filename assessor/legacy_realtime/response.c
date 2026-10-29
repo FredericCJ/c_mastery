@@ -26,13 +26,13 @@ enum rta_status rta_ceil_sum(uint64_t a,uint64_t b,uint64_t divisor,uint64_t *ou
   if(rem&&RTA_MUTANT!=1&&!add(whole,1,&whole))return RTA_OVERFLOW;
   *out=whole;return RTA_CONVERGED;
 }
-enum rta_status rta_response(const RTATask *tasks,unsigned count,unsigned target,unsigned limit,RTAResult *out){
+enum rta_status rta_response(const struct rta_task *tasks,unsigned count,unsigned target,unsigned limit,struct rta_result *out){
   if(RTA_MUTANT==6&&out)out->trace[0]=0;
   if(!tasks||!out||!count||count>RTA_TASKS||target>=count||!limit||limit>RTA_STEPS)return RTA_INVALID;
   for(unsigned i=0;i<count;i++)if(!tasks[i].period||!tasks[i].deadline)return RTA_INVALID;
   uint64_t base;
   if(!add(tasks[target].cost,tasks[target].overhead,&base)||!add(base,RTA_MUTANT==2?0:tasks[target].blocking,&base))return RTA_OVERFLOW;
-  RTAResult result={.estimate=base};result.trace[0]=base;
+  struct rta_result result={.estimate=base};result.trace[0]=base;
   if(!base){*out=result;return RTA_CONVERGED;}
   if(base>tasks[target].deadline){*out=result;return RTA_EXCEEDED;}
   for(unsigned iteration=0;iteration<limit;iteration++){

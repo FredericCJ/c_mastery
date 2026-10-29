@@ -3,7 +3,7 @@
 #ifndef AR_MUTANT
 #define AR_MUTANT 0
 #endif
-int ar_supervise(ArSupervisor *s, unsigned event, int (*log)(void *, unsigned),
+int ar_supervise(struct ar_supervisor *s, unsigned event, int (*log)(void *, unsigned),
                  void *ctx) {
   if (!s || !log || event > 2)
     return AR_INVALID;
@@ -27,7 +27,7 @@ int ar_supervise(ArSupervisor *s, unsigned event, int (*log)(void *, unsigned),
     s->mode = 0;
   return AR_OK;
 }
-int ar_recover(ArSupervisor *s, ArRecovery r) {
+int ar_recover(struct ar_supervisor *s, struct ar_recovery r) {
   if (!s || !r.init_a || !r.init_b || !r.drop_a)
     return AR_INVALID;
   if (s->attempts == 2 || s->mode == 0)

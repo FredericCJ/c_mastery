@@ -1,10 +1,10 @@
 #include "mcu.h"
 #include <limits.h>
 
-MfHandle mf_handle(const Mf *m, unsigned slot) {
+mf_handle_id mf_handle(const struct mf_mf *m, unsigned slot) {
   return ((uint64_t)m->kernel.task[slot].generation << 5) | (slot + 1u);
 }
-int mf_lookup(const Mf *m, MfHandle handle) {
+int mf_lookup(const struct mf_mf *m, mf_handle_id handle) {
   unsigned low = (unsigned)(handle & 31u);
   if (!low || low > CMX_TASKS || (handle >> 37)) return -1;
   unsigned slot = low - 1;
@@ -12,9 +12,9 @@ int mf_lookup(const Mf *m, MfHandle handle) {
       (handle >> 5) != m->kernel.task[slot].generation) return -1;
   return (int)slot;
 }
-enum cmx_result mf_add(Mf *m, uint32_t *stack, size_t words, uint32_t entry,
+enum cmx_result mf_add(struct mf_mf *m, uint32_t *stack, size_t words, uint32_t entry,
                         uint32_t return_pc, unsigned priority,
-                        unsigned detached, unsigned budget, MfHandle *out) {
+                        unsigned detached, unsigned budget, mf_handle_id *out) {
   uintptr_t low = (uintptr_t)stack;
   if (!out || !stack || words < 128 || words > UINT32_MAX / 4u ||
       (low & 7u) || words > (UINTPTR_MAX - low) / 4u ||
@@ -41,17 +41,17 @@ enum cmx_result mf_add(Mf *m, uint32_t *stack, size_t words, uint32_t entry,
   *out = mf_handle(m, (unsigned)slot);
   return CMX_OK;
 }
-enum cmx_result mf_init(Mf *m, uint32_t *idle, size_t words, enum cmx_policy p) {
+enum cmx_result mf_init(struct mf_mf *m, uint32_t *idle, size_t words, enum cmx_policy p) {
   if (!m || (p != CMX_RR && p != CMX_FIXED && p != CMX_EDF)) return CMX_INVALID;
   /* Failed initialization leaves the destination unchanged. The admission
    * preflight is shared with mf_add; caller supplies real idle PC at port bind. */
   uintptr_t low=(uintptr_t)idle;
   if (!idle || words < 128 || words > UINT32_MAX/4u || (low&7u) ||
       words > (UINTPTR_MAX-low)/4u) return CMX_INVALID;
-  *m=(Mf){0}; cmx_init(&m->kernel,p); m->executing=-1;
-  MfHandle h=0; return mf_add(m,idle,words,1,1,255,1,2,&h);
+  *m=(struct mf_mf){0}; cmx_init(&m->kernel,p); m->executing=-1;
+  mf_handle_id h=0; return mf_add(m,idle,words,1,1,255,1,2,&h);
 }
-static int schedule(Mf *m,unsigned reverse) {
+static int schedule(struct mf_mf *m,unsigned reverse) {
   if (m->fatal) return -1;
   cmx_kernel *k=&m->kernel;
   if (k->current>=0 && k->task[k->current].state==CMX_RUNNING)
@@ -69,13 +69,13 @@ static int schedule(Mf *m,unsigned reverse) {
   if (best<0) best=0;
   k->current=best; k->task[best].state=CMX_RUNNING; return best;
 }
-int mf_schedule(Mf *m){return schedule(m,0);}
-int mf_schedule_reverse(Mf *m){return schedule(m,1);}
-enum cmx_result mf_exit(Mf *m,MfHandle handle,int result) {
+int mf_schedule(struct mf_mf *m){return schedule(m,0);}
+int mf_schedule_reverse(struct mf_mf *m){return schedule(m,1);}
+enum cmx_result mf_exit(struct mf_mf *m,mf_handle_id handle,int result) {
   int i=mf_lookup(m,handle); if (i<=0) return CMX_INVALID;
   return cmx_exit(&m->kernel,(unsigned)i,result);
 }
-enum cmx_result mf_join_result(Mf *m,MfHandle caller,MfHandle target,int *out) {
+enum cmx_result mf_join_result(struct mf_mf *m,mf_handle_id caller,mf_handle_id target,int *out) {
   int a=mf_lookup(m,caller),b=mf_lookup(m,target);
   if (!out || a<=0 || b<=0 || a==b || m->detached[b] || m->consumed[b] ||
       m->kernel.task[b].state!=CMX_EXITED || m->kernel.task[b].joiner!=a ||
@@ -83,21 +83,21 @@ enum cmx_result mf_join_result(Mf *m,MfHandle caller,MfHandle target,int *out) {
     return CMX_INVALID;
   *out=m->kernel.task[b].exit_code; m->consumed[b]=1; return CMX_OK;
 }
-enum cmx_result mf_join(Mf *m,MfHandle caller,MfHandle target,cmx_deadline d,int *out) {
+enum cmx_result mf_join(struct mf_mf *m,mf_handle_id caller,mf_handle_id target,cmx_deadline d,int *out) {
   int a=mf_lookup(m,caller),b=mf_lookup(m,target);
   if (!out || a<=0 || b<=0 || a==b || m->detached[b] || m->consumed[b]) return CMX_INVALID;
   enum cmx_result r=cmx_join(&m->kernel,(unsigned)a,(unsigned)b,d);
   if (r==CMX_OK) { *out=m->kernel.task[b].exit_code; m->consumed[b]=1; }
   return r;
 }
-enum cmx_result mf_reap(Mf *m,MfHandle handle) {
+enum cmx_result mf_reap(struct mf_mf *m,mf_handle_id handle) {
   int i=mf_lookup(m,handle);
   if (i<=0 || i==m->executing || (!m->detached[i] && !m->consumed[i])) return CMX_INVALID;
   enum cmx_result r=cmx_reap(&m->kernel,(unsigned)i);
   if (r==CMX_OK) { m->sp[i]=0; m->detached[i]=m->consumed[i]=m->faulted[i]=0; }
   return r;
 }
-enum cmx_result mf_fault(Mf *m,MfHandle handle,uint32_t code,uint32_t pc) {
+enum cmx_result mf_fault(struct mf_mf *m,mf_handle_id handle,uint32_t code,uint32_t pc) {
   int i=mf_lookup(m,handle); if (i<=0) return CMX_INVALID;
   if (!m->fault_valid[i]) { m->fault_valid[i]=1; m->fault_code[i]=code; m->fault_pc[i]=pc; }
   if (m->faulted[i]) return CMX_INVALID;
@@ -115,7 +115,7 @@ enum cmx_result mf_fault(Mf *m,MfHandle handle,uint32_t code,uint32_t pc) {
   if (r!=CMX_OK) m->fatal=1;
   return r;
 }
-int mf_invariant(const Mf *m) {
+int mf_invariant(const struct mf_mf *m) {
   if (!cmx_invariant(&m->kernel) || m->kernel.task[0].state==CMX_UNUSED ||
       m->kernel.task[0].state==CMX_EXITED) return 0;
   for (unsigned i=0;i<CMX_TASKS;++i) {
@@ -128,38 +128,38 @@ int mf_invariant(const Mf *m) {
 }
 int mf_due32(uint32_t now,uint32_t at) { return (uint32_t)(now-at)<UINT32_C(0x80000000); }
 int mf_due64(uint64_t now,uint64_t at) { return (uint64_t)(now-at)<(UINT64_C(1)<<63); }
-void mf_timers_init(MfTimers *t,uint32_t now) { *t=(MfTimers){0}; t->now=now; }
-enum cmx_result mf_timer_arm(MfTimers *t,uint32_t at,MfHandle *out) {
+void mf_timers_init(struct mf_timers *t,uint32_t now) { *t=(struct mf_timers){0}; t->now=now; }
+enum cmx_result mf_timer_arm(struct mf_timers *t,uint32_t at,mf_handle_id *out) {
   if (!out || (uint32_t)(at-t->now)>=UINT32_C(0x80000000)) return CMX_INVALID;
   if (t->next_sequence==UINT64_MAX) return CMX_FULL;
   for (unsigned i=0;i<MF_TIMERS;++i) if (!t->timer[i].active && !t->timer[i].retired) {
-    MfTimer *p=&t->timer[i]; p->at=at; p->sequence=t->next_sequence++; p->active=1;
+    struct mf_timer *p=&t->timer[i]; p->at=at; p->sequence=t->next_sequence++; p->active=1;
     *out=((uint64_t)p->generation<<5)|(i+1u); return CMX_OK;
   }
   return CMX_FULL;
 }
-static void timer_release(MfTimer *p) {
+static void timer_release(struct mf_timer *p) {
   p->active=0; if (p->generation==UINT32_MAX) p->retired=1; else ++p->generation;
 }
-enum cmx_result mf_timer_cancel(MfTimers *t,MfHandle h) {
+enum cmx_result mf_timer_cancel(struct mf_timers *t,mf_handle_id h) {
   unsigned low=(unsigned)(h&31u);
   if (!low || low>MF_TIMERS || (h>>37)) return CMX_INVALID;
-  MfTimer *p=&t->timer[low-1];
+  struct mf_timer *p=&t->timer[low-1];
   if (!p->active || (h>>5)!=p->generation) return CMX_INVALID;
   timer_release(p); return CMX_OK;
 }
-enum cmx_result mf_timer_poll(MfTimers *t,uint32_t now,MfHandle *out,size_t *count) {
+enum cmx_result mf_timer_poll(struct mf_timers *t,uint32_t now,mf_handle_id *out,size_t *count) {
   if (!out || !count || *count<MF_TIMERS || (uint32_t)(now-t->now)>=UINT32_C(0x80000000)) return CMX_INVALID;
   t->now=now; size_t n=0;
   for (;;) {
     int first=-1;
     for (unsigned i=0;i<MF_TIMERS;++i) {
-      MfTimer *p=&t->timer[i]; if (!p->active || !mf_due32(now,p->at)) continue;
+      struct mf_timer *p=&t->timer[i]; if (!p->active || !mf_due32(now,p->at)) continue;
       if (first<0 || (uint32_t)(now-p->at)>(uint32_t)(now-t->timer[first].at) ||
           (p->at==t->timer[first].at && p->sequence<t->timer[first].sequence)) first=(int)i;
     }
     if (first<0) break;
-    MfTimer *p=&t->timer[first]; out[n++]=((uint64_t)p->generation<<5)|((unsigned)first+1u); timer_release(p);
+    struct mf_timer *p=&t->timer[first]; out[n++]=((uint64_t)p->generation<<5)|((unsigned)first+1u); timer_release(p);
   }
   *count=n; return CMX_OK;
 }
@@ -193,17 +193,17 @@ enum cmx_result mf_basepri(unsigned incoming,unsigned requested,unsigned bits,un
   if ((incoming&mask) || (requested&mask)) return CMX_INVALID;
   *effective=!incoming || requested<incoming?requested:incoming; return CMX_OK;
 }
-void mf_sleep_init(MfSleep *s) { *s=(MfSleep){0}; }
-enum cmx_result mf_sleep_arm(MfSleep *s,uint32_t start,uint32_t counts) {
+void mf_sleep_init(struct mf_sleep *s) { *s=(struct mf_sleep){0}; }
+enum cmx_result mf_sleep_arm(struct mf_sleep *s,uint32_t start,uint32_t counts) {
   if (s->armed || !counts || counts>=UINT32_C(0x80000000)) return CMX_INVALID;
   s->start=start; s->counts=counts; s->armed=1; s->slept=s->credited=0; return CMX_OK;
 }
-void mf_sleep_wake(MfSleep *s) { s->ready=s->event=1; }
-int mf_sleep_enter(MfSleep *s) {
+void mf_sleep_wake(struct mf_sleep *s) { s->ready=s->event=1; }
+int mf_sleep_enter(struct mf_sleep *s) {
   if (!s->armed || s->ready || s->event) return 0;
   s->slept=1; return 1;
 }
-enum cmx_result mf_sleep_finish(MfSleep *s,uint32_t now) {
+enum cmx_result mf_sleep_finish(struct mf_sleep *s,uint32_t now) {
   uint32_t delta=now-s->start;
   if (!s->armed || s->credited || delta>s->counts || UINT32_MAX-s->elapsed<delta) return CMX_INVALID;
   s->elapsed+=delta; s->credited=1; s->armed=0; return CMX_OK;

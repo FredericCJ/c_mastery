@@ -12,8 +12,8 @@ int main(void) {
       for (unsigned i = 0; i < n; i++)
         if (scanf("%" SCNu32, &v[i]) != 1)
           return 2;
-      CiFenwick f;
-      CiStatus initial = ci_fenwick_init(&f, v, n);
+      struct ci_fenwick f;
+      enum ci_status initial = ci_fenwick_init(&f, v, n);
       printf("%d\n", initial);
       if (initial != CI_OK)
         return 3;
@@ -27,7 +27,7 @@ int main(void) {
         unsigned z = 999;
         if (scanf(" %c%u", &c, &p) != 2)
           return 2;
-        CiStatus st;
+        enum ci_status st;
         if (c == 'a') {
           if (scanf("%" SCNd64, &d) != 1)
             return 2;
@@ -49,8 +49,8 @@ int main(void) {
       for (unsigned i = 0; i < n; i++)
         if (scanf("%" SCNu32, &v[i]) != 1)
           return 2;
-      CiSegment s;
-      CiStatus initial = ci_segment_init(&s, v, n);
+      struct ci_segment s;
+      enum ci_status initial = ci_segment_init(&s, v, n);
       printf("%d\n", initial);
       if (initial != CI_OK)
         return 3;
@@ -60,10 +60,10 @@ int main(void) {
         char c;
         unsigned l, r;
         uint32_t a, b;
-        CiAggregate out = {999, 999, 999, 999};
+        struct ci_aggregate out = {999, 999, 999, 999};
         if (scanf(" %c%u%u", &c, &l, &r) != 3)
           return 2;
-        CiStatus st;
+        enum ci_status st;
         if (c == 'a') {
           if (scanf("%" SCNu32 "%" SCNu32, &a, &b) != 2)
             return 2;
@@ -76,8 +76,8 @@ int main(void) {
       unsigned closed;
       if (scanf("%u%u", &closed, &q) != 2)
         return 2;
-      CiIntervals t;
-      CiStatus initial = ci_intervals_init(&t, closed);
+      struct ci_intervals t;
+      enum ci_status initial = ci_intervals_init(&t, closed);
       printf("%d\n", initial);
       if (initial != CI_OK)
         return 3;
@@ -85,13 +85,13 @@ int main(void) {
         char c;
         int32_t l, h;
         uint32_t id;
-        CiStatus st;
+        enum ci_status st;
         if (scanf(" %c%" SCNd32, &c, &l) != 2)
           return 2;
         if (c == 'a') {
           if (scanf("%" SCNd32 "%" SCNu32, &h, &id) != 2)
             return 2;
-          CiInterval v = {l, h, id};
+          struct ci_interval v = {l, h, id};
           st = ci_intervals_insert(&t, v);
           printf("%d\n", st);
         } else if (c == 'd') {
@@ -101,7 +101,7 @@ int main(void) {
         } else {
           if (scanf("%" SCNd32, &h) != 1)
             return 2;
-          CiInterval out[CI_CAP];
+          struct ci_interval out[CI_CAP];
           unsigned got = 0;
           st = ci_intervals_all(&t, l, h, out, CI_CAP, &got);
           printf("%d %u", st, got);
@@ -121,8 +121,8 @@ int main(void) {
           return 2;
         v[i] = (unsigned char)x;
       }
-      CiSuffix s;
-      CiStatus initial = ci_suffix_build(&s, v, n);
+      struct ci_suffix s;
+      enum ci_status initial = ci_suffix_build(&s, v, n);
       printf("%d", initial);
       if (initial != CI_OK)
         return 3;
@@ -145,7 +145,7 @@ int main(void) {
           p[j] = (unsigned char)x;
         }
         unsigned l = 999, h = 999;
-        CiStatus st = ci_suffix_range(&s, p, m, &l, &h);
+        enum ci_status st = ci_suffix_range(&s, p, m, &l, &h);
         printf("%d %u %u\n", st, l, h);
       }
     } else

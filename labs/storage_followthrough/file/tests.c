@@ -161,14 +161,14 @@ static int original_transfer(void) {
          cases);
   return 0;
 }
-typedef struct {
+struct store_bytes {
   unsigned char bytes[4096];
   size_t done, chunk;
   unsigned calls, retry, again, zero, oversize;
   uint64_t base;
-} Bytes;
+};
 static ptrdiff_t read_bytes(void *ctx, uint64_t off, void *p, size_t n) {
-  Bytes *b = ctx;
+  struct store_bytes *b = ctx;
   b->calls++;
   if (off != b->base + b->done || n != 4096 - b->done)
     return -1;
@@ -191,7 +191,7 @@ static ptrdiff_t read_bytes(void *ctx, uint64_t off, void *p, size_t n) {
   return (ptrdiff_t)n;
 }
 static ptrdiff_t write_bytes(void *ctx, uint64_t off, const void *p, size_t n) {
-  Bytes *b = ctx;
+  struct store_bytes *b = ctx;
   b->calls++;
   if (off != b->base + b->done || n != 4096 - b->done)
     return -1;
@@ -222,10 +222,10 @@ static int nonblocking(int oracle) {
                                                     : chunk == 127  ? 4095
                                                     : chunk == 4095 ? 4096
                                                                     : 4097) {
-      SfiOp op;
+      struct sfi_op op;
       sfi_init(&op);
-      SfiTicket t;
-      Bytes b = {0};
+      struct sfi_ticket t;
+      struct store_bytes b = {0};
       b.chunk = chunk;
       b.base = UINT64_C(7) * 4096;
       b.retry = 2;
@@ -233,7 +233,7 @@ static int nonblocking(int oracle) {
       if (!writing)
         memcpy(b.bytes, input, 4096);
       memset(output, 0xa5, 4096);
-      CHECK(sfi_begin(&op, (SfiIo){&b, read_bytes, write_bytes, 8}, writing, 7,
+      CHECK(sfi_begin(&op, (struct sfi_io){&b, read_bytes, write_bytes, 8}, writing, 7,
                       input, output, &t) == SFI_OK);
       CHECK(sfi_step(t, 0, 0) == SFI_BUDGET && b.calls == 0 &&
             sfi_release(t) == SFI_BUSY);
@@ -258,14 +258,14 @@ static int nonblocking(int oracle) {
       cases++;
     }
   for (unsigned mode = 0; mode < 3; mode++) {
-    SfiOp op;
+    struct sfi_op op;
     sfi_init(&op);
-    SfiTicket t;
-    Bytes b = {0};
+    struct sfi_ticket t;
+    struct store_bytes b = {0};
     pattern(b.bytes);
     b.chunk = 17;
     memset(output, 0xa5, 4096);
-    CHECK(sfi_begin(&op, (SfiIo){&b, read_bytes, write_bytes, 1}, 0, 0, NULL,
+    CHECK(sfi_begin(&op, (struct sfi_io){&b, read_bytes, write_bytes, 1}, 0, 0, NULL,
                     output, &t) == SFI_OK &&
           sfi_step(t, 0, 1) == SFI_BUDGET && op.done == 17);
     if (mode == 0)
@@ -280,18 +280,18 @@ static int nonblocking(int oracle) {
       CHECK(output[i] == 0xa5);
     CHECK(sfi_release(t) == SFI_OK);
   }
-  SfiOp op;
+  struct sfi_op op;
   sfi_init(&op);
   op.generation = UINT64_MAX - 1;
-  SfiTicket t, old;
-  Bytes b = {0};
+  struct sfi_ticket t, old;
+  struct store_bytes b = {0};
   b.chunk = 4096;
-  CHECK(sfi_begin(&op, (SfiIo){&b, read_bytes, write_bytes, 1}, 1, 0, input,
+  CHECK(sfi_begin(&op, (struct sfi_io){&b, read_bytes, write_bytes, 1}, 1, 0, input,
                   NULL, &t) == SFI_OK &&
         t.generation == UINT64_MAX);
   old = t;
   CHECK(sfi_cancel(t) == SFI_CANCELLED && sfi_release(t) == SFI_OK &&
-        sfi_begin(&op, (SfiIo){&b, read_bytes, write_bytes, 1}, 1, 0, input,
+        sfi_begin(&op, (struct sfi_io){&b, read_bytes, write_bytes, 1}, 1, 0, input,
                   NULL, &t) == SFI_FULL &&
         sfi_step(old, 1, 1) == SFI_STALE);
   if (!oracle)
@@ -300,13 +300,13 @@ static int nonblocking(int oracle) {
            cases);
   return 0;
 }
-typedef struct {
+struct store_pipe {
   int fd;
   uint64_t next;
   unsigned calls;
-} Pipe;
+};
 static ptrdiff_t pipe_read(void *ctx, uint64_t at, void *p, size_t n) {
-  Pipe *a = ctx;
+  struct store_pipe *a = ctx;
   a->calls++;
   if (at != a->next)
     return -1;
@@ -324,14 +324,14 @@ static int readiness(void) {
   CHECK(pipe(descriptors) == 0);
   int flags = fcntl(descriptors[0], F_GETFL);
   CHECK(flags >= 0 && fcntl(descriptors[0], F_SETFL, flags | O_NONBLOCK) == 0);
-  Pipe p = {descriptors[0], 0, 0};
-  SfiOp op;
+  struct store_pipe p = {descriptors[0], 0, 0};
+  struct sfi_op op;
   sfi_init(&op);
-  SfiTicket t;
+  struct sfi_ticket t;
   unsigned char data[4096], out[4096];
   pattern(data);
   memset(out, 0xa5, 4096);
-  CHECK(sfi_begin(&op, (SfiIo){&p, pipe_read, NULL, 1}, 0, 0, NULL, out, &t) ==
+  CHECK(sfi_begin(&op, (struct sfi_io){&p, pipe_read, NULL, 1}, 0, 0, NULL, out, &t) ==
             SFI_OK &&
         sfi_step(t, 0, 1) == SFI_WAIT && p.calls == 1);
   struct pollfd fd = {descriptors[0], POLLIN, 0};

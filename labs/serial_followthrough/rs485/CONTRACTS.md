@@ -8,9 +8,9 @@ historical 10 hours are descriptive; this additional work has no time ceiling.
 ## Problem and prerequisites
 
 Implement `channel.h` in `learner.c` and `port_learner.c`. Supply your earlier
-`UaTx` (`labs/serial_followthrough/uart/uart_depth.h`), `PuDriver`/`PuRx`
-(`labs/peripheral_depth/uart/uart.h`), `SDUart` formatter, and the exact
-`EduFramer`/`EduFrame` interface in `labs/communications/include/com_edu7.h`.
+`struct ua_tx` (`labs/serial_followthrough/uart/uart_depth.h`), `struct pu_driver`/`struct pu_rx`
+(`labs/peripheral_depth/uart/uart.h`), `struct sd_uart` formatter, and the exact
+`struct edu_framer`/`struct edu_frame` interface in `labs/communications/include/com_edu7.h`.
 Use fixed caller storage; implement the channel and selected port yourself.
 The T40 changed task must bind the learner's actual frame implementation.
 The separate author campaign uses the retained assessor producers and establishes
@@ -45,14 +45,14 @@ accuracy follows from the modeled timestamps.
 
 ## Representation and ownership
 
-One initialized, zero-origin `R5Channel` has one foreground owner; no ISR or other
+One initialized, zero-origin `struct r5_channel` has one foreground owner; no ISR or other
 thread may call or modify it concurrently. It contains16 copied TX bytes,
-1..16 pending RX byte capacity, and3..32 event capacity. `UaTx`, `PuRx` and
-`PuDriver` retain their exact invariants. All inputs and outputs denote live,
+1..16 pending RX byte capacity, and3..32 event capacity. `struct ua_tx`, `struct pu_rx` and
+`struct pu_driver` retain their exact invariants. All inputs and outputs denote live,
 appropriately aligned, disjoint objects unless explicitly copied here; do not
 forge control state. Source ranges and output objects cannot overlap the channel.
 
-The `PuIo` and drive callbacks are trusted bounded operations: terminate, do not
+The `struct pu_io` and drive callbacks are trusted bounded operations: terminate, do not
 allocate, reenter, mutate channel controls, retain borrowed arguments or dispatch
 another user of the same UART/GPIO/DMA. This contract has no asynchronous callback
 completion. Fresh `r5_open` requires an entirely zero-initialized channel and
@@ -121,7 +121,7 @@ The separately required peer coordinator must prevent overlap. Counters do not
 wrap silently. Take copies one event, reports consumed1, or preserves its output
 and reports consumed0 when empty. LOSS is explicit and cannot overwrite events.
 
-`R5Link` is a distinct adapter, not framing inside the byte channel. It passes
+`struct r5_link` is a distinct adapter, not framing inside the byte channel. It passes
 clean BYTE events to the actual EDU7 incremental decoder, invalidates partial
 frames on error/LOSS, and publishes a copied frame only on `R5_FRAME` after local
 destination and trusted current grant checks. Other results must not be treated

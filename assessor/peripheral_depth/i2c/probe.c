@@ -1,7 +1,7 @@
 #define main pi_public_test_main
 #include "../../../labs/peripheral_depth/i2c/tests.c"
 #undef main
-static int advance(PiI2c *s, Model *m, uint32_t t) {
+static int advance(struct pi_i2c *s, struct dg_model *m, uint32_t t) {
   switch (s->phase) {
   case 1:
   case 5:
@@ -27,10 +27,10 @@ static int advance(PiI2c *s, Model *m, uint32_t t) {
 }
 int main(void) {
   for (unsigned mhz = 1; mhz <= 45; mhz++) {
-    PiI2c s = {0};
-    Model m = {0};
-    PiIo io = {&m, rd, wr};
-    PuClock c = {mhz * 1000000u, 1, 1, 1, 1, 0};
+    struct pi_i2c s = {0};
+    struct dg_model m = {0};
+    struct pi_io io = {&m, rd, wr};
+    struct pu_clock c = {mhz * 1000000u, 1, 1, 1, 1, 0};
     int rc = pi_open(&s, io, &c);
     printf("C %u %d %u %u %u\n", mhz, rc, m.r[PI_CCR], m.r[PI_TRISE],
            m.r[PI_CR2]);
@@ -39,10 +39,10 @@ int main(void) {
     for (unsigned ci = 0; ci < 3; ci++)
       for (unsigned count = 1; count <= 2; count++)
         for (unsigned wrap = 0; wrap < 2; wrap++) {
-          PiI2c s = {0};
-          Model m = {0};
-          PiIo io = {&m, rd, wr};
-          PuClock c = {16000000, 1, 1, 1, 1, 0};
+          struct pi_i2c s = {0};
+          struct dg_model m = {0};
+          struct pi_io io = {&m, rd, wr};
+          struct pu_clock c = {16000000, 1, 1, 1, 1, 0};
           uint8_t out[2] = {77, 88};
           unsigned cmd = (unsigned[]){0, 16, 255}[ci];
           uint32_t base = wrap ? UINT32_MAX - 4u : 0;
@@ -64,10 +64,10 @@ int main(void) {
       for (unsigned wrap = 0; wrap < 2; wrap++) {
         if (stall == (count == 1 ? 8u : 7u))
           continue;
-        PiI2c s = {0};
-        Model m = {0};
-        PiIo io = {&m, rd, wr};
-        PuClock c = {16000000, 1, 1, 1, 1, 0};
+        struct pi_i2c s = {0};
+        struct dg_model m = {0};
+        struct pi_io io = {&m, rd, wr};
+        struct pu_clock c = {16000000, 1, 1, 1, 1, 0};
         uint8_t out[2] = {77, 88};
         uint32_t base = wrap ? UINT32_MAX - 4u : 0;
         unsigned t = 1;
@@ -93,9 +93,9 @@ int main(void) {
     for (unsigned half = 1; half <= 4; half++)
       for (unsigned stretch = 0; stretch <= 4; stretch++)
         for (unsigned wrap = 0; wrap < 2; wrap++) {
-          PiRecovery s = {0};
-          Lines l = {{1, 1}, 1, need, 0, 0};
-          PiLines io = {&l, line_read, line_release};
+          struct pi_recovery s = {0};
+          struct dg_lines l = {{1, 1}, 1, need, 0, 0};
+          struct pi_lines io = {&l, line_read, line_release};
           uint32_t base = wrap ? UINT32_MAX - 4u : 0;
           int rc = PI_BUSY;
           if (pi_recover_begin(&s, io, 1, 0, base, 300, half))

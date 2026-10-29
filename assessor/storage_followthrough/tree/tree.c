@@ -410,7 +410,7 @@ static void entry(store_node *d, unsigned di, const store_node *a,
   memcpy(d->key[di], a->key[ai], STORE_KEY_MAX);
   memcpy(d->value[di], a->value[ai], STORE_VALUE_MAX);
 }
-typedef struct split {
+typedef struct store_split {
   uint32_t right;
   uint8_t key[STORE_KEY_MAX], len;
 } split;

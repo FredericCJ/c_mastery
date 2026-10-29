@@ -27,7 +27,7 @@ int sd_exclusive(int directory, const char *name, int *owned) {
   *owned = fd;
   return 0;
 }
-int sd_request(unsigned allowed, enum SDOperation op, int fd, char out[4]) {
+int sd_request(unsigned allowed, enum sd_operation op, int fd, char out[4]) {
   char bytes[4];
   ssize_t n;
   if (!out || allowed > 1 || (op != SD_READ_LOG && op != SD_WRITE_CONFIG))
@@ -54,7 +54,7 @@ static void closed(int fd) {
     (void)close(fd);
 }
 int sd_spawn(const char *path, char *const argv[], char *const env[], int log,
-             int temp, unsigned fault, SDChild *out) {
+             int temp, unsigned fault, struct sd_child *out) {
   int stream[2] = {-1, -1}, errors[2] = {-1, -1}, l = -1, t = -1, result = EIO,
       status;
   pid_t pid;

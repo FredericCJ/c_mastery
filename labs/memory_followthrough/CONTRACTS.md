@@ -36,7 +36,7 @@ The campaign uses separate bounded children, with original input held constant.
 
 ## Extents, strings, and integer stages
 
-`MwSpan` describes an offset into one actual backing array, a logical capacity,
+`struct mw_span` describes an offset into one actual backing array, a logical capacity,
 and an initialized prefix. Validate these before forming an access. Reject a
 negative signed index before conversion. One-past with count zero is permitted;
 index beyond one-past is rejected even for zero count. Every rejection preserves

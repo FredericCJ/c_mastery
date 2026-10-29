@@ -2,10 +2,10 @@
 void su_note(const char *);
 void su_values(const char *, unsigned, unsigned, unsigned, unsigned);
 #define CHECK(x) do { if (!(x)) { su_note("SU_ASSERT: " #x); return 41; } } while (0)
-typedef struct { uint32_t r[16]; unsigned dr_reads, writes, sr_read, sequence_error;
-  unsigned commands[256], values[256], log_count; } Model;
+struct mc_model { uint32_t r[16]; unsigned dr_reads, writes, sr_read, sequence_error;
+  unsigned commands[256], values[256], log_count; };
 static uint32_t read_io(void *p,unsigned k) {
-  Model *m=p;
+  struct mc_model *m=p;
   if (k==PU_SOURCE) return 1;
   if (k==PU_SR) m->sr_read=1;
   if (k==PU_DR) {
@@ -15,23 +15,23 @@ static uint32_t read_io(void *p,unsigned k) {
   return m->r[k];
 }
 static void write_io(void *p,unsigned k,uintptr_t v) {
-  Model *m=p; m->r[k]=(uint32_t)v;
+  struct mc_model *m=p; m->r[k]=(uint32_t)v;
   if (m->log_count<256) { m->commands[m->log_count]=k; m->values[m->log_count++]=(unsigned)v; }
   if (k==PU_DR) { m->writes++; m->r[PU_SR]&=~(PU_TXE|PU_TC); }
 }
-static PuIo io(Model *m) { PuIo r={m,read_io,write_io}; return r; }
-static int opened(Su *s,Model *m) {
-  PuClock c={42000000,1,1,1,1,0};
+static struct pu_io io(struct mc_model *m) { struct pu_io r={m,read_io,write_io}; return r; }
+static int opened(struct mc_su *s,struct mc_model *m) {
+  struct pu_clock c={42000000,1,1,1,1,0};
   return pu_open(&s->byte,io(m),&c,115200,0,1);
 }
-static int configured(Su *s,Model *m) {
+static int configured(struct mc_su *s,struct mc_model *m) {
   if (opened(s,m)) return 1;
   m->r[PU_CR1]&=~12u;
   if (su_configure(s,io(m),1,0,1)) return 1;
   return su_enable(s,io(m),1,1);
 }
 static int edges(void) {
-  SDSync t; unsigned bad=99,total=0;
+  struct sd_sync t; unsigned bad=99,total=0;
   for (unsigned p=0;p<2;p++) for (unsigned h=0;h<2;h++)
   for (unsigned l=0;l<2;l++) for (unsigned v=0;v<256;v++) {
     CHECK(sd_sync(p,h,l,1,1,0,(uint8_t)v,&t)==SD_OK);
@@ -58,7 +58,7 @@ static int edges(void) {
   su_values("edges",total,14,16,value); return 0;
 }
 static int config(void) {
-  Su s={0}; Model m={0}; CHECK(opened(&s,&m)==PU_OK);
+  struct mc_su s={0}; struct mc_model m={0}; CHECK(opened(&s,&m)==PU_OK);
   unsigned n=m.log_count;
   CHECK(su_configure(&s,io(&m),1,0,1)==PU_BUSY && m.log_count==n);
   m.r[PU_CR1]&=~8u;
@@ -76,7 +76,7 @@ static int config(void) {
 static int transfer(void) {
   uint8_t tx[8]={0,1,0x96,0xa5,0x35,0xff,0x80,0x7f};
   for (unsigned count=1;count<=8;count++) {
-    Su s={0}; Model m={0}; PuByte rx[8]={{0}};
+    struct mc_su s={0}; struct mc_model m={0}; struct pu_byte rx[8]={{0}};
     CHECK(configured(&s,&m)==PU_OK);
     m.r[PU_CR1]&=~8u;
     CHECK(su_begin(&s,io(&m),1,1,tx,count,rx,count,0,100)==SU_UNSUPPORTED);
@@ -103,9 +103,9 @@ static int transfer(void) {
   return 0;
 }
 static int failures(void) {
-  uint8_t tx[2]={0xa5,0x96}; PuByte rx[2]={{17,0},{19,0}};
+  uint8_t tx[2]={0xa5,0x96}; struct pu_byte rx[2]={{17,0},{19,0}};
   for (unsigned error=1;error<=8;error*=2) {
-    Su s={0}; Model m={0}; CHECK(configured(&s,&m)==PU_OK);
+    struct mc_su s={0}; struct mc_model m={0}; CHECK(configured(&s,&m)==PU_OK);
     CHECK(su_begin(&s,io(&m),1,1,tx,2,rx,2,UINT32_MAX-2,9)==PU_OK);
     m.r[PU_SR]=PU_TXE; CHECK(su_step(&s,io(&m),1,UINT32_MAX-2)==PU_BUSY);
     m.r[PU_SR]=PU_RXNE|error; m.r[PU_DR]=0xa5;
@@ -116,7 +116,7 @@ static int failures(void) {
     CHECK(su_step(&s,io(&m),1,0)==PU_IO && !s.active && (m.r[PU_CR1]&12)==0);
     CHECK(m.writes==1 && m.dr_reads==1 && rx[1].value==19);
   }
-  Su s={0}; Model m={0}; CHECK(configured(&s,&m)==PU_OK);
+  struct mc_su s={0}; struct mc_model m={0}; CHECK(configured(&s,&m)==PU_OK);
   CHECK(su_begin(&s,io(&m),1,1,tx,2,rx,2,0,2)==PU_OK);
   m.r[PU_SR]=PU_TXE; CHECK(su_step(&s,io(&m),1,0)==PU_BUSY);
   m.r[PU_SR]=PU_TXE; CHECK(su_step(&s,io(&m),1,2)==PU_BUSY && s.active);

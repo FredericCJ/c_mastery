@@ -1,2 +1,2 @@
 #include "protocols.h"
-int wrong(PTClosed *closed,PTReady *ready){return pt_close(closed,ready);}
+int wrong(struct pt_closed *closed,struct pt_ready *ready){return pt_close(closed,ready);}

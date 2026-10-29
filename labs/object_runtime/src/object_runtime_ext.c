@@ -5,46 +5,46 @@ uint32_t orx_binary32(uint32_t bits) {
   (void)bits;
   return 0;
 }
-ORStatus orx_value_decode(const unsigned char wire[6], ORXValue *out) {
+enum or_status orx_value_decode(const unsigned char wire[6], struct orx_value *out) {
   (void)wire;
   (void)out;
   return OR_UNIMPLEMENTED;
 }
-ORStatus orx_value_encode(ORXValue value, unsigned char wire[6]) {
+enum or_status orx_value_encode(struct orx_value value, unsigned char wire[6]) {
   (void)value;
   (void)wire;
   return OR_UNIMPLEMENTED;
 }
-ORStatus orx_double_bits(double value, uint64_t *out) {
+enum or_status orx_double_bits(double value, uint64_t *out) {
   (void)value;
   (void)out;
   return OR_UNIMPLEMENTED;
 }
-ORStatus orx_bits_double(uint64_t bits, double *out) {
+enum or_status orx_bits_double(uint64_t bits, double *out) {
   (void)bits;
   (void)out;
   return OR_UNIMPLEMENTED;
 }
-void orx_heap_init(ORXHeap *heap) { (void)heap; }
-ORStatus orx_new(ORXHeap *heap, const unsigned char *bytes, size_t length,
-                 ORXHandle *out) {
+void orx_heap_init(struct orx_heap *heap) { (void)heap; }
+enum or_status orx_new(struct orx_heap *heap, const unsigned char *bytes, size_t length,
+                 struct orx_handle *out) {
   (void)heap;
   (void)bytes;
   (void)length;
   (void)out;
   return OR_UNIMPLEMENTED;
 }
-ORStatus orx_retain(ORXHeap *heap, ORXHandle object) {
+enum or_status orx_retain(struct orx_heap *heap, struct orx_handle object) {
   (void)heap;
   (void)object;
   return OR_UNIMPLEMENTED;
 }
-ORStatus orx_release(ORXHeap *heap, ORXHandle object) {
+enum or_status orx_release(struct orx_heap *heap, struct orx_handle object) {
   (void)heap;
   (void)object;
   return OR_UNIMPLEMENTED;
 }
-ORStatus orx_read(const ORXHeap *heap, ORXHandle object, unsigned char out[15],
+enum or_status orx_read(const struct orx_heap *heap, struct orx_handle object, unsigned char out[15],
                   size_t *length) {
   (void)heap;
   (void)object;
@@ -52,33 +52,33 @@ ORStatus orx_read(const ORXHeap *heap, ORXHandle object, unsigned char out[15],
   (void)length;
   return OR_UNIMPLEMENTED;
 }
-ORStatus orx_edge(ORXHeap *heap, ORXHandle from, unsigned field, ORXHandle to) {
+enum or_status orx_edge(struct orx_heap *heap, struct orx_handle from, unsigned field, struct orx_handle to) {
   (void)heap;
   (void)from;
   (void)field;
   (void)to;
   return OR_UNIMPLEMENTED;
 }
-ORStatus orx_collect(ORXHeap *heap, unsigned *reclaimed) {
+enum or_status orx_collect(struct orx_heap *heap, unsigned *reclaimed) {
   (void)heap;
   (void)reclaimed;
   return OR_UNIMPLEMENTED;
 }
-ORStatus orx_pack(ORXHeap *heap, unsigned *moved) {
+enum or_status orx_pack(struct orx_heap *heap, unsigned *moved) {
   (void)heap;
   (void)moved;
   return OR_UNIMPLEMENTED;
 }
-ORStatus orx_import(ORXHeap *heap, ORXValue value, const ORXGrant *grant,
-                    ORXHandle *out) {
+enum or_status orx_import(struct orx_heap *heap, struct orx_value value, const struct orx_grant *grant,
+                    struct orx_handle *out) {
   (void)heap;
   (void)value;
   (void)grant;
   (void)out;
   return OR_UNIMPLEMENTED;
 }
-ORStatus orx_foreign_begin(ORXHeap *heap, ORXHandle object, uint64_t controller,
-                           ORXTicket *ticket, const unsigned char **bytes,
+enum or_status orx_foreign_begin(struct orx_heap *heap, struct orx_handle object, uint64_t controller,
+                           struct orx_ticket *ticket, const unsigned char **bytes,
                            size_t *length) {
   (void)heap;
   (void)object;
@@ -88,42 +88,42 @@ ORStatus orx_foreign_begin(ORXHeap *heap, ORXHandle object, uint64_t controller,
   (void)length;
   return OR_UNIMPLEMENTED;
 }
-ORStatus orx_foreign_cancel(ORXTicket ticket, uint64_t controller) {
+enum or_status orx_foreign_cancel(struct orx_ticket ticket, uint64_t controller) {
   (void)ticket;
   (void)controller;
   return OR_UNIMPLEMENTED;
 }
-ORStatus orx_foreign_finish(ORXTicket ticket, uint64_t controller) {
+enum or_status orx_foreign_finish(struct orx_ticket ticket, uint64_t controller) {
   (void)ticket;
   (void)controller;
   return OR_UNIMPLEMENTED;
 }
-ORStatus orx_intern_init(ORXIntern *table, ORXHeap *heap,
-                         V4Allocator allocator) {
+enum or_status orx_intern_init(struct orx_intern *table, struct orx_heap *heap,
+                         struct v4_allocator allocator) {
   (void)table;
   (void)heap;
   (void)allocator;
   return OR_UNIMPLEMENTED;
 }
-ORStatus orx_intern_get(ORXIntern *table, const unsigned char *bytes,
-                        size_t length, ORXHandle *out) {
+enum or_status orx_intern_get(struct orx_intern *table, const unsigned char *bytes,
+                        size_t length, struct orx_handle *out) {
   (void)table;
   (void)bytes;
   (void)length;
   (void)out;
   return OR_UNIMPLEMENTED;
 }
-ORStatus orx_intern_reserve(ORXIntern *table, unsigned capacity) {
+enum or_status orx_intern_reserve(struct orx_intern *table, unsigned capacity) {
   (void)table;
   (void)capacity;
   return OR_UNIMPLEMENTED;
 }
-ORStatus orx_intern_sweep(ORXIntern *table, unsigned *removed) {
+enum or_status orx_intern_sweep(struct orx_intern *table, unsigned *removed) {
   (void)table;
   (void)removed;
   return OR_UNIMPLEMENTED;
 }
-ORStatus orx_intern_close(ORXIntern *table) {
+enum or_status orx_intern_close(struct orx_intern *table) {
   (void)table;
   return OR_UNIMPLEMENTED;
 }

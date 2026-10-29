@@ -3,7 +3,7 @@ from pathlib import Path
 def run(c,root,args):
  c.group='failure-target';pub=root/'labs/api_depth/failure';private=root/'assessor/api_depth/failure';headers=['taxonomy','construction','transaction','cancellation','observability','diagnostics','crash','public_error'];names=[]
  for h in headers:
-  names+=re.findall(r'\b(?:AeCode|AeOutcome|AeLookup|AeUpdate|void|unsigned)\s+(ae_\w+)\s*\(', (pub/(h+'.h')).read_text())
+  names+=re.findall(r'\b(?:enum ae_code|enum ae_outcome|struct ae_lookup|struct ae_update|void|unsigned)\s+(ae_\w+)\s*\(', (pub/(h+'.h')).read_text())
  names=sorted(set(names));c.require(len(names)>=40,'all named bounded failure-core API roots selected',names)
  entry=c.write('failure-core-entry.c',''.join('#include "'+h+'.h"\n' for h in headers)+'#include <limits.h>\n_Static_assert(CHAR_BIT==8 && UINT_MAX>=65536u,"selected octet/unsigned profile");\ntypedef void (*Root)(void);\nstatic Root volatile roots[]={'+','.join('(Root)'+name for name in names)+'};\nvolatile Root observed;void _start(void){for(unsigned i=0;i<sizeof roots/sizeof roots[0];++i)observed=roots[i];for(;;){}}\n')
  sources=[private/(m+'.c') for m in ['taxonomy','error_abi','construction','transaction','cancellation','observability','diagnostics','crash','target_helpers']]+[root/p for p in ['assessor/api_depth/abstractions/generic.c','assessor/api_depth/contracts/ownership.c','assessor/foundations/foundation.c','assessor/legacy_systems/freestanding_depth/bytes.c','assessor/legacy_systems/freestanding_depth/memory_provider.c']]+[entry]

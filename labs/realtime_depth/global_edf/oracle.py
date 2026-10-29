@@ -1,4 +1,4 @@
-"""Explicit node/reservation/deadline oracle using sets and per-CPU event lists."""
+"""Explicit node/reservation/deadline oracle using sets and per-struct lr_cpu event lists."""
 from itertools import product
 from random import Random
 NONE=(1<<32)-1

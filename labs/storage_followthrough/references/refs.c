@@ -82,5 +82,5 @@ int store_check(store *s) {
   return STORE_UNIMPLEMENTED;
 }
 
-int store_ref_make(store *s,uint32_t id,StoreRef *out){(void)s;(void)id;(void)out;return STORE_UNIMPLEMENTED;}
-int store_ref_read(StoreRef ref,store_node *out){(void)ref;(void)out;return STORE_UNIMPLEMENTED;}
+int store_ref_make(store *s,uint32_t id,struct store_ref *out){(void)s;(void)id;(void)out;return STORE_UNIMPLEMENTED;}
+int store_ref_read(struct store_ref ref,store_node *out){(void)ref;(void)out;return STORE_UNIMPLEMENTED;}

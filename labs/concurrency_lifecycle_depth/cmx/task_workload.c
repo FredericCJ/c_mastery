@@ -2,8 +2,8 @@
 #ifndef CC_SCENARIO
 #define CC_SCENARIO 0
 #endif
-static CCQueue queue;
-static CCHandle handles[5], old;
+static struct cc_queue queue;
+static struct cc_handle handles[5], old;
 static uint32_t stacks[6][768] __attribute__((aligned(8)));
 static cmx_mutex mutex;
 static cmx_cond condition;
@@ -69,7 +69,7 @@ static void producer(unsigned id){
   cmx_port_unlock(saved);wait_closed();release(id);
 }
 static void consumer(unsigned id){
-  sample(id);for(;;){CLMessage message={0};int result=cc_task_receive(handles[id],4,cmx_forever(),&message);
+  sample(id);for(;;){struct cl_message message={0};int result=cc_task_receive(handles[id],4,cmx_forever(),&message);
     if(result==CL_CLOSED)break;
     CHECK(result==CL_OK);CHECK(message.producer<3&&message.sequence<20&&message.length==4);
     CHECK(message.bytes[0]==message.producer&&message.bytes[1]==message.sequence&&message.bytes[2]==0x55&&message.bytes[3]==0xaa);
@@ -88,7 +88,7 @@ static void timeout_task(unsigned id){
     while(!timeout_done)cmx_port_yield();
     uint32_t saved=cmx_port_lock();CHECK(queue.bytes.accepted==2&&queue.bytes.count==2);
     CHECK(cmx_machine.task[0].state==CMX_WAITING);CHECK(cc_close(&queue,1)==CL_OK);closed=1;cmx_port_unlock(saved);
-  }else{wait_closed();CLMessage m={.producer=777};CHECK(cc_task_receive(handles[id],4,cmx_forever(),&m)==CL_CLOSED);CHECK(m.producer==777);}
+  }else{wait_closed();struct cl_message m={.producer=777};CHECK(cc_task_receive(handles[id],4,cmx_forever(),&m)==CL_CLOSED);CHECK(m.producer==777);}
   sample(id);release(id);
 }
 static void condition_task(unsigned id){
@@ -127,7 +127,7 @@ static void coordinator(void){
   if(CC_SCENARIO==1)CHECK(queue.bytes.accepted==2&&queue.bytes.discarded==2&&queue.bytes.delivered==0);
   if(CC_SCENARIO==2)CHECK(close_observed&&mutex.owner==CMX_NONE);
   for(unsigned i=0;i<5;i++)CHECK(cmx_reap(&cmx_machine,i)==CMX_OK);
-  CHECK(cc_destroy(&queue)==CL_OK);CHECK(cc_restart(&queue)==CL_OK);CCTicket ignored={0};CHECK(cc_send(old,0,0,0,0,cmx_forever(),&ignored)==CL_STALE);
+  CHECK(cc_destroy(&queue)==CL_OK);CHECK(cc_restart(&queue)==CL_OK);struct cc_ticket ignored={0};CHECK(cc_send(old,0,0,0,0,cmx_forever(),&ignored)==CL_STALE);
   cmx_port_unlock(saved);
   /* Keep a live registered task until its first tick so handler rejection is
    * observed in each scenario; all scenarios naturally exceed eight ticks
@@ -138,7 +138,7 @@ void cmx_workload_main(void){
   cmx_port_init();void (*entries[6])(void)={task0,task1,task2,task3,task4,coordinator};
   for(unsigned i=0;i<6;i++)CHECK(cmx_port_task(entries[i],stacks[i],768,1)==(int)i);
   CHECK(cc_init(&queue,&cmx_machine)==CL_OK);for(unsigned i=0;i<5;i++)CHECK(cc_register(&queue,i,&handles[i])==CL_OK);old=handles[0];
-  if(CC_SCENARIO==1){CCTicket ticket;unsigned char byte=9;for(unsigned i=0;i<2;i++){CHECK(cc_send(handles[2],9,i,&byte,1,cmx_forever(),&ticket)==CL_OK);CHECK(cc_result(ticket,0)==CL_OK);}}
+  if(CC_SCENARIO==1){struct cc_ticket ticket;unsigned char byte=9;for(unsigned i=0;i<2;i++){CHECK(cc_send(handles[2],9,i,&byte,1,cmx_forever(),&ticket)==CL_OK);CHECK(cc_result(ticket,0)==CL_OK);}}
   if(CC_SCENARIO==2){CHECK(cmx_mutex_init(&cmx_machine,&mutex,0,0)==CMX_OK);CHECK(cmx_mutex_lock(&cmx_machine,&mutex,0,cmx_forever())==CMX_OK);}
   cmx_port_start();
 }

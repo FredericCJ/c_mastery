@@ -8,7 +8,7 @@ learner performance with author tests. All these exercises are required.
 
 ## Prerequisites and environment
 
-Use the learner's earlier `ApiBuffer`/`api_append` artifact from
+Use the learner's earlier `struct api_buffer`/`api_append` artifact from
 `labs/api_depth/include/api_depth.h`, together with its stated failure and overlap
 contract. The author implementation imports the existing producer unchanged.
 Know pointer/length validity, allocator pairing, callback lifetime, C17 types,

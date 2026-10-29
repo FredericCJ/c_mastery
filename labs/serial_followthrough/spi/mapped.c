@@ -8,7 +8,7 @@ volatile uint32_t *ps_test_register(uint32_t address){for(unsigned i=0;i<used;i+
 #define RX 0x40026410u
 #define TX 0x40026458u
 int ss_mapped(void){
- PsSpi s={0};PuClock c={16000000,1,1,1,1,0};PsIo io=ps_f439_io();
+ struct ps_spi s={0};struct pu_clock c={16000000,1,1,1,1,0};struct ps_io io=ps_f439_io();
  R(0x40020020u)=0xffffffffu;ps_f439_pins();CHECK(R(0x40020020u)==0x555fffffu);
  CHECK(ps_open(&s,io,&c,3,3)==PS_OK && R(SPI)==0x35fu);
  CHECK(ps_f439_begin_dma(&s,1,1,(const uint16_t *)(uintptr_t)0x10000000u,(uint16_t *)(uintptr_t)0x20000100u,3,0,100,0,2)==PS_INVALID);
@@ -28,7 +28,7 @@ int ss_mapped(void){
  ss_values("mapped",0x06002c01u,0x06002c41u,3,s.result);
  /* Compose the scheduler's real slot addresses with the actual F439 adapter.
   * Native process storage is outside the allowed SRAM; target storage is in it. */
- static SsScheduler q;uint8_t bytes[3]={0xc3,0,0},out[16]={0};SsResult result={99,99,99};
+ static struct ss_scheduler q;uint8_t bytes[3]={0xc3,0,0},out[16]={0};struct ss_result result={99,99,99};
  CHECK(ss_open(&q,io,&c,0,3)==PS_OK && ss_enqueue(&q,1,bytes,3,1,100,0,0)==PS_OK);
  int admitted=ss_run(&q,io,ss_f439_submit,10);
 #if defined(__arm__) || defined(__thumb__)

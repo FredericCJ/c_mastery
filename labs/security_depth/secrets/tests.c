@@ -6,7 +6,7 @@
 static int compare(void) {
     const unsigned char token[4]={1,2,3,4};
     const unsigned char candidates[3][4]={{9,2,3,4},{1,2,3,9},{1,2,3,4}};
-    unsigned expected[3]={1,4,4}; SSCompare out;
+    unsigned expected[3]={1,4,4}; struct ss_compare out;
     for(unsigned k=0;k<3;++k) {
         CHECK(ss_compare(token,candidates[k],4,1,&out)==0);
         CHECK(out.work==expected[k] && out.equal==(k==2));
@@ -14,7 +14,7 @@ static int compare(void) {
         CHECK(out.work==4 && out.equal==(k==2));
     }
     for(size_t n=0;n<=8;++n) if(n!=4) {
-        out=(SSCompare){77,88};CHECK(ss_compare(token,token,n,0,&out)==-1);
+        out=(struct ss_compare){77,88};CHECK(ss_compare(token,token,n,0,&out)==-1);
         CHECK(out.equal==77 && out.work==88);
     }
     for(unsigned k=0;k<4;++k) for(unsigned v=0;v<256;++v) {
@@ -25,9 +25,9 @@ static int compare(void) {
 }
 static int lifetime(void) {
     unsigned char original[4]={1,2,3,4},temporary[4]={1,2,3,4};
-    unsigned char unmanaged[4]={1,2,3,4};SSPool p={{0},0};
+    unsigned char unmanaged[4]={1,2,3,4};struct ss_pool p={{0},0};
     CHECK(ss_acquire(&p,original)==0 && p.live==1);
-    SSPool saved=p;CHECK(ss_acquire(&p,original)==-1 && p.live==saved.live && !memcmp(p.bytes,saved.bytes,4));
+    struct ss_pool saved=p;CHECK(ss_acquire(&p,original)==-1 && p.live==saved.live && !memcmp(p.bytes,saved.bytes,4));
     unsigned char *allocated=malloc(4);CHECK(allocated!=NULL);
     for(unsigned i=0;i<4;++i) allocated[i]=original[i];
     ss_wipe(temporary,4);ss_wipe(allocated,4);

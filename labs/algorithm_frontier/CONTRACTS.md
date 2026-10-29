@@ -10,7 +10,7 @@ required, and no missing graph mechanism is credited to a sorting heading.
 
 ## Prerequisites and environment
 
-Import completed learner T14 `CDCSR`, `CDRing`, `CDHeap` and `CDHeapHandle`, and
+Import completed learner T14 `struct cd_csr`, `struct cd_ring`, `struct cd_heap` and `struct cd_heap_handle`, and
 T15 `ad_bfs`/`ad_dijkstra`. Their exact public contracts are in
 `labs/containers_depth/CONTRACTS.md` and `labs/algorithm_depth/CONTRACTS.md`.
 Identify original function/header hashes and retain prior evidence. Adapt only
@@ -32,8 +32,8 @@ is relabeled C17. ABI/layout observations are separate from ISO semantics.
 
 ## Inputs, storage and failure contract
 
-`ag_run` accepts1..8 vertices,0..24 directed `CDEdge` records, a valid source,
-parallel flag0/1, a live `AGWorkspace`, queue capacity0..8 and distinct result/
+`ag_run` accepts1..8 vertices,0..24 directed `struct cd_edge` records, a valid source,
+parallel flag0/1, a live `struct ag_workspace`, queue capacity0..8 and distinct result/
 trace controls. Input, workspace and outputs are disjoint and remain live during
 the synchronous call. There is no concurrent mutation, reentry or asynchronous
 callback. Zero edges permit null input without pointer arithmetic. Vertex0..n−1
@@ -144,7 +144,7 @@ rejected duplicates/range failures. Equal-cost edges do not replace a parent.
 
 `AX-PR-T36-07-T36.09.c-V1`, minimum seven days: derive and implement the signed
 certificate checker for negative edges without a reachable negative cycle.
-`AGCertificate` holds signed64 distances, a reachability mask and predecessor
+`struct ag_certificate` holds signed64 distances, a reachability mask and predecessor
 vertices. Its admitted finite labels are−65534..65534; edges retain the selected
 32-bit `int` weight. Validate all labels before any sum, so an arbitrary forged
 `INT64_MAX` label cannot cause signed overflow. Every reachable vertex must have

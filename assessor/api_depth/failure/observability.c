@@ -3,7 +3,7 @@ static void increment(unsigned *p) {
   if (*p < 65535)
     ++*p;
 }
-AeCode ae_record_encode(const AeRecord *r, unsigned char *out, size_t n) {
+enum ae_code ae_record_encode(const struct ae_record *r, unsigned char *out, size_t n) {
   if (!r || !out || n < 12 || r->severity > 3 || r->unit < 1 || r->unit > 2 ||
       (r->width != 8 && r->width != 16) || r->generation < 1 ||
       r->generation > 3 || r->length > 4 ||
@@ -27,10 +27,10 @@ AeCode ae_record_encode(const AeRecord *r, unsigned char *out, size_t n) {
     out[i] = b[i];
   return AE_OK;
 }
-AeCode ae_record_decode(const unsigned char *p, size_t n, AeRecord *out) {
+enum ae_code ae_record_decode(const unsigned char *p, size_t n, struct ae_record *out) {
   if (!p || !out || n != 12 || p[0] != 1)
     return AE_INVALID;
-  AeRecord r = {p[1], p[2], p[3], p[4], p[5], (unsigned)p[6] + 256u * p[7],
+  struct ae_record r = {p[1], p[2], p[3], p[4], p[5], (unsigned)p[6] + 256u * p[7],
                 {0}};
   if (r.length > 4)
     return AE_INVALID;
@@ -45,7 +45,7 @@ AeCode ae_record_decode(const unsigned char *p, size_t n, AeRecord *out) {
   *out = r;
   return AE_OK;
 }
-AeCode ae_tick_order(unsigned a, unsigned b, unsigned width, int *out) {
+enum ae_code ae_tick_order(unsigned a, unsigned b, unsigned width, int *out) {
   if (!out || (width != 8 && width != 16))
     return AE_INVALID;
   unsigned modulus = width == 8 ? 256u : 65536u;
@@ -57,7 +57,7 @@ AeCode ae_tick_order(unsigned a, unsigned b, unsigned width, int *out) {
   *out = delta == 0 ? 0 : delta < modulus / 2 ? 1 : -1;
   return AE_OK;
 }
-AeCode ae_rate_refill(AeRate *r, unsigned elapsed) {
+enum ae_code ae_rate_refill(struct ae_rate *r, unsigned elapsed) {
   if (!r || r->tokens > 3 || r->remainder > 1 || elapsed > 127)
     return AE_INVALID;
   unsigned total = elapsed + r->remainder, add = total / 2;
@@ -65,7 +65,7 @@ AeCode ae_rate_refill(AeRate *r, unsigned elapsed) {
   r->remainder = total % 2;
   return AE_OK;
 }
-AeCode ae_log(AeLog *l, const AeRecord *r, AeLogPolicy policy) {
+enum ae_code ae_log(struct ae_log *l, const struct ae_record *r, enum ae_log_policy policy) {
   unsigned char b[12];
   if (!l || l->count > 3 || l->rate.tokens > 3 ||
       (unsigned)policy > AE_PROTECT_HIGH || ae_record_encode(r, b, 12) != AE_OK)
@@ -93,7 +93,7 @@ AeCode ae_log(AeLog *l, const AeRecord *r, AeLogPolicy policy) {
   l->records[l->count++] = *r;
   return AE_OK;
 }
-AeCode ae_log_drain(AeLog *l, AeSink sink, void *context) {
+enum ae_code ae_log_drain(struct ae_log *l, ae_sink_fn sink, void *context) {
   if (!l || !sink || l->count > 3)
     return AE_INVALID;
   if (!l->count)
@@ -113,13 +113,13 @@ AeCode ae_log_drain(AeLog *l, AeSink sink, void *context) {
   --l->count;
   return AE_OK;
 }
-static void fallback(AeReporter *r, const AeRecord *record) {
+static void fallback(struct ae_reporter *r, const struct ae_record *record) {
   if (r->fallback_available && r->stored < 2)
     r->fallback[r->stored++] = *record;
   else
     increment(&r->lost);
 }
-AeCode ae_report(AeReporter *r, const AeRecord *record, AeSink sink,
+enum ae_code ae_report(struct ae_reporter *r, const struct ae_record *record, ae_sink_fn sink,
                  void *context) {
   unsigned char b[12];
   if (!r || !sink || r->stored > 2 || ae_record_encode(record, b, 12) != AE_OK)

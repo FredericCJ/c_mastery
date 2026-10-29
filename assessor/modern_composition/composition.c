@@ -4,14 +4,14 @@
 #define MC_MUTANT 0
 #endif
 
-McPublish mc_publish_pair(const unsigned char *bytes, size_t n, V4Allocator a,
-                          OwOwner *published) {
-    McPublish r = {er_error(ER_INVALID, 0), OW_OK, false};
+struct mc_publish mc_publish_pair(const unsigned char *bytes, size_t n, struct v4_allocator a,
+                          struct ow_owner *published) {
+    struct mc_publish r = {er_error(ER_INVALID, 0), OW_OK, false};
     if (!published || n > INT32_MAX) return r;
     uint32_t sum = 0;
     r.parse = er_parse_pair(bytes, n, &sum);
     if (r.parse.tag != ER_OK) return r;
-    OwOwner staged = {0};
+    struct ow_owner staged = {0};
     const size_t lengths[3] = {1, 1, 1};
     if (MC_MUTANT == 1) (void)ow_destroy(published);
     r.storage = ow_construct(&staged, a, lengths);
@@ -28,13 +28,13 @@ McPublish mc_publish_pair(const unsigned char *bytes, size_t n, V4Allocator a,
     return r;
 }
 
-MsgStatus mc_read_init(McRead *r, COAsyncPort port, size_t wanted,
+enum msg_status mc_read_init(struct mc_read *r, struct co_async_port port, size_t wanted,
                        uint32_t generation, unsigned char out[8],
-                       MsgReceiver receiver, void *context,
-                       OwCleanup cleanup, void *cleanup_context) {
+                       msg_receiver_fn receiver, void *context,
+                       ow_cleanup_fn cleanup, void *cleanup_context) {
     if (!r || !out || !receiver || !cleanup || !port.read || !port.arm || !port.disarm)
         return MSG_INVALID;
-    McRead value = {0};
+    struct mc_read value = {0};
     if (co_async_init(&value.frame, wanted, generation) != CO_OK) return MSG_INVALID;
     if (ow_defer(&value.cleanup, cleanup, cleanup_context, OW_ALWAYS) != OW_OK)
         return MSG_FAILED;
@@ -46,15 +46,15 @@ MsgStatus mc_read_init(McRead *r, COAsyncPort port, size_t wanted,
     return MSG_OK;
 }
 
-static MsgStatus finish(McRead *r, MsgStatus status, unsigned progress) {
+static enum msg_status finish(struct mc_read *r, enum msg_status status, unsigned progress) {
     r->terminal = true;
     if (MC_MUTANT != 4) (void)ow_finish(&r->cleanup, status == MSG_OK);
     /* Completion may free r. Return a local value; never read r afterwards. */
-    MsgStatus delivered = msg_complete(&r->operation, status, progress);
+    enum msg_status delivered = msg_complete(&r->operation, status, progress);
     return delivered == MSG_OK ? status : delivered;
 }
 
-MsgStatus mc_read_poll(McRead *r) {
+enum msg_status mc_read_poll(struct mc_read *r) {
     if (!r || r->terminal) return MSG_INVALID;
     unsigned char data[8];
     size_t count = 0;
@@ -67,7 +67,7 @@ MsgStatus mc_read_poll(McRead *r) {
     return finish(r, MSG_FAILED, (unsigned)r->frame.length);
 }
 
-MsgStatus mc_read_cancel(McRead *r) {
+enum msg_status mc_read_cancel(struct mc_read *r) {
     if (!r || r->terminal) return MSG_INVALID;
     (void)msg_stop_operation(&r->operation);
     unsigned progress = (unsigned)r->frame.length;

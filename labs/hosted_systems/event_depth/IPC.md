@@ -32,7 +32,7 @@ sum2040 and prove each shift is within the unsigned representation. For
 `00 01 02 03 80 fe ff 00`, independently derive643 and `00 00 02 83`.
 Do not write a C struct, enum, pointer or mutex as a portable message.
 
-`EiRequest` is a serialized authoritative ownership ledger. Epoch and request ID
+`struct ei_request` is a serialized authoritative ownership ledger. Epoch and request ID
 are1..65535, chosen without reuse while older references remain live. Its states
 are allocated, queued, accepted, completed and abandoned. Client owns allocated
 and completed records; the transport owns queued records; the server owns
@@ -42,7 +42,7 @@ processes share the same C pointer. A pipe/socket copies bytes; an observer may
 learn about server transitions only later. Draw that knowledge delay separately.
 
 Implement `ei_init`, `ei_transition`, `ei_invariant`, `ei_reply` and the four-slot
-`EiQueue`. An invalid transition must leave every field unchanged. Admission
+`struct ei_queue`. An invalid transition must leave every field unchanged. Admission
 transfers client responsibility only on success; a full queue returns0 and
 retains the caller's responsibility. Duplicate addresses and live `(epoch,id)`
 pairs are rejected. Dequeue transfers one queued record to the server. Prove
@@ -71,8 +71,8 @@ may occur between acknowledgment and quiescence; cancellation cannot undo it.
 
 ## Deadline and connection contracts
 
-Implement `ei_exchange` in `ipc_budget.c` using its injected `EiIo` operations.
-Begin with zero `EiProgress`. Each positive transfer advances exactly that cursor;
+Implement `ei_exchange` in `ipc_budget.c` using its injected `struct ei_io` operations.
+Begin with zero `struct ei_progress`. Each positive transfer advances exactly that cursor;
 zero denotes end-of-stream/no progress failure in this selected8→4 exchange.
 EINTR retries the operation and EAGAIN waits; obtain current time after a failed
 I/O before computing the wait allowance. Check the same absolute deadline before
@@ -90,7 +90,7 @@ the caller must time out with8 sent and2 received. Record elapsed time, but do
 not infer a hard Linux scheduling bound from it. Rejecting late completion does
 not stop remote work. Use T24.03.b's separate quiescence protocol to release it.
 
-`ElAddress` stores a sockaddr_storage plus its actual length. Numeric getaddrinfo
+`struct el_address` stores a sockaddr_storage plus its actual length. Numeric getaddrinfo
 suppresses external name resolution. Copy into properly declared sockaddr_in,
 sockaddr_in6 or sockaddr_un objects for inspection; casting an arbitrary buffer
 does not itself establish ISO C effective type. The casts at the socket API
@@ -100,7 +100,7 @@ boundary use its specified OS interface. Pathname addresses use
 `el_listener` publishes only after socket/bind/listen succeed. `el_connect`
 accepts at most8 owned local candidates. `el_accept` is a nonblocking **try**:
 EAGAIN after apparent readiness is a valid result, so an outer deadline loop
-must retry. The cancellation callback borrows only until return. `ElOps.close_fd`
+must retry. The cancellation callback borrows only until return. `struct el_ops.close_fd`
 must consume the owned descriptor exactly once; this small adapter preserves
 the primary failure and does not provide a secondary cleanup-error channel.
 It is not equivalent to a general fallible resource-release abstraction.

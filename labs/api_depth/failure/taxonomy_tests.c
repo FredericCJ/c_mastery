@@ -15,7 +15,7 @@ int main(void) {
   CHECK(ae_boundary(valid, 1, 1, 1, 0, &out) == AE_EXHAUSTED && out == 999);
   CHECK(ae_boundary(valid, 1, 1, 0, 1, &out) == AE_DEVICE && out == 999);
   CHECK(ae_boundary(valid, 1, 1, 0, 0, &out) == AE_OK && out == 7);
-  AeDigit digit = {99, 0};
+  struct ae_digit digit = {99, 0};
   CHECK(ae_admit_digit(invalid, 1, &digit) == AE_INVALID && digit.value == 99 &&
         !digit.admitted);
   CHECK(ae_admit_digit(valid, 1, &digit) == AE_OK &&
@@ -33,7 +33,7 @@ int main(void) {
         ae_outcome(AE_DEVICE) == AE_TERMINAL &&
         ae_outcome(AE_INVALID) == AE_RECOVERABLE &&
         ae_outcome(AE_AMBIGUOUS) == AE_DEGRADED);
-  AeError error = {0};
+  struct ae_error error = {0};
   CHECK(ae_first(&error, AE_EXHAUSTED, 9, 2, 0, 11) == AE_OK);
   CHECK(ae_first(&error, AE_DEVICE, 9, 1, 0, 77) == AE_CONFLICT);
   for (unsigned i = 0; i < 40; ++i)
@@ -42,7 +42,7 @@ int main(void) {
         error.stage == 2 && error.stored == 2 &&
         error.secondary[0].cause == 77 && error.secondary[1].cause == 78 &&
         error.dropped == 31 && error.saturated);
-  AeCounter counter = {0};
+  struct ae_counter counter = {0};
   CHECK(ae_submit(&counter, 1, 2, AE_BUSY) == AE_AGAIN && counter.effects == 0);
   CHECK(ae_submit(&counter, 1, 2, AE_FAIL_BEFORE) == AE_DEVICE &&
         counter.effects == 0);
@@ -55,7 +55,7 @@ int main(void) {
         ae_submit(&counter, 3, 1, AE_SEND) == AE_OK &&
         ae_submit(&counter, 1, 2, AE_SEND) == AE_OK && counter.effects == 4 &&
         counter.value == 6);
-  AeWriteResult write = {AE_UNKNOWN, 999};
+  struct ae_write_result write = {AE_UNKNOWN, 999};
   CHECK(ae_write_result(5, 2, AE_DEVICE, &write) == AE_OK &&
         write.code == AE_DEVICE && write.accepted == 2);
   CHECK(ae_write_result(0, 0, AE_OK, &write) == AE_OK && write.code == AE_OK &&
@@ -63,17 +63,17 @@ int main(void) {
   CHECK(ae_write_result(5, 2, AE_OK, &write) == AE_INVALID &&
         write.accepted == 0);
   CHECK(ae_lookup(1).found && ae_lookup(1).value == 0 && !ae_lookup(2).found);
-  AvText fields[4] = {{(const unsigned char *)"x1", 2},
+  struct av_text fields[4] = {{(const unsigned char *)"x1", 2},
                       {(const unsigned char *)"32768", 5},
                       {(const unsigned char *)"-", 1},
                       {(const unsigned char *)"7", 1}};
-  AeFields result;
+  struct ae_fields result;
   CHECK(ae_fields(fields, 4, &result) == AE_INVALID && result.count == 3 &&
         result.values[3] == 7);
   CHECK(result.errors[0].field == 0 && result.errors[0].offset == 0 &&
         result.errors[1].field == 1 && result.errors[1].offset == 4 &&
         result.errors[2].field == 2 && result.errors[2].offset == 1);
-  AePublic public_result;
+  struct ae_public public_result;
   unsigned char bytes[8];
   CHECK(ae_capture(1, 104, 9, 2, &public_result, bytes) == AE_OK &&
         public_result.code == AE_TIMEOUT && public_result.operation == 9);

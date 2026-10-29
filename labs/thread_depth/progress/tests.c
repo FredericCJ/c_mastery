@@ -74,8 +74,8 @@ static void effects(void) {
        "rejected");
 }
 static void history(void) {
-  TPWitness out = {0};
-  TPOp valid[4] = {{1, 2, 0, TP_ENQUEUE, 1, TP_VALUE},
+  struct tp_witness out = {0};
+  struct tp_op valid[4] = {{1, 2, 0, TP_ENQUEUE, 1, TP_VALUE},
                    {3, 4, 1, TP_ENQUEUE, 2, TP_VALUE},
                    {5, 6, 2, TP_DEQUEUE, 1, TP_VALUE},
                    {7, 8, 3, TP_DEQUEUE, 2, TP_VALUE}};
@@ -87,7 +87,7 @@ static void history(void) {
   valid[2].value = 1;
   valid[3].value = 1;
   CHECK(tp_history(valid, 4, TP_REQUIRE_COMPLETE, &out) == TP_NONLINEAR);
-  TPOp pending[2] = {{1, 0, 0, TP_ENQUEUE, 7, 0},
+  struct tp_op pending[2] = {{1, 0, 0, TP_ENQUEUE, 7, 0},
                      {2, 3, 1, TP_DEQUEUE, 7, TP_VALUE}};
   out.length = 77;
   CHECK(tp_history(pending, 2, TP_REQUIRE_COMPLETE, &out) == TP_INCOMPLETE &&
@@ -104,7 +104,7 @@ static void history(void) {
   pending[1].value = 0;
   pending[1].result = TP_EMPTY;
   CHECK(tp_history(pending, 2, TP_ALLOW_EXTENSION, &out) == TP_OK);
-  TPOp full[4] = {{1, 2, 0, 0, 1, 0},
+  struct tp_op full[4] = {{1, 2, 0, 0, 1, 0},
                   {3, 4, 0, 0, 2, 0},
                   {5, 6, 0, 0, 3, 0},
                   {7, 8, 0, 0, 4, TP_FULL}};

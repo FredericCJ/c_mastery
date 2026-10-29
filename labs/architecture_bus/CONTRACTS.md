@@ -14,7 +14,7 @@ Read the registered actual RM0090 Rev21 pp59–64,68 and1010 passages and bus
 figures. The new source register is
 `research/v5/expansion/legacy_architecture_bus/resources.json`. Know C lifetime,
 character access to object representations, numeric bounds versus pointers,
-linker sections and borrowed payloads. Bring the actual `PdTransfer` producer,
+linker sections and borrowed payloads. Bring the actual `struct pd_transfer` producer,
 the B06 selected F439 `f439_service.ld` and the completed PR-T37-02 typed-object
 map. Missing prior learner implementations remain required; assessor reference
 source is selected separately and never exported as completed learner work.
@@ -36,7 +36,7 @@ REV_ID is introduced here. Main-flash/no-SRAM-remap data paths are selected.
 
 ## Concrete graph and placement operations
 
-Implement `mb_map` and `mb_place`. `MBMap` describes a selected six-port
+Implement `mb_map` and `mb_place`. `struct mb_map` describes a selected six-port
 subgraph: CPU D-bus to CCM; CPU S-bus to ordinary SRAM/APB; DMA1 memory port to
 ordinary SRAM and its dedicated peripheral port to APB1; DMA2 memory port to
 ordinary SRAM and peripheral port to ordinary SRAM/APB1/APB2. The two APB
@@ -77,7 +77,7 @@ publishing any caller state. Empty allocations are rejected, not modeled as DMA.
 ## Actual typed objects and map change
 
 Reuse `ab_cpu_only[2]` and `ab_dma_candidate[2]` from the unchanged
-`labs/architecture_bytes/placement.c`; they are actual `AWRecord` arrays, not
+`labs/architecture_bytes/placement.c`; they are actual `struct aw_record` arrays, not
 declared character storage cast to a struct. `ledger_objects.c` adds one16-byte
 source array. Compile actual objects with the target toolchain. Both audit
 linker scripts **include the unchanged B06 `f439_service.ld`** for its owned
@@ -97,7 +97,7 @@ an example; replace it with a header derived from your own real link.
 
 ## Compose the actual DMA producer
 
-`MBLease` starts zero-initialized, remains at a stable address and is single
+`struct mb_lease` starts zero-initialized, remains at a stable address and is single
 owner/non-reentrant. `mb_bind` borrows distinct live source/destination storage
 of1..64 bytes for its enclosing lifetime; corresponding numeric identities and
 bank names must be accurate under the target adapter. Host/emulator mocks use

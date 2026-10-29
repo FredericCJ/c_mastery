@@ -310,7 +310,7 @@ vector instructions actually occur; a vector source type alone is insufficient.
 
 Compile compensated reduction with ordinary flags and with -ffast-math. Retain
 the expected failure as a changed arithmetic contract, not an optimization win.
-Measure only variants meeting the same declared correctness contract; pin CPU,
+Measure only variants meeting the same declared correctness contract; pin struct lr_cpu,
 compiler, frequency policy, alignment, data size, repetitions and warm/cold state.
 Report distributions, code/stack size and traffic model; no universal speed claim.
 For fenv, subnormals and FTZ record actual compiler/platform support. No host

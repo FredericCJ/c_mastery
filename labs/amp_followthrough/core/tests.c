@@ -4,7 +4,7 @@
 #include <limits.h>
 #define C(x) do{if(!(x)){fprintf(stderr,"AF_CHECK:%s:%d:%s\n",__func__,__LINE__,#x);return 1;}}while(0)
 static int images(void){
- AfBank banks[]={{0x20000000,0x20000,1,1},{0x30000000,0x20000,7,2},{0x30020000,0x20000,7,2},{0x30040000,0x8000,7,2},{0x38000000,0x10000,3,3}};
+ struct af_bank banks[]={{0x20000000,0x20000,1,1},{0x30000000,0x20000,7,2},{0x30020000,0x20000,7,2},{0x30040000,0x8000,7,2},{0x38000000,0x10000,3,3}};
  /* Master bits M7=1,M4=2,DMA2=4: selected tested ledger subset. Actual
   * board bus reachability is a separate primary-source/physical premise. */
  unsigned domain=99;C(af_region(banks,5,0x30040000,32768,3,&domain)==AF_OK&&domain==2);
@@ -12,16 +12,16 @@ static int images(void){
  C(af_region(banks,5,0x38000000,32768,3,&domain)==AF_OK&&domain==3);
  C(af_region(banks,5,0x30047fff,2,3,&domain)==AF_INVALID);
  C(af_region(banks,5,UINT32_MAX-1,4,3,&domain)==AF_INVALID);
- AfOwners owners={0};for(unsigned r=0;r<4;r++)C(af_owner_claim(&owners,r,r==3?4:7)==AF_OK);
+ struct af_owners owners={0};for(unsigned r=0;r<4;r++)C(af_owner_claim(&owners,r,r==3?4:7)==AF_OK);
  C(af_owner_claim(&owners,2,4)==AF_CONFLICT&&owners.telemetry_owner==7);
- AfOwners moved={7,7,4,7};C(af_owner_claim(&moved,2,4)==AF_OK&&af_owner_claim(&moved,2,7)==AF_CONFLICT);
+ struct af_owners moved={7,7,4,7};C(af_owner_claim(&moved,2,4)==AF_OK&&af_owner_claim(&moved,2,7)==AF_CONFLICT);
  puts("AF_IMAGE:TCM not peer shared;SRAM3 D2 and SRAM4 D3 distinct premises;duplicate telemetry owner refused");return 0;
 }
 static int boot(void){
- AfBoot b;atomic_init(&b.ready,9);atomic_init(&b.version,1);atomic_init(&b.layout,AF_LAYOUT-1);atomic_init(&b.epoch,9);atomic_init(&b.ack,9);atomic_init(&b.parked,0);
+ struct af_boot b;atomic_init(&b.ready,9);atomic_init(&b.version,1);atomic_init(&b.layout,AF_LAYOUT-1);atomic_init(&b.epoch,9);atomic_init(&b.ack,9);atomic_init(&b.parked,0);
  C(af_boot_ack(&b,2,AF_LAYOUT,9)==AF_STALE);
  atomic_store(&b.version,2);C(af_boot_ack(&b,2,AF_LAYOUT,9)==AF_STALE);
- AfBootOwner s={0},before=s;
+ struct af_boot_owner s={0},before=s;
  C(af_boot_begin(&s,9,UINT32_MAX-10,100,0,1)==AF_BUSY&&!memcmp(&s,&before,sizeof s));
  C(af_boot_begin(&s,9,UINT32_MAX-10,100,1,0)==AF_BUSY);
  C(af_boot_begin(&s,9,UINT32_MAX-10,100,1,1)==AF_OK);
@@ -43,11 +43,11 @@ static int boot(void){
  C(af_elapsed(0,0,UINT32_C(0x80000000),&expired)==AF_INVALID);
  puts("AF_BOOT:layout width before payload;4 replayable publication stages;both quiescence domains;wrapped deadline6;MAX epoch retires");return 0;
 }
-static AfMessage message(unsigned id,unsigned length){AfMessage m={7,id,length,{0}};for(unsigned j=0;j<length;j++)m.bytes[j]=(unsigned char)(id*17+j);return m;}
+static struct af_message message(unsigned id,unsigned length){struct af_message m={7,id,length,{0}};for(unsigned j=0;j<length;j++)m.bytes[j]=(unsigned char)(id*17+j);return m;}
 static int ring(void){
- AfRing q;af_ring_init(&q,UINT32_MAX-1);C(atomic_is_lock_free(&q.head)&&atomic_is_lock_free(&q.tail));
- for(unsigned batch=0;batch<4;batch++){AfMessage v[4];for(unsigned j=0;j<4;j++)v[j]=message(batch*4+j+1,(batch*4+j)%33);C(af_batch(&q,7,v,4)==AF_OK);C(af_queued(&q)==(batch+1)*4);}
- AfMessage v=message(17,32);C(af_batch(&q,7,&v,1)==AF_FULL);
+ struct af_ring q;af_ring_init(&q,UINT32_MAX-1);C(atomic_is_lock_free(&q.head)&&atomic_is_lock_free(&q.tail));
+ for(unsigned batch=0;batch<4;batch++){struct af_message v[4];for(unsigned j=0;j<4;j++)v[j]=message(batch*4+j+1,(batch*4+j)%33);C(af_batch(&q,7,v,4)==AF_OK);C(af_queued(&q)==(batch+1)*4);}
+ struct af_message v=message(17,32);C(af_batch(&q,7,&v,1)==AF_FULL);
  unsigned char bytes[32];uint32_t id=99;size_t length=99;
  for(unsigned n=1;n<=16;n++){
   memset(bytes,0xee,sizeof bytes);uint32_t tail=atomic_load(&q.tail);unsigned size=(n-1)%33;
@@ -72,7 +72,7 @@ static int cache(void){
  puts("AF_CACHE:32/64 line rounding and UINT32 endpoint overflow;actual visibility validated through separate frozen Pd/cache providers");return 0;
 }
 static int receipt(void){
- AfReceipt s={4,0,10,0,0};int32_t out=777;C(af_effect(&s,4,1,5,&out)==AF_OK&&out==15);
+ struct af_receipt s={4,0,10,0,0};int32_t out=777;C(af_effect(&s,4,1,5,&out)==AF_OK&&out==15);
  C(af_effect(&s,4,1,5,&out)==AF_OK&&out==15&&s.total==15);
  C(af_effect(&s,4,1,6,&out)==AF_CONFLICT&&out==15&&s.total==15);
  C(af_effect(&s,3,2,1,&out)==AF_STALE);C(af_effect(&s,4,2,-2,&out)==AF_OK&&out==13);

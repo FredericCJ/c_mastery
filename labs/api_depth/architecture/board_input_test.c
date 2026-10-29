@@ -1,11 +1,11 @@
 #include "board_input.h"
 #include "test.h"
-typedef struct {
+struct ac_bus {
   unsigned char wire[3];
   unsigned available, position, reads, error;
-} Bus;
+};
 static uint32_t read_reg(void *p, uint32_t address) {
-  Bus *b = p;
+  struct ac_bus *b = p;
   if (address == 0x40004400u)
     return b->error ? 2u : (b->position < b->available ? 32u : 0u);
   CHECK(address == 0x40004404u);
@@ -22,15 +22,15 @@ static void write_reg(void *p, uint32_t a, uint32_t v) {
 }
 static void sync_bus(void *p) { (void)p; }
 int main(void) {
-  Bus b = {0};
-  CHECK(ar_encode(1, (ArRecord){513}, b.wire, 3) == AR_OK);
-  FHIO io = {&b, read_reg, write_reg, sync_bus};
+  struct ac_bus b = {0};
+  CHECK(ar_encode(1, (struct ar_record){513}, b.wire, 3) == AR_OK);
+  struct fh_io io = {&b, read_reg, write_reg, sync_bus};
   unsigned char bytes[3];
   CHECK(ar_f439_read(io, bytes, 3).state == AR_PENDING);
-  ArReader parser = {{0}, 0, 1};
-  ArRecord value = {99};
+  struct ar_reader parser = {{0}, 0, 1};
+  struct ar_record value = {99};
   b.available = 1;
-  ArResult r = ar_f439_read(io, bytes, 3);
+  struct ar_result r = ar_f439_read(io, bytes, 3);
   CHECK(r.count == 1 && r.state == AR_OK &&
         ar_feed(&parser, bytes, 1, &value) == AR_PENDING);
   b.available = 3;

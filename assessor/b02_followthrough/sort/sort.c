@@ -7,14 +7,14 @@ int bf_sort_width(size_t n,size_t width,size_t*out){
  *out=width>n-width?n:width+width;
  return B2_OK;
 }
-int bf_sort_bottom(B2Item*a,size_t n,B2Item*s,size_t capacity,BfWork*out){
+int bf_sort_bottom(struct b2_item*a,size_t n,struct b2_item*s,size_t capacity,struct bf_work*out){
  if(!out||(n&&!a))return B2_INVALID;
  if(n>64)return B2_RANGE;
  if(n>1&&(!s||capacity<n)){
   if(BF_MUTANT==3)a[0].key=0;
   return B2_FULL;
  }
- BfWork work={0,0,0};
+ struct bf_work work={0,0,0};
  for(size_t width=1;width<n;){
   for(size_t start=0;start<n;){
    size_t left=n-start<width?n-start:width;
@@ -35,12 +35,12 @@ int bf_sort_bottom(B2Item*a,size_t n,B2Item*s,size_t capacity,BfWork*out){
  }
  work.payload_writes=work.writes;*out=work;return B2_OK;
 }
-int bf_sort_indirect(const BfRecord*a,size_t n,size_t*indices,size_t capacity,
- size_t*scratch,size_t scratch_capacity,BfWork*out){
+int bf_sort_indirect(const struct bf_record*a,size_t n,size_t*indices,size_t capacity,
+ size_t*scratch,size_t scratch_capacity,struct bf_work*out){
  if(!out||(n&&(!a||!indices)))return B2_INVALID;
  if(n>64)return B2_RANGE;
  if(capacity<n||(n>1&&(!scratch||scratch_capacity<n)))return B2_FULL;
- BfWork work={0,0,0};
+ struct bf_work work={0,0,0};
  for(size_t i=0;i<n;++i){indices[i]=BF_MUTANT==4?0:i;++work.writes;}
  for(size_t width=1;width<n;){
   for(size_t start=0;start<n;){

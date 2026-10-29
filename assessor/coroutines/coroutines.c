@@ -1,12 +1,12 @@
 #include "coroutines.h"
-int co_next(CORange *r,uint32_t *out){
+int co_next(struct co_range *r,uint32_t *out){
  if(!r||!out||!r->step||r->current>r->end||r->end>65536)return CO_INVALID;
  if(r->done||r->current==r->end){r->done=1;return CO_DONE;}
  uint32_t value=r->current;
  if(r->step>=r->end-r->current){r->current=r->end;r->done=1;}else r->current+=r->step;
  *out=value;return CO_OK;
 }
-int co_flow_next(COFlow *f,uint32_t *out){
+int co_flow_next(struct co_flow *f,uint32_t *out){
  if(!f||!out)return CO_INVALID;
 #ifndef CR_MUTATE_ITERATOR
  if(!f->remaining)return CO_DONE;
@@ -20,16 +20,16 @@ int co_flow_next(COFlow *f,uint32_t *out){
 #endif
  f->remaining--;return CO_OK;}}
 }
-int co_fold(COFlow *f,COFold fold,void *ctx,size_t *accepted){
+int co_fold(struct co_flow *f,co_fold_fn fold,void *ctx,size_t *accepted){
  if(!f||!fold||!accepted)return CO_INVALID;
  size_t n=0;for(;;){uint32_t x;int r=co_flow_next(f,&x);if(r==CO_DONE){*accepted=n;return CO_DONE;}if(r)return r;
  int choice=fold(ctx,x);if(choice<0||choice>1)return CO_IO;n++;if(choice){*accepted=n;return CO_OK;}}
 }
-int co_query_open(COQuery *q,const CORow *rows,size_t n){
+int co_query_open(struct co_query *q,const struct co_row *rows,size_t n){
  if(!q||(!rows&&n)||n>64)return CO_INVALID;
- COQuery fresh={rows,n,0,0};*q=fresh;return CO_OK;
+ struct co_query fresh={rows,n,0,0};*q=fresh;return CO_OK;
 }
-int co_query_next(COQuery *q,unsigned *key,uint32_t *sum){
+int co_query_next(struct co_query *q,unsigned *key,uint32_t *sum){
  if(!q||!key||!sum||q->index>q->count)return CO_INVALID;
  if(q->closed)return CO_STATE;
  size_t at=q->index;
@@ -53,13 +53,13 @@ int co_query_next(COQuery *q,unsigned *key,uint32_t *sum){
  *key=group;*sum=total;return CO_OK;}}
  q->index=at;return CO_DONE;
 }
-int co_query_close(COQuery *q){if(!q)return CO_INVALID;q->closed=1;q->rows=0;return CO_OK;}
-int co_generator_create(COAllocator a,unsigned count,COGenerator **out){
+int co_query_close(struct co_query *q){if(!q)return CO_INVALID;q->closed=1;q->rows=0;return CO_OK;}
+int co_generator_create(struct co_allocator a,unsigned count,struct co_generator **out){
  if(!a.allocate||!a.release||!out||count>47)return CO_INVALID;
- COGenerator *p=a.allocate(a.context,sizeof(*p));if(!p)return CO_RANGE;
+ struct co_generator *p=a.allocate(a.context,sizeof(*p));if(!p)return CO_RANGE;
  p->allocator=a;p->a=0;p->b=1;p->index=0;p->count=count;*out=p;return CO_OK;
 }
-int co_generator_next(COGenerator *p,uint32_t *out){
+int co_generator_next(struct co_generator *p,uint32_t *out){
  if(!p||!out)return CO_INVALID;
 #ifdef CR_MUTATE_GENERATOR
  if(p->index>p->count)return CO_DONE;
@@ -70,10 +70,10 @@ int co_generator_next(COGenerator *p,uint32_t *out){
  if(p->index<p->count){uint32_t next=p->a+p->b;p->a=p->b;p->b=next;}
  *out=value;return CO_OK;
 }
-int co_generator_destroy(COGenerator **p){
+int co_generator_destroy(struct co_generator **p){
  if(!p)return CO_INVALID;
  if(!*p)return CO_OK;
- COGenerator *old=*p;COAllocator a=old->allocator;*p=0;
+ struct co_generator *old=*p;struct co_allocator a=old->allocator;*p=0;
 #ifndef CR_MUTATE_GENERATOR2
  a.release(a.context,old);
 #else
@@ -81,8 +81,8 @@ int co_generator_destroy(COGenerator **p){
 #endif
  return CO_OK;
 }
-int co_trampoline_init(COTrampoline *p,unsigned n){if(!p||n>12)return CO_INVALID;COTrampoline v={0};v.n=n;v.value=1;*p=v;return CO_OK;}
-int co_trampoline_step(COTrampoline *p,unsigned budget,uint32_t *out){
+int co_trampoline_init(struct co_trampoline *p,unsigned n){if(!p||n>12)return CO_INVALID;struct co_trampoline v={0};v.n=n;v.value=1;*p=v;return CO_OK;}
+int co_trampoline_step(struct co_trampoline *p,unsigned budget,uint32_t *out){
  if(!p||!out||p->n>12||p->depth>12||p->phase>3)return CO_INVALID;
  if(p->phase==3)return CO_STATE;
  if(p->phase==2)return CO_DONE;
@@ -100,8 +100,8 @@ int co_trampoline_step(COTrampoline *p,unsigned budget,uint32_t *out){
   }else{p->phase=2;*out=p->value;return CO_DONE;}
  }return CO_PENDING;
 }
-int co_trampoline_cancel(COTrampoline *p){if(!p)return CO_INVALID;p->depth=0;p->phase=3;return CO_OK;}
-static int parse_node(const COParser *p,unsigned node,const unsigned char *s,size_t n,size_t *at,unsigned *budget,unsigned *steps){
+int co_trampoline_cancel(struct co_trampoline *p){if(!p)return CO_INVALID;p->depth=0;p->phase=3;return CO_OK;}
+static int parse_node(const struct co_parser *p,unsigned node,const unsigned char *s,size_t n,size_t *at,unsigned *budget,unsigned *steps){
  if(!*budget)return CO_RANGE;
  (*budget)--;(*steps)++;size_t start=*at;int r;
  switch(p[node].kind){
@@ -124,7 +124,7 @@ static int parse_node(const COParser *p,unsigned node,const unsigned char *s,siz
  default:return CO_INVALID;
  }
 }
-int co_parse(const COParser *p,size_t pn,const unsigned char *s,size_t n,size_t start,unsigned budget,size_t *end,unsigned *steps){
+int co_parse(const struct co_parser *p,size_t pn,const unsigned char *s,size_t n,size_t start,unsigned budget,size_t *end,unsigned *steps){
  if(!p||!pn||pn>16||(!s&&n)||!end||!steps||start>n)return CO_INVALID;
  for(size_t i=0;i<pn;i++){
   if(p[i].kind>CO_EMPTY)return CO_INVALID;
@@ -133,7 +133,7 @@ int co_parse(const COParser *p,size_t pn,const unsigned char *s,size_t n,size_t 
  }
  size_t at=start;unsigned count=0;int r=parse_node(p,0,s,n,&at,&budget,&count);*steps=count;if(!r)*end=at;return r;
 }
-static int memo_s(const unsigned char *s,size_t n,size_t at,COMemo *memo,unsigned *calls,size_t *end){
+static int memo_s(const unsigned char *s,size_t n,size_t at,struct co_memo *memo,unsigned *calls,size_t *end){
 #ifndef CR_MUTATE_PACKRAT
  if(memo[at].state==2){*end=memo[at].end;return CO_OK;}
  if(memo[at].state==3)return CO_NO_MATCH;
@@ -155,7 +155,7 @@ done: memo[at].state=r==CO_OK?2:3;
 #endif
  }return r;
 }
-int co_packrat(const unsigned char *s,size_t n,COMemo *memo,size_t cap,size_t *end,unsigned *calls){
+int co_packrat(const unsigned char *s,size_t n,struct co_memo *memo,size_t cap,size_t *end,unsigned *calls){
  if((!s&&n)||!memo||!end||!calls||n>64||cap<n+1)return CO_INVALID;
  for(size_t i=0;i<=n;i++)memo[i].state=0;
  unsigned count=0;size_t result=0;int r=memo_s(s,n,0,memo,&count,&result);*calls=count;
@@ -163,14 +163,14 @@ int co_packrat(const unsigned char *s,size_t n,COMemo *memo,size_t cap,size_t *e
  if(result!=n)return CO_NO_MATCH;
  *end=result;return CO_OK;
 }
-int co_async_init(COAsync *p,size_t wanted,uint32_t generation){if(!p||!wanted||wanted>8||!generation)return CO_INVALID;COAsync f={0};f.wanted=wanted;f.generation=generation;*p=f;return CO_OK;}
-static void disarm(COAsync *p,COAsyncPort port){if(p->registered){p->registered=0;port.disarm(port.context,p->generation);}}
-int co_async_poll(COAsync *p,COAsyncPort port,unsigned char *out,size_t *n){
+int co_async_init(struct co_async *p,size_t wanted,uint32_t generation){if(!p||!wanted||wanted>8||!generation)return CO_INVALID;struct co_async f={0};f.wanted=wanted;f.generation=generation;*p=f;return CO_OK;}
+static void disarm(struct co_async *p,struct co_async_port port){if(p->registered){p->registered=0;port.disarm(port.context,p->generation);}}
+int co_async_poll(struct co_async *p,struct co_async_port port,unsigned char *out,size_t *n){
  if(!p||!port.read||!port.arm||!port.disarm||!out||!n||p->length>p->wanted||p->wanted>8||!p->wanted)return CO_INVALID;
  if(p->state==2||p->state==3)return CO_STATE;
  if(p->state==1)return CO_DONE;
  for(unsigned attempt=0;attempt<2;attempt++){
-  COReadResult r=port.read(port.context,p->data+p->length,p->wanted-p->length);
+  struct co_read_result r=port.read(port.context,p->data+p->length,p->wanted-p->length);
   if(r.status>CO_READ_ERROR||r.count>p->wanted-p->length||(r.status==CO_READ_AGAIN&&r.count)){disarm(p,port);p->state=3;return CO_INVALID;}
   p->length+=r.count;
   if(r.status==CO_READ_ERROR){disarm(p,port);p->state=3;return CO_IO;}
@@ -183,23 +183,23 @@ int co_async_poll(COAsync *p,COAsyncPort port,unsigned char *out,size_t *n){
   }else return CO_PENDING;
  }return CO_PENDING;
 }
-int co_async_notify(COAsync *p,uint32_t gen){if(!p)return CO_INVALID;if(p->state||!p->registered||gen!=p->generation)return CO_STATE;p->ready=1;return CO_OK;}
-int co_async_cancel(COAsync *p,COAsyncPort port){if(!p||!port.disarm)return CO_INVALID;if(p->state==1)return CO_STATE;
+int co_async_notify(struct co_async *p,uint32_t gen){if(!p)return CO_INVALID;if(p->state||!p->registered||gen!=p->generation)return CO_STATE;p->ready=1;return CO_OK;}
+int co_async_cancel(struct co_async *p,struct co_async_port port){if(!p||!port.disarm)return CO_INVALID;if(p->state==1)return CO_STATE;
 #ifndef CR_MUTATE_ASYNC2
  disarm(p,port);
 #endif
  p->state=2;return CO_OK;}
-int co_effect_start(COEffect *p,COContinuation *out){if(!p||!out)return CO_INVALID;p->pc=1;p->generation=1;p->first=0;COContinuation k={p,1,1};*out=k;return CO_REQUEST;}
-int co_effect_resume(COContinuation *k,uint32_t value,COContinuation *next,uint32_t *out){
+int co_effect_start(struct co_effect *p,struct co_continuation *out){if(!p||!out)return CO_INVALID;p->pc=1;p->generation=1;p->first=0;struct co_continuation k={p,1,1};*out=k;return CO_REQUEST;}
+int co_effect_resume(struct co_continuation *k,uint32_t value,struct co_continuation *next,uint32_t *out){
  if(!k||!k->owner||!next||!out)return CO_INVALID;
- COEffect *p=k->owner;
+ struct co_effect *p=k->owner;
 #ifndef CR_MUTATE_EFFECT
  if(k->generation!=p->generation||k->question!=p->pc||p->pc<1||p->pc>2)return CO_STATE;
 #endif
  if(p->pc==2&&value>UINT32_MAX-p->first)return CO_RANGE;
  if(p->generation==UINT32_MAX)return CO_RANGE;
  p->generation++;k->owner=0;
- if(p->pc==1){p->first=value;p->pc=2;COContinuation q={p,p->generation,2};*next=q;return CO_REQUEST;}
+ if(p->pc==1){p->first=value;p->pc=2;struct co_continuation q={p,p->generation,2};*next=q;return CO_REQUEST;}
 #ifdef CR_MUTATE_EFFECT2
  *out=value;
 #else
@@ -207,4 +207,4 @@ int co_effect_resume(COContinuation *k,uint32_t value,COContinuation *next,uint3
 #endif
  p->pc=3;return CO_DONE;
 }
-int co_effect_abort(COContinuation *k){if(!k||!k->owner)return CO_INVALID;COEffect *p=k->owner;if(k->generation!=p->generation||p->pc<1||p->pc>2)return CO_STATE;p->pc=4;k->owner=0;return CO_OK;}
+int co_effect_abort(struct co_continuation *k){if(!k||!k->owner)return CO_INVALID;struct co_effect *p=k->owner;if(k->generation!=p->generation||p->pc<1||p->pc>2)return CO_STATE;p->pc=4;k->owner=0;return CO_OK;}

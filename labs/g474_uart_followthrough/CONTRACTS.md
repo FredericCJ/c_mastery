@@ -8,7 +8,7 @@ The primary-source register is
 `research/v5/expansion/legacy_advanced_g474_uart/resources.json`.
 
 Prerequisites: T27 reset/linker/clock ownership, T28 MMIO/USART side effects,
-the existing `PlBytePort` completion contract, and the learner's earlier
+the existing `struct pl_byte_port` completion contract, and the learner's earlier
 generated F439/G474 register adapter. Supply the learner's `g4_initialize`,
 the byte-transfer provider, a register-order ledger, a failed-initialization
 analysis, and a source-bound build/capture dossier. The target is an exclusively

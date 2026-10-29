@@ -16,8 +16,8 @@ extern void ss_park(unsigned,uintptr_t) __attribute__((noreturn));
 static unsigned char ss_boot[CMK2_MAX_CPUS][4096] ALIGN(16);
 static struct {unsigned generation,apic,verified,ack,quiescent;uint64_t initial_stack,page;} ss_observed[CMK2_MAX_CPUS];
 static unsigned ss_delay_release;
-static SsWorld ss_world;
-static SsTicket ss_tickets[CMK2_MAX_CPUS];
+static struct ss_world ss_world;
+static struct ss_ticket ss_tickets[CMK2_MAX_CPUS];
 static void ss_fail(const char *reason){text("SS_GUEST_CHECK:");text(reason);text("\n");unsigned value=17;__asm__ volatile("outl %0,$0xf4"::"a"(value));for(;;)__asm__ volatile("cli;hlt");}
 static void ss_u64(uint64_t v){number((unsigned)(v>>32));text(":");number((unsigned)v);}
 void ss_parked(unsigned index){
@@ -43,23 +43,23 @@ static void ss_entry(unsigned index,unsigned generation,unsigned expected_apic,u
  ss_park(index,(uintptr_t)(cpus[index].boot+sizeof cpus[index].boot));
 }
 static void ss_launch(unsigned index){
- unsigned slot=SS_MODE==1?index-1:0;uint64_t page=SS_BASE+4096*slot;SsTicket ticket;
+ unsigned slot=SS_MODE==1?index-1:0;uint64_t page=SS_BASE+4096*slot;struct ss_ticket ticket;
  if(ss_begin(&ss_world,slot,index,topology.ids[index],page,(uintptr_t)ss_boot[index],(uintptr_t)(ss_boot[index]+sizeof ss_boot[index]),&ticket)!=SS_OK)ss_fail("resource-admission");ss_tickets[index]=ticket;
  unsigned char *begins[]={ss_ap_0_start,ss_ap_1_start,ss_ap_2_start},*ends[]={ss_ap_0_end,ss_ap_1_end,ss_ap_2_end};size_t n=(size_t)(ends[slot]-begins[slot]);if(n>0xf00)ss_fail("trampoline-size");memcpy((void *)(uintptr_t)page,begins[slot],n);
  volatile uint64_t *m=(volatile uint64_t *)(uintptr_t)(page+0xf00);m[0]=(uintptr_t)boot_pml4;m[1]=(uintptr_t)(ss_boot[index]+sizeof ss_boot[index]);m[2]=(uintptr_t)ss_entry;m[3]=index;m[4]=ticket.generation;m[5]=topology.ids[index];__atomic_thread_fence(__ATOMIC_SEQ_CST);
  ipi(topology.ids[index],0xc500);delay();ipi(topology.ids[index],0x8500);delay();ipi(topology.ids[index],0x600|(unsigned)(page>>12));
 }
 static void ss_collect(unsigned index){
- SsTicket t=ss_tickets[index];unsigned timed_out=0;
+ struct ss_ticket t=ss_tickets[index];unsigned timed_out=0;
  for(unsigned spin=0;!__atomic_load_n(&ss_observed[index].ack,__ATOMIC_ACQUIRE);++spin){
   if(spin==10000000){
    if(SS_MODE!=2||index!=1||timed_out)ss_fail("missing-ack");
    if(ss_timeout(&ss_world,t)!=SS_OK||ss_release(&ss_world,t)!=SS_NOT_QUIESCENT)ss_fail("timeout-reuse");
-   SsTicket untouched={99,99};if(ss_begin(&ss_world,t.slot,index,topology.ids[index],SS_BASE,(uintptr_t)ss_boot[index],(uintptr_t)(ss_boot[index]+sizeof ss_boot[index]),&untouched)!=SS_BUSY||untouched.slot!=99)ss_fail("timeout-new-attempt");
+   struct ss_ticket untouched={99,99};if(ss_begin(&ss_world,t.slot,index,topology.ids[index],SS_BASE,(uintptr_t)ss_boot[index],(uintptr_t)(ss_boot[index]+sizeof ss_boot[index]),&untouched)!=SS_BUSY||untouched.slot!=99)ss_fail("timeout-new-attempt");
    text("SS_TIMEOUT_RETAIN:index=");number(index);text(" generation=");number(t.generation);text("\n");timed_out=1;spin=0;__atomic_store_n(&ss_delay_release,1,__ATOMIC_RELEASE);
   }pause_cpu();
  }
- SsTicket reported={t.slot,ss_observed[index].generation};SsEvidence evidence={ss_observed[index].apic,ss_observed[index].verified,ss_observed[index].initial_stack};int result=ss_ack(&ss_world,reported,evidence);
+ struct ss_ticket reported={t.slot,ss_observed[index].generation};struct ss_evidence evidence={ss_observed[index].apic,ss_observed[index].verified,ss_observed[index].initial_stack};int result=ss_ack(&ss_world,reported,evidence);
  if(result!=(timed_out?SS_LATE:SS_OK))ss_fail("stale-or-incomplete-ack");
  if(ss_ack(&ss_world,reported,evidence)!=SS_DUPLICATE)ss_fail("duplicate-ack");
  for(unsigned spin=0;!__atomic_load_n(&ss_observed[index].quiescent,__ATOMIC_ACQUIRE);++spin){if(spin==10000000)ss_fail("quiescence-missing");pause_cpu();}

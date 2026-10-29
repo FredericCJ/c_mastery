@@ -14,14 +14,14 @@ int pm_puts(const char *);
       return 1;                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
+struct dg_model {
   uint32_t r[19];
   unsigned reads, writes, dr_reads, dr_writes, stop_requests, instant_dma;
   uint8_t sent[16];
   unsigned order[128], n;
-} Model;
+};
 static uint32_t read_reg(void *v, unsigned r) {
-  Model *m = v;
+  struct dg_model *m = v;
   ++m->reads;
   if (r == PS_DR) {
     ++m->dr_reads;
@@ -30,7 +30,7 @@ static uint32_t read_reg(void *v, unsigned r) {
   return m->r[r];
 }
 static void write_reg(void *v, unsigned r, uintptr_t x) {
-  Model *m = v;
+  struct dg_model *m = v;
   ++m->writes;
   m->order[m->n++] = r;
   if (r == PS_DR) {
@@ -55,12 +55,12 @@ static void write_reg(void *v, unsigned r, uintptr_t x) {
     m->r[PS_SR] = PS_TXE;
 }
 int main(void) {
-  PuClock c = {16000000, 1, 1, 1, 1, 0};
+  struct pu_clock c = {16000000, 1, 1, 1, 1, 0};
   uint8_t tx[3] = {0x9f, 0, 0}, rx[3] = {0xcc, 0xcc, 0xcc}, cmd[3], data[3];
   uint16_t value = 777;
-  PsSpi s = {0};
-  Model m = {0};
-  PsIo io = {&m, read_reg, write_reg};
+  struct ps_spi s = {0};
+  struct dg_model m = {0};
+  struct ps_io io = {&m, read_reg, write_reg};
   for (unsigned mode = 0; mode < 4; mode++) {
     CHECK(ps_open(&s, io, &c, mode, 3) == PS_OK);
     CHECK(m.r[PS_CONFIG] == (0x31cu | mode));
@@ -140,9 +140,9 @@ int main(void) {
 
   /* Each wait has a distinct prefix, without inventing successful bytes. */
   for (unsigned cut = 0; cut < 3; cut++) {
-    PsSpi q = {0};
-    Model n = {0};
-    PsIo qi = {&n, read_reg, write_reg};
+    struct ps_spi q = {0};
+    struct dg_model n = {0};
+    struct ps_io qi = {&n, read_reg, write_reg};
     uint8_t tr[3] = {99, 99, 99};
     CHECK(ps_open(&q, qi, &c, 0, 3) == PS_OK);
     CHECK(ps_begin(&q, qi, 1, 1, tx, tr, 3, 0, 0, 8, 0, 1) == PS_OK);
@@ -168,9 +168,9 @@ int main(void) {
     CHECK(ps_step(&q, qi, 1, 10) == PS_TIMEOUT);
   }
   {
-    PsSpi q = {0};
-    Model n = {0};
-    PsIo qi = {&n, read_reg, write_reg};
+    struct ps_spi q = {0};
+    struct dg_model n = {0};
+    struct ps_io qi = {&n, read_reg, write_reg};
     uint16_t words[3], back[3] = {0x1100, 0x22ef, 0x3340};
     CHECK(ps_pack(tx, words, 3) == PS_OK && words[0] == 0x9f && words[1] == 0);
     CHECK(ps_unpack(back, rx, 3) == PS_OK && rx[0] == 0 && rx[1] == 239 &&
@@ -191,9 +191,9 @@ int main(void) {
   }
 
   {
-    PsSpi q = {0};
-    Model n = {0};
-    PsIo qi = {&n, read_reg, write_reg};
+    struct ps_spi q = {0};
+    struct dg_model n = {0};
+    struct ps_io qi = {&n, read_reg, write_reg};
     CHECK(ps_open(&q, qi, &c, 0, 3) == PS_OK);
     CHECK(ps_begin(&q, qi, 1, 1, tx, rx, 3, 1, 0, 10, 0, 0) == PS_OK);
     n.instant_dma = 1;

@@ -6,19 +6,19 @@
 #define BIT(i) ((uint16_t)(1u<<(i)))
 #define MAX_SLOTS (CVM_ROOTS+CVM_STACK+CVM_FRAMES*CVM_LOCALS+16u)
 
-static int valid(const Cvm *v,CvmValue x){
+static int valid(const struct cvm_cvm *v,struct cvm_value x){
  if(x.tag<CVM_NIL||x.tag>CVM_REF)return 0;
  if(x.tag==CVM_REF)return x.integer>=0&&(unsigned)x.integer<CVM_HEAP&&x.generation&&v->heap[x.integer].used&&v->heap[x.integer].generation==x.generation;
  return 1;
 }
-static int derived(const Cvm *v,const ORVDerived *r){
+static int derived(const struct cvm_cvm *v,const struct orv_derived *r){
  return r&&valid(v,r->base)&&r->offset<=(r->base.tag==CVM_REF?2u:0u);
 }
-static ORStatus ready(const ORVM *o){return !o||!o->vm?OR_INVALID:!o->paused?OR_STATE:OR_OK;}
-void orv_init(ORVM *o,Cvm *v){memset(o,0,sizeof *o);o->vm=v;o->paused=1;algo_pool_init(&o->registrations);}
-ORStatus orv_pause(ORVM *o,int paused){if(!o||!o->vm||paused<0||paused>1)return OR_INVALID;if(o->foreign)return OR_STATE;o->paused=(uint8_t)paused;return OR_OK;}
-ORStatus orv_register(ORVM *o,ORVDerived *r,uint64_t *out){
- unsigned i;uint64_t h;ORStatus s=ready(o);
+static enum or_status ready(const struct or_vm *o){return !o||!o->vm?OR_INVALID:!o->paused?OR_STATE:OR_OK;}
+void orv_init(struct or_vm *o,struct cvm_cvm *v){memset(o,0,sizeof *o);o->vm=v;o->paused=1;algo_pool_init(&o->registrations);}
+enum or_status orv_pause(struct or_vm *o,int paused){if(!o||!o->vm||paused<0||paused>1)return OR_INVALID;if(o->foreign)return OR_STATE;o->paused=(uint8_t)paused;return OR_OK;}
+enum or_status orv_register(struct or_vm *o,struct orv_derived *r,uint64_t *out){
+ unsigned i;uint64_t h;enum or_status s=ready(o);
  if(s)return s;
  if(!out||!derived(o->vm,r))return OR_INVALID;
  for(i=0;i<16;i++)if(o->roots[i]==r)return OR_STATE;
@@ -27,21 +27,21 @@ ORStatus orv_register(ORVM *o,ORVDerived *r,uint64_t *out){
  if(algo_pool_take(&o->registrations,(int32_t)i,&h)!=ALGO_OK)return OR_FULL;
  o->roots[i]=r;*out=h;return OR_OK;
 }
-ORStatus orv_unregister(ORVM *o,uint64_t h){
- int32_t i;ORStatus s=ready(o);if(s)return s;
+enum or_status orv_unregister(struct or_vm *o,uint64_t h){
+ int32_t i;enum or_status s=ready(o);if(s)return s;
  if(algo_pool_get(&o->registrations,h,&i)!=ALGO_OK)return OR_MISS;
  if(i<0||i>=16||!o->roots[i])return OR_STATE;
  if(algo_pool_release(&o->registrations,h)!=ALGO_OK)return OR_STATE;
  o->roots[i]=NULL;return OR_OK;
 }
-static CvmValue relocated(CvmValue x,const uint8_t f[16],const Cvm *after){
+static struct cvm_value relocated(struct cvm_value x,const uint8_t f[16],const struct cvm_cvm *after){
  if(x.tag==CVM_REF){x.integer=(int32_t)f[x.integer]-1;x.generation=after->heap[x.integer].generation;}
  return x;
 }
-ORStatus orv_collect(ORVM *o,unsigned budget,unsigned cut,ORVStats *out){
- Cvm t;ORGraph graph={0};CvmValue *loc[MAX_SLOTS];ORVDerived external[16];
+enum or_status orv_collect(struct or_vm *o,unsigned budget,unsigned cut,struct orv_stats *out){
+ struct cvm_cvm t;struct or_graph graph={0};struct cvm_value *loc[MAX_SLOTS];struct orv_derived external[16];
  uint8_t offsets[MAX_SLOTS]={0},f[16]={0},length[16];
- ORVStats stats={0};unsigned i,j,n=0,next=0,scanned;ORStatus s=ready(o);
+ struct orv_stats stats={0};unsigned i,j,n=0,next=0,scanned;enum or_status s=ready(o);
  if(s)return s;
  if(!out||cut>4)return OR_INVALID;
  if(o->vm->arena)return OR_STATE;
@@ -70,7 +70,7 @@ ORStatus orv_collect(ORVM *o,unsigned budget,unsigned cut,ORVStats *out){
   if(t.heap[i].used>1)return OR_INVALID;
   length[i]=2;
   if(t.heap[i].used){
-   CvmValue fields[2]={t.heap[i].left,t.heap[i].right};
+   struct cvm_value fields[2]={t.heap[i].left,t.heap[i].right};
    if(!t.heap[i].generation)return OR_INVALID;
    graph.live|=BIT(i);
    for(j=0;j<2;j++){
@@ -104,9 +104,9 @@ ORStatus orv_collect(ORVM *o,unsigned budget,unsigned cut,ORVStats *out){
   t.heap[i].left=relocated(t.heap[i].left,f,&t);t.heap[i].right=relocated(t.heap[i].right,f,&t);
  }
  for(i=0;i<n;i+=8){
-  ORFrame frame={0};unsigned count=n-i<8?n-i:8;frame.at_safepoint=1;
+  struct or_frame frame={0};unsigned count=n-i<8?n-i:8;frame.at_safepoint=1;
   for(j=0;j<count;j++){
-   CvmValue x=*loc[i+j];frame.initialized|=(uint8_t)(1u<<j);
+   struct cvm_value x=*loc[i+j];frame.initialized|=(uint8_t)(1u<<j);
    frame.slot[j].scalar=(uint32_t)x.integer;
    if(x.tag==CVM_REF){frame.root_map|=(uint8_t)(1u<<j);frame.slot[j].tag=1;frame.slot[j].base=(uint8_t)(x.integer+1);frame.slot[j].offset=offsets[i+j];}
   }
@@ -124,8 +124,8 @@ ORStatus orv_collect(ORVM *o,unsigned budget,unsigned cut,ORVStats *out){
  for(i=0;i<16;i++)if(o->roots[i])*o->roots[i]=external[i];
  *out=stats;return OR_OK;
 }
-ORStatus orv_pair(ORVM *o,ORVDerived *a,ORVDerived *b,int force,unsigned cut,CvmValue *out){
- ORVStats stats;ORStatus s=ready(o);unsigned i;CvmValue result;
+enum or_status orv_pair(struct or_vm *o,struct orv_derived *a,struct orv_derived *b,int force,unsigned cut,struct cvm_value *out){
+ struct orv_stats stats;enum or_status s=ready(o);unsigned i;struct cvm_value result;
  if(s)return s;
  if(!out||!derived(o->vm,a)||!derived(o->vm,b)||a->offset||b->offset||force<0||force>1||cut>4)return OR_INVALID;
  for(i=0;i<16;i++)if(!o->vm->heap[i].used&&o->vm->heap[i].generation!=UINT32_MAX)break;
@@ -140,8 +140,8 @@ ORStatus orv_pair(ORVM *o,ORVDerived *a,ORVDerived *b,int force,unsigned cut,Cvm
  if(cvm_pair(o->vm,a->base,b->base,&result)!=CVM_OK)return OR_STATE;
  *out=result;return OR_OK;
 }
-ORStatus orv_call(ORVM *o,CvmValue a,CvmValue b,ORVForeign callback,void *context,CvmValue *out){
- ORVDerived left={a,0},right={b,0};uint64_t first,second;CvmValue result;ORStatus s=ready(o);
+enum or_status orv_call(struct or_vm *o,struct cvm_value a,struct cvm_value b,orv_foreign_fn callback,void *context,struct cvm_value *out){
+ struct orv_derived left={a,0},right={b,0};uint64_t first,second;struct cvm_value result;enum or_status s=ready(o);
  if(s)return s;
  if(!callback||!out||!valid(o->vm,a)||!valid(o->vm,b))return OR_INVALID;
  if(o->foreign)return OR_STATE;

@@ -5,7 +5,7 @@ int mf_fail(const char *,unsigned);
 static int equal(const void *a,const void *b,size_t n){const unsigned char *x=a,*y=b;for(size_t i=0;i<n;++i)if(x[i]!=y[i])return 0;return 1;}
 static void poison(void *p,size_t n){unsigned char *q=p;for(size_t i=0;i<n;++i)q[i]=0xa5;}
 static int reset(void){
- uint32_t table[256]={0x20002000,0x08000101};MFBoot c={MF_FLASH,5,0x08000000,0x20000000,0x20030000,0x08000080,0x08000200};MFReset r,old;
+ uint32_t table[256]={0x20002000,0x08000101};struct mf_boot c={MF_FLASH,5,0x08000000,0x20000000,0x20030000,0x08000080,0x08000200};struct mf_reset r,old;
  CHECK(mf_reset(c,table,256,&r)==MF_OK);
  CHECK(r.reset_fetch[0]==0 && r.reset_fetch[1]==4);
  CHECK(r.reset_backing[0]==0x08000000 && r.initial_msp==0x20002000 && r.reset_pc==0x08000100);
@@ -24,7 +24,7 @@ static int reset(void){
  return 0;
 }
 static int capture(void){
- uint32_t w[27]={10,20,30,40,120,0x08000111,0x08000200,0x01000000};XfFrame f,old;
+ uint32_t w[27]={10,20,30,40,120,0x08000111,0x08000200,0x01000000};struct xf_frame f,old;
  CHECK(mf_capture(w,8,0x20000fe0,0xfffffffd,0,0,0,1,0,&f)==MF_OK);
  CHECK(f.pc==0x08000200 && f.stacked_lr==0x08000111 && f.stacked_lr!=0xfffffffd);
  CHECK(f.original_sp==0x20001000 && f.hardware_words==8 && f.thread && f.psp);
@@ -48,12 +48,12 @@ static int capture(void){
  return 0;
 }
 static int ownership(void){
- MFOwnership r;
+ struct mf_ownership r;
  for(unsigned r9=0;r9<2;++r9){CHECK(mf_ownership(r9,&r)==MF_OK);CHECK(r.hardware==0x1d00f && !(r.hardware&(1u<<4)));CHECK(r.callee_preserved==(0x2df0u|(r9?0x200u:0u)) && r.call_clobbered==0x1500f && r.r9_platform==!r9);uint32_t p[]={r9,r.hardware,r.callee_preserved,r.call_clobbered,r.r9_platform};mf_emit("ownership",p,5);}
  CHECK(mf_ownership(2,&r)==MF_INVALID);return 0;
 }
 static int nested(void){
- uint32_t a[8]={10,20,30,40,120,0x08000111,0x08000200,0x01000000};uint32_t b[8]={101,102,103,104,112,0xfffffffd,0x08000300,0x01000010};XfFrame outer,inner;MFReturnOrder r,old;XfPriorityConfig config={4,3};
+ uint32_t a[8]={10,20,30,40,120,0x08000111,0x08000200,0x01000000};uint32_t b[8]={101,102,103,104,112,0xfffffffd,0x08000300,0x01000010};struct xf_frame outer,inner;struct mf_return_order r,old;struct xf_priority_config config={4,3};
  CHECK(mf_capture(a,8,0x20000fe0,0xfffffffd,1,0,0,1,0,&outer)==MF_OK && mf_capture(b,8,0x20002fe0,0xfffffff1,1,0,0,1,0,&inner)==MF_OK);
  CHECK(mf_nested(&outer,0x20000fe0,16,&inner,0x20002fe0,config,0x60,0x50,&r)==MF_OK);
  CHECK(r.first_stack==0 && r.second_stack==1 && r.first_pc==0x08000300 && r.second_pc==0x08000200);

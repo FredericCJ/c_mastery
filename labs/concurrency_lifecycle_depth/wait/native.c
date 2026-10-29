@@ -14,18 +14,18 @@
     }                                                                          \
   } while (0)
 
-typedef struct {
+struct cl_shared {
   pthread_mutex_t lock;
   pthread_cond_t changed;
   cmx_kernel kernel;
-  CWWorld world;
+  struct cw_world world;
   unsigned need, value, checksum, stop, failures;
   int cpus[2], observed[2];
-} Shared;
-typedef struct {
-  Shared *shared;
+};
+struct cl_context {
+  struct cl_shared *shared;
   unsigned role;
-} Context;
+};
 
 static int pin(int cpu) {
   cpu_set_t set, observed;
@@ -39,15 +39,15 @@ static int pin(int cpu) {
          sched_getcpu() == cpu;
 }
 
-static void failed(Shared *shared) {
+static void failed(struct cl_shared *shared) {
   ++shared->failures;
   shared->stop = 1;
   pthread_cond_broadcast(&shared->changed);
 }
 
 static void *exchange(void *argument) {
-  Context *context = argument;
-  Shared *shared = context->shared;
+  struct cl_context *context = argument;
+  struct cl_shared *shared = context->shared;
   int pinned = pin(shared->cpus[context->role]);
   pthread_mutex_lock(&shared->lock);
   if (!pinned) {
@@ -58,7 +58,7 @@ static void *exchange(void *argument) {
   shared->observed[context->role] = sched_getcpu();
   for (unsigned round = 1; round <= 1000 && !shared->stop; ++round) {
     if (context->role == 0) {
-      CWToken token = {0};
+      struct cw_token token = {0};
       if (cw_begin(&shared->world, 0, 0, cmx_forever(), 0, &token) !=
           CMX_BLOCKED) {
         failed(shared);
@@ -93,18 +93,18 @@ static void *exchange(void *argument) {
   return NULL;
 }
 
-typedef struct {
-  Shared *shared;
+struct cl_contender {
+  struct cl_shared *shared;
   pthread_barrier_t *start;
-  CWToken token;
+  struct cw_token token;
   unsigned event;
   int pinned;
   uint32_t now;
   int result;
-} Contender;
+};
 
 static void *contend(void *argument) {
-  Contender *context = argument;
+  struct cl_contender *context = argument;
   context->pinned = pin(context->shared->cpus[context->event % 2]);
   pthread_barrier_wait(context->start);
   pthread_mutex_lock(&context->shared->lock);
@@ -119,7 +119,7 @@ static void *contend(void *argument) {
 }
 
 int main(void) {
-  Shared shared = {0};
+  struct cl_shared shared = {0};
   cpu_set_t allowed;
   CHECK(pthread_getaffinity_np(pthread_self(), sizeof(allowed), &allowed) == 0);
   unsigned found = 0;
@@ -133,7 +133,7 @@ int main(void) {
   CHECK(cmx_task_add(&shared.kernel, 3, 100, 0x1000, 256) == 0);
   cw_init(&shared.world, &shared.kernel);
   CHECK(cw_object_init(&shared.world, 0, CW_SEMAPHORE, 0, 1) == CMX_OK);
-  Context contexts[2] = {{&shared, 0}, {&shared, 1}};
+  struct cl_context contexts[2] = {{&shared, 0}, {&shared, 1}};
   pthread_t threads[3];
   CHECK(pthread_create(&threads[0], NULL, exchange, &contexts[0]) == 0);
   CHECK(pthread_create(&threads[1], NULL, exchange, &contexts[1]) == 0);
@@ -150,13 +150,13 @@ int main(void) {
     CHECK(cmx_task_add(&shared.kernel, 3, 100, 0x1000, 256) == 0);
     cw_init(&shared.world, &shared.kernel);
     CHECK(cw_object_init(&shared.world, 0, CW_SEMAPHORE, 0, 1) == CMX_OK);
-    CWToken token = {0};
+    struct cw_token token = {0};
     CHECK(cw_begin(&shared.world, 0, 0, cmx_at(1), 0, &token) == CMX_BLOCKED);
     pthread_barrier_t start;
     CHECK(pthread_barrier_init(&start, NULL, 3) == 0);
-    Contender contenders[3];
+    struct cl_contender contenders[3];
     for (unsigned event = 0; event < 3; ++event) {
-      contenders[event] = (Contender){&shared, &start, token, event, 0, 1, 91};
+      contenders[event] = (struct cl_contender){&shared, &start, token, event, 0, 1, 91};
       CHECK(pthread_create(&threads[event], NULL, contend,
                            &contenders[event]) == 0);
     }
@@ -171,11 +171,11 @@ int main(void) {
           shared.world.nodes[0].cause <= CW_CANCEL);
     ++wins[shared.world.nodes[0].cause];
     CHECK(shared.world.objects[0].posts == shared.world.objects[0].acquired);
-    CWToken next = {0};
+    struct cw_token next = {0};
     CHECK(cw_begin(&shared.world, 0, 0, cmx_at(2), 0, &next) == CMX_BLOCKED);
     CHECK(pthread_barrier_init(&start, NULL, 1) == 0);
     for (unsigned event = 1; event <= 2; ++event) {
-      Contender stale = {&shared, &start, token, event, 0, 2, 91};
+      struct cl_contender stale = {&shared, &start, token, event, 0, 2, 91};
       CHECK(pthread_create(&threads[0], NULL, contend, &stale) == 0);
       CHECK(pthread_join(threads[0], NULL) == 0);
       CHECK(stale.pinned && stale.result == CW_STALE &&

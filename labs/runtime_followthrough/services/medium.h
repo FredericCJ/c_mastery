@@ -3,12 +3,12 @@
 #include "store.h"
 /* Original bounded teaching device. One owned image, synchronous full-page
  * callbacks. A failure may persist all pending bytes yet lose its reply. */
-typedef struct {
+struct vh_medium {
   uint8_t stable[STORE_IMAGE_PAGES][STORE_PAGE_SIZE];
   uint8_t pending[STORE_IMAGE_PAGES][STORE_PAGE_SIZE];
   uint8_t dirty[STORE_IMAGE_PAGES];
   unsigned event, cut, persist_on_failure, dead;
-} VhMedium;
-store_io vh_medium_io(VhMedium *);
-void vh_medium_restart(VhMedium *);
+};
+store_io vh_medium_io(struct vh_medium *);
+void vh_medium_restart(struct vh_medium *);
 #endif

@@ -1,5 +1,5 @@
 #include "v4_com.h"
-int v4_reassembly(V4Reassembly *s, const EduFragment *f, EduFragment *ack,
+int v4_reassembly(struct v4_reassembly *s, const struct edu_fragment *f, struct edu_fragment *ack,
                   uint64_t now, unsigned grant) {
   if (!s || !f || !ack || now < s->last || now > UINT64_MAX - 100)
     return -1;
@@ -18,7 +18,7 @@ int v4_reassembly(V4Reassembly *s, const EduFragment *f, EduFragment *ack,
     s->due = now + 100;
   return rc;
 }
-int v4_arp_queue(V4Arp *a, uint32_t peer, const uint8_t *p, size_t n,
+int v4_arp_queue(struct v4_arp *a, uint32_t peer, const uint8_t *p, size_t n,
                  uint64_t now) {
   if (!a || !p || !n || n > 64 || a->pending)
     return -1;
@@ -32,7 +32,7 @@ int v4_arp_queue(V4Arp *a, uint32_t peer, const uint8_t *p, size_t n,
   a->resolved = 0;
   return 0;
 }
-int v4_arp_poll(V4Arp *a, uint64_t now) {
+int v4_arp_poll(struct v4_arp *a, uint64_t now) {
   if (!a || !a->pending)
     return 0;
   if (a->resolved) {
@@ -49,17 +49,17 @@ int v4_arp_poll(V4Arp *a, uint64_t now) {
   a->due = now + 100;
   return 1;
 }
-int v4_arp_resolve(V4Arp *a, uint32_t peer) {
+int v4_arp_resolve(struct v4_arp *a, uint32_t peer) {
   if (!a || !a->pending || peer != a->peer)
     return -1;
   a->resolved = 1;
   return 0;
 }
-int v4_tcp_delivery(NetStack *s, uint64_t now, V4PacketSink sink, void *ctx,
+int v4_tcp_delivery(struct net_stack *s, uint64_t now, v4_packet_sink_fn sink, void *ctx,
                     unsigned *drops) {
   if (!s || !sink || !drops)
     return -1;
-  NetPacket p;
+  struct net_packet p;
   int r = net_tick(s, now, &p);
   if (r < 0)
     return -1;
@@ -71,14 +71,14 @@ int v4_tcp_delivery(NetStack *s, uint64_t now, V4PacketSink sink, void *ctx,
   }
   return p.length ? 1 : 0;
 }
-static int wait_reg(V4CanIo io, unsigned reg, uint32_t mask, uint32_t want,
+static int wait_reg(struct v4_can_io io, unsigned reg, uint32_t mask, uint32_t want,
                     unsigned polls) {
   while (polls--)
     if ((io.read(io.ctx, reg) & mask) == want)
       return 0;
   return -1;
 }
-int v4_can_init(V4CanIo io, uint32_t nominal, uint32_t data, unsigned polls) {
+int v4_can_init(struct v4_can_io io, uint32_t nominal, uint32_t data, unsigned polls) {
   if (!io.read || !io.write || !nominal || !data || !polls)
     return -1;
   io.write(io.ctx, 0, 1);
@@ -91,7 +91,7 @@ int v4_can_init(V4CanIo io, uint32_t nominal, uint32_t data, unsigned polls) {
   io.write(io.ctx, 0, 0);
   return wait_reg(io, 0, 1, 0, polls);
 }
-int v4_can_loopback(V4CanIo io, const uint8_t *p, size_t n, uint8_t *out,
+int v4_can_loopback(struct v4_can_io io, const uint8_t *p, size_t n, uint8_t *out,
                     size_t cap, unsigned polls) {
   if (!io.read || !io.write || !p || !out || n > 64 || !n || cap < n ||
       !(n <= 8 || n == 12 || n == 16 || n == 20 || n == 24 || n == 32 ||

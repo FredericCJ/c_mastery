@@ -3,9 +3,9 @@
 #include "store.h"
 #include "store_host.h"
 static store database;
-static Cvm vm;
-static CvmProgram program;
-static CvmValue result;
+static struct cvm_cvm vm;
+static struct cvm_program program;
+static struct cvm_value result;
 void *memcpy(void *d, const void *s, size_t n) {
   unsigned char *p = d;
   const unsigned char *q = s;
@@ -74,7 +74,7 @@ int storage_test(int verify) {
   cvm_init(&vm, 32, 128, 1);
   vm.host_context = &database;
   vm.host = verify ? cvm_store_host : lost_reply;
-  CvmStatus r = cvm_run(&vm, &program, &result);
+  enum cvm_status r = cvm_run(&vm, &program, &result);
   if (verify) {
     if (r != CVM_OK || result.tag != CVM_INT || result.integer != 42)
       return 4;

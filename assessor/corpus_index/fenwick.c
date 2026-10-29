@@ -2,7 +2,7 @@
 #ifndef CI_MUTANT
 #define CI_MUTANT 0
 #endif
-static uint32_t sum(const CiFenwick *f, unsigned n) {
+static uint32_t sum(const struct ci_fenwick *f, unsigned n) {
   uint32_t s = 0;
   while (n) {
     s += f->bit[n];
@@ -10,7 +10,7 @@ static uint32_t sum(const CiFenwick *f, unsigned n) {
   }
   return s;
 }
-CiStatus ci_fenwick_init(CiFenwick *f, const uint32_t *v, unsigned n) {
+enum ci_status ci_fenwick_init(struct ci_fenwick *f, const uint32_t *v, unsigned n) {
   if (!f || (!v && n))
     return CI_INVALID;
   if (n > CI_CAP)
@@ -20,7 +20,7 @@ CiStatus ci_fenwick_init(CiFenwick *f, const uint32_t *v, unsigned n) {
     total += v[i];
   if (total > UINT32_MAX)
     return CI_RANGE;
-  CiFenwick t;
+  struct ci_fenwick t;
   t.n = n;
   t.total = (uint32_t)total;
   for (unsigned i = 0; i <= CI_CAP; i++)
@@ -34,7 +34,7 @@ CiStatus ci_fenwick_init(CiFenwick *f, const uint32_t *v, unsigned n) {
   *f = t;
   return CI_OK;
 }
-CiStatus ci_fenwick_prefix(const CiFenwick *f, unsigned n, uint32_t *out) {
+enum ci_status ci_fenwick_prefix(const struct ci_fenwick *f, unsigned n, uint32_t *out) {
   if (!f || !out)
     return CI_INVALID;
   if (n > f->n)
@@ -42,7 +42,7 @@ CiStatus ci_fenwick_prefix(const CiFenwick *f, unsigned n, uint32_t *out) {
   *out = sum(f, n);
   return CI_OK;
 }
-CiStatus ci_fenwick_add(CiFenwick *f, unsigned at, int64_t delta) {
+enum ci_status ci_fenwick_add(struct ci_fenwick *f, unsigned at, int64_t delta) {
   if (!f)
     return CI_INVALID;
   if (at >= f->n)
@@ -55,7 +55,7 @@ CiStatus ci_fenwick_add(CiFenwick *f, unsigned at, int64_t delta) {
   f->total = (uint32_t)((int64_t)f->total + delta);
   return CI_OK;
 }
-CiStatus ci_fenwick_select(const CiFenwick *f, uint32_t rank, unsigned *out) {
+enum ci_status ci_fenwick_select(const struct ci_fenwick *f, uint32_t rank, unsigned *out) {
   if (!f || !out)
     return CI_INVALID;
   if (rank >= f->total)
@@ -74,7 +74,7 @@ CiStatus ci_fenwick_select(const CiFenwick *f, uint32_t rank, unsigned *out) {
   *out = at;
   return CI_OK;
 }
-CiStatus ci_fenwick_rescale(CiFenwick *f, unsigned keep_positive) {
+enum ci_status ci_fenwick_rescale(struct ci_fenwick *f, unsigned keep_positive) {
   if (!f)
     return CI_INVALID;
   if (keep_positive > 1)

@@ -18,9 +18,9 @@ int main(void){
  const char*selected=setlocale(LC_NUMERIC,"C.utf8");if(!selected)selected=setlocale(LC_NUMERIC,"C.UTF-8");CHECK(selected);
  char selected_name[64];CHECK(strlen(selected)<sizeof selected_name);strcpy(selected_name,selected);
  CHECK(snprintf(after,sizeof after,"%.2f",12.5)>0&&strcmp(before,after)==0);
- srand(7);int r=rand();srand(7);CHECK(rand()==r);EFParser first={{0},0,7,1,0},second={{0},0,7,1,0};CHECK(ef_random(&first)==ef_random(&second));
+ srand(7);int r=rand();srand(7);CHECK(rand()==r);struct ef_parser first={{0},0,7,1,0},second={{0},0,7,1,0};CHECK(ef_random(&first)==ef_random(&second));
  struct {size_t cursor;uint32_t seed,generation;const char*locale_policy;} snapshot={first.cursor,first.seed,first.generation,"C"};
- EFView view={0};CHECK(ef_parse(&first,(const unsigned char*)"replay",6,&view)==EF_OK);unsigned char expected[6];memcpy(expected,view.data,6);
+ struct ef_view view={0};CHECK(ef_parse(&first,(const unsigned char*)"replay",6,&view)==EF_OK);unsigned char expected[6];memcpy(expected,view.data,6);
  CHECK(ef_parser_reset(&first,snapshot.seed)==EF_BUSY&&ef_view_release(&view)==EF_OK);
  CHECK(ef_parser_reset(&first,snapshot.seed)==EF_OK&&first.cursor==snapshot.cursor&&first.generation==snapshot.generation+1);
  CHECK(setlocale(LC_NUMERIC,snapshot.locale_policy)&&ef_parse(&first,(const unsigned char*)"replay",6,&view)==EF_OK&&memcmp(expected,view.data,6)==0&&ef_view_release(&view)==EF_OK);

@@ -2,7 +2,7 @@
 #include <linux/can/error.h>
 #include <string.h>
 #include <sys/socket.h>
-static int valid(const CaFrame *f) {
+static int valid(const struct ca_frame *f) {
   if (!f || f->extended > 1 || f->length > 8 || f->local > 1 || f->own > 1)
     return 0;
   if (f->raw_dlc && (f->length != 8 || f->raw_dlc < 9 || f->raw_dlc > 15))
@@ -14,14 +14,14 @@ static int valid(const CaFrame *f) {
     return 0;
   return !(f->id & ~(f->extended ? CAN_EFF_MASK : CAN_SFF_MASK));
 }
-int ca_decode(const void *bytes, size_t length, int flags, CaFrame *out) {
+int ca_decode(const void *bytes, size_t length, int flags, struct ca_frame *out) {
   if (!bytes || !out || length != CAN_MTU || (flags & (MSG_TRUNC | MSG_CTRUNC)))
     return -1;
   struct can_frame raw;
   /* The raw address may be unaligned; no typed overlay or aliasing assumption.
    */
   memcpy(&raw, bytes, sizeof raw);
-  CaFrame f = {0};
+  struct ca_frame f = {0};
   f.length = raw.len;
   f.raw_dlc = raw.len8_dlc;
   f.extended = !!(raw.can_id & CAN_EFF_FLAG);
@@ -47,7 +47,7 @@ int ca_decode(const void *bytes, size_t length, int flags, CaFrame *out) {
   *out = f;
   return 0;
 }
-int ca_encode(const CaFrame *f, struct can_frame *out) {
+int ca_encode(const struct ca_frame *f, struct can_frame *out) {
   if (!out || !valid(f) || f->kind == CA_ERROR)
     return -1;
   struct can_frame raw;
@@ -75,7 +75,7 @@ int ca_filter(uint32_t id, unsigned extended, unsigned remote,
   *out = f;
   return 0;
 }
-int ca_accept(const CaFrame *f, const struct can_filter *filter,
+int ca_accept(const struct ca_frame *f, const struct can_filter *filter,
               uint32_t errors) {
   if (!valid(f) || !filter || (errors & ~CAN_ERR_MASK))
     return -1;
@@ -91,8 +91,8 @@ int ca_accept(const CaFrame *f, const struct can_filter *filter,
   return (key & filter->can_mask) == (filter->can_id & filter->can_mask);
 }
 int ca_loopback(unsigned sender, unsigned receiver, unsigned enabled,
-                unsigned own, const CaFrame *f, const struct can_filter *filter,
-                uint32_t errors, CaFrame *out) {
+                unsigned own, const struct ca_frame *f, const struct can_filter *filter,
+                uint32_t errors, struct ca_frame *out) {
   if (sender > 1 || receiver > 1 || enabled > 1 || own > 1 || !out)
     return -1;
   int accept = ca_accept(f, filter, errors);

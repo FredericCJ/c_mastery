@@ -19,18 +19,18 @@ def run():
         p.write_text(text,encoding='utf8');dest=folder/p.name;shutil.copyfile(p,dest);artifacts.append(dict(path=dest.relative_to(ROOT).as_posix(),sha256=sha(dest)))
     with tempfile.TemporaryDirectory(prefix='cmastery-logging-diagnostic-') as name:
         tmp=Path(name);inc=['-I',ROOT/'labs/metaprog/logging/include','-I',ROOT/'assessor/metaprog/logging'];core=ROOT/'assessor/metaprog/logging/logging.c';flags=['-std=c17','-pedantic-errors','-Wall','-Wextra','-Werror']
-        positive=tmp/'positive.c';save(positive,'#include "logging_macros.h"\n#include <stdio.h>\n'+''.join('int probe%d(MplSink *s){return MPL_LOG(s,%s);}\n'%(n,','.join('mpl_number(%d)'%i for i in range(1,n+1))) for n in range(1,5))+'int main(void){MplSink s={0};volatile double numeric=3.5;if(probe1(&s)||probe2(&s)||probe3(&s)||probe4(&s)||s.records[3].count!=4)return 1;s.count=0;if(MPL_LOG(&s,((MplField){MPL_NUMBER,19,NULL,0}))||MPL_LOG0(&s)||MPL_LOG_AT0(&s)||MPL_LOG(&s,mpl_number(numeric)))return 2;if(s.records[0].fields[0].number!=19||s.records[1].count||!s.records[2].has_site||s.records[3].fields[0].number!=3)return 3;puts("MPL_DIAGNOSTICS positive typed-arities zero protected-comma implicit-conversion");return 0;}\n')
+        positive=tmp/'positive.c';save(positive,'#include "logging_macros.h"\n#include <stdio.h>\n'+''.join('int probe%d(struct mpl_sink *s){return MPL_LOG(s,%s);}\n'%(n,','.join('mpl_number(%d)'%i for i in range(1,n+1))) for n in range(1,5))+'int main(void){struct mpl_sink s={0};volatile double numeric=3.5;if(probe1(&s)||probe2(&s)||probe3(&s)||probe4(&s)||s.records[3].count!=4)return 1;s.count=0;if(MPL_LOG(&s,((struct mpl_field){MPL_NUMBER,19,NULL,0}))||MPL_LOG0(&s)||MPL_LOG_AT0(&s)||MPL_LOG(&s,mpl_number(numeric)))return 2;if(s.records[0].fields[0].number!=19||s.records[1].count||!s.records[2].has_site||s.records[3].fields[0].number!=3)return 3;puts("MPL_DIAGNOSTICS positive typed-arities zero protected-comma implicit-conversion");return 0;}\n')
         negative={
             'raw-number':'MPL_LOG(&s,7u)',
-            'wrong-struct':'MPL_LOG(&s,((MplSite){"x",1}))',
+            'wrong-struct':'MPL_LOG(&s,((struct mpl_site){"x",1}))',
             'omitted-field':'MPL_LOG(&s)',
             'empty-field':'MPL_LOG(&s,)',
             'five-fields':'MPL_LOG(&s,mpl_number(1),mpl_number(2),mpl_number(3),mpl_number(4),mpl_number(5))',
-            'unprotected-comma':'MPL_LOG(&s,(MplField){MPL_NUMBER,19,NULL,0})'
+            'unprotected-comma':'MPL_LOG(&s,(struct mpl_field){MPL_NUMBER,19,NULL,0})'
         }
         negpaths={}
         for kind,expression in negative.items():
-            p=tmp/(kind+'.c');save(p,'#include "logging_macros.h"\nint main(void){MplSink s={0};return '+expression+';}\n');negpaths[kind]=p
+            p=tmp/(kind+'.c');save(p,'#include "logging_macros.h"\nint main(void){struct mpl_sink s={0};return '+expression+';}\n');negpaths[kind]=p
         for cc in ['gcc','clang']:
             binary=tmp/(cc+'-positive');execute([cc,*flags,*inc,positive,core,'-o',binary],cc+'-positive-compile');execute([binary],cc+'-positive-run','MPL_DIAGNOSTICS positive typed-arities zero protected-comma implicit-conversion');observations.append(dict(kind='typed-positive',compiler=cc,executed=True,arities=[0,1,2,3,4],protected_comma=True,numeric_conversion=3))
             expanded=execute([cc,*flags,*inc,'-E','-P',positive],cc+'-preprocess');selected=[]

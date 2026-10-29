@@ -4,34 +4,34 @@
 /* Prefix syntax keeps this teaching compiler small. It is not a C/Lox parser.
  */
 enum { END, LEFT, RIGHT, WORD, NUMBER, BAD };
-typedef struct {
+struct cvm_token {
   int kind;
   char word[32];
   int32_t number;
   size_t begin, end;
-} Token;
-typedef struct {
+};
+struct cvm_scan {
   const char *s;
   size_t n, pos;
-  Token t;
-} Scan;
-typedef struct {
+  struct cvm_token t;
+};
+struct cvm_definition {
   char name[32], params[CVM_LOCALS][32];
   uint8_t arity;
   size_t start, end;
-} Definition;
-typedef struct {
-  CvmProgram p;
-  Definition defs[CVM_FUNCTIONS];
-  Scan scan;
+};
+struct cvm_compiler {
+  struct cvm_program p;
+  struct cvm_definition defs[CVM_FUNCTIONS];
+  struct cvm_scan scan;
   char names[CVM_LOCALS][32];
   unsigned used, peak, depth;
   int failed;
-} Compiler;
+};
 static int space(char c) {
   return c == ' ' || c == '\n' || c == '\r' || c == '\t';
 }
-static void next(Scan *s) {
+static void next(struct cvm_scan *s) {
   size_t b, k;
   uint64_t n = 0, limit;
   int neg = 0, number = 1;
@@ -90,7 +90,7 @@ static void next(Scan *s) {
   s->t.number = neg ? (int32_t)(-(int64_t)n) : (int32_t)n;
   s->t.kind = NUMBER;
 }
-static int named(const Token *t, const char *s) {
+static int named(const struct cvm_token *t, const char *s) {
   return t->kind == WORD && !strcmp(t->word, s);
 }
 static int ident(const char *s) {
@@ -103,7 +103,7 @@ static int ident(const char *s) {
       return 0;
   return strcmp(s, "true") && strcmp(s, "false") && strcmp(s, "nil");
 }
-static int take(Compiler *c, int kind) {
+static int take(struct cvm_compiler *c, int kind) {
   if (c->scan.t.kind != kind) {
     c->failed = 1;
     return 0;
@@ -111,14 +111,14 @@ static int take(Compiler *c, int kind) {
   next(&c->scan);
   return 1;
 }
-static void emit(Compiler *c, unsigned n) {
+static void emit(struct cvm_compiler *c, unsigned n) {
   if (c->p.length >= CVM_CODE) {
     c->failed = 1;
     return;
   }
   c->p.code[c->p.length++] = (uint8_t)n;
 }
-static void constant(Compiler *c, int32_t n) {
+static void constant(struct cvm_compiler *c, int32_t n) {
   uint32_t u = (uint32_t)n;
   emit(c, OP_INT);
   for (unsigned i = 0; i < 4; i++) {
@@ -126,7 +126,7 @@ static void constant(Compiler *c, int32_t n) {
     u >>= 8;
   }
 }
-static unsigned branch(Compiler *c, unsigned op) {
+static unsigned branch(struct cvm_compiler *c, unsigned op) {
   unsigned at;
   emit(c, op);
   at = c->p.length;
@@ -134,7 +134,7 @@ static unsigned branch(Compiler *c, unsigned op) {
   emit(c, 0);
   return at;
 }
-static void patch(Compiler *c, unsigned at, unsigned dest) {
+static void patch(struct cvm_compiler *c, unsigned at, unsigned dest) {
   if (at + 1 >= CVM_CODE || dest > CVM_CODE) {
     c->failed = 1;
     return;
@@ -142,14 +142,14 @@ static void patch(Compiler *c, unsigned at, unsigned dest) {
   c->p.code[at] = (uint8_t)dest;
   c->p.code[at + 1] = (uint8_t)(dest >> 8);
 }
-static int local(Compiler *c, const char *name) {
+static int local(struct cvm_compiler *c, const char *name) {
   unsigned i = c->used;
   while (i)
     if (!strcmp(c->names[--i], name))
       return (int)i;
   return -1;
 }
-static void expression(Compiler *c) {
+static void expression(struct cvm_compiler *c) {
   char op[32];
   unsigned a, b, slot, argc;
   int index;
@@ -312,8 +312,8 @@ static void expression(Compiler *c) {
 done:
   c->depth--;
 }
-CvmStatus cvm_compile(const char *source, size_t length, CvmProgram *out) {
-  Compiler c = {0};
+enum cvm_status cvm_compile(const char *source, size_t length, struct cvm_program *out) {
+  struct cvm_compiler c = {0};
   unsigned f;
   if (!source || !out || length > 4096)
     return CVM_SYNTAX;
@@ -321,7 +321,7 @@ CvmStatus cvm_compile(const char *source, size_t length, CvmProgram *out) {
   c.scan.n = length;
   next(&c.scan);
   while (c.scan.t.kind != END && !c.failed) {
-    Definition *d;
+    struct cvm_definition *d;
     unsigned nesting = 0;
     if (c.p.count >= CVM_FUNCTIONS)
       return CVM_SYNTAX;
@@ -375,8 +375,8 @@ CvmStatus cvm_compile(const char *source, size_t length, CvmProgram *out) {
       c.defs[0].arity)
     return CVM_SYNTAX;
   for (f = 0; f < c.p.count; f++) {
-    CvmFunction *fn = &c.p.functions[f];
-    Definition *d = &c.defs[f];
+    struct cvm_function *fn = &c.p.functions[f];
+    struct cvm_definition *d = &c.defs[f];
     fn->entry = c.p.length;
     fn->arity = d->arity;
     c.used = d->arity;

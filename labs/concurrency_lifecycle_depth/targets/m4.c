@@ -21,8 +21,8 @@ __attribute__((noreturn)) static void stop(unsigned status) {
       stop(1);                                                                 \
   } while (0)
 static void exercise(void) {
-  CLMessage slots[2];
-  CLQueue q;
+  struct cl_message slots[2];
+  struct cl_queue q;
   unsigned char b[8] = {3, 0, 9, 7, 1, 2, 3, 4}, out[8];
   size_t n = 99;
   uint32_t p = 99, s = 99;
@@ -34,9 +34,9 @@ static void exercise(void) {
   CHECK(cl_recv(&q, out, 4, &n, &p, &s) == CL_OK && q.count == 1 &&
         out[0] == 3 && out[1] == 0 && s == 1);
   CHECK(cl_abort(&q) == 1 && q.accepted == q.delivered + q.discarded);
-  CLPool pool;
-  CLOwnedQueue owned;
-  CLBuffer h[4], large;
+  struct cl_pool pool;
+  struct cl_owned_queue owned;
+  struct cl_buffer h[4], large;
   cl_pool_init(&pool);
   cl_owned_init(&owned);
   for (unsigned i = 0; i < 4; i++)
@@ -49,8 +49,8 @@ static void exercise(void) {
         cl_release(&pool, large) == CL_BUSY);
   CHECK(cl_owned_abort(&pool, &owned) == 1 &&
         cl_release(&pool, h[3]) == CL_OK && pool.allocations == pool.releases);
-  CLLife life;
-  CLLease lease;
+  struct cl_life life;
+  struct cl_lease lease;
   cl_life_init(&life);
   CHECK(cl_acquire(&life, &lease) == CL_OK);
   CHECK(cl_transition(&life, lease, CL_ACTIVE, CL_COND_RELOCK) == CL_OK);
@@ -61,7 +61,7 @@ static void exercise(void) {
         cl_drop(&life, lease) == CL_OK);
   CHECK(cl_destroy(&life) == CL_OK && cl_restart(&life) == CL_OK &&
         cl_drop(&life, lease) == CL_STALE);
-  CLRecord r;
+  struct cl_record r;
   uint32_t value = 99;
   cl_record_init(&r, 7);
   CHECK(cl_record_begin(&r, 1) == CL_OK &&
@@ -70,7 +70,7 @@ static void exercise(void) {
   CHECK(cl_record_dead(&r, 1) == CL_OK && cl_repair_begin(&r, 2) == CL_OK &&
         cl_repair_finish(&r, 2, 1) == CL_OK);
   CHECK(cl_record_read(&r, &value) == CL_OK && value == 7);
-  CLAck ack;
+  struct cl_ack ack;
   cl_ack_init(&ack, 5);
   CHECK(cl_request(&ack, 5, 1, 7, &value) == CL_PENDING &&
         cl_apply(&ack, 1) == CL_OK);

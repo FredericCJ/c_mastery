@@ -8,13 +8,13 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
+struct store_fake {
   void *borrow;
   int64_t submit, wait;
   unsigned submits, waits;
-} Fake;
+};
 static int64_t submit(void *c, uint32_t page, void *b) {
-  Fake *f = c;
+  struct store_fake *f = c;
   f->submits++;
   if (page != 7)
     return -1;
@@ -23,7 +23,7 @@ static int64_t submit(void *c, uint32_t page, void *b) {
   return f->submit;
 }
 static int64_t wait_for(void *c, uint64_t ticket) {
-  Fake *f = c;
+  struct store_fake *f = c;
   f->waits++;
   if (ticket != (uint64_t)f->submit)
     return -1;
@@ -35,9 +35,9 @@ static int64_t wait_for(void *c, uint64_t ticket) {
   return f->wait;
 }
 static int retained(void) {
-  Fake f = {0, 1, 0, 0, 0};
-  SaPort p = {&f, submit, wait_for};
-  SaRead s = {0};
+  struct store_fake f = {0, 1, 0, 0, 0};
+  struct sa_port p = {&f, submit, wait_for};
+  struct sa_read s = {0};
   uint8_t b[4096] = {0};
   void *out = (void *)&f;
   CHECK(sa_start(&s, p, 7, b) == SA_OK && f.borrow == b);
@@ -57,9 +57,9 @@ static int retained(void) {
   return 0;
 }
 static int unknown(void) {
-  Fake f = {0, 2, -1, 0, 0};
-  SaRead s = {0};
-  SaPort p = {&f, submit, wait_for};
+  struct store_fake f = {0, 2, -1, 0, 0};
+  struct sa_read s = {0};
+  struct sa_port p = {&f, submit, wait_for};
   uint8_t b[4096] = {0};
   void *out = &f;
   CHECK(sa_start(&s, p, 7, b) == SA_OK);
@@ -73,9 +73,9 @@ static int unknown(void) {
   return 0;
 }
 static int admission(void) {
-  Fake f = {0, -2, 0, 0, 0};
-  SaRead s = {0};
-  SaPort p = {&f, submit, wait_for};
+  struct store_fake f = {0, -2, 0, 0, 0};
+  struct sa_read s = {0};
+  struct sa_port p = {&f, submit, wait_for};
   uint8_t b[4096];
   CHECK(sa_start(&s, p, 7, b) == SA_IO && s.state == SA_EMPTY && !s.buffer && !s.ticket &&
         !f.borrow);
@@ -90,8 +90,8 @@ static int admission(void) {
 static int oracle(void) {
   char path[8]; int accepted, completed;
   while (scanf("%d %d %7s", &accepted, &completed, path) == 3) {
-    Fake f = {0, accepted ? 1 : -1, completed ? 0 : -1, 0, 0};
-    SaRead s = {0}; SaPort p = {&f, submit, wait_for};
+    struct store_fake f = {0, accepted ? 1 : -1, completed ? 0 : -1, 0, 0};
+    struct sa_read s = {0}; struct sa_port p = {&f, submit, wait_for};
     uint8_t b[4096] = {0}; void *out = &f;
     for (unsigned i = 0; path[i]; i++) {
       int r = path[i] == 'S' ? sa_start(&s,p,7,b) :

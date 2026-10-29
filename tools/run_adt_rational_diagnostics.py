@@ -26,7 +26,7 @@ def run():
             flags=[compiler,'-std=c17','-Wall','-Wextra','-Wpedantic','-Werror','-I'+str(ROOT/'labs/adt/include'),'-I'+str(ROOT/'labs/adt/rational_units')]
             for name,defs,fail in [('nominal',[],False),('wrong',['-DWRONG=1'],True),('explicit-bypass',['-DBYPASS=1'],False)]:
                 target=temp/(compiler+'-'+name);command=flags+defs+[ROOT/'labs/adt/rational_units/probes/nominal.c',ROOT/'assessor/adt/rational_units/rational_units.c','-o',target]
-                execute(command,compiler+'-'+name,1 if fail else 0,'AdqTicks' if fail else None)
+                execute(command,compiler+'-'+name,1 if fail else 0,'struct adq_ticks' if fail else None)
                 if not fail:execute([target],compiler+'-'+name+'-run',marker='ADQ_NOMINAL')
                 observations.append(dict(compiler=compiler,case=name,compile_rejected=fail))
             target=temp/(compiler+'-typedef');execute(flags+[ROOT/'labs/adt/rational_units/probes/typedefs.c','-o',target],compiler+'-typedef');execute([target],compiler+'-typedef-run',marker='substitution-accepted');observations.append(dict(compiler=compiler,case='typedef',compile_rejected=False))

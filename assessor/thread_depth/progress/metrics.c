@@ -35,11 +35,11 @@ uint32_t tp_mix(uint32_t value, unsigned intensity) {
 }
 int tp_accumulate(const unsigned *data, size_t n, unsigned begin, unsigned step,
                   unsigned mode, unsigned batch, unsigned intensity,
-                  _Atomic(uint64_t) *shared, TPWork *out) {
+                  _Atomic(uint64_t) *shared, struct tp_work *out) {
   if ((n && !data) || !shared || !out || n > 65536 || !step || step > 4 ||
       begin >= step || mode > 2 || !batch || batch > 65536 || intensity > 64)
     return TP_INVALID;
-  TPWork r = {0};
+  struct tp_work r = {0};
   uint64_t pending = 0;
   unsigned used = 0;
   for (size_t i = begin; i < n; i += step) {
@@ -70,14 +70,14 @@ int tp_accumulate(const unsigned *data, size_t n, unsigned begin, unsigned step,
   *out = r;
   return TP_OK;
 }
-int tp_total_init(TPTotal *t) {
+int tp_total_init(struct tp_total *t) {
   int e = pthread_mutex_init(&t->lock, NULL);
   if (e)
     return e;
   t->value = t->items = 0;
   return 0;
 }
-int tp_total_add(TPTotal *t, uint64_t value) {
+int tp_total_add(struct tp_total *t, uint64_t value) {
   int e = pthread_mutex_lock(&t->lock);
   if (e)
     return e;
@@ -93,7 +93,7 @@ int tp_total_add(TPTotal *t, uint64_t value) {
   e = pthread_mutex_unlock(&t->lock);
   return e ? e : status;
 }
-int tp_total_read(TPTotal *t, uint64_t *value, uint64_t *items) {
+int tp_total_read(struct tp_total *t, uint64_t *value, uint64_t *items) {
   int e = pthread_mutex_lock(&t->lock);
   if (e)
     return e;
@@ -102,4 +102,4 @@ int tp_total_read(TPTotal *t, uint64_t *value, uint64_t *items) {
   e = pthread_mutex_unlock(&t->lock);
   return e;
 }
-int tp_total_destroy(TPTotal *t) { return pthread_mutex_destroy(&t->lock); }
+int tp_total_destroy(struct tp_total *t) { return pthread_mutex_destroy(&t->lock); }

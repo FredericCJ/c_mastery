@@ -21,8 +21,8 @@ exclusive ownership. Exact published ISO edition access remains separately track
 ## Prerequisites and route
 
 First complete the T27 reset/clock/image-closure work and T28 MMIO, UART and DMA
-ownership exercises. Reuse the actual `PmModel/pm_access`, `PuDriver/pu_step`,
-`PuClock/pu_rates` and constructed `sd_uart` artifacts. Bring their interface,
+ownership exercises. Reuse the actual `struct pm_model/pm_access`, `struct pu_driver/pu_step`,
+`struct pu_clock/pu_rates` and constructed `sd_uart` artifacts. Bring their interface,
 failure, physical-address and timebase assumptions into the integration dossier.
 Do not replace a provider with a function of the same name that always succeeds.
 The generic service has no register definitions in its public header. Build the
@@ -64,7 +64,7 @@ context cannot move or die while active.
 
 `pl_cancel` requests cancellation; it does not return the borrow. `pl_poll` retains
 the borrow on BUSY and on unrecognized/invalid transport outcomes. Only an explicit
-terminal OK/CANCELLED/IO/TIMEOUT outcome releases it and publishes a `PlResult`
+terminal OK/CANCELLED/IO/TIMEOUT outcome releases it and publishes a `struct pl_result`
 once. A repeated poll is STALE. The transport must promise terminal means it will
 never read the buffer again. `may_have_committed` is conservatively one: the peer
 may already have accepted all eight bytes before cancellation. It is incorrect

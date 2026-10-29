@@ -4,9 +4,9 @@
 #ifndef DGG_MUTANT
 #define DGG_MUTANT 0
 #endif
-static Dg graph;
-static DgSpec spec;
-static SpLaunch launch;
+static struct sa_dg graph;
+static struct dg_spec spec;
+static struct sp_launch launch;
 static unsigned char *stacks[3];
 static unsigned cpus,variant,mode;
 static atomic_uint bad,arrived,mask,registered,visits[16];
@@ -23,7 +23,7 @@ static void execute(unsigned worker){
  unsigned wanted=DGG_MUTANT==1?0:worker;CHECK(!cmk_call(CMK2_SET_AFFINITY,1u<<wanted,0,0));unsigned cpu=(unsigned)cmk_call(CMK2_CPU_INFO,0,0,0);if(cpu!=worker)atomic_store(&bad,1);atomic_fetch_or(&mask,1u<<cpu);
  atomic_fetch_add_explicit(&registered,1,memory_order_release);while(atomic_load_explicit(&registered,memory_order_acquire)!=cpus)yield();
  while(dg_drained(&graph)!=DG_OK){
-  DgClaim claim;int status=dg_claim(&graph,worker,&claim);if(status==DG_EMPTY){yield();continue;}CHECK(status==DG_OK);
+  struct dg_claim claim;int status=dg_claim(&graph,worker,&claim);if(status==DG_EMPTY){yield();continue;}CHECK(status==DG_OK);
   unsigned node=claim.node;CHECK(!atomic_fetch_add(&visits[node],1));owner[node]=worker;actual[node]=(unsigned)cmk_call(CMK2_CPU_INFO,0,0,0);begins[node]=stamp();uint64_t result;
   if(node==0){volatile uint64_t observed=mix(100000,claim.cost*1000);(void)observed;result=0;}
   else if(node==1)result=mix(5000,3000);
@@ -41,19 +41,19 @@ static int create(void *unused,unsigned i,void *p,uintptr_t *handle){(void)unuse
 static int join(void *unused,uintptr_t handle){(void)unused;return cmk2_thread_join((uint32_t)handle)!=0;}
 static void release(void *unused,unsigned i,void *p){(void)unused;CHECK(p==stacks[i]);}
 static void setup(unsigned v){
- spec=(DgSpec){0};spec.count=v==2?5:4;spec.costs[0]=2;spec.costs[1]=3;spec.costs[2]=v==2?2:5;spec.costs[3]=v==2?3:1;if(v==2)spec.costs[4]=1;
- spec.edges[spec.edge_count++]=(DgEdge){0,1};spec.edges[spec.edge_count++]=(DgEdge){0,2};
- if(v==2){spec.edges[spec.edge_count++]=(DgEdge){0,3};for(unsigned i=1;i<=3;i++)spec.edges[spec.edge_count++]=(DgEdge){i,4};}
- else{spec.edges[spec.edge_count++]=(DgEdge){1,3};spec.edges[spec.edge_count++]=(DgEdge){2,3};if(v==1)spec.edges[spec.edge_count++]=(DgEdge){1,2};}
+ spec=(struct dg_spec){0};spec.count=v==2?5:4;spec.costs[0]=2;spec.costs[1]=3;spec.costs[2]=v==2?2:5;spec.costs[3]=v==2?3:1;if(v==2)spec.costs[4]=1;
+ spec.edges[spec.edge_count++]=(struct dg_edge){0,1};spec.edges[spec.edge_count++]=(struct dg_edge){0,2};
+ if(v==2){spec.edges[spec.edge_count++]=(struct dg_edge){0,3};for(unsigned i=1;i<=3;i++)spec.edges[spec.edge_count++]=(struct dg_edge){i,4};}
+ else{spec.edges[spec.edge_count++]=(struct dg_edge){1,3};spec.edges[spec.edge_count++]=(struct dg_edge){2,3};if(v==1)spec.edges[spec.edge_count++]=(struct dg_edge){1,2};}
 }
 void _start(void){
  cpus=(unsigned)((uint64_t)cmk_call(CMK2_CPU_INFO,0,0,0)>>32);CHECK(cpus==1||cpus==2||cpus==4);for(unsigned i=0;i<3;i++){stacks[i]=cmk_alloc(4);CHECK(stacks[i]);}
  for(unsigned experiment=0;experiment<5;experiment++){
   variant=experiment<3?experiment:0;mode=experiment<3?0:experiment-2;setup(variant);atomic_init(&bad,0);atomic_init(&arrived,0);atomic_init(&mask,0);atomic_init(&registered,0);for(unsigned i=0;i<16;i++){atomic_init(&visits[i],0);begins[i]=ends[i]=0;owner[i]=actual[i]=4;}
-  CHECK(dg_init(&graph,experiment+1,&spec)==DG_OK&&dg_seal(&graph)==DG_OK&&sp_launch_init(&launch,(SpLaunchPort){allocate,create,join,release,NULL})==SP_OK);
+  CHECK(dg_init(&graph,experiment+1,&spec)==DG_OK&&dg_seal(&graph)==DG_OK&&sp_launch_init(&launch,(struct sp_launch_port){allocate,create,join,release,NULL})==SP_OK);
   CHECK(sp_launch(&launch,cpus-1)==SP_OK);execute(cpus-1);CHECK(sp_shutdown(&launch)==SP_OK);
   if(atomic_load(&bad)){text("DG_GUEST_CHECK:worker-placement\n");stop(91);}
-  DgSnapshot s;CHECK(dg_snapshot(&graph,&s)==DG_OK&&s.terminal==spec.count&&atomic_load(&mask)==(1u<<cpus)-1);
+  struct dg_snapshot s;CHECK(dg_snapshot(&graph,&s)==DG_OK&&s.terminal==spec.count&&atomic_load(&mask)==(1u<<cpus)-1);
   if(!mode)CHECK(s.results[spec.count-1]==mix(0,8000));else CHECK(s.states[3]==DG_SKIPPED&&s.results[3]==0);
   text("DG_GUEST_CASE:cpus=");number(cpus);text(" experiment=");number(experiment);text(" nodes=");number(spec.count);text(" work=");number(s.work);text(" span=");number(s.span);text(" mask=");number(atomic_load(&mask));text(" terminal=");number(s.terminal);text(" result=");number(s.results[spec.count-1]);text("\n");
   for(unsigned i=0;i<spec.count;i++){
@@ -62,7 +62,7 @@ void _start(void){
   }
  }
  /* Runtime admission on this actual target, both before/after completion. */
- DgSpec empty={0};CHECK(dg_init(&graph,20,&empty)==DG_OK);unsigned node,parent=0;DgClaim a,b;
+ struct dg_spec empty={0};CHECK(dg_init(&graph,20,&empty)==DG_OK);unsigned node,parent=0;struct dg_claim a,b;
  CHECK(dg_append(&graph,1,1,NULL,0,&node)==DG_OK&&dg_claim(&graph,0,&a)==DG_OK&&dg_append(&graph,2,1,&parent,1,&node)==DG_OK&&dg_finish(&graph,a,DG_DONE,7)==DG_OK&&dg_claim(&graph,0,&b)==DG_OK&&b.input==9&&dg_finish(&graph,b,DG_DONE,9)==DG_OK);parent=1;
  CHECK(dg_append(&graph,3,1,&parent,1,&node)==DG_OK&&dg_claim(&graph,0,&a)==DG_OK&&a.input==12&&dg_finish(&graph,a,DG_DONE,12)==DG_OK&&dg_seal(&graph)==DG_OK&&dg_drained(&graph)==DG_OK);
  text("DG_GUEST_RUNTIME:before-after=1 final=12\nDG_GUEST_PASS:validated-arbitrary-DAG-pool-lifecycle-and-failure-propagation\n");stop(0);

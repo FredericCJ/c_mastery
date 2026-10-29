@@ -43,7 +43,7 @@ static int serial(void) {
   return 0;
 }
 static int sizes(void) {
-  LtLayer p[2] = {{3, 8, 2}, {5, 7, 1}};
+  struct lt_layer p[2] = {{3, 8, 2}, {5, 7, 1}};
   uint32_t out[2] = {91, 92};
   C(lt_sizes(12, p, 2, out) == LT_OK && out[0] == 19 && out[1] == 31);
   p[1].header = UINT32_MAX;
@@ -65,7 +65,7 @@ static int borrow(void) {
     input[i] = (unsigned char)i;
   for (unsigned n = 0; n <= 256; n++)
     for (unsigned limit = 1; limit <= 17; limit++) {
-      LtBorrow s = {0};
+      struct lt_borrow s = {0};
       size_t used = 0;
       C(lt_begin(&s, input, n) == LT_OK);
       while (s.phase == 1) {
@@ -81,7 +81,7 @@ static int borrow(void) {
       C(used == n + 2 && wire[0] == (n >> 8) && wire[1] == (n & 255) &&
         memcmp(wire + 2, input, n) == 0 && !s.bytes);
     }
-  LtBorrow s = {0};
+  struct lt_borrow s = {0};
   const unsigned char *p;
   size_t n;
   C(lt_begin(&s, input, 3) == LT_OK && s.bytes == input);
@@ -97,7 +97,7 @@ static int borrow(void) {
   return 0;
 }
 static int bridge(void) {
-  LtBridge s = {0}, old;
+  struct lt_bridge s = {0}, old;
   unsigned m = 99;
   const uint8_t a[6] = {2, 0, 0, 0, 0, 1}, b[6] = {2, 0, 0, 0, 0, 2};
   C(lt_bridge(&s, 10, a, b, 1, 0, &m) == LT_OK && m == 6);
@@ -114,13 +114,13 @@ static int bridge(void) {
   lt_note("LT_BRIDGE_PASS 6 5 1 2 3");
   return 0;
 }
-typedef struct {
+struct lt_bus {
   uint16_t reg[32];
   uint32_t control, tick;
   unsigned reads, writes, bsr, fail, stuck;
-} Bus;
+};
 static int read_bus(void *ctx, unsigned csr, uint32_t *out) {
-  Bus *s = ctx;
+  struct lt_bus *s = ctx;
   if (++s->reads == s->fail)
     return 1;
   if (!csr) {
@@ -134,16 +134,16 @@ static int read_bus(void *ctx, unsigned csr, uint32_t *out) {
   return 0;
 }
 static int write_bus(void *ctx, unsigned csr, uint32_t v) {
-  Bus *s = ctx;
+  struct lt_bus *s = ctx;
   if (csr)
     return 1;
   s->control = v;
   s->writes++;
   return 0;
 }
-static uint32_t tick(void *ctx) { return ((Bus *)ctx)->tick++; }
-static Bus fresh(void) {
-  Bus s = {0};
+static uint32_t tick(void *ctx) { return ((struct lt_bus *)ctx)->tick++; }
+static struct lt_bus fresh(void) {
+  struct lt_bus s = {0};
   s.reg[2] = 0x2000;
   s.reg[3] = 0x5c90;
   s.reg[1] = 0x24;
@@ -151,9 +151,9 @@ static Bus fresh(void) {
   return s;
 }
 static int phy(void) {
-  Bus s = fresh();
-  EDBus b = {&s, read_bus, write_bus, tick};
-  EDPhy p = {0}, old;
+  struct lt_bus s = fresh();
+  struct ed_bus b = {&s, read_bus, write_bus, tick};
+  struct ed_phy p = {0}, old;
   C(lt_dp83848(&b, 168000000, 1, 4, 100, &p) == ED_OK && p.historical == 0 &&
     p.current == 1 && p.speed == 100 && p.full == 1 && s.bsr == 2 &&
     s.writes == 10);
@@ -192,8 +192,8 @@ static int phy(void) {
 }
 static int partial(void) {
   unsigned char bytes[25] = {0};
-  E7Sender sender = {0};
-  LtPartial s = {0};
+  struct e7_sender sender = {0};
+  struct lt_partial s = {0};
   const unsigned char *p;
   size_t n;
   C(e7_send_begin(&sender, 1, 7, 8, bytes, 25, 0) == E7_OK &&
@@ -204,12 +204,12 @@ static int partial(void) {
   C(lt_offer(&s.lower, &p, &n) == LT_OK &&
     lt_partial_progress(&s, n, 2) == LT_OK && !sender.waiting);
   C(lt_offer(&s.lower, &p, &n) == LT_OK && n == 32);
-  EduFragment f;
+  struct edu_fragment f;
   C(edu_fragment_decode(p, n, &f) == 0 && f.id == 1 && f.length == 24);
   C(lt_partial_progress(&s, n, 10) == LT_DONE && sender.waiting &&
     sender.due == 110 && !sender.offered);
-  E7Sender next = {0};
-  s = (LtPartial){0};
+  struct e7_sender next = {0};
+  s = (struct lt_partial){0};
   C(e7_send_begin(&next, 2, 7, 8, bytes, 25, 0) == E7_OK &&
     lt_partial_begin(&s, &next, 0) == LT_OK);
   C(lt_offer(&s.lower, &p, &n) == LT_OK &&

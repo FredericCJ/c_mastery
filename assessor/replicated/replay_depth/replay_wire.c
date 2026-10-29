@@ -23,17 +23,17 @@ static uint64_t get(const unsigned char *p, unsigned n) {
     v = (v << 8) | *p++;
   return v;
 }
-static void state_put(unsigned char *p, RPState s) {
+static void state_put(unsigned char *p, struct rp_state s) {
   put(p, s.tick, 4);
   put(p + 4, s.position, 4);
   put(p + 8, s.score, 4);
   put(p + 12, s.random, 4);
 }
-static RPState state_get(const unsigned char *p) {
-  return (RPState){(unsigned)get(p, 4), (unsigned)get(p + 4, 4),
+static struct rp_state state_get(const unsigned char *p) {
+  return (struct rp_state){(unsigned)get(p, 4), (unsigned)get(p + 4, 4),
                    (unsigned)get(p + 8, 4), (uint32_t)get(p + 12, 4)};
 }
-int rpr_encode(const RprSession *s, unsigned char out[512]) {
+int rpr_encode(const struct rpr_session *s, unsigned char out[512]) {
   unsigned char b[512] = {0};
   unsigned i;
   if (!out || !rpr_invariant(s))
@@ -72,8 +72,8 @@ int rpr_encode(const RprSession *s, unsigned char out[512]) {
   return RPR_OK;
 }
 int rpr_decode(uint64_t timeline, const unsigned char in[512],
-               RprSession *out) {
-  RprSession s = {0};
+               struct rpr_session *out) {
+  struct rpr_session s = {0};
   unsigned char canonical[512], digest[32];
   unsigned i;
   if (!timeline || !in || !out)
@@ -89,9 +89,9 @@ int rpr_decode(uint64_t timeline, const unsigned char in[512],
   s.head = in[6];
   s.confirmed = in[7];
   s.revision = (uint32_t)get(in + 16, 4);
-  s.initial[0] = (RPState){0, in[20], (unsigned)get(in + 22, 2),
+  s.initial[0] = (struct rp_state){0, in[20], (unsigned)get(in + 22, 2),
                            (uint32_t)get(in + 28, 4)};
-  s.initial[1] = (RPState){0, in[21], (unsigned)get(in + 24, 2),
+  s.initial[1] = (struct rp_state){0, in[21], (unsigned)get(in + 24, 2),
                            (uint32_t)get(in + 32, 4)};
   for (i = 0; i < s.head; ++i) {
     s.local[i] = (int)in[36 + i] - 1;
@@ -113,7 +113,7 @@ int rpr_decode(uint64_t timeline, const unsigned char in[512],
   *out = s;
   return RPR_OK;
 }
-int rpr_input_encode(RprInput input, unsigned char out[16]) {
+int rpr_input_encode(struct rpr_input input, unsigned char out[16]) {
   unsigned char b[16] = {0};
   if (!out || !input.timeline || input.tick < 1 || input.tick > 8 ||
       input.movement < -1 || input.movement > 1)
@@ -125,14 +125,14 @@ int rpr_input_encode(RprInput input, unsigned char out[16]) {
   memcpy(out, b, 16);
   return RPR_OK;
 }
-int rpr_input_decode(const unsigned char in[16], RprInput *out) {
-  RprInput x;
+int rpr_input_decode(const unsigned char in[16], struct rpr_input *out) {
+  struct rpr_input x;
   if (!in || !out)
     return RPR_INVALID;
   if (memcmp(in, "RPI1", 4) || (RPR_MUTATION != 6 && (in[14] || in[15])) ||
       !get(in + 4, 8) || !in[12] || in[12] > 8 || in[13] > 2)
     return RPR_CORRUPT;
-  x = (RprInput){get(in + 4, 8), in[12], (int)in[13] - 1};
+  x = (struct rpr_input){get(in + 4, 8), in[12], (int)in[13] - 1};
   *out = x;
   return RPR_OK;
 }

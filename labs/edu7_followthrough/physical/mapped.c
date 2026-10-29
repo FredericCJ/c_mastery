@@ -1,9 +1,9 @@
 #include "physical.h"
 int puts(const char *);
 #define CHECK(x) do{if(!(x)){puts("EP_ASSERT:" #x);return 41;}}while(0)
-typedef struct {volatile uint32_t sr,dr,brr,cr1,cr2,cr3,gtpr;} Registers;
+struct ep_registers {volatile uint32_t sr,dr,brr,cr1,cr2,cr3,gtpr;};
 static uint32_t rcc[64],gpioa[16],gpiod[16],dma[64],uart2[7];
-static Registers uart3;static unsigned bad,barriers;
+static struct ep_registers uart3;static unsigned bad,barriers;
 volatile uint32_t *ep_register(uint32_t a){
  if(a>=0x40023800u&&a<0x40023900u&&!(a&3))return &rcc[(a-0x40023800u)/4];
  if(a>=0x40020000u&&a<0x40020040u&&!(a&3))return &gpioa[(a-0x40020000u)/4];
@@ -13,11 +13,11 @@ volatile uint32_t *ep_register(uint32_t a){
  bad++;return &rcc[63];
 }
 volatile uint32_t *pu_test_register(uint32_t a){return ep_register(a);}
-Registers *pu_test_usart(void){return &uart3;}
+struct ep_registers *pu_test_usart(void){return &uart3;}
 volatile uint32_t *r5_test_register(uint32_t a){return ep_register(a);}
 void ep_barrier(void){barriers++;}void r5_test_barrier(void){ep_barrier();}
 int ep_mapped(void){
- EpTx a={0},b={0};PuClock c={16000000,1,1,1,1,0};rcc[0]=2;
+ struct ep_tx a={0},b={0};struct pu_clock c={16000000,1,1,1,1,0};rcc[0]=2;
  CHECK(ep_f439_open_port(&a,&c,115200,R5_THVD1400,0,0)==EP_OK);
  CHECK(ep_f439_open_port(&b,&c,115200,R5_THVD1400,1,0)==EP_OK);
  CHECK((rcc[12]&9u)==9u && (rcc[16]&(3u<<17))==(3u<<17));

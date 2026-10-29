@@ -9,7 +9,7 @@ runtime implements the model. The separately accepted original X-T15-012
 
 ## Domain objects and transactions
 
-A `CmModel` has sixteen stable slot IDs, a uint32 revision, and nodes of kind
+A `struct cm_model` has sixteen stable slot IDs, a uint32 revision, and nodes of kind
 absent, input, or linear. An input owns a signed32 constant in `bias`. A linear
 node owns two dependency IDs, two signed32 weights and a signed32 bias. Its value
 is **((value[a] * w0) + (value[b] * w1)) + bias**. Each product and each addition
@@ -53,7 +53,7 @@ No arbitrary malformed object pointer or lifetime validation is possible in C.
 records, with an optional final newline. It reads an explicit byte span: a zero
 byte is ordinary invalid input, not a terminator. Empty lines are ignored; a
 line containing only whitespace is invalid. Each frontend emits temporary
-`CmEdit` records, then calls the same atomic `cm_apply`. No record is published
+`struct cm_edit` records, then calls the same atomic `cm_apply`. No record is published
 while later text remains unparsed. An empty configuration preserves revision.
 
 Line syntax (one or more space/tab/CR separators; optional leading/trailing
@@ -104,7 +104,7 @@ CM_MISSING. A query never modifies the model.
 
 ## Persistent commands and output authority
 
-Initialize `CmSession` once. Complete-line `cm_step` supports the line-syntax
+Initialize `struct cm_session` once. Complete-line `cm_step` supports the line-syntax
 definitions above, `set ID VALUE` (existing input only), `get ID`, `eval EXPR`,
 and `exit`. A line is at most256 bytes, without its terminating newline.
 Successful definition/set replies `OK\n`; get/eval replies `VALUE decimal\n`;

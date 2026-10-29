@@ -21,35 +21,35 @@ enum {
   FW_WATCHDOG
 };
 enum { FW_TXE = 1, FW_RXNE = 2, FW_BUSY = 4, FW_TC = 8, FW_EOC = 16 };
-typedef struct {
+struct fw_io {
   void *context;
   uint32_t (*read)(void *, unsigned);
   void (*write)(void *, unsigned, uint32_t);
-} FwIo;
+};
 int fw_startup(uint8_t *, const uint8_t *, size_t, uint8_t *, size_t);
 int fw_vector(uint32_t stack, uint32_t reset, uint32_t ram_low,
               uint32_t ram_high, uint32_t flash_low, uint32_t flash_high);
-int fw_gpio(FwIo, unsigned pin, int high);
-int fw_uart(FwIo, uint8_t, unsigned polls);
-int fw_spi(FwIo, uint8_t, uint8_t *, unsigned polls);
+int fw_gpio(struct fw_io, unsigned pin, int high);
+int fw_uart(struct fw_io, uint8_t, unsigned polls);
+int fw_spi(struct fw_io, uint8_t, uint8_t *, unsigned polls);
 /* Single-master recovery only, with all other drivers quiesced. */
-int fw_i2c_recover(FwIo, unsigned pulses);
-int fw_timer(FwIo, uint32_t clock, uint32_t hz, uint32_t duty_per_mille);
-int fw_adc(FwIo, uint16_t *, unsigned polls);
-typedef struct {
+int fw_i2c_recover(struct fw_io, unsigned pulses);
+int fw_timer(struct fw_io, uint32_t clock, uint32_t hz, uint32_t duty_per_mille);
+int fw_adc(struct fw_io, uint16_t *, unsigned polls);
+struct fw_dma {
   uint32_t generation;
   unsigned state;
-} FwDma;
+};
 /* state:0 CPU-owned,1 device-owned,2 cancelling; no release before idle. */
-int fw_dma(FwDma *, FwIo, unsigned action, uint32_t ticket);
-typedef struct {
+int fw_dma(struct fw_dma *, struct fw_io, unsigned action, uint32_t ticket);
+struct fw_descriptor {
   uint32_t own, length, generation;
-} FwDescriptor;
-int fw_ethernet(FwDescriptor *, FwIo, uint32_t length, uint32_t generation,
+};
+int fw_ethernet(struct fw_descriptor *, struct fw_io, uint32_t length, uint32_t generation,
                 unsigned polls);
-int fw_rs485(FwIo, uint8_t, unsigned polls);
-typedef struct {
+int fw_rs485(struct fw_io, uint8_t, unsigned polls);
+struct fw_watchdog {
   uint32_t required, seen, feeds, last_fault;
-} FwWatchdog;
-int fw_watchdog(FwWatchdog *, FwIo, uint32_t progress, uint32_t fault);
+};
+int fw_watchdog(struct fw_watchdog *, struct fw_io, uint32_t progress, uint32_t fault);
 #endif

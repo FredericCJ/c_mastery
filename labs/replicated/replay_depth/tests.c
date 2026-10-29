@@ -10,15 +10,15 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-static const RPState initial[2] = {{0, 0, 0, 1}, {0, 7, 0, 9}};
-static int same(const RprSession *a, const RprSession *b) {
+static const struct rp_state initial[2] = {{0, 0, 0, 1}, {0, 7, 0, 9}};
+static int same(const struct rpr_session *a, const struct rpr_session *b) {
   unsigned char x[512], y[512];
   return !rpr_encode(a, x) && !rpr_encode(b, y) && !memcmp(x, y, 512);
 }
 static int prediction(void) {
-  RprSession s, saved, fresh;
-  RprNotice n, before;
-  RprEffect e;
+  struct rpr_session s, saved, fresh;
+  struct rpr_notice n, before;
+  struct rpr_effect e;
   unsigned i;
   int local[] = {1, 0, -1, 1}, remote[] = {-1, 1, 0, -1};
   CHECK(rpr_init(9, 4, initial, &s) == 0);
@@ -49,7 +49,7 @@ static int prediction(void) {
   s.revision = UINT32_MAX;
   CHECK(rpr_advance(&s, 1, &n) == RPR_RANGE && rpr_prepare(&s, &e) == 0 &&
         rpr_feedback(&s, e, AR_OK) == 0);
-  RPState near[2] = {{0, 0, 65535, 1}, {0, 7, 0, 9}};
+  struct rp_state near[2] = {{0, 0, 65535, 1}, {0, 7, 0, 9}};
   CHECK(rpr_init(9, 4, near, &s) == 0 && rpr_advance(&s, 0, &n) == 0);
   saved = s;
   memset(&n, 0xa5, sizeof n);
@@ -61,10 +61,10 @@ static int prediction(void) {
   return 0;
 }
 static int snapshot(void) {
-  RprSession s, got, before;
-  RprNotice n;
+  struct rpr_session s, got, before;
+  struct rpr_notice n;
   unsigned char wire[512], bad[512], input[16];
-  RprInput p;
+  struct rpr_input p;
   unsigned i;
   CHECK(rpr_init(9, 4, initial, &s) == 0 && rpr_advance(&s, 1, &n) == 0 &&
         rpr_correct(&s, 9, 1, -1, &n) == 0 && rpr_encode(&s, wire) == 0 &&
@@ -81,7 +81,7 @@ static int snapshot(void) {
   bad[80 + 32 + 7] ^= 1;
   CHECK(rph_hash(bad, 480, bad + 480) == 0 &&
         rpr_decode(9, bad, &got) == RPR_CORRUPT);
-  CHECK(rpr_input_encode((RprInput){9, 1, -1}, input) == 0 &&
+  CHECK(rpr_input_encode((struct rpr_input){9, 1, -1}, input) == 0 &&
         rpr_input_decode(input, &p) == 0 && p.timeline == 9 && p.tick == 1 &&
         p.movement == -1);
   input[15] = 1;
@@ -90,23 +90,23 @@ static int snapshot(void) {
        "full-random-state input-reserved");
   return 0;
 }
-typedef struct {
+struct rp_disk {
   unsigned char volatile_bytes[STORE_IMAGE_PAGES * STORE_PAGE_SIZE],
       durable_bytes[STORE_IMAGE_PAGES * STORE_PAGE_SIZE];
   unsigned operations, fail, persist;
-} Disk;
-static Disk disk;
+};
+static struct rp_disk disk;
 static unsigned char baseline[STORE_IMAGE_PAGES * STORE_PAGE_SIZE];
 static store pages;
 static int read_page(void *ctx, uint32_t page, void *out) {
-  Disk *d = ctx;
+  struct rp_disk *d = ctx;
   if (page >= STORE_IMAGE_PAGES)
     return -1;
   memcpy(out, d->volatile_bytes + page * STORE_PAGE_SIZE, STORE_PAGE_SIZE);
   return 0;
 }
 static int write_page(void *ctx, uint32_t page, const void *in) {
-  Disk *d = ctx;
+  struct rp_disk *d = ctx;
   if (page >= STORE_IMAGE_PAGES)
     return -1;
   ++d->operations;
@@ -121,7 +121,7 @@ static int write_page(void *ctx, uint32_t page, const void *in) {
   return 0;
 }
 static int flush(void *ctx) {
-  Disk *d = ctx;
+  struct rp_disk *d = ctx;
   ++d->operations;
   if (d->operations == d->fail) {
     if (d->persist)
@@ -134,9 +134,9 @@ static int flush(void *ctx) {
 static store_io io(void) {
   return (store_io){&disk, read_page, write_page, flush, STORE_IMAGE_PAGES};
 }
-static int setup(RprDurable *d, unsigned op) {
-  RprNotice n;
-  RprEffect e;
+static int setup(struct rpr_durable *d, unsigned op) {
+  struct rpr_notice n;
+  struct rpr_effect e;
   memset(&disk, 0, sizeof disk);
   CHECK(store_format(io()) == 0 && store_open(&pages, io()) == 0 &&
         rpr_create(&pages, 9, 4, initial, d) == 0);
@@ -149,23 +149,23 @@ static int setup(RprDurable *d, unsigned op) {
   CHECK(store_checkpoint(&pages) == 0);
   return 0;
 }
-static int transition(RprDurable *d, unsigned op) {
-  RprNotice n;
-  RprEffect e;
+static int transition(struct rpr_durable *d, unsigned op) {
+  struct rpr_notice n;
+  struct rpr_effect e;
   if (op == 0)
     return rpr_advance_durable(d, 1, &n);
   if (op == 1)
     return rpr_correct_durable(d, 9, 1, -1, &n);
   if (op == 2)
     return rpr_prepare_durable(d, &e);
-  e = (RprEffect){9, d->session.effects.effect.id,
+  e = (struct rpr_effect){9, d->session.effects.effect.id,
                   d->session.effects.effect.value};
   return rpr_feedback_durable(d, e, AR_OK);
 }
 static int durable(void) {
-  RprDurable d, stale, opened;
-  RprSession old, newstate;
-  RprNotice n;
+  struct rpr_durable d, stale, opened;
+  struct rpr_session old, newstate;
+  struct rpr_notice n;
   unsigned op, cut, mode, cases = 0;
   CHECK(setup(&d, 0) == 0);
   stale = d;
@@ -203,9 +203,9 @@ static int durable(void) {
   return 0;
 }
 static int effects(void) {
-  RprSession s, saved;
-  RprNotice n;
-  RprEffect e, retry, bad;
+  struct rpr_session s, saved;
+  struct rpr_notice n;
+  struct rpr_effect e, retry, bad;
   unsigned i;
   int32_t value;
   CHECK(rpr_init(9, 4, initial, &s) == 0 && rpr_advance(&s, 1, &n) == 0 &&
@@ -232,9 +232,9 @@ static int effects(void) {
 }
 static int transport(void) {
   unsigned char wire[32], raw[16], split[19];
-  RprInput p, before = {7, 7, 0};
+  struct rpr_input p, before = {7, 7, 0};
   unsigned chunk, i;
-  CHECK(rpr_input_frame((RprInput){9, 3, -1}, wire) == 0);
+  CHECK(rpr_input_frame((struct rpr_input){9, 3, -1}, wire) == 0);
   for (chunk = 1; chunk <= 32; ++chunk)
     CHECK(rpr_input_unframe(wire, 18, chunk, &p) == 0 && p.timeline == 9 &&
           p.tick == 3 && p.movement == -1);
@@ -245,7 +245,7 @@ static int transport(void) {
   }
   wire[18] = 9;
   CHECK(rpr_input_unframe(wire, 19, 1, &p) == RPR_CORRUPT);
-  CHECK(rpr_input_encode((RprInput){9, 3, -1}, raw) == 0);
+  CHECK(rpr_input_encode((struct rpr_input){9, 3, -1}, raw) == 0);
   split[0] = 7;
   memcpy(split + 1, raw, 7);
   split[8] = 7;

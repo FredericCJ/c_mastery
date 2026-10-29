@@ -4,7 +4,7 @@
 #ifndef CLP_MUTANT
 #define CLP_MUTANT 0
 #endif
-static int cleanup_init(CLPQueue *q, int error) {
+static int cleanup_init(struct clp_queue *q, int error) {
   if (q->initialized & 8u)
     (void)pthread_cond_destroy(&q->enrolled);
   if (q->initialized & 4u)
@@ -16,7 +16,7 @@ static int cleanup_init(CLPQueue *q, int error) {
   q->initialized = 0;
   return error;
 }
-int clp_init(CLPQueue *q, unsigned fail) {
+int clp_init(struct clp_queue *q, unsigned fail) {
   int r;
   pthread_condattr_t attr;
   q->initialized = 0;
@@ -51,13 +51,13 @@ int clp_init(CLPQueue *q, unsigned fail) {
     r = a;
   return r ? cleanup_init(q, r) : 0;
 }
-typedef struct {
-  CLPQueue *q;
+struct cl_cleanup {
+  struct clp_queue *q;
   unsigned *waiters;
   unsigned waiting;
-} Cleanup;
+};
 static void unlock(void *arg) {
-  volatile Cleanup *c = arg;
+  volatile struct cl_cleanup *c = arg;
   if (c->waiting)
     (*c->waiters)--;
   if (CLP_MUTANT != 2)
@@ -65,7 +65,7 @@ static void unlock(void *arg) {
   (void)pthread_cond_broadcast(&c->q->enrolled);
   (void)pthread_mutex_unlock(&c->q->mutex);
 }
-static int wait_for(volatile Cleanup *c, pthread_cond_t *condition,
+static int wait_for(volatile struct cl_cleanup *c, pthread_cond_t *condition,
                     const struct timespec *deadline) {
   c->waiting = 1;
   (*c->waiters)++;
@@ -76,14 +76,14 @@ static int wait_for(volatile Cleanup *c, pthread_cond_t *condition,
   c->waiting = 0;
   return r;
 }
-int clp_send(CLPQueue *q, uint32_t p, uint32_t seq, const unsigned char *in,
+int clp_send(struct clp_queue *q, uint32_t p, uint32_t seq, const unsigned char *in,
              size_t n, const struct timespec *deadline) {
   int r = pthread_mutex_lock(&q->mutex);
   if (r)
     return r;
   /* The C cleanup macro may use setjmp-based unwinding. Preserve changes to
    * this automatic record across cancellation, including optimized builds. */
-  volatile Cleanup c = {q, &q->send_waiters, 0};
+  volatile struct cl_cleanup c = {q, &q->send_waiters, 0};
   q->active++;
   pthread_cleanup_push(unlock, (void *)&c);
   for (;;) {
@@ -110,7 +110,7 @@ int clp_send(CLPQueue *q, uint32_t p, uint32_t seq, const unsigned char *in,
   pthread_cleanup_pop(1);
   return r;
 }
-int clp_recv(CLPQueue *q, unsigned char *out, size_t cap, size_t *n,
+int clp_recv(struct clp_queue *q, unsigned char *out, size_t cap, size_t *n,
              uint32_t *p, uint32_t *seq, uint64_t *ticket,
              const struct timespec *deadline) {
   if (!ticket)
@@ -118,7 +118,7 @@ int clp_recv(CLPQueue *q, unsigned char *out, size_t cap, size_t *n,
   int r = pthread_mutex_lock(&q->mutex);
   if (r)
     return r;
-  volatile Cleanup c = {q, &q->recv_waiters, 0};
+  volatile struct cl_cleanup c = {q, &q->recv_waiters, 0};
   q->active++;
   pthread_cleanup_push(unlock, (void *)&c);
   for (;;) {
@@ -140,7 +140,7 @@ int clp_recv(CLPQueue *q, unsigned char *out, size_t cap, size_t *n,
   pthread_cleanup_pop(1);
   return r;
 }
-int clp_close(CLPQueue *q, unsigned abort_queued) {
+int clp_close(struct clp_queue *q, unsigned abort_queued) {
   int r = pthread_mutex_lock(&q->mutex);
   if (r)
     return r;
@@ -152,7 +152,7 @@ int clp_close(CLPQueue *q, unsigned abort_queued) {
   (void)pthread_cond_broadcast(&q->readable);
   return pthread_mutex_unlock(&q->mutex);
 }
-int clp_destroy(CLPQueue *q) {
+int clp_destroy(struct clp_queue *q) {
   if (!q->initialized)
     return EINVAL;
   int r = pthread_mutex_lock(&q->mutex);
@@ -165,7 +165,7 @@ int clp_destroy(CLPQueue *q) {
     return EBUSY;
   return cleanup_init(q, 0);
 }
-int clp_record_recover(pthread_mutex_t *m, CLPRecord *r, unsigned repair) {
+int clp_record_recover(pthread_mutex_t *m, struct clp_record *r, unsigned repair) {
   int error = pthread_mutex_lock(m);
   if (error == ENOTRECOVERABLE)
     return error;

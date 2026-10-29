@@ -18,17 +18,17 @@ int main(void) {
    * Bounds below are the complete parser for this intentionally tiny profile.
    */
   static const unsigned char request[2] = {1, 7};
-  SDEntry entry = {"request", request, 2};
-  SDFiles fs;
-  SDHandle fd;
-  SDChannel q;
-  SDJournal j = {0};
-  SDCap cap = {1, 7};
+  struct sd_entry entry = {"request", request, 2};
+  struct sd_files fs;
+  struct sd_handle fd;
+  struct sd_channel q;
+  struct sd_journal j = {0};
+  struct sd_cap cap = {1, 7};
   unsigned char wire[2] = {99, 99};
   size_t n = 99;
   int fail = 1;
   int32_t answer = 99;
-  SDReceipt receipt;
+  struct sd_receipt receipt;
   CHECK(sd_files_init(&fs, &entry, 1) == SD_OK);
   CHECK(sd_open(&fs, "request", &fd) == SD_OK);
   CHECK(sd_read(&fs, fd, wire, 2, 2, &n, validate, &fail) == SD_COPY &&

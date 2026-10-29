@@ -1,7 +1,7 @@
 # Nested nursery with real hosted imports
 
 This required successor belongs to X-T73-001-R2/R4 and its delayed variant. It
-imports the actual `MsgNursery` implementation plus `work.pool` (`hs_pool_sum`,
+imports the actual `struct msg_nursery` implementation plus `work.pool` (`hs_pool_sum`,
 PR-T25-01/LAB-HS-10) and `io.deadline` (`hs_read_until`, PR-T24-05/LAB-HS-03).
 The worker producer is a finite integer reducer, not a general task-submission
 API. Each leaf may call it and returns only after its native workers have joined.
@@ -10,7 +10,7 @@ injection library is claimed. The original eight-child nursery remains required.
 
 ## Representation, ownership and operations
 
-Use caller-owned stable `MfnTree` storage, two group threads and two leaf slots per
+Use caller-owned stable `struct mfn_tree` storage, two group threads and two leaf slots per
 group, an internal two-byte completion pipe, four task descriptors and a bounded
 four-error result. `mfn_start` needs an uninitialized or fully finished tree, four
 non-null functions and failure indices 0..2. Output storage, descriptor arrays,
@@ -89,4 +89,4 @@ thread, and separate the owner of joining from the owner of cancellation.
 The separate assessor analysis gives the ownership argument and fault matrix.
 Native worker/thread stacks, scheduler latency, pthread storage, pipe buffers
 and the finite reducer's arithmetic/data-model assumptions remain costs beyond
-`sizeof(MfnTree)`; do not call this a constant-time cancellation operation.
+`sizeof(struct mfn_tree)`; do not call this a constant-time cancellation operation.

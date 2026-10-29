@@ -11,7 +11,7 @@ SELECTORS={
 '05.c':['gcc-debug composition execute','gcc-debug mutant3 execute','clang-release validation execute','unobserved capture rejection']}
 RATIONALE={
 '05.a':'Checked IPv4 field/extent matrix, full coverage and identity, strict/identical overlaps, absolute expiry and actual timeout reports; independent22751event oracle and target tests.',
-'05.b':'Actual unchanged SChecksum body with original source identity,33411allFFsplits,131076-byte accumulation bound, pseudoheader composition and compiled odd-padding defect.',
+'05.b':'Actual unchanged struct s_checksum body with original source identity,33411allFFsplits,131076-byte accumulation bound, pseudoheader composition and compiled odd-padding defect.',
 '05.c':'All65Echo data lengths,520unaligned inputs, actual original ARP/IP/Echo composition and reassembly, preserved bytes/padding and separately required physical56/64-byte protocol.'}
 
 

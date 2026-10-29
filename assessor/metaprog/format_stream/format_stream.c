@@ -5,15 +5,15 @@
 #endif
 _Static_assert(CHAR_BIT==8 && '0'==48 && '9'==57 && '{'==123 && '}'==125,
                "This laboratory DSL and wire decimal use ASCII octets");
-MfpArg mfp_number(uint32_t value) { MfpArg a={MFP_NUMBER,value,{NULL,0}}; return a; }
-MfpArg mfp_bytes(MfpSpan value) { MfpArg a={MFP_BYTES,0,value}; return a; }
-int mfp_parse(MfpSpan source,MfpProgram *output) {
-    MfpProgram p={0};size_t i=0,j;
+struct mfp_arg mfp_number(uint32_t value) { struct mfp_arg a={MFP_NUMBER,value,{NULL,0}}; return a; }
+struct mfp_arg mfp_bytes(struct mfp_span value) { struct mfp_arg a={MFP_BYTES,0,value}; return a; }
+int mfp_parse(struct mfp_span source,struct mfp_program *output) {
+    struct mfp_program p={0};size_t i=0,j;
     if(!output || source.length>32 || (source.length && !source.bytes))return MFP_INVALID;
     p.source_length=source.length;
     for(j=0;j<source.length;++j)p.source[j]=source.bytes[j];
     while(i<source.length){
-        unsigned char c=p.source[i];MfpNode n={MFP_LITERAL,0,i,1};
+        unsigned char c=p.source[i];struct mfp_node n={MFP_LITERAL,0,i,1};
         if(c=='{' || c=='}'){
             if(i+1<source.length && p.source[i+1]==c)i+=2;
             else if(c=='{' && source.length-i>=4 && (p.source[i+1]=='u'||p.source[i+1]=='s') && p.source[i+2]>='0' && p.source[i+2]<='3' && p.source[i+3]=='}'){
@@ -27,8 +27,8 @@ int mfp_parse(MfpSpan source,MfpProgram *output) {
     }
     *output=p;return MFP_OK;
 }
-int mfp_prepare(const MfpProgram *p,const MfpArg *args,size_t count,MfpMessage *output){
-    MfpMessage m={{0},0};size_t i,j;
+int mfp_prepare(const struct mfp_program *p,const struct mfp_arg *args,size_t count,struct mfp_message *output){
+    struct mfp_message m={{0},0};size_t i,j;
     if(!p||!output||count>4||(count&&!args)||p->count>32||p->source_length>32)return MFP_INVALID;
     for(i=0;i<count;++i){
         if(args[i].kind!=MFP_NUMBER && args[i].kind!=MFP_BYTES)return MFP_TYPE;
@@ -39,7 +39,7 @@ int mfp_prepare(const MfpProgram *p,const MfpArg *args,size_t count,MfpMessage *
         if(MFP_MUTATION!=2 && p->required[i]!=args[i].kind)return MFP_TYPE;
     }
     for(i=0;i<p->count;++i){
-        MfpNode n=p->nodes[i];
+        struct mfp_node n=p->nodes[i];
         if(n.kind==MFP_LITERAL){
             if(n.offset>=p->source_length||n.length!=1)return MFP_INVALID;
             if(m.length==sizeof m.bytes)return MFP_FULL;
@@ -48,11 +48,11 @@ int mfp_prepare(const MfpProgram *p,const MfpArg *args,size_t count,MfpMessage *
             if(n.index>=count || (n.kind!=MFP_NUMBER && n.kind!=MFP_BYTES))return MFP_INVALID;
             if(MFP_MUTATION!=2 && args[n.index].kind!=n.kind)return MFP_TYPE;
             if(n.kind==MFP_NUMBER){
-                MPSink s={m.bytes,sizeof m.bytes,m.length};
+                struct mp_sink s={m.bytes,sizeof m.bytes,m.length};
                 if(!mp_format(&s,mp_arg_number(args[n.index].number)))return MFP_FULL;
                 m.length=s.used;
             }else{
-                MfpSpan span=args[n.index].span;
+                struct mfp_span span=args[n.index].span;
                 if(span.length>sizeof m.bytes-m.length)return MFP_FULL;
                 for(j=0;j<span.length;++j)m.bytes[m.length+j]=span.bytes[j];
                 m.length+=span.length;
@@ -61,22 +61,22 @@ int mfp_prepare(const MfpProgram *p,const MfpArg *args,size_t count,MfpMessage *
     }
     *output=m;return MFP_OK;
 }
-int mfp_render(const MfpProgram *p,const MfpArg *args,size_t count,MPSink *sink){
-    MfpMessage m;size_t i;int status;
+int mfp_render(const struct mfp_program *p,const struct mfp_arg *args,size_t count,struct mp_sink *sink){
+    struct mfp_message m;size_t i;int status;
     if(!sink||sink->used>sink->capacity||(sink->capacity&&!sink->bytes))return MFP_INVALID;
     status=mfp_prepare(p,args,count,&m);if(status!=MFP_OK)return status;
     if(m.length>sink->capacity-sink->used){if(MFP_MUTATION==3)++sink->used;return MFP_FULL;}
     for(i=0;i<m.length;++i)sink->bytes[sink->used+i]=m.bytes[i];
     sink->used+=m.length;return MFP_OK;
 }
-int mfp_start(MfpStream *s,const MfpMessage *m){
-    MfpStream next={0};
+int mfp_start(struct mfp_stream *s,const struct mfp_message *m){
+    struct mfp_stream next={0};
     if(!s||!m||m->length>128||s->state>MFP_STOPPED)return MFP_INVALID;
     if(s->state==MFP_ACTIVE)return MFP_BUSY;
     next.message=*m;next.state=MFP_ACTIVE;*s=next;return MFP_OK;
 }
-int mfp_step(MfpStream *s,MfpWriter writer,void *context){
-    MfpWriteResult r;size_t left;
+int mfp_step(struct mfp_stream *s,mfp_writer_fn writer,void *context){
+    struct mfp_write_result r;size_t left;
     if(!s||s->state>MFP_STOPPED||s->message.length>128||s->offset>s->message.length)return MFP_INVALID;
     if(s->state==MFP_DONE)return MFP_OK;
     if(s->state==MFP_FAILED)return s->failure;
@@ -94,7 +94,7 @@ int mfp_step(MfpStream *s,MfpWriter writer,void *context){
     if(s->offset==s->message.length){s->state=MFP_DONE;return MFP_OK;}
     return r.status==MFP_WRITE_AGAIN?MFP_AGAIN:MFP_MORE;
 }
-int mfp_cancel(MfpStream *s){
+int mfp_cancel(struct mfp_stream *s){
     if(!s||s->state>MFP_STOPPED)return MFP_INVALID;
     if(s->state==MFP_ACTIVE){s->state=MFP_STOPPED;return MFP_CANCELLED;}
     if(s->state==MFP_STOPPED)return MFP_CANCELLED;

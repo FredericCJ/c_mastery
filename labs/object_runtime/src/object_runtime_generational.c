@@ -1,10 +1,10 @@
 #include "object_runtime_generational.h"
-ORStatus or_nursery_cards_init(const ORNursery *h, ORCards *out) {
+enum or_status or_nursery_cards_init(const struct or_nursery *h, struct or_cards *out) {
   (void)h;
   (void)out;
   return OR_STATE;
 }
-ORStatus or_nursery_old_store(ORNursery *h, ORCards *c, unsigned o, unsigned f,
+enum or_status or_nursery_old_store(struct or_nursery *h, struct or_cards *c, unsigned o, unsigned f,
                               unsigned t) {
   (void)h;
   (void)c;
@@ -13,7 +13,7 @@ ORStatus or_nursery_old_store(ORNursery *h, ORCards *c, unsigned o, unsigned f,
   (void)t;
   return OR_STATE;
 }
-ORStatus or_minor_preflight(ORNursery *h, ORCards *c, unsigned y, unsigned o,
+enum or_status or_minor_preflight(struct or_nursery *h, struct or_cards *c, unsigned y, unsigned o,
                             unsigned *n, unsigned *s) {
   (void)h;
   (void)c;
@@ -23,7 +23,7 @@ ORStatus or_minor_preflight(ORNursery *h, ORCards *c, unsigned y, unsigned o,
   (void)s;
   return OR_STATE;
 }
-ORStatus or_major_preflight(ORNursery *h, ORCards *c, unsigned *n,
+enum or_status or_major_preflight(struct or_nursery *h, struct or_cards *c, unsigned *n,
                             uint8_t f[16]) {
   (void)h;
   (void)c;
@@ -31,21 +31,21 @@ ORStatus or_major_preflight(ORNursery *h, ORCards *c, unsigned *n,
   (void)f;
   return OR_STATE;
 }
-void or_large_init(ORLargeHeap *h) { (void)h; }
-ORStatus or_large_allocate(ORLargeHeap *h, unsigned n, uint32_t p,
-                           ORLargeHandle *o) {
+void or_large_init(struct or_large_heap *h) { (void)h; }
+enum or_status or_large_allocate(struct or_large_heap *h, unsigned n, uint32_t p,
+                           struct or_large_handle *o) {
   (void)h;
   (void)n;
   (void)p;
   (void)o;
   return OR_STATE;
 }
-ORStatus or_large_release(ORLargeHeap *h, ORLargeHandle p) {
+enum or_status or_large_release(struct or_large_heap *h, struct or_large_handle p) {
   (void)h;
   (void)p;
   return OR_STATE;
 }
-ORStatus or_large_pin(ORLargeHeap *h, ORLargeHandle p, ORLargeLease *o,
+enum or_status or_large_pin(struct or_large_heap *h, struct or_large_handle p, struct or_large_lease *o,
                       const uint32_t **d, unsigned *n) {
   (void)h;
   (void)p;
@@ -54,11 +54,11 @@ ORStatus or_large_pin(ORLargeHeap *h, ORLargeHandle p, ORLargeLease *o,
   (void)n;
   return OR_STATE;
 }
-ORStatus or_large_unpin(ORLargeLease p) {
+enum or_status or_large_unpin(struct or_large_lease p) {
   (void)p;
   return OR_STATE;
 }
-ORStatus or_large_collect(ORLargeHeap *h, unsigned *n) {
+enum or_status or_large_collect(struct or_large_heap *h, unsigned *n) {
   (void)h;
   (void)n;
   return OR_STATE;

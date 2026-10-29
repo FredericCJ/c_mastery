@@ -47,7 +47,7 @@ do not implement or validate a hard-real-time scheduler.
 
 ## 5. Concrete inputs and operations
 
-Implement the unsolved public `partition.c`. `RPTask` supplies period, relative
+Implement the unsolved public `partition.c`. `struct rp_task` supplies period, relative
 deadline, zero jitter/blocking, a nonempty CPU-affinity mask and an execution
 cost for each of up to four CPUs. `job.cost` is producer metadata; the selected
 `cost[c]` is authoritative for the wrapper. Support1–8 tasks,1–4 CPUs and an
@@ -56,7 +56,7 @@ positive, deadline≤period, and each cost≤period. Zero-cost jobs are permitte
 the retained simulator counts only jobs completed through a service decrement.
 No exact count of instantaneous zero-cost completions is claimed.
 
-`rp_fit` publishes a complete `RPPlan` or leaves output unchanged. With demand
+`rp_fit` publishes a complete `struct rp_plan` or leaves output unchanged. With demand
 mode0 all deadlines must equal periods. Mode1 checks constrained deadlines.
 Sort by decreasing worst eligible-CPU utilization, retaining input-index order
 for ties; restore original task indices in the published assignment. The common
@@ -69,7 +69,7 @@ means the heuristic failed, not that every assignment is impossible.
 `rp_exact` enumerates assignments in original task-index and ascending CPU
 order, pruning inadmissible prefixes. It returns the first complete witness;
 `RP_IMPOSSIBLE` means no assignment satisfies this exact finite model. Invalid
-inputs and failed searches preserve the prior output. `RPPlan.used[c]` is exact
+inputs and failed searches preserve the prior output. `struct rp_plan.used[c]` is exact
 integer service demand over the supplied hyperperiod, not a rounded percentage.
 `rp_verify` rechecks every assignment, affinity, load and selected demand test;
 it does not trust a plan supplied by a caller merely because its type matches.
@@ -80,7 +80,7 @@ work, completed nonzero jobs, misses and migrations. The admitted constrained
 model prevents a missed job being overwritten at the next release. Do not use
 the retained overwrite behavior to hide backlog in an inadmissible task set.
 
-`RPLease` supplies an independent explicit transfer protocol. Initialize one
+`struct rp_lease` supplies an independent explicit transfer protocol. Initialize one
 owner and epoch1. `rp_begin` reserves one outstanding work interval. `rp_finish`
 adds checked work and releases that interval; at a full work counter a zero-work
 finish still releases ownership. `rp_prepare` requires the old owner/epoch,

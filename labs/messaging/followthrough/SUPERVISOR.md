@@ -1,7 +1,7 @@
 # Execute restart topology against actual owned actors
 
-This required X-T73-005-R2/R3/R4 successor executes the original `MsgSupervisor`
-plans against actual `MfaActor` instances from X-T73-004. The fixed two-level tree
+This required X-T73-005-R2/R3/R4 successor executes the original `struct msg_supervisor`
+plans against actual `struct mfa_actor` instances from X-T73-004. The fixed two-level tree
 contains four child supervisors, each managing four actors; the parent supervises
 those four branches. Parent and child restart-intensity limits are independent
 1..4 counts with the same explicit nonzero tick-window parameter. Absolute ticks
@@ -10,7 +10,7 @@ enumeration, exact-window and timestamp-boundary assessments.
 
 ## Representation and interfaces
 
-`MfsTree` owns five bounded supervisor records, sixteen actual actors, a resource
+`struct mfs_tree` owns five bounded supervisor records, sixteen actual actors, a resource
 live bit per actor and a common lifecycle policy. It borrows stable handler
 contexts and resource callback context. The resource `open(ctx, group, child)`
 constructs one instance, returning true only after successful initialization; on

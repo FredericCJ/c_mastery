@@ -3,15 +3,15 @@
 #include <stdio.h>
 #include <sched.h>
 enum { OWNERS=4, BATCHES=20000 };
-typedef struct {SiBox box;uint64_t sum;unsigned calls,failed;} Owner;
-static Owner owners[OWNERS];
+struct sa_owner {struct si_box box;uint64_t sum;unsigned calls,failed;};
+static struct sa_owner owners[OWNERS];
 static void add(void *context,uint32_t item) {
- Owner *owner=context;
+ struct sa_owner *owner=context;
  if(atomic_load_explicit(&owner->box.acknowledged,memory_order_acquire)==atomic_load_explicit(&owner->box.published,memory_order_relaxed))owner->failed=1;
  owner->sum+=item;owner->calls++;
 }
 static void *consume(void *context) {
- Owner *owner=context;
+ struct sa_owner *owner=context;
  for(uint64_t generation=1;generation<=BATCHES;generation++) {
   while(atomic_load_explicit(&owner->box.published,memory_order_acquire)!=generation)sched_yield();
   if(si_drain(&owner->box,generation,add,owner)!=SI_OK)owner->failed=1;

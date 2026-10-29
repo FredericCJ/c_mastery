@@ -27,28 +27,28 @@ static int bytes(void){
  CHECK(ab_address(UINT64_MAX-1,0,1,0,2,2,&start,&end)==AB_RANGE);
  CHECK(ab_address(0,0,1,0,1,1,&start,&start)==AB_INVALID);
  for(unsigned scale=1;scale<=8;scale*=2)for(unsigned index=0;index<9;++index)for(int disp=-9;disp<=9;++disp)for(unsigned width=1;width<=8;++width){
-  int pos=(int)(scale*index)+disp;unsigned admit=pos>=0 && pos<=32 && width<=32-(unsigned)pos;start=99;end=88;enum ABStatus s=ab_address(0x1000,index,scale,disp,width,32,&start,&end);CHECK(s==(admit?AB_OK:AB_RANGE));CHECK(admit?(start==0x1000u+(unsigned)pos && end==start+width):(start==99 && end==88));
+  int pos=(int)(scale*index)+disp;unsigned admit=pos>=0 && pos<=32 && width<=32-(unsigned)pos;start=99;end=88;enum ab_status s=ab_address(0x1000,index,scale,disp,width,32,&start,&end);CHECK(s==(admit?AB_OK:AB_RANGE));CHECK(admit?(start==0x1000u+(unsigned)pos && end==start+width):(start==99 && end==88));
   uint64_t row[]={scale,index,(uint64_t)(int64_t)disp,width,s,start,end};ab_emit("address",row,7);
  }
  return 0;
 }
 static int storage(void){
- int32_t values[]={INT32_MIN,-1,0,1,INT32_MAX};AWRecord pool[2]={{0,0},{0,0}};unsigned char wire[8];
- for(unsigned a=0;a<5;++a)for(unsigned b=0;b<5;++b)for(unsigned big=0;big<2;++big){pool[0]=(AWRecord){values[a],values[b]};CHECK(ab_record_encode(pool,big,wire,8)==AB_OK);pool[1]=(AWRecord){77,88};CHECK(ab_record_decode(wire,8,big,pool+1)==AB_OK && pool[1].id==pool[0].id && pool[1].rank==pool[0].rank);CHECK(ab_record_copy(pool+1,pool)==AB_OK);CHECK(ab_record_copy(pool,pool)==AB_OK);uint64_t row[]={a,b,big,wire[0],wire[1],wire[2],wire[3],wire[4],wire[5],wire[6],wire[7]};ab_emit("storage",row,11);}
- pool[1]=(AWRecord){77,88};for(unsigned n=0;n<8;++n)CHECK(ab_record_decode(wire,n,0,pool+1)==AB_TRUNCATED && pool[1].id==77 && pool[1].rank==88);
+ int32_t values[]={INT32_MIN,-1,0,1,INT32_MAX};struct aw_record pool[2]={{0,0},{0,0}};unsigned char wire[8];
+ for(unsigned a=0;a<5;++a)for(unsigned b=0;b<5;++b)for(unsigned big=0;big<2;++big){pool[0]=(struct aw_record){values[a],values[b]};CHECK(ab_record_encode(pool,big,wire,8)==AB_OK);pool[1]=(struct aw_record){77,88};CHECK(ab_record_decode(wire,8,big,pool+1)==AB_OK && pool[1].id==pool[0].id && pool[1].rank==pool[0].rank);CHECK(ab_record_copy(pool+1,pool)==AB_OK);CHECK(ab_record_copy(pool,pool)==AB_OK);uint64_t row[]={a,b,big,wire[0],wire[1],wire[2],wire[3],wire[4],wire[5],wire[6],wire[7]};ab_emit("storage",row,11);}
+ pool[1]=(struct aw_record){77,88};for(unsigned n=0;n<8;++n)CHECK(ab_record_decode(wire,n,0,pool+1)==AB_TRUNCATED && pool[1].id==77 && pool[1].rank==88);
  CHECK(ab_record_decode(wire,8,2,pool+1)==AB_INVALID && pool[1].id==77);
  for(unsigned i=0;i<8;++i)wire[i]=0xa5;
  CHECK(ab_record_encode(pool,0,wire,7)==AB_TRUNCATED);for(unsigned i=0;i<8;++i)CHECK(wire[i]==0xa5);
  CHECK(ab_record_copy(0,pool)==AB_INVALID);return 0;
 }
 static int decode(void){
- ABInstruction out={0},old={0};old.target=123;old.length=77;const unsigned char cmp[]={0x48,0x3d,255,255,255,255};
+ struct ab_instruction out={0},old={0};old.target=123;old.length=77;const unsigned char cmp[]={0x48,0x3d,255,255,255,255};
  CHECK(ab_x86(cmp,6,0,0,&out)==AB_OK && out.length==6 && out.operand_bits==64 && out.signed_immediate==-1 && out.immediate==UINT32_MAX);
  for(unsigned n=0;n<6;++n){out=old;CHECK(ab_x86(cmp,n,0,0,&out)==AB_TRUNCATED && equal(&out,&old,sizeof(out)));}
  const unsigned char unsupported[]={0x66,0x3d,0,0},ext[]={0x3c,0x7f};out=old;CHECK(ab_x86(unsupported,4,0,1,&out)==AB_UNSUPPORTED && equal(&out,&old,sizeof(out)));CHECK(ab_x86(ext,2,0,0,&out)==AB_UNSUPPORTED && equal(&out,&old,sizeof(out)));CHECK(ab_x86(ext,2,0,1,&out)==AB_OK && out.operand_bits==8 && out.immediate==127);
  out=old;CHECK(ab_x86(ext,1,0,1,&out)==AB_TRUNCATED && equal(&out,&old,sizeof(out)));
  unsigned char p[4]={0};unsigned counts[3]={0};
- for(unsigned h=0;h<65536;++h){unsigned len=(h>>11)>=29?4:2;CHECK(ab_thumb_length((uint16_t)h)==len);p[0]=(unsigned char)h;p[1]=(unsigned char)(h>>8);out=old;enum ABStatus status=ab_thumb(p,2,0x2000,0,&out);
+ for(unsigned h=0;h<65536;++h){unsigned len=(h>>11)>=29?4:2;CHECK(ab_thumb_length((uint16_t)h)==len);p[0]=(unsigned char)h;p[1]=(unsigned char)(h>>8);out=old;enum ab_status status=ab_thumb(p,2,0x2000,0,&out);
   if(len==4){CHECK(status==AB_TRUNCATED && equal(&out,&old,sizeof(out)));++counts[0];CHECK(ab_thumb(p,4,0x2000,0,&out)==AB_UNSUPPORTED && equal(&out,&old,sizeof(out)));}
   else if((h&0xf800)==0x2800){CHECK(status==AB_OK && out.kind==AB_CMP && out.length==2 && out.operand_bits==32 && out.reg==((h>>8)&7) && out.immediate==(h&255));++counts[1];uint64_t row[]={h,out.reg,out.immediate};ab_emit("thumbcmp",row,3);}
   else{CHECK(status==AB_UNSUPPORTED && equal(&out,&old,sizeof(out)));++counts[2];}
@@ -57,7 +57,7 @@ static int decode(void){
  CHECK(counts[0]==6144 && counts[1]==2048 && counts[2]==57344);out=old;CHECK(ab_thumb(p,1,0,0,&out)==AB_TRUNCATED && equal(&out,&old,sizeof(out)));CHECK(ab_thumb(p,4,1,0,&out)==AB_INVALID && equal(&out,&old,sizeof(out)));return 0;
 }
 static int branches(void){
- unsigned char p[]={0x77,0};ABInstruction out={0},old={0};old.target=123;
+ unsigned char p[]={0x77,0};struct ab_instruction out={0},old={0};old.target=123;
  for(unsigned base=0;base<3;++base)for(unsigned imm=0;imm<256;++imm){uint64_t pc=0x1006+base*0x1000;p[1]=(unsigned char)imm;CHECK(ab_x86(p,2,pc,0,&out)==AB_OK);int delta=imm<128?(int)imm:(int)imm-256;CHECK(out.target==pc+2+delta);uint64_t row[]={pc,imm,out.target};ab_emit("xbranch",row,3);}
  out=old;p[1]=128;CHECK(ab_x86(p,2,0,0,&out)==AB_RANGE && equal(&out,&old,sizeof(out)));CHECK(ab_x86(p,2,UINT64_MAX,0,&out)==AB_RANGE && equal(&out,&old,sizeof(out)));
  for(unsigned base=0;base<2;++base)for(unsigned cond=0;cond<14;++cond)for(unsigned imm=0;imm<256;++imm){uint32_t pc=0x2000+base*0x1000;p[0]=(unsigned char)imm;p[1]=(unsigned char)(0xd0+cond);CHECK(ab_thumb(p,2,pc,1,&out)==AB_OK);int delta=imm<128?(int)imm:(int)imm-256;CHECK(out.target==pc+4+delta*2 && out.condition==cond);uint64_t row[]={pc,cond,imm,out.target};ab_emit("tbranch",row,4);}

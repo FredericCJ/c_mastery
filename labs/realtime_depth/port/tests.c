@@ -4,7 +4,7 @@
 #include <string.h>
 #define CHECK(x) do {if (!(x)) {fprintf(stderr,"SR_CHECK:%u:%s\n",__LINE__,#x);exit(1);}} while (0)
 static cmx_kernel k;
-static SRPort s;
+static struct sr_port s;
 static void setup(uint32_t q, uint32_t p) {
   cmx_init(&k,CMX_FIXED);
   CHECK(cmx_task_add(&k,1,0,0x1000,1024)==0);
@@ -25,7 +25,7 @@ static void basic(void) {
   puts("SR_BASIC:charge-throttle-wake-close-exit-detach-reap");
 }
 static void guards(void) {
-  setup(1,5);SRPort before=s;cmx_kernel old=k;
+  setup(1,5);struct sr_port before=s;cmx_kernel old=k;
   CHECK(sr_tick(&s,2)==CMX_INVALID);CHECK(!memcmp(&s,&before,sizeof s)&&!memcmp(&k,&old,sizeof k));
   k.sequence=UINT32_MAX;old=k;
   CHECK(sr_tick(&s,1)==CMX_FULL);CHECK(!memcmp(&s,&before,sizeof s)&&!memcmp(&k,&old,sizeof k));
@@ -43,7 +43,7 @@ static void guards(void) {
   puts("SR_GUARDS:clock-sequence-counter-overflow-exact-sleep-ownership");
 }
 static void generation(void) {
-  setup(1,5);k.task[0].generation++;SRPort before=s;cmx_kernel old=k;
+  setup(1,5);k.task[0].generation++;struct sr_port before=s;cmx_kernel old=k;
   CHECK(sr_tick(&s,1)==CMX_INVALID);CHECK(sr_close(&s)==CMX_INVALID);
   CHECK(!memcmp(&s,&before,sizeof s)&&!memcmp(&k,&old,sizeof k));
   puts("SR_GENERATION:reused-slot-refused");

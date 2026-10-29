@@ -9,9 +9,9 @@
 void ab_failure(const char*s,unsigned line){fprintf(stderr,"AB_ASSERT:%u:%s\n",line,s);}
 void ab_emit(const char*s,const uint64_t*v,unsigned n){printf("DATA %s",s);for(unsigned i=0;i<n;++i)printf(" %" PRIu64,v[i]);putchar('\n');}
 static int allocated(void){
- AWRecord*heap=malloc(sizeof(*heap));if(!heap)return 43;
+ struct aw_record*heap=malloc(sizeof(*heap));if(!heap)return 43;
  /* First typed store into actual allocated storage; no declared byte object. */
- *heap=(AWRecord){INT32_MIN,INT32_MAX};AWRecord copy={0,0};unsigned char wire[8];int ok=ab_record_copy(&copy,heap)==AB_OK && ab_record_encode(heap,1,wire,8)==AB_OK && copy.id==INT32_MIN && copy.rank==INT32_MAX;free(heap);
+ *heap=(struct aw_record){INT32_MIN,INT32_MAX};struct aw_record copy={0,0};unsigned char wire[8];int ok=ab_record_copy(&copy,heap)==AB_OK && ab_record_encode(heap,1,wire,8)==AB_OK && copy.id==INT32_MIN && copy.rank==INT32_MAX;free(heap);
  if(!ok){ab_failure("actual allocated backing/copy",__LINE__);return 41;}puts("OBS allocated");return 0;
 }
 static int timing(void){

@@ -29,7 +29,7 @@ or ready-made breaker implementation is permitted. It retains an already
 allocated scope borrow per admitted operation. Host Python verifies models;
 there is no target/physical execution or weak-memory proof claim.
 
-`RzbGate` owns two independent health records and four permit slots, two slots
+`struct rzb_gate` owns two independent health records and four permit slots, two slots
 reserved for each tenant. Reservations a,b are1..4 abstract resource units,
 and an operation's cost is1..that tenant's reservation. Each tenant can have
 at most two operations as well as the cost bound. One tenant never borrows

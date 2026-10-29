@@ -2,7 +2,7 @@
 #ifndef AR_MUTANT
 #define AR_MUTANT 0
 #endif
-int ar_decide(ArEffects *s, int32_t input, ArEffect *out) {
+int ar_decide(struct ar_effects *s, int32_t input, struct ar_effect *out) {
   if (!s || !out)
     return AR_INVALID;
   if (s->pending || s->next == UINT32_MAX)
@@ -11,14 +11,14 @@ int ar_decide(ArEffects *s, int32_t input, ArEffect *out) {
   int result = ar_double(&input, 1, &doubled);
   if (result != AR_OK)
     return result;
-  ArEffect effect = {s->next + 1, doubled};
+  struct ar_effect effect = {s->next + 1, doubled};
   s->next = effect.id;
   s->effect = effect;
   s->pending = 1;
   *out = effect;
   return AR_OK;
 }
-int ar_retry(const ArEffects *s, ArEffect *out) {
+int ar_retry(const struct ar_effects *s, struct ar_effect *out) {
   if (!s || !out)
     return AR_INVALID;
   if (!s->pending)
@@ -26,7 +26,7 @@ int ar_retry(const ArEffects *s, ArEffect *out) {
   *out = s->effect;
   return AR_OK;
 }
-int ar_feedback(ArEffects *s, unsigned result) {
+int ar_feedback(struct ar_effects *s, unsigned result) {
   if (!s || !s->pending)
     return AR_STATE;
   if (result == AR_OK) {

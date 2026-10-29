@@ -13,7 +13,7 @@ static volatile uint32_t retained __attribute__((section(".retained")));
 static uint32_t stacks[3][768] __attribute__((aligned(8)));
 static uint32_t *saved[3],*main_sp;
 static unsigned active,done[3],calls[3],max_depth[3];
-static MfProbe probes[3];
+static struct mf_probe probes[3];
 static volatile uint64_t wide_n=UINT64_C(0xfedcba9876543210),wide_d=UINT64_C(0x100000003);
 static volatile uint32_t narrow_n=0xfedcba98u,narrow_d=17u;
 void mf_direct_yield(void){mf_direct_switch(&saved[active],main_sp);}
@@ -25,7 +25,7 @@ static void nested(unsigned id,unsigned depth){
  for(unsigned j=0;j<LOCAL_WORDS;j++)locals[j]=0x1000u+id*100u+depth*20u+j;
  if(depth>max_depth[id])max_depth[id]=depth;
  if(depth)nested(id,depth-1);
- else{MfProbe *p=&probes[id];mf_direct_probe(p);
+ else{struct mf_probe *p=&probes[id];mf_direct_probe(p);
   for(unsigned j=0;j<8;j++)mf_require(p->integer[j]==p->observed_integer[j],40+j);
 #if MF_FP
   for(unsigned j=0;j<16;j++)mf_require(p->high_fp[j]==p->observed_fp[j],60+j);

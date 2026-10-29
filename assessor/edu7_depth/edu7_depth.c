@@ -1,7 +1,7 @@
 #include "edu7_depth.h"
 #include <limits.h>
 static int boolean(unsigned x) { return x <= 1; }
-int e7_grant_begin(E7Grant *s, uint32_t now, uint32_t *out) {
+int e7_grant_begin(struct e7_grant *s, uint32_t now, uint32_t *out) {
   if (!s || !out || now < s->last || now > UINT32_MAX - 25000)
     return E7_INVALID;
   if (s->phase || now < s->turn_due)
@@ -17,7 +17,7 @@ int e7_grant_begin(E7Grant *s, uint32_t now, uint32_t *out) {
   *out = s->generation;
   return E7_OK;
 }
-int e7_grant_first(E7Grant *s, uint32_t token, uint32_t now) {
+int e7_grant_first(struct e7_grant *s, uint32_t token, uint32_t now) {
   if (!s || now < s->last || now > UINT32_MAX - 10000)
     return E7_INVALID;
   if (!token || token != s->generation || s->phase != 1)
@@ -34,7 +34,7 @@ int e7_grant_first(E7Grant *s, uint32_t token, uint32_t now) {
   s->last = now;
   return E7_OK;
 }
-int e7_grant_finish(E7Grant *s, uint32_t token, uint32_t now) {
+int e7_grant_finish(struct e7_grant *s, uint32_t token, uint32_t now) {
   if (!s || now < s->last)
     return E7_INVALID;
   if (!token || token != s->generation || s->phase != 2)
@@ -43,7 +43,7 @@ int e7_grant_finish(E7Grant *s, uint32_t token, uint32_t now) {
   s->phase = 0;
   return now > s->end_deadline ? E7_END_TIMEOUT : E7_OK;
 }
-int e7_grant_tick(E7Grant *s, uint32_t now) {
+int e7_grant_tick(struct e7_grant *s, uint32_t now) {
   if (!s || now < s->last)
     return E7_INVALID;
   s->last = now;
@@ -83,10 +83,10 @@ int e7_link_admit(unsigned kind, unsigned local, unsigned destination,
   *out = kind == 0;
   return E7_OK;
 }
-static int sender_time(const E7Sender *s, uint32_t now) {
+static int sender_time(const struct e7_sender *s, uint32_t now) {
   return now >= s->last && now <= UINT32_MAX - 500;
 }
-int e7_send_begin(E7Sender *s, uint16_t id, unsigned src, unsigned dst,
+int e7_send_begin(struct e7_sender *s, uint16_t id, unsigned src, unsigned dst,
                   const uint8_t *p, size_t n, uint32_t now) {
   size_t i;
   if (!s || !p || !n || n > 120 || !id ||
@@ -111,8 +111,8 @@ int e7_send_begin(E7Sender *s, uint16_t id, unsigned src, unsigned dst,
   s->last = s->due = now;
   return E7_OK;
 }
-int e7_send_offer(E7Sender *s, uint32_t now, E7Fragment *out, uint32_t *token) {
-  E7Fragment f = {0};
+int e7_send_offer(struct e7_sender *s, uint32_t now, struct e7_fragment *out, uint32_t *token) {
+  struct e7_fragment f = {0};
   unsigned pos, n, i;
   if (!s || !out || !token || !sender_time(s, now))
     return E7_INVALID;
@@ -161,7 +161,7 @@ int e7_send_offer(E7Sender *s, uint32_t now, E7Fragment *out, uint32_t *token) {
 #endif
   return E7_OK;
 }
-int e7_send_accept(E7Sender *s, uint32_t token, unsigned accepted,
+int e7_send_accept(struct e7_sender *s, uint32_t token, unsigned accepted,
                    uint32_t now) {
   if (!s || !boolean(accepted) || !sender_time(s, now))
     return E7_INVALID;
@@ -183,7 +183,7 @@ int e7_send_accept(E7Sender *s, uint32_t token, unsigned accepted,
   s->due = now + 100;
   return E7_OK;
 }
-int e7_send_ack(E7Sender *s, const E7Fragment *a, uint32_t now) {
+int e7_send_ack(struct e7_sender *s, const struct e7_fragment *a, uint32_t now) {
   if (!s || !a || !sender_time(s, now) || !boolean(a->credit))
     return E7_INVALID;
   if (!s->active || s->offered || a->type != 2 || a->length || a->id != s->id ||
@@ -222,7 +222,7 @@ int e7_send_ack(E7Sender *s, const E7Fragment *a, uint32_t now) {
   }
   return E7_OK;
 }
-int e7_send_expire(E7Sender *s, uint32_t now) {
+int e7_send_expire(struct e7_sender *s, uint32_t now) {
   if (!s || !sender_time(s, now))
     return E7_INVALID;
   s->last = now;
@@ -242,7 +242,7 @@ static int equal(const uint8_t *a, const uint8_t *b, size_t n) {
       return 0;
   return 1;
 }
-int e7_session_open(E7Session *s, uint16_t session, uint16_t epoch,
+int e7_session_open(struct e7_session *s, uint16_t session, uint16_t epoch,
                     unsigned schema, unsigned unit) {
   unsigned i;
   if (!s || !session || !epoch || schema != 1 || unit != 1)
@@ -263,12 +263,12 @@ int e7_session_open(E7Session *s, uint16_t session, uint16_t epoch,
   }
   return E7_OK;
 }
-int e7_session_prepare(E7Session *s, unsigned sender, uint16_t session,
+int e7_session_prepare(struct e7_session *s, unsigned sender, uint16_t session,
                        uint16_t epoch, uint16_t cp, const uint8_t *p, size_t n,
                        uint32_t *token, uint8_t *cached, size_t cap,
                        size_t *cached_length) {
   int d = direction(sender);
-  E7Receipt *r;
+  struct e7_receipt *r;
   size_t i;
   if (!s || !p || !n || n > 80 || !token || !cached_length ||
       (!cached && cap) || !cp || d < 0)
@@ -306,9 +306,9 @@ int e7_session_prepare(E7Session *s, unsigned sender, uint16_t session,
 #endif
   return E7_OK;
 }
-int e7_session_commit(E7Session *s, uint32_t token, unsigned accepted,
+int e7_session_commit(struct e7_session *s, uint32_t token, unsigned accepted,
                       const uint8_t *response, size_t n) {
-  E7Receipt *r;
+  struct e7_receipt *r;
   size_t i;
   if (!s || !boolean(accepted) || n > 80 || (!response && n) ||
       (!accepted && n))
@@ -332,7 +332,7 @@ int e7_session_commit(E7Session *s, uint32_t token, unsigned accepted,
   s->pending_length = 0;
   return E7_OK;
 }
-int e7_token_begin(E7Session *s, unsigned sender, unsigned next) {
+int e7_token_begin(struct e7_session *s, unsigned sender, unsigned next) {
   if (!s || direction(sender) < 0 || direction(next) < 0 || sender == next)
     return E7_INVALID;
   if (!s->open || s->holder != sender || s->token_pending || s->pending_token)
@@ -340,7 +340,7 @@ int e7_token_begin(E7Session *s, unsigned sender, unsigned next) {
   s->token_pending = (uint8_t)next;
   return E7_OK;
 }
-int e7_token_complete(E7Session *s, unsigned next, unsigned confirmed) {
+int e7_token_complete(struct e7_session *s, unsigned next, unsigned confirmed) {
   if (!s || direction(next) < 0 || !boolean(confirmed))
     return E7_INVALID;
   if (!s->open || s->token_pending != next)
@@ -351,7 +351,7 @@ int e7_token_complete(E7Session *s, unsigned next, unsigned confirmed) {
   s->token_pending = 0;
   return E7_OK;
 }
-int e7_session_resume(const E7Session *s, uint16_t session, uint16_t epoch,
+int e7_session_resume(const struct e7_session *s, uint16_t session, uint16_t epoch,
                       unsigned sender, uint16_t cp) {
   int d = direction(sender);
   if (!s || d < 0)
@@ -361,7 +361,7 @@ int e7_session_resume(const E7Session *s, uint16_t session, uint16_t epoch,
              ? E7_OK
              : E7_STALE;
 }
-int e7_session_close(E7Session *s) {
+int e7_session_close(struct e7_session *s) {
   if (!s)
     return E7_INVALID;
   if (s->pending_token || s->token_pending)

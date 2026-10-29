@@ -1,5 +1,5 @@
 #include "semaphore.h"
-int cds_init(CDSem *s, cmx_kernel *k, unsigned initial, unsigned maximum,
+int cds_init(struct cd_sem *s, cmx_kernel *k, unsigned initial, unsigned maximum,
              unsigned priority) {
   (void)s;
   (void)k;
@@ -8,32 +8,32 @@ int cds_init(CDSem *s, cmx_kernel *k, unsigned initial, unsigned maximum,
   (void)priority;
   return CMX_UNIMPLEMENTED;
 }
-int cds_take(CDSem *s, unsigned t, cmx_deadline d, CWToken *out) {
+int cds_take(struct cd_sem *s, unsigned t, cmx_deadline d, struct cw_token *out) {
   (void)s;
   (void)t;
   (void)d;
   (void)out;
   return CMX_UNIMPLEMENTED;
 }
-int cds_post(CDSem *s, CDPost *out) {
+int cds_post(struct cd_sem *s, struct cd_post *out) {
   (void)s;
   (void)out;
   return CMX_UNIMPLEMENTED;
 }
-int cds_close(CDSem *s) {
+int cds_close(struct cd_sem *s) {
   (void)s;
   return CMX_UNIMPLEMENTED;
 }
-int cds_deferred_init(CDDeferred *d, unsigned maximum) {
+int cds_deferred_init(struct cd_deferred *d, unsigned maximum) {
   (void)d;
   (void)maximum;
   return CMX_UNIMPLEMENTED;
 }
-int cds_deferred_offer(CDDeferred *d) {
+int cds_deferred_offer(struct cd_deferred *d) {
   (void)d;
   return CMX_UNIMPLEMENTED;
 }
-int cds_deferred_drain(CDDeferred *d, CDSem *s, unsigned budget,
+int cds_deferred_drain(struct cd_deferred *d, struct cd_sem *s, unsigned budget,
                        unsigned *out) {
   (void)d;
   (void)s;
@@ -41,7 +41,7 @@ int cds_deferred_drain(CDDeferred *d, CDSem *s, unsigned budget,
   (void)out;
   return CMX_UNIMPLEMENTED;
 }
-int cds_deferred_close(CDDeferred *d) {
+int cds_deferred_close(struct cd_deferred *d) {
   (void)d;
   return CMX_UNIMPLEMENTED;
 }

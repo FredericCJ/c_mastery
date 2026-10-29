@@ -18,7 +18,7 @@ Expected count is `2*(3*4095+2*4096)=40954` histories. Successful operations tra
 
 ## A staged nonblocking operation
 
-Implement `SfiOp` and its exact-owner/generation `SfiTicket`. `sfi_init` requires fresh nonowning storage. Controls must remain live, noncopied and serialized. Controls, ticket outputs, callback context and caller buffers are disjoint; no callback may reenter, destroy the operation or retain a borrowed suffix. Every callback returns before its borrowed buffer can be reused. ISO C cannot enforce these ownership premises.
+Implement `struct sfi_op` and its exact-owner/generation `struct sfi_ticket`. `sfi_init` requires fresh nonowning storage. Controls must remain live, noncopied and serialized. Controls, ticket outputs, callback context and caller buffers are disjoint; no callback may reenter, destroy the operation or retain a borrowed suffix. Every callback returns before its borrowed buffer can be reused. ISO C cannot enforce these ownership premises.
 
 Begin accepts a page within the declared backend, computes its uint64 byte offset and increments the nonwrapping generation. A write copies its whole4096-byte input into the operation; a read borrows a4096-byte output until terminal completion. Busy, bad arguments or exhausted generation preserve state and ticket output. GenerationMAX may issue once; release remains possible, but no later begin may wrap.
 

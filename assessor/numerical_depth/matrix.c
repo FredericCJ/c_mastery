@@ -4,7 +4,7 @@
 #ifndef ND_MUTANT
 #define ND_MUTANT 0
 #endif
-int nd_view(NDView v) {
+int nd_view(struct nd_view v) {
   if (!v.data || !v.rows || !v.cols || v.rows > 8 || v.cols > 8 || !v.rs ||
       !v.cs)
     return ND_BAD;
@@ -21,7 +21,7 @@ int nd_view(NDView v) {
             return ND_BAD;
   return ND_OK;
 }
-static int valid(NDView v) {
+static int valid(struct nd_view v) {
   if (nd_view(v))
     return 0;
   for (size_t i = 0; i < v.rows; i++)
@@ -31,7 +31,7 @@ static int valid(NDView v) {
         return 0;
   return 1;
 }
-static int overlap(NDView a, NDView b) {
+static int overlap(struct nd_view a, struct nd_view b) {
   for (size_t i = 0; i < a.rows; i++)
     for (size_t j = 0; j < a.cols; j++)
       for (size_t k = 0; k < b.rows; k++)
@@ -40,7 +40,7 @@ static int overlap(NDView a, NDView b) {
             return 1;
   return 0;
 }
-int nd_matrix(NDView a, NDView b, NDView c, unsigned method) {
+int nd_matrix(struct nd_view a, struct nd_view b, struct nd_view c, unsigned method) {
   if (!valid(a) || !valid(b) || nd_view(c) || a.cols != b.rows ||
       c.rows != a.rows || c.cols != b.cols || method > 2 || overlap(a, c) ||
       overlap(b, c))
@@ -70,7 +70,7 @@ int nd_matrix(NDView a, NDView b, NDView c, unsigned method) {
           t[i * c.cols + j];
   return ND_OK;
 }
-int nd_scale(NDView v, double s) {
+int nd_scale(struct nd_view v, double s) {
   if (!valid(v) || !isfinite(s) || fabs(s) > 1e100)
     return ND_BAD;
   for (size_t i = 0; i < v.rows; i++)
@@ -78,7 +78,7 @@ int nd_scale(NDView v, double s) {
       v.data[i * v.rs + j * v.cs] *= s;
   return ND_OK;
 }
-int nd_dot(NDView a, NDView b, double *out) {
+int nd_dot(struct nd_view a, struct nd_view b, double *out) {
   if (!out || !valid(a) || !valid(b) || a.rows != 1 || b.rows != 1 ||
       a.cols != b.cols)
     return ND_BAD;

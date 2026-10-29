@@ -3,7 +3,7 @@
 #define CN_FAULT_MUTANT 0
 #endif
 static unsigned add(unsigned value,unsigned delta,unsigned maximum){return delta>maximum-value?maximum:value+delta;}
-int cn_fault(CnFault *s,const CnEvent *e,CnEffect *out){
+int cn_fault(struct cn_fault *s,const struct cn_event *e,struct cn_effect *out){
  if(!s||!e||!out||s->tec>256||s->rec>255||s->state>CN_OFF||s->enabled>1||s->restart>1||s->idles>128||s->recessive>10||
     e->kind>CN_RECOVERY_BIT||e->transmitter>1||e->active_or_overload>1||e->ack_missing>1||e->passive_flag_all_recessive>1||e->prearbitration_stuff_exception>1)return CN_INVALID;
  if((s->state==CN_OFF)!=(s->tec>255)||
@@ -18,7 +18,7 @@ int cn_fault(CnFault *s,const CnEvent *e,CnEffect *out){
  if(e->kind==CN_BIT_DURING_FLAG&&!e->active_or_overload)return CN_INVALID;
  if((e->passive_flag_all_recessive&&!e->ack_missing)||(e->prearbitration_stuff_exception&&(e->ack_missing||e->passive_flag_all_recessive)))return CN_INVALID;
  if(s->state!=CN_OFF&&(s->restart||s->idles||s->recessive))return CN_INVALID;
- CnFault f=*s;CnEffect effect={s->tec,s->rec,s->state,0,0,0,0};
+ struct cn_fault f=*s;struct cn_effect effect={s->tec,s->rec,s->state,0,0,0,0};
  if(!s->enabled){if(s->state!=CN_ACTIVE||s->tec||s->rec)return CN_INVALID;goto publish;}
  if(s->state==CN_OFF){
   if(e->kind==CN_RESTART){f.restart=1;f.idles=f.recessive=0;}

@@ -3,7 +3,7 @@
 #include <string.h>
 #define REQUIRE(x) do{if(!(x)){fprintf(stderr,"ES_ASSERT:%d:%s\n",__LINE__,#x);return 41;}}while(0)
 int main(void) {
- EsText a,b,old;memset(&old,0xa5,sizeof old);a=old;
+ struct es_text a,b,old;memset(&old,0xa5,sizeof old);a=old;
  const unsigned char plain[]="&<>\"'";
  const unsigned char coded[]="&amp;&lt;&gt;&quot;&apos;";
  REQUIRE(es_encode(plain,5,384,&a)==ES_OK);

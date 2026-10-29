@@ -6,8 +6,8 @@
 #if CASE == 1
 int *pointer_constraint=1;
 #elif CASE == 2
-typedef struct { const unsigned char *p;size_t n; } Packet;
-int packet_at(Packet,size_t);
+struct ff_packet { const unsigned char *p;size_t n; };
+int packet_at(struct ff_packet,size_t);
 int bad(void) { return packet_at(3,0); }
 #else
 static int x,y,state;

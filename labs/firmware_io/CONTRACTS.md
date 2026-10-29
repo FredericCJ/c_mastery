@@ -1,6 +1,6 @@
 # Firmware adapter contracts
 
-`FwIo` supplies synchronous register reads and writes. Callbacks must terminate
+`struct fw_io` supplies synchronous register reads and writes. Callbacks must terminate
 and must implement the educational register semantics in `firmware_io.h`.
 Budget arguments limit polls per wait; SPI has three separately bounded waits.
 They are operation-count bounds, not calibrated time bounds. The adapter is

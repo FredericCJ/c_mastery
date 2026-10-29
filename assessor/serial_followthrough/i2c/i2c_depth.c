@@ -12,17 +12,17 @@ static uint64_t divide(uint64_t n,uint64_t d,unsigned up){
  return q+(up && r!=0);
 }
 static uint64_t ceil_div(uint64_t n,uint64_t d){return divide(n,d,1);}
-static int interval(uint64_t lo,uint64_t hi,IaInterval *out){
- IaInterval r={(uint32_t)lo,(uint32_t)hi};*out=r;return lo<=hi?IA_OK:IA_EMPTY;
+static int interval(uint64_t lo,uint64_t hi,struct ia_interval *out){
+ struct ia_interval r={(uint32_t)lo,(uint32_t)hi};*out=r;return lo<=hi?IA_OK:IA_EMPTY;
 }
-int ia_nominal(uint32_t v,uint32_t low,uint32_t i,uint32_t t,uint32_t c,IaInterval *out){
+int ia_nominal(uint32_t v,uint32_t low,uint32_t i,uint32_t t,uint32_t c,struct ia_interval *out){
  if(!out || !v || v>6000 || low>=v || !i || i>20000 || !t || t>1000000 || !c || c>10000)return IA_INVALID;
  uint64_t n=(uint64_t)(v-low)*1000;
  uint64_t lo=IA_MUTANT==1?divide(n,i,0):ceil_div(n,i);
  uint64_t hi=divide((uint64_t)t*10000000,(uint64_t)8473*c,0);
  return interval(lo,hi,out);
 }
-int ia_guaranteed(const IaEnvelope *e,IaInterval *out){
+int ia_guaranteed(const struct ia_envelope *e,struct ia_interval *out){
  if(!e || !out || !e->vmin_mv || e->vmax_mv<e->vmin_mv || e->vmax_mv>6000 || e->vol_mv>=e->vmin_mv ||
     !e->iol_ua || e->iol_ua>20000 || !e->rise_ns || e->rise_ns>1000000 || !e->cap_pf || e->cap_pf>10000 ||
     e->source_leak_ua>20000 || e->sink_leak_ua>20000 || e->tolerance_ppm>250000)return IA_INVALID;
@@ -34,7 +34,7 @@ int ia_guaranteed(const IaEnvelope *e,IaInterval *out){
  return interval(lo,hi,out);
 }
 int ia_arbitrate(const uint8_t bits[3][32],unsigned n,unsigned count,
-                 const unsigned low[3],const unsigned high[3],IaTrace *out){
+                 const unsigned low[3],const unsigned high[3],struct ia_trace *out){
  if(!bits || !out || !low || !high || !n || n>3 || !count || count>32)return IA_INVALID;
  for(unsigned j=0;j<n;j++){
   if(!low[j] || !high[j])return IA_INVALID;
@@ -43,7 +43,7 @@ int ia_arbitrate(const uint8_t bits[3][32],unsigned n,unsigned count,
    if(bits[j][k]>1 && IA_MUTANT!=3)return IA_UNSUPPORTED;
   }
  }
- IaTrace r={0};unsigned active=(1u<<n)-1;r.high=high[0];
+ struct ia_trace r={0};unsigned active=(1u<<n)-1;r.high=high[0];
  for(unsigned j=0;j<n;j++){if(low[j]>r.low)r.low=low[j];if(high[j]<r.high)r.high=high[j];}
  for(unsigned k=0;k<count;k++){
   unsigned bus=1;

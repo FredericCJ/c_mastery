@@ -51,7 +51,7 @@ transitions. Explain its finite operation alphabet and omissions.
 
 ## Representation, invariants and ownership
 
-`CDNotify` borrows a live, stable CMX kernel and one task incarnation; `CDNHandle`
+`struct cd_notify` borrows a live, stable CMX kernel and one task incarnation; `struct cdn_handle`
 contains its owner and full task generation. All outputs are live, writable and
 disjoint from control/kernel objects. `cdn_init` requires live nonnull pointers
 and fresh exclusive storage. Initialization may not reset a live control to

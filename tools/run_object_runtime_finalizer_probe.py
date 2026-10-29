@@ -17,13 +17,13 @@ PROBE = r'''
 static volatile uint64_t checksum;
 static uint64_t ns(void){struct timespec t;if(clock_gettime(CLOCK_MONOTONIC,&t))return 0;return (uint64_t)t.tv_sec*UINT64_C(1000000000)+(uint64_t)t.tv_nsec;}
 #define REQUIRE(c) do{if(!(c))return 1;}while(0)
-static ORStatus failed(ORFHeap *h,ORFHandle a,void *ctx){(void)h;(void)a;(*(unsigned*)ctx)++;return OR_FULL;}
+static enum or_status failed(struct orf_heap *h,struct orf_handle a,void *ctx){(void)h;(void)a;(*(unsigned*)ctx)++;return OR_FULL;}
 int main(void){unsigned count,budget,trial,round;
- printf("LAYOUT %zu %zu %zu\n",sizeof(ORFHeap),sizeof(ORWeak),sizeof(ORFHandle));
+ printf("LAYOUT %zu %zu %zu\n",sizeof(struct orf_heap),sizeof(struct or_weak),sizeof(struct orf_handle));
  for(count=1;count<=16;count+=15)for(budget=1;budget<=16;budget+=15)for(trial=0;trial<16;trial++){
   unsigned calls=0,released=0,drains=0;uint64_t start=ns(),end;
   for(round=0;round<PROBE_ROUNDS;round++){
-   ORFHeap h;ORFHandle a,out;ORStatus status,s;unsigned i,n;uint16_t dead;
+   struct orf_heap h;struct orf_handle a,out;enum or_status status,s;unsigned i,n;uint16_t dead;
    orf_init(&h);
    for(i=0;i<count;i++){REQUIRE(orf_new(&h,failed,&calls,1,0,&a)==OR_OK);REQUIRE(orf_root(&h,a,0)==OR_OK);}
    REQUIRE(orf_collect(&h,&dead)==OR_OK&&dead==0);

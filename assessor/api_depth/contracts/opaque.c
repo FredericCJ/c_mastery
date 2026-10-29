@@ -2,22 +2,22 @@
 #ifndef AC_INTERNAL_WIDE
 #define AC_INTERNAL_WIDE 0
 #endif
-struct AcOpaque {
+struct ac_opaque {
   uint32_t identity;
 #if AC_INTERNAL_WIDE
   uint64_t count;
 #else
   uint32_t count;
 #endif
-  AcAllocate allocator;
+  struct ac_allocate allocator;
 };
-int ac_opaque_create(uint32_t id, uint32_t n, AcAllocate a, AcOpaque **out) {
+int ac_opaque_create(uint32_t id, uint32_t n, struct ac_allocate a, struct ac_opaque **out) {
   if (!out || !a.allocate || !a.release)
     return 1;
 #ifdef AC_MUTANT_OUTPUT
   *out=NULL;
 #endif
-  AcOpaque *s = a.allocate(a.context, sizeof *s, _Alignof(AcOpaque));
+  struct ac_opaque *s = a.allocate(a.context, sizeof *s, _Alignof(struct ac_opaque));
   if (!s)
     return 2;
   s->identity = id;
@@ -26,17 +26,17 @@ int ac_opaque_create(uint32_t id, uint32_t n, AcAllocate a, AcOpaque **out) {
   *out = s;
   return 0;
 }
-int ac_opaque_get(const AcOpaque *s, AcExposedV1 *out) {
+int ac_opaque_get(const struct ac_opaque *s, struct ac_exposed_v1 *out) {
   if (!s || !out)
     return 1;
-  *out = (AcExposedV1){s->identity, (uint32_t)s->count};
+  *out = (struct ac_exposed_v1){s->identity, (uint32_t)s->count};
   return 0;
 }
-void ac_opaque_destroy(AcOpaque *s) {
+void ac_opaque_destroy(struct ac_opaque *s) {
   if (s) {
-    AcAllocate a = s->allocator;
+    struct ac_allocate a = s->allocator;
     a.release(a.context, s);
   }
 }
-size_t ac_opaque_size(void) { return sizeof(AcOpaque); }
-size_t ac_opaque_alignment(void) { return _Alignof(AcOpaque); }
+size_t ac_opaque_size(void) { return sizeof(struct ac_opaque); }
+size_t ac_opaque_alignment(void) { return _Alignof(struct ac_opaque); }

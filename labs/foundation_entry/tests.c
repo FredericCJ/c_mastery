@@ -9,12 +9,12 @@
       exit(1);                                                                 \
     }                                                                          \
   } while (0)
-typedef struct {
+struct fe_pool {
   int32_t storage[64];
   unsigned fail, live, takes, releases;
-} Pool;
+};
 static int32_t *take(void *p, size_t n) {
-  Pool *a = p;
+  struct fe_pool *a = p;
   ++a->takes;
   if (a->fail || a->live || n > 64)
     return NULL;
@@ -22,18 +22,18 @@ static int32_t *take(void *p, size_t n) {
   return a->storage;
 }
 static void release(void *p, int32_t *v) {
-  Pool *a = p;
+  struct fe_pool *a = p;
   CHECK(v == a->storage && a->live);
   a->live = 0;
   ++a->releases;
 }
-static FeAllocator allocator(Pool *p) {
-  return (FeAllocator){p, take, release};
+static struct fe_allocator allocator(struct fe_pool *p) {
+  return (struct fe_allocator){p, take, release};
 }
 static void trace(void) {
   const int32_t in[] = {3, -1, 4};
   int32_t a = 91, b = 91;
-  FeTrace x, y;
+  struct fe_trace x, y;
   CHECK(fe_recursive(in, 3, &a, &x) == FE_OK && a == 6);
   CHECK(fe_explicit_stack(in, 3, &b, &y) == FE_OK && b == 6);
   CHECK(x.count == 8 && y.count == 8 && x.maximum_live == 4 &&
@@ -65,8 +65,8 @@ static void trace(void) {
 static void prefixes(void) {
   const int32_t bad[] = {INT32_MAX, 1, -1};
   int32_t out[] = {91, 92, 93};
-  Pool pool = {0};
-  FeAllocator a = allocator(&pool);
+  struct fe_pool pool = {0};
+  struct fe_allocator a = allocator(&pool);
   CHECK(fe_fixed(bad, 3, out, 3) == FE_RANGE && out[0] == 91 && out[1] == 92 &&
         out[2] == 93);
   CHECK(fe_two_pass(bad, 3, out, 3) == FE_RANGE && out[0] == 91 &&
@@ -79,7 +79,7 @@ static void prefixes(void) {
         out[2] == 6);
   CHECK(fe_fixed(NULL, 0, NULL, 0) == FE_OK);
   CHECK(fe_two_pass(NULL, 0, NULL, 0) == FE_OK);
-  CHECK(fe_staged(NULL, 0, NULL, 0, (FeAllocator){0}) == FE_OK);
+  CHECK(fe_staged(NULL, 0, NULL, 0, (struct fe_allocator){0}) == FE_OK);
   pool.fail = 1;
   out[0] = 91;
   CHECK(fe_staged(good, 3, out, 3, a) == FE_ALLOC && out[0] == 91 &&
@@ -157,7 +157,7 @@ static void values(void) {
 }
 static void oracle(void) {
   const int32_t choices[] = {INT32_MIN, -2, -1, 0, 1, 2, INT32_MAX};
-  Pool pool = {0};
+  struct fe_pool pool = {0};
   int32_t out[3], other[3];
   unsigned cases = 0;
   for (unsigned a = 0; a < 7; ++a)
@@ -184,7 +184,7 @@ static void oracle(void) {
         for (unsigned i = 0; i < 3; ++i)
           if (suffix[i] < INT32_MIN || suffix[i] > INT32_MAX)
             valid = 0;
-        FeTrace x, y;
+        struct fe_trace x, y;
         int32_t r = 91, s = 91;
         CHECK(fe_recursive(in, 3, &r, &x) == (valid ? FE_OK : FE_RANGE));
         CHECK(fe_explicit_stack(in, 3, &s, &y) == (valid ? FE_OK : FE_RANGE));

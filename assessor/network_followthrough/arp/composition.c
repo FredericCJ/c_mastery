@@ -24,7 +24,7 @@ static unsigned sum(const unsigned char *p, size_t n, unsigned value) {
     value = (value & 65535) + (value >> 16);
   return 65535 - value;
 }
-static void tcp(NetPacket *p, uint32_t seq, uint32_t ack, unsigned flags,
+static void tcp(struct net_packet *p, uint32_t seq, uint32_t ack, unsigned flags,
                 const void *data, size_t n) {
   static const unsigned char mac[14] = {2, 0, 0, 0, 0, 2, 2,
                                         0, 0, 0, 0, 1, 8, 0};
@@ -53,12 +53,12 @@ static void tcp(NetPacket *p, uint32_t seq, uint32_t ack, unsigned flags,
   if (p->length < 60)
     p->length = 60;
 }
-static NetStack stack;
+static struct net_stack stack;
 int main(void) {
-  NetPacket input, output, lower;
-  NaArp arp;
-  NaTicket ticket;
-  const NaConfig config = {{2, 0, 0, 0, 0, 2}, {192, 0, 2, 2}, {192, 0, 2, 1}};
+  struct net_packet input, output, lower;
+  struct na_arp arp;
+  struct na_ticket ticket;
+  const struct na_config config = {{2, 0, 0, 0, 0, 2}, {192, 0, 2, 2}, {192, 0, 2, 1}};
   const unsigned char request[42] = {
       255, 255, 255, 255, 255, 255, 2, 0, 0, 0, 0,   1, 8, 6,
       0,   1,   8,   0,   6,   4,   0, 1, 2, 0, 0,   0, 0, 1,
@@ -79,7 +79,7 @@ int main(void) {
   CHECK(net_receive(&stack, input.bytes, input.length, 3, &output) >= 0 &&
         stack.response_length);
   unsigned total = (unsigned)output.bytes[16] * 256 + output.bytes[17];
-  NwLengths lengths;
+  struct nw_lengths lengths;
   CHECK(nw_lengths(total - 40, &lengths) == NW_OK &&
         lengths.pre_fcs == output.length);
   unsigned char saved[1500];

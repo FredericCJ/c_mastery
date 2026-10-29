@@ -3,20 +3,20 @@
 #ifndef NV_MUTATION
 #define NV_MUTATION 0
 #endif
-int nv_sum(const unsigned char *p,size_t n,NVSum *out) {
+int nv_sum(const unsigned char *p,size_t n,struct nv_sum *out) {
   if(!out || (!p && n))return NV_INVALID;
-  SChecksum s={0,0,0};uint16_t value;
+  struct s_checksum s={0,0,0};uint16_t value;
   if(s_checksum_add(&s,p,n)!=S_OK || s_checksum_finish(&s,&value)!=S_OK)return NV_INVALID;
-  *out=(NVSum){(uint16_t)~value,(unsigned)(n%2)};return NV_OK;
+  *out=(struct nv_sum){(uint16_t)~value,(unsigned)(n%2)};return NV_OK;
 }
-int nv_combine(NVSum a,NVSum b,NVSum *out) {
+int nv_combine(struct nv_sum a,struct nv_sum b,struct nv_sum *out) {
   if(!out || a.odd>1 || b.odd>1)return NV_INVALID;
   uint32_t right=b.sum;
   if(a.odd && NV_MUTATION!=1)right=((right&255u)<<8)|(right>>8);
   uint32_t sum=(uint32_t)a.sum+right;
   sum=(sum&65535u)+(sum>>16);
   if(NV_MUTATION==2)sum=(uint32_t)a.sum+right;
-  *out=(NVSum){(uint16_t)sum,a.odd^b.odd};return NV_OK;
+  *out=(struct nv_sum){(uint16_t)sum,a.odd^b.odd};return NV_OK;
 }
 int nv_length(const unsigned char *s,size_t n,uint32_t maximum,uint32_t cap,uint32_t *out) {
   if(!s || !n || !out || cap>1024)return 400;
@@ -58,7 +58,7 @@ int nv_date(unsigned available,uint32_t days,uint32_t seconds,char *out,size_t c
   for(unsigned i=0;i<30;i++)out[i]=value[i];
   *length=29;return NV_OK;
 }
-int nv_stamp(NVStamp s,uint32_t leap_day,char *out,size_t cap,size_t *length) {
+int nv_stamp(struct nv_stamp s,uint32_t leap_day,char *out,size_t cap,size_t *length) {
   if(!length || s.available>1 || s.trusted>1)return NV_INVALID;
   if(!s.available || !s.trusted){*length=0;return NV_OK;}
   if(s.scale==NV_ORDINARY_UTC)return nv_date(1,s.days,s.seconds,out,cap,length);

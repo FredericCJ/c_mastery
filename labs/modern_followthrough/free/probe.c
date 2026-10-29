@@ -6,10 +6,10 @@
 
 #define CHECK(x) do { if (!(x)) { fprintf(stderr, "MF_CHECK:%d:%s\n", __LINE__, #x); exit(1); } } while (0)
 
-typedef struct { unsigned calls; int mode; } Context;
-static int identity(HOA *a, int32_t value, void *opaque, unsigned *out)
+struct mf_context { unsigned calls; int mode; };
+static int identity(struct ho_hoa *a, int32_t value, void *opaque, unsigned *out)
 {
-    Context *c = opaque;
+    struct mf_context *c = opaque;
     ++c->calls;
     int status = ho_pure(a, value, out);
     if (status != HO_OK) return status;
@@ -18,7 +18,7 @@ static int identity(HOA *a, int32_t value, void *opaque, unsigned *out)
     return HO_OK;
 }
 
-static int same_node(HONode a, HONode b)
+static int same_node(struct ho_node a, struct ho_node b)
 {
     return a.kind == b.kind && a.value == b.value && a.left == b.left && a.right == b.right;
 }
@@ -26,7 +26,7 @@ static int same_node(HONode a, HONode b)
 static void full(void)
 {
     for (int value = -1; value <= 1; ++value) {
-        HOA arena = {0};
+        struct ho_hoa arena = {0};
         unsigned root;
         CHECK(ho_pure(&arena, value, &root) == HO_OK);
         for (unsigned i = 0; i < 63; ++i) {
@@ -34,21 +34,21 @@ static void full(void)
             CHECK(ho_choose(&arena, root, root, &next) == HO_OK);
             root = next;
         }
-        HOSummary summary = {91, 92, 93};
+        struct ho_summary summary = {91, 92, 93};
         int status = ho_summarize(&arena, root, &summary);
         printf("summary %d %d %" PRIu64 " %" PRIu64 " %" PRId64 "\n",
                value, status, summary.paths, summary.emissions, summary.sum);
         if (value == 1) CHECK(status == HO_RANGE && summary.paths == 91 && summary.emissions == 92 && summary.sum == 93);
         else CHECK(status == HO_OK && summary.paths == (UINT64_C(1) << 63) && summary.emissions == 0 && summary.sum == (value ? INT64_MIN : 0));
-        HOA before = arena;
-        Context context = {0, 0};
+        struct ho_hoa before = arena;
+        struct mf_context context = {0, 0};
         unsigned output = 999;
         status = ho_bind(&arena, root, identity, &context, &output);
         CHECK(status == HO_FULL && output == 999 && arena.used == 64);
         CHECK(context.calls == 1 && arena.attempts == before.attempts + 1);
         for (unsigned i = 1; i <= 64; ++i) CHECK(same_node(arena.nodes[i], before.nodes[i]));
         unsigned char choices[63] = {0};
-        HOResult result;
+        struct ho_result result;
         CHECK(ho_run(&arena, root, choices, 63, &result) == HO_OK);
         CHECK(result.value == value && result.count == 0 && result.consumed == 63);
         printf("full %d %d %u %u %zu %u\n", value, status, output, arena.used,
@@ -59,13 +59,13 @@ static void full(void)
 static void failures(void)
 {
     for (unsigned cut = 0; cut <= 6; ++cut) {
-        HOA arena = {0};
+        struct ho_hoa arena = {0};
         unsigned pure, choice, root;
         CHECK(ho_pure(&arena, 5, &pure) == HO_OK);
         CHECK(ho_choose(&arena, pure, pure, &choice) == HO_OK);
         CHECK(ho_emit(&arena, 7, choice, &root) == HO_OK);
-        HOA before = arena;
-        Context context = {0, cut == 5 ? 1 : cut == 6 ? 2 : 0};
+        struct ho_hoa before = arena;
+        struct mf_context context = {0, cut == 5 ? 1 : cut == 6 ? 2 : 0};
         if (cut > 0 && cut < 5) arena.fail_at = arena.attempts + cut;
         unsigned output = 777;
         int status = ho_bind(&arena, root, identity, &context, &output);
@@ -73,7 +73,7 @@ static void failures(void)
         else CHECK(status == (cut == 6 ? HO_INVALID : HO_FAILED) && output == 777 && arena.used == 3);
         for (unsigned i = 1; i <= 3; ++i) CHECK(same_node(arena.nodes[i], before.nodes[i]));
         for (unsigned char answer = 0; answer <= 1; ++answer) {
-            HOResult result;
+            struct ho_result result;
             CHECK(ho_run(&arena, root, &answer, 1, &result) == HO_OK);
             CHECK(result.value == 5 && result.count == 1 && result.trace[0] == 7 && result.consumed == 1);
         }

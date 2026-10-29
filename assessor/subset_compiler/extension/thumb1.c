@@ -3,17 +3,17 @@
 #include <stdio.h>
 #include <string.h>
 #include <limits.h>
-typedef struct {char *p;size_t n,cap;int ok;} TW;
-static void put(TW*w,const char*f,...){if(!w->ok)return;va_list a;va_start(a,f);int n=vsnprintf(w->p+w->n,w->cap-w->n,f,a);va_end(a);if(n<0||(size_t)n>=w->cap-w->n)w->ok=0;else w->n+=(size_t)n;}
+struct cc_tw {char *p;size_t n,cap;int ok;};
+static void put(struct cc_tw*w,const char*f,...){if(!w->ok)return;va_list a;va_start(a,f);int n=vsnprintf(w->p+w->n,w->cap-w->n,f,a);va_end(a);if(n<0||(size_t)n>=w->cap-w->n)w->ok=0;else w->n+=(size_t)n;}
 static unsigned so(unsigned n){return 160+4*n;}
 /* Each long transfer has a nearby literal island, skipped on fallthrough;
  * explicit low bit makes the target Thumb state. No Thumb-2 branch assumed. */
-static void jump(TW*w,const char*k,unsigned n){put(w,"ldr r3,1f\nbx r3\n.align 2\n1: .word .L%s%u+1\n",k,n);}
-static void cond(TW*w,const char*op,const char*k,unsigned n){put(w,"b%s 2f\n",op);jump(w,k,n);put(w,"2:\n");}
-int ce_emit_thumb1(const CEProgram*p,char*out,size_t cap){char b[131072];TW w={b,0,sizeof b,1};unsigned h[CE_CODE];if(!out||!ce_verify(p,h))return 0;put(&w,".syntax unified\n.thumb\n.cpu cortex-m0\n.text\n");
- for(unsigned f=0;f<p->functions;f++){const CEFunc*fn=&p->fn[f];put(&w,".thumb_func\n");if(f+1==p->functions)put(&w,".global cm_ext\ncm_ext:\n");put(&w,"ce_f%u:\npush {r4-r7,lr}\nsub sp,#508\nstr r1,[sp,#8]\nstr r2,[sp,#16]\nstr r0,[sp,#32]\nstr r3,[sp,#24]\nmovs r3,#0\n",f);for(unsigned i=1;i<CE_LOCALS;i++)put(&w,"str r3,[sp,#%u]\n",32+4*i);for(unsigned i=0;i<CE_ARRAY;i++)put(&w,"str r3,[sp,#%u]\n",96+4*i);
+static void jump(struct cc_tw*w,const char*k,unsigned n){put(w,"ldr r3,1f\nbx r3\n.align 2\n1: .word .L%s%u+1\n",k,n);}
+static void cond(struct cc_tw*w,const char*op,const char*k,unsigned n){put(w,"b%s 2f\n",op);jump(w,k,n);put(w,"2:\n");}
+int ce_emit_thumb1(const struct ce_program*p,char*out,size_t cap){char b[131072];struct cc_tw w={b,0,sizeof b,1};unsigned h[CE_CODE];if(!out||!ce_verify(p,h))return 0;put(&w,".syntax unified\n.thumb\n.cpu cortex-m0\n.text\n");
+ for(unsigned f=0;f<p->functions;f++){const struct ce_func*fn=&p->fn[f];put(&w,".thumb_func\n");if(f+1==p->functions)put(&w,".global cm_ext\ncm_ext:\n");put(&w,"ce_f%u:\npush {r4-r7,lr}\nsub sp,#508\nstr r1,[sp,#8]\nstr r2,[sp,#16]\nstr r0,[sp,#32]\nstr r3,[sp,#24]\nmovs r3,#0\n",f);for(unsigned i=1;i<CE_LOCALS;i++)put(&w,"str r3,[sp,#%u]\n",32+4*i);for(unsigned i=0;i<CE_ARRAY;i++)put(&w,"str r3,[sp,#%u]\n",96+4*i);
   if(f+1==p->functions)put(&w,"str r3,[sp,#136]\nadd r3,sp,#136\nstr r3,[sp,#24]\n");
-  for(unsigned pc=fn->begin;pc<fn->end;pc++){if(h[pc]==UINT_MAX)continue;CEIns a=p->code[pc];unsigned sp=h[pc],z=sp?so(sp-1):0;put(&w,".L%u:\nldr r1,[sp,#8]\nldr r2,[r1]\ncmp r2,#0\n",pc);cond(&w,"ne","fail",f);put(&w,"subs r2,#1\nstr r2,[r1]\n");
+  for(unsigned pc=fn->begin;pc<fn->end;pc++){if(h[pc]==UINT_MAX)continue;struct ce_ins a=p->code[pc];unsigned sp=h[pc],z=sp?so(sp-1):0;put(&w,".L%u:\nldr r1,[sp,#8]\nldr r2,[r1]\ncmp r2,#0\n",pc);cond(&w,"ne","fail",f);put(&w,"subs r2,#1\nstr r2,[r1]\n");
    switch(a.op){case CE_CONST:put(&w,"movs r0,#%u\n",a.arg>>24);for(int shift=16;shift>=0;shift-=8)put(&w,"lsls r0,#8\nadds r0,#%u\n",(a.arg>>(unsigned)shift)&255);put(&w,"str r0,[sp,#%u]\n",so(sp));break;
    case CE_LOAD:put(&w,"ldr r0,[sp,#%u]\nstr r0,[sp,#%u]\n",32+4*a.arg,so(sp));break;
    case CE_STORE:put(&w,"ldr r0,[sp,#%u]\nstr r0,[sp,#%u]\n",z,32+4*a.arg);break;

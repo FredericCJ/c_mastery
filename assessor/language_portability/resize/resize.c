@@ -2,11 +2,11 @@
 #ifndef LR_MUTANT
 #define LR_MUTANT 0
 #endif
-LrStatus lr_init(LrBuffer *b,LrAllocator a){
+enum lr_status lr_init(struct lr_buffer *b,struct lr_allocator a){
     if(!b || !a.resize || !a.release)return LR_INVALID;
     b->data=NULL;b->size=0;b->allocator=a;return LR_OK;
 }
-LrStatus lr_resize(LrBuffer *b,size_t size){
+enum lr_status lr_resize(struct lr_buffer *b,size_t size){
     if(!b || !b->allocator.resize || !b->allocator.release)return LR_INVALID;
 #if LR_MUTANT == 1
     if(!size)(void)b->allocator.resize(b->allocator.context,b->data,b->size,0);
@@ -22,9 +22,9 @@ LrStatus lr_resize(LrBuffer *b,size_t size){
 #endif
     b->data=next;b->size=size;return LR_OK;
 }
-void lr_release(LrBuffer *b){
+void lr_release(struct lr_buffer *b){
     if(!b || !b->data)return;
-    unsigned char *old=b->data;size_t size=b->size;LrAllocator a=b->allocator;
+    unsigned char *old=b->data;size_t size=b->size;struct lr_allocator a=b->allocator;
     b->data=NULL;b->size=0;
 #if LR_MUTANT == 3
     (void)old;(void)size;(void)a;

@@ -4,7 +4,7 @@ int main(void){
     unsigned leaf,target,batch,parts,mode,n;
     static const double queries[]={0,.001,.01,.1,.25,.5,.75,.9,.99,.999,1};
     while(scanf("%u%u%u%u%u%u",&leaf,&target,&batch,&parts,&mode,&n)==6){
-        double values[2048];Td digests[8],result;unsigned i,j;
+        double values[2048];struct td_td digests[8],result;unsigned i,j;
         if(!parts||parts>8||!batch||batch>64||n>2048||mode>2)return 2;
         for(i=0;i<n;i++)if(scanf("%lf",&values[i])!=1)return 2;
         for(i=0;i<parts;i++){

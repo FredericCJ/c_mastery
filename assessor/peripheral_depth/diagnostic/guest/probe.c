@@ -93,7 +93,7 @@ int main(void) {
   unsigned char wire[40], echo[40];
   size_t n;
   for (unsigned length = 0; length <= 32; ++length) {
-    DGMessage m = {(uint16_t)(length + 1), (uint16_t)length, {0}};
+    struct dg_message m = {(uint16_t)(length + 1), (uint16_t)length, {0}};
     for (unsigned i = 0; i < length; ++i)
       m.payload[i] = (uint8_t)(i ^ length);
     CHECK(dg_encode(&m, wire, sizeof wire, &n) == DG_OK);
@@ -112,7 +112,7 @@ int main(void) {
   printf("DG_GUEST_ECHO accepted=%u inline=%u completed=%u\n", word(snapshot),
          word(snapshot + 8), word(snapshot + 12));
   /* A valid prefix of an overlong transfer must never dispatch. */
-  DGMessage m = {34, 32, {0}};
+  struct dg_message m = {34, 32, {0}};
   CHECK(dg_encode(&m, wire, sizeof wire, &n) == DG_OK);
   wire[36] = 0xa5;
   CHECK(bulk(fd, epout, wire, 37) == 37);

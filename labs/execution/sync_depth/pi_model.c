@@ -24,7 +24,7 @@ int main(void){
       for(unsigned i=0;i<N;++i)if(owner[i]<N)CHECK(cmx_mutex_lock(&k,&mutexes[owner[i]],i,cmx_forever())==CMX_BLOCKED);
       oracle(base,owner,expected);
       for(unsigned i=0;i<N;++i){CHECK(k.task[i].priority==expected[i]);++values;}
-      base[0]=1;CDPIStats stats;CHECK(cdpi_reprioritize(&k,0,1,&stats)==CMX_OK);
+      base[0]=1;struct cdpi_stats stats;CHECK(cdpi_reprioritize(&k,0,1,&stats)==CMX_OK);
       oracle(base,owner,expected);
       for(unsigned i=0;i<N;++i){CHECK(k.task[i].priority==expected[i] && k.task[i].base_priority==base[i]);++values;}
       ++graphs;

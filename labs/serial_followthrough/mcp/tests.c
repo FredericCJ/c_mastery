@@ -8,13 +8,13 @@
       return 1;                                                                \
     }                                                                          \
   } while (0)
-typedef struct {
+struct mc_model {
   uint8_t mem[4096];
   unsigned calls, fail, partial, corrupt_crc, all_ones, stuck, freeze, reset,
       illegal, ram_writes, tx_publications, rx_consumed, active, auto_loop;
   uint32_t ticks;
-} Model;
-static Model m;
+};
+static struct mc_model m;
 static uint32_t load(unsigned a) {
   return (uint32_t)m.mem[a] | (uint32_t)m.mem[a + 1] << 8 |
          (uint32_t)m.mem[a + 2] << 16 | (uint32_t)m.mem[a + 3] << 24;
@@ -55,7 +55,7 @@ static void complete(unsigned status) {
   save(0x5c, load(0x5c) & ~0x200u);
   save(0x60, status | (status ? 0u : 5u));
 }
-static void inject(const McFrame *f) {
+static void inject(const struct mc_frame *f) {
   unsigned stride = 8 + payload(), a = 0x400 + load(0x70);
   save(a, 0xc0000000u | f->id); /* R0 top two bits are unimplemented/read x. */
   save(a + 4, (uint32_t)f->dlc | 0x80u | (unsigned)f->brs << 6 |
@@ -184,17 +184,17 @@ static uint32_t now(void *ctx) {
     m.ticks++;
   return m.ticks;
 }
-static McBus bus(void) {
-  McBus b = {0, transfer, now};
+static struct mc_bus bus(void) {
+  struct mc_bus b = {0, transfer, now};
   return b;
 }
-static McConfig config(unsigned code) {
-  McConfig c = {40000000, 1000000, code, 4, 1, 2000000, 0, 0x123};
+static struct mc_config config(unsigned code) {
+  struct mc_config c = {40000000, 1000000, code, 4, 1, 2000000, 0, 0x123};
   return c;
 }
 int mc_test_layout(void) {
   CHECK(mc_crc((const uint8_t *)"123456789", 9) == 0xaee7);
-  McLayout l = {0};
+  struct mc_layout l = {0};
   unsigned combos = 0;
   for (unsigned c = 0; c < 8; c++)
     for (unsigned n = 1; n <= 16; n++) {
@@ -214,8 +214,8 @@ int mc_test_init(void) {
   for (unsigned code = 0; code < 8; code++)
     for (unsigned rate = 1; rate <= 2; rate++) {
       start();
-      McDriver d = {0};
-      McConfig c = config(code);
+      struct mc_driver d = {0};
+      struct mc_config c = config(code);
       c.data_rate = rate * 1000000;
       CHECK(mc_init(&d, bus(), &c, 100) == MC_OK && d.state == MC_READY);
       CHECK(m.reset == 1 && m.ram_writes == 2048 && !m.illegal && !m.active);
@@ -228,8 +228,8 @@ int mc_test_init(void) {
     }
   unsigned calls = m.calls;
   start();
-  McDriver d = {0};
-  McConfig c = config(7);
+  struct mc_driver d = {0};
+  struct mc_config c = config(7);
   m.corrupt_crc = 1;
   CHECK(mc_init(&d, bus(), &c, 100) == MC_OK);
   CHECK(m.calls == calls + 1);
@@ -238,8 +238,8 @@ int mc_test_init(void) {
 }
 int mc_test_failure(void) {
   start();
-  McDriver d = {0};
-  McConfig c = config(7);
+  struct mc_driver d = {0};
+  struct mc_config c = config(7);
   CHECK(mc_init(&d, bus(), &c, 100) == MC_OK);
   unsigned count = m.calls;
   for (unsigned phase = 1; phase <= count; phase++)
@@ -284,10 +284,10 @@ int mc_test_transfer(void) {
   for (unsigned code = 0; code < 8; code++)
     for (unsigned dlc = 0; dlc < 16; dlc++) {
       start();
-      McDriver d = {0};
-      McConfig c = config(code);
+      struct mc_driver d = {0};
+      struct mc_config c = config(code);
       CHECK(mc_init(&d, bus(), &c, 100) == MC_OK);
-      McFrame f = {.id = 0x123, .dlc = (uint8_t)dlc, .brs = 1};
+      struct mc_frame f = {.id = 0x123, .dlc = (uint8_t)dlc, .brs = 1};
       memset(f.data, 0xa5, 64);
       unsigned calls = m.calls;
       int r = mc_send(&d, bus(), 1, &f);
@@ -308,10 +308,10 @@ int mc_test_transfer(void) {
       admitted++;
     }
   start();
-  McDriver d = {0};
-  McConfig c = config(7);
+  struct mc_driver d = {0};
+  struct mc_config c = config(7);
   CHECK(mc_init(&d, bus(), &c, 100) == MC_OK);
-  McFrame f = {.id = 0x123};
+  struct mc_frame f = {.id = 0x123};
   CHECK(mc_send(&d, bus(), UINT32_MAX, &f) == MC_OK);
   complete(0x90);
   CHECK(mc_poll(&d, bus()) == MC_OK);
@@ -323,10 +323,10 @@ int mc_test_transfer(void) {
 }
 int mc_test_receive(void) {
   start();
-  McDriver d = {0};
-  McConfig c = config(7);
+  struct mc_driver d = {0};
+  struct mc_config c = config(7);
   CHECK(mc_init(&d, bus(), &c, 100) == MC_OK);
-  McFrame f = {.id = 0x123, .dlc = 15, .brs = 1}, out = {.id = 999};
+  struct mc_frame f = {.id = 0x123, .dlc = 15, .brs = 1}, out = {.id = 999};
   for (unsigned i = 0; i < 64; i++)
     f.data[i] = (uint8_t)i;
   CHECK(mc_receive(&d, bus(), &out) == MC_EMPTY && out.id == 999);
@@ -358,7 +358,7 @@ int mc_test_bench(void) {
   unsigned bytes = 0;
   for (unsigned brs = 0; brs < 2; brs++)
     for (unsigned i = 0; i < 6; i++) {
-      McFrame f;
+      struct mc_frame f;
       CHECK(mc_bench_frame(i, brs, &f) == MC_OK &&
             mc_bench_match(i, brs, &f) == MC_OK);
       CHECK(mc_bench_match((i + 1) % 6, brs, &f) == MC_FAILED);
@@ -375,11 +375,11 @@ int mc_test_bench(void) {
   return 0;
 }
 
-typedef struct {
+struct mc_wire {
   unsigned cs, ready, index, n, reply, fail_wire, reset_stuck, fail_after_byte;
   uint8_t tx[16], rx[16];
-} Wire;
-static Wire w;
+};
+static struct mc_wire w;
 static uint32_t spi_read(void *ctx, unsigned reg) {
   (void)ctx;
   if (reg == PS_SR)
@@ -427,20 +427,20 @@ static void spi_write(void *ctx, unsigned reg, uintptr_t value) {
 int mc_test_spi(void) {
   start();
   memset(&w, 0, sizeof w);
-  McSpi a = {0};
-  a.io = (PsIo){0, spi_read, spi_write};
+  struct mc_spi a = {0};
+  a.io = (struct ps_io){0, spi_read, spi_write};
   a.ticks = now;
   a.budget = 1000;
   a.setup = 1;
   a.hold = 1;
-  PuClock clock = {16000000, 1, 1, 1, 1, 0};
+  struct pu_clock clock = {16000000, 1, 1, 1, 1, 0};
   CHECK(ps_open(&a.spi, a.io, &clock, 0, 3) == PS_OK);
-  McBus b = {&a, mc_spi_transfer, mc_spi_now};
-  McDriver d = {0};
-  McConfig c = config(7);
+  struct mc_bus b = {&a, mc_spi_transfer, mc_spi_now};
+  struct mc_driver d = {0};
+  struct mc_config c = config(7);
   CHECK(mc_init(&d, b, &c, 1000) == MC_OK && !w.cs && !a.spi.cs_owned);
   m.auto_loop = 1;
-  McFrame f = {.id = 0x123, .dlc = 0}, out;
+  struct mc_frame f = {.id = 0x123, .dlc = 0}, out;
   CHECK(mc_send(&d, b, 1, &f) == MC_OK && mc_poll(&d, b) == MC_OK &&
         mc_receive(&d, b, &out) == MC_OK && out.dlc == 0);
   unsigned result = 99;
@@ -459,11 +459,11 @@ int mc_test_spi(void) {
 }
 
 int mc_test_atomic(void) {
-  McConfig c = config(7);
-  McFrame f = {.id = 0x123, .dlc = 15};
+  struct mc_config c = config(7);
+  struct mc_frame f = {.id = 0x123, .dlc = 15};
   memset(f.data, 0x5a, 64);
   start();
-  McDriver d = {0};
+  struct mc_driver d = {0};
   CHECK(mc_init(&d, bus(), &c, 100) == MC_OK);
   unsigned before = m.calls;
   CHECK(mc_send(&d, bus(), 1, &f) == MC_OK);
@@ -485,7 +485,7 @@ int mc_test_atomic(void) {
   CHECK(mc_init(&d, bus(), &c, 100) == MC_OK);
   inject(&f);
   before = m.calls;
-  McFrame out;
+  struct mc_frame out;
   CHECK(mc_receive(&d, bus(), &out) == MC_OK);
   unsigned receive_calls = m.calls - before;
   for (unsigned i = 1; i <= receive_calls; i++)

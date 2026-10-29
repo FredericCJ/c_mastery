@@ -2,24 +2,24 @@
 #ifndef PD_MUTANT
 #define PD_MUTANT 0
 #endif
-typedef struct {
+struct pd_match {
   int status;
   size_t end;
-} Match;
-typedef struct {
-  const PsNode *nodes;
+};
+struct pd_parse {
+  const struct ps_node *nodes;
   const unsigned char *input;
   size_t length;
   unsigned eof, budget;
-  PsResult result;
-  PdDiagnostic *d;
-} Parse;
-static Match match(Parse *p, unsigned index, size_t pos) {
+  struct ps_result result;
+  struct pd_diagnostic *d;
+};
+static struct pd_match match(struct pd_parse *p, unsigned index, size_t pos) {
   if (!p->budget)
-    return (Match){PD_FUEL, pos};
+    return (struct pd_match){PD_FUEL, pos};
   --p->budget;
   ++p->d->steps;
-  const PsNode *n = &p->nodes[index];
+  const struct ps_node *n = &p->nodes[index];
   unsigned saved = p->result.count;
   if (n->kind <= PS_ANY) {
     if (pos == p->length) {
@@ -27,28 +27,28 @@ static Match match(Parse *p, unsigned index, size_t pos) {
         p->d->offset = pos;
         p->d->expected = n->low;
       }
-      return (Match){p->eof || PD_MUTANT == 7 ? PD_NO_MATCH : PD_PENDING, pos};
+      return (struct pd_match){p->eof || PD_MUTANT == 7 ? PD_NO_MATCH : PD_PENDING, pos};
     }
     unsigned c = p->input[pos];
     if (n->kind == PS_ANY || (n->kind == PS_BYTE && c == n->low) ||
         (n->kind == PS_RANGE && c >= n->low && c <= n->high))
-      return (Match){PD_OK, pos + 1};
+      return (struct pd_match){PD_OK, pos + 1};
     if (pos >= p->d->offset) {
       p->d->offset = pos;
       p->d->expected = n->low;
     }
-    return (Match){PD_NO_MATCH, pos};
+    return (struct pd_match){PD_NO_MATCH, pos};
   }
   if (n->kind == PS_EMPTY)
-    return (Match){PD_OK, pos};
+    return (struct pd_match){PD_OK, pos};
   if (n->kind == PS_STAR) {
     size_t end = pos;
     for (;;) {
       unsigned before = p->result.count;
-      Match r = match(p, n->left, end);
+      struct pd_match r = match(p, n->left, end);
       if (r.status == PD_NO_MATCH) {
         p->result.count = before;
-        return (Match){PD_OK, end};
+        return (struct pd_match){PD_OK, end};
       }
       if (r.status) {
         p->result.count = saved;
@@ -56,18 +56,18 @@ static Match match(Parse *p, unsigned index, size_t pos) {
       }
       if (r.end == end) {
         p->result.count = saved;
-        return (Match){PD_EMPTY_LOOP, end};
+        return (struct pd_match){PD_EMPTY_LOOP, end};
       }
       end = r.end;
     }
   }
-  Match a = match(p, n->left, pos);
+  struct pd_match a = match(p, n->left, pos);
   if (n->kind == PS_NOT) {
     p->result.count = saved;
     if (a.status == PD_OK)
-      return (Match){PD_NO_MATCH, pos};
+      return (struct pd_match){PD_NO_MATCH, pos};
     if (a.status == PD_NO_MATCH)
-      return (Match){PD_OK, pos};
+      return (struct pd_match){PD_OK, pos};
     return a;
   }
   if (n->kind == PS_CAPTURE) {
@@ -77,9 +77,9 @@ static Match match(Parse *p, unsigned index, size_t pos) {
     }
     if (p->result.count == 32) {
       p->result.count = saved;
-      return (Match){PD_RANGE, pos};
+      return (struct pd_match){PD_RANGE, pos};
     }
-    p->result.captures[p->result.count++] = (PsCapture){n->low, pos, a.end};
+    p->result.captures[p->result.count++] = (struct ps_capture){n->low, pos, a.end};
     return a;
   }
   if (n->kind == PS_CHOICE) {
@@ -94,17 +94,17 @@ static Match match(Parse *p, unsigned index, size_t pos) {
       p->result.count = saved;
     return a;
   }
-  Match b = match(p, n->right, a.end);
+  struct pd_match b = match(p, n->right, a.end);
   if (b.status && PD_MUTANT != 8)
     p->result.count = saved;
   return b;
 }
-int ps_parse(const PsNode *n, size_t count, const unsigned char *input,
-             size_t length, unsigned eof, unsigned budget, PsResult *out,
-             PdDiagnostic *d) {
+int ps_parse(const struct ps_node *n, size_t count, const unsigned char *input,
+             size_t length, unsigned eof, unsigned budget, struct ps_result *out,
+             struct pd_diagnostic *d) {
   if (!n || (!input && length) || !out || !d || eof > 1)
     return PD_INVALID;
-  *d = (PdDiagnostic){0};
+  *d = (struct pd_diagnostic){0};
   if (!count || count > 64 || length > 256)
     return PD_RANGE;
   for (size_t i = 0; i < count; ++i) {
@@ -121,13 +121,13 @@ int ps_parse(const PsNode *n, size_t count, const unsigned char *input,
         (n[i].right <= i || n[i].right >= count))
       return PD_INVALID;
   }
-  Parse p = {.nodes = n,
+  struct pd_parse p = {.nodes = n,
              .input = input,
              .length = length,
              .eof = eof,
              .budget = budget,
              .d = d};
-  Match r = match(&p, 0, 0);
+  struct pd_match r = match(&p, 0, 0);
   if (!r.status) {
     p.result.end = r.end;
     *out = p.result;

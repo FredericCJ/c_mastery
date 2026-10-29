@@ -15,11 +15,11 @@ CHECK(lc_admit(32,64,4,3,1));CHECK(!lc_admit(0,64,4,3,1));CHECK(!lc_admit(65,64,
 return 0;
 }
 static int test_boot(void) {
-LCBoot s={0,1,0,0};unsigned slot=9;CHECK(lc_select(&s,&slot)&&slot==1&&s.attempted);CHECK(lc_select(&s,&slot)&&slot==0);s.confirmed=1;CHECK(lc_select(&s,&slot)&&slot==0);s.active=2;CHECK(!lc_select(&s,&slot));
+struct lc_boot s={0,1,0,0};unsigned slot=9;CHECK(lc_select(&s,&slot)&&slot==1&&s.attempted);CHECK(lc_select(&s,&slot)&&slot==0);s.confirmed=1;CHECK(lc_select(&s,&slot)&&slot==0);s.active=2;CHECK(!lc_select(&s,&slot));
 return 0;
 }
 static int test_journal(void) {
-LCJournal a={1,7,0,0xa5},b={2,9,0,0};unsigned i=9;a.check=a.seq^a.value^UINT32_C(0x5a5a5a5a);b.check=b.seq^b.value^UINT32_C(0x5a5a5a5a);CHECK(lc_journal_select(&a,&b,&i)&&i==0);b.commit=0xa5;CHECK(lc_journal_select(&a,&b,&i)&&i==1);b.seq=1;b.check=b.seq^b.value^UINT32_C(0x5a5a5a5a);CHECK(!lc_journal_select(&a,&b,&i));
+struct lc_journal a={1,7,0,0xa5},b={2,9,0,0};unsigned i=9;a.check=a.seq^a.value^UINT32_C(0x5a5a5a5a);b.check=b.seq^b.value^UINT32_C(0x5a5a5a5a);CHECK(lc_journal_select(&a,&b,&i)&&i==0);b.commit=0xa5;CHECK(lc_journal_select(&a,&b,&i)&&i==1);b.seq=1;b.check=b.seq^b.value^UINT32_C(0x5a5a5a5a);CHECK(!lc_journal_select(&a,&b,&i));
 return 0;
 }
 static int test_floor(void) {

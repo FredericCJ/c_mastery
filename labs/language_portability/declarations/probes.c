@@ -30,7 +30,7 @@ _BitInt(1) invalid;int main(void){return 0;}
 #elif LD_PROBE==7
 unsigned _BitInt(BITINT_MAXWIDTH+1) invalid;int main(void){return 0;}
 #elif LD_PROBE==8
-enum Wide { WIDE_VALUE=4294967296ULL };
+enum lp_wide { WIDE_VALUE=4294967296ULL };
 enum Fixed : unsigned long long { FIXED_VALUE=4294967296ULL };
 int main(void){static_assert(WIDE_VALUE==4294967296ULL);static_assert(FIXED_VALUE==4294967296ULL);return 0;}
 #elif LD_PROBE==9

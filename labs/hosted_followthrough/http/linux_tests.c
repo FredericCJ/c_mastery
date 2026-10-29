@@ -27,7 +27,7 @@ int main(int argc,char **argv) {
     /* Bounded owned TCP pair, no reader, and no remote or third-party endpoint.
        Fill only this socket's queue before exercising the flow's output path. */
     while(total<2097152 && now_ms()-start<3000){ssize_t n=send(a,padding,sizeof padding,MSG_NOSIGNAL);if(n>0)total+=(size_t)n;else if(errno==EAGAIN){waits++;struct timespec nap={0,10000000};nanosleep(&nap,0);}else CHECK(0);}
-    CHECK(waits && total<2097152);HFFlow flow;CHECK(!hf_init(&flow,2,"localhost:8080",now_ms()));size_t used;
+    CHECK(waits && total<2097152);struct hf_flow flow;CHECK(!hf_init(&flow,2,"localhost:8080",now_ms()));size_t used;
     const char req[]="GET /health HTTP/1.1\r\nHost: localhost:8080\r\n\r\n";start=now_ms();CHECK(!hf_feed(&flow,req,sizeof req-1,&used,start,"localhost:8080",0));
     CHECK(hf_write(&flow,write_socket,&a,start)==0 && flow.output[flow.head].offset==0);
     while(now_ms()-start<15000){struct timespec nap={0,10000000};nanosleep(&nap,0);}

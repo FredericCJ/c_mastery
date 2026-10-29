@@ -1,29 +1,29 @@
 #ifndef GE_CHECKS_H
 #define GE_CHECKS_H
 #include "global_edf.h"
-static GEResult ge_result,ge_saved;
-static GEJob gj(unsigned task,unsigned generation,unsigned release,unsigned cost,unsigned deadline,unsigned affinity){
- GEJob j={.task=task,.generation=generation,.affinity=affinity,.strands=1,.nominal=release,.release=release,.deadline=deadline,.cost={cost,0,0,0}};return j;
+static struct ge_result ge_result,ge_saved;
+static struct ge_job gj(unsigned task,unsigned generation,unsigned release,unsigned cost,unsigned deadline,unsigned affinity){
+ struct ge_job j={.task=task,.generation=generation,.affinity=affinity,.strands=1,.nominal=release,.release=release,.deadline=deadline,.cost={cost,0,0,0}};return j;
 }
 static int gs(const void *a,const void *b,unsigned n){const unsigned char *x=a,*y=b;for(unsigned i=0;i<n;i++)if(x[i]!=y[i])return 0;return 1;}
 #define GC(x) do{if(!(x))return __LINE__;}while(0)
-static int conserved(const GEJob *jobs,unsigned n,const GEConfig *c,const GEResult *r){
+static int conserved(const struct ge_job *jobs,unsigned n,const struct ge_config *c,const struct ge_result *r){
  unsigned served[GE_JOBS][GE_STRANDS]={{0}},work=0,queue=0,wait=0,migrate=0,idle=0;
  for(unsigned t=0;t<c->horizon;t++){
   unsigned queues=0;
   for(unsigned cpu=0;cpu<c->cpus;cpu++){
-   const GETick *v=&r->ticks[t][cpu];
+   const struct ge_tick *v=&r->ticks[t][cpu];
    if(v->kind==GE_IDLE){idle++;continue;}if(v->kind==GE_QUEUE_WAIT){wait++;continue;}
    GC(v->job<n&&v->strand<jobs[v->job].strands&&v->generation==jobs[v->job].generation);
    GC((jobs[v->job].affinity&(1u<<cpu))&&(!c->partitioned||c->home[jobs[v->job].task]==cpu));
    if(v->kind==GE_QUEUE){queue++;queues++;continue;}if(v->kind==GE_MIGRATION){migrate++;continue;}
    GC(v->kind==GE_SERVICE);
-   for(unsigned other=0;other<cpu;other++){const GETick *q=&r->ticks[t][other];GC(q->kind!=GE_SERVICE||q->job!=v->job||q->strand!=v->strand);}
+   for(unsigned other=0;other<cpu;other++){const struct ge_tick *q=&r->ticks[t][other];GC(q->kind!=GE_SERVICE||q->job!=v->job||q->strand!=v->strand);}
    for(unsigned before=0;before<jobs[v->job].strands;before++)if(jobs[v->job].predecessors[v->strand]&(1u<<before))GC(served[v->job][before]==jobs[v->job].cost[before]);
   }
   GC(queues<=1);
   for(unsigned cpu=0;cpu<c->cpus;cpu++){
-   const GETick *v=&r->ticks[t][cpu];if(v->kind==GE_SERVICE){served[v->job][v->strand]++;work++;GC(served[v->job][v->strand]<=jobs[v->job].cost[v->strand]);}
+   const struct ge_tick *v=&r->ticks[t][cpu];if(v->kind==GE_SERVICE){served[v->job][v->strand]++;work++;GC(served[v->job][v->strand]<=jobs[v->job].cost[v->strand]);}
   }
  }
  GC(work==r->work&&queue==r->queue&&wait==r->queue_wait&&migrate==r->migration_overhead&&idle==r->idle);
@@ -36,7 +36,7 @@ static int conserved(const GEJob *jobs,unsigned n,const GEConfig *c,const GEResu
  return 0;
 }
 static int dhall(void){
- GEJob jobs[3]={gj(0,1,0,10,10,3),gj(1,1,0,1,9,3),gj(2,1,0,1,9,3)};GEConfig c={.cpus=2,.horizon=12};
+ struct ge_job jobs[3]={gj(0,1,0,10,10,3),gj(1,1,0,1,9,3),gj(2,1,0,1,9,3)};struct ge_config c={.cpus=2,.horizon=12};
  GC(ge_simulate(jobs,3,&c,&ge_result)==GE_OK&&conserved(jobs,3,&c,&ge_result)==0);
  GC(ge_result.jobs[0].start==1&&ge_result.jobs[0].finish==11&&ge_result.jobs[0].missed&&ge_result.misses==1&&ge_result.completed==3&&ge_result.work==12);
  const unsigned scale[]={10,20,50,100};
@@ -47,7 +47,7 @@ static int dhall(void){
  return 0;
 }
 static int dag(void){
- GEJob j={.task=0,.generation=3,.affinity=3,.strands=4,.deadline=8,.cost={1,2,2,1},.predecessors={0,1,1,6}};GEConfig c={.cpus=2,.horizon=8};
+ struct ge_job j={.task=0,.generation=3,.affinity=3,.strands=4,.deadline=8,.cost={1,2,2,1},.predecessors={0,1,1,6}};struct ge_config c={.cpus=2,.horizon=8};
  GC(ge_simulate(&j,1,&c,&ge_result)==GE_OK&&conserved(&j,1,&c,&ge_result)==0);
  GC(ge_result.jobs[0].finish==4&&ge_result.work==6&&ge_result.misses==0);
  ge_saved=ge_result;j.predecessors[0]=8;
@@ -55,7 +55,7 @@ static int dag(void){
  return 0;
 }
 static int overlap(void){
- GEJob j[2]={gj(0,1,0,4,3,3),gj(0,2,2,1,5,3)};GEConfig c={.cpus=2,.horizon=6};
+ struct ge_job j[2]={gj(0,1,0,4,3,3),gj(0,2,2,1,5,3)};struct ge_config c={.cpus=2,.horizon=6};
  GC(ge_simulate(j,2,&c,&ge_result)==GE_OK&&conserved(j,2,&c,&ge_result)==0);
  GC(ge_result.jobs[0].finish==4&&ge_result.jobs[0].missed&&ge_result.jobs[1].state==GE_REJECTED&&ge_result.rejected==1&&ge_result.work==4);
  j[1].nominal=j[1].release=4;
@@ -64,10 +64,10 @@ static int overlap(void){
  return 0;
 }
 static int costs(void){
- GEJob j[3]={gj(0,1,0,3,9,3),gj(1,1,0,3,10,3),gj(2,1,1,1,5,3)};GEConfig c={.cpus=2,.horizon=12,.migration_cost=1};
+ struct ge_job j[3]={gj(0,1,0,3,9,3),gj(1,1,0,3,10,3),gj(2,1,1,1,5,3)};struct ge_config c={.cpus=2,.horizon=12,.migration_cost=1};
  GC(ge_simulate(j,3,&c,&ge_result)==GE_OK&&conserved(j,3,&c,&ge_result)==0);
  GC(ge_result.migrations>=1&&ge_result.migration_overhead==ge_result.migrations&&ge_result.work==7);
- GEJob two[2]={gj(0,1,0,2,10,1),gj(1,1,0,2,10,2)};c.queue_cost=1;c.migration_cost=0;
+ struct ge_job two[2]={gj(0,1,0,2,10,1),gj(1,1,0,2,10,2)};c.queue_cost=1;c.migration_cost=0;
  GC(ge_simulate(two,2,&c,&ge_result)==GE_OK&&conserved(two,2,&c,&ge_result)==0);
  GC(ge_result.queue==2&&ge_result.queue_wait==1&&ge_result.jobs[0].finish==3&&ge_result.jobs[1].finish==4);
  two[0]=gj(0,1,2,2,3,3);two[0].nominal=0;two[0].jitter=2;c.queue_cost=0;
@@ -75,7 +75,7 @@ static int costs(void){
  return 0;
 }
 static int affinity(void){
- GEJob j[2]={gj(0,1,0,3,4,2),gj(1,1,0,3,4,2)};GEConfig c={.cpus=2,.horizon=8};
+ struct ge_job j[2]={gj(0,1,0,3,4,2),gj(1,1,0,3,4,2)};struct ge_config c={.cpus=2,.horizon=8};
  GC(ge_simulate(j,2,&c,&ge_result)==GE_OK&&conserved(j,2,&c,&ge_result)==0);
  GC(ge_result.work==6&&ge_result.misses==1&&ge_result.jobs[1].finish==6);
  j[0].affinity=1;
@@ -83,7 +83,7 @@ static int affinity(void){
  return 0;
 }
 static int comparison(void){
- GEJob j[3]={gj(0,1,0,2,10,3),gj(1,1,0,2,10,3),gj(2,1,0,2,10,3)};GEConfig c={.cpus=2,.horizon=10};
+ struct ge_job j[3]={gj(0,1,0,2,10,3),gj(1,1,0,2,10,3),gj(2,1,0,2,10,3)};struct ge_config c={.cpus=2,.horizon=10};
  cmx_job producer[3]={{.cost=2,.deadline=10,.period=10},{.cost=2,.deadline=10,.period=10},{.cost=2,.deadline=10,.period=10}};
  cmx_sim_result result;GC(cmx_simulate(producer,3,2,0,10,&result)==CMX_OK);
  GC(ge_simulate(j,3,&c,&ge_result)==GE_OK&&ge_result.work==result.work&&ge_result.completed==result.completed&&ge_result.migrations==result.migrations&&ge_result.misses==result.misses);

@@ -11,7 +11,7 @@
 static int layers(void) {
   uint32_t h[] = {20, 20, 14}, out[] = {77, 77, 77};
   unsigned yes = 9;
-  EDInterface a = {1, 1, 0, 0}, b = a;
+  struct ed_interface a = {1, 1, 0, 0}, b = a;
   CHECK(ed_wrap(10, h, 3, out) == ED_OK && out[0] == 30 && out[1] == 50 &&
         out[2] == 64);
   out[0] = 77;
@@ -30,7 +30,7 @@ static int frame(void) {
           saved[1518];
   size_t n = 77;
   uint32_t c = 0;
-  EDFrame f = {0}, old;
+  struct ed_frame f = {0}, old;
   CHECK(ed_crc32((const uint8_t *)"123456789", 9, &c) == ED_OK &&
         c == UINT32_C(0xcbf43926));
   CHECK(ed_frame_build(da, sa, 3, p, 3, 1, wire, sizeof wire, &n) == ED_OK &&
@@ -58,7 +58,7 @@ static int frame(void) {
   return 0;
 }
 static int bridge(void) {
-  EDBridge b = {0}, old;
+  struct ed_bridge b = {0}, old;
   uint8_t a[6] = {2, 1}, c[6] = {2, 2},
           group[6] = {255, 255, 255, 255, 255, 255};
   unsigned mask = 99;
@@ -84,14 +84,14 @@ static int bridge(void) {
   CHECK(ed_bridge(&b, group, a, 1, 14, &mask) == ED_INVALID);
   return 0;
 }
-typedef struct {
+struct ed_test_bus {
   uint16_t regs[32];
   uint32_t control, tick;
   unsigned writes, reads, bsr_reads, stuck, fail, frozen;
   uint16_t old_bsr;
-} Bus;
+};
 static int bread(void *ctx, unsigned csr, uint32_t *out) {
-  Bus *b = ctx;
+  struct ed_test_bus *b = ctx;
   b->reads++;
   if (b->fail)
     return 1;
@@ -109,7 +109,7 @@ static int bread(void *ctx, unsigned csr, uint32_t *out) {
   return 0;
 }
 static int bwrite(void *ctx, unsigned csr, uint32_t value) {
-  Bus *b = ctx;
+  struct ed_test_bus *b = ctx;
   if (b->fail || csr != 0)
     return 1;
   b->control = value;
@@ -117,15 +117,15 @@ static int bwrite(void *ctx, unsigned csr, uint32_t value) {
   return 0;
 }
 static uint32_t bclock(void *ctx) {
-  Bus *b = ctx;
+  struct ed_test_bus *b = ctx;
   return b->frozen ? b->tick : b->tick++;
 }
 static int phy(void) {
   uint32_t word = 77, div = 88;
   uint16_t value = 55;
-  EDPhy p = {0}, old;
-  Bus b = {0};
-  EDBus bus = {&b, bread, bwrite, bclock};
+  struct ed_phy p = {0}, old;
+  struct ed_test_bus b = {0};
+  struct ed_bus bus = {&b, bread, bwrite, bclock};
   CHECK(ed_mdio_word(168000000, 1, 31, 0, &word, &div) == ED_OK &&
         word == 0xfd1 && div == 102);
   word = 77;
@@ -162,9 +162,9 @@ static int phy(void) {
 }
 static int rx(void) {
   uint8_t a[64] = {0}, b[64] = {0};
-  EDRx s = {0};
-  EDBorrow borrow = {0}, old;
-  EDDescriptor d[2] = {{a, 62, 1u << 9}, {b, 64, (100u << 16) | (1u << 8)}};
+  struct ed_rx s = {0};
+  struct ed_borrow borrow = {0}, old;
+  struct ed_descriptor d[2] = {{a, 62, 1u << 9}, {b, 64, (100u << 16) | (1u << 8)}};
   CHECK(ed_rx_acquire(&s, d, 2, &borrow) == ED_OK && borrow.first == a &&
         borrow.second == b && borrow.first_length == 62 &&
         borrow.second_length == 34 && borrow.token == 1);
@@ -192,20 +192,20 @@ static int rx(void) {
   CHECK(ed_rx_acquire(&s, d, 2, &borrow) == ED_FULL);
   return 0;
 }
-typedef struct {
-  EDTx *state;
+struct ed_barrier {
+  struct ed_tx *state;
   unsigned calls, bad;
-} Barrier;
+};
 static void barrier(void *p) {
-  Barrier *b = p;
+  struct ed_barrier *b = p;
   b->calls++;
   if (b->state->slots[0].head & UINT32_C(0x80000000))
     b->bad++;
 }
 static int tx(void) {
-  EDTx s = {0};
+  struct ed_tx s = {0};
   uint8_t p[60] = {1, 2, 3};
-  Barrier b = {&s, 0, 0};
+  struct ed_barrier b = {&s, 0, 0};
   size_t bad = 99;
   uint8_t order[] = {0, 1, 2, 3, 4, 5, 6, 9, 7, 8},
           wrong[] = {0, 1, 2, 3, 4, 5, 6, 7, 9, 8};
@@ -237,7 +237,7 @@ static int tx(void) {
   return 0;
 }
 static int handoff(void) {
-  EDBudget b = {0};
+  struct ed_budget b = {0};
   uint32_t times[] = {100, 120};
   uint64_t lo[] = {77, 77}, hi[] = {88, 88};
   unsigned index = 99;

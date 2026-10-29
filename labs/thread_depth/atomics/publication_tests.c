@@ -64,19 +64,19 @@ static void conflict(void) {
   puts("OBS conflict7 analysis-only access cases; adjacent bit-field location "
        "differs from array elements");
 }
-typedef struct {
-  TASnapshot *snapshot;
+struct tw_snapshot {
+  struct ta_snapshot *snapshot;
   atomic_int stop;
   unsigned successes, limits;
-} Snapshot;
-typedef struct {
+};
+struct split_balance {
   atomic_int a, b;
   pthread_barrier_t entered, observed;
   pthread_mutex_t mutex;
   int locked, plain_a, plain_b;
-} SplitBalance;
+};
 static void *split_writer(void *p) {
-  SplitBalance *s = p;
+  struct split_balance *s = p;
   if (s->locked) {
     CHECK(pthread_mutex_lock(&s->mutex) == 0);
     s->plain_a = 40;
@@ -94,7 +94,7 @@ static void *split_writer(void *p) {
   return NULL;
 }
 static void split_balance(void) {
-  SplitBalance s;
+  struct split_balance s;
   s.locked = 0;
   s.plain_a = s.plain_b = 50;
   CHECK(pthread_mutex_init(&s.mutex, NULL) == 0);
@@ -129,7 +129,7 @@ static void split_balance(void) {
        "C data race");
 }
 static void *snapshot_reader(void *arg) {
-  Snapshot *s = arg;
+  struct tw_snapshot *s = arg;
   do {
     int n = 77;
     int e = ta_snapshot_try(s->snapshot, 8, &n);
@@ -146,7 +146,7 @@ static void *snapshot_reader(void *arg) {
 }
 static void snapshot(void) {
   split_balance();
-  TASnapshot s;
+  struct ta_snapshot s;
   ta_snapshot_init(&s);
   int n = 77;
   CHECK(ta_snapshot_try(&s, 1, &n) == TA_SUCCESS && n == 100);
@@ -155,7 +155,7 @@ static void snapshot(void) {
   CHECK(ta_snapshot_try(&s, 16, &n) == TA_LIMIT && n == 77);
   atomic_store(&s.sequence, 0);
   CHECK(ta_snapshot_try(&s, 0, &n) == TA_INVALID && n == 77);
-  Snapshot run = {.snapshot = &s};
+  struct tw_snapshot run = {.snapshot = &s};
   atomic_init(&run.stop, 0);
   pthread_t thread;
   CHECK(pthread_create(&thread, NULL, snapshot_reader, &run) == 0);
@@ -170,12 +170,12 @@ static void snapshot(void) {
   puts("OBS snapshot bounded16 attempts, output preservation,10000 writes, no "
        "sequence wrap");
 }
-typedef struct {
-  TASlot *slot;
+struct tw_reader {
+  struct ta_slot *slot;
   unsigned id, rounds;
-} Reader;
+};
 static void *reader(void *arg) {
-  Reader *r = arg;
+  struct tw_reader *r = arg;
   for (unsigned i = 1; i <= r->rounds; i++) {
     int n = 0, e;
     do {
@@ -189,7 +189,7 @@ static void *reader(void *arg) {
   return NULL;
 }
 static void handoff(void) {
-  TASlot s;
+  struct ta_slot s;
   CHECK(ta_slot_init(&s, 0) == TA_INVALID);
   CHECK(ta_slot_init(&s, 2) == TA_SUCCESS);
   int n = 77;
@@ -204,10 +204,10 @@ static void handoff(void) {
   CHECK(ta_slot_read(&s, 1, &n) == TA_SUCCESS && n == 99);
   for (unsigned readers = 1; readers <= 2; readers++) {
     CHECK(ta_slot_init(&s, readers) == TA_SUCCESS);
-    Reader r[2];
+    struct tw_reader r[2];
     pthread_t t[2];
     for (unsigned i = 0; i < readers; i++) {
-      r[i] = (Reader){.slot = &s, .id = i, .rounds = 2000};
+      r[i] = (struct tw_reader){.slot = &s, .id = i, .rounds = 2000};
       CHECK(pthread_create(&t[i], NULL, reader, &r[i]) == 0);
     }
     for (int value = 1; value <= 2000; value++) {

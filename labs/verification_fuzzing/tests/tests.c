@@ -11,7 +11,7 @@ uint32_t a[]={1,2,2,4};CHECK(vf_lower_bound(a,4,2)==1);CHECK(vf_lower_bound(a,4,
 return 0;
 }
 static int test_ring(void) {
-VFRing r={0,0,1};CHECK(!vf_ring_step(&r,1));CHECK(vf_ring_step(&r,0)&&r.size==1);CHECK(!vf_ring_step(&r,0)&&r.size==1);CHECK(vf_ring_step(&r,1)&&r.head==0&&r.size==0);r.capacity=0;CHECK(!vf_ring_step(&r,0));
+struct vf_ring r={0,0,1};CHECK(!vf_ring_step(&r,1));CHECK(vf_ring_step(&r,0)&&r.size==1);CHECK(!vf_ring_step(&r,0)&&r.size==1);CHECK(vf_ring_step(&r,1)&&r.head==0&&r.size==0);r.capacity=0;CHECK(!vf_ring_step(&r,0));
 return 0;
 }
 static int test_frame(void) {
@@ -23,7 +23,7 @@ unsigned char a[]={1,1,9};size_t n=vf_shrink(a,3,9);CHECK(n==1&&a[0]==9);a[0]=1;
 return 0;
 }
 static int test_schedule(void) {
-VFRequest r={0,0,0,0};CHECK(vf_request(&r,0));CHECK(vf_request(&r,1));CHECK(!vf_request(&r,3));CHECK(vf_request(&r,2));CHECK(vf_request(&r,3));CHECK(!vf_request(&r,3));
+struct vf_request r={0,0,0,0};CHECK(vf_request(&r,0));CHECK(vf_request(&r,1));CHECK(!vf_request(&r,3));CHECK(vf_request(&r,2));CHECK(vf_request(&r,3));CHECK(!vf_request(&r,3));
 return 0;
 }
 static int test_reset(void) {

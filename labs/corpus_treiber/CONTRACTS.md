@@ -2,7 +2,7 @@
 
 ## Representation and admitted calls
 C17, `unsigned` at least32 bits, lock-free atomic unsigned required at initialization.
-`TsStack` has eight physical nodes, runtime capacity1..8, four fixed participant
+`struct ts_stack` has eight physical nodes, runtime capacity1..8, four fixed participant
 hazards and one atomic index head (`UINT_MAX` means empty). A node holds copied
 uint32 data and a next index. This is a bounded index representation of Treiber's
 single-head linked stack, not the retained Michael-Scott queue or work-stealing

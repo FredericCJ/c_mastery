@@ -8,26 +8,26 @@
 #include <string.h>
 #include <unistd.h>
 #define CHECK(x) do { if (!(x)) { fprintf(stderr,"PF_PROTOCOL_ASSERT:%d:%s\n",__LINE__,#x); exit(1); } } while (0)
-typedef struct {
+struct pf_fake {
     int open_fail, control_fail, close_fail, opens, closes, reads, interrupts;
     int open_error, controls, leaders[8];
     ptrdiff_t length;
     uint64_t words[7];
-} Fake;
-static Fake fixture(void) {
-    return (Fake){.open_fail=-1,.control_fail=-1,.close_fail=-1,
+};
+static struct pf_fake fixture(void) {
+    return (struct pf_fake){.open_fail=-1,.control_fail=-1,.close_fail=-1,
         .open_error=EPERM,.length=56,.words={2,200,100,900,101,0,100}};
 }
-static int mock_open(void *context, PFPmuEvent event, int leader) {
-    Fake *f=context;
+static int mock_open(void *context, struct pf_pmu_event event, int leader) {
+    struct pf_fake *f=context;
     CHECK(event.type==0);
     int i=f->opens++;
     f->leaders[i]=leader;
     if(i==f->open_fail){errno=f->open_error;return -1;}
     return 20+i;
 }
-static int mock_control(void *context,int fd,enum PFPmuControl op,uint64_t *id) {
-    Fake *f=context;
+static int mock_control(void *context,int fd,enum pf_pmu_control op,uint64_t *id) {
+    struct pf_fake *f=context;
     CHECK(fd>=20&&fd<22);
     if(f->controls++==f->control_fail){errno=EIO;return -1;}
     if(op==PF_PMU_ID)*id=(uint64_t)(fd+80);
@@ -35,31 +35,31 @@ static int mock_control(void *context,int fd,enum PFPmuControl op,uint64_t *id) 
     return 0;
 }
 static ptrdiff_t mock_read(void *context,int fd,void *out,size_t n) {
-    Fake *f=context;CHECK(fd==20&&n==56);++f->reads;
+    struct pf_fake *f=context;CHECK(fd==20&&n==56);++f->reads;
     if(f->interrupts-- > 0){errno=EINTR;return -1;}
     if(f->length<0){errno=EIO;return -1;}
     if(f->length>0)memcpy(out,f->words,(size_t)f->length);
     return f->length;
 }
 static int mock_close(void *context,int fd) {
-    Fake *f=context;
+    struct pf_fake *f=context;
     CHECK(fd==20+f->opens-1-f->closes-(f->open_fail>=0?1:0));
     ++f->closes;
     if(fd==f->close_fail){errno=EINTR;return -1;}
     return 0;
 }
-static PFPmuOS mock_os(Fake *f) {
-    return(PFPmuOS){f,mock_open,mock_control,mock_read,mock_close};
+static struct pf_pmu_os mock_os(struct pf_fake *f) {
+    return(struct pf_pmu_os){f,mock_open,mock_control,mock_read,mock_close};
 }
-static PFPmuState collect(Fake *f,PFPmu *p) {
-    const PFPmuEvent events[]={{0,1},{0,0}};
-    PFPmuState state=pf_pmu_open(p,mock_os(f),events,2);
+static enum pf_pmu_state collect(struct pf_fake *f,struct pf_pmu *p) {
+    const struct pf_pmu_event events[]={{0,1},{0,0}};
+    enum pf_pmu_state state=pf_pmu_open(p,mock_os(f),events,2);
     if(state==PF_PMU_READY)state=pf_pmu_start(p);
     if(state==PF_PMU_ACTIVE)state=pf_pmu_stop(p);
     return state;
 }
 static void acquisition(void) {
-    Fake f=fixture();PFPmu p;
+    struct pf_fake f=fixture();struct pf_pmu p;
     CHECK(collect(&f,&p)==PF_PMU_MEASURED);
     CHECK(p.raw[0]==0&&p.raw[1]==900&&p.running==100&&p.enabled==200);
     CHECK(f.leaders[0]==-1&&f.leaders[1]==20&&f.closes==2&&!p.opened);
@@ -96,7 +96,7 @@ static void acquisition(void) {
     f=fixture();f.length=-1;CHECK(collect(&f,&p)==PF_PMU_IO&&f.closes==2);
     f=fixture();f.close_fail=21;
     CHECK(collect(&f,&p)==PF_PMU_MEASURED&&p.cleanup_error==EINTR&&f.closes==2);
-    const PFPmuEvent mixed[]={{0,1},{4,0}};
+    const struct pf_pmu_event mixed[]={{0,1},{4,0}};
     f=fixture();CHECK(pf_pmu_open(&p,mock_os(&f),mixed,2)==PF_PMU_INVALID&&f.opens==0);
     puts("PF_PROTOCOL:strict-group:leader-member-control-read-time-id-cleanup");
 }
@@ -105,7 +105,7 @@ static void write_ring(unsigned char *ring,size_t n,uint64_t pos,const void *p,s
     for(size_t i=0;i<length;++i)ring[(size_t)(pos+i)&(n-1)]=bytes[i];
 }
 static unsigned callbacks;
-static void sample(void *unused,const PFSample *s){
+static void sample(void *unused,const struct pf_sample *s){
     (void)unused;CHECK(s->ip==0x1234&&s->pid==7&&s->tid==9&&s->time==123&&s->period==4000);++callbacks;
 }
 static void ring(void){
@@ -113,37 +113,37 @@ static void ring(void){
     struct {uint32_t type;uint16_t misc,size;uint64_t ip;uint32_t pid,tid;uint64_t time,period;} record={9,0,40,0x1234,7,9,123,4000};
     CHECK(sizeof record==40);
     for(unsigned offset=0;offset<64;++offset){
-        uint64_t tail=offset;PFRingStats stats={0};callbacks=0;
+        uint64_t tail=offset;struct pf_ring_stats stats={0};callbacks=0;
         write_ring(bytes,64,tail,&record,40);
         CHECK(pf_ring_drain(bytes,64,tail+40,&tail,1,&stats,sample,NULL)==PF_RING_OK);
         CHECK(stats.samples==1&&stats.records==1&&tail==offset+40&&callbacks==1);
     }
     for(unsigned length=1;length<40;++length){
-        uint64_t tail=61;PFRingStats stats={0};write_ring(bytes,64,tail,&record,40);
+        uint64_t tail=61;struct pf_ring_stats stats={0};write_ring(bytes,64,tail,&record,40);
         CHECK(pf_ring_drain(bytes,64,tail+length,&tail,2,&stats,NULL,NULL)==PF_RING_PARTIAL&&tail==61&&stats.records==0);
     }
     for(unsigned size=0;size<72;++size){
         if(size==40)continue;
-        uint64_t tail=0;PFRingStats stats={0};record.size=(uint16_t)size;write_ring(bytes,64,0,&record,40);
+        uint64_t tail=0;struct pf_ring_stats stats={0};record.size=(uint16_t)size;write_ring(bytes,64,0,&record,40);
         CHECK(pf_ring_drain(bytes,64,64,&tail,1,&stats,NULL,NULL)==PF_RING_INVALID&&tail==0);
     }
-    uint64_t tail=0;PFRingStats stats={0};
+    uint64_t tail=0;struct pf_ring_stats stats={0};
     CHECK(pf_ring_drain(bytes,64,65,&tail,1,&stats,NULL,NULL)==PF_RING_OVERFLOW);
     struct {uint32_t type;uint16_t misc,size;uint64_t id,lost;} lost={2,0,24,99,12};
     write_ring(bytes,64,0,&lost,sizeof lost);
     CHECK(pf_ring_drain(bytes,64,24,&tail,1,&stats,NULL,NULL)==PF_RING_OK&&stats.lost==12&&tail==24);
     tail=0;stats.lost=UINT64_MAX;
     CHECK(pf_ring_drain(bytes,64,24,&tail,1,&stats,NULL,NULL)==PF_RING_OVERFLOW&&tail==0);
-    lost.type=99;lost.size=8;write_ring(bytes,64,0,&lost,8);stats=(PFRingStats){0};
+    lost.type=99;lost.size=8;write_ring(bytes,64,0,&lost,8);stats=(struct pf_ring_stats){0};
     CHECK(pf_ring_drain(bytes,64,8,&tail,0,&stats,NULL,NULL)==PF_RING_OK&&tail==0);
     CHECK(pf_ring_drain(bytes,64,8,&tail,1,&stats,NULL,NULL)==PF_RING_OK&&stats.unknown==1);
-    tail=UINT64_MAX-7;stats=(PFRingStats){0};write_ring(bytes,64,tail,&lost,8);
+    tail=UINT64_MAX-7;stats=(struct pf_ring_stats){0};write_ring(bytes,64,tail,&lost,8);
     CHECK(pf_ring_drain(bytes,64,0,&tail,1,&stats,NULL,NULL)==PF_RING_OK&&tail==0);
     puts("PF_PROTOCOL:ring:all-wrap-origins-partial-malformed-lost-budget-overflow");
 }
-typedef struct {unsigned calls,fail;} Sync;
+struct pf_sync {unsigned calls,fail;};
 static int inject_sync(void *context,int fd){
-    Sync *s=context;
+    struct pf_sync *s=context;
     if(++s->calls==s->fail){errno=EIO;return -1;}
     return fsync(fd);
 }
@@ -156,7 +156,7 @@ static void publication(void){
     for(unsigned fail=0;fail<3;++fail){
         int prior=open(target,O_CREAT|O_TRUNC|O_RDWR,0600);CHECK(prior>=0&&write(prior,"old",3)==3);
         int fd=open(stage,O_CREAT|O_EXCL|O_RDWR,0600);CHECK(fd>=0&&write(fd,"new",3)==3);
-        Sync sync={0,fail};PFPublication p=pf_publish(fd,dfd,stage,target,(PFSynchronizer){&sync,inject_sync});
+        struct pf_sync sync={0,fail};struct pf_publication p=pf_publish(fd,dfd,stage,target,(struct pf_synchronizer){&sync,inject_sync});
         CHECK(p.calls==sync.calls&&p.calls==(fail==1?1u:2u));
         CHECK(p.state==(fail==1?PF_STAGE_RETAINED:fail==2?PF_VISIBLE_UNCONFIRMED:PF_SYNCED));
         CHECK(p.error==(fail?EIO:0));

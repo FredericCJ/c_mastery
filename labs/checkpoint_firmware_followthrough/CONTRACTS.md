@@ -23,7 +23,7 @@ executing the actual reset routine. Relocation changes addresses, not the copy
 contract. DMA1 cannot access the selected F439 CCM region: a deliberately linked
 CCM placement must be rejected before any peripheral is enabled.
 
-Next connect the existing `CPFRing`, `CPFSample`, P3 frame encoder and `CPFTx`.
+Next connect the existing `struct cpf_ring`, `struct cpf_sample`, P3 frame encoder and `struct cpf_tx`.
 The ring owns four declared sample objects; physical N reserves one slot. For
 N=4, five offers100..104 while paused preserve100,101,102 and count two drops.
 The producer owns head and dropped; the consumer owns tail. Release/acquire on

@@ -2,7 +2,7 @@
 #include <pthread.h>
 #include <sched.h>
 #include <stdio.h>
-static CSWorld world;
+static struct cs_world world;
 static atomic_uint failed,done;
 static void*publisher(void*arg){unsigned id=*(unsigned*)arg;for(unsigned n=0;n<10000;++n){enum cs_status s;do{s=cs_progress(&world,id);if(s==CS_BUSY)sched_yield();}while(s==CS_BUSY);if(s!=CS_OK)atomic_store(&failed,1);}atomic_fetch_add(&done,1);return 0;}
 int main(void){pthread_t thread[2];unsigned ids[2]={0,1};if(cs_init(&world,2,1)!=CS_OK)return 1;atomic_init(&failed,0);atomic_init(&done,0);

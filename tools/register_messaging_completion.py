@@ -16,27 +16,27 @@ READY='research/v5/modern/messaging_objective_readiness.json'
 SUPPORT={
 1:('NURSERY.md',['nursery.c'],['nursery_test.c'],[
  'Creation-order error aggregation, cancellation flag versus joined descendant, and context ownership are explained in NURSERY and its assessor analysis.',
- 'MfnTree executes two actual MsgNursery groups, actual hs_pool_sum and hs_read_until; adapters preserve contexts through upward join.',
+ 'struct mfn_tree executes two actual struct msg_nursery groups, actual hs_pool_sum and hs_read_until; adapters preserve contexts through upward join.',
  'core_admission_edges covers0/1/8 children, ninth/late refusal, all eight injected failures, attempt exhaustion and barrier-coordinated sibling cancellation; separate TSan profiles run.',
  'Reversed completion orders preserve both errors and the creation-order primary; parent deadline/external cancellation propagate downward, drops occur after all admitted descendants finish.']),
 2:('OWNED.md',['owned.c','registration.c'],['owned_test.c','registration_test.c','registration_oracle.c'],[
  'Actual hub predicates distinguish readiness, accepted rendezvous and close/drain; Go randomness is explicitly not promised.',
- 'Common mutex or registered sticky recheck prevents lost wakeups; separately pinned ca_channel_deliver imports actual MsgHub with retained CATicket/CAFrame through join and ack.',
+ 'Common mutex or registered sticky recheck prevents lost wakeups; separately pinned ca_channel_deliver imports actual struct msg_hub with retained struct ca_ticket/struct ca_frame through join and ack.',
  'Owned-channel fixtures cover buffered close/cancel, both selection masks, spurious broadcasts and accepted/unaccepted rendezvous; real two-producer traces conserve exact values.',
  'Unique descriptor transfer is exercised by owning hub; separately locked channel registry forces the empty-scan/pre-sleep publication and rejects omitted notification and skipped-buffer controls.']),
 3:('OPERATION.md',['operation.c','completion.c'],['operation_test.c','completion_test.c'],[
  'Sender recipe, connected storage and completion ownership remain distinct; dated proposal and exposed C fields have explicitly different enforcement.',
- 'MfoOperation composes actual MsgOperation, while Linux port retains real backend borrows through joined cancellation acknowledgement; callbacks may free application owners.',
- 'Invalid/repeated orders and receiver-freed heap contexts are executed; MfxCompletion arbitrates concurrent callers with one atomic winner and a retained token per loser.',
+ 'struct mfo_operation composes actual struct msg_operation, while Linux port retains real backend borrows through joined cancellation acknowledgement; callbacks may free application owners.',
+ 'Invalid/repeated orders and receiver-freed heap contexts are executed; struct mfx_completion arbitrates concurrent callers with one atomic winner and a retained token per loser.',
  'Inline predecessor receiver destroys its heap object and starts the successor after moving ownership; start and completion cache everything needed before invoking the callback.']),
 4:('ACTOR_EXECUTOR.md',['owned.c','actor_executor.c'],['owned_test.c','actor_executor_test.c'],[
  'Mailbox ownership and incarnation are separated from pointer validity; a synthetic effect before failure demonstrates that restarting cannot roll it back.',
- 'MfeExecutor imports actual MfcHub and MfaActor with eight stable generation-bearing envelopes and one executor; failed publication versus failed dispatch have distinct owner rules.',
+ 'struct mfe_executor imports actual struct mfc_hub and struct mfa_actor with eight stable generation-bearing envelopes and one executor; failed publication versus failed dispatch have distinct owner rules.',
  'Full/stale/reentrant/dead/restart/retirement cases and2,000 native messages are checked against a mutex-protected reference under the observed order.',
  'Self-enqueue never recursively enters the handler; active and abandoned owners drop once; queued old-generation replies survive restart unchanged and enter dead letters.']),
 5:('SUPERVISOR.md',['supervisor.c','owned.c'],['supervisor_test.c'],[
  'Intensity bounds and restart topology are distinguished from successful resource initialization and from process-level isolation.',
- 'MfsTree executes actual actors in dependency order, refuses while stepping, rolls back partial constructors and escalates against a separate parent budget.',
+ 'struct mfs_tree executes actual actors in dependency order, refuses while stepping, rolls back partial constructors and escalates against a separate parent budget.',
  'All12 strategy/child selections, all16 initialization cuts, maximum/backwards/exact-window time and permanent escalation are checked with independent action-order models.',
  'Two-level parent/child budgets and child1-before-child2 dependency are exercised during partial restart; rollback/escalation releases owned messages and resources in reverse order.']),
 6:('WEAK.md',['weak.c','lifetime.c'],['weak_test.c','weak_deque_model.c','lifetime_test.c'],[
@@ -61,12 +61,12 @@ SUPPORT={
  'RC11 fence/ordering controls reject missing required edges; separately retained pointer snapshot allows a paused reader to outlive replacement without claiming seqlock validation retains storage.']),
 10:('STREAM.md',['stream.c','owned.c'],['stream_test.c'],[
  'Demand, terminal order and cancellation are explicitly compared to selected Reactive Streams rules, with unsigned C subset and reentrancy differences recorded.',
- 'MfqStream imports actual MsgHub/MsgStream into one executor; request and delivery conserve credit while context ownership survives in-flight work.',
+ 'struct mfq_stream imports actual struct msg_hub/struct msg_stream into one executor; request and delivery conserve credit while context ownership survives in-flight work.',
  'Independent19608 request/emit/end/cancel words and boundary tests cover saturation, zero demand, recursive signals, callback requests and terminal delivery without credit.',
  'Several producer threads serialize through the worker; paused callbacks retain context until join/last handle, and bounded WAIT/DROP/FAIL tests compare their distinct accepted/dropped contracts.']),
 11:('CONTRACTS.md',['composition.c','linux_port.c'],['tests.c','recovery.c'],[
  'Composed graph orders arm, quiescent disarm, cleanup, receiver; generation mismatch is explicitly separate from retained lifetime.',
- 'Actual COAsync, MsgOperation and cleanup-stack APIs compose serialized poll/cancel; local nonblocking socket pairs exercise complete and partial input without premature output.',
+ 'Actual struct co_async, struct msg_operation and cleanup-stack APIs compose serialized poll/cancel; local nonblocking socket pairs exercise complete and partial input without premature output.',
  'Pending/full/EOF/cancel and receiver-freed states run with generation/duplicate-call checks; disarm/cleanup mutants fail the named order assertions.',
  'Real worker poll/queued notice uses retained references; request_cancel returns before join/discard, finish_cancel establishes quiescence before receiver cleanup, including delayed undispatched notice.'])}
 
@@ -134,10 +134,10 @@ def main():
     readiness['import_dispositions']={
         'work.pool':{'producer':'LAB-HS-10 / PR-T25-01','status':'actual-source-composition','consumer':'mfn_pool_task calls hs_pool_sum; pool.c is an explicit hosted_systems dependency'},
         'io.deadline':{'producer':'LAB-HS-03 / PR-T24-05','status':'actual-source-composition','consumer':'mfn_wait calls hs_read_until; deadline.c is an explicit hosted_systems dependency'},
-        'coro.frame':{'producer':'T72 coroutine family','status':'actual-source-composition','consumer':'ca_channel_deliver uses actual MsgHub with retained asynchronous tickets; McRead imports actual COAsync'},
+        'coro.frame':{'producer':'T72 coroutine family','status':'actual-source-composition','consumer':'ca_channel_deliver uses actual struct msg_hub with retained asynchronous tickets; struct mc_read imports actual struct co_async'},
         'sync.condition_queue':{'producer':'LAB-HS-11 / PR-T25-02','status':'prerequisite-contract-and-proof-transfer','consumer':'The new predicate/registration protocol is implemented from primitives; it does not claim to call the earlier copied-value queue'},
         'sync.spsc':{'producer':'U-T55-01-03 / PR-T55-01','status':'prerequisite-contract-not-invented-api','consumer':'Catalog publication/storage contract informs ordering prerequisites; the owner/multiple-thief deque is a separately implemented protocol, not an SPSC call-through'},
-        'io.async':{'producer':'U-T21-02-04 / PR-T21-02','status':'contract-only-producer-explicit-adapter','consumer':'McLinuxPort implements real readiness/request/acknowledgement against the ownership contract; no undocumented legacy API is claimed'},
+        'io.async':{'producer':'U-T21-02-04 / PR-T21-02','status':'contract-only-producer-explicit-adapter','consumer':'struct mc_linux_port implements real readiness/request/acknowledgement against the ownership contract; no undocumented legacy API is claimed'},
         'testing.faults':{'producer':'U-T32-02-02 / PR-T32-02','status':'contract-only-producer-explicit-fixtures','consumer':'Admission, allocation and commit-phase controls implement declared fault schedules and separate oracles; there is no invented linked fault library'}}
     dump(READY,readiness);inputs[READY]=sha(READY)
     for row in criteria:inputs.update(row['pins'])

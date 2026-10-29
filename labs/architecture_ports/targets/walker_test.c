@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #define C(x) do{if(!(x)){fprintf(stderr,"B06_WALK_FAIL line=%d\n",__LINE__);return 1;}}while(0)
-static PWMemory m;
+static struct pw_memory m;
 static uint64_t pte(unsigned ppn,unsigned flags){return ((uint64_t)ppn<<10)|flags;}
 static int permitted(unsigned f,unsigned s,unsigned sum,unsigned mxr,unsigned op){
  if(!(f&1)||((f&4)&&!(f&2)))return 0;

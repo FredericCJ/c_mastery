@@ -13,36 +13,36 @@ int lt_ack(unsigned m, unsigned *a, unsigned *b, unsigned n) {
   (void)n;
   return LT_STUB;
 }
-int lt_sizes(uint32_t n, const LtLayer *p, size_t c, uint32_t *o) {
+int lt_sizes(uint32_t n, const struct lt_layer *p, size_t c, uint32_t *o) {
   (void)n;
   (void)p;
   (void)c;
   (void)o;
   return LT_STUB;
 }
-int lt_begin(LtBorrow *s, const unsigned char *p, size_t n) {
+int lt_begin(struct lt_borrow *s, const unsigned char *p, size_t n) {
   (void)s;
   (void)p;
   (void)n;
   return LT_STUB;
 }
-int lt_offer(LtBorrow *s, const unsigned char **p, size_t *n) {
+int lt_offer(struct lt_borrow *s, const unsigned char **p, size_t *n) {
   (void)s;
   (void)p;
   (void)n;
   return LT_STUB;
 }
-int lt_accept(LtBorrow *s, size_t n) {
+int lt_accept(struct lt_borrow *s, size_t n) {
   (void)s;
   (void)n;
   return LT_STUB;
 }
-int lt_cancel(LtBorrow *s, unsigned n) {
+int lt_cancel(struct lt_borrow *s, unsigned n) {
   (void)s;
   (void)n;
   return LT_STUB;
 }
-int lt_bridge(LtBridge *s, unsigned v, const uint8_t *a, const uint8_t *b,
+int lt_bridge(struct lt_bridge *s, unsigned v, const uint8_t *a, const uint8_t *b,
               unsigned p, uint32_t n, unsigned *m) {
   (void)s;
   (void)v;
@@ -53,8 +53,8 @@ int lt_bridge(LtBridge *s, unsigned v, const uint8_t *a, const uint8_t *b,
   (void)m;
   return LT_STUB;
 }
-int lt_dp83848(const EDBus *b, uint32_t h, unsigned p, unsigned n, uint32_t t,
-               EDPhy *o) {
+int lt_dp83848(const struct ed_bus *b, uint32_t h, unsigned p, unsigned n, uint32_t t,
+               struct ed_phy *o) {
   (void)b;
   (void)h;
   (void)p;
@@ -63,19 +63,19 @@ int lt_dp83848(const EDBus *b, uint32_t h, unsigned p, unsigned n, uint32_t t,
   (void)o;
   return LT_STUB;
 }
-int lt_partial_begin(LtPartial *s, E7Sender *p, uint32_t n) {
+int lt_partial_begin(struct lt_partial *s, struct e7_sender *p, uint32_t n) {
   (void)s;
   (void)p;
   (void)n;
   return LT_STUB;
 }
-int lt_partial_progress(LtPartial *s, size_t p, uint32_t n) {
+int lt_partial_progress(struct lt_partial *s, size_t p, uint32_t n) {
   (void)s;
   (void)p;
   (void)n;
   return LT_STUB;
 }
-int lt_partial_abort(LtPartial *s, unsigned p, uint32_t n) {
+int lt_partial_abort(struct lt_partial *s, unsigned p, uint32_t n) {
   (void)s;
   (void)p;
   (void)n;
