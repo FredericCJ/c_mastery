@@ -265,6 +265,8 @@ def run(output=None, *, build=False):
             if oracle.name == 'verify_http_fixtures.py':
                 command += ['--report', raw/'http_fixture_checks.json']
             report['checks'].append(run_command(command, raw, oracle.stem))
+        report['checks'].append(run_command([sys.executable, ROOT/'tools/check_c_style.py',
+                                             '--report', raw/'c_style.json'], raw, 'c-house-style'))
         report['checks'].append(run_command([sys.executable, ROOT/'tools/check_native_build_profiles.py',
                                              '--configure-only', '--report', raw/'build_profiles.json'],
                                             raw, 'build-profile-policy'))

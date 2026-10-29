@@ -1,0 +1,55 @@
+# C Mastery house style: naming, structure and selected correctness checks
+# (Tiers N and C). Rationale and rule provenance: curriculum/guides/c-style.md.
+# Pinned tool: clang-tidy 21.1.6 (tools/c_tools_requirements.lock).
+#
+# Findings are review triggers, not proof of a defect, and passing them is not
+# a MISRA or CERT compliance claim. Deliberate specimens are listed in
+# tools/c_style_manifest.json and are expected to trigger some checks.
+---
+Checks: >
+  -*,
+  bugprone-assignment-in-if-condition,
+  bugprone-macro-parentheses,
+  bugprone-reserved-identifier,
+  bugprone-signed-char-misuse,
+  bugprone-sizeof-expression,
+  bugprone-suspicious-string-compare,
+  bugprone-switch-missing-default-case,
+  bugprone-unsafe-functions,
+  cert-err33-c,
+  cert-err34-c,
+  cert-str34-c,
+  readability-braces-around-statements,
+  readability-function-cognitive-complexity,
+  readability-function-size,
+  readability-identifier-naming,
+  readability-isolate-declaration,
+  readability-misleading-indentation,
+  readability-non-const-parameter,
+  readability-redundant-declaration
+WarningsAsErrors: ''
+HeaderFilterRegex: '(labs|assessor)/.*'
+CheckOptions:
+  # Naming (BARR-C 6.1/7.1 case rules, Linux kernel naming; typedef-free tags).
+  readability-identifier-naming.FunctionCase: lower_case
+  readability-identifier-naming.VariableCase: lower_case
+  readability-identifier-naming.ParameterCase: lower_case
+  readability-identifier-naming.MemberCase: lower_case
+  readability-identifier-naming.GlobalConstantCase: lower_case
+  readability-identifier-naming.StructCase: lower_case
+  readability-identifier-naming.UnionCase: lower_case
+  readability-identifier-naming.EnumCase: lower_case
+  readability-identifier-naming.TypedefCase: lower_case
+  readability-identifier-naming.EnumConstantCase: UPPER_CASE
+  readability-identifier-naming.MacroDefinitionCase: UPPER_CASE
+  # Review triggers (Linux kernel: short functions, few locals).
+  readability-function-cognitive-complexity.Threshold: 25
+  readability-function-cognitive-complexity.IgnoreMacros: true
+  readability-function-size.LineThreshold: 80
+  readability-function-size.StatementThreshold: 60
+  readability-function-size.ParameterThreshold: 7
+  readability-function-size.NestingThreshold: 4
+  readability-function-size.VariableThreshold: 12
+  # Mandatory braces are enforced by clang-format InsertBraces as well.
+  readability-braces-around-statements.ShortStatementLines: 0
+...

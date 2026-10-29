@@ -20,6 +20,12 @@
 6. **Continuity.** Continue the approved revision, preserve unrelated work/history,
    and make no unsolicited commits, pushes, remote uploads or privileged changes.
 
+7. **One readable house style.** All C in labs/ and assessor/ follows
+   curriculum/guides/c-style.md (BARR-C:2018 layout, SEI CERT C conversions,
+   context-dependent MISRA C:2023 rules, Linux kernel style for kernel modules),
+   enforced by the pinned clang-format and tools/check_c_style.py. Formatting,
+   renaming and semantic changes are separate, equivalence-checked steps.
+
 ## Implementation and verification
 
 Preserve the C17 baseline and manifest target dependency rules. Separate language,
@@ -32,4 +38,4 @@ focused checks and source-bound final integration. Tools do not imply acceptance
 Explicit user instructions and existing authorization take precedence over generic
 workflow defaults. Keep the canonical obligation and migration records authoritative.
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-29 | **Last Amended**: 2026-10-29
+**Version**: 1.1.0 | **Ratified**: 2026-10-29 | **Last Amended**: 2026-10-29
