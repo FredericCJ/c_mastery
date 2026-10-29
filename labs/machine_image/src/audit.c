@@ -1,6 +1,8 @@
 #include <stdio.h>
-int main(int argc, char **argv) {
-  (void)argc;
-  (void)argv;
-  return 77;
+
+int main(int argc, char **argv)
+{
+    (void)argc;
+    (void)argv;
+    return 77;
 }

@@ -1,7 +1,14 @@
 #ifndef STORAGE_FOLLOW_REFS_H
 #define STORAGE_FOLLOW_REFS_H
 #include "tree.h"
-struct store_ref {store *owner;uint32_t id;uint64_t incarnation;};
+
+struct store_ref
+{
+    store *owner;
+    uint32_t id;
+    uint64_t incarnation;
+};
+
 /* Observational references can be minted/read only outside a transaction.
  * They do not pin pages. The exact store owner is live, stable and noncopied;
  * constructor reuse of owner storage or switching images requires retiring all
@@ -9,6 +16,6 @@ struct store_ref {store *owner;uint32_t id;uint64_t incarnation;};
  * Staged references never escape: aborted unpublished generations may roll back.
  * STORE_STALE preserves output after release/reuse; generation MAX retires a
  * freed slot while allocation continues at later eligible slots. */
-int store_ref_make(store *,uint32_t,struct store_ref *);
-int store_ref_read(struct store_ref,store_node *);
+int store_ref_make(store *, uint32_t, struct store_ref *);
+int store_ref_read(struct store_ref, store_node *);
 #endif

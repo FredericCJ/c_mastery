@@ -1,8 +1,120 @@
 #include "containers.h"
-void cd_queue_init(struct cd_queue*q){q->head=q->tail=-1;q->count=0;q->available=3;for(unsigned i=0;i<6;++i)q->nodes[i]=(struct cd_queue_node){0,-1,0};}
-enum cd_status cd_queue_push(struct cd_queue*q,int value,unsigned refill,unsigned fail){if(!q||refill>1)return CD_INVALID;if(q->count==q->available){if(!refill||q->available==6)return CD_FULL;if(fail)return CD_NOMEM;q->available=6;}unsigned at=0;while(q->nodes[at].live)++at;q->nodes[at]=(struct cd_queue_node){value,-1,1};if(q->tail>=0)q->nodes[q->tail].next=(int)at;else q->head=(int)at;q->tail=(int)at;++q->count;return CD_OK;}
-enum cd_status cd_queue_pop(struct cd_queue*q,int*out){if(!q||!out)return CD_INVALID;if(!q->count)return CD_EMPTY;unsigned at=(unsigned)q->head;int value=q->nodes[at].value;q->head=q->nodes[at].next;q->nodes[at].live=0;--q->count;if(!q->count)q->tail=-1;*out=value;return CD_OK;}
-enum cd_status cd_segmented_append(struct cd_segmented*s,int value,int**out){if(!s||!out)return CD_INVALID;if(s->count==16)return CD_FULL;int*p=&s->blocks[s->count/4][s->count%4];*p=value;++s->count;*out=p;return CD_OK;}
-enum cd_status cd_owned_append(struct cd_owned*c,struct cd_move_only*input,unsigned cancel){if(!c||!input||!input->resource||cancel>2)return CD_INVALID;if(c->count==8)return CD_FULL;for(unsigned i=0;i<c->count;++i)if(c->values[i].resource==input->resource)return CD_DUPLICATE;if(cancel==1)return CD_FAILED;struct cd_move_only candidate=*input;if(cancel==2)return CD_FAILED;/* No cancellation/callback between publication and clearing the moved-from token. */c->values[c->count++]=candidate;input->resource=0;return CD_OK;}
-enum cd_status cd_deque_push(struct cd_deque*d,int value,unsigned front){if(!d||front>1||d->head>=3||d->count>3)return CD_INVALID;if(d->count==3)return CD_FULL;unsigned at;if(front){d->head=d->head?d->head-1:2;at=d->head;}else at=(d->head+d->count)%3;d->values[at]=value;++d->count;return CD_OK;}
-enum cd_status cd_deque_pop(struct cd_deque*d,int*out,unsigned front){if(!d||!out||front>1||d->head>=3||d->count>3)return CD_INVALID;if(!d->count)return CD_EMPTY;unsigned at=front?d->head:(d->head+d->count-1)%3;int value=d->values[at];if(front)d->head=(d->head+1)%3;--d->count;*out=value;return CD_OK;}
+
+void cd_queue_init(struct cd_queue *q)
+{
+    q->head = q->tail = -1;
+    q->count = 0;
+    q->available = 3;
+    for (unsigned i = 0; i < 6; ++i)
+        q->nodes[i] = (struct cd_queue_node){0, -1, 0};
+}
+
+enum cd_status cd_queue_push(struct cd_queue *q, int value, unsigned refill,
+                             unsigned fail)
+{
+    if (!q || refill > 1)
+        return CD_INVALID;
+    if (q->count == q->available)
+    {
+        if (!refill || q->available == 6)
+            return CD_FULL;
+        if (fail)
+            return CD_NOMEM;
+        q->available = 6;
+    }
+    unsigned at = 0;
+    while (q->nodes[at].live)
+        ++at;
+    q->nodes[at] = (struct cd_queue_node){value, -1, 1};
+    if (q->tail >= 0)
+        q->nodes[q->tail].next = (int)at;
+    else
+        q->head = (int)at;
+    q->tail = (int)at;
+    ++q->count;
+    return CD_OK;
+}
+
+enum cd_status cd_queue_pop(struct cd_queue *q, int *out)
+{
+    if (!q || !out)
+        return CD_INVALID;
+    if (!q->count)
+        return CD_EMPTY;
+    unsigned at = (unsigned)q->head;
+    int value = q->nodes[at].value;
+    q->head = q->nodes[at].next;
+    q->nodes[at].live = 0;
+    --q->count;
+    if (!q->count)
+        q->tail = -1;
+    *out = value;
+    return CD_OK;
+}
+
+enum cd_status cd_segmented_append(struct cd_segmented *s, int value, int **out)
+{
+    if (!s || !out)
+        return CD_INVALID;
+    if (s->count == 16)
+        return CD_FULL;
+    int *p = &s->blocks[s->count / 4][s->count % 4];
+    *p = value;
+    ++s->count;
+    *out = p;
+    return CD_OK;
+}
+
+enum cd_status cd_owned_append(struct cd_owned *c, struct cd_move_only *input,
+                               unsigned cancel)
+{
+    if (!c || !input || !input->resource || cancel > 2)
+        return CD_INVALID;
+    if (c->count == 8)
+        return CD_FULL;
+    for (unsigned i = 0; i < c->count; ++i)
+        if (c->values[i].resource == input->resource)
+            return CD_DUPLICATE;
+    if (cancel == 1)
+        return CD_FAILED;
+    struct cd_move_only candidate = *input;
+    if (cancel == 2)
+        return CD_FAILED; /* No cancellation/callback between publication and clearing the moved-from token. */
+    c->values[c->count++] = candidate;
+    input->resource = 0;
+    return CD_OK;
+}
+
+enum cd_status cd_deque_push(struct cd_deque *d, int value, unsigned front)
+{
+    if (!d || front > 1 || d->head >= 3 || d->count > 3)
+        return CD_INVALID;
+    if (d->count == 3)
+        return CD_FULL;
+    unsigned at;
+    if (front)
+    {
+        d->head = d->head ? d->head - 1 : 2;
+        at = d->head;
+    }
+    else
+        at = (d->head + d->count) % 3;
+    d->values[at] = value;
+    ++d->count;
+    return CD_OK;
+}
+
+enum cd_status cd_deque_pop(struct cd_deque *d, int *out, unsigned front)
+{
+    if (!d || !out || front > 1 || d->head >= 3 || d->count > 3)
+        return CD_INVALID;
+    if (!d->count)
+        return CD_EMPTY;
+    unsigned at = front ? d->head : (d->head + d->count - 1) % 3;
+    int value = d->values[at];
+    if (front)
+        d->head = (d->head + 1) % 3;
+    --d->count;
+    *out = value;
+    return CD_OK;
+}

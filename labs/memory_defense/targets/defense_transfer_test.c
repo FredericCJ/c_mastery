@@ -2,5 +2,57 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define C(x) do{if(!(x)){fprintf(stderr,"DT_CHECK:%d:%s\n",__LINE__,#x);exit(1);}}while(0)
-int main(void){uint64_t out=91;C(!dt_extent(UINT64_C(0x40000000),8,24,16,16,UINT32_MAX,&out)&&out==91);C(dt_extent(UINT64_C(0x40000000),8,24,16,16,UINT64_MAX,&out)&&out==UINT64_C(8589934640));out=91;C(!dt_extent(UINT64_MAX,2,24,16,16,UINT64_MAX,&out)&&out==91);C(!dt_extent(0,1,UINT64_MAX,4096,0,UINT64_MAX,&out)&&out==91);C(dt_extent(0,1,24,16,16,48,&out)&&out==48);C(!dt_extent(0,1,24,3,0,64,&out));unsigned char owned[]={19,27},other[]={77,83};struct dt_owner owner={owned,2,9};struct dt_view valid={owned,2,9},forged={other,2,9};unsigned char value=91;/* Vulnerable public struct fields are copied; all memory remains live. */C(forged.tag==owner.tag&&forged.p[0]==77);C(dt_read(&owner,valid,0,&value)&&value==19);value=91;C(!dt_read(&owner,forged,0,&value)&&value==91);C(!dt_read(&owner,valid,2,&value)&&value==91);owned[0]=31;C(valid.p[0]==31);/* ISO C does not enforce immutable-borrow exclusion. */unsigned char a[256],b[256];memset(a,19,256);memset(b,19,256);for(size_t n=0;n<=256;n++){size_t steps=91;C(dt_equal(a,n,b,n,&steps)==1&&steps==n);for(size_t i=0;i<n;i++){b[i]^=1;C(dt_equal(a,n,b,n,&steps)==0&&steps==n);b[i]^=1;}if(n)C(dt_equal(a,n,b,n-1,&steps)==0&&steps==0);}puts("DT_PASS widths forgedview fullscan");return 0;}
+#define C(x)                                                   \
+    do                                                         \
+    {                                                          \
+        if (!(x))                                              \
+        {                                                      \
+            fprintf(stderr, "DT_CHECK:%d:%s\n", __LINE__, #x); \
+            exit(1);                                           \
+        }                                                      \
+    } while (0)
+
+int main(void)
+{
+    uint64_t out = 91;
+    C(!dt_extent(UINT64_C(0x40000000), 8, 24, 16, 16, UINT32_MAX, &out) &&
+      out == 91);
+    C(dt_extent(UINT64_C(0x40000000), 8, 24, 16, 16, UINT64_MAX, &out) &&
+      out == UINT64_C(8589934640));
+    out = 91;
+    C(!dt_extent(UINT64_MAX, 2, 24, 16, 16, UINT64_MAX, &out) && out == 91);
+    C(!dt_extent(0, 1, UINT64_MAX, 4096, 0, UINT64_MAX, &out) && out == 91);
+    C(dt_extent(0, 1, 24, 16, 16, 48, &out) && out == 48);
+    C(!dt_extent(0, 1, 24, 3, 0, 64, &out));
+    unsigned char owned[] = {19, 27}, other[] = {77, 83};
+    struct dt_owner owner = {owned, 2, 9};
+    struct dt_view valid = {owned, 2, 9}, forged = {other, 2, 9};
+    unsigned char value =
+        91; /* Vulnerable public struct fields are copied; all memory remains live. */
+    C(forged.tag == owner.tag && forged.p[0] == 77);
+    C(dt_read(&owner, valid, 0, &value) && value == 19);
+    value = 91;
+    C(!dt_read(&owner, forged, 0, &value) && value == 91);
+    C(!dt_read(&owner, valid, 2, &value) && value == 91);
+    owned[0] = 31;
+    C(valid.p[0] ==
+      31); /* ISO C does not enforce immutable-borrow exclusion. */
+    unsigned char a[256], b[256];
+    memset(a, 19, 256);
+    memset(b, 19, 256);
+    for (size_t n = 0; n <= 256; n++)
+    {
+        size_t steps = 91;
+        C(dt_equal(a, n, b, n, &steps) == 1 && steps == n);
+        for (size_t i = 0; i < n; i++)
+        {
+            b[i] ^= 1;
+            C(dt_equal(a, n, b, n, &steps) == 0 && steps == n);
+            b[i] ^= 1;
+        }
+        if (n)
+            C(dt_equal(a, n, b, n - 1, &steps) == 0 && steps == 0);
+    }
+    puts("DT_PASS widths forgedview fullscan");
+    return 0;
+}

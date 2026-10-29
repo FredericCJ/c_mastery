@@ -1,2 +1,6 @@
 #include "dispatch_plugin.h"
-unsigned ds_client_features(void){return 1;}
+
+unsigned ds_client_features(void)
+{
+    return 1;
+}

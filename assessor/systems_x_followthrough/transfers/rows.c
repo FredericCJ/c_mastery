@@ -1,13 +1,118 @@
 #include "transfers.h"
 #include <stdio.h>
 #include <stdint.h>
-#define CHECK(x) do{if(!(x)){fprintf(stderr,"SX_ROWS_CHECK:%d:%s\n",__LINE__,#x);return 1;}}while(0)
-static void change(struct sx_map*m,void*v){unsigned p=*(unsigned*)v;(void)sx_remap(m,p,1,1,0,88);}
-static unsigned sum(const struct sx_map*m){unsigned s=0;for(unsigned i=0;i<64;i++)s+=(i+1)*m->pages[i/16].bytes[i%16];return s;}
-int main(void){unsigned char input[8]={1,2,3,4,5,6,7,8};unsigned ledger=0,hotplug=0;
- for(unsigned page=0;page<4;page++)for(unsigned address=0;address<=65;address++)for(unsigned count=0;count<=8;count++){struct sx_map m={0},partial={0};struct sx_copy_result r;int rc;for(unsigned i=0;i<4;i++)CHECK(sx_remap(&m,i,1,1,1,55)==B5_OK&&sx_remap(&partial,i,1,1,i!=page,55)==B5_OK);rc=sx_copy(&m,address,input,count,change,&page);CHECK(sx_partial(&partial,address,input,count,&r)==B5_OK);printf("C %u %u %u %d %u %zu %d %u\n",page,address,count,rc,sum(&m),r.copied,r.status,sum(&partial));}
- for(unsigned owner=0;owner<2;owner++)for(unsigned allocator=0;allocator<2;allocator++)for(unsigned before=1;before<=16;before++)for(unsigned after=1;after<=20;after++)for(unsigned success=0;success<2;success++){struct sx_ledger l={0};struct sx_alias old,newref;size_t out=999;CHECK(sx_allocate(&l,1,before,owner,allocator,&old)==B4_OK);CHECK(sx_resize(&l,old,owner,after,(int)success,&newref)==B4_OK);size_t size=success?after:before;CHECK(sx_lookup(&l,newref,owner,&out)==B4_OK&&out==size);CHECK(l.ledger.live==size&&l.attributed[owner]==size&&l.attributed[1-owner]==0);CHECK(sx_transfer(&l,newref,owner,1-owner)==B4_OK&&l.attributed[owner]==0&&l.attributed[1-owner]==size&&l.ledger.live==size);CHECK(sx_lookup(&l,newref,owner,&out)==B4_STATE&&sx_release(&l,newref,1-owner,1-allocator)==B4_STATE);CHECK(sx_release(&l,newref,1-owner,allocator)==B4_OK&&l.ledger.live==0&&l.attributed[1-owner]==0);ledger++;}
- {struct sx_ledger l={0};struct sx_alias a,b;CHECK(sx_allocate(&l,1,SIZE_MAX,0,0,&a)==B4_OK);CHECK(sx_allocate(&l,2,1,1,1,&b)==B4_RANGE&&l.ledger.live==SIZE_MAX);CHECK(sx_transfer(&l,a,0,1)==B4_OK&&l.attributed[1]==SIZE_MAX&&sx_release(&l,a,1,0)==B4_OK);}
- {struct sx_ledger l={0};struct sx_alias a;for(unsigned i=0;i<12;i++)CHECK(sx_allocate(&l,i+1,1,0,0,&a)==B4_OK&&sx_release(&l,a,0,0)==B4_OK);CHECK(sx_allocate(&l,99,1,0,0,&a)==B4_RANGE);}
- for(unsigned targets=0;targets<256;targets++){struct sx_hotplug w={0};for(unsigned cpu=0;cpu<8;cpu++)CHECK(sx_online(&w,cpu)==S_OK);CHECK(sx_begin(&w,targets)==S_OK);for(unsigned cpu=0;cpu<8;cpu++)if(targets&(1u<<cpu)){CHECK(sx_offline_request(&w,cpu,1)==S_OK&&sx_reclaim(&w)==S_PENDING&&sx_offline_quiescent(&w,cpu,2)==S_CONFLICT);CHECK(sx_offline_quiescent(&w,cpu,1)==S_OK);}CHECK(sx_reclaim(&w)==S_OK&&w.online==(255u^targets));hotplug++;}
- printf("SX_ROWS_PASS copy=2376 ledger=%u hotplug=%u generation_saturation overflow\n",ledger,hotplug);return 0;}
+#define CHECK(x)                                                    \
+    do                                                              \
+    {                                                               \
+        if (!(x))                                                   \
+        {                                                           \
+            fprintf(stderr, "SX_ROWS_CHECK:%d:%s\n", __LINE__, #x); \
+            return 1;                                               \
+        }                                                           \
+    } while (0)
+
+static void change(struct sx_map *m, void *v)
+{
+    unsigned p = *(unsigned *)v;
+    (void)sx_remap(m, p, 1, 1, 0, 88);
+}
+
+static unsigned sum(const struct sx_map *m)
+{
+    unsigned s = 0;
+    for (unsigned i = 0; i < 64; i++)
+        s += (i + 1) * m->pages[i / 16].bytes[i % 16];
+    return s;
+}
+
+int main(void)
+{
+    unsigned char input[8] = {1, 2, 3, 4, 5, 6, 7, 8};
+    unsigned ledger = 0, hotplug = 0;
+    for (unsigned page = 0; page < 4; page++)
+        for (unsigned address = 0; address <= 65; address++)
+            for (unsigned count = 0; count <= 8; count++)
+            {
+                struct sx_map m = {0}, partial = {0};
+                struct sx_copy_result r;
+                int rc;
+                for (unsigned i = 0; i < 4; i++)
+                    CHECK(sx_remap(&m, i, 1, 1, 1, 55) == B5_OK &&
+                          sx_remap(&partial, i, 1, 1, i != page, 55) == B5_OK);
+                rc = sx_copy(&m, address, input, count, change, &page);
+                CHECK(sx_partial(&partial, address, input, count, &r) == B5_OK);
+                printf("C %u %u %u %d %u %zu %d %u\n", page, address, count, rc,
+                       sum(&m), r.copied, r.status, sum(&partial));
+            }
+    for (unsigned owner = 0; owner < 2; owner++)
+        for (unsigned allocator = 0; allocator < 2; allocator++)
+            for (unsigned before = 1; before <= 16; before++)
+                for (unsigned after = 1; after <= 20; after++)
+                    for (unsigned success = 0; success < 2; success++)
+                    {
+                        struct sx_ledger l = {0};
+                        struct sx_alias old, newref;
+                        size_t out = 999;
+                        CHECK(sx_allocate(&l, 1, before, owner, allocator,
+                                          &old) == B4_OK);
+                        CHECK(sx_resize(&l, old, owner, after, (int)success,
+                                        &newref) == B4_OK);
+                        size_t size = success ? after : before;
+                        CHECK(sx_lookup(&l, newref, owner, &out) == B4_OK &&
+                              out == size);
+                        CHECK(l.ledger.live == size &&
+                              l.attributed[owner] == size &&
+                              l.attributed[1 - owner] == 0);
+                        CHECK(sx_transfer(&l, newref, owner, 1 - owner) ==
+                                  B4_OK &&
+                              l.attributed[owner] == 0 &&
+                              l.attributed[1 - owner] == size &&
+                              l.ledger.live == size);
+                        CHECK(sx_lookup(&l, newref, owner, &out) == B4_STATE &&
+                              sx_release(&l, newref, 1 - owner,
+                                         1 - allocator) == B4_STATE);
+                        CHECK(sx_release(&l, newref, 1 - owner, allocator) ==
+                                  B4_OK &&
+                              l.ledger.live == 0 &&
+                              l.attributed[1 - owner] == 0);
+                        ledger++;
+                    }
+    {
+        struct sx_ledger l = {0};
+        struct sx_alias a, b;
+        CHECK(sx_allocate(&l, 1, SIZE_MAX, 0, 0, &a) == B4_OK);
+        CHECK(sx_allocate(&l, 2, 1, 1, 1, &b) == B4_RANGE &&
+              l.ledger.live == SIZE_MAX);
+        CHECK(sx_transfer(&l, a, 0, 1) == B4_OK &&
+              l.attributed[1] == SIZE_MAX && sx_release(&l, a, 1, 0) == B4_OK);
+    }
+    {
+        struct sx_ledger l = {0};
+        struct sx_alias a;
+        for (unsigned i = 0; i < 12; i++)
+            CHECK(sx_allocate(&l, i + 1, 1, 0, 0, &a) == B4_OK &&
+                  sx_release(&l, a, 0, 0) == B4_OK);
+        CHECK(sx_allocate(&l, 99, 1, 0, 0, &a) == B4_RANGE);
+    }
+    for (unsigned targets = 0; targets < 256; targets++)
+    {
+        struct sx_hotplug w = {0};
+        for (unsigned cpu = 0; cpu < 8; cpu++)
+            CHECK(sx_online(&w, cpu) == S_OK);
+        CHECK(sx_begin(&w, targets) == S_OK);
+        for (unsigned cpu = 0; cpu < 8; cpu++)
+            if (targets & (1u << cpu))
+            {
+                CHECK(sx_offline_request(&w, cpu, 1) == S_OK &&
+                      sx_reclaim(&w) == S_PENDING &&
+                      sx_offline_quiescent(&w, cpu, 2) == S_CONFLICT);
+                CHECK(sx_offline_quiescent(&w, cpu, 1) == S_OK);
+            }
+        CHECK(sx_reclaim(&w) == S_OK && w.online == (255u ^ targets));
+        hotplug++;
+    }
+    printf(
+        "SX_ROWS_PASS copy=2376 ledger=%u hotplug=%u generation_saturation overflow\n",
+        ledger, hotplug);
+    return 0;
+}

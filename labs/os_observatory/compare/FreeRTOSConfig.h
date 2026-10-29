@@ -22,5 +22,10 @@
 #define INCLUDE_vTaskSuspend 1
 #define INCLUDE_vTaskDelay 1
 #define INCLUDE_xTaskGetCurrentTaskHandle 1
-#define configASSERT(x) do { if(!(x)) abort(); } while(0)
+#define configASSERT(x) \
+    do                  \
+    {                   \
+        if (!(x))       \
+            abort();    \
+    } while (0)
 #endif

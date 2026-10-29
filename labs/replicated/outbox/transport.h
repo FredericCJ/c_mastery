@@ -11,8 +11,8 @@
  * against limit; no callback may block indefinitely in the bounded model. */
 typedef ptrdiff_t (*rpo_reader_fn)(void *, unsigned char *, size_t);
 typedef int (*rpo_writer_fn)(void *, const unsigned char *, size_t);
-int rpo_wire_read(rpo_reader_fn read, void *context, unsigned limit, size_t length,
-                  unsigned char *out);
+int rpo_wire_read(rpo_reader_fn read, void *context, unsigned limit,
+                  size_t length, unsigned char *out);
 int rpo_wire_write(rpo_writer_fn write, void *context, unsigned limit,
                    const unsigned char *bytes, size_t length);
 int rpo_reply_encode(struct rpo_reply reply, unsigned char out[24]);

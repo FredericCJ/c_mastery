@@ -30,69 +30,83 @@ _Static_assert(sizeof(uintptr_t) == 4, "32-bit selected target");
 #define ENABLE (1u << 22)
 #endif
 static void visibility(void *ctx, unsigned op, uint32_t address,
-                       uint32_t length) {
-  (void)ctx;
+                       uint32_t length)
+{
+    (void)ctx;
 #ifdef PD_TARGET_MODEL
-  pd_cache_observe(op, address, length);
+    pd_cache_observe(op, address, length);
 #else
-  if (op == PD_RELEASE || op == PD_ACQUIRE) {
-    __asm__ volatile("dsb sy" ::: "memory");
-    return;
-  }
+    if (op == PD_RELEASE || op == PD_ACQUIRE)
+    {
+        __asm__ volatile("dsb sy" ::: "memory");
+        return;
+    }
 #if PD_BOARD == 1
-  (void)fw_h745_cache(address, length,
-                      op == PD_CLEAN ? FW_CLEAN : H7_INVALIDATE);
+    (void)fw_h745_cache(address, length,
+                        op == PD_CLEAN ? FW_CLEAN : H7_INVALIDATE);
 #else
-  (void)address;
-  (void)length;
+    (void)address;
+    (void)length;
 #endif
 #endif
 }
-static int configure(void *ctx, const struct pd_extent *e, uint32_t token) {
-  struct pd_port *p = ctx;
-  uint32_t total;
-  if (!p || !token || pd_validate(PD_BOARD, PD_BOARD, e, 1, &total) != PD_OK)
-    return 0;
-  WR(GATE, RD(GATE) | ENABLE);
-  (void)RD(GATE);
-  if (RD(DMA + 0x10) & 1)
-    return 0;
-  WR(DMA + 8, 0x3d); /* W1C stream0 only; never a read-modify-write. */
-  WR(DMA + 0x18, PD_TARGET_MUTANT == 1 ? e->destination : e->source);
-  WR(DMA + 0x1c, e->destination);
-  WR(DMA + 0x14, e->bytes / e->width);
-  WR(DMA + 0x24, PD_TARGET_MUTANT == 2 ? 0u : 7u); /* M2M requires FIFO. */
-  unsigned size = e->width == 4 ? 2 : e->width == 2 ? 1 : 0;
-  p->configuration = 0x680u | (size << 11) | (size << 13);
-  p->token = token;
-  WR(DMA + 0x10, p->configuration);
-  return 1;
+
+static int configure(void *ctx, const struct pd_extent *e, uint32_t token)
+{
+    struct pd_port *p = ctx;
+    uint32_t total;
+    if (!p || !token || pd_validate(PD_BOARD, PD_BOARD, e, 1, &total) != PD_OK)
+        return 0;
+    WR(GATE, RD(GATE) | ENABLE);
+    (void)RD(GATE);
+    if (RD(DMA + 0x10) & 1)
+        return 0;
+    WR(DMA + 8, 0x3d); /* W1C stream0 only; never a read-modify-write. */
+    WR(DMA + 0x18, PD_TARGET_MUTANT == 1 ? e->destination : e->source);
+    WR(DMA + 0x1c, e->destination);
+    WR(DMA + 0x14, e->bytes / e->width);
+    WR(DMA + 0x24, PD_TARGET_MUTANT == 2 ? 0u : 7u); /* M2M requires FIFO. */
+    unsigned size = e->width == 4 ? 2 : e->width == 2 ? 1 : 0;
+    p->configuration = 0x680u | (size << 11) | (size << 13);
+    p->token = token;
+    WR(DMA + 0x10, p->configuration);
+    return 1;
 }
-static void enable(void *ctx) {
-  struct pd_port *p = ctx;
-  WR(DMA + 0x10, p->configuration | 1);
+
+static void enable(void *ctx)
+{
+    struct pd_port *p = ctx;
+    WR(DMA + 0x10, p->configuration | 1);
 }
-static void stop(void *ctx) {
-  (void)ctx;
-  WR(DMA + 0x10, RD(DMA + 0x10) & ~1u);
+
+static void stop(void *ctx)
+{
+    (void)ctx;
+    WR(DMA + 0x10, RD(DMA + 0x10) & ~1u);
 }
-static struct pd_snapshot snapshot(void *ctx) {
-  struct pd_port *p = ctx;
-  struct pd_snapshot x = {p->token, 0, 0, 0, 0};
-  x.enabled = RD(DMA + 0x10) & 1;
-  x.flags = RD(DMA) & 0x3d;
-  if (!x.enabled) {
-    x.fifo_empty = (RD(DMA + 0x24) & 0x38) == 0x20;
-    x.remaining = RD(DMA + 0x14);
-  }
-  if (PD_TARGET_MUTANT == 3) {
-    x.enabled = 0;
-    x.fifo_empty = 1;
-    x.flags |= PD_TC;
-  }
-  return x;
+
+static struct pd_snapshot snapshot(void *ctx)
+{
+    struct pd_port *p = ctx;
+    struct pd_snapshot x = {p->token, 0, 0, 0, 0};
+    x.enabled = RD(DMA + 0x10) & 1;
+    x.flags = RD(DMA) & 0x3d;
+    if (!x.enabled)
+    {
+        x.fifo_empty = (RD(DMA + 0x24) & 0x38) == 0x20;
+        x.remaining = RD(DMA + 0x14);
+    }
+    if (PD_TARGET_MUTANT == 3)
+    {
+        x.enabled = 0;
+        x.fifo_empty = 1;
+        x.flags |= PD_TC;
+    }
+    return x;
 }
-struct pd_io pd_target_io(struct pd_port *p) {
-  struct pd_io io = {p, configure, enable, stop, snapshot, visibility};
-  return io;
+
+struct pd_io pd_target_io(struct pd_port *p)
+{
+    struct pd_io io = {p, configure, enable, stop, snapshot, visibility};
+    return io;
 }

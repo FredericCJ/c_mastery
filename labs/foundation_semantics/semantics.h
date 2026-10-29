@@ -2,17 +2,27 @@
 #define FS_SEMANTICS_H
 #include <stddef.h>
 #include <stdint.h>
-enum fs_status {
-  FS_OK,
-  FS_INVALID,
-  FS_RANGE,
-  FS_UNINITIALIZED,
-  FS_NOT_IMPLEMENTED
+
+enum fs_status
+{
+    FS_OK,
+    FS_INVALID,
+    FS_RANGE,
+    FS_UNINITIALIZED,
+    FS_NOT_IMPLEMENTED
 };
-enum fs_index { FS_OUTSIDE, FS_ELEMENT, FS_ONE_PAST };
-struct fs_calls {
-  int sum, x, y;
-  unsigned order;
+
+enum fs_index
+{
+    FS_OUTSIDE,
+    FS_ELEMENT,
+    FS_ONE_PAST
+};
+
+struct fs_calls
+{
+    int sum, x, y;
+    unsigned order;
 };
 enum fs_index fs_index(intmax_t index, size_t length);
 enum fs_status fs_sum(const int *input, size_t length, int *out);

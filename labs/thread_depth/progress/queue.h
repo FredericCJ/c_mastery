@@ -1,14 +1,17 @@
 #ifndef THREAD_PROGRESS_QUEUE_H
 #define THREAD_PROGRESS_QUEUE_H
 #include "waiting.h"
-struct tp_end_queue {
-  pthread_mutex_t gate;
-  pthread_cond_t quiet;
-  struct tw_queue queue;
-  unsigned closing, inflight, retired;
-  unsigned accepted, delivered, discarded;
-  uint64_t discarded_sum;
+
+struct tp_end_queue
+{
+    pthread_mutex_t gate;
+    pthread_cond_t quiet;
+    struct tw_queue queue;
+    unsigned closing, inflight, retired;
+    unsigned accepted, delivered, discarded;
+    uint64_t discarded_sum;
 };
+
 int tp_queue_init(struct tp_end_queue *);
 int tp_queue_push(struct tp_end_queue *, int);
 int tp_queue_pop(struct tp_end_queue *, int *);

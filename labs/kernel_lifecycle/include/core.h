@@ -4,11 +4,25 @@
 #include <stdint.h>
 #include <limits.h>
 #include <math.h>
-struct kl_ref { unsigned refs, dead; };
-struct kl_work { unsigned queued, running, closed, released; };
-struct kl_grace { unsigned readers, retired; };
+
+struct kl_ref
+{
+    unsigned refs, dead;
+};
+
+struct kl_work
+{
+    unsigned queued, running, closed, released;
+};
+
+struct kl_grace
+{
+    unsigned readers, retired;
+};
+
 unsigned kl_unwind(unsigned mask);
-int kl_copy(unsigned char *dst, size_t cap, const unsigned char *src, size_t n, size_t fault_after);
+int kl_copy(unsigned char *dst, size_t cap, const unsigned char *src, size_t n,
+            size_t fault_after);
 int kl_ref(struct kl_ref *r, unsigned op);
 int kl_lock_allowed(unsigned context, unsigned kind, unsigned rt);
 int kl_work(struct kl_work *w, unsigned event);

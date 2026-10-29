@@ -1,2 +1,6 @@
 #include "target.h"
-int du_target(void){return DU_UNIMPLEMENTED;}
+
+int du_target(void)
+{
+    return DU_UNIMPLEMENTED;
+}

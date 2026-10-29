@@ -9,43 +9,54 @@
 #define STORE_VALUE_MAX 64u
 #define STORE_NODE_MAX 7u
 #define STORE_CACHE_PAGES 4u
-enum store_result {
-  STORE_OK = 0,
-  STORE_NOT_FOUND = 1,
-  STORE_INVALID = 2,
-  STORE_FULL = 3,
-  STORE_IO = 4,
-  STORE_CORRUPT = 5,
-  STORE_STATE = 6,
-  STORE_INDETERMINATE = 7,
-  STORE_UNIMPLEMENTED = 8
+
+enum store_result
+{
+    STORE_OK = 0,
+    STORE_NOT_FOUND = 1,
+    STORE_INVALID = 2,
+    STORE_FULL = 3,
+    STORE_IO = 4,
+    STORE_CORRUPT = 5,
+    STORE_STATE = 6,
+    STORE_INDETERMINATE = 7,
+    STORE_UNIMPLEMENTED = 8
 };
-typedef struct store_io {
-  void *ctx;
-  int (*read)(void *ctx, uint32_t page, void *bytes);
-  int (*write)(void *ctx, uint32_t page, const void *bytes);
-  int (*flush)(void *ctx);
-  uint32_t page_count;
+
+typedef struct store_io
+{
+    void *ctx;
+    int (*read)(void *ctx, uint32_t page, void *bytes);
+    int (*write)(void *ctx, uint32_t page, const void *bytes);
+    int (*flush)(void *ctx);
+    uint32_t page_count;
 } store_io;
-typedef struct store_node {
-  uint8_t leaf, n, klen[8], vlen[8];
-  uint32_t next, child[9];
-  uint8_t key[8][STORE_KEY_MAX], value[8][STORE_VALUE_MAX];
+
+typedef struct store_node
+{
+    uint8_t leaf, n, klen[8], vlen[8];
+    uint32_t next, child[9];
+    uint8_t key[8][STORE_KEY_MAX], value[8][STORE_VALUE_MAX];
 } store_node;
-typedef struct store_cache_entry {
-  uint32_t page;
-  int valid;
-  uint8_t bytes[STORE_PAGE_SIZE];
+
+typedef struct store_cache_entry
+{
+    uint32_t page;
+    int valid;
+    uint8_t bytes[STORE_PAGE_SIZE];
 } store_cache_entry;
-typedef struct store_store {
-  store_io io;
-  uint64_t generation, checkpoint_generation;
-  uint32_t root, used, saved_root, saved_used;
-  int active, poisoned, wal_active;
-  store_node scratch[STORE_DATA_PAGES];
-  store_cache_entry cache[STORE_CACHE_PAGES];
-  uint64_t reads, writes, flushes, cache_hits;
+
+typedef struct store_store
+{
+    store_io io;
+    uint64_t generation, checkpoint_generation;
+    uint32_t root, used, saved_root, saved_used;
+    int active, poisoned, wal_active;
+    store_node scratch[STORE_DATA_PAGES];
+    store_cache_entry cache[STORE_CACHE_PAGES];
+    uint64_t reads, writes, flushes, cache_hits;
 } store;
+
 /* Caller serializes all access. No concurrent readers/writers or aliasing
  * callbacks. read/write transfer one page completely or report error. On error,
  * partial persistence is possible. Successful flush makes every prior write

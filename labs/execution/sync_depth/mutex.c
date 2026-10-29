@@ -1,59 +1,76 @@
 #include "mutex.h"
+
 /* Implement the complete contract; these compiling stubs are not solutions. */
-int cdm_recursive_init(struct cd_recursive *r, cmx_kernel *k, unsigned maximum) {
-  (void)r;
-  (void)k;
-  (void)maximum;
-  return CMX_UNIMPLEMENTED;
+int cdm_recursive_init(struct cd_recursive *r, cmx_kernel *k, unsigned maximum)
+{
+    (void)r;
+    (void)k;
+    (void)maximum;
+    return CMX_UNIMPLEMENTED;
 }
-int cdm_recursive_lock(struct cd_recursive *r, unsigned task, cmx_deadline d) {
-  (void)r;
-  (void)task;
-  (void)d;
-  return CMX_UNIMPLEMENTED;
+
+int cdm_recursive_lock(struct cd_recursive *r, unsigned task, cmx_deadline d)
+{
+    (void)r;
+    (void)task;
+    (void)d;
+    return CMX_UNIMPLEMENTED;
 }
-int cdm_recursive_unlock(struct cd_recursive *r, unsigned task) {
-  (void)r;
-  (void)task;
-  return CMX_UNIMPLEMENTED;
+
+int cdm_recursive_unlock(struct cd_recursive *r, unsigned task)
+{
+    (void)r;
+    (void)task;
+    return CMX_UNIMPLEMENTED;
 }
-int cdm_recursive_close(struct cd_recursive *r) {
-  (void)r;
-  return CMX_UNIMPLEMENTED;
+
+int cdm_recursive_close(struct cd_recursive *r)
+{
+    (void)r;
+    return CMX_UNIMPLEMENTED;
 }
+
 int cdm_ordered_lock(cmx_kernel *k, cmx_mutex *const *locks,
                      const unsigned *ranks, unsigned count, unsigned target,
-                     unsigned task, cmx_deadline d) {
-  (void)k;
-  (void)locks;
-  (void)ranks;
-  (void)count;
-  (void)target;
-  (void)task;
-  (void)d;
-  return CMX_UNIMPLEMENTED;
+                     unsigned task, cmx_deadline d)
+{
+    (void)k;
+    (void)locks;
+    (void)ranks;
+    (void)count;
+    (void)target;
+    (void)task;
+    (void)d;
+    return CMX_UNIMPLEMENTED;
 }
-void cdm_record_init(struct cd_record *r, int32_t balance) {
-  (void)r;
-  (void)balance;
+
+void cdm_record_init(struct cd_record *r, int32_t balance)
+{
+    (void)r;
+    (void)balance;
 }
+
 int cdm_record_read(cmx_kernel *k, cmx_mutex *m, unsigned task,
-                    const struct cd_record *r, struct cd_record *out) {
-  (void)k;
-  (void)m;
-  (void)task;
-  (void)r;
-  (void)out;
-  return CMX_UNIMPLEMENTED;
+                    const struct cd_record *r, struct cd_record *out)
+{
+    (void)k;
+    (void)m;
+    (void)task;
+    (void)r;
+    (void)out;
+    return CMX_UNIMPLEMENTED;
 }
-int cdm_record_apply(cmx_kernel *k, cmx_mutex *m, unsigned task, struct cd_record *r,
-                     int32_t delta, cd_record_observer_fn observer, void *context) {
-  (void)k;
-  (void)m;
-  (void)task;
-  (void)r;
-  (void)delta;
-  (void)observer;
-  (void)context;
-  return CMX_UNIMPLEMENTED;
+
+int cdm_record_apply(cmx_kernel *k, cmx_mutex *m, unsigned task,
+                     struct cd_record *r, int32_t delta,
+                     cd_record_observer_fn observer, void *context)
+{
+    (void)k;
+    (void)m;
+    (void)task;
+    (void)r;
+    (void)delta;
+    (void)observer;
+    (void)context;
+    return CMX_UNIMPLEMENTED;
 }

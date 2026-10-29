@@ -1,11 +1,20 @@
 #ifndef B02_FOLLOW_PARSE_H
 #define B02_FOLLOW_PARSE_H
 #include "depth.h"
-enum { BF_CANCELLED = 7, BF_CLOSED = 8, BF_UNIMPLEMENTED = 9 };
-struct bf_parse {
-  unsigned base, phase, negative, seen, zero, invalid, range;
-  uint32_t magnitude;
+
+enum
+{
+    BF_CANCELLED = 7,
+    BF_CLOSED = 8,
+    BF_UNIMPLEMENTED = 9
 };
+
+struct bf_parse
+{
+    unsigned base, phase, negative, seen, zero, invalid, range;
+    uint32_t magnitude;
+};
+
 /* Fresh or exclusively owned parser; reset discards tentative state. No borrows
  * survive feed. Control, input and output storage are disjoint live objects. */
 int bf_parse_reset(struct bf_parse *, unsigned base);

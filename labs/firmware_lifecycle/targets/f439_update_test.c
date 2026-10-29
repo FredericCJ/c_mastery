@@ -2,32 +2,396 @@
 #include "monocypher-ed25519.h"
 #include <stdio.h>
 #include <string.h>
-#define C(x) do{if(!(x)){fprintf(stderr,"F4_CHECK:%d:%s\n",__LINE__,#x);return __LINE__;}}while(0)
-struct f4_model{uint32_t mem[262144],cr,sr,base,address,value,failure;unsigned key,busy,erase,violations,step,cut,bits,dead,error,erasecut,corrupt;};
-static struct f4_model m;static struct fb_policy policy;static struct fb_layout choices[2]={{0x08080200,0x08082000,0x20000000,0x20020000},{0x080A0200,0x080A2000,0x20000000,0x20020000}};
-static uint32_t get(const unsigned char*p){return (uint32_t)p[0]|(uint32_t)p[1]<<8|(uint32_t)p[2]<<16|(uint32_t)p[3]<<24;}
-static void put(unsigned char*p,uint32_t n){for(unsigned i=0;i<4;++i)p[i]=(unsigned char)(n>>(8*i));}
-static uint32_t rd(void*c,uint32_t a){struct f4_model*s=c;if(a==0x40023C10)return s->cr;if(a==0x40023C0C)return s->sr;if(a>=0x08000000&&a<0x08100000){if(s->busy)++s->violations;return s->mem[(a-0x08000000)/4];}++s->violations;return 0;}
-static int read_slot(void*c,uint32_t a,uint32_t*out){struct f4_model*s=c;if(a==s->failure||(a&3)||a<0x08000000||a>=0x08100000)return 0;*out=rd(c,a);return 1;}
-static void wr(void*c,uint32_t a,uint32_t n){struct f4_model*s=c;if(s->dead)return;if(a==0x40023C04){if(!s->key&&n==0x45670123)s->key=1;else if(s->key==1&&n==0xCDEF89AB){s->cr&=~0x80000000u;s->key=0;}else ++s->violations;return;}if(a==0x40023C0C){s->sr&=~n;return;}if(a==0x40023C10){if(s->busy){++s->violations;return;}s->cr=n;if(n&0x10000u){unsigned sector=(n>>3)&31;if(!(n&2)||sector<7||sector>11||(n&0x300)!=0x200){++s->violations;return;}s->base=0x08060000+(sector-7)*0x20000;s->erase=s->busy=1;s->sr=0x10000;}return;}if(a>=0x08060000&&a<0x08100000){if(s->busy||!(s->cr&1)||(s->cr&0x300)!=0x200||(a&3)){++s->violations;return;}s->address=a;s->value=n;s->busy=1;s->sr=0x10000;return;}++s->violations;}
-static void sync_io(void*c){(void)c;}
-static void fresh(void*c,uint32_t a,uint32_t n){struct f4_model*s=c;if(s->busy||a<0x08060000||a+n>0x08100000)++s->violations;if(s->corrupt&&s->step&&a<=s->address&&s->address<a+n){s->mem[(s->address-0x08000000)/4]^=1;s->corrupt=0;}}
-static struct fm_io io(void){return(struct fm_io){{&m,rd,wr,sync_io},fresh};}
-static void finish(void){if(!m.busy||m.dead)return;if(!m.error){if(m.erase){unsigned off=(m.base-0x08000000)/4;for(unsigned i=0;i<32768;++i){m.mem[off+i]=UINT32_MAX;if(m.erasecut==i+1){m.dead=1;return;}}}else{uint32_t value=m.value;if(++m.step==m.cut){uint32_t mask=m.bits==32?UINT32_MAX:(1u<<m.bits)-1;value|=~mask;}m.mem[(m.address-0x08000000)/4]&=value;if(m.step==m.cut){m.dead=1;return;}}}m.busy=m.erase=0;m.cr&=~0x10000u;m.sr=m.error?0x80:1;}
-static void make(struct rt_frame*f,unsigned slot,unsigned generation){unsigned char packet[684]={0};memcpy(packet,"B6UP",4);packet[4]=1;packet[6]=(unsigned char)slot;packet[8]=0x60;packet[9]=2;unsigned char*e=packet+12;put(e,0x31423646);e[4]=1;put(e+8,generation);put(e+12,generation);put(e+16,choices[slot].base);put(e+20,576);put(e+32,0x20020000);put(e+36,choices[slot].base+513);unsigned char seed[32]={0},secret[64];crypto_ed25519_key_pair(secret,policy.keys[0],seed);crypto_ed25519_sign(e+608,secret,e,608);rt_reset(f);for(unsigned i=0;i<684;++i)(void)rt_byte(f,packet[i]);}
-static void store(uint32_t a,const unsigned char*p,unsigned n){for(unsigned i=0;i<n;i+=4)m.mem[(a-0x08000000+i)/4]=get(p+i);}
-static void image_store(const struct rt_frame*f,unsigned slot){uint32_t base=choices[slot].base;store(base-32,f->bytes+12,608);store(base+2048,f->bytes+620,64);}
-static void init(const struct rt_frame*old,const unsigned char record[80]){memset(&m,0,sizeof m);m.cr=0x80000100u;for(unsigned i=0;i<262144;++i)m.mem[i]=UINT32_MAX;image_store(old,0);store(0x080C0000,record,80);}
-static enum fh_result drain(struct f4_writer*w){enum fh_result r=FH_PENDING;for(unsigned n=0;n<2300&&r==FH_PENDING&&!m.dead;++n){finish();if(!m.dead)r=f4_poll(w);}return r;}
-int main(void){policy.present=2;policy.floor[0]=policy.generation_floor=1;struct rt_frame before_frame,new_frame;make(&before_frame,0,1);make(&new_frame,1,2);struct bs_layouts layouts={0};layouts.core[0][0]=choices[0];layouts.core[0][1]=choices[1];struct f4_selection old={.sequence=1,.record=0},trial={.sequence=2,.record=0},got;C(rt_admit(&before_frame,&policy,&layouts,&old.image)&&rt_admit(&new_frame,&policy,&layouts,&trial.image));unsigned char record[80],newrecord[80];C(f4_record(&old,record)&&f4_record(&trial,newrecord));struct fb_image installed;
- for(unsigned cut=0;cut<=536;++cut){init(&before_frame,record);m.cut=cut;m.bits=16;struct f4_writer w={0};C(f4_install_begin(&w,io(),&old,&new_frame,&policy,choices)==FH_PENDING);C(f4_poll(&w)==FH_PENDING);enum fh_result z=drain(&w);C(!m.violations&&!memcmp((unsigned char*)m.mem+0xC0000,record,80));m.busy=0;C(f4_select(read_slot,&m,&policy,choices,&got)==1&&got.sequence==1);if(cut)C(m.dead);else C(z==FH_DONE&&f4_install_result(&w,read_slot,&m,&policy,choices,&installed)&&installed.generation==2&&m.step==536);}
- for(unsigned cut=0;cut<=21;++cut){init(&before_frame,record);image_store(&new_frame,1);m.cut=cut;m.bits=16;struct f4_writer w={0};C(f4_trial_begin(&w,io(),&old,&trial.image)==FH_PENDING);enum fh_result z=drain(&w);C(!m.violations);m.busy=0;C(f4_select(read_slot,&m,&policy,choices,&got)==1&&got.sequence==1);if(!cut)C(z==FH_DONE&&f4_trial_probe(read_slot,&m,&policy,choices,&old,&got)&&got.sequence==2);}
- for(unsigned cut=1;cut<=20;++cut)for(unsigned bits=16;bits<=32;bits+=16){init(&before_frame,record);image_store(&new_frame,1);m.cut=cut;m.bits=bits;struct f4_writer w={0};C(f4_commit_begin(&w,io(),&old,&trial,2,671377293u)==FH_PENDING);(void)drain(&w);C(m.dead&&!m.violations);m.busy=0;unsigned newvalid=!memcmp((unsigned char*)m.mem+0xE0000,newrecord,80);C(f4_select(read_slot,&m,&policy,choices,&got)==1&&got.sequence==(newvalid?2u:1u));}
- for(unsigned bits=0;bits<=32;++bits){init(&before_frame,record);image_store(&new_frame,1);m.cut=20;m.bits=bits;struct f4_writer w={0};C(f4_commit_begin(&w,io(),&old,&trial,2,671377293u)==FH_PENDING);(void)drain(&w);C(m.dead&&!m.violations);m.busy=0;unsigned newvalid=!memcmp((unsigned char*)m.mem+0xE0000,newrecord,80);C(f4_select(read_slot,&m,&policy,choices,&got)==1&&got.sequence==(newvalid?2u:1u));}
- const unsigned cuts[]={1,16384,32768};for(unsigned i=0;i<3;++i){init(&before_frame,record);image_store(&new_frame,1);m.erasecut=cuts[i];struct f4_writer w={0};C(f4_commit_begin(&w,io(),&old,&trial,2,671377293u)==FH_PENDING);(void)drain(&w);C(m.dead);m.busy=0;C(f4_select(read_slot,&m,&policy,choices,&got)==1&&got.sequence==1);}
- init(&before_frame,record);image_store(&new_frame,1);struct f4_writer w={0};C(f4_commit_begin(&w,io(),&old,&trial,1,671377293u)==FH_REJECT&&!m.busy);C(f4_commit_begin(&w,io(),&old,&trial,2,671377292u)==FH_REJECT&&!m.busy);C(f4_commit_begin(&w,io(),&old,&trial,2,671377293u)==FH_PENDING);C(drain(&w)==FH_DONE&&f4_select(read_slot,&m,&policy,choices,&got)==1&&got.sequence==2);
- init(&before_frame,record);struct rt_frame active;make(&active,0,2);w=(struct f4_writer){0};C(f4_install_begin(&w,io(),&old,&active,&policy,choices)==FH_REJECT&&!m.busy);
- init(&before_frame,record);m.corrupt=1;w=(struct f4_writer){0};C(f4_install_begin(&w,io(),&old,&new_frame,&policy,choices)==FH_PENDING);C(drain(&w)==FH_ERROR&&!m.violations);
- init(&before_frame,record);m.error=1;w=(struct f4_writer){0};C(f4_install_begin(&w,io(),&old,&new_frame,&policy,choices)==FH_PENDING);C(drain(&w)==FH_ERROR&&!m.violations);
- init(&before_frame,record);image_store(&new_frame,1);trial.sequence=1;C(f4_record(&trial,newrecord));store(0x080E0000,newrecord,80);struct f4_selection sentinel;memset(&sentinel,0xA5,sizeof sentinel);got=sentinel;C(f4_select(read_slot,&m,&policy,choices,&got)==-1&&!memcmp(&got,&sentinel,sizeof got));
- puts("F4_PASS:536inactive cuts,21attempt cuts,73journal tear schedules,3erase cuts,actual signed cold recovery,single-core health gate");return 0;}
+#define C(x)                                                   \
+    do                                                         \
+    {                                                          \
+        if (!(x))                                              \
+        {                                                      \
+            fprintf(stderr, "F4_CHECK:%d:%s\n", __LINE__, #x); \
+            return __LINE__;                                   \
+        }                                                      \
+    } while (0)
+
+struct f4_model
+{
+    uint32_t mem[262144], cr, sr, base, address, value, failure;
+    unsigned key, busy, erase, violations, step, cut, bits, dead, error,
+        erasecut, corrupt;
+};
+static struct f4_model m;
+static struct fb_policy policy;
+static struct fb_layout choices[2] = {
+    {0x08080200, 0x08082000, 0x20000000, 0x20020000},
+    {0x080A0200, 0x080A2000, 0x20000000, 0x20020000}};
+
+static uint32_t get(const unsigned char *p)
+{
+    return (uint32_t)p[0] | (uint32_t)p[1] << 8 | (uint32_t)p[2] << 16 |
+           (uint32_t)p[3] << 24;
+}
+
+static void put(unsigned char *p, uint32_t n)
+{
+    for (unsigned i = 0; i < 4; ++i)
+        p[i] = (unsigned char)(n >> (8 * i));
+}
+
+static uint32_t rd(void *c, uint32_t a)
+{
+    struct f4_model *s = c;
+    if (a == 0x40023C10)
+        return s->cr;
+    if (a == 0x40023C0C)
+        return s->sr;
+    if (a >= 0x08000000 && a < 0x08100000)
+    {
+        if (s->busy)
+            ++s->violations;
+        return s->mem[(a - 0x08000000) / 4];
+    }
+    ++s->violations;
+    return 0;
+}
+
+static int read_slot(void *c, uint32_t a, uint32_t *out)
+{
+    struct f4_model *s = c;
+    if (a == s->failure || (a & 3) || a < 0x08000000 || a >= 0x08100000)
+        return 0;
+    *out = rd(c, a);
+    return 1;
+}
+
+static void wr(void *c, uint32_t a, uint32_t n)
+{
+    struct f4_model *s = c;
+    if (s->dead)
+        return;
+    if (a == 0x40023C04)
+    {
+        if (!s->key && n == 0x45670123)
+            s->key = 1;
+        else if (s->key == 1 && n == 0xCDEF89AB)
+        {
+            s->cr &= ~0x80000000u;
+            s->key = 0;
+        }
+        else
+            ++s->violations;
+        return;
+    }
+    if (a == 0x40023C0C)
+    {
+        s->sr &= ~n;
+        return;
+    }
+    if (a == 0x40023C10)
+    {
+        if (s->busy)
+        {
+            ++s->violations;
+            return;
+        }
+        s->cr = n;
+        if (n & 0x10000u)
+        {
+            unsigned sector = (n >> 3) & 31;
+            if (!(n & 2) || sector < 7 || sector > 11 || (n & 0x300) != 0x200)
+            {
+                ++s->violations;
+                return;
+            }
+            s->base = 0x08060000 + (sector - 7) * 0x20000;
+            s->erase = s->busy = 1;
+            s->sr = 0x10000;
+        }
+        return;
+    }
+    if (a >= 0x08060000 && a < 0x08100000)
+    {
+        if (s->busy || !(s->cr & 1) || (s->cr & 0x300) != 0x200 || (a & 3))
+        {
+            ++s->violations;
+            return;
+        }
+        s->address = a;
+        s->value = n;
+        s->busy = 1;
+        s->sr = 0x10000;
+        return;
+    }
+    ++s->violations;
+}
+
+static void sync_io(void *c)
+{
+    (void)c;
+}
+
+static void fresh(void *c, uint32_t a, uint32_t n)
+{
+    struct f4_model *s = c;
+    if (s->busy || a < 0x08060000 || a + n > 0x08100000)
+        ++s->violations;
+    if (s->corrupt && s->step && a <= s->address && s->address < a + n)
+    {
+        s->mem[(s->address - 0x08000000) / 4] ^= 1;
+        s->corrupt = 0;
+    }
+}
+
+static struct fm_io io(void)
+{
+    return (struct fm_io){{&m, rd, wr, sync_io}, fresh};
+}
+
+static void finish(void)
+{
+    if (!m.busy || m.dead)
+        return;
+    if (!m.error)
+    {
+        if (m.erase)
+        {
+            unsigned off = (m.base - 0x08000000) / 4;
+            for (unsigned i = 0; i < 32768; ++i)
+            {
+                m.mem[off + i] = UINT32_MAX;
+                if (m.erasecut == i + 1)
+                {
+                    m.dead = 1;
+                    return;
+                }
+            }
+        }
+        else
+        {
+            uint32_t value = m.value;
+            if (++m.step == m.cut)
+            {
+                uint32_t mask = m.bits == 32 ? UINT32_MAX : (1u << m.bits) - 1;
+                value |= ~mask;
+            }
+            m.mem[(m.address - 0x08000000) / 4] &= value;
+            if (m.step == m.cut)
+            {
+                m.dead = 1;
+                return;
+            }
+        }
+    }
+    m.busy = m.erase = 0;
+    m.cr &= ~0x10000u;
+    m.sr = m.error ? 0x80 : 1;
+}
+
+static void make(struct rt_frame *f, unsigned slot, unsigned generation)
+{
+    unsigned char packet[684] = {0};
+    memcpy(packet, "B6UP", 4);
+    packet[4] = 1;
+    packet[6] = (unsigned char)slot;
+    packet[8] = 0x60;
+    packet[9] = 2;
+    unsigned char *e = packet + 12;
+    put(e, 0x31423646);
+    e[4] = 1;
+    put(e + 8, generation);
+    put(e + 12, generation);
+    put(e + 16, choices[slot].base);
+    put(e + 20, 576);
+    put(e + 32, 0x20020000);
+    put(e + 36, choices[slot].base + 513);
+    unsigned char seed[32] = {0}, secret[64];
+    crypto_ed25519_key_pair(secret, policy.keys[0], seed);
+    crypto_ed25519_sign(e + 608, secret, e, 608);
+    rt_reset(f);
+    for (unsigned i = 0; i < 684; ++i)
+        (void)rt_byte(f, packet[i]);
+}
+
+static void store(uint32_t a, const unsigned char *p, unsigned n)
+{
+    for (unsigned i = 0; i < n; i += 4)
+        m.mem[(a - 0x08000000 + i) / 4] = get(p + i);
+}
+
+static void image_store(const struct rt_frame *f, unsigned slot)
+{
+    uint32_t base = choices[slot].base;
+    store(base - 32, f->bytes + 12, 608);
+    store(base + 2048, f->bytes + 620, 64);
+}
+
+static void init(const struct rt_frame *old, const unsigned char record[80])
+{
+    memset(&m, 0, sizeof m);
+    m.cr = 0x80000100u;
+    for (unsigned i = 0; i < 262144; ++i)
+        m.mem[i] = UINT32_MAX;
+    image_store(old, 0);
+    store(0x080C0000, record, 80);
+}
+
+static enum fh_result drain(struct f4_writer *w)
+{
+    enum fh_result r = FH_PENDING;
+    for (unsigned n = 0; n < 2300 && r == FH_PENDING && !m.dead; ++n)
+    {
+        finish();
+        if (!m.dead)
+            r = f4_poll(w);
+    }
+    return r;
+}
+
+int main(void)
+{
+    policy.present = 2;
+    policy.floor[0] = policy.generation_floor = 1;
+    struct rt_frame before_frame, new_frame;
+    make(&before_frame, 0, 1);
+    make(&new_frame, 1, 2);
+    struct bs_layouts layouts = {0};
+    layouts.core[0][0] = choices[0];
+    layouts.core[0][1] = choices[1];
+    struct f4_selection old = {.sequence = 1, .record = 0},
+                        trial = {.sequence = 2, .record = 0}, got;
+    C(rt_admit(&before_frame, &policy, &layouts, &old.image) &&
+      rt_admit(&new_frame, &policy, &layouts, &trial.image));
+    unsigned char record[80], newrecord[80];
+    C(f4_record(&old, record) && f4_record(&trial, newrecord));
+    struct fb_image installed;
+    for (unsigned cut = 0; cut <= 536; ++cut)
+    {
+        init(&before_frame, record);
+        m.cut = cut;
+        m.bits = 16;
+        struct f4_writer w = {0};
+        C(f4_install_begin(&w, io(), &old, &new_frame, &policy, choices) ==
+          FH_PENDING);
+        C(f4_poll(&w) == FH_PENDING);
+        enum fh_result z = drain(&w);
+        C(!m.violations &&
+          !memcmp((unsigned char *)m.mem + 0xC0000, record, 80));
+        m.busy = 0;
+        C(f4_select(read_slot, &m, &policy, choices, &got) == 1 &&
+          got.sequence == 1);
+        if (cut)
+            C(m.dead);
+        else
+            C(z == FH_DONE &&
+              f4_install_result(&w, read_slot, &m, &policy, choices,
+                                &installed) &&
+              installed.generation == 2 && m.step == 536);
+    }
+    for (unsigned cut = 0; cut <= 21; ++cut)
+    {
+        init(&before_frame, record);
+        image_store(&new_frame, 1);
+        m.cut = cut;
+        m.bits = 16;
+        struct f4_writer w = {0};
+        C(f4_trial_begin(&w, io(), &old, &trial.image) == FH_PENDING);
+        enum fh_result z = drain(&w);
+        C(!m.violations);
+        m.busy = 0;
+        C(f4_select(read_slot, &m, &policy, choices, &got) == 1 &&
+          got.sequence == 1);
+        if (!cut)
+            C(z == FH_DONE &&
+              f4_trial_probe(read_slot, &m, &policy, choices, &old, &got) &&
+              got.sequence == 2);
+    }
+    for (unsigned cut = 1; cut <= 20; ++cut)
+        for (unsigned bits = 16; bits <= 32; bits += 16)
+        {
+            init(&before_frame, record);
+            image_store(&new_frame, 1);
+            m.cut = cut;
+            m.bits = bits;
+            struct f4_writer w = {0};
+            C(f4_commit_begin(&w, io(), &old, &trial, 2, 671377293u) ==
+              FH_PENDING);
+            (void)drain(&w);
+            C(m.dead && !m.violations);
+            m.busy = 0;
+            unsigned newvalid =
+                !memcmp((unsigned char *)m.mem + 0xE0000, newrecord, 80);
+            C(f4_select(read_slot, &m, &policy, choices, &got) == 1 &&
+              got.sequence == (newvalid ? 2u : 1u));
+        }
+    for (unsigned bits = 0; bits <= 32; ++bits)
+    {
+        init(&before_frame, record);
+        image_store(&new_frame, 1);
+        m.cut = 20;
+        m.bits = bits;
+        struct f4_writer w = {0};
+        C(f4_commit_begin(&w, io(), &old, &trial, 2, 671377293u) == FH_PENDING);
+        (void)drain(&w);
+        C(m.dead && !m.violations);
+        m.busy = 0;
+        unsigned newvalid =
+            !memcmp((unsigned char *)m.mem + 0xE0000, newrecord, 80);
+        C(f4_select(read_slot, &m, &policy, choices, &got) == 1 &&
+          got.sequence == (newvalid ? 2u : 1u));
+    }
+    const unsigned cuts[] = {1, 16384, 32768};
+    for (unsigned i = 0; i < 3; ++i)
+    {
+        init(&before_frame, record);
+        image_store(&new_frame, 1);
+        m.erasecut = cuts[i];
+        struct f4_writer w = {0};
+        C(f4_commit_begin(&w, io(), &old, &trial, 2, 671377293u) == FH_PENDING);
+        (void)drain(&w);
+        C(m.dead);
+        m.busy = 0;
+        C(f4_select(read_slot, &m, &policy, choices, &got) == 1 &&
+          got.sequence == 1);
+    }
+    init(&before_frame, record);
+    image_store(&new_frame, 1);
+    struct f4_writer w = {0};
+    C(f4_commit_begin(&w, io(), &old, &trial, 1, 671377293u) == FH_REJECT &&
+      !m.busy);
+    C(f4_commit_begin(&w, io(), &old, &trial, 2, 671377292u) == FH_REJECT &&
+      !m.busy);
+    C(f4_commit_begin(&w, io(), &old, &trial, 2, 671377293u) == FH_PENDING);
+    C(drain(&w) == FH_DONE &&
+      f4_select(read_slot, &m, &policy, choices, &got) == 1 &&
+      got.sequence == 2);
+    init(&before_frame, record);
+    struct rt_frame active;
+    make(&active, 0, 2);
+    w = (struct f4_writer){0};
+    C(f4_install_begin(&w, io(), &old, &active, &policy, choices) ==
+          FH_REJECT &&
+      !m.busy);
+    init(&before_frame, record);
+    m.corrupt = 1;
+    w = (struct f4_writer){0};
+    C(f4_install_begin(&w, io(), &old, &new_frame, &policy, choices) ==
+      FH_PENDING);
+    C(drain(&w) == FH_ERROR && !m.violations);
+    init(&before_frame, record);
+    m.error = 1;
+    w = (struct f4_writer){0};
+    C(f4_install_begin(&w, io(), &old, &new_frame, &policy, choices) ==
+      FH_PENDING);
+    C(drain(&w) == FH_ERROR && !m.violations);
+    init(&before_frame, record);
+    image_store(&new_frame, 1);
+    trial.sequence = 1;
+    C(f4_record(&trial, newrecord));
+    store(0x080E0000, newrecord, 80);
+    struct f4_selection sentinel;
+    memset(&sentinel, 0xA5, sizeof sentinel);
+    got = sentinel;
+    C(f4_select(read_slot, &m, &policy, choices, &got) == -1 &&
+      !memcmp(&got, &sentinel, sizeof got));
+    puts(
+        "F4_PASS:536inactive cuts,21attempt cuts,73journal tear schedules,3erase cuts,actual signed cold recovery,single-core health gate");
+    return 0;
+}

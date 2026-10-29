@@ -1,15 +1,242 @@
 #include "tree.h"
-static int at_bytescmp(const void*x,const void*y,size_t n){const unsigned char*a=x,*b=y;for(size_t i=0;i<n;++i)if(a[i]!=b[i])return a[i]<b[i]?-1:1;return 0;}
+
+static int at_bytescmp(const void *x, const void *y, size_t n)
+{
+    const unsigned char *a = x, *b = y;
+    for (size_t i = 0; i < n; ++i)
+        if (a[i] != b[i])
+            return a[i] < b[i] ? -1 : 1;
+    return 0;
+}
+
 #define memcmp at_bytescmp
-#define CHECK(x) do{if(!(x))return at_failure(#x,__LINE__);}while(0)
-static int certificate(struct at_pool*p,struct at_certificate*c){int h=-1;return at_certificate(p,c)==ALGO_OK&&at_check(c,1,&h)==ALGO_OK;}
-static int freelist(const struct at_pool*p){unsigned seen[64]={0};if(p->free_count>64||p->tree.count+p->free_count!=64)return 0;for(unsigned i=0;i<p->free_count;++i){unsigned slot=p->free_slots[i];if(slot>=64||seen[slot]||p->tree.nodes[slot].live)return 0;seen[slot]=1;}for(unsigned i=0;i<64;++i)if(seen[i]==(p->tree.nodes[i].live!=0))return 0;return 1;}
-static int rotations(void){const int cases[4][3]={{30,10,20},{10,30,20},{30,20,10},{10,20,30}};for(unsigned f=0;f<4;++f){struct at_pool p;at_init(&p);struct at_work w;struct at_certificate c;for(unsigned i=0;i<3;++i){CHECK(at_insert(&p,cases[f][i],0,&w)==ALGO_OK&&certificate(&p,&c));at_emit("insert",&c,&w);}CHECK(p.tree.nodes[p.tree.root].key==20&&p.tree.nodes[p.tree.root].height==2&&w.rotations==(f<2?2u:1u));}
- const int keys[14]={20,8,30,4,10,25,40,2,23,27,35,45,33,37};struct at_pool p;at_init(&p);struct at_work w;struct at_certificate c;for(unsigned i=0;i<14;++i)CHECK(at_insert(&p,keys[i],0,&w)==ALGO_OK);CHECK(certificate(&p,&c)&&p.tree.nodes[p.tree.root].key==20&&p.tree.nodes[p.tree.root].height==5);at_emit("before-delete",&c,&w);CHECK(at_delete(&p,10,0,&w)==ALGO_OK&&certificate(&p,&c));CHECK(w.repair_count==2&&w.repair_roots[0]!=w.repair_roots[1]&&w.rotations==2&&p.tree.nodes[p.tree.root].key==30&&p.tree.nodes[p.tree.root].height==4);at_emit("after-delete",&c,&w);return 0;}
-static int prior(void){struct cd_tree tree;cd_tree_init(&tree,1,0);struct at_certificate c;int h=-1,slot;int keys[14]={20,8,30,4,10,25,40,2,23,27,35,45,33,37};for(unsigned i=0;i<14;++i){CHECK(cd_tree_insert(&tree,keys[i],0,&slot)==CD_OK&&at_cd_certificate(&tree,&c)==ALGO_OK&&at_check(&c,1,&h)==ALGO_OK);}struct cd_tree saved=tree;CHECK(cd_tree_insert(&tree,20,0,&slot)==CD_DUPLICATE&&memcmp(&saved,&tree,sizeof tree)==0);unsigned before=tree.rotations;CHECK(cd_tree_delete(&tree,10)==CD_OK&&tree.rotations-before==2&&at_cd_certificate(&tree,&c)==ALGO_OK&&at_check(&c,1,&h)==ALGO_OK&&h==4);at_emit("actual-prior-CDTree",&c,NULL);return 0;}
-static int reject(void){struct at_pool p;at_init(&p);struct at_work w;for(int i=1;i<=3;++i)CHECK(at_insert(&p,i,0,&w)==ALGO_OK);struct at_pool before=p;CHECK(at_insert(&p,2,0,&w)==AT_DUPLICATE&&memcmp(&p,&before,sizeof p)==0);CHECK(algo_avl_insert(&p.tree,2)==ALGO_OK&&memcmp(&p,&before,sizeof p)==0);struct at_certificate c;CHECK(certificate(&p,&c));int h=77;struct at_certificate bad=c;bad.nodes[bad.root].height=99;CHECK(at_check(&bad,1,&h)==ALGO_BAD&&h==77);bad=c;bad.nodes[bad.root].left=bad.root;CHECK(at_check(&bad,1,&h)==ALGO_BAD);bad=c;bad.nodes[bad.root].right=bad.nodes[bad.root].left;CHECK(at_check(&bad,1,&h)==ALGO_BAD);bad=c;bad.nodes[0].parent=63;CHECK(at_check(&bad,1,&h)==ALGO_BAD);bad=c;bad.nodes[63]=(struct at_node){9,-1,-1,-1,1,1,0,1};++bad.count;CHECK(at_check(&bad,1,&h)==ALGO_BAD);bad=c;bad.nodes[bad.root].left=64;CHECK(at_check(&bad,1,&h)==ALGO_BAD);CHECK(at_delete(&p,99,0,&w)==ALGO_MISSING&&memcmp(&p,&before,sizeof p)==0);return 0;}
-static int policies(void){struct at_pool p;at_init(&p);struct at_work w;for(int i=1;i<=3;++i)CHECK(at_insert(&p,i,0,&w)==ALGO_OK);struct at_certificate c;CHECK(certificate(&p,&c));int h;CHECK(at_check(&c,2,&h)==ALGO_OK);c.nodes[c.root].red=1;CHECK(at_check(&c,1,&h)==ALGO_OK&&at_check(&c,2,&h)==ALGO_BAD);c.nodes[c.root].red=0;c.nodes[c.nodes[c.root].left].red=1;CHECK(at_check(&c,1,&h)==ALGO_OK&&at_check(&c,2,&h)==ALGO_BAD);
- struct at_certificate rb={.root=0,.capacity=64,.count=6};rb.nodes[0]=(struct at_node){4,1,2,-1,4,1,0,1};rb.nodes[1]=(struct at_node){2,-1,-1,0,1,1,0,1};rb.nodes[2]=(struct at_node){8,3,4,0,3,1,1,1};rb.nodes[3]=(struct at_node){6,-1,-1,2,1,1,0,1};rb.nodes[4]=(struct at_node){10,-1,5,2,2,1,0,1};rb.nodes[5]=(struct at_node){12,-1,-1,4,1,1,1,1};CHECK(at_check(&rb,2,&h)==ALGO_OK&&at_check(&rb,1,&h)==ALGO_BAD);rb.nodes[4].red=1;CHECK(at_check(&rb,2,&h)==ALGO_BAD);return 0;}
-static int costs(void){struct at_pool p;at_init(&p);struct at_work w;for(int i=1;i<=3;++i)CHECK(at_insert(&p,i,0,&w)==ALGO_OK);CHECK(at_contains(&p,3,0,&w)==1&&w.search_nodes==2&&w.key_predicates==3);p.tree=(algo_avl){.root=0,.count=3};p.tree.nodes[0]=(algo_node){1,-1,1,3,1};p.tree.nodes[1]=(algo_node){2,-1,2,2,1};p.tree.nodes[2]=(algo_node){3,-1,-1,1,1};CHECK(at_contains(&p,3,0,&w)==1&&w.search_nodes==3&&w.key_predicates==5);
- struct at_pool scan,free;at_init(&scan);at_init(&free);unsigned scan_checks=0,free_checks=0;for(unsigned i=0;i<64;++i){CHECK(at_insert(&scan,(int)i,0,&w)==ALGO_OK);scan_checks+=w.allocation_checks;CHECK(at_insert(&free,(int)i,1,&w)==ALGO_OK&&freelist(&free));free_checks+=w.allocation_checks;}CHECK(scan_checks==2080&&free_checks==64);CHECK(at_insert(&scan,64,0,&w)==ALGO_FULL&&w.allocation_checks==64);CHECK(at_insert(&free,64,1,&w)==ALGO_FULL&&w.allocation_checks==0);struct at_certificate a,b;for(unsigned k=0;k<32;++k){CHECK(at_delete(&scan,(int)(2*k),0,&w)==ALGO_OK&&at_delete(&free,(int)(2*k),1,&w)==ALGO_OK&&freelist(&free));CHECK(at_insert(&scan,(int)(100+k),0,&w)==ALGO_OK&&at_insert(&free,(int)(100+k),1,&w)==ALGO_OK&&freelist(&free));CHECK(certificate(&scan,&a)&&certificate(&free,&b));for(int key=0;key<132;++key)CHECK(algo_avl_contains(&scan.tree,key)==algo_avl_contains(&free.tree,key));}CHECK(free.free_count==0);struct at_pool saved=free;CHECK(at_insert(&free,999,0,&w)==ALGO_BAD&&memcmp(&saved,&free,sizeof free)==0);return 0;}
-int at_test(unsigned which){switch(which){case 0:return rotations();case 1:return prior();case 2:return reject();case 3:return policies();case 4:return costs();default:return 2;}}
+#define CHECK(x)                             \
+    do                                       \
+    {                                        \
+        if (!(x))                            \
+            return at_failure(#x, __LINE__); \
+    } while (0)
+
+static int certificate(struct at_pool *p, struct at_certificate *c)
+{
+    int h = -1;
+    return at_certificate(p, c) == ALGO_OK && at_check(c, 1, &h) == ALGO_OK;
+}
+
+static int freelist(const struct at_pool *p)
+{
+    unsigned seen[64] = {0};
+    if (p->free_count > 64 || p->tree.count + p->free_count != 64)
+        return 0;
+    for (unsigned i = 0; i < p->free_count; ++i)
+    {
+        unsigned slot = p->free_slots[i];
+        if (slot >= 64 || seen[slot] || p->tree.nodes[slot].live)
+            return 0;
+        seen[slot] = 1;
+    }
+    for (unsigned i = 0; i < 64; ++i)
+        if (seen[i] == (p->tree.nodes[i].live != 0))
+            return 0;
+    return 1;
+}
+
+static int rotations(void)
+{
+    const int cases[4][3] = {
+        {30, 10, 20}, {10, 30, 20}, {30, 20, 10}, {10, 20, 30}};
+    for (unsigned f = 0; f < 4; ++f)
+    {
+        struct at_pool p;
+        at_init(&p);
+        struct at_work w;
+        struct at_certificate c;
+        for (unsigned i = 0; i < 3; ++i)
+        {
+            CHECK(at_insert(&p, cases[f][i], 0, &w) == ALGO_OK &&
+                  certificate(&p, &c));
+            at_emit("insert", &c, &w);
+        }
+        CHECK(p.tree.nodes[p.tree.root].key == 20 &&
+              p.tree.nodes[p.tree.root].height == 2 &&
+              w.rotations == (f < 2 ? 2u : 1u));
+    }
+    const int keys[14] = {20, 8, 30, 4, 10, 25, 40, 2, 23, 27, 35, 45, 33, 37};
+    struct at_pool p;
+    at_init(&p);
+    struct at_work w;
+    struct at_certificate c;
+    for (unsigned i = 0; i < 14; ++i)
+        CHECK(at_insert(&p, keys[i], 0, &w) == ALGO_OK);
+    CHECK(certificate(&p, &c) && p.tree.nodes[p.tree.root].key == 20 &&
+          p.tree.nodes[p.tree.root].height == 5);
+    at_emit("before-delete", &c, &w);
+    CHECK(at_delete(&p, 10, 0, &w) == ALGO_OK && certificate(&p, &c));
+    CHECK(w.repair_count == 2 && w.repair_roots[0] != w.repair_roots[1] &&
+          w.rotations == 2 && p.tree.nodes[p.tree.root].key == 30 &&
+          p.tree.nodes[p.tree.root].height == 4);
+    at_emit("after-delete", &c, &w);
+    return 0;
+}
+
+static int prior(void)
+{
+    struct cd_tree tree;
+    cd_tree_init(&tree, 1, 0);
+    struct at_certificate c;
+    int h = -1, slot;
+    int keys[14] = {20, 8, 30, 4, 10, 25, 40, 2, 23, 27, 35, 45, 33, 37};
+    for (unsigned i = 0; i < 14; ++i)
+    {
+        CHECK(cd_tree_insert(&tree, keys[i], 0, &slot) == CD_OK &&
+              at_cd_certificate(&tree, &c) == ALGO_OK &&
+              at_check(&c, 1, &h) == ALGO_OK);
+    }
+    struct cd_tree saved = tree;
+    CHECK(cd_tree_insert(&tree, 20, 0, &slot) == CD_DUPLICATE &&
+          memcmp(&saved, &tree, sizeof tree) == 0);
+    unsigned before = tree.rotations;
+    CHECK(cd_tree_delete(&tree, 10) == CD_OK && tree.rotations - before == 2 &&
+          at_cd_certificate(&tree, &c) == ALGO_OK &&
+          at_check(&c, 1, &h) == ALGO_OK && h == 4);
+    at_emit("actual-prior-CDTree", &c, NULL);
+    return 0;
+}
+
+static int reject(void)
+{
+    struct at_pool p;
+    at_init(&p);
+    struct at_work w;
+    for (int i = 1; i <= 3; ++i)
+        CHECK(at_insert(&p, i, 0, &w) == ALGO_OK);
+    struct at_pool before = p;
+    CHECK(at_insert(&p, 2, 0, &w) == AT_DUPLICATE &&
+          memcmp(&p, &before, sizeof p) == 0);
+    CHECK(algo_avl_insert(&p.tree, 2) == ALGO_OK &&
+          memcmp(&p, &before, sizeof p) == 0);
+    struct at_certificate c;
+    CHECK(certificate(&p, &c));
+    int h = 77;
+    struct at_certificate bad = c;
+    bad.nodes[bad.root].height = 99;
+    CHECK(at_check(&bad, 1, &h) == ALGO_BAD && h == 77);
+    bad = c;
+    bad.nodes[bad.root].left = bad.root;
+    CHECK(at_check(&bad, 1, &h) == ALGO_BAD);
+    bad = c;
+    bad.nodes[bad.root].right = bad.nodes[bad.root].left;
+    CHECK(at_check(&bad, 1, &h) == ALGO_BAD);
+    bad = c;
+    bad.nodes[0].parent = 63;
+    CHECK(at_check(&bad, 1, &h) == ALGO_BAD);
+    bad = c;
+    bad.nodes[63] = (struct at_node){9, -1, -1, -1, 1, 1, 0, 1};
+    ++bad.count;
+    CHECK(at_check(&bad, 1, &h) == ALGO_BAD);
+    bad = c;
+    bad.nodes[bad.root].left = 64;
+    CHECK(at_check(&bad, 1, &h) == ALGO_BAD);
+    CHECK(at_delete(&p, 99, 0, &w) == ALGO_MISSING &&
+          memcmp(&p, &before, sizeof p) == 0);
+    return 0;
+}
+
+static int policies(void)
+{
+    struct at_pool p;
+    at_init(&p);
+    struct at_work w;
+    for (int i = 1; i <= 3; ++i)
+        CHECK(at_insert(&p, i, 0, &w) == ALGO_OK);
+    struct at_certificate c;
+    CHECK(certificate(&p, &c));
+    int h;
+    CHECK(at_check(&c, 2, &h) == ALGO_OK);
+    c.nodes[c.root].red = 1;
+    CHECK(at_check(&c, 1, &h) == ALGO_OK && at_check(&c, 2, &h) == ALGO_BAD);
+    c.nodes[c.root].red = 0;
+    c.nodes[c.nodes[c.root].left].red = 1;
+    CHECK(at_check(&c, 1, &h) == ALGO_OK && at_check(&c, 2, &h) == ALGO_BAD);
+    struct at_certificate rb = {.root = 0, .capacity = 64, .count = 6};
+    rb.nodes[0] = (struct at_node){4, 1, 2, -1, 4, 1, 0, 1};
+    rb.nodes[1] = (struct at_node){2, -1, -1, 0, 1, 1, 0, 1};
+    rb.nodes[2] = (struct at_node){8, 3, 4, 0, 3, 1, 1, 1};
+    rb.nodes[3] = (struct at_node){6, -1, -1, 2, 1, 1, 0, 1};
+    rb.nodes[4] = (struct at_node){10, -1, 5, 2, 2, 1, 0, 1};
+    rb.nodes[5] = (struct at_node){12, -1, -1, 4, 1, 1, 1, 1};
+    CHECK(at_check(&rb, 2, &h) == ALGO_OK && at_check(&rb, 1, &h) == ALGO_BAD);
+    rb.nodes[4].red = 1;
+    CHECK(at_check(&rb, 2, &h) == ALGO_BAD);
+    return 0;
+}
+
+static int costs(void)
+{
+    struct at_pool p;
+    at_init(&p);
+    struct at_work w;
+    for (int i = 1; i <= 3; ++i)
+        CHECK(at_insert(&p, i, 0, &w) == ALGO_OK);
+    CHECK(at_contains(&p, 3, 0, &w) == 1 && w.search_nodes == 2 &&
+          w.key_predicates == 3);
+    p.tree = (algo_avl){.root = 0, .count = 3};
+    p.tree.nodes[0] = (algo_node){1, -1, 1, 3, 1};
+    p.tree.nodes[1] = (algo_node){2, -1, 2, 2, 1};
+    p.tree.nodes[2] = (algo_node){3, -1, -1, 1, 1};
+    CHECK(at_contains(&p, 3, 0, &w) == 1 && w.search_nodes == 3 &&
+          w.key_predicates == 5);
+    struct at_pool scan, free;
+    at_init(&scan);
+    at_init(&free);
+    unsigned scan_checks = 0, free_checks = 0;
+    for (unsigned i = 0; i < 64; ++i)
+    {
+        CHECK(at_insert(&scan, (int)i, 0, &w) == ALGO_OK);
+        scan_checks += w.allocation_checks;
+        CHECK(at_insert(&free, (int)i, 1, &w) == ALGO_OK && freelist(&free));
+        free_checks += w.allocation_checks;
+    }
+    CHECK(scan_checks == 2080 && free_checks == 64);
+    CHECK(at_insert(&scan, 64, 0, &w) == ALGO_FULL &&
+          w.allocation_checks == 64);
+    CHECK(at_insert(&free, 64, 1, &w) == ALGO_FULL && w.allocation_checks == 0);
+    struct at_certificate a, b;
+    for (unsigned k = 0; k < 32; ++k)
+    {
+        CHECK(at_delete(&scan, (int)(2 * k), 0, &w) == ALGO_OK &&
+              at_delete(&free, (int)(2 * k), 1, &w) == ALGO_OK &&
+              freelist(&free));
+        CHECK(at_insert(&scan, (int)(100 + k), 0, &w) == ALGO_OK &&
+              at_insert(&free, (int)(100 + k), 1, &w) == ALGO_OK &&
+              freelist(&free));
+        CHECK(certificate(&scan, &a) && certificate(&free, &b));
+        for (int key = 0; key < 132; ++key)
+            CHECK(algo_avl_contains(&scan.tree, key) ==
+                  algo_avl_contains(&free.tree, key));
+    }
+    CHECK(free.free_count == 0);
+    struct at_pool saved = free;
+    CHECK(at_insert(&free, 999, 0, &w) == ALGO_BAD &&
+          memcmp(&saved, &free, sizeof free) == 0);
+    return 0;
+}
+
+int at_test(unsigned which)
+{
+    switch (which)
+    {
+        case 0:
+            return rotations();
+        case 1:
+            return prior();
+        case 2:
+            return reject();
+        case 3:
+            return policies();
+        case 4:
+            return costs();
+        default:
+            return 2;
+    }
+}

@@ -3,33 +3,338 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-static const char *test_name="arguments";
-#define CHECK(x) do{if(!(x)){fprintf(stderr,"DS_CHECK:%s:%d:%s\n",test_name,__LINE__,#x);exit(1);}}while(0)
-static struct ds_view second_field(const int *p){struct ds_int_receiver receiver={p};return DS_RECEIVER(&receiver);}
-static struct ds_int_receiver *count_receiver(struct ds_int_receiver *p,unsigned *calls){++*calls;return p;}
-static void nominal(void){int number=7,out=99;struct ds_int_receiver i={&number};const unsigned char bytes[3]={1,0,2};struct ds_bytes_receiver b={bytes,3};CHECK(ds_measure(DS_RECEIVER(&i),&out)==DS_OK&&out==7);CHECK(ds_measure(DS_RECEIVER(&b),&out)==DS_OK&&out==3);const struct ds_bytes_receiver *cb=&b;CHECK(ds_measure(DS_RECEIVER(cb),&out)==DS_OK&&out==3);b.bytes=NULL;out=99;CHECK(ds_measure(DS_RECEIVER(&b),&out)==DS_INVALID&&out==99);b.length=0;CHECK(ds_measure(DS_RECEIVER(&b),&out)==DS_OK&&out==0);struct {int first,second;} parent={1,17};struct ds_view view=second_field(&parent.second);CHECK(ds_measure(view,&out)==DS_OK&&out==17);parent.second=21;CHECK(ds_measure(view,&out)==DS_OK&&out==21);unsigned calls=0;CHECK(ds_measure(DS_RECEIVER(count_receiver(&i,&calls)),&out)==DS_OK&&calls==1);for(number=-8;number<=8;++number)CHECK(ds_measure(DS_RECEIVER(&i),&out)==DS_OK&&out==number);unsigned char span[16]={0};for(size_t n=0;n<=16;++n){struct ds_bytes_receiver receiver={span,n};CHECK(ds_measure(DS_RECEIVER(&receiver),&out)==DS_OK&&out==(int)n);}}
-struct ds_test_reader {size_t count;int status;unsigned calls;};
-static int read_part(void *ctx,unsigned char *p,size_t capacity,size_t *out){struct ds_test_reader *r=ctx;++r->calls;for(size_t i=0;i<r->count&&i<capacity;++i)p[i]=(unsigned char)(65+i);*out=r->count;return r->status;}
-static void progress(void){for(int status=0;status<=1;++status)for(size_t n=0;n<=16;++n){struct ds_test_reader r={n,status?DS_FAILED:DS_OK,0};unsigned char buffer[16];memset(buffer,99,sizeof buffer);struct ds_progress result=ds_read_progress((struct ds_reader){&r,read_part},buffer,16);CHECK(result.status==r.status&&result.count==n&&r.calls==1);for(size_t i=0;i<16;++i)CHECK(buffer[i]==(i<n?65+i:99));}struct ds_test_reader r={0,DS_EMPTY,0};CHECK(ds_read_progress((struct ds_reader){&r,read_part},NULL,0).status==DS_EMPTY&&r.calls==1);unsigned char b[4]={1,2,3,4};r.count=5;r.status=DS_OK;struct ds_progress p=ds_read_progress((struct ds_reader){&r,read_part},b,4);CHECK(p.status==DS_INVALID&&p.count==0&&b[0]==1&&b[3]==4);r.status=99;r.count=0;p=ds_read_progress((struct ds_reader){&r,read_part},b,4);CHECK(p.status==DS_INVALID&&!p.count&&b[0]==1);unsigned calls=r.calls;p=ds_read_progress((struct ds_reader){&r,read_part},NULL,1);CHECK(p.status==DS_INVALID&&!p.count&&r.calls==calls);r.count=1;r.status=DS_EMPTY;p=ds_read_progress((struct ds_reader){&r,read_part},b,4);CHECK(p.status==DS_INVALID&&!p.count&&b[0]==1);}
-struct ds_test_resource {unsigned live,drops,calls;int value;};
-static void release(void *p){struct ds_test_resource *r=p;CHECK(r->live);r->live=0;++r->drops;}
-static struct ds_owned_result body(struct ds_resource resource,int arg){struct ds_test_resource *r=resource.object;CHECK(r->live);++r->calls;if(arg==0)return (struct ds_owned_result){DS_FAILED,0,resource};int value=r->value;resource.drop(resource.object);return (struct ds_owned_result){arg==1?DS_OK:DS_RANGE,value,{0}};}
-static void owned_closure(void){
- const int32_t values[]={INT32_MAX,1};struct ds_borrow_closure borrow;int out=99;CHECK(ds_borrow_closure_init(&borrow,values,2,1)==DS_OK&&ds_borrow_closure_call(&borrow,0,&out)==DS_RANGE&&out==99&&!borrow.active&&ds_borrow_closure_call(&borrow,-1,&out)==DS_EMPTY);CHECK(ds_borrow_closure_init(&borrow,values,2,0)==DS_OK&&ds_borrow_closure_call(&borrow,-1,&out)==DS_OK&&out==INT32_MAX&&borrow.active);
- struct ds_test_resource r={1,0,0,17};struct ds_owned_closure c;CHECK(ds_owned_closure_init(&c,(struct ds_resource){&r,release})==DS_OK);struct ds_owned_result result={0};CHECK(ds_owned_closure_call(&c,NULL,1,&result)==DS_INVALID&&c.active&&r.live&&!r.calls);CHECK(ds_owned_closure_call(&c,body,0,&result)==DS_OK&&!c.active&&result.status==DS_FAILED&&result.retry.object==&r&&r.live&&r.calls==1&&!r.drops);ds_owned_closure_drop(&c);CHECK(r.live&&!r.drops);CHECK(ds_owned_closure_call(&c,body,1,&(struct ds_owned_result){0})==DS_EMPTY);CHECK(ds_owned_closure_init(&c,result.retry)==DS_OK);result.retry=(struct ds_resource){0};CHECK(ds_owned_closure_call(&c,body,1,&result)==DS_OK&&result.status==DS_OK&&result.value==17&&!result.retry.object&&!r.live&&r.drops==1&&r.calls==2);ds_owned_closure_drop(&c);CHECK(r.drops==1);
- r=(struct ds_test_resource){1,0,0,18};CHECK(ds_owned_closure_init(&c,(struct ds_resource){&r,release})==DS_OK);CHECK(ds_owned_closure_call(&c,body,2,&result)==DS_OK&&result.status==DS_RANGE&&!r.live&&r.drops==1);r=(struct ds_test_resource){1,0,0,19};CHECK(ds_owned_closure_init(&c,(struct ds_resource){&r,release})==DS_OK);ds_owned_closure_drop(&c);ds_owned_closure_drop(&c);CHECK(r.drops==1&&!r.calls);
+static const char *test_name = "arguments";
+#define CHECK(x)                                                             \
+    do                                                                       \
+    {                                                                        \
+        if (!(x))                                                            \
+        {                                                                    \
+            fprintf(stderr, "DS_CHECK:%s:%d:%s\n", test_name, __LINE__, #x); \
+            exit(1);                                                         \
+        }                                                                    \
+    } while (0)
+
+static struct ds_view second_field(const int *p)
+{
+    struct ds_int_receiver receiver = {p};
+    return DS_RECEIVER(&receiver);
 }
-struct resource_pool {struct ds_test_resource rows[8];unsigned attempts,fail_at,drops,log[8];};
-static int copy_resource(void *context,const void *source,void **out){struct resource_pool *p=context;const struct ds_test_resource *r=source;++p->attempts;if(p->fail_at&&p->attempts==p->fail_at)return DS_FAILED;for(unsigned i=0;i<8;++i)if(!p->rows[i].live){p->rows[i]=(struct ds_test_resource){1,0,0,r->value};*out=&p->rows[i];return DS_OK;}return DS_FULL;}
-static void drop_resource(void *context,void *resource){struct resource_pool *p=context;struct ds_test_resource *r=resource;CHECK(r->live&&p->drops<8);p->log[p->drops++]=(unsigned)r->value;release(r);}
-static unsigned live(const struct resource_pool *p){unsigned n=0;for(unsigned i=0;i<8;++i)n+=p->rows[i].live;return n;}
-static int thunk(const unsigned char *p,size_t n,int arg,int *out){if(!n||arg<0||arg>100)return DS_INVALID;*out=p[0]+arg;return DS_OK;}
-static void clone_case(unsigned cut,size_t n,int emit){struct resource_pool resources={0};resources.rows[0]=(struct ds_test_resource){1,0,0,7};resources.rows[1]=(struct ds_test_resource){1,0,0,8};resources.fail_at=cut<=2?cut:0;struct ow_allocator src_pool={0},dst_pool={0};dst_pool.fail_at=cut==3?1:0;struct ds_clone_ops ops={&resources,copy_resource,drop_resource};struct ds_clone_capture source,dest;ds_clone_capture_init(&source,ds_counted_bytes(&src_pool),ops);ds_clone_capture_init(&dest,ds_counted_bytes(&dst_pool),ops);unsigned char bytes[20];for(size_t i=0;i<20;++i)bytes[i]=(unsigned char)(i+5);CHECK(ds_clone_capture_adopt(&source,bytes,n,thunk,&resources.rows[0],&resources.rows[1])==DS_OK);int status=ds_clone_capture(&dest,&source);int failure=cut==1||cut==2||(cut==3&&n>16);CHECK(status==(failure?DS_FAILED:DS_OK));CHECK(source.erased.active&&source.parts[0]==&resources.rows[0]&&resources.rows[0].live&&resources.rows[1].live);int value=99;CHECK(ds_erased_call(&source.erased,3,&value)==DS_OK&&value==8);
- if(failure){CHECK(dest.ops.context==ops.context&&dest.ops.clone==ops.clone&&dest.ops.drop==ops.drop);CHECK(!dest.erased.active&&!dest.parts[0]&&!dest.parts[1]&&live(&resources)==2&&dst_pool.live==0);if(cut==2)CHECK(resources.drops==1&&resources.log[0]==7);if(cut==3)CHECK(resources.drops==2&&resources.log[0]==8&&resources.log[1]==7);}
- else{CHECK(dest.parts[0]!=source.parts[0]&&dest.parts[1]!=source.parts[1]&&live(&resources)==4);CHECK(ds_erased_call(&dest.erased,3,&value)==DS_OK&&value==8);}
- if(emit)printf("C %u %zu %d %u %u %u %zu\n",cut,n,status,resources.attempts,resources.drops,live(&resources),dst_pool.live);
- ds_clone_capture_drop(&dest);ds_clone_capture_drop(&dest);CHECK(live(&resources)==2);ds_clone_capture_drop(&source);CHECK(!live(&resources)&&!src_pool.live&&!dst_pool.live&&!src_pool.invalid_releases&&!dst_pool.invalid_releases);
+
+static struct ds_int_receiver *count_receiver(struct ds_int_receiver *p,
+                                              unsigned *calls)
+{
+    ++*calls;
+    return p;
 }
-static void clones(void){for(unsigned cut=0;cut<=3;++cut)for(size_t n=8;n<=20;n+=12)clone_case(cut,n,0);}
-static void oracle(void){for(unsigned cut=0;cut<=3;++cut)for(size_t n=8;n<=20;n+=12)clone_case(cut,n,1);for(int status=0;status<=1;++status)for(size_t n=0;n<=16;++n){struct ds_test_reader r={n,status?DS_FAILED:DS_OK,0};unsigned char b[16]={0};struct ds_progress p=ds_read_progress((struct ds_reader){&r,read_part},b,16);unsigned sum=0;for(size_t i=0;i<p.count;++i)sum+=b[i];printf("P %d %zu %d %zu %u %u\n",status,n,p.status,p.count,r.calls,sum);}}
-int main(int argc,char **argv){CHECK(argc==2);test_name=argv[1];if(!strcmp(argv[1],"nominal"))nominal();else if(!strcmp(argv[1],"progress"))progress();else if(!strcmp(argv[1],"owned_closure"))owned_closure();else if(!strcmp(argv[1],"clone_pair"))clones();else if(!strcmp(argv[1],"oracle"))oracle();else CHECK(0);return 0;}
+
+static void nominal(void)
+{
+    int number = 7, out = 99;
+    struct ds_int_receiver i = {&number};
+    const unsigned char bytes[3] = {1, 0, 2};
+    struct ds_bytes_receiver b = {bytes, 3};
+    CHECK(ds_measure(DS_RECEIVER(&i), &out) == DS_OK && out == 7);
+    CHECK(ds_measure(DS_RECEIVER(&b), &out) == DS_OK && out == 3);
+    const struct ds_bytes_receiver *cb = &b;
+    CHECK(ds_measure(DS_RECEIVER(cb), &out) == DS_OK && out == 3);
+    b.bytes = NULL;
+    out = 99;
+    CHECK(ds_measure(DS_RECEIVER(&b), &out) == DS_INVALID && out == 99);
+    b.length = 0;
+    CHECK(ds_measure(DS_RECEIVER(&b), &out) == DS_OK && out == 0);
+
+    struct
+    {
+        int first, second;
+    } parent = {1, 17};
+    struct ds_view view = second_field(&parent.second);
+    CHECK(ds_measure(view, &out) == DS_OK && out == 17);
+    parent.second = 21;
+    CHECK(ds_measure(view, &out) == DS_OK && out == 21);
+    unsigned calls = 0;
+    CHECK(ds_measure(DS_RECEIVER(count_receiver(&i, &calls)), &out) == DS_OK &&
+          calls == 1);
+    for (number = -8; number <= 8; ++number)
+        CHECK(ds_measure(DS_RECEIVER(&i), &out) == DS_OK && out == number);
+    unsigned char span[16] = {0};
+    for (size_t n = 0; n <= 16; ++n)
+    {
+        struct ds_bytes_receiver receiver = {span, n};
+        CHECK(ds_measure(DS_RECEIVER(&receiver), &out) == DS_OK &&
+              out == (int)n);
+    }
+}
+
+struct ds_test_reader
+{
+    size_t count;
+    int status;
+    unsigned calls;
+};
+
+static int read_part(void *ctx, unsigned char *p, size_t capacity, size_t *out)
+{
+    struct ds_test_reader *r = ctx;
+    ++r->calls;
+    for (size_t i = 0; i < r->count && i < capacity; ++i)
+        p[i] = (unsigned char)(65 + i);
+    *out = r->count;
+    return r->status;
+}
+
+static void progress(void)
+{
+    for (int status = 0; status <= 1; ++status)
+        for (size_t n = 0; n <= 16; ++n)
+        {
+            struct ds_test_reader r = {n, status ? DS_FAILED : DS_OK, 0};
+            unsigned char buffer[16];
+            memset(buffer, 99, sizeof buffer);
+            struct ds_progress result =
+                ds_read_progress((struct ds_reader){&r, read_part}, buffer, 16);
+            CHECK(result.status == r.status && result.count == n &&
+                  r.calls == 1);
+            for (size_t i = 0; i < 16; ++i)
+                CHECK(buffer[i] == (i < n ? 65 + i : 99));
+        }
+    struct ds_test_reader r = {0, DS_EMPTY, 0};
+    CHECK(ds_read_progress((struct ds_reader){&r, read_part}, NULL, 0).status ==
+              DS_EMPTY &&
+          r.calls == 1);
+    unsigned char b[4] = {1, 2, 3, 4};
+    r.count = 5;
+    r.status = DS_OK;
+    struct ds_progress p =
+        ds_read_progress((struct ds_reader){&r, read_part}, b, 4);
+    CHECK(p.status == DS_INVALID && p.count == 0 && b[0] == 1 && b[3] == 4);
+    r.status = 99;
+    r.count = 0;
+    p = ds_read_progress((struct ds_reader){&r, read_part}, b, 4);
+    CHECK(p.status == DS_INVALID && !p.count && b[0] == 1);
+    unsigned calls = r.calls;
+    p = ds_read_progress((struct ds_reader){&r, read_part}, NULL, 1);
+    CHECK(p.status == DS_INVALID && !p.count && r.calls == calls);
+    r.count = 1;
+    r.status = DS_EMPTY;
+    p = ds_read_progress((struct ds_reader){&r, read_part}, b, 4);
+    CHECK(p.status == DS_INVALID && !p.count && b[0] == 1);
+}
+
+struct ds_test_resource
+{
+    unsigned live, drops, calls;
+    int value;
+};
+
+static void release(void *p)
+{
+    struct ds_test_resource *r = p;
+    CHECK(r->live);
+    r->live = 0;
+    ++r->drops;
+}
+
+static struct ds_owned_result body(struct ds_resource resource, int arg)
+{
+    struct ds_test_resource *r = resource.object;
+    CHECK(r->live);
+    ++r->calls;
+    if (arg == 0)
+        return (struct ds_owned_result){DS_FAILED, 0, resource};
+    int value = r->value;
+    resource.drop(resource.object);
+    return (struct ds_owned_result){arg == 1 ? DS_OK : DS_RANGE, value, {0}};
+}
+
+static void owned_closure(void)
+{
+    const int32_t values[] = {INT32_MAX, 1};
+    struct ds_borrow_closure borrow;
+    int out = 99;
+    CHECK(ds_borrow_closure_init(&borrow, values, 2, 1) == DS_OK &&
+          ds_borrow_closure_call(&borrow, 0, &out) == DS_RANGE && out == 99 &&
+          !borrow.active &&
+          ds_borrow_closure_call(&borrow, -1, &out) == DS_EMPTY);
+    CHECK(ds_borrow_closure_init(&borrow, values, 2, 0) == DS_OK &&
+          ds_borrow_closure_call(&borrow, -1, &out) == DS_OK &&
+          out == INT32_MAX && borrow.active);
+    struct ds_test_resource r = {1, 0, 0, 17};
+    struct ds_owned_closure c;
+    CHECK(ds_owned_closure_init(&c, (struct ds_resource){&r, release}) ==
+          DS_OK);
+    struct ds_owned_result result = {0};
+    CHECK(ds_owned_closure_call(&c, NULL, 1, &result) == DS_INVALID &&
+          c.active && r.live && !r.calls);
+    CHECK(ds_owned_closure_call(&c, body, 0, &result) == DS_OK && !c.active &&
+          result.status == DS_FAILED && result.retry.object == &r && r.live &&
+          r.calls == 1 && !r.drops);
+    ds_owned_closure_drop(&c);
+    CHECK(r.live && !r.drops);
+    CHECK(ds_owned_closure_call(&c, body, 1, &(struct ds_owned_result){0}) ==
+          DS_EMPTY);
+    CHECK(ds_owned_closure_init(&c, result.retry) == DS_OK);
+    result.retry = (struct ds_resource){0};
+    CHECK(ds_owned_closure_call(&c, body, 1, &result) == DS_OK &&
+          result.status == DS_OK && result.value == 17 &&
+          !result.retry.object && !r.live && r.drops == 1 && r.calls == 2);
+    ds_owned_closure_drop(&c);
+    CHECK(r.drops == 1);
+    r = (struct ds_test_resource){1, 0, 0, 18};
+    CHECK(ds_owned_closure_init(&c, (struct ds_resource){&r, release}) ==
+          DS_OK);
+    CHECK(ds_owned_closure_call(&c, body, 2, &result) == DS_OK &&
+          result.status == DS_RANGE && !r.live && r.drops == 1);
+    r = (struct ds_test_resource){1, 0, 0, 19};
+    CHECK(ds_owned_closure_init(&c, (struct ds_resource){&r, release}) ==
+          DS_OK);
+    ds_owned_closure_drop(&c);
+    ds_owned_closure_drop(&c);
+    CHECK(r.drops == 1 && !r.calls);
+}
+
+struct resource_pool
+{
+    struct ds_test_resource rows[8];
+    unsigned attempts, fail_at, drops, log[8];
+};
+
+static int copy_resource(void *context, const void *source, void **out)
+{
+    struct resource_pool *p = context;
+    const struct ds_test_resource *r = source;
+    ++p->attempts;
+    if (p->fail_at && p->attempts == p->fail_at)
+        return DS_FAILED;
+    for (unsigned i = 0; i < 8; ++i)
+        if (!p->rows[i].live)
+        {
+            p->rows[i] = (struct ds_test_resource){1, 0, 0, r->value};
+            *out = &p->rows[i];
+            return DS_OK;
+        }
+    return DS_FULL;
+}
+
+static void drop_resource(void *context, void *resource)
+{
+    struct resource_pool *p = context;
+    struct ds_test_resource *r = resource;
+    CHECK(r->live && p->drops < 8);
+    p->log[p->drops++] = (unsigned)r->value;
+    release(r);
+}
+
+static unsigned live(const struct resource_pool *p)
+{
+    unsigned n = 0;
+    for (unsigned i = 0; i < 8; ++i)
+        n += p->rows[i].live;
+    return n;
+}
+
+static int thunk(const unsigned char *p, size_t n, int arg, int *out)
+{
+    if (!n || arg < 0 || arg > 100)
+        return DS_INVALID;
+    *out = p[0] + arg;
+    return DS_OK;
+}
+
+static void clone_case(unsigned cut, size_t n, int emit)
+{
+    struct resource_pool resources = {0};
+    resources.rows[0] = (struct ds_test_resource){1, 0, 0, 7};
+    resources.rows[1] = (struct ds_test_resource){1, 0, 0, 8};
+    resources.fail_at = cut <= 2 ? cut : 0;
+    struct ow_allocator src_pool = {0}, dst_pool = {0};
+    dst_pool.fail_at = cut == 3 ? 1 : 0;
+    struct ds_clone_ops ops = {&resources, copy_resource, drop_resource};
+    struct ds_clone_capture source, dest;
+    ds_clone_capture_init(&source, ds_counted_bytes(&src_pool), ops);
+    ds_clone_capture_init(&dest, ds_counted_bytes(&dst_pool), ops);
+    unsigned char bytes[20];
+    for (size_t i = 0; i < 20; ++i)
+        bytes[i] = (unsigned char)(i + 5);
+    CHECK(ds_clone_capture_adopt(&source, bytes, n, thunk, &resources.rows[0],
+                                 &resources.rows[1]) == DS_OK);
+    int status = ds_clone_capture(&dest, &source);
+    int failure = cut == 1 || cut == 2 || (cut == 3 && n > 16);
+    CHECK(status == (failure ? DS_FAILED : DS_OK));
+    CHECK(source.erased.active && source.parts[0] == &resources.rows[0] &&
+          resources.rows[0].live && resources.rows[1].live);
+    int value = 99;
+    CHECK(ds_erased_call(&source.erased, 3, &value) == DS_OK && value == 8);
+    if (failure)
+    {
+        CHECK(dest.ops.context == ops.context && dest.ops.clone == ops.clone &&
+              dest.ops.drop == ops.drop);
+        CHECK(!dest.erased.active && !dest.parts[0] && !dest.parts[1] &&
+              live(&resources) == 2 && dst_pool.live == 0);
+        if (cut == 2)
+            CHECK(resources.drops == 1 && resources.log[0] == 7);
+        if (cut == 3)
+            CHECK(resources.drops == 2 && resources.log[0] == 8 &&
+                  resources.log[1] == 7);
+    }
+    else
+    {
+        CHECK(dest.parts[0] != source.parts[0] &&
+              dest.parts[1] != source.parts[1] && live(&resources) == 4);
+        CHECK(ds_erased_call(&dest.erased, 3, &value) == DS_OK && value == 8);
+    }
+    if (emit)
+        printf("C %u %zu %d %u %u %u %zu\n", cut, n, status, resources.attempts,
+               resources.drops, live(&resources), dst_pool.live);
+    ds_clone_capture_drop(&dest);
+    ds_clone_capture_drop(&dest);
+    CHECK(live(&resources) == 2);
+    ds_clone_capture_drop(&source);
+    CHECK(!live(&resources) && !src_pool.live && !dst_pool.live &&
+          !src_pool.invalid_releases && !dst_pool.invalid_releases);
+}
+
+static void clones(void)
+{
+    for (unsigned cut = 0; cut <= 3; ++cut)
+        for (size_t n = 8; n <= 20; n += 12)
+            clone_case(cut, n, 0);
+}
+
+static void oracle(void)
+{
+    for (unsigned cut = 0; cut <= 3; ++cut)
+        for (size_t n = 8; n <= 20; n += 12)
+            clone_case(cut, n, 1);
+    for (int status = 0; status <= 1; ++status)
+        for (size_t n = 0; n <= 16; ++n)
+        {
+            struct ds_test_reader r = {n, status ? DS_FAILED : DS_OK, 0};
+            unsigned char b[16] = {0};
+            struct ds_progress p =
+                ds_read_progress((struct ds_reader){&r, read_part}, b, 16);
+            unsigned sum = 0;
+            for (size_t i = 0; i < p.count; ++i)
+                sum += b[i];
+            printf("P %d %zu %d %zu %u %u\n", status, n, p.status, p.count,
+                   r.calls, sum);
+        }
+}
+
+int main(int argc, char **argv)
+{
+    CHECK(argc == 2);
+    test_name = argv[1];
+    if (!strcmp(argv[1], "nominal"))
+        nominal();
+    else if (!strcmp(argv[1], "progress"))
+        progress();
+    else if (!strcmp(argv[1], "owned_closure"))
+        owned_closure();
+    else if (!strcmp(argv[1], "clone_pair"))
+        clones();
+    else if (!strcmp(argv[1], "oracle"))
+        oracle();
+    else
+        CHECK(0);
+    return 0;
+}

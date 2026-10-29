@@ -1,2 +1,6 @@
 int step(int);
-int main(void) { return step(4)!=19; }
+
+int main(void)
+{
+    return step(4) != 19;
+}

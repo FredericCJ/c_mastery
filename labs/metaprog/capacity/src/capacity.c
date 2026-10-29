@@ -11,6 +11,26 @@
 #define MPC_RING struct mp_mpc8
 #define MPC_CAPACITY 8
 #include "capacity_template.inc"
-int mpc_init(struct mpc_runtime*r,uint32_t*d,size_t n,size_t b){(void)r;(void)d;(void)n;(void)b;return MPC_INVALID;}
-int mpc_push(struct mpc_runtime*r,uint32_t v){(void)r;(void)v;return MPC_INVALID;}
-int mpc_pop(struct mpc_runtime*r,uint32_t*out){(void)r;(void)out;return MPC_INVALID;}
+
+int mpc_init(struct mpc_runtime *r, uint32_t *d, size_t n, size_t b)
+{
+    (void)r;
+    (void)d;
+    (void)n;
+    (void)b;
+    return MPC_INVALID;
+}
+
+int mpc_push(struct mpc_runtime *r, uint32_t v)
+{
+    (void)r;
+    (void)v;
+    return MPC_INVALID;
+}
+
+int mpc_pop(struct mpc_runtime *r, uint32_t *out)
+{
+    (void)r;
+    (void)out;
+    return MPC_INVALID;
+}

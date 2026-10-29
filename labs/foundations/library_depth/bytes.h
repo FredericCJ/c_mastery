@@ -3,13 +3,15 @@
 #include "foundation.h"
 #include <stddef.h>
 #include <stdint.h>
-enum lb_status {
-  LB_OK,
-  LB_ARGUMENT,
-  LB_RANGE,
-  LB_FULL,
-  LB_UNTERMINATED,
-  LB_NOT_IMPLEMENTED
+
+enum lb_status
+{
+    LB_OK,
+    LB_ARGUMENT,
+    LB_RANGE,
+    LB_FULL,
+    LB_UNTERMINATED,
+    LB_NOT_IMPLEMENTED
 };
 enum lb_status lb_move(unsigned char *, size_t, size_t, size_t, size_t);
 /* Different live arrays, disjoint extents proved by caller; no pointer

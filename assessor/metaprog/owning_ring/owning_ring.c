@@ -12,6 +12,7 @@
 #define MPO_ELEMENT struct mpo_words
 #define MPO_OPS struct mpo_words_ops
 #include "ring_template.inc"
-#if defined(MPO_PREFIX) || defined(MPO_RING) || defined(MPO_ELEMENT) || defined(MPO_OPS) || defined(MPO_JOIN) || defined(MPO_JOIN_INNER)
+#if defined(MPO_PREFIX) || defined(MPO_RING) || defined(MPO_ELEMENT) || \
+    defined(MPO_OPS) || defined(MPO_JOIN) || defined(MPO_JOIN_INNER)
 #error MPO_PARAMETER_LEAK
 #endif

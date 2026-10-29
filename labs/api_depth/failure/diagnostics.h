@@ -20,12 +20,13 @@ unsigned ae_diagnostic_events(unsigned category);
 #define AE_TRACE(value) ((void)0)
 #endif
 #if AE_INTEGRATOR
-#define AE_DIAG(severity, value)                                               \
-  do {                                                                         \
-    unsigned ae_level_ = (severity);                                           \
-    if (ae_level_ >= ae_threshold)                                             \
-      ae_integrator_emit(ae_level_, (value));                                  \
-  } while (0)
+#define AE_DIAG(severity, value)                    \
+    do                                              \
+    {                                               \
+        unsigned ae_level_ = (severity);            \
+        if (ae_level_ >= ae_threshold)              \
+            ae_integrator_emit(ae_level_, (value)); \
+    } while (0)
 #else
 #define AE_DIAG(severity, value) ((void)0)
 #endif

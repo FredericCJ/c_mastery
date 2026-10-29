@@ -1,1 +1,4 @@
-int mi_archive_value(void) { return 0; }
+int mi_archive_value(void)
+{
+    return 0;
+}

@@ -2,22 +2,49 @@
 #define HTTP_DEPTH_H
 #include <stddef.h>
 #include <stdint.h>
-enum { HD_OK=0, HD_INVALID=1, HD_FULL=2, HD_STALE=3, HD_UNIMPLEMENTED=99 };
+
+enum
+{
+    HD_OK = 0,
+    HD_INVALID = 1,
+    HD_FULL = 2,
+    HD_STALE = 3,
+    HD_UNIMPLEMENTED = 99
+};
+
 /* Decimal field-value after OWS trimming, independent of size_t width.
    Return 0 for valid <=cap, 400 for syntax/u32 overflow, 413 for >cap.
    Output unchanged unless zero. cap <=1024. No terminator required. */
-int hd_length(const unsigned char *,size_t,uint32_t,uint32_t *);
+int hd_length(const unsigned char *, size_t, uint32_t, uint32_t *);
 /* Proleptic Gregorian days since1970-01-01 and ordinary seconds within day.
    available=0 omits Date: length=0 and output unchanged. Otherwise exactly
    29 ASCII bytes + NUL, length29. No leap-second or clock-accuracy claim. */
-int hd_date(unsigned available,uint32_t days,uint32_t seconds,char *,size_t,size_t *);
-struct hd_handle { uint32_t index,generation; };
-struct hd_slot { int fd; uint32_t generation; unsigned live,retired,interest; };
-struct hd_pool { struct hd_slot slots[4]; };
+int hd_date(unsigned available, uint32_t days, uint32_t seconds, char *, size_t,
+            size_t *);
+
+struct hd_handle
+{
+    uint32_t index, generation;
+};
+
+struct hd_slot
+{
+    int fd;
+    uint32_t generation;
+    unsigned live, retired, interest;
+};
+
+struct hd_pool
+{
+    struct hd_slot slots[4];
+};
+
 /* Zero-initialize pool once before use. flags_ready declares adapter verified
    nonblocking+close-on-exec; caller retains descriptor ownership on failure. */
-int hd_admit(struct hd_pool *,int fd,unsigned flags_ready,struct hd_handle *);
-int hd_interest(struct hd_pool *,struct hd_handle,unsigned mask);
-int hd_event(const struct hd_pool *,struct hd_handle,int fd,unsigned ready,unsigned *dispatch);
-int hd_close(struct hd_pool *,struct hd_handle,int *fd_to_close);
+int hd_admit(struct hd_pool *, int fd, unsigned flags_ready,
+             struct hd_handle *);
+int hd_interest(struct hd_pool *, struct hd_handle, unsigned mask);
+int hd_event(const struct hd_pool *, struct hd_handle, int fd, unsigned ready,
+             unsigned *dispatch);
+int hd_close(struct hd_pool *, struct hd_handle, int *fd_to_close);
 #endif

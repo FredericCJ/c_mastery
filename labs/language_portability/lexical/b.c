@@ -1,1 +1,4 @@
-unsigned lp_b(void){return 11;}
+unsigned lp_b(void)
+{
+    return 11;
+}

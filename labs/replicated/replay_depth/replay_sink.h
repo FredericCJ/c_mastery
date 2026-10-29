@@ -6,5 +6,6 @@
 /* Separate exclusive durable RplLog, matching timeline UUID and schema.
    This persists effect intent once per exact prefix identity; it cannot
    atomically commit an unrelated physical display/audio effect. */
-int rpr_sink_apply(struct rpl_log *, struct rpr_effect, unsigned *newly_applied);
+int rpr_sink_apply(struct rpl_log *, struct rpr_effect,
+                   unsigned *newly_applied);
 #endif

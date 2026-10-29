@@ -1,8 +1,105 @@
 #include "test_support.h"
-struct dx_consumer {struct tw_queue *q;int out,result;tw_hook_fn hook;void *arg;};
-static void *dx_consume(void *p){struct dx_consumer *c=p;c->result=tw_pop(c->q,&c->out,NULL,c->hook,c->arg);return NULL;}
-struct dx_pause {pthread_barrier_t entered,release;};
-static void dx_pause(void *p){struct dx_pause *h=p;gate(&h->entered);gate(&h->release);}
-void test_three(void){struct tw_queue q;struct tw_init init;CHECK(tw_queue_init(&q,0,&init)==0);/* Three waiters share one bounded ownership queue. */
- CHECK(tw_push(&q,1,NULL)==0&&tw_push(&q,2,NULL)==0&&tw_push(&q,3,NULL)==0);int out=0;struct timespec past={0};CHECK(tw_push(&q,4,&past)==ETIMEDOUT);for(int i=1;i<=3;i++){CHECK(tw_pop(&q,&out,NULL,NULL,NULL)==0&&out==i);}struct dx_consumer c[3]={{.q=&q},{.q=&q},{.q=&q}};pthread_t t[3];for(unsigned i=0;i<3;i++)CHECK(pthread_create(&t[i],NULL,dx_consume,&c[i])==0);CHECK(tw_wait_entries(&q,3)==0&&tw_noise(&q)==0);CHECK(tw_wait_entries(&q,6)==0);for(int i=1;i<=3;i++)CHECK(tw_push(&q,i,NULL)==0);unsigned seen=0;for(unsigned i=0;i<3;i++){CHECK(pthread_join(t[i],NULL)==0&&c[i].result==0&&c[i].out>=1&&c[i].out<=3);seen|=1u<<(unsigned)c[i].out;}CHECK(seen==14);struct dx_pause h;CHECK(pthread_barrier_init(&h.entered,NULL,2)==0&&pthread_barrier_init(&h.release,NULL,2)==0);struct dx_consumer cancel={.q=&q,.out=77,.hook=dx_pause,.arg=&h};unsigned before=q.wait_entries;CHECK(pthread_create(&t[0],NULL,dx_consume,&cancel)==0);CHECK(tw_wait_entries(&q,before+1)==0&&tw_push(&q,41,NULL)==0);gate(&h.entered);CHECK(pthread_cancel(t[0])==0);gate(&h.release);void *result;CHECK(pthread_join(t[0],&result)==0);if(result==PTHREAD_CANCELED){CHECK(tw_pop(&q,&out,NULL,NULL,NULL)==0&&out==41);puts("DX:near-wake:cancel-delivered-item-still-queued");}else{CHECK(result==NULL&&cancel.result==0&&cancel.out==41);puts("DX:near-wake:transfer-completed-before-next-cancellation-point");}unsigned refs,active;size_t count;CHECK(tw_counts(&q,&refs,&active,&count)==0&&refs==1&&active==0&&count==0);CHECK(pthread_barrier_destroy(&h.entered)==0&&pthread_barrier_destroy(&h.release)==0);CHECK(tw_close(&q)==0&&tw_unref(&q)==0&&tw_retire(&q)==0);tw_root_destroy(&q);puts("DX:queue:capacity3-ownership:three-waiters-spurious:cancel-near-wake-ownership-checked");}
-int main(void){test_lifecycle();test_queue();test_wake();test_deadline();test_three();puts("DX_PASS:queue");return 0;}
+
+struct dx_consumer
+{
+    struct tw_queue *q;
+    int out, result;
+    tw_hook_fn hook;
+    void *arg;
+};
+
+static void *dx_consume(void *p)
+{
+    struct dx_consumer *c = p;
+    c->result = tw_pop(c->q, &c->out, NULL, c->hook, c->arg);
+    return NULL;
+}
+
+struct dx_pause
+{
+    pthread_barrier_t entered, release;
+};
+
+static void dx_pause(void *p)
+{
+    struct dx_pause *h = p;
+    gate(&h->entered);
+    gate(&h->release);
+}
+
+void test_three(void)
+{
+    struct tw_queue q;
+    struct tw_init init;
+    CHECK(tw_queue_init(&q, 0, &init) ==
+          0); /* Three waiters share one bounded ownership queue. */
+    CHECK(tw_push(&q, 1, NULL) == 0 && tw_push(&q, 2, NULL) == 0 &&
+          tw_push(&q, 3, NULL) == 0);
+    int out = 0;
+    struct timespec past = {0};
+    CHECK(tw_push(&q, 4, &past) == ETIMEDOUT);
+    for (int i = 1; i <= 3; i++)
+    {
+        CHECK(tw_pop(&q, &out, NULL, NULL, NULL) == 0 && out == i);
+    }
+    struct dx_consumer c[3] = {{.q = &q}, {.q = &q}, {.q = &q}};
+    pthread_t t[3];
+    for (unsigned i = 0; i < 3; i++)
+        CHECK(pthread_create(&t[i], NULL, dx_consume, &c[i]) == 0);
+    CHECK(tw_wait_entries(&q, 3) == 0 && tw_noise(&q) == 0);
+    CHECK(tw_wait_entries(&q, 6) == 0);
+    for (int i = 1; i <= 3; i++)
+        CHECK(tw_push(&q, i, NULL) == 0);
+    unsigned seen = 0;
+    for (unsigned i = 0; i < 3; i++)
+    {
+        CHECK(pthread_join(t[i], NULL) == 0 && c[i].result == 0 &&
+              c[i].out >= 1 && c[i].out <= 3);
+        seen |= 1u << (unsigned)c[i].out;
+    }
+    CHECK(seen == 14);
+    struct dx_pause h;
+    CHECK(pthread_barrier_init(&h.entered, NULL, 2) == 0 &&
+          pthread_barrier_init(&h.release, NULL, 2) == 0);
+    struct dx_consumer cancel = {
+        .q = &q, .out = 77, .hook = dx_pause, .arg = &h};
+    unsigned before = q.wait_entries;
+    CHECK(pthread_create(&t[0], NULL, dx_consume, &cancel) == 0);
+    CHECK(tw_wait_entries(&q, before + 1) == 0 && tw_push(&q, 41, NULL) == 0);
+    gate(&h.entered);
+    CHECK(pthread_cancel(t[0]) == 0);
+    gate(&h.release);
+    void *result;
+    CHECK(pthread_join(t[0], &result) == 0);
+    if (result == PTHREAD_CANCELED)
+    {
+        CHECK(tw_pop(&q, &out, NULL, NULL, NULL) == 0 && out == 41);
+        puts("DX:near-wake:cancel-delivered-item-still-queued");
+    }
+    else
+    {
+        CHECK(result == NULL && cancel.result == 0 && cancel.out == 41);
+        puts("DX:near-wake:transfer-completed-before-next-cancellation-point");
+    }
+    unsigned refs, active;
+    size_t count;
+    CHECK(tw_counts(&q, &refs, &active, &count) == 0 && refs == 1 &&
+          active == 0 && count == 0);
+    CHECK(pthread_barrier_destroy(&h.entered) == 0 &&
+          pthread_barrier_destroy(&h.release) == 0);
+    CHECK(tw_close(&q) == 0 && tw_unref(&q) == 0 && tw_retire(&q) == 0);
+    tw_root_destroy(&q);
+    puts(
+        "DX:queue:capacity3-ownership:three-waiters-spurious:cancel-near-wake-ownership-checked");
+}
+
+int main(void)
+{
+    test_lifecycle();
+    test_queue();
+    test_wake();
+    test_deadline();
+    test_three();
+    puts("DX_PASS:queue");
+    return 0;
+}

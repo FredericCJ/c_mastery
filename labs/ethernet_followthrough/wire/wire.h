@@ -1,28 +1,36 @@
 #ifndef EW_WIRE_H
 #define EW_WIRE_H
 #include "ethernet_depth.h"
-enum {
-  EW_OK,
-  EW_MORE,
-  EW_READY,
-  EW_FULL,
-  EW_INVALID,
-  EW_POISON,
-  EW_EOF,
-  EW_TRUNCATED,
-  EW_STUB = 99
+
+enum
+{
+    EW_OK,
+    EW_MORE,
+    EW_READY,
+    EW_FULL,
+    EW_INVALID,
+    EW_POISON,
+    EW_EOF,
+    EW_TRUNCATED,
+    EW_STUB = 99
 };
-struct ew_stream {
-  unsigned char data[256];
-  unsigned length, used, prefix, phase;
+
+struct ew_stream
+{
+    unsigned char data[256];
+    unsigned length, used, prefix, phase;
 };
+
 int ew_feed(struct ew_stream *, const unsigned char *, size_t, size_t *);
 int ew_take(struct ew_stream *, unsigned char *, size_t, size_t *);
 int ew_end(struct ew_stream *);
-struct ew_vlan {
-  struct ed_frame frame;
-  unsigned priority, vid;
+
+struct ew_vlan
+{
+    struct ed_frame frame;
+    unsigned priority, vid;
 };
+
 int ew_vlan_build(const unsigned char *, const unsigned char *, unsigned,
                   unsigned, unsigned, const unsigned char *, size_t,
                   unsigned char *, size_t, size_t *);

@@ -3,17 +3,27 @@
 #include "execution.h"
 #include "services.h"
 #include <pthread.h>
-enum { VA_READY = 64, VA_BUSY, VA_STATE, VA_UNIMPLEMENTED };
-struct vg_va {
-  pthread_mutex_t mutex;
-  pthread_t worker;
-  struct vg_vs *session;
-  struct vs_request request;
-  struct vg_vh host;
-  int32_t result;
-  int status;
-  unsigned initialized, active, done, cancelled, joined;
+
+enum
+{
+    VA_READY = 64,
+    VA_BUSY,
+    VA_STATE,
+    VA_UNIMPLEMENTED
 };
+
+struct vg_va
+{
+    pthread_mutex_t mutex;
+    pthread_t worker;
+    struct vg_vs *session;
+    struct vs_request request;
+    struct vg_vh host;
+    int32_t result;
+    int status;
+    unsigned initialized, active, done, cancelled, joined;
+};
+
 /* init requires uninitialized storage (never a live mutex); destroy before
  * reinit. One owner thread, stable address until destroy. submit borrows a
  * pending Vs and exclusively borrows h.database until poll has joined the

@@ -2,12 +2,15 @@
 #define ORX_FOREIGN_BACKEND_H
 #include <pthread.h>
 #include <stddef.h>
-struct orx_backend {
-  pthread_mutex_t lock;
-  pthread_cond_t changed;
-  const unsigned char *bytes;
-  size_t length;
-  unsigned ready, go, sum;
+
+struct orx_backend
+{
+    pthread_mutex_t lock;
+    pthread_cond_t changed;
+    const unsigned char *bytes;
+    size_t length;
+    unsigned ready, go, sum;
 };
+
 void *orx_backend_worker(void *context);
 #endif

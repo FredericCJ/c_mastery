@@ -3,24 +3,36 @@
 #include <pthread.h>
 #include <stddef.h>
 struct tl_pool;
-struct tl_stats { unsigned created, joined, completed, sum; int create_error; };
+
+struct tl_stats
+{
+    unsigned created, joined, completed, sum;
+    int create_error;
+};
+
 typedef int (*tl_join_fn)(pthread_t, void **, void *);
-struct tl_pool *tl_pool_start(unsigned workers, unsigned fail_ordinal, int fail_allocation, int *error);
+struct tl_pool *tl_pool_start(unsigned workers, unsigned fail_ordinal,
+                              int fail_allocation, int *error);
 int tl_pool_collect(struct tl_pool *, tl_join_fn, void *, struct tl_stats *);
 int tl_pool_dispose(struct tl_pool **);
-struct tl_monitor {
+
+struct tl_monitor
+{
     pthread_mutex_t mutex;
     pthread_cond_t changed;
     unsigned created, creator_waiting, release_worker, completed;
     unsigned live_refs, freed, sum;
 };
-struct tl_creator {
+
+struct tl_creator
+{
     struct tl_monitor *monitor;
     const unsigned char *input;
     size_t length;
     int wait_for_completion;
     int error;
 };
+
 int tl_monitor_init(struct tl_monitor *);
 int tl_monitor_destroy(struct tl_monitor *);
 void *tl_detached_creator(void *);

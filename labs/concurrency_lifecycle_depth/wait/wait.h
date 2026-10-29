@@ -2,31 +2,55 @@
 #define CMASTERY_GENERATIONAL_CMX_WAIT_H
 #include "cmx.h"
 
-enum { CW_SEMAPHORE, CW_MUTEX };
-enum { CW_NONE, CW_READY, CW_TIMEOUT, CW_CANCEL, CW_CLOSE };
-enum { CW_STALE = CMX_UNIMPLEMENTED + 1 };
-struct cw_object {
-  cmx_sem semaphore;
-  cmx_mutex mutex;
-  uint32_t generation;
-  unsigned kind, live;
-  uint64_t posts, acquired;
+enum
+{
+    CW_SEMAPHORE,
+    CW_MUTEX
 };
-struct cw_node {
-  uint32_t sequence, object_generation;
-  unsigned task_generation, object, linked, cause;
-  int result;
-  uint64_t terminals;
+
+enum
+{
+    CW_NONE,
+    CW_READY,
+    CW_TIMEOUT,
+    CW_CANCEL,
+    CW_CLOSE
 };
-struct cw_world {
-  cmx_kernel *kernel;
-  struct cw_object objects[2];
-  struct cw_node nodes[CMX_TASKS];
+
+enum
+{
+    CW_STALE = CMX_UNIMPLEMENTED + 1
 };
-struct cw_token {
-  struct cw_world *owner;
-  unsigned task, object, task_generation;
-  uint32_t object_generation, operation;
+
+struct cw_object
+{
+    cmx_sem semaphore;
+    cmx_mutex mutex;
+    uint32_t generation;
+    unsigned kind, live;
+    uint64_t posts, acquired;
+};
+
+struct cw_node
+{
+    uint32_t sequence, object_generation;
+    unsigned task_generation, object, linked, cause;
+    int result;
+    uint64_t terminals;
+};
+
+struct cw_world
+{
+    cmx_kernel *kernel;
+    struct cw_object objects[2];
+    struct cw_node nodes[CMX_TASKS];
+};
+
+struct cw_token
+{
+    struct cw_world *owner;
+    unsigned task, object, task_generation;
+    uint32_t object_generation, operation;
 };
 
 void cw_init(struct cw_world *, cmx_kernel *);

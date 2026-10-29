@@ -2,7 +2,13 @@
 #define CACHEABLE_BOOT_DEPTH_H
 #include <stdint.h>
 #include "selected_startup.h"
-struct cb_io { struct fh_io registers; void (*isb)(void *); };
+
+struct cb_io
+{
+    struct fh_io registers;
+    void (*isb)(void *);
+};
+
 /* Cold, exclusive, privileged, nonreentrant register callbacks. No rollback
  * after a hardware fault. g must be a nonzero trusted current boot generation. */
 int cb_boot(struct cb_io, uint32_t g);

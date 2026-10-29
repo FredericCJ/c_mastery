@@ -1,13 +1,15 @@
 #ifndef CMASTERY_REALTIME_PORT_H
 #define CMASTERY_REALTIME_PORT_H
 #include "server.h"
+
 /* Serialized, bounded single-core adapter. The caller owns the kernel and
  * controls every transition of the bound task. See CONTRACTS.md before use. */
-struct sr_port {
-  cmx_kernel *kernel;
-  struct ss_budget budget;
-  unsigned task, generation, bound, closed, sleeping;
-  uint32_t last, wait_sequence, wake, charged, throttles;
+struct sr_port
+{
+    cmx_kernel *kernel;
+    struct ss_budget budget;
+    unsigned task, generation, bound, closed, sleeping;
+    uint32_t last, wait_sequence, wake, charged, throttles;
 };
 enum cmx_result sr_init(struct sr_port *, cmx_kernel *, unsigned task,
                         uint32_t quota, uint32_t period);

@@ -19,23 +19,29 @@ ssize_t hs_local_exchange(const void *input, size_t length, void *output,
                           size_t capacity);
 int hs_reactor_sum(const int *fds, size_t count, unsigned *sum);
 int hs_pool_sum(const int *values, size_t count, size_t workers, long *sum);
-struct hs_queue {
-  pthread_mutex_t mutex;
-  pthread_cond_t readable, writable;
-  int data[4];
-  size_t head, count;
-  int closed;
+
+struct hs_queue
+{
+    pthread_mutex_t mutex;
+    pthread_cond_t readable, writable;
+    int data[4];
+    size_t head, count;
+    int closed;
 };
+
 int hs_queue_init(struct hs_queue *);
 int hs_queue_push(struct hs_queue *, int);
 /* 1 item; 0 closed and empty; -1 failure. */
 int hs_queue_pop(struct hs_queue *, int *);
 int hs_queue_close(struct hs_queue *);
 int hs_queue_destroy(struct hs_queue *);
-struct hs_clocks {
-  long long wall_ns, cpu_ns, resolution_ns;
-  unsigned long fd_soft;
+
+struct hs_clocks
+{
+    long long wall_ns, cpu_ns, resolution_ns;
+    unsigned long fd_soft;
 };
+
 int hs_observe_clocks(struct hs_clocks *);
 /* Change RLIMIT_FSIZE only in a child. Return 0 when actual writes stop at
  * limit. */

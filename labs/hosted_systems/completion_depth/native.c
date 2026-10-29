@@ -2,9 +2,11 @@
  * This compile-ready learner scaffold intentionally fails the public contract.
  */
 #include <stdio.h>
-int main(int argc, char **argv) {
-  (void)argc;
-  (void)argv;
-  fputs("COMPLETION-NATIVE-CHECK:learner implementation required\n", stderr);
-  return 1;
+
+int main(int argc, char **argv)
+{
+    (void)argc;
+    (void)argv;
+    fputs("COMPLETION-NATIVE-CHECK:learner implementation required\n", stderr);
+    return 1;
 }

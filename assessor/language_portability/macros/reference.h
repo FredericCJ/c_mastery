@@ -9,11 +9,11 @@
 #else
 #define LM_STRING(x) LM_STRING_RAW(x)
 #endif
-#define LM_CAT_RAW(a,b) a##b
+#define LM_CAT_RAW(a, b) a##b
 #if LM_MUTANT == 3
-#define LM_CAT(a,b) a##b
+#define LM_CAT(a, b) a##b
 #else
-#define LM_CAT(a,b) LM_CAT_RAW(a,b)
+#define LM_CAT(a, b) LM_CAT_RAW(a, b)
 #endif
 #define LM_ID(x) (x)
 #if LM_MUTANT == 1

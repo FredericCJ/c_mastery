@@ -3,11 +3,22 @@
 #include "foundation.h"
 #include <stddef.h>
 #include <stdint.h>
-struct lr_record {
-  double key;
-  unsigned identity;
+
+struct lr_record
+{
+    double key;
+    unsigned identity;
 };
-enum lr_status { LR_OK, LR_ARGUMENT, LR_RETRY, LR_SOURCE, LR_NOT_IMPLEMENTED };
+
+enum lr_status
+{
+    LR_OK,
+    LR_ARGUMENT,
+    LR_RETRY,
+    LR_SOURCE,
+    LR_NOT_IMPLEMENTED
+};
+
 int lr_compare_i32(const void *, const void *);
 int lr_compare_record(const void *, const void *);
 enum lr_status lr_sort(int32_t *, size_t, struct f_work *);

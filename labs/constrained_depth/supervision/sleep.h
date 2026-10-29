@@ -6,5 +6,6 @@
  * ISR-shared word read only while masked. Test hook may pend owned IRQs/SEV.
  * 0=one admitted idle attempt,1=invalid environment,2=unsolved. Recheck queued
  * afterwards; any return may be spurious and does not promise useful work. */
-unsigned cs_idle(unsigned event,volatile uint32_t *queued,void(*hook)(unsigned));
+unsigned cs_idle(unsigned event, volatile uint32_t *queued,
+                 void (*hook)(unsigned));
 #endif

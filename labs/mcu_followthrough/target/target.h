@@ -5,9 +5,13 @@
 #ifndef MF_FP
 #define MF_FP 0
 #endif
-struct mf_probe { uint32_t integer[8], high_fp[16], fpscr;
-                 uint32_t observed_integer[8], observed_fp[16], observed_fpscr;
-                 uint32_t rounded; };
+struct mf_probe
+{
+    uint32_t integer[8], high_fp[16], fpscr;
+    uint32_t observed_integer[8], observed_fp[16], observed_fpscr;
+    uint32_t rounded;
+};
+
 void mf_direct_switch(uint32_t **old_sp, uint32_t *new_sp);
 void mf_direct_probe(struct mf_probe *);
 void mf_direct_enter(void);

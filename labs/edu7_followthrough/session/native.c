@@ -1,3 +1,7 @@
 #include "session.h"
 #include <stdlib.h>
-int main(int n,char **v){return n==2?es_tests((unsigned)strtoul(v[1],0,10)):41;}
+
+int main(int n, char **v)
+{
+    return n == 2 ? es_tests((unsigned)strtoul(v[1], 0, 10)) : 41;
+}

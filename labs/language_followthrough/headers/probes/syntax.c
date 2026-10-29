@@ -1,1 +1,2 @@
-int hh_syntax( { return 0; }
+int hh_syntax( {
+    return 0; }

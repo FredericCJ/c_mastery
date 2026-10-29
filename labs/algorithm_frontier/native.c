@@ -1,7 +1,59 @@
 #include "frontier.h"
 #include <stdio.h>
 #include <string.h>
-int ag_failure(const char*s,unsigned line){fprintf(stderr,"AG_ASSERT:%u:%s\n",line,s);return 41;}
-static void step(char kind,const struct ag_step*s){printf("STEP %c %u %u %u %u",kind,s->selected,s->done,s->seen,s->count);for(unsigned i=0;i<8;++i)printf(" %llu",(unsigned long long)s->distance[i]);for(unsigned i=0;i<s->count;++i)printf(" %u %d",s->frontier[i],s->priority[i]);puts("");}
-void ag_emit(unsigned code,unsigned source,const struct ag_result*r,const struct ag_trace*t){printf("GRAPH %u %u %u %u\n",code,source,r->vertices,r->reachable);for(unsigned i=0;i<r->vertices;++i)printf("RESULT %u %u %u %u\n",i,r->distance[i],r->hops[i],r->previous[i]);for(unsigned i=0;i<t->bfs_count;++i)step('B',&t->bfs[i]);for(unsigned i=0;i<t->weighted_count;++i)step('W',&t->weighted[i]);for(unsigned i=0;i<t->relaxations;++i){struct ag_relax r=t->relaxation[i];printf("RELAX %u %u %u %llu %llu\n",r.edge,r.from,r.to,(unsigned long long)r.before,(unsigned long long)r.after);}printf("COUNTS %u %u %u %u %u %llu\nENDGRAPH\n",t->queue_pushes,t->queue_pops,t->heap_inserts,t->heap_changes,t->heap_takes,(unsigned long long)t->heap_comparisons);}
-int main(int argc,char**argv){const char*names[]={"fixture","boundaries","parallel","certificates","exhaustive"};if(argc!=2)return 2;for(unsigned i=0;i<5;++i)if(!strcmp(argv[1],names[i])){int r=ag_test(i);if(!r)printf("OBS %s\n",names[i]);return r;}return 2;}
+
+int ag_failure(const char *s, unsigned line)
+{
+    fprintf(stderr, "AG_ASSERT:%u:%s\n", line, s);
+    return 41;
+}
+
+static void step(char kind, const struct ag_step *s)
+{
+    printf("STEP %c %u %u %u %u", kind, s->selected, s->done, s->seen,
+           s->count);
+    for (unsigned i = 0; i < 8; ++i)
+        printf(" %llu", (unsigned long long)s->distance[i]);
+    for (unsigned i = 0; i < s->count; ++i)
+        printf(" %u %d", s->frontier[i], s->priority[i]);
+    puts("");
+}
+
+void ag_emit(unsigned code, unsigned source, const struct ag_result *r,
+             const struct ag_trace *t)
+{
+    printf("GRAPH %u %u %u %u\n", code, source, r->vertices, r->reachable);
+    for (unsigned i = 0; i < r->vertices; ++i)
+        printf("RESULT %u %u %u %u\n", i, r->distance[i], r->hops[i],
+               r->previous[i]);
+    for (unsigned i = 0; i < t->bfs_count; ++i)
+        step('B', &t->bfs[i]);
+    for (unsigned i = 0; i < t->weighted_count; ++i)
+        step('W', &t->weighted[i]);
+    for (unsigned i = 0; i < t->relaxations; ++i)
+    {
+        struct ag_relax r = t->relaxation[i];
+        printf("RELAX %u %u %u %llu %llu\n", r.edge, r.from, r.to,
+               (unsigned long long)r.before, (unsigned long long)r.after);
+    }
+    printf("COUNTS %u %u %u %u %u %llu\nENDGRAPH\n", t->queue_pushes,
+           t->queue_pops, t->heap_inserts, t->heap_changes, t->heap_takes,
+           (unsigned long long)t->heap_comparisons);
+}
+
+int main(int argc, char **argv)
+{
+    const char *names[] = {"fixture", "boundaries", "parallel", "certificates",
+                           "exhaustive"};
+    if (argc != 2)
+        return 2;
+    for (unsigned i = 0; i < 5; ++i)
+        if (!strcmp(argv[1], names[i]))
+        {
+            int r = ag_test(i);
+            if (!r)
+                printf("OBS %s\n", names[i]);
+            return r;
+        }
+    return 2;
+}

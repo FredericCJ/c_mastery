@@ -4,53 +4,80 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define CHECK(x) do { if (!(x)) { fprintf(stderr, "MF_CHECK:%d:%s\n", __LINE__, #x); exit(1); } } while (0)
+#define CHECK(x)                                               \
+    do                                                         \
+    {                                                          \
+        if (!(x))                                              \
+        {                                                      \
+            fprintf(stderr, "MF_CHECK:%d:%s\n", __LINE__, #x); \
+            exit(1);                                           \
+        }                                                      \
+    } while (0)
 
-struct mf_context { unsigned calls; int mode; };
-static int identity(struct ho_hoa *a, int32_t value, void *opaque, unsigned *out)
+struct mf_context
+{
+    unsigned calls;
+    int mode;
+};
+
+static int identity(struct ho_hoa *a, int32_t value, void *opaque,
+                    unsigned *out)
 {
     struct mf_context *c = opaque;
     ++c->calls;
     int status = ho_pure(a, value, out);
-    if (status != HO_OK) return status;
-    if (c->mode == 1) return HO_FAILED;
-    if (c->mode == 2) *out = 0;
+    if (status != HO_OK)
+        return status;
+    if (c->mode == 1)
+        return HO_FAILED;
+    if (c->mode == 2)
+        *out = 0;
     return HO_OK;
 }
 
 static int same_node(struct ho_node a, struct ho_node b)
 {
-    return a.kind == b.kind && a.value == b.value && a.left == b.left && a.right == b.right;
+    return a.kind == b.kind && a.value == b.value && a.left == b.left &&
+           a.right == b.right;
 }
 
 static void full(void)
 {
-    for (int value = -1; value <= 1; ++value) {
+    for (int value = -1; value <= 1; ++value)
+    {
         struct ho_hoa arena = {0};
         unsigned root;
         CHECK(ho_pure(&arena, value, &root) == HO_OK);
-        for (unsigned i = 0; i < 63; ++i) {
+        for (unsigned i = 0; i < 63; ++i)
+        {
             unsigned next;
             CHECK(ho_choose(&arena, root, root, &next) == HO_OK);
             root = next;
         }
         struct ho_summary summary = {91, 92, 93};
         int status = ho_summarize(&arena, root, &summary);
-        printf("summary %d %d %" PRIu64 " %" PRIu64 " %" PRId64 "\n",
-               value, status, summary.paths, summary.emissions, summary.sum);
-        if (value == 1) CHECK(status == HO_RANGE && summary.paths == 91 && summary.emissions == 92 && summary.sum == 93);
-        else CHECK(status == HO_OK && summary.paths == (UINT64_C(1) << 63) && summary.emissions == 0 && summary.sum == (value ? INT64_MIN : 0));
+        printf("summary %d %d %" PRIu64 " %" PRIu64 " %" PRId64 "\n", value,
+               status, summary.paths, summary.emissions, summary.sum);
+        if (value == 1)
+            CHECK(status == HO_RANGE && summary.paths == 91 &&
+                  summary.emissions == 92 && summary.sum == 93);
+        else
+            CHECK(status == HO_OK && summary.paths == (UINT64_C(1) << 63) &&
+                  summary.emissions == 0 &&
+                  summary.sum == (value ? INT64_MIN : 0));
         struct ho_hoa before = arena;
         struct mf_context context = {0, 0};
         unsigned output = 999;
         status = ho_bind(&arena, root, identity, &context, &output);
         CHECK(status == HO_FULL && output == 999 && arena.used == 64);
         CHECK(context.calls == 1 && arena.attempts == before.attempts + 1);
-        for (unsigned i = 1; i <= 64; ++i) CHECK(same_node(arena.nodes[i], before.nodes[i]));
+        for (unsigned i = 1; i <= 64; ++i)
+            CHECK(same_node(arena.nodes[i], before.nodes[i]));
         unsigned char choices[63] = {0};
         struct ho_result result;
         CHECK(ho_run(&arena, root, choices, 63, &result) == HO_OK);
-        CHECK(result.value == value && result.count == 0 && result.consumed == 63);
+        CHECK(result.value == value && result.count == 0 &&
+              result.consumed == 63);
         printf("full %d %d %u %u %zu %u\n", value, status, output, arena.used,
                arena.attempts - before.attempts, context.calls);
     }
@@ -58,7 +85,8 @@ static void full(void)
 
 static void failures(void)
 {
-    for (unsigned cut = 0; cut <= 6; ++cut) {
+    for (unsigned cut = 0; cut <= 6; ++cut)
+    {
         struct ho_hoa arena = {0};
         unsigned pure, choice, root;
         CHECK(ho_pure(&arena, 5, &pure) == HO_OK);
@@ -66,16 +94,23 @@ static void failures(void)
         CHECK(ho_emit(&arena, 7, choice, &root) == HO_OK);
         struct ho_hoa before = arena;
         struct mf_context context = {0, cut == 5 ? 1 : cut == 6 ? 2 : 0};
-        if (cut > 0 && cut < 5) arena.fail_at = arena.attempts + cut;
+        if (cut > 0 && cut < 5)
+            arena.fail_at = arena.attempts + cut;
         unsigned output = 777;
         int status = ho_bind(&arena, root, identity, &context, &output);
-        if (cut == 0) CHECK(status == HO_OK && output == 7 && arena.used == 7);
-        else CHECK(status == (cut == 6 ? HO_INVALID : HO_FAILED) && output == 777 && arena.used == 3);
-        for (unsigned i = 1; i <= 3; ++i) CHECK(same_node(arena.nodes[i], before.nodes[i]));
-        for (unsigned char answer = 0; answer <= 1; ++answer) {
+        if (cut == 0)
+            CHECK(status == HO_OK && output == 7 && arena.used == 7);
+        else
+            CHECK(status == (cut == 6 ? HO_INVALID : HO_FAILED) &&
+                  output == 777 && arena.used == 3);
+        for (unsigned i = 1; i <= 3; ++i)
+            CHECK(same_node(arena.nodes[i], before.nodes[i]));
+        for (unsigned char answer = 0; answer <= 1; ++answer)
+        {
             struct ho_result result;
             CHECK(ho_run(&arena, root, &answer, 1, &result) == HO_OK);
-            CHECK(result.value == 5 && result.count == 1 && result.trace[0] == 7 && result.consumed == 1);
+            CHECK(result.value == 5 && result.count == 1 &&
+                  result.trace[0] == 7 && result.consumed == 1);
         }
         printf("cut %u %d %u %u %zu %u\n", cut, status, output, arena.used,
                arena.attempts - before.attempts, context.calls);

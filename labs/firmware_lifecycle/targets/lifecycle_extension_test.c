@@ -1,16 +1,120 @@
 #include "lifecycle_extension.h"
 #include <stdio.h>
 #include <string.h>
-#define C(x) do{if(!(x)){fprintf(stderr,"B06_FW_CHECK:%d:%s\n",__LINE__,#x);return 1;}}while(0)
-struct verify_context {const unsigned char *image,*signature;size_t n,z;unsigned key,calls;int verdict;};
+#define C(x)                                                       \
+    do                                                             \
+    {                                                              \
+        if (!(x))                                                  \
+        {                                                          \
+            fprintf(stderr, "B06_FW_CHECK:%d:%s\n", __LINE__, #x); \
+            return 1;                                              \
+        }                                                          \
+    } while (0)
+
+struct verify_context
+{
+    const unsigned char *image, *signature;
+    size_t n, z;
+    unsigned key, calls;
+    int verdict;
+};
+
 /* This deliberately tests API binding only, and is not a signature algorithm. */
-static int verify(void *p,unsigned k,const unsigned char *b,size_t n,const unsigned char *s,size_t z){struct verify_context *c=p;c->calls++;return b==c->image&&n==c->n&&s==c->signature&&z==c->z&&k==c->key?c->verdict:0;}
-int main(void){unsigned char old[24],fresh[24],torn[24];unsigned pick=99,cases=0;C(lce_record(old,9,81)&&lce_record(fresh,10,100));
- /* Every completed four-byte unit, each byte subset of the next unit. */
- for(unsigned unit=0;unit<6;unit++)for(unsigned mask=0;mask<16;mask++){memset(torn,255,24);memcpy(torn,fresh,unit*4);for(unsigned b=0;b<4;b++)if(mask&(1u<<b))torn[unit*4+b]=fresh[unit*4+b];C(lce_choose(old,torn,&pick));C(pick==((unit==5&&mask==15)?1u:0u));cases++;}
- /* Every bit prefix of each program unit, including a torn multi-byte marker. */
- for(unsigned unit=0;unit<6;unit++)for(unsigned bits=0;bits<=32;bits++){memset(torn,255,24);memcpy(torn,fresh,unit*4);for(unsigned b=0;b<bits;b++)torn[unit*4+b/8]&=(unsigned char)(fresh[unit*4+b/8]|(unsigned char)~(1u<<(b%8)));C(lce_choose(old,torn,&pick));uint32_t seq=0,val=0;int valid=lce_valid(torn,&seq,&val);C(pick==(valid?1u:0u));C(!valid||(seq==10&&val==100));cases++;}
- C(lce_record(torn,9,82));pick=99;C(!lce_choose(old,torn,&pick)&&pick==99);uint32_t next=71;C(!lce_next(UINT32_MAX,UINT32_MAX,&next)&&next==71);C(lce_next(2,3,&next)&&next==3);C(!lce_next(3,3,&next));
- unsigned char image[]={5,0,0,0,1,42},sig[]={7};struct verify_context v={image,sig,sizeof image,sizeof sig,1,0,1};uint32_t version=99;C(lce_admit(image,sizeof image,sig,sizeof sig,6,0,5,verify,&v,&version)&&version==5&&v.calls==1);version=99;C(!lce_admit(image,sizeof image,sig,sizeof sig,6,2,5,verify,&v,&version)&&version==99&&v.calls==1);image[4]=2;v.key=2;C(lce_admit(image,sizeof image,sig,sizeof sig,6,2,5,verify,&v,&version));v.verdict=2;version=99;C(!lce_admit(image,sizeof image,sig,sizeof sig,6,2,5,verify,&v,&version)&&version==99);v.verdict=1;C(!lce_admit(image,sizeof image,sig,sizeof sig,6,2,6,verify,&v,&version));
- struct lce_joint joint={0,3,0,{0,0}};C(lce_joint_reset(&joint));C(lce_joint_ack(&joint,0,1,0)&&lce_joint_ack(&joint,1,1,1));C(!lce_joint_confirm(&joint));C(lce_joint_ack(&joint,1,1,0)&&lce_joint_confirm(&joint));C(lce_joint_reset(&joint)&&!lce_joint_confirm(&joint));C(!lce_joint_ack(&joint,0,1,0));C(lce_joint_ack(&joint,0,2,0)&&lce_joint_ack(&joint,1,2,0)&&lce_joint_confirm(&joint));C(lce_joint_reset(&joint));struct lce_joint saved=joint;C(!lce_joint_reset(&joint)&&!memcmp(&joint,&saved,sizeof joint));
- struct lce_fault fault={0};C(lce_fault_begin(&fault));C(!lce_fault_begin(&fault)&&fault.nested);C(lce_fault_commit(&fault,0x1234,7));struct lce_fault before=fault;C(!lce_fault_begin(&fault));C(!memcmp(fault.words,before.words,sizeof fault.words));C(!lce_fault_commit(&fault,0,0));printf("firmware cuts=%u policy/generation/nested-fault PASS\n",cases);return 0;}
+static int verify(void *p, unsigned k, const unsigned char *b, size_t n,
+                  const unsigned char *s, size_t z)
+{
+    struct verify_context *c = p;
+    c->calls++;
+    return b == c->image && n == c->n && s == c->signature && z == c->z &&
+                   k == c->key
+               ? c->verdict
+               : 0;
+}
+
+int main(void)
+{
+    unsigned char old[24], fresh[24], torn[24];
+    unsigned pick = 99, cases = 0;
+    C(lce_record(old, 9, 81) && lce_record(fresh, 10, 100));
+    /* Every completed four-byte unit, each byte subset of the next unit. */
+    for (unsigned unit = 0; unit < 6; unit++)
+        for (unsigned mask = 0; mask < 16; mask++)
+        {
+            memset(torn, 255, 24);
+            memcpy(torn, fresh, unit * 4);
+            for (unsigned b = 0; b < 4; b++)
+                if (mask & (1u << b))
+                    torn[unit * 4 + b] = fresh[unit * 4 + b];
+            C(lce_choose(old, torn, &pick));
+            C(pick == ((unit == 5 && mask == 15) ? 1u : 0u));
+            cases++;
+        }
+    /* Every bit prefix of each program unit, including a torn multi-byte marker. */
+    for (unsigned unit = 0; unit < 6; unit++)
+        for (unsigned bits = 0; bits <= 32; bits++)
+        {
+            memset(torn, 255, 24);
+            memcpy(torn, fresh, unit * 4);
+            for (unsigned b = 0; b < bits; b++)
+                torn[unit * 4 + b / 8] &=
+                    (unsigned char)(fresh[unit * 4 + b / 8] |
+                                    (unsigned char)~(1u << (b % 8)));
+            C(lce_choose(old, torn, &pick));
+            uint32_t seq = 0, val = 0;
+            int valid = lce_valid(torn, &seq, &val);
+            C(pick == (valid ? 1u : 0u));
+            C(!valid || (seq == 10 && val == 100));
+            cases++;
+        }
+    C(lce_record(torn, 9, 82));
+    pick = 99;
+    C(!lce_choose(old, torn, &pick) && pick == 99);
+    uint32_t next = 71;
+    C(!lce_next(UINT32_MAX, UINT32_MAX, &next) && next == 71);
+    C(lce_next(2, 3, &next) && next == 3);
+    C(!lce_next(3, 3, &next));
+    unsigned char image[] = {5, 0, 0, 0, 1, 42}, sig[] = {7};
+    struct verify_context v = {image, sig, sizeof image, sizeof sig, 1, 0, 1};
+    uint32_t version = 99;
+    C(lce_admit(image, sizeof image, sig, sizeof sig, 6, 0, 5, verify, &v,
+                &version) &&
+      version == 5 && v.calls == 1);
+    version = 99;
+    C(!lce_admit(image, sizeof image, sig, sizeof sig, 6, 2, 5, verify, &v,
+                 &version) &&
+      version == 99 && v.calls == 1);
+    image[4] = 2;
+    v.key = 2;
+    C(lce_admit(image, sizeof image, sig, sizeof sig, 6, 2, 5, verify, &v,
+                &version));
+    v.verdict = 2;
+    version = 99;
+    C(!lce_admit(image, sizeof image, sig, sizeof sig, 6, 2, 5, verify, &v,
+                 &version) &&
+      version == 99);
+    v.verdict = 1;
+    C(!lce_admit(image, sizeof image, sig, sizeof sig, 6, 2, 6, verify, &v,
+                 &version));
+    struct lce_joint joint = {0, 3, 0, {0, 0}};
+    C(lce_joint_reset(&joint));
+    C(lce_joint_ack(&joint, 0, 1, 0) && lce_joint_ack(&joint, 1, 1, 1));
+    C(!lce_joint_confirm(&joint));
+    C(lce_joint_ack(&joint, 1, 1, 0) && lce_joint_confirm(&joint));
+    C(lce_joint_reset(&joint) && !lce_joint_confirm(&joint));
+    C(!lce_joint_ack(&joint, 0, 1, 0));
+    C(lce_joint_ack(&joint, 0, 2, 0) && lce_joint_ack(&joint, 1, 2, 0) &&
+      lce_joint_confirm(&joint));
+    C(lce_joint_reset(&joint));
+    struct lce_joint saved = joint;
+    C(!lce_joint_reset(&joint) && !memcmp(&joint, &saved, sizeof joint));
+    struct lce_fault fault = {0};
+    C(lce_fault_begin(&fault));
+    C(!lce_fault_begin(&fault) && fault.nested);
+    C(lce_fault_commit(&fault, 0x1234, 7));
+    struct lce_fault before = fault;
+    C(!lce_fault_begin(&fault));
+    C(!memcmp(fault.words, before.words, sizeof fault.words));
+    C(!lce_fault_commit(&fault, 0, 0));
+    printf("firmware cuts=%u policy/generation/nested-fault PASS\n", cases);
+    return 0;
+}

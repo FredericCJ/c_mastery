@@ -1,13 +1,21 @@
 #ifndef CMASTERY_VM_SERVICES_H
 #define CMASTERY_VM_SERVICES_H
 #include "store.h"
-enum { VH_LEGACY4, VH_VERSIONED5 };
-struct vg_vh {
-  store *database;
-  uint32_t capabilities;
-  unsigned mode, allow_legacy;
-  uint64_t operation_id;
+
+enum
+{
+    VH_LEGACY4,
+    VH_VERSIONED5
 };
+
+struct vg_vh
+{
+    store *database;
+    uint32_t capabilities;
+    unsigned mode, allow_legacy;
+    uint64_t operation_id;
+};
+
 /* Existing CvmHost ABI. Service1 assignment,2 read,3 increment. This adapter
  * owns no storage; caller serializes it with exclusive store access and keeps
  * configuration stable during each call. The native caller supplies one

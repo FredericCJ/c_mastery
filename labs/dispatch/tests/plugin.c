@@ -5,17 +5,20 @@
 #ifndef PLUGIN_ABI
 #define PLUGIN_ABI 1
 #endif
-static int apply(int state, int amount, int *out) {
-  if (amount < 0 || amount > 100 || state < 0 || state > 1000)
-    return DS_RANGE;
-  *out = state + amount;
-  return DS_OK;
+static int apply(int state, int amount, int *out)
+{
+    if (amount < 0 || amount > 100 || state < 0 || state > 1000)
+        return DS_RANGE;
+    *out = state + amount;
+    return DS_OK;
 }
-static int migrate(unsigned previous, int state, int *out) {
-  if (previous > 2 || state < 0 || state > 500)
-    return DS_RANGE;
-  *out = PLUGIN_SCHEMA == 2 ? state * 2 : state;
-  return DS_OK;
+
+static int migrate(unsigned previous, int state, int *out)
+{
+    if (previous > 2 || state < 0 || state > 500)
+        return DS_RANGE;
+    *out = PLUGIN_SCHEMA == 2 ? state * 2 : state;
+    return DS_OK;
 }
-const struct ds_plugin dispatch_plugin = {PLUGIN_ABI, sizeof(struct ds_plugin), PLUGIN_SCHEMA,
-                                  apply, migrate};
+const struct ds_plugin dispatch_plugin = {PLUGIN_ABI, sizeof(struct ds_plugin),
+                                          PLUGIN_SCHEMA, apply, migrate};

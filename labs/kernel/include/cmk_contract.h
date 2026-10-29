@@ -6,23 +6,32 @@
 #define CMK_USER_LIMIT UINT64_C(0x40200000)
 #define CMK_MAX_SEGMENTS 8
 #define CMK_MAX_FRAMES 32768u
-struct cmk_segment {
-  uint64_t offset, address, filesz, memsz;
-  uint32_t flags;
+
+struct cmk_segment
+{
+    uint64_t offset, address, filesz, memsz;
+    uint32_t flags;
 };
-struct cmk_elf {
-  uint64_t entry;
-  unsigned count;
-  struct cmk_segment segments[CMK_MAX_SEGMENTS];
+
+struct cmk_elf
+{
+    uint64_t entry;
+    unsigned count;
+    struct cmk_segment segments[CMK_MAX_SEGMENTS];
 };
-struct cmk_boot {
-  uint32_t module_start, module_end;
-  const unsigned char *map;
-  uint32_t map_bytes, entry_size;
+
+struct cmk_boot
+{
+    uint32_t module_start, module_end;
+    const unsigned char *map;
+    uint32_t map_bytes, entry_size;
 };
-struct cmk_frames {
-  unsigned char state[CMK_MAX_FRAMES];
+
+struct cmk_frames
+{
+    unsigned char state[CMK_MAX_FRAMES];
 };
+
 int cmk_boot_parse(const void *, size_t, struct cmk_boot *);
 int cmk_elf_parse(const void *, size_t, struct cmk_elf *);
 int cmk_archive_find(const void *, size_t, const char *, const unsigned char **,

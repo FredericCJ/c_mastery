@@ -2,153 +2,175 @@
 #include <limits.h>
 #include <stdio.h>
 #include <string.h>
-#define CHECK(x)                                                               \
-  do {                                                                         \
-    if (!(x)) {                                                                \
-      fprintf(stderr, "CM_CHECK:%d:%s\n", __LINE__, #x);                       \
-      return 1;                                                                \
-    }                                                                          \
-  } while (0)
-struct cm_sink {
-  char text[1024];
-  size_t used, limit;
-  unsigned fail;
+#define CHECK(x)                                               \
+    do                                                         \
+    {                                                          \
+        if (!(x))                                              \
+        {                                                      \
+            fprintf(stderr, "CM_CHECK:%d:%s\n", __LINE__, #x); \
+            return 1;                                          \
+        }                                                      \
+    } while (0)
+
+struct cm_sink
+{
+    char text[1024];
+    size_t used, limit;
+    unsigned fail;
 };
-static int equal(const struct cm_model *a, const struct cm_model *b) {
-  if (a->revision != b->revision)
+
+static int equal(const struct cm_model *a, const struct cm_model *b)
+{
+    if (a->revision != b->revision)
+        return 0;
+    for (unsigned i = 0; i < CM_NODES; ++i)
+    {
+        const struct cm_node *x = &a->nodes[i], *y = &b->nodes[i];
+        if (x->kind != y->kind || x->a != y->a || x->b != y->b ||
+            x->w0 != y->w0 || x->w1 != y->w1 || x->bias != y->bias ||
+            x->value != y->value)
+            return 0;
+    }
+    return 1;
+}
+
+static size_t invalid_writer(void *context, const char *s, size_t n)
+{
+    (void)context;
+    (void)s;
+    return n + 1;
+}
+
+static size_t write_part(void *context, const char *s, size_t n)
+{
+    struct cm_sink *b = context;
+    if (b->fail)
+    {
+        --b->fail;
+        return 0;
+    }
+    if (n > b->limit)
+        n = b->limit;
+    if (n > sizeof b->text - b->used)
+        return 0;
+    memcpy(b->text + b->used, s, n);
+    b->used += n;
+    return n;
+}
+
+static int drain(struct cm_session *s, struct cm_sink *sink)
+{
+    for (unsigned i = 0; i < 128; ++i)
+    {
+        int rc = cm_drain(s, write_part, sink);
+        if (rc == CM_OK)
+            return 0;
+        if (rc != CM_PENDING && rc != CM_IO)
+            return 1;
+    }
+    return 1;
+}
+
+int main(void)
+{
+    struct cm_model m, n, before;
+    cm_init(&m);
+    cm_init(&n);
+    CHECK(cm_valid(&m) == CM_OK);
+    const char *line = "linear 2 0 3 1 -2 5\ninput 1 7\ninput 0 -3";
+    const char *csv = "L,2,0,3,1,-2,5\nI,1,7\nI,0,-3";
+    CHECK(cm_load(&m, (const unsigned char *)line, strlen(line), 0) == CM_OK);
+    CHECK(cm_load(&n, (const unsigned char *)csv, strlen(csv), 1) == CM_OK);
+    CHECK(equal(&m, &n));
+    int32_t out = 99;
+    CHECK(cm_get(&m, 2, &out) == CM_OK && out == -18);
+    CHECK(cm_eval(&m, (const unsigned char *)"$0^2+2^3^2", 10, &out) == CM_OK &&
+          out == 521);
+    memcpy(&before, &m, sizeof before);
+    struct cm_edit cycle = {0, CM_LINEAR, 2, 1, 1, 1, 0};
+    CHECK(cm_apply(&m, &cycle, 1) == CM_CYCLE &&
+          memcmp(&m, &before, sizeof m) == 0);
+    struct cm_edit missing = {3, CM_LINEAR, 0, 15, 1, 1, 0};
+    CHECK(cm_apply(&m, &missing, 1) == CM_MISSING &&
+          memcmp(&m, &before, sizeof m) == 0);
+    struct cm_edit huge = {0, CM_INPUT, 0, 0, 0, 0, INT32_MAX};
+    CHECK(cm_apply(&m, &huge, 1) == CM_RANGE &&
+          memcmp(&m, &before, sizeof m) == 0);
+    CHECK(cm_load(&m, (const unsigned char *)"I,0,2,extra", 11, 1) ==
+              CM_SYNTAX &&
+          memcmp(&m, &before, sizeof m) == 0);
+    CHECK(cm_load(&m, (const unsigned char *)"input 0 1\ninput 0 2", 19, 0) ==
+              CM_CONFLICT &&
+          memcmp(&m, &before, sizeof m) == 0);
+    out = 99;
+    CHECK(cm_get(&m, 15, &out) == CM_MISSING && out == 99);
+    CHECK(cm_eval(&m, (const unsigned char *)"$15", 3, &out) == CM_MISSING &&
+          out == 99);
+    struct cm_model minimum;
+    cm_init(&minimum);
+    struct cm_edit low = {0, CM_INPUT, 0, 0, 0, 0, INT32_MIN};
+    CHECK(cm_apply(&minimum, &low, 1) == CM_OK);
+    CHECK(cm_eval(&minimum, (const unsigned char *)"$0", 2, &out) == CM_OK &&
+          out == INT32_MIN);
+    out = 99;
+    CHECK(cm_eval(&minimum, (const unsigned char *)"-$0", 3, &out) ==
+              CM_RANGE &&
+          out == 99);
+    minimum.revision = UINT32_MAX;
+    memcpy(&before, &minimum, sizeof before);
+    CHECK(cm_apply(&minimum, &low, 1) == CM_RANGE &&
+          memcmp(&minimum, &before, sizeof before) == 0);
+    struct cm_session s;
+    cm_session_init(&s);
+    struct cm_sink sink = {{0}, 0, 1, 0};
+    size_t used = 99;
+    CHECK(cm_feed(&s, (const unsigned char *)"input 0 -3\nget 0\n", 17,
+                  &used) == CM_OK &&
+          used == 11);
+    CHECK(s.model.revision == 1);
+    CHECK(cm_drain(&s, invalid_writer, 0) == CM_INVALID && s.sent == 0 &&
+          s.reply_length == 3);
+    CHECK(cm_drain(&s, write_part, &sink) == CM_PENDING && sink.used == 1);
+    sink.fail = 1;
+    CHECK(cm_drain(&s, write_part, &sink) == CM_IO && sink.used == 1);
+    CHECK(cm_feed(&s, (const unsigned char *)"set 0 9\n", 8, &used) ==
+              CM_BUSY &&
+          used == 0);
+    CHECK(drain(&s, &sink) == 0 && sink.used == 3 &&
+          !memcmp(sink.text, "OK\n", 3) && s.model.revision == 1);
+    CHECK(cm_step(&s, (const unsigned char *)"eval $0^2", 9) == CM_OK);
+    CHECK(drain(&s, &sink) == 0);
+    CHECK(sink.used == 11 && !memcmp(sink.text + 3, "VALUE 9\n", 8));
+    CHECK(cm_step(&s, (const unsigned char *)"set 0 12", 8) == CM_OK);
+    CHECK(drain(&s, &sink) == 0 && s.model.revision == 2);
+    CHECK(cm_step(&s, (const unsigned char *)"set 1 99", 8) == CM_OK);
+    CHECK(drain(&s, &sink) == 0 && s.model.revision == 2);
+    CHECK(cm_step(&s, (const unsigned char *)"get 0 junk", 10) == CM_OK);
+    CHECK(drain(&s, &sink) == 0);
+    CHECK(cm_step(&s, (const unsigned char *)"input 0 1\ninput 1 2", 19) ==
+          CM_OK);
+    CHECK(s.reply_length == 6 && !memcmp(s.reply, "ERR 2\n", 6) &&
+          s.model.revision == 2);
+    CHECK(drain(&s, &sink) == 0);
+    CHECK(cm_feed(&s, (const unsigned char *)"get 0", 5, &used) == CM_PENDING &&
+          used == 5);
+    CHECK(cm_step(&s, (const unsigned char *)"exit", 4) == CM_BUSY &&
+          !s.closed);
+    CHECK(cm_finish(&s) == CM_OK && s.closed);
+    CHECK(drain(&s, &sink) == 0);
+    CHECK(cm_feed(&s, (const unsigned char *)"x", 1, &used) == CM_CLOSED &&
+          used == 0);
+    struct cm_session longline;
+    cm_session_init(&longline);
+    unsigned char longtext[258];
+    memset(longtext, 'x', 257);
+    longtext[257] = '\n';
+    CHECK(cm_feed(&longline, longtext, sizeof longtext, &used) == CM_OK &&
+          used == 258);
+    CHECK(longline.reply_length == 6 && !memcmp(longline.reply, "ERR 3\n", 6));
+    CHECK(drain(&longline, &sink) == 0);
+    CHECK(cm_step(&longline, (const unsigned char *)"exit", 4) == CM_OK);
+    CHECK(drain(&longline, &sink) == 0 && longline.closed);
+    puts("CM_PASS domain/frontends/rollback/provider/repl/partial-output");
     return 0;
-  for (unsigned i = 0; i < CM_NODES; ++i) {
-    const struct cm_node *x = &a->nodes[i], *y = &b->nodes[i];
-    if (x->kind != y->kind || x->a != y->a || x->b != y->b || x->w0 != y->w0 ||
-        x->w1 != y->w1 || x->bias != y->bias || x->value != y->value)
-      return 0;
-  }
-  return 1;
-}
-static size_t invalid_writer(void *context, const char *s, size_t n) {
-  (void)context;
-  (void)s;
-  return n + 1;
-}
-static size_t write_part(void *context, const char *s, size_t n) {
-  struct cm_sink *b = context;
-  if (b->fail) {
-    --b->fail;
-    return 0;
-  }
-  if (n > b->limit)
-    n = b->limit;
-  if (n > sizeof b->text - b->used)
-    return 0;
-  memcpy(b->text + b->used, s, n);
-  b->used += n;
-  return n;
-}
-static int drain(struct cm_session *s, struct cm_sink *sink) {
-  for (unsigned i = 0; i < 128; ++i) {
-    int rc = cm_drain(s, write_part, sink);
-    if (rc == CM_OK)
-      return 0;
-    if (rc != CM_PENDING && rc != CM_IO)
-      return 1;
-  }
-  return 1;
-}
-int main(void) {
-  struct cm_model m, n, before;
-  cm_init(&m);
-  cm_init(&n);
-  CHECK(cm_valid(&m) == CM_OK);
-  const char *line = "linear 2 0 3 1 -2 5\ninput 1 7\ninput 0 -3";
-  const char *csv = "L,2,0,3,1,-2,5\nI,1,7\nI,0,-3";
-  CHECK(cm_load(&m, (const unsigned char *)line, strlen(line), 0) == CM_OK);
-  CHECK(cm_load(&n, (const unsigned char *)csv, strlen(csv), 1) == CM_OK);
-  CHECK(equal(&m, &n));
-  int32_t out = 99;
-  CHECK(cm_get(&m, 2, &out) == CM_OK && out == -18);
-  CHECK(cm_eval(&m, (const unsigned char *)"$0^2+2^3^2", 10, &out) == CM_OK &&
-        out == 521);
-  memcpy(&before, &m, sizeof before);
-  struct cm_edit cycle = {0, CM_LINEAR, 2, 1, 1, 1, 0};
-  CHECK(cm_apply(&m, &cycle, 1) == CM_CYCLE &&
-        memcmp(&m, &before, sizeof m) == 0);
-  struct cm_edit missing = {3, CM_LINEAR, 0, 15, 1, 1, 0};
-  CHECK(cm_apply(&m, &missing, 1) == CM_MISSING &&
-        memcmp(&m, &before, sizeof m) == 0);
-  struct cm_edit huge = {0, CM_INPUT, 0, 0, 0, 0, INT32_MAX};
-  CHECK(cm_apply(&m, &huge, 1) == CM_RANGE &&
-        memcmp(&m, &before, sizeof m) == 0);
-  CHECK(cm_load(&m, (const unsigned char *)"I,0,2,extra", 11, 1) == CM_SYNTAX &&
-        memcmp(&m, &before, sizeof m) == 0);
-  CHECK(cm_load(&m, (const unsigned char *)"input 0 1\ninput 0 2", 19, 0) ==
-            CM_CONFLICT &&
-        memcmp(&m, &before, sizeof m) == 0);
-  out = 99;
-  CHECK(cm_get(&m, 15, &out) == CM_MISSING && out == 99);
-  CHECK(cm_eval(&m, (const unsigned char *)"$15", 3, &out) == CM_MISSING &&
-        out == 99);
-  struct cm_model minimum;
-  cm_init(&minimum);
-  struct cm_edit low = {0, CM_INPUT, 0, 0, 0, 0, INT32_MIN};
-  CHECK(cm_apply(&minimum, &low, 1) == CM_OK);
-  CHECK(cm_eval(&minimum, (const unsigned char *)"$0", 2, &out) == CM_OK &&
-        out == INT32_MIN);
-  out = 99;
-  CHECK(cm_eval(&minimum, (const unsigned char *)"-$0", 3, &out) == CM_RANGE &&
-        out == 99);
-  minimum.revision = UINT32_MAX;
-  memcpy(&before, &minimum, sizeof before);
-  CHECK(cm_apply(&minimum, &low, 1) == CM_RANGE &&
-        memcmp(&minimum, &before, sizeof before) == 0);
-  struct cm_session s;
-  cm_session_init(&s);
-  struct cm_sink sink = {{0}, 0, 1, 0};
-  size_t used = 99;
-  CHECK(cm_feed(&s, (const unsigned char *)"input 0 -3\nget 0\n", 17, &used) ==
-            CM_OK &&
-        used == 11);
-  CHECK(s.model.revision == 1);
-  CHECK(cm_drain(&s, invalid_writer, 0) == CM_INVALID && s.sent == 0 &&
-        s.reply_length == 3);
-  CHECK(cm_drain(&s, write_part, &sink) == CM_PENDING && sink.used == 1);
-  sink.fail = 1;
-  CHECK(cm_drain(&s, write_part, &sink) == CM_IO && sink.used == 1);
-  CHECK(cm_feed(&s, (const unsigned char *)"set 0 9\n", 8, &used) == CM_BUSY &&
-        used == 0);
-  CHECK(drain(&s, &sink) == 0 && sink.used == 3 &&
-        !memcmp(sink.text, "OK\n", 3) && s.model.revision == 1);
-  CHECK(cm_step(&s, (const unsigned char *)"eval $0^2", 9) == CM_OK);
-  CHECK(drain(&s, &sink) == 0);
-  CHECK(sink.used == 11 && !memcmp(sink.text + 3, "VALUE 9\n", 8));
-  CHECK(cm_step(&s, (const unsigned char *)"set 0 12", 8) == CM_OK);
-  CHECK(drain(&s, &sink) == 0 && s.model.revision == 2);
-  CHECK(cm_step(&s, (const unsigned char *)"set 1 99", 8) == CM_OK);
-  CHECK(drain(&s, &sink) == 0 && s.model.revision == 2);
-  CHECK(cm_step(&s, (const unsigned char *)"get 0 junk", 10) == CM_OK);
-  CHECK(drain(&s, &sink) == 0);
-  CHECK(cm_step(&s, (const unsigned char *)"input 0 1\ninput 1 2", 19) ==
-        CM_OK);
-  CHECK(s.reply_length == 6 && !memcmp(s.reply, "ERR 2\n", 6) &&
-        s.model.revision == 2);
-  CHECK(drain(&s, &sink) == 0);
-  CHECK(cm_feed(&s, (const unsigned char *)"get 0", 5, &used) == CM_PENDING &&
-        used == 5);
-  CHECK(cm_step(&s, (const unsigned char *)"exit", 4) == CM_BUSY && !s.closed);
-  CHECK(cm_finish(&s) == CM_OK && s.closed);
-  CHECK(drain(&s, &sink) == 0);
-  CHECK(cm_feed(&s, (const unsigned char *)"x", 1, &used) == CM_CLOSED &&
-        used == 0);
-  struct cm_session longline;
-  cm_session_init(&longline);
-  unsigned char longtext[258];
-  memset(longtext, 'x', 257);
-  longtext[257] = '\n';
-  CHECK(cm_feed(&longline, longtext, sizeof longtext, &used) == CM_OK &&
-        used == 258);
-  CHECK(longline.reply_length == 6 && !memcmp(longline.reply, "ERR 3\n", 6));
-  CHECK(drain(&longline, &sink) == 0);
-  CHECK(cm_step(&longline, (const unsigned char *)"exit", 4) == CM_OK);
-  CHECK(drain(&longline, &sink) == 0 && longline.closed);
-  puts("CM_PASS domain/frontends/rollback/provider/repl/partial-output");
-  return 0;
 }
