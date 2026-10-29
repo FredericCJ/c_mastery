@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "state": "in-progress",
-  "recorded_at": "2026-10-29T14:49:24.272679+00:00",
+  "recorded_at": "2026-10-29T16:29:19.736216+00:00",
   "branch": "polish/revision",
   "base_commit": "29b0d41088430980fd7a629c89cbc92ed50fb090",
   "plan": "/home/fred/.claude/plans/read-the-current-repository-cheeky-moler.md",
@@ -10,7 +10,7 @@
   "batches": {
     "B0": "complete",
     "B1": "complete",
-    "B2": "pending",
+    "B2": "mechanical-complete-revalidation-pending",
     "B3": "pending",
     "B4": "pending",
     "B5": "pending",
@@ -31,7 +31,11 @@
   ],
   "known_defects": [
     "Proposed .claude/settings.json permissions/hook/enabledMcpjsonServers not applied: auto-mode classifier treated it as self-modification; documented in planning/author_tools.md for the user.",
-    "Upstream Linux v7.0 .clang-format unavailable (HTTP 429/502); kernel modules use a minimal config derived from coding-style.rst sections 1-3."
+    "Upstream Linux v7.0 .clang-format unavailable (HTTP 429/502); kernel modules use a minimal config derived from coding-style.rst sections 1-3.",
+    "Historical-receipt checkers (about 844 tools with source-freshness assertions) report 'stale source' after the mechanical migration. Plan for B11: one audit tool that classifies every pin of each historical receipt as current, carried-forward (style_migration bridge) or changed-non-equivalent (changed tools/producers need re-execution); no checker is weakened.",
+    "/tmp is a 3.4 GB tmpfs with usrquota; campaign temp dirs exhausted it at 2026-10-29T16:20Z and invalidated the runs of ownership, parsing_depth, posix_lifecycle_depth, protocols, resilience and replicated (rc 120 / EDQUOT). All campaign runs now set TMPDIR on disk.",
+    "tools/run_os_followthrough.py needs another host's private toolchain (/home/frede/cmastery-os-follow-tools); not runnable here.",
+    "campaigns/04_family_adt and 04_family_api_depth were overwritten by an earlier rerun (path reuse); record in campaigns summary."
   ],
   "commands": [
     {
@@ -53,15 +57,16 @@
       "result": "3913 files; 3842 layout failures and 3541 naming findings before transformation; no family enforced yet"
     }
   ],
-  "next_action": "Finish rename proof triage; apply rename_text; commit 2c; then 2d/2e formatting with proofs.",
+  "next_action": "On review: fix or accept B3/B4 findings, commit B3/B4 (with run_performance_followthrough trace-build cm_parse fix); after driver4: classify, commit lab-script anchor batch + instrument_store pin, run storage durability producer, write campaigns/summary.json; then B7 security and B9 waves.",
   "limits": "Checkpoint only; not a completion claim.",
   "b2_state": {
     "2a": "committed 74a903922 (token anchors in ~60 tools; each verified byte-identical on pre-rename sources)",
-    "2c": "rename applied in working tree (uncommitted): plan via tools/c_rename.py (compiler -MM closures, own-file precedence, collision checks, overrides in tools/c_rename_overrides.json) -> 2,760 type names, 215 tags, 3,052 C files; text rename applied to 362 .py (string literals), canonical .md code spans and 240 JSON files. Object proof iterations: run2 1,319 proven / 38 compile-mismatch / 17 different -> fixed (.inc scope, lowercase exclusions, visibility, collisions, per-unit string maps); run4 in progress.",
+    "2c": "committed f6f8d8c07 (object proof: 1,288 identical + 89 identical-except-renamed-strings, 1,053 not compiled by heuristics, 0 different)",
     "2c_text": "tools/rename_text.py ready: distinctive names only, Python string literals / Markdown code / canonical JSON values; ~972 files; not yet applied",
-    "2d": "pending (whitespace-only clang-format, InsertBraces off; token proof)",
-    "2e": "pending (InsertBraces; brace-only proof; migrate brace-spanning anchors incl. AVL anchor in assessor/algorithm_tree/generate.py and 11 v4 anchors)",
-    "2f": "pending (regenerate exercises.json/route pins/legacy baseline_binding; generators to emit house style; author_ad_mp_support.py dispatch on bare typedef names; stringified-assert output markers; campaigns)"
+    "2d": "committed 7004a7e3b (3,889 files token-equivalent)",
+    "2e": "committed e70609563 (2,194 files brace-only by subsequence test; layout passes on all 3,944 files; anchors made brace-tolerant)",
+    "2f": "in progress: campaign re-runs (haiku campaign-runner), generator normalization, remaining anchors from census, Python marker review",
+    "language_c_repair": "committed 3434dbdf5: Language: C section, 3 misbraced files regenerated, brace-position proof, bridge 2e entries amended (incl. ecc.c), naming enforced from 'renamed'"
   },
   "b3_state": {
     "done_uncommitted": [
@@ -75,5 +80,17 @@
     "next": "rewrite pmu_native.c into modules using cm_parse and pmu_loss after B2 commits",
     "parser_adoption": "PMU code (pmu_native.c, trace_main.c) in B3; the other 52 files (67 sites) via B9 family rewrites; labs/memory_defense/targets/dispatch_target.c is an intentional specimen (keep)."
   },
-  "b5_state": "Brief ready at scratchpad b5_brief.md; dispatch an opus pedagogy worker after the 2c commit."
+  "b5_state": "Brief ready at scratchpad b5_brief.md; dispatch an opus pedagogy worker after the 2c commit.",
+  "in_flight": {
+    "B5": "opus pedagogy worker: contextual-v2 route; v1 must stay byte-identical and active until v2 is generated and validated in its final step; exercises.json regeneration is orchestrator-owned",
+    "B3_B4_review": "opus reviewer-deep: independent review of the uncommitted PMU repair, runner and gates (B3/B4 worker reported done; nothing committed until review)",
+    "2f_reruns": "orchestrator driver4 (scratchpad/driver4.sh): reruns failed, disk-hit and unrun families plus firmware-integration and targets into campaigns/r2_*; TMPDIR=build/tmp/campaigns; logs build/campaign-logs/"
+  },
+  "queued": {
+    "B7_security": "after B5: sonnet workers per domain group, brief scratchpad/b7_security_brief.md; validator tools/check_security_labs.py (78/78 missing today)",
+    "B9_rewrite": "after 2f campaigns: sonnet c-rewriter per family, brief scratchpad/b9_rewrite_brief.md",
+    "B6_board": "blocked: needs user-run udev rule + apt openocd/gdb-multiarch/stlink-tools (commands given in chat)",
+    "B8_dossiers": "after B3 collector",
+    "B10_assess": "after B5"
+  }
 }

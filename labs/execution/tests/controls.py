@@ -2,11 +2,48 @@
 from __future__ import annotations
 import argparse,json,pathlib,re,shutil,subprocess,sys
 P=pathlib.Path
+_ANCHOR_TOKEN = re.compile(r"[A-Za-z_]\w*|\d+|[^\s]")
+
+
+def anchor_spans(text, anchor):
+    """Character spans where `anchor`'s tokens occur in order in `text`.
+
+    Same rule as tools/c_source.py: braces in the source that the anchor
+    lacks may be skipped only when they balance inside the match, so an
+    anchor written for `if (x) stmt;` still finds `if (x) { stmt; }`.
+    """
+    hay = [(m.group(), m.start(), m.end()) for m in _ANCHOR_TOKEN.finditer(text)]
+    needle = _ANCHOR_TOKEN.findall(anchor)
+    spans = []
+    for start, (token, _, _) in enumerate(hay):
+        if not needle or token != needle[0]:
+            continue
+        j, depth, ok = start, 0, True
+        for want in needle:
+            while j < len(hay) and hay[j][0] != want and hay[j][0] in "{}":
+                depth += 1 if hay[j][0] == "{" else -1
+                if depth < 0:
+                    ok = False
+                    break
+                j += 1
+            if not ok or j >= len(hay) or hay[j][0] != want:
+                ok = False
+                break
+            j += 1
+        if not ok:
+            continue
+        while depth > 0 and j < len(hay) and hay[j][0] == "}":
+            depth -= 1
+            j += 1
+        if depth == 0:
+            spans.append((hay[start][1], hay[j - 1][2]))
+    return spans
+
+
 def replace_tokens(text,anchor,replacement,name):
- pattern=r'\s*'.join(re.escape(t) for t in re.findall(r'[A-Za-z_]\w*|\d+|[^\s]',anchor))
- found=list(re.finditer(pattern,text))
+ found=anchor_spans(text,anchor)
  if len(found)!=1:raise RuntimeError('Mutation token drift: '+name)
- return text[:found[0].start()]+replacement+text[found[0].end():]
+ return text[:found[0][0]]+replacement+text[found[0][1]:]
 def main():
  p=argparse.ArgumentParser();p.add_argument('--source',type=P,required=True);p.add_argument('--lab',type=P,required=True);p.add_argument('--build',type=P,required=True);p.add_argument('--cc',default='cc');a=p.parse_args();a.build.mkdir(parents=True,exist_ok=True);results=[]
  mutations=[('inheritance','cmx.c','pass < CMX_TASKS','pass < 0','inheritance'),('capacity','concurrent.c','(unsigned)(h - t) >= q->capacity','(unsigned)(h - t) > q->capacity','spsc'),('condition','cmx.c','relock(k, t, result);','ready(k, t, result);','condition')]

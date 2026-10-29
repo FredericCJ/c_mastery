@@ -2,6 +2,44 @@
 import argparse,hashlib,importlib.util,json,os,re,shutil,subprocess
 from pathlib import Path
 PUBLIC=Path(__file__).resolve().parent
+_ANCHOR_TOKEN = re.compile(r"[A-Za-z_]\w*|\d+|[^\s]")
+
+
+def anchor_spans(text, anchor):
+    """Character spans where `anchor`'s tokens occur in order in `text`.
+
+    Same rule as tools/c_source.py: braces in the source that the anchor
+    lacks may be skipped only when they balance inside the match, so an
+    anchor written for `if (x) stmt;` still finds `if (x) { stmt; }`.
+    """
+    hay = [(m.group(), m.start(), m.end()) for m in _ANCHOR_TOKEN.finditer(text)]
+    needle = _ANCHOR_TOKEN.findall(anchor)
+    spans = []
+    for start, (token, _, _) in enumerate(hay):
+        if not needle or token != needle[0]:
+            continue
+        j, depth, ok = start, 0, True
+        for want in needle:
+            while j < len(hay) and hay[j][0] != want and hay[j][0] in "{}":
+                depth += 1 if hay[j][0] == "{" else -1
+                if depth < 0:
+                    ok = False
+                    break
+                j += 1
+            if not ok or j >= len(hay) or hay[j][0] != want:
+                ok = False
+                break
+            j += 1
+        if not ok:
+            continue
+        while depth > 0 and j < len(hay) and hay[j][0] == "}":
+            depth -= 1
+            j += 1
+        if depth == 0:
+            spans.append((hay[start][1], hay[j - 1][2]))
+    return spans
+
+
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def cpu_features(model,props=None):
  command=['qemu-system-x86_64','-machine','pc-i440fx-10.2','-accel','tcg','-display','none','-nodefaults','-nic','none','-S','-qmp','stdio']
@@ -16,7 +54,7 @@ def prepare(lab,source,implementation,work,base=0x8000,mode=0,mutant=0,compiler=
  if base not in (0x8000,0x9000) or mode not in (0,1,2) or mutant not in (0,1,2):raise ValueError('Unsupported startup experiment')
  work.mkdir(parents=True,exist_ok=False);copied=work/'source';shutil.copytree(source,copied)
  old=copied/'smp.c';text=old.read_text(encoding='utf-8');anchor='void cmk2_smp_run(unsigned info){'
- pattern=r'\s*'.join(re.escape(t) for t in re.findall(r'[A-Za-z_]\w*|\d+|[^\s]',anchor));found=[m.span() for m in re.finditer(pattern,text)]
+ found=anchor_spans(text,anchor)
  if len(found)!=1:raise ValueError('Retained completed entry changed; inspect before adapting')
  text=text[:found[0][0]]+'void cmk2_retained_smp_run(unsigned info){'+text[found[0][1]:]+'\n'+(implementation/'startup_guest.c').read_text(encoding='utf-8');old.write_text(text,encoding='utf-8',newline='\n')
  assembly=copied/'ap.S';assembly.write_text(assembly.read_text(encoding='utf-8')+'\n'+(implementation/'startup_trampoline.S').read_text(encoding='utf-8'),encoding='utf-8',newline='\n')
