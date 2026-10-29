@@ -289,6 +289,30 @@ def only_braces_inserted(old, new):
     return position == len(old) and inserted.count(BRACES[0]) == inserted.count(BRACES[1])
 
 
+def branch_brace_deltas(text):
+    """Brace balance of every branch of every preprocessor conditional.
+
+    Brace insertion that ignores preprocessor branches can close a block in
+    one branch only (clang-format sees just the first branch), leaving other
+    configurations unbalanced although the whole token stream balances. A
+    correct insertion never changes any branch's own balance.
+    """
+    tokens = tokenize(text)
+    groups, stack = [], []
+    for j, token in enumerate(tokens):
+        name = tokens[j + 1].text if (token.kind == "punct" and token.text == "#" and
+                                      j + 1 < len(tokens) and tokens[j + 1].kind == "ident") else None
+        if name in ("if", "ifdef", "ifndef"):
+            stack.append([0])
+        elif name in ("elif", "else") and stack:
+            stack[-1].append(0)
+        elif name == "endif" and stack:
+            groups.append(tuple(stack.pop()))
+        elif token.kind == "punct" and token.text in "{}" and stack:
+            stack[-1][-1] += 1 if token.text == "{" else -1
+    return groups
+
+
 def prove_tokens(args, braces=False):
     results = {}
     for relative in changed_files(args.base):
@@ -302,7 +326,7 @@ def prove_tokens(args, braces=False):
         if a == b:
             results[relative] = "token-equivalent" if comments_equal else "comment-changed"
             continue
-        if braces and only_braces_inserted(a, b):
+        if braces and only_braces_inserted(a, b) and branch_brace_deltas(old) == branch_brace_deltas(new):
             results[relative] = "brace-only" if comments_equal else "brace-only-comment-changed"
             continue
         results[relative] = "different"

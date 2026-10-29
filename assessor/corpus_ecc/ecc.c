@@ -184,13 +184,15 @@ enum ec_status ec_interleave_phase(unsigned n, const uint16_t words[4],
     for (unsigned bit = 0; bit < n; ++bit)
     {
         for (unsigned lane = 0; lane < 4; ++lane)
+        {
 #if EC_MUTATION == 5
             bits[lane * n + bit] = (uint8_t)((words[lane] >> bit) & 1u);
-    }
 #else
             bits[4u * bit + (lane + phase) % 4u] =
                 (uint8_t)((words[lane] >> bit) & 1u);
 #endif
+        }
+    }
     return EC_OK;
 }
 

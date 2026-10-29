@@ -14,7 +14,10 @@ for family in families:
   build=root/'build'/tag;build.mkdir(parents=True,exist_ok=True)
   args=['cmake','-S',str(root/'labs'/family),'-B',str(build),'-DCMAKE_C_COMPILER='+a.compiler,'-DCMAKE_BUILD_TYPE='+('Release' if a.profile=='release' else 'Debug')]
   if assessor:args+=['-DCMASTERY_ASSESSOR_ROOT='+str(root/'assessor'/family)]
-  if a.profile=='asan':args+=['-DCMAKE_C_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer','-DCMAKE_EXE_LINKER_FLAGS=-fsanitize=address,undefined']
+  # Families with the guarded build profiles (labs/<family>/cmake/Profiles.cmake)
+  # reject global sanitizer flags; select their instrumented profile instead.
+  if a.profile=='asan' and (root/'labs'/family/'cmake/Profiles.cmake').is_file():args+=['-DCMASTERY_PROFILE=instrumented']
+  elif a.profile=='asan':args+=['-DCMAKE_C_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer','-DCMAKE_EXE_LINKER_FLAGS=-fsanitize=address,undefined']
   if family=='integration':
    for dep in ['foundations','algorithms','firmware_io','runtime','storage']:
     args+=['-DCMASTERY_'+dep.upper()+'_ROOT='+str(root/'assessor'/dep),'-DCMASTERY_'+dep.upper()+'_INCLUDE='+str(root/'labs'/dep/'include')]

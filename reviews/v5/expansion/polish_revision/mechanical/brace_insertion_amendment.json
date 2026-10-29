@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "proof": "braces-amendment",
+  "generated_at": "2026-10-29T16:00:37.194567+00:00",
+  "amends": "reviews/v5/expansion/polish_revision/mechanical/brace_insertion.json",
+  "finding": "clang-format InsertBraces closed a block inside the first branch of '#if EC_MUTATION == 5 ... #else ... #endif' in assessor/corpus_ecc/ecc.c, breaking the default configuration; the token-subsequence proof could not see per-configuration balance.",
+  "detection": "tools/source_equivalence.py braces now also requires every preprocessor branch to keep its own brace balance; a scan of all 2,194 brace-inserted files (7004a7e3b..e70609563) found this file only.",
+  "file": "assessor/corpus_ecc/ecc.c",
+  "committed_braces_branch_balanced": false,
+  "repaired_branch_balanced": true,
+  "repaired_brace_only": true,
+  "repaired_sha256": "d79812f42fbb7ef7e450b25b1bb3cfca8844570633c2d9cca7e3f889aad13e47",
+  "verification": [
+    "gcc -std=c17 -Wall -Wextra -Wpedantic -Werror -c with EC_MUTATION=0 and EC_MUTATION=5: both compile"
+  ]
+}
