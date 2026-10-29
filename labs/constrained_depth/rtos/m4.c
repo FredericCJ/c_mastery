@@ -58,9 +58,13 @@ void cl_reset(void)
 {
     unsigned *d = &cl_data_start, *s = &cl_data_load;
     while (d < &cl_data_end)
+    {
         *d++ = *s++;
+    }
     for (d = &cl_bss_start; d < &cl_bss_end;)
+    {
         *d++ = 0;
+    }
     *(volatile unsigned *)0xe000ed88u |= 0xfu << 20;
     __asm__ volatile("dsb;isb" ::: "memory");
     cr_run();

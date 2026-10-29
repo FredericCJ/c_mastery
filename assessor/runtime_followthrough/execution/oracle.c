@@ -18,10 +18,14 @@ int main(void)
             return 1;
         }
         if (++count > 18696)
+        {
             return 2;
+        }
     }
     if (!feof(stdin) || count != 18696)
+    {
         return 2;
+    }
     printf("VS_ORACLE_PASS cases=%u integer_modular_models\n", count);
     return 0;
 }

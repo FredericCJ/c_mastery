@@ -33,10 +33,14 @@ static void *acquire(void *c, unsigned id, size_t n)
     struct lp_track *s = c;
     s->calls++;
     if (s->fail == id)
+    {
         return NULL;
+    }
     void *p = malloc(n);
     if (!p)
+    {
         abort();
+    }
     s->live[id - 1] = p;
     return p;
 }
@@ -53,8 +57,10 @@ static void release(void *c, unsigned id, void *p, size_t n)
     s->releases++;
     s->order = s->order * 10 + id;
     if (s->observed)
+    {
         s->empty += s->observed->data == NULL && s->observed->size == 0 &&
                     s->observed->id == 0;
+    }
     s->live[id - 1] = NULL;
     free(p);
 }
@@ -129,13 +135,21 @@ int main(int argc, char **argv)
     CHECK(argc == 2);
     atexit(cleanup);
     if (!strcmp(argv[1], "failure"))
+    {
         return failure();
+    }
     if (!strcmp(argv[1], "order"))
+    {
         return order();
+    }
     if (!strcmp(argv[1], "transfer"))
+    {
         return transfer();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
     {
         printf(

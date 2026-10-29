@@ -20,7 +20,9 @@ static void arrays(void)
                                        FS_ONE_PAST, FS_OUTSIDE};
 
     for (unsigned i = 0; i < 5; i++)
+    {
         CHECK(fs_index(indices[i], 3) == expected[i]);
+    }
     CHECK(fs_index(INTMAX_MIN, 3) == FS_OUTSIDE);
     CHECK(fs_index(0, 0) == FS_ONE_PAST);
     const int row[3] = {1, 2, 3};
@@ -42,6 +44,7 @@ static void arrays(void)
     CHECK(sizeof *matrix == 3 * sizeof(int) && matrix + 1 == &matrix[1]);
     unsigned cases = 0;
     for (int n = 0; n <= 8; n++)
+    {
         for (int i = -2; i <= 10; i++)
         {
             enum fs_index e = i < 0 || i > n ? FS_OUTSIDE
@@ -50,6 +53,7 @@ static void arrays(void)
             CHECK(fs_index(i, (size_t)n) == e);
             ++cases;
         }
+    }
     printf("FS_ARRAY_PASS metadata_cases=%u typed_rows actual_stride "
            "failure_atomic\n",
            cases);

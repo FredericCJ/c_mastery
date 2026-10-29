@@ -45,7 +45,9 @@ static void dump(const char *name, const void *object, size_t size,
     const unsigned char *p = object;
     printf("LAYOUT %s size=%zu align=%zu bytes=", name, size, alignment);
     for (size_t i = 0; i < size; ++i)
+    {
         printf("%02x", p[i]);
+    }
     putchar('\n');
 }
 
@@ -95,10 +97,14 @@ int main(void)
     if (fb_encode(r.value, FB_BIG, be, 4) != FB_OK ||
         fb_encode(r.value, FB_LITTLE, le, 4) != FB_OK || be[0] != 18 ||
         le[0] != 120)
+    {
         return 1;
+    }
     if (fb_decode((struct fb_span){be, 4}, FB_BIG, &decoded) != FB_OK ||
         decoded != r.value)
+    {
         return 1;
+    }
     /* A declared packed object avoids forging a typed lvalue into a char array.
      * Its host-endian interpretation of copied wire bytes still differs. */
     const unsigned char wire[] = {1, 18, 52, 86, 120, 0, 2};

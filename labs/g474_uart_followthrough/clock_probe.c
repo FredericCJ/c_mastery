@@ -10,9 +10,13 @@ static void field(struct g4_io io, enum g4_reg r, uint32_t mask, uint32_t value)
 int g4_clock_probe(struct g4_io io)
 {
     if (!io.read || !io.write)
+    {
         return G4_INVALID;
+    }
     if (!(io.read(io.context, G4_RCC_CR) & (1u << 10)))
+    {
         return G4_CLOCK_TIMEOUT;
+    }
     field(io, G4_GPIO_OTYPER, 1u << 8, 0);
     field(io, G4_GPIO_OSPEEDR, 3u << 16, 2u << 16);
     field(io, G4_GPIO_PUPDR, 3u << 16, 0);

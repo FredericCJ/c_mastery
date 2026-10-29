@@ -35,7 +35,9 @@ static void destroy(void *unused)
         assert(payload[1] == 2);
     }
     else
+    {
         payload[0] = 0;
+    }
     atomic_fetch_add(&destructions, 1);
 }
 
@@ -49,7 +51,9 @@ static void *one(void *unused)
 {
     (void)unused;
     if (ORC_CASE == 2)
+    {
         payload[0] = 1;
+    }
     assert(ow_atomic_drop(&refs) == OW_OK);
     return NULL;
 }
@@ -77,7 +81,9 @@ static void *two(void *unused)
             status = OW_OK;
         }
         else
+        {
             status = ow_atomic_upgrade(&refs);
+        }
         if (status == OW_OK)
         {
             assert(payload[0] == 41);
@@ -85,7 +91,9 @@ static void *two(void *unused)
             assert(ow_atomic_drop(&refs) == OW_OK);
         }
         else
+        {
             assert(status == OW_DEAD);
+        }
         /* The owned weak transfers to the joiner on thread return. */
     }
     return NULL;

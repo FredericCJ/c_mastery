@@ -108,7 +108,9 @@ static void pressure(void)
     CHECK(cmx_hp_push(&q, 0, 77) == CMX_FULL);
     unsigned retired = 0;
     for (unsigned i = 0; i < 32; i++)
+    {
         retired += (atomic_load(&q.node[i].state) & 3u) == 2;
+    }
     CHECK(retired == 31);
     CHECK(cmx_hp_collect(&q) == 31);
     CHECK(cmx_hp_push(&q, 0, 77) == CMX_OK);
@@ -120,12 +122,14 @@ static void pressure(void)
 static void retry(void)
 {
     for (unsigned budget = 1; budget <= 8; budget++)
+    {
         for (unsigned n = 0; n <= budget; n++)
         {
             CHECK(ah_retry(n, budget, 0) ==
                   (n == budget ? AH_INCOMPLETE : AH_NONLINEAR));
             CHECK(ah_retry(n, budget, 1) == AH_VALID);
         }
+    }
     CHECK(ah_retry(9, 8, 0) == AH_INVALID && ah_retry(0, 0, 0) == AH_INVALID);
     puts("OBS retry bounded-return is-not successful-service");
 }
@@ -136,14 +140,20 @@ static int driver(void)
     while (scanf("%u%u%u%u", &n, &cap, &spec, &policy) == 4)
     {
         if (n > 7)
+        {
             return 2;
+        }
         struct ah_operation op[7];
         struct ah_witness w;
         for (unsigned i = 0; i < n; i++)
+        {
             if (scanf("%u%u%u%u%u%u", &op[i].invoke, &op[i].respond,
                       &op[i].participant, &op[i].operation, &op[i].value,
                       &op[i].result) != 6)
+            {
                 return 3;
+            }
+        }
         int result = ah_history(op, n, cap, spec, policy, &w);
         printf("%d", result);
         if (result == AH_VALID)
@@ -153,7 +163,9 @@ static int driver(void)
             {
                 unsigned at = w.order[i];
                 if (at >= n)
+                {
                     return 4;
+                }
                 printf(" %u %u %u", at, w.result[at], w.value[at]);
             }
         }
@@ -165,20 +177,36 @@ static int driver(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "history"))
+    {
         history();
+    }
     else if (!strcmp(argv[1], "separation"))
+    {
         separation();
+    }
     else if (!strcmp(argv[1], "points"))
+    {
         points();
+    }
     else if (!strcmp(argv[1], "pressure"))
+    {
         pressure();
+    }
     else if (!strcmp(argv[1], "retry"))
+    {
         retry();
+    }
     else if (!strcmp(argv[1], "driver"))
+    {
         return driver();
+    }
     else
+    {
         return 2;
+    }
     return 0;
 }

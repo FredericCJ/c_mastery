@@ -11,7 +11,9 @@ int du_replace(int a, int b, const unsigned char *p, size_t n, unsigned fail,
     int fd = -1, err = 0;
     *phase = 0;
     if (n > 4096 || fail > 5)
+    {
         return -EINVAL;
+    }
     for (unsigned step = 1; step <= 5; step++)
     {
         if (fail == step)
@@ -33,7 +35,9 @@ int du_replace(int a, int b, const unsigned char *p, size_t n, unsigned fail,
             {
                 ssize_t k = write(fd, p + done, n - done);
                 if (k < 0 && errno == EINTR)
+                {
                     continue;
+                }
                 if (k <= 0)
                 {
                     err = k < 0 ? errno : EIO;
@@ -42,7 +46,9 @@ int du_replace(int a, int b, const unsigned char *p, size_t n, unsigned fail,
                 done += (size_t)k;
             }
             if (err)
+            {
                 break;
+            }
         }
         else if (step == 2)
         {
@@ -80,9 +86,13 @@ int du_replace(int a, int b, const unsigned char *p, size_t n, unsigned fail,
         }
         *phase = step;
         if (hook)
+        {
             hook(step, context);
+        }
     }
     if (fd >= 0 && close(fd) < 0 && !err)
+    {
         err = errno;
+    }
     return err ? -err : 0;
 }

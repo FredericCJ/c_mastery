@@ -37,7 +37,9 @@ static void *count(void *arg)
     int e = pthread_barrier_wait(c->start);
     CHECK(e == 0 || e == PTHREAD_BARRIER_SERIAL_THREAD);
     for (unsigned i = 0; i < c->iterations; i++)
+    {
         atomic_fetch_add_explicit(c->counter, 1, memory_order_relaxed);
+    }
     return NULL;
 }
 
@@ -57,6 +59,7 @@ static void layout(void)
     printf("LAYOUT reported_line=%zu allowed_cpus=%d affinity_unchanged=1\n",
            line, CPU_COUNT(&allowed));
     for (unsigned repeat = 0; repeat < 7; repeat++)
+    {
         for (unsigned separated = 0; separated < 2; separated++)
         {
             size_t stride = separated ? line : sizeof(_Atomic(unsigned));
@@ -99,6 +102,7 @@ static void layout(void)
             CHECK(pthread_barrier_destroy(&start) == 0);
             free(allocation);
         }
+    }
     puts(
         "OBS layout actual adjacent/separate single-owner atomics; changed line "
         "and multi-hot-byte alignment model; no speedup requirement");
@@ -145,8 +149,11 @@ static void aggregation(void)
     {
         uint64_t checksum = 0;
         for (size_t i = 0; i < 20000; i++)
+        {
             checksum += reference_mix(data[i], intensity);
+        }
         for (unsigned repeat = 0; repeat < 7; repeat++)
+        {
             for (unsigned mode = 0; mode < 3; mode++)
             {
                 _Atomic(uint64_t) shared;
@@ -185,6 +192,7 @@ static void aggregation(void)
                     !repeat, repeat, mode, intensity, sum, check, updates,
                     elapsed);
             }
+        }
     }
     puts(
         "OBS aggregation private/batch32/per-item exact sum; explicit merge and "
@@ -202,7 +210,9 @@ static void *fresh_writer(void *arg)
 {
     struct tp_total *t = arg;
     for (unsigned i = 0; i < 10000; i++)
+    {
         CHECK(tp_total_add(t, 1) == TP_OK);
+    }
     return NULL;
 }
 
@@ -229,9 +239,13 @@ static void freshness(void)
     pthread_t r, w[2];
     CHECK(pthread_create(&r, NULL, fresh_reader, &f) == 0);
     for (unsigned i = 0; i < 2; i++)
+    {
         CHECK(pthread_create(&w[i], NULL, fresh_writer, &total) == 0);
+    }
     for (unsigned i = 0; i < 2; i++)
+    {
         CHECK(pthread_join(w[i], NULL) == 0);
+    }
     atomic_store(&stop, 1);
     CHECK(pthread_join(r, NULL) == 0);
     uint64_t value, items;
@@ -264,12 +278,16 @@ static void cost(void)
         printf("TIMER overhead%u=%" PRIu64 "\n", i, overhead[i]);
     }
     for (unsigned intensity = 1; intensity <= 32; intensity += 31)
+    {
         for (unsigned repeat = 0; repeat < 7; repeat++)
+        {
             for (unsigned mode = 0; mode < 3; mode++)
             {
                 uint64_t expected = 0;
                 for (unsigned i = 0; i < 20000; i++)
+                {
                     expected += reference_mix(i % 97 + 1, intensity);
+                }
                 uint64_t sum = 0, locks = 0, start = now();
                 for (unsigned i = 0; i < 20000; i++)
                 {
@@ -279,9 +297,13 @@ static void cost(void)
                         locks++;
                     }
                     if (mode != 0)
+                    {
                         sum += tp_mix(i % 97 + 1, intensity);
+                    }
                     if (mode != 1)
+                    {
                         CHECK(pthread_mutex_unlock(&mutex) == 0);
+                    }
                 }
                 uint64_t elapsed = now() - start;
                 CHECK(locks == (mode == 1 ? 0 : 20000));
@@ -291,6 +313,8 @@ static void cost(void)
                        " nanoseconds=%" PRIu64 "\n",
                        !repeat, repeat, mode, intensity, locks, sum, elapsed);
             }
+        }
+    }
     CHECK(pthread_mutex_destroy(&mutex) == 0);
     puts("OBS cost matched20000 empty-lock/useful/composed "
          "iterations;timer32pairs;intensity1/32; no subtraction identity or "
@@ -301,14 +325,24 @@ int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (!strcmp(argv[1], "layout"))
+    {
         layout();
+    }
     else if (!strcmp(argv[1], "aggregation"))
+    {
         aggregation();
+    }
     else if (!strcmp(argv[1], "freshness"))
+    {
         freshness();
+    }
     else if (!strcmp(argv[1], "cost"))
+    {
         cost();
+    }
     else
+    {
         return 2;
+    }
     return 0;
 }

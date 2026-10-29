@@ -26,7 +26,9 @@ static void hex(uint32_t v)
 {
     char text[10];
     for (unsigned i = 0; i < 8; ++i)
+    {
         text[i] = "0123456789abcdef"[(v >> (28 - 4 * i)) & 15];
+    }
     text[8] = ' ';
     text[9] = 0;
     output(text);
@@ -59,8 +61,12 @@ void df_handler(uint32_t *words, uint32_t er)
         words[6] = (uint32_t)(uintptr_t)df_fault_resume;
     }
     else
+    {
         for (;;)
+        {
             __asm__ volatile("wfi");
+        }
+    }
     REG(0xe000ed94) = 0;
     __asm__ volatile("dsb\nisb" ::: "memory");
     REG(0xe000ed28) = 0x82;
@@ -70,7 +76,9 @@ int df_target(void)
 {
     unsigned regions = (REG(0xe000ed90) >> 8) & 255;
     if (!regions)
+    {
         return 1;
+    }
     REG(0xe000ed94) = 0;
     for (unsigned i = 0; i < regions; ++i)
     {
@@ -81,9 +89,13 @@ int df_target(void)
     REG(0xe000ed9c) = 0xffffffe0;
     uint32_t alignment = REG(0xe000ed9c) & 0xffffffe0u;
     if ((alignment & 0x20) == 0)
+    {
         return 2;
+    }
     for (unsigned i = 0; i < 72; ++i)
+    {
         sandbox[i] = 0xaaaaaaaau;
+    }
     df_init(&capture);
     handler_count = handler_ok = 0;
     REG(0xe000ed28) = 0x030fbfbbu;
@@ -93,32 +105,44 @@ int df_target(void)
     REG(0xe000ed9c) = (uint32_t)(uintptr_t)sandbox;
     REG(0xe000eda0) = (1u << 28) | (1u << 19) | (4u << 1) | 1u;
     if (DF_TARGET_MUTANT != 1)
+    {
         REG(0xe000ed94) = 5;
+    }
     __asm__ volatile("dsb\nisb" ::: "memory");
     sandbox[8] = 0x55667788u;
     if (sandbox[8] != 0x55667788u || handler_count)
+    {
         return 3;
+    }
     df_store(0x12345678u, sandbox);
     REG(0xe000ed94) = 0;
     __asm__ volatile("dsb\nisb" ::: "memory");
     if (handler_count != 1 || !handler_ok || sandbox[0] != 0xaaaaaaaau)
+    {
         return 4;
+    }
     struct df_record record;
     unsigned secondary;
     if (df_read(&capture, &record, &secondary) != DF_OK || secondary ||
         record.cfsr != 0x82 || record.mmfar != (uint32_t)(uintptr_t)sandbox ||
         !(record.valid & DF_FRAME) ||
         record.frame[6] != (uint32_t)(uintptr_t)df_fault_instruction)
+    {
         return 5;
+    }
     unsigned char code[2] = {df_fault_instruction[0], df_fault_instruction[1]};
     struct df_access access;
     if (DF_TARGET_MUTANT == 2)
+    {
         record.frame[1] += 4;
+    }
     if (df_access(&record, token, record.frame[6], code, 2, &access) != DF_OK ||
         !access.precise || !access.write ||
         access.effective_address != record.mmfar ||
         access.operand != 0x12345678u)
+    {
         return 6;
+    }
     output("DF_CAPTURE:");
     hex(record.version);
     hex(record.valid);
@@ -127,7 +151,9 @@ int df_target(void)
     hex(record.exc_return);
     hex(record.mmfar);
     for (unsigned i = 0; i < 8; ++i)
+    {
         hex(record.frame[i]);
+    }
     output("\n");
     return 0;
 }

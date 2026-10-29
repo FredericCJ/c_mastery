@@ -16,7 +16,9 @@ static int link_test(void)
     CHECK(edu_crc("123456789", 9) == 0x29b1);
     struct edu_frame f = {0, 1, 2, 40, {0}}, out;
     for (unsigned i = 0; i < 40; i++)
+    {
         f.payload[i] = (uint8_t)(i % 2 ? 0x7e : 0x7d);
+    }
     uint8_t wire[96];
     size_t n;
     CHECK(!edu_frame_encode(&f, wire, sizeof wire, &n));
@@ -24,15 +26,23 @@ static int link_test(void)
     struct edu_framer p = {0};
     unsigned publications = 0;
     for (size_t i = 0; i < n; i++)
+    {
         if (edu_frame_byte(&p, wire[i], 0, &out) == 1)
+        {
             publications++;
+        }
+    }
     CHECK(publications == 1 && !memcmp(&out, &f, sizeof f));
     wire[3] ^= 1;
     memset(&p, 0, sizeof p);
     publications = 0;
     for (size_t i = 0; i < n; i++)
+    {
         if (edu_frame_byte(&p, wire[i], 0, &out) == 1)
+        {
             publications++;
+        }
+    }
     CHECK(!publications);
     f.length = 3;
     memcpy(f.payload, "abc", 3);
@@ -41,8 +51,12 @@ static int link_test(void)
     memset(&p, 0, sizeof p);
     publications = 0;
     for (size_t i = 0; i < n; i++)
+    {
         if (edu_frame_byte(&p, wire[i], 0, &out) == 1)
+        {
             publications++;
+        }
+    }
     CHECK(!publications);
     memset(&p, 0, sizeof p);
     CHECK(edu_frame_byte(&p, 0x7e, 0, &out) == 0);
@@ -50,7 +64,9 @@ static int link_test(void)
     CHECK(edu_frame_byte(&p, 0x7e, 0, &out) == -1);
     CHECK(edu_frame_byte(&p, 1, 1, &out) == -1);
     for (unsigned i = 0; i < 100; i++)
+    {
         edu_frame_byte(&p, 1, 0, &out);
+    }
     CHECK(edu_frame_byte(&p, 0x7e, 0, &out) == -1);
     return 0;
 }
@@ -77,7 +93,9 @@ static int transport(void)
 {
     unsigned char bytes[55];
     for (unsigned i = 0; i < 55; i++)
+    {
         bytes[i] = (unsigned char)i;
+    }
     struct edu_tx t = {0};
     struct edu_rx r = {0};
     struct edu_fragment f, again, ack;
@@ -114,7 +132,9 @@ static int transport(void)
     memset(&t, 0, sizeof t);
     CHECK(!edu_tx_begin(&t, 2, 7, 8, bytes, 55, 0));
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(edu_tx_poll(&t, i * 100, &f) == 1);
+    }
     CHECK(edu_tx_poll(&t, 400, &f) == -1);
     memset(&t, 0, sizeof t);
     CHECK(!edu_tx_begin(&t, 3, 7, 8, bytes, 55, 0));
@@ -133,7 +153,9 @@ static int presentation(void)
     CHECK(!edu_record_encode(&r, p, &n));
     CHECK(!edu_record_decode(p, n, &decoded) && decoded.value == -1234);
     for (size_t i = 0; i < n; i++)
+    {
         CHECK(edu_record_decode(p, i, &decoded));
+    }
     int16_t set = 2200;
     CHECK(!edu_application(&r, &set, &reply) && set == -1234 &&
           reply.value == -1234);
@@ -209,8 +231,12 @@ static int routed_fragment(const struct edu_fragment *f,
     struct edu_frame decoded;
     int done = 0;
     for (size_t i = 0; i < wn; i++)
+    {
         if (edu_frame_byte(&left, wire[i], 0, &decoded) == 1)
+        {
             done++;
+        }
+    }
     CHECK(done == 1);
     struct edu_datagram in, out;
     CHECK(!edu_network_decode(decoded.payload, decoded.length, &in));
@@ -225,8 +251,12 @@ static int routed_fragment(const struct edu_fragment *f,
     struct edu_framer right = {0};
     done = 0;
     for (size_t i = 0; i < wn; i++)
+    {
         if (edu_frame_byte(&right, wire[i], 0, &decoded) == 1)
+        {
             done++;
+        }
+    }
     CHECK(done == 1);
     CHECK(!edu_network_decode(decoded.payload, decoded.length, &in));
     CHECK(in.source == 17 && in.destination == 51 && in.hop == 3);
@@ -278,7 +308,9 @@ static int pipeline(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     int r = !strcmp(argv[1], "link")             ? link_test()
             : !strcmp(argv[1], "router")         ? router()
             : !strcmp(argv[1], "transport")      ? transport()
@@ -288,6 +320,8 @@ int main(int argc, char **argv)
             : !strcmp(argv[1], "pipeline")       ? pipeline()
                                                  : 2;
     if (!r)
+    {
         printf("PASS edu7_%s\n", argv[1]);
+    }
     return r;
 }

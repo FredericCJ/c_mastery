@@ -46,9 +46,13 @@ static int exact(int fd, void *buffer, size_t length, int sending,
             return -1;
         }
         if (errno == EINTR)
+        {
             continue;
+        }
         if (errno != EAGAIN && errno != EWOULDBLOCK)
+        {
             return -1;
+        }
         struct timespec now, left;
         if (clock_gettime(CLOCK_MONOTONIC, &now) ||
             es_remaining(now, deadline, &left) <= 0)
@@ -59,7 +63,9 @@ static int exact(int fd, void *buffer, size_t length, int sending,
         struct pollfd wait = {fd, sending ? POLLOUT : POLLIN, 0};
         int r = ppoll(&wait, 1, &left, 0);
         if (r < 0 && errno != EINTR)
+        {
             return -1;
+        }
     }
     return 0;
 }
@@ -76,7 +82,9 @@ static void close_channel(struct rd_channel c)
 {
     close(c.rx);
     if (c.tx != c.rx)
+    {
         close(c.tx);
+    }
 }
 
 static double seconds(struct timespec a, struct timespec b)
@@ -91,7 +99,9 @@ static int server(struct rd_channel c, int mode, struct rd_shared *shared,
     alarm(12);
     char start;
     if (exact(gate, &start, 1, 0, limit()))
+    {
         return 2;
+    }
     close(gate);
     for (unsigned i = 0; i < rounds; ++i)
     {
@@ -101,9 +111,13 @@ static int server(struct rd_channel c, int mode, struct rd_shared *shared,
         {
             unsigned char ready;
             if (exact(c.rx, &ready, 1, 0, limit()) || ready != slot)
+            {
                 return 3;
+            }
             if (pthread_mutex_lock(&shared->lock))
+            {
                 return 4;
+            }
             if (shared->request_epoch[slot] != i + 1)
             {
                 pthread_mutex_unlock(&shared->lock);
@@ -111,25 +125,37 @@ static int server(struct rd_channel c, int mode, struct rd_shared *shared,
             }
             memcpy(input, shared->request[slot], 8);
             if (pthread_mutex_unlock(&shared->lock))
+            {
                 return 6;
+            }
         }
         else if (exact(c.rx, input, 8, 0, limit()))
+        {
             return 7;
+        }
         ei_reply(input, output);
         if (mode == 2)
         {
             if (pthread_mutex_lock(&shared->lock))
+            {
                 return 8;
+            }
             memcpy(shared->response[slot], output, 4);
             shared->response_epoch[slot] = i + 1;
             if (pthread_mutex_unlock(&shared->lock))
+            {
                 return 9;
+            }
             unsigned char ready = (unsigned char)slot;
             if (exact(c.tx, &ready, 1, 1, limit()))
+            {
                 return 10;
+            }
         }
         else if (exact(c.tx, output, 4, 1, limit()))
+        {
             return 11;
+        }
     }
     close_channel(c);
     return 0;
@@ -194,7 +220,9 @@ int main(int argc, char **argv)
         close_channel(client);
         int result = server(peer, mode, shared, rounds, gate[0]);
         if (mode == 2)
+        {
             munmap(shared, sizeof *shared);
+        }
         _exit(result);
     }
     close(gate[0]);
@@ -210,9 +238,13 @@ int main(int argc, char **argv)
         struct ei_queue queue = {0};
         struct ei_request requests[5];
         for (unsigned k = 0; k < 5; ++k)
+        {
             CHECK(ei_init(&requests[k], bytes, 1, base + k + 1) == 0);
+        }
         for (unsigned k = 0; k < 4; ++k)
+        {
             CHECK(ei_enqueue(&queue, &requests[k]) == 1);
+        }
         CHECK(ei_enqueue(&queue, &requests[4]) == 0 &&
               requests[4].owner == EI_CLIENT && queue.bytes == 32);
         for (unsigned k = 0; k < 4; ++k)

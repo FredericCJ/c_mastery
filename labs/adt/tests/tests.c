@@ -84,7 +84,9 @@ static int brands(void)
     CHECK(ad_pool_release(&a, next));
     CHECK(a.slot[0].retired);
     for (i = 0; i < 3; ++i)
+    {
         CHECK(ad_pool_acquire(&a, i, &next));
+    }
     CHECK(!ad_pool_acquire(&a, 8, &next));
     return 0;
 }
@@ -125,8 +127,11 @@ static int optics(void)
     uint32_t x, y, a, b, v;
     struct ad_value empty = {AD_EMPTY, {.number = 0}};
     for (x = 0; x < 4; ++x)
+    {
         for (y = 0; y < 4; ++y)
+        {
             for (a = 0; a < 4; ++a)
+            {
                 for (b = 0; b < 4; ++b)
                 {
                     struct ad_pair s = {x, y}, t = ad_lens_x(s, a),
@@ -137,6 +142,9 @@ static int optics(void)
                     CHECK(two.x == one.x && two.y == one.y);
                     CHECK(ad_preview_number(ad_review_number(a), &v) && v == a);
                 }
+            }
+        }
+    }
     v = 91;
     CHECK(!ad_preview_number(empty, &v) && v == 91);
     return 0;
@@ -178,26 +186,48 @@ static int packet(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "sums"))
+    {
         return sums();
+    }
     if (!strcmp(argv[1], "quantities"))
+    {
         return quantities();
+    }
     if (!strcmp(argv[1], "flags"))
+    {
         return flags();
+    }
     if (!strcmp(argv[1], "text"))
+    {
         return text();
+    }
     if (!strcmp(argv[1], "brands"))
+    {
         return brands();
+    }
     if (!strcmp(argv[1], "views"))
+    {
         return views();
+    }
     if (!strcmp(argv[1], "arena"))
+    {
         return arena();
+    }
     if (!strcmp(argv[1], "optics"))
+    {
         return optics();
+    }
     if (!strcmp(argv[1], "evolution"))
+    {
         return evolution();
+    }
     if (!strcmp(argv[1], "packet"))
+    {
         return packet();
+    }
     return 2;
 }

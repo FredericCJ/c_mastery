@@ -23,17 +23,27 @@ static enum ev_action take(void *context, const struct ev_event *event)
 {
     struct es_capture *c = context;
     if (event->kind == EV_START)
+    {
         c->starts++;
+    }
     else if (event->kind == EV_END)
+    {
         c->ends++;
+    }
     else if (event->kind == EV_DOCUMENT)
+    {
         c->documents++;
+    }
     else
     {
         if (event->length > 64 - c->n)
+        {
             return EV_REJECT;
+        }
         for (size_t i = 0; i < event->length; i++)
+        {
             c->bytes[c->n++] = event->data[i];
+        }
     }
     return EV_ACCEPT;
 }
@@ -45,13 +55,19 @@ static enum ev_status parse(const unsigned char *s, size_t n, size_t split,
     enum ev_status status = ev_init(&p, 8);
     size_t used;
     if (status != EV_OK)
+    {
         return status;
+    }
     status = ev_feed(&p, s, split, take, c, &used);
     if (status != EV_OK || used != split)
+    {
         return status == EV_OK ? EV_INVALID : status;
+    }
     status = ev_feed(&p, s + split, n - split, take, c, &used);
     if (status != EV_OK || used != n - split)
+    {
         return status == EV_OK ? EV_INVALID : status;
+    }
     return ev_finish(&p, take, c);
 }
 

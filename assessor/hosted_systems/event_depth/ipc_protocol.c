@@ -30,13 +30,21 @@ static int receive(int fd, void *buffer, size_t bytes)
             continue;
         }
         if (n == 0)
+        {
             return -1;
+        }
         if (errno == EINTR)
+        {
             continue;
+        }
         if (errno != EAGAIN && errno != EWOULDBLOCK)
+        {
             return -1;
+        }
         if (es_wait_fd(fd, end) <= 0)
+        {
             return -1;
+        }
     }
     return 0;
 }
@@ -54,34 +62,54 @@ static int server(int request, int commands, int replies, int witness,
     if (mode == 0)
     { /* Purge is confirmed before the acceptance gate opens. */
         if (receive(commands, &command, 1) || command != 'P')
+        {
             return 2;
+        }
         close(request);
         if (send_byte(replies, 'P'))
+        {
             return 3;
+        }
         if (send_byte(witness, 0))
+        {
             return 4;
+        }
         return 0;
     }
     if (receive(request, input, 8))
+    {
         return 5;
+    }
     if (send_byte(replies, 'A'))
+    {
         return 6;
+    }
     if (mode == 2)
     {
         if (receive(commands, &command, 1) || command != 'C')
+        {
             return 7;
+        }
         if (send_byte(replies, 'K'))
+        {
             return 8; /* request seen; original work still live */
+        }
     }
     if (receive(commands, &command, 1) || command != 'G')
+    {
         return 9;
+    }
     ei_reply(input,
              response); /* harmless synthetic effect; not an external action */
     if (send_byte(witness, 1) || write(witness, response, 4) != 4)
+    {
         return 10;
+    }
     /* Last access to the original request has occurred before S is published. */
     if (mode == 2 && send_byte(replies, 'S'))
+    {
         return 11;
+    }
     close(request);
     return 0;
 }
@@ -181,13 +209,17 @@ int main(int argc, char **argv)
                   ledger.owner == EI_NO_OWNER);
         }
         else
+        {
             CHECK(ei_transition(&ledger, EI_COMPLETE) == 0 &&
                   ledger.owner == EI_NO_OWNER);
+        }
     }
     CHECK(ei_invariant(&ledger));
     close(commands[1]);
     if (replies[0] >= 0)
+    {
         close(replies[0]);
+    }
     close(witness[0]);
     int status;
     CHECK(waitpid(child, &status, 0) == child && WIFEXITED(status) &&

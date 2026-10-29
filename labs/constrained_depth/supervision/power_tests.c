@@ -55,8 +55,10 @@ int main(void)
     struct cs_stop s;
     CHECK(cs_stop_init(&s) == CS_OK);
     for (unsigned missing = 0; missing < 5; ++missing)
+    {
         CHECK(cs_stop_enter(&s, &b, 31u ^ (1u << missing)) == CS_INVALID &&
               m.writes == 0 && s.phase == 0);
+    }
     m.r[CS_IWDG_SR] = 3;
     CHECK(cs_stop_enter(&s, &b, 31) == CS_BUSY && m.writes == 0);
     m.r[CS_IWDG_SR] = 0;

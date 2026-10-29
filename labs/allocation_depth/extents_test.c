@@ -57,9 +57,13 @@ int main(void)
           at == 32 && charge == 16);
     unsigned permutations = 0;
     for (unsigned a = 0; a < 3; ++a)
+    {
         for (unsigned b = 0; b < 3; ++b)
+        {
             if (b != a)
+            {
                 for (unsigned c = 0; c < 3; ++c)
+                {
                     if (c != a && c != b)
                     {
                         unsigned order[] = {a, b, c};
@@ -74,6 +78,10 @@ int main(void)
                         CHECK(count == 1 && extents[0].size == 24);
                         ++permutations;
                     }
+                }
+            }
+        }
+    }
     extents[0] = (struct al_extent){0, 8};
     extents[1] = (struct al_extent){16, 8};
     extents[2] = (struct al_extent){32, 8};
@@ -150,7 +158,9 @@ int main(void)
         }
         CHECK(used == (fail <= 8 ? fail - 1 : 8));
         while (used)
+        {
             CHECK(api.release(api.owner, completed[--used]) == AL_OK);
+        }
         CHECK(heap.payload == 0 && heap.free_count == 1);
     }
     printf("PASS extents release-orders=%u "

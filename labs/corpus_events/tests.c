@@ -31,7 +31,9 @@ static enum ev_action capture(void *v, const struct ev_event *e)
         if (ev_feed(c->p, 0, 0, capture, c, &used) != EV_BUSY || used != 77 ||
             ev_finish(c->p, capture, c) != EV_BUSY ||
             ev_cancel(c->p) != EV_BUSY)
+        {
             c->bad = 1;
+        }
     }
     if (c->pause && !c->waiting)
     {
@@ -40,7 +42,9 @@ static enum ev_action capture(void *v, const struct ev_event *e)
     }
     c->waiting = 0;
     if (c->count == 512)
+    {
         return EV_REJECT;
+    }
     c->events[c->count++] = *e;
     return EV_ACCEPT;
 }
@@ -50,7 +54,9 @@ static enum ev_status parse(const unsigned char *b, size_t n, size_t chunk,
 {
     struct ev_parser p;
     if (ev_init(&p, EV_DEPTH) != EV_OK)
+    {
         return EV_INVALID;
+    }
     c->p = &p;
     c->pause = pause;
     size_t at = 0;
@@ -59,14 +65,20 @@ static enum ev_status parse(const unsigned char *b, size_t n, size_t chunk,
     {
         size_t count = n - at;
         if (count > chunk)
+        {
             count = chunk;
+        }
         size_t u = 999;
         s = ev_feed(&p, b + at, count, capture, c, &u);
         if (u > count)
+        {
             return EV_INVALID;
+        }
         at += u;
         if (s != EV_OK && s != EV_PAUSED)
+        {
             return s;
+        }
     }
     do
     {
@@ -89,6 +101,7 @@ static int parser(void)
            sizeof(struct ev_queue), sizeof(struct ev_sum));
     const char *text = " \n<a>x&amp;y<b/>z</a>\t";
     for (size_t chunk = 1; chunk <= strlen(text); chunk++)
+    {
         for (unsigned pause = 0; pause < 2; pause++)
         {
             struct ev_capture c = {0};
@@ -110,13 +123,18 @@ static int parser(void)
                     n += c.events[i].length;
                 }
                 if (c.events[i].kind == EV_START)
+                {
                     starts++;
+                }
                 if (c.events[i].kind == EV_END)
+                {
                     ends++;
+                }
             }
             CHECK(n == 4 && memcmp(letters, "x&yz", 4) == 0 && starts == 2 &&
                   ends == 2);
         }
+    }
     const char *bad[] = {"",
                          "<a>",
                          "<a></b>",
@@ -207,14 +225,20 @@ static int parser(void)
         CHECK(ev_feed(&p, &ch, 1, evq_offer, &queue, &used) == EV_OK &&
               used == 1);
         while (evq_pop(&queue, &e) == EV_OK)
+        {
             total += e.length;
+        }
     }
     enum ev_status s =
         ev_feed(&p, (const unsigned char *)"</a>", 4, evq_offer, &queue, &used);
     CHECK(s == EV_OK || s == EV_PAUSED);
     while (evq_pop(&queue, &e) == EV_OK)
+    {
         if (e.kind == EV_CHARACTERS)
+        {
             total += e.length;
+        }
+    }
     CHECK(total == 10000);
     CHECK(ev_finish(&p, evq_offer, &queue) == EV_DONE);
     puts("EV_OK:parser");
@@ -239,20 +263,26 @@ static int consumer(void)
         {
             size_t n = sizeof doc - 1 - at;
             if (n > chunk)
+            {
                 n = chunk;
+            }
             size_t used;
             enum ev_status r = ev_feed(&p, doc + at, n, evq_offer, &q, &used);
             CHECK(r == EV_OK || r == EV_PAUSED);
             at += used;
             while (evq_pop(&q, &e) == EV_OK)
+            {
                 CHECK(evs_event(&s, &e) == EV_OK);
+            }
         }
         enum ev_status r;
         do
         {
             r = ev_finish(&p, evq_offer, &q);
             while (evq_pop(&q, &e) == EV_OK)
+            {
                 CHECK(evs_event(&s, &e) == EV_OK);
+            }
         } while (r == EV_PAUSED);
         CHECK(r == EV_DONE && s.done && s.sum == UINT64_C(4294979647));
     }
@@ -306,7 +336,9 @@ static int oracle(void)
         {
             unsigned x;
             if (sscanf(hex + 2 * i, "%2x", &x) != 1)
+            {
                 return 3;
+            }
             b[i] = (unsigned char)x;
         }
         struct ev_capture c = {0};
@@ -317,7 +349,9 @@ static int oracle(void)
             struct ev_event *e = &c.events[i];
             printf(" %u,%zu,", (unsigned)e->kind, e->depth);
             for (size_t j = 0; j < e->length; j++)
+            {
                 printf("%02x", e->data[j]);
+            }
         }
         putchar('\n');
     }
@@ -327,12 +361,20 @@ static int oracle(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "parser"))
+    {
         return parser();
+    }
     if (!strcmp(argv[1], "consumer"))
+    {
         return consumer();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     return 2;
 }

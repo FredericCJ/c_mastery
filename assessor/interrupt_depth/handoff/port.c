@@ -12,7 +12,9 @@ uint32_t xi_primask_enter(void)
 void xi_primask_leave(uint32_t prior)
 {
     if (XI_PORT_MUTANT == 1)
+    {
         prior = 0;
+    }
     __asm__ volatile("msr primask,%0\ndsb\nisb" ::"r"(prior) : "memory");
 }
 

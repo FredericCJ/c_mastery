@@ -35,7 +35,9 @@ void reset_handler(void)
         stop();
     }
     for (unsigned i = 0; i < count; i++)
+    {
         sum += ((uint32_t)p[2 + 2 * i] << 8) | p[3 + 2 * i];
+    }
     __asm__ volatile("svc 0");
     write0(sum == 48641 && svc_seen == 11 ? "GUEST_PASS:BE_SUM=48641:SVC=11\n"
                                           : "GUEST_FAIL\n");

@@ -15,7 +15,9 @@ static int broken(void *c, const unsigned char *p, size_t n)
 int main(int argc, char **argv)
 {
     if (argc != 3)
+    {
         return 2;
+    }
     unsigned capacity = (unsigned)strtoul(argv[2], 0, 10), work = 0;
     if (capacity > 3)
     {

@@ -14,8 +14,12 @@ static int same(const void *a, const void *b, size_t n)
 {
     const unsigned char *x = a, *y = b;
     for (size_t i = 0; i < n; ++i)
+    {
         if (x[i] != y[i])
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
@@ -24,7 +28,9 @@ static void copy(void *a, const void *b, size_t n)
     unsigned char *x = a;
     const unsigned char *y = b;
     for (size_t i = 0; i < n; ++i)
+    {
         x[i] = y[i];
+    }
 }
 
 struct aw_pool
@@ -51,13 +57,17 @@ static struct aw_bank *acquire(void *arg)
         p->blocked += (aw_put(p->owner, &r) == AW_BUSY);
     }
     if (p->fail)
+    {
         return 0;
+    }
     for (unsigned i = 0; i < 2; ++i)
+    {
         if (!p->leased[i])
         {
             p->leased[i] = 1;
             return p->banks + i;
         }
+    }
     return 0;
 }
 
@@ -65,15 +75,21 @@ static void release(void *arg, struct aw_bank *bank)
 {
     struct aw_pool *p = arg;
     for (unsigned i = 0; i < 2; ++i)
+    {
         if (bank == p->banks + i && p->leased[i])
         {
             for (unsigned j = 0; j < 3; ++j)
+            {
                 if (bank->pointers[j])
+                {
                     p->bad = 1;
+                }
+            }
             p->leased[i] = 0;
             ++p->releases;
             return;
         }
+    }
     p->bad = 1;
 }
 
@@ -89,12 +105,16 @@ static int compare(void *arg, const struct aw_record *a,
         return 1;
     }
     if (c->fail == c->calls)
+    {
         return 1;
+    }
     int rank = (a->rank > b->rank) - (a->rank < b->rank);
     *out = rank ? (c->order->descending ? -rank : rank)
                 : (a->id > b->id) - (a->id < b->id);
     if (c->bad)
+    {
         *out = 1;
+    }
     return 0;
 }
 
@@ -190,7 +210,9 @@ static int queues(void)
             if (q.count < q.available)
             {
                 while (q.nodes[scan].live)
+                {
                     ++scan;
+                }
                 ++scan;
             }
             scan_total += scan;
@@ -203,7 +225,9 @@ static int queues(void)
                       same(old, backing, sizeof old) && same(qb, &q, sizeof q));
             }
             else
+            {
                 CHECK(a == CD_OK && b == CD_OK && done == 1);
+            }
         }
         else
         {
@@ -220,7 +244,9 @@ static int queues(void)
         packet[n++] = (int)ring.head;
         packet[n++] = (int)ring.count;
         for (unsigned i = 0; i < 3; ++i)
+        {
             packet[n++] = backing[i];
+        }
         packet[n++] = q.head;
         packet[n++] = q.tail;
         packet[n++] = (int)q.count;
@@ -249,6 +275,7 @@ static int queues(void)
 static int fixture(void)
 {
     for (unsigned kind = 0; kind < 2; ++kind)
+    {
         for (unsigned dispatch = 0; dispatch < 2; ++dispatch)
         {
             struct aw_owner o;
@@ -282,6 +309,7 @@ static int fixture(void)
                             (int)p.releases, (int)c.calls,  0};
             aw_observe("FIXTURE", packet, 6);
         }
+    }
     return 0;
 }
 
@@ -330,6 +358,7 @@ static int ownership(void)
 static int backing(void)
 {
     for (unsigned kind = 0; kind < 2; ++kind)
+    {
         for (unsigned fault = 0; fault < 5; ++fault)
         {
             struct aw_owner o;
@@ -367,6 +396,7 @@ static int backing(void)
                             (int)p.releases};
             aw_observe("BACKING", packet, 4);
         }
+    }
     return 0;
 }
 
@@ -429,6 +459,7 @@ static int kernel(void)
                   ranks[7] = {INT32_MIN, -2, -1, 0, 1, 2, INT32_MAX};
     unsigned packets = 0;
     for (unsigned code = 0; code < 27; ++code)
+    {
         for (unsigned direction = 0; direction < 2; ++direction)
         {
             unsigned v = code;
@@ -440,12 +471,15 @@ static int kernel(void)
                 v /= 3;
             }
             for (unsigned i = 0; i < 3; ++i)
+            {
                 for (unsigned j = i + 1; j < 3; ++j)
                 {
                     int less = direction ? data[j].rank > data[i].rank
                                          : data[j].rank < data[i].rank;
                     if (data[j].rank == data[i].rank)
+                    {
                         less = data[j].id < data[i].id;
+                    }
                     if (less)
                     {
                         struct aw_record t = data[i];
@@ -453,8 +487,11 @@ static int kernel(void)
                         data[j] = t;
                     }
                 }
+            }
             for (unsigned n = 0; n <= 3; ++n)
+            {
                 for (unsigned ki = 0; ki < 5; ++ki)
+                {
                     for (unsigned ri = 0; ri < 7; ++ri)
                     {
                         struct aw_record q = {keys[ki], ranks[ri]};
@@ -464,9 +501,13 @@ static int kernel(void)
                             int less = direction ? data[at].rank > q.rank
                                                  : data[at].rank < q.rank;
                             if (data[at].rank == q.rank)
+                            {
                                 less = data[at].id < q.id;
+                            }
                             if (!less)
+                            {
                                 break;
+                            }
                             ++at;
                         }
                         struct aw_record before[3];
@@ -478,8 +519,11 @@ static int kernel(void)
                         aw_observe("KERNEL", packet, 6);
                         ++packets;
                     }
+                }
+            }
             CHECK(aw_probe(data, 3, data, direction) == 1);
         }
+    }
     CHECK(packets == 7560);
     struct aw_record extremes[3] = {
         {INT32_MIN, INT32_MIN}, {0, 0}, {INT32_MAX, INT32_MAX}};
@@ -500,18 +544,32 @@ static int name(const char *a, const char *b)
 int aw_test(const char *n)
 {
     if (name(n, "layout"))
+    {
         return layout();
+    }
     if (name(n, "queues"))
+    {
         return queues();
+    }
     if (name(n, "fixture"))
+    {
         return fixture();
+    }
     if (name(n, "ownership"))
+    {
         return ownership();
+    }
     if (name(n, "backing"))
+    {
         return backing();
+    }
     if (name(n, "contexts"))
+    {
         return contexts();
+    }
     if (name(n, "kernel"))
+    {
         return kernel();
+    }
     return 2;
 }

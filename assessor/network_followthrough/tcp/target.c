@@ -38,7 +38,9 @@ int nc_composition(void);
 void xf_target_main(void)
 {
     if (nc_public_tests() || nc_validation() || nc_composition())
+    {
         finish(1);
+    }
     puts("NC_TARGET_PASS actual_TCP_queue_RTO_HTTP "
          "synthetic_frames_only");
     finish(0);

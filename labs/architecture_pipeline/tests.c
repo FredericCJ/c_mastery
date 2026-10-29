@@ -23,8 +23,12 @@ static int equal(const void *a, const void *b, size_t n)
 {
     const unsigned char *x = a, *y = b;
     for (size_t i = 0; i < n; ++i)
+    {
         if (x[i] != y[i])
+        {
             return 0;
+        }
+    }
     return 1;
 }
 static struct ap_instruction program[] = {
@@ -74,12 +78,16 @@ static int schedule(void)
     CHECK(s.flush_cycle[5] == 8 && s.flush_cycle[6] == 8 && s.pc[7] == 6 &&
           s.slots[8][0] == 7);
     for (unsigned i = 0; i < 6; ++i)
+    {
         CHECK(s.pc[s.retired[i]] == (i < 5 ? i : 6));
+    }
     emit_schedule(100, &s);
     struct s_instruction prior[4];
     for (unsigned i = 0; i < 4; ++i)
+    {
         prior[i] = (struct s_instruction){program[i].op, program[i].dst,
                                           program[i].left, program[i].right, 0};
+    }
     unsigned issue[16] = {0}, cycles;
     for (unsigned forwarding = 0; forwarding < 2; ++forwarding)
     {
@@ -107,9 +115,13 @@ static int matrix(void)
 {
     static struct ap_schedule s;
     for (unsigned f = 0; f < 2; ++f)
+    {
         for (unsigned mem = 1; mem <= 2; ++mem)
+        {
             for (unsigned w = 0; w < 2; ++w)
+            {
                 for (unsigned b = 0; b < 2; ++b)
+                {
                     for (unsigned u = 0; u < 2; ++u)
                     {
                         struct ap_config c = {f, mem, w, b, u};
@@ -119,6 +131,10 @@ static int matrix(void)
                               s.retired_count == 6);
                         emit_schedule(key, &s);
                     }
+                }
+            }
+        }
+    }
     struct ap_instruction independent[] = {{S_LOAD, 1, 0, 0, 0, 0},
                                            {S_ALU, 2, 0, 0, 0, 0},
                                            {S_ALU, 3, 0, 0, 0, 0},
@@ -174,8 +190,11 @@ static int ooo(void)
                                                 {S_ALU, 1, 3, 7, 0, 0}}};
     uint8_t initial[8] = {0, 0, 0, 0, 0, 0, 250, 10}, memory[16];
     for (unsigned i = 0; i < 16; ++i)
+    {
         memory[i] = (uint8_t)(37 * i + 5);
+    }
     for (unsigned kind = 0; kind < 4; ++kind)
+    {
         for (unsigned latency = 1; latency <= 4; ++latency)
         {
             struct ap_ooo r;
@@ -183,7 +202,9 @@ static int ooo(void)
                   AP_OK);
             uint8_t sequential[8];
             for (unsigned i = 0; i < 8; ++i)
+            {
                 sequential[i] = initial[i];
+            }
             for (unsigned i = 0; i < 4; ++i)
             {
                 struct ap_instruction op = cases[kind][i];
@@ -191,11 +212,15 @@ static int ooo(void)
                 uint8_t value =
                     op.op == S_LOAD ? memory[sum & 15] : (uint8_t)sum;
                 if (op.dst)
+                {
                     sequential[op.dst] = value;
+                }
             }
             CHECK(equal(r.registers, sequential, sizeof(sequential)));
             if (!kind && latency == 3)
+            {
                 CHECK(r.issue[0] == 1 && r.issue[2] == 2 && r.issue[1] == 4);
+            }
             for (unsigned i = 0; i < 4; ++i)
             {
                 int row[] = {
@@ -206,9 +231,12 @@ static int ooo(void)
             }
             int row[11] = {(int)kind, (int)latency, (int)r.cycles};
             for (unsigned i = 0; i < 8; ++i)
+            {
                 row[i + 3] = r.registers[i];
+            }
             ap_emit("ooo_final", row, 11);
         }
+    }
     struct ap_ooo r = {0}, old;
     r.cycles = 999;
     old = r;
@@ -222,12 +250,20 @@ static int ooo(void)
 int ap_test(const char *s)
 {
     if (name(s, "schedule"))
+    {
         return schedule();
+    }
     if (name(s, "matrix"))
+    {
         return matrix();
+    }
     if (name(s, "boundaries"))
+    {
         return boundaries();
+    }
     if (name(s, "ooo"))
+    {
         return ooo();
+    }
     return 42;
 }

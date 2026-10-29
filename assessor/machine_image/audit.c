@@ -4,12 +4,16 @@
 int main(int argc, char **argv)
 {
     if (argc != 4)
+    {
         return 2;
+    }
     for (int i = 1; i < 4; i++)
     {
         FILE *f = fopen(argv[i], "r");
         if (!f)
+        {
             return 2;
+        }
         char b[1024];
         while (fgets(b, sizeof b, f))
         {

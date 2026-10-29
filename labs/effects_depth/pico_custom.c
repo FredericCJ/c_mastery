@@ -8,7 +8,9 @@ static int put(char c, FILE *f)
 {
     (void)f;
     if (used >= sizeof output)
+    {
         return EOF;
+    }
     output[used++] = c;
     return (unsigned char)c;
 }
@@ -28,9 +30,13 @@ int main(void)
 {
     if (printf("value=%d", 17) != 8 || used != 8 ||
         memcmp(output, "value=17", 8))
+    {
         return 1;
+    }
     errno = 0;
     if (fseek(stdout, 0, SEEK_SET) != -1 || errno != ESPIPE)
+    {
         return 2;
+    }
     return 0;
 }

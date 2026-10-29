@@ -70,7 +70,9 @@ static void hex(uint32_t v)
     char text[10];
     const char *digits = "0123456789abcdef";
     for (unsigned i = 0; i < 8; i++)
+    {
         text[i] = digits[(v >> (28 - 4 * i)) & 15];
+    }
     text[8] = '\n';
     text[9] = 0;
     semihost(4, text);
@@ -97,7 +99,9 @@ static void irq0(void)
         entry_ticks[i] = elapsed(before_irq, started);
         CHECK(result == (i == 3 ? CMX_FULL : CMX_OK));
         if (i < 3)
+        {
             CHECK(out.object_probes == 1 && out.woke == (i == 0));
+        }
         CHECK(kernel.current ==
               0); /* Posting never schedules from this handler. */
     }
@@ -120,7 +124,9 @@ static void fire(unsigned expected)
     REG32(0xe000e200u) = 1;
     __asm__ volatile("dsb\nisb" ::: "memory");
     for (unsigned i = 0; i < 100000 && interrupts != expected; i++)
+    {
         __asm__ volatile("nop" ::: "memory");
+    }
     CHECK(interrupts == expected);
 }
 
@@ -140,7 +146,9 @@ static void exercise(void)
     REG32(0xe000e018u) = 0;
     REG32(0xe000e010u) = 5;
     for (unsigned i = 0; i < 100000 && !ticks(); i++)
+    {
         __asm__ volatile("nop" ::: "memory");
+    }
     CHECK(ticks() != 0);
     uint32_t saved = cdn_irq_save(), nested = cdn_irq_save();
     CHECK(saved == 0 && nested == 1 && primask() == 1);
@@ -150,7 +158,9 @@ static void exercise(void)
     CHECK(primask() == 0);
     basepri(0xc0); /* Allows IRQ0 priority0x80, holds PendSV priority0xff. */
     for (unsigned i = 1; i <= 4; i++)
+    {
         fire(i);
+    }
     CHECK(pend_calls == 0 && notify.accepted == 8 && notify.claimed == 1 &&
           kernel.task[1].notifications == 7 && cdn_invariant(&notify));
     struct cdn_fault fault;
@@ -159,7 +169,9 @@ static void exercise(void)
     CHECK(cdn_ack_fault(recipient, fault.sequence) == CMX_OK);
     basepri(0);
     for (unsigned i = 0; i < 100000 && pend_calls != 1; i++)
+    {
         __asm__ volatile("nop" ::: "memory");
+    }
     CHECK(pend_calls == 1 && kernel.current == 1);
     uint32_t count = 999;
     CHECK(cdn_result(recipient, &count) == CMX_OK && count == 1);
@@ -200,10 +212,14 @@ void cl_reset(void)
     uintptr_t source = (uintptr_t)&cl_data_load;
     for (uintptr_t p = (uintptr_t)&cl_data_start; p < (uintptr_t)&cl_data_end;
          p += 4, source += 4)
+    {
         *(uint32_t *)p = *(const uint32_t *)source;
+    }
     for (uintptr_t p = (uintptr_t)&cl_bss_start; p < (uintptr_t)&cl_bss_end;
          p += 4)
+    {
         *(uint32_t *)p = 0;
+    }
     exercise();
     stop(0);
 }

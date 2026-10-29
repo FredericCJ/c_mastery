@@ -26,7 +26,9 @@ static int mul(struct pe_ratio a, struct pe_ratio b, struct pe_ratio *r)
     b.n /= y;
     a.d /= y;
     if ((b.n && a.n > UINT64_MAX / b.n) || a.d > UINT64_MAX / b.d)
+    {
         return 1;
+    }
     *r = reduce((struct pe_ratio){a.n * b.n, a.d * b.d});
     return 0;
 }
@@ -36,10 +38,14 @@ static int add(struct pe_ratio a, struct pe_ratio b, struct pe_ratio *r)
     uint64_t g = gcd(a.d, b.d), x = b.d / g, y = a.d / g;
     if ((x && a.n > UINT64_MAX / x) || (y && b.n > UINT64_MAX / y) ||
         a.d > UINT64_MAX / x)
+    {
         return 1;
+    }
     uint64_t l = a.n * x, h = b.n * y;
     if (l > UINT64_MAX - h)
+    {
         return 1;
+    }
     *r = reduce((struct pe_ratio){l + h, a.d * x});
     return 0;
 }
@@ -50,34 +56,50 @@ int pe_equation(uint64_t count, struct pe_ratio cpi, uint64_t hz,
 {
     if (!out || !count || !cpi.n || !cpi.d || !hz || !fraction.d ||
         fraction.n > fraction.d || !speed.n || !speed.d)
+    {
         return 1;
+    }
     struct pe_equation r = {0};
     struct pe_ratio cycles, remaining, fast, slow, floor;
     if (mul((struct pe_ratio){count, 1}, cpi, &cycles) ||
         mul(cycles, (struct pe_ratio){1000000000, hz}, &r.baseline_ns))
+    {
         return 1;
+    }
     if (mul(fraction, (struct pe_ratio){speed.d, speed.n}, &fast) ||
         add((struct pe_ratio){fraction.d - fraction.n, fraction.d}, fast,
             &remaining))
+    {
         return 1;
+    }
     if (mul(r.baseline_ns, remaining, &r.new_ns))
+    {
         return 1;
+    }
 #ifndef PE_MUTANT_COMM
     if (add(r.new_ns, (struct pe_ratio){communication, 1}, &r.new_ns))
+    {
         return 1;
+    }
 #endif
     if (mul(r.baseline_ns, (struct pe_ratio){r.new_ns.d, r.new_ns.n},
             &r.speedup))
+    {
         return 1;
+    }
     if (mul(r.baseline_ns,
             (struct pe_ratio){fraction.d - fraction.n, fraction.d}, &slow) ||
         add(slow, (struct pe_ratio){communication, 1}, &floor))
+    {
         return 1;
+    }
     r.unbounded_limit = floor.n == 0;
     if (!r.unbounded_limit &&
         mul(r.baseline_ns, (struct pe_ratio){floor.d, floor.n},
             &r.infinite_limit))
+    {
         return 1;
+    }
 #ifdef PE_MUTANT_UNITS
     r.baseline_ns.n /= 1000;
 #endif
@@ -88,7 +110,9 @@ int pe_equation(uint64_t count, struct pe_ratio cpi, uint64_t hz,
 int pe_stats(const uint64_t *a, size_t n, struct pe_stats *out)
 {
     if (!a || !out || !n || n > 128)
+    {
         return 1;
+    }
     uint64_t copy[128];
     for (size_t i = 0; i < n; ++i)
     {
@@ -107,7 +131,9 @@ int pe_stats(const uint64_t *a, size_t n, struct pe_stats *out)
                          (unsigned)((lo % 2 + hi % 2) % 2)};
 #ifdef PE_MUTANT_OUTLIER
     if (n > 1)
+    {
         r.maximum = copy[n - 2];
+    }
 #endif
     *out = r;
     return 0;

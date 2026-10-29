@@ -3,20 +3,28 @@
 static int admitted(const struct ap_instruction *p, size_t n)
 {
     if ((!p && n) || n > 16)
+    {
         return 0;
+    }
     for (size_t i = 0; i < n; ++i)
     {
         struct ap_instruction v = p[i];
         if (v.op > S_BRANCH || v.dst > 7 || v.left > 7 || v.right > 7 ||
             v.taken > 1)
+        {
             return 0;
+        }
         if (v.op == S_BRANCH)
         {
             if (v.dst || v.target <= i || v.target >= n)
+            {
                 return 0;
+            }
         }
         else if (v.taken || v.target)
+        {
             return 0;
+        }
     }
     return 1;
 }
@@ -27,15 +35,20 @@ static int ready(unsigned reg, const int stages[5], const struct ap_schedule *r,
 {
     (void)mem_left;
     if (!reg)
+    {
         return 1;
+    }
     for (unsigned stage = 2; stage < 5; ++stage)
+    {
         if (stages[stage] >= 0)
         {
             const struct ap_instruction *v = &p[r->pc[stages[stage]]];
             if (v->op != S_BRANCH && v->dst == reg)
             {
                 if (in_id || !c.forwarding)
+                {
                     return stage == 4 && c.write_first;
+                }
                 if (v->op == S_LOAD)
                 {
 #ifdef AP_MUTANT_LOAD
@@ -47,6 +60,7 @@ static int ready(unsigned reg, const int stages[5], const struct ap_schedule *r,
                 return 1;
             }
         }
+    }
     return 1;
 }
 
@@ -56,11 +70,17 @@ enum ap_status ap_schedule(const struct ap_instruction *p, size_t n,
     if (!out || !admitted(p, n) || c.forwarding > 1 || c.memory_cycles < 1 ||
         c.memory_cycles > 2 || c.write_first > 1 || c.branch_in_id > 1 ||
         c.unified_port > 1)
+    {
         return AP_INVALID;
+    }
     struct ap_schedule value = {0};
     for (unsigned i = 0; i < 128; ++i)
+    {
         for (unsigned k = 0; k < 5; ++k)
+        {
             value.slots[i][k] = -1;
+        }
+    }
     if (!n)
     {
         *out = value;
@@ -73,12 +93,16 @@ enum ap_status ap_schedule(const struct ap_instruction *p, size_t n,
     for (unsigned cycle = 1; cycle <= 128; ++cycle)
     {
         for (unsigned k = 0; k < 5; ++k)
+        {
             value.slots[cycle - 1][k] = stages[k];
+        }
         if (stages[4] >= 0)
         {
             unsigned id = (unsigned)stages[4];
             if (value.flush_cycle[id])
+            {
                 return AP_INVALID;
+            }
             value.retired[value.retired_count] = id;
             value.retire_cycle[value.retired_count++] = cycle;
         }
@@ -110,7 +134,9 @@ enum ap_status ap_schedule(const struct ap_instruction *p, size_t n,
         if (stages[3] >= 0)
         {
             if (!mem_left)
+            {
                 return AP_INVALID;
+            }
             if (mem_left == 1)
             {
                 next[4] = stages[3];
@@ -118,7 +144,9 @@ enum ap_status ap_schedule(const struct ap_instruction *p, size_t n,
                 next_mem = 0;
             }
             else
+            {
                 next_mem--;
+            }
         }
         if (stages[2] >= 0 && next[3] < 0)
         {
@@ -130,6 +158,7 @@ enum ap_status ap_schedule(const struct ap_instruction *p, size_t n,
         if (flush)
         {
             for (unsigned k = 0; k < flush; ++k)
+            {
                 if (stages[k] >= 0)
                 {
                     unsigned id = (unsigned)stages[k];
@@ -137,10 +166,13 @@ enum ap_status ap_schedule(const struct ap_instruction *p, size_t n,
                     value.flushed_count++;
                     next[k] = -1;
                 }
+            }
             fetch = target;
 #ifdef AP_MUTANT_SQUASH
             if (flush == 2 && stages[1] >= 0 && next[2] < 0)
+            {
                 next[2] = stages[1];
+            }
 #endif
         }
         if (stages[1] >= 0 && flush != 2)
@@ -167,9 +199,13 @@ enum ap_status ap_schedule(const struct ap_instruction *p, size_t n,
                 next[1] = -1;
             }
             else if (!available)
+            {
                 value.data_stalls++;
+            }
             else
+            {
                 value.structural_stalls++;
+            }
         }
         if (next[1] < 0 && next[0] >= 0)
         {
@@ -184,17 +220,23 @@ enum ap_status ap_schedule(const struct ap_instruction *p, size_t n,
             blocked = 0;
 #endif
             if (blocked)
+            {
                 value.port_stalls++;
+            }
             else
             {
                 if (value.instances == 64)
+                {
                     return AP_LIMIT;
+                }
                 next[0] = (int)value.instances;
                 value.pc[value.instances++] = fetch++;
             }
         }
         for (unsigned k = 0; k < 5; ++k)
+        {
             stages[k] = next[k];
+        }
         mem_left = next_mem;
         value.cycles = cycle;
         if (stages[0] < 0 && stages[1] < 0 && stages[2] < 0 && stages[3] < 0 &&
@@ -213,10 +255,16 @@ enum ap_status ap_ooo(const struct ap_instruction *p, size_t n,
 {
     if (!out || !initial || !memory || !admitted(p, n) || initial[0] ||
         load_cycles < 1 || load_cycles > 4)
+    {
         return AP_INVALID;
+    }
     for (size_t i = 0; i < n; ++i)
+    {
         if (p[i].op == S_BRANCH)
+        {
             return AP_INVALID;
+        }
+    }
     struct ap_ooo result = {0};
     int latest[8];
     for (unsigned i = 0; i < 8; ++i)
@@ -229,7 +277,9 @@ enum ap_status ap_ooo(const struct ap_instruction *p, size_t n,
         result.left_tag[i] = latest[p[i].left];
         result.right_tag[i] = latest[p[i].right];
         if (p[i].dst)
+        {
             latest[p[i].dst] = (int)i;
+        }
     }
     if (!n)
     {
@@ -245,7 +295,9 @@ enum ap_status ap_ooo(const struct ap_instruction *p, size_t n,
             unsigned i = retired;
             result.retire[i] = cycle;
             if (p[i].dst)
+            {
                 result.registers[p[i].dst] = result.value[i];
+            }
             ++retired;
         }
         if (retired == n)
@@ -255,6 +307,7 @@ enum ap_status ap_ooo(const struct ap_instruction *p, size_t n,
             return AP_OK;
         }
         for (unsigned i = 0; i < n; ++i)
+        {
             if (!result.issue[i])
             {
                 int left = result.left_tag[i], right = result.right_tag[i];
@@ -267,7 +320,9 @@ enum ap_status ap_ooo(const struct ap_instruction *p, size_t n,
                     (right >= 0 && (!result.complete[right] ||
                                     result.complete[right] >= cycle)) ||
                     (p[i].op == S_LOAD && memory_until >= cycle))
+                {
                     continue;
+                }
                 unsigned a = left < 0 ? initial[p[i].left] : result.value[left],
                          b = right < 0 ? initial[p[i].right]
                                        : result.value[right];
@@ -277,9 +332,12 @@ enum ap_status ap_ooo(const struct ap_instruction *p, size_t n,
                 result.value[i] =
                     p[i].op == S_LOAD ? memory[(a + b) & 15] : (uint8_t)(a + b);
                 if (p[i].op == S_LOAD)
+                {
                     memory_until = result.complete[i];
+                }
                 break;
             }
+        }
     }
     return AP_LIMIT;
 }

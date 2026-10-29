@@ -35,7 +35,9 @@ static int32_t *take(void *context, size_t n)
 {
     (void)context;
     if (live || n > 32)
+    {
         return 0;
+    }
     live = 1;
     return stage;
 }

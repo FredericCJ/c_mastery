@@ -6,20 +6,26 @@ int ep_model_read(void *p, unsigned reg, uint32_t *out)
     m->calls++;
     m->reads++;
     if (m->calls == m->fail_at)
+    {
         return 1;
+    }
     if (reg == 1)
     {
         *out = m->data;
         return 0;
     }
     if (reg != 0)
+    {
         return 1;
+    }
     if (m->ar & 1)
     {
         if (m->stuck || m->busy_reads)
         {
             if (m->busy_reads)
+            {
                 m->busy_reads--;
+            }
             *out = m->ar;
             return 0;
         }
@@ -44,12 +50,16 @@ int ep_model_read(void *p, unsigned reg, uint32_t *out)
             if (number == 0 && m->reset_reads)
             {
                 if (!--m->reset_reads)
+                {
                     m->phy[address][0] &= ~0x8000u;
+                }
             }
             if (number == 0 && m->restart_reads)
             {
                 if (!--m->restart_reads)
+                {
                     m->phy[address][0] &= ~0x0200u;
+                }
             }
             if (number == 1 && m->latch)
             {
@@ -69,7 +79,9 @@ int ep_model_write(void *p, unsigned reg, uint32_t value)
     struct ep_model *m = p;
     m->calls++;
     if (m->calls == m->fail_at)
+    {
         return 1;
+    }
     if (m->ar & 1)
     {
         m->violation++;
@@ -82,10 +94,14 @@ int ep_model_write(void *p, unsigned reg, uint32_t value)
         return 0;
     }
     if (reg != 0)
+    {
         return 1;
+    }
     m->ar = value;
     if (value & 1)
+    {
         m->busy_reads = m->delay;
+    }
     return 0;
 }
 
@@ -93,7 +109,9 @@ uint32_t ep_model_clock(void *p)
 {
     struct ep_model *m = p;
     if (!m->frozen)
+    {
         m->tick++;
+    }
     return m->tick;
 }
 
@@ -109,8 +127,12 @@ void ep_model_setup(struct ep_model *m, unsigned address)
     *m = zero;
     m->delay = 1;
     for (unsigned a = 0; a < 32; a++)
+    {
         for (unsigned r = 0; r < 32; r++)
+        {
             m->phy[a][r] = 0xffff;
+        }
+    }
     m->phy[address][0] = 0x1000;
     m->phy[address][1] = 0x24;
     m->phy[address][2] = 7;

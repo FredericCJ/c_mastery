@@ -28,9 +28,13 @@ static inline unsigned ni_test_sum(const unsigned char *p, size_t n)
 {
     uint32_t sum = 0;
     for (size_t i = 0; i < n; i++)
+    {
         sum += (uint32_t)p[i] << (i % 2 ? 0 : 8);
+    }
     while (sum >> 16)
+    {
         sum = (sum & 65535) + (sum >> 16);
+    }
     return (unsigned)(sum ^ 65535);
 }
 
@@ -39,7 +43,9 @@ static inline void ni_test_header(unsigned char *p, unsigned payload,
                                   unsigned protocol)
 {
     for (unsigned i = 0; i < 20; i++)
+    {
         p[i] = 0;
+    }
     p[0] = 0x45;
     ni_test_put16(p + 2, payload + 20);
     ni_test_put16(p + 4, id);
@@ -65,13 +71,17 @@ static inline void ni_test_echo(unsigned char *p, unsigned size)
 {
     ni_test_header(p, size + 8, 0, 0, 0, 1);
     for (unsigned i = 20; i < 28; i++)
+    {
         p[i] = 0;
+    }
     p[20] = 8;
     p[24] = 0x12;
     p[25] = 0x34;
     p[27] = 1;
     for (unsigned i = 0; i < size; i++)
+    {
         p[28 + i] = (unsigned char)(0x61 + i);
+    }
     ni_test_put16(p + 22, ni_test_sum(p + 20, size + 8));
 }
 #endif

@@ -17,7 +17,9 @@ int main(void)
     Dl_info info;
     uintptr_t address = (uintptr_t)&ae_fault_site;
     if (!dladdr((void *)address, &info))
+    {
         return 1;
+    }
     printf("BUILD=%u ADDRESS=%" PRIxPTR " BIAS=%" PRIxPTR " VALUE=%u\n",
            AE_BUILD, address, (uintptr_t)info.dli_fbase, ae_fault_site(1));
     return 0;

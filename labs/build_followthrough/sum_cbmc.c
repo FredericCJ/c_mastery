@@ -18,7 +18,9 @@ int main(void)
         a[i] = nondet_unsigned();
         __CPROVER_assume(a[i] <= 10);
         if (i < n)
+        {
             expected += a[i];
+        }
     }
     assert(bf_sum(a, 4, n, out) == BF_OK);
     assert(out[0] == expected);

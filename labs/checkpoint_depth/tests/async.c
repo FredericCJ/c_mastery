@@ -147,7 +147,9 @@ static void await_metric(struct cpa_queue *q, int wakes, size_t minimum)
         size_t value = wakes ? q->wakes : q->waiters;
         CHECK(!pthread_mutex_unlock(&q->mutex));
         if (value >= minimum)
+        {
             return;
+        }
         struct timespec pause = {0, 1000000};
         (void)nanosleep(&pause, 0);
     }
@@ -184,7 +186,9 @@ void cp_test_async_wait(void)
     struct cpx_thread pair[2] = {{.queue = &q}, {.queue = &q}};
     pthread_t ids[2];
     for (unsigned i = 0; i < 2; ++i)
+    {
         CHECK(!pthread_create(&ids[i], 0, run_thread, &pair[i]));
+    }
     await_metric(&q, 0, 2);
     m = message(3);
     CHECK(cpa_offer(&q, &m, 0) == CPA_OK);
@@ -200,7 +204,9 @@ void cp_test_async_wait(void)
             CHECK(cpa_finish(&q, pair[i].handle, 0) == CPA_OK);
         }
         else
+        {
             CHECK(pair[i].status == CPA_CLOSED);
+        }
     }
     CHECK(owners == 1 && cpa_destroy(&q) == CPA_OK);
     CHECK(cpa_init(&q, 32) == CPA_OK);

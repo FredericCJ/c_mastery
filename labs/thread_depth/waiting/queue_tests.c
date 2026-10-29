@@ -42,10 +42,14 @@ void test_lifecycle(void)
     CHECK(tw_queue_init(&q, 0, &r) == 0 && r.initialized == 5 &&
           r.destroyed == 0);
     for (unsigned i = 1; i < 16; i++)
+    {
         CHECK(tw_ref(&q) == 0);
+    }
     CHECK(tw_ref(&q) == EOVERFLOW);
     for (unsigned i = 1; i < 16; i++)
+    {
         CHECK(tw_unref(&q) == 0);
+    }
     CHECK(tw_ref(&q) == 0);
     unsigned refs, active;
     size_t count;
@@ -102,16 +106,22 @@ void test_queue(void)
                                {.queue = &q, .out = 77}};
     pthread_t t[2];
     for (unsigned i = 0; i < 2; i++)
+    {
         CHECK(pthread_create(&t[i], NULL, consume, &c[i]) == 0);
+    }
     CHECK(tw_wait_entries(&q, 2) == 0);
     CHECK(tw_push(&q, 21, NULL) == 0);
     CHECK(tw_close(&q) == 0);
     for (unsigned i = 0; i < 2; i++)
+    {
         CHECK(pthread_join(t[i], NULL) == 0);
+    }
     CHECK((c[0].result == 0) + (c[1].result == 0) == 1);
     CHECK((c[0].result == EPIPE) + (c[1].result == EPIPE) == 1);
     for (unsigned i = 0; i < 2; i++)
+    {
         CHECK(c[i].out == (c[i].result ? 77 : 21));
+    }
     finish(&q);
     puts("OBS queue ring fixture FIFO; full timeout preserves input; two "
          "consumers one item");
@@ -193,7 +203,9 @@ void test_deadline(void)
     {
         CHECK(tw_wait_entries(&q, i) == 0);
         if (i < 4)
+        {
             CHECK(tw_noise(&q) == 0);
+        }
     }
     CHECK(tw_close(&q) == 0);
     CHECK(pthread_join(t, NULL) == 0);

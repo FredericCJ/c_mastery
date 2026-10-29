@@ -88,9 +88,13 @@ int main(void)
         ssize_t n = recv(fds[1], bytes, 65536, 0);
         CHECK(n >= 0);
         if (!n)
+        {
             break;
+        }
         for (ssize_t i = 0; i < n; i++)
+        {
             CHECK(bytes[i] == 0x5a);
+        }
         received += (size_t)n;
     }
     CHECK(received == total);

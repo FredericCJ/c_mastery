@@ -4,7 +4,9 @@ static void print(const char *s)
 {
     size_t n = 0;
     while (s[n])
+    {
         n++;
+    }
     cmk_write(s, n);
 }
 
@@ -87,7 +89,9 @@ static void blocked(uint64_t thread)
     {
         int64_t b = cmk_call(SDK_BLOCKED, thread, 0, 0);
         if (b == 1)
+        {
             return;
+        }
         CHECK(b == 0, "wait handle");
         cmk_call(CMK_YIELD, 0, 0, 0);
     }
@@ -104,7 +108,9 @@ static void racer(uintptr_t i)
     cmk_call(CMK2_SET_AFFINITY, 1u << ((unsigned)i % cpus), 0, 0);
     __atomic_fetch_add(&ready, 1, __ATOMIC_RELEASE);
     while (!__atomic_load_n(&go, __ATOMIC_ACQUIRE))
+    {
         cmk_call(CMK_YIELD, 0, 0, 0);
+    }
     race[i] = (unsigned)i + 51;
     cmk2_thread_exit(0);
 }
@@ -340,7 +346,9 @@ void _start(void)
             b = cmk2_thread_create(racer, (unsigned char *)stack2 + 16384, 1);
     CHECK(a > 0 && b > 0, "fault racers");
     while (__atomic_load_n(&ready, __ATOMIC_ACQUIRE) != 2)
+    {
         cmk_call(CMK_YIELD, 0, 0, 0);
+    }
     CHECK(cmk_call(SDK_CLONE_PRIVATE, 0, 0, 0) == CMK2_EINVAL,
           "multithread clone denied");
     __atomic_store_n(&go, 1, __ATOMIC_RELEASE);

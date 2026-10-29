@@ -41,7 +41,9 @@ static unsigned received_and_dropped(unsigned *drops)
 static void marker(unsigned bit, int set)
 {
     if (P4_TRACE)
+    {
         REG(0x40020018) = UINT32_C(1) << (bit + (set ? 0 : 16));
+    }
 }
 
 static void direction(void *unused, int on)
@@ -53,8 +55,10 @@ static void direction(void *unused, int on)
         REG(0x40020818) = 1;
     }
     else
+    {
         release_requested =
             1; /* Hardware adapter releases after its own cycle guard. */
+    }
 }
 
 static void release_direction(void)
@@ -68,12 +72,16 @@ static int clock_setup(void)
     REG(0xe000edfc) |= UINT32_C(1) << 24;
     __asm__ volatile("dsb\nisb" ::: "memory");
     if (REG(0xe0001000) & (UINT32_C(1) << 25))
+    {
         return 0;
+    }
     REG(0xe0001004) = 0;
     REG(0xe0001000) |= 1;
     uint32_t before = now();
     for (unsigned i = 0; i < 100; i++)
+    {
         __asm__ volatile("nop");
+    }
     return now() != before;
 }
 
@@ -85,7 +93,9 @@ void cp_pendsv(void)
 void p4_exti0(void)
 {
     if (!(REG(0x40013c14) & 1))
+    {
         return;
+    }
     REG(0x40013c14) =
         1; /* W1C, never read-modify-write unrelated pending bits. */
     unsigned index = received;
@@ -99,19 +109,25 @@ void p4_exti0(void)
     volatile struct p4_row *row = &p4_capture.rows[index];
     row->sequence = index;
     if (P4_TRACE)
+    {
         row->isr_cycle = tick;
+    }
     int accepted =
         cpf_irq_push(&ring, (struct cpf_sample){index, (uint16_t)(100 + index),
                                                 (uint16_t)(tick >> 4)});
     if (P4_TRACE)
+    {
         row->publish_cycle = now();
+    }
     row->flags = accepted ? P4_ACCEPTED : P4_DROPPED;
     marker(4, 1);
     marker(4, 0);
     marker(3, 0);
     received = index + 1;
     if (received == P4_EVENTS)
+    {
         REG(0x40013c00) &= ~UINT32_C(1);
+    }
 }
 
 static void inputs_setup(void)
@@ -150,7 +166,9 @@ static int send(const struct cpf_sample *sample)
     message.sequence = (uint16_t)sample->sequence;
     message.length = 8;
     for (unsigned i = 0; i < 4; i++)
+    {
         message.payload[i] = (unsigned char)(sample->sequence >> (8 * i));
+    }
     message.payload[4] = (unsigned char)sample->value;
     message.payload[5] = (unsigned char)(sample->value >> 8);
     message.payload[6] = (unsigned char)sample->tick;
@@ -171,13 +189,17 @@ static int send(const struct cpf_sample *sample)
     row->generation = active->generation;
     row->flags |= P4_FRAMED;
     if (P4_TRACE)
+    {
         row->frame_cycle = now();
+    }
     marker(6, 1);
     marker(6, 0);
     if (P4_MODE == 1)
     {
         if (REG(0x400260a0) & 1)
+        {
             goto abort_transfer;
+        }
         REG(0x4002600c) = UINT32_C(0x3d) << 16;
         REG(0x400260a0) =
             (UINT32_C(4) << 25) | (UINT32_C(1) << 10) | (UINT32_C(1) << 6);
@@ -203,7 +225,9 @@ static int send(const struct cpf_sample *sample)
             {
                 row->flags |= P4_DMA_DONE;
                 if (P4_TRACE)
+                {
                     row->dma_cycle = now();
+                }
                 marker(7, 1);
                 marker(7, 0);
             }
@@ -212,23 +236,29 @@ static int send(const struct cpf_sample *sample)
                                 (flags & (UINT32_C(0xd) << 16)) != 0);
         }
         else if (P4_MODE == 2)
+        {
             result =
                 release_requested
                     ? CPF_OK
                     : cpx_halfduplex_step(&half, (uint16_t)(now() >> 4),
                                           (status & 128) != 0,
                                           (status & 64) != 0, write_byte, 0);
+        }
         else
+        {
             result =
                 cpf_tx_poll(active, active->generation, (status & 128) != 0,
                             (status & 64) != 0, write_byte, 0);
+        }
         /* TC is a sampled status observation, not the exact external stop-bit edge. */
         if ((P4_MODE == 2 ? half.holding : result == CPF_OK) &&
             !(row->flags & P4_WIRE_DONE))
         {
             row->flags |= P4_WIRE_DONE;
             if (P4_TRACE)
+            {
                 row->tc_cycle = now();
+            }
             marker(5, 1);
             marker(5, 0);
             tc_observed = now();
@@ -237,12 +267,18 @@ static int send(const struct cpf_sample *sample)
         {
             if (P4_MODE == 2 &&
                 (!release_requested || (uint32_t)(now() - tc_observed) < 16000))
+            {
                 continue;
+            }
             if (P4_MODE == 2)
+            {
                 release_direction();
+            }
             REG(0x40004414) &= ~UINT32_C(0x80);
             if (P4_MODE == 2 || cpf_tx_next(active) == CPF_OK)
+            {
                 return 1;
+            }
             row->flags |= P4_FAILED;
             p4_capture.first_fault = 4;
             p4_capture.fault_generation = active->generation;
@@ -251,7 +287,9 @@ static int send(const struct cpf_sample *sample)
         }
         if (result == CPF_FAILED ||
             (uint32_t)(now() - start) >= UINT32_C(1600000))
+        {
             break;
+        }
     }
 abort_transfer:
     (void)cpf_tx_timeout(active, active->generation, 2);
@@ -264,7 +302,9 @@ abort_transfer:
         (void)cpf_tx_recover(active, active->generation, 0,
                              (REG(0x4000440c) & (UINT32_C(1) << 13)) != 0);
         if (!active->retained && P4_MODE == 2)
+        {
             release_direction();
+        }
     }
     p4_capture.first_fault = active->fault_code ? active->fault_code : 2;
     p4_capture.fault_generation =
@@ -278,9 +318,13 @@ void cp_target_main(void)
 {
     if (initialized != UINT32_C(0x13579bdf) || zeroed || received ||
         p4_capture.magic)
+    {
         cp_fault();
+    }
     if (!cpf_ring_init(&ring, P4_RING) || !setup() || !clock_setup())
+    {
         cp_fault();
+    }
     cpf_tx_init(&tx, 128, 2);
     p4_capture.magic = P4_CAPTURE_MAGIC;
     p4_capture.version = 1;
@@ -308,7 +352,9 @@ void cp_target_main(void)
         unsigned dropped;
         if (received_and_dropped(&dropped) == P4_EVENTS &&
             completed + dropped == P4_EVENTS)
+        {
             break;
+        }
     }
     __asm__ volatile("cpsid i" ::: "memory");
     REG(0x40013c00) &= ~UINT32_C(1);

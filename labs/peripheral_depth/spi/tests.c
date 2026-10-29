@@ -54,9 +54,13 @@ static void write_reg(void *v, unsigned r, uintptr_t x)
     }
     m->r[r] = (uint32_t)x;
     if (r == PS_RX_START)
+    {
         m->r[PS_RX_EN] = 1;
+    }
     if (r == PS_TX_START)
+    {
         m->r[PS_TX_EN] = 1;
+    }
     if (r == PS_TX_START && m->instant_dma)
     {
         m->r[PS_TX_EN] = m->r[PS_RX_EN] = m->r[PS_TX_COUNT] =
@@ -65,7 +69,9 @@ static void write_reg(void *v, unsigned r, uintptr_t x)
         m->r[PS_SR] = PS_TXE | PS_BSY;
     }
     if (r == PS_RESET)
+    {
         m->r[PS_SR] = PS_TXE;
+    }
 }
 
 int main(void)
@@ -112,9 +118,13 @@ int main(void)
         for (unsigned i = 0; i < m.n; i++)
         {
             if (m.order[i] == PS_RX_START)
+            {
                 rx_start = i;
+            }
             if (m.order[i] == PS_TX_START)
+            {
                 tx_start = i;
+            }
         }
         CHECK(rx_start < tx_start);
     }

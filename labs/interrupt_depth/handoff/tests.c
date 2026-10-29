@@ -17,7 +17,9 @@ static struct xi_record record(unsigned id)
                           .original_length = 8,
                           .copied = 8};
     for (unsigned j = 0; j < 8; ++j)
+    {
         r.bytes[j] = (unsigned char)(id + j);
+    }
     return r;
 }
 
@@ -78,7 +80,9 @@ int main(void)
         int rc = xi_capture_begin(&service, i, i * 5, bytes, 8);
         CHECK(rc == (i <= 3 ? XI_OK : XI_FULL));
         if (!rc)
+        {
             CHECK(xi_capture_end(&service) == XI_OK);
+        }
     }
     CHECK(service.acknowledged == 5 && service.dropped == 2 &&
           service.reentrant == 1);
@@ -102,7 +106,9 @@ int main(void)
               out.copied == (lengths[i] > 8 ? 8 : lengths[i]) &&
               out.flags == (lengths[i] > 8 ? XI_TRUNCATED : 0));
         for (unsigned j = 0; j < 8; ++j)
+        {
             CHECK(out.bytes[j] == (j < out.copied ? bytes[j] : 0));
+        }
     }
     CHECK(xi_capture_begin(&service, 9, 7, NULL, 1) == XI_INVALID &&
           service.acknowledged == 1 && !service.active);
@@ -121,7 +127,9 @@ int main(void)
     }
     CHECK(latest.dropped == 2);
     for (unsigned i = 3; i <= 5; ++i)
+    {
         CHECK(xi_latest_pop(&latest, &out) == XI_OK && out.sequence == i);
+    }
     struct xi_mask mask;
     uint32_t outer, inner;
     for (unsigned prior = 0; prior < 2; ++prior)
@@ -150,12 +158,16 @@ int main(void)
           XI_OK);
     uint32_t tokens[8];
     for (unsigned i = 0; i < 8; ++i)
+    {
         CHECK(xi_mask_enter(&mask, 1, &tokens[i]) == XI_OK);
+    }
     outer = 999;
     CHECK(xi_mask_enter(&mask, 1, &outer) == XI_FULL && outer == 999 &&
           mask.depth == 8);
     for (unsigned i = 8; i > 0; --i)
+    {
         CHECK(xi_mask_leave(&mask, tokens[i - 1]) == XI_OK);
+    }
     CHECK(mask.value == 0);
     puts("XI_PASS ordinary_pause_burst_latest_mask");
     return 0;

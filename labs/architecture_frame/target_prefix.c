@@ -29,7 +29,9 @@ void xf_target_main(void)
 {
     unsigned failed = 0;
     for (unsigned i = 0; i < 4; ++i)
+    {
         failed |= (unsigned)mf_run(i);
+    }
     if (failed)
     {
         unsigned args[] = {0x20026, 1};

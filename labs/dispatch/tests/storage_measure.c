@@ -21,7 +21,9 @@ static uint64_t now(void)
 {
     struct timespec t;
     if (clock_gettime(CLOCK_MONOTONIC, &t))
+    {
         exit(2);
+    }
     return (uint64_t)t.tv_sec * 1000000000u + (uint64_t)t.tv_nsec;
 }
 
@@ -39,9 +41,12 @@ static void observations(void)
 {
     unsigned char bytes[17];
     for (unsigned i = 0; i < 17; ++i)
+    {
         bytes[i] = (unsigned char)i;
+    }
     const unsigned cycles[] = {1, 8, 64};
     for (unsigned compact = 0; compact < 2; ++compact)
+    {
         for (unsigned ci = 0; ci < 3; ++ci)
         {
             unsigned count = cycles[ci];
@@ -56,9 +61,13 @@ static void observations(void)
                       s.length == 17);
                 CHECK(d_small_truncate(&s, 16) == D_OK);
                 if (compact)
+                {
                     CHECK(d_small_compact(&s) == D_OK);
+                }
                 for (unsigned j = 0; j < 16; ++j)
+                {
                     CHECK(d_small_data(&s)[j] == j);
+                }
             }
             size_t before_live = a.live;
             d_small_reset(&s);
@@ -66,11 +75,14 @@ static void observations(void)
             printf("O %u %u %zu %zu %zu %zu\n", compact, count, copied,
                    a.attempts, a.releases, before_live);
         }
+    }
     for (size_t n = 1; n <= 8; ++n)
     {
         int32_t values[8];
         for (unsigned i = 0; i < 8; ++i)
+        {
             values[i] = (int32_t)i;
+        }
         struct ow_allocator pool = {0};
         struct ds_erased e;
         ds_erased_init(&e, ds_counted_bytes(&pool));
@@ -106,16 +118,22 @@ static uint32_t scalar_lane(uint32_t a, uint32_t b, unsigned bits, int sign)
                     sy = y < 32768 ? (int32_t)y : -1 - (int32_t)(65535 - y);
             int32_t n = sx + sy;
             if (n > 32767)
+            {
                 n = 32767;
+            }
             if (n < -32768)
+            {
                 n = -32768;
+            }
             out |= ((uint32_t)n & mask) << (lane * bits);
         }
         else
         {
             uint32_t n = x + y;
             if (n > mask)
+            {
                 n = mask;
+            }
             out |= n << (lane * bits);
         }
     }
@@ -127,7 +145,9 @@ static void timings(void)
     const unsigned repetitions = 100000;
     int32_t values[8];
     for (unsigned i = 0; i < 8; ++i)
+    {
         values[i] = (int32_t)i - 2;
+    }
     for (size_t n = 1; n <= 8; ++n)
     {
         struct ow_allocator pool = {0};
@@ -138,6 +158,7 @@ static void timings(void)
         CHECK(ds_capture_i32(&e, values, n, NULL, NULL) == DS_OK &&
               ds_typed_assign(&t, values, n) == DS_OK);
         for (unsigned trial = 0; trial < 7; ++trial)
+        {
             for (unsigned k = 0; k < 3; ++k)
             {
                 unsigned kind = (k + trial) % 3;
@@ -168,13 +189,16 @@ static void timings(void)
                 {
                     int64_t value = i % 17;
                     for (size_t j = 0; j < n; ++j)
+                    {
                         value += values[j];
+                    }
                     expected += value;
                 }
                 CHECK(checksum == expected);
                 printf("T %zu %u %u %llu %lld\n", n, trial, kind,
                        (unsigned long long)elapsed, (long long)checksum);
             }
+        }
         ds_erased_drop(&e);
         ds_typed_drop(&t);
         CHECK(!pool.live);
@@ -191,14 +215,18 @@ static void timings(void)
         right[i] = random;
     }
     for (unsigned mode = 0; mode < 3; ++mode)
+    {
         for (unsigned ni = 0; ni < 2; ++ni)
         {
             unsigned n = ni ? 65536 : 1024;
             uint64_t expected = 0;
             for (unsigned i = 0; i < n; ++i)
+            {
                 expected += scalar_lane(left[i], right[i], mode == 0 ? 8 : 16,
                                         mode == 2);
+            }
             for (unsigned trial = 0; trial < 7; ++trial)
+            {
                 for (unsigned k = 0; k < 2; ++k)
                 {
                     unsigned kind = (k + trial) % 2;
@@ -206,12 +234,14 @@ static void timings(void)
                     atomic_signal_fence(memory_order_seq_cst);
                     uint64_t start = now();
                     for (unsigned i = 0; i < n; ++i)
+                    {
                         sum += kind == 0
                                    ? scalar_lane(left[i], right[i],
                                                  mode == 0 ? 8 : 16, mode == 2)
                                : mode == 0 ? d_swar_add(left[i], right[i])
                                : mode == 1 ? d_swar16_add(left[i], right[i])
                                            : d_swar16_signed(left[i], right[i]);
+                    }
                     atomic_signal_fence(memory_order_seq_cst);
                     uint64_t elapsed = now() - start;
                     CHECK(sum == expected);
@@ -219,7 +249,9 @@ static void timings(void)
                            (unsigned long long)elapsed,
                            (unsigned long long)sum);
                 }
+            }
         }
+    }
     free(left);
     free(right);
 }
@@ -227,12 +259,20 @@ static void timings(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "observe"))
+    {
         observations();
+    }
     else if (!strcmp(argv[1], "time") && !COPY_OBSERVED)
+    {
         timings();
+    }
     else
+    {
         return 2;
+    }
     return 0;
 }

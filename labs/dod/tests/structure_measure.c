@@ -52,7 +52,9 @@ static void component_init(struct d_component *c)
 {
     *c = (struct d_component){0};
     for (unsigned i = 0; i < 4; ++i)
+    {
         c->rank[i] = 4;
+    }
 }
 
 static void component_set(struct d_component *c, unsigned id, int present,
@@ -121,7 +123,9 @@ static int sparse_query(const struct d_measure_sparse *s)
     {
         unsigned id = s->position.ids[row], v = s->velocity.rank[id];
         if (v < 4)
+        {
             total += s->position.values[row] + s->velocity.values[v];
+        }
     }
     return total;
 }
@@ -134,13 +138,17 @@ static void ecs_work(unsigned sparse, unsigned ratio, unsigned edits,
     struct d_entity_query query = {0};
     struct d_measure_sparse s;
     if (sparse)
+    {
         sparse_init(&s, handles);
+    }
     else
     {
         d_entity_init(&w);
         for (unsigned id = 0; id < 2; ++id)
+        {
             CHECK(d_entity_create(&w, id + 1, (int)id + 1, (int)id + 2,
                                   &handles[id]) == D_OK);
+        }
     }
     copies = 0;
     uint64_t checksum = 0, misses = 0, start = now();
@@ -148,7 +156,9 @@ static void ecs_work(unsigned sparse, unsigned ratio, unsigned edits,
     {
         unsigned id = edit % 2, mask = (edit / 2) % 3 + 1;
         if (sparse)
+        {
             sparse_set(&s, handles[id], mask);
+        }
         else
         {
             struct d_entity_command c = {handles[id], mask, (int)id + 1,
@@ -158,7 +168,9 @@ static void ecs_work(unsigned sparse, unsigned ratio, unsigned edits,
         for (unsigned q = 0; q < ratio; ++q)
         {
             if (sparse)
+            {
                 checksum += (unsigned)sparse_query(&s);
+            }
             else
             {
                 misses += query.query.version != w.world.version;
@@ -193,15 +205,19 @@ static int clone(void *context, const unsigned char *text, size_t n,
 {
     struct text_pool *p = context;
     for (unsigned i = 0; i < 16; ++i)
+    {
         if (!p->used[i])
         {
             p->used[i] = 1;
             for (size_t j = 0; j < n; ++j)
+            {
                 p->bytes[i][j] = text[j];
+            }
             ++p->clones;
             *out = p->bytes[i];
             return 1;
         }
+    }
     return 0;
 }
 
@@ -209,6 +225,7 @@ static void drop(void *context, unsigned char *text)
 {
     struct text_pool *p = context;
     for (unsigned i = 0; i < 16; ++i)
+    {
         if (text == p->bytes[i])
         {
             CHECK(p->used[i]);
@@ -216,6 +233,7 @@ static void drop(void *context, unsigned char *text)
             ++p->drops;
             return;
         }
+    }
     CHECK(0);
 }
 
@@ -255,7 +273,9 @@ static void tree_work(unsigned budget, unsigned sample)
             while (!done)
             {
                 if (work.count > max_pending)
+                {
                     max_pending = work.count;
+                }
                 CHECK(d_rc_drain(&work, budget, &done) == D_OK);
                 ++total_calls;
             }
@@ -294,8 +314,12 @@ int main(int argc, char **argv)
     if (!strcmp(argv[1], "observe"))
     {
         for (unsigned mode = 0; mode < 2; ++mode)
+        {
             for (unsigned ratio = 1; ratio <= 16; ratio *= 16)
+            {
                 ecs_work(mode, ratio, 12, 0, 1);
+            }
+        }
         census();
     }
     else if (!strcmp(argv[1], "time"))
@@ -303,8 +327,12 @@ int main(int argc, char **argv)
         for (unsigned sample = 0; sample < 7; ++sample)
         {
             for (unsigned ratio = 1; ratio <= 256; ratio *= 16)
+            {
                 for (unsigned j = 0; j < 2; ++j)
+                {
                     ecs_work((j + sample) % 2, ratio, 6000, sample, 0);
+                }
+            }
             for (unsigned j = 0; j < 4; ++j)
             {
                 unsigned index = (j + sample) % 4;
@@ -313,6 +341,8 @@ int main(int argc, char **argv)
         }
     }
     else
+    {
         CHECK(0);
+    }
     return 0;
 }

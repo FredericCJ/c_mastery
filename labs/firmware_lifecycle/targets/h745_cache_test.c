@@ -38,6 +38,7 @@ static void reject(struct fw_peer *p, unsigned c, uint32_t g,
 int main(void)
 {
     for (unsigned mode = FW_CLEAN; mode <= H7_INVALIDATE; ++mode)
+    {
         for (uint32_t n = 32; n <= 4096; n += 32)
         {
             struct f4_trace t = {0};
@@ -46,9 +47,12 @@ int main(void)
             C(t.ops[0] == FW_DSB && t.ops[t.n - 2] == FW_DSB &&
               t.ops[t.n - 1] == FW_ISB);
             for (unsigned i = 1; i < t.n - 2; ++i)
+            {
                 C(t.ops[i] == (enum fw_cache_op)mode &&
                   t.addresses[i] == 0x30040000u + 32u * (i - 1));
+            }
         }
+    }
     struct f4_trace t = {0};
     C(fw_cache_range(UINT32_MAX, 0, FW_CLEAN, emit, &t));
     C(!t.n);

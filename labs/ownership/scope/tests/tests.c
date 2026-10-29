@@ -38,14 +38,18 @@ static int jump(void)
           r.original == ER_THROWN && r.converted == ER_CONTRACT &&
           r.registered == 4 && r.count == 3);
     for (unsigned i = 0; i < r.count; ++i)
+    {
         CHECK(r.seen_error[i] == ER_CONTRACT);
+    }
     for (unsigned cut = 1; cut <= 4; ++cut)
     {
         p.fail_before = cut;
         CHECK(ocs_run(&p, &effects, &r) == OW_OK && r.original == ER_IO &&
               r.registered == cut - 1);
         for (unsigned i = 0; i < r.count; ++i)
+        {
             CHECK(r.seen_error[i] == ER_CONTRACT);
+        }
     }
     unsigned before = effects;
     p.policy[3] = (enum ow_when)9;
@@ -70,14 +74,18 @@ static void probe(void *p)
     size_t n = q->scope.count;
     if (ow_defer(&q->scope, probe, q, OW_ALWAYS) != OW_INVALID ||
         ow_finish(&q->scope, 1) != OW_INVALID || q->scope.count != n)
+    {
         q->bad = 1;
+    }
 }
 
 static int capacity(void)
 {
     struct ow_probe p = {0};
     for (unsigned i = 0; i < 8; ++i)
+    {
         CHECK(ow_defer(&p.scope, probe, &p, OW_ALWAYS) == OW_OK);
+    }
     CHECK(ow_defer(&p.scope, probe, &p, OW_ALWAYS) == OW_FULL &&
           p.scope.count == 8);
     CHECK(ow_finish(&p.scope, 2) == OW_INVALID && p.scope.count == 8);
@@ -111,7 +119,9 @@ static void pub_release(void *p, int32_t *b)
         ++q->observed;
         if (q->published->count != 3 || q->published->block[0] != q->expected ||
             q->staged->count != 0 || q->published->block[0][0] != 97)
+        {
             q->bad = 1;
+        }
     }
     q->raw.release(q->raw.context, b);
 }
@@ -151,10 +161,14 @@ struct ow_resources
 static int resource_open(struct ow_resources *r, unsigned id)
 {
     if (!r->raw.take)
+    {
         r->raw = ow_allocator(&r->pool);
+    }
     r->block[id] = r->raw.take(r->raw.context, 1);
     if (!r->block[id])
+    {
         return 0;
+    }
     r->block[id][0] = (int32_t)id;
     r->owned[id] = 1;
     return 1;
@@ -169,21 +183,31 @@ static enum ocs_close close_resource(void *p, unsigned id)
         return OCS_RELEASED;
     }
     if (r->count < 32)
+    {
         r->trace[r->count++] = id;
+    }
     else
+    {
         r->bad = 1;
+    }
     ++r->calls[id];
     if (!r->owner->finishing)
+    {
         r->bad = 1;
+    }
     if (r->probe)
     {
         struct ocs_recovered out = {91, 92, 93};
         if (ocs_push(r->ticket, close_resource, r, 7) != OW_BUSY ||
             ocs_recover(r->ticket, &out) != OW_BUSY || out.pending != 91)
+        {
             r->bad = 1;
+        }
     }
     if ((r->retain & (1u << id)) && r->calls[id] == 1)
+    {
         return OCS_RETAINED;
+    }
     r->raw.release(r->raw.context, r->block[id]);
     r->block[id] = NULL;
     r->owned[id] = 0;
@@ -215,7 +239,9 @@ static int recovery(void)
     CHECK(r.count == 4 && r.trace[1] == 2 && r.trace[2] == 1 &&
           r.trace[3] == 0);
     for (unsigned i = 0; i < 3; ++i)
+    {
         CHECK(!r.owned[i]);
+    }
     out.pending = 91;
     CHECK(ocs_recover(r.ticket, &out) == OW_STALE && out.pending == 91);
     puts(
@@ -277,7 +303,9 @@ static int oracle(void)
             printf("%d %u %d %d %u %u", s, effects, r.original, r.converted,
                    r.registered, r.count);
             for (unsigned i = 0; i < r.count; ++i)
+            {
                 printf(" %u %u", r.trace[i], r.seen_error[i]);
+            }
             putchar('\n');
         }
         else
@@ -288,13 +316,19 @@ static int oracle(void)
             r.retain = packed;
             r.error = cut;
             if (ocs_begin(&owner, &r.ticket) != OW_OK)
+            {
                 return 1;
+            }
             for (unsigned i = 0; i < n; ++i)
             {
                 if (!resource_open(&r, i))
+                {
                     return 1;
+                }
                 if (ocs_push(r.ticket, close_resource, &r, i) != OW_OK)
+                {
                     return 1;
+                }
             }
             struct ocs_recovered out = {0};
             unsigned attempts = 0;
@@ -307,7 +341,9 @@ static int oracle(void)
             printf("%d %u %u %u %u %u", s, attempts, out.pending,
                    out.close_errors, r.bad || (r.pool.live != 0), r.count);
             for (unsigned i = 0; i < r.count; ++i)
+            {
                 printf(" %u", r.trace[i]);
+            }
             putchar('\n');
         }
     }
@@ -335,7 +371,9 @@ static int metrics(void)
         "{\"iterations\":10000,\"checksum\":%u,\"external_effects\":%u,\"recovery_size\":%zu,\"seconds\":[",
         sum, effects, sizeof(struct ocs_recovery));
     for (unsigned i = 0; i < 7; ++i)
+    {
         printf("%s%.9f", i ? "," : "", samples[i]);
+    }
     puts("]}");
     return 0;
 }
@@ -343,22 +381,40 @@ static int metrics(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "scope_policy"))
+    {
         return policy();
+    }
     if (!strcmp(argv[1], "scope_jump"))
+    {
         return jump();
+    }
     if (!strcmp(argv[1], "scope_capacity"))
+    {
         return capacity();
+    }
     if (!strcmp(argv[1], "scope_publish"))
+    {
         return publish();
+    }
     if (!strcmp(argv[1], "scope_recovery"))
+    {
         return recovery();
+    }
     if (!strcmp(argv[1], "scope_identity"))
+    {
         return identity();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

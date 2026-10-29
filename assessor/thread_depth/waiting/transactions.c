@@ -6,7 +6,9 @@
 static void ok(int e)
 {
     if (e)
+    {
         abort();
+    }
 }
 
 int tw_bank_init(struct tw_bank *b)
@@ -33,7 +35,9 @@ int tw_transfer(struct tw_bank *b, int amount, tw_hook_fn hook, void *arg)
     ok(pthread_mutex_unlock(&b->lock));
 #endif
     if (hook)
+    {
         hook(arg);
+    }
 #ifdef TW_MUTANT1
     ok(pthread_mutex_lock(&b->lock));
 #endif
@@ -67,9 +71,13 @@ int tw_snapshot_write(struct tw_snapshot *s, int a)
 {
     unsigned n = atomic_load(&s->sequence);
     if (a < 0 || a > 100)
+    {
         return EINVAL;
+    }
     if (n > UINT_MAX - 2)
+    {
         return EOVERFLOW;
+    }
     atomic_store(&s->sequence, n + 1);
     atomic_store(&s->a, a);
     atomic_store(&s->b, 100 - a);
@@ -83,7 +91,9 @@ int tw_snapshot_read(struct tw_snapshot *s, int *total)
     {
         unsigned first = atomic_load(&s->sequence);
         if (first & 1u)
+        {
             continue;
+        }
         int a = atomic_load(&s->a), b = atomic_load(&s->b);
         unsigned last = atomic_load(&s->sequence);
         if (first == last)
@@ -97,7 +107,9 @@ int tw_snapshot_read(struct tw_snapshot *s, int *total)
 int tw_key_next(uint64_t *next, uint64_t *key)
 {
     if (*next == UINT64_MAX)
+    {
         return EOVERFLOW;
+    }
     *key = (*next)++;
     return 0;
 }

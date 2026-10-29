@@ -21,8 +21,10 @@ static void check_sorted(const struct b2_item *a, size_t n)
         CHECK(a[i].serial < n && !(seen & (1u << a[i].serial)));
         seen |= 1u << a[i].serial;
         if (i)
+        {
             CHECK(a[i - 1].key < a[i].key ||
                   (a[i - 1].key == a[i].key && a[i - 1].serial < a[i].serial));
+        }
     }
 }
 
@@ -30,14 +32,18 @@ static void stable(void)
 {
     struct b2_item a[4] = {{2, 0}, {1, 1}, {2, 2}, {1, 3}}, b[4], s[4];
     for (unsigned i = 0; i < 4; ++i)
+    {
         b[i] = a[i];
+    }
     CHECK(b2_sort(a, 4, s, 4) == B2_OK);
     check_sorted(a, 4);
     struct bf_work work;
     CHECK(bf_sort_bottom(b, 4, s, 4, &work) == B2_OK);
     check_sorted(b, 4);
     for (unsigned i = 0; i < 4; ++i)
+    {
         CHECK(a[i].key == b[i].key && a[i].serial == b[i].serial);
+    }
     struct b2_item extrema[5] = {{INT_MAX, 0},
                                  {INT_MIN, 1},
                                  {0, 2},
@@ -104,7 +110,9 @@ static void indirect(void)
         CHECK(indices[i] == expected[i] && a[i].self == &a[i] &&
               a[i].key == keys[i]);
         for (unsigned j = 0; j < 96; ++j)
+        {
             CHECK(a[i].owned[j] == i + 1);
+        }
         free(a[i].owned);
         a[i].owned = NULL;
         ++destroyed;
@@ -189,20 +197,36 @@ int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (!strcmp(argv[1], "stable"))
+    {
         stable();
+    }
     else if (!strcmp(argv[1], "admission"))
+    {
         admission();
+    }
     else if (!strcmp(argv[1], "indirect"))
+    {
         indirect();
+    }
     else if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     else if (!strcmp(argv[1], "widths"))
+    {
         return widths();
+    }
     else if (!strcmp(argv[1], "metrics"))
+    {
         metrics();
+    }
     else if (!strcmp(argv[1], "limits"))
+    {
         printf("%zu\n", SIZE_MAX);
+    }
     else
+    {
         return 2;
+    }
     return 0;
 }

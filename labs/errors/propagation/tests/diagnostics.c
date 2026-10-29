@@ -16,11 +16,17 @@ int main(void)
 #else
     uint32_t temporary = 7;
     if (temporary)
+    {
         EPR_TRY(fresh, er_ok(temporary), &out, failed);
+    }
     else
+    {
         return 2;
+    }
     if (out.tag != ER_OK || out.as.value != 7)
+    {
         return 3;
+    }
     return 0;
 #endif
 failed:

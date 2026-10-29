@@ -11,5 +11,7 @@ void df_handler(uint32_t *words, uint32_t exc_return)
     (void)words;
     (void)exc_return;
     for (;;)
+    {
         __asm__ volatile("wfi");
+    }
 }

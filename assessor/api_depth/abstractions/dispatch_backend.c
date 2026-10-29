@@ -6,7 +6,9 @@ static ptrdiff_t accept(struct ad_sink *s, const unsigned char *p, size_t n,
 {
     if (!s || (!p && n) || s->length > 66 || n > 66 - s->length ||
         s->calls == SIZE_MAX || n > SIZE_MAX - s->offered)
+    {
         return -1;
+    }
     ++s->calls;
     s->offered += n;
     if (s->mode == 1)
@@ -15,20 +17,32 @@ static ptrdiff_t accept(struct ad_sink *s, const unsigned char *p, size_t n,
         return -2;
     }
     if (s->mode == 2)
+    {
         return 0;
+    }
     if (s->mode == 3)
+    {
         return -1;
+    }
     if (s->mode == 4)
+    {
         return (ptrdiff_t)n +
                1; /* deliberately invalid callback contract, no out-of-bounds access */
+    }
     if (n > quota)
+    {
         n = quota;
+    }
 #ifdef AD_MUTANT_BYTE
     for (size_t i = 0; i < n; ++i)
+    {
         s->bytes[s->length++] = (unsigned char)(p[i] ^ 1u);
+    }
 #else
     for (size_t i = 0; i < n; ++i)
+    {
         s->bytes[s->length++] = p[i];
+    }
 #endif
     return (ptrdiff_t)n;
 }

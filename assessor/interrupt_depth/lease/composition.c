@@ -38,7 +38,9 @@ static void line(void *p, enum fw_cache_op op, uint32_t address)
     if (op == FW_CLEAN && e->dirty[n])
     {
         for (unsigned i = 32 * n; i < 32 * n + 32; ++i)
+        {
             e->memory[i] = e->cache[i];
+        }
         e->dirty[n] = 0;
     }
     if (op == H7_INVALIDATE)
@@ -52,11 +54,15 @@ static unsigned read_cpu(struct xi_engine *e, unsigned offset)
 {
     unsigned n = offset / 32;
     if (!e->cached)
+    {
         return e->memory[offset];
+    }
     if (!e->valid[n])
     {
         for (unsigned i = 32 * n; i < 32 * n + 32; ++i)
+        {
             e->cache[i] = e->memory[i];
+        }
         e->valid[n] = 1;
     }
     return e->cache[offset];
@@ -78,7 +84,9 @@ static int configure(void *p, const struct pd_extent *extent, uint32_t token)
 {
     struct xi_engine *e = p;
     if (e->snap.enabled || e->pending)
+    {
         return 0;
+    }
     e->snap = (struct pd_snapshot){token, 0, extent->bytes, 0, 1};
     return 1;
 }
@@ -111,7 +119,9 @@ static void visibility(void *p, unsigned action, uint32_t address,
                              line, e);
     }
     else
+    {
         ++e->barriers;
+    }
 }
 
 static struct pd_io io_for(struct xi_engine *e)
@@ -163,9 +173,13 @@ static int ordinary(unsigned cached, unsigned partial, unsigned error)
     REQUIRE(result.possible == (error ? 32 : partial ? 8 : 32));
     REQUIRE(pd.result == (error ? PD_IO : PD_CANCELLED));
     if (cached)
+    {
         REQUIRE(e.invalidations == 2 && e.barriers == 15);
+    }
     else
+    {
         REQUIRE(!e.invalidations && e.barriers == 3);
+    }
     /* Reuse does not require delivery of every old metadata callback. */
     struct xd_ticket old = ticket;
     REQUIRE(xd_submit(&lease, 32, &ticket) == XD_OK);
@@ -251,12 +265,22 @@ static int shared(void)
 int xd_composition(void)
 {
     for (unsigned cached = 0; cached < 2; ++cached)
+    {
         for (unsigned partial = 0; partial < 2; ++partial)
+        {
             for (unsigned error = 0; error < 2; ++error)
+            {
                 if (ordinary(cached, partial, error))
+                {
                     return 1;
+                }
+            }
+        }
+    }
     if (reset_domain() || shared())
+    {
         return 1;
+    }
     LOG("XD_COMPOSE_PASS scenarios=8 reset_domains peer_failure dirty_neighbour");
     return 0;
 }

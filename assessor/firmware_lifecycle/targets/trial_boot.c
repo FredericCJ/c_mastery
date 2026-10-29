@@ -11,7 +11,9 @@ static unsigned live_trial;
 static _Noreturn void stop(void)
 {
     for (;;)
+    {
         __asm__ volatile("wfi");
+    }
 }
 
 static int read_slot(void *c, uint32_t a, uint32_t *v)
@@ -63,28 +65,42 @@ static void receive_pair(struct fh_io io)
         {
             z = rt_uart_step(io, &frame, &status);
             if (z < 0 || z == 2)
+            {
                 break;
+            }
         }
         if (z != 2 || frame.bytes[5] != core)
+        {
             stop();
+        }
         install.state = 0;
         enum fh_result e = fu_begin(&install, fm_h745_io(), read_slot, 0,
                                     &frame, &policy, &layout, &prior);
         left = 40000000;
         while (e == FH_PENDING && left--)
+        {
             e = fu_poll(&install, &installed[core]);
+        }
         if (e != FH_DONE)
+        {
             stop();
+        }
         if (rt_uart_tx(io, 5, 100000) != 1)
+        {
             stop();
+        }
     }
     enum fh_result e = ft_begin(&attempt, fm_h745_io(), &prior, installed);
     unsigned left = 40000000;
     while (e == FH_PENDING && left--)
+    {
         e = ft_poll(&attempt);
+    }
     if (e != FH_DONE ||
         !ft_probe(read_slot, 0, &policy, &layout, &prior, &selected))
+    {
         stop();
+    }
     live_trial = 1;
 }
 #endif
@@ -93,22 +109,30 @@ _Noreturn void st_main(void)
     struct fh_io io = st_target_io();
 #if ST_CORE == 0
     if (!st_cold_h745(io))
+    {
         stop();
+    }
 #else
     if (WORD(0xE000ED94u) || (WORD(0xE000ED14u) & 0x30000u))
+    {
         stop();
+    }
 #endif
     WORD(0xE000ED24u) |= 1u << 17;
     __asm__ volatile("dsb sy\n\tisb sy" ::: "memory");
     const uint32_t records[2] = {0x080C0000, 0x080E0000};
     if (bs_select(read_slot, 0, &policy, &layout, records, &prior) != 1)
+    {
         stop();
+    }
 #if ST_CORE == 0
     /* Primary reset enters this trusted bank2 service before any peer release.
      * One exact 'M' byte enters maintenance. Silence boots the committed pair;
      * malformed input fails closed. This local mode choice grants no signing key. */
     if (rt_uart_init(io, 100000) != 1)
+    {
         stop();
+    }
     unsigned left = 1000000;
     unsigned char byte = 0;
     uint32_t status = 0;
@@ -117,11 +141,15 @@ _Noreturn void st_main(void)
     {
     }
     if (received < 0)
+    {
         stop();
+    }
     if (received == 1)
     {
         if (byte != 'M')
+        {
             stop();
+        }
         receive_pair(io);
     }
     else
@@ -129,7 +157,9 @@ _Noreturn void st_main(void)
         selected.sequence = prior.sequence;
         selected.record = prior.record;
         for (unsigned c = 0; c < 2; ++c)
+        {
             selected.image[c] = prior.image[c];
+        }
     }
     /* No UART DMA or IRQ was enabled. Disable the polled UART before handoff. */
     WORD(0x40004800u) = 0;
@@ -138,13 +168,17 @@ _Noreturn void st_main(void)
     WORD(0x30040038u) = 0;
     __asm__ volatile("dsb sy" ::: "memory");
     if (!st_release(io, &selected))
+    {
         stop();
+    }
     left = 1000000;
     while (WORD(0x30040034u) != selected.image[0].generation && --left)
     {
     }
     if (!left)
+    {
         stop();
+    }
     __asm__ volatile("dmb sy" ::: "memory");
     WORD(0x30040030u) = selected.image[0].generation;
     __asm__ volatile("dsb sy" ::: "memory");
@@ -154,16 +188,22 @@ _Noreturn void st_main(void)
         selected.sequence = prior.sequence;
         selected.record = prior.record;
         for (unsigned c = 0; c < 2; ++c)
+        {
             selected.image[c] = prior.image[c];
+        }
     }
     else
     {
         if (!ft_probe(read_slot, 0, &policy, &layout, &prior, &selected))
+        {
             stop();
+        }
         live_trial = 1;
     }
     if (!st_peer_matches(io, &selected))
+    {
         stop();
+    }
     WORD(0x30040034u) = selected.image[1].generation;
     __asm__ volatile("dsb sy" ::: "memory");
     unsigned left = 1000000;
@@ -171,7 +211,9 @@ _Noreturn void st_main(void)
     {
     }
     if (!left)
+    {
         stop();
+    }
     __asm__ volatile("dmb sy" ::: "memory");
 #endif
     /* Authentication acknowledgment has not set FW_HEALTHY. */
@@ -184,9 +226,13 @@ _Noreturn void th_report_main(uint32_t result, uint32_t generation)
     if (!live_trial ||
         !th_health_accept(ST_CORE, generation,
                           selected.image[ST_CORE].generation, result))
+    {
         stop();
+    }
     if (peer_step(generation, FW_HEALTHY) != H7_OK)
+    {
         stop();
+    }
 #if ST_CORE == 1
     /* Executing from bank2 now; no return to candidate bank1 instructions/data.
      * IRQs remain masked by handoff, no DMA/NMI ownership is introduced. */
@@ -199,10 +245,14 @@ _Noreturn void th_report_main(uint32_t result, uint32_t generation)
     {
     }
     if (!left)
+    {
         stop();
+    }
     __asm__ volatile("dmb sy" ::: "memory");
     if (peer_step(generation, FW_CONFIRM) != H7_OK)
+    {
         stop();
+    }
     struct fw_peer p;
     p.generation = WORD(0x30040000u);
     p.health = WORD(0x30040004u);
@@ -219,9 +269,13 @@ _Noreturn void th_report_main(uint32_t result, uint32_t generation)
                                        &p, WORD(0x30040038u));
     left = 80000000;
     while (e == FH_PENDING && left--)
+    {
         e = fm_recycle_poll(&commit);
+    }
     if (e != FH_DONE)
+    {
         stop();
+    }
     __asm__ volatile("dsb sy" ::: "memory");
     WORD(0xE000ED0Cu) = 0x05FA0004u;
     __asm__ volatile("dsb sy\n\tisb sy" ::: "memory");

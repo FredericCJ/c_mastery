@@ -7,7 +7,9 @@ int sx_once_init(struct sx_once *o, struct sx_journal *j, unsigned id,
                  unsigned tag, int retry)
 {
     if (!o || !j || id < 1 || id > 3 || tag > 255 || (retry != 0 && retry != 1))
+    {
         return MB_INVALID;
+    }
     mb_once_init(&o->once, retry != 0);
     o->journal = j;
     o->id = id;
@@ -18,7 +20,9 @@ int sx_once_init(struct sx_once *o, struct sx_journal *j, unsigned id,
     o->publications = 0;
     o->checksum = 0;
     for (unsigned i = 0; i < 8; i++)
+    {
         o->table[i] = 0;
+    }
     return MB_OK;
 }
 
@@ -28,9 +32,13 @@ int sx_once_enter(struct sx_once *o, unsigned participant, unsigned out[8],
     unsigned pair[2];
     int rc;
     if (!o || !out || !checksum || participant >= 3)
+    {
         return MB_INVALID;
+    }
     if (o->attempts == UINT_MAX && atomic_load(&o->once.state) == 0)
+    {
         return MB_FULL;
+    }
     rc = mb_once_enter(&o->once, participant, pair);
     if (rc == MB_INIT)
     {
@@ -41,7 +49,9 @@ int sx_once_enter(struct sx_once *o, unsigned participant, unsigned out[8],
     if (rc == MB_OK)
     {
         for (unsigned i = 0; i < 8; i++)
+        {
             out[i] = o->table[i];
+        }
         *checksum = o->checksum;
     }
     return rc;
@@ -56,28 +66,40 @@ int sx_once_cancel(struct sx_once *o, unsigned p)
 {
     int rc;
     if (!owner(o, p))
+    {
         return MB_STALE;
+    }
     rc = mb_once_finish(&o->once, p, false, 0, 0);
     if (rc != MB_OK)
+    {
         return rc;
+    }
     o->owner = 3;
     o->stage = 0;
     o->checksum = 0;
     for (unsigned i = 0; i < 8; i++)
+    {
         o->table[i] = 0;
+    }
     return MB_OK;
 }
 
 int sx_once_step(struct sx_once *o, unsigned p)
 {
     if (!owner(o, p))
+    {
         return MB_STALE;
+    }
     if (o->stage == 0)
     {
         unsigned i;
         for (i = 0; i < o->journal->count; i++)
+        {
             if (o->journal->id[i] == o->id)
+            {
                 break;
+            }
+        }
 #if SX_ONCE_MUTANT == 1
         i = o->journal->count;
 #endif
@@ -123,11 +145,15 @@ int sx_once_step(struct sx_once *o, unsigned p)
     }
     o->checksum = 0;
     for (unsigned i = 0; i < 8; i++)
+    {
         o->checksum += o->table[i];
+    }
     {
         int rc = mb_once_finish(&o->once, p, true, 8, o->checksum);
         if (rc != MB_OK)
+        {
             return rc;
+        }
     }
     o->publications++;
     o->owner = 3;

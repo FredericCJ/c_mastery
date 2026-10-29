@@ -20,7 +20,9 @@ void rzp_value_drop(struct rzp_value *v)
 void rzp_owned_init(struct rzp_owned_queue *q)
 {
     if (q)
+    {
         *q = (struct rzp_owned_queue){0};
+    }
 }
 
 int rzp_owned_offer(struct rzp_owned_queue *q, const struct rz_scope *scope,
@@ -29,12 +31,16 @@ int rzp_owned_offer(struct rzp_owned_queue *q, const struct rz_scope *scope,
 {
     if (!q || !scope || !value_ok(value) || policy < RZ_BLOCK ||
         policy > RZ_DEGRADE)
+    {
         return RZ_INVALID;
+    }
     size_t head = q->core.head, count = q->core.count, last = (head + 3) % 4;
     struct rz_offer offer = {scope, value->value, true};
     int status = rz_offer(&q->core, &offer, policy, now);
     if (status == RZ_PENDING)
+    {
         return status;
+    }
     if (status == RZ_OK)
     {
         size_t index = (head + count) % 4;
@@ -54,14 +60,18 @@ int rzp_owned_offer(struct rzp_owned_queue *q, const struct rz_scope *scope,
         *value = (struct rzp_value){0};
     }
     else
+    {
         rzp_value_drop(value);
+    }
     return status;
 }
 
 int rzp_owned_pop(struct rzp_owned_queue *q, struct rzp_value *out)
 {
     if (!q || !out)
+    {
         return RZ_INVALID;
+    }
     size_t index = q->core.head;
     unsigned unused;
     int status = rz_pop(&q->core, &unused);
@@ -76,7 +86,9 @@ int rzp_owned_pop(struct rzp_owned_queue *q, struct rzp_value *out)
 void rzp_owned_close(struct rzp_owned_queue *q)
 {
     if (q)
+    {
         q->core.closed = true;
+    }
 }
 
 enum
@@ -104,7 +116,9 @@ static void progress(struct rzp_pump *p)
         unsigned k = (start + j) % 2;
         struct rzp_producer *producer = &p->producer[k];
         if (!producer->active || !producer->pending)
+        {
             continue;
+        }
         int status = rz_check(&producer->scope.scope->core, p->last);
         if (status != RZ_OK)
         {
@@ -122,17 +136,25 @@ static void progress(struct rzp_pump *p)
             continue;
         }
         if (!p->credits)
+        {
             continue;
+        }
         unsigned slot = 0;
         while (slot < 4 && p->slots[slot].state != FREE)
+        {
             ++slot;
+        }
         if (slot == 4)
+        {
             continue;
+        }
         struct rzp_slot *s = &p->slots[slot];
         struct rz_offer offer = {&producer->scope.scope->core, slot, true};
         status = rz_offer(&p->queue, &offer, RZ_BLOCK, p->last);
         if (status != RZ_OK)
+        {
             continue;
+        }
         ++s->generation;
         s->state = QUEUED;
         s->value = producer->value;
@@ -154,10 +176,14 @@ static bool ticket_ok(const struct rzp_pump *p, struct rzp_ticket t)
 int rzp_init(struct rzp_pump *p, size_t capacity)
 {
     if (!p || !capacity || capacity > 4)
+    {
         return RZ_INVALID;
+    }
     *p = (struct rzp_pump){0};
     if (pthread_mutex_init(&p->mutex, NULL))
+    {
         return RZ_CLOSED;
+    }
     if (pthread_cond_init(&p->changed, NULL))
     {
         pthread_mutex_destroy(&p->mutex);
@@ -179,21 +205,33 @@ int rzp_begin(struct rzp_pump *p, unsigned producer, struct rzf_scope *scope,
 {
     if (!p || !p->initialized || producer > 1 || !scope || !value_ok(value) ||
         !out)
+    {
         return RZ_INVALID;
+    }
     pthread_mutex_lock(&p->mutex);
     int status = RZ_OK;
     struct rzp_producer *slot = &p->producer[producer];
     if (now < p->last)
+    {
         status = RZ_RANGE;
+    }
     else if (p->closed)
+    {
         status = RZ_CLOSED;
+    }
     else if (slot->active)
+    {
         status = RZ_BUSY;
+    }
     else if (slot->generation == UINT_MAX)
+    {
         status = RZ_FULL;
+    }
 #if RZF_MUTANT == 51
     else if (!p->credits)
+    {
         status = RZ_PENDING;
+    }
 #endif
     else if ((status = rzf_borrow_begin(&slot->scope, scope)) == RZ_OK)
     {
@@ -214,21 +252,29 @@ int rzp_begin(struct rzp_pump *p, unsigned producer, struct rzf_scope *scope,
 int rzp_poll(struct rzp_pump *p, struct rzp_ticket ticket, bool wait, int *out)
 {
     if (!p || !p->initialized || !out)
+    {
         return RZ_INVALID;
+    }
     pthread_mutex_lock(&p->mutex);
     int status = RZ_STALE;
     if (ticket_ok(p, ticket))
     {
         struct rzp_producer *slot = &p->producer[ticket.index];
         if (slot->polling)
+        {
             status = RZ_BUSY;
+        }
         else
         {
             slot->polling = true;
             while (slot->pending && wait)
+            {
                 pthread_cond_wait(&p->changed, &p->mutex);
+            }
             if (slot->pending)
+            {
                 status = RZ_PENDING;
+            }
             else
             {
                 *out = slot->result;
@@ -245,7 +291,9 @@ int rzp_poll(struct rzp_pump *p, struct rzp_ticket ticket, bool wait, int *out)
 int rzp_cancel(struct rzp_pump *p, struct rzp_ticket ticket)
 {
     if (!p || !p->initialized)
+    {
         return RZ_INVALID;
+    }
     pthread_mutex_lock(&p->mutex);
     int status = RZ_STALE;
     if (ticket_ok(p, ticket))
@@ -266,7 +314,9 @@ int rzp_cancel(struct rzp_pump *p, struct rzp_ticket ticket)
 int rzp_tick(struct rzp_pump *p, uint64_t now)
 {
     if (!p || !p->initialized)
+    {
         return RZ_INVALID;
+    }
     pthread_mutex_lock(&p->mutex);
     int status = RZ_RANGE;
     if (now >= p->last)
@@ -282,14 +332,20 @@ int rzp_tick(struct rzp_pump *p, uint64_t now)
 int rzp_forward(struct rzp_pump *p)
 {
     if (!p || !p->initialized)
+    {
         return RZ_INVALID;
+    }
     pthread_mutex_lock(&p->mutex);
     unsigned index = p->queue.count ? p->queue.values[p->queue.head] : 0;
     int status = rz_forward(&p->queue, &p->hub, 0);
     if (status == RZ_OK)
+    {
         p->slots[index].state = TRANSPORT;
+    }
     if (p->closed && !p->queue.count)
+    {
         (void)msg_close(&p->hub, 0);
+    }
     pthread_mutex_unlock(&p->mutex);
     return status;
 }
@@ -298,7 +354,9 @@ int rzp_receive(struct rzp_pump *p, struct rzp_value *out,
                 struct rzp_credit *credit)
 {
     if (!p || !p->initialized || !out || !credit)
+    {
         return RZ_INVALID;
+    }
     pthread_mutex_lock(&p->mutex);
     unsigned channel, index;
     int status = RZ_INVALID;
@@ -316,9 +374,13 @@ int rzp_receive(struct rzp_pump *p, struct rzp_value *out,
 #endif
     }
     else if (result == MSG_EMPTY)
+    {
         status = RZ_EMPTY;
+    }
     else if (result == MSG_CLOSED)
+    {
         status = RZ_CLOSED;
+    }
     pthread_mutex_unlock(&p->mutex);
     return status;
 }
@@ -326,7 +388,9 @@ int rzp_receive(struct rzp_pump *p, struct rzp_value *out,
 int rzp_release(struct rzp_pump *p, struct rzp_credit credit)
 {
     if (!p || !p->initialized)
+    {
         return RZ_INVALID;
+    }
     pthread_mutex_lock(&p->mutex);
     int status = RZ_STALE;
     if (credit.owner == p && credit.index < 4)
@@ -360,12 +424,16 @@ int rzp_release(struct rzp_pump *p, struct rzp_credit credit)
 int rzp_close(struct rzp_pump *p)
 {
     if (!p || !p->initialized)
+    {
         return RZ_INVALID;
+    }
     pthread_mutex_lock(&p->mutex);
     p->closed = true;
     progress(p);
     if (!p->queue.count)
+    {
         (void)msg_close(&p->hub, 0);
+    }
     pthread_mutex_unlock(&p->mutex);
     return RZ_OK;
 }
@@ -373,7 +441,9 @@ int rzp_close(struct rzp_pump *p)
 int rzp_snapshot(struct rzp_pump *p, struct rzp_snapshot *out)
 {
     if (!p || !p->initialized || !out)
+    {
         return RZ_INVALID;
+    }
     pthread_mutex_lock(&p->mutex);
     struct rzp_snapshot s = {0};
     for (unsigned i = 0; i < 4; ++i)
@@ -399,16 +469,28 @@ int rzp_snapshot(struct rzp_pump *p, struct rzp_snapshot *out)
 int rzp_destroy(struct rzp_pump *p)
 {
     if (!p || !p->initialized)
+    {
         return RZ_INVALID;
+    }
     /* Caller has joined all threads; no concurrent entry is permitted here. */
     if (!p->closed || p->queue.count)
+    {
         return RZ_BUSY;
+    }
     for (unsigned i = 0; i < 2; ++i)
+    {
         if (p->producer[i].active)
+        {
             return RZ_BUSY;
+        }
+    }
     for (unsigned i = 0; i < 4; ++i)
+    {
         if (p->slots[i].state != FREE && p->slots[i].state != RETIRED)
+        {
             return RZ_BUSY;
+        }
+    }
     msg_hub_destroy(&p->hub);
     pthread_cond_destroy(&p->changed);
     pthread_mutex_destroy(&p->mutex);

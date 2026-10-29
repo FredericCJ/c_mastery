@@ -3,9 +3,13 @@
 int ta_litmus(unsigned litmus, unsigned model, unsigned first, unsigned second)
 {
     if (litmus > TA_SB || model > TA_MODEL_MIXED || first > 1 || second > 1)
+    {
         return -1;
+    }
     if (model == TA_MODEL_RELAXED || model == TA_MODEL_MIXED)
+    {
         return 1;
+    }
     if (model == TA_MODEL_RA)
     {
 #ifdef TA_MUTANT_MODEL
@@ -28,10 +32,16 @@ int ta_litmus(unsigned litmus, unsigned model, unsigned first, unsigned second)
         edges[from] |= 1u << to;
     }
     if (ta_closure(edges, 4) != TA_SUCCESS)
+    {
         return -1;
+    }
     for (unsigned i = 0; i < 4; i++)
+    {
         if (edges[i] & (1u << i))
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
@@ -58,7 +68,9 @@ unsigned ta_counter_read(const struct ta_counter *p)
 int ta_lockfree_admit(unsigned query, unsigned helpers, unsigned authorized)
 {
     if (query > 1 || authorized > 1)
+    {
         return -1;
+    }
 #ifdef TA_MUTANT_LOCKFREE
     (void)helpers;
     return (int)query;
@@ -70,7 +82,9 @@ int ta_lockfree_admit(unsigned query, unsigned helpers, unsigned authorized)
 int ta_dependency(unsigned used, unsigned control, unsigned killed)
 {
     if (used > 1 || control > 1 || killed > 1)
+    {
         return -1;
+    }
 #ifdef TA_MUTANT_DEPENDENCY
     return used || control;
 #else

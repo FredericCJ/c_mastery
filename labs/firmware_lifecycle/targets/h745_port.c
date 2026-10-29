@@ -14,13 +14,21 @@ static void emit(void *unused, enum fw_cache_op op, uint32_t address)
 {
     (void)unused;
     if (op == FW_DSB)
+    {
         barrier();
+    }
     else if (op == FW_ISB)
+    {
         __asm__ volatile("isb sy" ::: "memory");
+    }
     else if (op == FW_CLEAN)
+    {
         WORD(0xE000EF68u) = address;
+    }
     else
+    {
         WORD(0xE000EF5Cu) = address;
+    }
 }
 
 int fw_h745_cache(uint32_t a, uint32_t n, enum fw_cache_op op)
@@ -33,7 +41,9 @@ int fw_h745_cache(uint32_t a, uint32_t n, enum fw_cache_op op)
     if ((op != FW_CLEAN && op != H7_INVALIDATE) ||
         (n &&
          ((a & 31u) || (n & 31u) || n > 4096u || a > UINT32_MAX - (n - 1u))))
+    {
         return 0;
+    }
     barrier();
     return 1;
 #endif

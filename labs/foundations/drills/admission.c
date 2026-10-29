@@ -12,7 +12,9 @@ __attribute__((noinline)) int admit(size_t *count, size_t capacity)
     if (REPAIRED)
     {
         if (*count >= capacity)
+        {
             return 0;
+        }
         (*count)++;
         return 1;
     }
@@ -35,16 +37,24 @@ int main(int argc, char **argv)
     while (events[length])
     {
         if (++length > 64)
+        {
             return 2;
+        }
     }
     for (size_t i = 0; i < length; i++)
     {
         if (events[i] != 'A' && events[i] != 'N')
+        {
             return 2;
+        }
     }
     for (size_t i = 0; i < length; i++)
+    {
         if (events[i] == 'A')
+        {
             result = admit(&count, 4);
+        }
+    }
     printf("count=%zu result=%d violations=%u\n", count, result, violations);
     return violations ? 1 : 0;
 }

@@ -26,7 +26,9 @@ static void receive(void *v, enum ae_code code, unsigned generation,
     r->generation = generation;
     r->code = code;
     if (n != 4 || p[0] != 1 || p[3] != 4)
+    {
         ++r->bad;
+    }
     if (r->release)
     {
         free(r->release);
@@ -49,7 +51,9 @@ static int history(unsigned word, unsigned length)
         unsigned old_reports = r.reports;
         enum ae_code result = ae_operation_event(&o, 1, (enum ae_event)e);
         if (done)
+        {
             CHECK(result == AE_CONFLICT);
+        }
         else if (e == AE_DEADLINE)
         {
             timeout = 1;
@@ -61,15 +65,21 @@ static int history(unsigned word, unsigned length)
             CHECK(result == AE_OK);
         }
         else
+        {
             CHECK(result == AE_AGAIN);
+        }
         CHECK(r.reports == done && o.backend.releases == done &&
               r.reports >= old_reports);
         if (done)
+        {
             CHECK(r.code == (timeout ? AE_TIMEOUT : AE_OK));
+        }
         CHECK(!r.bad);
     }
     if (!done)
+    {
         CHECK(ae_operation_event(&o, 1, AE_COMPLETE) == AE_OK);
+    }
     CHECK(o.backend.releases == 1 && r.reports == 1);
     return 0;
 }
@@ -95,8 +105,10 @@ int main(void)
         CHECK(ae_operation_start(&o, p, 4, receive, &r, &generation) == AE_OK &&
               generation == g);
         if (g > 1)
+        {
             CHECK(ae_operation_event(&o, g - 1, AE_COMPLETE) == AE_CONFLICT &&
                   o.backend.releases == g - 1);
+        }
         CHECK(ae_operation_event(&o, g, AE_DEADLINE) == AE_AGAIN);
         CHECK(ae_operation_start(&o, p, 4, receive, &r, &generation) ==
               AE_CONFLICT);
@@ -110,8 +122,10 @@ int main(void)
     r = (struct ac_receiver){0};
     CHECK(ae_operation_start(&o, p, 4, receive, &r, &generation) == AE_OK);
     for (unsigned i = 0; i < 20; ++i)
+    {
         CHECK(ae_operation_event(&o, 1, AE_DEADLINE) == AE_AGAIN &&
               !r.reports && !o.backend.releases);
+    }
     CHECK(ae_operation_event(&o, 1, AE_JOINED) == AE_OK && r.reports == 1);
     struct ae_operation *heap = calloc(1, sizeof *heap);
     CHECK(heap);

@@ -145,7 +145,9 @@ static int boundaries(void)
 int main(void)
 {
     if (arithmetic() || boundaries())
+    {
         return 1;
+    }
     puts("FI_PASS integer_kernel");
     return 0;
 }

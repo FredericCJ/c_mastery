@@ -103,7 +103,9 @@ void bf_target(void)
     struct bf_growth_span grow;
     TEST(bf_growth_init(&g, &first, get, put, &pool) == MB_OK);
     for (unsigned i = 0; i < 4; ++i)
+    {
         TEST(bf_growth_alloc(&g, 20, 8, &grow) == MB_OK);
+    }
     TEST(g.payload == 80 && g.capacity_high == 128 &&
          bf_growth_alloc(&g, 20, 8, &grow) == MB_FULL &&
          bf_growth_reset(&g) == MB_OK && !pool.used);

@@ -11,7 +11,9 @@ int main(void)
         printf("P %u %d %u\n", c, s, r);
     }
     for (unsigned h = 0; h < 256; h++)
+    {
         for (unsigned f = 0; f < 2; f++)
+        {
             for (unsigned b = 1; b <= 4; b++)
             {
                 struct dp_progress r = {0};
@@ -20,6 +22,8 @@ int main(void)
                        r.dma_complete_at, r.reset_at, r.observed_at, r.fed,
                        r.remaining);
             }
+        }
+    }
     for (unsigned i = 0; i < 1024; i++)
     {
         struct dp_calibration c = {1000, 100, (i % 7) + 1, i % 5, i % 3};
@@ -31,11 +35,17 @@ int main(void)
                r.latest_ns, r.compatible, r.provenance);
     }
     for (unsigned mode = 0; mode < 3; mode++)
+    {
         for (unsigned bits = 0; bits < 16; bits++)
+        {
             for (unsigned elapsed = 0; elapsed < 10; elapsed++)
+            {
                 printf("S %u %u %u %d\n", mode, bits, elapsed,
                        dp_spi_end(mode, bits & 1, (bits >> 1) & 1,
                                   (bits >> 2) & 1, (bits >> 3) & 1, elapsed,
                                   8));
+            }
+        }
+    }
     return 0;
 }

@@ -36,12 +36,18 @@ static int read_exact(int fd, void *data, size_t length)
             ready = poll(&f, 1, 3000);
         } while (ready < 0 && errno == EINTR);
         if (ready != 1)
+        {
             return -1;
+        }
         ssize_t n = read(fd, p, length);
         if (n < 0 && errno == EINTR)
+        {
             continue;
+        }
         if (n <= 0)
+        {
             return -1;
+        }
         p += n;
         length -= (size_t)n;
     }
@@ -58,14 +64,18 @@ static int observe_syscall(pid_t child, long number, int fd)
     {
         FILE *f = fopen(name, "r");
         if (!f)
+        {
             return -1;
+        }
         long n = -999;
         unsigned long first = 0;
         int fields = fscanf(f, "%ld %lx", &n, &first);
         fclose(f);
         if (fields >= 1 && n == number &&
             (fd < 0 || (fields == 2 && first == (unsigned)fd)))
+        {
             return 0;
+        }
         sched_yield();
         clock_gettime(CLOCK_MONOTONIC, &now);
     } while (now.tv_sec - start.tv_sec < 3);
@@ -125,8 +135,10 @@ static int realtime(void)
     CHECK(pthread_sigmask(SIG_BLOCK, &set, &old) == 0);
     int values[] = {7, 9, 8, 9};
     for (unsigned i = 0; i < 4; ++i)
+    {
         CHECK(sigqueue(getpid(), sig, (union sigval){.sival_int = values[i]}) ==
               0);
+    }
     for (unsigned i = 0; i < 4; ++i)
     {
         siginfo_t info;
@@ -165,13 +177,17 @@ static int restart(int restart)
         sigemptyset(&a.sa_mask);
         a.sa_flags = restart ? SA_RESTART : 0;
         if (sigaction(SIGUSR1, &a, 0))
+        {
             _exit(2);
+        }
         unsigned char byte = 0;
         errno = 0;
         ssize_t n = read(input[0], &byte, 1);
         int record[4] = {(int)n, errno, (int)got_signal, byte};
         if (write(result[1], record, sizeof record) != (ssize_t)sizeof record)
+        {
             _exit(3);
+        }
         close(input[0]);
         close(acks[1]);
         close(result[1]);
@@ -234,40 +250,60 @@ static int lost(int repaired)
         a.sa_handler = acknowledge;
         sigemptyset(&a.sa_mask);
         if (sigaction(SIGUSR1, &a, 0) || sigaction(SIGUSR2, &a, 0))
+        {
             _exit(2);
+        }
         sigset_t set, old;
         sigemptyset(&set);
         sigaddset(&set, SIGUSR1);
         if (repaired && pthread_sigmask(SIG_BLOCK, &set, &old))
+        {
             _exit(3);
+        }
         if (got_signal)
+        {
             _exit(4); /* check false */
+        }
         if (write(reports[1], "C", 1) != 1)
+        {
             _exit(5);
+        }
         char command;
         if (read_exact(commands[0], &command, 1))
+        {
             _exit(6);
+        }
         if (repaired)
         {
             sigset_t waitmask = old;
             sigdelset(&waitmask, SIGUSR1);
             if (sigsuspend(&waitmask) != -1 || errno != EINTR ||
                 got_signal != SIGUSR1)
+            {
                 _exit(7);
+            }
             if (pthread_sigmask(SIG_SETMASK, &old, 0))
+            {
                 _exit(8);
+            }
         }
         else
         {
             /* Parent already observed the handler before authorizing this pause. */
             if (got_signal != SIGUSR1)
+            {
                 _exit(9);
+            }
             if (write(reports[1], "B", 1) != 1)
+            {
                 _exit(10);
+            }
             pause(); /* intentionally defective teaching specimen; rescue is SIGUSR2
                       */
             if (got_signal != SIGUSR2)
+            {
                 _exit(11);
+            }
         }
         close(commands[0]);
         close(reports[1]);
@@ -279,7 +315,9 @@ static int lost(int repaired)
     CHECK(read_exact(reports[0], &b, 1) == 0 && b == 'C');
     CHECK(kill(child, SIGUSR1) == 0);
     if (!repaired)
+    {
         CHECK(read_exact(reports[0], &b, 1) == 0 && b == 1);
+    }
     CHECK(write(commands[1], "G", 1) == 1);
     if (!repaired)
     {
@@ -344,11 +382,15 @@ static void *worker(void *arg)
     pthread_mutex_lock(&w->lock);
     if (e || sigismember(&current, SIGUSR1) != 1 ||
         sigismember(&current, SIGUSR2) != 1)
+    {
         w->error = 1;
+    }
     ++w->ready;
     pthread_cond_broadcast(&w->cv);
     while (!w->finished)
+    {
         pthread_cond_wait(&w->cv, &w->lock);
+    }
     pthread_mutex_unlock(&w->lock);
     return 0;
 }
@@ -362,10 +404,14 @@ static void *receiver(void *arg)
      * are permitted by their ordinary contracts, unlike handler invocation. */
     char *value = malloc(32);
     if (value)
+    {
         snprintf(value, 32, "accepted:%d", sig);
+    }
     pthread_mutex_lock(&w->lock);
     if (sig != SIGUSR1 || !value)
+    {
         w->error = 1;
+    }
     w->owned = value;
     w->finished = 1;
     pthread_cond_broadcast(&w->cv);
@@ -390,7 +436,9 @@ static int threads(void)
     CHECK(pthread_create(&plugin, 0, worker, &w) == 0);
     pthread_mutex_lock(&w.lock);
     while (w.ready < 3)
+    {
         pthread_cond_wait(&w.cv, &w.lock);
+    }
     pthread_mutex_unlock(&w.lock);
     CHECK(pthread_create(&r, 0, receiver, &w) == 0);
     CHECK(kill(getpid(), SIGUSR1) == 0);
@@ -414,14 +462,22 @@ static void *unmasked_plugin(void *arg)
     sigemptyset(&set);
     sigaddset(&set, SIGUSR1);
     if (pthread_sigmask(SIG_UNBLOCK, &set, 0))
+    {
         return (void *)1;
+    }
     if (write(pipes[1], "R", 1) != 1)
+    {
         return (void *)1;
+    }
     char stop;
     if (read_exact(pipes[2], &stop, 1))
+    {
         return (void *)1;
+    }
     if (pthread_sigmask(SIG_BLOCK, &set, 0))
+    {
         return (void *)1;
+    }
     return 0;
 }
 
@@ -482,7 +538,9 @@ static int children(int late)
             {
                 char c;
                 if (read_exact(gate[0], &c, 1))
+                {
                     _exit(99);
+                }
             }
             close(gate[0]);
             _exit((int)(20 + i));
@@ -515,11 +573,15 @@ static int children(int late)
     }
     CHECK((seen & (ES_STOP | ES_CHILD)) == (ES_STOP | ES_CHILD));
     if (late)
+    {
         CHECK(es_reap(ids, statuses, 3) == 1);
+    }
     CHECK(es_reap(ids, statuses, 3) == 0);
     for (unsigned i = 0; i < 3; ++i)
+    {
         CHECK(ids[i] == 0 && WIFEXITED(statuses[i]) &&
               WEXITSTATUS(statuses[i]) == (int)(20 + i));
+    }
     CHECK(es_close(&p) == 0);
     printf(
         "CHILDREN:late=%d;reaped=3;shutdown=1;duplicate_reap=0;owned_only=1;\n",
@@ -543,10 +605,14 @@ static int deadline(void)
         a.sa_handler = acknowledge;
         sigemptyset(&a.sa_mask);
         if (sigaction(SIGUSR1, &a, 0))
+        {
             _exit(2);
+        }
         struct timespec d;
         if (clock_gettime(CLOCK_MONOTONIC, &d))
+        {
             _exit(3);
+        }
         d.tv_sec += 2;
         int r = es_wait_fd(input[0], d);
         close(input[0]);
@@ -577,32 +643,60 @@ int main(int argc, char **argv)
     CHECK(atomic_is_lock_free(&ack_writer));
     alarm(15);
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "coalesce"))
+    {
         return coalesce();
+    }
     if (!strcmp(argv[1], "realtime"))
+    {
         return realtime();
+    }
     if (!strcmp(argv[1], "restart0"))
+    {
         return restart(0);
+    }
     if (!strcmp(argv[1], "restart1"))
+    {
         return restart(1);
+    }
     if (!strcmp(argv[1], "partial"))
+    {
         return partial();
+    }
     if (!strcmp(argv[1], "lost"))
+    {
         return lost(0);
+    }
     if (!strcmp(argv[1], "repaired"))
+    {
         return lost(1);
+    }
     if (!strcmp(argv[1], "signalfd"))
+    {
         return descriptor();
+    }
     if (!strcmp(argv[1], "threads"))
+    {
         return threads();
+    }
     if (!strcmp(argv[1], "bad-plugin"))
+    {
         return bad_plugin();
+    }
     if (!strcmp(argv[1], "children"))
+    {
         return children(0);
+    }
     if (!strcmp(argv[1], "late-child"))
+    {
         return children(1);
+    }
     if (!strcmp(argv[1], "deadline"))
+    {
         return deadline();
+    }
     return 2;
 }

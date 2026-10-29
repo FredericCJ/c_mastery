@@ -27,7 +27,9 @@ static unsigned bitcount(unsigned x)
 {
     unsigned n = 0;
     for (; x; x &= x - 1)
+    {
         n++;
+    }
     return n;
 }
 
@@ -59,24 +61,34 @@ static void reducer(void)
         {
             fail++;
             if (bitcount(m) < min)
+            {
                 min = bitcount(m);
+            }
         }
     }
     CHECK(fail == 88 && min == 2 && classes[2] > 0);
     unsigned small = 193;
     for (unsigned bit = 0; bit < 8; bit++)
+    {
         if (small & (1u << bit))
+        {
             CHECK(fixture((uint16_t)(small & ~(1u << bit)), NULL) ==
                   DX_UNRESOLVED);
+        }
+    }
     unsigned pairs = 0;
     for (unsigned i = 0; i < 8; i++)
+    {
         for (unsigned j = i + 1; j < 8; j++)
+        {
             if ((small & (1u << i)) && (small & (1u << j)))
             {
                 CHECK(fixture((uint16_t)(small & ~(1u << i) & ~(1u << j)),
                               NULL) != DX_FAIL);
                 pairs++;
             }
+        }
+    }
     CHECK(pairs == 3);
     CHECK(dx_reduce(8, 1, fixture, NULL, &r) == 0 && r.exhausted &&
           r.mask == 255);
@@ -126,6 +138,7 @@ static void writer(void)
         unsigned begin = 0;
         char out[8] = {0};
         for (unsigned end = 1; end <= 7; end++)
+        {
             if (end == 7 || (mask & (1u << (end - 1))))
             {
                 CHECK(dx_write_step(&w, -1, 32) == 1);
@@ -133,12 +146,17 @@ static void writer(void)
                 size_t old = w.offset;
                 CHECK(dx_write_step(&w, (int)(end - begin), 32) >= 0);
                 for (size_t j = old; j < w.offset; j++)
+                {
                     out[j] = "ABCDEFG"[j];
+                }
                 begin = end;
             }
+        }
         CHECK(w.offset == 7);
         for (unsigned j = 0; j < 7; j++)
+        {
             CHECK(out[j] == "ABCDEFG"[j]);
+        }
         cases++;
     }
     w = (struct dx_writer){2, 7, 0};
@@ -191,7 +209,9 @@ static void write_reg(void *p, unsigned reg, uint32_t v)
     CHECK(reg == FW_DMA);
     d->writes++;
     if (v)
+    {
         d->state = 1;
+    }
 }
 
 static void firmware(void)
@@ -203,9 +223,11 @@ static void firmware(void)
           f.pc == 0x08000402 && f.original_sp == 0x20001000);
     old = f;
     for (unsigned n = 0; n < 8; n++)
+    {
         CHECK(mf_capture(w, n, 0x20000fe0, 0xfffffffd, 0, 0, 0, 1, 0, &f) ==
                   MF_SHORT &&
               f.pc == old.pc);
+    }
     CHECK(mf_capture(w, 8, 0x20000fe1, 0xfffffffd, 0, 0, 0, 1, 0, &f) ==
           MF_STATE);
     CHECK(mf_capture(w, 8, 0x20000fe0, 0xffffffed, 0, 0, 0, 1, 0, &f) ==
@@ -239,6 +261,7 @@ static void saturation(void)
 {
     unsigned failures = 0, first = 999;
     for (unsigned a = 0; a < 256; a++)
+    {
         for (unsigned b = 0; b < 256; b++)
         {
             unsigned expected = a + b > 255 ? 255 : a + b, out = 777;
@@ -250,9 +273,12 @@ static void saturation(void)
             {
                 failures++;
                 if (a + b < first)
+                {
                     first = a + b;
+                }
             }
         }
+    }
     CHECK(failures == 32640 && first == 256);
     puts(
         "DX:saturation:65536:failures32640:min-failing-sum256:checked-unchanged");

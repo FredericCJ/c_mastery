@@ -37,7 +37,9 @@ int main(void)
             packet(p);
             unsigned original = p[fields[f]];
             if (value == original)
+            {
                 continue;
+            }
             p[fields[f]] = (unsigned char)value;
             CHECK(na_init(&s, config, 1) == NA_OK);
             memcpy(before, &s, sizeof s);

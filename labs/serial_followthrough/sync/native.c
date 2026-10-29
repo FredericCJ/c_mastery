@@ -15,6 +15,8 @@ int su_cases(unsigned);
 int main(int argc, char **argv)
 {
     if (argc != 2 || argv[1][0] < '0' || argv[1][0] > '3' || argv[1][1])
+    {
         return 42;
+    }
     return su_cases((unsigned)(argv[1][0] - '0'));
 }

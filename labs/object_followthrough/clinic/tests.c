@@ -33,7 +33,9 @@ static void *allocate(void *c, size_t size)
     struct ob_trace *t = c;
     ++t->calls;
     if (t->fail)
+    {
         return NULL;
+    }
     t->allocation = malloc(size);
     return t->allocation;
 }
@@ -68,14 +70,20 @@ static int unique(void)
     /* The original abstract trace's last two events are rejected; no invalid C access. */
     puts("MC_TRACE:2=double-release,3=dead-access,actual_releases=1");
     for (size_t i = 0; i < 12; ++i)
+    {
         bytes[i] = expected[i] = (unsigned char)i;
+    }
     for (size_t i = 0; i < 8; ++i)
+    {
         expected[2 + i] = (unsigned char)i;
+    }
     REQUIRE(mc_move(bytes, 12, 2, 0, 8) == FD_OK &&
             !memcmp(bytes, expected, 12));
     REQUIRE(mc_move(bytes, 12, 0, 2, 8) == FD_OK);
     for (size_t i = 0; i < 8; ++i)
+    {
         REQUIRE(bytes[i] == i);
+    }
     trace.quarantine = 1;
     REQUIRE(mc_acquire(&owner, a, 23) == 0);
     {

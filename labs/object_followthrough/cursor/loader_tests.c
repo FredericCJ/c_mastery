@@ -29,7 +29,9 @@ int main(int argc, char **argv)
     const struct oc_plugin *a = NULL, *b = NULL;
     int result = 77;
     if (argc != 5)
+    {
         return 2;
+    }
 #ifdef OC_CLOSE_FAILURE
     fail_close = 1;
     CHECK(oc_open(&m, argv[2]) == OC_LOAD_BAD && m.handle && !m.table);

@@ -35,19 +35,27 @@ int bf_sequence(bf_get_fn left, void *lc, bf_get_fn right, void *rc, int *out)
 {
     int a, b;
     if (!left || !right || !out)
+    {
         return -1;
+    }
 #if BF_MUTANT == 3
     b = right(rc);
     a = left(lc);
     if (a < 0 || a > 99 || b < 0 || b > 99)
+    {
         return -1;
+    }
 #else
     a = left(lc);
     if (a < 0 || a > 99)
+    {
         return -1;
+    }
     b = right(rc);
     if (b < 0 || b > 99)
+    {
         return -1;
+    }
 #endif
     *out = bf_binary_int(a, b);
     return 0;

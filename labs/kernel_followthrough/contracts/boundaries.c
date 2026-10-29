@@ -20,13 +20,17 @@ static void w16(unsigned char *p, unsigned x)
 static void w32(unsigned char *p, uint32_t x)
 {
     for (unsigned i = 0; i < 4; ++i)
+    {
         p[i] = (unsigned char)(x >> (8 * i));
+    }
 }
 
 static void w64(unsigned char *p, uint64_t x)
 {
     for (unsigned i = 0; i < 8; ++i)
+    {
         p[i] = (unsigned char)(x >> (8 * i));
+    }
 }
 
 static int permissions(void)
@@ -82,20 +86,26 @@ static int scheduling(void)
         current = (unsigned)n;
     }
     for (unsigned bits = 0; bits < 8; ++bits)
+    {
         for (unsigned c = 0; c < 3; ++c)
         {
             unsigned alive[3];
             for (unsigned i = 0; i < 3; ++i)
+            {
                 alive[i] = (bits >> i) & 1;
+            }
             int wanted = -1;
             for (unsigned d = 1; d <= 3; ++d)
+            {
                 if (alive[(c + d) % 3])
                 {
                     wanted = (int)((c + d) % 3);
                     break;
                 }
+            }
             CHECK(kf_next(alive, 3, c) == wanted);
         }
+    }
     unsigned weights[] = {1, 0, 2}, count[3] = {0};
     int64_t credits[3] = {0};
     for (unsigned i = 0; i < 300; ++i)
@@ -122,7 +132,9 @@ static void init(void)
     memset(&pool, 0, sizeof pool);
     memset(pool.bytes, 0xa5, sizeof pool.bytes);
     for (unsigned i = 768; i < 1024; ++i)
+    {
         pool.frames.state[i] = 1;
+    }
     memset(&space, 0, sizeof space);
     space.live = 1;
     space.generation = 1;
@@ -176,7 +188,9 @@ static int images(void)
     CHECK(kf_load_image(&pool, &space, elf, n, 1));
     CHECK(pool.bytes[0][0] == 1);
     for (unsigned i = 1; i < 4096; ++i)
+    {
         CHECK(pool.bytes[0][i] == 0);
+    }
     CHECK(space.pages[0].permissions == 13);
     init();
     n = image(1);
@@ -184,7 +198,9 @@ static int images(void)
     CHECK(kf_load_image(&pool, &space, elf, n, 2));
     CHECK(pool.bytes[0][0] == 1);
     for (unsigned i = 1; i < 8192; ++i)
+    {
         CHECK(pool.bytes[i / 4096][i % 4096] == 0);
+    }
     CHECK(kf_free(&pool) == 254);
     init();
     n = image(9);
@@ -212,12 +228,14 @@ static int images(void)
     w64(elf + 120 + 40, 1);
     CHECK(refusal(n));
     for (unsigned type = 2; type <= 7; ++type)
+    {
         if (type == 2 || type == 3 || type == 7)
         {
             n = image(2);
             w32(elf + 120, type);
             CHECK(refusal(n));
         }
+    }
     n = image(1);
     w64(elf + 64 + 48, 1);
     CHECK(refusal(n));
@@ -335,15 +353,23 @@ static int lines(void)
     memset(out, 0xa5, sizeof out);
     CHECK(kf_line(&s, '\n', out, &n) == 1 && n == 0 && out[0] == 0);
     for (unsigned i = 0; i < 63; ++i)
+    {
         CHECK(!kf_line(&s, 'x', out, &n));
+    }
     CHECK(kf_line(&s, '\n', out, &n) == 1 && n == 63 && out[63] == 0);
     for (unsigned i = 0; i < 64; ++i)
+    {
         CHECK(!kf_line(&s, 'x', out, &n));
+    }
     for (unsigned i = 0; i < 4; ++i)
+    {
         CHECK(!kf_line(&s, (unsigned char)"exit"[i], out, &n));
+    }
     CHECK(kf_line(&s, '\n', out, &n) == 2);
     for (unsigned i = 0; i < 4; ++i)
+    {
         CHECK(!kf_line(&s, (unsigned char)"help"[i], out, &n));
+    }
     CHECK(kf_line(&s, '\r', out, &n) == 1 && n == 4 && !strcmp(out, "help"));
     CHECK(!kf_line(&s, '\n', out, &n));
     CHECK(!kf_line(&s, 'e', out, &n));
@@ -363,18 +389,32 @@ static int lines(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "permissions"))
+    {
         return permissions();
+    }
     if (!strcmp(argv[1], "scheduling"))
+    {
         return scheduling();
+    }
     if (!strcmp(argv[1], "images"))
+    {
         return images();
+    }
     if (!strcmp(argv[1], "archives"))
+    {
         return archives();
+    }
     if (!strcmp(argv[1], "handles"))
+    {
         return handles();
+    }
     if (!strcmp(argv[1], "lines"))
+    {
         return lines();
+    }
     return 2;
 }

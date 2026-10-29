@@ -21,12 +21,16 @@ static uint32_t read_io(void *p, unsigned k)
 {
     struct mc_model *m = p;
     if (k == PU_SOURCE)
+    {
         return 1;
+    }
     if (k == PU_DR)
     {
         m->reads++;
         if (m->previous != PU_SR)
+        {
             m->ordered = 1;
+        }
         m->r[PU_SR] &= ~47u;
     }
     m->previous = k;
@@ -62,8 +66,11 @@ static int frames(void)
     unsigned total = 0;
     uint8_t value = 99;
     for (unsigned width = 7; width <= 8; width++)
+    {
         for (unsigned parity = 0; parity < 3; parity++)
+        {
             for (unsigned stop = 1; stop <= 2; stop++)
+            {
                 for (unsigned v = 0; v < (1u << width); v++)
                 {
                     if (width == 7 && !parity)
@@ -89,6 +96,9 @@ static int frames(void)
                           value == v);
                     total++;
                 }
+            }
+        }
+    }
     CHECK(ua_format(42000000, 115200, 0, 8, 1, 1, 1, &f) == PU_OK);
     f.wire.bits[9] ^= 1;
     value = 19;
@@ -111,6 +121,7 @@ static int baud(void)
 {
     const uint32_t clocks[] = {42000000, 21000000, 16000000};
     for (unsigned i = 0; i < 3; i++)
+    {
         for (unsigned over = 0; over < 2; over++)
         {
             struct ua_format f;
@@ -118,6 +129,7 @@ static int baud(void)
                   PU_OK);
             ua_values("baud", clocks[i], over, f.wire.divisor, f.wire.brr);
         }
+    }
     struct ua_format f;
     CHECK(ua_format(42000000, 3000000, 0, 8, 0, 1, 0, &f) == PU_INVALID);
     CHECK(ua_format(42000000, 3000000, 1, 8, 0, 1, 0, &f) == PU_OK &&
@@ -136,7 +148,9 @@ static int transmission(void)
 {
     uint8_t bytes[16];
     for (unsigned i = 0; i < 16; i++)
+    {
         bytes[i] = (uint8_t)(i ^ 0xa5);
+    }
     for (unsigned n = 1; n <= 16; n++)
     {
         struct ua_tx s = {0};
@@ -233,14 +247,24 @@ static int deadline(void)
 int ua_cases(unsigned c)
 {
     if (c == 0)
+    {
         return frames();
+    }
     if (c == 1)
+    {
         return baud();
+    }
     if (c == 2)
+    {
         return transmission();
+    }
     if (c == 3)
+    {
         return receive();
+    }
     if (c == 4)
+    {
         return deadline();
+    }
     return 42;
 }

@@ -33,7 +33,9 @@ static int reassembly(void)
     size_t n = 0, a = 0, z = 99, fn = 0, ln = 0;
     uint32_t token = 0;
     for (unsigned i = 0; i < 120; i++)
+    {
         data[i] = (uint8_t)i;
+    }
     CHECK(et_tx_open(&tx, 1, 1, 17) == E7_OK &&
           et_rx_open(&rx, 1, 1, 51) == E7_OK);
     CHECK(et_begin(&tx, 1, data, 25, 0) == E7_OK &&
@@ -104,6 +106,7 @@ static int reassembly(void)
     CHECK(et_ack(&wide, ack, a, 110) == 0 && wide.inner.blocked_since == 10 &&
           held.inner.ready);
     for (unsigned profile = 1; profile <= 2; profile++)
+    {
         for (unsigned length = 1; length <= 120; length++)
         {
             struct et_tx t = {0};
@@ -125,6 +128,7 @@ static int reassembly(void)
             CHECK(et_peek(&r, out, sizeof out, &z) == 0 && z == length &&
                   !memcmp(out, data, length) && r.inner.publications == 1);
         }
+    }
     puts("ET_LENGTHS 240 full_messages two_profiles duplicate_each_fragment");
     puts("ET_REASSEMBLY_PASS 24+1 5x24 one_publication held_credit0");
     return 0;

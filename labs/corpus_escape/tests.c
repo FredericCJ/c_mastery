@@ -49,14 +49,18 @@ int main(void)
     }
     unsigned char raw[65];
     for (size_t i = 0; i < 65; i++)
+    {
         raw[i] = '"';
+    }
     REQUIRE(es_encode(raw, 64, 384, &a) == ES_OK && a.length == 384);
     REQUIRE(es_decode(a.bytes, a.length, 64, &b) == ES_OK && b.length == 64);
     a = old;
     REQUIRE(es_encode(raw, 65, 384, &a) == ES_RANGE &&
             !memcmp(&a, &old, sizeof a));
     for (size_t i = 0; i < 65; i++)
+    {
         raw[i] = 'a';
+    }
     REQUIRE(es_decode(raw, 65, 64, &a) == ES_RANGE &&
             !memcmp(&a, &old, sizeof a));
     REQUIRE(es_encode(NULL, 0, 0, &a) == ES_OK && a.length == 0);

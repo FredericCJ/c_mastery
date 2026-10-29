@@ -17,9 +17,13 @@ static void *reader(void *unused)
     unsigned values[2] = {99, 99};
     enum mfw_status status = mfw_read(&sequence, 1, values);
     if (status == MFW_OK)
+    {
         assert(values[1] == 2 * values[0]);
+    }
     else
+    {
         assert(status == MFW_BUSY && values[0] == 99 && values[1] == 99);
+    }
     return NULL;
 }
 

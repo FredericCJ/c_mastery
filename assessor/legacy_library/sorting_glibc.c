@@ -38,12 +38,16 @@ static int cmp(const void *a, const void *b)
 int main(void)
 {
     if (strcmp(gnu_get_libc_version(), "2.41"))
+    {
         return 2;
+    }
     unsigned char records[96 * 64];
     const size_t widths[] = {32, 33, 64};
     unsigned cases = 0;
     for (unsigned fail = 0; fail < 2; ++fail)
+    {
         for (unsigned w = 0; w < 3; ++w)
+        {
             for (unsigned ncase = 0; ncase < 2; ++ncase)
             {
                 size_t width = widths[w], n = ncase ? 96 : 20;
@@ -64,19 +68,29 @@ int main(void)
                     width > 32 ? 2 * n * sizeof(void *) + width : n * width;
                 if (requests != (expected > 1024) ||
                     (requests && last != expected) || errno != E2BIG)
+                {
                     return 3;
+                }
                 unsigned seen[96] = {0};
                 for (size_t i = 0; i < n; ++i)
                 {
                     unsigned id = records[i * width + 1];
                     if (id >= n || seen[id]++ ||
                         records[i * width] != (n - id) % 7)
+                    {
                         return 4;
+                    }
                     for (size_t k = 1; k < width; ++k)
+                    {
                         if (records[i * width + k] != id)
+                        {
                             return 5;
+                        }
+                    }
                     if (i && records[(i - 1) * width] > records[i * width])
+                    {
                         return 6;
+                    }
                 }
                 printf(
                     "width=%zu count=%zu deny=%u requests=%u request_bytes=%zu "
@@ -84,6 +98,8 @@ int main(void)
                     width, n, fail, requests, last);
                 ++cases;
             }
+        }
+    }
     printf("SORTING-PASS:glibc2.41 %u threshold/failure observations;equal "
            "identity order unspecified\n",
            cases);

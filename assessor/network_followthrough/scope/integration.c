@@ -26,9 +26,13 @@ static void word(unsigned char *p, unsigned v)
 static unsigned checksum(const unsigned char *p, size_t n, unsigned sum)
 {
     for (size_t i = 0; i < n; ++i)
+    {
         sum += (unsigned)p[i] << (i % 2 ? 0 : 8);
+    }
     while (sum > 65535)
+    {
         sum = (sum & 65535) + (sum >> 16);
+    }
     return 65535 - sum;
 }
 
@@ -57,7 +61,9 @@ static int offer(struct nw_rx *q, uint32_t *seq, const unsigned char *data,
                   0xc000 + 0x201 + 0xc000 + 0x202 + 6 + (unsigned)n + 20));
     size_t size = 54 + n;
     if (size < 60)
+    {
         size = 60;
+    }
     int rc = nw_ingress(q, seq, 40000, packet, size);
     memset(packet, 0, sizeof packet);
     return rc;

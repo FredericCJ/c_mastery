@@ -10,7 +10,9 @@ static void drop(void *ctx)
     slot->context = 0;
     slot->drop = 0;
     if (release)
+    {
         release(context);
+    }
 }
 
 static void dispatch(void *ctx, struct api_registry *core,
@@ -19,28 +21,37 @@ static void dispatch(void *ctx, struct api_registry *core,
     (void)core;
     struct as_registration *slot = ctx;
     if (slot->enabled)
+    {
         slot->callback(slot->context, slot->owner, handle);
+    }
 }
 
 void as_registry_init(struct as_registry *r, unsigned suppression,
                       as_terminal_fn terminal, void *ctx)
 {
     if (!r)
+    {
         return;
+    }
     api_registry_init(&r->core);
     r->suppress = !!suppression;
     r->terminal = terminal;
     r->terminal_context = ctx;
     for (unsigned i = 0; i < 4; ++i)
+    {
         r->registrations[i] = (struct as_registration){0};
+    }
 }
 
 enum api_status as_register(struct as_registry *r, as_callback_fn cb, void *ctx,
                             api_drop_fn release, struct api_handle *out)
 {
     if (!r || !cb || !out)
+    {
         return API_INVALID;
+    }
     for (unsigned i = 0; i < 4; ++i)
+    {
         if (!r->registrations[i].occupied)
         {
             struct as_registration *slot = r->registrations + i;
@@ -55,20 +66,29 @@ enum api_status as_register(struct as_registry *r, as_callback_fn cb, void *ctx,
             *out = slot->handle;
             return API_OK;
         }
+    }
     return API_FULL;
 }
 
 enum api_status as_remove(struct as_registry *r, struct api_handle h)
 {
     if (!r)
+    {
         return API_INVALID;
+    }
     enum api_status result = api_remove(&r->core, h);
     if (result == API_PENDING && r->suppress)
+    {
         for (unsigned i = 0; i < 4; ++i)
+        {
             if (r->registrations[i].occupied &&
                 r->registrations[i].handle.index == h.index &&
                 r->registrations[i].handle.generation == h.generation)
+            {
                 r->registrations[i].enabled = 0;
+            }
+        }
+    }
     return result;
 }
 
@@ -88,7 +108,9 @@ static void terminal_if_closed(struct as_registry *r)
 enum api_status as_dispatch(struct as_registry *r)
 {
     if (!r)
+    {
         return API_INVALID;
+    }
     enum api_status status = api_dispatch(&r->core);
     terminal_if_closed(r);
     return status;
@@ -97,7 +119,9 @@ enum api_status as_dispatch(struct as_registry *r)
 enum api_status as_destroy(struct as_registry *r)
 {
     if (!r)
+    {
         return API_INVALID;
+    }
     enum api_status status = api_destroy(&r->core);
     terminal_if_closed(r);
     return status;

@@ -105,22 +105,40 @@ static int test_unload(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (strcmp(argv[1], "unwind") == 0)
+    {
         return test_unwind();
+    }
     if (strcmp(argv[1], "copy") == 0)
+    {
         return test_copy();
+    }
     if (strcmp(argv[1], "refs") == 0)
+    {
         return test_refs();
+    }
     if (strcmp(argv[1], "locks") == 0)
+    {
         return test_locks();
+    }
     if (strcmp(argv[1], "work") == 0)
+    {
         return test_work();
+    }
     if (strcmp(argv[1], "grace") == 0)
+    {
         return test_grace();
+    }
     if (strcmp(argv[1], "abi") == 0)
+    {
         return test_abi();
+    }
     if (strcmp(argv[1], "unload") == 0)
+    {
         return test_unload();
+    }
     return 2;
 }

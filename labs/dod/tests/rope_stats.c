@@ -59,11 +59,17 @@ static void checks(void)
     unsigned char bytes[8] = {0};
     unsigned nodes[8];
     for (unsigned i = 0; i < 8; ++i)
+    {
         CHECK(d_rope_leaf(&r, bytes, 8, &nodes[i]) == D_OK);
+    }
     for (unsigned width = 8; width > 1; width /= 2)
+    {
         for (unsigned i = 0; i < width / 2; ++i)
+        {
             CHECK(d_rope_concat(&r, nodes[2 * i], nodes[2 * i + 1],
                                 &nodes[i]) == D_OK);
+        }
+    }
     CHECK(d_rope_concat(&r, left, nodes[0], &root) == D_OK &&
           d_rope_stats(&r, root, &after) == D_OK && after.depth == 6 &&
           after.logical_bytes == 70 && after.fibonacci_min == 21 &&
@@ -71,7 +77,9 @@ static void checks(void)
     /* Snapshot compaction uses exactly16+48 additional backing bytes. */
     unsigned char original[16], added[128], fresh[16], extra[48];
     for (unsigned i = 0; i < 16; ++i)
+    {
         original[i] = (unsigned char)i;
+    }
     struct d_piece_table old;
     CHECK(d_piece_init(&old, original, 16, added, 128) == D_OK);
     for (unsigned i = 0; i < 12; ++i)
@@ -83,18 +91,26 @@ static void checks(void)
     CHECK(old.length == 16 && old.add_length == 12);
     struct d_piece_table snapshot = old, next = {0};
     for (unsigned i = 0; i < 16; ++i)
+    {
         fresh[i] = 200;
+    }
     CHECK(d_piece_compact(&old, fresh, 15, extra, 48, &next) == D_FULL &&
           next.original == NULL);
     for (unsigned i = 0; i < 16; ++i)
+    {
         CHECK(fresh[i] == 200);
+    }
     CHECK(d_piece_compact(&old, fresh, 16, extra, 48, &next) == D_OK &&
           next.add_length == 0 && next.count == 1);
     for (unsigned i = 0; i < 48; ++i)
+    {
         extra[i] = 50;
+    }
     unsigned char insertion[48];
     for (unsigned i = 0; i < 48; ++i)
+    {
         insertion[i] = 50;
+    }
     CHECK(d_piece_insert(&next, 16, insertion, 48) == D_OK &&
           d_piece_insert(&next, 0, insertion, 1) == D_FULL);
     CHECK(d_piece_flatten(&snapshot, a, 128, &an) == D_OK && an == 16 &&
@@ -103,14 +119,22 @@ static void checks(void)
     old = (struct d_piece_table){0};
     snapshot = (struct d_piece_table){0};
     for (unsigned i = 0; i < 16; ++i)
+    {
         original[i] = 255;
+    }
     for (unsigned i = 0; i < 128; ++i)
+    {
         added[i] = 255;
+    }
     CHECK(d_piece_flatten(&next, a, 128, &an) == D_OK && an == 64);
     for (unsigned i = 0; i < 16; ++i)
+    {
         CHECK(a[i] == i);
+    }
     for (unsigned i = 16; i < 64; ++i)
+    {
         CHECK(a[i] == 50);
+    }
 }
 
 static void observations(void)
@@ -138,10 +162,16 @@ int main(int argc, char **argv)
     CHECK(argc == 2);
     test_name = argv[1];
     if (!strcmp(argv[1], "rope_stats"))
+    {
         checks();
+    }
     else if (!strcmp(argv[1], "oracle"))
+    {
         observations();
+    }
     else
+    {
         CHECK(0);
+    }
     return 0;
 }

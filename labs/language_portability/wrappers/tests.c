@@ -55,18 +55,24 @@ int main(int argc, char **argv)
     int (*fn[])(unsigned, struct lw_observation *) = {lw_trace, lw_min,
                                                       lw_statement};
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "oracle"))
     {
         for (unsigned j = 0; j < 3; ++j)
+        {
             for (unsigned i = 0; i < limits[j]; ++i)
             {
                 int rc = fn[j](i, &s);
                 if (rc)
+                {
                     return 1;
+                }
                 printf("%u %u %u %u %u %d %s\n", j, i, s.left, s.right, s.calls,
                        s.value, s.text);
             }
+        }
         return 0;
     }
     if (!strcmp(argv[1], "metrics"))
@@ -100,6 +106,8 @@ int main(int argc, char **argv)
         puts("LP statement validated");
     }
     else
+    {
         return 2;
+    }
     return 0;
 }

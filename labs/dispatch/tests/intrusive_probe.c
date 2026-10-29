@@ -26,7 +26,9 @@ int main(void)
     if (probe_parent(&item.hooks[1]) != &item ||
         probe_offset(&item.hooks[1]) != &item ||
         probe_initial(&first.link) != &first)
+    {
         return 1;
+    }
     printf("%zu %zu %zu %zu %zu %zu %zu %zu\n", sizeof(struct ds_dual_item),
            sizeof(struct ds_hook), sizeof(struct ds_dual_list),
            sizeof(struct ds_index_owner), sizeof(struct ds_index_slot),

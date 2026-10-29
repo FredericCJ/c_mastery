@@ -5,7 +5,9 @@ void mfw_deque_init(struct mfw_deque *q)
     atomic_init(&q->top, 1);
     atomic_init(&q->bottom, 1);
     for (size_t i = 0; i < 8; i++)
+    {
         atomic_init(&q->slots[i], 0);
+    }
 }
 
 enum mfw_status mfw_push(struct mfw_deque *q, unsigned v)

@@ -14,7 +14,9 @@ static _Noreturn void done(unsigned code)
     register uint32_t *r1 __asm__("r1") = arg;
     __asm__ volatile("bkpt 0xab" : "+r"(r0) : "r"(r1) : "memory");
     for (;;)
+    {
         __asm__ volatile("wfi");
+    }
 }
 
 _Noreturn void eg_unhandled(void)

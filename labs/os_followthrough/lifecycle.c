@@ -30,7 +30,9 @@ static void *worker(void *v)
 {
     struct of_arg *a = v;
     for (unsigned i = 0; i < 1000; i++)
+    {
         atomic_fetch_add_explicit(a->counter, 1, memory_order_relaxed);
+    }
     pthread_exit(a);
 }
 
@@ -102,11 +104,15 @@ static int process(unsigned fail, unsigned shared_result)
         if (shared_result)
         {
             if (sem_post(&shared->ready))
+            {
                 _exit(8);
+            }
         }
         else if (write(pipefd[1], &private, sizeof private) !=
                  (ssize_t)sizeof private)
+        {
             _exit(9);
+        }
         close(pipefd[1]);
         _exit(0);
     }
@@ -114,7 +120,9 @@ static int process(unsigned fail, unsigned shared_result)
     int received = 0;
     ssize_t bytes = 0;
     if (!shared_result)
+    {
         bytes = read(pipefd[0], &received, sizeof received);
+    }
     else if (!fail)
     {
         int rc;
@@ -129,12 +137,16 @@ static int process(unsigned fail, unsigned shared_result)
     CHECK(waitpid(child, &status, 0) == child && WIFEXITED(status));
     CHECK(private == 7 && WEXITSTATUS(status) == (fail ? 7 : 0));
     if (fail)
+    {
         CHECK(!shared->published && (!shared_result ? bytes == 0 : 1));
+    }
     else
+    {
         CHECK(shared->value == 42 &&
               (shared_result
                    ? shared->published
                    : bytes == (ssize_t)sizeof private && received == 9));
+    }
     printf(
         "OF:process:private7:child%s:shared%u:publication%u:channel%u:status%"
         "d:reaped\n",
@@ -153,11 +165,15 @@ static int buffering(unsigned fixed)
     CHECK(setvbuf(file, buffer, _IOFBF, sizeof buffer) == 0);
     CHECK(fwrite("prefix", 1, 6, file) == 6);
     if (fixed)
+    {
         CHECK(fflush(file) == 0);
+    }
     pid_t child = fork();
     CHECK(child >= 0);
     if (!child)
+    {
         exit(0);
+    }
     int status;
     CHECK(waitpid(child, &status, 0) == child && WIFEXITED(status) &&
           !WEXITSTATUS(status));
@@ -177,7 +193,9 @@ int main(void)
     CHECK(os_process_probe() == 0 && os_thread_probe() == 0);
     if (threads(0) || threads(1) || process(0, 0) || process(1, 0) ||
         process(0, 1) || process(1, 1) || buffering(0) || buffering(1))
+    {
         return 1;
+    }
     int status;
     CHECK(waitpid(-1, &status, WNOHANG) == -1 && errno == ECHILD);
     puts("OF_PASS:lifecycle:no-owned-child-left");

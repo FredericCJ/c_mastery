@@ -13,10 +13,14 @@ int main(int argc, char **argv)
     unsigned fuel = 10000;
     uint32_t value = 99;
     if (argc != 3)
+    {
         return 2;
+    }
     f = fopen(argv[2], "rb");
     if (!f)
+    {
         return 2;
+    }
     n = fread(source, 1, sizeof source, f);
     if (ferror(f) || !feof(f))
     {
@@ -32,7 +36,9 @@ int main(int argc, char **argv)
     if (!strcmp(argv[1], "x86") || !strcmp(argv[1], "thumb"))
     {
         if (!ce_emit(&p, !strcmp(argv[1], "thumb"), output, sizeof output))
+        {
             return 3;
+        }
         fputs(output, stdout);
         return 0;
     }

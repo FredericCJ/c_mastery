@@ -22,9 +22,13 @@ static int finish(struct http_parser *p, const void *v, size_t n)
         r = http_feed(p, (const unsigned char *)v + off, n - off, &used);
         off += used;
         if (r != HTTP_NEED && r != HTTP_CONTINUE)
+        {
             break;
+        }
         if (!used)
+        {
             break;
+        }
     }
     return r;
 }
@@ -208,9 +212,13 @@ static int write_fake(void *v, const void *p, size_t n)
     struct edu_sink *s = v;
     s->call++;
     if (s->call == 1)
+    {
         return -1;
+    }
     if (s->call == 3)
+    {
         return -2;
+    }
     size_t k = n > 2 ? 2 : n;
     memcpy(s->out + s->n, p, k);
     s->n += k;
@@ -240,7 +248,9 @@ static int deadlines(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     int r = !strcmp(argv[1], "headers")     ? headers()
             : !strcmp(argv[1], "framing")   ? framing()
             : !strcmp(argv[1], "chunks")    ? chunks()
@@ -249,6 +259,8 @@ int main(int argc, char **argv)
             : !strcmp(argv[1], "deadlines") ? deadlines()
                                             : 2;
     if (!r)
+    {
         printf("PASS http_%s\n", argv[1]);
+    }
     return r;
 }

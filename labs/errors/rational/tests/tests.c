@@ -245,7 +245,9 @@ static int metrics(void)
         "{\"iterations\":10000,\"checksum\":%lu,\"core_allocation_calls\":0,\"unsigned_size\":%zu,\"signed_size\":%zu,\"seconds\":[",
         sum, sizeof(er_fraction), sizeof(struct efr_signed));
     for (unsigned i = 0; i < 7; ++i)
+    {
         printf("%s%.9f", i ? "," : "", samples[i]);
+    }
     puts("]}");
     return 0;
 }
@@ -253,22 +255,40 @@ static int metrics(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "rational_base"))
+    {
         return base();
+    }
     if (!strcmp(argv[1], "rational_consumer"))
+    {
         return consumer();
+    }
     if (!strcmp(argv[1], "rational_add"))
+    {
         return addition();
+    }
     if (!strcmp(argv[1], "rational_signed"))
+    {
         return signed_case();
+    }
     if (!strcmp(argv[1], "rational_opaque"))
+    {
         return opaque();
+    }
     if (!strcmp(argv[1], "rational_admission"))
+    {
         return admission();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

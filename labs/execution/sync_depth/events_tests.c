@@ -15,8 +15,12 @@ static int setup(cmx_kernel *k, struct cd_events *e)
 {
     cmx_init(k, CMX_FIXED);
     for (unsigned t = 0; t < 3; t++)
+    {
         if (cmx_task_add(k, 9 - t, 0, 0x1000 + 0x200 * t, 256) != (int)t)
+        {
             return 0;
+        }
+    }
     return cde_init(e, k) == CMX_OK;
 }
 
@@ -28,6 +32,7 @@ static unsigned relation(unsigned bits, unsigned mask, unsigned all,
     unsigned required = 0, present = 0;
     *observed = 0;
     for (unsigned bit = 0; bit < 3; bit++)
+    {
         if (mask / (1u << bit) % 2u)
         {
             required++;
@@ -37,6 +42,7 @@ static unsigned relation(unsigned bits, unsigned mask, unsigned all,
                 *observed += 1u << bit;
             }
         }
+    }
     return all ? present == required : present != 0;
 }
 
@@ -44,8 +50,11 @@ static int truth(void)
 {
     unsigned cases = 0;
     for (unsigned bits = 0; bits < 8; bits++)
+    {
         for (unsigned mask = 1; mask < 8; mask++)
+        {
             for (unsigned all = 0; all < 2; all++)
+            {
                 for (unsigned consume = 0; consume < 2; consume++)
                 {
                     cmx_kernel k;
@@ -64,6 +73,9 @@ static int truth(void)
                     CHECK(cde_result(&e, 0, &out) == CMX_INVALID);
                     cases++;
                 }
+            }
+        }
+    }
     cmx_kernel k;
     struct cd_events e;
     uint32_t out = 999;
@@ -88,10 +100,15 @@ static int order(void)
 {
     unsigned cases = 0;
     for (unsigned a = 1; a < 8; a++)
+    {
         for (unsigned b = 1; b < 8; b++)
+        {
             for (unsigned modes = 0; modes < 4; modes++)
+            {
                 for (unsigned clears = 0; clears < 4; clears++)
+                {
                     for (unsigned reverse = 0; reverse < 2; reverse++)
+                    {
                         for (unsigned posted = 0; posted < 8; posted++)
                         {
                             cmx_kernel k;
@@ -111,7 +128,9 @@ static int order(void)
                                     relation(remaining, masks[t],
                                              (modes >> t) & 1u, &values[t]);
                                 if (matched[t] && ((clears >> t) & 1u))
+                                {
                                     remaining -= values[t];
+                                }
                             }
                             CHECK(cde_set(&e, posted) == CMX_OK &&
                                   e.event.bits == remaining);
@@ -133,6 +152,11 @@ static int order(void)
                                   cde_destroy(&e) == CMX_OK);
                             cases++;
                         }
+                    }
+                }
+            }
+        }
+    }
     cmx_kernel k;
     struct cd_events e;
     uint32_t out = 999;
@@ -176,7 +200,9 @@ static int terminal(void)
     CHECK(cde_wait(&e, 1, 3, 0, 0, cmx_forever()) == CMX_BLOCKED);
     CHECK(cde_set(&e, 2) == CMX_OK); /* STOP participates in both predicates. */
     for (unsigned t = 0; t < 2; t++)
+    {
         CHECK(cde_result(&e, t, &out) == CMX_OK && out == 2);
+    }
     CHECK(cde_clear(&e, UINT32_MAX) == CMX_OK);
     CHECK(cde_wait(&e, 0, 1, 0, 1, cmx_forever()) == CMX_BLOCKED);
     CHECK(cde_wait(&e, 1, 1, 0, 1, cmx_forever()) == CMX_BLOCKED);
@@ -218,7 +244,9 @@ static int sequence(void)
     CHECK(cde_wait(&e, 0, 4, 0, 1, cmx_at(0)) == CMX_TIMEOUT);
     CHECK(cde_result(&e, 0, &out) == CMX_TIMEOUT);
     for (unsigned i = 0; i < 3; i++)
+    {
         CHECK(cmx_notify_take(&k, 1, cmx_at(0)) == CMX_OK);
+    }
     CHECK(cmx_notify_take(&k, 1, cmx_at(0)) == CMX_TIMEOUT);
     CHECK(cde_sequence_read(&s, &cursor, &delta, &missed) == CMX_OK &&
           delta == 3 && missed == 2);
@@ -250,14 +278,24 @@ static int sequence(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "truth"))
+    {
         return truth();
+    }
     if (!strcmp(argv[1], "order"))
+    {
         return order();
+    }
     if (!strcmp(argv[1], "terminal"))
+    {
         return terminal();
+    }
     if (!strcmp(argv[1], "sequence"))
+    {
         return sequence();
+    }
     return 2;
 }

@@ -34,7 +34,9 @@ static struct pd_fragment atom(struct pd_compile *p, unsigned depth)
 {
     struct pd_fragment f = {0, 0};
     if (p->status)
+    {
         return f;
+    }
     p->d->offset = p->pos;
     ++p->d->steps;
     if (p->pos == p->length)
@@ -52,9 +54,13 @@ static struct pd_fragment atom(struct pd_compile *p, unsigned depth)
         }
         f = expression(p, depth + 1);
         if (p->pos < p->length && p->pattern[p->pos] == ')')
+        {
             ++p->pos;
+        }
         else
+        {
             p->status = PD_NO_MATCH;
+        }
     }
     else if (c == 'a' || c == 'b' || c == '~')
     {
@@ -63,7 +69,9 @@ static struct pd_fragment atom(struct pd_compile *p, unsigned depth)
         p->nfa.states[f.start].next = f.end;
     }
     else
+    {
         p->status = PD_NO_MATCH;
+    }
     while (!p->status && p->pos < p->length && p->pattern[p->pos] == '*')
     {
         ++p->pos;
@@ -108,14 +116,20 @@ int rx_compile(const unsigned char *s, size_t n, struct rx_nfa *out,
                struct pd_diagnostic *d)
 {
     if ((!s && n) || !out || !d)
+    {
         return PD_INVALID;
+    }
     *d = (struct pd_diagnostic){0};
     if (n > 24)
+    {
         return PD_RANGE;
+    }
     struct pd_compile p = {.pattern = s, .length = n, .d = d};
     struct pd_fragment f = expression(&p, 0);
     if (p.status)
+    {
         return p.status;
+    }
     if (p.pos != n)
     {
         d->offset = p.pos;
@@ -130,18 +144,28 @@ int rx_compile(const unsigned char *s, size_t n, struct rx_nfa *out,
 static int valid(const struct rx_nfa *n)
 {
     if (!n || !n->count || n->count > 64 || n->start >= n->count)
+    {
         return 0;
+    }
     for (unsigned i = 0; i < n->count; ++i)
     {
         struct rx_state s = n->states[i];
         if (s.kind > RX_ACCEPT)
+        {
             return 0;
+        }
         if (s.kind != RX_ACCEPT && s.next >= n->count)
+        {
             return 0;
+        }
         if (s.kind == RX_SPLIT && s.other >= n->count)
+        {
             return 0;
+        }
         if (s.kind == RX_BYTE && s.byte != 'a' && s.byte != 'b')
+        {
             return 0;
+        }
     }
     return 1;
 }
@@ -150,8 +174,12 @@ static uint64_t closure(const struct rx_nfa *n, uint64_t set)
 {
     unsigned queue[64], head = 0, tail = 0;
     for (unsigned i = 0; i < n->count; ++i)
+    {
         if (set & (UINT64_C(1) << i))
+        {
             queue[tail++] = i;
+        }
+    }
     while (head < tail)
     {
         struct rx_state s = n->states[queue[head++]];
@@ -176,17 +204,25 @@ static uint64_t step(const struct rx_nfa *n, uint64_t set, unsigned c)
 {
     uint64_t next = 0;
     for (unsigned i = 0; i < n->count; ++i)
+    {
         if ((set & (UINT64_C(1) << i)) && n->states[i].kind == RX_BYTE &&
             n->states[i].byte == c)
+        {
             next |= UINT64_C(1) << n->states[i].next;
+        }
+    }
     return closure(n, next);
 }
 
 static unsigned accepts(const struct rx_nfa *n, uint64_t set)
 {
     for (unsigned i = 0; i < n->count; ++i)
+    {
         if (n->states[i].kind == RX_ACCEPT && (set & (UINT64_C(1) << i)))
+        {
             return 1;
+        }
+    }
     return 0;
 }
 
@@ -194,9 +230,13 @@ int rx_match(const struct rx_nfa *n, const unsigned char *s, size_t length,
              unsigned search, unsigned *out)
 {
     if (!valid(n) || (!s && length) || !out || search > 1)
+    {
         return PD_INVALID;
+    }
     if (length > 256)
+    {
         return PD_RANGE;
+    }
     uint64_t initial = closure(n, UINT64_C(1) << n->start), set = initial;
     unsigned found = search && accepts(n, set);
     for (size_t i = 0; i < length; ++i)
@@ -216,7 +256,9 @@ int rx_determinize(const struct rx_nfa *n, unsigned capacity,
                    struct rx_dfa *out)
 {
     if (!valid(n) || !out || !capacity || capacity > 16)
+    {
         return PD_INVALID;
+    }
     struct rx_dfa d = {0};
     d.count = 1;
     d.subsets[0] = closure(n, UINT64_C(1) << n->start);
@@ -228,11 +270,15 @@ int rx_determinize(const struct rx_nfa *n, unsigned capacity,
             uint64_t set = step(n, d.subsets[i], (unsigned)'a' + c);
             unsigned j = 0;
             while (j < d.count && d.subsets[j] != set)
+            {
                 ++j;
+            }
             if (j == d.count)
             {
                 if (d.count == capacity)
+                {
                     return PD_RANGE;
+                }
                 d.subsets[d.count++] = set;
             }
             d.next[i][c] = j;
@@ -246,13 +292,21 @@ int rx_dfa_match(const struct rx_dfa *d, const unsigned char *s, size_t n,
                  unsigned *out)
 {
     if (!d || (!s && n) || !out || !d->count || d->count > 16)
+    {
         return PD_INVALID;
+    }
     if (n > 256)
+    {
         return PD_RANGE;
+    }
     for (unsigned i = 0; i < d->count; ++i)
+    {
         if (d->accept[i] > 1 || d->next[i][0] >= d->count ||
             d->next[i][1] >= d->count)
+        {
             return PD_INVALID;
+        }
+    }
     unsigned state_id = 0;
     for (size_t i = 0; i < n; ++i)
     {

@@ -7,7 +7,9 @@
 static _Noreturn void stop(void)
 {
     for (;;)
+    {
         __asm__ volatile("wfi");
+    }
 }
 
 static int read_slot(void *c, uint32_t a, uint32_t *v)
@@ -35,25 +37,35 @@ _Noreturn void st_main(void)
     struct fh_io io = st_target_io();
 #if ST_CORE == 0
     if (!st_cold_h745(io))
+    {
         stop();
+    }
 #else
     /* CPU2 was released only after master cold validation; no clock writes. */
     if (WORD(0xE000ED94u) || (WORD(0xE000ED14u) & 0x30000u))
+    {
         stop();
+    }
 #endif
     WORD(0xE000ED24u) |= 1u << 17;
     __asm__ volatile("dsb sy\n\tisb sy" ::: "memory");
     const uint32_t records[2] = {0x080C0000, 0x080E0000};
     struct bs_selection selected;
     if (bs_select(read_slot, 0, &policy, &layout, records, &selected) != 1)
+    {
         stop();
+    }
     uint32_t generation = selected.image[0].generation;
 #if ST_CORE == 0
     if (!st_release(io, &selected))
+    {
         stop();
+    }
 #else
     if (!st_peer_matches(io, &selected))
+    {
         stop();
+    }
 #endif
     unsigned left = 1000000;
     enum fw_peer_result result;
@@ -62,7 +74,9 @@ _Noreturn void st_main(void)
         result = fw_h745_step(generation, FW_HEALTHY);
     } while (result == H7_BUSY && --left);
     if (result != H7_OK)
+    {
         stop();
+    }
 #if ST_CORE == 0
     left = 1000000;
     do
@@ -82,7 +96,9 @@ _Noreturn void st_main(void)
     {
     }
     if (!left)
+    {
         stop();
+    }
     __asm__ volatile("dmb sy" ::: "memory");
 #endif
     /* Boot self-check acknowledgment is not application health certification.

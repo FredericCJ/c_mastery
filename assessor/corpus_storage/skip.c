@@ -6,7 +6,9 @@ void ss_skip_init(struct ss_skip *s)
 {
     *s = (struct ss_skip){0};
     for (unsigned l = 0; l < 6; ++l)
+    {
         s->head[l] = 32;
+    }
 }
 
 unsigned ss_height(uint32_t bits, unsigned quarter)
@@ -32,7 +34,9 @@ static unsigned locate(const struct ss_skip *s, uint32_t key,
         {
             ++*steps;
             if (s->nodes[next].key >= key)
+            {
                 break;
+            }
             at = next;
             next = s->nodes[at].next[level];
         }
@@ -45,7 +49,9 @@ int ss_skip_put(struct ss_skip *s, uint32_t key, int32_t value, uint32_t bits,
                 unsigned quarter)
 {
     if (!s || quarter > 1)
+    {
         return SS_INVALID;
+    }
     unsigned path[6], steps, at = locate(s, key, path, &steps);
     if (at != 32 && s->nodes[at].key == key)
     {
@@ -53,7 +59,9 @@ int ss_skip_put(struct ss_skip *s, uint32_t key, int32_t value, uint32_t bits,
         return SS_OK;
     }
     if (s->count == 32)
+    {
         return SS_FULL;
+    }
     for (at = 0; s->nodes[at].live; ++at)
     {
     }
@@ -61,18 +69,28 @@ int ss_skip_put(struct ss_skip *s, uint32_t key, int32_t value, uint32_t bits,
     struct ss_skip_node node = {
         .key = key, .value = value, .height = height, .live = 1};
     for (unsigned l = 0; l < 6; ++l)
+    {
         node.next[l] = 32;
+    }
     for (unsigned l = 0; l < height; ++l)
+    {
         node.next[l] = path[l] == 32 ? s->head[l] : s->nodes[path[l]].next[l];
+    }
     s->nodes[at] = node;
     for (unsigned l = 0; l < height; ++l)
     {
         if (SS_MUTANT == 1 && l)
+        {
             continue;
+        }
         if (path[l] == 32)
+        {
             s->head[l] = at;
+        }
         else
+        {
             s->nodes[path[l]].next[l] = at;
+        }
     }
     ++s->count;
     return SS_OK;
@@ -82,11 +100,15 @@ int ss_skip_get(const struct ss_skip *s, uint32_t key, int32_t *out,
                 unsigned *cost)
 {
     if (!s || !out || !cost)
+    {
         return SS_INVALID;
+    }
     unsigned path[6], steps, at = locate(s, key, path, &steps);
     *cost = steps;
     if (at == 32 || s->nodes[at].key != key)
+    {
         return SS_MISSING;
+    }
     *out = s->nodes[at].value;
     return SS_OK;
 }
@@ -94,18 +116,28 @@ int ss_skip_get(const struct ss_skip *s, uint32_t key, int32_t *out,
 int ss_skip_erase(struct ss_skip *s, uint32_t key)
 {
     if (!s)
+    {
         return SS_INVALID;
+    }
     unsigned path[6], steps, at = locate(s, key, path, &steps);
     if (at == 32 || s->nodes[at].key != key)
+    {
         return SS_MISSING;
+    }
     for (unsigned l = 0; l < s->nodes[at].height; ++l)
     {
         if (SS_MUTANT == 2 && l)
+        {
             continue;
+        }
         if (path[l] == 32)
+        {
             s->head[l] = s->nodes[at].next[l];
+        }
         else
+        {
             s->nodes[path[l]].next[l] = s->nodes[at].next[l];
+        }
     }
     s->nodes[at].live = 0;
     --s->count;
@@ -117,7 +149,9 @@ int ss_skip_scan(const struct ss_skip *s, uint32_t lo, uint32_t hi,
                  size_t *count)
 {
     if (!s || !count || lo > hi || (!keys && capacity) || (!values && capacity))
+    {
         return SS_INVALID;
+    }
     uint32_t k[32];
     int32_t v[32];
     size_t n = 0;
@@ -125,7 +159,9 @@ int ss_skip_scan(const struct ss_skip *s, uint32_t lo, uint32_t hi,
     while (at != 32 && s->nodes[at].key < hi)
     {
         if (n == capacity)
+        {
             return SS_FULL;
+        }
         k[n] = s->nodes[at].key;
         v[n++] = s->nodes[at].value;
         at = s->nodes[at].next[0];
@@ -142,7 +178,9 @@ int ss_skip_scan(const struct ss_skip *s, uint32_t lo, uint32_t hi,
 int ss_random(uint32_t *state, uint32_t bound, unsigned budget, uint32_t *out)
 {
     if (!state || !out || !bound)
+    {
         return SS_INVALID;
+    }
     uint32_t next = *state, threshold = (UINT32_C(0) - bound) % bound;
     for (unsigned i = 0; i < budget; ++i)
     {

@@ -17,7 +17,9 @@ static int finish(struct ep_phy *p)
     {
         int r = ep_step(p);
         if (r != ED_BUSY)
+        {
             return r;
+        }
     }
     return ED_BUSY;
 }
@@ -153,7 +155,9 @@ int ep_faults(void)
         CHECK(ep_init(&p, &b, 168000000, 0, 4, 100) == ED_OK);
         int r = ep_begin(&p, 16, 1000);
         if (r == ED_BUSY)
+        {
             r = finish(&p);
+        }
         CHECK(r == ED_IO && !p.ready && ep_snapshot(&p, &out) == ED_STALE &&
               !out.owner && !out.incarnation);
     }

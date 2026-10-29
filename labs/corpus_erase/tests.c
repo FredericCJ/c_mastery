@@ -21,7 +21,9 @@ static int predicate(void *p, const struct er_item *i)
 {
     struct er_context *c = p;
     if (++c->calls == c->fail)
+    {
         return -1;
+    }
     return (int)((c->mask >> (i->id - 1)) & 1);
 }
 
@@ -47,11 +49,14 @@ int main(void)
     CHECK(er_compact(NULL, 0, 1, &end, &moves) == ER_OK && end == 0 &&
           moves == 0);
     for (unsigned n = 0; n <= 8; ++n)
+    {
         for (unsigned mask = 0; mask < (1u << n); ++mask)
         {
             struct er_item input[12];
             for (unsigned i = 0; i < n; ++i)
+            {
                 input[i] = (struct er_item){i + 1, (int)i};
+            }
             struct er_owner o;
             CHECK(er_init(&o, input, n) == ER_OK);
             struct er_context c = {.mask = mask};
@@ -60,19 +65,24 @@ int main(void)
                   o.count == n && c.calls == n && !c.count);
             size_t kept = 0;
             for (unsigned i = 0; i < n; ++i)
+            {
                 if (!(mask >> i & 1))
                 {
                     CHECK(o.items[kept].id == i + 1);
                     ++kept;
                 }
+            }
             CHECK(tail.new_end == kept);
             CHECK(er_erase(&o, tail, drop, &c) == ER_OK && o.count == kept &&
                   c.count == n - kept);
             for (unsigned i = 0; i < n; ++i)
+            {
                 CHECK(c.drops[i + 1] == (mask >> i & 1));
+            }
             CHECK(er_erase(&o, tail, drop, &c) == ER_STALE);
             CHECK(er_clear(&o, drop, &c) == ER_OK && c.count == n);
         }
+    }
     struct er_item data[] = {{1, 1}, {2, 2}, {3, 1}, {4, 3}};
     struct er_owner o;
     CHECK(er_init(&o, data, 4) == ER_OK);
@@ -108,7 +118,9 @@ int main(void)
           o.epoch == UINT32_MAX);
     struct er_item full[12];
     for (unsigned i = 0; i < 12; ++i)
+    {
         full[i] = (struct er_item){i + 1, (int)i};
+    }
     CHECK(er_init(&o, full, 12) == ER_OK);
     before = o;
     CHECK(er_init(&o, full, 13) == ER_INVALID &&

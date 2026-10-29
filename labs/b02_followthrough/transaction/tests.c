@@ -29,7 +29,9 @@ static int acquire(void *p, unsigned i)
     CHECK(i < 3 && !(b->mask & (1u << i)));
     event(b, i);
     if (i == b->acq_fail)
+    {
         return 10 + (int)i;
+    }
     b->mask |= 1u << i;
     return 0;
 }
@@ -160,14 +162,18 @@ static int reg_acquire(void *p, unsigned i)
     {
         r->memory = malloc(sizeof(int));
         if (!r->memory)
+        {
             return 10;
+        }
         *r->memory = 7;
     }
     else if (i == 1)
     {
         r->channel = malloc(sizeof(int));
         if (!r->channel)
+        {
             return 11;
+        }
         *r->channel = 11;
     }
     else
@@ -309,7 +315,9 @@ int main(int argc, char **argv)
                 print_state(status, out, &tx, &b);
             }
             for (unsigned i = 0; i < b.count; ++i)
+            {
                 printf("%u,", b.trace[i]);
+            }
             puts("");
         }
         return 0;
@@ -322,15 +330,25 @@ int main(int argc, char **argv)
         return 0;
     }
     if (!strcmp(argv[1], "styles"))
+    {
         styles();
+    }
     else if (!strcmp(argv[1], "recovery"))
+    {
         recovery();
+    }
     else if (!strcmp(argv[1], "registration"))
+    {
         registration();
+    }
     else if (!strcmp(argv[1], "admission"))
+    {
         admission();
+    }
     else
+    {
         CHECK(0);
+    }
     printf("BF %s validated\n", argv[1]);
     return 0;
 }

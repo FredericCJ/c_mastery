@@ -11,12 +11,16 @@ int main(void)
         struct cm_money out[32], m = {1000003, {'U', 'S', 'D'}, 2};
         int64_t checksum = 0;
         for (unsigned i = 0; i < n; i++)
+        {
             w[i] = i + 1;
+        }
         clock_t start = clock();
         for (unsigned i = 0; i < 10000; i++)
         {
             if (cm_allocate(m, w, n, out) != CM_OK)
+            {
                 return 2;
+            }
             checksum += out[i % n].minor;
         }
         printf("recipients=%u iterations=10000 ticks=%" PRIdMAX

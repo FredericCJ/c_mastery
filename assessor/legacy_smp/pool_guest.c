@@ -15,7 +15,9 @@ static void message(const char *s)
 {
     size_t n = 0;
     while (s[n])
+    {
         n++;
+    }
     cmk_write(s, n);
 }
 
@@ -29,7 +31,9 @@ static void number(uint64_t v)
         v /= 10;
     } while (v);
     while (n)
+    {
         cmk_write(&text[--n], 1);
+    }
 }
 
 static void stop(unsigned status)
@@ -61,7 +65,9 @@ static uint64_t work(uint64_t id, uint64_t cost)
 {
     uint64_t v = id + 1;
     for (uint64_t i = 0; i < cost; i++)
+    {
         v = v * UINT64_C(6364136223846793005) + 1;
+    }
     return v;
 }
 
@@ -71,11 +77,15 @@ static void entry(uintptr_t argument)
     unsigned cpu = SPG_MUTANT == 1 ? 0 : index % cpus;
     if (cmk_call(CMK2_SET_AFFINITY, 1u << cpu, 0, 0) ||
         (unsigned)cmk_call(CMK2_CPU_INFO, 0, 0, 0) != index % cpus)
+    {
         atomic_store(&bad, 1);
+    }
     atomic_fetch_or(&mask, 1u << (unsigned)cmk_call(CMK2_CPU_INFO, 0, 0, 0));
     unsigned gate;
     while (!(gate = atomic_load_explicit(&launch.gate, memory_order_acquire)))
+    {
         pause_worker();
+    }
     while (gate != 2)
     {
         if (mode)
@@ -86,17 +96,23 @@ static void entry(uintptr_t argument)
             {
                 if (claim.payload >= 12 ||
                     atomic_fetch_add(&visits[claim.payload], 1))
+                {
                     atomic_store(&bad, 1);
+                }
                 else
                 {
                     uint64_t result = work(claim.payload, claim.cost);
                     results[claim.payload] = result;
                     if (sp_complete(&pool, claim, result) != SP_OK)
+                    {
                         atomic_store(&bad, 1);
+                    }
                 }
             }
             else if (r != SP_EMPTY)
+            {
                 atomic_store(&bad, 1);
+            }
         }
         pause_worker();
         gate = atomic_load_explicit(&launch.gate, memory_order_acquire);
@@ -108,7 +124,9 @@ static void *allocate(void *unused, unsigned index)
 {
     (void)unused;
     if (index == allocate_fail)
+    {
         return NULL;
+    }
     G_CHECK(!(leased & (1u << index)));
     leased |= 1u << index;
     return arena[index];
@@ -118,11 +136,15 @@ static int create(void *unused, unsigned index, void *stack, uintptr_t *handle)
 {
     (void)unused;
     if (index == create_fail)
+    {
         return 1;
+    }
     int64_t h =
         cmk2_thread_create(entry, (unsigned char *)stack + 16384, index);
     if (h < 0)
+    {
         return 1;
+    }
     created |= 1u << index;
     *handle = (uintptr_t)h;
     return 0;
@@ -133,14 +155,22 @@ static int join(void *unused, uintptr_t handle)
     (void)unused;
     unsigned index = 4;
     for (unsigned i = 0; i < launch.count; i++)
+    {
         if ((launch.started & (1u << i)) && launch.handles[i] == handle)
+        {
             index = i;
+        }
+    }
     G_CHECK(index < 4);
     if (index == join_fail)
+    {
         return 1;
+    }
     int64_t r = cmk2_thread_join((uint32_t)handle);
     if (!r)
+    {
         joined |= 1u << index;
+    }
     return r != 0;
 }
 
@@ -187,7 +217,9 @@ void _start(void)
         int r = sp_launch(&launch, n);
         G_CHECK(r == (n == 4 ? SP_FAILED : SP_OK));
         if (n < 4)
+        {
             G_CHECK(sp_shutdown(&launch) == SP_OK);
+        }
         if (atomic_load(&bad))
         {
             message("SP_GUEST_CHECK:worker-placement\n");
@@ -196,17 +228,23 @@ void _start(void)
         G_CHECK(!leased && released == n);
         cuts++;
         for (unsigned cut = 0; cut < n; cut++)
+        {
             for (unsigned kind = 0; kind < 2; kind++)
             {
                 reset(0);
                 if (kind)
+                {
                     create_fail = cut;
+                }
                 else
+                {
                     allocate_fail = cut;
+                }
                 G_CHECK(sp_launch(&launch, n) == SP_FAILED && !leased &&
                         !atomic_load(&bad) && released == cut + kind);
                 cuts++;
             }
+        }
     }
     reset(0);
     G_CHECK(sp_launch(&launch, 3) == SP_OK);
@@ -228,7 +266,9 @@ void _start(void)
         {
             r = sp_submit(&pool, 0, i, i == 0 ? 50000 : 1000, &ids[i]);
             if (r == SP_FULL)
+            {
                 pause_worker();
+            }
         } while (r == SP_FULL);
         G_CHECK(r == SP_OK);
     }

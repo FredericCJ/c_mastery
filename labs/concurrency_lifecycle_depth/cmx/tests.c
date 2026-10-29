@@ -24,24 +24,40 @@ static int cq_setup(struct cc_queue *q, cmx_kernel *k, struct cc_handle h[5])
 {
     cmx_init(k, CMX_FIXED);
     for (unsigned i = 0; i < 5; i++)
+    {
         if (cmx_task_add(k, 5, 0, 0x1000 + 256 * i, 256) != (int)i)
+        {
             return 0;
+        }
+    }
     if (cc_init(q, k) != CL_OK || q->bytes.slots != q->storage ||
         q->life.generation != 1)
+    {
         return 0;
+    }
     for (unsigned i = 0; i < 5; i++)
+    {
         if (cc_register(q, i, &h[i]) != CL_OK)
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
 static int cq_finish(struct cc_queue *q, struct cc_handle h[5])
 {
     if (cc_close(q, 0) != CL_OK)
+    {
         return 0;
+    }
     for (unsigned i = 0; i < 5; i++)
+    {
         if (cc_release(&h[i]) != CL_OK)
+        {
             return 0;
+        }
+    }
     return cc_destroy(q) == CL_OK;
 }
 
@@ -101,14 +117,22 @@ static int cq_terminal(void)
               cc_result(b, 0) == CL_OK);
         CHECK(cc_send(h[2], 2, 1, bytes, 4, cmx_at(5), &c) == CC_BLOCKED);
         if (cause == 0)
+        {
             cmx_tick(&k, 5);
+        }
         else if (cause == 1)
+        {
             CHECK(cc_cancel(c) == CC_CANCELLED);
+        }
         else
+        {
             CHECK(cc_close(&q, 1) == CL_OK && q.bytes.discarded == 2);
+        }
         if (cause < 2)
+        {
             CHECK(cc_receive(h[3], 4, cmx_forever(), &r) == CL_OK &&
                   cc_result(r, &out) == CL_OK);
+        }
         CHECK(cc_result(c, 0) == (cause == 0   ? CC_TIMEOUT
                                   : cause == 1 ? CC_CANCELLED
                                                : CL_CLOSED));
@@ -154,9 +178,13 @@ static int cq_condition(void)
               m.owner == CMX_NONE);
         CHECK(cmx_mutex_lock(&k, &m, 1, cmx_forever()) == CMX_OK);
         if (signaled)
+        {
             CHECK(cmx_cond_signal(&k, &c, 0) == CMX_OK);
+        }
         else
+        {
             cmx_tick(&k, 5);
+        }
         CHECK(k.task[0].state == CMX_WAITING && k.task[0].wait == CMX_W_MUTEX &&
               cc_progress(&q) == CL_OK);
         CHECK(cc_close(&q, 0) == CL_OK && cc_cancel(t) == CC_BLOCKED &&
@@ -191,7 +219,9 @@ static int cq_lifetime(void)
           out.producer == 9 && out.bytes[0] == 7);
     CHECK(cc_close(&q, 0) == CL_OK);
     for (unsigned i = 0; i < 5; i++)
+    {
         CHECK(cc_release(&h[i]) == CL_OK);
+    }
     CHECK(cc_destroy(&q) == CL_BUSY &&
           cc_port_send(port, 9, 2, bytes, 4) == CL_CLOSED);
     /* Hosted serial case supplies quiescence directly; target/native port tests
@@ -256,7 +286,9 @@ static int cq_dispatch(void)
                                  cmx_forever(), &tickets[t]);
             }
             else
+            {
                 result = cc_receive(h[t], 4, cmx_forever(), &tickets[t]);
+            }
             CHECK(result == CL_OK || result == CC_BLOCKED);
             phase[t] = 1;
         }
@@ -286,7 +318,9 @@ static int cq_dispatch(void)
     CHECK(finished == 5 && q.bytes.accepted == 60 && q.bytes.delivered == 60 &&
           q.bytes.discarded == 0 && q.bytes.count == 0);
     for (unsigned t = 0; t < 5; t++)
+    {
         CHECK(cmx_cancel(&k, t) == CMX_OK);
+    }
     CHECK(expected[0] == 20 && expected[1] == 20 && expected[2] == 20 &&
           cq_finish(&q, h));
     puts(
@@ -297,17 +331,29 @@ static int cq_dispatch(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "queue"))
+    {
         return cq_queue();
+    }
     if (!strcmp(argv[1], "terminal"))
+    {
         return cq_terminal();
+    }
     if (!strcmp(argv[1], "condition"))
+    {
         return cq_condition();
+    }
     if (!strcmp(argv[1], "lifetime"))
+    {
         return cq_lifetime();
+    }
     if (!strcmp(argv[1], "dispatch"))
+    {
         return cq_dispatch();
+    }
     return 2;
 }
 #endif

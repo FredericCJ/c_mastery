@@ -8,7 +8,9 @@ static void *child_main(void *p)
     struct msg_child *c = p;
     c->result = c->task(c->ctx, &c->owner->cancel);
     if (c->result != 0 && SC_MUTANT != 1)
+    {
         atomic_store(&c->owner->cancel, true);
+    }
     return NULL;
 }
 
@@ -30,13 +32,21 @@ void msg_cancel(struct msg_nursery *n)
 enum msg_status msg_spawn(struct msg_nursery *n, msg_task_fn task, void *ctx)
 {
     if (n->closing || n->closed)
+    {
         return MSG_CLOSED;
+    }
     if (!task)
+    {
         return MSG_INVALID;
+    }
     if (n->count == 8)
+    {
         return MSG_FULL;
+    }
     if (n->attempts == SIZE_MAX)
+    {
         return MSG_OVERFLOW;
+    }
     ++n->attempts;
     if (n->fail_at == n->attempts)
     {
@@ -68,11 +78,15 @@ enum msg_status msg_join(struct msg_nursery *n, int *result)
         if (!c->joined)
         {
             if (pthread_join(c->thread, NULL) != 0)
+            {
                 return MSG_FAILED;
+            }
             c->joined = true;
         }
         if (first == 0 && c->result != 0 && SC_MUTANT != 11)
+        {
             first = c->result;
+        }
     }
     n->closed = true;
     *result = first;
@@ -82,9 +96,13 @@ enum msg_status msg_join(struct msg_nursery *n, int *result)
 enum msg_status msg_hub_init(struct msg_hub *h, size_t a, size_t b)
 {
     if (a > 4 || b > 4)
+    {
         return MSG_INVALID;
+    }
     if (pthread_mutex_init(&h->mutex, NULL))
+    {
         return MSG_FAILED;
+    }
     if (pthread_cond_init(&h->changed, NULL))
     {
         pthread_mutex_destroy(&h->mutex);
@@ -114,7 +132,9 @@ void msg_hub_cancel(struct msg_hub *h)
 enum msg_status msg_close(struct msg_hub *h, unsigned k)
 {
     if (k > 1)
+    {
         return MSG_INVALID;
+    }
     pthread_mutex_lock(&h->mutex);
     h->channel[k].closed = true;
     pthread_cond_broadcast(&h->changed);
@@ -125,7 +145,9 @@ enum msg_status msg_close(struct msg_hub *h, unsigned k)
 enum msg_status msg_send(struct msg_hub *h, unsigned k, unsigned v, bool wait)
 {
     if (k > 1)
+    {
         return MSG_INVALID;
+    }
     pthread_mutex_lock(&h->mutex);
     struct msg_channel *c = &h->channel[k];
     enum msg_status status = MSG_OK;
@@ -172,7 +194,9 @@ enum msg_status msg_send(struct msg_hub *h, unsigned k, unsigned v, bool wait)
         c->offered = true;
         pthread_cond_broadcast(&h->changed);
         while (c->accepted < ticket && !c->closed && !h->stop)
+        {
             pthread_cond_wait(&h->changed, &h->mutex);
+        }
         if (c->accepted < ticket)
         {
             c->offered = false;
@@ -189,7 +213,9 @@ enum msg_status msg_select(struct msg_hub *h, unsigned mask, bool wait,
                            unsigned *which, unsigned *value)
 {
     if (!mask || (mask & ~3u))
+    {
         return MSG_INVALID;
+    }
     pthread_mutex_lock(&h->mutex);
     enum msg_status status;
     for (;;)
@@ -204,10 +230,14 @@ enum msg_status msg_select(struct msg_hub *h, unsigned mask, bool wait,
         {
             unsigned k = (h->next + j) % 2;
             if (!(mask & (1u << k)))
+            {
                 continue;
+            }
             struct msg_channel *c = &h->channel[k];
             if (!c->closed)
+            {
                 ++live;
+            }
             if ((c->count && SC_MUTANT != 12) || (c->offered && !c->closed))
             {
                 *which = k;
@@ -254,9 +284,13 @@ void msg_connect(struct msg_operation *o, msg_receiver_fn r, void *ctx)
 enum msg_status msg_start(struct msg_operation *o)
 {
     if (o->state != MSG_NEW)
+    {
         return MSG_INVALID;
+    }
     if (!o->receiver)
+    {
         return MSG_INVALID;
+    }
     o->state = MSG_STARTED;
     return MSG_OK;
 }
@@ -264,10 +298,14 @@ enum msg_status msg_start(struct msg_operation *o)
 enum msg_status msg_stop_operation(struct msg_operation *o)
 {
     if (o->state != MSG_STARTED)
+    {
         return MSG_INVALID;
+    }
     o->cancel = true;
     if (SC_MUTANT == 13)
+    {
         o->state = MSG_DONE;
+    }
     return MSG_OK;
 }
 
@@ -275,9 +313,13 @@ enum msg_status msg_complete(struct msg_operation *o, enum msg_status s,
                              unsigned v)
 {
     if (o->state != MSG_STARTED && SC_MUTANT != 3)
+    {
         return MSG_INVALID;
+    }
     if (s != MSG_OK && s != MSG_FAILED && s != MSG_CANCELLED)
+    {
         return MSG_INVALID;
+    }
     msg_receiver_fn r = o->receiver;
     void *ctx = o->ctx;
     o->state = MSG_DONE;
@@ -294,11 +336,17 @@ void msg_actor_init(struct msg_actor *a, msg_handler_fn f, void *ctx)
 enum msg_status msg_actor_send(struct msg_actor *a, uint64_t g, unsigned v)
 {
     if (g != a->generation && SC_MUTANT != 4)
+    {
         return MSG_STALE;
+    }
     if (!a->alive)
+    {
         return MSG_CLOSED;
+    }
     if (a->count == 4)
+    {
         return MSG_FULL;
+    }
     a->queue[(a->head + a->count) % 4] = v;
     ++a->count;
     return MSG_OK;
@@ -307,11 +355,17 @@ enum msg_status msg_actor_send(struct msg_actor *a, uint64_t g, unsigned v)
 enum msg_status msg_actor_step(struct msg_actor *a)
 {
     if (!a->alive)
+    {
         return MSG_CLOSED;
+    }
     if (a->stepping)
+    {
         return MSG_BUSY;
+    }
     if (!a->count)
+    {
         return MSG_EMPTY;
+    }
     unsigned v = a->queue[a->head];
     a->head = (a->head + 1) % 4;
     --a->count;
@@ -322,7 +376,9 @@ enum msg_status msg_actor_step(struct msg_actor *a)
     {
         a->alive = false;
         if (SC_MUTANT != 14)
+        {
             a->count = 0;
+        }
         return MSG_FAILED;
     }
     return MSG_OK;
@@ -331,9 +387,13 @@ enum msg_status msg_actor_step(struct msg_actor *a)
 enum msg_status msg_actor_restart(struct msg_actor *a)
 {
     if (a->alive || a->stepping)
+    {
         return MSG_BUSY;
+    }
     if (a->generation == UINT64_MAX)
+    {
         return MSG_OVERFLOW;
+    }
     ++a->generation;
     a->count = 0;
     a->head = 0;
@@ -345,7 +405,9 @@ enum msg_status msg_supervisor_init(struct msg_supervisor *s, size_t limit,
                                     uint64_t window)
 {
     if (!limit || limit > 4 || !window)
+    {
         return MSG_INVALID;
+    }
     *s = (struct msg_supervisor){.limit = limit, .window = window};
     return MSG_OK;
 }
@@ -355,20 +417,30 @@ enum msg_status msg_restart_plan(struct msg_supervisor *s, uint64_t now,
                                  int *actions, size_t *count)
 {
     if (failed > 3 || strategy > MSG_REST || now < s->last)
+    {
         return MSG_INVALID;
+    }
     if (s->escalated)
+    {
         return MSG_CLOSED;
+    }
     s->last = now;
     size_t kept = 0;
     for (size_t i = 0; i < s->count; i++)
+    {
         if (now - s->times[i] < s->window)
+        {
             s->times[kept++] = s->times[i];
+        }
+    }
     s->count = kept;
     if (s->count == s->limit)
     {
         s->escalated = true;
         for (unsigned i = 0; i < 4; i++)
+        {
             actions[i] = -(int)(4 - i);
+        }
         *count = 4;
         return MSG_FAILED;
     }
@@ -377,10 +449,16 @@ enum msg_status msg_restart_plan(struct msg_supervisor *s, uint64_t now,
              last = strategy == MSG_ONE ? failed : 3;
     size_t n = 0;
     for (unsigned i = last + 1; i > first; i--)
+    {
         actions[n++] = -(int)(SC_MUTANT == 5 ? first + last + 2 - i : i);
+    }
     if (SC_MUTANT != 15)
+    {
         for (unsigned i = first; i <= last; i++)
+        {
             actions[n++] = (int)i + 1;
+        }
+    }
     *count = n;
     return MSG_OK;
 }
@@ -390,16 +468,22 @@ void msg_deque_init(struct msg_deque *q)
     atomic_init(&q->top, 1);
     atomic_init(&q->bottom, 1);
     for (unsigned i = 0; i < 8; i++)
+    {
         atomic_init(&q->slots[i], 0);
+    }
 }
 
 enum msg_status msg_push(struct msg_deque *q, unsigned v)
 {
     size_t b = atomic_load(&q->bottom), t = atomic_load(&q->top);
     if (b == SIZE_MAX - 1)
+    {
         return MSG_OVERFLOW;
+    }
     if (b - t >= 8)
+    {
         return MSG_FULL;
+    }
     atomic_store(&q->slots[b % 8], v);
     atomic_store(&q->bottom, b + 1);
     return MSG_OK;
@@ -409,7 +493,9 @@ enum msg_status msg_pop(struct msg_deque *q, unsigned *out)
 {
     size_t b = atomic_load(&q->bottom);
     if (!b)
+    {
         return MSG_EMPTY;
+    }
     --b;
     atomic_store(&q->bottom, b);
     size_t t = atomic_load(&q->top);
@@ -424,7 +510,9 @@ enum msg_status msg_pop(struct msg_deque *q, unsigned *out)
         bool won = atomic_compare_exchange_strong(&q->top, &t, t + 1);
         atomic_store(&q->bottom, b + 1);
         if (!won)
+        {
             return MSG_CONFLICT;
+        }
     }
     *out = SC_MUTANT == 6 ? v + 1 : v;
     return MSG_OK;
@@ -434,10 +522,14 @@ enum msg_status msg_steal(struct msg_deque *q, unsigned *out)
 {
     size_t t = atomic_load(&q->top), b = atomic_load(&q->bottom);
     if (t >= b)
+    {
         return MSG_EMPTY;
+    }
     unsigned v = atomic_load(&q->slots[t % 8]);
     if (SC_MUTANT != 16 && !atomic_compare_exchange_strong(&q->top, &t, t + 1))
+    {
         return MSG_CONFLICT;
+    }
     *out = v;
     return MSG_OK;
 }
@@ -466,7 +558,9 @@ void msg_abort(struct msg_txn *t)
 enum msg_status msg_read(struct msg_txn *t, unsigned k, unsigned *out)
 {
     if (!t->active || k > 3)
+    {
         return MSG_INVALID;
+    }
     if (t->writes & (1u << k))
     {
         *out = t->values[k];
@@ -489,7 +583,9 @@ enum msg_status msg_read(struct msg_txn *t, unsigned k, unsigned *out)
 enum msg_status msg_write(struct msg_txn *t, unsigned k, unsigned v)
 {
     if (!t->active || k > 3)
+    {
         return MSG_INVALID;
+    }
     t->writes |= 1u << k;
     t->values[k] = v;
     return MSG_OK;
@@ -498,20 +594,26 @@ enum msg_status msg_write(struct msg_txn *t, unsigned k, unsigned v)
 enum msg_status msg_commit(struct msg_txn *t)
 {
     if (!t->active)
+    {
         return MSG_INVALID;
+    }
     struct msg_store *s = t->store;
     unsigned locked = 0, old[4] = {0}, stamp = 0;
     enum msg_status status = MSG_CONFLICT;
     for (unsigned i = 0; i < 4; i++)
+    {
         if (t->writes & (1u << i))
         {
             unsigned v = atomic_load(&s->cells[i].stamp);
             old[i] = v;
             if ((v & 1u) ||
                 !atomic_compare_exchange_strong(&s->cells[i].stamp, &v, v | 1u))
+            {
                 goto abort;
+            }
             locked |= 1u << i;
         }
+    }
     if (t->writes)
     {
         unsigned clock = atomic_load(&s->clock);
@@ -526,25 +628,41 @@ enum msg_status msg_commit(struct msg_txn *t)
         stamp = clock + 1;
     }
     for (unsigned i = 0; i < 4; i++)
+    {
         if (t->reads & (1u << i))
         {
             unsigned v =
                 (locked & (1u << i)) ? old[i] : atomic_load(&s->cells[i].stamp);
             if (SC_MUTANT != 17 && ((v & 1u) || (v >> 1) > t->snapshot))
+            {
                 goto abort;
+            }
         }
+    }
     for (unsigned i = 0; i < 4; i++)
+    {
         if (locked & (1u << i))
+        {
             atomic_store(&s->cells[i].value, t->values[i]);
+        }
+    }
     for (unsigned i = 0; i < 4; i++)
+    {
         if (locked & (1u << i))
+        {
             atomic_store(&s->cells[i].stamp, stamp << 1);
+        }
+    }
     t->active = false;
     return MSG_OK;
 abort:
     for (unsigned i = 0; i < 4; i++)
+    {
         if (locked & (1u << i))
+        {
             atomic_store(&s->cells[i].stamp, old[i]);
+        }
+    }
     t->active = false;
     return status;
 }
@@ -553,9 +671,13 @@ static size_t visible(struct msg_versions *s, uint64_t stamp)
 {
     size_t best = 8;
     for (size_t i = 0; i < 8; i++)
+    {
         if (s->versions[i].live && s->versions[i].stamp <= stamp &&
             (best == 8 || s->versions[i].stamp > s->versions[best].stamp))
+        {
             best = i;
+        }
+    }
     return best;
 }
 
@@ -565,24 +687,40 @@ static void collect(struct msg_versions *s)
     size_t current = visible(s, s->clock);
     keep[current] = true;
     if (SC_MUTANT != 8)
+    {
         for (unsigned j = 0; j < 4; j++)
+        {
             if (s->pins[j].active)
+            {
                 keep[visible(s, s->pins[j].stamp)] = true;
+            }
+        }
+    }
     for (unsigned i = 0; i < 8; i++)
+    {
         if (!keep[i])
+        {
             s->versions[i].live = false;
+        }
+    }
 }
 
 enum msg_status msg_versions_init(struct msg_versions *s)
 {
     if (pthread_mutex_init(&s->mutex, NULL))
+    {
         return MSG_FAILED;
+    }
     s->clock = 0;
     for (unsigned i = 0; i < 8; i++)
+    {
         s->versions[i] = (struct msg_version){0};
+    }
     s->versions[0].live = true;
     for (unsigned i = 0; i < 4; i++)
+    {
         s->pins[i] = (struct msg_pin){0};
+    }
     return MSG_OK;
 }
 
@@ -596,6 +734,7 @@ enum msg_status msg_snapshot(struct msg_versions *s, struct msg_snapshot *out)
     pthread_mutex_lock(&s->mutex);
     enum msg_status status = MSG_FULL;
     for (unsigned i = 0; i < 4; i++)
+    {
         if (!s->pins[i].active && s->pins[i].generation < UINT64_MAX)
         {
             s->pins[i].active = true;
@@ -605,6 +744,7 @@ enum msg_status msg_snapshot(struct msg_versions *s, struct msg_snapshot *out)
             status = MSG_OK;
             break;
         }
+    }
     pthread_mutex_unlock(&s->mutex);
     return status;
 }
@@ -630,7 +770,9 @@ enum msg_status msg_snapshot_read(struct msg_versions *s, struct msg_snapshot p,
             status = MSG_OK;
         }
         else
+        {
             status = MSG_FAILED;
+        }
     }
     pthread_mutex_unlock(&s->mutex);
     return status;
@@ -661,6 +803,7 @@ enum msg_status msg_publish(struct msg_versions *s, unsigned a, unsigned b)
     }
     collect(s);
     for (unsigned i = 0; i < 8; i++)
+    {
         if (!s->versions[i].live)
         {
             s->versions[i] = (struct msg_version){
@@ -668,6 +811,7 @@ enum msg_status msg_publish(struct msg_versions *s, unsigned a, unsigned b)
             status = MSG_OK;
             break;
         }
+    }
 out:
     pthread_mutex_unlock(&s->mutex);
     return status;
@@ -685,13 +829,19 @@ enum msg_status msg_sequence_write(struct msg_sequence *s, unsigned a,
 {
     unsigned v = atomic_load(&s->sequence);
     if (v & 1u)
+    {
         return MSG_BUSY;
+    }
     if (v > UINT_MAX - 2)
+    {
         return MSG_OVERFLOW;
+    }
     atomic_store(&s->sequence, v + 1);
     atomic_store(&s->first, a);
     if (SC_MUTANT != 19)
+    {
         atomic_store(&s->second, b);
+    }
     atomic_store(&s->sequence, v + 2);
     return MSG_OK;
 }
@@ -703,7 +853,9 @@ enum msg_status msg_sequence_read(struct msg_sequence *s, size_t tries,
     {
         unsigned a = atomic_load(&s->sequence);
         if ((a & 1u) && SC_MUTANT != 9)
+        {
             continue;
+        }
         unsigned x = atomic_load(&s->first), y = atomic_load(&s->second),
                  b = atomic_load(&s->sequence);
         if (a == b)
@@ -725,7 +877,9 @@ void msg_stream_init(struct msg_stream *s, msg_next_fn next,
 enum msg_status msg_request(struct msg_stream *s, uint64_t n)
 {
     if (s->terminal || s->cancelled || s->pending_error)
+    {
         return MSG_CLOSED;
+    }
     if (!n)
     {
         if (s->delivering)
@@ -747,13 +901,21 @@ void msg_stream_cancel(struct msg_stream *s)
 enum msg_status msg_emit(struct msg_stream *s, unsigned v)
 {
     if (s->terminal || s->cancelled)
+    {
         return MSG_CLOSED;
+    }
     if (s->delivering)
+    {
         return MSG_BUSY;
+    }
     if (!s->demand && SC_MUTANT != 10)
+    {
         return MSG_EMPTY;
+    }
     if (s->demand && s->demand != UINT64_MAX)
+    {
         --s->demand;
+    }
     s->delivering = true;
     s->next(s->ctx, v);
     s->delivering = false;
@@ -768,11 +930,17 @@ enum msg_status msg_emit(struct msg_stream *s, unsigned v)
 enum msg_status msg_stream_end(struct msg_stream *s, enum msg_status status)
 {
     if ((s->terminal || s->cancelled) && SC_MUTANT != 20)
+    {
         return MSG_CLOSED;
+    }
     if (s->delivering)
+    {
         return MSG_BUSY;
+    }
     if (status != MSG_OK && status != MSG_FAILED && status != MSG_INVALID)
+    {
         return MSG_INVALID;
+    }
     s->terminal = true;
     s->end(s->ctx, status);
     return MSG_OK;

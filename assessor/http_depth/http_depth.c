@@ -3,25 +3,35 @@
 int hd_length(const unsigned char *s, size_t n, uint32_t cap, uint32_t *out)
 {
     if (!s || !n || !out || cap > 1024)
+    {
         return 400;
+    }
     uint32_t v = 0;
     for (size_t i = 0; i < n; i++)
     {
         if (s[i] < '0' || s[i] > '9')
+        {
             return 400;
+        }
         unsigned d = s[i] - '0';
 #ifndef HD_MUTATE_LENGTH
         if (v > (UINT32_MAX - d) / 10u)
+        {
             return 400;
+        }
 #endif
         v = v * 10u + d;
 #ifdef HD_MUTATE_LENGTH2
         if (v > cap)
+        {
             return 413;
+        }
 #endif
     }
     if (v > cap)
+    {
         return 413;
+    }
     *out = v;
     return HD_OK;
 }
@@ -45,7 +55,9 @@ int hd_date(unsigned available, uint32_t days, uint32_t seconds, char *out,
             size_t cap, size_t *length)
 {
     if (!length || available > 1)
+    {
         return HD_INVALID;
+    }
 #ifndef HD_MUTATE_DATE2
     if (!available)
     {
@@ -54,7 +66,9 @@ int hd_date(unsigned available, uint32_t days, uint32_t seconds, char *out,
     }
 #endif
     if (!out || cap < 30 || days > 2932896u || seconds > 86399u)
+    {
         return HD_INVALID;
+    }
     unsigned y = 1970, m = 0, day = days;
     while (day >= 365u + leap(y))
     {
@@ -84,7 +98,9 @@ int hd_date(unsigned available, uint32_t days, uint32_t seconds, char *out,
     two(value + 20, (seconds / 60) % 60);
     two(value + 23, seconds % 60);
     for (unsigned i = 0; i < 30; i++)
+    {
         out[i] = value[i];
+    }
     *length = 29;
     return HD_OK;
 }
@@ -92,7 +108,9 @@ int hd_date(unsigned available, uint32_t days, uint32_t seconds, char *out,
 static int valid(const struct hd_pool *p, struct hd_handle h)
 {
     if (!p || h.index >= 4)
+    {
         return 0;
+    }
     const struct hd_slot *s = &p->slots[h.index];
 #ifdef HD_MUTATE_LIFECYCLE
     return s->live != 0;
@@ -104,15 +122,23 @@ static int valid(const struct hd_pool *p, struct hd_handle h)
 int hd_admit(struct hd_pool *p, int fd, unsigned flags, struct hd_handle *out)
 {
     if (!p || !out || fd < 0 || flags != 1)
+    {
         return HD_INVALID;
+    }
     for (unsigned i = 0; i < 4; i++)
+    {
         if (p->slots[i].live && p->slots[i].fd == fd)
+        {
             return HD_INVALID;
+        }
+    }
     for (unsigned i = 0; i < 4; i++)
     {
         struct hd_slot *s = &p->slots[i];
         if (s->live || s->retired || s->generation == UINT32_MAX)
+        {
             continue;
+        }
         s->generation++;
         s->live = 1;
         s->fd = fd;
@@ -127,9 +153,13 @@ int hd_admit(struct hd_pool *p, int fd, unsigned flags, struct hd_handle *out)
 int hd_interest(struct hd_pool *p, struct hd_handle h, unsigned mask)
 {
     if (!p || mask > 3)
+    {
         return HD_INVALID;
+    }
     if (!valid(p, h))
+    {
         return HD_STALE;
+    }
     p->slots[h.index].interest = mask;
     return HD_OK;
 }
@@ -138,9 +168,13 @@ int hd_event(const struct hd_pool *p, struct hd_handle h, int fd,
              unsigned ready, unsigned *out)
 {
     if (!p || !out || ready > 15 || fd < 0)
+    {
         return HD_INVALID;
+    }
     if (!valid(p, h) || p->slots[h.index].fd != fd)
+    {
         return HD_STALE;
+    }
 #ifdef HD_MUTATE_LIFECYCLE2
     *out = ready;
 #else
@@ -152,14 +186,20 @@ int hd_event(const struct hd_pool *p, struct hd_handle h, int fd,
 int hd_close(struct hd_pool *p, struct hd_handle h, int *out)
 {
     if (!p || !out)
+    {
         return HD_INVALID;
+    }
     if (!valid(p, h))
+    {
         return HD_STALE;
+    }
     struct hd_slot *s = &p->slots[h.index];
     *out = s->fd;
     s->live = 0;
     s->interest = 0;
     if (s->generation == UINT32_MAX)
+    {
         s->retired = 1;
+    }
     return HD_OK;
 }

@@ -102,22 +102,40 @@ static int test_differential(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (strcmp(argv[1], "token") == 0)
+    {
         return test_token();
+    }
     if (strcmp(argv[1], "parse") == 0)
+    {
         return test_parse();
+    }
     if (strcmp(argv[1], "types") == 0)
+    {
         return test_types();
+    }
     if (strcmp(argv[1], "ir") == 0)
+    {
         return test_ir();
+    }
     if (strcmp(argv[1], "verify") == 0)
+    {
         return test_verify();
+    }
     if (strcmp(argv[1], "x86") == 0)
+    {
         return test_x86();
+    }
     if (strcmp(argv[1], "thumb") == 0)
+    {
         return test_thumb();
+    }
     if (strcmp(argv[1], "differential") == 0)
+    {
         return test_differential();
+    }
     return 2;
 }

@@ -16,8 +16,12 @@ static int equal(const struct aa_result *a, const struct aa_result *b)
     const unsigned char *x = (const unsigned char *)a,
                         *y = (const unsigned char *)b;
     for (unsigned i = 0; i < sizeof *a; ++i)
+    {
         if (x[i] != y[i])
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
@@ -26,13 +30,17 @@ static void bytes(struct aa_result *to, const struct aa_result *from)
     unsigned char *x = (unsigned char *)to;
     const unsigned char *y = (const unsigned char *)from;
     for (unsigned i = 0; i < sizeof *to; ++i)
+    {
         x[i] = y[i];
+    }
 }
 
 static int truth(void)
 {
     for (unsigned a = 0; a < 2; ++a)
+    {
         for (unsigned b = 0; b < 2; ++b)
+        {
             for (unsigned c = 0; c < 2; ++c)
             {
                 struct aa_slice r = {99, 88};
@@ -41,6 +49,8 @@ static int truth(void)
                 unsigned row[] = {a, b, c, r.sum, r.carry};
                 aa_emit("SLICE", row, 5);
             }
+        }
+    }
     struct aa_slice r = {99, 88};
     CHECK(aa_slice(2, 0, 0, &r) == AA_INVALID && r.sum == 99 && r.carry == 88);
     CHECK(aa_slice(0, 2, 0, &r) == AA_INVALID &&
@@ -55,10 +65,12 @@ static int exhaustive(void)
     {
         unsigned size = 1u << width, half = size / 2;
         for (unsigned op = 0; op < 2; ++op)
+        {
             for (unsigned input = 0; input < 2; ++input)
             {
                 unsigned carry_count = 0, overflow_count = 0;
                 for (unsigned a = 0; a < size; ++a)
+                {
                     for (unsigned b = 0; b < size; ++b)
                     {
                         struct aa_result r;
@@ -106,6 +118,7 @@ static int exhaustive(void)
                                           r.c_arm, r.cf_x86, r.v};
                         aa_emit("ALU", row, 11);
                     }
+                }
                 CHECK(carry_count ==
                           size *
                               (size + (input ? 1u : 0u) - (input ? 0u : 1u)) /
@@ -115,6 +128,7 @@ static int exhaustive(void)
                                   overflow_count};
                 aa_emit("COUNTS", row, 5);
             }
+        }
     }
     return 0;
 }
@@ -148,6 +162,7 @@ static int branches(void)
     {
         unsigned size = 1u << width, half = size / 2;
         for (unsigned a = 0; a < size; ++a)
+        {
             for (unsigned b = 0; b < size; ++b)
             {
                 struct aa_result r;
@@ -171,6 +186,7 @@ static int branches(void)
                 unsigned row[] = {width, a, b, expected, actual};
                 aa_emit("BRANCH", row, 5);
             }
+        }
     }
     CHECK(divergent == 640);
     return 0;
@@ -189,12 +205,20 @@ static int same(const char *a, const char *b)
 int aa_test(const char *n)
 {
     if (same(n, "truth"))
+    {
         return truth();
+    }
     if (same(n, "exhaustive"))
+    {
         return exhaustive();
+    }
     if (same(n, "admission"))
+    {
         return admission();
+    }
     if (same(n, "branches"))
+    {
         return branches();
+    }
     return 2;
 }

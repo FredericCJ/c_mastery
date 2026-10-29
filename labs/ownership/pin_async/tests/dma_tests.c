@@ -24,10 +24,14 @@ static int configure(void *p, const struct pd_extent *e, uint32_t token)
     struct ow_model *m = p;
     ++m->configures;
     if (m->busy)
+    {
         return 0;
+    }
     if (e->source != 0x20000000u || e->destination != 0x20002000u ||
         e->bytes != 16 || e->width != 1)
+    {
         return 0;
+    }
     m->snapshot = (struct pd_snapshot){token, 0, 16, 0, 1};
     return 1;
 }
@@ -113,7 +117,9 @@ int pin_dma_test(void)
           out.possibly_written_bytes == 8 && !d.owner.pin.pending &&
           d.owner.async.releases == 1);
     for (unsigned i = 0; i < 16; ++i)
+    {
         CHECK(m.destination[i] == (i < 8 ? m.source[i] : 0xA5));
+    }
     CHECK(opa_dma_poll(&d, ticket, &out) == OW_STALE &&
           out.complete_bytes == 8);
     CHECK(opa_dma_submit(&d, &e, 1, PD_F439, 0, &ticket) == OW_OK &&

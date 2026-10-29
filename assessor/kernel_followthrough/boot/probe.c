@@ -29,9 +29,13 @@ static void text(const char *s)
     {
         unsigned n = 0;
         while (!(in(0x3fd) & 32) && n < 100000)
+        {
             ++n;
+        }
         if (n == 100000)
+        {
             return;
+        }
         out(0x3f8, (unsigned char)s[i]);
     }
 }
@@ -42,7 +46,9 @@ static void hex(uint64_t n)
     b[16] = '\n';
     b[17] = 0;
     for (unsigned i = 0; i < 16; ++i)
+    {
         b[i] = "0123456789abcdef"[(n >> (60 - 4 * i)) & 15];
+    }
     text(b);
 }
 
@@ -51,7 +57,9 @@ static _Noreturn void stop(unsigned char status)
     __asm__ volatile("outl %0,%1" ::"a"((unsigned)status),
                      "Nd"((unsigned short)0xf4));
     for (;;)
+    {
         __asm__ volatile("cli; hlt");
+    }
 }
 
 void kf_boot_check(uint32_t magic, uint32_t info)
@@ -102,18 +110,22 @@ void kf_boot_check(uint32_t magic, uint32_t info)
         stop(0x11);
     }
     for (unsigned i = 0; i < 4; ++i)
+    {
         if ((boot_pdpt[i] & ~UINT64_C(0x60)) !=
             ((uintptr_t)boot_pd + 4096u * i + 3))
         {
             text("KF:FAIL:PDPT\n");
             stop(0x11);
         }
+    }
     for (unsigned i = 0; i < 2048; ++i)
+    {
         if ((boot_pd[i] & ~UINT64_C(0x60)) != ((uint64_t)i * 0x200000 + 0x83))
         {
             text("KF:FAIL:PD\n");
             stop(0x11);
         }
+    }
     text("KF:PASS:2048_PAGES_4GIB_SUPERVISOR\nKF:PASS:BOOT_ONLY_C17\n");
     stop(0x10);
 }

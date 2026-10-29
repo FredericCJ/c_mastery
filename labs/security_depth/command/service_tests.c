@@ -78,6 +78,7 @@ static void schedules(void)
 {
     unsigned order, mutate;
     for (order = 0; order < 2; ++order)
+    {
         for (mutate = 0; mutate < 2; ++mutate)
         {
             struct sc_service s;
@@ -92,13 +93,16 @@ static void schedules(void)
             CHECK(sc_submit(&s, &b, &t) == SC_OK);
             b.commands[0].count = 5; /* Queue owns an immutable copy. */
             if (mutate)
+            {
                 CHECK(sc_revoke(&a) == SC_OK);
+            }
             first = sc_finish(&s, t, order, &a, &p, &q);
             CHECK(first == ((!order && mutate) ? SC_STALE : SC_OK));
             CHECK(sc_finish(&s, t, !order, &a, &p, &q) == SC_STALE);
             CHECK(s.terminal == 1 && s.released == 1 && !s.used && !s.count);
             CHECK(q == (!order && !mutate));
         }
+    }
     {
         struct sc_service s;
         struct sc_ticket t;
@@ -126,7 +130,9 @@ static void schedules(void)
         sc_service_init(&s);
         CHECK(sc_submit(&s, &b, &t) == SC_OK);
         if (!order)
+        {
             CHECK(sc_retry(&s, t) == SC_OK);
+        }
         CHECK(sc_shutdown(&s) == SC_OK && s.released == 1 && s.terminal == 1);
         CHECK(sc_retry(&s, t) == SC_STALE);
         CHECK(sc_finish(&s, t, 0, &a, &p, &q) == SC_STALE);
@@ -157,7 +163,9 @@ static int acquire(void *p, unsigned i)
 {
     struct sc_test_resources *r = p;
     if (i == r->fail)
+    {
         return 1;
+    }
     CHECK(!(r->live & (1u << i)));
     r->live |= 1u << i;
     return 0;
@@ -190,8 +198,10 @@ static void recovery(void)
         CHECK(sc_recover(&s, ops, 0) == SC_EXHAUSTED && s.attempts == 2 &&
               !r.live);
         if (fail == 2)
+        {
             CHECK(r.count == 4 && r.order[0] == 1 && r.order[1] == 0 &&
                   r.order[2] == 1 && r.order[3] == 0);
+        }
     }
     {
         struct sc_test_resources r = {0};
@@ -208,12 +218,20 @@ int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (!strcmp(argv[1], "quota"))
+    {
         quota();
+    }
     else if (!strcmp(argv[1], "schedules"))
+    {
         schedules();
+    }
     else if (!strcmp(argv[1], "recovery"))
+    {
         recovery();
+    }
     else
+    {
         CHECK(0);
+    }
     return 0;
 }

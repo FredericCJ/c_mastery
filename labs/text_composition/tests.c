@@ -23,13 +23,17 @@ static int expression(const char *s, struct pd_tree *tree)
 static int same_tree(const struct pd_tree *a, const struct pd_tree *b)
 {
     if (a->count != b->count || a->root != b->root)
+    {
         return 0;
+    }
     for (unsigned i = 0; i < a->count; i++)
     {
         const struct pd_expr *x = a->nodes + i, *y = b->nodes + i;
         if (x->kind != y->kind || x->left != y->left || x->right != y->right ||
             x->value != y->value)
+        {
             return 0;
+        }
     }
     return 1;
 }
@@ -85,11 +89,17 @@ void tc_fixture_doc(struct tc_doc *d, unsigned a, unsigned b, unsigned tail,
 {
     memset(d, 0, sizeof *d);
     for (unsigned i = 0; i < a; i++)
+    {
         d->text[d->length++] = 'a';
+    }
     for (unsigned i = 0; i < b; i++)
+    {
         d->text[d->length++] = 'b';
+    }
     for (unsigned i = 0; i < tail; i++)
+    {
         d->text[d->length++] = 'z';
+    }
     d->nodes[0] = (struct tc_node){TD_TEXT, 0, 0, 0, 0, a};
     d->nodes[1] = (struct tc_node){TD_LINE, 0, 0, 0, 0, 0};
     d->nodes[2] = (struct tc_node){TD_TEXT, 0, 0, 0, a, b};
@@ -113,6 +123,7 @@ static int layout(void)
     CHECK(tc_layout(&d, 6, 1000, &out) == TC_OK && out.length == 6 &&
           memcmp(out.bytes, "a bzzz", 6) == 0);
     for (unsigned width = 0; width <= 30; width++)
+    {
         for (unsigned indent = 0; indent < 4; indent++)
         {
             tc_fixture_doc(&d, 3, 4, 2, indent);
@@ -120,6 +131,7 @@ static int layout(void)
             CHECK(out.length == (width >= 10 ? 10 : 10 + indent));
             CHECK(out.bytes[3] == (width >= 10 ? ' ' : '\n'));
         }
+    }
     const char *cases[] = {"1+2*3",   "2^3^2",   "-2^2",
                            "(8-3)-2", "8-(3-2)", "1+2147483647"};
     for (unsigned i = 0; i < sizeof cases / sizeof *cases; i++)
@@ -151,7 +163,9 @@ static int layout(void)
     d.count = 5;
     d.root = 4;
     for (unsigned i = 1; i < 5; i++)
+    {
         d.nodes[i] = (struct tc_node){TD_CAT, i - 1, i - 1, 0, 0, 0};
+    }
     CHECK(tc_layout(&d, 120, 10000, &out) == TC_RANGE &&
           memcmp(&out, &old, sizeof out) == 0);
     CHECK(tc_layout(&d, 120, 2, &out) == TC_FUEL &&
@@ -276,7 +290,9 @@ static int templating(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     unsigned c = (unsigned)strtoul(argv[1], NULL, 10);
     return c == 1 ? recovery() : c == 2 ? layout() : c == 3 ? templating() : 2;
 }

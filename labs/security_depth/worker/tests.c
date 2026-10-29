@@ -27,8 +27,12 @@ static unsigned descriptors(void)
     unsigned n = 0;
     struct dirent *e;
     while ((e = readdir(d)))
+    {
         if (strcmp(e->d_name, ".") && strcmp(e->d_name, ".."))
+        {
             ++n;
+        }
+    }
     CHECK(!closedir(d));
     return n;
 }
@@ -57,7 +61,9 @@ static void temporary(char root[512], const char *tag)
 {
     const char *base = getenv("SD_TMP_ROOT");
     if (!base)
+    {
         base = "/tmp";
+    }
     int n = snprintf(root, 512, "%s/cmastery-sd-%s-XXXXXX", base, tag);
     CHECK(n > 0 && n < 512 && mkdtemp(root));
 }
@@ -86,7 +92,9 @@ static void race(void)
         close(ack[0]);
         if (read(gate[0], &c, 1) != 1 || unlinkat(d, "chosen", 0) ||
             symlinkat("other", d, "chosen") || write(ack[1], "A", 1) != 1)
+        {
             _exit(1);
+        }
         _exit(0);
     }
     CHECK(!close(gate[0]) && !close(ack[1]));
@@ -206,9 +214,13 @@ static void spawned(const char *worker, int log, int tmp, int delimiter,
           strstr(text, "ARG 12:$(synthetic)\n"));
     CHECK(strstr(text, delimiter ? "admin=0" : "admin=1"));
     if (!delimiter)
+    {
         CHECK(strstr(text, "ARG 3:a b\n"));
+    }
     if (delimiter)
+    {
         CHECK(strstr(text, "REOPEN ambient_write=observed"));
+    }
 }
 
 static void inheritance(const char *worker)
@@ -260,16 +272,22 @@ int main(int argc, char **argv)
     CHECK(argc >= 2);
     unsigned before = descriptors();
     if (!strcmp(argv[1], "race"))
+    {
         race();
+    }
     else if (!strcmp(argv[1], "policy"))
+    {
         policy();
+    }
     else if (!strcmp(argv[1], "inheritance"))
     {
         CHECK(argc == 3);
         inheritance(argv[2]);
     }
     else
+    {
         CHECK(0);
+    }
     CHECK(descriptors() == before);
     return 0;
 }

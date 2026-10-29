@@ -5,11 +5,15 @@ static int rejected(unsigned char *p, size_t n)
 {
     struct ni_packet out;
     for (unsigned j = 0; j < 1500; j++)
+    {
         out.bytes[j] = 0xa5;
+    }
     out.length = 777;
     CHECK(ni_echo(&config, p, n, &out) == NI_INVALID && out.length == 777);
     for (unsigned j = 0; j < 1500; j++)
+    {
         CHECK(out.bytes[j] == 0xa5);
+    }
     return 0;
 }
 
@@ -81,6 +85,7 @@ int main(void)
         rejects++;
     }
     for (unsigned byte = 0; byte < 33; byte++)
+    {
         for (unsigned bit = 0; bit < 8; bit++)
         {
             ni_test_echo(p, 5);
@@ -88,6 +93,7 @@ int main(void)
             CHECK(!rejected(p, 33));
             rejects++;
         }
+    }
     ni_test_echo(p, 65);
     CHECK(!rejected(p, 93));
     rejects++;
@@ -101,6 +107,7 @@ int main(void)
     CHECK(ni_parse(&config, p, 20, 1, &v) == NI_INVALID);
     rejects++;
     for (unsigned alignment = 0; alignment < 8; alignment++)
+    {
         for (unsigned n = 0; n <= 64; n++)
         {
             ni_test_echo(p + alignment, n);
@@ -110,6 +117,7 @@ int main(void)
             CHECK(aligned.bytes[24] == 0x12 &&
                   ni_test_sum(aligned.bytes + 20, n + 8) == 0);
         }
+    }
     /* Constant-checksum collision: interchange two distinct16-bit data words.
      * All packet bounds valid; the harmless success is altered accepted data. */
     ni_test_echo(p, 4);

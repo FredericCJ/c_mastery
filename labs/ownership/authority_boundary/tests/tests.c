@@ -21,15 +21,21 @@ static struct ow_tenant_arena arena(void)
 {
     struct ow_tenant_arena a;
     for (unsigned i = 0; i < 16; i++)
+    {
         a.data[i] = (int32_t)(i + 90);
+    }
     return a;
 }
 
 static int equal(struct ow_tenant_arena a, struct ow_tenant_arena b)
 {
     for (unsigned i = 0; i < 16; i++)
+    {
         if (a.data[i] != b.data[i])
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
@@ -46,7 +52,9 @@ static void defect(void)
     struct ow_tenant_arena a = arena(), old = a;
     CHECK(ow_flawed_write(&a, 0, UINT_MAX - 3, 8, 7) == OW_OK);
     for (unsigned i = 0; i < 16; i++)
+    {
         CHECK(a.data[i] == ((i < 4 || i >= 12) ? 7 : old.data[i]));
+    }
     a = old;
     CHECK(ow_checked_write(&a, 0, UINT_MAX - 3, 8, 7) == OW_INVALID);
     CHECK(equal(a, old));
@@ -64,7 +72,9 @@ static void defect(void)
 static void bounds(void)
 {
     for (unsigned tenant = 0; tenant < 3; tenant++)
+    {
         for (unsigned offset = 0; offset < 11; offset++)
+        {
             for (unsigned count = 0; count < 11; count++)
             {
                 struct ow_tenant_arena a = arena(), old = a;
@@ -73,11 +83,15 @@ static void bounds(void)
                 int ok = tenant < 2 && offset <= 8 && count <= 8 - offset;
                 CHECK((s == OW_OK) == ok);
                 for (unsigned i = 0; i < 16; i++)
+                {
                     CHECK(a.data[i] == ((ok && i >= tenant * 8 + offset &&
                                          i < tenant * 8 + offset + count)
                                             ? 7
                                             : old.data[i]));
+                }
             }
+        }
+    }
     struct ow_tenant_arena a = arena();
     struct oaf_root r;
     struct oaf_view v = setup(&r, &a);
@@ -104,12 +118,14 @@ static void wire(void)
     CHECK(out.epoch == req.epoch && out.offset == req.offset &&
           out.count == req.count && out.tenant == 1 && out.rights == 3);
     for (unsigned n = 0; n < 18; n++)
+    {
         if (n != 16)
         {
             out = (struct oaf_request){9, 9, 9, 9, 9};
             CHECK(oaf_decode(b, n, &out) == OAF_INVALID);
             CHECK(out.epoch == 9 && out.tenant == 9);
         }
+    }
     for (unsigned field = 0; field < 4; field++)
     {
         unsigned char save = b[field];
@@ -189,19 +205,25 @@ static void atomicity(void)
     unsigned char b[16];
     int32_t out[8];
     for (unsigned i = 0; i < 8; i++)
+    {
         out[i] = -9;
+    }
     CHECK(oaf_encode((struct oaf_request){1, 7, 2, 0, 3}, b) == OAF_OK);
     CHECK(oaf_wire_write(&v, b, 16, 7) == OAF_INVALID);
     CHECK(oaf_wire_read(&v, b, 16, out) == OAF_INVALID);
     CHECK(equal(a, old));
     for (unsigned i = 0; i < 8; i++)
+    {
         CHECK(out[i] == -9);
+    }
     CHECK(oaf_encode((struct oaf_request){1, 2, 3, 0, 3}, b) == OAF_OK);
     CHECK(oaf_wire_read(&v, b, 16, out) == OAF_OK);
     CHECK(out[0] == 92 && out[2] == 94 && out[3] == -9);
     CHECK(oaf_wire_write(&v, b, 16, -7) == OAF_OK);
     for (unsigned i = 0; i < 16; i++)
+    {
         CHECK(a.data[i] == ((i >= 2 && i < 5) ? -7 : old.data[i]));
+    }
     CHECK(
         oaf_decode(NULL, 16, (struct oaf_request *)&(struct oaf_request){0}) ==
         OAF_INVALID);
@@ -228,14 +250,20 @@ static void oracle(void)
         struct oaf_request req = {epoch, offset, count, tenant, rights};
         int32_t out[8];
         for (unsigned i = 0; i < 8; i++)
+        {
             out[i] = -9;
+        }
         enum oaf_status s =
             op ? oaf_write(&parent, req, 7) : oaf_read(&parent, req, out);
         printf("%u", (unsigned)s);
         for (unsigned i = 0; i < 16; i++)
+        {
             printf(",%" PRId32, a.data[i]);
+        }
         for (unsigned i = 0; i < 8; i++)
+        {
             printf(",%" PRId32, out[i]);
+        }
         putchar('\n');
     }
 }
@@ -266,31 +294,53 @@ static void metrics(void)
         ",\"wire_bytes\":16,\"root_size\":%zu,\"view_size\":%zu,\"seconds\":[",
         sum, sizeof(struct oaf_root), sizeof(struct oaf_view));
     for (unsigned i = 0; i < 7; i++)
+    {
         printf("%s%.9f", i ? "," : "", times[i]);
+    }
     puts("]}");
 }
 
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "authority_defect"))
+    {
         defect();
+    }
     else if (!strcmp(argv[1], "authority_bounds"))
+    {
         bounds();
+    }
     else if (!strcmp(argv[1], "authority_wire"))
+    {
         wire();
+    }
     else if (!strcmp(argv[1], "authority_rights"))
+    {
         rights();
+    }
     else if (!strcmp(argv[1], "authority_revoke"))
+    {
         revoke();
+    }
     else if (!strcmp(argv[1], "authority_atomic"))
+    {
         atomicity();
+    }
     else if (!strcmp(argv[1], "oracle"))
+    {
         oracle();
+    }
     else if (!strcmp(argv[1], "metrics"))
+    {
         metrics();
+    }
     else
+    {
         return 2;
+    }
     return 0;
 }

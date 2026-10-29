@@ -12,5 +12,7 @@ void kernel_main(unsigned magic, unsigned info)
     (void)magic;
     (void)info;
     for (;;)
+    {
         __asm__ volatile("cli; hlt");
+    }
 }

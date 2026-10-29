@@ -31,6 +31,7 @@ static int concurrent(void)
     uint16_t roots;
     unsigned scanned;
     for (width = 1; width <= 8; width *= 2)
+    {
         for (padded = 0; padded < 2; padded++)
         {
             struct orc_cards c;
@@ -58,12 +59,15 @@ static int concurrent(void)
             CHECK(orcc_prepare(&c, 0, &s) == OR_DONE);
             CHECK(orcc_close(&c) == OR_OK);
         }
+    }
     {
         struct orc_cards c;
         struct orcc_snapshot s;
         CHECK(orcc_init(&c, 2, 0) == OR_OK);
         for (i = 1; i < ORCC_REV_LIMIT; i++)
+        {
             CHECK(orcc_store(&c, 0, 0, 0) == OR_OK);
+        }
         CHECK(orcc_store(&c, 0, 0, 1) == OR_FULL &&
               orcc_prepare(&c, 0, &s) == OR_DONE);
         CHECK(orcc_close(&c) == OR_OK);
@@ -75,9 +79,13 @@ static int oracle(void)
 {
     unsigned width, padded, object, field, target;
     for (width = 1; width <= 8; width *= 2)
+    {
         for (padded = 0; padded < 2; padded++)
+        {
             for (object = 0; object < 8; object++)
+            {
                 for (field = 0; field < 2; field++)
+                {
                     for (target = 0; target <= 16; target++)
                     {
                         struct orc_cards c;
@@ -89,21 +97,33 @@ static int oracle(void)
                         CHECK(orcc_store(&c, object, field, target) == OR_OK);
                         status = orcc_prepare(&c, object / width, &s);
                         if (status == OR_OK)
+                        {
                             status = orcc_scan_commit(&c, &s, &roots, &scanned);
+                        }
                         printf("C %u %u %u %u %u %d %u %u\n", width, padded,
                                object, field, target, status, roots, scanned);
                         CHECK(orcc_close(&c) == OR_OK);
                     }
+                }
+            }
+        }
+    }
     return 0;
 }
 
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "concurrent"))
+    {
         return concurrent();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     return 2;
 }

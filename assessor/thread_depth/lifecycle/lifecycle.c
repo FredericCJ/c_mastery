@@ -27,7 +27,9 @@ struct tl_pool *tl_pool_start(unsigned n, unsigned fail, int allocation,
                               int *error)
 {
     if (!error)
+    {
         return NULL;
+    }
     if (n > 4 || fail > n || allocation < 0 || allocation > 1)
     {
         *error = EINVAL;
@@ -60,7 +62,9 @@ int tl_pool_collect(struct tl_pool *p, tl_join_fn join, void *context,
                     struct tl_stats *out)
 {
     if (!p || !out)
+    {
         return EINVAL;
+    }
     while (p->joined < p->created)
     {
         void *result = NULL;
@@ -77,7 +81,9 @@ int tl_pool_collect(struct tl_pool *p, tl_join_fn join, void *context,
     }
     unsigned sum = 0;
     for (unsigned i = 0; i < p->created; i++)
+    {
         sum += p->cells[i].result;
+    }
 #ifdef TL_MUTANT1
     sum = 0;
 #endif
@@ -89,9 +95,13 @@ int tl_pool_collect(struct tl_pool *p, tl_join_fn join, void *context,
 int tl_pool_dispose(struct tl_pool **p)
 {
     if (!p || !*p)
+    {
         return EINVAL;
+    }
     if ((*p)->joined != (*p)->created)
+    {
         return EBUSY;
+    }
     free(*p);
     *p = NULL;
     return 0;
@@ -107,7 +117,9 @@ struct tl_job
 static void invariant(int e)
 {
     if (e)
+    {
         abort();
+    }
 }
 
 static void release_job(struct tl_job *j)
@@ -116,7 +128,9 @@ static void release_job(struct tl_job *j)
     invariant(pthread_mutex_lock(&m->mutex));
 #ifdef TL_MUTANT3
     if (m->live_refs == 2 && !m->release_worker)
+    {
         m->completed = 1;
+    }
 #endif
     if (--m->live_refs == 0)
     {
@@ -134,10 +148,14 @@ static void *detached_worker(void *arg)
     invariant(pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL));
     invariant(pthread_mutex_lock(&m->mutex));
     while (!m->release_worker)
+    {
         invariant(pthread_cond_wait(&m->changed, &m->mutex));
+    }
     unsigned sum = 0;
     for (size_t i = 0; i < j->length; i++)
+    {
         sum += j->bytes[i];
+    }
     m->sum = sum;
     m->completed = 1;
     invariant(pthread_cond_broadcast(&m->changed));
@@ -156,10 +174,14 @@ static void creator_cleanup(void *arg)
 int tl_monitor_init(struct tl_monitor *m)
 {
     if (!m)
+    {
         return EINVAL;
+    }
     int e = pthread_mutex_init(&m->mutex, NULL);
     if (e)
+    {
         return e;
+    }
     e = pthread_cond_init(&m->changed, NULL);
     if (e)
     {
@@ -174,12 +196,18 @@ int tl_monitor_init(struct tl_monitor *m)
 int tl_monitor_destroy(struct tl_monitor *m)
 {
     if (!m)
+    {
         return EINVAL;
+    }
     if (m->live_refs || (m->created && !m->freed))
+    {
         return EBUSY;
+    }
     int e = pthread_cond_destroy(&m->changed);
     if (e)
+    {
         return e;
+    }
     return pthread_mutex_destroy(&m->mutex);
 }
 
@@ -187,7 +215,9 @@ void *tl_detached_creator(void *arg)
 {
     struct tl_creator *c = arg;
     if (!c)
+    {
         return NULL;
+    }
     if (!c->monitor || c->length > 16 || (!c->input && c->length) ||
         c->wait_for_completion < 0 || c->wait_for_completion > 1)
     {
@@ -205,7 +235,9 @@ void *tl_detached_creator(void *arg)
         j->monitor = c->monitor;
         j->length = c->length;
         for (size_t i = 0; i < c->length; i++)
+        {
             j->bytes[i] = c->input[i];
+        }
         e = pthread_attr_init(&attr);
         if (!e)
         {
@@ -221,13 +253,19 @@ void *tl_detached_creator(void *arg)
         pthread_t thread;
         e = pthread_create(&thread, &attr, detached_worker, j);
         if (e)
+        {
             m->live_refs = 0;
+        }
         else
+        {
             m->created = 1;
+        }
         invariant(pthread_mutex_unlock(&m->mutex));
     }
     if (initialized)
+    {
         invariant(pthread_attr_destroy(&attr));
+    }
     if (e)
     {
         free(j);
@@ -242,7 +280,9 @@ void *tl_detached_creator(void *arg)
     invariant(pthread_cond_broadcast(&m->changed));
     invariant(pthread_setcancelstate(previous, NULL));
     while (c->wait_for_completion && !m->completed)
+    {
         invariant(pthread_cond_wait(&m->changed, &m->mutex));
+    }
     invariant(pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL));
     pthread_cleanup_pop(1);
     invariant(pthread_setcancelstate(previous, NULL));

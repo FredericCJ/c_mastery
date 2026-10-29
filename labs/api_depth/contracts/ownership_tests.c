@@ -16,6 +16,7 @@ int main(void)
     CHECK(ac_session_admit(&invalid) == AC_INVALID);
     unsigned failures = 0;
     for (unsigned f = 0; f <= 4; ++f)
+    {
         for (int optional = 0; optional <= 1; ++optional)
         {
             struct ac_ledger l = {0};
@@ -27,7 +28,9 @@ int main(void)
                   ac_session_stop(&s, &l) == AC_OK);
             CHECK(!s.mask && !l.held[0] && !l.held[1]);
             for (unsigned i = 0; i < 2; ++i)
+            {
                 CHECK(l.acquisitions[i] == l.releases[i]);
+            }
             unsigned epoch = s.epoch;
             CHECK(ac_session_restart(&s, &l, 1) == AC_OK && s.epoch == epoch &&
                   s.mask == 1);
@@ -36,6 +39,7 @@ int main(void)
             CHECK(ac_session_stop(&s, &l) == AC_INVALID);
             ++failures;
         }
+    }
     struct ac_ledger l = {0};
     int owned = 0;
     for (unsigned id = 0; id < 4; ++id)
@@ -51,7 +55,9 @@ int main(void)
         CHECK(ac_resource_close(&l, id, 1) == AC_BACKEND);
         CHECK(l.held[id] == !(id % 2) && l.releases[id] == id % 2);
         if (l.held[id])
+        {
             CHECK(ac_resource_close(&l, id, 0) == AC_OK);
+        }
         CHECK(l.releases[id] == 1);
     }
     struct ac_table t = {0};
@@ -69,14 +75,18 @@ int main(void)
     closed = ac_close_all(&cleanup, 0);
     CHECK(closed.first == AC_OK && !closed.retained);
     for (unsigned i = 0; i < 4; ++i)
+    {
         CHECK(cleanup.releases[i] == 1);
+    }
     for (unsigned i = 0; i < 6; ++i)
     {
         CHECK(ac_table_alloc(&t, (int)i, old + i) == AC_OK);
         int value = 99;
         for (unsigned j = 0; j < i; ++j)
+        {
             CHECK(ac_table_get(&t, old[j], &value) == AC_MISSING &&
                   value == 99);
+        }
         CHECK(ac_table_get(&t, old[i], &value) == AC_OK && value == (int)i);
         CHECK(ac_table_free(&t, old[i]) == AC_OK);
     }
@@ -105,6 +115,7 @@ int main(void)
     CHECK(ac_shared_drop(&b) == AC_OK && !a.alive && !b.alive);
     unsigned leases = 0;
     for (unsigned issued = 0; issued < 256; ++issued)
+    {
         for (unsigned age = 0; age <= 127; ++age)
         {
             struct ac_lease_owner o = {1, issued, 7};
@@ -117,6 +128,7 @@ int main(void)
                   (age <= 3 ? AC_FULL : AC_OK));
             ++leases;
         }
+    }
     struct f_buffer original = {{1, 2}, 2, 4};
     struct f_view view;
     uint8_t byte = 99;
@@ -144,6 +156,7 @@ int main(void)
     static const int allowed[6][4] = {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 1, 0, 0},
                                       {0, 1, 0, 0}, {0, 1, 1, 1}, {0, 0, 0, 0}};
     for (unsigned state = 0; state < 6; ++state)
+    {
         for (unsigned op = 0; op < 4; ++op)
         {
             struct ac_ledger ledger = {0};
@@ -153,8 +166,12 @@ int main(void)
                                                                : 0u,
                                          2, 0};
             for (unsigned i = 0; i < 2; ++i)
+            {
                 if (session.mask & (1u << i))
+                {
                     CHECK(ac_resource_acquire(&ledger, i, 3, 0, 0) == AC_OK);
+                }
+            }
             unsigned count = ledger.count, mask = session.mask;
             enum ac_state oldstate = session.state;
             enum ac_status r =
@@ -164,11 +181,14 @@ int main(void)
                           : ac_session_restart(&session, &ledger, 0);
             CHECK(r == (allowed[state][op] ? AC_OK : AC_INVALID));
             if (!allowed[state][op])
+            {
                 CHECK(session.state == oldstate && session.mask == mask &&
                       ledger.count == count);
+            }
             CHECK(ac_session_admit(&session) == AC_OK);
             ++matrix;
         }
+    }
     struct ac_session exhausted = {AC_STOPPED, 0, 31, 0};
     struct ac_ledger empty = {0};
     CHECK(ac_session_restart(&exhausted, &empty, 0) == AC_FULL &&

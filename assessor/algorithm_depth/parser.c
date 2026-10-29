@@ -18,7 +18,9 @@ enum ad_status ad_lex(const unsigned char *p, size_t n, struct ad_token *out,
         return AD_INVALID;
     }
     if (n > 64 || (n && !p) || !count)
+    {
         return error(diag, AD_INVALID, 0);
+    }
     struct ad_token tokens[65];
     size_t used = 0, at = 0;
     while (at < n)
@@ -39,7 +41,9 @@ enum ad_status ad_lex(const unsigned char *p, size_t n, struct ad_token *out,
             {
                 unsigned digit = p[at] - '0';
                 if (value > (INT32_MAX - digit) / 10)
+                {
                     return error(diag, AD_OVERFLOW, at);
+                }
                 value = value * 10 + digit;
                 ++at;
             }
@@ -73,16 +77,22 @@ enum ad_status ad_lex(const unsigned char *p, size_t n, struct ad_token *out,
                         token.name = c;
                     }
                     else
+                    {
                         return error(diag, AD_INVALID, at - 1);
+                    }
             }
         }
         tokens[used++] = token;
     }
     tokens[used++] = (struct ad_token){.kind = AD_T_END, .offset = n};
     if (used > capacity || !out)
+    {
         return error(diag, AD_SPACE, n);
+    }
     for (size_t i = 0; i < used; ++i)
+    {
         out[i] = tokens[i];
+    }
     *count = used;
     *diag = (struct ad_diagnostic){n, AD_OK};
     return AD_OK;
@@ -94,11 +104,17 @@ enum ad_status ad_token_copy(const unsigned char *p, size_t n,
 {
     if ((n && !p) || !count || token.offset > n ||
         token.length > n - token.offset)
+    {
         return AD_INVALID;
+    }
     if (token.length > capacity || (token.length && !out))
+    {
         return AD_SPACE;
+    }
     for (size_t i = 0; i < token.length; ++i)
+    {
         out[i] = p[token.offset + i];
+    }
     *count = token.length;
     return AD_OK;
 }
@@ -152,7 +168,9 @@ static unsigned expression(struct ad_parser *p, unsigned minimum,
         ++p->at;
         left = expression(p, 1, depth + 1);
         if (p->status != AD_OK)
+        {
             return 0;
+        }
         if (p->t[p->at].kind != AD_T_RIGHT)
         {
             p->status = error(p->diag, AD_INVALID, p->t[p->at].offset);
@@ -173,14 +191,18 @@ static unsigned expression(struct ad_parser *p, unsigned minimum,
                               : (p->extensions && token.kind == AD_T_POWER) ? 3
                                                                             : 0;
         if (precedence < minimum)
+        {
             break;
+        }
         ++p->at;
         unsigned right = expression(
             p,
             precedence + (token.kind == AD_T_POWER && AD_MUTANT != 8 ? 0 : 1),
             depth + 1);
         if (p->status != AD_OK)
+        {
             return 0;
+        }
         left = node(p, (struct ad_node){.kind = token.kind,
                                         .left = left,
                                         .right = right,
@@ -200,14 +222,20 @@ enum ad_status ad_parse(const struct ad_token *t, size_t n, unsigned depth,
     }
     if (!t || !n || n > 65 || !out || !depth || depth > 16 || extensions > 1 ||
         capacity > 32)
+    {
         return error(diag, AD_INVALID, 0);
+    }
     if (t[n - 1].kind != AD_T_END)
     {
         return error(diag, AD_INVALID, t[n - 1].offset);
     }
     for (size_t i = 0; i + 1 < n; ++i)
+    {
         if (t[i].kind == AD_T_END)
+        {
             return error(diag, AD_INVALID, t[i].offset);
+        }
+    }
     struct ad_parser p = {.t = t,
                           .n = n,
                           .depth_limit = depth,
@@ -218,9 +246,13 @@ enum ad_status ad_parse(const struct ad_token *t, size_t n, unsigned depth,
                           .status = AD_OK};
     unsigned root = expression(&p, 1, 1);
     if (p.status != AD_OK)
+    {
         return p.status;
+    }
     if (p.at != n - 1)
+    {
         return error(diag, AD_INVALID, t[p.at].offset);
+    }
     p.ast.root = root;
     *out = p.ast;
     *diag = (struct ad_diagnostic){t[p.at].offset, AD_OK};
@@ -237,7 +269,9 @@ enum ad_status ad_evaluate(const struct ad_ast *ast, ADLookup lookup,
     }
     if (!ast || !out || !ast->count || ast->count > 32 ||
         ast->root >= ast->count)
+    {
         return error(diag, AD_INVALID, 0);
+    }
     int32_t values[32];
     for (unsigned i = 0; i < ast->count; ++i)
     {
@@ -250,23 +284,35 @@ enum ad_status ad_evaluate(const struct ad_ast *ast, ADLookup lookup,
         if (n.kind == AD_T_NAME)
         {
             if (!lookup)
+            {
                 return error(diag, AD_MISSING, n.offset);
+            }
             enum ad_status rc = lookup(context, n.name, &values[i]);
             if (rc != AD_OK)
+            {
                 return error(diag, rc, n.offset);
+            }
             continue;
         }
         if (n.left >= i || n.right >= i)
+        {
             return error(diag, AD_INVALID, n.offset);
+        }
         int64_t a = values[n.left], b = values[n.right], result;
         if (n.kind == AD_T_PLUS)
+        {
             result = a + b;
+        }
         else if (n.kind == AD_T_STAR)
+        {
             result = a * b;
+        }
         else if (n.kind == AD_T_POWER)
         {
             if (b < 0 || b > 31)
+            {
                 return error(diag, AD_INVALID, n.offset);
+            }
             result = 1;
             for (int64_t k = 0; k < b; ++k)
             {
@@ -278,7 +324,9 @@ enum ad_status ad_evaluate(const struct ad_ast *ast, ADLookup lookup,
             }
         }
         else
+        {
             return error(diag, AD_INVALID, n.offset);
+        }
         if (result < INT32_MIN || result > INT32_MAX)
         {
             return error(diag, AD_OVERFLOW, n.offset);

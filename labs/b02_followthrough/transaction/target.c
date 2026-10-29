@@ -40,7 +40,9 @@ static int acquire(void *p, unsigned i)
     struct bf_backend *b = p;
     ++b->events;
     if (i == b->failure)
+    {
         return 10 + (int)i;
+    }
     TEST(!(b->mask & (1u << i)));
     b->mask |= 1u << i;
     return 0;
@@ -76,6 +78,7 @@ static int commit(void *p)
 void bf_target(void)
 {
     for (unsigned style = 0; style < 4; ++style)
+    {
         for (unsigned f = 0; f < 4; ++f)
         {
             struct bf_backend b = {0};
@@ -93,6 +96,7 @@ void bf_target(void)
             }
             TEST(!b.mask);
         }
+    }
     struct bf_backend b = {0};
     b.failure = 3;
     b.compensation = 1;

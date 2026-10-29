@@ -43,23 +43,29 @@ static void compress(struct rph_sha *s)
         e = s->words[4], f = s->words[5], g = s->words[6], h = s->words[7];
     unsigned i;
     for (i = 0; i < 16; ++i)
+    {
         w[i] = (uint32_t)s->block[4 * i] << 24 |
                (uint32_t)s->block[4 * i + 1] << 16 |
                (uint32_t)s->block[4 * i + 2] << 8 | s->block[4 * i + 3];
+    }
     for (i = 0; i < 64; ++i)
     {
         uint32_t word, t1, t2;
         if (RPH_SCHEDULE64)
         {
             if (i >= 16)
+            {
                 w[i] = s1(w[i - 2]) + w[i - 7] + s0(w[i - 15]) + w[i - 16];
+            }
             word = w[i];
         }
         else
         {
             if (i >= 16)
+            {
                 w[i & 15] = s1(w[(i - 2) & 15]) + w[(i - 7) & 15] +
                             s0(w[(i - 15) & 15]) + w[i & 15];
+            }
             word = w[i & 15];
         }
         t1 = h + (rotate(e, 6) ^ rotate(e, 11) ^ rotate(e, 25)) +
@@ -98,11 +104,17 @@ int rph_init(struct rph_sha *s)
                                         0x1f83d9ab, 0x5be0cd19};
     unsigned i;
     if (!s)
+    {
         return RPH_INVALID;
+    }
     for (i = 0; i < 8; ++i)
+    {
         s->words[i] = initial[i];
+    }
     for (i = 0; i < 64; ++i)
+    {
         s->block[i] = 0;
+    }
     s->bytes = 0;
     s->used = 0;
     s->final = 0;
@@ -113,11 +125,17 @@ int rph_update(struct rph_sha *s, const unsigned char *bytes, size_t n)
 {
     size_t i;
     if (!s || (!bytes && n))
+    {
         return RPH_INVALID;
+    }
     if (!active(s))
+    {
         return RPH_STATE;
+    }
     if (n > RPH_MAX_BYTES - s->bytes && RPH_MUTATION != 5)
+    {
         return RPH_RANGE;
+    }
     s->bytes += (uint64_t)n;
     for (i = 0; i < n; ++i)
     {
@@ -137,30 +155,44 @@ int rph_final(struct rph_sha *s, unsigned char out[32])
     uint64_t bits;
     unsigned i;
     if (!s || !out)
+    {
         return RPH_INVALID;
+    }
     if (!active(s))
+    {
         return RPH_STATE;
+    }
     t = *s;
     bits = t.bytes * 8;
     t.block[t.used++] = 0x80;
     if (t.used > 56 && RPH_MUTATION != 1)
     {
         while (t.used < 64)
+        {
             t.block[t.used++] = 0;
+        }
         compress(&t);
         t.used = 0;
     }
     /* Mutant1 safely drops padding when the length field needs another block. */
     while (t.used < 56)
+    {
         t.block[t.used++] = 0;
+    }
     for (i = 0; i < 8; ++i)
+    {
         t.block[56 + i] =
             (unsigned char)(bits >> (RPH_MUTATION == 2 ? 8 * i : 56 - 8 * i));
+    }
     compress(&t);
     for (i = 0; i < 32; ++i)
+    {
         out[i] = (unsigned char)(t.words[i / 4] >> (24 - 8 * (i % 4)));
+    }
     if (RPH_MUTATION != 6)
+    {
         s->final = 1;
+    }
     rph_clear(&t, sizeof t);
     return RPH_OK;
 }
@@ -170,13 +202,19 @@ int rph_hash(const unsigned char *bytes, size_t n, unsigned char out[32])
     struct rph_sha s;
     int status;
     if (!out || (!bytes && n))
+    {
         return RPH_INVALID;
+    }
     if (n > RPH_MAX_BYTES)
+    {
         return RPH_RANGE;
+    }
     (void)rph_init(&s);
     status = rph_update(&s, bytes, n);
     if (status == RPH_OK)
+    {
         status = rph_final(&s, out);
+    }
     rph_clear(&s, sizeof s);
     return status;
 }
@@ -187,13 +225,19 @@ int rph_hmac_init(struct rph_hmac *s, const unsigned char *key, size_t n)
     unsigned char shortkey[32], pad[64];
     unsigned i;
     if (!s || (!key && n))
+    {
         return RPH_INVALID;
+    }
     if (n > RPH_MAX_BYTES)
+    {
         return RPH_RANGE;
+    }
     if (n > 64)
     {
         if (RPH_MUTATION == 3)
+        {
             n = 64;
+        }
         else
         {
             (void)rph_hash(key, n, shortkey);
@@ -204,11 +248,15 @@ int rph_hmac_init(struct rph_hmac *s, const unsigned char *key, size_t n)
     (void)rph_init(&next.inner);
     (void)rph_init(&next.outer);
     for (i = 0; i < 64; ++i)
+    {
         pad[i] = (unsigned char)((i < n ? key[i] : 0) ^ 0x36);
+    }
     (void)rph_update(&next.inner, pad, 64);
     for (i = 0; i < 64; ++i)
+    {
         pad[i] = (unsigned char)((i < n ? key[i] : 0) ^
                                  (RPH_MUTATION == 4 ? 0x36 : 0x5c));
+    }
     (void)rph_update(&next.outer, pad, 64);
     *s = next;
     rph_clear(shortkey, sizeof shortkey);
@@ -226,9 +274,13 @@ static int hactive(const struct rph_hmac *s)
 int rph_hmac_update(struct rph_hmac *s, const unsigned char *bytes, size_t n)
 {
     if (!s || (!bytes && n))
+    {
         return RPH_INVALID;
+    }
     if (!hactive(s))
+    {
         return RPH_STATE;
+    }
     return rph_update(&s->inner, bytes, n);
 }
 
@@ -238,16 +290,22 @@ int rph_hmac_final(struct rph_hmac *s, unsigned char out[32])
     unsigned char inner[32], result[32];
     unsigned i;
     if (!s || !out)
+    {
         return RPH_INVALID;
+    }
     if (!hactive(s))
+    {
         return RPH_STATE;
+    }
     next = *s;
     (void)rph_final(&next.inner, inner);
     (void)rph_update(&next.outer, inner, 32);
     (void)rph_final(&next.outer, result);
     *s = next;
     for (i = 0; i < 32; ++i)
+    {
         out[i] = result[i];
+    }
     rph_clear(&next, sizeof next);
     rph_clear(inner, sizeof inner);
     rph_clear(result, sizeof result);
@@ -260,9 +318,13 @@ int rph_hmac(const unsigned char *key, size_t kn, const unsigned char *bytes,
     struct rph_hmac s;
     int status;
     if (!out || (!key && kn) || (!bytes && n))
+    {
         return RPH_INVALID;
+    }
     if (kn > RPH_MAX_BYTES || n > RPH_MAX_BYTES - 64)
+    {
         return RPH_RANGE;
+    }
     if (RPH_MUTATION == 7 && kn <= RPH_MAX_BYTES - n)
     {
         struct rph_sha prefix;
@@ -275,9 +337,13 @@ int rph_hmac(const unsigned char *key, size_t kn, const unsigned char *bytes,
     }
     status = rph_hmac_init(&s, key, kn);
     if (status == RPH_OK)
+    {
         status = rph_hmac_update(&s, bytes, n);
+    }
     if (status == RPH_OK)
+    {
         status = rph_hmac_final(&s, out);
+    }
     rph_clear(&s, sizeof s);
     return status;
 }
@@ -287,11 +353,17 @@ int rph_equal(const unsigned char a[32], const unsigned char b[32])
     unsigned char different = 0;
     unsigned i;
     if (!a || !b)
+    {
         return 0;
+    }
     if (RPH_MUTATION == 8)
+    {
         return a[0] == b[0];
+    }
     for (i = 0; i < 32; ++i)
+    {
         different |= (unsigned char)(a[i] ^ b[i]);
+    }
     return different == 0;
 }
 
@@ -300,5 +372,7 @@ void rph_clear(void *object, size_t n)
     volatile unsigned char *p = object;
     size_t i;
     for (i = 0; i < n; ++i)
+    {
         p[i] = 0;
+    }
 }

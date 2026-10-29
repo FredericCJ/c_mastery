@@ -37,7 +37,9 @@ _Noreturn static void finish(unsigned status)
 static unsigned bounded(size_t n)
 {
     if (n == 0 || n > 16)
+    {
         return 999;
+    }
     unsigned a[n], sum = 0;
     for (size_t i = 0; i < n; i++)
     {

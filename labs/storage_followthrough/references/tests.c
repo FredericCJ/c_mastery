@@ -6,9 +6,13 @@
 static int fill(store *s, unsigned count)
 {
     for (unsigned i = 0; i < 128; i++)
+    {
         model[i] = -1;
+    }
     for (unsigned i = 0; i < count; i++)
+    {
         CHECK(update(s, i, (int)i) == STORE_OK);
+    }
     CHECK(verify(s) == 0);
     return 0;
 }
@@ -17,7 +21,9 @@ static int clear(store *s, unsigned count)
 {
     CHECK(store_begin(s) == STORE_OK);
     for (unsigned i = 0; i < count; i++)
+    {
         CHECK(update(s, i, -1) == STORE_OK && verify(s) == 0);
+    }
     CHECK(store_commit(s) == STORE_OK && s->used == 3);
     return 0;
 }
@@ -76,7 +82,9 @@ static uint32_t checksum(const uint8_t *p, size_t n)
     {
         c ^= p[i];
         for (unsigned j = 0; j < 8; j++)
+        {
             c = (c >> 1) ^ (UINT32_C(0xedb88320) & (0u - (c & 1u)));
+        }
     }
     return ~c;
 }
@@ -85,7 +93,9 @@ static void seal_page(uint8_t *p)
 {
     uint32_t c = checksum(p, 4092);
     for (unsigned j = 0; j < 4; j++)
+    {
         p[4092 + j] = (uint8_t)(c >> (8 * j));
+    }
 }
 
 static int stale(void)
@@ -102,7 +112,9 @@ static int stale(void)
     root->child_incarnation[0] = saved;
     uint32_t leaf = root->child[0];
     while (!s.scratch[leaf].leaf)
+    {
         leaf = s.scratch[leaf].child[0];
+    }
     s.scratch[leaf].next_incarnation++;
     CHECK(store_get(&s, &key, 1, &value, 1, &n) == STORE_CORRUPT);
     s.scratch[leaf].next_incarnation--;
@@ -162,7 +174,9 @@ static int tagged_page(void)
     uint8_t bytes[4096];
     CHECK(store_page_encode(1, 7, &n, bytes) == STORE_OK);
     for (unsigned i = 0; i < 4096; i++)
+    {
         printf("%02x", bytes[i]);
+    }
     putchar('\n');
     return 0;
 }
@@ -172,7 +186,9 @@ static int meta(void)
     store s;
     CHECK(empty(&s) == 0);
     for (unsigned i = 0; i < 4096; i++)
+    {
         printf("%02x", disk[2][i]);
+    }
     putchar('\n');
     return 0;
 }
@@ -180,18 +196,32 @@ static int meta(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "reuse"))
+    {
         return reuse();
+    }
     if (!strcmp(argv[1], "retirement"))
+    {
         return retirement();
+    }
     if (!strcmp(argv[1], "stale"))
+    {
         return stale();
+    }
     if (!strcmp(argv[1], "rollback"))
+    {
         return rollback();
+    }
     if (!strcmp(argv[1], "page"))
+    {
         return tagged_page();
+    }
     if (!strcmp(argv[1], "meta"))
+    {
         return meta();
+    }
     return tree_main(argc, argv);
 }

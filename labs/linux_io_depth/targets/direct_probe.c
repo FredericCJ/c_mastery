@@ -35,7 +35,9 @@ static void all(int fd, const unsigned char *p, size_t n)
     {
         ssize_t k = pwrite(fd, p + done, n - done, (off_t)done);
         if (k < 0 && errno == EINTR)
+        {
             continue;
+        }
         C(k > 0);
         done += (size_t)k;
     }
@@ -47,7 +49,9 @@ int main(void)
     char dir[PATH_MAX];
     const char *base = getenv("B06_DIRECT_PARENT");
     if (!base)
+    {
         base = "/tmp";
+    }
     int extent = snprintf(dir, sizeof dir, "%s/cm-b06-direct-XXXXXX", base);
     C(extent > 0 && (size_t)extent < sizeof dir);
     C(mkdtemp(dir));
@@ -66,7 +70,9 @@ int main(void)
     C(close(f) == 0 && unlinkat(d, "probe", 0) == 0);
     size_t n = oa > 4096 ? oa : 4096;
     while (n % oa)
+    {
         n++;
+    }
     void *aligned = NULL;
     C(posix_memalign(&aligned, ma < sizeof(void *) ? sizeof(void *) : ma, n) ==
       0);
@@ -74,10 +80,13 @@ int main(void)
     C(misbase);
     unsigned char *mis = misbase + 1;
     for (size_t i = 0; i < n; i++)
+    {
         ((unsigned char *)aligned)[i] = mis[i] = (unsigned char)(i % 251);
+    }
     C(it_direct_ok((uintptr_t)aligned, n, 0, ma, oa));
     C(!it_direct_ok((uintptr_t)mis, n, 0, ma, oa));
     for (unsigned trial = 0; trial < 8; trial++)
+    {
         for (unsigned mode = 0; mode < 2; mode++)
         {
             const unsigned char *p = mode ? mis : aligned;
@@ -116,6 +125,7 @@ int main(void)
                 trial, chosen ? "direct" : "buffered-fallback", n,
                 (unsigned long long)elapsed);
         }
+    }
     free(aligned);
     free(misbase);
     C(fsync(d) == 0 && close(d) == 0 && rmdir(dir) == 0);

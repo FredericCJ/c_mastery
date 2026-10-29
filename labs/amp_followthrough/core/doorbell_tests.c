@@ -36,9 +36,13 @@ static uint32_t rd(void *ctx, uint32_t a)
     tick(m);
     m->reads++;
     if (a >= 0x58026480u && a < 0x58026500u)
+    {
         return m->held;
+    }
     if (a == 0x58026500u || a == 0x58026510u)
+    {
         return m->enable[(a - 0x58026500u) / 16];
+    }
     return 0;
 }
 
@@ -53,9 +57,13 @@ static void wr(void *ctx, uint32_t a, uint32_t v)
         m->held = v;
     }
     else if (a == 0x58026500u || a == 0x58026510u)
+    {
         m->enable[(a - 0x58026500u) / 16] = v;
+    }
     else if (a == 0x58026504u || a == 0x58026514u)
+    {
         m->pending[(a - 0x58026504u) / 16] &= ~v;
+    }
 }
 
 static void fence(void *ctx)
@@ -66,6 +74,7 @@ static void fence(void *ctx)
 int main(void)
 {
     for (unsigned core = 4; core <= 7; core += 3)
+    {
         for (unsigned sem = 0; sem < 4; sem++)
         {
             struct af_model m = {0};
@@ -81,6 +90,7 @@ int main(void)
             C(m.enable[core == 4] == (1u << d.incoming) &&
               m.enable[core == 7] == 0);
         }
+    }
     for (unsigned when = 0; when < 10; when++)
     {
         struct af_ring q;
@@ -94,7 +104,9 @@ int main(void)
         if (!m.put)
         {
             while (!m.put)
+            {
                 tick(&m);
+            }
         }
         C(done == 1 || again || (m.pending[1] & m.enable[1]));
         C(done + af_queued(&q) == 1);

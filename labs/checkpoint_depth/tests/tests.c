@@ -89,7 +89,9 @@ static void codec(void)
     CHECK(cp_encode(&m, out + 1, 12, &written) == CP_FULL);
     CHECK(written == 777);
     for (size_t i = 0; i < sizeof out; ++i)
+    {
         CHECK(out[i] == 0x5a);
+    }
     CHECK(cp_encode(&m, out + 1, 42, &written) == CP_OK);
     CHECK(written == 13);
     CHECK(!memcmp(out + 1, known, 13));
@@ -99,12 +101,15 @@ static void codec(void)
     CHECK(cp_encode(&m, out + 1, 42, &written) == CP_INVALID);
     CHECK(written == 777);
     for (size_t n = 0; n <= 32; ++n)
+    {
         for (unsigned seq = 0; seq < 3; ++seq)
         {
             m.length = n;
             m.sequence = seq == 0 ? 0 : seq == 1 ? 65535 : 258;
             for (size_t i = 0; i < n; ++i)
+            {
                 m.payload[i] = (unsigned char)(i * 17);
+            }
             CHECK(cp_encode(&m, out + 1, 42, &written) == CP_OK);
             CHECK(written == n + 10);
             struct cp_parser p;
@@ -113,6 +118,7 @@ static void codec(void)
             CHECK(drain(&p, out + 1, written, decoded, 0) == 1);
             CHECK(same(&m, &decoded[0]));
         }
+    }
     /* Unsupported and oversized headers never publish; truncated CRC stays incomplete. */
     unsigned char bad[] = {0xa5, 2, 0, 0, 0, 0, 0, 0, 0, 0};
     struct cp_parser p;
@@ -150,11 +156,13 @@ static void stream(void)
         cp_parser_init(&p);
         size_t count = 0, start = 0;
         for (size_t i = 1; i <= sizeof known; ++i)
+        {
             if (i == sizeof known || (mask & (1u << (i - 1))))
             {
                 count = drain(&p, known + start, i - start, got, count);
                 start = i;
             }
+        }
         CHECK(count == 1 && got[0].sequence == 258 && got[0].length == 3);
     }
     for (size_t chunk = 1; chunk <= sizeof nested; ++chunk)
@@ -166,7 +174,9 @@ static void stream(void)
         {
             size_t n = sizeof nested - pos;
             if (n > chunk)
+            {
                 n = chunk;
+            }
             count = drain(&p, nested + pos, n, got, count);
         }
         CHECK(count == 2 && got[0].sequence == 7 && got[0].length == 0 &&
@@ -182,7 +192,9 @@ static void stream(void)
         CHECK(cp_feed(&p, known, sizeof known, &used) == CP_FRAME &&
               used == sizeof known);
         if (i < 2)
+        {
             CHECK(cp_deliver(&p, &q) == CP_OK);
+        }
     }
     struct cp_message before, after;
     CHECK(cp_peek(&p, &before) == CP_FRAME);
@@ -211,7 +223,9 @@ static void stream(void)
 int main(int argc, char **argv)
 {
     if (argc < 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "codec"))
     {
         codec();
@@ -314,14 +328,18 @@ int main(int argc, char **argv)
         size_t chars = strlen(argv[2]),
                chunk = (size_t)strtoul(argv[3], NULL, 10);
         if (chars % 2 || chars > 512 || !chunk || chunk > 256)
+        {
             return 2;
+        }
         unsigned char input[256];
         size_t n = chars / 2;
         for (size_t i = 0; i < n; ++i)
         {
             unsigned b;
             if (sscanf(argv[2] + 2 * i, "%2x", &b) != 1)
+            {
                 return 2;
+            }
             input[i] = (unsigned char)b;
         }
         struct cp_parser p;
@@ -332,14 +350,18 @@ int main(int argc, char **argv)
         {
             size_t take = n - i;
             if (take > chunk)
+            {
                 take = chunk;
+            }
             count = drain(&p, input + i, take, messages, count);
         }
         for (size_t i = 0; i < count; ++i)
         {
             printf("%u:", (unsigned)messages[i].sequence);
             for (size_t j = 0; j < messages[i].length; ++j)
+            {
                 printf("%02x", messages[i].payload[j]);
+            }
             putchar('\n');
         }
         return 0;

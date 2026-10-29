@@ -17,7 +17,9 @@ static int iterator(void)
     struct co_flow f = {{65530, 65536, 1, 0}, 9, 0};
     uint32_t out = 91;
     for (uint32_t x = 65530; x < 65536; x += 2)
+    {
         C(co_flow_next(&f, &out) == 0 && out == (uint32_t)((uint64_t)x * x));
+    }
     C(co_flow_next(&f, &out) == CO_DONE && out == 4294705156u);
     struct co_range r = {65535, 65536, UINT32_MAX, 0};
     C(co_next(&r, &out) == 0 && out == 65535 && r.current == 65536);
@@ -34,10 +36,14 @@ static void *allocate(void *v, size_t n)
 {
     struct co_a *a = v;
     if (a->fail)
+    {
         return NULL;
+    }
     void *p = malloc(n);
     if (p)
+    {
         a->live++;
+    }
     return p;
 }
 
@@ -86,7 +92,9 @@ static int factorial(void)
     for (unsigned n = 0; n <= 12; n++)
     {
         if (n)
+        {
             mathematical *= n;
+        }
         struct co_trampoline origin;
         C(co_trampoline_init(&origin, n) == 0);
         for (unsigned cut = 0; cut <= 2 * n + 2; cut++)
@@ -96,10 +104,15 @@ static int factorial(void)
             int reached = co_trampoline_step(&state, cut, &q);
             C(state.depth <= n);
             if (reached == CO_DONE)
+            {
                 C(q == mathematical && state.depth == 0);
+            }
             else
+            {
                 C(q == 91);
+            }
             for (unsigned a = 0; a <= 28; a++)
+            {
                 for (unsigned b = 0; b <= 28; b++)
                 {
                     struct co_trampoline one = state, two = state;
@@ -110,6 +123,7 @@ static int factorial(void)
                     C(r == s && memcmp(&one, &two, sizeof one) == 0 && x == y);
                     comparisons++;
                 }
+            }
             struct co_trampoline cancelled = state;
             C(co_trampoline_cancel(&cancelled) == 0 && cancelled.depth == 0);
             q = 91;
@@ -134,7 +148,9 @@ static int parsers(void)
     {
         unsigned limit = 1;
         for (size_t i = 0; i < n; i++)
+        {
             limit *= 3;
+        }
         for (unsigned code = 0; code < limit; code++)
         {
             unsigned value = code;
@@ -183,7 +199,9 @@ static struct co_read_result read_port(void *v, unsigned char *out,
     struct co_read_result r =
         p->result[p->at < p->length ? p->at++ : p->length - 1];
     for (size_t i = 0; i < r.count && i < capacity; i++)
+    {
         out[i] = (unsigned char)(20 + i);
+    }
     return r;
 }
 
@@ -199,7 +217,9 @@ static void disarm_port(void *v, uint32_t generation)
 {
     struct co_port *p = v;
     if (generation == p->generation)
+    {
         p->disarms++;
+    }
 }
 
 static int readiness(void)

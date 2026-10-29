@@ -29,16 +29,22 @@ static struct cs_io scripted(void *p, const unsigned char *b, size_t n)
     static const size_t counts[] = {2, 0, 0, 0, 3, 8};
     size_t k = counts[s->call];
     if (s->bad)
+    {
         return (struct cs_io){n + 1, CS_IO_PROGRESS, 0};
+    }
     if (s->error && s->call == 5)
     {
         ++s->call;
         return (struct cs_io){0, CS_IO_ERROR, 5};
     }
     if (k > n || s->total + k > 13)
+    {
         abort();
+    }
     for (size_t i = 0; i < k; ++i)
+    {
         s->bytes[s->total++] = b[i];
+    }
     enum cs_io_kind kind = s->call == 1   ? CS_IO_AGAIN
                            : s->call == 3 ? CS_IO_INTERRUPTED
                                           : CS_IO_PROGRESS;
@@ -73,7 +79,9 @@ static int result(void)
     s = (struct cf_script){.error = 1};
     p = (er_progress){0, ER_AGAIN};
     for (unsigned i = 0; i < 6; ++i)
+    {
         p = cs_result_step(bytes, 13, p.next, &a);
+    }
     CHECK(p.next == 5 && p.code == ER_IO);
     unsigned calls = 0;
     er_result r = er_map(er_error(p.code, p.next), success_fn, &calls);
@@ -168,7 +176,9 @@ static void *worker(void *p)
     b->waiting = 1;
     pthread_cond_signal(&b->changed);
     while (!b->go)
+    {
         pthread_cond_wait(&b->changed, &b->mutex);
+    }
     b->observed = b->bytes[0];
     pthread_mutex_unlock(&b->mutex);
     return NULL;
@@ -202,9 +212,13 @@ static int cleanup(void)
             {
                 CHECK(r.release_ids[i] == expected - i);
                 if (!modern)
+                {
                     prior[i] = r.release_ids[i];
+                }
                 else
+                {
                     CHECK(prior[i] == r.release_ids[i]);
+                }
             }
             CHECK(cs_resources_close(&r) == 0 && r.released == expected);
         }
@@ -222,7 +236,9 @@ static int cleanup(void)
     CHECK(!pthread_create(&t, NULL, worker, &b));
     CHECK(!pthread_mutex_lock(&b.mutex));
     while (!b.waiting)
+    {
         CHECK(!pthread_cond_wait(&b.changed, &b.mutex));
+    }
     CHECK(cs_resources_close(&r) == 1 && r.released == 0 && r.acquired == 31 &&
           r.candidate == b.bytes);
     b.go = 1;
@@ -242,14 +258,24 @@ static int cleanup(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "result"))
+    {
         return result();
+    }
     if (!strcmp(argv[1], "slabs"))
+    {
         return slabs();
+    }
     if (!strcmp(argv[1], "receipts"))
+    {
         return receipts();
+    }
     if (!strcmp(argv[1], "cleanup"))
+    {
         return cleanup();
+    }
     return 2;
 }

@@ -7,7 +7,9 @@
 static int equal(const char *a, const char *b)
 {
     if (!a || !b)
+    {
         return 0;
+    }
     while (*a && *a == *b)
     {
         ++a;
@@ -20,7 +22,9 @@ int ls_pack(const struct ls_fields *v, uint16_t *out)
 {
 #if LS_MUTANT == 3
     if (out)
+    {
         *out = 0;
+    }
 #endif
 #if LS_MUTANT == 1
     if (v && out && v->tag < 8 && v->length < 32 && v->flags < 4)

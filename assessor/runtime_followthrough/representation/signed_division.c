@@ -24,9 +24,13 @@ void rv_signed_words(const uint32_t *in, uint32_t *out)
     uint64_t quotient = (uint64_t)q.limb[0] | ((uint64_t)q.limb[1] << 32);
     uint64_t remainder = (uint64_t)r.limb[0] | ((uint64_t)r.limb[1] << 32);
     if (sa != sb)
+    {
         quotient = UINT64_C(0) - quotient;
+    }
     if (sa)
+    {
         remainder = UINT64_C(0) - remainder;
+    }
     out[0] = (uint32_t)quotient;
     out[1] = (uint32_t)(quotient >> 32);
     out[2] = (uint32_t)remainder;

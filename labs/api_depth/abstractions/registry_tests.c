@@ -29,7 +29,9 @@ static void drop(void *ctx)
     struct ac_context *c = ctx;
     ++c->log->drops;
     if (c->owned)
+    {
         free(c);
+    }
 }
 
 static void callback(void *ctx, struct as_registry *r, struct api_handle own)
@@ -37,30 +39,42 @@ static void callback(void *ctx, struct as_registry *r, struct api_handle own)
     struct ac_context *c = ctx;
     struct ac_log *l = c->log;
     if (c->mode == 6)
+    {
         ++c->tag;
+    }
     l->calls[l->length++] = c->tag;
     if (c->mode == 1 && as_remove(r, own) != API_PENDING)
+    {
         ++l->errors;
+    }
     if (c->mode == 2)
     {
         if (as_remove(r, c->other) != API_PENDING)
+        {
             ++l->errors;
+        }
         c->mode = 0;
     }
     if (c->mode == 3)
     {
         struct api_handle h;
         if (as_register(r, callback, c->added, drop, &h) != API_OK)
+        {
             ++l->errors;
+        }
         c->mode = 0;
     }
     if (c->mode == 4 && as_dispatch(r) != API_BUSY)
+    {
         ++l->errors;
+    }
     if (c->mode == 5)
     {
         if (as_destroy(r) != API_PENDING || as_destroy(r) != API_PENDING ||
             l->drops)
+        {
             ++l->errors;
+        }
     }
 }
 
@@ -69,15 +83,20 @@ static void terminal(void *ctx, struct as_registry *r)
     struct ac_log *l = ctx;
     ++l->terminals;
     if (!r->core.closed || l->drops != 2)
+    {
         ++l->errors;
+    }
     if (l->free_terminal)
+    {
         free(r);
+    }
 }
 
 int main(void)
 {
     unsigned histories = 0;
     for (unsigned policy = 0; policy < 2; ++policy)
+    {
         for (unsigned mode = 1; mode < 5; ++mode)
         {
             struct as_registry r;
@@ -95,21 +114,32 @@ int main(void)
             CHECK(l.calls[0] == 1);
             CHECK(l.length == (policy && mode == 2 ? 1u : 2u));
             if (l.length == 2)
+            {
                 CHECK(l.calls[1] == 2);
+            }
             if (mode == 1 || mode == 2)
+            {
                 CHECK(l.drops == 1);
+            }
             else
+            {
                 CHECK(l.drops == 0);
+            }
             unsigned start = l.length;
             CHECK(as_dispatch(&r) == API_OK);
             if (mode == 1)
+            {
                 CHECK(l.length == start + 1 && l.calls[start] == 2);
+            }
             if (mode == 3)
+            {
                 CHECK(l.length == start + 3 && l.calls[start + 2] == 3);
+            }
             CHECK(as_destroy(&r) == API_OK && l.drops == (mode == 3 ? 3u : 2u));
             CHECK(as_destroy(&r) == API_OK && !l.errors);
             ++histories;
         }
+    }
     for (unsigned heap = 0; heap < 2; ++heap)
     {
         struct as_registry *r = malloc(sizeof *r);

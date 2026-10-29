@@ -5,10 +5,14 @@
 int main(int argc, char **argv)
 {
     if (argc != 2 || strlen(argv[1]) > 64)
+    {
         return 2;
+    }
     struct cs_service s;
     if (cs_init(&s, 3, 100) != CS_OK)
+    {
         return 3;
+    }
     struct cp_message m = {1, 0, {0}};
     const unsigned char *borrow = NULL;
     size_t n = 0;
@@ -35,7 +39,9 @@ int main(int argc, char **argv)
                 break;
             case 'L':
                 if (cs_lease(&s, &borrow, &n, &generation) == CS_OK)
+                {
                     external_borrow = 1;
+                }
                 break;
             case 'X':
                 (void)cs_close(&s, 1);
@@ -48,7 +54,9 @@ int main(int argc, char **argv)
                 enum cs_status status =
                     cs_complete(&s, generation, 1, 0, NULL, NULL);
                 if (status != CS_STALE && status != CS_INVALID)
+                {
                     external_borrow = 0;
+                }
                 break;
             }
             default:
@@ -60,7 +68,9 @@ int main(int argc, char **argv)
             return 42;
         }
         if (!cs_conserved(&s))
+        {
             return 4;
+        }
     }
     puts("CAP_SECURITY:bounded-safe");
     return 0;

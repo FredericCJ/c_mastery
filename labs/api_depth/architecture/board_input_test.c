@@ -11,11 +11,15 @@ static uint32_t read_reg(void *p, uint32_t address)
 {
     struct ac_bus *b = p;
     if (address == 0x40004400u)
+    {
         return b->error ? 2u : (b->position < b->available ? 32u : 0u);
+    }
     CHECK(address == 0x40004404u);
     ++b->reads;
     if (b->error)
+    {
         return 0;
+    }
     return b->wire[b->position++];
 }
 

@@ -20,7 +20,9 @@ static long long now(void)
 {
     struct timespec t;
     if (clock_gettime(CLOCK_MONOTONIC, &t))
+    {
         return LLONG_MIN;
+    }
     return (long long)t.tv_sec * 1000000000LL + t.tv_nsec;
 }
 
@@ -34,9 +36,13 @@ static ptrdiff_t writer(void *v, const unsigned char *b, size_t n)
 {
     struct co_writer *w = v;
     if (n > w->quota)
+    {
         n = w->quota;
+    }
     if (!n)
+    {
         return 0;
+    }
     return write(w->fd, b, n);
 }
 
@@ -70,7 +76,9 @@ static int receive_case(unsigned mode)
     C(write(data[1], payload, length) == (ssize_t)length);
     C(close(data[1]) == 0);
     if (mode == 3)
+    {
         C(write(cancel[1], "!", 1) == 1);
+    }
     struct sf_stream stream;
     memset(&stream, 0x5a, sizeof stream);
     struct sf_stream original = stream;
@@ -109,8 +117,10 @@ static int receive_case(unsigned mode)
         C(value == 91 && !handle.owner &&
           memcmp(&stream, &original, sizeof stream) == 0);
         if (mode == 1)
+        {
             C(progress.accepted == 1 && progress.arms == 1 &&
               progress.disarms == 1);
+        }
         if (mode == 2 || mode == 3)
         {
             unsigned char first = 0;
@@ -133,7 +143,9 @@ int main(void)
 {
     C(cursor() == 0);
     for (unsigned mode = 0; mode < 6; mode++)
+    {
         C(receive_case(mode) == 0);
+    }
     puts(
         "CI_IMPORTS:actual reactor/deadline/cursor/integer/frame-writer sources;6 real local pipe histories");
     return 0;

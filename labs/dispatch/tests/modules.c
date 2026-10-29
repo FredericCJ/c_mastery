@@ -25,11 +25,15 @@ static int read_value(void *p, int *out)
     struct ds_reads *r = p;
     unsigned n = r->calls++;
     if (n >= 2)
+    {
         return DS_FAILED;
+    }
     r->trace[n] = r->values[n];
     *out = 999;
     if (r->fail == n + 1)
+    {
         return DS_FAILED;
+    }
     *out = r->values[n];
     return DS_OK;
 }
@@ -61,7 +65,9 @@ static int raw(int output)
 {
     const int values[5] = {-2, 0, 7, INT_MIN, INT_MAX};
     for (unsigned a = 0; a < 5; ++a)
+    {
         for (unsigned b = 0; b < 5; ++b)
+        {
             for (unsigned fail = 0; fail < 3; ++fail)
             {
                 struct ds_reads r = {{values[a], values[b]}, 0, fail, {0}};
@@ -81,12 +87,18 @@ static int raw(int output)
                 CHECK(r.calls == (fail == 1 ? 1u : 2u));
                 CHECK(r.trace[0] == values[a]);
                 if (r.calls == 2)
+                {
                     CHECK(r.trace[1] == values[b]);
+                }
                 ds_module_close(m);
                 if (output)
+                {
                     printf("M %u %u %u %d %d %u %d %d\n", a, b, fail, rc, out,
                            r.calls, r.trace[0], r.calls == 2 ? r.trace[1] : 0);
+                }
             }
+        }
+    }
     struct ds_reads r = {{7, 7}, 0, 0, {0}};
     struct ds_module *a = NULL, *b = NULL, *c = NULL;
     struct ds_service s = {read_value, &r};
@@ -110,7 +122,9 @@ static void destroy(void *p)
 {
     struct ds_resource *r = p;
     if (destroy_count < 4)
+    {
         destruction[destroy_count++] = r->id;
+    }
 }
 
 static void release(void *p)
@@ -227,6 +241,7 @@ static int correlated(void)
               DS_EMPTY &&
           metric.count == 92);
     for (unsigned k = 0; k < 4; ++k)
+    {
         for (int v = -4; v <= 4; ++v)
         {
             CHECK(ds_user_put(&users, (struct ds_user_key){k},
@@ -240,6 +255,7 @@ static int correlated(void)
                       DS_OK &&
                   metric.count == -v);
         }
+    }
     CHECK(ds_user_put(&users, (struct ds_user_key){4},
                       (struct ds_user_value){9}) == DS_INVALID);
     CHECK(ds_metric_put(&metrics, (struct ds_metric_key){4},
@@ -250,10 +266,14 @@ static int correlated(void)
 int main(int argc, char **argv)
 {
     if (argc < 2)
+    {
         return 2;
+    }
     test = argv[1];
     if (!strcmp(test, "oracle"))
+    {
         return raw(1);
+    }
     if (!strcmp(test, "module_second") || !strcmp(test, "shared_modules"))
     {
         CHECK(raw(0) == 0);

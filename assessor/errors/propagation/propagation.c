@@ -9,12 +9,16 @@ static er_result scan(const unsigned char *s, size_t n, size_t *at)
     {
         uint32_t d = (uint32_t)(s[i] - '0');
         if (v > (UINT32_C(65535) - d) / 10)
+        {
             return er_error(ER_RANGE, i);
+        }
         v = v * 10 + d;
         ++i;
     }
     if (i == start)
+    {
         return er_error(ER_INVALID, i);
+    }
     *at = i;
     return er_ok(v);
 }
@@ -24,7 +28,9 @@ er_result epr_pair_explicit(const unsigned char *s, size_t n, uint32_t *sum)
     size_t at = 0;
     er_result a, b, r;
     if ((!s && n) || !sum)
+    {
         return er_error(ER_INVALID, 0);
+    }
     a = scan(s, n, &at);
     if (a.tag != ER_OK)
     {
@@ -64,7 +70,9 @@ er_result epr_pair_macro(const unsigned char *s, size_t n, uint32_t *sum)
     size_t at = 0;
     er_result a, b, r;
     if ((!s && n) || !sum)
+    {
         return er_error(ER_INVALID, 0);
+    }
     EPR_TRY(first_result, scan(s, n, &at), &r, failed);
     a = r;
     if (at == n || s[at] != ':')
@@ -94,7 +102,9 @@ failed:
 er_code epr_init(struct epr_parser *p, unsigned signed_first)
 {
     if (!p || signed_first > 1)
+    {
         return ER_INVALID;
+    }
     struct epr_parser empty = {0};
     empty.signed_first = signed_first;
     empty.terminal = ER_AGAIN;
@@ -122,7 +132,9 @@ struct epr_step epr_feed(struct epr_parser *p, const unsigned char *s, size_t n,
     struct epr_step invalid = {ER_INVALID, 0, p ? p->position : 0, 0};
     size_t used = 0;
     if (!p || (!s && n) || !sum || final > 1)
+    {
         return invalid;
+    }
     if (n > SIZE_MAX - p->position)
     {
         invalid.code = ER_RANGE;
@@ -132,7 +144,9 @@ struct epr_step epr_feed(struct epr_parser *p, const unsigned char *s, size_t n,
     if (p->phase >= 2)
     {
         if (p->phase == 2)
+        {
             *sum = p->sum;
+        }
         return answer(p, 0);
     }
     while (used < n)
@@ -147,7 +161,9 @@ struct epr_step epr_feed(struct epr_parser *p, const unsigned char *s, size_t n,
         {
             uint32_t d = (uint32_t)(c - '0');
             if (*v > (UINT32_C(65535) - d) / 10)
+            {
                 return fail(p, used, ER_RANGE);
+            }
             *v = *v * 10 + d;
             p->digits = 1;
         }
@@ -157,26 +173,38 @@ struct epr_step epr_feed(struct epr_parser *p, const unsigned char *s, size_t n,
             p->digits = 0;
         }
         else
+        {
             return fail(p, used, ER_INVALID);
+        }
         ++used;
         ++p->position;
         if (EPR_MUTATION == 3)
+        {
             *sum = p->first;
+        }
     }
     if (!final)
+    {
         return answer(p, used);
+    }
     if (p->phase != 1 || !p->digits)
+    {
         return fail(p, used, ER_INVALID);
+    }
     if (p->negative)
     {
         if (EPR_MUTATION != 4 && p->second < p->first)
+        {
             return fail(p, used, ER_RANGE);
+        }
         p->sum = p->second - p->first;
     }
     else
     {
         if (p->first > UINT32_C(65535) - p->second)
+        {
             return fail(p, used, ER_RANGE);
+        }
         p->sum = p->first + p->second;
     }
     p->phase = 2;

@@ -54,7 +54,9 @@ int main(void)
     CHECK(pt_init(&model, &timer) == PT_OK);
     model.running = 1;
     for (unsigned i = 0; i < 64000; i++)
+    {
         CHECK(pt_input(&model) == PT_OK);
+    }
     CHECK(model.updates == 1);
     puts("PA_COMPOSE_PASS65536codes1actualtimerperiod");
     return 0;

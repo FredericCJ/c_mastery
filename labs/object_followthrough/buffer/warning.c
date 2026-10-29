@@ -3,6 +3,8 @@ int ob_warning(int initialized)
 {
     int value;
     if (initialized)
+    {
         value = 17;
+    }
     return value;
 }

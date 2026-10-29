@@ -40,6 +40,8 @@ int lp_reset(void)
 size_t lp_output(unsigned char out[4])
 {
     for (size_t i = 0; i < used; ++i)
+    {
         out[i] = bytes[i];
+    }
     return used;
 }

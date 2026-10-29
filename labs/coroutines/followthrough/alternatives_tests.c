@@ -17,8 +17,11 @@ static int iterator(void)
 {
     unsigned cases = 0;
     for (unsigned start = 0; start < 10; start++)
+    {
         for (unsigned end = start; end < 33; end++)
+        {
             for (unsigned step = 1; step <= 8; step++)
+            {
                 for (unsigned take = 0; take < 6; take++)
                 {
                     struct co_flow fused = {{start, end, step, 0}, take, 0};
@@ -32,13 +35,18 @@ static int iterator(void)
                         C(a == b && x == y && fused.pulls == other.flow.pulls &&
                           fused.source.current == other.flow.source.current);
                         if (a == CO_DONE)
+                        {
                             break;
+                        }
                         C(a == 0 && produced++ < take);
                     }
                     C(other.maps == produced &&
                       other.predicates <= other.flow.pulls);
                     cases++;
                 }
+            }
+        }
+    }
     printf("CX_ITERATOR:%u exact fused/unfused value and pull-count cases\n",
            cases);
     return 0;
@@ -77,7 +85,9 @@ static int sink(void *v, unsigned key, uint32_t value)
     struct co_sink *s = v;
     s->calls++;
     if (!s->ready)
+    {
         return CO_PENDING;
+    }
     s->key[s->used] = key;
     s->value[s->used++] = value;
     return CO_OK;
@@ -117,6 +127,7 @@ static volatile uint64_t retained;
 static int cost(void)
 {
     for (unsigned sample = 0; sample < 12; sample++)
+    {
         for (unsigned alternate = 0; alternate < 2; alternate++)
         {
             struct timespec a, b;
@@ -130,7 +141,9 @@ static int cost(void)
                 uint32_t out = 0;
                 while ((alternate ? cr_unfused_next(&u, &out)
                                   : co_flow_next(&f, &out)) == 0)
+                {
                     sum += out;
+                }
                 pulls += alternate ? u.flow.pulls : f.pulls;
             }
             C(clock_gettime(CLOCK_MONOTONIC, &b) == 0);
@@ -142,20 +155,31 @@ static int cost(void)
                    alternate ? sizeof(struct cr_unfused)
                              : sizeof(struct co_flow));
         }
+    }
     return 0;
 }
 
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "iterator"))
+    {
         return iterator();
+    }
     if (!strcmp(argv[1], "generator"))
+    {
         return generator();
+    }
     if (!strcmp(argv[1], "push"))
+    {
         return push();
+    }
     if (!strcmp(argv[1], "cost"))
+    {
         return cost();
+    }
     return 2;
 }

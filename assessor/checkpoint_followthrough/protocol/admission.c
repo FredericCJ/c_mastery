@@ -4,9 +4,13 @@ enum cp_status cpa_admit(struct cp_parser *p, struct cp_queue *q,
                          size_t capacity)
 {
     if (!p || !q || !capacity || capacity > CP_QUEUE || q->count > capacity)
+    {
         return CP_INVALID;
+    }
     if (!p->ready)
+    {
         return CP_NEED_MORE;
+    }
     if (q->count == capacity)
     {
 #ifdef CPA_MUTANT_DROP

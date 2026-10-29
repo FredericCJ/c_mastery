@@ -53,8 +53,9 @@ static void sleep_until(uint64_t n)
     struct timespec t = stamp(n);
     int result;
     do
+    {
         result = clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &t, NULL);
-    while (result == EINTR);
+    } while (result == EINTR);
     CHECK(!result);
 }
 
@@ -63,8 +64,9 @@ static uint64_t read_count(int fd)
     uint64_t count = 0;
     ssize_t n;
     do
+    {
         n = read(fd, &count, sizeof count);
-    while (n < 0 && errno == EINTR);
+    } while (n < 0 && errno == EINTR);
     CHECK(n == (ssize_t)sizeof count);
     return count;
 }
@@ -91,7 +93,9 @@ static void event_counters(void)
     fd = eventfd(3, EFD_NONBLOCK | EFD_CLOEXEC | EFD_SEMAPHORE);
     CHECK(fd >= 0);
     for (unsigned i = 0; i < 3; ++i)
+    {
         CHECK(read_count(fd) == 1);
+    }
     CHECK(read(fd, &value, 8) == -1 && errno == EAGAIN);
     CHECK(!close(fd));
     puts("TIMER-EVENT:sum=5;short_rejected=1;saturation_preserved=1;semaphore_"
@@ -142,7 +146,9 @@ static void rearm(void)
     size_t index;
     uint64_t deadline;
     for (unsigned i = 0; i < 3; ++i)
+    {
         CHECK(td_init(&timers[i], 4) == 0);
+    }
     uint64_t start = now(), late = start + 5000000000ULL,
              early = start + 5000000;
     CHECK(td_arm(&timers[0], late, 0, 0, &token[0]) == 1);
@@ -222,17 +228,23 @@ static void failures(void)
         int owned[3] = {-1, -1, -1};
         unsigned acquired = 0;
         if (cut == 0)
+        {
             goto cleanup;
+        }
         owned[0] = timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
         CHECK(owned[0] >= 0);
         ++acquired;
         if (cut == 1)
+        {
             goto cleanup;
+        }
         owned[1] = eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
         CHECK(owned[1] >= 0);
         ++acquired;
         if (cut == 2)
+        {
             goto cleanup;
+        }
         owned[2] = epoll_create1(EPOLL_CLOEXEC);
         CHECK(owned[2] >= 0);
         ++acquired;
@@ -245,7 +257,9 @@ static void failures(void)
                   errno == EINVAL);
         }
         else
+        {
             arm(owned[0], now() + 1000000, 0);
+        }
 cleanup:
         while (acquired)
         {
@@ -256,7 +270,9 @@ cleanup:
             owned[acquired] = -1;
         }
         for (unsigned i = 0; i < 3; ++i)
+        {
             CHECK(owned[i] == -1);
+        }
     }
     CHECK(closed == 9);
     puts("TIMER-FAILURE:acquisition_cuts=3;invalid_arm=1;success=1;closed=9;");
@@ -266,15 +282,27 @@ int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (!strcmp(argv[1], "event"))
+    {
         event_counters();
+    }
     else if (!strcmp(argv[1], "periodic"))
+    {
         periodic();
+    }
     else if (!strcmp(argv[1], "rearm"))
+    {
         rearm();
+    }
     else if (!strcmp(argv[1], "cached"))
+    {
         cached();
+    }
     else if (!strcmp(argv[1], "failure"))
+    {
         failures();
+    }
     else
+    {
         CHECK(0);
+    }
 }

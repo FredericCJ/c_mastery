@@ -39,20 +39,30 @@ static void nested(unsigned id, unsigned depth)
     __asm__ volatile("mov %0,sp" : "=r"(sp));
     mf_require((sp & 7u) == 0, 32);
     for (unsigned j = 0; j < LOCAL_WORDS; j++)
+    {
         locals[j] = 0x1000u + id * 100u + depth * 20u + j;
+    }
     if (depth > max_depth[id])
+    {
         max_depth[id] = depth;
+    }
     if (depth)
+    {
         nested(id, depth - 1);
+    }
     else
     {
         struct mf_probe *p = &probes[id];
         mf_direct_probe(p);
         for (unsigned j = 0; j < 8; j++)
+        {
             mf_require(p->integer[j] == p->observed_integer[j], 40 + j);
+        }
 #if MF_FP
         for (unsigned j = 0; j < 16; j++)
+        {
             mf_require(p->high_fp[j] == p->observed_fp[j], 60 + j);
+        }
         mf_require(p->fpscr == p->observed_fpscr, 80);
         mf_require(p->rounded == 0x3f800000u + (((p->fpscr >> 22) & 3u) == 1u),
                    82);
@@ -60,13 +70,17 @@ static void nested(unsigned id, unsigned depth)
         calls[id]++;
     }
     for (unsigned j = 0; j < LOCAL_WORDS; j++)
+    {
         mf_require(locals[j] == 0x1000u + id * 100u + depth * 20u + j, 81);
+    }
 }
 
 static void entry(unsigned id)
 {
     for (unsigned i = 0; i < 7u + id; i++)
+    {
         nested(id, id + 1);
+    }
 }
 
 void mf_main(void)
@@ -76,7 +90,9 @@ void mf_main(void)
                1);
     mf_require(moved == 0x89abcdefu, 2);
     for (unsigned j = 0; j < 31; j++)
+    {
         mf_require(zeros[j] == 0, 3);
+    }
     mf_require(retained == 0x52544e44u, 4);
     mf_require(mf_udiv32(0xffffffffu, 1) == 0xffffffffu &&
                    mf_udiv32(1, 0) == 0xffffffffu,
@@ -97,16 +113,24 @@ void mf_main(void)
     for (unsigned i = 0; i < 3; i++)
     {
         for (unsigned j = 0; j < 768; j++)
+        {
             stacks[i][j] = 0xa5a5a5a5u;
+        }
         for (unsigned j = 0; j < 8; j++)
+        {
             probes[i].integer[j] = 0x11110000u + i * 0x100u + j;
+        }
         for (unsigned j = 0; j < 16; j++)
+        {
             probes[i].high_fp[j] = 0x3f800000u + i * 0x10000u + j * 16u;
+        }
         probes[i].fpscr = (i & 3u) << 22;
         unsigned words = 10u + (MF_FP ? 16u : 0u);
         saved[i] = &stacks[i][768 - words];
         for (unsigned j = 0; j < words; j++)
+        {
             saved[i][j] = 0;
+        }
         saved[i][1] = i;
         saved[i][2] = (uint32_t)(uintptr_t)entry;
         saved[i][9] = (uint32_t)(uintptr_t)mf_direct_enter;
@@ -115,12 +139,16 @@ void mf_main(void)
 #endif
     }
     for (unsigned round = 0; round < 12; round++)
+    {
         for (unsigned i = 0; i < 3; i++)
+        {
             if (!done[i])
             {
                 active = i;
                 mf_direct_switch(&main_sp, saved[i]);
             }
+        }
+    }
     for (unsigned i = 0; i < 3; i++)
     {
         mf_require(done[i] && calls[i] == 7u + i && max_depth[i] == i + 1,
@@ -128,7 +156,9 @@ void mf_main(void)
         mf_require(stacks[i][0] == 0xa5a5a5a5u, 94);
         unsigned first = 0;
         while (first < 768 && stacks[i][first] == 0xa5a5a5a5u)
+        {
             first++;
+        }
         mf_text("MF direct task/high-water-words ");
         mf_number(i);
         mf_number(768 - first);

@@ -10,10 +10,14 @@ int main(void)
 {
     fenv_t saved;
     if (fegetenv(&saved) != 0)
+    {
         return 1;
+    }
     int saved_errno = errno, ok = 1;
     if (fesetround(FE_TONEAREST) != 0)
+    {
         return 1;
+    }
     printf(
         "MODEL radix=%d eval=%d float=%zu,%d,%d,%d,%d double=%zu,%d,%d,%d,%d long_double=%zu,%d,%d,%d,%d\n",
         FLT_RADIX, FLT_EVAL_METHOD, sizeof(float), FLT_MANT_DIG, FLT_MIN_EXP,
@@ -51,7 +55,9 @@ int main(void)
         printf("FMA mode=%d fused=%a separate=%a\n", modes[i], fused, separate);
     }
     if (fesetenv(&saved) != 0)
+    {
         ok = 0;
+    }
     errno = saved_errno;
     puts(ok ? "FF_OBSERVATIONS_PASS format special conversion fma_four_modes"
             : "FF_OBSERVATIONS_FAIL");

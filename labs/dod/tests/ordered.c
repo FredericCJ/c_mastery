@@ -25,7 +25,9 @@ static unsigned collect(struct d_ordered *o, int *values)
     {
         CHECK(d_order_next(o, &it, &h, &value, &has) == D_OK);
         if (!has)
+        {
             break;
+        }
         CHECK(n < 4 && h.owner == &o->pool);
         int v;
         CHECK(d_sparse_get(&o->pool, h, &v) == D_OK && v == *value);
@@ -40,11 +42,15 @@ static void checks(void)
     d_order_init(&o);
     struct d_handle h[4];
     for (unsigned i = 0; i < 4; ++i)
+    {
         CHECK(d_order_add(&o, (int)i, &h[i]) == D_OK);
+    }
     int values[4];
     CHECK(collect(&o, values) == 4);
     for (unsigned i = 0; i < 4; ++i)
+    {
         CHECK(values[i] == (int)i);
+    }
     CHECK(o.link_writes == 16 && o.iteration_steps == 4);
     struct d_ordered_iter it;
     CHECK(d_order_begin(&o, &it) == D_OK);
@@ -91,14 +97,18 @@ static void oracle(void)
         d_order_init(&o);
         struct d_handle h[4], added;
         for (unsigned i = 0; i < 4; ++i)
+        {
             CHECK(d_order_add(&o, (int)i, &h[i]) == D_OK);
+        }
         CHECK(d_order_remove(&o, h[removed]) == D_OK &&
               d_order_add(&o, 9, &added) == D_OK);
         int values[4];
         CHECK(collect(&o, values) == 4);
         printf("O %u %u %u", removed, o.link_writes, o.iteration_steps);
         for (unsigned i = 0; i < 4; ++i)
+        {
             printf(" %d", values[i]);
+        }
         putchar('\n');
     }
 }
@@ -108,10 +118,16 @@ int main(int argc, char **argv)
     CHECK(argc == 2);
     test_name = argv[1];
     if (!strcmp(argv[1], "ordered"))
+    {
         checks();
+    }
     else if (!strcmp(argv[1], "oracle"))
+    {
         oracle();
+    }
     else
+    {
         CHECK(0);
+    }
     return 0;
 }

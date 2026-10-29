@@ -22,7 +22,9 @@ int main(void)
           count == 4);
     size_t lengths[] = {0, 1, 0, 0}, offsets[] = {0, 1, 3, 4};
     for (unsigned i = 0; i < 4; ++i)
+    {
         CHECK(parts[i].length == lengths[i] && parts[i].offset == offsets[i]);
+    }
     CHECK(ad_byte_split(input, 4, 44, 0, parts, 65, &count) == AD_OK &&
           count == 1 && parts[0].offset == 1 && parts[0].length == 1);
     struct ad_span old[65];
@@ -93,9 +95,13 @@ int main(void)
                          strlen(cases[i].text), 10, 0, 1, &value, &count);
         CHECK(rc == cases[i].status);
         if (rc == AD_OK)
+        {
             CHECK(value == cases[i].value && count == strlen(cases[i].text));
+        }
         else
+        {
             CHECK(value == 77 && count == 88);
+        }
     }
     int32_t value;
     unsigned char field[] = {'1', '2', '3', '4'};
@@ -117,6 +123,7 @@ int main(void)
                        &unsigned_value, &count) == AD_INVALID);
     size_t formats = 0;
     for (unsigned base = 2; base <= 16; ++base)
+    {
         for (int32_t x = -1024; x <= 1024; ++x)
         {
             CHECK(ad_format_i32(x, base, output, 64, &count) == AD_OK);
@@ -126,8 +133,10 @@ int main(void)
                   value == x && used == count);
             ++formats;
         }
+    }
     int32_t endpoints[] = {INT32_MIN, INT32_MAX};
     for (unsigned j = 0; j < 2; ++j)
+    {
         for (unsigned base = 2; base <= 16; ++base)
         {
             CHECK(ad_format_i32(endpoints[j], base, output, 64, &count) ==
@@ -136,12 +145,15 @@ int main(void)
                       AD_OK &&
                   value == endpoints[j]);
         }
+    }
     memset(output, 99, sizeof output);
     count = 88;
     CHECK(ad_format_i32(INT32_MIN, 10, output, 10, &count) == AD_SPACE &&
           count == 88);
     for (unsigned i = 0; i < 64; ++i)
+    {
         CHECK(output[i] == 99);
+    }
     printf(
         "ALGORITHM_BYTES_NUMBERS_PASS unsigned_pairs=65536 formats=%zu exact_boundaries one_way_T11_import\n",
         formats);

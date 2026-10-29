@@ -9,7 +9,9 @@ static size_t used;
 static void append(const char *s)
 {
     while (*s)
+    {
         message[used++] = *s++;
+    }
 }
 
 static void number(size_t v)
@@ -22,7 +24,9 @@ static void number(size_t v)
         v /= 10;
     } while (v);
     while (n)
+    {
         message[used++] = digits[--n];
+    }
 }
 
 int main(void)
@@ -31,17 +35,27 @@ int main(void)
     struct fd_record a = {3, 258, -2}, b = {0, 0, 0};
     const unsigned char expected[] = {1, 3, 1, 2, 255, 255, 255, 254};
     if (ff_encode(a, bytes, 8) != FD_OK)
+    {
         return 1;
+    }
     for (size_t i = 0; i < 8; ++i)
+    {
         if (bytes[i] != expected[i])
+        {
             return 1;
+        }
+    }
     if (ff_decode(bytes, 8, &b) != FD_OK || b.flags != 3 || b.count != 258 ||
         b.value != -2)
+    {
         return 1;
+    }
     struct ff_interval interval = {71, 91};
     if (ff_interval(SIZE_MAX, 0, 0, SIZE_MAX, &interval) != FD_OK ||
         interval.begin != SIZE_MAX || interval.end != SIZE_MAX)
+    {
         return 1;
+    }
     append("FF_BE_PASS size=");
     number(sizeof a);
     append(" align=");

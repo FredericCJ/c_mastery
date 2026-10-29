@@ -41,11 +41,17 @@ static void invariant(const struct rzb_gate *g)
     {
         unsigned used = 0, failures = 0;
         for (unsigned i = t * 2; i < t * 2 + 2; ++i)
+        {
             if (g->slots[i].active)
+            {
                 used += g->slots[i].cost;
+            }
+        }
         CHECK(used == g->used[t] && used <= g->reserved[t]);
         for (unsigned i = 0; i < g->policy.window; ++i)
+        {
             failures += g->health[t].samples[i];
+        }
         CHECK(failures == g->health[t].failures &&
               g->health[t].count <= g->policy.window);
     }
@@ -70,7 +76,9 @@ static void tests(void)
     CHECK(rzb_init(&g, 2, 2, (struct rzb_policy){4, 4, 3, 4}, 0) == RZ_OK);
     const int history[] = {0, 1, 1, 1, 1};
     for (unsigned i = 0; i < 5; ++i)
+    {
         cycle(&g, s, 0, i, history[i]);
+    }
     CHECK(g.health[0].count == 4 && g.health[0].failures == 0);
 
     CHECK(rzb_init(&g, 2, 2, (struct rzb_policy){2, 2, 1, 2}, 0) == RZ_OK);
@@ -104,7 +112,9 @@ static void tests(void)
 
     s = make_scope(&freed);
     for (unsigned order = 0; order < 2; ++order)
+    {
         for (int first = -1; first <= 1; ++first)
+        {
             for (int second = -1; second <= 1; ++second)
             {
                 CHECK(rzb_init(&g, 2, 2, (struct rzb_policy){4, 4, 1, 2}, 0) ==
@@ -118,6 +128,8 @@ static void tests(void)
                 CHECK(g.health[0].count ==
                       (unsigned)((first >= 0) + (second >= 0)));
             }
+        }
+    }
     CHECK(rzb_init(&g, 2, 2, (struct rzb_policy){1, 1, 1, 1}, 0) == RZ_OK);
     g.health[0].epoch = UINT_MAX;
     cycle(&g, s, 0, 0, 0);
@@ -180,13 +192,17 @@ static void oracle(void)
             unsigned tenant = word[i] >= 'A' && word[i] <= 'Z';
             char op = tenant ? (char)(word[i] - 'A' + 'a') : word[i];
             if (op == 'a' || op == 'b')
+            {
                 status = rzb_admit(&g, tenant, op == 'a' ? 1 : 2, s, now,
                                    &last[tenant]);
+            }
             else if (op == 'f' || op == 's' || op == 'n')
             {
                 unsigned slot = tenant * 2;
                 while (slot < tenant * 2 + 2 && !g.slots[slot].active)
+                {
                     ++slot;
+                }
                 struct rzb_permit p =
                     slot < tenant * 2 + 2
                         ? (struct rzb_permit){&g, slot,
@@ -198,28 +214,44 @@ static void oracle(void)
                                                   : -1);
             }
             else if (op == 'c')
+            {
                 status = rzb_cancel(&g, last[tenant]);
+            }
             else if (op == 'd')
+            {
                 status = rzb_complete(&g, last[tenant], now, 1);
+            }
             else if (op == 't')
+            {
                 now += 4;
+            }
             else if (op == 'x')
+            {
                 status = rzb_close(&g);
+            }
             else
+            {
                 CHECK(false);
+            }
             invariant(&g);
             printf("%d:%u:%u", status, g.used[0], g.used[1]);
             for (unsigned t = 0; t < 2; ++t)
+            {
                 printf(":%u:%u:%u:%u:%" PRIu64, g.health[t].phase,
                        g.health[t].epoch, g.health[t].count,
                        g.health[t].failures, g.health[t].until);
+            }
             printf(";");
         }
         for (unsigned i = 0; i < 4; ++i)
+        {
             if (g.slots[i].active)
+            {
                 CHECK(rzb_complete(
                           &g, (struct rzb_permit){&g, i, g.slots[i].generation},
                           now, -1) == RZ_OK);
+            }
+        }
         rzf_scope_release(&s);
         CHECK(freed == 1);
         puts("");
@@ -230,10 +262,16 @@ int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (!strcmp(argv[1], "test"))
+    {
         tests();
+    }
     else if (!strcmp(argv[1], "oracle"))
+    {
         oracle();
+    }
     else
+    {
         return 2;
+    }
     return 0;
 }

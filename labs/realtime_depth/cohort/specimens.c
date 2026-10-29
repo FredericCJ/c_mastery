@@ -18,7 +18,9 @@ void su_flawed_update(struct su_flawed *s, unsigned t)
         }
         s->remaining += s->amount[i];
         if (s->remaining > s->q)
+        {
             s->remaining = s->q;
+        }
         for (unsigned j = i + 1; j < s->count; ++j)
         {
             s->at[j - 1] = s->at[j];
@@ -48,7 +50,9 @@ void su_flawed_active(struct su_flawed *s, unsigned t, unsigned active)
         s->begin = t;
     }
     else if (!active && s->active)
+    {
         finish(s);
+    }
 }
 
 void su_flawed_run(struct su_flawed *s, unsigned t, unsigned n)
@@ -57,5 +61,7 @@ void su_flawed_run(struct su_flawed *s, unsigned t, unsigned n)
     s->usage += n;
     s->remaining = n > s->remaining ? 0 : s->remaining - n;
     if (!s->remaining)
+    {
         finish(s);
+    }
 }

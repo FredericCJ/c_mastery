@@ -30,7 +30,9 @@ static int entry(void *p, unsigned state)
     C(pf_dispatch(e->h, PT_PING, 0, 0, 0, 0, t, 6, &n) == PT_STATE);
     ++e->reentries;
     if (state == PT_IDLE)
+    {
         C(pf_post(e->h, PT_START) == PT_OK);
+    }
     return 0;
 }
 
@@ -60,7 +62,9 @@ static int hsm(void)
           n == (local ? 2 : 4) && t[0] == (0x80 | PT_BUSY) &&
           t[n - 1] == PT_IDLE);
         if (!local)
+        {
             C(t[1] == (0x80 | PT_ONLINE) && t[2] == PT_ONLINE);
+        }
     }
     return 0;
 }
@@ -109,9 +113,13 @@ static void *consumer(void *p)
             atomic_fetch_add(&c->processed, 1);
         }
         else if (atomic_load(&c->done))
+        {
             return 0;
+        }
         else
+        {
             sched_yield();
+        }
     }
 }
 
@@ -136,10 +144,14 @@ static int active(void)
         C(!pthread_create(&q[i], 0, consumer, &c));
     }
     for (unsigned i = 0; i < 2; ++i)
+    {
         C(!pthread_join(p[i], 0));
+    }
     atomic_store(&c.done, 1);
     for (unsigned i = 0; i < 2; ++i)
+    {
         C(!pthread_join(q[i], 0));
+    }
     C(atomic_load(&c.accepted) + atomic_load(&c.dropped) == 8000);
     C(atomic_load(&c.accepted) == atomic_load(&c.processed) &&
       c.a.hsm.machine.pings == atomic_load(&c.accepted) && !c.a.hsm.count);
@@ -162,7 +174,9 @@ static unsigned leaf(void *p, unsigned occurrence, unsigned node)
     (void)node;
     ++t->calls[occurrence];
     if (!t->first_occurrence)
+    {
         t->first_occurrence = occurrence;
+    }
     return occurrence == t->first_occurrence ? PT_BT_SUCCESS : PT_BT_RUNNING;
 }
 
@@ -202,7 +216,9 @@ static int reactive(void)
       !memcmp(&b, &old, sizeof b));
     struct pf_node exploding[8];
     for (unsigned i = 0; i < 7; ++i)
+    {
         exploding[i] = (struct pf_node){PT_BT_SEQUENCE, i + 1, i + 1};
+    }
     exploding[7] = (struct pf_node){PT_BT_LEAF, 0, 0};
     C(pf_reactive_init(&b, exploding, 8) == PT_RANGE &&
       !memcmp(&b, &old, sizeof b));
@@ -212,7 +228,9 @@ static int reactive(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
 #define RUN(name)                   \
     if (!strcmp(argv[1], #name))    \
     {                               \

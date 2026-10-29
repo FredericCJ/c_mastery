@@ -7,7 +7,9 @@ static void sa_checksum_at(unsigned char *p, size_t n, size_t at)
     unsigned sum = 0;
     p[at] = 0;
     for (size_t i = 0; i < n; ++i)
+    {
         sum = (sum + p[i]) & 255u;
+    }
     p[at] = (unsigned char)(0u - sum);
 }
 
@@ -30,10 +32,14 @@ static int sa_root_checks(void)
     sa_w32(root + 36, 0x4000);
     sa_sum(root, 40);
     for (unsigned i = 0; i < 36; ++i)
+    {
         rsdp[i] = 0;
+    }
     const char signature[] = "RSD PTR ";
     for (unsigned i = 0; i < 8; ++i)
+    {
         rsdp[i] = (unsigned char)signature[i];
+    }
     sa_w32(rsdp + 16, 0x2000);
     sa_checksum_at(rsdp, 20, 8);
     struct sa_region regions[] = {{0x2000, root, 40}, {0x4000, p, 52}};
@@ -82,7 +88,9 @@ static int sa_root_checks(void)
     SAC(sa_discover(rsdp, 36, regions, 2, 16, 0, &t) == SA_OK &&
         t.cpu[0].apic == 6);
     for (unsigned n = 20; n < 36; ++n)
+    {
         SAC(sa_discover(rsdp, n, regions, 2, 16, 0, &t) == SA_INVALID);
+    }
     rsdp[32] ^= 1;
     SAC(sa_discover(rsdp, 36, regions, 2, 16, 0, &t) == SA_INVALID);
     rsdp[32] ^= 1;

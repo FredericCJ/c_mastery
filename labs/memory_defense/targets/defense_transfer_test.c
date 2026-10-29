@@ -51,7 +51,9 @@ int main(void)
             b[i] ^= 1;
         }
         if (n)
+        {
             C(dt_equal(a, n, b, n - 1, &steps) == 0 && steps == 0);
+        }
     }
     puts("DT_PASS widths forgedview fullscan");
     return 0;

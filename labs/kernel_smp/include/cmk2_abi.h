@@ -50,7 +50,9 @@ static inline int cmk2_block(void *handle, unsigned type, unsigned page,
         ticket =
             cmk_call(CMK2_BLOCK_SUBMIT, (uintptr_t)handle, (uintptr_t)&r, 0);
         if (ticket == -2)
+        {
             cmk_call(CMK_YIELD, 0, 0, 0);
+        }
     } while (ticket == -2 && ++tries < 10000);
     return ticket < 0 ? (int)ticket
                       : (int)cmk_call(CMK2_BLOCK_WAIT, (uint64_t)ticket, 0, 0);
@@ -92,7 +94,9 @@ static inline int64_t cmk2_fork(void)
     {
         r = cmk_call(CMK2_FORK_SINGLE, 0, 0, 0);
         if (r == CMK2_EAGAIN)
+        {
             cmk_call(CMK_YIELD, 0, 0, 0);
+        }
     } while (r == CMK2_EAGAIN && ++tries < 10000);
     return r;
 }

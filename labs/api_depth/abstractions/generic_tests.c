@@ -22,10 +22,14 @@ static void *allocate(void *ctx, size_t size, size_t alignment)
     struct ac_memory *m = ctx;
     ++m->calls;
     if (m->calls == m->fail_at || alignment > _Alignof(max_align_t))
+    {
         return 0;
+    }
     void *p = malloc(size);
     if (p)
+    {
         ++m->owned;
+    }
     return p;
 }
 
@@ -147,10 +151,14 @@ int main(void)
             av_parse((const unsigned char *)tokens[i], strlen(tokens[i]));
         CHECK(av_valid(&v) == AS_OK);
         if (codes[i])
+        {
             CHECK(v.tag == AV_ERROR && v.as.error.code == codes[i] &&
                   v.as.error.offset == offsets[i]);
+        }
         else
+        {
             CHECK(v.tag == AV_INT && v.as.integer == wanted[i]);
+        }
     }
     struct av_text fields[4] = {{(const unsigned char *)"x1", 2},
                                 {(const unsigned char *)"32768", 5},

@@ -29,9 +29,13 @@ static void render(void)
     {
         r.tag = (unsigned)tag;
         if (tag == 0)
+        {
             r.value.number = 10000;
+        }
         else
+        {
             r.value.error = -10000;
+        }
         w = 777;
         memset(out, 0xa5, sizeof out);
         CHECK(b2_render(&r, out, 6, &w) == B2_RANGE && w == 777 &&
@@ -43,7 +47,9 @@ static void render(void)
           out[0] == 0xa5);
     unsigned char all[256];
     for (unsigned i = 0; i < 256; ++i)
+    {
         all[i] = (unsigned char)i;
+    }
     r.tag = 1;
     r.value.text.data = all;
     r.value.text.length = 256;
@@ -87,7 +93,9 @@ static void *allocate(void *ctx, size_t n)
     CHECK(n && n <= 256);
     ++m->calls;
     if (m->fail)
+    {
         return NULL;
+    }
     CHECK(!m->live);
     m->live = 1;
     return m->bytes;
@@ -203,7 +211,9 @@ static void wire(void)
     r.tag = 1;
     r.length = 256;
     for (unsigned i = 0; i < 256; ++i)
+    {
         r.bytes[i] = (unsigned char)i;
+    }
     CHECK(bf_encode(&r, bytes, 260, &n) == B2_OK && n == 260);
     CHECK(bf_decode(bytes, n, &decoded) == B2_OK && decoded.length == 256 &&
           memcmp(r.bytes, decoded.bytes, 256) == 0);
@@ -234,7 +244,9 @@ int main(int argc, char **argv)
             int status = b2_render(&r, out, cap, &n);
             printf("%d %zu ", status, n);
             for (unsigned i = 0; i < 8; ++i)
+            {
                 printf("%02x", out[i]);
+            }
             puts("");
         }
         return 0;
@@ -254,7 +266,9 @@ int main(int argc, char **argv)
             r.length = length;
             r.boolean = (unsigned)value;
             for (size_t i = 0; i < length; ++i)
+            {
                 r.bytes[i] = (unsigned char)(i * 37 + 11);
+            }
             unsigned char wirebytes[260], rendered[260];
             size_t n = 0, w = 777;
             CHECK(bf_encode(&r, wirebytes, 260, &n) == B2_OK);
@@ -263,7 +277,9 @@ int main(int argc, char **argv)
             printf("%u %u %d %zu %u %d %zu ", d.version, d.tag, d.number,
                    d.length, d.boolean, old, w);
             for (size_t i = 0; i < n; ++i)
+            {
                 printf("%02x", wirebytes[i]);
+            }
             puts("");
         }
         return 0;
@@ -277,15 +293,25 @@ int main(int argc, char **argv)
         return 0;
     }
     if (!strcmp(argv[1], "render"))
+    {
         render();
+    }
     else if (!strcmp(argv[1], "construct"))
+    {
         construct();
+    }
     else if (!strcmp(argv[1], "owning"))
+    {
         owning();
+    }
     else if (!strcmp(argv[1], "wire"))
+    {
         wire();
+    }
     else
+    {
         CHECK(0);
+    }
     printf("BF %s validated\n", argv[1]);
     return 0;
 }

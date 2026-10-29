@@ -23,7 +23,9 @@ static mf_handle_id add(struct mf_mf *m, unsigned slot, unsigned detached)
     mf_handle_id h = 0;
     if (mf_add(m, stacks[slot], 160, 0x101, 0x201, 4, detached, 2, &h) !=
         CMX_OK)
+    {
         return 0;
+    }
     return h;
 }
 
@@ -54,13 +56,17 @@ static int admission(void)
     uint32_t *frame = m.sp[1];
     CHECK(frame == stacks[1] + 128 - 17);
     for (unsigned i = 0; i < 8; ++i)
+    {
         CHECK(frame[i] == 0);
+    }
     CHECK(frame[8] == 0xfffffffd && frame[14] == 0x201 && frame[15] == 0x101 &&
           frame[16] == 0x01000000);
     CHECK((m.kernel.task[1].stack_high & 7u) == 0 &&
           ((uintptr_t)frame & 7u) == 4);
     for (unsigned i = 2; i < CMX_TASKS; ++i)
+    {
         CHECK(add(&m, i, 1) != 0);
+    }
     CHECK(mf_invariant(&m));
     memcpy(&before, &m, sizeof m);
     h = 999;
@@ -127,7 +133,9 @@ static int scheduling(void)
     }
     CHECK(cmx_sleep(&m.kernel, 1, cmx_at(5)) == CMX_BLOCKED);
     for (unsigned i = 0; i < 4; ++i)
+    {
         CHECK(mf_schedule(&m) == 2);
+    }
     CHECK(mf_exit(&m, b, 0) == CMX_OK && mf_schedule(&m) == 0);
     cmx_tick(&m.kernel, 5);
     CHECK(mf_schedule(&m) == 1);
@@ -153,13 +161,21 @@ static int scheduling(void)
         {
             unsigned action = permutations[p][i];
             if (!action)
+            {
                 (void)cmx_sem_give(&m.kernel, &sem);
+            }
             else if (action == 1)
+            {
                 (void)cmx_cancel(&m.kernel, 1);
+            }
             else
+            {
                 cmx_tick(&m.kernel, 10);
+            }
             if (!i)
+            {
                 first = m.kernel.task[1].result;
+            }
             CHECK(m.kernel.task[1].result == first &&
                   m.kernel.task[1].state == CMX_READY &&
                   m.kernel.task[1].wait == CMX_W_NONE);
@@ -235,7 +251,9 @@ static int timers(void)
           !memcmp(&t, &before, sizeof t));
     CHECK(mf_timer_arm(&t, UINT32_C(0x80000002), &a) == CMX_INVALID);
     for (unsigned i = 0; i < MF_TIMERS - 1; ++i)
+    {
         CHECK(mf_timer_arm(&t, 4, &a) == CMX_OK);
+    }
     memcpy(&before, &t, sizeof t);
     CHECK(mf_timer_arm(&t, 4, &a) == CMX_FULL &&
           !memcmp(&t, &before, sizeof t));
@@ -285,6 +303,7 @@ static int timing(void)
           rest == 0);
     /* Independent integer inequalities avoid trusting a repeated ceil formula. */
     for (uint32_t hz = 30001; hz < 40000; hz += 997)
+    {
         for (uint32_t us = 1; us < 1200; us += 17)
         {
             CHECK(mf_counts(us, hz, 100000, &counts, &rest) == CMX_OK);
@@ -292,6 +311,7 @@ static int timing(void)
             CHECK((uint64_t)(counts - 1) * 1000000 < (uint64_t)us * hz &&
                   rest == 0);
         }
+    }
     return 0;
 }
 
@@ -309,17 +329,27 @@ static int masks_sleep(void)
         struct mf_sleep s;
         mf_sleep_init(&s);
         if (boundary == 0)
+        {
             mf_sleep_wake(&s);
+        }
         CHECK(mf_sleep_arm(&s, UINT32_MAX - 10, 100) == CMX_OK);
         if (boundary == 1 || boundary == 2 || boundary == 3 || boundary == 4)
+        {
             mf_sleep_wake(&s);
+        }
         int slept = mf_sleep_enter(&s);
         if (boundary <= 4)
+        {
             CHECK(!slept && s.ready);
+        }
         else
+        {
             CHECK(slept);
+        }
         if (boundary >= 5)
+        {
             mf_sleep_wake(&s);
+        }
         CHECK(mf_sleep_finish(&s, 29) == CMX_OK && s.elapsed == 40 && s.ready);
         CHECK(mf_sleep_finish(&s, 30) == CMX_INVALID && s.elapsed == 40);
         CHECK(mf_sleep_arm(&s, 100, 100) == CMX_OK && !mf_sleep_enter(&s));
@@ -337,9 +367,13 @@ static int helper(void)
     uint64_t values[] = {
         0, 1, 2, 3, UINT32_MAX, UINT64_C(1) << 63, UINT64_MAX - 1, UINT64_MAX};
     for (unsigned a = 0; a < 8; ++a)
+    {
         for (unsigned b = 0; b < 8; ++b)
+        {
             CHECK(mf_div64(values[a], values[b]) ==
                   (values[b] ? values[a] / values[b] : UINT64_MAX));
+        }
+    }
     uint64_t x = UINT64_C(0x7a12e45b93c6d809);
     for (unsigned n = 0; n < 20000; ++n)
     {
@@ -359,7 +393,9 @@ static int helper(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
 
     struct
     {
@@ -371,12 +407,16 @@ int main(int argc, char **argv)
                  {"masks-sleep", masks_sleep}, {"helper", helper}};
 
     for (unsigned i = 0; i < sizeof tests / sizeof tests[0]; ++i)
+    {
         if (!strcmp(argv[1], tests[i].name))
         {
             int result = tests[i].test();
             if (!result)
+            {
                 printf("MF_PASS:%s\n", tests[i].name);
+            }
             return result;
         }
+    }
     return 2;
 }

@@ -32,10 +32,14 @@ static void *actor(void *p)
     {
         int r;
         while ((r = cf_epoch_enter(a->e, a->lease)) == AG_BUSY)
+        {
             sched_yield();
+        }
         CK(r == AG_OK);
         while ((r = cf_epoch_leave(a->e, a->lease)) == AG_BUSY)
+        {
             sched_yield();
+        }
         CK(r == AG_OK);
     }
     atomic_fetch_add(a->done, 1);
@@ -97,9 +101,13 @@ static void threads(void)
     {
         int r = cf_epoch_advance(&e);
         if (r == AG_OK)
+        {
             advances++;
+        }
         else if (r == AG_PENDING)
+        {
             pending++;
+        }
         else
         {
             CK(r == AG_BUSY);
@@ -146,13 +154,21 @@ static void retention(void)
             ap_collect(&q);
             unsigned ecount = 0, hcount = 0;
             for (unsigned j = 0; j < 17; j++)
+            {
                 ecount += s.objects[j].active && s.objects[j].retired;
+            }
             for (unsigned j = 0; j < 32; j++)
+            {
                 hcount += (atomic_load(&q.node[j].state) & 3u) == 2;
+            }
             if (ecount > peak_epoch)
+            {
                 peak_epoch = ecount;
+            }
             if (hcount > peak_hazard)
+            {
                 peak_hazard = hcount;
+            }
             printf(
                 "CE_RETIRE period=%u operation=%u epoch=%u epoch_retained=%u "
                 "hazard_retained=%u earliest_quiescent_operation=%u\n",
@@ -187,7 +203,9 @@ static void arrivals(void)
     ag_store_init(&s, 1, 1);
     CK(ag_register(&s.domain, &old) == AG_OK);
     for (unsigned i = 0; i < 2; i++)
+    {
         CK(ag_register(&s.domain, &newer[i]) == AG_OK);
+    }
     CK(ag_read(&s, old, &a) == AG_OK);
     CK(ag_writer_acquire(&s, 7) == AG_OK);
     CK(ag_publish(&s, 7, 2) == AG_OK);
@@ -217,16 +235,28 @@ static void arrivals(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "registration"))
+    {
         registration();
+    }
     else if (!strcmp(argv[1], "threads"))
+    {
         threads();
+    }
     else if (!strcmp(argv[1], "retention"))
+    {
         retention();
+    }
     else if (!strcmp(argv[1], "arrivals"))
+    {
         arrivals();
+    }
     else
+    {
         return 2;
+    }
     return 0;
 }

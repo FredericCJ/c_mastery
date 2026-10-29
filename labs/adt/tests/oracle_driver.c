@@ -23,7 +23,9 @@ int main(void)
             {
                 int a = nibble(line[i]), b = nibble(line[i + 1]);
                 if (a < 0 || b < 0 || n >= sizeof data)
+                {
                     return 2;
+                }
                 data[n++] = (unsigned char)(a * 16 + b);
             }
             if (kind == 'T')
@@ -31,9 +33,13 @@ int main(void)
                 struct ad_text out;
                 int ok = ad_text(data, n, &out);
                 if (ok)
+                {
                     printf("1 %zu\n", out.scalars);
+                }
                 else
+                {
                     puts("0");
+                }
             }
             else
             {
@@ -41,8 +47,10 @@ int main(void)
                 enum ad_packet_error error = ad_packet(data, n, &out);
                 printf("%u", (unsigned)error);
                 if (error == AD_PACKET_OK)
+                {
                     printf(" %u %zu %zu", out.kind, out.length,
                            (size_t)(out.payload - data));
+                }
                 puts("");
             }
         }
@@ -55,27 +63,37 @@ int main(void)
             if (sscanf(line + 2, "%zu %zu %zu %zu %zu", &r, &c, &rs, &cs,
                        &cap) != 5 ||
                 cap > 128)
+            {
                 return 2;
+            }
             for (i = 0; i < 128; ++i)
+            {
                 backing[i] = (uint32_t)i;
+            }
             ok = ad_view(backing, cap, r, c, rs, cs, &view);
             printf("%d", ok);
             if (ok)
             {
                 size_t row, col;
                 for (row = 0; row < r; ++row)
+                {
                     for (col = 0; col < c; ++col)
                     {
                         uint32_t out;
                         if (!ad_view_get(view, row, col, &out))
+                        {
                             return 3;
+                        }
                         printf(" %u", out);
                     }
+                }
             }
             puts("");
         }
         else
+        {
             return 2;
+        }
     }
     return ferror(stdin) ? 2 : 0;
 }

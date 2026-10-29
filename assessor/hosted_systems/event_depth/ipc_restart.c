@@ -48,7 +48,9 @@ static int serve(const char *name, unsigned epoch, int forbidden)
           r->layout == 1 && r->epoch == epoch);
     CHECK(pthread_mutex_lock(&r->mutex) == 0 && r->state == 1);
     if (r->request_epoch != epoch)
+    {
         r->state = 3;
+    }
     else
     {
         ei_reply(r->request, r->response);
@@ -66,7 +68,9 @@ static int start(const char *program, const char *name, unsigned epoch,
     snprintf(f, sizeof f, "%d", forbidden);
     pid_t child = fork();
     if (child < 0)
+    {
         return -1;
+    }
     if (!child)
     {
         execl(program, program, "serve", name, e, f, (char *)0);
@@ -75,7 +79,9 @@ static int start(const char *program, const char *name, unsigned epoch,
     int status;
     if (waitpid(child, &status, 0) != child || !WIFEXITED(status) ||
         WEXITSTATUS(status) != 0)
+    {
         return -1;
+    }
     return 0;
 }
 
@@ -84,10 +90,14 @@ static int initialize_mutex(struct rd_record *r)
     pthread_mutexattr_t a;
     int result = pthread_mutexattr_init(&a);
     if (result)
+    {
         return result;
+    }
     result = pthread_mutexattr_setpshared(&a, PTHREAD_PROCESS_SHARED);
     if (!result)
+    {
         result = pthread_mutex_init(&r->mutex, &a);
+    }
     int cleanup = pthread_mutexattr_destroy(&a);
     return result ? result : cleanup;
 }
@@ -96,7 +106,9 @@ int main(int argc, char **argv)
 {
     alarm(10);
     if (argc == 5 && !strcmp(argv[1], "serve"))
+    {
         return serve(argv[2], (unsigned)strtoul(argv[3], 0, 10), atoi(argv[4]));
+    }
     CHECK(argc == 1);
     char name[64];
     snprintf(name, sizeof name, "/cmastery-original-ipc-%ld", (long)getpid());

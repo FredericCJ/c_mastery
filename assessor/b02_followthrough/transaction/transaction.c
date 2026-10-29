@@ -5,17 +5,25 @@
 int bf_construct(unsigned style, struct b2_backend b, unsigned *out)
 {
     if (style > 3 || !out || !b.acquire || !b.release)
+    {
         return B2_INVALID;
+    }
     if (style == 0)
+    {
         return b2_transaction(b, out);
+    }
     if (style == 1)
     {
         if (b.acquire(b.context, 0))
+        {
             return B2_FAILED;
+        }
         if (b.acquire(b.context, 1))
         {
             if (BF_MUTANT != 2)
+            {
                 b.release(b.context, 0);
+            }
             return B2_FAILED;
         }
         if (b.acquire(b.context, 2))
@@ -45,11 +53,17 @@ int bf_construct(unsigned style, struct b2_backend b, unsigned *out)
         return B2_FAILED;
     }
     if (b.acquire(b.context, 0))
+    {
         goto failed0;
+    }
     if (b.acquire(b.context, 1))
+    {
         goto failed1;
+    }
     if (b.acquire(b.context, 2))
+    {
         goto failed2;
+    }
     *out = 3;
     return B2_OK;
 failed2:
@@ -73,24 +87,36 @@ static int cleanup(struct bf_tx *t)
     {
         --i;
         if (!(t->mask & (1u << i)))
+        {
             continue;
+        }
         int error = t->backend.release(t->backend.context, i);
         if (error)
         {
             t->failed_cleanup |= 1u << i;
             t->cleanup_error = error;
             if (BF_MUTANT == 4)
+            {
                 t->primary = error;
+            }
             if (BF_MUTANT == 5)
+            {
                 t->mask &= ~(1u << i);
+            }
             if (BF_MUTANT != 6)
+            {
                 return BF_TX_RECOVERY;
+            }
         }
         else
+        {
             t->mask &= ~(1u << i);
+        }
     }
     if (t->mask)
+    {
         return BF_TX_RECOVERY;
+    }
     t->state = BF_TX_DONE;
     return t->primary ? B2_FAILED : B2_OK;
 }
@@ -99,10 +125,14 @@ int bf_tx_begin(struct bf_tx *t, struct bf_tx_backend b, unsigned *out)
 {
     if (!t || !out || t->state != BF_TX_IDLE || !b.acquire || !b.release ||
         !b.commit)
+    {
         return B2_INVALID;
+    }
     t->backend = b;
     if (BF_MUTANT == 3)
+    {
         *out = 3;
+    }
     for (unsigned i = 0; i < 3; ++i)
     {
         int error = b.acquire(b.context, i);
@@ -129,8 +159,12 @@ int bf_tx_begin(struct bf_tx *t, struct bf_tx_backend b, unsigned *out)
 int bf_tx_close(struct bf_tx *t)
 {
     if (!t || t->state == BF_TX_IDLE)
+    {
         return B2_INVALID;
+    }
     if (t->state == BF_TX_DONE)
+    {
         return t->primary ? B2_FAILED : B2_OK;
+    }
     return cleanup(t);
 }

@@ -18,6 +18,7 @@ int main(void)
                             "4294967295", "4294967296", "1025x"};
     const int expected[] = {200, 200, 413, 413, 400, 400};
     for (unsigned i = 0; i < 6; i++)
+    {
         for (unsigned extra = 0; extra < 2; extra++)
         {
             char wire[300];
@@ -35,6 +36,7 @@ int main(void)
                 CHECK(p.request.status == (extra ? 400 : expected[i]));
             }
         }
+    }
     struct http_request req = {0};
     strcpy(req.method, "GET");
     strcpy(req.target, "/health");

@@ -13,7 +13,9 @@ __attribute__((constructor)) static void note_load(void)
 static int apply(int state, int amount, int *out)
 {
     if (state < 0 || state > 1000 || amount < 0 || amount > 100)
+    {
         return DS_RANGE;
+    }
     *out = state + amount;
     return DS_OK;
 }
@@ -21,7 +23,9 @@ static int apply(int state, int amount, int *out)
 static int migrate(unsigned previous, int state, int *out)
 {
     if (previous > 2 || state < 0 || state > 500)
+    {
         return DS_RANGE;
+    }
     *out = state;
     return DS_OK;
 }
@@ -46,7 +50,9 @@ const struct ds_plugin_base dispatch_plugin_extended = {
 static int describe(unsigned char *out, size_t cap, size_t *n)
 {
     if (cap < 2)
+    {
         return DS_FULL;
+    }
     out[0] = 'v';
     out[1] = '2';
     *n = 2;

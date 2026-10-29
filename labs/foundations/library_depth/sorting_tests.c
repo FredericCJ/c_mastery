@@ -28,15 +28,25 @@ static ptrdiff_t source(void *ctx, unsigned char *out, size_t n)
     struct bytes *s = ctx;
     ++s->calls;
     if (s->calls == 1)
+    {
         return -2;
+    }
     if (s->position >= s->fail)
+    {
         return -1;
+    }
     if (n > 3)
+    {
         n = 3;
+    }
     if (n > s->fail - s->position)
+    {
         n = s->fail - s->position;
+    }
     for (size_t i = 0; i < n; ++i)
+    {
         out[i] = (unsigned char)(s->position + i);
+    }
     s->position += (unsigned)n;
     return (ptrdiff_t)n;
 }
@@ -46,7 +56,9 @@ int main(void)
     const int32_t alphabet[] = {INT32_MIN, -1, 0, 1, INT32_MAX};
     unsigned cases = 0;
     for (unsigned a = 0; a < 5; ++a)
+    {
         for (unsigned b = 0; b < 5; ++b)
+        {
             for (unsigned c = 0; c < 5; ++c)
             {
                 int ab = lr_compare_i32(alphabet + a, alphabet + b),
@@ -56,7 +68,10 @@ int main(void)
                 CHECK(ab == -ba && (!ab) == (a == b));
                 CHECK(!(ab <= 0 && bc <= 0) || ac <= 0);
             }
+        }
+    }
     for (unsigned n = 0, limit = 1; n <= 5; ++n, limit *= 5)
+    {
         for (unsigned code = 0; code < limit; ++code)
         {
             int32_t a[32] = {0}, b[32] = {0};
@@ -73,11 +88,16 @@ int main(void)
             qsort(b, n, sizeof *b, lr_compare_i32);
             unsigned offset = 0;
             for (unsigned k = 0; k < 5; ++k)
+            {
                 for (unsigned i = 0; i < counts[k]; ++i, ++offset)
+                {
                     CHECK(a[offset] == alphabet[k] && b[offset] == alphabet[k]);
+                }
+            }
             CHECK(work.comparisons <= n * (n ? n - 1 : 0) / 2);
             ++cases;
         }
+    }
     CHECK(cases == 3906);
     int32_t sample[] = {INT32_MIN, INT32_MAX, 0, 0, 7}, zero = 0, eight = 8;
     qsort(sample, 5, sizeof *sample, lr_compare_i32);
@@ -90,7 +110,9 @@ int main(void)
                                   {INFINITY, 8}, {-INFINITY, 9}, {NAN, 2},
                                   {1, 5},        {-1, 6}};
     for (unsigned a = 0; a < 8; ++a)
+    {
         for (unsigned b = 0; b < 8; ++b)
+        {
             for (unsigned c = 0; c < 8; ++c)
             {
                 int ab = lr_compare_record(records + a, records + b),
@@ -100,10 +122,14 @@ int main(void)
                 CHECK(ab == -ba && (!ab) == (a == b));
                 CHECK(!(ab <= 0 && bc <= 0) || ac <= 0);
             }
+        }
+    }
     qsort(records, 8, sizeof *records, lr_compare_record);
     const unsigned order[] = {9, 6, 3, 4, 5, 8, 0, 2};
     for (unsigned i = 0; i < 8; ++i)
+    {
         CHECK(records[i].identity == order[i]);
+    }
     unsigned raw[3] = {0}, accepted[3] = {0}, rejected = 0;
     for (int draw = 0; draw < 8; ++draw)
     {
@@ -137,13 +163,17 @@ int main(void)
         {
             CHECK(r == LR_SOURCE);
             for (unsigned i = 0; i < 32; ++i)
+            {
                 CHECK(out[i] == 0xaa);
+            }
         }
         else
         {
             CHECK(r == LR_OK);
             for (unsigned i = 0; i < 32; ++i)
+            {
                 CHECK(out[i] == i);
+            }
         }
     }
     unsigned char out[32];
@@ -151,11 +181,15 @@ int main(void)
     struct bytes s = {0, 0, 32};
     CHECK(lr_entropy(source, &s, 2, out) == LR_RETRY && s.position == 3);
     for (unsigned i = 0; i < 32; ++i)
+    {
         CHECK(out[i] == 0xaa);
+    }
     int first[32];
     srand(120617);
     for (unsigned i = 0; i < 32; ++i)
+    {
         first[i] = rand();
+    }
     srand(120617);
     printf("rand RAND_MAX=%d seed=120617 sequence=", RAND_MAX);
     for (unsigned i = 0; i < 32; ++i)

@@ -26,17 +26,25 @@ static void link_before(struct rzt_timers *t, int slot, int bucket, int next)
     {
         previous = t->heads[bucket];
         while (previous >= 0 && t->nodes[previous].next >= 0)
+        {
             previous = t->nodes[previous].next;
+        }
     }
     n->bucket = bucket;
     n->previous = previous;
     n->next = next;
     if (previous >= 0)
+    {
         t->nodes[previous].next = slot;
+    }
     else
+    {
         t->heads[bucket] = slot;
+    }
     if (next >= 0)
+    {
         t->nodes[next].previous = slot;
+    }
     WORK_ADD(t, link_writes, 4 + (next >= 0));
 }
 
@@ -44,12 +52,18 @@ static void unlink_node(struct rzt_timers *t, int slot)
 {
     struct rzt_node *n = &t->nodes[slot];
     if (n->previous >= 0)
+    {
         t->nodes[n->previous].next = n->next;
+    }
     else
+    {
         t->heads[n->bucket] = n->next;
+    }
     int had_next = n->next >= 0;
     if (had_next)
+    {
         t->nodes[n->next].previous = n->previous;
+    }
     n->previous = n->next = -1;
     n->bucket = -1;
     WORK_ADD(t, link_writes, 4 + (unsigned)had_next);
@@ -80,12 +94,18 @@ static void heap_down(struct rzt_timers *t, unsigned at)
     {
         unsigned child = at * 2 + 1;
         if (child >= t->heap_count)
+        {
             return;
+        }
         if (child + 1 < t->heap_count &&
             less(t, t->heap[child + 1], t->heap[child]))
+        {
             ++child;
+        }
         if (!less(t, t->heap[child], t->heap[at]))
+        {
             return;
+        }
         heap_swap(t, at, child);
         at = child;
     }
@@ -101,9 +121,13 @@ static void heap_remove(struct rzt_timers *t, int slot)
         t->nodes[t->heap[at]].position = (int)at;
         WORK_ADD(t, link_writes, 2);
         if (at && less(t, t->heap[at], t->heap[(at - 1) / 2]))
+        {
             heap_up(t, at);
+        }
         else
+        {
             heap_down(t, at);
+        }
     }
     t->nodes[slot].position = -1;
     WORK_ADD(t, link_writes, 1);
@@ -117,7 +141,9 @@ static int wheel_bucket(const struct rzt_timers *t, uint64_t due)
 int rzt_init(struct rzt_timers *t, enum rzt_kind kind, uint64_t now)
 {
     if (!t || !kind_valid(kind))
+    {
         return RZ_INVALID;
+    }
     *t = (struct rzt_timers){0};
     t->kind = kind;
     t->now = t->observed = now;
@@ -134,23 +160,35 @@ int rzt_schedule(struct rzt_timers *t, uint64_t observed, uint64_t delay,
                  struct rzt_id *out)
 {
     if (!t || !out || !kind_valid(t->kind))
+    {
         return RZ_INVALID;
+    }
     if (observed < t->observed || observed < t->now || delay > 63 ||
         delay > UINT64_MAX - observed)
+    {
         return RZ_RANGE;
+    }
     if (!delay)
+    {
         return RZ_EXPIRED;
+    }
     if (t->sequence == UINT64_MAX)
+    {
         return RZ_FULL;
+    }
     int slot = -1;
     for (unsigned i = 0; i < 16; ++i)
+    {
         if (!t->nodes[i].active && t->nodes[i].generation < UINT32_MAX)
         {
             slot = (int)i;
             break;
         }
+    }
     if (slot < 0)
+    {
         return RZ_FULL;
+    }
     struct rzt_node *n = &t->nodes[slot];
     n->due = observed + delay;
     n->sequence = t->sequence++;
@@ -170,7 +208,9 @@ int rzt_schedule(struct rzt_timers *t, uint64_t observed, uint64_t delay,
     {
         int next = t->heads[0];
         while (next >= 0 && !less(t, slot, next))
+        {
             next = t->nodes[next].next;
+        }
         link_before(t, slot, 0, next);
     }
     else
@@ -185,17 +225,27 @@ int rzt_schedule(struct rzt_timers *t, uint64_t observed, uint64_t delay,
 int rzt_cancel(struct rzt_timers *t, struct rzt_id id)
 {
     if (!t || !kind_valid(t->kind))
+    {
         return RZ_INVALID;
+    }
     if (id.owner != t || id.slot >= 16 || !t->nodes[id.slot].active)
+    {
         return RZ_STALE;
+    }
 #if RZF_MUTANT != 32
     if (id.generation != t->nodes[id.slot].generation)
+    {
         return RZ_STALE;
+    }
 #endif
     if (t->kind == RZT_HEAP)
+    {
         heap_remove(t, (int)id.slot);
+    }
     else
+    {
         unlink_node(t, (int)id.slot);
+    }
     t->nodes[id.slot].active = false;
     --t->count;
     return RZ_OK;
@@ -217,12 +267,18 @@ static void emit(struct rzt_timers *t, int slot, struct rzt_events *out)
 int rzt_advance(struct rzt_timers *t, uint64_t target, struct rzt_events *out)
 {
     if (!t || !out || !kind_valid(t->kind))
+    {
         return RZ_INVALID;
+    }
     if (target < t->now || target - t->now > 1024)
+    {
         return RZ_RANGE;
+    }
     struct rzt_events events = {0};
     if (target > t->observed)
+    {
         t->observed = target;
+    }
     if (t->kind != RZT_WHEEL)
     {
         int slot = t->kind == RZT_LIST ? t->heads[0]
@@ -231,9 +287,13 @@ int rzt_advance(struct rzt_timers *t, uint64_t target, struct rzt_events *out)
         while (slot >= 0 && t->nodes[slot].due <= target)
         {
             if (t->kind == RZT_LIST)
+            {
                 unlink_node(t, slot);
+            }
             else
+            {
                 heap_remove(t, slot);
+            }
             emit(t, slot, &events);
             slot = t->kind == RZT_LIST ? t->heads[0]
                    : t->heap_count     ? t->heap[0]
@@ -242,6 +302,7 @@ int rzt_advance(struct rzt_timers *t, uint64_t target, struct rzt_events *out)
         t->now = target;
     }
     else
+    {
         while (t->now < target)
         {
             ++t->now;
@@ -285,11 +346,16 @@ int rzt_advance(struct rzt_timers *t, uint64_t target, struct rzt_events *out)
                 slot = next;
             }
             for (unsigned i = 0; i < count; ++i)
+            {
                 emit(t, slots[i], &events);
+            }
         }
+    }
 #ifndef RZT_NO_WORK
     if (events.count > t->work.largest_expiry)
+    {
         t->work.largest_expiry = events.count;
+    }
 #endif
     *out = events;
     return RZ_OK;
@@ -299,18 +365,24 @@ int rzt_invariant(const struct rzt_timers *t)
 {
     if (!t || !kind_valid(t->kind) || t->count > 16 || t->heap_count > 16 ||
         t->observed < t->now)
+    {
         return 0;
+    }
     unsigned seen = 0, count = 0;
     if (t->kind == RZT_HEAP)
     {
         if (t->heap_count != t->count)
+        {
             return 0;
+        }
         for (unsigned i = 0; i < t->heap_count; ++i)
         {
             int slot = t->heap[i];
             if (slot < 0 || slot >= 16 || (seen & (1u << slot)) ||
                 !t->nodes[slot].active || t->nodes[slot].position != (int)i)
+            {
                 return 0;
+            }
             seen |= 1u << slot;
             ++count;
             if (i)
@@ -320,36 +392,51 @@ int rzt_invariant(const struct rzt_timers *t)
                 if (child->due < parent->due ||
                     (child->due == parent->due &&
                      child->sequence < parent->sequence))
+                {
                     return 0;
+                }
             }
         }
     }
     else
+    {
         for (int bucket = 0; bucket < 16; ++bucket)
         {
             int previous = -1, slot = t->heads[bucket];
             if (t->kind == RZT_LIST && bucket && slot != -1)
+            {
                 return 0;
+            }
             while (slot >= 0)
             {
                 if (slot >= 16 || (seen & (1u << slot)))
+                {
                     return 0;
+                }
                 const struct rzt_node *n = &t->nodes[slot];
                 if (!n->active || n->previous != previous ||
                     n->bucket != bucket)
+                {
                     return 0;
+                }
                 if (t->kind == RZT_WHEEL && bucket < 8 &&
                     (int)(n->due & 7u) != bucket)
+                {
                     return 0;
+                }
                 if (t->kind == RZT_WHEEL && bucket >= 8 &&
                     8 + (int)((n->due / 8) & 7u) != bucket)
+                {
                     return 0;
+                }
                 if (t->kind == RZT_LIST && previous >= 0)
                 {
                     const struct rzt_node *p = &t->nodes[previous];
                     if (n->due < p->due ||
                         (n->due == p->due && n->sequence < p->sequence))
+                    {
                         return 0;
+                    }
                 }
                 seen |= 1u << slot;
                 ++count;
@@ -357,10 +444,17 @@ int rzt_invariant(const struct rzt_timers *t)
                 slot = n->next;
             }
         }
+    }
     if (count != t->count)
+    {
         return 0;
+    }
     for (unsigned i = 0; i < 16; ++i)
+    {
         if (t->nodes[i].active != ((seen & (1u << i)) != 0))
+        {
             return 0;
+        }
+    }
     return 1;
 }

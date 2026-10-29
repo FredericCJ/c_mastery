@@ -79,13 +79,16 @@ int main(void)
     struct cs_recovery r;
     CHECK(cs_recovery_init(&r) == CS_OK);
     for (unsigned i = 1; i <= 3; ++i)
+    {
         CHECK(cs_failure(&r, (enum cs_reason)i) == CS_RETRY && r.attempts == i);
+    }
     CHECK(cs_failure(&r, CS_BOOT_FAILED) == CS_SAFE && r.terminal &&
           r.attempts == 3);
     struct cs_recovery terminal = r;
     CHECK(cs_failure(&r, CS_HUNG) == CS_SAFE &&
           memcmp(&r, &terminal, sizeof r) == 0);
     for (unsigned word = 0; word < 8; ++word)
+    {
         for (unsigned bit = 0; bit < 32; ++bit)
         {
             CHECK(cs_recovery_init(&r) == CS_OK);
@@ -96,6 +99,7 @@ int main(void)
             CHECK(cs_failure(&r, CS_HUNG) == CS_SAFE && r.terminal &&
                   r.reason == CS_CORRUPT);
         }
+    }
     struct cs_power p[3] = {
         {3300, 10000, 2000}, {3300, 1000, 8000}, {3300, 20000, 500}};
     uint64_t energy = 99;

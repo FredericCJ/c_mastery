@@ -10,12 +10,18 @@ int mc_f439_open(struct mc_spi *a, const struct pu_clock *clock, void *ctx,
     struct pu_rates rates;
     if (!a || !clock || !ticks || pu_rates(clock, &rates) != PU_OK ||
         a->spi.phase || a->spi.cs_owned)
+    {
         return PS_INVALID;
+    }
     unsigned divider = 0;
     while (divider < 7 && rates.apb2 > (1000000u << (divider + 1)))
+    {
         divider++;
+    }
     if (rates.apb2 > (1000000u << (divider + 1)))
+    {
         return PS_INVALID;
+    }
     ps_f439_pins();
     a->io = ps_f439_io();
     a->clock_context = ctx;

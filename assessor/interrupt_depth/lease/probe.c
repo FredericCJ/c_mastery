@@ -11,7 +11,9 @@ int main(void)
         struct xd_fence f = {0, 1, 1, 1};
         struct xd_ticket t;
         if (xd_recover(&s, &f) || xd_submit(&s, 32, &t))
+        {
             return 2;
+        }
         unsigned x = word;
         for (unsigned step = 0; step < 4; ++step, x /= 9)
         {

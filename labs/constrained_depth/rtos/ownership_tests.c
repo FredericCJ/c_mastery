@@ -18,7 +18,9 @@ int main(void)
     unsigned char input[16], out[16];
     size_t length = 99;
     for (unsigned i = 0; i < 16; i++)
+    {
         input[i] = (unsigned char)i;
+    }
     CHECK(cr_pool_init(&p, 1) == CR_OK &&
           cr_allocate(&p, 0, input, 3, &a) == CR_OK &&
           cr_allocate(&p, 0, input, 16, &b) == CR_OK);

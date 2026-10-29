@@ -23,7 +23,9 @@ static int32_t *take(void *p, size_t n)
     struct fe_pool *a = p;
     ++a->takes;
     if (a->fail || a->live || n > 64)
+    {
         return NULL;
+    }
     a->live = 1;
     return a->storage;
 }
@@ -151,19 +153,23 @@ static void values(void)
     CHECK(fe_encode24(0, bytes, 3) == FE_OK && bytes[0] == 0 && bytes[1] == 0 &&
           bytes[2] == 0);
     for (unsigned b = 0; b < 256; ++b)
+    {
         for (unsigned m = 0; m < 256; ++m)
         {
             unsigned selected = 0, present = 0;
             for (unsigned i = 0; i < 8; ++i)
+            {
                 if ((m / (1u << i)) % 2)
                 {
                     ++selected;
                     present += (b / (1u << i)) % 2;
                 }
+            }
             CHECK(fe_any((uint8_t)b, (uint8_t)m) == (present != 0));
             CHECK(fe_all((uint8_t)b, (uint8_t)m) == (present == selected));
             CHECK(fe_forbidden_clear((uint8_t)b, (uint8_t)m) == (present == 0));
         }
+    }
     CHECK(fe_saturating_add(fe_saturating_add(INT32_MAX, 1), -1) ==
           INT32_MAX - 1);
     CHECK(fe_saturating_add(INT32_MAX, fe_saturating_add(1, -1)) == INT32_MAX);
@@ -183,7 +189,9 @@ static void oracle(void)
     int32_t out[3], other[3];
     unsigned cases = 0;
     for (unsigned a = 0; a < 7; ++a)
+    {
         for (unsigned b = 0; b < 7; ++b)
+        {
             for (unsigned c = 0; c < 7; ++c)
             {
                 int32_t in[] = {choices[a], choices[b], choices[c]};
@@ -191,23 +199,35 @@ static void oracle(void)
                                    (int64_t)in[0] + in[1] + in[2]};
                 int valid = 1;
                 for (unsigned i = 0; i < 3; ++i)
+                {
                     if (sums[i] < INT32_MIN || sums[i] > INT32_MAX)
+                    {
                         valid = 0;
+                    }
+                }
                 for (unsigned i = 0; i < 3; ++i)
+                {
                     out[i] = other[i] = 91;
+                }
                 CHECK(fe_two_pass(in, 3, out, 3) == (valid ? FE_OK : FE_RANGE));
                 CHECK(fe_staged(in, 3, other, 3, allocator(&pool)) ==
                       (valid ? FE_OK : FE_RANGE));
                 CHECK(pool.live == 0);
                 for (unsigned i = 0; i < 3; ++i)
+                {
                     CHECK(out[i] == (valid ? (int32_t)sums[i] : 91) &&
                           other[i] == out[i]);
+                }
                 int64_t suffix[3] = {(int64_t)in[2], (int64_t)in[1] + in[2],
                                      sums[2]};
                 valid = 1;
                 for (unsigned i = 0; i < 3; ++i)
+                {
                     if (suffix[i] < INT32_MIN || suffix[i] > INT32_MAX)
+                    {
                         valid = 0;
+                    }
+                }
                 struct fe_trace x, y;
                 int32_t r = 91, s = 91;
                 CHECK(fe_recursive(in, 3, &r, &x) ==
@@ -217,11 +237,15 @@ static void oracle(void)
                 CHECK(r == (valid ? (int32_t)sums[2] : 91) && s == r &&
                       x.count == y.count);
                 for (size_t i = 0; i < x.count; ++i)
+                {
                     CHECK(x.event[i].index == y.event[i].index &&
                           x.event[i].entering == y.event[i].entering &&
                           x.event[i].value == y.event[i].value);
+                }
                 ++cases;
             }
+        }
+    }
     printf("FE_ORACLE_PASS direct_integer_formula_cases=%u\n", cases);
 }
 

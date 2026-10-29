@@ -19,5 +19,7 @@ _Noreturn void cb_main(void)
     register unsigned *r1 __asm__("r1") = exit;
     __asm__ volatile("bkpt 0xab" : "+r"(r0) : "r"(r1) : "memory");
     for (;;)
+    {
         __asm__ volatile("wfi");
+    }
 }

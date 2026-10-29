@@ -70,7 +70,9 @@ static int names(void)
         "(fn main () (let x x x))",
         "(fn main () (let abcdefghijklmnopqrstuvwxyzabcdef 1 1))"};
     for (unsigned i = 0; i < sizeof bad / sizeof bad[0]; i++)
+    {
         CHECK(!refusal(bad[i], strlen(bad[i]), 64));
+    }
     CHECK(!value("(fn main () (let abcdefghijklmnopqrstuvwxyzabcde 4 "
                  "abcdefghijklmnopqrstuvwxyzabcde))",
                  0, CVM_INT, 4));
@@ -89,7 +91,9 @@ static int scopes(void)
     char s[4097];
     strcpy(s, "(fn main () (block");
     for (unsigned i = 0; i < 20; i++)
+    {
         strcat(s, " (let a 3 a)");
+    }
     strcat(s, "))");
     CHECK(!value(s, 0, CVM_INT, 3) && report.local_peak == 1);
     CHECK(!value(
@@ -103,10 +107,14 @@ static void nesting(char *s, unsigned n)
 {
     strcpy(s, "(fn main () ");
     for (unsigned i = 0; i < n; i++)
+    {
         strcat(s, "(first ");
+    }
     strcat(s, "nil");
     for (unsigned i = 0; i < n; i++)
+    {
         strcat(s, ")");
+    }
     strcat(s, ")");
 }
 
@@ -123,12 +131,16 @@ static int bounds(void)
     CHECK(!refusal(s, strlen(s), 256));
     strcpy(s, "(fn main () (block");
     for (unsigned i = 0; i < 512; i++)
+    {
         strcat(s, " true");
+    }
     strcat(s, "))");
     CHECK(compile(s, 64, 0) == CVM_OK && program.length == 1024);
     strcpy(s, "(fn main () (block");
     for (unsigned i = 0; i < 513; i++)
+    {
         strcat(s, " true");
+    }
     strcat(s, "))");
     CHECK(!refusal(s, strlen(s), 64));
     CHECK(!value(
@@ -173,7 +185,9 @@ static int branches(void)
                      : (op == OP_LOAD || op == OP_STORE || op == OP_HOST) ? 2
                                                                           : 1;
         if (op == OP_JFALSE)
+        {
             jump = pc;
+        }
         pc += width;
     }
     CHECK(pc == program.length && jump &&

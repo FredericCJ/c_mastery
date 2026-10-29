@@ -44,8 +44,11 @@ static int erroreq(struct adl_error a, struct adl_error b)
 static int nested(void)
 {
     for (uint32_t x = 0; x < 4; x++)
+    {
         for (uint32_t y = 0; y < 4; y++)
+        {
             for (uint32_t v = 0; v < 4; v++)
+            {
                 for (uint32_t w = 0; w < 4; w++)
                 {
                     struct adl_config a = config(1, 1, x, y), b, c, d;
@@ -59,8 +62,13 @@ static int nested(void)
                     CHECK(adl_put(b, w, &c) == ADL_OK &&
                           adl_put(a, w, &d) == ADL_OK && equal(c, d));
                 }
+            }
+        }
+    }
     for (unsigned p = 0; p < 2; p++)
+    {
         for (unsigned q = 0; q < 2; q++)
+        {
             if (!p || !q)
             {
                 struct adl_config a = config(p, q, 6, 8),
@@ -69,6 +77,8 @@ static int nested(void)
                 CHECK(adl_get(a, &got) == ADL_ABSENT && got == 71);
                 CHECK(adl_put(a, 9, &b) == ADL_ABSENT && equal(b, saved));
             }
+        }
+    }
     struct adl_config a = config(1, 1, UINT32_MAX, UINT32_MAX), b;
     CHECK(adl_put(a, 0, &b) == ADL_OK && b.inner.endpoint.y == UINT32_MAX);
     a.present = 2;
@@ -91,6 +101,7 @@ static int prism(void)
 {
     const uint32_t codes[] = {1, 255, 256, 65535, 65536, UINT32_MAX};
     for (unsigned version = 1; version <= 2; version++)
+    {
         for (size_t i = 0; i < 6; i++)
         {
             struct adl_io focus = {version, codes[i],
@@ -109,6 +120,7 @@ static int prism(void)
             struct adl_error again;
             CHECK(adl_review(got, &again) == ADL_OK && erroreq(again, error));
         }
+    }
     struct adl_io out = {9, 8, 7}, saved = out;
     struct adl_error timeout = {2, ADL_TIMEOUT, {.timeout = 50}};
     CHECK(adl_preview(timeout, &out) == ADL_ABSENT && ioeq(out, saved));
@@ -135,7 +147,9 @@ static int change(void *context, uint32_t old, uint32_t *out)
 {
     struct adp_change *c = context;
     if (c->calls < 4)
+    {
         c->seen[c->calls] = old;
+    }
     c->calls++;
     if (c->mode == 0)
     {
@@ -197,8 +211,11 @@ static int effects(void)
 static int baseline(void)
 {
     for (uint32_t x = 0; x < 4; x++)
+    {
         for (uint32_t y = 0; y < 4; y++)
+        {
             for (uint32_t a = 0; a < 4; a++)
+            {
                 for (uint32_t b = 0; b < 4; b++)
                 {
                     struct ad_pair s = {x, y}, p = ad_lens_x(s, a),
@@ -210,6 +227,9 @@ static int baseline(void)
                     CHECK(ad_preview_number(ad_review_number(a), &got) &&
                           got == a);
                 }
+            }
+        }
+    }
     struct ad_value empty = {.tag = AD_EMPTY};
     uint32_t got = 99;
     CHECK(!ad_preview_number(empty, &got) && got == 99);
@@ -259,7 +279,9 @@ static int prism_oracle(void)
         struct adl_error error = {version, tag, {{code, context}}},
                          rebuilt = {9, ADL_IO, {{81, 82}}};
         if (tag == ADL_TIMEOUT)
+        {
             error.data.timeout = code;
+        }
         struct adl_io focus = {9, 71, 72}, input = {version, code, context};
         enum adl_status preview = adl_preview(error, &focus),
                         review = adl_review(input, &rebuilt);
@@ -356,22 +378,40 @@ static int metrics(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "optics_nested"))
+    {
         return nested();
+    }
     if (!strcmp(argv[1], "optics_prism"))
+    {
         return prism();
+    }
     if (!strcmp(argv[1], "optics_effects"))
+    {
         return effects();
+    }
     if (!strcmp(argv[1], "optics_base"))
+    {
         return baseline();
+    }
     if (!strcmp(argv[1], "nested_oracle"))
+    {
         return nested_oracle();
+    }
     if (!strcmp(argv[1], "prism_oracle"))
+    {
         return prism_oracle();
+    }
     if (!strcmp(argv[1], "effects_oracle"))
+    {
         return effects_oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

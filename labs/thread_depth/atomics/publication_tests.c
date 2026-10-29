@@ -32,7 +32,9 @@ static void graph(void)
     {
         unsigned original[4], closed[4];
         for (unsigned i = 0; i < 4; i++)
+        {
             original[i] = closed[i] = (bits >> (4 * i)) & 15u;
+        }
         CHECK(ta_closure(closed, 4) == TA_SUCCESS);
         for (unsigned start = 0; start < 4; start++)
         {
@@ -41,7 +43,9 @@ static void graph(void)
             {
                 unsigned i = 0;
                 while (!(pending & (1u << i)))
+                {
                     i++;
+                }
                 pending &= ~(1u << i);
                 if (!(seen & (1u << i)))
                 {
@@ -68,8 +72,10 @@ static void conflict(void)
                                  {1, 1, 1, 0, 0, 1}, {0, 1, 1, 0, 0, 0},
                                  {1, 0, 0, 0, 0, 0}};
     for (size_t i = 0; i < sizeof cases / sizeof cases[0]; i++)
+    {
         CHECK(ta_data_race(cases[i][0], cases[i][1], cases[i][2], cases[i][3],
                            cases[i][4]) == (int)cases[i][5]);
+    }
     CHECK(ta_data_race(2, 0, 0, 0, 0) == -1);
     puts(
         "OBS conflict7 analysis-only access cases; adjacent bit-field location "
@@ -190,7 +196,9 @@ static void snapshot(void)
     pthread_t thread;
     CHECK(pthread_create(&thread, NULL, snapshot_reader, &run) == 0);
     for (int i = 0; i < 10000; i++)
+    {
         CHECK(ta_snapshot_write(&s, i % 101) == TA_SUCCESS);
+    }
     atomic_store(&run.stop, 1);
     CHECK(pthread_join(thread, NULL) == 0);
     CHECK(run.successes + run.limits > 0);
@@ -219,7 +227,9 @@ static void *reader(void *arg)
             e = ta_slot_read(r->slot, r->id, &n);
             CHECK(e == TA_SUCCESS || e == TA_LIMIT);
             if (e == TA_LIMIT)
+            {
                 sched_yield();
+            }
         } while (e == TA_LIMIT);
         CHECK(n == (int)i);
     }
@@ -259,11 +269,15 @@ static void handoff(void)
                 e = ta_slot_publish(&s, value);
                 CHECK(e == TA_SUCCESS || e == TA_LIMIT);
                 if (e == TA_LIMIT)
+                {
                     sched_yield();
+                }
             } while (e == TA_LIMIT);
         }
         for (unsigned i = 0; i < readers; i++)
+        {
             CHECK(pthread_join(t[i], NULL) == 0);
+        }
         CHECK(atomic_load(&s.pending) == 0);
     }
     puts(
@@ -275,14 +289,24 @@ int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (!strcmp(argv[1], "graph"))
+    {
         graph();
+    }
     else if (!strcmp(argv[1], "conflict"))
+    {
         conflict();
+    }
     else if (!strcmp(argv[1], "snapshot"))
+    {
         snapshot();
+    }
     else if (!strcmp(argv[1], "handoff"))
+    {
         handoff();
+    }
     else
+    {
         return 2;
+    }
     return 0;
 }

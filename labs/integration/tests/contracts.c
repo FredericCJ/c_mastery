@@ -30,7 +30,9 @@ static ptrdiff_t writer(void *p, const uint8_t *b, size_t n)
         return -2;
     }
     if (!n || s->n == 16)
+    {
         return -1;
+    }
     s->out[s->n++] = *b;
     return 1;
 }
@@ -59,13 +61,17 @@ static void wr(void *p, unsigned r, uint32_t v)
     struct in_model *m = p;
     m->r[r] = v;
     if (r == FW_WATCHDOG)
+    {
         m->feeds++;
+    }
 }
 #endif
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     algo_ring q;
     CHECK(algo_ring_init(&q, 4) == ALGO_OK);
     if (!strcmp(argv[1], "p1"))
@@ -180,6 +186,8 @@ int main(int argc, char **argv)
     }
 #endif
     else
+    {
         return 2;
+    }
     return 0;
 }

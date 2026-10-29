@@ -20,7 +20,9 @@ static void print(const char *s)
 {
     size_t n = 0;
     while (s[n] && n < 512)
+    {
         ++n;
+    }
     cmk_write(s, n);
 }
 
@@ -37,7 +39,9 @@ static void hex(uint64_t x)
 {
     char b[17];
     for (unsigned i = 0; i < 16; ++i)
+    {
         b[i] = "0123456789abcdef"[(x >> (60 - 4 * i)) & 15];
+    }
     b[16] = '\n';
     cmk_write(b, 17);
 }
@@ -45,7 +49,9 @@ static void hex(uint64_t x)
 __attribute__((section(".text.start"), noreturn)) void _start(void)
 {
     if (!initialized_anchor)
+    {
         finish(10);
+    }
 #if defined(USER_FAULT)
     if (KF_CASE == KF_USER_DIVIDE || KF_CASE == KF_NESTED ||
         KF_CASE == KF_BUDGET)
@@ -127,15 +133,23 @@ __attribute__((section(".text.start"), noreturn)) void _start(void)
         }
         int state = kf_line(&input, c, line, &length);
         if (!state)
+        {
             continue;
+        }
         if (state == 2)
+        {
             print("KF:SHELL_DISCARDED_OVERLONG\n");
+        }
         else if (length == 4 && line[0] == 'e' && line[1] == 'x' &&
                  line[2] == 'i' && line[3] == 't')
+        {
             finish(0);
+        }
         else if (length == 4 && line[0] == 'h' && line[1] == 'e' &&
                  line[2] == 'l' && line[3] == 'p')
+        {
             print("KF:SHELL_HELP:help echo stats exit\n");
+        }
         else if (length >= 5 && line[0] == 'e' && line[1] == 'c' &&
                  line[2] == 'h' && line[3] == 'o' && line[4] == ' ')
         {
@@ -155,7 +169,9 @@ __attribute__((section(".text.start"), noreturn)) void _start(void)
             print("KF:SHELL_STATS:bounded-copied-v1:refused-v9-unchanged\n");
         }
         else
+        {
             print("KF:SHELL_UNKNOWN\n");
+        }
         print("kf> ");
     }
 #else
@@ -181,7 +197,9 @@ __attribute__((section(".text.start"), noreturn)) void _start(void)
     }
     check(p != 0);
     for (unsigned i = 0; i < 8192; ++i)
+    {
         check(p[i] == 0);
+    }
     p[8191] = 71;
     if (KF_CASE == 22)
     {
@@ -198,11 +216,15 @@ __attribute__((section(".text.start"), noreturn)) void _start(void)
         unsigned char *q = cmk_alloc(16);
         check(q == p + 8192);
         for (unsigned i = 0; i < 16 * 4096; ++i)
+        {
             check(q[i] == 0);
+        }
         print("KF:PASS:ACTUAL_ALLOC_16_FAILURE_PREFIXES_ZERO_SUCCESS\n");
     }
     if (KF_CASE != 22)
+    {
         check(cmk_call(CMK_WRITE, (uintptr_t)p + 8191, 2, 0) == -1);
+    }
     check(cmk_call(CMK_WRITE, (uintptr_t)p, 0, 0) == 0);
     check(cmk_call(CMK_WRITE, 0x40200000, 0, 0) == -1);
     check(cmk_call(CMK_READ, (uintptr_t)_start, 0, 0) == -1);
@@ -219,7 +241,9 @@ __attribute__((section(".text.start"), noreturn)) void _start(void)
     {
         check(cmk_block_read(h, 0, p) == 0);
         for (unsigned i = 0; i < 4096; ++i)
+        {
             check(p[i] == 0);
+        }
     }
     check(cmk_call(CMK_CLOSE, CMK_DISK_HANDLE, 0, 0) == 0);
     check(cmk_block_flush(h) == -1);
@@ -230,7 +254,9 @@ __attribute__((section(".text.start"), noreturn)) void _start(void)
         check(cmk_block_read(h, 0, p) == -1);
         print("KF:USER_POLL_BEGIN\n");
         for (unsigned i = 0; i < KF_POLL_ITER; ++i)
+        {
             __asm__ volatile("pause");
+        }
         print("KF:USER_POLL_END\n");
         check(cmk_call(KF_POLL, KF_POLL_ITER, 0, 0) >= 0);
     }

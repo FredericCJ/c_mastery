@@ -31,7 +31,9 @@ int ep_leases(void)
     unsigned i = 0;
     int r = ED_BUSY;
     while (r == ED_BUSY && i++ < 16)
+    {
         r = ep_step(&p);
+    }
     CHECK(r == ED_OK && ep_snapshot(&p, &link) == ED_OK &&
           ep_validate(&p, &link) == ED_OK);
     CHECK(ed_tx_prepare(&tx, 0, 1, frame, 64) == ED_OK &&

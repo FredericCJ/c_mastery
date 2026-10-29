@@ -22,7 +22,9 @@ static void *allocate(void *ctx, size_t n)
 {
     struct pf_env *e = ctx;
     if (e->fail)
+    {
         return 0;
+    }
     C(!e->live);
     e->live = malloc(n);
     C(e->live);
@@ -51,12 +53,18 @@ static void write_reg(void *ctx, unsigned reg, uint32_t v)
     if (reg == FW_DMA)
     {
         if (v)
+        {
             e->busy = 1;
+        }
         else
+        {
             ++e->stop;
+        }
     }
     if (reg == FW_WATCHDOG)
+    {
         ++e->feeds;
+    }
 }
 
 static int driver(void)
@@ -113,7 +121,9 @@ static int driver(void)
 static int builder(void)
 {
     for (unsigned mode = 0; mode < 2; ++mode)
+    {
         for (unsigned address = 0; address < 256; address += 4)
+        {
             for (unsigned length = 1; length <= 64; ++length)
             {
                 struct pf_builder b = {0};
@@ -126,8 +136,12 @@ static int builder(void)
                             (!mode || (!(address & 15) && !(length & 15)));
                 C(pf_builder_finish(&b, &out) == (valid ? PT_OK : PT_RANGE));
                 if (!valid)
+                {
                     C(out.base.address == 91);
+                }
             }
+        }
+    }
     struct pf_builder b = {0};
     C(pf_builder_mode(&b, PF_POLL, 1) == PT_RANGE && !b.mode_set);
     C(pf_builder_mode(&b, PF_DMA, 1) == PT_OK);
@@ -177,6 +191,7 @@ static int session(void)
 static int decoder(void)
 {
     for (unsigned n = 0; n <= 8; ++n)
+    {
         for (unsigned cut = 0; cut <= n + 2; ++cut)
         {
             struct pf_env e = {0};
@@ -186,7 +201,9 @@ static int decoder(void)
             size_t length = 99;
             unsigned char sum = 0;
             for (unsigned i = 0; i < n; ++i)
+            {
                 sum = (unsigned char)(sum + i + 1);
+            }
             for (unsigned i = 0; i < cut; ++i)
             {
                 C(pf_decoder_step(&d, 0, 99, i, &out, &length) == PT_PENDING);
@@ -208,6 +225,7 @@ static int decoder(void)
                 C(pf_decoder_cancel(&d) == PT_DONE && e.frees == e.allocations);
             }
         }
+    }
     struct pf_env e = {0};
     struct pf_decoder d;
     C(pf_decoder_init(&d, 3, allocate, release, &e) == PT_OK);
@@ -229,7 +247,9 @@ static int decoder(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
 #define RUN(name)                   \
     if (!strcmp(argv[1], #name))    \
     {                               \

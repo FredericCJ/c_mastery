@@ -25,10 +25,14 @@ int main(void)
             return 1;
         }
         if (++count > 50000)
+        {
             return 2;
+        }
     }
     if (!feof(stdin) || count < 10000)
+    {
         return 2;
+    }
     printf("RV_ORACLE_PASS cases=%u rational_scale_semantics\n", count);
     return 0;
 }

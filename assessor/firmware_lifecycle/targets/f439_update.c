@@ -15,7 +15,9 @@ static uint32_t get(const unsigned char *p)
 static void put(unsigned char *p, uint32_t v)
 {
     for (unsigned i = 0; i < 4; ++i)
+    {
         p[i] = (unsigned char)(v >> (8 * i));
+    }
 }
 
 static uint32_t crc(const unsigned char *p, unsigned n)
@@ -25,7 +27,9 @@ static uint32_t crc(const unsigned char *p, unsigned n)
     {
         c ^= p[i];
         for (unsigned j = 0; j < 8; ++j)
+        {
             c = (c >> 1) ^ ((0u - (c & 1u)) & 0xEDB88320u);
+        }
     }
     return ~c;
 }
@@ -41,7 +45,9 @@ static void copy_image(struct fb_image *d, const struct fb_image *s)
     d->key = s->key;
     d->core = s->core;
     for (unsigned i = 0; i < 32; ++i)
+    {
         d->digest[i] = s->digest[i];
+    }
 }
 
 static void copy_selection(struct f4_selection *d, const struct f4_selection *s)
@@ -66,24 +72,32 @@ static int encode(const struct f4_selection *s, uint32_t parent,
 {
     if (!s || !out || !s->sequence || s->record > 1 || s->image.core ||
         !s->image.generation)
+    {
         return 0;
+    }
     unsigned char b[80];
     for (unsigned i = 0; i < 80; ++i)
+    {
         b[i] = 0;
+    }
     put(b, parent ? 0x31543446u : 0x314A3446u);
     put(b + 4, s->sequence);
     put(b + 8, s->image.generation);
     put(b + 12, s->image.version);
     put(b + 16, s->image.base);
     for (unsigned i = 0; i < 32; ++i)
+    {
         b[24 + i] = s->image.digest[i];
+    }
     put(b + 56, parent);
     put(b + 64, s->sequence);
     put(b + 68, ~s->sequence);
     put(b + 72, crc(b, 64));
     put(b + 76, 0xC04D17EDu);
     for (unsigned i = 0; i < 80; ++i)
+    {
         out[i] = b[i];
+    }
     return 1;
 }
 
@@ -108,7 +122,9 @@ static int read_bytes(eg_read_fn read, void *c, uint32_t a, unsigned char *b,
     {
         uint32_t v;
         if (read(c, a + i, &v) != 1)
+        {
             return 0;
+        }
         put(b + i, v);
     }
     return 1;
@@ -120,21 +136,33 @@ static int match(eg_read_fn read, void *c, const struct fb_policy *p,
 {
     unsigned slot = 2;
     for (unsigned i = 0; i < 2; ++i)
+    {
         if (l[i].base == get(b + 16))
         {
             if (slot != 2)
+            {
                 return 0;
+            }
             slot = i;
         }
+    }
     if (slot == 2)
+    {
         return 0;
+    }
     struct fb_image image;
     if (!bs_read_image(read, c, p, l[slot], 0, &image) ||
         image.generation != get(b + 8) || image.version != get(b + 12))
+    {
         return 0;
+    }
     for (unsigned i = 0; i < 32; ++i)
+    {
         if (image.digest[i] != b[24 + i])
+        {
             return 0;
+        }
+    }
     copy_image(out, &image);
     return 1;
 }
@@ -143,7 +171,9 @@ int f4_select(eg_read_fn read, void *c, const struct fb_policy *p,
               const struct fb_layout l[2], struct f4_selection *out)
 {
     if (!read || !p || !l || !out)
+    {
         return 0;
+    }
     struct f4_selection found = {0};
     unsigned have = 0;
     for (unsigned r = 0; r < 2; ++r)
@@ -152,7 +182,9 @@ int f4_select(eg_read_fn read, void *c, const struct fb_policy *p,
         struct f4_selection s;
         if (!read_bytes(read, c, 0x080C0000u + r * 0x20000u, b, 80) ||
             !valid(b, 0) || !match(read, c, p, l, b, &s.image))
+        {
             continue;
+        }
         s.sequence = get(b + 4);
         s.record = r;
         if (have && s.sequence == found.sequence)
@@ -160,10 +192,16 @@ int f4_select(eg_read_fn read, void *c, const struct fb_policy *p,
             if (s.image.base != found.image.base ||
                 s.image.generation != found.image.generation ||
                 s.image.version != found.image.version)
+            {
                 return -1;
+            }
             for (unsigned i = 0; i < 32; ++i)
+            {
                 if (s.image.digest[i] != found.image.digest[i])
+                {
                     return -1;
+                }
+            }
         }
         if (!have || s.sequence > found.sequence)
         {
@@ -172,7 +210,9 @@ int f4_select(eg_read_fn read, void *c, const struct fb_policy *p,
         }
     }
     if (!have)
+    {
         return 0;
+    }
     copy_selection(out, &found);
     return 1;
 }
@@ -184,13 +224,19 @@ static enum fh_result begin(struct f4_writer *w, struct fm_io io,
     if (!w || w->state || !io.bus.read || !io.bus.write || !io.bus.sync ||
         !io.fresh || !b || sector < 7 || sector > 11 || !n || n > 2144 ||
         (n & 3) || (address & 3))
+    {
         return FH_REJECT;
+    }
     uint32_t base = 0x08060000u + (sector - 7) * 0x20000u;
     if (address < base || address > base + 0x20000u - n)
+    {
         return FH_REJECT;
+    }
     uint32_t cr = io.bus.read(io.bus.ctx, CR), sr = io.bus.read(io.bus.ctx, SR);
     if ((sr & 0x10000u) || (cr & ~0x80000300u))
+    {
         return FH_REJECT;
+    }
     w->io = io;
     w->base = address;
     w->sector_base = base;
@@ -200,7 +246,9 @@ static enum fh_result begin(struct f4_writer *w, struct fm_io io,
     w->length = n;
     w->mode = mode;
     for (unsigned i = 0; i < n; ++i)
+    {
         w->bytes[i] = b[i];
+    }
     if (cr & 0x80000000u)
     {
         io.bus.write(io.bus.ctx, 0x40023C04u, 0x45670123u);
@@ -253,20 +301,26 @@ static void restore(struct f4_writer *w)
     io.sync(io.ctx);
     io.write(io.ctx, CR, w->control & ~0x80000000u);
     if (w->control & 0x80000000u)
+    {
         io.write(io.ctx, CR, w->control);
+    }
     io.sync(io.ctx);
 }
 
 enum fh_result f4_poll(struct f4_writer *w)
 {
     if (!w || w->state < 1 || w->state > 3)
+    {
         return FH_REJECT;
+    }
     struct fh_io io = w->io.bus;
     if (w->state == 1)
     {
         uint32_t sr = io.read(io.ctx, SR);
         if (sr & 0x10000u)
+        {
             return FH_PENDING;
+        }
         restore(w);
         if (sr & ERR)
         {
@@ -280,13 +334,17 @@ enum fh_result f4_poll(struct f4_writer *w)
     {
         for (unsigned n = 0; n < 32 && w->checked < 0x20000;
              ++n, w->checked += 4)
+        {
             if (io.read(io.ctx, w->sector_base + w->checked) != UINT32_MAX)
             {
                 w->state = 6;
                 return FH_ERROR;
             }
+        }
         if (w->checked < 0x20000)
+        {
             return FH_PENDING;
+        }
         if (io.read(io.ctx, SR) & ERR)
         {
             w->state = 6;
@@ -297,7 +355,9 @@ enum fh_result f4_poll(struct f4_writer *w)
     }
     uint32_t sr = io.read(io.ctx, SR);
     if (sr & 0x10000u)
+    {
         return FH_PENDING;
+    }
     restore(w);
     if (sr & ERR)
     {
@@ -313,15 +373,21 @@ enum fh_result f4_poll(struct f4_writer *w)
         return FH_ERROR;
     }
     if (++w->word < w->length / 4)
+    {
         return program(w);
+    }
     w->io.fresh(io.ctx, w->base, w->length);
     if (F4_MUTANT != 2)
+    {
         for (unsigned i = 0; i < w->length; i += 4)
+        {
             if (io.read(io.ctx, w->base + i) != get(w->bytes + i))
             {
                 w->state = 6;
                 return FH_ERROR;
             }
+        }
+    }
     if (io.read(io.ctx, SR) & ERR)
     {
         w->state = 6;
@@ -338,22 +404,32 @@ enum fh_result f4_install_begin(struct f4_writer *w, struct fm_io io,
                                 const struct fb_layout l[2])
 {
     if (!f || !p || !l || f->bytes[5])
+    {
         return FH_REJECT;
+    }
     struct bs_layouts layouts = {0};
     layouts.core[0][0] = l[0];
     layouts.core[0][1] = l[1];
     struct fb_image image;
     if (!rt_admit(f, p, &layouts, &image) || !newer(o, &image) ||
         (image.base != 0x08080200u && image.base != 0x080A0200u))
+    {
         return FH_REJECT;
+    }
     unsigned char b[2144];
     for (unsigned i = 0; i < 2144; ++i)
+    {
         b[i] = 255;
+    }
     unsigned n = (unsigned)f->bytes[8] | (unsigned)f->bytes[9] << 8;
     for (unsigned i = 0; i < n; ++i)
+    {
         b[i] = f->bytes[12 + i];
+    }
     for (unsigned i = 0; i < 64; ++i)
+    {
         b[2080 + i] = f->bytes[12 + n + i];
+    }
     return begin(w, io, image.base == 0x08080200u ? 8 : 9, image.base - 32, b,
                  2144, 1);
 }
@@ -363,19 +439,29 @@ int f4_install_result(const struct f4_writer *w, eg_read_fn read, void *c,
                       struct fb_image *out)
 {
     if (!w || w->state != 4 || w->mode != 1 || !read || !p || !l || !out)
+    {
         return 0;
+    }
     unsigned slot = w->base + 32 == l[0].base ? 0 : 1;
     if (l[slot].base != w->base + 32)
+    {
         return 0;
+    }
     struct fb_image image, expected;
     unsigned n = get(w->bytes + 20) + 32;
     if (n < 546 || n > 2080 ||
         !fb_admit(p, l[slot], 0, w->bytes, n, w->bytes + 2080, &expected) ||
         !bs_read_image(read, c, p, l[slot], 0, &image))
+    {
         return 0;
+    }
     for (unsigned i = 0; i < 32; ++i)
+    {
         if (image.digest[i] != expected.digest[i])
+        {
             return 0;
+        }
+    }
     copy_image(out, &image);
     return 1;
 }
@@ -385,14 +471,18 @@ enum fh_result f4_trial_begin(struct f4_writer *w, struct fm_io io,
                               const struct fb_image *i)
 {
     if (!newer(o, i))
+    {
         return FH_REJECT;
+    }
     struct f4_selection trial;
     trial.sequence = o->sequence + 1;
     trial.record = o->record;
     copy_image(&trial.image, i);
     unsigned char b[84];
     if (!encode(&trial, o->sequence, b))
+    {
         return FH_REJECT;
+    }
     put(b + 80, 0x41543446u);
     return begin(w, io, 7, 0x08060000u, b, 84, 2);
 }
@@ -403,13 +493,17 @@ int f4_trial_probe(eg_read_fn read, void *c, const struct fb_policy *p,
 {
     if (!read || !p || !l || !o || !out || !o->sequence ||
         o->sequence == UINT32_MAX || o->record > 1)
+    {
         return 0;
+    }
     unsigned char b[84];
     struct f4_selection trial;
     if (!read_bytes(read, c, 0x08060000u, b, 84) || !valid(b, o->sequence) ||
         get(b + 4) != o->sequence + 1 || get(b + 80) != 0x41543446u ||
         !match(read, c, p, l, b, &trial.image) || !newer(o, &trial.image))
+    {
         return 0;
+    }
     trial.sequence = get(b + 4);
     trial.record = o->record;
     copy_selection(out, &trial);
@@ -424,10 +518,14 @@ enum fh_result f4_commit_begin(struct f4_writer *w, struct fm_io io,
     if (!t || !newer(o, &t->image) || t->record != o->record ||
         t->sequence != o->sequence + 1 ||
         (F4_MUTANT != 3 && (g != t->image.generation || result != 671377293u)))
+    {
         return FH_REJECT;
+    }
     unsigned char b[80];
     if (!f4_record(t, b))
+    {
         return FH_REJECT;
+    }
     return begin(w, io, 11 - o->record,
                  0x080C0000u + (1 - o->record) * 0x20000u, b, 80, 3);
 }

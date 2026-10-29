@@ -76,7 +76,9 @@ static int erasures(void)
         /* All up-to-three erasure locations on zero, using linearity argument
          * separately; this is not mislabeled exhaustive all16-bit inputs. */
         for (unsigned i = 0; i < n; ++i)
+        {
             for (unsigned j = i + 1; j < n; ++j)
+            {
                 for (unsigned k = j + 1; k < n; ++k)
                 {
                     uint16_t m = (uint16_t)((1u << i) | (1u << j) | (1u << k));
@@ -84,6 +86,8 @@ static int erasures(void)
                     CHECK(ec_erasures(n, m, m, 0, &r) == EC_CORRECTED &&
                           r.word == 0 && r.data == 0);
                 }
+            }
+        }
     }
     struct ec_result r = {99, 99, 99};
     CHECK(ec_erasures(8, 0, 7, 1, &r) == EC_INVALID);
@@ -101,13 +105,18 @@ static int burst(void)
         uint16_t words[4], received[4];
         uint8_t bits[64];
         for (unsigned lane = 0; lane < 4; ++lane)
+        {
             CHECK(ec_encode(n, (uint16_t)(lane * 3), &words[lane]) == EC_OK);
+        }
         for (unsigned length = 1; length <= 4; ++length)
+        {
             for (unsigned start = 0; start + length <= 4 * n; ++start)
             {
                 CHECK(ec_interleave(n, words, bits) == EC_OK);
                 for (unsigned i = start; i < start + length; ++i)
+                {
                     bits[i] ^= 1;
+                }
                 CHECK(ec_deinterleave(n, bits, received) == EC_OK);
                 for (unsigned lane = 0; lane < 4; ++lane)
                 {
@@ -117,24 +126,35 @@ static int burst(void)
                           r.data == lane * 3);
                 }
             }
+        }
         for (unsigned i = 0; i < 64; ++i)
+        {
             bits[i] = 7;
+        }
         CHECK(ec_interleave(n, words, bits) == EC_OK);
         for (unsigned i = 4 * n; i < 64; ++i)
+        {
             CHECK(bits[i] == 7);
+        }
         bits[3] = 2;
         for (unsigned i = 0; i < 4; ++i)
+        {
             received[i] = 99;
+        }
         CHECK(ec_deinterleave(n, bits, received) == EC_INVALID);
         for (unsigned i = 0; i < 4; ++i)
+        {
             CHECK(received[i] == 99);
+        }
         for (unsigned phase = 0; phase < 4; ++phase)
         {
             for (unsigned start = 0; start + 4 <= 4 * n; ++start)
             {
                 CHECK(ec_interleave_phase(n, words, phase, bits) == EC_OK);
                 for (unsigned i = start; i < start + 4; ++i)
+                {
                     bits[i] ^= 1;
+                }
                 CHECK(ec_deinterleave_phase(n, bits, phase, received) == EC_OK);
                 for (unsigned lane = 0; lane < 4; ++lane)
                 {
@@ -165,15 +185,25 @@ static int burst(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (strcmp(argv[1], "8") == 0)
+    {
         return full(8);
+    }
     if (strcmp(argv[1], "16") == 0)
+    {
         return full(16);
+    }
     if (strcmp(argv[1], "erasures") == 0)
+    {
         return erasures();
+    }
     if (strcmp(argv[1], "burst") == 0)
+    {
         return burst();
+    }
     if (strcmp(argv[1], "oracle") == 0)
     {
         for (unsigned w = 0; w < 256; ++w)
@@ -186,7 +216,9 @@ int main(int argc, char **argv)
         {
             uint16_t w = 0;
             if (ec_encode(16, (uint16_t)d, &w) != EC_OK)
+            {
                 return 41;
+            }
             printf("16 %u %u\n", d, w);
         }
         return 0;

@@ -53,7 +53,9 @@ static void stop_after(void *p, unsigned stage)
             n = write(c->report, &x, 1);
         } while (n < 0 && errno == EINTR);
         if (n != 1)
+        {
             _exit(91);
+        }
         do
         {
             n = read(c->wait, &x, 1);
@@ -93,7 +95,9 @@ static void cuts(int dir, int lock)
         CHECK(flock(lock, LOCK_UN) == 0);
         contents(dir, "data", cut < 3 ? "old" : "new");
         if (cut < 3)
+        {
             CHECK(unlinkat(dir, "temporary", 0) == 0);
+        }
         printf("PC_PROCESS_CUT stage=%u visible=%s persistence=unobserved\n",
                cut, cut < 3 ? "old" : "new");
     }

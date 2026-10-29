@@ -6,7 +6,9 @@ int er_init(struct er_owner *a, const struct er_item *b, size_t n)
     (void)b;
     (void)n;
     if (a)
+    {
         *a = (struct er_owner){0};
+    }
     return ER_INVALID;
 }
 

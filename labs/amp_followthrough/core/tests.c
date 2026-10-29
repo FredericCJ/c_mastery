@@ -32,7 +32,9 @@ static int images(void)
     C(af_region(banks, 5, UINT32_MAX - 1, 4, 3, &domain) == AF_INVALID);
     struct af_owners owners = {0};
     for (unsigned r = 0; r < 4; r++)
+    {
         C(af_owner_claim(&owners, r, r == 3 ? 4 : 7) == AF_OK);
+    }
     C(af_owner_claim(&owners, 2, 4) == AF_CONFLICT &&
       owners.telemetry_owner == 7);
     struct af_owners moved = {7, 7, 4, 7};
@@ -91,7 +93,9 @@ static struct af_message message(unsigned id, unsigned length)
 {
     struct af_message m = {7, id, length, {0}};
     for (unsigned j = 0; j < length; j++)
+    {
         m.bytes[j] = (unsigned char)(id * 17 + j);
+    }
     return m;
 }
 
@@ -104,7 +108,9 @@ static int ring(void)
     {
         struct af_message v[4];
         for (unsigned j = 0; j < 4; j++)
+        {
             v[j] = message(batch * 4 + j + 1, (batch * 4 + j) % 33);
+        }
         C(af_batch(&q, 7, v, 4) == AF_OK);
         C(af_queued(&q) == (batch + 1) * 4);
     }
@@ -123,14 +129,18 @@ static int ring(void)
             C(af_receive(&q, 7, bytes, size - 1, &id, &length) == AF_INVALID &&
               atomic_load(&q.tail) == tail);
             for (unsigned j = 0; j < 32; j++)
+            {
                 C(bytes[j] == 0xee);
+            }
         }
         C(af_receive(&q, 6, bytes, 32, &id, &length) == AF_STALE &&
           atomic_load(&q.tail) == tail);
         C(af_receive(&q, 7, bytes, 32, &id, &length) == AF_OK && id == n &&
           length == size);
         for (unsigned j = 0; j < size; j++)
+        {
             C(bytes[j] == (unsigned char)(n * 17 + j));
+        }
     }
     C(af_receive(&q, 7, bytes, 32, &id, &length) == AF_EMPTY && id == 16);
     C(af_batch(&q, 7, &v, 1) == AF_OK);
@@ -187,7 +197,9 @@ static int receipt(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
 
     struct
     {
@@ -200,12 +212,16 @@ int main(int argc, char **argv)
                  {"receipt", receipt}};
 
     for (unsigned i = 0; i < sizeof tests / sizeof tests[0]; i++)
+    {
         if (!strcmp(argv[1], tests[i].name))
         {
             int r = tests[i].run();
             if (!r)
+            {
                 printf("AF_PASS:%s\n", tests[i].name);
+            }
             return r;
         }
+    }
     return 2;
 }

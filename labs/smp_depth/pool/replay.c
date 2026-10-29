@@ -11,7 +11,9 @@ int main(void)
         struct sp_claim claim = {0};
         unsigned submitted = 0, claimed = 0;
         if (sp_init(&pool, 1, 1, 0) != SP_OK)
+        {
             return 2;
+        }
         for (unsigned i = 0; word[i] && word[i] != '\n'; i++)
         {
             int result = SP_INVALID;
@@ -24,7 +26,9 @@ int main(void)
                     if (result == SP_OK)
                     {
                         if (!submitted)
+                        {
                             first = id;
+                        }
                         submitted++;
                     }
                     break;
@@ -59,7 +63,9 @@ int main(void)
             }
             struct sp_snapshot s;
             if (sp_snapshot(&pool, &s) != SP_OK)
+            {
                 return 4;
+            }
             printf("%s%d,%llu,%llu,%llu,%u,%u,%u", i ? ";" : "", result,
                    (unsigned long long)s.accepted,
                    (unsigned long long)s.completed,

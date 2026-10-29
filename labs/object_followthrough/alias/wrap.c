@@ -9,13 +9,21 @@ int main(void)
     fd_pool_init(&p);
     if (fd_pool_acquire(&p, (struct fd_value){1, 1}, &stale) != FD_OK ||
         fd_pool_release(&p, stale) != FD_OK)
+    {
         return 2;
+    }
     for (int i = 2; i <= 3; ++i)
+    {
         if (fd_pool_acquire(&p, (struct fd_value){i, 1}, &now) != FD_OK ||
             fd_pool_release(&p, now) != FD_OK)
+        {
             return 2;
+        }
+    }
     if (fd_pool_acquire(&p, (struct fd_value){4, 1}, &now) != FD_OK)
+    {
         return 2;
+    }
     if (fd_pool_get(&p, stale, &out) == FD_OK && out.value == 4)
     {
         puts("OS_WRAP_COLLISION:stale generation1 names current value4");

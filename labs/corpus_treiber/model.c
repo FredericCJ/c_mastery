@@ -53,11 +53,17 @@ int main(void)
     assert(result[0] + result[1] == 21);
 #else
     if (status[0] == TS_OK)
+    {
         assert(result[0] == 11 || result[0] == 22);
+    }
     if (status[1] == TS_OK)
+    {
         assert(result[1] == 11);
+    }
     if (status[0] == TS_OK && status[1] == TS_OK)
+    {
         assert(result[0] != result[1]);
+    }
 #endif
     return 0;
 }

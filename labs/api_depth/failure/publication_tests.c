@@ -34,9 +34,13 @@ static void *reader(void *v)
         }
         if (ae_publication_read(&l, &c) != AE_OK || c.count != 3 ||
             c.values[1] != c.values[0] + 1 || c.values[2] != c.values[0] + 2)
+        {
             ++r->bad;
+        }
         if (ae_publication_release(&l) != AE_OK)
+        {
             ++r->bad;
+        }
         ++r->reads;
     } while (!atomic_load_explicit(&r->done, memory_order_acquire));
     return 0;

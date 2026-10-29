@@ -11,10 +11,14 @@ static int *take(void *v, size_t n)
 {
     struct cd_alloc *a = v;
     if (a->fail)
+    {
         return NULL;
+    }
     int *p = malloc(n * sizeof *p);
     if (p)
+    {
         ++a->live;
+    }
     return p;
 }
 
@@ -31,7 +35,9 @@ int main(void)
     struct cd_vector vector;
     if (cd_vector_init(&vector, (struct cd_allocator){&a, take, release}) !=
         CD_OK)
+    {
         return 2;
+    }
     char op;
     size_t at;
     int value;
@@ -48,16 +54,26 @@ int main(void)
                                     (struct cd_allocator){&a, take, release});
         }
         else if (op == 'i')
+        {
             status = cd_vector_insert(&vector, at, value);
+        }
         else if (op == 'e')
+        {
             status = cd_vector_erase(&vector, at, &old);
+        }
         else if (op == 'r')
+        {
             status = cd_vector_reserve(&vector, at);
+        }
         else if (op == 's')
+        {
             status = cd_vector_shrink(&vector);
+        }
         printf("%d %zu %zu %u", status, vector.length, vector.capacity, a.live);
         for (size_t i = 0; i < vector.length; ++i)
+        {
             printf(" %d", vector.data[i]);
+        }
         putchar('\n');
     }
     return cd_vector_destroy(&vector) == CD_OK && a.live == 0 ? 0 : 3;

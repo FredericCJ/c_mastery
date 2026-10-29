@@ -60,6 +60,7 @@ int main(void)
     assert(!pthread_join(c, NULL));
     unsigned seen = 0;
     for (unsigned i = 0; i < 6; i++)
+    {
         if (obtained[i])
         {
             assert(outputs[i] >= 41 && outputs[i] <= 43);
@@ -67,6 +68,7 @@ int main(void)
             assert(!(seen & bit));
             seen |= bit;
         }
+    }
     unsigned value;
     while (mfw_pop(&queue, &value) == MFW_OK)
     {

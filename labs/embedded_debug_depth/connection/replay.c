@@ -10,7 +10,9 @@ int main(void)
         enum dc_status status = dc_init(&s, &m);
         unsigned trace = word;
         if (status != DC_OK)
+        {
             return 1;
+        }
         for (unsigned step = 0; step < 4; ++step, trace /= 8)
         {
             switch (trace % 8)

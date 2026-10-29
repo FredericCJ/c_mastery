@@ -13,7 +13,9 @@ static void hex(uint32_t x)
 {
     char b[10];
     for (unsigned i = 0; i < 8; ++i)
+    {
         b[i] = "0123456789abcdef"[(x >> (28 - 4 * i)) & 15];
+    }
     b[8] = ' ';
     b[9] = 0;
     xd_print(b);
@@ -47,7 +49,9 @@ int xd_composition(void);
 void xf_target_main(void)
 {
     if (xd_composition())
+    {
         finish(1);
+    }
     REG(0x40001000) = 0;
     REG(0x40001008) = UINT32_MAX;
     REG(0x40001000) = 1;
@@ -64,9 +68,13 @@ void xf_target_main(void)
             {
                 payload = i;
                 if (policy)
+                {
                     xd_double_dsb();
+                }
                 else
+                {
                     xd_dsb();
+                }
             }
             observed[policy] = now() - begin;
         }

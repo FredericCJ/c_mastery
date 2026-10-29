@@ -14,6 +14,8 @@ void as_implicit_copy(struct as_large_value *out,
 {
     struct as_large_value value = *in;
     if (hook)
+    {
         hook(context);
+    }
     *out = value;
 }

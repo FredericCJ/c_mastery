@@ -13,17 +13,23 @@ static int sample(int early)
     (void)first;
     (void)second;
     if (early)
+    {
         return 7;
+    }
     return 9;
 }
 
 int main(void)
 {
     if (sample(0) != 9 || trace != 21)
+    {
         return 1;
+    }
     trace = 0;
     if (sample(1) != 7 || trace != 21)
+    {
         return 2;
+    }
     puts("LC_CLEANUP normal21 early21");
     return 0;
 }

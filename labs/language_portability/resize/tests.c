@@ -51,14 +51,22 @@ static void *allocate(void *ctx, void *old, size_t old_size, size_t size)
         return NULL;
     }
     if (old != t->active || old_size != t->size)
+    {
         abort();
+    }
     unsigned char *next = malloc(size);
     if (!next)
+    {
         return NULL;
+    }
     for (size_t i = 0; i < size; i++)
+    {
         next[i] = 0xa5;
+    }
     for (size_t i = 0; i < old_size && i < size; i++)
+    {
         next[i] = t->active[i];
+    }
     free(t->active);
     t->active = next;
     t->size = size;
@@ -69,7 +77,9 @@ static void release(void *ctx, void *old, size_t size)
 {
     struct lp_track *t = ctx;
     if (old != t->active || size != t->size)
+    {
         abort();
+    }
     t->empty_at_release += t->owner->data == NULL && t->owner->size == 0;
     t->releases++;
     free(old);
@@ -111,9 +121,13 @@ static int zero(void)
         raw[0] = 19;
         CHECK(allocate(&state, raw, 1, 0) == NULL && state.zero == 1);
         if (policy)
+        {
             CHECK(state.active == NULL);
+        }
         else
+        {
             CHECK(state.active == raw && raw[0] == 19);
+        }
         cleanup();
     }
     puts("LP zero validated");
@@ -127,11 +141,15 @@ static int failure(void)
     CHECK(lr_init(&b, adapter()) == LR_OK && lr_resize(&b, 4) == LR_OK);
     unsigned char *old = b.data;
     for (size_t i = 0; i < 4; i++)
+    {
         b.data[i] = (unsigned char)(i + 7);
+    }
     state.fail = 1;
     CHECK(lr_resize(&b, 8) == LR_NOMEM && b.data == old && b.size == 4);
     for (size_t i = 0; i < 4; i++)
+    {
         CHECK(b.data[i] == i + 7);
+    }
     lr_release(&b);
     puts("LP failure validated");
     return 0;
@@ -164,7 +182,9 @@ static int growth(void)
     b.data[1] = 11;
     CHECK(lr_resize(&b, 5) == LR_OK && b.data[0] == 9 && b.data[1] == 11);
     for (size_t i = 2; i < 5; i++)
+    {
         CHECK(b.data[i] == 0);
+    }
     CHECK(lr_resize(&b, 1) == LR_OK && b.data[0] == 9);
     lr_release(&b);
     puts("LP growth validated");
@@ -186,20 +206,30 @@ static int oracle(void)
         {
             char op = history[i];
             if (op == '-')
+            {
                 continue;
+            }
             if (op == 'a')
+            {
                 status = lr_resize(&b, 1);
+            }
             else if (op == 'b')
+            {
                 status = lr_resize(&b, 2);
+            }
             else if (op == 'c')
+            {
                 status = lr_resize(&b, 4);
+            }
             else if (op == 'f')
             {
                 state.fail = 1;
                 status = lr_resize(&b, 3);
             }
             else if (op == 'z')
+            {
                 status = lr_resize(&b, 0);
+            }
             else if (op == 'd')
             {
                 lr_release(&b);
@@ -208,15 +238,21 @@ static int oracle(void)
             else if (op == 'w')
             {
                 if (b.size)
+                {
                     b.data[0] = 23;
+                }
                 status = LR_OK;
             }
             else
+            {
                 CHECK(0);
+            }
         }
         unsigned sum = 0;
         for (size_t i = 0; i < b.size; i++)
+        {
             sum += b.data[i];
+        }
         printf("%d %zu %u %u %u %u\n", status, b.size, sum, state.calls,
                state.releases, state.zero);
         lr_release(&b);
@@ -230,15 +266,25 @@ int main(int argc, char **argv)
     CHECK(argc == 2);
     int result = 2;
     if (!strcmp(argv[1], "zero"))
+    {
         result = zero();
+    }
     if (!strcmp(argv[1], "failure"))
+    {
         result = failure();
+    }
     if (!strcmp(argv[1], "drop"))
+    {
         result = drop();
+    }
     if (!strcmp(argv[1], "growth"))
+    {
         result = growth();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         result = oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
     {
         printf(

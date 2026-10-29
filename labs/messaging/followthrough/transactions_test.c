@@ -29,10 +29,14 @@ static void *allocate(void *ctx, size_t n)
 {
     struct msg_memory *m = ctx;
     if (atomic_fetch_add(&m->calls, 1) + 1 == m->fail)
+    {
         return NULL;
+    }
     void *p = malloc(n);
     if (p)
+    {
         atomic_fetch_add(&m->allocations, 1);
+    }
     return p;
 }
 
@@ -101,13 +105,17 @@ static enum msg_status body(void *ctx, struct mft_txn *t)
     const struct mfo_value *seen = NULL;
     enum msg_status status = mft_read(t, 0, &seen);
     if (status != MSG_OK)
+    {
         return status;
+    }
     unsigned n = number(seen);
     CHECK(mft_log(t, n + 100) == MSG_OK);
     struct mfo_value v = value(b->memory, n + 1);
     CHECK(mft_write(t, 0, &v) == MSG_OK && !v.data);
     if (b->calls == 1 || b->always)
+    {
         insert(b->store, b->memory, 0, n + 10);
+    }
     return MSG_OK;
 }
 
@@ -158,7 +166,9 @@ static void effects(void)
     mft_abort(&t);
     CHECK(mft_begin(&s, &t) == MSG_OK);
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(mft_log(&t, i) == MSG_OK);
+    }
     CHECK(mft_log(&t, 4) == MSG_FULL);
     mft_abort(&t);
     CHECK(mft_destroy(&s) == MSG_OK &&
@@ -252,7 +262,9 @@ static void stage(struct msg_store *s, struct msg_txn *t)
 {
     msg_begin(s, t);
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(msg_write(t, i, i + 1) == MSG_OK);
+    }
 }
 
 struct msg_increment
@@ -271,16 +283,22 @@ static void *increment(void *ctx)
         unsigned a, b;
         msg_begin(w->store, &t);
         if (msg_read(&t, 0, &a) != MSG_OK)
+        {
             continue;
+        }
         if (msg_read(&t, 1, &b) != MSG_OK)
+        {
             continue;
+        }
         CHECK(a == b);
         CHECK(msg_write(&t, 0, a + 1) == MSG_OK &&
               msg_write(&t, 1, b + 1) == MSG_OK);
         enum msg_status status = mft_commit_phase(&t, NULL, NULL);
         CHECK(status == MSG_OK || status == MSG_CONFLICT);
         if (status == MSG_OK)
+        {
             ++committed;
+        }
     }
     return NULL;
 }
@@ -296,8 +314,10 @@ static void phases(void)
         struct msg_fault f = {.store = &s, .fail = cut};
         CHECK(mft_commit_phase(&t, phase, &f) == MSG_FAILED && !t.active);
         for (unsigned i = 0; i < 4; i++)
+        {
             CHECK(atomic_load(&s.cells[i].stamp) == 0 &&
                   atomic_load(&s.cells[i].value) == 0);
+        }
         CHECK(atomic_load(&s.clock) == (unsigned)(cut >= 5));
     }
     for (unsigned cut = 8; cut <= 16; cut++)
@@ -313,8 +333,10 @@ static void phases(void)
               f.counts[MFT_PREPUBLISH] == 1 && f.counts[MFT_UNLOCKED] == 4 &&
               f.counts[MFT_FINISHED] == 1);
         for (unsigned i = 0; i < 4; i++)
+        {
             CHECK(atomic_load(&s.cells[i].stamp) == 2 &&
                   atomic_load(&s.cells[i].value) == i + 1);
+        }
     }
     struct msg_store s;
     struct msg_txn t;
@@ -330,8 +352,10 @@ static void phases(void)
     stage(&s, &t);
     CHECK(mft_commit_phase(&t, NULL, NULL) == MSG_OVERFLOW);
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(atomic_load(&s.cells[i].stamp) == 0 &&
               atomic_load(&s.cells[i].value) == 0);
+    }
     msg_store_init(&s);
     msg_begin(&s, &t);
     struct msg_fault readonly = {.store = &s};
@@ -341,9 +365,13 @@ static void phases(void)
     struct msg_increment worker = {&s};
     pthread_t workers[2];
     for (unsigned i = 0; i < 2; i++)
+    {
         CHECK(!pthread_create(&workers[i], NULL, increment, &worker));
+    }
     for (unsigned i = 0; i < 2; i++)
+    {
         CHECK(!pthread_join(workers[i], NULL));
+    }
     CHECK(atomic_load(&s.cells[0].value) == 2000 &&
           atomic_load(&s.cells[1].value) == 2000);
     msg_store_init(&s);
@@ -380,17 +408,25 @@ static void oracle(void)
             CHECK(k < 2 && steps[k] < 4);
             enum msg_status status = MSG_OK;
             if (steps[k] == 0)
+            {
                 msg_begin(&s, &t[k]);
+            }
             else if (steps[k] == 1)
             {
                 status = msg_read(&t[k], keys[k], &observed);
                 if (status == MSG_OK)
+                {
                     read[k] = observed;
+                }
             }
             else if (steps[k] == 2)
+            {
                 status = msg_write(&t[k], writes[k], read[k] + 1);
+            }
             else
+            {
                 status = mft_commit_phase(&t[k], NULL, NULL);
+            }
             ++steps[k];
             printf("%d:%u,", status, observed);
         }
@@ -403,18 +439,26 @@ int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (!strcmp(argv[1], "effects"))
+    {
         effects();
+    }
     else if (!strcmp(argv[1], "privatization"))
+    {
         privatization();
+    }
     else if (!strcmp(argv[1], "phases"))
+    {
         phases();
+    }
     else if (!strcmp(argv[1], "oracle"))
     {
         oracle();
         return 0;
     }
     else
+    {
         CHECK(false);
+    }
     puts("transactions passed");
     return 0;
 }

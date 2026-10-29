@@ -6,7 +6,9 @@ enum adq_status adq_scale(int64_t value, uint32_t numerator,
                           uint32_t denominator, struct adq_result *out)
 {
     if (!out || !numerator || !denominator)
+    {
         return ADQ_INVALID;
+    }
     unsigned negative = value < 0;
     uint64_t magnitude =
         negative ? UINT64_C(0) - (uint64_t)value : (uint64_t)value;
@@ -14,20 +16,30 @@ enum adq_status adq_scale(int64_t value, uint32_t numerator,
     uint64_t whole = magnitude / denominator,
              remainder = magnitude % denominator;
     if (whole > limit / numerator)
+    {
         return ADQ_RANGE;
+    }
     uint64_t product = remainder * numerator;
     uint64_t extra = product / denominator;
     uint64_t result = whole * numerator;
     if (extra > limit - result)
+    {
         return ADQ_RANGE;
+    }
     if (ADQ_MUTATION != 1)
+    {
         result += extra;
+    }
     int64_t signed_result;
     if (negative)
+    {
         signed_result =
             result == (uint64_t)INT64_MAX + 1 ? INT64_MIN : -(int64_t)result;
+    }
     else
+    {
         signed_result = (int64_t)result;
+    }
     *out = (struct adq_result){
         signed_result, ADQ_MUTATION == 2 ? 0 : product % denominator != 0};
     return ADQ_OK;

@@ -23,7 +23,9 @@ static void consume(void *context, uint32_t item)
     struct sa_seen *s = context;
     if (atomic_load_explicit(&s->box->acknowledged, memory_order_acquire) ==
         s->ticket)
+    {
         s->early++;
+    }
     s->sum += item;
     s->calls++;
 }

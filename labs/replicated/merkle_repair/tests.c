@@ -46,24 +46,42 @@ static int exchange(void *context, const unsigned char *q, size_t qn,
     int r;
     ++p->calls;
     if (p->calls == p->fail)
+    {
         return 1;
+    }
     r = rpk_serve(&p->tree, q, qn, p->chunk, reply, capacity, length);
     if (r)
+    {
         return 1;
+    }
     if (p->mode == 1)
+    {
         reply[at(23)] ^= 1;
+    }
     if (p->mode == 2)
+    {
         reply[at(26)] = 1;
+    }
     if (p->mode == 3 && (!p->tamper_at || p->calls == p->tamper_at))
+    {
         reply[at(32)] ^= 1;
+    }
     if (p->mode == 4)
+    {
         --*length;
+    }
     if (p->mode == 5)
+    {
         reply[0] = 9;
+    }
     if (p->mode == 6)
+    {
         *length = 109;
+    }
     if (p->mode == 7)
+    {
         *length = p->cut;
+    }
     return 0;
 }
 
@@ -137,7 +155,9 @@ static int proof(void)
     {
         t = make(n);
         for (i = 0; i < n; ++i)
+        {
             values[i] = i + 1;
+        }
         CHECK(rp_merkle(values, n, raw) == RP_OK);
         memset(bound, 0, sizeof bound);
         bound[0] = 2;
@@ -326,7 +346,9 @@ static int oracle(void)
         }
         CHECK(rpk_commit(&t, &root) == RPK_OK);
         for (i = 0; i < 32; ++i)
+        {
             printf("%02x", root.root[i]);
+        }
         if (n)
         {
             CHECK(rpk_prove(&t, index, &p) == RPK_OK);
@@ -336,11 +358,15 @@ static int oracle(void)
             {
                 putchar(' ');
                 for (j = 0; j < 32; ++j)
+                {
                     printf("%02x", p.siblings[i][j]);
+                }
             }
         }
         else
+        {
             printf(" 0");
+        }
         puts("");
     }
     return 0;
@@ -364,14 +390,20 @@ static int repair_oracle(void)
         peer.mode = mode;
         t = peer.tree;
         for (i = 0; i < n; ++i)
+        {
             if (mask & (1u << i))
+            {
                 t.leaves[i].bytes[0] = 9;
+            }
+        }
         CHECK(rpk_commit(&peer.tree, &root) == RPK_OK);
         status = rpk_repair(&t, &root, chunk, full, exchange, &peer, &cost);
         CHECK(rpk_commit(&t, &actual) == RPK_OK);
         printf("%d ", status);
         for (i = 0; i < 32; ++i)
+        {
             printf("%02x", actual.root[i]);
+        }
         printf(" %u %u %u %u\n", cost.requests, cost.leaves_received,
                cost.request_bytes, cost.response_bytes);
     }
@@ -423,20 +455,36 @@ static int metrics(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "merkle_proof"))
+    {
         return proof();
+    }
     if (!strcmp(argv[1], "merkle_wire"))
+    {
         return wire();
+    }
     if (!strcmp(argv[1], "merkle_repair"))
+    {
         return repair();
+    }
     if (!strcmp(argv[1], "merkle_cost"))
+    {
         return cost();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "repair_oracle"))
+    {
         return repair_oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

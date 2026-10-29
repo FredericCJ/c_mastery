@@ -45,7 +45,9 @@ static void visibility(void *p, unsigned action, uint32_t address,
     (void)address;
     (void)bytes;
     if (action == PD_INVALIDATE)
+    {
         ((struct xi_device *)p)->valid = 0;
+    }
 }
 
 static unsigned cached_read(struct xi_device *d)

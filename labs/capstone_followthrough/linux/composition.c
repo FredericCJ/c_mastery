@@ -21,7 +21,9 @@ static struct timespec deadline(unsigned seconds)
 {
     struct timespec t;
     if (clock_gettime(CLOCK_MONOTONIC, &t))
+    {
         abort();
+    }
     t.tv_sec += seconds;
     return t;
 }
@@ -37,7 +39,9 @@ static int p5_case(int cancel, unsigned split)
     CHECK(cs_init(&s, 1, 10) == CS_OK);
     struct cp_message m = {73, 32, {0}};
     for (unsigned i = 0; i < 32; ++i)
+    {
         m.payload[i] = (unsigned char)(0xa5u + i);
+    }
     CHECK(cs_offer(&s, &m, 1, 0, 0) == CS_FRAME && cs_begin(&s) == CS_OK);
     unsigned char received[42];
     size_t total = 0;
@@ -56,14 +60,18 @@ static int p5_case(int cancel, unsigned split)
         struct timespec until = deadline(3);
         CHECK(!pthread_mutex_lock(&p.mutex));
         while (p.used < part)
+        {
             CHECK(!pthread_cond_timedwait(&p.changed, &p.mutex, &until));
+        }
         CHECK(!memcmp(p.bytes, bytes, part));
         CHECK(!pthread_mutex_unlock(&p.mutex));
         CHECK(p5_bridge_cancel(&p, ticket) == 1 &&
               p5_bridge_observe(&p, ticket) == 1);
         if (cancel)
+        {
             CHECK(cs_close(&s, 1) == CS_PENDING && s.has_active &&
                   s.releases == 0);
+        }
         CHECK(cs_complete(&s, generation, 0, 0, NULL, NULL) == CS_PENDING &&
               s.borrowed && s.offset == total);
         struct timespec now = deadline(0);
@@ -113,11 +121,17 @@ static struct co_read_result read_port(void *p, unsigned char *out, size_t n)
     }
     size_t k = s->length - s->position;
     if (k > n)
+    {
         k = n;
+    }
     if (k > 3)
+    {
         k = 3;
+    }
     for (size_t i = 0; i < k; ++i)
+    {
         out[i] = s->bytes[s->position++];
+    }
     return (struct co_read_result){k ? CO_READ_DATA : CO_READ_EOF, k};
 }
 
@@ -125,7 +139,9 @@ static int arm(void *p, uint32_t generation)
 {
     struct cf_port *s = p;
     if (s->armed || !generation)
+    {
         return -1;
+    }
     s->armed = 1;
     return 0;
 }
@@ -134,7 +150,9 @@ static void disarm(void *p, uint32_t generation)
 {
     struct cf_port *s = p;
     if (!generation || !s->armed)
+    {
         abort();
+    }
     s->armed = 0;
     ++s->disarms;
 }
@@ -145,7 +163,9 @@ static int coroutine(void)
     CHECK(co_async_init(&oversized, 42, 1) == CO_INVALID);
     struct cp_message m = {91, 32, {0}};
     for (unsigned i = 0; i < 32; ++i)
+    {
         m.payload[i] = (unsigned char)(i == 7 ? 0xa5 : i);
+    }
     unsigned char wire[42];
     size_t n;
     CHECK(cp_encode(&m, wire, 42, &n) == CP_OK);
@@ -158,7 +178,9 @@ static int coroutine(void)
     {
         size_t wanted = p.length - p.position;
         if (wanted > 8)
+        {
             wanted = 8;
+        }
         struct co_async a;
         CHECK(co_async_init(&a, wanted, ++chunks) == CO_OK);
         p.again = 1;
@@ -169,7 +191,9 @@ static int coroutine(void)
         {
             status = co_async_poll(&a, port, out, &used);
             if (status == CO_PENDING && a.registered)
+            {
                 CHECK(co_async_notify(&a, a.generation) == CO_OK);
+            }
         }
         CHECK(status == CO_DONE && used == wanted && !p.armed);
         size_t consumed = 0;
@@ -196,16 +220,26 @@ static int coroutine(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "p5"))
     {
         for (unsigned split = 13; split <= 32; split += 19)
+        {
             for (int cancel = 0; cancel < 2; ++cancel)
+            {
                 if (p5_case(cancel, split))
+                {
                     return 1;
+                }
+            }
+        }
         return 0;
     }
     if (!strcmp(argv[1], "coroutine"))
+    {
         return coroutine();
+    }
     return 2;
 }

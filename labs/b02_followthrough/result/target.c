@@ -59,7 +59,9 @@ void bf_target(void)
     TEST(bf_number(-123, 0, &r) == B2_OK && r.tag == 0);
     unsigned char bytes[260];
     for (unsigned i = 0; i < 260; ++i)
+    {
         bytes[i] = 165;
+    }
     size_t n = 77;
     TEST(b2_render(&r, bytes, 3, &n) == B2_FULL && n == 77 && bytes[0] == 165);
     TEST(b2_render(&r, bytes, 4, &n) == B2_OK && n == 4 && bytes[0] == 45);

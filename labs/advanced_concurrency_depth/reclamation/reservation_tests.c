@@ -26,13 +26,17 @@ static void hook(void *ctx, unsigned point, unsigned p, unsigned ticket)
     (void)point;
     (void)p;
     if (ticket)
+    {
         return;
+    }
     struct ag_gate *g = ctx;
     CHECK(!pthread_mutex_lock(&g->mutex));
     g->reached = 1;
     CHECK(!pthread_cond_broadcast(&g->cv));
     while (!g->go)
+    {
         CHECK(!pthread_cond_wait(&g->cv, &g->mutex));
+    }
     CHECK(!pthread_mutex_unlock(&g->mutex));
 }
 
@@ -77,7 +81,9 @@ int main(void)
     CHECK(!pthread_create(&worker, NULL, finish, &w));
     CHECK(!pthread_mutex_lock(&g.mutex));
     while (!g.reached)
+    {
         CHECK(!pthread_cond_wait(&g.cv, &g.mutex));
+    }
     CHECK(!pthread_mutex_unlock(&g.mutex));
     CHECK(ar_cancel(&q, first) == AR_OK);
     int waiting = ar_pop(&q, &v);
@@ -104,7 +110,9 @@ int main(void)
     }
     struct ar_ticket tickets[4], unchanged = first;
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(ar_reserve(&q, &tickets[i]) == AR_OK);
+    }
     CHECK(ar_reserve(&q, &unchanged) == AR_FULL &&
           unchanged.sequence == first.sequence);
     for (unsigned i = 0; i < 4; i++)

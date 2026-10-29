@@ -35,16 +35,24 @@ static struct sp_item point(unsigned id, int x, int y, int z)
 static int hit(struct sp_box a, struct sp_box b, unsigned dim)
 {
     for (unsigned k = 0; k < dim; k++)
+    {
         if (a.lo[k] > b.hi[k] || a.hi[k] < b.lo[k])
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
 static int inside(struct sp_box outer, struct sp_box inner, unsigned dim)
 {
     for (unsigned k = 0; k < dim; k++)
+    {
         if (outer.lo[k] > inner.lo[k] || outer.hi[k] < inner.hi[k])
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
@@ -68,6 +76,7 @@ static uint32_t treecheck(const struct sp_index *t, unsigned at, unsigned depth,
     if (t->kind == SP_KD || t->kind == SP_BVH)
     {
         for (unsigned i = 0; i < 2; i++)
+        {
             if (n->child[i] != NIL)
             {
                 uint32_t m = treecheck(t, n->child[i], depth + 1, 0);
@@ -75,22 +84,33 @@ static uint32_t treecheck(const struct sp_index *t, unsigned at, unsigned depth,
                 mask |= m;
                 CHECK(inside(n->box, t->nodes[n->child[i]].box, t->dim));
             }
+        }
     }
     else if (t->kind == SP_QUAD)
     {
         if (n->leaf)
+        {
             mask = n->mask;
+        }
         else
+        {
             for (unsigned i = 0; i < (1u << t->dim); i++)
+            {
                 if (n->child[i] != NIL)
                 {
                     uint32_t m = treecheck(t, n->child[i], depth + 1, 0);
                     CHECK(!(mask & m));
                     mask |= m;
                 }
+            }
+        }
         for (unsigned i = 0; i < 32; i++)
+        {
             if (mask & bit(i))
+            {
                 CHECK(inside(n->box, t->items[i].box, t->dim));
+            }
+        }
         CHECK(mask == n->mask);
     }
     else
@@ -100,7 +120,9 @@ static uint32_t treecheck(const struct sp_index *t, unsigned at, unsigned depth,
         if (n->leaf)
         {
             if (leafdepth == NIL)
+            {
                 leafdepth = depth;
+            }
             CHECK(depth == leafdepth);
             for (unsigned i = 0; i < n->count; i++)
             {
@@ -134,6 +156,7 @@ static void invariant(const struct sp_index *t)
         uint32_t mask = 0;
         unsigned seen[256] = {0};
         for (unsigned h = 0; h < 17; h++)
+        {
             for (unsigned j = t->buckets[h]; j != NIL; j = t->refs[j].next)
             {
                 CHECK(j < t->used && seen[j]++ == 0);
@@ -151,6 +174,7 @@ static void invariant(const struct sp_index *t)
                     CHECK(r->cell[k] * w <= y && (r->cell[k] + 1) * w > x);
                 }
             }
+        }
         CHECK(refs == t->used && mask == t->live);
         return;
     }
@@ -183,16 +207,22 @@ static void queries(unsigned print)
         }
         uint32_t expected = 0;
         for (unsigned i = 0; i < 32; i++)
+        {
             if ((t->live & bit(i)) && hit(t->items[i].box, q, t->dim))
+            {
                 expected |= bit(i);
+            }
+        }
         struct sp_result r;
         CHECK(sp_query(t, q, &r) == SP_OK);
         CHECK(r.mask == expected);
         CHECK(r.tests <= 32);
         CHECK(r.visits <= (t->kind == SP_GRID ? 256u : 128u));
         if (print)
+        {
             printf("Q %d %d %d %d %d %d %u %u %u\n", q.lo[0], q.lo[1], q.lo[2],
                    q.hi[0], q.hi[1], q.hi[2], r.mask, r.visits, r.tests);
+        }
         if (t->kind == SP_KD || t->kind == SP_BVH)
         {
             struct sp_nearest n;
@@ -200,6 +230,7 @@ static void queries(unsigned print)
             uint64_t best = UINT64_MAX;
             unsigned id = NIL;
             for (unsigned i = 0; i < 32; i++)
+            {
                 if (t->live & bit(i))
                 {
                     uint64_t sum = 0;
@@ -218,10 +249,13 @@ static void queries(unsigned print)
                         id = i;
                     }
                 }
+            }
             CHECK(n.id == id && n.distance == best);
             if (print)
+            {
                 printf("N %d %d %d %u %u %u %u %llu\n", p[0], p[1], p[2], w[0],
                        w[1], w[2], n.id, (unsigned long long)n.distance);
+            }
         }
     }
     if (t->kind == SP_GRID)
@@ -235,24 +269,38 @@ static void queries(unsigned print)
         {
             uint32_t expected = 0;
             for (unsigned j = i + 1; j < 32; j++)
+            {
                 if ((t->live & bit(i)) && (t->live & bit(j)))
                 {
                     if (hit(t->items[i].box, t->items[j].box, t->dim))
+                    {
                         expected |= bit(j);
+                    }
                     unsigned share = 0;
                     for (unsigned a = 0; a < t->used; a++)
+                    {
                         if (t->refs[a].item == i)
+                        {
                             for (unsigned b = 0; b < t->used; b++)
+                            {
                                 if (t->refs[b].item == j &&
                                     t->refs[a].cell[0] == t->refs[b].cell[0] &&
                                     t->refs[a].cell[1] == t->refs[b].cell[1] &&
                                     t->refs[a].cell[2] == t->refs[b].cell[2])
+                                {
                                     share = 1;
+                                }
+                            }
+                        }
+                    }
                     exact_candidates += share;
                 }
+            }
             CHECK(rows[i] == expected);
             if (print)
+            {
                 printf("P %u %u\n", i, rows[i]);
+            }
         }
         CHECK(candidates == exact_candidates);
     }
@@ -262,12 +310,14 @@ static void dumpitems(void)
 {
     printf("S %u %u %u\n", index_a.kind, index_a.dim, index_a.count);
     for (unsigned i = 0; i < 32; i++)
+    {
         if (index_a.live & bit(i))
         {
             struct sp_item x = index_a.items[i];
             printf("I %u %d %d %d %d %d %d\n", i, x.box.lo[0], x.box.lo[1],
                    x.box.lo[2], x.box.hi[0], x.box.hi[1], x.box.hi[2]);
         }
+    }
 }
 
 static void exercise(unsigned kind, unsigned dim, unsigned print)
@@ -278,13 +328,19 @@ static void exercise(unsigned kind, unsigned dim, unsigned print)
         list[i] = point(i, (int)(next() % 24) - 12, (int)(next() % 24) - 12,
                         dim == 3 ? (int)(next() % 24) - 12 : 0);
         if (kind == SP_BVH || kind == SP_RTREE || kind == SP_GRID)
+        {
             for (unsigned d = 0; d < dim; d++)
+            {
                 list[i].box.hi[d] += 1 + (int)(next() % 2);
+            }
+        }
     }
     CHECK(sp_build(&index_a, &scratch, kind, dim, list, 32,
                    kind == SP_GRID ? 256 : 128, 4) == SP_OK);
     if (print)
+    {
         dumpitems();
+    }
     queries(print);
     for (unsigned i = 0; i < 32; i += 3)
     {
@@ -292,7 +348,9 @@ static void exercise(unsigned kind, unsigned dim, unsigned print)
         invariant(&index_a);
     }
     if (print)
+    {
         dumpitems();
+    }
     queries(print);
     for (unsigned i = 0; i < 32; i += 3)
     {
@@ -300,7 +358,9 @@ static void exercise(unsigned kind, unsigned dim, unsigned print)
         invariant(&index_a);
     }
     if (print)
+    {
         dumpitems();
+    }
     queries(print);
     for (unsigned i = 0; i < 32; i++)
     {
@@ -310,7 +370,9 @@ static void exercise(unsigned kind, unsigned dim, unsigned print)
         invariant(&index_a);
     }
     if (print)
+    {
         dumpitems();
+    }
     queries(print);
     saved = index_a;
     struct sp_item invalid = list[0];
@@ -373,7 +435,9 @@ static void boundaries(unsigned kind)
               n.distance == 9);
         struct sp_item line[32];
         for (unsigned i = 0; i < 32; i++)
+        {
             line[i] = point(i, (int)i - 16, 0, 0);
+        }
         CHECK(sp_build(&index_a, &scratch, SP_KD, 3, line, 32, 128, 0) ==
               SP_OK);
         queries(0);
@@ -438,12 +502,18 @@ static void refit_comparison(void)
 {
     struct sp_item items[32];
     for (unsigned i = 0; i < 32; i++)
+    {
         items[i] = point(i, (int)i * 8, 0, 0);
+    }
     CHECK(sp_build(&index_a, &scratch, SP_BVH, 3, items, 32, 128, 0) == SP_OK);
     unsigned topology[128][2];
     for (unsigned i = 0; i < index_a.used; i++)
+    {
         for (unsigned j = 0; j < 2; j++)
+        {
             topology[i][j] = index_a.nodes[i].child[j];
+        }
+    }
     for (unsigned i = 0; i < 32; i++)
     {
         items[i] = point(i, (int)((i * 13) % 32), 0, 0);
@@ -451,8 +521,12 @@ static void refit_comparison(void)
         items[i].box.hi[2] = 1; /* Degenerate3D slab: y extent zero. */
         CHECK(sp_refit(&index_a, &scratch, items[i]) == SP_OK);
         for (unsigned n = 0; n < index_a.used; n++)
+        {
             for (unsigned j = 0; j < 2; j++)
+            {
                 CHECK(topology[n][j] == index_a.nodes[n].child[j]);
+            }
+        }
     }
     invariant(&index_a);
     uint32_t expected[32];
@@ -463,8 +537,12 @@ static void refit_comparison(void)
         CHECK(sp_query(&index_a, items[i].box, &r) == SP_OK);
         expected[i] = 0;
         for (unsigned j = 0; j < 32; j++)
+        {
             if (hit(items[i].box, items[j].box, 3))
+            {
                 expected[i] |= bit(j);
+            }
+        }
         CHECK(r.mask == expected[i]);
         old_visits += r.visits;
     }
@@ -487,13 +565,17 @@ int main(int argc, char **argv)
     unsigned dump = argc > 2;
     boundaries(kind);
     if (kind == SP_BVH)
+    {
         refit_comparison();
+    }
     for (unsigned dim = 2; dim <= 3; dim++)
+    {
         for (unsigned seed = 0; seed < (dump ? 1u : 5u); seed++)
         {
             rng = 913 + seed;
             exercise(kind, dim, dump);
         }
+    }
     printf("SP_PASS:%u\n", kind);
     return 0;
 }

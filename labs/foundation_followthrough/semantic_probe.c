@@ -52,11 +52,15 @@ int main(void)
     y = 2;
     int distinct = sum(f(), g());
     if (distinct != 6 || x != 2 || y != 4)
+    {
         return 1;
+    }
     state = 1;
     int shared = sum(shared_f(), shared_g());
     if (!((shared == 5 && state == 4) || (shared == 4 && state == 3)))
+    {
         return 1;
+    }
     printf("distinct=%d,%d,%d shared=%d,%d\n", distinct, x, y, shared, state);
     return 0;
 }

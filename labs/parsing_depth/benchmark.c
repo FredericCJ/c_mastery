@@ -9,7 +9,9 @@ static uint64_t now(void)
 {
     struct timespec t;
     if (clock_gettime(CLOCK_MONOTONIC, &t))
+    {
         return 0;
+    }
     return (uint64_t)t.tv_sec * UINT64_C(1000000000) + (uint64_t)t.tv_nsec;
 }
 
@@ -22,11 +24,14 @@ int main(void)
         "states,nfa_bytes,dfa_bytes,lr_table_bytes,pratt_tree_bytes,peg_result_"
         "bytes");
     for (unsigned p = 0; p < 3; ++p)
+    {
         for (unsigned l = 0; l < 3; ++l)
         {
             unsigned char text[256];
             for (unsigned i = 0; i < lengths[l]; ++i)
+            {
                 text[i] = (unsigned char)(p == 1 ? 'a' + (i & 1) : 'a');
+            }
             if (p == 1)
             {
                 text[lengths[l] - 3] = 'a';
@@ -38,7 +43,9 @@ int main(void)
             if (rx_compile((const unsigned char *)patterns[p],
                            strlen(patterns[p]), &n, &diag) ||
                 rx_determinize(&n, 16, &d))
+            {
                 return 2;
+            }
             for (unsigned round = 0; round < 9; ++round)
             {
                 uint64_t times[2] = {0};
@@ -54,13 +61,17 @@ int main(void)
                             which ? rx_dfa_match(&d, text, lengths[l], &value)
                                   : rx_match(&n, text, lengths[l], 0, &value);
                         if (rc)
+                        {
                             return 3;
+                        }
                         sums[which] += value;
                     }
                     times[which] = now() - begin;
                 }
                 if (sums[0] != sums[1] || !times[0] || !times[1])
+                {
                     return 4;
+                }
                 printf("%u,%u,%u,1000,%" PRIu64 ",%" PRIu64
                        ",%u,%u,%u,%zu,%zu,%zu,%zu,%zu\n",
                        p, lengths[l], round, times[0], times[1], sums[0],
@@ -69,5 +80,6 @@ int main(void)
                        sizeof(struct ps_result));
             }
         }
+    }
     return 0;
 }

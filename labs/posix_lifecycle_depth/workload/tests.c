@@ -30,7 +30,9 @@ static int request(size_t *n)
             return -1;
         }
         if (*n > 3)
+        {
             *n = 3;
+        }
     }
     if (mode == 2)
     {
@@ -40,7 +42,9 @@ static int request(size_t *n)
             return -1;
         }
         if (*n > 3)
+        {
             *n = 3;
+        }
     }
     return 0;
 }
@@ -48,7 +52,9 @@ static int request(size_t *n)
 ssize_t __wrap_pread(int fd, void *b, size_t n, off_t offset)
 {
     if (request(&n))
+    {
         return -1;
+    }
     return __real_pread(fd, b, n, offset);
 }
 
@@ -56,7 +62,9 @@ ssize_t __wrap___pread_chk(int fd, void *b, size_t n, off_t offset,
                            size_t bound)
 {
     if (request(&n))
+    {
         return -1;
+    }
     return __real___pread_chk(fd, b, n, offset, bound);
 }
 
@@ -67,7 +75,9 @@ int main(void)
     CHECK(fd >= 0 && unlink(path) == 0);
     unsigned char data[67], out[64], saved[64];
     for (size_t i = 0; i < sizeof data; ++i)
+    {
         data[i] = (unsigned char)(i + 1);
+    }
     CHECK(write(fd, data, sizeof data) == sizeof data);
     memset(out, 0xcc, sizeof out);
     memcpy(saved, out, sizeof out);

@@ -34,19 +34,25 @@ static uint32_t rd(void *p, uint32_t a)
         return m->byte;
     }
     for (unsigned i = 0; i < m->n; ++i)
+    {
         if (m->address[i] == a)
+        {
             return m->value[i];
+        }
+    }
     return 0;
 }
 
 static void putreg(struct f4_m *m, uint32_t a, uint32_t v)
 {
     for (unsigned i = 0; i < m->n; ++i)
+    {
         if (m->address[i] == a)
         {
             m->value[i] = v;
             return;
         }
+    }
     m->address[m->n] = a;
     m->value[m->n++] = v;
 }
@@ -61,9 +67,13 @@ static void wr(void *p, uint32_t a, uint32_t v)
         m->ack = m->tc ? 64u : 128u;
     }
     else if (a == U + 0x20u)
+    {
         m->clear = v;
+    }
     else if (a == U + 0x18u)
+    {
         m->flush = v;
+    }
     putreg(m, a, v);
 }
 
@@ -75,7 +85,9 @@ static void sync(void *p)
 static void put(unsigned char *p, uint32_t n)
 {
     for (unsigned i = 0; i < 4; ++i)
+    {
         p[i] = (unsigned char)(n >> (i * 8));
+    }
 }
 
 static unsigned packet(unsigned char *b, unsigned char key[32], unsigned extent)
@@ -127,8 +139,10 @@ int main(void)
         {
             C(rt_byte(&f, wire[i]) == (i + 1 == n ? RT_READY : RT_MORE));
             if (i + 1 < n)
+            {
                 C(!rt_admit(&f, &p, &l, &out) &&
                   !memcmp(&out, &before, sizeof out));
+            }
         }
         C(rt_admit(&f, &p, &l, &out) && out.extent == extent);
         C(rt_byte(&f, 0) == RT_BAD && !rt_admit(&f, &p, &l, &out));
@@ -138,7 +152,9 @@ int main(void)
     {
         rt_reset(&f);
         for (unsigned i = 0; i < cut; ++i)
+        {
             C(rt_byte(&f, wire[i]) == RT_MORE);
+        }
         out = before;
         C(!rt_admit(&f, &p, &l, &out) && !memcmp(&out, &before, sizeof out));
         rt_reset(&f);
@@ -152,14 +168,18 @@ int main(void)
             enum rt_result z =
                 rt_byte(&f, (unsigned char)(wire[i] ^ (i == pos ? 0x80 : 0)));
             if (z == RT_BAD)
+            {
                 break;
+            }
         }
         out = before;
         C(!rt_admit(&f, &p, &l, &out) && !memcmp(&out, &before, sizeof out));
     }
     rt_reset(&f);
     for (unsigned i = 0; i < n; ++i)
+    {
         (void)rt_byte(&f, wire[i]);
+    }
     p.revoked = 2;
     out = before;
     C(!rt_admit(&f, &p, &l, &out));

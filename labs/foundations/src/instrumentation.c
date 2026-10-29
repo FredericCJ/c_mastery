@@ -27,7 +27,9 @@ int main(void)
 {
     int sum = 0;
     for (int i = 0; i < 4; i++)
+    {
         sum += kernel(i);
+    }
     printf(
         "{\"sum\":%d,\"entry_hooks\":%llu,\"exit_hooks_before_main_return\":%"
         "llu}\n",

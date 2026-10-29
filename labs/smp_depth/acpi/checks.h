@@ -5,7 +5,9 @@
 static void sa_w32(unsigned char *p, uint32_t v)
 {
     for (unsigned i = 0; i < 4; ++i)
+    {
         p[i] = (unsigned char)(v >> (8 * i));
+    }
 }
 
 static void sa_sum(unsigned char *p, size_t n)
@@ -13,14 +15,18 @@ static void sa_sum(unsigned char *p, size_t n)
     unsigned sum = 0;
     p[9] = 0;
     for (size_t i = 0; i < n; ++i)
+    {
         sum = (sum + p[i]) & 255;
+    }
     p[9] = (unsigned char)(0u - sum);
 }
 
 static void sa_base(unsigned char *p, size_t n)
 {
     for (size_t i = 0; i < n; ++i)
+    {
         p[i] = 0;
+    }
     p[0] = 'A';
     p[1] = 'P';
     p[2] = 'I';
@@ -34,8 +40,12 @@ static int sa_same(const void *a, const void *b, size_t n)
 {
     const unsigned char *x = a, *y = b;
     for (size_t i = 0; i < n; ++i)
+    {
         if (x[i] != y[i])
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
@@ -67,7 +77,9 @@ static int sa_checks(void)
     old = t;
     unsigned char unaligned[80];
     for (unsigned i = 0; i < 76; ++i)
+    {
         unaligned[i + 1] = p[i];
+    }
     unaligned[77] = 255;
     unaligned[78] = 127;
     SAC(sa_parse(unaligned + 1, 78, 16, SA_XAPIC, &t) == SA_OK &&
@@ -103,7 +115,9 @@ static int sa_checks(void)
     SAC(sa_parse(p, 76, 16, SA_XAPIC, &t) == SA_INVALID);
     sa_w32(p + 4, 76);
     for (unsigned i = 0; i < 4; ++i)
+    {
         sa_w32(p + 48 + 8 * i, 0);
+    }
     sa_sum(p, 76);
     SAC(sa_parse(p, 76, 16, SA_XAPIC, &t) == SA_EMPTY);
     sa_w32(p + 48, 1);

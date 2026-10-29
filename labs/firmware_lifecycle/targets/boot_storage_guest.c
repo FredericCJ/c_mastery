@@ -11,7 +11,9 @@ static int read_flash(void *unused, uint32_t a, uint32_t *out)
 static void put(unsigned char *p, uint32_t n)
 {
     for (unsigned i = 0; i < 4; ++i)
+    {
         p[i] = (unsigned char)(n >> (8 * i));
+    }
 }
 
 static void emit(const char *s)
@@ -25,7 +27,9 @@ static _Noreturn void bad(void)
 {
     emit("BS_GUEST_FAIL\n");
     for (;;)
+    {
         __asm__ volatile("wfi");
+    }
 }
 
 void fb_guest_main(void)
@@ -34,7 +38,9 @@ void fb_guest_main(void)
     *(volatile uint32_t *)(uintptr_t)0xE000ED24u |= 1u << 17;
     uint32_t sentinel = 0xA5A5A5A5u;
     if (eg_read_word(0xFFFFFFF0u, &sentinel) != 0 || sentinel != 0xA5A5A5A5u)
+    {
         bad();
+    }
     struct bs_layouts choices = {
         .core = {{{0x40000, 0x42000, 0x20000000, 0x20020000},
                   {0x50000, 0x52000, 0x20000000, 0x20020000}},
@@ -52,13 +58,17 @@ void fb_guest_main(void)
         uint32_t base = choices.core[core][0].base;
         unsigned char *header = (unsigned char *)(uintptr_t)(base - 32);
         for (unsigned i = 0; i < 32; ++i)
+        {
             header[i] = 0;
+        }
         uint32_t extent =
             core ? 576u : (uint32_t)((uintptr_t)app_end - (uintptr_t)app_start);
         if (core)
         {
             for (unsigned i = 0; i < 576; ++i)
+            {
                 header[32 + i] = 0;
+            }
             put(header + 32, 0x2001F000);
             put(header + 36, base + 513);
         }
@@ -73,30 +83,42 @@ void fb_guest_main(void)
                             header, 32 + extent);
         if (!bs_read_image(read_flash, 0, &policy, choices.core[core][0], core,
                            &images[core]))
+        {
             bad();
+        }
     }
     struct fw_peer peer = {.generation = 1};
     if (fw_peer_step(&peer, 0, 1, FW_HEALTHY) != H7_OK ||
         fw_peer_step(&peer, 1, 1, FW_HEALTHY) != H7_OK ||
         fw_peer_step(&peer, 0, 1, FW_CONFIRM) != H7_OK)
+    {
         bad();
+    }
     const uint32_t record_bases[2] = {0x80000, 0xA0000};
     if (!fb_joint_record(images, &peer, 1,
                          (unsigned char *)(uintptr_t)record_bases[0]))
+    {
         bad();
+    }
     for (unsigned i = 0; i < 128; ++i)
+    {
         ((unsigned char *)(uintptr_t)record_bases[1])[i] = 0;
+    }
     struct bs_selection selected;
     unsigned char *changed = (unsigned char *)(uintptr_t)(0x60000 + 513);
     *changed ^= 1;
     if (bs_select(read_flash, 0, &policy, &choices, record_bases, &selected) !=
         0)
+    {
         bad();
+    }
     *changed ^= 1;
     if (bs_select(read_flash, 0, &policy, &choices, record_bases, &selected) !=
             1 ||
         selected.sequence != 1 || selected.record != 0)
+    {
         bad();
+    }
     emit(
         "BS_GUEST_PASS:guarded physical reads,signature policy,paired journal,then handoff\n");
     fb_handoff(selected.image[0].base, selected.image[0].stack,

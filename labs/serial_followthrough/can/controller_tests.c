@@ -32,7 +32,9 @@ static uint32_t model_read(void *p, unsigned reg)
         return 0;
     }
     if (reg == CN_RF0R)
+    {
         return (m->words[reg / 4] & 24u) | m->count;
+    }
     if (reg >= CN_RI0R && reg <= CN_RDH0R)
     {
         if (!m->count)
@@ -42,15 +44,21 @@ static uint32_t model_read(void *p, unsigned reg)
         }
         struct cn_rx *r = &m->fifo[0];
         if (reg == CN_RI0R)
+        {
             return (r->frame.extended ? (r->frame.identifier << 3) | 4u
                                       : r->frame.identifier << 21) |
                    (r->frame.remote << 1);
+        }
         if (reg == CN_RDT0R)
+        {
             return (r->timestamp << 16) | (r->filter << 8) | r->frame.length;
+        }
         unsigned first = reg == CN_RDL0R ? 0 : 4;
         uint32_t v = 0;
         for (unsigned i = 0; i < 4; ++i)
+        {
             v |= (uint32_t)r->frame.data[first + i] << (8 * i);
+        }
         return v;
     }
     return m->words[reg / 4];
@@ -68,19 +76,29 @@ static void model_write(void *p, unsigned reg, uint32_t value)
     if (reg == CN_TSR)
     {
         if (value & ~129u)
+        {
             ++m->bad;
+        }
         if (value & 1u)
+        {
             m->words[reg / 4] &= ~15u;
+        }
         if (value & 128u)
+        {
             ++m->abort_requests;
+        }
         return;
     }
     if (reg == CN_RF0R)
     {
         if (value & ~56u)
+        {
             ++m->bad;
+        }
         if (value & 24u)
+        {
             m->words[reg / 4] &= ~(value & 24u);
+        }
         if (value & 32u)
         {
             if (!m->count)
@@ -89,7 +107,9 @@ static void model_write(void *p, unsigned reg, uint32_t value)
                 return;
             }
             for (unsigned i = 1; i < m->count; ++i)
+            {
                 m->fifo[i - 1] = m->fifo[i];
+            }
             --m->count;
             ++m->releases;
         }
@@ -102,22 +122,32 @@ static void model_write(void *p, unsigned reg, uint32_t value)
         return;
     }
     if (reg == CN_BTR && !(m->words[CN_MSR / 4] & 1u))
+    {
         ++m->bad;
+    }
     if (reg >= CN_FM1R && reg <= CN_FA1R && !(m->words[CN_FMR / 4] & 1u))
+    {
         ++m->bad;
+    }
     m->words[reg / 4] = value;
     if (reg == CN_MCR)
     {
         if (value & 1u)
         {
             if (!m->block_init)
+            {
                 m->words[CN_MSR / 4] = 1;
+            }
         }
         else if (!m->block_sync)
+        {
             m->words[CN_MSR / 4] = 0;
+        }
     }
     if (reg == CN_TI0R && value & 1u)
+    {
         m->words[CN_TSR / 4] &= ~((1u << 26) | 15u);
+    }
 }
 
 static void model_init(struct mc_model *m)
@@ -134,7 +164,9 @@ static int start(struct cn_controller *c, struct mc_model *m, unsigned nart,
     struct sd_timing t;
     struct cn_io io = {m, model_read, model_write};
     if (sd_can_timing(42000000, 6, 11, 2, 1, &t) != SD_OK)
+    {
         return 1;
+    }
     return cn_begin(c, io, &t, nart, locked, 3) != CN_MORE ||
            cn_control(c) != CN_MORE || cn_control(c) != CN_OK;
 }
@@ -144,7 +176,9 @@ static int inject(struct mc_model *m, unsigned id, unsigned value)
     uint32_t encoded = id << 21;
     if (!(m->words[CN_FA1R / 4] & 1u) ||
         ((encoded ^ m->words[CN_F0R1 / 4]) & m->words[CN_F0R2 / 4]))
+    {
         return 0;
+    }
     struct cn_rx r = {0};
     r.frame.identifier = id;
     r.frame.length = 1;
@@ -154,13 +188,17 @@ static int inject(struct mc_model *m, unsigned id, unsigned value)
     {
         m->words[CN_RF0R / 4] |= 16;
         if (!(m->words[CN_MCR / 4] & 8u))
+        {
             m->fifo[2] = r;
+        }
     }
     else
     {
         m->fifo[m->count++] = r;
         if (m->count == 3)
+        {
             m->words[CN_RF0R / 4] |= 8;
+        }
     }
     return 1;
 }
@@ -228,7 +266,9 @@ static int fifo(void)
     }
     CHECK(q.loss == 1);
     for (unsigned i = 2; i <= 4; ++i)
+    {
         CHECK(cn_queue_get(&q, &r) == CN_FRAME && r.frame.data[0] == i * 10);
+    }
     CHECK(cn_queue_get(&q, &r) == CN_MORE);
     cn_values("fifo", releases, 30, 40, 1);
     return 0;

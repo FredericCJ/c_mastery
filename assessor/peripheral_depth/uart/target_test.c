@@ -22,10 +22,16 @@ static unsigned count;
 volatile uint32_t *pu_test_register(uint32_t a)
 {
     for (unsigned i = 0; i < count; i++)
+    {
         if (addresses[i] == a)
+        {
             return &values[i];
+        }
+    }
     if (count == 32)
+    {
         abort();
+    }
     addresses[count] = a;
     return &values[count++];
 }

@@ -7,11 +7,15 @@ int main(void)
     assert(++essential);
 #ifdef NDEBUG
     if (essential != 0)
+    {
         return 1;
+    }
     puts("ECM_ASSERT disabled-essential-zero");
 #else
     if (essential != 1)
+    {
         return 1;
+    }
     puts("ECM_ASSERT enabled-essential-one");
 #endif
     return 0;

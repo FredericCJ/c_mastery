@@ -24,7 +24,9 @@ static void base(void)
     CHECK(b.count == 1 && b.commands[0].values[0] == 1 &&
           b.commands[0].values[1] == 2);
     for (op = 0; op < 5; ++op)
+    {
         for (count = 0; count < 6; ++count)
+        {
             for (n = 0; n <= 11; ++n)
             {
                 struct sc_batch old;
@@ -32,7 +34,9 @@ static void base(void)
                 p[0] = (unsigned char)op;
                 p[1] = (unsigned char)count;
                 for (i = 2; i < 11; ++i)
+                {
                     p[i] = (unsigned char)i;
+                }
                 memset(&b, 0x5a, sizeof b);
                 old = b;
                 expected = n < 2                  ? SC_LENGTH
@@ -43,10 +47,14 @@ static void base(void)
                                                   : SC_OK;
                 CHECK(sc_decode(p, n, &a, 0, &b, &m) == expected);
                 if (expected != SC_OK)
+                {
                     CHECK(!memcmp(&b, &old, sizeof b));
+                }
                 CHECK(m.values <= 4 && m.headers <= 1);
                 ++tests;
             }
+        }
+    }
     printf("OBS base cases=%u exact_grammar=1 failure_preserved=1\n", tests);
 }
 
@@ -171,14 +179,24 @@ int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (!strcmp(argv[1], "base"))
+    {
         base();
+    }
     else if (!strcmp(argv[1], "authority"))
+    {
         authority();
+    }
     else if (!strcmp(argv[1], "extensions"))
+    {
         extensions();
+    }
     else if (!strcmp(argv[1], "arithmetic"))
+    {
         arithmetic();
+    }
     else
+    {
         CHECK(0);
+    }
     return 0;
 }

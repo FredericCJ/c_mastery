@@ -4,15 +4,21 @@
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     FILE *f = fopen(argv[1], "rb");
     if (!f)
+    {
         return 2;
+    }
     unsigned char b[17];
     size_t n = fread(b, 1, 17, f);
     int failed = ferror(f);
     if (fclose(f))
+    {
         failed = 1;
+    }
     if (failed || n != 16)
     {
         fprintf(stderr, "DIAGNOSTIC-REJECT:length\n");

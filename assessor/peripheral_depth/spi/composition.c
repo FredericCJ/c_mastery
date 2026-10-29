@@ -23,7 +23,9 @@ static uint32_t get(void *p, unsigned r)
         return peer;
     }
     if (r == FW_STATUS)
+    {
         return phase ? FW_TXE | FW_RXNE | (busy ? FW_BUSY : 0) : FW_TXE;
+    }
     return 0;
 }
 
@@ -31,9 +33,13 @@ static void put(void *p, unsigned r, uint32_t v)
 {
     (void)p;
     if (r == FW_CONTROL)
+    {
         cs = v;
+    }
     if (r == FW_DATA)
+    {
         phase = 1;
+    }
 }
 
 static uint32_t sr[19];
@@ -42,7 +48,9 @@ static uint32_t psget(void *p, unsigned r)
 {
     (void)p;
     if (r == PS_DR)
+    {
         sr[PS_SR] &= ~PS_RXNE;
+    }
     return sr[r];
 }
 
@@ -51,7 +59,9 @@ static void psput(void *p, unsigned r, uintptr_t v)
     (void)p;
     sr[r] = (uint32_t)v;
     if (r == PS_DR)
+    {
         sr[PS_SR] = PS_BSY;
+    }
 }
 
 int main(void)

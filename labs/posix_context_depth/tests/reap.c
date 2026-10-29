@@ -42,12 +42,16 @@ static pid_t child(int gate[2], int result)
             n = read(gate[0], &c, 1);
         } while (n < 0 && errno == EINTR);
         if (n != 1)
+        {
             _exit(90);
+        }
         close(gate[0]);
         if (result < 0)
         {
             if (kill(getpid(), SIGTERM))
+            {
                 _exit(91);
+            }
             _exit(92);
         }
         _exit(result);

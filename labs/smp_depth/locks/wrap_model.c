@@ -12,7 +12,9 @@ static void turn(unsigned i)
     assert(sl_ticket_reserve(&lock, &guard) == SL_OK);
     assert(sl_ticket_ready(&guard, NULL) == SL_OK);
     if (i == 15)
+    {
         counter++;
+    }
     assert(sl_leave(&guard, NULL) == SL_OK);
 }
 

@@ -32,11 +32,17 @@ void reset(void)
 {
     uint32_t *src = &__data_load;
     for (uint32_t *p = &__data_start; p < &__data_end;)
+    {
         *p++ = *src++;
+    }
     for (uint32_t *p = &__bss_start; p < &__bss_end;)
+    {
         *p++ = 0;
+    }
     if (pl_guest_main())
+    {
         pl_stop(1);
+    }
     pl_stop(0);
 }
 

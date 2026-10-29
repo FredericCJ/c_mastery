@@ -22,7 +22,9 @@ static struct cvm_program program(unsigned kind, int32_t value)
     {
         p.code[p.length++] = OP_INT;
         for (unsigned i = 0; i < 4; i++)
+        {
             p.code[p.length++] = (uint8_t)((uint32_t)value >> (8 * i));
+        }
         if (kind >= 2)
         {
             p.code[p.length++] = OP_INT;
@@ -64,7 +66,9 @@ static int finish(unsigned c)
 {
     int r = SFV_RUNNING;
     for (unsigned i = 0; i < 101 && r == SFV_RUNNING; i++)
+    {
         r = sfv_step(&service, c);
+    }
     return r;
 }
 
@@ -117,7 +121,9 @@ int sfv_tests(void)
         VCHECK(!make(0, 23, 1, 4 + cut));
         VCHECK(sfv_submit(&service, 0, &request) == SFV_RUNNING);
         for (unsigned i = 0; i < cut; i++)
+        {
             (void)sfv_step(&service, 0);
+        }
         VCHECK(sfv_cancel(&service, 0, 1, 4 + cut) == SFV_CANCELLED &&
                sfv_reply(&service, 0, 1, 4 + cut, out, sizeof out, &length,
                          &status) == SFV_CANCELLED);
@@ -162,10 +168,14 @@ int main(void)
 {
     int r = sfv_tests();
     if (r)
+    {
         printf("SFV_CHECK:%d\n", r);
+    }
     else
+    {
         puts(
             "PASS sfv:512-results cancellation capacity identity fuel verifier");
+    }
     return !!r;
 }
 #endif

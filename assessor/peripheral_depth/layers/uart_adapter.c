@@ -31,7 +31,9 @@ int pl_uart_open(struct pl_uart *u, struct pu_io io,
                  unsigned polls)
 {
     if (!u || !clock || backend > PU_DMA)
+    {
         return PL_INVALID;
+    }
     int r = pu_open(&u->driver, io, clock, baud, 0, polls);
     if (r == PU_OK)
     {

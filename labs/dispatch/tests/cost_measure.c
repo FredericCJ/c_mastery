@@ -41,7 +41,9 @@ static int direct_selected(const int *p, size_t n, int *out)
         int next, status = (selector + i) & 1 ? dc_max(value, p[i], &next)
                                               : dc_add(value, p[i], &next);
         if (status)
+        {
             return status;
+        }
         value = next;
     }
     *out = value;
@@ -68,7 +70,9 @@ int main(int argc, char **argv)
            sizeof(struct ds_box), _Alignof(struct ds_box),
            offsetof(struct ds_box, value));
     if (!selector)
+    {
         for (unsigned trial = 0; trial < 7; ++trial)
+        {
             for (unsigned k = 0; k < 3; ++k)
             {
                 unsigned kind = (k + trial) % 3;
@@ -77,6 +81,7 @@ int main(int argc, char **argv)
                 atomic_signal_fence(memory_order_seq_cst);
                 uint64_t start = now();
                 for (unsigned repeat = 0; repeat < 100; ++repeat)
+                {
                     for (unsigned i = 0; i < 1000; ++i)
                     {
                         int status = kind == 0   ? dc_direct(&values[i], &out)
@@ -85,16 +90,22 @@ int main(int argc, char **argv)
                         CHECK(status == DS_OK);
                         checksum += out;
                     }
+                }
                 atomic_signal_fence(memory_order_seq_cst);
                 uint64_t elapsed = now() - start;
                 CHECK(checksum == 50050000);
                 printf("R %u %u %llu %lld\n", trial, kind,
                        (unsigned long long)elapsed, checksum);
             }
+        }
+    }
     int inputs[16];
     for (unsigned i = 0; i < 16; ++i)
+    {
         inputs[i] = (int)(i % 7) - 3;
+    }
     for (unsigned trial = 0; trial < 7; ++trial)
+    {
         for (unsigned k = 0; k < 5; ++k)
         {
             unsigned kind = (k + trial) % 5;
@@ -106,14 +117,22 @@ int main(int argc, char **argv)
             {
                 int status;
                 if (kind == 0)
+                {
                     status = selector ? dc_max_fold(inputs, 16, 0, &out)
                                       : ds_sum(inputs, 16, 0, &out);
+                }
                 else if (kind == 1)
+                {
                     status = ds_fold(inputs, 16, 0, dc_add, &out);
+                }
                 else if (kind == 2)
+                {
                     status = ds_fold(inputs, 16, 0, dc_choose(selector), &out);
+                }
                 else if (kind == 3)
+                {
                     status = direct_selected(inputs, 16, &out);
+                }
                 else
                 {
                     element = 0;
@@ -128,9 +147,13 @@ int main(int argc, char **argv)
             printf("D %u %u %u %llu %lld\n", selector, trial, kind,
                    (unsigned long long)elapsed, checksum);
         }
+    }
     if (!selector)
+    {
         for (unsigned population = 1; population <= 4; population *= 2)
+        {
             for (unsigned trial = 0; trial < 7; ++trial)
+            {
                 for (unsigned k = 0; k < 2; ++k)
                 {
                     unsigned kind = (k + trial) % 2;
@@ -159,14 +182,19 @@ int main(int argc, char **argv)
                     uint64_t elapsed = now() - start;
                     CHECK(checksum == 240000);
                     if (kind)
+                    {
                         CHECK(cache.misses ==
                                   (population == 4 ? 20000 : population) &&
                               cache.hits + cache.misses == 20000);
+                    }
                     printf("C %u %u %u %llu %lld %u %u\n", population, trial,
                            kind, (unsigned long long)elapsed, checksum,
                            cache.hits, cache.misses);
                     ds_resolution_cache_clear(&cache);
                     ds_resolution_clear(&methods);
                 }
+            }
+        }
+    }
     return 0;
 }

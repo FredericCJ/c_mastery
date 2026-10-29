@@ -16,7 +16,9 @@ static const char *test;
 static int add(int a, int b, int *out)
 {
     if ((b > 0 && a > INT_MAX - b) || (b < 0 && a < INT_MIN - b))
+    {
         return DS_RANGE;
+    }
     *out = a + b;
     return DS_OK;
 }
@@ -43,8 +45,12 @@ struct ds_model
 static int position(const struct ds_model *m, unsigned i)
 {
     for (unsigned n = 0; n < m->n; ++n)
+    {
         if (m->values[n] == i)
+        {
             return (int)n;
+        }
+    }
     return -1;
 }
 
@@ -54,14 +60,20 @@ static int model(struct ds_model *m, unsigned i, unsigned remove)
     if (remove)
     {
         if (at < 0)
+        {
             return DS_STALE;
+        }
         for (unsigned n = (unsigned)at; n + 1 < m->n; ++n)
+        {
             m->values[n] = m->values[n + 1];
+        }
         --m->n;
         return DS_OK;
     }
     if (at >= 0)
+    {
         return DS_BUSY;
+    }
     m->values[m->n++] = i;
     return DS_OK;
 }
@@ -87,7 +99,9 @@ static int dual_check(const struct ds_dual_list *l,
     CHECK(h == &l->head);
     int out = 91, expected = 0;
     for (unsigned n = 0; n < m->n; ++n)
+    {
         expected = expected * 5 + items[m->values[n]].value;
+    }
     CHECK(ds_dual_fold(l, digits, 0, &out) == DS_OK && out == expected);
     return 0;
 }
@@ -180,7 +194,9 @@ static int baseline_histories(void)
         struct ds_model m = {0};
         ds_list_init(&l);
         for (unsigned i = 0; i < 4; ++i)
+        {
             ds_item_init(&items[i], (int)i + 1);
+        }
         for (unsigned n = 0; n < 7; ++n)
         {
             unsigned action = script % 8;
@@ -193,7 +209,9 @@ static int baseline_histories(void)
                             : ds_list_push(&l, &items[i]);
             CHECK(rc == want);
             if (rc == DS_OK)
+            {
                 (void)model(&m, i, remove);
+            }
             CHECK(l.count == m.n);
             const struct ds_link *h = &l.head;
             int sum = 0;
@@ -224,14 +242,18 @@ static int dual(void)
 {
     CHECK(trace(0, 1, 0) == 0);
     for (unsigned code = 0; code < 262144; ++code)
+    {
         CHECK(trace(code, 6, 0) == 0);
+    }
     struct ds_dual_list a = {0}, b = {0}, wrong = {0};
     struct ds_dual_item items[5] = {0};
     ds_dual_init(&a, 0);
     ds_dual_init(&b, 1);
     ds_dual_init(&wrong, 0);
     for (unsigned i = 0; i < 5; ++i)
+    {
         ds_dual_item_init(&items[i], i == 0 ? INT_MAX : 1);
+    }
     for (unsigned i = 0; i < 4; ++i)
     {
         CHECK(ds_dual_push(&a, &items[i]) == DS_OK);
@@ -256,7 +278,9 @@ static int index_test(void)
 {
     CHECK(trace(0, 1, 0) == 0);
     for (unsigned code = 0; code < 4096; ++code)
+    {
         CHECK(trace(code, 4, 0) == 0);
+    }
     struct ds_index_owner o = {0}, foreign = {0};
     struct ds_index_slot a[4] = {0}, b[4] = {0}, c[4] = {0};
     ds_index_init(&o, a);
@@ -267,7 +291,9 @@ static int index_test(void)
     {
         CHECK(ds_index_new(&o, (int)i, &all[i]) == DS_OK);
         for (unsigned j = 0; j < i; ++j)
+        {
             CHECK(ds_index_get(&o, all[j], &value) == DS_STALE && value == 91);
+        }
         CHECK(ds_index_get(&foreign, all[i], &value) == DS_STALE &&
               value == 91);
         CHECK(ds_index_push(&o, 0, all[i]) == DS_OK);
@@ -279,13 +305,17 @@ static int index_test(void)
         CHECK(ds_index_release(&o, all[i]) == DS_OK);
         CHECK(ds_index_relocate(&o, (i % 2) ? a : b) == DS_OK);
         for (unsigned j = 0; j <= i; ++j)
+        {
             CHECK(ds_index_get(&o, all[j], &value) == DS_STALE && value == 91);
+        }
     }
     out = (struct ds_index_handle){&foreign, 3, 2};
     CHECK(ds_index_new(&o, 7, &out) == DS_FULL && out.owner == &foreign &&
           out.index == 3 && out.generation == 2);
     for (unsigned i = 0; i < 4; ++i)
+    {
         CHECK(o.generation[i] == 4 && !o.live[i]);
+    }
     CHECK(ds_index_relocate(&o, NULL) == DS_INVALID);
     CHECK(ds_index_get(NULL, out, &value) == DS_INVALID);
     return 0;
@@ -294,17 +324,27 @@ static int index_test(void)
 int main(int argc, char **argv)
 {
     if (argc < 2)
+    {
         return 2;
+    }
     test = argv[1];
     if (!strcmp(test, "dual_hook"))
+    {
         return dual();
+    }
     if (!strcmp(test, "index_move"))
+    {
         return index_test();
+    }
     if (!strcmp(test, "oracle"))
     {
         for (unsigned code = 0; code < 4096; ++code)
+        {
             if (trace(code, 4, 1))
+            {
                 return 1;
+            }
+        }
         return 0;
     }
     return 2;

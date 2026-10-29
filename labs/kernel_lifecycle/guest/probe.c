@@ -49,6 +49,7 @@ static void replacement(int f)
     {
         int next;
         for (unsigned key = 0; key < 2; key++)
+        {
             for (unsigned mode = 0; mode < 2; mode++)
             {
                 q[0] = key;
@@ -57,6 +58,7 @@ static void replacement(int f)
                 CHECK(ioctl(f, 0xB062, q) == 0);
                 CHECK(q[2] == (key ? 1 : i + 1) && q[3] == 0);
             }
+        }
         CHECK(ioctl(f, 0xB061, 0) == 0);
         stats(f, old);
         CHECK(old[3] == 1 && old[5] == 17);
@@ -102,7 +104,9 @@ static void removal_race(int owner)
                 ssize_t n = write(h, msg, 8);
                 CHECK(n == 8 || (n == -1 && errno == ENODEV));
                 if (n == -1)
+                {
                     denied++;
+                }
                 int other = open("/dev/cm_b06_owner", O_RDWR);
                 if (other < 0)
                 {
@@ -110,7 +114,9 @@ static void removal_race(int owner)
                     denied++;
                 }
                 else
+                {
                     CHECK(close(other) == 0);
+                }
             }
             CHECK(denied > 0);
             CHECK(close(h) == 0);
@@ -118,12 +124,16 @@ static void removal_race(int owner)
         }
     }
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(read(ready[0], &token, 1) == 1);
+    }
     CHECK(write(go[1], "GGGG", 4) == 4);
     CHECK(ioctl(owner, 0xB060, 0) == 0);
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(wait(&status) > 0 && WIFEXITED(status) &&
               WEXITSTATUS(status) == 0);
+    }
     close(ready[0]);
     close(ready[1]);
     close(go[0]);
@@ -210,8 +220,10 @@ int main(int argc, char **argv)
         }
     }
     for (i = 0; i < 4; ++i)
+    {
         CHECK(wait(&status) > 0 && WIFEXITED(status) &&
               WEXITSTATUS(status) == 0);
+    }
     usleep(20000);
     stats(f, after);
     CHECK(after[0] == 4002 && after[1] > 0 && after[4] > 0);

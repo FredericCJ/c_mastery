@@ -6,7 +6,9 @@ int nw_pair_init(struct nw_pair *s, unsigned cap, uint32_t epoch, uint16_t a,
                  uint16_t b)
 {
     if (!s || cap < 1 || cap > 2 || !epoch || !a || !b || a == b)
+    {
         return NW_INVALID;
+    }
 #if NW_PAIR_MUTANT == 2
     *s = (struct nw_pair){.ports = {a, b}, .capacity = cap, .epoch = epoch};
 #else
@@ -16,7 +18,9 @@ int nw_pair_init(struct nw_pair *s, unsigned cap, uint32_t epoch, uint16_t a,
     s->epoch = epoch;
 #endif
     for (unsigned i = 0; i < 2; ++i)
+    {
         net_init(&s->flows[i], 1000 + 65536 * i);
+    }
     return NW_OK;
 }
 
@@ -24,7 +28,9 @@ int nw_pair_receive(struct nw_pair *s, const void *data, size_t n, uint64_t now,
                     struct net_packet *out)
 {
     if (!s || !data || !out || s->capacity < 1 || s->capacity > 2 || n < 14)
+    {
         return NW_INVALID;
+    }
     const unsigned char *p = data;
     if (p[12] == 8 && p[13] == 6)
     {
@@ -34,14 +40,19 @@ int nw_pair_receive(struct nw_pair *s, const void *data, size_t n, uint64_t now,
         {
             struct net_packet ignored;
             if (net_receive(&s->flows[i], p, n, now, i ? &ignored : out) < 0)
+            {
                 return NW_INVALID;
+            }
         }
         return NW_OK;
     }
     if (p[12] != 8 || p[13] != 0 || n < 54)
+    {
         return NW_INVALID;
+    }
     unsigned port = (unsigned)p[34] * 256 + p[35];
     for (unsigned i = 0; i < s->capacity; ++i)
+    {
         if (s->ports[i] == port)
         {
             unsigned selected = NW_PAIR_MUTANT == 1 ? 0 : i;
@@ -49,5 +60,6 @@ int nw_pair_receive(struct nw_pair *s, const void *data, size_t n, uint64_t now,
                        ? NW_INVALID
                        : NW_OK;
         }
+    }
     return NW_BUSY;
 }

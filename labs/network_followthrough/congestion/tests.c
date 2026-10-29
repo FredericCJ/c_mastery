@@ -22,7 +22,9 @@ int main(void)
           s.nxt == 34);
     CHECK(nr_ack(&s, 35, 50, 0, 16, 1) == NR_INVALID && nr_flight(&s) == 50);
     for (unsigned i = 1; i <= 50; i++)
+    {
         CHECK(nr_ack(&s, 0xfffffff0 + i, 50, 0, 16, i) == NR_OK);
+    }
     CHECK(s.cwnd == 150 &&
           s.una == 34); /* ACK division admits only50 growth, not5000. */
     CHECK(nr_init(&s, 100, 0, 10000) == NR_OK);
@@ -30,16 +32,22 @@ int main(void)
     {
         unsigned target = s.cwnd;
         while (nr_flight(&s) < target)
+        {
             CHECK(nr_send(&s, 100, 1, round * 10, &seq) == NR_OK);
+        }
         while (nr_flight(&s))
+        {
             CHECK(nr_ack(&s, s.una + 100, 10000, 0, 16, round * 10 + 1) ==
                   NR_OK);
+        }
     }
     CHECK(s.cwnd ==
           800); /* cwnd8MSS, then rwnd permits only4MSS actual flight. */
     CHECK(nr_ack(&s, s.una, 400, 0, 16, 31) == NR_WAIT);
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(nr_send(&s, 100, 1, 32, &seq) == NR_OK);
+    }
     CHECK(nr_ack(&s, s.una, 401, 0, 16, 33) == NR_WAIT && s.duplicates == 0);
     CHECK(nr_ack(&s, s.una, 401, 1, 16, 34) == NR_WAIT && s.duplicates == 0);
     CHECK(nr_ack(&s, s.una, 401, 0, 16, 35) == NR_WAIT);
@@ -49,7 +57,9 @@ int main(void)
     CHECK(nr_ack(&s, s.una, 401, 0, 16, 38) == NR_WAIT);
     CHECK(s.cwnd == 600);
     for (unsigned i = 0; i < 20; i++)
+    {
         CHECK(nr_ack(&s, s.una, 401, 0, 16, 39 + i) == NR_WAIT);
+    }
     CHECK(s.cwnd == 600);
     /* Window updates reset duplicate classification, not the recovery episode's
      * inflation budget. Alternating them must not replenish that budget. */
@@ -63,7 +73,9 @@ int main(void)
     CHECK(nr_ack(&s, s.nxt, 10000, 0, 16, 60) == NR_OK && s.cwnd == 200 &&
           !s.recovery);
     for (unsigned i = 0; i < 2; i++)
+    {
         CHECK(nr_send(&s, 100, 1, 61, &seq) == NR_OK);
+    }
     CHECK(nr_ack(&s, s.una + 100, 10000, 0, 16, 62) == NR_OK && s.cwnd == 200 &&
           s.credit == 100);
     CHECK(nr_ack(&s, s.una + 100, 10000, 0, 16, 63) == NR_OK && s.cwnd == 300 &&
@@ -92,7 +104,9 @@ int main(void)
     CHECK(nr_policy(&s, 1) == NR_OK);
     s.cwnd = 800;
     for (unsigned i = 0; i < 8; i++)
+    {
         CHECK(nr_send(&s, 100, 1, 0, &seq) == NR_OK);
+    }
     CHECK(nr_policy(&s, 0) == NR_BUSY);
     CHECK(nr_ack(&s, s.una, 1600, 0, 16, 1) == NR_WAIT && s.cwnd == 800);
     CHECK(nr_send(&s, 100, 0, 1, &seq) == NR_WAIT && s.quota == 1);

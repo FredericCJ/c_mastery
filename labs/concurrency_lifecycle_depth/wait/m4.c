@@ -63,7 +63,9 @@ static void irq0(void)
 static void await_interrupt(unsigned expected)
 {
     for (unsigned spin = 0; spin < 100000 && delivered != expected; ++spin)
+    {
         __asm__ volatile("nop" ::: "memory");
+    }
     CHECK(delivered == expected && last_ipsr == 16);
 }
 
@@ -110,10 +112,14 @@ void cl_reset(void)
     uintptr_t source = (uintptr_t)&cl_data_load;
     for (uintptr_t p = (uintptr_t)&cl_data_start; p < (uintptr_t)&cl_data_end;
          p += 4, source += 4)
+    {
         *(uint32_t *)p = *(const uint32_t *)source;
+    }
     for (uintptr_t p = (uintptr_t)&cl_bss_start; p < (uintptr_t)&cl_bss_end;
          p += 4)
+    {
         *(uint32_t *)p = 0;
+    }
     exercise();
     stop(0);
 }

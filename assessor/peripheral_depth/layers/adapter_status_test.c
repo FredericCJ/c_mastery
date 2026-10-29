@@ -78,10 +78,14 @@ int main(void)
         unsigned terminal = mapped[i] == PL_OK || mapped[i] == PL_TIMEOUT ||
                             mapped[i] == PL_IO || mapped[i] == PL_CANCELLED;
         if (terminal)
+        {
             CHECK(r == PL_OK && out.token == 1 &&
                   out.status == (unsigned)mapped[i] && !service.active);
+        }
         else
+        {
             CHECK(r == mapped[i] && out.token == 77 && service.active);
+        }
     }
     puts("PL_STATUS_PASS");
     return 0;

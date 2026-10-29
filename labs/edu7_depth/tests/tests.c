@@ -136,12 +136,20 @@ static int session(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "grant"))
+    {
         return grant();
+    }
     if (!strcmp(argv[1], "offer"))
+    {
         return offer();
+    }
     if (!strcmp(argv[1], "session"))
+    {
         return session();
+    }
     return 2;
 }

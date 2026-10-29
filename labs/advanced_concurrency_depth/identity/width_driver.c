@@ -13,16 +13,22 @@ int main(void)
     _Atomic(struct ai_pair) pair;
     atomic_init(&pair, original);
     if (!ai_pair_cas(&pair, &expected, desired))
+    {
         return 41;
+    }
     expected = original;
     if (ai_pair_cas(&pair, &expected, original) || expected.pointer != &b ||
         expected.generation != 2)
+    {
         return 41;
+    }
     _Atomic(uint32_t) word;
     atomic_init(&word, 257);
     uint32_t old = 257;
     if (!ai_word_cas(&word, &old, 513) || atomic_load(&word) != 513)
+    {
         return 41;
+    }
     printf("OBS width pointer=%zu pair=%zu pair_align=%zu pair_lockfree=%d "
            "compact=%zu compact_lockfree=%d\n",
            sizeof(void *), sizeof(struct ai_pair),

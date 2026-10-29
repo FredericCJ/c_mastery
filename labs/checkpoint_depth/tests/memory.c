@@ -17,19 +17,27 @@ static unsigned live(const struct cpm_pool *p)
 {
     unsigned n = 0;
     for (unsigned i = 0; i < CPM_SLOTS; ++i)
+    {
         n += p->state[i] == 1;
+    }
     return n;
 }
 
 static int identical(const struct cpm_pool *a, const struct cpm_pool *b)
 {
     if (a->attempts != b->attempts || a->fail_at != b->fail_at)
+    {
         return 0;
+    }
     for (unsigned i = 0; i < CPM_SLOTS; ++i)
+    {
         if (a->state[i] != b->state[i] ||
             a->generation[i] != b->generation[i] || a->pins[i] != b->pins[i] ||
             a->objects[i].value != b->objects[i].value)
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
@@ -82,7 +90,9 @@ void cp_test_memory(void)
     CHECK(cpm_prefix(&p, &q, values + 5, 2, &accepted) == CPM_OK &&
           accepted == 2);
     for (size_t i = 2; i < 4; ++i)
+    {
         CHECK(pop_value(&p, &q) == values[i]);
+    }
     CHECK(pop_value(&p, &q) == 66 && pop_value(&p, &q) == 77 && live(&p) == 0);
     cpm_pool_init(&p);
     cpm_ring_init(&q);
@@ -97,7 +107,9 @@ void cp_test_memory(void)
         CHECK(cpm_prefix(&p, &q, values, 4, &accepted) == CPM_FULL &&
               accepted == ordinal - 1 && live(&p) == ordinal - 1);
         for (unsigned i = 0; i < accepted; ++i)
+        {
             CHECK(pop_value(&p, &q) == values[i]);
+        }
         CHECK(live(&p) == 0);
         cpm_pool_init(&p);
         cpm_ring_init(&q);
@@ -111,7 +123,9 @@ void cp_test_memory(void)
     CHECK(cpm_atomic(&p, &q, values, 4) == CPM_OK && q.count == 4);
     CHECK(cpm_atomic(&p, &q, NULL, 0) == CPM_OK);
     for (unsigned i = 0; i < 4; ++i)
+    {
         CHECK(pop_value(&p, &q) == values[i]);
+    }
     CHECK(live(&p) == 0);
 }
 

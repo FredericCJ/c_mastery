@@ -19,7 +19,9 @@ struct ss_change
 static unsigned allocate(struct ss_work *w, struct ss_page p)
 {
     if (w->status)
+    {
         return 0;
+    }
     if (++w->allocations == w->fail)
     {
         w->status = SS_FAILED;
@@ -27,7 +29,9 @@ static unsigned allocate(struct ss_work *w, struct ss_page p)
     }
     unsigned i = 0;
     while (i < 256 && w->tree->pages[i].live)
+    {
         ++i;
+    }
     if (i == 256)
     {
         w->status = SS_FULL;
@@ -55,7 +59,9 @@ static int version(const struct ss_tree *t, const struct ss_version *v,
                    unsigned *out)
 {
     if (!t || !out)
+    {
         return SS_INVALID;
+    }
     if (!v)
     {
         *out = t->roots[0].root;
@@ -64,7 +70,9 @@ static int version(const struct ss_tree *t, const struct ss_version *v,
     if (v->owner != t || v->slot == 0 || v->slot >= 8 ||
         !t->roots[v->slot].live ||
         t->roots[v->slot].generation != v->generation)
+    {
         return SS_STALE;
+    }
     *out = t->roots[v->slot].root;
     return SS_OK;
 }
@@ -72,12 +80,18 @@ static int version(const struct ss_tree *t, const struct ss_version *v,
 int ss_tree_snapshot(struct ss_tree *t, struct ss_version *out)
 {
     if (!t || !out)
+    {
         return SS_INVALID;
+    }
     unsigned i = 1;
     while (i < 8 && (t->roots[i].live || t->roots[i].generation == UINT32_MAX))
+    {
         ++i;
+    }
     if (i == 8)
+    {
         return SS_FULL;
+    }
     t->roots[i].live = 1;
     t->roots[i].root = t->roots[0].root;
     ++t->roots[i].generation;
@@ -90,7 +104,9 @@ int ss_tree_release(struct ss_tree *t, struct ss_version v)
     unsigned root;
     int result = version(t, &v, &root);
     if (result)
+    {
         return result;
+    }
     t->roots[v.slot].live = 0;
     return SS_OK;
 }
@@ -100,25 +116,35 @@ int ss_tree_get(const struct ss_tree *t, const struct ss_version *v,
 {
     unsigned root;
     if (!out)
+    {
         return SS_INVALID;
+    }
     int result = version(t, v, &root);
     if (result)
+    {
         return result;
+    }
     for (;;)
     {
         const struct ss_page *p = &t->pages[root];
         unsigned i = 0;
         while (i < p->count && p->key[i] < key)
+        {
             ++i;
+        }
         if (i < p->count && p->key[i] == key)
         {
             if (!p->present[i])
+            {
                 return SS_MISSING;
+            }
             *out = p->value[i];
             return SS_OK;
         }
         if (p->leaf)
+        {
             return SS_MISSING;
+        }
         root = p->child[i];
     }
 }
@@ -129,7 +155,9 @@ static struct ss_change put(struct ss_work *w, unsigned id, uint32_t key,
     struct ss_page old = w->tree->pages[id];
     unsigned pos = 0;
     while (pos < old.count && old.key[pos] < key)
+    {
         ++pos;
+    }
     struct ss_change result = {0};
     if (pos < old.count && old.key[pos] == key)
     {
@@ -141,7 +169,9 @@ static struct ss_change put(struct ss_work *w, unsigned id, uint32_t key,
             result.left = id;
         }
         else
+        {
             result.left = allocate(w, old);
+        }
         return result;
     }
     uint32_t keys[4] = {0};
@@ -155,13 +185,17 @@ static struct ss_change put(struct ss_work *w, unsigned id, uint32_t key,
         present[i] = old.present[i];
     }
     for (unsigned i = 0; i <= count; ++i)
+    {
         children[i] = old.child[i];
+    }
     struct ss_change child = {0};
     if (!old.leaf)
     {
         child = put(w, old.child[pos], key, value);
         if (w->status)
+        {
             return result;
+        }
         children[pos] = child.left;
         if (!child.split)
         {
@@ -181,7 +215,9 @@ static struct ss_change put(struct ss_work *w, unsigned id, uint32_t key,
     values[pos] = old.leaf ? value : child.value;
     present[pos] = old.leaf ? 1 : child.present;
     if (!old.leaf)
+    {
         children[pos + 1] = child.right;
+    }
     ++count;
     struct ss_page left = {.leaf = old.leaf, .count = count <= 3 ? count : 1};
     for (unsigned i = 0; i < left.count; ++i)
@@ -191,10 +227,14 @@ static struct ss_change put(struct ss_work *w, unsigned id, uint32_t key,
         left.present[i] = present[i];
     }
     for (unsigned i = 0; i <= left.count; ++i)
+    {
         left.child[i] = children[i];
+    }
     result.left = allocate(w, left);
     if (count <= 3 || w->status)
+    {
         return result;
+    }
     struct ss_page right = {.leaf = old.leaf, .count = 2};
     for (unsigned i = 0; i < 2; ++i)
     {
@@ -203,7 +243,9 @@ static struct ss_change put(struct ss_work *w, unsigned id, uint32_t key,
         right.present[i] = present[i + 2];
     }
     for (unsigned i = 0; i < 3; ++i)
+    {
         right.child[i] = children[i + 2];
+    }
     result.right = allocate(w, right);
     result.split = 1;
     result.key = keys[1];
@@ -216,7 +258,9 @@ static int apply(struct ss_work *w, uint32_t key, int32_t value)
 {
     struct ss_change c = put(w, w->tree->roots[0].root, key, value);
     if (w->status)
+    {
         return w->status;
+    }
     if (c.split)
     {
         struct ss_page root = {.count = 1,
@@ -228,7 +272,9 @@ static int apply(struct ss_work *w, uint32_t key, int32_t value)
         c.left = allocate(w, root);
     }
     if (w->status)
+    {
         return w->status;
+    }
     w->tree->roots[0].root = c.left;
     return SS_OK;
 }
@@ -236,12 +282,16 @@ static int apply(struct ss_work *w, uint32_t key, int32_t value)
 int ss_tree_put(struct ss_tree *t, uint32_t key, int32_t value, unsigned fail)
 {
     if (!t)
+    {
         return SS_INVALID;
+    }
     struct ss_tree stage = *t;
     struct ss_work work = {&stage, 0, fail, 0};
     int result = apply(&work, key, value);
     if (result == SS_OK)
+    {
         *t = stage;
+    }
     return result;
 }
 
@@ -250,7 +300,9 @@ static unsigned erase(struct ss_work *w, unsigned id, uint32_t key)
     struct ss_page p = w->tree->pages[id];
     unsigned i = 0;
     while (i < p.count && p.key[i] < key)
+    {
         ++i;
+    }
     if (i < p.count && p.key[i] == key)
     {
         if (!p.present[i])
@@ -275,12 +327,16 @@ static unsigned erase(struct ss_work *w, unsigned id, uint32_t key)
 int ss_tree_erase(struct ss_tree *t, uint32_t key, unsigned fail)
 {
     if (!t)
+    {
         return SS_INVALID;
+    }
     struct ss_tree stage = *t;
     struct ss_work w = {&stage, 0, fail, 0};
     unsigned root = erase(&w, stage.roots[0].root, key);
     if (w.status)
+    {
         return w.status;
+    }
     stage.roots[0].root = root;
     *t = stage;
     return SS_OK;
@@ -289,29 +345,43 @@ int ss_tree_erase(struct ss_tree *t, uint32_t key, unsigned fail)
 static void mark(const struct ss_tree *t, unsigned id, unsigned char *seen)
 {
     if (seen[id])
+    {
         return;
+    }
     seen[id] = 1;
     const struct ss_page *p = &t->pages[id];
     if (!p->leaf)
+    {
         for (unsigned i = 0; i <= p->count; ++i)
+        {
             mark(t, p->child[i], seen);
+        }
+    }
 }
 
 int ss_tree_collect(struct ss_tree *t, unsigned *out)
 {
     if (!t || !out)
+    {
         return SS_INVALID;
+    }
     unsigned char seen[256] = {0};
     for (unsigned i = 0; i < (SS_MUTANT == 4 ? 1u : 8u); ++i)
+    {
         if (t->roots[i].live)
+        {
             mark(t, t->roots[i].root, seen);
+        }
+    }
     unsigned removed = 0;
     for (unsigned i = 0; i < 256; ++i)
+    {
         if (t->pages[i].live && !seen[i])
         {
             t->pages[i] = (struct ss_page){0};
             ++removed;
         }
+    }
     *out = removed;
     return SS_OK;
 }
@@ -323,7 +393,9 @@ static void gather(const struct ss_tree *t, unsigned id, uint32_t *k,
     for (unsigned i = 0; i < p->count; ++i)
     {
         if (!p->leaf)
+        {
             gather(t, p->child[i], k, v, n);
+        }
         if (p->present[i])
         {
             k[*n] = p->key[i];
@@ -331,13 +403,17 @@ static void gather(const struct ss_tree *t, unsigned id, uint32_t *k,
         }
     }
     if (!p->leaf)
+    {
         gather(t, p->child[p->count], k, v, n);
+    }
 }
 
 int ss_tree_vacuum(struct ss_tree *t, unsigned fail)
 {
     if (!t)
+    {
         return SS_INVALID;
+    }
     uint32_t keys[768];
     int32_t values[768];
     unsigned count = 0;
@@ -346,7 +422,9 @@ int ss_tree_vacuum(struct ss_tree *t, unsigned fail)
     struct ss_work w = {&stage, 0, fail, 0};
     unsigned root = allocate(&w, (struct ss_page){.leaf = 1});
     if (w.status)
+    {
         return w.status;
+    }
     stage.roots[0].root = root;
     unsigned freed;
     ss_tree_collect(&stage, &freed);
@@ -354,7 +432,9 @@ int ss_tree_vacuum(struct ss_tree *t, unsigned fail)
     {
         int result = apply(&w, keys[i], values[i]);
         if (result)
+        {
             return result;
+        }
         ss_tree_collect(&stage, &freed);
     }
     *t = stage;

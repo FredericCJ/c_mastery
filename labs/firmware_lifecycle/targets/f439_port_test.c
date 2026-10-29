@@ -26,38 +26,62 @@ static uint32_t rd(void *c, uint32_t a)
         if (m->txstage)
         {
             if (++m->txpoll == 3)
+            {
                 m->r[0] |= 64u;
+            }
         }
         return m->r[0];
     }
     if (a == 0x40004404u)
     {
         if (!m->sr_seen)
+        {
             ++m->violations;
+        }
         m->sr_seen = 0;
         ++m->dr_reads;
         m->r[0] &= ~63u;
         return m->r[1];
     }
     if (a == 0xE0042000u)
+    {
         return m->r[9];
+    }
     if (a == 0x40023800u)
+    {
         return m->r[2];
+    }
     if (a == 0x40023808u)
+    {
         return m->r[3];
+    }
     if (a == 0xE000ED94u)
+    {
         return m->r[4];
+    }
     if (a == 0x40023C00u)
+    {
         return m->r[5];
+    }
     if (a == 0x40023C14u)
+    {
         return m->r[6];
+    }
     if (a == 0x40013800u)
+    {
         return m->r[7];
+    }
     if (a == 0x4000440Cu)
+    {
         return m->r[8];
+    }
     for (unsigned i = m->used; i; i--)
+    {
         if (m->a[i - 1] == a)
+        {
             return m->v[i - 1];
+        }
+    }
     return 0;
 }
 
@@ -70,16 +94,22 @@ static void wr(void *c, uint32_t a, uint32_t v)
         m->v[m->used++] = v;
     }
     else
+    {
         ++m->violations;
+    }
     if (a == 0x40004404u)
     {
         if (!m->sr_seen)
+        {
             ++m->violations;
+        }
         m->r[0] &= ~64u;
         m->txstage = 1;
     }
     if (a == 0x40023C00u && ((m->r[5] & 0x600u) || (v & 0x600u)))
+    {
         ++m->violations;
+    }
 }
 
 static void sync_io(void *c)

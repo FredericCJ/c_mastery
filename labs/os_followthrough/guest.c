@@ -58,7 +58,9 @@ static void show(const char *dir, const char *file)
     printf("OF_RAW_BEGIN %s\n", path);
     ssize_t n;
     while ((n = read(fd, buf, sizeof buf)) > 0)
+    {
         CHECK(fwrite(buf, 1, (size_t)n, stdout) == (size_t)n);
+    }
     CHECK(n == 0 && !close(fd));
     printf("OF_RAW_END %s\n", path);
 }
@@ -71,7 +73,9 @@ static void snapshot(const char *dir)
                            "memory.events", "memory.pressure", "io.max",
                            "io.stat",       "io.pressure"};
     for (size_t i = 0; i < sizeof files / sizeof *files; i++)
+    {
         show(dir, files[i]);
+    }
 }
 
 static void wait_for(pid_t pid, unsigned seconds)
@@ -115,7 +119,9 @@ static void compute(unsigned memory)
             _exit(12);
         }
         for (size_t i = 0; i < size; i += 4096)
+        {
             data[i] = (unsigned char)(i / 4096);
+        }
         printf("OF_ALLOCATED bytes=%zu\n", size);
     }
     uint64_t wall = now(CLOCK_MONOTONIC), cpu = now(CLOCK_PROCESS_CPUTIME_ID),
@@ -123,7 +129,9 @@ static void compute(unsigned memory)
     do
     {
         for (unsigned i = 0; i < 65536; i++)
+        {
             work = work * 1664525u + 1013904223u;
+        }
         iterations += 65536;
     } while (now(CLOCK_MONOTONIC) - wall < 1000000000u);
     printf("OF_COMPUTE iterations=%" PRIu64 " checksum=%" PRIu64
@@ -134,7 +142,9 @@ static void compute(unsigned memory)
     {
         unsigned checksum = 0;
         for (size_t i = 0; i < size; i += 4096)
+        {
             checksum += data[i];
+        }
         printf("OF_ALLOC_CHECKSUM %u\n", checksum);
     }
     free((void *)data);
@@ -160,7 +170,9 @@ static void io_work(const char *dir, unsigned sync_each, unsigned concurrent,
     CHECK(fd >= 0);
     unsigned char buffer[4096];
     for (unsigned i = 0; i < sizeof buffer; i++)
+    {
         buffer[i] = (unsigned char)(i % 251);
+    }
     uint64_t wrote = 0, readbytes = 0, sum = 0, start = now(CLOCK_MONOTONIC),
              cpu = now(CLOCK_PROCESS_CPUTIME_ID);
     int error = 0;
@@ -169,7 +181,9 @@ static void io_work(const char *dir, unsigned sync_each, unsigned concurrent,
     {
         ssize_t n = write(fd, buffer, sizeof buffer);
         if (n < 0 && errno == EINTR)
+        {
             continue;
+        }
         if (n < 0)
         {
             error = errno;
@@ -179,7 +193,9 @@ static void io_work(const char *dir, unsigned sync_each, unsigned concurrent,
         at += (size_t)n;
         wrote += (size_t)n;
         if (sync_each)
+        {
             CHECK(!fdatasync(fd));
+        }
     }
     if (enospc)
     {
@@ -188,7 +204,9 @@ static void io_work(const char *dir, unsigned sync_each, unsigned concurrent,
                wanted - (size_t)wrote, error);
     }
     else
+    {
         CHECK(!error && wrote == wanted);
+    }
     CHECK(!fsync(fd));
     uint64_t ack = wrote;
     CHECK(lseek(fd, 0, SEEK_SET) == 0);
@@ -204,7 +222,9 @@ static void io_work(const char *dir, unsigned sync_each, unsigned concurrent,
             int independent = open(path, O_RDONLY | O_CLOEXEC);
             CHECK(independent >= 0);
             while ((n = read(independent, buffer, sizeof buffer)) > 0)
+            {
                 count += (size_t)n;
+            }
             CHECK(n == 0 && !close(independent));
             printf("OF_OTHER_READER pid=%ld logical=%" PRIu64 "\n",
                    (long)getpid(), count);
@@ -217,21 +237,31 @@ static void io_work(const char *dir, unsigned sync_each, unsigned concurrent,
     {
         ssize_t n = read(fd, buffer, sizeof buffer);
         if (n < 0 && errno == EINTR)
+        {
             continue;
+        }
         CHECK(n >= 0);
         if (!n)
+        {
             break;
+        }
         readbytes += (size_t)n;
         for (ssize_t i = 0; i < n; i++)
+        {
             sum += buffer[i];
+        }
     }
     CHECK(!getrusage(RUSAGE_SELF, &after) && readbytes == wrote);
     uint64_t expected_sum = 0;
     for (uint64_t i = 0; i < wrote; i++)
+    {
         expected_sum += (i % 4096) % 251;
+    }
     CHECK(sum == expected_sum);
     if (reader > 0)
+    {
         wait_for(reader, 5);
+    }
     struct stat s;
     CHECK(!fstat(fd, &s));
     printf("OF_IO wrote=%" PRIu64 " read=%" PRIu64 " fsync_ack=%" PRIu64
@@ -274,7 +304,9 @@ static pid_t launch(const char *dir, unsigned mode, const char *io_dir,
         CHECK(read(start[0], &token, 1) == 1);
         close(start[0]);
         if (mode == 2)
+        {
             io_work(io_dir, sync_each, concurrent, enospc);
+        }
         else
         {
             if (mode == 3)

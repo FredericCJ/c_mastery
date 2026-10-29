@@ -21,12 +21,18 @@ static int descriptors(void)
 {
     DIR *directory = opendir("/proc/self/fd");
     if (!directory)
+    {
         return -1;
+    }
     int count = 0;
     struct dirent *entry;
     while ((entry = readdir(directory)))
+    {
         if (strcmp(entry->d_name, ".") && strcmp(entry->d_name, ".."))
+        {
             ++count;
+        }
+    }
     closedir(directory);
     return count;
 }
@@ -34,7 +40,9 @@ static int descriptors(void)
 int main(int argc, char **argv)
 {
     if (argc != 3)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "launch"))
     {
         int initial = descriptors();
@@ -79,7 +87,9 @@ int main(int argc, char **argv)
                 struct pl_pool result = {99, 99, 99, 99, 99};
                 unsigned made = fail ? fail - 1 : n, expected = 0;
                 for (unsigned i = 1; i <= made; ++i)
+                {
                     expected += i * i;
+                }
                 CHECK(pl_pool(n, fail, &result) == 0);
                 CHECK(result.created == made && result.joined == made &&
                       result.completed == made);
@@ -95,7 +105,9 @@ int main(int argc, char **argv)
         CHECK(pl_pool(1, 0, NULL) == EINVAL);
     }
     else
+    {
         return 2;
+    }
     printf("PASS posix_lifecycle_depth.%s\n", argv[1]);
     return 0;
 }

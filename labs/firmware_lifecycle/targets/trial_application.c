@@ -22,7 +22,9 @@ _Noreturn void th_app_main(void)
     const volatile uint32_t *data = input;
     uint32_t answer = 2166136261u;
     for (unsigned i = 0; i < 8; ++i)
+    {
         answer = (answer ^ data[i]) * 16777619u;
+    }
 #if defined(APP_BAD)
     answer ^= 1;
 #endif
@@ -35,5 +37,7 @@ _Noreturn void th_app_main(void)
     report(answer, APP_GENERATION);
 #endif
     for (;;)
+    {
         __asm__ volatile("wfi");
+    }
 }

@@ -11,7 +11,9 @@ struct lce_signature_result lce_ed25519(const struct lce_keyring *ring,
     struct lce_signature_result result = {0, 0};
     if (!ring || id < 1 || id > 2 || !(ring->present & (1u << id)) || !p ||
         !sig || z != 64)
+    {
         return result;
+    }
     EVP_PKEY *key = EVP_PKEY_new_raw_public_key(EVP_PKEY_ED25519, NULL,
                                                 ring->public_keys[id - 1], 32);
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();

@@ -18,7 +18,9 @@ ATTR uint32_t dc_checksum(const unsigned char *p, unsigned n)
     (void)dead;
     for (unsigned i = 0; i < n - (unsigned)(DC_ROUTINE_MUTANT == 1 && n != 0);
          ++i)
+    {
         sum += p[i] * invariant;
+    }
     dc_output = sum;
     return sum;
 }

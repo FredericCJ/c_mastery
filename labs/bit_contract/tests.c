@@ -165,7 +165,9 @@ static int protocols(void)
 int main(void)
 {
     if (bitops() || codecs() || protocols())
+    {
         return 1;
+    }
     puts("FB_PASS bit_contract");
     return 0;
 }

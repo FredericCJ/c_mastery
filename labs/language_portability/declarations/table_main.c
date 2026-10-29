@@ -10,7 +10,9 @@ int main(void)
     {
         uint32_t v = 999;
         if (ld_triangle(n, &v) != LD_OK || v != ld_table[n])
+        {
             return 1;
+        }
     }
     puts(
         "LD_TABLE translation constants and runtime function agree for32 entries");

@@ -19,13 +19,21 @@ static size_t oracle(const unsigned char *p, size_t n, const unsigned char *q,
     for (size_t start = 0; start < n; ++start)
     {
         if (m > n - start)
+        {
             continue;
+        }
         unsigned same = 1;
         for (size_t i = 0; i < m; ++i)
+        {
             if (p[start + i] != q[i])
+            {
                 same = 0;
+            }
+        }
         if (same)
+        {
             out[count++] = start;
+        }
     }
     return count;
 }
@@ -58,11 +66,15 @@ static int exercise(const unsigned char *p, size_t n, const unsigned char *q,
         struct ad_matcher old = state;
         count = 123;
         for (unsigned i = 0; i < 64; ++i)
+        {
             got[i] = 987;
+        }
         CHECK(ad_match_feed(&state, p, n, got, need - 1, &count) == AD_SPACE &&
               !memcmp(&old, &state, sizeof state) && count == 123);
         for (unsigned i = 0; i < 64; ++i)
+        {
             CHECK(got[i] == 987);
+        }
     }
     return 0;
 }
@@ -87,28 +99,40 @@ int main(void)
     CHECK(ad_match_naive(NULL, 0, NULL, 0, output, 64, &count) == AD_INVALID);
     unsigned char prefix[64], long_pattern[16];
     for (unsigned i = 0; i < 64; ++i)
+    {
         prefix[i] = 'a';
+    }
     for (unsigned i = 0; i < 16; ++i)
+    {
         long_pattern[i] = i == 15 ? 'b' : 'a';
+    }
     CHECK(!exercise(prefix, 64, long_pattern, 16));
     size_t cases = 0;
     for (size_t n = 0; n <= 7; ++n)
+    {
         for (unsigned text_code = 0; text_code < (1u << n); ++text_code)
         {
             unsigned char p[7];
             for (size_t i = 0; i < n; ++i)
+            {
                 p[i] = (unsigned char)((text_code >> i) & 1u);
+            }
             for (size_t m = 1; m <= 4; ++m)
+            {
                 for (unsigned pattern_code = 0; pattern_code < (1u << m);
                      ++pattern_code)
                 {
                     unsigned char q[4];
                     for (size_t i = 0; i < m; ++i)
+                    {
                         q[i] = (unsigned char)((pattern_code >> i) & 1u);
+                    }
                     CHECK(!exercise(p, n, q, m));
                     ++cases;
                 }
+            }
         }
+    }
     printf(
         "ALGORITHM_MATCHING_PASS cases=%zu all_two_chunk_splits transactional_admission collision_verified\n",
         cases);

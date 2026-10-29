@@ -21,16 +21,24 @@ static int equivalent(const struct or_nursery *a, const struct or_nursery *b)
     unsigned i, j;
     if (a->used != b->used || a->old_used != b->old_used ||
         memcmp(a->roots, b->roots, 4))
+    {
         return 0;
+    }
     for (i = 0; i < a->used + a->old_used; i++)
     {
         unsigned r = i < a->used ? i + 1 : i - a->used + 9;
         const struct or_cell *x = cell(a, r), *y = cell(b, r);
         if (x->value != y->value || x->age != y->age)
+        {
             return 0;
+        }
         for (j = 0; j < 2; j++)
+        {
             if (x->edge[j] != y->edge[j])
+            {
                 return 0;
+            }
+        }
     }
     return 1;
 }
@@ -43,7 +51,9 @@ static struct or_nursery example(void)
     h.old_used = 1;
     h.roots[0] = 3;
     for (i = 0; i < 3; i++)
+    {
         h.young[0][i].value = (int32_t)(101 + i);
+    }
     h.young[0][2].edge[0] = 2;
     h.old[0].value = 201;
     h.old[0].edge[0] = 2;
@@ -98,9 +108,13 @@ static int composition(void)
     h.used = 7;
     h.old_used = 4;
     for (i = 0; i < 7; i++)
+    {
         h.young[0][i].value = (int32_t)(i + 1);
+    }
     for (i = 0; i < 4; i++)
+    {
         h.old[i].value = (int32_t)(101 + i);
+    }
     CHECK(or_nursery_cards_init(&h, &cards) == OR_OK && cards.dirty == 0);
     CHECK(or_nursery_old_store(&h, &cards, 3, 1, 5) == OR_OK);
     CHECK(or_nursery_old_store(&h, &cards, 2, 0, 7) == OR_OK &&
@@ -140,7 +154,9 @@ static int composition(void)
         h.old[i].value = (int32_t)(100 + i);
         h.old[i].age = 1;
         if (i < 7)
+        {
             h.old[i].edge[0] = (uint8_t)(10 + i);
+        }
     }
     CHECK(or_nursery_cards_init(&h, &cards) == OR_OK);
     memcpy(&before, &h, sizeof h);
@@ -164,7 +180,9 @@ static int large(void)
     unsigned n, i;
     or_large_init(&h);
     for (i = 0; i < 4; i++)
+    {
         CHECK(or_large_allocate(&h, 2, 10 + i, &objects[i]) == OR_OK);
+    }
     CHECK(or_large_pin(&h, objects[0], &lease, &data, &n) == OR_OK && n == 2 &&
           data[0] == 10 && data[1] == 10);
     copy = lease;
@@ -233,7 +251,9 @@ static void normalized(const struct or_nursery *h, unsigned *live,
         const struct or_cell *p = cell(h, r);
         *live |= 1u << ((unsigned)p->value - 1);
         if (r <= 8)
+        {
             *young |= 1u << ((unsigned)p->value - 1);
+        }
         edges[p->value - 1] =
             p->edge[0] ? (unsigned)cell(h, p->edge[0])->value : 0;
     }
@@ -243,8 +263,11 @@ static int oracle(void)
 {
     unsigned graph, mask, target, ages, i, j;
     for (graph = 0; graph < 64; graph++)
+    {
         for (mask = 0; mask < 16; mask++)
+        {
             for (target = 0; target < 4; target++)
+            {
                 for (ages = 0; ages < 8; ages++)
                 {
                     struct or_nursery h = {0}, reference;
@@ -265,8 +288,12 @@ static int oracle(void)
                         code /= 4;
                     }
                     for (i = 0, j = 0; i < 4; i++)
+                    {
                         if (mask & (1u << i))
+                        {
                             h.roots[j++] = (uint8_t)(i == 3 ? 9 : i + 1);
+                        }
+                    }
                     reference = h;
                     CHECK(or_nursery_cards_init(&h, &cards) == OR_OK);
                     CHECK(or_minor(&reference, 8, 8, &wanted) == OR_OK);
@@ -277,20 +304,31 @@ static int oracle(void)
                     printf("N %u %u %u %u %u %u %u", graph, mask, target, ages,
                            live, young, copied);
                     for (i = 0; i < 4; i++)
+                    {
                         printf(" %u", roots[i]);
+                    }
                     for (i = 0; i < 4; i++)
+                    {
                         printf(" %u", edges[i]);
+                    }
                     putchar('\n');
                     CHECK(or_major_preflight(&h, &cards, &n, f) == OR_OK);
                     normalized(&h, &live, &young, roots, edges);
                     printf("J %u %u %u %u %u %u %u", graph, mask, target, ages,
                            live, young, n);
                     for (i = 0; i < 4; i++)
+                    {
                         printf(" %u", roots[i]);
+                    }
                     for (i = 0; i < 4; i++)
+                    {
                         printf(" %u", edges[i]);
+                    }
                     putchar('\n');
                 }
+            }
+        }
+    }
     return 0;
 }
 
@@ -298,7 +336,9 @@ static int large_oracle(void)
 {
     unsigned code, release, pins, i;
     for (code = 0; code < 81; code++)
+    {
         for (release = 0; release < 16; release++)
+        {
             for (pins = 0; pins < 16; pins++)
             {
                 struct or_large_heap h;
@@ -315,9 +355,12 @@ static int large_oracle(void)
                     status[i] = or_large_allocate(&h, len, 10 + i, &objects[i]);
                     CHECK(status[i] == OR_OK || status[i] == OR_FULL);
                     if (status[i] == OR_OK)
+                    {
                         success |= 1u << i;
+                    }
                 }
                 for (i = 0; i < 4; i++)
+                {
                     if (success & (1u << i))
                     {
                         if (pins & (1u << i))
@@ -329,10 +372,14 @@ static int large_oracle(void)
                             leased |= 1u << i;
                         }
                         if (release & (1u << i))
+                        {
                             CHECK(or_large_release(&h, objects[i]) == OR_OK);
+                        }
                     }
+                }
                 CHECK(or_large_collect(&h, &reclaimed) == OR_OK);
                 for (i = 0; i < 4; i++)
+                {
                     if (success & (1u << i))
                     {
                         struct or_large_block *b =
@@ -342,38 +389,59 @@ static int large_oracle(void)
                         {
                             live |= 1u << i;
                             for (j = 0; j < b->length; j++)
+                            {
                                 used |= 1u << (b->start + j);
+                            }
                         }
                     }
+                }
                 printf("L %u %u %u %d %d %d %d %u %u %u\n", code, release, pins,
                        status[0], status[1], status[2], status[3], live, used,
                        reclaimed);
                 for (i = 0; i < 4; i++)
                 {
                     if (leased & (1u << i))
+                    {
                         CHECK(or_large_unpin(leases[i]) == OR_OK);
+                    }
                     if ((success & (1u << i)) && !(release & (1u << i)))
+                    {
                         CHECK(or_large_release(&h, objects[i]) == OR_OK);
+                    }
                 }
                 CHECK(or_large_collect(&h, &n) == OR_OK &&
                       h.heap.old_used == 0);
             }
+        }
+    }
     return 0;
 }
 
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "preflight"))
+    {
         return preflight();
+    }
     if (!strcmp(argv[1], "composition"))
+    {
         return composition();
+    }
     if (!strcmp(argv[1], "large"))
+    {
         return large();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "large-oracle"))
+    {
         return large_oracle();
+    }
     return 2;
 }

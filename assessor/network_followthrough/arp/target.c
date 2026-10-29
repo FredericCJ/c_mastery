@@ -38,7 +38,9 @@ int na_composition(void);
 void xf_target_main(void)
 {
     if (na_public_tests() || na_validation() || na_composition())
+    {
         finish(1);
+    }
     puts("NA_TARGET_PASS actual_arp_fields_retry_HTTP_TCP_IP "
          "synthetic_frames_only");
     finish(0);

@@ -56,7 +56,9 @@ int main(void)
                   LU_OK &&
               r.produced == sizes[i]);
         for (size_t j = 0; j < r.produced; ++j)
+        {
             CHECK(out[j] == 0xfffd);
+        }
     }
     const unsigned char mixed[] = {0x41, 0xe2, 0x42};
     s = (struct lu_state){0};
@@ -96,6 +98,7 @@ int main(void)
                                      {0xf4, 0x8f, 0xbf, 0xbf}};
     const size_t lens[] = {1, 1, 3, 4, 4};
     for (unsigned i = 0; i < 5; ++i)
+    {
         for (size_t cap = 0; cap <= 5; ++cap)
         {
             unsigned char bytes[6] = {99, 99, 99, 99, 99, 99};
@@ -106,7 +109,9 @@ int main(void)
             {
                 CHECK(st == LU_FULL && n == 99);
                 for (unsigned j = 0; j < 6; ++j)
+                {
                     CHECK(bytes[j] == 99);
+                }
             }
             else
             {
@@ -114,6 +119,7 @@ int main(void)
                       !memcmp(bytes, wire[i], n) && bytes[n] == 99);
             }
         }
+    }
     uint16_t units[3] = {99, 99, 99};
     size_t n = 99;
     CHECK(lu_utf16(0x1f600, units, 1, &n) == LU_FULL && units[0] == 99 &&

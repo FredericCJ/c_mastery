@@ -36,8 +36,10 @@ static void invariant(const struct d_entity_world *w)
         const struct d_table *t = &w->world.ecs.tables[mask - 1];
         CHECK(t->count <= 2);
         for (unsigned row = 0; row < t->count; ++row)
+        {
             CHECK(w->world.ecs.mask[t->ids[row]] == mask &&
                   w->world.ecs.row[t->ids[row]] == row);
+        }
     }
 }
 
@@ -59,8 +61,10 @@ static void same(const struct d_entity_world *a, const struct d_entity_world *b)
                              *y = &b->world.ecs.tables[i];
         CHECK(x->count == y->count);
         for (unsigned j = 0; j < x->count; ++j)
+        {
             CHECK(x->ids[j] == y->ids[j] && x->position[j] == y->position[j] &&
                   x->velocity[j] == y->velocity[j]);
+        }
     }
 }
 
@@ -155,7 +159,9 @@ static void oracle(void)
                 {
                     latest = created;
                     if (!first.owner)
+                    {
                         first = created;
+                    }
                 }
             }
             else
@@ -166,8 +172,10 @@ static void oracle(void)
             }
             printf("E %u %u %d %u", script, step, status, w.world.version);
             for (unsigned id = 0; id < 4; ++id)
+            {
                 printf(" %u %u %u", w.ids.slots[id].live,
                        w.ids.slots[id].generation, w.world.ecs.mask[id]);
+            }
             putchar('\n');
             invariant(&w);
         }
@@ -179,10 +187,16 @@ int main(int argc, char **argv)
     CHECK(argc == 2);
     test_name = argv[1];
     if (!strcmp(argv[1], "entities"))
+    {
         checks();
+    }
     else if (!strcmp(argv[1], "oracle"))
+    {
         oracle();
+    }
     else
+    {
         CHECK(0);
+    }
     return 0;
 }

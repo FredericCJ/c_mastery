@@ -11,7 +11,9 @@ static void diagnostic(uint64_t n)
 {
     char out[16];
     for (unsigned i = 0; i < 16; i++)
+    {
         out[i] = "0123456789abcdef"[(n >> (60 - 4 * i)) & 15];
+    }
     cmk_write(out, 16);
     cmk_write("\n", 1);
 }
@@ -32,7 +34,9 @@ static void checked(int value, unsigned line)
     {
         char out[4];
         for (unsigned i = 0; i < 4; i++)
+        {
             out[i] = "0123456789abcdef"[(line >> (12 - 4 * i)) & 15];
+        }
         cmk_write("SF_CHILD_CHECK:", 15);
         cmk_write(out, 4);
         cmk_write("\n", 1);
@@ -49,7 +53,9 @@ static struct sf_bootstrap bootstrap(void)
     {
         int64_t r = cmk_call(SF_BOOTSTRAP, (uintptr_t)&b, 0, 0);
         if (!r)
+        {
             return b;
+        }
         check(r == SF_FULL);
         cmk_call(CMK_YIELD, 0, 0, 0);
     }
@@ -99,13 +105,17 @@ void _start(void)
     }
     check(receive() == SF_CLOSED);
     for (unsigned i = 0; i < 3; i++)
+    {
         check(cmk_call(SF_TYPED_JOIN, threads[i], 0, 0) == 0);
+    }
     done(7);
 #elif SF_CASE == 13
     check(cmk_call(CMK_BLOCK_COUNT, 65537, 0, 0) < 0);
     check(!cmk_call(CMK2_SET_AFFINITY, 2, 0, 0));
     for (;;)
+    {
         image_word++;
+    }
 #elif SF_CASE == 14
     struct sf_bootstrap b = bootstrap();
     if (b.role == 1)
@@ -115,13 +125,17 @@ void _start(void)
             int64_t r = cmk_call(SF_INFO, 3, 0, 0);
             check(r == 0 || r == 1);
             if (r == 1)
+            {
                 done(7);
+            }
             cmk_call(CMK_YIELD, 0, 0, 0);
         }
         done(91);
     }
     if (b.role == 3)
+    {
         check(cmk_call(CMK_BLOCK_COUNT, 65537, 0, 0) > 0);
+    }
     if (b.role == 4)
     {
         const char name[] = "spawn";
@@ -134,7 +148,9 @@ void _start(void)
     if (b.role == 1)
     {
         while (cmk_call(SF_INFO, 3, 0, 0) != 1)
+        {
             cmk_call(CMK_YIELD, 0, 0, 0);
+        }
         done(7);
     }
     if (b.role == 2)
@@ -182,7 +198,9 @@ void _start(void)
         struct sf_bootstrap next = {(uint64_t)mail, (uint64_t)gate, 1, 1, 0};
         check(!cmk_call(SF_BIND, child, (uintptr_t)&next, 0));
         for (;;)
+        {
             cmk_call(CMK_YIELD, 0, 0, 0);
+        }
     }
     void *page = cmk_alloc(1);
     check(page != 0);

@@ -4,7 +4,9 @@
 void ct_init(struct ct_stream *s)
 {
     if (s)
+    {
         *s = (struct ct_stream){0};
+    }
 }
 
 enum ct_status ct_feed(struct ct_stream *s, const unsigned char *p, size_t n,

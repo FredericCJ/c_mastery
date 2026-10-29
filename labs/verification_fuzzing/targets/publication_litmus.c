@@ -36,11 +36,15 @@ int main(void)
         pthread_t a, b;
         if (pthread_create(&b, NULL, consumer, &s) ||
             pthread_create(&a, NULL, producer, &s))
+        {
             abort();
+        }
         pthread_join(a, NULL);
         pthread_join(b, NULL);
         if (s.observed != 19 || !atomic_load(&s.submitted))
+        {
             abort();
+        }
     }
     puts("VT_PUBLICATION_PASS ordered_actual256=pass graph_model_separate");
     return 0;

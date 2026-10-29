@@ -31,7 +31,9 @@ static int number(const char *directory, const char *name, int hex)
     if (f)
     {
         if (fscanf(f, hex ? "%x" : "%u", &v) == 1 && v <= INT_MAX)
+        {
             result = (int)v;
+        }
         fclose(f);
     }
     return result;
@@ -119,11 +121,15 @@ int main(void)
     {
         struct dg_message m = {(uint16_t)(length + 1), (uint16_t)length, {0}};
         for (unsigned i = 0; i < length; ++i)
+        {
             m.payload[i] = (uint8_t)(i ^ length);
+        }
         CHECK(dg_encode(&m, wire, sizeof wire, &n) == DG_OK);
         CHECK(bulk(fd, epout, wire, (unsigned)n) == (int)n);
         if (n % 8 == 0)
+        {
             CHECK(bulk(fd, epout, wire, 0) == 0);
+        }
         CHECK(bulk(fd, epin, echo, sizeof echo) == (int)n &&
               memcmp(wire, echo, n) == 0);
     }

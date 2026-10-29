@@ -23,7 +23,9 @@ static uint32_t read_io(void *p, unsigned k)
     struct ep_model *m = p;
     uint32_t r = k == PU_SOURCE ? 1 : m->r[k];
     if (k == PU_DR)
+    {
         m->r[PU_SR] &= ~47u;
+    }
     return r;
 }
 
@@ -31,13 +33,19 @@ static void write_io(void *p, unsigned k, uintptr_t v)
 {
     struct ep_model *m = p;
     if (k == PU_SR)
+    {
         m->r[k] &= (uint32_t)v;
+    }
     else
+    {
         m->r[k] = (uint32_t)v;
+    }
     if (k == PU_DR)
     {
         if (m->writes < 128)
+        {
             m->bytes[m->writes] = (uint8_t)v;
+        }
         m->writes++;
         m->r[PU_SR] &= ~(PU_TXE | PU_TC);
     }
@@ -93,11 +101,15 @@ static int tx(void)
     struct ep_model m = {0};
     uint8_t data[96];
     for (unsigned i = 0; i < 96; i++)
+    {
         data[i] = (uint8_t)i;
+    }
     CHECK(open_tx(&s, &m, 115200, R5_THVD1400) == EP_OK);
     CHECK(ep_send(&s, 1, data, 96, 0, 10000) == EP_OK && m.de);
     for (unsigned i = 0; i < 96; i++)
+    {
         data[i] = 255;
+    }
     m.r[PU_SR] = PU_TXE | PU_TC;
     CHECK(ep_step(&s, 1, 199) == EP_BUSY && m.writes == 0);
     CHECK(ep_send(&s, 2, data, 1, 199, 10000) == EP_BUSY && s.token == 1);
@@ -262,8 +274,10 @@ static int grant(void)
               EP_DROP &&
           fault.faults == 1);
     for (size_t i = 2; i < n; i++)
+    {
         CHECK(ep_receive(&fault, PU_RXNE, bytes[i], fo + 300 + (uint32_t)i,
                          &out) != EP_FRAME);
+    }
     CHECK(fault.delivered == 0);
     for (size_t i = 0; i < n; i++)
     {

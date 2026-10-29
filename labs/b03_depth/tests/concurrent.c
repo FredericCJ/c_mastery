@@ -71,7 +71,9 @@ int main(void)
         sizeof(atomic_uint), _Alignof(atomic_uint),
         atomic_is_lock_free(&c.box.ready), ITEMS);
     if (thrd_create(&p, producer, &c) != thrd_success)
+    {
         return 2;
+    }
     if (thrd_create(&q, consumer, &c) != thrd_success)
     {
         atomic_store(&c.failed, 1);

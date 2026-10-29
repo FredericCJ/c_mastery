@@ -10,8 +10,12 @@ int main(void)
     uint64_t exact = (uint64_t)a + b;
     assert(ok == (exact <= UINT32_MAX));
     if (ok)
+    {
         assert(out == exact);
+    }
     else
+    {
         assert(out == 77);
+    }
     return 0;
 }

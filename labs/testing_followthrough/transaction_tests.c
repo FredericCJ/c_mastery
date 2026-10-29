@@ -29,7 +29,9 @@ static int acquire(void *v, unsigned id)
 {
     struct cv_context *c = v;
     if ((int)c->na == c->fail)
+    {
         return 0;
+    }
     c->acquired[c->na++] = id;
     c->live[id]++;
     return 1;
@@ -82,6 +84,7 @@ int main(void)
 {
     const unsigned char input[] = {1, 2, 3, 4, 5};
     for (unsigned fourth = 0; fourth <= 1; fourth++)
+    {
         for (int fail = 0; fail < (fourth ? 5 : 4); fail++)
         {
             size_t count = fourth ? 4 : 3;
@@ -105,10 +108,15 @@ int main(void)
                 CHECK(out.count == 0 && c.nr == count);
             }
             for (size_t i = 0; i < c.nr; i++)
+            {
                 CHECK(c.released[i] == c.acquired[c.na - 1 - i]);
+            }
             for (unsigned id = 0; id < 31; id++)
+            {
                 CHECK(c.live[id] == 0);
+            }
         }
+    }
     const long scripts[][3] = {{2, 3, 0}, {2, 0, 0},  {2, -1, 0},
                                {2, 4, 0}, {-2, 0, 0}, {2, 3, 0}};
     const unsigned status[] = {TX_OK,      TX_ZERO,    TX_TIMEOUT,
@@ -128,11 +136,17 @@ int main(void)
         CHECK(c.reentry_status == TX_BUSY && c.invalid == 0 &&
               memcmp(c.sent, input, c.bytes) == 0);
         if (r.status != TX_OK)
+        {
             CHECK(memcmp(&out, &old, sizeof out) == 0 && c.nr == 3);
+        }
         else
+        {
             tx_destroy(&t, &out);
+        }
         for (unsigned id = 0; id < 31; id++)
+        {
             CHECK(c.live[id] == 0);
+        }
     }
     puts(
         "TX_PASS:three-and-four-prefix-identities,partial,zero,timeout,oversize,cancel,reentry");

@@ -50,7 +50,9 @@ void mf_pend(void)
 static void idle(void)
 {
     for (;;)
+    {
         __asm__ volatile("wfi");
+    }
 }
 
 void mf_task_return(void)
@@ -63,7 +65,9 @@ void mf_task_return(void)
     mf_pend();
     mf_unlock(old);
     for (;;)
+    {
         __asm__ volatile("wfi");
+    }
 }
 
 void mf_port_init(void)
@@ -103,7 +107,9 @@ uint32_t *mf_choose(uint32_t *old)
     {
         uint32_t elapsed = clock_count() - pending_start;
         if (elapsed > mf_pend_latency_max)
+        {
             mf_pend_latency_max = elapsed;
+        }
         pending_active = 0;
     }
     uintptr_t msp;
@@ -143,11 +149,15 @@ static unsigned may_wait(void)
 enum cmx_result mf_take(cmx_sem *s, cmx_deadline d)
 {
     if (!may_wait())
+    {
         return CMX_INVALID;
+    }
     unsigned p = mf_lock(), t = (unsigned)mf_machine.executing;
     enum cmx_result r = cmx_sem_take(&mf_machine.kernel, s, t, d);
     if (r == CMX_BLOCKED)
+    {
         mf_pend();
+    }
     mf_unlock(p);
     return r == CMX_BLOCKED ? mf_machine.kernel.task[t].result : r;
 }
@@ -195,7 +205,9 @@ void mf_tick(uint32_t exc, uint32_t *frame, uint32_t msp)
     uint32_t isr_start = clock_count();
     mf_require(!(msp & 7u), 111);
     if (msp < mf_stack_min)
+    {
         mf_stack_min = msp;
+    }
     if (exc & 16u)
     {
         mf_basic_frames++;
@@ -209,7 +221,9 @@ void mf_tick(uint32_t exc, uint32_t *frame, uint32_t msp)
         {
             mf_text("MF raw extended frame from PSP\n");
             for (unsigned i = 0; i < 26; i++)
+            {
                 mf_number(frame[i]);
+            }
         }
 #endif
         /* Hardware layout is inspected by both the xPSR and Thumb-state predicate;
@@ -220,7 +234,9 @@ void mf_tick(uint32_t exc, uint32_t *frame, uint32_t msp)
         {
             mf_fp_before_word = frame[8];
             for (unsigned i = 8; i < 26; i++)
+            {
                 mf_fp_paint_before += frame[i] == 0xa5a5a5a5u;
+            }
         }
         uint32_t read_start = clock_count(), read_end = clock_count();
         uint32_t instruction_start = clock_count();
@@ -238,7 +254,9 @@ void mf_tick(uint32_t exc, uint32_t *frame, uint32_t msp)
         {
             mf_fp_after_word = frame[8];
             for (unsigned i = 8; i < 26; i++)
+            {
                 mf_fp_paint_after += frame[i] == 0xa5a5a5a5u;
+            }
         }
     }
     mf_ticks++;
@@ -254,12 +272,16 @@ void mf_tick(uint32_t exc, uint32_t *frame, uint32_t msp)
 #endif
 #ifdef MF_LONG_ISR
     for (volatile unsigned delay = 0; delay < 300; delay++)
+    {
         __asm__ volatile("nop");
+    }
 #endif
     mf_pend();
     uint32_t isr_elapsed = clock_count() - isr_start;
     if (isr_elapsed > mf_isr_ticks_max)
+    {
         mf_isr_ticks_max = isr_elapsed;
+    }
 }
 
 static void abandoned(void)
@@ -293,7 +315,9 @@ void mf_local_fault(uint32_t *frame, uint32_t exc)
     {
         mf_text("MF unsafe owner fault retained resources\n");
         for (unsigned i = 0; i < mf_machine.kernel.mutex_count; i++)
+        {
             mf_number((uint32_t)mf_machine.kernel.mutex[i]->owner);
+        }
         mf_finish(3);
     }
     MF_REG(0xe000ed28) = code;
@@ -312,5 +336,7 @@ void mf_port_start(void)
     MF_REG(0xe000e010) = 7;
     __asm__ volatile("cpsie i\nsvc 0" ::: "memory");
     for (;;)
+    {
         __asm__ volatile("wfi");
+    }
 }

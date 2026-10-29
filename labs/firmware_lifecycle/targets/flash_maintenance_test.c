@@ -24,13 +24,19 @@ static uint32_t rd(void *v, uint32_t a)
 {
     struct f4_model *s = v;
     if (a == (s->h ? 0x5200200Cu : 0x40023C10u))
+    {
         return s->cr;
+    }
     if (a == (s->h ? 0x52002010u : 0x40023C0Cu))
+    {
         return s->sr;
+    }
     if (a >= 0x080C0000u && a < 0x08100000u)
     {
         if (s->busy)
+        {
             s->violations++;
+        }
         return s->mem[(a - 0x080C0000u) / 4];
     }
     s->violations++;
@@ -41,7 +47,9 @@ static void wr(void *v, uint32_t a, uint32_t n)
 {
     struct f4_model *s = v;
     if (s->dead)
+    {
         return;
+    }
     s->writes++;
     uint32_t cr = s->h ? 0x5200200Cu : 0x40023C10u,
              key = s->h ? 0x52002004u : 0x40023C04u,
@@ -50,14 +58,18 @@ static void wr(void *v, uint32_t a, uint32_t n)
     if (a == key)
     {
         if (!s->key && n == 0x45670123u)
+        {
             s->key = 1;
+        }
         else if (s->key == 1 && n == 0xCDEF89ABu)
         {
             s->cr &= ~lock;
             s->key = 0;
         }
         else
+        {
             s->violations++;
+        }
         return;
     }
     if (a == clear)
@@ -82,14 +94,18 @@ static void wr(void *v, uint32_t a, uint32_t n)
             s->busy = 1;
             s->sr = s->h ? 5u : 0x10000u;
             if (n & (s->h ? 8u : 0x8004u))
+            {
                 s->violations++;
+            }
         }
         return;
     }
     if (a >= 0x080C0000u && a < 0x08100000u)
     {
         if (!(s->cr & (s->h ? 2u : 1u)) || s->count >= 8)
+        {
             s->violations++;
+        }
         else
         {
             s->address[s->count] = a;
@@ -113,10 +129,14 @@ static void fresh(void *v, uint32_t a, uint32_t n)
     (void)a;
     (void)n;
     if (s->busy)
+    {
         s->violations++;
+    }
     s->fresh++;
     if (s->fail_verify && s->fresh == 3)
+    {
         s->mem[0x20000u / 4 + 29] ^= 1u;
+    }
 }
 
 static struct fm_io io(void)
@@ -130,7 +150,9 @@ static void init(unsigned h)
     m.h = h;
     m.cr = h ? 0x31u : 0x80000300u;
     for (unsigned i = 0; i < 65536; ++i)
+    {
         m.mem[i] = UINT32_MAX;
+    }
 }
 
 static int cut(void)
@@ -146,7 +168,9 @@ static int cut(void)
 static void finish(void)
 {
     if (!m.busy || m.dead)
+    {
         return;
+    }
     if (!m.error)
     {
         if (m.erase)
@@ -155,9 +179,13 @@ static void finish(void)
             for (unsigned i = 0; i < 32768; i += 8)
             {
                 for (unsigned j = 0; j < 8; ++j)
+                {
                     m.mem[start + i + j] = UINT32_MAX;
+                }
                 if (cut())
+                {
                     return;
+                }
             }
         }
         else
@@ -166,7 +194,9 @@ static void finish(void)
             {
                 m.mem[(m.address[i] - 0x080C0000u) / 4] &= m.words[i];
                 if (cut())
+                {
                     return;
+                }
             }
         }
     }
@@ -176,7 +206,9 @@ static void finish(void)
     m.cr &= ~(m.h ? 0x80u : 0x10000u);
     m.sr = m.error ? (m.h ? 0x20000u : 0x10u) : (m.h ? 0x10000u : 0u);
     if (m.corrupt)
+    {
         m.mem[(m.pending_base - 0x080C0000u) / 4] = 0;
+    }
 }
 
 static enum fh_result drain(struct fm_operation *o)
@@ -193,16 +225,20 @@ static enum fh_result drain(struct fm_operation *o)
 static void bytes(uint32_t base, unsigned char out[128])
 {
     for (unsigned i = 0; i < 128; ++i)
+    {
         out[i] = (unsigned char)(m.mem[(base - 0x080C0000u + i) / 4] >>
                                  (8 * (i % 4)));
+    }
 }
 
 static void store(uint32_t base, const unsigned char in[128])
 {
     for (unsigned i = 0; i < 32; ++i)
+    {
         m.mem[(base - 0x080C0000u) / 4 + i] =
             (uint32_t)in[4 * i] | (uint32_t)in[4 * i + 1] << 8 |
             (uint32_t)in[4 * i + 2] << 16 | (uint32_t)in[4 * i + 3] << 24;
+    }
 }
 
 static struct fw_peer peer(void)
@@ -260,7 +296,9 @@ int main(void)
     unsigned cuts[40] = {1, 2, 2048, 4096};
     unsigned nc = 4;
     for (unsigned i = 1; i <= 32; ++i)
+    {
         cuts[nc++] = 4096 + i;
+    }
     cuts[nc++] = 4096 + 32 + 1;
     cuts[nc++] = 4096 + 32 + 2048;
     cuts[nc++] = 8192 + 32;
@@ -278,7 +316,9 @@ int main(void)
         {
             finish();
             if (!m.dead)
+            {
                 e = fm_recycle_poll(&r);
+            }
         }
         C(m.dead || e == FH_DONE);
         C(!m.violations);
@@ -287,9 +327,13 @@ int main(void)
         int recovered = fm_recover(a, b);
         C(recovered == 1 || recovered == 2);
         if (!m.cut)
+        {
             C(recovered == 2 && r.state == 4);
+        }
         if (m.cut && m.cut <= 4096 + 24)
+        {
             C(recovered == 1);
+        }
     }
     init(1);
     store(0x080C0000u, old);

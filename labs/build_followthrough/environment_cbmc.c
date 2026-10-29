@@ -21,7 +21,9 @@ static ptrdiff_t writer(void *v, const unsigned char *p, size_t remaining)
     ++e->calls;
     ptrdiff_t result = choice == 0 ? -1 : choice == 1 ? 0 : choice == 2 ? 1 : 5;
     if (result > 0 && (size_t)result <= remaining)
+    {
         e->accepted += (size_t)result;
+    }
     return result;
 }
 

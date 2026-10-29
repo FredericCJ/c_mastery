@@ -91,11 +91,17 @@ static int writer(void *c, const unsigned char *p, size_t n)
         return 0;
     }
     if (w->zero)
+    {
         return 0;
+    }
     if (n > w->chunk)
+    {
         n = w->chunk;
+    }
     if (n > sizeof w->bytes - w->used)
+    {
         return -1;
+    }
     memcpy(w->bytes + w->used, p, n);
     w->used += n;
     return (int)n;
@@ -110,11 +116,17 @@ static ptrdiff_t reader(void *c, unsigned char *p, size_t n)
         return -2;
     }
     if (w->zero)
+    {
         return -2;
+    }
     if (n > w->chunk)
+    {
         n = w->chunk;
+    }
     if (n > w->used - w->at)
+    {
         n = w->used - w->at;
+    }
     memcpy(p, w->bytes + w->at, n);
     w->at += n;
     return (ptrdiff_t)n;
@@ -124,12 +136,16 @@ static int transport_case(void)
 {
     unsigned char payload[64], out[64];
     for (unsigned i = 0; i < 64; ++i)
+    {
         payload[i] = (unsigned char)(i * 3);
+    }
     struct rp_wire w = {.chunk = 1, .retry = 2};
     CHECK(rpo_wire_write(writer, &w, 74, payload, 64) == RPL_OK &&
           w.used == 72);
     for (unsigned i = 0; i < 8; ++i)
+    {
         CHECK(w.bytes[9 * i] == 8);
+    }
     struct rp_wire original = w;
     for (size_t n = 1; n <= 9; ++n)
     {
@@ -147,21 +163,27 @@ static int transport_case(void)
         memset(out, 0xa5, 64);
         CHECK(rpo_wire_read(reader, &w, 80, 64, out) == RPL_CORRUPT);
         for (unsigned i = 0; i < 64; ++i)
+        {
             CHECK(out[i] == 0xa5);
+        }
     }
     /* Same total bytes, noncanonical segmentation: 7 + 1 + seven 8-byte frames.
      */
     w = (struct rp_wire){.chunk = 9};
     w.bytes[w.used++] = 7;
     for (unsigned i = 0; i < 7; ++i)
+    {
         w.bytes[w.used++] = payload[i];
+    }
     w.bytes[w.used++] = 1;
     w.bytes[w.used++] = payload[7];
     for (unsigned f = 1; f < 8; ++f)
     {
         w.bytes[w.used++] = 8;
         for (unsigned i = 0; i < 8; ++i)
+        {
             w.bytes[w.used++] = payload[f * 8 + i];
+        }
     }
     CHECK(rpo_wire_read(reader, &w, 80, 64, out) == RPL_CORRUPT);
     w = original;
@@ -190,7 +212,9 @@ static int faults_case(void)
 {
     unsigned observations = 0;
     for (unsigned which = 0; which < 2; ++which)
+    {
         for (unsigned mode = 0; mode < 2; ++mode)
+        {
             for (unsigned cut = 1; cut <= 37; ++cut)
             {
                 CHECK(!setup());
@@ -228,6 +252,8 @@ static int faults_case(void)
                       total == 7);
                 ++observations;
             }
+        }
+    }
     printf("OUTBOX_FAULTS %u\n", observations);
     return 0;
 }
@@ -277,7 +303,9 @@ static int oracle(void)
             r = 0;
         }
         else
+        {
             return 1;
+        }
         int64_t projection = 0;
         CHECK(rpo_projection(&inbox.log, inbox.log.memory.count, &projection) ==
               RPL_OK);
@@ -291,16 +319,28 @@ static int oracle(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "outbox_receive"))
+    {
         return receive_case();
+    }
     if (!strcmp(argv[1], "outbox_ack"))
+    {
         return ack_case();
+    }
     if (!strcmp(argv[1], "outbox_transport"))
+    {
         return transport_case();
+    }
     if (!strcmp(argv[1], "outbox_faults"))
+    {
         return faults_case();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     return 2;
 }

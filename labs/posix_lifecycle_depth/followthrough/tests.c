@@ -27,10 +27,14 @@ static int descriptors(void)
 {
     DIR *d = opendir("/proc/self/fd");
     if (!d)
+    {
         return -1;
+    }
     int n = 0;
     while (readdir(d))
+    {
         ++n;
+    }
     closedir(d);
     return n;
 }
@@ -113,6 +117,7 @@ static int redirect(void)
 {
     int initial = descriptors();
     for (unsigned crossing = 0; crossing < 2; ++crossing)
+    {
         for (unsigned fail = 0; fail <= 4; ++fail)
         {
             char name[] = "/tmp/plx-owned-XXXXXX";
@@ -147,6 +152,7 @@ static int redirect(void)
             }
             CHECK(close(a) == 0 && close(b) == 0);
         }
+    }
     CHECK(descriptors() == initial);
     return 0;
 }
@@ -253,7 +259,9 @@ static int interrupts(void)
             {
                 ssize_t n = write(pipefd[1], bytes, sizeof bytes);
                 if (n > 0)
+                {
                     fill += (size_t)n;
+                }
                 else
                 {
                     CHECK(n == -1 && errno == EAGAIN);
@@ -271,8 +279,12 @@ static int interrupts(void)
                 close(pipefd[0]);
                 pause_child();
                 for (unsigned i = 0; i < 8; ++i)
+                {
                     if (write(pipefd[1], &"abcdefgh"[i], 1) != 1)
+                    {
                         _exit(122);
+                    }
+                }
                 close(pipefd[1]);
             }
             else if (mode == 1)
@@ -285,13 +297,21 @@ static int interrupts(void)
                 {
                     ssize_t k = read(pipefd[0], bytes, sizeof bytes);
                     if (k > 0)
+                    {
                         n += (size_t)k;
+                    }
                     else if (k < 0 && errno == EINTR)
+                    {
                         continue;
+                    }
                     else if (k < 0 && errno == EAGAIN)
+                    {
                         continue;
+                    }
                     else
+                    {
                         break;
+                    }
                 }
                 close(pipefd[0]);
             }
@@ -304,9 +324,13 @@ static int interrupts(void)
             _exit(0);
         }
         if (mode == 0)
+        {
             close(pipefd[1]);
+        }
         else if (mode == 1)
+        {
             close(pipefd[0]);
+        }
         else
         {
             close(pipefd[0]);
@@ -319,23 +343,39 @@ static int interrupts(void)
         size_t used = 0;
         char bytes[8] = {0};
         if (mode == 0)
+        {
             rc = plx_read_all(pipefd[0], bytes, 8, &used, &interrupted);
+        }
         else if (mode == 1)
+        {
             rc = plx_write_all(pipefd[1], "!", 1, &used, &interrupted);
+        }
         else
+        {
             rc = plx_wait(child, &status, &interrupted);
+        }
         CHECK(setitimer(ITIMER_REAL, &none, NULL) == 0);
         if (mode < 2)
+        {
             close(pipefd[mode == 0 ? 0 : 1]);
+        }
         if (mode < 2 || rc)
+        {
             reap(child);
+        }
         CHECK(rc == 0 && interrupted > 0 && signal_seen);
         if (mode == 0)
+        {
             CHECK(used == 8 && memcmp(bytes, "abcdefgh", 8) == 0);
+        }
         if (mode == 1)
+        {
             CHECK(used == 1);
+        }
         if (mode == 2)
+        {
             CHECK(WIFEXITED(status) && WEXITSTATUS(status) == 0);
+        }
         CHECK(descriptors() == initial);
         printf("EINTR mode=%u observed=%u\n", mode, interrupted);
     }
@@ -347,21 +387,37 @@ static int interrupts(void)
 int main(int argc, char **argv)
 {
     if (argc != 3)
+    {
         return 2;
+    }
     int rc;
     if (!strcmp(argv[1], "channel"))
+    {
         rc = channel(argv[2]);
+    }
     else if (!strcmp(argv[1], "stages"))
+    {
         rc = stages(argv[2]);
+    }
     else if (!strcmp(argv[1], "redirect"))
+    {
         rc = redirect();
+    }
     else if (!strcmp(argv[1], "inheritance"))
+    {
         rc = inheritance();
+    }
     else if (!strcmp(argv[1], "interrupts"))
+    {
         rc = interrupts();
+    }
     else
+    {
         return 2;
+    }
     if (!rc)
+    {
         printf("PLX_PASS %s\n", argv[1]);
+    }
     return rc;
 }

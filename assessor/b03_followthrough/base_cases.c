@@ -26,7 +26,9 @@ static long write_one(void *v, const unsigned char *p, size_t n)
     if (e == 0)
     {
         if (n)
+        {
             b->output[b->copied++] = *p;
+        }
         return 1;
     }
     return e == 1 ? -1 : e == 2 ? -2 : e == 3 ? 0 : -3;
@@ -36,8 +38,11 @@ static int io(void)
 {
     unsigned sl, words = 1, word, len, budget, total = 0;
     for (sl = 0; sl <= 6; sl++, words *= 5)
+    {
         for (word = 0; word < words; word++)
+        {
             for (len = 0; len <= 5; len++)
+            {
                 for (budget = 1; budget <= 3; budget++)
                 {
                     struct bf_backend b = {{0}, sl, 0, 0, {0}, 0, {0}};
@@ -53,13 +58,16 @@ static int io(void)
                         unsigned used = 0, offset[8] = {0}, old_calls = b.calls;
                         int expected = B3_YIELD, got;
                         if (terminal)
+                        {
                             expected = terminal == 1 ? B3_OK : B3_FAILED;
+                        }
                         else if (pos == len)
                         {
                             terminal = 1;
                             expected = B3_OK;
                         }
                         else
+                        {
                             while (used < budget)
                             {
                                 unsigned e = at < sl ? b.script[at++] : 4;
@@ -86,12 +94,15 @@ static int io(void)
                                     break;
                                 }
                             }
+                        }
                         got = b3_pump(&w, write_one, &b, budget);
                         CHECK(got == expected && w.position == pos &&
                               (unsigned)w.terminal == terminal &&
                               b.calls - old_calls == used);
                         for (k = 0; k < used; k++)
+                        {
                             CHECK(b.offset[old_calls + k] == offset[k]);
+                        }
                         CHECK(b.copied == pos && !memcmp(b.output, bytes, pos));
                         if (terminal)
                         {
@@ -105,6 +116,9 @@ static int io(void)
                     CHECK(terminal);
                     total++;
                 }
+            }
+        }
+    }
     {
         struct bf_backend b = {{0}, 0, 0, 0, {0}, 0, {0}};
         struct b3_writer w = {bytes, 5, 0, 0};
@@ -126,8 +140,11 @@ static int cancel(void)
 {
     unsigned length, words = 1, word, g, eg, total = 0;
     for (length = 0; length <= 6; length++, words *= 3)
+    {
         for (word = 0; word < words; word++)
+        {
             for (g = 1; g <= 3; g++)
+            {
                 for (eg = 0; eg <= 4; eg++)
                 {
                     struct b3_operation o = {g, B3_ACTIVE, 1, g - 1};
@@ -160,6 +177,9 @@ static int cancel(void)
                     }
                     total++;
                 }
+            }
+        }
+    }
     {
         struct b3_operation o = {0};
         unsigned i;
@@ -180,6 +200,7 @@ static int mmio(void)
 {
     unsigned s, m, before, after, count = 0;
     for (s = 0; s < 16; s++)
+    {
         for (m = 0; m < 32; m++)
         {
             struct b3_device d = {s, 71, 0, 0};
@@ -195,9 +216,13 @@ static int mmio(void)
             CHECK(b3_read_data(&d, &out) == B3_WAIT && d.reads == (s & 1));
             count++;
         }
+    }
     for (s = 0; s < 16; s++)
+    {
         for (m = 0; m < 16; m++)
+        {
             for (before = 0; before < 16; before++)
+            {
                 for (after = 0; after < 16; after++)
                 {
                     struct b3_device d = {s | before, 0, 0, 0};
@@ -207,6 +232,9 @@ static int mmio(void)
                           d.writes == 1 && !d.reads);
                     count++;
                 }
+            }
+        }
+    }
     {
         struct b3_device d = {3, 0, 0, 0};
         unsigned wrong = d.status | 1;
@@ -222,7 +250,9 @@ static int deadline(void)
 {
     unsigned s, e, d, valid = 0, ambiguous = 0, invalid = 0;
     for (s = 0; s < 256; s++)
+    {
         for (e = 0; e < 256; e++)
+        {
             for (d = 0; d < 256; d++)
             {
                 int out = 7;
@@ -244,6 +274,8 @@ static int deadline(void)
                     valid++;
                 }
             }
+        }
+    }
     CHECK(b3_due(0, 0, 0, NULL) == B3_INVALID);
     printf("BASE_DEADLINE_PASS valid=%u ambiguous=%u invalid=%u\n", valid,
            ambiguous, invalid);
@@ -253,7 +285,9 @@ static int deadline(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "io"))
     {
         struct b3_writer w = {bytes, 5, 0, 0};
@@ -262,10 +296,16 @@ int main(int argc, char **argv)
         return io();
     }
     if (!strcmp(argv[1], "cancel"))
+    {
         return cancel();
+    }
     if (!strcmp(argv[1], "mmio"))
+    {
         return mmio();
+    }
     if (!strcmp(argv[1], "deadline"))
+    {
         return deadline();
+    }
     return 2;
 }

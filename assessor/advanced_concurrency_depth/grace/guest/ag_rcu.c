@@ -43,14 +43,20 @@ static enum hrtimer_restart read_irq(struct hrtimer *t)
     rcu_read_lock();
     v = rcu_dereference(root);
     if (!v || v->value != 1 || !rcu_is_watching())
+    {
         atomic_inc(&errors);
+    }
     old_seen = v ? v->value : 0;
     complete(&ready);
     while (!atomic_read(&release_reader) && ktime_get_mono_fast_ns() < deadline)
+    {
         cpu_relax();
+    }
     if (!atomic_read(&release_reader) || !v || v->value != 1 ||
         atomic_read(&freed))
+    {
         atomic_inc(&errors);
+    }
     rcu_read_unlock();
     complete(&reader_done);
     return HRTIMER_NORESTART;
@@ -89,7 +95,9 @@ static int writer(void *unused)
     call_rcu(&old->rcu, reclaim);
     held_grace = !wait_for_completion_timeout(&reclaimed, msecs_to_jiffies(10));
     if (!held_grace || atomic_read(&freed))
+    {
         atomic_inc(&errors);
+    }
     /* Harmless negative: corrupt the observation, never free a protected object.
      */
     if (pretend_early)
@@ -99,10 +107,14 @@ static int writer(void *unused)
     }
     atomic_set(&release_reader, 1);
     if (!wait_for_completion_timeout(&reader_done, msecs_to_jiffies(1000)))
+    {
         atomic_inc(&errors);
+    }
     if (held_grace &&
         !wait_for_completion_timeout(&reclaimed, msecs_to_jiffies(2000)))
+    {
         atomic_inc(&errors);
+    }
 done:
     atomic_set(&release_reader, 1);
     complete(&finished);
@@ -110,7 +122,9 @@ done:
     {
         set_current_state(TASK_INTERRUPTIBLE);
         if (kthread_should_stop())
+        {
             break;
+        }
         schedule();
     }
     __set_current_state(TASK_RUNNING);
@@ -135,10 +149,14 @@ static int __init start(void)
     struct version *v;
     int result = 0;
     if (!cpu_online(0) || !cpu_online(1))
+    {
         return -ENODEV;
+    }
     v = kzalloc(sizeof *v, GFP_KERNEL);
     if (!v)
+    {
         return -ENOMEM;
+    }
     v->value = 1;
     rcu_assign_pointer(root, v);
     hrtimer_setup(&timer, read_irq, CLOCK_MONOTONIC,
@@ -161,17 +179,25 @@ static int __init start(void)
     rcu_barrier();
     if (atomic_read(&errors) || !hardirq_seen || old_seen != 1 ||
         new_seen != 2 || !held_grace || atomic_read(&freed) != 1)
+    {
         result = -EINVAL;
+    }
     if (pretend_early)
+    {
         pr_info("AG_RCU_NEGATIVE_DETECTED errors=%d held=%u\n",
                 atomic_read(&errors), held_grace);
+    }
     else
+    {
         pr_info("AG_RCU_OBSERVATION hardirq=%u old=%u new=%u held_grace=%u "
                 "freed=%d errors=%d\n",
                 hardirq_seen, old_seen, new_seen, held_grace,
                 atomic_read(&freed), atomic_read(&errors));
+    }
     if (result)
+    {
         cleanup();
+    }
     return result;
 }
 

@@ -12,5 +12,7 @@ void bf_sse2(const uint32_t *a, const uint32_t *b, uint32_t *out, size_t n)
         _mm_storeu_si128((__m128i *)(void *)(out + i), _mm_add_epi32(x, y));
     }
     for (; i < n; ++i)
+    {
         out[i] = a[i] + b[i];
+    }
 }

@@ -83,7 +83,9 @@ static void text(const char *s)
     while (*s)
     {
         while (!(inb(0x3fd) & 32))
+        {
             __asm__ volatile("pause");
+        }
         outb(0x3f8, (unsigned char)*s++);
     }
 }
@@ -112,7 +114,9 @@ static __attribute__((noreturn)) void fail(const char *s)
     unsigned v = 17;
     __asm__ volatile("outl %0,$0xf4" ::"a"(v));
     for (;;)
+    {
         __asm__ volatile("cli;hlt");
+    }
 }
 
 static void pause_cpu(void)
@@ -123,7 +127,9 @@ static void pause_cpu(void)
 static void acquire(void)
 {
     while (__atomic_exchange_n(&lock_word, 1, __ATOMIC_ACQUIRE))
+    {
         pause_cpu();
+    }
 }
 
 static void release(void)
@@ -135,8 +141,12 @@ unsigned cmk2_cpu_index(void)
 {
     unsigned id = lapic[0x20 / 4] >> 24;
     for (unsigned i = 0; i < topology.count; i++)
+    {
         if (topology.ids[i] == id)
+        {
             return i;
+        }
+    }
     fail("unknown APIC id");
 }
 
@@ -155,18 +165,24 @@ static int sum_ok(const unsigned char *p, unsigned n)
 {
     unsigned s = 0;
     for (unsigned i = 0; i < n; i++)
+    {
         s += p[i];
+    }
     return !(s & 255);
 }
 
 static const unsigned char *table(uint64_t address)
 {
     if (address < 0x1000 || address > UINT32_MAX - 65536)
+    {
         fail("ACPI pointer");
+    }
     const unsigned char *p = (const unsigned char *)(uintptr_t)address;
     unsigned n = rd32(p + 4);
     if (n < 36 || n > 65536 || !sum_ok(p, n))
+    {
         fail("ACPI table length/checksum");
+    }
     return p;
 }
 
@@ -175,28 +191,42 @@ static void discover(unsigned info)
     const unsigned char *p = (const unsigned char *)(uintptr_t)info, *rsdp = 0;
     unsigned n = rd32(p);
     if (n < 16 || n > 1048576)
+    {
         fail("multiboot length");
+    }
     for (unsigned at = 8; at + 8 <= n;)
     {
         unsigned kind = rd32(p + at), z = rd32(p + at + 4);
         if (z < 8 || z > n - at)
+        {
             fail("tag bounds");
+        }
         if (kind == 14 && z >= 28 && !rsdp)
+        {
             rsdp = p + at + 8;
+        }
         if (kind == 15 && z >= 44)
+        {
             rsdp = p + at + 8;
+        }
         if (!kind)
+        {
             break;
+        }
         at = (at + z + 7) & ~7u;
     }
     if (!rsdp || !sum_ok(rsdp, 20))
+    {
         fail("RSDP missing/checksum");
+    }
     unsigned stride = 4;
     uint64_t root = rd32(rsdp + 16);
     if (rsdp[15] >= 2)
     {
         if (rd32(rsdp + 20) != 36 || !sum_ok(rsdp, 36))
+        {
             fail("extended RSDP");
+        }
         root = rd64(rsdp + 24);
         stride = 8;
     }
@@ -207,7 +237,9 @@ static void discover(unsigned info)
         (stride == 8 &&
          (r[0] != 'X' || r[1] != 'S' || r[2] != 'D' || r[3] != 'T')) ||
         (z - 36) % stride)
+    {
         fail("root ACPI type");
+    }
     for (unsigned at = 36; at < z; at += stride)
     {
         const unsigned char *t =
@@ -215,7 +247,9 @@ static void discover(unsigned info)
         if (t[0] == 'A' && t[1] == 'P' && t[2] == 'I' && t[3] == 'C')
         {
             if (cmk2_madt_parse(t, rd32(t + 4), &topology))
+            {
                 fail("MADT unsupported/malformed");
+            }
             lapic = (volatile uint32_t *)(uintptr_t)topology.lapic;
             return;
         }
@@ -267,13 +301,21 @@ static void local_tables(unsigned index)
 static void ipi(unsigned id, unsigned command)
 {
     for (unsigned i = 0; lapic[0x300 / 4] & (1 << 12); i++)
+    {
         if (i == 10000000)
+        {
             fail("IPI busy timeout");
+        }
+    }
     lapic[0x310 / 4] = id << 24;
     lapic[0x300 / 4] = command;
     for (unsigned i = 0; lapic[0x300 / 4] & (1 << 12); i++)
+    {
         if (i == 10000000)
+        {
             fail("IPI delivery timeout");
+        }
+    }
 }
 
 static void timer_on(void)
@@ -287,9 +329,13 @@ void cmk2_interrupt(unsigned vector)
 {
     unsigned c = cmk2_cpu_index();
     if (vector == 240)
+    {
         __atomic_fetch_add(&cpus[c].timers, 1, __ATOMIC_RELAXED);
+    }
     else if (vector == 241)
+    {
         __atomic_fetch_add(&cpus[c].ipis, 1, __ATOMIC_RELAXED);
+    }
     else if (vector == 242)
     {
         uint64_t cr3;
@@ -300,14 +346,19 @@ void cmk2_interrupt(unsigned vector)
                          __ATOMIC_RELEASE);
     }
     else if (vector != 255)
+    {
         fail("unexpected exception/interrupt");
+    }
     if (vector != 255)
+    {
         lapic[0xb0 / 4] = 0;
+    }
 }
 
 static void wake(unsigned state, unsigned own)
 {
     for (unsigned i = 0; i < topology.count * 2; i++)
+    {
         if (threads[i].state == state)
         {
             threads[i].state = CMK2_READY;
@@ -317,6 +368,7 @@ static void wake(unsigned state, unsigned own)
                 ipi(topology.ids[threads[i].cpu], 241);
             }
         }
+    }
 }
 
 static void yield_thread(struct thread *t)
@@ -351,17 +403,25 @@ static void thread_entry(void)
                 t->state = CMK2_RUNNING;
             }
             else
+            {
                 fail("send contract");
+            }
             if (r == CMK2_OK && (i & 15) == 0)
+            {
                 t->state = CMK2_READY;
+            }
             release();
             if (r == CMK2_FULL || (i & 15) == 0)
+            {
                 yield_thread(t);
+            }
         }
         acquire();
         producers++;
         if (producers == topology.count)
+        {
             cmk2_channel_close(&channel);
+        }
         wake(CMK2_WAIT_RECV, core);
         release();
     }
@@ -388,14 +448,18 @@ static void thread_entry(void)
                 if (m.sequence >= topology.count * CMK2_MESSAGES_PER_CPU ||
                     m.value != (m.sequence ^ UINT32_C(0xa53c781f)) ||
                     seen[m.sequence])
+                {
                     fail("message corruption/duplicate");
+                }
                 seen[m.sequence] = 1;
                 received++;
                 wake(CMK2_WAIT_SEND, core);
                 t->state = CMK2_READY;
             }
             else
+            {
                 fail("receive contract");
+            }
             release();
             yield_thread(t);
         }
@@ -419,9 +483,13 @@ static void scheduler(unsigned c)
         {
             unsigned i = c * 2 + (next + j) % 2;
             if (threads[i].state != CMK2_ZOMBIE)
+            {
                 live++;
+            }
             if (chosen == CMK2_MAX_THREADS && threads[i].state == CMK2_READY)
+            {
                 chosen = i;
+            }
         }
         if (!live)
         {
@@ -432,7 +500,9 @@ static void scheduler(unsigned c)
         {
             release();
             if (++spins == 100000000)
+            {
                 fail("scheduler stalled");
+            }
             pause_cpu();
             continue;
         }
@@ -449,7 +519,9 @@ static void scheduler(unsigned c)
 static void worker(unsigned c)
 {
     while (!__atomic_load_n(&start, __ATOMIC_ACQUIRE))
+    {
         pause_cpu();
+    }
     timer_on();
     __asm__ volatile("sti");
     scheduler(c);
@@ -460,7 +532,9 @@ static void worker(unsigned c)
          spins++)
     {
         if (spins == 100000000)
+        {
             fail("timer/IPI not observed");
+        }
         pause_cpu();
     }
     __asm__ volatile("cli");
@@ -476,7 +550,9 @@ static void ap_entry(unsigned c)
     __atomic_store_n(&cpus[c].online, 1, __ATOMIC_RELEASE);
     worker(c);
     for (;;)
+    {
         __asm__ volatile("cli;hlt");
+    }
 }
 
 static void delay(void)
@@ -487,8 +563,12 @@ static void delay(void)
     outb(0x42, 11932 & 255);
     outb(0x42, 11932 >> 8);
     for (unsigned n = 0; !(inb(0x61) & 32); n++)
+    {
         if (n == 10000000)
+        {
             fail("PIT boot delay");
+        }
+    }
     outb(0x61, old);
 }
 
@@ -525,13 +605,17 @@ void cmk2_smp_run(unsigned info)
             uint64_t *sp = (uint64_t *)(void *)(t->stack + sizeof t->stack - 8);
             *--sp = (uintptr_t)thread_entry;
             for (unsigned k = 0; k < 6; k++)
+            {
                 *--sp = 0;
+            }
             t->sp = sp;
         }
     }
     size_t code = (size_t)(cmk2_ap_end - cmk2_ap_start);
     if (code > 0xf00)
+    {
         fail("trampoline too large");
+    }
     memcpy((void *)(uintptr_t)0x8000, cmk2_ap_start, code);
     for (unsigned c = 1; c < topology.count; c++)
     {
@@ -548,12 +632,16 @@ void cmk2_smp_run(unsigned info)
         ipi(topology.ids[c], 0x608);
         delay();
         if (!__atomic_load_n(&cpus[c].online, __ATOMIC_ACQUIRE))
+        {
             ipi(topology.ids[c], 0x608);
+        }
         for (unsigned spin = 0;
              !__atomic_load_n(&cpus[c].online, __ATOMIC_ACQUIRE); spin++)
         {
             if (spin == 100000000)
+            {
                 fail("AP startup timeout");
+            }
             pause_cpu();
         }
     }
@@ -561,35 +649,49 @@ void cmk2_smp_run(unsigned info)
     timer_on();
     __asm__ volatile("sti");
     for (unsigned c = 0; c < topology.count; c++)
+    {
         ipi(topology.ids[c], 241);
+    }
     for (unsigned c = 0; c < topology.count; c++)
+    {
         for (unsigned spin = 0;
              !__atomic_load_n(&cpus[c].timers, __ATOMIC_RELAXED) ||
              !__atomic_load_n(&cpus[c].ipis, __ATOMIC_RELAXED);
              spin++)
         {
             if (spin == 100000000)
+            {
                 fail("initial APIC evidence timeout");
+            }
             pause_cpu();
         }
+    }
     text("PASS smp-apic-timer-ipi\n");
     __atomic_store_n(&start, 1, __ATOMIC_RELEASE);
     worker(0);
     for (unsigned c = 1; c < topology.count; c++)
+    {
         for (unsigned n = 0; !__atomic_load_n(&cpus[c].done, __ATOMIC_ACQUIRE);
              n++)
         {
             if (n == 100000000)
+            {
                 fail("AP completion timeout");
+            }
             pause_cpu();
         }
+    }
     if (received != topology.count * CMK2_MESSAGES_PER_CPU ||
         producers != topology.count)
+    {
         fail("message totals");
+    }
     for (unsigned c = 0; c < topology.count; c++)
     {
         if (processes[c].live_threads || !cpus[c].switches)
+        {
             fail("thread lifetime");
+        }
         text("CPU ");
         number(c);
         text(" switches=");
@@ -601,9 +703,13 @@ void cmk2_smp_run(unsigned info)
         text("\n");
     }
     for (unsigned i = 0; i < topology.count * 2; i++)
+    {
         if (*(uint64_t *)(void *)threads[i].stack !=
             UINT64_C(0xfacedeadbad0cafe))
+        {
             fail("thread stack canary");
+        }
+    }
     text(
         "PASS smp-apic-timer-ipi\nPASS smp-cooperative-threads\nPASS smp-bounded-channel\nPASS smp-message-accounting\n");
     text("SMP messages=");
@@ -616,12 +722,16 @@ void cmk2_smp_run(unsigned info)
     /* APs remain stopped. The independent v1 user-process regression continues
      * on the BSP; its success is not labelled SMP userspace execution. */
     if (!waits)
+    {
         fail("no blocked-wakeup observation");
+    }
     text("PASS smp-suite\n");
     lapic[0x380 / 4] = 0;
     __asm__ volatile("sti");
     for (unsigned drain = 0; drain < 10000; drain++)
+    {
         pause_cpu();
+    }
     __asm__ volatile("cli");
     lapic[0x350 / 4] =
         0x700; /* BSP legacy PIC virtual wire for v1 regression */
@@ -640,7 +750,9 @@ void cmk2_eoi(void)
 void cmk2_wake_cpu(unsigned c)
 {
     if (c < topology.count)
+    {
         ipi(topology.ids[c], 241);
+    }
 }
 
 void cmk2_flush_remote(void)
@@ -652,17 +764,27 @@ void cmk2_flush_remote(void)
     __asm__ volatile("mov %%cr3,%0" : "=r"(cr3));
     __asm__ volatile("mov %0,%%cr3" ::"r"(cr3) : "memory");
     for (unsigned c = 0; c < topology.count; c++)
+    {
         if (c != me && (mask & (1u << c)))
+        {
             ipi(topology.ids[c], 242);
+        }
+    }
     for (unsigned c = 0; c < topology.count; c++)
+    {
         if (c != me && (mask & (1u << c)))
+        {
             for (unsigned n = 0;
                  __atomic_load_n(&shoot_ack[c], __ATOMIC_ACQUIRE) != gen; n++)
             {
                 if (n == 100000000)
+                {
                     fail("TLB shootdown deadline");
+                }
                 pause_cpu();
             }
+        }
+    }
 }
 
 static void user_tables(unsigned c)
@@ -701,7 +823,9 @@ static void user_ap_entry(unsigned c)
     user_tables(c);
     __atomic_store_n(&cpus[c].online, 1, __ATOMIC_RELEASE);
     while (!__atomic_load_n(&user_start, __ATOMIC_ACQUIRE))
+    {
         pause_cpu();
+    }
     user_entry(c);
     fail("user AP returned");
 }
@@ -728,12 +852,16 @@ void cmk2_start_user_aps(void (*entry)(unsigned))
         ipi(topology.ids[c], 0x608);
         delay();
         if (!__atomic_load_n(&cpus[c].online, __ATOMIC_ACQUIRE))
+        {
             ipi(topology.ids[c], 0x608);
+        }
         for (unsigned spin = 0;
              !__atomic_load_n(&cpus[c].online, __ATOMIC_ACQUIRE); spin++)
         {
             if (spin == 100000000)
+            {
                 fail("user AP startup timeout");
+            }
             pause_cpu();
         }
     }

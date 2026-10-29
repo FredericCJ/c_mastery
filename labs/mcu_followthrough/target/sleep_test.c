@@ -16,15 +16,21 @@ void mf_main(void)
         uint32_t credited = s.elapsed;
         mf_require(!mf_nap_finish(&s) && s.elapsed == credited, 211);
         if (boundary < 6)
+        {
             mf_require(s.elapsed < 25000 && s.remaining > 0, 212);
+        }
         if (boundary == 6)
+        {
             mf_require(s.slept && s.elapsed > 0 && s.elapsed < 25000 &&
                            s.remaining > 0,
                        213);
+        }
         if (boundary == 7)
+        {
             mf_require(s.slept && s.elapsed >= 25000 && s.remaining == 0 &&
                            s.wake_irq,
                        214);
+        }
         mf_text("MF wake-boundary/elapsed/remaining/slept\n");
         mf_number(boundary);
         mf_number(s.elapsed);

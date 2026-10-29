@@ -8,7 +8,9 @@ int hh_read(const int *values, size_t length, size_t index, int *out)
     {
 #ifdef HH_MUTANT_OUTPUT
         if (out)
+        {
             *out = 0;
+        }
 #endif
         return -1;
     }

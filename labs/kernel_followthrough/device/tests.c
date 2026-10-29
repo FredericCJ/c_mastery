@@ -15,7 +15,9 @@
 static void put32(uint8_t *p, uint32_t x)
 {
     for (unsigned i = 0; i < 4; ++i)
+    {
         p[i] = (uint8_t)(x >> (i * 8));
+    }
 }
 
 static void capability(uint8_t c[256], unsigned at, unsigned next,
@@ -29,7 +31,9 @@ static void capability(uint8_t c[256], unsigned at, unsigned next,
     put32(c + at + 8, off);
     put32(c + at + 12, size);
     if (kind == 2)
+    {
         put32(c + at + 16, 4);
+    }
 }
 
 static void fixture(uint8_t c[256], struct kf_bar b[6])
@@ -128,7 +132,9 @@ static int queue(void)
     static struct kf_queue q, before;
     static uint8_t bytes[4096];
     for (unsigned i = 0; i < 4096; ++i)
+    {
         bytes[i] = (uint8_t)(i * 13 + 7);
+    }
     kf_queue_init(&q, 65535);
     struct kf_ticket a, b, c = {91, 91};
     CHECK(kf_submit(&q, 1, 24, bytes, &a));
@@ -198,7 +204,9 @@ static int geometry(void)
           sector == UINT64_C(34359738360));
     uint32_t page = 91;
     for (uint32_t i = 0; i < 67; ++i)
+    {
         CHECK(kf_slice(1024, 16, 67, i, &page) && page == 16 + i);
+    }
     page = 91;
     CHECK(!kf_slice(4096, 16, 67, 67, &page) && page == 91);
     CHECK(!kf_slice(82, 16, 67, 66, &page) && page == 91);
@@ -212,15 +220,25 @@ static int ordering(void)
 {
     unsigned good = 0, bad = 0;
     for (unsigned d = 0; d < 3; ++d)
+    {
         for (unsigned a = 0; a < 3; ++a)
+        {
             for (unsigned n = 0; n < 3; ++n)
+            {
                 if (d != a && a != n && d != n)
                 {
                     if (d < a && a < n)
+                    {
                         ++good;
+                    }
                     else
+                    {
                         ++bad;
+                    }
                 }
+            }
+        }
+    }
     CHECK(good == 1 && bad == 5);
     unsigned cpu_cached = 42, device_memory = 0;
     CHECK(device_memory != cpu_cached);
@@ -250,10 +268,14 @@ static int durability(void)
         memcpy(recovered, durable,
                sizeof recovered); /* power-cut observation */
         for (unsigned i = 0; i < 4096; ++i)
+        {
             CHECK(recovered[i] == (i < cut ? 0x7b : 0));
+        }
         /* An error at this point cannot imply zero persistent writes. */
         if (cut)
+        {
             CHECK(recovered[0] == 0x7b);
+        }
         memcpy(durable, cache,
                sizeof durable); /* successful flush acknowledges all */
         memcpy(recovered, durable, sizeof recovered);
@@ -267,16 +289,28 @@ static int durability(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "pci"))
+    {
         return pci();
+    }
     if (!strcmp(argv[1], "queue"))
+    {
         return queue();
+    }
     if (!strcmp(argv[1], "geometry"))
+    {
         return geometry();
+    }
     if (!strcmp(argv[1], "ordering"))
+    {
         return ordering();
+    }
     if (!strcmp(argv[1], "durability"))
+    {
         return durability();
+    }
     return 2;
 }

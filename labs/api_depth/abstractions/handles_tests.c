@@ -47,11 +47,15 @@ int main(void)
     ah_pool_init(&p);
     struct ah_handle slots[3];
     for (unsigned i = 0; i < 3; ++i)
+    {
         CHECK(ah_allocate(&p, i, &slots[i]) == AH_OK);
+    }
     CHECK(ah_reuse(&p) == AH_BUSY);
     CHECK(ah_allocate(&p, 1, &slots[0]) == AH_FULL);
     for (unsigned i = 0; i < 3; ++i)
+    {
         CHECK(ah_release(&p, slots[i]) == AH_OK);
+    }
     for (unsigned i = 0; i < 3; ++i)
     {
         CHECK(ah_enter(&p) == AH_OK);

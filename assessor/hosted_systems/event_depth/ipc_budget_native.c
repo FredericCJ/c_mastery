@@ -61,13 +61,19 @@ int main(void)
         close(gate[1]);
         close(ready[0]);
         if (write(response[1], "AB", 2) != 2 || write(ready[1], "R", 1) != 1)
+        {
             _exit(2);
+        }
         char release;
         if (read(gate[0], &release, 1) != 1)
+        {
             _exit(3);
+        }
         unsigned char bytes[8];
         if (read(request[0], bytes, 8) != 8)
+        {
             _exit(4);
+        }
         close(request[0]);
         close(response[1]);
         close(gate[0]);

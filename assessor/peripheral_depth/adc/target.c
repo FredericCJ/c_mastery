@@ -95,11 +95,15 @@ void pa_f439_pins(void)
 int pa_f439_timer(unsigned prescaler, unsigned reload, unsigned enabled)
 {
     if (prescaler > 65535 || reload < 1 || reload > 65535 || enabled > 1)
+    {
         return PA_INVALID;
+    }
     if (enabled)
     {
         if (REG(0x40000428u) != prescaler || REG(0x4000042cu) != reload)
+        {
             return PA_INVALID;
+        }
         REG(0x40000400u) |= 1;
         return PA_OK;
     }
@@ -138,7 +142,9 @@ void pa_f439_dac_open(void)
 int pa_f439_dac_write(unsigned code)
 {
     if (code > 4095)
+    {
         return PA_INVALID;
+    }
     REG(0x40007408u) = PA_TARGET_MUTANT == 3 ? code << 4 : code;
     REG(0x40007404u) = 1;
     return PA_OK;

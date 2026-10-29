@@ -32,7 +32,9 @@ static uint64_t now(void)
 {
     struct timespec t;
     if (clock_gettime(CLOCK_MONOTONIC, &t))
+    {
         abort();
+    }
     return (uint64_t)t.tv_sec * 1000000000u + (unsigned long)t.tv_nsec;
 }
 
@@ -44,7 +46,9 @@ static int node_of(unsigned cpu)
         snprintf(path, sizeof path, "/sys/devices/system/node/node%u/cpu%u", n,
                  cpu);
         if (access(path, F_OK) == 0)
+        {
             return (int)n;
+        }
     }
     return -1;
 }
@@ -62,7 +66,9 @@ static void *run(void *context)
     }
     atomic_fetch_add_explicit(&ready, 1, memory_order_release);
     while (!atomic_load_explicit(&go, memory_order_acquire))
+    {
         sched_yield();
+    }
     for (unsigned i = 0; i < ITERATIONS; i++)
     {
         struct sl_guard guard = {0};
@@ -81,7 +87,9 @@ static void *run(void *context)
         }
         order[sequence++] = w->id;
         for (unsigned j = 0; j < 16; j++)
+        {
             payload += j;
+        }
         if (sl_leave(&guard, &w->stats))
         {
             w->failed = 1;
@@ -90,7 +98,9 @@ static void *run(void *context)
         w->acquired++;
         w->sum_ns += waited;
         if (waited > w->max_ns)
+        {
             w->max_ns = waited;
+        }
     }
     return NULL;
 }
@@ -101,19 +111,31 @@ int main(int argc, char **argv)
     cpu_set_t allowed;
     unsigned selected[PARTICIPANTS], count = 0;
     if (sched_getaffinity(0, sizeof allowed, &allowed))
+    {
         return 2;
+    }
     for (unsigned cpu = 0; cpu < CPU_SETSIZE && count < PARTICIPANTS; cpu++)
+    {
         if (CPU_ISSET(cpu, &allowed))
+        {
             selected[count++] = cpu;
+        }
+    }
     if (count < PARTICIPANTS)
+    {
         return 3;
+    }
     if (require_numa &&
         node_of(selected[0]) == node_of(selected[PARTICIPANTS - 1]))
+    {
         return 4;
+    }
     for (unsigned kind = 0; kind < 3; kind++)
     {
         if (sl_init(&lock, kind, 1, kind == SL_TICKET ? 14 : 0))
+        {
             return 5;
+        }
         sequence = 0;
         payload = 0;
         atomic_store(&ready, 0);
@@ -125,40 +147,56 @@ int main(int argc, char **argv)
                 .id = i, .cpu = selected[i], .node_id = node_of(selected[i])};
             sl_node_init(&workers[i].node);
             if (pthread_create(&threads[i], NULL, run, &workers[i]))
+            {
                 return 6;
+            }
         }
         uint64_t start = now();
         while (atomic_load_explicit(&ready, memory_order_acquire) !=
                PARTICIPANTS)
         {
             if (now() - start > UINT64_C(10000000000))
+            {
                 return 7;
+            }
             sched_yield();
         }
         atomic_store_explicit(&go, 1, memory_order_release);
         for (unsigned i = 0; i < PARTICIPANTS; i++)
+        {
             if (pthread_join(threads[i], NULL))
+            {
                 return 8;
+            }
+        }
         uint64_t elapsed = now() - start;
         if (sequence != PARTICIPANTS * ITERATIONS ||
             payload != 120u * PARTICIPANTS * ITERATIONS)
+        {
             return 9;
+        }
         for (unsigned i = 0; i < PARTICIPANTS; i++)
         {
             unsigned seen = 0, previous = 0;
             for (unsigned j = 0; j < sequence; j++)
+            {
                 if (order[j] == i)
                 {
                     unsigned gap = seen ? j - previous - 1 : j;
                     if (gap > workers[i].max_gap)
+                    {
                         workers[i].max_gap = gap;
+                    }
                     previous = j;
                     seen++;
                 }
+            }
             struct sa_worker *w = &workers[i];
             if (w->failed || w->acquired != ITERATIONS || seen != ITERATIONS ||
                 atomic_load(&w->node.active))
+            {
                 return 10;
+            }
             printf(
                 "SL_COST kind=%u participant=%u cpu=%u node=%d acquisitions=%u exchanges=%" PRIu64
                 " failed=%" PRIu64 " waiting=%" PRIu64 " wait_sum_ns=%" PRIu64

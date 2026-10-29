@@ -41,7 +41,9 @@ static struct cdo_cell *heap_alloc(void *ctx)
     struct cdo_cell *p = malloc(sizeof *p);
     n->calls++;
     if (p)
+    {
         n->live++;
+    }
     return p;
 }
 
@@ -69,11 +71,13 @@ static void *native_worker(void *arg)
         n->owner = w->id;
         /* Let both real contenders enroll before the terminal publication. */
         while (n->waiting < 2)
+        {
             if (pthread_cond_wait(&n->changed, &n->lock))
             {
                 w->failed = 2;
                 return 0;
             }
+        }
         if (cdo_allocate(n->handle[w->id]) != CMX_OK)
         {
             w->failed = 3;
@@ -87,7 +91,9 @@ static void *native_worker(void *arg)
                 return 0;
             }
             if (n->fail && i == 3)
+            {
                 break;
+            }
         }
         if (!n->fail && (cdo_seal(n->handle[w->id]) != CMX_OK ||
                          cdo_seal(n->handle[w->id]) != CMX_OK))
@@ -117,15 +123,21 @@ static void *native_worker(void *arg)
         return 0;
     }
     while ((r = cdo_result(ticket, &w->observed)) == CMX_BLOCKED)
+    {
         if (pthread_cond_wait(&n->changed, &n->lock))
         {
             w->failed = 9;
             return 0;
         }
+    }
     if (r != (n->fail ? CDO_FAILED : CMX_OK))
+    {
         w->failed = 10;
+    }
     if (pthread_mutex_unlock(&n->lock))
+    {
         w->failed = 11;
+    }
     return 0;
 }
 
@@ -133,7 +145,9 @@ int main(int argc, char **argv)
 {
     if (argc != 2 ||
         (!strcmp(argv[1], "success") ? 0 : strcmp(argv[1], "failure")))
+    {
         return 2;
+    }
     const char *cases[] = {"publication", "failure",  "retry",
                            "waiting",     "policies", "limits"};
     for (unsigned i = 0; i < 6; i++)
@@ -150,12 +164,16 @@ int main(int argc, char **argv)
         pthread_t threads[3];
         cmx_init(&n.kernel, CMX_FIXED);
         for (unsigned i = 0; i < 3; i++)
+        {
             CHECK(cmx_task_add(&n.kernel, 5 + i, 0, 0x1000 + 256 * i, 256) ==
                   (int)i);
+        }
         CHECK(cdo_init(&n.once, &n.kernel, heap_alloc, heap_drop, &n) ==
               CMX_OK);
         for (unsigned i = 0; i < 3; i++)
+        {
             CHECK(cdo_register(&n.once, i, &n.handle[i]) == CMX_OK);
+        }
         CHECK(!pthread_mutex_init(&n.lock, 0) &&
               !pthread_cond_init(&n.changed, 0));
         for (unsigned j = 0; j < 3; j++)
@@ -170,7 +188,9 @@ int main(int argc, char **argv)
             CHECK(!pthread_join(threads[i], 0) && !workers[i].failed);
             CHECK(workers[i].observed.count == (n.fail ? 999u : 8u));
             if (!n.fail)
+            {
                 CHECK(workers[i].observed.checksum == 484);
+            }
         }
         CHECK(n.once.attempts == 1 && n.waiting == 2 && n.owner < 3 &&
               n.calls == 3 && n.live == (n.fail ? 0u : 3u));
@@ -179,7 +199,9 @@ int main(int argc, char **argv)
         CHECK(later.count == (n.fail ? 998u : 8u));
         CHECK(cdo_close(&n.once) == CMX_OK);
         for (unsigned i = 0; i < 3; i++)
+        {
             CHECK(cdo_release(&n.handle[i]) == CMX_OK);
+        }
         CHECK(cdo_destroy(&n.once) == CMX_OK && n.live == 0 && n.drops == 3);
         CHECK(!pthread_cond_destroy(&n.changed) &&
               !pthread_mutex_destroy(&n.lock));

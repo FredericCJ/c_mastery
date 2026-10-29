@@ -5,14 +5,18 @@
 static void ok(int e)
 {
     if (e)
+    {
         abort();
+    }
 }
 
 int tp_queue_init(struct tp_end_queue *q)
 {
     int e = pthread_mutex_init(&q->gate, NULL);
     if (e)
+    {
         return e;
+    }
     e = pthread_cond_init(&q->quiet, NULL);
     if (e)
     {
@@ -38,13 +42,21 @@ static int enter(struct tp_end_queue *q, int writing)
     ok(pthread_mutex_lock(&q->gate));
     int e = 0;
     if (q->closing)
+    {
         e = ECANCELED;
+    }
     else if (writing && q->accepted + q->inflight >= 16000)
+    {
         e = EOVERFLOW;
+    }
     else if (q->inflight == 8)
+    {
         e = EAGAIN;
+    }
     else
+    {
         q->inflight++;
+    }
     ok(pthread_mutex_unlock(&q->gate));
     return e;
 }
@@ -55,9 +67,13 @@ static void leave(struct tp_end_queue *q, int e, int write)
     if (!e)
     {
         if (write)
+        {
             q->accepted++;
+        }
         else
+        {
             q->delivered++;
+        }
     }
     q->inflight--;
     ok(pthread_cond_broadcast(&q->quiet));
@@ -67,7 +83,9 @@ static void leave(struct tp_end_queue *q, int e, int write)
 int tp_queue_push(struct tp_end_queue *q, int value)
 {
     if (value < 0 || value > 1000000)
+    {
         return EINVAL;
+    }
     int old;
     ok(pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &old));
     int e = enter(q, 1);
@@ -114,7 +132,9 @@ int tp_queue_abort(struct tp_end_queue *q)
     ok(tw_close(&q->queue));
     ok(pthread_mutex_lock(&q->gate));
     while (q->inflight)
+    {
         ok(pthread_cond_wait(&q->quiet, &q->gate));
+    }
     ok(pthread_mutex_unlock(&q->gate));
     int value, e;
     while ((e = tw_pop(&q->queue, &value, NULL, NULL, NULL)) == 0)
@@ -123,7 +143,9 @@ int tp_queue_abort(struct tp_end_queue *q)
         q->discarded_sum += (unsigned)value;
     }
     if (e != EPIPE)
+    {
         abort();
+    }
 #ifdef TP_MUTANT_SHUTDOWN
     q->discarded = 0;
 #endif
@@ -138,7 +160,9 @@ int tp_queue_abort(struct tp_end_queue *q)
 void tp_queue_destroy(struct tp_end_queue *q)
 {
     if (!q->retired || q->inflight)
+    {
         abort();
+    }
     ok(pthread_cond_destroy(&q->quiet));
     ok(pthread_mutex_destroy(&q->gate));
 }

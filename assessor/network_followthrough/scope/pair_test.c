@@ -26,9 +26,13 @@ static void w32(unsigned char *p, uint32_t v)
 static unsigned sum(const unsigned char *p, size_t n, unsigned value)
 {
     for (size_t i = 0; i < n; ++i)
+    {
         value += (unsigned)p[i] << (i % 2 ? 0 : 8);
+    }
     while (value > 65535)
+    {
         value = (value & 65535) + (value >> 16);
+    }
     return 65535 - value;
 }
 
@@ -66,12 +70,16 @@ static void packet(struct net_packet *p, uint16_t port, uint32_t seq,
     tcp[13] = (unsigned char)flags;
     w16(tcp + 14, 512);
     if (n)
+    {
         memcpy(tcp + 20, data, n);
+    }
     w16(tcp + 16, sum(tcp, n + 20,
                       0xc000 + 0x201 + 0xc000 + 0x202 + 6 + (unsigned)n + 20));
     p->length = n + 54;
     if (p->length < 60)
+    {
         p->length = 60;
+    }
 }
 static struct nw_pair pair;
 #ifdef NW_TARGET

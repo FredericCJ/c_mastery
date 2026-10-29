@@ -3,7 +3,9 @@
 int ta_order_pair(unsigned success, unsigned failure)
 {
     if (success >= 6 || failure >= 6)
+    {
         return 0;
+    }
 #ifdef TA_MUTANT_ORDER
     return failure != TA_RELEASE && failure != TA_ACQ_REL;
 #else
@@ -17,7 +19,9 @@ int ta_increment(ta_cas_fn operation, void *context, unsigned initial,
 {
     if (!operation || !out || limit == 0 || limit > 16 ||
         (one_attempt != 0 && one_attempt != 1))
+    {
         return TA_INVALID;
+    }
     struct ta_report report = {.expected = initial};
     for (unsigned i = 0; i < (one_attempt ? 1 : limit); i++)
     {
@@ -45,7 +49,9 @@ int ta_publish(ta_node_cas_fn operation, void *context, struct ta_node *owned,
 {
     if (!operation || !owned || !out || !limit || limit > 16 || count > 4 ||
         (count && !leases) || (derive != 0 && derive != 1))
+    {
         return TA_INVALID;
+    }
     struct ta_node_report report = {0};
     for (unsigned i = 0; i < limit; i++)
     {
@@ -53,8 +59,12 @@ int ta_publish(ta_node_cas_fn operation, void *context, struct ta_node *owned,
         {
             int protected = 0;
             for (size_t j = 0; j < count; j++)
+            {
                 if (leases[j] == expected)
+                {
                   protected
+                }
+            }
             = 1;
             if (!protected || !expected)
             {

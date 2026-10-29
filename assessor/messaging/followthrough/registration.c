@@ -12,17 +12,25 @@ struct mfr_waiter
 static void notify(struct mfr_hub *h)
 {
     for (struct mfr_waiter *w = h->waiters; w; w = w->next)
+    {
         if (MFR_MUTANT != 91)
+        {
             w->notified = true;
+        }
+    }
     (void)pthread_cond_broadcast(&h->changed);
 }
 
 enum msg_status mfr_init(struct mfr_hub *h, size_t a, size_t b)
 {
     if (!h || !a || a > 4 || !b || b > 4)
+    {
         return MSG_INVALID;
+    }
     if (pthread_mutex_init(&h->registry, NULL))
+    {
         return MSG_FAILED;
+    }
     if (pthread_mutex_init(&h->channel_mutex[0], NULL))
     {
         pthread_mutex_destroy(&h->registry);
@@ -54,17 +62,25 @@ enum msg_status mfr_init(struct mfr_hub *h, size_t a, size_t b)
 enum msg_status mfr_send(struct mfr_hub *h, unsigned k, unsigned value)
 {
     if (!h || k > 1)
+    {
         return MSG_INVALID;
+    }
     pthread_mutex_lock(&h->channel_mutex[k]);
     pthread_mutex_lock(&h->registry);
     struct msg_channel *c = &h->channel[k];
     enum msg_status result = MSG_OK;
     if (h->stop)
+    {
         result = MSG_CANCELLED;
+    }
     else if (c->closed)
+    {
         result = MSG_CLOSED;
+    }
     else if (c->count == c->capacity)
+    {
         result = MSG_FULL;
+    }
     else
     {
         c->values[(c->head + c->count) % 4] = value;
@@ -87,17 +103,23 @@ static enum msg_status scan(struct mfr_hub *h, unsigned mask, unsigned *which,
     {
         unsigned k = (start + j) % 2;
         if (!(mask & (1u << k)))
+        {
             continue;
+        }
         pthread_mutex_lock(&h->channel_mutex[k]);
         pthread_mutex_lock(&h->registry);
         struct msg_channel *c = &h->channel[k];
         enum msg_status result = MSG_EMPTY;
         if (h->stop)
+        {
             result = MSG_CANCELLED;
+        }
         else
         {
             if (!c->closed)
+            {
                 ++live;
+            }
             if (c->count && !(MFR_MUTANT == 92 && c->closed))
             {
                 *which = k;
@@ -112,7 +134,9 @@ static enum msg_status scan(struct mfr_hub *h, unsigned mask, unsigned *which,
         pthread_mutex_unlock(&h->registry);
         pthread_mutex_unlock(&h->channel_mutex[k]);
         if (result != MSG_EMPTY)
+        {
             return result;
+        }
     }
     return live ? MSG_EMPTY : MSG_CLOSED;
 }
@@ -123,7 +147,9 @@ static enum msg_status select_impl(struct mfr_hub *h, unsigned mask, bool wait,
                                    mfr_probe_fn probe, void *context)
 {
     if (!h || !which || !value || which == value || !mask || (mask & ~3u))
+    {
         return MSG_INVALID;
+    }
     struct mfr_waiter node = {0};
     pthread_mutex_lock(&h->registry);
     if (h->waiting == SIZE_MAX)
@@ -144,7 +170,9 @@ static enum msg_status select_impl(struct mfr_hub *h, unsigned mask, bool wait,
         pthread_mutex_unlock(&h->registry);
         result = scan(h, mask, which, value);
         if (result != MSG_EMPTY || !wait || expired)
+        {
             break;
+        }
         if (probe && !probed)
         {
             probed = true;
@@ -152,27 +180,39 @@ static enum msg_status select_impl(struct mfr_hub *h, unsigned mask, bool wait,
         }
         pthread_mutex_lock(&h->registry);
         if (h->stop)
+        {
             result = MSG_CANCELLED;
+        }
         else if (!node.notified)
         {
             if (h->sleeps < UINT64_MAX)
+            {
                 ++h->sleeps;
+            }
             int rc = deadline ? pthread_cond_timedwait(&h->changed,
                                                        &h->registry, deadline)
                               : pthread_cond_wait(&h->changed, &h->registry);
             if (rc == ETIMEDOUT)
+            {
                 expired = true;
+            }
             else if (rc)
+            {
                 result = MSG_FAILED;
+            }
         }
         pthread_mutex_unlock(&h->registry);
         if (result != MSG_EMPTY)
+        {
             break;
+        }
     }
     pthread_mutex_lock(&h->registry);
     struct mfr_waiter **at = &h->waiters;
     while (*at != &node)
+    {
         at = &(*at)->next;
+    }
     *at = node.next;
     --h->waiting;
     pthread_mutex_unlock(&h->registry);
@@ -196,7 +236,9 @@ enum msg_status mfr_select_probe(struct mfr_hub *h, unsigned mask,
 enum msg_status mfr_close(struct mfr_hub *h, unsigned k)
 {
     if (!h || k > 1)
+    {
         return MSG_INVALID;
+    }
     pthread_mutex_lock(&h->channel_mutex[k]);
     pthread_mutex_lock(&h->registry);
     h->channel[k].closed = true;
@@ -228,7 +270,9 @@ enum msg_status mfr_destroy(struct mfr_hub *h)
     bool busy = h->waiting != 0;
     pthread_mutex_unlock(&h->registry);
     if (busy)
+    {
         return MSG_BUSY;
+    }
     pthread_cond_destroy(&h->changed);
     pthread_mutex_destroy(&h->channel_mutex[1]);
     pthread_mutex_destroy(&h->channel_mutex[0]);

@@ -14,13 +14,17 @@
 static void w32(unsigned char *p, uint32_t x)
 {
     for (unsigned i = 0; i < 4; ++i)
+    {
         p[i] = (unsigned char)(x >> (8 * i));
+    }
 }
 
 static void w64(unsigned char *p, uint64_t x)
 {
     for (unsigned i = 0; i < 8; ++i)
+    {
         p[i] = (unsigned char)(x >> (8 * i));
+    }
 }
 
 static size_t base(unsigned char *p, unsigned stride)
@@ -60,7 +64,9 @@ static int tags(void)
           out.core.entry_size == 40);
     CHECK(out.core.map == p + 48 && out.core.module_start == 0x210000);
     for (size_t i = 0; i < n; ++i)
+    {
         CHECK(refused(p, i));
+    }
     for (unsigned size = 7; size <= 8; ++size)
     {
         base(p, 40);
@@ -152,33 +158,51 @@ static int reservations(void)
         for (unsigned i = 0; i < 4; ++i)
         {
             if (types[i] == 1 && a >= lo[i] && z < lo[i] + len[i])
+            {
                 usable = 1;
+            }
             if (types[i] != 1 && a < lo[i] + len[i] && z >= lo[i])
+            {
                 bad = 1;
+            }
         }
         for (unsigned i = 0; i < 3; ++i)
+        {
             if (a < reserve[i].end && z >= reserve[i].start)
+            {
                 bad = 1;
+            }
+        }
         oracle.state[page] = (unsigned char)(usable && !bad);
     }
     CHECK(kf_frames(&got, &b, reserve, 3) &&
           !memcmp(&got, &oracle, sizeof got));
     unsigned permutations = 0;
     for (unsigned a = 0; a < 4; ++a)
+    {
         for (unsigned c = 0; c < 4; ++c)
+        {
             for (unsigned d = 0; d < 4; ++d)
+            {
                 for (unsigned e = 0; e < 4; ++e)
+                {
                     if (a != c && a != d && a != e && c != d && c != e &&
                         d != e)
                     {
                         unsigned order[] = {a, c, d, e};
                         for (unsigned i = 0; i < 4; ++i)
+                        {
                             memcpy(permuted[i], records[order[i]], 24);
+                        }
                         b.map = (unsigned char *)permuted;
                         CHECK(kf_frames(&got, &b, reserve, 3) &&
                               !memcmp(&got, &oracle, sizeof got));
                         ++permutations;
                     }
+                }
+            }
+        }
+    }
     CHECK(permutations == 24);
     b.map = (unsigned char *)records;
     reserve[1] = (struct kf_span){0x350000, 0x352000};
@@ -204,7 +228,9 @@ static void initpool(void)
 {
     memset(&pool, 0, sizeof pool);
     for (unsigned i = 768; i < 1024; ++i)
+    {
         pool.frames.state[i] = 1;
+    }
     memset(pool.bytes, 0xa5, sizeof pool.bytes);
 }
 
@@ -238,7 +264,9 @@ static int frames(void)
     }
     initpool();
     for (unsigned i = 800; i < 809; ++i)
+    {
         pool.frames.state[i] = 0;
+    }
     unsigned seen = 0;
     for (uint32_t p; (p = cmk_frame_take(&pool.frames)) != 0;)
     {
@@ -254,6 +282,7 @@ static int frames(void)
 static int allocation(void)
 {
     for (unsigned count = 1; count <= 16; ++count)
+    {
         for (unsigned fail = 0; fail <= count; ++fail)
         {
             initpool();
@@ -268,9 +297,11 @@ static int allocation(void)
             int ok = kf_allocate(&pool, &s, 256, count, fail);
             CHECK(ok == (fail == count));
             if (!ok)
+            {
                 CHECK(kf_free(&pool) == free &&
                       !memcmp(&before, &s, sizeof s) &&
                       !memcmp(&state, &pool.frames, sizeof state));
+            }
             else
             {
                 CHECK(kf_free(&pool) == free - count);
@@ -279,12 +310,17 @@ static int allocation(void)
                     CHECK(s.pages[256 + i].permissions == 7);
                     unsigned index = (s.pages[256 + i].frame - 0x300000) / 4096;
                     for (unsigned j = 0; j < 4096; ++j)
+                    {
                         CHECK(pool.bytes[index][j] == 0);
+                    }
                 }
             }
             for (unsigned i = 0; i < 4096; ++i)
+            {
                 CHECK(pool.bytes[0][i] == 0x73);
+            }
         }
+    }
     initpool();
     struct kf_space s = {0};
     s.live = 1;
@@ -334,16 +370,28 @@ static int lifecycle(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "tags"))
+    {
         return tags();
+    }
     if (!strcmp(argv[1], "reservations"))
+    {
         return reservations();
+    }
     if (!strcmp(argv[1], "frames"))
+    {
         return frames();
+    }
     if (!strcmp(argv[1], "allocation"))
+    {
         return allocation();
+    }
     if (!strcmp(argv[1], "lifecycle"))
+    {
         return lifecycle();
+    }
     return 2;
 }

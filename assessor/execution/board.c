@@ -62,7 +62,9 @@ static int put(ring *r, packet p)
     uint32_t h = r->head, t = r->tail;
     barrier();
     if ((uint32_t)(h - t) >= 16)
+    {
         return 0;
+    }
     r->item[h & 15u] = p;
     barrier();
     r->head = h + 1;
@@ -75,7 +77,9 @@ static int get(ring *r, packet *p)
     uint32_t t = r->tail, h = r->head;
     barrier();
     if (t == h)
+    {
         return 0;
+    }
     *p = r->item[t & 15u];
     barrier();
     r->tail = t + 1;
@@ -124,10 +128,16 @@ void cmx_board_init(void)
 #else
     unsigned spins;
     for (spins = 0; spins < 10000000u; spins++)
+    {
         if (bus->magic == MAGIC && bus->epoch == 1)
+        {
             break;
+        }
+    }
     if (spins == 10000000u)
+    {
         cmx_port_finish(41);
+    }
     barrier();
     bus->ack = bus->epoch;
     barrier();
@@ -175,7 +185,9 @@ void cmx_amp_service(void)
     {
         p = (packet){cmx_amp_epoch, cmx_amp_sent, cmx_amp_sent * 3u};
         if (put(&bus->to4, p))
+        {
             cmx_amp_sent++;
+        }
     }
     if (get(&bus->to7, &p))
     {
@@ -190,7 +202,9 @@ void cmx_amp_service(void)
 #endif
     bus->progress[OWN] = cmx_amp_received;
     if (cmx_amp_received == 1000u)
+    {
         cmx_port_status = 0x600d0000u;
+    }
     cmx_port_unlock(saved);
 }
 #else

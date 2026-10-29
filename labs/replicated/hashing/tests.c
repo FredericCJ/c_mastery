@@ -47,7 +47,9 @@ static int sha_stream(void)
     CHECK(digest_is(
         a, "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"));
     for (i = 0; i < sizeof data; ++i)
+    {
         data[i] = (unsigned char)(i * 37 + 11);
+    }
     for (n = 0; n <= sizeof data; ++n)
     {
         CHECK(rph_hash(data, n, a) == RPH_OK);
@@ -93,13 +95,17 @@ static int hmac_test(void)
     CHECK(digest_is(
         a, "60e431591ee0b67f0d8a26aacbf5b77f8e0bc6213728c5140546040f0ee37f54"));
     for (i = 0; i < 150; ++i)
+    {
         data[i] = (unsigned char)i;
+    }
     CHECK(rph_hmac(key, 131, data, 150, a) == RPH_OK);
     CHECK(rph_hmac_init(&s, key, 131) == RPH_OK);
     /* The caller may reuse key/input bytes once each update returns. */
     memset(key, 0, 131);
     for (i = 0; i < 150; ++i)
+    {
         CHECK(rph_hmac_update(&s, data + i, 1) == RPH_OK);
+    }
     CHECK(rph_hmac_final(&s, b) == RPH_OK);
     CHECK(rph_equal(a, b));
     for (i = 0; i < 32; ++i)
@@ -158,7 +164,9 @@ static int lifecycle(void)
     CHECK(!memcmp(old, &h, sizeof h) && !memcmp(saved, out, 32));
     rph_clear(&h, sizeof h);
     for (i = 0; i < sizeof h; ++i)
+    {
         CHECK(((unsigned char *)&h)[i] == 0);
+    }
     return 0;
 }
 
@@ -173,9 +181,13 @@ static int oracle(void)
     {
         CHECK(n <= 8193 && kn <= 257 && chunk > 0 && chunk <= 8193);
         for (i = 0; i < n; ++i)
+        {
             data[i] = (unsigned char)(i * 37 + salt);
+        }
         for (i = 0; i < kn; ++i)
+        {
             key[i] = (unsigned char)(i * 13 + salt * 3);
+        }
         CHECK(rph_init(&s) == RPH_OK);
         CHECK(rph_hmac_init(&h, key, kn) == RPH_OK);
         for (i = 0; i < n;)
@@ -200,9 +212,11 @@ static void resume_digest(struct rph_sha *s, const unsigned char tag[32],
     unsigned i;
     (void)rph_init(s);
     for (i = 0; i < 8; ++i)
+    {
         s->words[i] = (uint32_t)tag[4 * i] << 24 |
                       (uint32_t)tag[4 * i + 1] << 16 |
                       (uint32_t)tag[4 * i + 2] << 8 | tag[4 * i + 3];
+    }
     s->bytes = prefix_bytes;
     s->used = 0;
 }
@@ -266,7 +280,9 @@ static int lengths(void)
         s.bytes = counts[i];
         s.used = (unsigned)(s.bytes % 64);
         for (j = 0; j < s.used; ++j)
+        {
             s.block[j] = (unsigned char)(j * 19 + 7);
+        }
         CHECK(rph_final(&s, out) == RPH_OK);
         hex(out, text);
         puts(text);
@@ -328,20 +344,36 @@ static int metrics(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "sha_stream"))
+    {
         return sha_stream();
+    }
     if (!strcmp(argv[1], "hash_hmac"))
+    {
         return hmac_test();
+    }
     if (!strcmp(argv[1], "hash_lifecycle"))
+    {
         return lifecycle() || clone_test();
+    }
     if (!strcmp(argv[1], "hash_security"))
+    {
         return security();
+    }
     if (!strcmp(argv[1], "lengths"))
+    {
         return lengths();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

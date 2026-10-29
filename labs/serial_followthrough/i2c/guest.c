@@ -79,11 +79,15 @@ void xf_target_main(void)
     {
         int r = ia_cases(i);
         if (r)
+        {
             stop((unsigned)r);
+        }
     }
     int r = ia_mapped();
     if (r)
+    {
         stop((unsigned)r);
+    }
     text("IA_GUEST_PASS CPU-and-RAM-model no-physical-I2C\n");
     stop(0);
 }

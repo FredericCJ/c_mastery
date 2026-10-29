@@ -51,10 +51,14 @@ int r5_f439_send(struct r5_channel *s, uint32_t token, const uint8_t *data,
                  size_t *accepted)
 {
     if (!s)
+    {
         return R5_INVALID;
+    }
     uintptr_t p = (uintptr_t)s->tx_bytes;
     if (backend == PU_DMA &&
         (p < 0x20000000u || p >= 0x20030000u || 16 > 0x20030000u - p))
+    {
         return R5_INVALID;
+    }
     return r5_send(s, token, data, n, backend, now, budget, accepted);
 }

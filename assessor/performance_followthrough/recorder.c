@@ -18,7 +18,9 @@ static unsigned count, dropped, active;
 static EX void record(void *f, void *c, unsigned e)
 {
     if (!active)
+    {
         return;
+    }
     if (count == PF_RECORD_CAP)
     {
         ++dropped;
@@ -55,7 +57,9 @@ EX void pf_record_end(void)
     active = 0;
     printf("HOOK_BEGIN:%u:%u\n", count, dropped);
     for (unsigned i = 0; i < count; ++i)
+    {
         printf("H:%u:%p:%p:%llu\n", events[i].enter, events[i].fn,
                events[i].caller, (unsigned long long)events[i].ns);
+    }
     puts("HOOK_END");
 }

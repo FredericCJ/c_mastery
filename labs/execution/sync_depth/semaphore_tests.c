@@ -17,7 +17,9 @@ static void tasks(cmx_kernel *k, unsigned count)
 {
     cmx_init(k, CMX_FIXED);
     for (unsigned t = 0; t < count; ++t)
+    {
         CHECK(cmx_task_add(k, 9 - t % 8, 0, 4096 + t * 512, 256) == (int)t);
+    }
 }
 
 static void ledger(const struct cd_sem *s)
@@ -76,9 +78,13 @@ static void orders(void)
 {
     unsigned histories = 0;
     for (unsigned first = 0; first < 4; ++first)
+    {
         for (unsigned second = 0; second < 4; ++second)
+        {
             if (first != second)
+            {
                 for (unsigned third = 0; third < 4; ++third)
+                {
                     if (third != first && third != second)
                     {
                         unsigned fourth = 6 - first - second - third;
@@ -109,7 +115,9 @@ static void orders(void)
                                         ++acquired;
                                     }
                                     else
+                                    {
                                         ++free;
+                                    }
                                 }
                             }
                             else if (event == 2)
@@ -131,6 +139,10 @@ static void orders(void)
                         }
                         ++histories;
                     }
+                }
+            }
+        }
+    }
     CHECK(histories == 24);
     puts("CDSEM_ORDERS:24 two-post/timeout/close histories;independent token "
          "ledger");
@@ -148,10 +160,14 @@ static void priority(void)
         tasks(&k, count);
         CHECK(cds_init(&s, &k, 0, 2, 1) == CMX_OK);
         for (unsigned t = 0; t < count; ++t)
+        {
             CHECK(cds_take(&s, t, cmx_forever(), &tokens[t]) == CMX_BLOCKED);
+        }
         uint32_t sequences[CMX_TASKS];
         for (unsigned t = 0; t < count; ++t)
+        {
             sequences[t] = k.task[t].wait_sequence;
+        }
         CHECK(cds_post(&s, &post) == CMX_OK && post.scanned == CMX_TASKS &&
               post.eligible == count && k.current == CMX_NONE);
         probes += post.scanned;
@@ -161,7 +177,9 @@ static void priority(void)
             unsigned expected = count < 8 ? count - 1 : 7;
             CHECK(!s.wait.nodes[expected].linked);
             for (unsigned t = 0; t < count; ++t)
+            {
                 CHECK(k.task[t].wait_sequence == sequences[t]);
+            }
         }
     }
     CHECK(probes == 272);
@@ -217,16 +235,28 @@ static void deferred(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "counting"))
+    {
         counting();
+    }
     else if (!strcmp(argv[1], "orders"))
+    {
         orders();
+    }
     else if (!strcmp(argv[1], "priority"))
+    {
         priority();
+    }
     else if (!strcmp(argv[1], "deferred"))
+    {
         deferred();
+    }
     else
+    {
         return 2;
+    }
     return 0;
 }

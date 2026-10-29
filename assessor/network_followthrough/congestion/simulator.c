@@ -113,8 +113,12 @@ static void packet(struct ni_packet *out, unsigned flow, unsigned index,
     p[33] = ack ? 16 : 24;
     w16(p + 34, 16384);
     if (!ack)
+    {
         for (unsigned i = 0; i < MSS; i++)
+        {
             p[40 + i] = byte(flow, index, i);
+        }
+    }
     w16(p + 10, checksum(p, 20));
     w16(p + 36, tcp_sum(p, n - 20));
 }
@@ -132,11 +136,13 @@ static int schedule(unsigned flow, unsigned index, unsigned ack, uint64_t due,
                     const struct ni_packet *p)
 {
     for (unsigned i = 0; i < EVENTS; i++)
+    {
         if (!events[i].used)
         {
             events[i] = (struct nc_event){1, flow, index, ack, due, *p};
             return 0;
         }
+    }
     return 1;
 }
 
@@ -162,7 +168,9 @@ static int retransmit(unsigned flow)
     struct nc_flow *f = &flows[flow];
     unsigned index = (f->control.una - 0xfffff000u) / MSS;
     if (index >= BLOCKS)
+    {
         return 1;
+    }
     f->retransmitted[index]++;
     return enqueue(flow, index);
 }
@@ -184,40 +192,57 @@ static int step(void)
     /* Receive events before timeout at equal time: explicit deterministic policy.
      */
     for (unsigned i = 0; i < EVENTS; i++)
+    {
         if (events[i].used && events[i].due <= now)
         {
             struct nc_event e = events[i];
             events[i].used = 0;
             if (!valid(&e.packet))
+            {
                 return 10;
+            }
             struct nc_flow *f = &flows[e.flow];
             if (e.ack)
             {
                 uint32_t ack = u32(e.packet.bytes + 28), old = f->control.una;
                 int rc = nr_ack(&f->control, ack, 16384, 0, 16, now);
                 if (rc == NR_INVALID)
+                {
                     return 11;
+                }
                 if (rc == NR_FAST_RETRANSMIT)
                 {
                     f->fast++;
                     if (retransmit(e.flow))
+                    {
                         return 12;
+                    }
                     f->due = now + f->rto;
                 }
                 if (f->control.una != old)
+                {
                     f->due = nr_flight(&f->control) ? now + f->rto : 0;
+                }
                 if (f->control.una == 0xfffff000u + BLOCKS * MSS &&
                     !f->finished)
+                {
                     f->finished = now;
+                }
             }
             else
             {
                 unsigned index = (u32(e.packet.bytes + 24) - 0xfffff000u) / MSS;
                 if (index >= BLOCKS || e.packet.length != 40 + MSS)
+                {
                     return 13;
+                }
                 for (unsigned k = 0; k < MSS; k++)
+                {
                     if (e.packet.bytes[40 + k] != byte(e.flow, index, k))
+                    {
                         return 14;
+                    }
+                }
                 unsigned expected_index = f->next;
                 memcpy(f->received[index], e.packet.bytes + 40, MSS);
                 f->present[index] = 1;
@@ -232,16 +257,27 @@ static int step(void)
                     f->next > expected_index + 1 || ++f->ack_wait >= 2)
                 {
                     if (acknowledge(e.flow))
+                    {
                         return 15;
+                    }
                 }
                 else if (!f->ack_due)
+                {
                     f->ack_due = now + 40;
+                }
             }
         }
+    }
     for (unsigned f = 0; f < flow_count; f++)
+    {
         if (flows[f].ack_due && now >= flows[f].ack_due)
+        {
             if (acknowledge(f))
+            {
                 return 29;
+            }
+        }
+    }
     for (unsigned j = 0; j < flow_count; j++)
     {
         unsigned flow = order_bias == 2 ? flow_count - 1 - j
@@ -252,12 +288,16 @@ static int step(void)
         if (nr_flight(&f->control) && f->due && now >= f->due)
         {
             if (nr_timeout(&f->control, now) != NR_OK)
+            {
                 return 16;
+            }
             f->timeouts++;
             f->rto = f->rto > 30000 ? 60000 : f->rto * 2;
             f->due = now + f->rto;
             if (retransmit(flow))
+            {
                 return 17;
+            }
         }
         while (f->sent < BLOCKS && nr_usable(&f->control) >= MSS)
         {
@@ -265,13 +305,21 @@ static int step(void)
             unsigned was_empty = !nr_flight(&f->control);
             if (nr_send(&f->control, MSS, 1, now, &seq) != NR_OK ||
                 seq != 0xfffff000u + f->sent * MSS)
+            {
                 return 18;
+            }
             if (was_empty)
+            {
                 f->due = now + f->rto;
+            }
             if (enqueue(flow, f->sent++))
+            {
                 return 19;
+            }
             if (nr_flight(&f->control) > f->high_flight)
+            {
                 f->high_flight = nr_flight(&f->control);
+            }
         }
     }
     /* One packet per tick shared bottleneck; accepted NIC copies can be dropped
@@ -287,19 +335,29 @@ static int step(void)
             (mode == 2 && (q.index == 8 || q.index == 10) &&
              !f->retransmitted[q.index]);
         if (discard)
+        {
             f->drops++;
+        }
         else
         {
             uint64_t delay = 5 + (asymmetric && q.flow ? 10 : 0);
             if (mode == 3 && q.index == 8 && !f->retransmitted[8])
+            {
                 delay += 40;
+            }
             if (schedule(q.flow, q.index, 0, now + delay, &q.packet))
+            {
                 return 20;
+            }
         }
     }
     if (now == 100)
+    {
         for (unsigned f = 0; f < flow_count; f++)
+        {
             flows[f].at100 = flows[f].delivered;
+        }
+    }
     return 0;
 }
 
@@ -320,9 +378,13 @@ static int run(unsigned case_id, unsigned selected, unsigned cap,
     for (unsigned f = 0; f < nflow; f++)
     {
         if (nr_init(&flows[f].control, MSS, 0xfffff000u, 16384) != NR_OK)
+        {
             return 21;
+        }
         if (nr_policy(&flows[f].control, limited_transmit) != NR_OK)
+        {
             return 30;
+        }
         flows[f].rto = 1000;
     }
     for (now = 0; now < 200000; now++)
@@ -336,29 +398,51 @@ static int run(unsigned case_id, unsigned selected, unsigned cap,
         }
         unsigned done = 1;
         for (unsigned f = 0; f < nflow; f++)
+        {
             done &= flows[f].finished != 0;
+        }
         if (done && now >= 100)
+        {
             break;
+        }
     }
     if (now == 200000)
+    {
         return 22;
+    }
     for (unsigned f = 0; f < nflow; f++)
     {
         struct nc_flow *s = &flows[f];
         if (s->delivered != BLOCKS * MSS || nr_flight(&s->control))
+        {
             return 23;
+        }
         for (unsigned i = 0; i < BLOCKS; i++)
+        {
             for (unsigned k = 0; k < MSS; k++)
+            {
                 if (s->received[i][k] != byte(f, i, k))
+                {
                     return 24;
+                }
+            }
+        }
         if (case_id == 0 && (s->drops || s->fast || s->timeouts))
+        {
             return 25;
+        }
         if (case_id == 1 && (!s->fast || s->timeouts || s->drops != 1))
+        {
             return 26;
+        }
         if (case_id == 2 && (!s->fast || !s->timeouts || s->drops != 2))
+        {
             return 27;
+        }
         if (case_id == 3 && (!s->fast || s->drops))
+        {
             return 28;
+        }
         printf(
             "NR_SIM case=%u flow=%u delivered=%u at100=%u finish=%llu fast=%u "
             "rto=%u drops=%u packets=%u maxflight=%u acks=%u\n",
@@ -384,6 +468,7 @@ int main(void)
         }
     }
     for (unsigned asym = 0; asym < 2; asym++)
+    {
         for (unsigned bias = 0; bias < 2; bias++)
         {
             int rc = run(4 + asym * 2 + bias, 0, 4, 2, asym, bias, 0, 0);
@@ -393,9 +478,12 @@ int main(void)
                 return 1;
             }
         }
+    }
     if (run(8, 0, 4, 2, 0, 2, 0, 0) || run(9, 0, 64, 1, 0, 0, 1, 0) ||
         run(10, 1, 64, 1, 0, 0, 0, 1) || run(11, 2, 64, 1, 0, 0, 1, 1))
+    {
         return 1;
+    }
     puts("NR_SIM_PASS twelve_schedules_actual_IP_checksum_exact_bytes");
     return 0;
 }

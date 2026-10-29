@@ -3,7 +3,9 @@
 void cm_init(struct cm_model *m)
 {
     if (m)
+    {
         *m = (struct cm_model){0};
+    }
 }
 
 int cm_valid(const struct cm_model *m)
@@ -50,7 +52,9 @@ int cm_eval(const struct cm_model *m, const unsigned char *s, size_t n,
 void cm_session_init(struct cm_session *s)
 {
     if (s)
+    {
         *s = (struct cm_session){0};
+    }
 }
 
 int cm_step(struct cm_session *s, const unsigned char *p, size_t n)

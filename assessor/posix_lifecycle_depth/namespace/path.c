@@ -13,7 +13,9 @@ int pn_open_confined(int directory, const char *relative, int *owned_fd)
     int fd;
     struct stat info;
     if (!relative || !owned_fd || relative[0] == '\0')
+    {
         return EINVAL;
+    }
 #if PN_MUTANT == 1
     fd = openat(directory, relative,
                 O_RDONLY | O_CLOEXEC | O_NONBLOCK | O_NOFOLLOW);
@@ -26,7 +28,9 @@ int pn_open_confined(int directory, const char *relative, int *owned_fd)
     fd = (int)syscall(SYS_openat2, directory, relative, &how, sizeof how);
 #endif
     if (fd < 0)
+    {
         return errno; /* ENOSYS/EAGAIN never weakens the policy. */
+    }
     if (fstat(fd, &info) < 0)
     {
         int error = errno;
@@ -47,12 +51,16 @@ int pn_info(int directory, const char *path, bool follow, struct pn_info *out)
     struct stat s;
     struct pn_info result;
     if (!path || !out)
+    {
         return EINVAL;
+    }
 #if PN_MUTANT == 3
     follow = true;
 #endif
     if (fstatat(directory, path, &s, follow ? 0 : AT_SYMLINK_NOFOLLOW) < 0)
+    {
         return errno;
+    }
     result = (struct pn_info){.device = s.st_dev,
                               .inode = s.st_ino,
                               .mode = s.st_mode,
@@ -76,7 +84,9 @@ int pn_creation_mode(unsigned requested, unsigned mask, bool has_default,
                      unsigned permissions, unsigned *installed)
 {
     if (!installed || (requested | mask | permissions) > 0777u)
+    {
         return EINVAL;
+    }
 #if PN_MUTANT == 5
     has_default = false;
 #endif
@@ -87,13 +97,21 @@ int pn_creation_mode(unsigned requested, unsigned mask, bool has_default,
 int pn_authorize(struct pn_authority a, enum pn_operation operation)
 {
     if (operation < PN_READ || operation > PN_REPLACE)
+    {
         return EINVAL;
+    }
     if (!a.searchable)
+    {
         return EACCES;
+    }
     if (operation == PN_READ)
+    {
         return a.file_read ? 0 : EACCES;
+    }
     if (operation == PN_WRITE)
+    {
         return a.file_write ? 0 : EACCES;
+    }
 #if PN_MUTANT == 6
     return a.file_write ? 0 : EACCES;
 #else

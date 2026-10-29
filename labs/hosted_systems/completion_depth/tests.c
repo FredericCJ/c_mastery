@@ -16,7 +16,9 @@ int main(void)
 {
     unsigned char storage[4][16], *buffers[4];
     for (unsigned i = 0; i < 4; ++i)
+    {
         buffers[i] = storage[i];
+    }
     struct co_pool p;
     uint64_t token, cancel, second;
     CHECK(co_init(&p, buffers, 16, 2) == 0 && co_quiescent(&p));
@@ -41,6 +43,7 @@ int main(void)
           co_quiescent(&p));
     unsigned permutations = 0;
     for (unsigned order = 0; order < 2; ++order)
+    {
         for (unsigned outcome = 0; outcome < 3; ++outcome)
         {
             CHECK(co_init(&p, buffers, 16, 2) == 0);
@@ -63,6 +66,7 @@ int main(void)
             CHECK(co_release(&p, token) == 1 && co_quiescent(&p));
             ++permutations;
         }
+    }
     puts("COMPLETION-PASS:cancel_target_orders=6;retirement=1;duplicate_and_"
          "stale=1;pending_ack=1;");
     CHECK(permutations == 6);

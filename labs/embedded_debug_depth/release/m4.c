@@ -14,7 +14,9 @@ void dt_hex(uint32_t n)
 {
     char text[9];
     for (unsigned i = 0; i < 8; i++)
+    {
         text[i] = "0123456789abcdef"[(n >> ((7 - i) * 4)) & 15];
+    }
     text[8] = 0;
     dt_output(text);
 }
@@ -26,7 +28,9 @@ static void done(unsigned n)
     register void *arg __asm__("r1") = block;
     __asm__ volatile("bkpt 0xab" : "+r"(op) : "r"(arg) : "memory");
     for (;;)
+    {
         __asm__ volatile("wfi");
+    }
 }
 
 static void failed(void)
@@ -39,9 +43,13 @@ void dt_reset(void)
 {
     uint32_t *s = &dt_data_load;
     for (uint32_t *d = &dt_data_start; d < &dt_data_end; d++)
+    {
         *d = *s++;
+    }
     for (uint32_t *d = &dt_bss_start; d < &dt_bss_end; d++)
+    {
         *d = 0;
+    }
     int r = dt_target();
     dt_output(
         r ? "DT_TARGET_CHECK:contract\n"

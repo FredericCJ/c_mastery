@@ -42,7 +42,9 @@ static _Noreturn void fail(uint32_t code)
 #else
     __asm__ volatile("cpsid i" ::: "memory");
     for (;;)
+    {
         __asm__ volatile("wfi");
+    }
 #endif
 }
 
@@ -102,7 +104,9 @@ static void memory_policy(void)
 #if !AF_QEMU
     /* Cold only: dirty live cache state must never be discarded here. */
     if (REG(0xe000ed14u) & (1u << 16))
+    {
         fail(0xc0);
+    }
     REG(0x580244e0u) |= 1u << 25;
     REG(0x580244dcu) |= 0xe0000000u;
     fence(0);
@@ -120,10 +124,16 @@ static void memory_policy(void)
     uint32_t config = REG(0xe000ed80u);
     if ((config & 7) != 1 || ((config >> 3) & 1023) != 3 ||
         ((config >> 13) & 32767) > 511)
+    {
         fail(0xc1);
+    }
     for (unsigned set = 0; set <= ((config >> 13) & 32767); set++)
+    {
         for (unsigned way = 0; way < 4; way++)
+        {
             REG(0xe000ef60u) = (way << 30) | (set << 5);
+        }
+    }
     fence(0);
     REG(0xe000ed14u) |= 1u << 16;
     fence(0);
@@ -140,15 +150,23 @@ static struct af_receipt receipt = {.session = 1};
 static void publish(uint32_t previous)
 {
     if (af_boot_begin(&supervisor, previous, now(), 100000000u, 1, 1) != AF_OK)
+    {
         fail(0xb0);
+    }
     for (unsigned i = 0; i < 3; i++)
+    {
         if (af_boot_stage(&supervisor, &SH->boot, i, 2, AF_LAYOUT) != AF_OK)
+        {
             fail(0xb1);
+        }
+    }
     af_ring_init(&SH->request, 0);
     af_ring_init(&SH->response, 0);
     atomic_store(&SH->boot.parked, 0);
     if (af_boot_stage(&supervisor, &SH->boot, 3, 2, AF_LAYOUT) != AF_OK)
+    {
         fail(0xb2);
+    }
 }
 
 static void dma_step(void)
@@ -161,14 +179,22 @@ static void dma_step(void)
         {
             unsigned i = buffers.active;
             if (af_consume(&buffers, i) != AF_OK)
+            {
                 fail(0xd1);
+            }
             volatile uint32_t *dst =
                 (volatile uint32_t *)(uintptr_t)(0x30042040u + 128 * i);
             for (unsigned k = 0; k < 16; k++)
+            {
                 if (dst[k] != k + buffers.slot[i].ticket.generation)
+                {
                     fail(0xd2);
+                }
+            }
             if (af_release(&buffers, i) != AF_OK)
+            {
                 fail(0xd3);
+            }
         }
         else
         {
@@ -184,15 +210,21 @@ static void dma_step(void)
     }
     unsigned i = buffers.transfer.last_token & 1u;
     if (af_fill(&buffers, i) != AF_OK)
+    {
         fail(0xd4);
+    }
     uint32_t base = 0x30042000u + 128 * i;
     volatile uint32_t *src = (volatile uint32_t *)(uintptr_t)base;
     for (unsigned k = 0; k < 16; k++)
+    {
         src[k] = k + buffers.transfer.last_token + 1;
+    }
     struct pd_extent e = {base, base + 64, 64, 64, 64, 4};
     dma_started = now();
     if (af_submit(&buffers, dev, i, &e) != AF_OK)
+    {
         fail(0xd5);
+    }
 }
 #ifndef AF_PIPELINE
 static void primary(void)
@@ -216,7 +248,9 @@ static void primary(void)
     atomic_init(&SH->done, 0);
     struct xd_fence cold = {0, 1, 1, 1};
     if (af_buffers_init(&buffers, &cold) != AF_OK)
+    {
         fail(0xd0);
+    }
     publish(0);
     machine();
     REG(0x580244a0u) |= 8;
@@ -228,9 +262,13 @@ static void primary(void)
     {
         int state = af_boot_status(&supervisor, &SH->boot, now());
         if (state == AF_STALE || state == AF_INVALID)
+        {
             fail(0xb3);
+        }
         if (state != AF_OK)
+        {
             continue;
+        }
         /* Once boot completes its finite deadline no longer times the service. */
         supervisor.start = now();
         uint32_t tick = atomic_load(&SH->ticks[0]);
@@ -241,7 +279,9 @@ static void primary(void)
             struct af_message m = {
                 .epoch = epoch, .sequence = next, .length = 4};
             for (unsigned k = 0; k < 4; k++)
+            {
                 m.bytes[k] = (unsigned char)(next >> (8 * k));
+            }
             int r = af_batch(&SH->request, epoch, &m, 1);
             if (r == AF_OK)
             {
@@ -249,9 +289,13 @@ static void primary(void)
                 ring();
             }
             else if (r == AF_FULL)
+            {
                 atomic_fetch_add(&SH->dropped, 1);
+            }
             else
+            {
                 fail(0xa0);
+            }
         }
         for (unsigned budget = 0; budget < 4; budget++)
         {
@@ -261,17 +305,27 @@ static void primary(void)
             int r = af_receive(&SH->response, epoch, bytes, sizeof bytes, &seq,
                                &len);
             if (r == AF_EMPTY)
+            {
                 break;
+            }
             if (r != AF_OK || len != 4 || seq != completed + 1)
+            {
                 fail(0xa1);
+            }
             uint32_t value = 0;
             for (unsigned k = 0; k < 4; k++)
+            {
                 value |= (uint32_t)bytes[k] << (8 * k);
+            }
             if (value != seq + 1)
+            {
                 fail(0xa2);
+            }
             int32_t total;
             if (af_effect(&receipt, 1, seq, 1, &total) != AF_OK)
+            {
                 fail(0xa3);
+            }
             completed = seq;
             atomic_store(&SH->done, completed);
         }
@@ -289,18 +343,24 @@ static void primary(void)
                 unsigned expired;
                 if (af_elapsed(start, now(), 100000000, &expired) != AF_OK ||
                     expired)
+                {
                     fail(0xb4);
+                }
             }
             while (buffers.transfer.phase)
             {
                 unsigned expired;
                 if (af_elapsed(start, now(), 100000000, &expired) != AF_OK ||
                     expired)
+                {
                     fail(0xb5);
+                }
                 dma_step();
             }
             if (af_boot_close(&supervisor, &SH->boot, 1, 1) != AF_OK)
+            {
                 fail(0xb6);
+            }
             publish(epoch);
             epoch = supervisor.next_epoch;
             ring();
@@ -319,7 +379,9 @@ static void secondary(void)
         atomic_load_explicit(&SH->boot.ready, memory_order_acquire);
     if (previous &&
         atomic_load_explicit(&SH->boot.ack, memory_order_acquire) == previous)
+    {
         fail(0xb9);
+    }
     for (;;)
     {
         uint32_t ready =
@@ -327,18 +389,24 @@ static void secondary(void)
         if (!ready)
         {
             if (epoch)
+            {
                 atomic_store_explicit(&SH->boot.parked, epoch,
                                       memory_order_release);
+            }
             unsigned expired;
             if (af_elapsed(start, now(), 100000000, &expired) != AF_OK ||
                 expired)
+            {
                 fail(0xb7);
+            }
             continue;
         }
         if (ready != epoch)
         {
             if (af_boot_ack(&SH->boot, 2, AF_LAYOUT, ready) != AF_OK)
+            {
                 fail(0xb8);
+            }
             epoch = ready;
         }
         start = now();
@@ -349,23 +417,35 @@ static void secondary(void)
             uint32_t
                 seq; /* Retain input when response capacity is exhausted. */
             if (af_queued(&SH->response) == AF_CAPACITY)
+            {
                 break;
+            }
             int r = af_receive(&SH->request, epoch, bytes, sizeof bytes, &seq,
                                &len);
             if (r == AF_EMPTY)
+            {
                 break;
+            }
             if (r != AF_OK || len != 4)
+            {
                 fail(0xa4);
+            }
             uint32_t value = 0;
             for (unsigned k = 0; k < 4; k++)
+            {
                 value |= (uint32_t)bytes[k] << (8 * k);
+            }
             value++;
             struct af_message m = {
                 .epoch = epoch, .sequence = seq, .length = 4};
             for (unsigned k = 0; k < 4; k++)
+            {
                 m.bytes[k] = (unsigned char)(value >> (8 * k));
+            }
             if (af_batch(&SH->response, epoch, &m, 1) != AF_OK)
+            {
                 fail(0xa5);
+            }
             ring();
         }
         atomic_fetch_add(&SH->progress[1], 1);

@@ -10,7 +10,9 @@ int main(void)
         struct bf_small r;
         if (bf_mul16((int8_t)pairs[i][0], (int8_t)pairs[i][1], BF_EVEN, &r) !=
             B2_OK)
+        {
             return 1;
+        }
         printf("FIXED %d %d %ld %d\n", pairs[i][0], pairs[i][1],
                (long)r.rounded_raw, (int)r.output);
     }

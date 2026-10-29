@@ -31,14 +31,18 @@ static void hook(void *ctx, unsigned point, unsigned participant, unsigned node)
     (void)participant;
     struct cf_gate *g = ctx;
     if (!gated || point != g->point || node != g->node)
+    {
         return;
+    }
     CK(!pthread_mutex_lock(&g->lock));
     if (!g->entered)
     {
         g->entered = 1;
         CK(!pthread_cond_broadcast(&g->cv));
         while (!g->release)
+        {
             CK(!pthread_cond_wait(&g->cv, &g->lock));
+        }
     }
     CK(!pthread_mutex_unlock(&g->lock));
 }
@@ -97,6 +101,7 @@ static void pause_cases(void)
         atomic_uint clock;
         atomic_init(&clock, 0);
         if (!push)
+        {
             for (unsigned i = 0; i < 2; i++)
             {
                 unsigned v = 11 * (i + 1);
@@ -107,13 +112,16 @@ static void pause_cases(void)
                 n++;
                 atomic_store(&clock, 2 * (i + 1));
             }
+        }
         struct cf_operation a = {&q, slow, &ops[n], &clock, push, {0, 0}, -1};
         n++;
         pthread_t t;
         CK(!pthread_create(&t, NULL, operate, &a));
         CK(!pthread_mutex_lock(&g.lock));
         while (!g.entered)
+        {
             CK(!pthread_cond_wait(&g.cv, &g.lock));
+        }
         CK(!pthread_mutex_unlock(&g.lock));
         if (push)
         {
@@ -144,17 +152,21 @@ static void pause_cases(void)
         CK(!pthread_join(t, NULL));
         CK(a.result == AP_OK);
         if (!push)
+        {
             CK(a.out.sequence == 22 && a.out.inverse == ~22u);
+        }
         struct ch_witness w;
         uint32_t visited;
         CK(ch_check(ops, n, 4, CH_FIFO, 0, 1, 100000, &w, &visited) ==
            CH_VALID);
         printf("CP_HISTORY %u", push);
         for (unsigned i = 0; i < n; i++)
+        {
             printf(" %u,%u,%u,%u,%u,%u,%u,%u,%u", ops[i].invoke, ops[i].respond,
                    ops[i].invoke_event, ops[i].respond_event,
                    ops[i].participant, ops[i].operation, ops[i].value,
                    ops[i].result, ops[i].pending);
+        }
         puts("");
         CK(!pthread_cond_destroy(&g.cv));
         CK(!pthread_mutex_destroy(&g.lock));
@@ -176,6 +188,7 @@ static void *stress(void *ptr)
     struct cf_worker *w = ptr;
     gated = 0;
     if (w->role < 2)
+    {
         for (unsigned i = 0; i < 20000; i++)
         {
             unsigned id = w->role * 20000 + i;
@@ -188,7 +201,9 @@ static void *stress(void *ptr)
             }
             CK(r == AP_OK);
         }
+    }
     else
+    {
         while (atomic_load(w->received) < 40000)
         {
             struct ap_value v;
@@ -204,6 +219,7 @@ static void *stress(void *ptr)
             atomic_fetch_add(w->received, 1);
             ap_collect(w->q);
         }
+    }
     CK(ap_leave(w->q, w->l) == AP_OK);
     return NULL;
 }
@@ -216,7 +232,9 @@ static void multiplicity(void)
     atomic_uint received;
     atomic_init(&received, 0);
     for (unsigned i = 0; i < 40000; i++)
+    {
         atomic_init(&seen[i], 0);
+    }
     struct cf_worker a[4];
     pthread_t t[4];
     for (unsigned i = 0; i < 4; i++)
@@ -227,14 +245,20 @@ static void multiplicity(void)
         CK(!pthread_create(&t[i], NULL, stress, &a[i]));
     }
     for (unsigned i = 0; i < 4; i++)
+    {
         CK(!pthread_join(t[i], NULL));
+    }
     for (unsigned i = 0; i < 40000; i++)
+    {
         CK(atomic_load(&seen[i]) == 1);
+    }
     CK(atomic_load(&received) == 40000);
     ap_collect(&q);
     unsigned live = 0;
     for (unsigned i = 0; i < 32; i++)
+    {
         live += (atomic_load(&q.node[i].state) & 3u) == 1;
+    }
     CK(live == 1);
     puts("CP_PASS:stress values=40000 distinct_once=40000 threads=4 joined=4 "
          "remaining_dummy=1 finite_not_general_FIFO_or_progress");
@@ -278,14 +302,24 @@ static void baseline(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "pause"))
+    {
         pause_cases();
+    }
     else if (!strcmp(argv[1], "stress"))
+    {
         multiplicity();
+    }
     else if (!strcmp(argv[1], "baseline"))
+    {
         baseline();
+    }
     else
+    {
         return 2;
+    }
     return 0;
 }

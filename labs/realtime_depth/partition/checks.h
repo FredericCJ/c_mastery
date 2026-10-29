@@ -9,7 +9,9 @@ static struct rp_task job(uint32_t cost, uint32_t period, uint32_t deadline,
         .job = {.cost = cost, .period = period, .deadline = deadline},
         .affinity = affinity};
     for (unsigned c = 0; c < RP_CPUS; c++)
+    {
         t.cost[c] = cost;
+    }
     return t;
 }
 
@@ -17,8 +19,12 @@ static int same(const void *a, const void *b, unsigned n)
 {
     const unsigned char *x = a, *y = b;
     for (unsigned i = 0; i < n; i++)
+    {
         if (x[i] != y[i])
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
@@ -39,7 +45,9 @@ static int packing(void)
        p.used[0] == 10 && p.used[1] == 10);
     cmx_job raw[4];
     for (unsigned i = 0; i < 4; i++)
+    {
         raw[i] = t[i].job;
+    }
     unsigned partial[4] = {9, 9, 9, 9};
     RC(cmx_partition(raw, 4, 2, 10, partial) == CMX_FULL && partial[0] == 0 &&
        partial[1] == 0 && partial[2] == 1 && partial[3] == 9);

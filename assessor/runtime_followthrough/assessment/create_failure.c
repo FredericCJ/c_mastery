@@ -32,11 +32,15 @@ int main(void)
     if (vs_start(&s, &p, VS_CHECKED_V1, 3, 0, 1, 8, &work) != VS_RUNNING ||
         vs_step(&s, &out) != VS_RUNNING || vs_step(&s, &out) != VS_PENDING ||
         va_init(&a) != VA_READY)
+    {
         return 1;
+    }
     if (va_submit(&a, &s, &host) != CVM_HOST_ERROR || a.active || a.joined ||
         vs_step(&s, &out) != CVM_HOST_ERROR || out.integer != 91 ||
         va_destroy(&a) != VA_READY)
+    {
         return 1;
+    }
     puts("VA_CREATE_FAILURE_PASS no_worker_no_borrow_retained");
     return 0;
 }

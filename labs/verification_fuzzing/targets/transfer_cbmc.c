@@ -16,15 +16,21 @@ int main(void)
         a[i].key = nondet_int32_t();
         a[i].identity = i;
         if (i)
+        {
             __CPROVER_assume(a[i - 1].key >= a[i].key);
+        }
     }
     int32_t key = nondet_int32_t();
     size_t p = vt_desc(a, n, key);
     assert(p <= n);
     for (size_t i = 0; i < p; i++)
+    {
         assert(a[i].key > key);
+    }
     for (size_t i = p; i < n; i++)
+    {
         assert(a[i].key <= key);
+    }
 #else
     uint32_t a = nondet_uint32_t(), b = nondet_uint32_t(), out = 91;
     int ok = vt_mul(a, b, &out);

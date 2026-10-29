@@ -38,27 +38,36 @@ int main(void)
     C(lce_record(old, 9, 81) && lce_record(fresh, 10, 100));
     /* Every completed four-byte unit, each byte subset of the next unit. */
     for (unsigned unit = 0; unit < 6; unit++)
+    {
         for (unsigned mask = 0; mask < 16; mask++)
         {
             memset(torn, 255, 24);
             memcpy(torn, fresh, unit * 4);
             for (unsigned b = 0; b < 4; b++)
+            {
                 if (mask & (1u << b))
+                {
                     torn[unit * 4 + b] = fresh[unit * 4 + b];
+                }
+            }
             C(lce_choose(old, torn, &pick));
             C(pick == ((unit == 5 && mask == 15) ? 1u : 0u));
             cases++;
         }
+    }
     /* Every bit prefix of each program unit, including a torn multi-byte marker. */
     for (unsigned unit = 0; unit < 6; unit++)
+    {
         for (unsigned bits = 0; bits <= 32; bits++)
         {
             memset(torn, 255, 24);
             memcpy(torn, fresh, unit * 4);
             for (unsigned b = 0; b < bits; b++)
+            {
                 torn[unit * 4 + b / 8] &=
                     (unsigned char)(fresh[unit * 4 + b / 8] |
                                     (unsigned char)~(1u << (b % 8)));
+            }
             C(lce_choose(old, torn, &pick));
             uint32_t seq = 0, val = 0;
             int valid = lce_valid(torn, &seq, &val);
@@ -66,6 +75,7 @@ int main(void)
             C(!valid || (seq == 10 && val == 100));
             cases++;
         }
+    }
     C(lce_record(torn, 9, 82));
     pick = 99;
     C(!lce_choose(old, torn, &pick) && pick == 99);

@@ -37,7 +37,9 @@ static uint64_t now(void)
 {
     struct timespec t;
     if (clock_gettime(CLOCK_MONOTONIC, &t))
+    {
         abort();
+    }
     return (uint64_t)t.tv_sec * 1000000000 + (uint64_t)t.tv_nsec;
 }
 
@@ -59,7 +61,9 @@ static void *worker(void *arg)
     }
     atomic_fetch_add(&ready, 1);
     while (!atomic_load(&go) && !atomic_load(&failed))
+    {
         sched_yield();
+    }
     while (atomic_load(&done) < 4 && !atomic_load(&failed))
     {
         struct sq_handle id;
@@ -99,9 +103,13 @@ static void *worker(void *arg)
             uint64_t elapsed = now() - begin;
             checksum[slot] += sum;
             if (pass)
+            {
                 repeat_ns[slot] += elapsed;
+            }
             else
+            {
                 first_ns[slot] += elapsed;
+            }
         }
         progress[slot]++;
         atomic_store(&executing[slot], 0);
@@ -113,7 +121,9 @@ static void *worker(void *arg)
             break;
         }
         if (progress[slot] == QUANTA)
+        {
             atomic_fetch_add(&done, 1);
+        }
     }
     return NULL;
 }
@@ -129,14 +139,19 @@ int main(void)
     }
     unsigned n = 0;
     for (unsigned i = 0; i < CPU_SETSIZE && n < 2; i++)
+    {
         if (CPU_ISSET(i, &allowed))
+        {
             physical[n++] = i;
+        }
+    }
     if (n != 2)
     {
         fputs("SB_ENV:two allowed native CPUs required\n", stderr);
         return 2;
     }
     for (unsigned trial = 0; trial < 3; trial++)
+    {
         for (unsigned order = 0; order < 2; order++)
         {
             unsigned policy = (trial + order) % 2;
@@ -146,7 +161,9 @@ int main(void)
             atomic_init(&go, 0);
             if (sb_init(&world, 2, 4, (struct sw_port){ring, ack, NULL}) !=
                 SQ_OK)
+            {
                 return 1;
+            }
             struct sq_event e, last;
             for (unsigned slot = 0; slot < 4; slot++)
             {
@@ -154,17 +171,23 @@ int main(void)
                 progress[slot] = seen[slot] = 0;
                 first_ns[slot] = repeat_ns[slot] = checksum[slot] = 0;
                 for (unsigned i = 0; i < WORDS; i++)
+                {
                     data[slot][i] = 0;
+                }
                 if (sb_create(&world, 0, 0, slot, policy && slot ? 3 : 1,
                               &ids[slot], &e) != SQ_OK)
+                {
                     return 1;
+                }
             }
             uint64_t balance_start = now();
             if (policy)
             {
                 if (sb_balance(&world, 0, &e, &last, NULL) != SQ_OK ||
                     sb_balance(&world, 0, &e, &last, NULL) != SQ_OK)
+                {
                     return 1;
+                }
             }
             uint64_t balance_ns = now() - balance_start;
             unsigned imbalance = world.wake.queues.queue[0].count -
@@ -175,15 +198,23 @@ int main(void)
                 logical[c] = c;
                 stats[c] = (struct sl_stats){0};
                 if (pthread_create(&threads[c], NULL, worker, &logical[c]))
+                {
                     return 2;
+                }
             }
             while (atomic_load(&ready) < 2 && !atomic_load(&failed))
+            {
                 sched_yield();
+            }
             uint64_t begin = now();
             atomic_store(&go, 1);
             for (unsigned c = 0; c < 2; c++)
+            {
                 if (pthread_join(threads[c], NULL))
+                {
                     return 2;
+                }
+            }
             uint64_t elapsed = now() - begin;
             if (atomic_load(&failed) || atomic_load(&done) != 4 ||
                 !sb_invariant(&world))
@@ -197,14 +228,18 @@ int main(void)
                 if (progress[slot] != QUANTA ||
                     seen[slot] !=
                         (policy && (slot == 1 || slot == 2) ? 2u : 1u))
+                {
                     return 1;
+                }
                 sum += checksum[slot];
                 migrations += world.migrations[slot];
                 first += first_ns[slot];
                 repeat += repeat_ns[slot];
             }
             if (sum != UINT64_C(27525120) || migrations != (policy ? 2u : 0u))
+            {
                 return 1;
+            }
             printf(
                 "SB_NATIVE trial=%u policy=%u cpu0=%u cpu1=%u completed=4 quanta=40 checksum=%llu migrations=%llu initial_imbalance=%u balance_ns=%llu elapsed_ns=%llu first_sweep_ns=%llu repeat_sweep_ns=%llu\n",
                 trial, policy, physical[0], physical[1],
@@ -213,6 +248,7 @@ int main(void)
                 (unsigned long long)elapsed, (unsigned long long)first,
                 (unsigned long long)repeat);
         }
+    }
     puts("SB_NATIVE_PASS:equal-work-pinned-and-movable");
     return 0;
 }

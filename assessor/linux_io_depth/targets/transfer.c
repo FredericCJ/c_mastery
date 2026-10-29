@@ -12,15 +12,21 @@ int it_progress(const struct iovec *v, unsigned n, size_t *cursor,
     size_t total = 0;
     struct iovec remaining[8];
     if (n > 8)
+    {
         return -EINVAL;
+    }
     for (unsigned i = 0; i < n; i++)
     {
         if (v[i].iov_len > (size_t)SSIZE_MAX - total)
+        {
             return -EINVAL;
+        }
         total += v[i].iov_len;
     }
     if (*cursor > total)
+    {
         return -EINVAL;
+    }
     for (unsigned attempt = 0; attempt < 16 && *cursor < total; attempt++)
     {
         size_t skip = IT_MUTANT == 1 ? 0 : *cursor;
@@ -38,13 +44,21 @@ int it_progress(const struct iovec *v, unsigned n, size_t *cursor,
         }
         ssize_t got = fn(ctx, remaining, (int)count);
         if (got == -EINTR)
+        {
             continue;
+        }
         if (got == -EAGAIN || got == -EWOULDBLOCK)
+        {
             return 1;
+        }
         if (got < 0)
+        {
             return (int)got;
+        }
         if (!got || (size_t)got > total - *cursor)
+        {
             return -EIO;
+        }
         *cursor += (size_t)got;
     }
     return *cursor == total ? 0 : 1;
@@ -55,7 +69,9 @@ int it_queue_init(struct it_queue *q)
     memset(q, 0, sizeof *q);
     int e = pthread_mutex_init(&q->lock, NULL);
     if (e)
+    {
         return e;
+    }
     e = pthread_cond_init(&q->readable, NULL);
     if (e)
     {
@@ -75,7 +91,9 @@ int it_push(struct it_queue *q, uint64_t value)
 {
     pthread_mutex_lock(&q->lock);
     while (q->count == 3 && !q->closed)
+    {
         pthread_cond_wait(&q->writable, &q->lock);
+    }
     if (q->closed)
     {
         pthread_mutex_unlock(&q->lock);
@@ -94,7 +112,9 @@ int it_pop(struct it_queue *q, uint64_t *v)
 {
     pthread_mutex_lock(&q->lock);
     while (!q->count && !q->closed)
+    {
         pthread_cond_wait(&q->readable, &q->lock);
+    }
     if (!q->count)
     {
         pthread_mutex_unlock(&q->lock);
@@ -127,9 +147,13 @@ void it_queue_destroy(struct it_queue *q)
 int it_time(struct it_loop *s, uint64_t now, int progress)
 {
     if (now < s->now)
+    {
         return -EINVAL;
+    }
     if (s->closed)
+    {
         return 0;
+    }
     s->now = now;
     if (now - s->start >= s->total || now - s->last >= s->idle)
     {
@@ -140,7 +164,9 @@ int it_time(struct it_loop *s, uint64_t now, int progress)
     {
         s->last = now;
         if (IT_MUTANT == 3)
+        {
             s->start = now;
+        }
     }
     return 1;
 }
@@ -148,7 +174,9 @@ int it_time(struct it_loop *s, uint64_t now, int progress)
 int it_choose(struct it_loop *s)
 {
     if (s->closed)
+    {
         return -1;
+    }
     for (unsigned i = 0; i < 2; i++)
     {
         unsigned p = (s->next + i) % 2;
@@ -164,7 +192,9 @@ int it_choose(struct it_loop *s)
 void it_drained(struct it_loop *s, unsigned p)
 {
     if (p < 2)
+    {
         s->ready &= ~(1u << p);
+    }
 }
 
 int it_direct_ok(uintptr_t p, size_t n, uint64_t off, unsigned ma, unsigned oa)

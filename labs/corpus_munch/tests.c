@@ -118,7 +118,9 @@ static int memo(void)
     unsigned char text[256];
     unsigned err = 999;
     for (unsigned i = 0; i < 255; ++i)
+    {
         text[i] = (unsigned char)"abc"[i % 3];
+    }
     memset(&w, 0xff, sizeof w);
     CHECK(mm_scan(&d, text, 255, 0, 256, &w, &a, &ca, &err) == PD_OK);
     CHECK(mm_scan(&d, text, 255, 1, 256, &w, &b, &cb, &err) == PD_OK);
@@ -127,9 +129,11 @@ static int memo(void)
     CHECK(cb.transitions < 3 * 255 && cb.memo_stops > 0 &&
           cb.marked_pairs > 0 && cb.transitions < ca.transitions);
     for (unsigned i = 0; i < a.count; ++i)
+    {
         CHECK(a.token[i].begin == b.token[i].begin &&
               a.token[i].end == b.token[i].end &&
               a.token[i].rule == b.token[i].rule);
+    }
     /* Same scratch, new input and accepting-state labels must not reuse failures. */
     text[255] = 'd';
     CHECK(mm_scan(&d, text, 256, 1, 1, &w, &b, &cb, NULL) == PD_OK &&
@@ -168,12 +172,20 @@ static int memo(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "semantics"))
+    {
         return semantics();
+    }
     if (!strcmp(argv[1], "bounds"))
+    {
         return bounds();
+    }
     if (!strcmp(argv[1], "memo"))
+    {
         return memo();
+    }
     return 2;
 }

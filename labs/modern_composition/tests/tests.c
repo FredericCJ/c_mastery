@@ -28,7 +28,9 @@ static void publish(void)
         size_t sizes[3] = {1, 1, 1};
         CHECK(ow_construct(&published, a, sizes) == OW_OK);
         for (unsigned i = 0; i < 3; ++i)
+        {
             published.block[i][0] = (int32_t)(90 + i);
+        }
         struct ow_owner old = published;
         pool.fail_at = failure ? pool.attempts + failure : 0;
         struct mc_publish bad =
@@ -44,8 +46,10 @@ static void publish(void)
             CHECK(!result.committed && result.storage == OW_NOMEM &&
                   pool.live == 3);
             for (unsigned i = 0; i < 3; ++i)
+            {
                 CHECK(published.block[i] == old.block[i] &&
                       published.block[i][0] == (int32_t)(90 + i));
+            }
         }
         else
         {
@@ -79,7 +83,9 @@ static struct co_read_result read_bytes(void *context, unsigned char *out,
         return (struct co_read_result){CO_READ_DATA, 1};
     }
     if (b->mode == 0)
+    {
         return (struct co_read_result){CO_READ_AGAIN, 0};
+    }
     if (b->mode == 2)
     {
         CHECK(n >= 1);
@@ -87,7 +93,9 @@ static struct co_read_result read_bytes(void *context, unsigned char *out,
         return (struct co_read_result){CO_READ_ERROR, 1};
     }
     for (size_t i = 0; i < n; ++i)
+    {
         out[i] = (unsigned char)('b' + i);
+    }
     return (struct co_read_result){CO_READ_DATA, n};
 }
 
@@ -132,6 +140,7 @@ static void receiver(void *context, enum msg_status status, unsigned value)
 static void async_read(void)
 {
     for (unsigned mode = 0; mode < 3; ++mode)
+    {
         for (unsigned release = 0; release < 2; ++release)
         {
             struct mc_backend b = {0};
@@ -176,16 +185,23 @@ static void async_read(void)
                 free(r);
             }
         }
+    }
 }
 
 int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (strcmp(argv[1], "publish") == 0)
+    {
         publish();
+    }
     else if (strcmp(argv[1], "async") == 0)
+    {
         async_read();
+    }
     else
+    {
         CHECK(0);
+    }
     return 0;
 }

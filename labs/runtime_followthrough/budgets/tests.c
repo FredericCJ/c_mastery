@@ -28,7 +28,9 @@ static int callback(void *ctx, uint8_t id, int32_t n, int32_t *out)
     (void)ctx;
     calls++;
     if (id != 1)
+    {
         return 1;
+    }
     *out = n + 11;
     return 0;
 }
@@ -132,12 +134,16 @@ static int limits(void)
           r.fuel == 16 && out.integer == 91);
     p = (struct cvm_program){0};
     for (unsigned i = 0; i < 63; i++)
+    {
         number(&p, 0);
+    }
     emit(&p, OP_CALL);
     emit(&p, 1);
     emit(&p, 0);
     for (unsigned i = 0; i < 63; i++)
+    {
         emit(&p, OP_POP);
+    }
     emit(&p, OP_RET);
     finish(&p);
     unsigned start = p.length;
@@ -160,19 +166,25 @@ static int limits(void)
     initialize(100, 100, 1);
     struct cvm_value child = cvm_int(0);
     for (unsigned i = 0; i < 16; i++)
+    {
         CHECK(cvm_pair(&vm, child, cvm_int(0), &child) == CVM_OK);
+    }
     CHECK(cvm_root_push(&vm, child) == CVM_OK);
     CHECK(vl_run(&vm, &p, &out, &r) == CVM_HEAP_LIMIT && r.fuel == 3 &&
           r.gc == 51 && r.collections == 1 && out.integer == 91);
     initialize(100, 100, 1);
     vm.arena = 1;
     for (unsigned i = 0; i < 16; i++)
+    {
         CHECK(cvm_pair(&vm, cvm_int(0), cvm_int(0), &child) == CVM_OK);
+    }
     CHECK(vl_run(&vm, &p, &out, &r) == CVM_HEAP_LIMIT && r.gc == 0 &&
           out.integer == 91);
     vm.arena = 0;
     for (unsigned i = 0; i < 7; i++)
+    {
         CHECK(cvm_root_push(&vm, cvm_int(0)) == CVM_OK);
+    }
     CHECK(vl_run(&vm, &p, &out, &r) == CVM_STACK_LIMIT && vm.root_count == 7 &&
           vm.sp == 0 && r.gc == 0 && out.integer == 91);
     p = (struct cvm_program){
@@ -207,8 +219,10 @@ static int changed_collector(void)
     initialize(100, 100, 1);
     struct cvm_value values[3];
     for (unsigned i = 0; i < 3; i++)
+    {
         CHECK(cvm_pair(&vm, cvm_int((int32_t)i), cvm_int(0), &values[i]) ==
               CVM_OK);
+    }
     vm.heap[2].left = values[1];
     CHECK(cvm_root_push(&vm, values[2]) == CVM_OK);
     saved = vm;
@@ -256,7 +270,9 @@ static int pending(void)
 int main(void)
 {
     if (units() || limits() || changed_collector() || pending())
+    {
         return 1;
+    }
     puts("VL_PASS independent_limits_distinct_work_pending");
     return 0;
 }

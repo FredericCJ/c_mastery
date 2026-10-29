@@ -32,13 +32,21 @@ static int translate(struct sa_port *p, unsigned cpu, unsigned space,
 {
     struct sa_map *cached = &p->cache[cpu][space][page];
     if (!cached->valid)
+    {
         *cached = p->pte[space][page];
+    }
     if (!cached->valid || (write && !cached->writable))
+    {
         return 0;
+    }
     if (write)
+    {
         p->frame[cached->frame] = *out;
+    }
     else
+    {
         *out = p->frame[cached->frame];
+    }
     return 1;
 }
 
@@ -46,18 +54,28 @@ static int publish(void *ctx, struct st_request r)
 {
     struct sa_port *p = ctx;
     if (p->fail_publish)
+    {
         return 0;
+    }
     p->publication++;
     for (unsigned s = 0; s < 2; s++)
+    {
         if (s == r.space || r.scope == ST_GLOBAL)
+        {
             for (unsigned page = 0; page < r.pages; page++)
             {
                 struct sa_map *entry = &p->pte[s][r.first / 4096 - 1 + page];
                 if (p->revoke_write)
+                {
                     entry->writable = 0;
+                }
                 else
+                {
                     entry->valid = 0;
+                }
             }
+        }
+    }
     return 1;
 }
 
@@ -66,22 +84,40 @@ static int invalidate(void *ctx, unsigned cpu, struct st_request r)
     struct sa_port *p = ctx;
     if (r.scope != ST_CONTEXT &&
         atomic_load(&p->world->slot[r.space].ack[cpu]) == r.generation)
+    {
         p->early_ack++;
+    }
     if (p->fail_invalidate)
+    {
         return 0;
+    }
     p->invalidations++;
     if (r.scope == ST_CONTEXT)
     {
         for (unsigned s = 0; s < 2; s++)
+        {
             for (unsigned page = 0; page < 4; page++)
+            {
                 if (!p->cache[cpu][s][page].global)
+                {
                     p->cache[cpu][s][page].valid = 0;
+                }
+            }
+        }
     }
     else
+    {
         for (unsigned s = 0; s < 2; s++)
+        {
             if (s == r.space || r.scope == ST_GLOBAL)
+            {
                 for (unsigned page = 0; page < r.pages; page++)
+                {
                     p->cache[cpu][s][r.first / 4096 - 1 + page].valid = 0;
+                }
+            }
+        }
+    }
     return 1;
 }
 
@@ -90,10 +126,18 @@ static int notify(void *ctx, struct st_request r, unsigned targets)
     struct sa_port *p = ctx;
     p->notify++;
     if (p->inline_handler)
+    {
         for (unsigned cpu = 0; cpu < p->world->cpus; cpu++)
+        {
             if (targets & (1u << cpu))
+            {
                 if (st_handle(p->world, cpu, r) != ST_OK)
+                {
                     return 0;
+                }
+            }
+        }
+    }
     return !p->fail_notify;
 }
 
@@ -102,10 +146,16 @@ static int setup(struct st_world *w, struct sa_port *p, unsigned cpus)
     *p = (struct sa_port){0};
     p->world = w;
     for (unsigned s = 0; s < 2; s++)
+    {
         for (unsigned i = 0; i < 4; i++)
+        {
             p->pte[s][i] = (struct sa_map){1, 1, i, 0};
+        }
+    }
     for (unsigned i = 0; i < 8; i++)
+    {
         p->frame[i] = 100 + i;
+    }
     return st_init(w, cpus, 101, 202,
                    (struct st_port){publish, invalidate, notify, p});
 }
@@ -120,13 +170,17 @@ static int authority(void)
     unsigned output;
     CHECK(setup(&w, &p, 4) == ST_OK);
     for (unsigned c = 0; c < 3; c++)
+    {
         CHECK(st_enter(&w, c, 0, &stats) == ST_OK);
+    }
     /* Eight completed requests produce exactly generation9 versus stale ack8. */
     for (unsigned i = 0; i < 8; i++)
     {
         CHECK(st_begin(&w, 0, 0, 4096, 1, ST_PAGE, &r, &stats) == ST_OK);
         for (unsigned c = 0; c < 3; c++)
+        {
             CHECK(st_handle(&w, c, r) == ST_OK);
+        }
         CHECK(st_finish(&w, r, 0, &permit, &stats) == ST_OK);
     }
     p.pte[0][0] = (struct sa_map){1, 1, 0, 0};
@@ -243,9 +297,13 @@ static int spaces(void)
     unsigned value = 1;
     CHECK(setup(&w, &p, 4) == ST_OK);
     for (unsigned c = 0; c < 4; c++)
+    {
         CHECK(st_enter(&w, c, c / 2, &s) == ST_OK);
+    }
     for (unsigned c = 0; c < 4; c++)
+    {
         CHECK(translate(&p, c, c / 2, 0, 0, &value));
+    }
     p.revoke_write = 1;
     CHECK(st_begin(&w, 0, 0, 4096, 1, ST_PAGE, &a, &s) == ST_OK &&
           a.targets == 3);
@@ -263,18 +321,26 @@ static int spaces(void)
     CHECK(!translate(&p, 3, 1, 0, 1, &value));
     p.revoke_write = 0;
     for (unsigned sp = 0; sp < 2; sp++)
+    {
         p.pte[sp][1] = (struct sa_map){1, 1, 1, 1};
+    }
     for (unsigned c = 0; c < 4; c++)
+    {
         CHECK(translate(&p, c, c / 2, 1, 0, &value));
+    }
     CHECK(st_begin(&w, 0, 0, 8192, 1, ST_GLOBAL, &a, &s) == ST_OK &&
           a.targets == 15);
     CHECK(st_begin(&w, 2, 1, 4096, 1, ST_PAGE, &b, &s) == ST_BUSY);
     for (unsigned c = 0; c < 4; c++)
+    {
         CHECK(st_handle(&w, c, a) == ST_OK);
+    }
     CHECK(st_finish(&w, a, 0, &permit, &s) == ST_OK);
     p.frame[1] = 999;
     for (unsigned c = 0; c < 4; c++)
+    {
         CHECK(!translate(&p, c, c / 2, 1, 0, &value));
+    }
     return 0;
 }
 
@@ -306,7 +372,9 @@ static int batching(void)
 int main(void)
 {
     if (authority() || failure() || security() || spaces() || batching())
+    {
         return 1;
+    }
     puts("ST_PASS:generation-membership-timeout-global-permission-reclaim");
     return 0;
 }

@@ -17,7 +17,11 @@ static const unsigned char descriptor[] = {
 size_t fb_plugin_copy(unsigned char *out, size_t capacity)
 {
     if (out && capacity >= sizeof descriptor)
+    {
         for (size_t i = 0; i < sizeof descriptor; ++i)
+        {
             out[i] = descriptor[i];
+        }
+    }
     return sizeof descriptor;
 }

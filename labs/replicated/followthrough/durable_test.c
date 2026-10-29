@@ -30,20 +30,26 @@ static struct rpl_log logbook;
 static void persist(struct rp_medium *m)
 {
     for (unsigned i = 0; i < STORE_IMAGE_PAGES; ++i)
+    {
         if (m->dirty[i])
         {
             memcpy(m->stable[i], m->pending[i], STORE_PAGE_SIZE);
             m->dirty[i] = 0;
         }
+    }
 }
 
 static int cut(struct rp_medium *m, size_t offset, size_t n)
 {
     ++m->event;
     if (!m->cut || m->cut != m->event)
+    {
         return 0;
+    }
     if (m->mode == 1)
+    {
         persist(m);
+    }
     if (m->mode == 2 && n)
     {
         unsigned page = (unsigned)(offset / STORE_PAGE_SIZE);
@@ -59,11 +65,13 @@ static int cut(struct rp_medium *m, size_t offset, size_t n)
     {
         unsigned left = m->tear_n;
         for (unsigned page = 0; page < STORE_IMAGE_PAGES && left; ++page)
+        {
             if (m->dirty[page])
             {
                 memcpy(m->stable[page], m->pending[page], STORE_PAGE_SIZE);
                 --left;
             }
+        }
     }
     m->dead = 1;
     return 1;
@@ -75,18 +83,26 @@ static ptrdiff_t mread(void *ctx, size_t off, unsigned char *p, size_t n)
     unsigned page = (unsigned)(off / STORE_PAGE_SIZE);
     size_t in = off % STORE_PAGE_SIZE;
     if (m->dead || ++m->reads == m->read_fail || page >= STORE_IMAGE_PAGES)
+    {
         return -1;
+    }
     if (m->retries)
     {
         --m->retries;
         return -2;
     }
     if (m->zero)
+    {
         return 0;
+    }
     if (n > m->chunk)
+    {
         n = m->chunk;
+    }
     if (n > STORE_PAGE_SIZE - in)
+    {
         n = STORE_PAGE_SIZE - in;
+    }
     memcpy(p, (m->dirty[page] ? m->pending[page] : m->stable[page]) + in, n);
     return (ptrdiff_t)n;
 }
@@ -97,24 +113,36 @@ static ptrdiff_t mwrite(void *ctx, size_t off, const unsigned char *p, size_t n)
     unsigned page = (unsigned)(off / STORE_PAGE_SIZE);
     size_t in = off % STORE_PAGE_SIZE;
     if (m->dead || page >= STORE_IMAGE_PAGES)
+    {
         return -1;
+    }
     if (m->retries)
     {
         --m->retries;
         return -2;
     }
     if (m->zero)
+    {
         return 0;
+    }
     if (n > m->chunk)
+    {
         n = m->chunk;
+    }
     if (n > STORE_PAGE_SIZE - in)
+    {
         n = STORE_PAGE_SIZE - in;
+    }
     if (!m->dirty[page])
+    {
         memcpy(m->pending[page], m->stable[page], STORE_PAGE_SIZE);
+    }
     memcpy(m->pending[page] + in, p, n);
     m->dirty[page] = 1;
     if (cut(m, off, n))
+    {
         return -1;
+    }
     return (ptrdiff_t)n;
 }
 
@@ -122,7 +150,9 @@ static int mflush(void *ctx)
 {
     struct rp_medium *m = ctx;
     if (m->dead || cut(m, 0, 0))
+    {
         return -1;
+    }
     persist(m);
     return 0;
 }
@@ -191,7 +221,9 @@ static int bytes_case(void)
     CHECK(attach(&disk, &io) == RPL_OK);
     unsigned char page[STORE_PAGE_SIZE], copy[STORE_PAGE_SIZE];
     for (unsigned i = 0; i < STORE_PAGE_SIZE; ++i)
+    {
         page[i] = (unsigned char)(i / 127 + i % 127);
+    }
     disk.retries = 2;
     CHECK(io.write(io.ctx, 3, page) == 0);
     CHECK(io.flush(io.ctx) == 0);
@@ -202,7 +234,9 @@ static int bytes_case(void)
     disk.read_fail = disk.reads + 2;
     CHECK(io.read(io.ctx, 3, copy) != 0);
     for (unsigned i = 0; i < sizeof copy; ++i)
+    {
         CHECK(copy[i] == 0xa5);
+    }
     disk.read_fail = 0;
     disk.zero = 1;
     CHECK(io.write(io.ctx, 3, page) != 0);
@@ -241,7 +275,9 @@ static int log_case(void)
     CHECK(!memcmp(&unchanged, &logbook, sizeof logbook));
     CHECK(setup() == 0);
     for (unsigned i = 0; i < 16; ++i)
+    {
         CHECK(rpl_append(&logbook, RPL_SET, i, (int32_t)i - 8) == RPL_OK);
+    }
     CHECK(rpl_append(&logbook, RPL_SET, 0, 0) == RPL_FULL);
     CHECK(logbook.memory.arena.used == 48);
     restart(&disk);
@@ -279,7 +315,9 @@ static int snapshot_case(void)
     CHECK(fast.values[3] != 99);
     unsigned naive_effect = 0;
     for (unsigned replay = 0; replay < 2; ++replay)
+    {
         ++naive_effect;
+    }
     CHECK(naive_effect == 2);
     return 0;
 }
@@ -296,6 +334,7 @@ static int faults_case(void)
     CHECK(steps == 139);
     unsigned append_cases = 0, recovery_cases = 0;
     for (unsigned mode = 0; mode < 3; ++mode)
+    {
         for (unsigned at = 1; at <= steps; ++at)
         {
             disk = base;
@@ -315,6 +354,7 @@ static int faults_case(void)
                   v == (expected == 2 ? 9 : 7));
             ++append_cases;
         }
+    }
     disk = base;
     CHECK(reopen() == 0);
     CHECK(rpl_append(&logbook, RPL_QUERY_RESULT, 0, 9) == RPL_OK);
@@ -324,6 +364,7 @@ static int faults_case(void)
     steps = disk.event;
     CHECK(steps == 139);
     for (unsigned mode = 0; mode < 3; ++mode)
+    {
         for (unsigned at = 1; at <= steps; ++at)
         {
             disk = base;
@@ -338,6 +379,7 @@ static int faults_case(void)
             CHECK(logbook.memory.count == 2);
             ++recovery_cases;
         }
+    }
     printf("FAULTS %u %u\n", append_cases, recovery_cases);
     return 0;
 }
@@ -389,7 +431,9 @@ static int oracle(void)
             {
                 printf(" %u %" PRIu32, s.position, s.present);
                 for (unsigned i = 0; i < 32; ++i)
+                {
                     printf(" %" PRId32, s.values[i]);
+                }
             }
             puts("");
         }
@@ -402,12 +446,18 @@ static int oracle(void)
                 uuid, schema, (struct rpl_event){pos, key, kind, value}, b);
             printf("%d", r);
             if (!r)
+            {
                 for (unsigned i = 0; i < 64; ++i)
+                {
                     printf(" %u", b[i]);
+                }
+            }
             puts("");
         }
         else
+        {
             return 1;
+        }
     }
     return 0;
 }
@@ -440,7 +490,9 @@ static int tears_case(void)
                 disk = base;
                 restart(&disk);
                 if (!phase)
+                {
                     CHECK(reopen() == 0);
+                }
                 disk.cut = at;
                 disk.mode = flushing ? 4 : 3;
                 disk.tear_n = prefix;
@@ -470,9 +522,13 @@ static int tears_case(void)
                 CHECK(rpl_get(&logbook, expected, 0, &value) == RPL_OK &&
                       value == (expected == 2 ? 9 : 7));
                 if (phase)
+                {
                     ++recovery_cases;
+                }
                 else
+                {
                     ++append_cases;
+                }
             }
         }
     }
@@ -483,18 +539,32 @@ static int tears_case(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "durable_log"))
+    {
         return log_case();
+    }
     if (!strcmp(argv[1], "durable_snapshot"))
+    {
         return snapshot_case();
+    }
     if (!strcmp(argv[1], "durable_bytes"))
+    {
         return bytes_case();
+    }
     if (!strcmp(argv[1], "durable_faults"))
+    {
         return faults_case();
+    }
     if (!strcmp(argv[1], "durable_tears"))
+    {
         return tears_case();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     return 2;
 }

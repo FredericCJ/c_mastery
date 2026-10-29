@@ -22,7 +22,9 @@ static ptrdiff_t file_read(void *c, size_t at, unsigned char *p, size_t n)
 {
     struct rp_file *f = c;
     if (n > 113)
+    {
         n = 113;
+    }
     ssize_t r = pread(f->fd, p, n, (off_t)at);
     return r < 0 && errno == EINTR ? -2 : r;
 }
@@ -32,7 +34,9 @@ static ptrdiff_t file_write(void *c, size_t at, const unsigned char *p,
 {
     struct rp_file *f = c;
     if (n > 257)
+    {
         n = 257;
+    }
     ssize_t r = pwrite(f->fd, p, n, (off_t)at);
     return r < 0 && errno == EINTR ? -2 : r;
 }
@@ -67,14 +71,22 @@ static int socket_write(void *c, const unsigned char *p, size_t n)
     struct pollfd q = {fd, POLLOUT, 0};
     int r = poll(&q, 1, 1000);
     if (r < 0 && errno == EINTR)
+    {
         return 0;
+    }
     if (r <= 0)
+    {
         return -1;
+    }
     if (n > 3)
+    {
         n = 3;
+    }
     ssize_t sent = send(fd, p, n, MSG_NOSIGNAL);
     if (sent < 0 && errno == EINTR)
+    {
         return 0;
+    }
     return (int)sent;
 }
 
@@ -84,11 +96,17 @@ static ptrdiff_t socket_read(void *c, unsigned char *p, size_t n)
     struct pollfd q = {fd, POLLIN, 0};
     int r = poll(&q, 1, 1000);
     if (r < 0 && errno == EINTR)
+    {
         return -2;
+    }
     if (r <= 0)
+    {
         return -1;
+    }
     if (n > 2)
+    {
         n = 2;
+    }
     ssize_t got = recv(fd, p, n, 0);
     return got < 0 && errno == EINTR ? -2 : got;
 }
@@ -106,7 +124,9 @@ static int receiver_child(int fd, unsigned cut)
     int r = rpo_receive(&receiver, 19, 7, event, &reply);
     CHECK(r == RPL_OK || r == RPO_REPLAY);
     if (cut == 1)
+    {
         _exit(42); /* Actual process termination after durable inbox commit. */
+    }
     CHECK(rpo_reply_encode(reply, response) == RPL_OK);
     CHECK(rpo_wire_write(socket_write, &fd, 200, response, 24) == RPL_OK);
     CHECK(!shutdown(fd, SHUT_WR));
@@ -149,7 +169,9 @@ static int exchange(unsigned cut, int acknowledge)
     struct rpo_reply reply;
     CHECK(rpo_reply_decode(response, &reply) == RPL_OK);
     if (acknowledge)
+    {
         CHECK(rpo_ack(&sender, reply) == RPL_OK);
+    }
     return 0;
 }
 
@@ -226,7 +248,9 @@ static int native_case(void)
     CHECK(pread(effect, &n, 1, 0) == 1 && n == 2);
     CHECK(!close(effect));
     for (unsigned i = 0; i < 3; ++i)
+    {
         CHECK(!close(files[i].fd));
+    }
     puts(
         "OUTBOX_NATIVE source-death receiver-death sender-death dedup=2 total=5 "
         "external-duplicate=2");

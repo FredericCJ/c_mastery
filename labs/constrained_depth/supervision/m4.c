@@ -18,7 +18,9 @@ static _Noreturn void exit_guest(unsigned code)
     register void *arg __asm__("r1") = block;
     __asm__ volatile("bkpt 0xab" : "+r"(op) : "r"(arg) : "memory");
     for (;;)
+    {
         __asm__ volatile("wfi");
+    }
 }
 
 static _Noreturn void failed(void)
@@ -73,11 +75,17 @@ static void timer(unsigned index, unsigned count)
 static void hook(unsigned stage)
 {
     if (mode == 0 && stage == 0)
+    {
         queued = 1;
+    }
     if (mode == 1 && stage == 1)
+    {
         *(volatile uint32_t *)UINT32_C(0xe000e200) = 1u << 8;
+    }
     if (mode == 3 && stage == 1)
+    {
         __asm__ volatile("sev" ::: "memory");
+    }
 }
 
 static void prepare(void)
@@ -114,7 +122,9 @@ static void exercise(void)
             mode = interleave;
             timer(1, 1000000);
             if (interleave == 2)
+            {
                 timer(0, 10000);
+            }
             unsigned attempts = 0;
             do
             {
@@ -170,9 +180,13 @@ void cl_reset(void)
 {
     uint32_t *s = &cl_data_load;
     for (uint32_t *d = &cl_data_start; d < &cl_data_end; ++d)
+    {
         *d = *s++;
+    }
     for (uint32_t *d = &cl_bss_start; d < &cl_bss_end; ++d)
+    {
         *d = 0;
+    }
     exercise();
 }
 

@@ -7,6 +7,7 @@
 int main(void)
 {
     for (unsigned backend = 0; backend <= 2; backend++)
+    {
         for (unsigned cut = 0; cut <= 8; cut++)
         {
             struct dg_device device = {0};
@@ -31,8 +32,10 @@ int main(void)
                     device.dma_count--;
                 }
                 else
+                {
                     CHECK(pl_poll(&service, t, 1, k + 1, &result) == PL_BUSY &&
                           result.token == 99);
+                }
             }
             unsigned committed = 0;
             for (unsigned k = 0; k < device.writes; k++)
@@ -52,8 +55,10 @@ int main(void)
                 device.dma_flags = 1;
             }
             else if (cut)
+            {
                 CHECK(pl_poll(&service, t, 1, 10, &result) == PL_BUSY &&
                       uart.driver.line_owned);
+            }
             device.sr |= PU_TC;
             CHECK(pl_poll(&service, t, 1, 11, &result) == PL_OK &&
                   result.status == PL_CANCELLED &&
@@ -73,7 +78,9 @@ int main(void)
                     device.dma_count--;
                 }
                 else
+                {
                     CHECK(pl_poll(&service, t, 2, 13 + k, &result) == PL_BUSY);
+                }
             }
             if (backend == PU_DMA)
             {
@@ -93,6 +100,7 @@ int main(void)
             CHECK(new_commits == 1 && command.sequence == 7 &&
                   command.value == 9 && !device.bad);
         }
+    }
     puts("PL_UART_PASS");
     return 0;
 }

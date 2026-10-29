@@ -20,8 +20,12 @@ static unsigned n;
 volatile uint32_t *pa_test_register(uint32_t a)
 {
     for (unsigned i = 0; i < n; i++)
+    {
         if (regs[i].address == a)
+        {
             return &regs[i].value;
+        }
+    }
     regs[n].address = a;
     return &regs[n++].value;
 }
@@ -31,6 +35,7 @@ volatile uint32_t *pa_test_register(uint32_t a)
 int main(void)
 {
     for (unsigned hyst = 0; hyst < 8; hyst++)
+    {
         for (unsigned wrap = 0; wrap < 2; wrap++)
         {
             struct pa_comparator s = {0};
@@ -50,6 +55,7 @@ int main(void)
             CHECK(pa_g474_comp_close(&s) == PA_OK && !R(0x40010200u));
             CHECK(pa_g474_comp_poll(&s, now + 8, &level) == PA_STALE);
         }
+    }
     struct pa_comparator s = {0};
     R(0x40010200u) = UINT32_C(1) << 31;
     CHECK(pa_g474_comp_open(&s, 3) == PA_BUSY &&

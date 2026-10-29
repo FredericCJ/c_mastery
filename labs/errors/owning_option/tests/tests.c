@@ -173,33 +173,53 @@ static int histories(void)
             uint32_t id = 99;
             int32_t value = 88;
             if (op == 0)
+            {
                 status = eop_create(&owners[dst], a, src, (int32_t)src - 7);
+            }
             else if (op == 1)
+            {
                 status = eop_clone(&owners[src], &owners[dst]);
+            }
             else if (op == 2)
+            {
                 status = eop_move(&owners[dst], &owners[src]);
+            }
             else if (op == 3)
+            {
                 status = eop_drop(&owners[dst]);
+            }
             else if (op == 4)
+            {
                 status = eop_read(&owners[dst], &id, &value);
+            }
             else
+            {
                 return 2;
+            }
             printf("%s%d %" PRIu32 " %" PRId32 " %zu %zu %zu", j ? " " : "",
                    status, id, value, pool.attempts, pool.live, pool.releases);
             for (unsigned k = 0; k < 3; ++k)
             {
                 unsigned block = 8;
                 if (owners[k].tag == EOP_SOME)
+                {
                     for (unsigned z = 0; z < 8; ++z)
+                    {
                         if (owners[k].as.some.cell == pool.storage[z])
+                        {
                             block = z;
+                        }
+                    }
+                }
                 printf(" %u %" PRIu32 " %" PRId32 " %u", owners[k].tag,
                        owners[k].tag ? owners[k].as.some.id : 0,
                        owners[k].tag ? *owners[k].as.some.cell : 0, block);
             }
         }
         for (unsigned k = 0; k < 3; ++k)
+        {
             CHECK(eop_drop(&owners[k]) == EOP_OK);
+        }
         printf(" %zu %zu %u\n", pool.live, pool.releases,
                pool.invalid_releases);
     }
@@ -212,6 +232,7 @@ static int metrics(void)
     uint64_t checksum = 0;
     size_t attempts = 0, releases = 0;
     for (unsigned mode = 0; mode < 2; ++mode)
+    {
         for (unsigned s = 0; s < 7; ++s)
         {
             struct ow_allocator pool = {0};
@@ -239,6 +260,7 @@ static int metrics(void)
             attempts += pool.attempts;
             releases += pool.releases;
         }
+    }
     printf(
         "{\"iterations\":10000,\"checksum\":%" PRIu64
         ",\"allocation_attempts\":%zu,\"releases\":%zu,\"scalar_size\":%zu,\"scalar_align\":%zu,\"owner_size\":%zu,\"owner_align\":%zu,\"result_size\":%zu,\"result_align\":%zu,\"pointer_size\":%zu",
@@ -250,7 +272,9 @@ static int metrics(void)
     {
         printf(",\"%s_seconds\":[", m ? "owner" : "scalar");
         for (unsigned s = 0; s < 7; ++s)
+        {
             printf("%s%.9f", s ? "," : "", times[m][s]);
+        }
         putchar(']');
     }
     puts("}");
@@ -260,20 +284,36 @@ static int metrics(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "option_scalar"))
+    {
         return scalar();
+    }
     if (!strcmp(argv[1], "option_owner"))
+    {
         return owning();
+    }
     if (!strcmp(argv[1], "option_failure"))
+    {
         return failure();
+    }
     if (!strcmp(argv[1], "option_base"))
+    {
         return base();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "histories"))
+    {
         return histories();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

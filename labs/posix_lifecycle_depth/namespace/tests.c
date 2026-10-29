@@ -58,8 +58,12 @@ static int count_fds(void)
     struct dirent *e;
     CHECK(d);
     while ((e = readdir(d)))
+    {
         if (strcmp(e->d_name, ".") && strcmp(e->d_name, ".."))
+        {
             ++count;
+        }
+    }
     CHECK(closedir(d) == 0);
     return count;
 }
@@ -379,17 +383,29 @@ int main(int argc, char **argv)
     d = open(".", O_RDONLY | O_DIRECTORY | O_CLOEXEC);
     CHECK(d >= 0);
     if (!strcmp(argv[1], "identity"))
+    {
         identity(d);
+    }
     else if (!strcmp(argv[1], "anchored"))
+    {
         anchored(d);
+    }
     else if (!strcmp(argv[1], "confined"))
+    {
         confinement(d);
+    }
     else if (!strcmp(argv[1], "metadata"))
+    {
         metadata(d);
+    }
     else if (!strcmp(argv[1], "policy"))
+    {
         policy(d);
+    }
     else
+    {
         CHECK(0);
+    }
     CHECK(close(d) == 0 && count_fds() == before);
     puts("PN_PASS");
     return 0;

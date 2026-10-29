@@ -30,7 +30,9 @@ static void *allocate(void *v, size_t n)
     ++m->acquires;
     m->bytes = n;
     if (m->fail || n > sizeof m->stage || m->live)
+    {
         return NULL;
+    }
     m->live = 1;
     return m->stage;
 }
@@ -44,7 +46,9 @@ static void release(void *v, char *p)
 {
     struct tf_memory *m = v;
     if (p != m->stage || !m->live)
+    {
         abort();
+    }
     ++m->releases;
     m->live = 0;
 }
@@ -59,7 +63,9 @@ static int integer(void *v, char *out, size_t n, int value)
     struct tf_conversion *s = v;
     ++s->calls;
     if (s->calls == s->fail_at)
+    {
         return -1;
+    }
     int result = tf_default_integer(NULL, out, n, value);
     return s->calls == s->change_at && result >= 0 ? result + 1 : result;
 }
@@ -69,7 +75,9 @@ static int real(void *v, char *out, size_t n, double value)
     struct tf_conversion *s = v;
     ++s->calls;
     if (s->calls == s->fail_at)
+    {
         return -1;
+    }
     int result = tf_default_real(NULL, out, n, value);
     return s->calls == s->change_at && result >= 0 ? result + 1 : result;
 }
@@ -77,8 +85,12 @@ static int real(void *v, char *out, size_t n, double value)
 static int unchanged(const char *p, size_t n)
 {
     for (size_t i = 0; i < n; ++i)
+    {
         if (p[i] != '@')
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
@@ -243,7 +255,9 @@ static enum tf_status step(struct tf_steps *s, unsigned i, int *out)
     s->trace[s->used++] = (char)('A' + i);
     s->trace[s->used] = 0;
     if (s->fail == i + 1)
+    {
         return TF_FORMAT;
+    }
     *out = s->values[i];
     return TF_OK;
 }
@@ -314,12 +328,16 @@ static int expressions(void)
         CHECK(status == (i < 4 ? TF_SIZE : TF_OK));
         CHECK(p.completed == 3 && strcmp(s.trace, "AGBC") == 0);
         if (i < 4)
+        {
             CHECK(p.result == 99);
+        }
         else
+        {
             CHECK(p.result == (i == 4   ? INT_MIN
                                : i == 5 ? 0
                                : i == 6 ? INT_MAX
                                         : -1));
+        }
     }
     p = (struct tf_progress){88, 99};
     CHECK(tf_steps(NULL, b_step, c_step, gate, &s, &p) == TF_INVALID &&
@@ -334,7 +352,9 @@ int main(void)
 {
     CHECK(setlocale(LC_ALL, "C") != NULL);
     if (formatting() || expressions())
+    {
         return 1;
+    }
     puts("TF_PASS variadic_expressions");
     return 0;
 }

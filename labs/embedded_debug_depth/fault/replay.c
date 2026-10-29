@@ -28,7 +28,9 @@ int main(void)
         df_init(&c);
         if (df_capture(&c, &in, 0, 0) || df_read(&c, &r, &secondary) ||
             df_flags(&r, &f))
+        {
             return 1;
+        }
         printf("%u %u %u %u %u %u %u %u %u\n", k, r.valid, r.bfar, r.mmfar,
                f.precise_bus, f.address_valid, f.forced, f.imprecise,
                secondary);

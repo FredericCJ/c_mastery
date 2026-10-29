@@ -14,7 +14,9 @@ static void signed_value(int32_t value)
         printf("-%u", (unsigned)(-(int64_t)value));
     }
     else
+    {
         printf("%u", (unsigned)value);
+    }
 }
 
 int main(void)
@@ -30,7 +32,9 @@ int main(void)
     volatile const uint8_t *wire = kf_vm_bytes;
     printf("VX_BYTES");
     for (unsigned i = 0; i < sizeof kf_vm_bytes; i++)
+    {
         printf(":%u", (unsigned)wire[i]);
+    }
     puts("");
     int status = kf_vm_probe(kf_vm_bytes, sizeof kf_vm_bytes, &r);
     if (status)

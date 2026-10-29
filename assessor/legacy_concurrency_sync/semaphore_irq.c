@@ -15,7 +15,9 @@ uint32_t cds_irq_save(void)
 void cds_irq_restore(uint32_t saved)
 {
     if (CDSEM_IRQ_MUTANT == 1)
+    {
         saved = 0;
+    }
     __asm__ volatile("msr primask,%0\ndsb\nisb" ::"r"(saved) : "memory");
 }
 
@@ -39,12 +41,16 @@ int cds_irq_post(struct cd_sem *s, struct cd_post *out)
     {
         if (number < 16 || number >= 256 ||
             REG8(0xe000e400u + number - 16) < CDS_KERNEL_THRESHOLD)
+        {
             return CMX_INVALID;
+        }
     }
     uint32_t saved = cds_irq_save();
     int result = cds_post(s, out);
     if (result == CMX_OK && out->defer_schedule)
+    {
         pend();
+    }
     cds_irq_restore(saved);
     return result;
 }
@@ -55,9 +61,13 @@ int cds_high_offer(struct cd_deferred *d)
     uint32_t saved = cds_irq_save();
     int result = cds_deferred_offer(d);
     if (CDSEM_IRQ_MUTANT == 3 && result == CMX_OK)
+    {
         --d->pending;
+    }
     if (result == CMX_OK)
+    {
         pend();
+    }
     cds_irq_restore(saved);
     return result;
 }

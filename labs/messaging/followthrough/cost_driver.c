@@ -93,14 +93,18 @@ static void output_threads(const char *name, struct msg_sample *s,
     for (unsigned k = 0; k < count; k++)
     {
         if (k)
+        {
             putchar(',');
+        }
         printf("{\"success\":%" PRIu64 ",\"retries\":%" PRIu64
                ",\"checksum\":%" PRIu64 ",\"latency_ns\":[",
                s[k].success, s[k].retries, s[k].checksum);
         for (size_t j = 0; j < s[k].count; j++)
         {
             if (j)
+            {
                 putchar(',');
+            }
             printf("%" PRIu64, s[k].latency[j]);
         }
         printf("]}");
@@ -122,7 +126,9 @@ static void *work(void *opaque)
     struct msg_sample *s = &b->sample[id];
     atomic_fetch_add_explicit(&b->ready, 1, memory_order_release);
     while (!atomic_load_explicit(&b->start, memory_order_acquire))
+    {
         sched_yield();
+    }
     if (b->mode <= SELECT_REGISTERED)
     {
         if (id < 2)
@@ -152,6 +158,7 @@ static void *work(void *opaque)
                        : mfr_close(&b->registered, id)) == MSG_OK);
         }
         else
+        {
             for (;;)
             {
                 unsigned which = 9, value = 9;
@@ -161,13 +168,16 @@ static void *work(void *opaque)
                         ? msg_select(&b->shared, 3, true, &which, &value)
                         : mfr_select(&b->registered, 3, true, &which, &value);
                 if (status == MSG_CLOSED)
+                {
                     break;
+                }
                 CHECK(status == MSG_OK && value < 2 * n && which == value / n);
                 CHECK(atomic_fetch_add(&b->seen[value], 1) == 0);
                 ++s->success;
                 s->checksum += value;
                 record(s, begin);
             }
+        }
     }
     else if (b->mode <= DEQUE_MUTEX)
     {
@@ -186,7 +196,9 @@ static void *work(void *opaque)
                     bool full = b->mode == DEQUE_WEAK ? status == MFW_FULL
                                                       : status == MSG_FULL;
                     if (!full)
+                    {
                         break;
+                    }
                     ++s->retries;
                     CHECK(s->retries < UINT64_C(10000000));
                     sched_yield();
@@ -198,6 +210,7 @@ static void *work(void *opaque)
             atomic_store_explicit(&b->done, true, memory_order_release);
         }
         else
+        {
             for (;;)
             {
                 unsigned value = 0;
@@ -236,7 +249,9 @@ static void *work(void *opaque)
                                      : (int)mfm_steal(&b->mutexdeque, &value);
                         if (status == (b->mode == DEQUE_WEAK ? (int)MFW_EMPTY
                                                              : (int)MSG_EMPTY))
+                        {
                             break;
+                        }
                         if (!status)
                         {
                             CHECK(value < n &&
@@ -249,6 +264,7 @@ static void *work(void *opaque)
                     sched_yield();
                 }
             }
+        }
     }
     else if (b->mode <= SEQUENCE_MUTEX)
     {
@@ -258,11 +274,17 @@ static void *work(void *opaque)
             if (!id)
             {
                 if (b->mode == SEQUENCE_SC)
+                {
                     CHECK(msg_sequence_write(&b->scsequence, i, ~i) == MSG_OK);
+                }
                 else if (b->mode == SEQUENCE_WEAK)
+                {
                     CHECK(mfw_write(&b->weaksequence, i, ~i) == MFW_OK);
+                }
                 else
+                {
                     mfm_pair_write(&b->pair, i, ~i);
+                }
                 ++s->success;
             }
             else
@@ -270,11 +292,17 @@ static void *work(void *opaque)
                 unsigned values[2] = {999, 999};
                 bool ok;
                 if (b->mode == SEQUENCE_SC)
+                {
                     ok = msg_sequence_read(&b->scsequence, 1, values) == MSG_OK;
+                }
                 else if (b->mode == SEQUENCE_WEAK)
+                {
                     ok = mfw_read(&b->weaksequence, 1, values) == MFW_OK;
+                }
                 else
+                {
                     ok = mfm_pair_try_read(&b->pair, values);
+                }
                 if (ok)
                 {
                     CHECK((!values[0] && !values[1]) ||
@@ -292,12 +320,16 @@ static void *work(void *opaque)
         }
     }
     else
+    {
         for (unsigned i = 0; i < n; i++)
         {
             uint64_t begin = now();
             if (b->mode == MUTEX_TRANSACTION)
+            {
                 mfm_pair_increment(&b->pair);
+            }
             else
+            {
                 for (;;)
                 {
                     struct msg_txn tx;
@@ -305,7 +337,9 @@ static void *work(void *opaque)
                     msg_begin(&b->store, &tx);
                     enum msg_status status = msg_read(&tx, 0, &x);
                     if (status == MSG_OK)
+                    {
                         status = msg_read(&tx, 1, &y);
+                    }
                     if (status == MSG_OK)
                     {
                         CHECK(x == y);
@@ -314,17 +348,23 @@ static void *work(void *opaque)
                         status = msg_commit(&tx);
                     }
                     else
+                    {
                         msg_abort(&tx);
+                    }
                     if (status == MSG_OK)
+                    {
                         break;
+                    }
                     CHECK(status == MSG_CONFLICT);
                     ++s->retries;
                     CHECK(s->retries < UINT64_C(10000000));
                     sched_yield();
                 }
+            }
             ++s->success;
             record(s, begin);
         }
+    }
     return NULL;
 }
 
@@ -337,30 +377,50 @@ static void threaded(const char *name, int mode, unsigned n, unsigned count)
     b.seen = calloc(2 * n, sizeof *b.seen);
     CHECK(b.seen);
     for (unsigned i = 0; i < 2 * n; i++)
+    {
         atomic_init(&b.seen[i], 0);
+    }
     for (unsigned k = 0; k < count; k++)
     {
         b.sample[k].latency = calloc(2 * n, sizeof(uint64_t));
         CHECK(b.sample[k].latency);
     }
     if (mode == SELECT_SHARED)
+    {
         CHECK(msg_hub_init(&b.shared, 4, 4) == MSG_OK);
+    }
     if (mode == SELECT_REGISTERED)
+    {
         CHECK(mfr_init(&b.registered, 4, 4) == MSG_OK);
+    }
     if (mode == DEQUE_SC)
+    {
         msg_deque_init(&b.scdeque);
+    }
     if (mode == DEQUE_WEAK)
+    {
         mfw_deque_init(&b.weakdeque);
+    }
     if (mode == DEQUE_MUTEX)
+    {
         mfm_deque_init(&b.mutexdeque);
+    }
     if (mode == SEQUENCE_SC)
+    {
         msg_sequence_init(&b.scsequence);
+    }
     if (mode == SEQUENCE_WEAK)
+    {
         mfw_sequence_init(&b.weaksequence);
+    }
     if (mode == SEQUENCE_MUTEX || mode == MUTEX_TRANSACTION)
+    {
         mfm_pair_init(&b.pair);
+    }
     if (mode == TRANSACTION)
+    {
         msg_store_init(&b.store);
+    }
     CHECK(count <= 5);
     pthread_t threads[5];
     struct msg_arg args[5];
@@ -370,20 +430,28 @@ static void threaded(const char *name, int mode, unsigned n, unsigned count)
         CHECK(pthread_create(&threads[i], NULL, work, &args[i]) == 0);
     }
     while (atomic_load_explicit(&b.ready, memory_order_acquire) != count)
+    {
         sched_yield();
+    }
     uint64_t begin = now();
     atomic_store_explicit(&b.start, true, memory_order_release);
     for (unsigned i = 0; i < count; i++)
+    {
         CHECK(pthread_join(threads[i], NULL) == 0);
+    }
     uint64_t elapsed = now() - begin, extra = 0;
     if (mode <= DEQUE_MUTEX)
     {
         unsigned total = mode <= SELECT_REGISTERED ? 2 * n : n;
         for (unsigned i = 0; i < total; i++)
+        {
             CHECK(atomic_load(&b.seen[i]) == 1);
+        }
     }
     if (mode == SELECT_SHARED)
+    {
         msg_hub_destroy(&b.shared);
+    }
     if (mode == SELECT_REGISTERED)
     {
         size_t waiting;
@@ -392,7 +460,9 @@ static void threaded(const char *name, int mode, unsigned n, unsigned count)
         CHECK(mfr_destroy(&b.registered) == MSG_OK);
     }
     if (mode == DEQUE_MUTEX)
+    {
         mfm_deque_destroy(&b.mutexdeque);
+    }
     if (mode == TRANSACTION)
     {
         CHECK(atomic_load(&b.store.cells[0].value) == 2 * n &&
@@ -404,10 +474,14 @@ static void threaded(const char *name, int mode, unsigned n, unsigned count)
         CHECK(b.pair.values[0] == 2 * n && b.pair.values[1] == 2 * n);
     }
     if (mode == SEQUENCE_MUTEX || mode == MUTEX_TRANSACTION)
+    {
         mfm_pair_destroy(&b.pair);
+    }
     output_threads(name, b.sample, count > 3 ? count : 3, elapsed, extra);
     for (unsigned k = 0; k < count; k++)
+    {
         free(b.sample[k].latency);
+    }
     free(b.seen);
 }
 
@@ -419,9 +493,13 @@ static void snapshots(bool pins, unsigned n)
     struct msg_versions versions;
     struct mfm_pair pair;
     if (pins)
+    {
         CHECK(msg_versions_init(&versions) == MSG_OK);
+    }
     else
+    {
         mfm_pair_init(&pair);
+    }
     uint64_t begin = now(), peak = 0;
     for (unsigned i = 1; i <= n; i++)
     {
@@ -444,7 +522,9 @@ static void snapshots(bool pins, unsigned n)
         {
             unsigned out[2];
             if (pins)
+            {
                 CHECK(msg_snapshot_read(&versions, pin, out) == MSG_OK);
+            }
             else
             {
                 out[0] = copy[0];
@@ -457,10 +537,16 @@ static void snapshots(bool pins, unsigned n)
         {
             unsigned live = 0;
             for (unsigned k = 0; k < 8; k++)
+            {
                 if (versions.versions[k].live)
+                {
                     ++live;
+                }
+            }
             if (live > peak)
+            {
                 peak = live;
+            }
             CHECK(msg_snapshot_drop(&versions, pin) == MSG_OK);
         }
         ++s[0].success;
@@ -468,9 +554,13 @@ static void snapshots(bool pins, unsigned n)
     }
     uint64_t elapsed = now() - begin;
     if (pins)
+    {
         msg_versions_destroy(&versions);
+    }
     else
+    {
         mfm_pair_destroy(&pair);
+    }
     output(pins ? "snapshot_pins" : "snapshot_copy", s, elapsed, peak);
     free(s[0].latency);
 }
@@ -483,9 +573,13 @@ static void snapshots_four(bool pins, unsigned n)
     struct msg_versions versions;
     struct mfm_pair pair;
     if (pins)
+    {
         CHECK(msg_versions_init(&versions) == MSG_OK);
+    }
     else
+    {
         mfm_pair_init(&pair);
+    }
     uint64_t begin = now(), peak = 0;
     for (unsigned i = 1; i <= n; i++)
     {
@@ -514,14 +608,19 @@ static void snapshots_four(bool pins, unsigned n)
             CHECK(msg_publish(&versions, 4 * i + 4, ~(4 * i + 4)) == MSG_OK);
         }
         else
+        {
             mfm_pair_write(&pair, 4 * i + 4, ~(4 * i + 4));
+        }
         for (unsigned j = 0; j < 4; j++)
+        {
             for (unsigned k = 0; k < 8; k++)
             {
                 unsigned out[2];
                 if (pins)
+                {
                     CHECK(msg_snapshot_read(&versions, handles[j], out) ==
                           MSG_OK);
+                }
                 else
                 {
                     out[0] = copies[j][0];
@@ -530,28 +629,41 @@ static void snapshots_four(bool pins, unsigned n)
                 CHECK(out[0] == 4 * i + j && out[1] == ~(4 * i + j));
                 s[0].checksum += out[0];
             }
+        }
         if (pins)
         {
             unsigned live = 0;
             for (unsigned j = 0; j < 8; j++)
+            {
                 if (versions.versions[j].live)
+                {
                     ++live;
+                }
+            }
             if (live > peak)
+            {
                 peak = live;
+            }
             /* Non-LIFO release must not reclaim another reader's selection. */
             const unsigned order[4] = {1, 3, 0, 2};
             for (unsigned j = 0; j < 4; j++)
+            {
                 CHECK(msg_snapshot_drop(&versions, handles[order[j]]) ==
                       MSG_OK);
+            }
         }
         ++s[0].success;
         record(&s[0], start);
     }
     uint64_t elapsed = now() - begin;
     if (pins)
+    {
         msg_versions_destroy(&versions);
+    }
     else
+    {
         mfm_pair_destroy(&pair);
+    }
     output(pins ? "snapshot_pins4" : "snapshot_copy4", s, elapsed, peak);
     free(s[0].latency);
 }
@@ -615,7 +727,9 @@ static void streams(unsigned batch, unsigned n)
     }
     pthread_mutex_lock(&sink.lock);
     while (sink.count < n)
+    {
         pthread_cond_wait(&sink.changed, &sink.lock);
+    }
     CHECK(sink.count == n && sink.checksum == (uint64_t)n * (n - 1) / 2);
     s[0].checksum = sink.checksum;
     pthread_mutex_unlock(&sink.lock);
@@ -781,14 +895,20 @@ static void callbacks(const char *mode, unsigned n)
     bool actors = !strcmp(mode, "actor_owned"),
          supervisors = !strcmp(mode, "supervisor_tree");
     if (actors)
+    {
         CHECK(mfa_init(&actor, value_handle, &counts, value_dead, &counts) ==
               MSG_OK);
+    }
     if (supervisors)
     {
         void *contexts[4][4];
         for (unsigned g = 0; g < 4; g++)
+        {
             for (unsigned c = 0; c < 4; c++)
+            {
                 contexts[g][c] = &counts;
+            }
+        }
         CHECK(mfs_init(&tree, 4, 4, 1, resource_open, resource_close, &counts,
                        value_handle, contexts, value_dead, &counts) == MSG_OK);
     }
@@ -820,13 +940,17 @@ static void callbacks(const char *mode, unsigned n)
             CHECK(mfo_start(&operation) == MSG_OK);
         }
         if (!supervisors)
+        {
             CHECK(!owner.data && !owner.drop);
+        }
         ++s[0].success;
         record(&s[0], start);
     }
     uint64_t elapsed = now() - begin;
     if (actors)
+    {
         CHECK(mfa_destroy(&actor) == MSG_OK);
+    }
     if (supervisors)
     {
         CHECK(mfs_destroy(&tree) == MSG_OK);
@@ -858,7 +982,9 @@ static int stack_task(void *p, const atomic_bool *cancel)
     CHECK(pthread_attr_destroy(&attr) == 0);
     atomic_fetch_add_explicit(s->ready, 1, memory_order_release);
     while (!atomic_load_explicit(cancel, memory_order_acquire))
+    {
         sched_yield();
+    }
     return 0;
 }
 
@@ -876,7 +1002,9 @@ static void stacks(void)
         CHECK(msg_spawn(&nursery, stack_task, &slots[i]) == MSG_OK);
     }
     while (atomic_load_explicit(&ready, memory_order_acquire) != 8)
+    {
         sched_yield();
+    }
     uint64_t spawn = now() - begin;
     msg_cancel(&nursery);
     begin = now();
@@ -889,14 +1017,18 @@ static void stacks(void)
     for (unsigned i = 0; i < 8; i++)
     {
         if (i)
+        {
             putchar(',');
+        }
         printf("%zu", slots[i].stack);
     }
     printf("],\"guard_bytes\":[");
     for (unsigned i = 0; i < 8; i++)
     {
         if (i)
+        {
             putchar(',');
+        }
         printf("%zu", slots[i].guard);
     }
     puts("]}");
@@ -949,18 +1081,22 @@ int main(int argc, char **argv)
         return 0;
     }
     for (int i = 0; i < 10; i++)
+    {
         if (!strcmp(argv[1], names[i]))
         {
             threaded(names[i], i, n, i <= DEQUE_MUTEX ? 3 : 2);
             return 0;
         }
+    }
     const char *four[] = {"deque_sc4", "deque_weak4", "deque_mutex4"};
     for (int i = 0; i < 3; i++)
+    {
         if (!strcmp(argv[1], four[i]))
         {
             threaded(four[i], DEQUE_SC + i, n, 5);
             return 0;
         }
+    }
     if (!strcmp(argv[1], "snapshot_pins4") ||
         !strcmp(argv[1], "snapshot_copy4"))
     {

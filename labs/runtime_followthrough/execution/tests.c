@@ -63,7 +63,9 @@ static int finish(struct vg_vs *s, struct cvm_value *out, unsigned bound)
 {
     int status = VS_RUNNING;
     while (status == VS_RUNNING && bound--)
+    {
         status = vs_step(s, out);
+    }
     return status;
 }
 
@@ -164,9 +166,13 @@ static int failures(void)
         {
             status = vs_step(&machine, &out);
             if (status == VS_RUNNING || status == VS_DONE)
+            {
                 done++;
+            }
             if (status != VS_DONE)
+            {
                 CHECK(out.integer == 91);
+            }
         }
         CHECK(status == (fuel < 4 ? CVM_FUEL : VS_DONE) &&
               done == (fuel < 4 ? fuel : 4));
@@ -175,12 +181,16 @@ static int failures(void)
     p = (struct cvm_program){0};
     p.count = 2;
     for (unsigned i = 0; i < 63; i++)
+    {
         emit(&p, OP_NIL);
+    }
     emit(&p, OP_CALL);
     emit(&p, 1);
     emit(&p, 0);
     for (unsigned i = 0; i < 63; i++)
+    {
         emit(&p, OP_POP);
+    }
     emit(&p, OP_RET);
     p.functions[0].length = p.length;
     unsigned at = p.length;
@@ -335,19 +345,24 @@ static int calls(void)
         {
             calls++;
             if (calls > 1)
+            {
                 CHECK(f->function == 1 && f->initialized[0] &&
                       f->locals[0].integer == (int32_t)(7 - calls) &&
                       f->base == calls - 1 &&
                       machine.invocation[machine.vm.depth - 1] == calls);
+            }
         }
         if (op == OP_RET)
         {
             returns++;
             if (f->function == 1)
+            {
                 CHECK(f->locals[0].integer == (int32_t)(returns - 1) &&
                       f->base == 7 - returns);
+            }
         }
         if (op == OP_CALL || op == OP_RET)
+        {
             printf(
                 "VS_TRACE step=%u op=%u fn=%u invocation=%u ip=%u base=%u sp=%u "
                 "initialized0=%u local0=%u\n",
@@ -356,10 +371,13 @@ static int calls(void)
                 (unsigned)f->ip, (unsigned)f->base, (unsigned)machine.vm.sp,
                 (unsigned)f->initialized[0],
                 f->initialized[0] ? (unsigned)f->locals[0].integer : 0u);
+        }
         int status = vs_step(&machine, &out);
         CHECK(status == VS_RUNNING || status == VS_DONE);
         if (machine.vm.depth > maxdepth)
+        {
             maxdepth = machine.vm.depth;
+        }
         steps++;
     }
     CHECK(out.integer == 115 && calls == 6 && returns == 7 && maxdepth == 7 &&
@@ -390,7 +408,9 @@ static int calls(void)
             }
             CHECK(vs_step(&machine, &out) >= VS_RUNNING);
             if (machine.vm.depth > maxdepth)
+            {
                 maxdepth = machine.vm.depth;
+            }
         }
         CHECK(machine.state == VS_DONE && out.integer == 465 && maxdepth == 2 &&
               machine.next_invocation == 32);

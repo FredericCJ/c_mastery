@@ -31,7 +31,9 @@ static void membership(struct rd_fixture *f)
     size_t live = 0;
     unsigned seen[N] = {0};
     for (size_t i = 0; i < N; ++i)
+    {
         live += f->timers[i].state == TD_ARMED;
+    }
     CHECK(live == f->q.count);
     if (f->q.kind == TC_HEAP)
     {
@@ -62,9 +64,11 @@ static void membership(struct rd_fixture *f)
                 CHECK(f->timers[s].state == TD_ARMED &&
                       (f->timers[s].deadline / 3) % 7 == b);
                 if (prior != SIZE_MAX)
+                {
                     CHECK(f->timers[prior].deadline < f->timers[s].deadline ||
                           (f->timers[prior].deadline == f->timers[s].deadline &&
                            prior < s));
+                }
                 prior = s;
             }
         }
@@ -95,7 +99,9 @@ static void histories(enum tc_kind kind)
             ++generations[slot];
             CHECK(out.slot == slot && out.generation == generations[slot]);
             if (token.generation)
+            {
                 CHECK(tc_cancel(&f.q, token) == 0);
+            }
         }
         else if (op == 3)
         {
@@ -106,9 +112,13 @@ static void histories(enum tc_kind kind)
         {
             size_t best = N;
             for (size_t i = 0; i < N; ++i)
+            {
                 if (deadlines[i] &&
                     (best == N || deadlines[i] < deadlines[best]))
+                {
                     best = i;
+                }
+            }
             struct td_dispatch dispatch = {0};
             uint64_t now = (random >> 16) % 100;
             int expected = best != N && deadlines[best] <= now;
@@ -123,20 +133,30 @@ static void histories(enum tc_kind kind)
                 deadlines[best] = 0;
             }
             else
+            {
                 CHECK(out.slot == 99 && out.generation == 99);
+            }
         }
         membership(&f);
         size_t best = N;
         for (size_t i = 0; i < N; ++i)
+        {
             if (deadlines[i] && (best == N || deadlines[i] < deadlines[best]))
+            {
                 best = i;
+            }
+        }
         uint64_t d = 999;
         out = (struct tc_token){99, 99};
         CHECK(tc_peek(&f.q, &out, &d) == (best != N));
         if (best != N)
+        {
             CHECK(out.slot == best && d == deadlines[best]);
+        }
         else
+        {
             CHECK(out.slot == 99 && d == 999);
+        }
     }
 }
 
@@ -176,7 +196,9 @@ static void boundaries(enum tc_kind kind)
     /* Every equal key must dispatch by immutable slot order, across wheel turns. */
     init(&f, kind, 3);
     for (size_t i = N; i > 0; --i)
+    {
         CHECK(tc_arm(&f.q, i - 1, UINT64_MAX - 1, 0, 0, &a) == 1);
+    }
     for (size_t i = 0; i < N; ++i)
     {
         CHECK(tc_begin(&f.q, UINT64_MAX, &current, &d) == 1 &&

@@ -42,10 +42,14 @@ static int visit(void *ctx, const uint8_t *key, size_t n, const uint8_t *value,
 {
     struct store_visit *v = ctx;
     while (v->pos < 16 && v->map[v->pos] < 0)
+    {
         v->pos++;
+    }
     if (v->pos >= 16 || n != 1 || z != 1 || key[0] != v->pos ||
         value[0] != v->map[v->pos])
+    {
         v->bad = 1;
+    }
     v->pos++;
     v->count++;
     return 0;
@@ -62,13 +66,17 @@ static int equal(store *s, unsigned which)
         if (maps[which][i] < 0)
         {
             if (r != STORE_NOT_FOUND || value != 0xa5 || n != 777)
+            {
                 return 0;
+            }
         }
         else
         {
             count++;
             if (r != STORE_OK || n != 1 || value != maps[which][i])
+            {
                 return 0;
+            }
         }
     }
     struct store_visit v = {maps[which], 0, 0, 0};
@@ -85,8 +93,12 @@ static int seed(void)
           store_open(&s, dm_io(&medium)) == STORE_OK &&
           store_begin(&s) == STORE_OK);
     for (unsigned i = 0; i < 16; i++)
+    {
         if (maps[0][i] >= 0)
+        {
             CHECK(put(&s, i, (unsigned)maps[0][i]) == STORE_OK);
+        }
+    }
     CHECK(store_commit(&s) == STORE_OK && store_checkpoint(&s) == STORE_OK &&
           equal(&s, 0));
     dm_reboot(&medium);
@@ -100,7 +112,9 @@ static int change(store *s, unsigned which)
     for (unsigned i = 0; i < 16; i++)
     {
         if (maps[which][i] >= 0)
+        {
             CHECK(put(s, i, (unsigned)maps[which][i]) == STORE_OK);
+        }
         else
         {
             int r = del(s, i);
@@ -115,6 +129,7 @@ static int commit_cuts(int emit)
     CHECK(seed() == 0);
     unsigned cases = 0;
     for (unsigned mode = 0; mode <= DM_MIDDLE; mode++)
+    {
         for (unsigned cut = 1; cut <= 37; cut++)
         {
             medium = base;
@@ -136,11 +151,16 @@ static int commit_cuts(int emit)
             CHECK(result != STORE_OK || next);
             CHECK(result != STORE_IO || old);
             if (emit)
+            {
                 printf("%u %u %d %d\n", mode, cut, result, next);
+            }
             cases++;
         }
+    }
     if (!emit)
+    {
         printf("DUR commit validated schedules=%u modes=7\n", cases);
+    }
     return 0;
 }
 
@@ -155,6 +175,7 @@ static int checkpoint_cuts(void)
     store source = s;
     unsigned cases = 0;
     for (unsigned mode = 0; mode <= DM_MIDDLE; mode++)
+    {
         for (unsigned cut = 1; cut <= 37; cut++)
         {
             medium = committed;
@@ -165,6 +186,7 @@ static int checkpoint_cuts(void)
             CHECK(store_open(&s, dm_io(&medium)) == STORE_OK && equal(&s, 1));
             cases++;
         }
+    }
     printf("DUR checkpoint validated schedules=%u\n", cases);
     return 0;
 }
@@ -181,6 +203,7 @@ static int repeated(void)
     saved = medium;
     unsigned cases = 0;
     for (unsigned first = 1; first <= 37; first++)
+    {
         for (unsigned second = 1; second <= 37; second++)
         {
             medium = committed;
@@ -199,6 +222,7 @@ static int repeated(void)
                       0);
             cases++;
         }
+    }
     printf(
         "DUR repeated validated double-cuts=%u canonical-homes-and-whole-image-idempotent\n",
         cases);
@@ -235,7 +259,9 @@ static uint32_t crc(const uint8_t *p, size_t n)
     {
         c ^= p[i];
         for (unsigned j = 0; j < 8; j++)
+        {
             c = (c >> 1) ^ (UINT32_C(0xedb88320) & (0u - (c & 1u)));
+        }
     }
     return ~c;
 }
@@ -243,7 +269,9 @@ static uint32_t crc(const uint8_t *p, size_t n)
 static void w32(uint8_t *p, uint32_t v)
 {
     for (unsigned i = 0; i < 4; i++)
+    {
         p[i] = (uint8_t)(v >> (8 * i));
+    }
 }
 
 static void reseal(uint8_t *p)
@@ -271,7 +299,9 @@ static int invalid(void)
     {
         medium = committed;
         if (kind == 0)
+        {
             medium.stable[65][100] ^= 1;
+        }
         if (kind == 1)
         {
             w32(medium.stable[34] + 20, 0);
@@ -316,11 +346,14 @@ static int invalid(void)
                       0);
         }
         else
+        {
             CHECK(medium.writes == saved.writes &&
                   memcmp(medium.stable, saved.stable, sizeof medium.stable) ==
                       0);
+        }
     }
     if (!DUR_ORIGINAL)
+    {
         for (unsigned at = 1; at <= 37; at++)
         {
             medium = committed;
@@ -332,6 +365,7 @@ static int invalid(void)
                   memcmp(medium.stable, saved.stable, sizeof medium.stable) ==
                       0);
         }
+    }
     medium = committed;
     medium.stable[66][8] = 0;
     reseal(medium.stable[66]);
@@ -353,6 +387,7 @@ static int successive(void)
     committed = medium;
     unsigned cases = 0;
     for (unsigned mode = 0; mode <= DM_MIDDLE; mode++)
+    {
         for (unsigned cut = 1; cut <= 37; cut++)
         {
             medium = committed;
@@ -368,6 +403,7 @@ static int successive(void)
             CHECK(r != STORE_IO || one);
             cases++;
         }
+    }
     printf(
         "DUR successive validated schedules=%u acknowledged-prefix-retained\n",
         cases);
@@ -402,7 +438,9 @@ static int medium_oracle(void)
         unsigned positions[] = {0,    511,  512,  1023, 1024,
                                 2047, 2048, 4091, 4095};
         for (unsigned i = 0; i < 9; i++)
+        {
             printf(" %u", medium.stable[2][positions[i]]);
+        }
         putchar('\n');
     }
     return 0;
@@ -434,11 +472,15 @@ static int trace(void)
     CHECK(store_open(&s, dm_io(&medium)) == STORE_OK && change(&s, 1) == 0 &&
           dm_arm(&medium, 0, 0, 0, 0, 0) == 0 && store_commit(&s) == STORE_OK);
     for (unsigned i = 0; i < medium.event; i++)
+    {
         printf("C %u %u\n", medium.trace[i].kind, medium.trace[i].page);
+    }
     CHECK(dm_arm(&medium, 0, 0, 0, 0, 0) == 0 &&
           store_checkpoint(&s) == STORE_OK);
     for (unsigned i = 0; i < medium.event; i++)
+    {
         printf("R %u %u\n", medium.trace[i].kind, medium.trace[i].page);
+    }
     return 0;
 }
 
@@ -501,13 +543,19 @@ static int ack_flush(void *p)
     struct ack_gate *g = p;
     int r = dm_flush(g->medium);
     if (r || g->medium->event != 37)
+    {
         return r;
+    }
     if (pthread_mutex_lock(&g->lock))
+    {
         return 1;
+    }
     g->held = 1;
     (void)pthread_cond_broadcast(&g->cv);
     while (!g->release)
+    {
         (void)pthread_cond_wait(&g->cv, &g->lock);
+    }
     (void)pthread_mutex_unlock(&g->lock);
     return 1;
 }
@@ -536,7 +584,9 @@ static int late_ack(void)
     CHECK(pthread_create(&thread, NULL, ack_worker, &g) == 0 &&
           pthread_mutex_lock(&g.lock) == 0);
     while (!g.held)
+    {
         CHECK(pthread_cond_wait(&g.cv, &g.lock) == 0);
+    }
     CHECK(g.result == -99 && medium.stable[66][8] == 2 && !medium.dirty[66]);
     g.release = 1;
     CHECK(pthread_cond_broadcast(&g.cv) == 0 &&
@@ -555,30 +605,56 @@ static int late_ack(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "commit"))
+    {
         return commit_cuts(0);
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return commit_cuts(1);
+    }
     if (!strcmp(argv[1], "checkpoint"))
+    {
         return checkpoint_cuts();
+    }
     if (!strcmp(argv[1], "repeated"))
+    {
         return repeated();
+    }
     if (!strcmp(argv[1], "lies"))
+    {
         return lies();
+    }
     if (!strcmp(argv[1], "invalid"))
+    {
         return invalid();
+    }
     if (!strcmp(argv[1], "successive"))
+    {
         return successive();
+    }
     if (!strcmp(argv[1], "medium"))
+    {
         return medium_oracle();
+    }
     if (!strcmp(argv[1], "decode"))
+    {
         return decode_oracle();
+    }
     if (!strcmp(argv[1], "trace"))
+    {
         return trace();
+    }
     if (!strcmp(argv[1], "metadata"))
+    {
         return metadata_slots();
+    }
     if (!strcmp(argv[1], "late_ack"))
+    {
         return late_ack();
+    }
     return 2;
 }

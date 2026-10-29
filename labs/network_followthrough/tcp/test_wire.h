@@ -35,9 +35,13 @@ static unsigned nc_sum(const unsigned char *p, size_t n, uint32_t initial)
 {
     uint32_t s = initial;
     for (size_t i = 0; i < n; i++)
+    {
         s += (uint32_t)p[i] << ((i % 2) ? 0 : 8);
+    }
     while (s >> 16)
+    {
         s = (s & 65535) + (s >> 16);
+    }
     return (~s) & 65535;
 }
 
@@ -78,7 +82,9 @@ static size_t nc_wire(unsigned char *p, uint32_t seq, uint32_t ack,
         nc_w16(p + 42, mss);
     }
     if (n)
+    {
         memcpy(p + 20 + h, data, n);
+    }
     nc_fix(p, total);
     return total;
 }

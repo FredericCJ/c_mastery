@@ -48,17 +48,29 @@ static int transitions(void)
                 C(m.kernel.task[picked].state == CMX_RUNNING);
             }
             else if (op == 1)
+            {
                 r = cmx_sleep(&m.kernel, 1, cmx_at(m.kernel.now + 1));
+            }
             else if (op == 2)
+            {
                 cmx_tick(&m.kernel, m.kernel.now + 1);
+            }
             else if (op == 3)
+            {
                 r = cmx_cancel(&m.kernel, 1);
+            }
             else if (op == 4)
+            {
                 r = mf_exit(&m, h, 3);
+            }
             else
+            {
                 r = mf_reap(&m, h);
+            }
             if (r == CMX_INVALID)
+            {
                 C(memcmp(&m, &before, sizeof m) == 0);
+            }
             C(mf_invariant(&m));
         }
     }
@@ -69,6 +81,7 @@ static int transitions(void)
 static int orders(void)
 {
     for (unsigned reverse = 0; reverse < 2; reverse++)
+    {
         for (unsigned seed = 0; seed < 64; seed++)
         {
             struct mf_order list, heap;
@@ -95,6 +108,7 @@ static int orders(void)
             {
                 int best = -1;
                 for (unsigned i = 0; i < 16; i++)
+                {
                     if (!(used & (1u << i)))
                     {
                         if (best < 0 ||
@@ -105,8 +119,11 @@ static int orders(void)
                                             expected[best].identity
                                       : expected[i].identity <
                                             expected[best].identity)))
+                        {
                             best = (int)i;
+                        }
                     }
+                }
                 C(best >= 0);
                 used |= 1u << (unsigned)best;
                 struct mf_order_entry a, b;
@@ -118,6 +135,7 @@ static int orders(void)
             struct mf_order_entry out;
             C(!mf_order_pop(&list, &out) && !mf_order_pop(&heap, &out));
             if (seed == 0)
+            {
                 printf(
                     "MF_COST:reverse=%u,list_insert=%llu/%llu,heap_insert=%llu/%llu,list_expire=%llu/%llu,heap_expire=%llu/%llu\n",
                     reverse, (unsigned long long)li, (unsigned long long)lm,
@@ -126,7 +144,9 @@ static int orders(void)
                     (unsigned long long)(list.moves - lm),
                     (unsigned long long)(heap.comparisons - hi),
                     (unsigned long long)(heap.moves - hm));
+            }
         }
+    }
     puts("MF_VARIANT:128 queue histories,2048 independently ordered expiries");
     return 0;
 }
@@ -143,11 +163,17 @@ static int publication(void)
         for (unsigned point = 0; point < 8; point++)
         {
             if (point == 1)
+            {
                 masked = 1;
+            }
             if (point == 6)
+            {
                 masked = 0;
+            }
             if (point == arrival)
+            {
                 irq_pending = 1;
+            }
             if (irq_pending && !masked)
             {
                 payload = 0x1234;
@@ -192,11 +218,17 @@ static int cancellation(void)
         for (unsigned phase = 0; phase < 5; phase++)
         {
             if (arrival == phase)
+            {
                 cancel = 1;
+            }
             if (phase == 1)
+            {
                 a = 7;
+            }
             if (phase == 2)
+            {
                 b = 3;
+            }
             if (phase == 3)
             {
                 if (cancel)
@@ -205,13 +237,17 @@ static int cancellation(void)
                     b = old_b;
                 }
                 else
+                {
                     committed = 1;
+                }
                 C(a + b == 10);
                 owned = 0;
                 cleanup++;
             }
             if (!owned)
+            {
                 C(a + b == 10);
+            }
         }
         C(cleanup == 1 && (!committed || a == 7));
     }
@@ -223,9 +259,13 @@ static int cancellation(void)
         for (unsigned phase = 0; phase < 4; phase++)
         {
             if (phase == cancel_at)
+            {
                 abandoned = 1;
+            }
             if (phase == 2)
+            {
                 dma = 0;
+            }
             if (abandoned && !dma)
             {
                 caller = 0;
@@ -233,7 +273,9 @@ static int cancellation(void)
             }
             C(!release || !dma);
             if (phase < 2)
+            {
                 C(caller);
+            }
         }
         C(!caller && !dma && release);
     }
@@ -245,7 +287,9 @@ static int cancellation(void)
 int main(void)
 {
     if (transitions() || orders() || publication() || cancellation())
+    {
         return 1;
+    }
     puts("MF_PASS:variants");
     return 0;
 }

@@ -22,14 +22,18 @@ static struct lc_float convert(void *ctx, const char *s)
 {
     locale_t previous = uselocale(*(locale_t *)ctx);
     if (!previous)
+    {
         return (struct lc_float){0, 0, 1};
+    }
     errno = 0;
     char *end;
     double value = strtod(s, &end);
     int range = errno == ERANGE;
     size_t count = (size_t)(end - s);
     if (!uselocale(previous))
+    {
         return (struct lc_float){0, 0, 1};
+    }
     return (struct lc_float){value, count, range};
 }
 

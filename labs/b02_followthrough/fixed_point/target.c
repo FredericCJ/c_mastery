@@ -41,7 +41,9 @@ void bf_target(void)
     TEST(bf_q7_even(a, b, 1, &out) == B2_OK && out == 0);
     static int16_t wide[65536];
     for (unsigned i = 0; i < 65536; ++i)
+    {
         wide[i] = -32768;
+    }
     int16_t result = 77;
     TEST(bf_q11(wide, wide, 65536, &result) == B2_OK && result == 32767);
     int16_t x[8], y[8];

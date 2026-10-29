@@ -6,11 +6,15 @@ uint32_t mf_udiv32(uint32_t n, uint32_t d)
 {
 #ifdef MF_BAD_DIVISION
     if (n == UINT32_MAX && d == 1)
+    {
         return 0;
+    }
 #endif
     uint32_t q = 0, r = 0;
     if (!d)
+    {
         return UINT32_MAX;
+    }
     for (unsigned i = 32; i; i--)
     {
         unsigned carry = r >> 31;
@@ -28,7 +32,9 @@ uint64_t mf_udiv64(uint64_t n, uint64_t d)
 {
     uint64_t q = 0, r = 0;
     if (!d)
+    {
         return UINT64_MAX;
+    }
     for (unsigned i = 64; i; i--)
     {
         unsigned carry = (unsigned)(r >> 63);

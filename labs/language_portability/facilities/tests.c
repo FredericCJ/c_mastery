@@ -105,7 +105,9 @@ static int oracle(void)
             printf("%d %u\n", s, out);
         }
         else
+        {
             CHECK(0);
+        }
     }
     return 0;
 }
@@ -114,17 +116,29 @@ int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (!strcmp(argv[1], "add"))
+    {
         return add();
+    }
     if (!strcmp(argv[1], "mixed"))
+    {
         return mixed();
+    }
     if (!strcmp(argv[1], "bits"))
+    {
         return bits();
+    }
     if (!strcmp(argv[1], "divide"))
+    {
         return divide();
+    }
     if (!strcmp(argv[1], "select"))
+    {
         return select_case();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
     {
         printf(

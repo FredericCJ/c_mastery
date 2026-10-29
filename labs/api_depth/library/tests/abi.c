@@ -5,7 +5,9 @@ int main(void)
 {
     unsigned char info[24];
     for (unsigned i = 0; i < 24; i++)
+    {
         info[i] = 99;
+    }
     CHECK(lc_info(9, info, 16) == LC_VERSION && info[0] == 99);
     CHECK(lc_info(1, info, 15) == LC_VERSION && info[0] == 99);
     CHECK(lc_info(1, info, 16) == LC_OK);

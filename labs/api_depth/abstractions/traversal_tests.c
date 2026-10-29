@@ -24,14 +24,18 @@ static enum at_action visit(void *ctx, unsigned char value)
 {
     struct ac_visit *v = ctx;
     if (v->count < 32)
+    {
         v->values[v->count] = value;
+    }
     ++v->count;
     v->total += value;
     if (v->nested)
     {
         enum at_result r = at_push(v->host, v->owner, 255, visit, v);
         if (r != AT_END && r != AT_FULL)
+        {
             ++v->errors;
+        }
     }
     return v->action;
 }
@@ -43,7 +47,9 @@ static struct ac_epoch_owner owner(size_t count)
     o.bytes.generation = 3;
     o.bytes.length = count;
     for (size_t i = 0; i < count; ++i)
+    {
         o.bytes.data[i] = (uint8_t)(2 * (i + 1));
+    }
     return o;
 }
 
@@ -69,6 +75,7 @@ int main(void)
     CHECK(at_next(&cursor, &value) == AT_STALE && value == 7);
     unsigned pairs = 0;
     for (size_t n = 0; n <= 4; ++n)
+    {
         for (unsigned limit = 0; limit <= 9; ++limit)
         {
             o = owner(n);
@@ -77,7 +84,9 @@ int main(void)
             CHECK(at_begin(&o, limit, &cursor) == AT_ITEM);
             enum at_result result;
             while ((result = at_next(&cursor, &value)) == AT_ITEM)
+            {
                 (void)visit(&pull, value);
+            }
             CHECK(at_push(&host, &o, limit, visit, &push) == result);
             CHECK(pull.count == push.count && pull.total == push.total &&
                   !memcmp(pull.values, push.values, sizeof pull.values));
@@ -90,6 +99,7 @@ int main(void)
             CHECK(at_next(&cursor, &value) == result);
             ++pairs;
         }
+    }
     o = owner(4);
     struct ac_visit rejected = {0};
     rejected.action = AT_REMOVE;
@@ -123,6 +133,7 @@ int main(void)
     const unsigned char expected[] = {1, 2, 4, 5, 3, 6, 7};
     unsigned trees = 0;
     for (unsigned depth = 0; depth <= 3; ++depth)
+    {
         for (size_t cap = 0; cap <= 7; ++cap)
         {
             unsigned char a[7] = {0}, b[7] = {0};
@@ -135,6 +146,7 @@ int main(void)
             CHECK(!memcmp(a, expected, na));
             ++trees;
         }
+    }
     nodes[3].left = 99;
     unsigned char a[7], b[7];
     size_t na, nb;

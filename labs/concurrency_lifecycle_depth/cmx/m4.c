@@ -92,7 +92,9 @@ static void cc_irq_experiment(void)
           CC_BLOCKED);
     enroll_probe = 0;
     for (unsigned i = 0; i < 1000 && !irq_entries; i++)
+    {
         __asm__ volatile("nop");
+    }
     CHECK(irq_entries == 1);
     uint32_t outer = cw_irq_save();
     CHECK(outer == 0);
@@ -110,14 +112,18 @@ static void cc_irq_experiment(void)
     CHECK(irq_entries == 1);
     cw_irq_restore(outer);
     for (unsigned i = 0; i < 1000 && irq_entries < 2; i++)
+    {
         __asm__ volatile("nop");
+    }
     CHECK(irq_entries == 2);
     outer = cw_irq_save();
     CHECK(outer == 0);
     CHECK(cc_result(ticket, &out) == CL_OK && out.sequence == 2);
     CHECK(cc_close(&irq_queue, 0) == CL_OK);
     for (unsigned i = 0; i < 5; i++)
+    {
         CHECK(cc_release(&irq_handles[i]) == CL_OK);
+    }
     CHECK(cc_destroy(&irq_queue) == CL_BUSY);
     struct cc_port stale = irq_port;
     join_probe = 1;
@@ -131,7 +137,9 @@ static void cc_irq_experiment(void)
     CHECK(cc_port_send(stale, 8, 3, 0, 0) == CL_STALE);
     cw_irq_restore(outer);
     for (unsigned i = 0; i < 1000; i++)
+    {
         __asm__ volatile("nop");
+    }
     CHECK(irq_entries == 2);
     cc_semihost(
         4,
@@ -143,10 +151,14 @@ void cl_reset(void)
     uintptr_t source = (uintptr_t)&cl_data_load;
     for (uintptr_t p = (uintptr_t)&cl_data_start; p < (uintptr_t)&cl_data_end;
          p += 4, source += 4)
+    {
         *(uint32_t *)p = *(const uint32_t *)source;
+    }
     for (uintptr_t p = (uintptr_t)&cl_bss_start; p < (uintptr_t)&cl_bss_end;
          p += 4)
+    {
         *(uint32_t *)p = 0;
+    }
     CHECK(cq_queue() == 0 && cq_terminal() == 0 && cq_condition() == 0 &&
           cq_lifetime() == 0 && cq_dispatch() == 0);
     cc_irq_experiment();

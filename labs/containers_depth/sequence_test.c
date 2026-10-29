@@ -26,10 +26,14 @@ static int *take(void *v, size_t count)
           a->owner->length <= a->owner->capacity);
     ++a->calls;
     if (a->fail == a->calls)
+    {
         return NULL;
+    }
     int *p = malloc(count * sizeof *p);
     if (p)
+    {
         ++a->live;
+    }
     return p;
 }
 
@@ -51,7 +55,9 @@ static int clone(void *v, const struct cd_payload *in, struct cd_payload *out)
     struct cd_cloner *c = v;
     ++c->calls;
     if (c->calls == c->fail)
+    {
         return 1;
+    }
     out->value = in->value;
     out->resource = c->calls;
     c->live |= 1u << out->resource;
@@ -164,9 +170,13 @@ int main(void)
           ring.reserving);
     spans.first[0] = 40;
     if (spans.first_count > 1)
+    {
         spans.first[1] = 41;
+    }
     else
+    {
         spans.second[0] = 41;
+    }
     CHECK(cd_ring_read(&ring, &spans) == CD_BUSY &&
           cd_ring_commit(&ring, 2) == CD_OK &&
           cd_ring_pop(&ring, output, 2) == CD_OK && output[0] == 40 &&
@@ -194,7 +204,9 @@ int main(void)
           vector.data == live_before && vector.length == 8 &&
           vector.capacity == 8 && allocator.live == 1);
     for (unsigned i = 0; i < 8; ++i)
+    {
         CHECK(vector.data[i] == (int)i + 1);
+    }
     allocator.fail = 0;
     CHECK(cd_vector_insert(&vector, 3, 90) == CD_OK && vector.capacity == 16 &&
           vector.data[3] == 90);
@@ -236,7 +248,9 @@ int main(void)
                                                      destroy}) == CD_FAILED &&
               cloner.live == 0 && cloner.destroyed == failure - 1);
         for (unsigned i = 0; i < 4; ++i)
+        {
             CHECK(destination[i].value == 99);
+        }
     }
     struct cd_cloner cloner = {0};
     CHECK(cd_clone_batch(destination, inputs, 4,

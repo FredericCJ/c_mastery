@@ -35,10 +35,14 @@ static void *allocate(void *ctx, size_t n)
 {
     struct msg_memory *m = ctx;
     if (++m->calls == m->fail)
+    {
         return NULL;
+    }
     void *p = malloc(n);
     if (p)
+    {
         ++m->allocations;
+    }
     return p;
 }
 
@@ -55,7 +59,9 @@ static void drop(void *ptr)
     struct msg_memory *m = p->memory;
     ++m->drops;
     if (p->bytes)
+    {
         deallocate(m, p->bytes);
+    }
     deallocate(m, p);
 }
 
@@ -70,7 +76,9 @@ static enum msg_status clone(void *ctx, const void *ptr, struct mfo_value *out)
     const struct msg_source *s = ptr;
     struct msg_payload *p = allocate(m, sizeof(*p));
     if (!p)
+    {
         return MSG_FAILED;
+    }
     *p = (struct msg_payload){.memory = m, .size = s->size};
     if (s->size)
     {
@@ -81,7 +89,9 @@ static enum msg_status clone(void *ctx, const void *ptr, struct mfo_value *out)
             return MSG_FAILED;
         }
         for (size_t i = 0; i < s->size; i++)
+        {
             p->bytes[i] = s->bytes[i];
+        }
     }
     *out = (struct mfo_value){p, drop};
     return MSG_OK;
@@ -149,7 +159,9 @@ static void owned(void)
     m.fail = 0;
     CHECK(mfv_init(&s, allocator(&m), &initial) == MSG_OK && !initial.data);
     for (unsigned i = 0; i < 30; i++)
+    {
         CHECK(publish(&s, &m, i) == MSG_OK);
+    }
     CHECK(mfv_destroy(&s) == MSG_OK && m.drops == 31 &&
           m.allocations == m.frees);
     m = (struct msg_memory){0};
@@ -166,7 +178,9 @@ static void owned(void)
           unchanged.generation == 99);
     CHECK(mfv_destroy(&s) == MSG_BUSY);
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(read_pin(&s, pins[i]) == i + 5);
+    }
     struct mfl_shared *lease = NULL;
     CHECK(mfv_read(&s, pins[0], &lease) == MSG_OK);
     CHECK(mfv_drop_snapshot(&s, pins[0]) == MSG_OK);
@@ -180,7 +194,9 @@ static void owned(void)
     CHECK(mfv_drop_snapshot(&s, pins[0]) == MSG_STALE);
     CHECK(mfv_drop_snapshot(&s, replacement) == MSG_OK);
     for (unsigned i = 1; i < 4; i++)
+    {
         CHECK(mfv_drop_snapshot(&s, pins[i]) == MSG_OK);
+    }
     s.core.clock = UINT64_MAX;
     unsigned before = m.drops;
     CHECK(publish(&s, &m, 99) == MSG_OVERFLOW && m.drops == before + 1);
@@ -192,7 +208,9 @@ static void owned(void)
     initial = value(&m, 1);
     CHECK(mfv_init(&s, allocator(&m), &initial) == MSG_OK);
     for (unsigned i = 0; i < 4; i++)
+    {
         s.core.pins[i].generation = UINT64_MAX;
+    }
     unchanged = (struct msg_snapshot){99, 99};
     CHECK(mfv_snapshot(&s, &unchanged) == MSG_FULL && unchanged.slot == 99);
     CHECK(mfv_destroy(&s) == MSG_OK && m.allocations == m.frees);
@@ -239,7 +257,9 @@ static void *skew(void *ctx)
     ++g->ready;
     pthread_cond_broadcast(&g->condition);
     while (!g->go)
+    {
         pthread_cond_wait(&g->condition, &g->mutex);
+    }
     pthread_mutex_unlock(&g->mutex);
     g->results[w->key] = mfk_commit(&t, g->strict);
     return NULL;
@@ -257,20 +277,30 @@ static void predicate(void)
         struct msg_worker workers[2] = {{&g, 0}, {&g, 1}};
         pthread_t threads[2];
         for (unsigned i = 0; i < 2; i++)
+        {
             CHECK(!pthread_create(&threads[i], NULL, skew, &workers[i]));
+        }
         pthread_mutex_lock(&g.mutex);
         while (g.ready != 2)
+        {
             pthread_cond_wait(&g.condition, &g.mutex);
+        }
         g.go = true;
         pthread_cond_broadcast(&g.condition);
         pthread_mutex_unlock(&g.mutex);
         for (unsigned i = 0; i < 2; i++)
+        {
             CHECK(!pthread_join(threads[i], NULL));
+        }
         if (strict)
+        {
             CHECK((g.results[0] == MSG_OK && g.results[1] == MSG_CONFLICT) ||
                   (g.results[1] == MSG_OK && g.results[0] == MSG_CONFLICT));
+        }
         else
+        {
             CHECK(g.results[0] == MSG_OK && g.results[1] == MSG_OK);
+        }
         struct mfk_txn t;
         unsigned count;
         CHECK(mfk_begin(&s, &t) == MSG_OK);
@@ -334,9 +364,13 @@ static void predicate_oracle(void)
             CHECK(mfk_nonzero(&t[i], &count) == MSG_OK);
         }
         if (k0 < 2)
+        {
             CHECK(mfk_write(&t[0], k0, v0) == MSG_OK);
+        }
         if (k1 < 2)
+        {
             CHECK(mfk_write(&t[1], k1, v1) == MSG_OK);
+        }
         enum msg_status statuses[2];
         statuses[order] = mfk_commit(&t[order], strict != 0);
         statuses[1 - order] = mfk_commit(&t[1 - order], strict != 0);
@@ -367,7 +401,9 @@ static void owned_oracle(void)
             {
                 ++serial;
                 if (op == 'f')
+                {
                     m.fail = m.calls + 2;
+                }
                 status = publish(&s, &m, serial);
                 m.fail = 0;
             }
@@ -376,7 +412,9 @@ static void owned_oracle(void)
                 struct msg_snapshot pin;
                 status = mfv_snapshot(&s, &pin);
                 if (status == MSG_OK)
+                {
                     pins[count++] = pin;
+                }
             }
             else if (op == 'r')
             {
@@ -398,13 +436,17 @@ static void owned_oracle(void)
                 {
                     --count;
                     for (unsigned j = 0; j < count; j++)
+                    {
                         pins[j] = pins[j + 1];
+                    }
                 }
             }
             printf("%d:%u:%llu,", status, n, (unsigned long long)s.core.clock);
         }
         for (unsigned i = 0; i < count; i++)
+        {
             CHECK(mfv_drop_snapshot(&s, pins[i]) == MSG_OK);
+        }
         CHECK(mfv_destroy(&s) == MSG_OK && m.allocations == m.frees);
         puts("");
     }
@@ -414,9 +456,13 @@ int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (!strcmp(argv[1], "owned"))
+    {
         owned();
+    }
     else if (!strcmp(argv[1], "predicate"))
+    {
         predicate();
+    }
     else if (!strcmp(argv[1], "predicate-oracle"))
     {
         predicate_oracle();
@@ -428,7 +474,9 @@ int main(int argc, char **argv)
         return 0;
     }
     else
+    {
         CHECK(false);
+    }
     puts("versions passed");
     return 0;
 }

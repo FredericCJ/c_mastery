@@ -28,7 +28,9 @@ static uint32_t rd(void *p, unsigned reg)
         if (m->receiver &&
             ((m->r[PI_CR1] & PI_ACK) ||
              ((m->r[PI_CR1] & PI_POS) != (m->count == 2 ? PI_POS : 0))))
+        {
             m->violation = 1;
+        }
         m->r[PI_SR1] &= ~PI_ADDR;
     }
     if (reg == PI_DR)
@@ -50,9 +52,13 @@ static void wr(void *p, unsigned reg, uint32_t value)
     if (reg == PI_CR1)
     {
         if (m->r[reg] & (PI_START | PI_STOP | PI_PEC))
+        {
             m->violation = 1;
+        }
         if (value & PI_STOP)
+        {
             m->stops++;
+        }
     }
     if (reg == PI_SR1)
     {
@@ -124,7 +130,9 @@ int ia_transaction(void)
             CHECK(event(&s, &m, PI_BTF | PI_RXNE, 8) == PI_BUSY);
         }
         else
+        {
             CHECK(event(&s, &m, PI_RXNE, 8) == PI_BUSY);
+        }
         CHECK(m.reads == count && m.stops == 1 && out[0] == 0xcc &&
               !m.violation);
         m.r[PI_CR1] &= ~PI_STOP;
@@ -265,7 +273,9 @@ static void lw(void *p, unsigned line, unsigned release)
     struct mc_lines *l = p;
     l->writes++;
     if (line == PI_SCL && release && !l->release[line])
+    {
         l->pulses++;
+    }
     l->release[line] = release;
 }
 
@@ -286,7 +296,9 @@ int ia_recovery(void)
         {
             status = PI_BUSY;
             for (unsigned t = 0; t < 200 && status == PI_BUSY; t++)
+            {
                 status = pi_recover_step(&r, io, UINT32_MAX - 3u + t);
+            }
             CHECK(status == (after == 10 ? PI_IO : PI_OK) &&
                   r.pulses == (after == 10 ? 9 : after));
         }

@@ -19,7 +19,9 @@ static int twice(struct ho_hoa *a, int32_t v, void *c, unsigned *out)
     (void)c;
     int64_t n = (int64_t)v * 2;
     if (n < INT32_MIN || n > INT32_MAX)
+    {
         return HO_RANGE;
+    }
     unsigned p;
     int s = ho_pure(a, (int32_t)n, &p);
     return s ? s : ho_emit(a, v, p, out);
@@ -35,7 +37,9 @@ static int plus_one(struct ho_hoa *a, int32_t v, void *c, unsigned *out)
 {
     (void)c;
     if (v == INT32_MAX)
+    {
         return HO_RANGE;
+    }
     unsigned p;
     int s = ho_pure(a, v + 1, &p);
     return s ? s : ho_emit(a, -7, p, out);
@@ -51,6 +55,7 @@ static int compose(struct ho_hoa *a, int32_t v, void *c, unsigned *out)
 static void free_test(void)
 {
     for (int l = -3; l <= 3; ++l)
+    {
         for (int r = -3; r <= 3; ++r)
         {
             struct ho_hoa a = {0};
@@ -95,6 +100,7 @@ static void free_test(void)
                       old.value == l);
             }
         }
+    }
     struct ho_hoa a = {0};
     unsigned p, c, root;
     CHECK(ho_pure(&a, 1, &p) == HO_OK);
@@ -127,7 +133,9 @@ static void free_test(void)
               ho_run(&law, right, NULL, 0, &y) == HO_OK && x.value == y.value &&
               x.count == y.count);
         for (size_t i = 0; i < x.count; ++i)
+        {
             CHECK(x.trace[i] == y.trace[i]);
+        }
         CHECK(ho_bind(&law, pure, twice, NULL, &identity) == HO_OK &&
               twice(&law, v, NULL, &unit) == HO_OK);
         CHECK(ho_run(&law, identity, NULL, 0, &x) == HO_OK &&
@@ -147,10 +155,14 @@ static void free_test(void)
         struct ho_summary s = {91, 92, 93};
         int result = ho_summarize(&sharing, root, &s);
         if (value)
+        {
             CHECK(result == HO_RANGE && s.paths == 91 && s.sum == 93);
+        }
         else
+        {
             CHECK(result == HO_OK && s.paths == (UINT64_C(1) << 63) &&
                   s.sum == 0);
+        }
         unsigned unchanged = 999;
         CHECK(ho_pure(&sharing, 2, &unchanged) == HO_FULL && unchanged == 999 &&
               sharing.used == 64);
@@ -202,7 +214,9 @@ static void final_test(void)
           !strcmp(text.data, "-2147483648"));
     struct hp_int full = {{0}, 127};
     for (unsigned i = 0; i < 127; ++i)
+    {
         full.data[i] = 'a';
+    }
     struct hp_int old = text;
     CHECK(p.add(full, text, &text) == HO_FULL && !strcmp(text.data, old.data));
 }
@@ -210,6 +224,7 @@ static void final_test(void)
 static void oracle(void)
 {
     for (int l = -3; l <= 3; ++l)
+    {
         for (int r = -3; r <= 3; ++r)
         {
             struct ho_hoa a = {0};
@@ -226,6 +241,7 @@ static void oracle(void)
                        out.count, out.trace[0], out.trace[1]);
             }
         }
+    }
     struct he_ops e = ho_eval_ops();
     struct hp_ops p = ho_print_ops();
     CHECK(e.lit && p.lit);
@@ -249,12 +265,20 @@ int main(int argc, char **argv)
     CHECK(argc == 2);
     test_name = argv[1];
     if (!strcmp(argv[1], "free"))
+    {
         free_test();
+    }
     else if (!strcmp(argv[1], "final"))
+    {
         final_test();
+    }
     else if (!strcmp(argv[1], "oracle"))
+    {
         oracle();
+    }
     else
+    {
         CHECK(0);
+    }
     return 0;
 }

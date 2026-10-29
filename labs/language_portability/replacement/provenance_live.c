@@ -7,7 +7,9 @@ int main(void)
 {
     int *p = malloc(sizeof *p);
     if (!p)
+    {
         return 2;
+    }
     *p = 41;
     uintptr_t saved = (uintptr_t)(void *)p;
     void *back = (void *)saved;

@@ -16,7 +16,9 @@ static void print(const char *s)
 {
     size_t n = 0;
     while (s[n])
+    {
         n++;
+    }
     cmk_write(s, n);
 }
 
@@ -33,7 +35,9 @@ static void check_at(int ok, unsigned line)
             line /= 10;
         } while (line);
         while (n)
+        {
             cmk_write(b + --n, 1);
+        }
         print("\n");
         finish(9);
     }
@@ -54,7 +58,9 @@ static int equal(const char *a, const char *b)
 __attribute__((section(".text.start"), noreturn)) void _start(void)
 {
     if (!anchor)
+    {
         finish(10);
+    }
 #if defined(USER_FAULT)
     *(volatile unsigned char *)(uintptr_t)0x100000 = 42;
     finish(11);
@@ -66,7 +72,9 @@ __attribute__((section(".text.start"), noreturn)) void _start(void)
     while (cmk_call(CMK_TICKS, 0, 0, 0) < 8)
     {
         for (unsigned i = 0; i < 10000; i++)
+        {
             turns++;
+        }
         check(owned[0] == id);
     }
     check(turns > 0);
@@ -86,9 +94,13 @@ __attribute__((section(".text.start"), noreturn)) void _start(void)
             {
                 line[used] = 0;
                 if (equal(line, "exit"))
+                {
                     finish(0);
+                }
                 if (equal(line, "help"))
+                {
                     print("help | echo TEXT | exit\n");
+                }
                 else if (used >= 5 && line[0] == 'e' && line[1] == 'c' &&
                          line[2] == 'h' && line[3] == 'o' && line[4] == ' ')
                 {
@@ -96,12 +108,16 @@ __attribute__((section(".text.start"), noreturn)) void _start(void)
                     print("\n");
                 }
                 else
+                {
                     print("unknown command\n");
+                }
                 used = 0;
                 print("cmk> ");
             }
             else if (used < sizeof line - 1)
+            {
                 line[used++] = c;
+            }
             else
             {
                 used = 0;
@@ -109,7 +125,9 @@ __attribute__((section(".text.start"), noreturn)) void _start(void)
             }
         }
         else
+        {
             cmk_call(CMK_YIELD, 0, 0, 0);
+        }
     }
 #else
     check(cmk_call(CMK_WRITE, 0x100000, 4, 0) == -1);
@@ -118,7 +136,9 @@ __attribute__((section(".text.start"), noreturn)) void _start(void)
     unsigned char *heap = cmk_alloc(2);
     check(heap != NULL);
     for (unsigned i = 0; i < 8192; i++)
+    {
         check(heap[i] == 0);
+    }
     heap[8191] = 71;
     check(cmk_call(CMK_ALLOC, 17, 0, 0) == -1);
     check(cmk_call(CMK_BLOCK_COUNT, CMK_DISK_HANDLE + 1, 0, 0) == -1);
@@ -128,15 +148,21 @@ __attribute__((section(".text.start"), noreturn)) void _start(void)
     if (!verify)
     {
         for (unsigned i = 0; i < 4096; i++)
+        {
             data[i] = (unsigned char)(i * 17u + 3u);
+        }
         check(cmk_block_write(handle, 3, data) == 0);
         check(cmk_block_flush(handle) == 0);
     }
     for (unsigned i = 0; i < 4096; i++)
+    {
         data[i] = 0;
+    }
     check(cmk_block_read(handle, 3, data) == 0);
     for (unsigned i = 0; i < 4096; i++)
+    {
         check(data[i] == (unsigned char)(i * 17u + 3u));
+    }
     check(cmk_block_read(handle, UINT32_MAX, data) == -1);
     check(cmk_block_read(handle, 3, (void *)(uintptr_t)0x100000) == -1);
 #ifdef USER_STORAGE

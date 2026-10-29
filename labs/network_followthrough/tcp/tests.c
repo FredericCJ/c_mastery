@@ -14,7 +14,9 @@ int main(void)
     struct nc_packet out;
     unsigned char p[1500], data[256];
     for (unsigned i = 0; i < 256; i++)
+    {
         data[i] = (unsigned char)i;
+    }
     CHECK(!nc_establish(&s, 512, 0xfffffff0, 0xfffffff0, 100));
     CHECK(s.mss == 100);
     size_t n = nc_wire(p, 0xfffffff1, s.snd_nxt, 0x18, 512, data, 16, 0);

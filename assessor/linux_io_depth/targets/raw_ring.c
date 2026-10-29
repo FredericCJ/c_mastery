@@ -22,13 +22,21 @@ static void release(unsigned *p, unsigned v)
 void cm_ring_close(struct cm_raw_ring *r)
 {
     if (r->entries)
+    {
         munmap(r->entries, r->entries_bytes);
+    }
     if (r->cq && !r->shared_mapping)
+    {
         munmap(r->cq, r->cq_bytes);
+    }
     if (r->sq)
+    {
         munmap(r->sq, r->sq_bytes);
+    }
     if (r->fd >= 0)
+    {
         close(r->fd);
+    }
     memset(r, 0, sizeof *r);
     r->fd = -1;
 }
@@ -41,13 +49,17 @@ int cm_ring_init(struct cm_raw_ring *r, unsigned n)
     memset(&p, 0, sizeof p);
     int fd = (int)syscall(__NR_io_uring_setup, n, &p);
     if (fd < 0)
+    {
         return -errno;
+    }
     r->fd = fd;
     r->sq_bytes = p.sq_off.array + p.sq_entries * sizeof(unsigned);
     r->cq_bytes = p.cq_off.cqes + p.cq_entries * sizeof(struct io_uring_cqe);
     r->shared_mapping = (p.features & IORING_FEAT_SINGLE_MMAP) != 0;
     if (r->shared_mapping && r->cq_bytes > r->sq_bytes)
+    {
         r->sq_bytes = r->cq_bytes;
+    }
     r->sq = mmap(NULL, r->sq_bytes, PROT_READ | PROT_WRITE, MAP_SHARED, fd,
                  IORING_OFF_SQ_RING);
     if (r->sq == MAP_FAILED)
@@ -95,7 +107,9 @@ int cm_ring_push(struct cm_raw_ring *r, const struct io_uring_sqe *s)
 {
     unsigned head = acquire(r->sq_head);
     if (CM_MUTANT != 1 && r->local_tail - head >= r->capacity)
+    {
         return -EAGAIN;
+    }
     unsigned i = r->local_tail & *r->sq_mask;
     r->entries[i] = *s;
     r->sq_array[i] = i;
@@ -114,11 +128,15 @@ int cm_ring_submit(struct cm_raw_ring *r)
         if (n < 0)
         {
             if (errno == EINTR)
+            {
                 continue;
+            }
             return -errno;
         }
         if (!n)
+        {
             return -EAGAIN;
+        }
         r->unsubmitted -= (unsigned)n;
     }
     return 0;
@@ -133,13 +151,17 @@ int cm_ring_wait(struct cm_raw_ring *r, struct io_uring_cqe *c)
         {
             *c = r->completions[head & *r->cq_mask];
             if (CM_MUTANT == 2)
+            {
                 c->flags = 0;
+            }
             release(r->cq_head, head + 1);
             return 0;
         }
         if (syscall(__NR_io_uring_enter, r->fd, 0, 1, IORING_ENTER_GETEVENTS,
                     NULL, 0) < 0 &&
             errno != EINTR)
+        {
             return -errno;
+        }
     }
 }

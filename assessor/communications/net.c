@@ -42,9 +42,13 @@ uint16_t net_checksum(const void *v, size_t n, uint32_t sum)
         sum = (sum & 65535) + (sum >> 16);
     }
     if (n)
+    {
         sum += (unsigned)p[0] << 8;
+    }
     while (sum >> 16)
+    {
         sum = (sum & 65535) + (sum >> 16);
+    }
     return (uint16_t)~sum;
 }
 
@@ -68,7 +72,9 @@ void net_link_down(struct net_stack *s)
 void net_rtt(struct net_stack *s, uint32_t r)
 {
     if (!r)
+    {
         r = 1;
+    }
     if (!s->rtt_samples)
     {
         s->srtt = r;
@@ -108,7 +114,9 @@ static void ip_header(struct net_packet *o, unsigned protocol, size_t size)
     w16(p + 10, net_checksum(p, 20, 0));
     o->length = 34 + size;
     if (o->length < 60)
+    {
         o->length = 60;
+    }
 }
 
 static void tcp(struct net_stack *s, struct net_packet *o, unsigned flags,
@@ -131,7 +139,9 @@ static void tcp(struct net_stack *s, struct net_packet *o, unsigned flags,
         w16(p + 22, 256);
     }
     if (n)
+    {
         memcpy(p + hdr, data, n);
+    }
     uint32_t pseudo = u16(local_ip) + u16(local_ip + 2) + u16(peer_ip) +
                       u16(peer_ip + 2) + 6 + (uint32_t)(hdr + n);
     w16(p + 16, net_checksum(p, hdr + n, pseudo));
@@ -151,12 +161,16 @@ static int output_next(struct net_stack *s, struct net_packet *o)
 {
     if (s->flight ||
         !(s->state == NET_ESTABLISHED || s->state == NET_CLOSE_WAIT))
+    {
         return 0;
+    }
     if (s->interim_pending)
     {
         static const char interim[] = "HTTP/1.1 100 Continue\r\n\r\n";
         if (s->peer_window < sizeof interim - 1)
+        {
             return 0;
+        }
         tcp(s, o, 0x18, interim, sizeof interim - 1, 1);
         s->interim_pending = 0;
         return 1;
@@ -165,13 +179,19 @@ static int output_next(struct net_stack *s, struct net_packet *o)
     {
         size_t n = s->response_length - s->response_sent;
         if (n > s->mss)
+        {
             n = s->mss;
+        }
         if (n > s->peer_window)
+        {
             n = s->peer_window;
+        }
         if (!n)
         {
             if (!s->due)
+            {
                 s->due = s->now + s->rto;
+            }
             return 0;
         }
         tcp(s, o, 0x18, s->response + s->response_sent, n, 1);
@@ -208,10 +228,14 @@ int net_receive(struct net_stack *s, const void *v, size_t n, uint64_t now,
     const uint8_t *p = v;
     o->length = 0;
     if (now < s->now)
+    {
         return -1;
+    }
     s->now = now;
     if (n < 14 || memcmp(p + 6, peer_mac, 6))
+    {
         return drop(s);
+    }
     static const uint8_t broadcast[6] = {255, 255, 255, 255, 255, 255};
     unsigned type = u16(p + 12);
     int mine = !memcmp(p, local_mac, 6), bcast = !memcmp(p, broadcast, 6);
@@ -222,7 +246,9 @@ int net_receive(struct net_stack *s, const void *v, size_t n, uint64_t now,
             !(u16(p + 20) == 1 || u16(p + 20) == 2) ||
             memcmp(p + 22, p + 6, 6) || memcmp(p + 28, peer_ip, 4) ||
             memcmp(p + 38, local_ip, 4))
+        {
             return drop(s);
+        }
         s->peer_known = 1;
         s->arp_expires = now + 30000;
         if (u16(p + 20) == 1)
@@ -245,21 +271,27 @@ int net_receive(struct net_stack *s, const void *v, size_t n, uint64_t now,
     }
     if (type != 0x800 || !mine || n < 34 || !s->peer_known ||
         now >= s->arp_expires)
+    {
         return drop(s);
+    }
     p += 14;
     n -= 14;
     unsigned total = u16(p + 2);
     if (p[0] != 0x45 || total < 20 || total > 1500 || total > n || !p[8] ||
         (u16(p + 6) & 0xbfff) || net_checksum(p, 20, 0) ||
         memcmp(p + 12, peer_ip, 4) || memcmp(p + 16, local_ip, 4))
+    {
         return drop(s);
+    }
     const uint8_t *q = p + 20;
     size_t size = total - 20;
     if (p[9] == 1)
     {
         if (size < 8 || size > 72 || q[0] != 8 || q[1] ||
             net_checksum(q, size, 0))
+        {
             return drop(s);
+        }
         ip_header(o, 1, size);
         memcpy(o->bytes + 34, q, size);
         o->bytes[34] = 0;
@@ -268,7 +300,9 @@ int net_receive(struct net_stack *s, const void *v, size_t n, uint64_t now,
         return 1;
     }
     if (p[9] != 6 || size < 20 || u16(q + 2) != 8080)
+    {
         return drop(s);
+    }
     size_t h = (size_t)(q[12] >> 4) * 4;
     unsigned flags = q[13];
     uint32_t seq = u32(q + 4), ack = u32(q + 8);
@@ -277,24 +311,36 @@ int net_receive(struct net_stack *s, const void *v, size_t n, uint64_t now,
                       u16(local_ip + 2) + 6 + (uint32_t)size;
     if (h < 20 || h > size || (q[12] & 15) || (flags & 0xe0) ||
         net_checksum(q, size, pseudo))
+    {
         return drop(s);
+    }
     unsigned mss = 536;
     for (size_t i = 20; i < h;)
     {
         unsigned kind = q[i++];
         if (!kind)
+        {
             break;
+        }
         if (kind == 1)
+        {
             continue;
+        }
         if (i == h)
+        {
             return drop(s);
+        }
         unsigned len = q[i++];
         if (len < 2 || len - 2 > h - i)
+        {
             return drop(s);
+        }
         if (kind == 2)
         {
             if (len != 4 || !(flags & 2) || !u16(q + i))
+            {
                 return drop(s);
+            }
             mss = u16(q + i);
         }
         i += len - 2;
@@ -303,7 +349,9 @@ int net_receive(struct net_stack *s, const void *v, size_t n, uint64_t now,
     if (s->state == NET_LISTEN)
     {
         if (flags != 2 || bytes)
+        {
             return drop(s);
+        }
         uint64_t expiry = s->arp_expires;
         unsigned incarnation = s->incarnation, drops = s->drops,
                  resets = s->resets;
@@ -327,7 +375,9 @@ int net_receive(struct net_stack *s, const void *v, size_t n, uint64_t now,
         return 1;
     }
     if (u16(q) != s->peer_port)
+    {
         return drop(s);
+    }
     if (s->state == NET_TIME_WAIT)
     {
         /* Only the already accepted FIN position may refresh this incarnation. */
@@ -383,10 +433,14 @@ int net_receive(struct net_stack *s, const void *v, size_t n, uint64_t now,
     if (s->state == NET_SYN_RECEIVED)
     {
         if (ack != s->snd_nxt)
+        {
             return drop(s);
+        }
         s->state = NET_ESTABLISHED;
         if (s->retransmitted)
+        {
             s->rto = 3000;
+        }
     }
     if (!before(ack, s->snd_una))
     {
@@ -401,7 +455,9 @@ int net_receive(struct net_stack *s, const void *v, size_t n, uint64_t now,
             uint32_t advanced = ack - s->snd_una;
             s->snd_una = ack;
             if (s->flight)
+            {
                 s->due = now + s->rto;
+            }
             if (s->response_sent > s->response_acked)
             {
                 size_t remain = s->response_sent - s->response_acked;
@@ -410,11 +466,15 @@ int net_receive(struct net_stack *s, const void *v, size_t n, uint64_t now,
             if (ack == s->snd_nxt && s->flight)
             {
                 if (!s->retransmitted)
+                {
                     net_rtt(s, (uint32_t)(now - s->sent_at));
+                }
                 s->flight = 0;
                 s->due = 0;
                 if (s->state == NET_FIN_WAIT_1)
+                {
                     s->state = NET_FIN_WAIT_2;
+                }
                 else if (s->state == NET_CLOSING)
                 {
                     s->state = NET_TIME_WAIT;
@@ -438,7 +498,9 @@ int net_receive(struct net_stack *s, const void *v, size_t n, uint64_t now,
     {
         size_t take = bytes - skip;
         if (take > 512)
+        {
             take = 512;
+        }
         size_t off = 0;
         while (off < take)
         {
@@ -453,11 +515,15 @@ int net_receive(struct net_stack *s, const void *v, size_t n, uint64_t now,
             if (r == HTTP_DONE || r == HTTP_ERROR)
             {
                 if (response(s))
+                {
                     return -1;
+                }
                 break;
             }
             if (!used)
+            {
                 break;
+            }
         }
         /* TCP acceptance is independent of whether HTTP accepted the message. */
         s->rcv_nxt += (uint32_t)take;
@@ -468,9 +534,13 @@ int net_receive(struct net_stack *s, const void *v, size_t n, uint64_t now,
         s->rcv_nxt++;
         s->peer_fin = 1;
         if (s->state == NET_ESTABLISHED)
+        {
             s->state = NET_CLOSE_WAIT;
+        }
         else if (s->state == NET_FIN_WAIT_1)
+        {
             s->state = NET_CLOSING;
+        }
         else if (s->state == NET_FIN_WAIT_2)
         {
             s->state = NET_TIME_WAIT;
@@ -480,11 +550,15 @@ int net_receive(struct net_stack *s, const void *v, size_t n, uint64_t now,
         {
             http_eof(&s->http);
             if (response(s))
+            {
                 return -1;
+            }
         }
     }
     if (output_next(s, o))
+    {
         return 1;
+    }
     if (bytes || (flags & 1))
     {
         tcp(s, o, 0x10, 0, 0, 0);
@@ -497,7 +571,9 @@ int net_tick(struct net_stack *s, uint64_t now, struct net_packet *o)
 {
     o->length = 0;
     if (now < s->now)
+    {
         return -1;
+    }
     s->now = now;
     if (s->state == NET_TIME_WAIT && now >= s->timewait_until)
     {

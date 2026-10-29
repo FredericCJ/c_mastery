@@ -4,10 +4,14 @@ int mc_acquire(struct mc_owner *owner, struct mc_allocator a, int value)
 {
     int *p;
     if (!owner || owner->value || !a.allocate || !a.release)
+    {
         return -1;
+    }
     p = a.allocate(a.context, sizeof *p);
     if (!p)
+    {
         return -1;
+    }
     *p = value;
     owner->value = p;
     owner->allocation = a;
@@ -17,7 +21,9 @@ int mc_acquire(struct mc_owner *owner, struct mc_allocator a, int value)
 int mc_read(const struct mc_owner *owner, int *out)
 {
     if (!owner || !owner->value || !out)
+    {
         return -1;
+    }
     *out = *owner->value;
     return 0;
 }
@@ -26,7 +32,9 @@ int mc_snapshot(const struct mc_owner *owner, int *out)
 {
 #ifdef MC_MUTANT_ESCAPE
     if (!owner || !owner->value || !out)
+    {
         return -1;
+    }
     *out = 0;
     return 0;
 #else
@@ -63,13 +71,17 @@ int mc_member(const struct mc_container *owner, const int *member, int *out)
     const unsigned char *base;
     const int *expected;
     if (!owner || !member || !out)
+    {
         return -1;
+    }
     base = (const unsigned char *)owner;
     expected = (const int *)(const void *)(base + offsetof(struct mc_container,
                                                            member));
 #ifndef MC_MUTANT_MEMBER
     if (member != expected)
+    {
         return -1;
+    }
 #else
     (void)expected;
 #endif
@@ -81,10 +93,14 @@ int mc_initial(const struct mc_first *owner, const int *member, int *out)
 {
     const struct mc_first *recovered;
     if (!owner || !member || !out || member != &owner->first)
+    {
         return -1;
+    }
     recovered = (const struct mc_first *)(const void *)member;
     if (recovered != owner)
+    {
         return -1;
+    }
     *out = recovered->first;
     return 0;
 }

@@ -21,7 +21,9 @@ static int receive_ready(int fd, struct dg_session *s, struct dg_message *m)
 {
     struct pollfd p = {fd, POLLIN, 0};
     if (poll(&p, 1, 1000) != 1 || !(p.revents & POLLIN))
+    {
         return DG_IO;
+    }
     return dg_udp_receive(fd, s, m);
 }
 
@@ -69,7 +71,11 @@ int main(void)
     puts("DG_HOST_PASS loopback_datagrams=4 truncated_prefix_rejected=1");
 done:
     for (unsigned i = 0; i < 2; ++i)
+    {
         if (fd[i] >= 0 && close(fd[i]) != 0)
+        {
             rc = 1;
+        }
+    }
     return rc;
 }

@@ -39,20 +39,28 @@ static struct dh_key key(unsigned c, unsigned tag)
 static void invariant(const struct dh_map *m, unsigned root, unsigned depth)
 {
     if (!root)
+    {
         return;
+    }
     CHECK(root <= m->used);
     const struct dh_map_node *n = &m->nodes[root];
     if (depth == 16)
     {
         CHECK(n->count > 0 && n->count <= 8 && n->bitmap == 0);
         for (unsigned i = 0; i < n->count; ++i)
+        {
             for (unsigned j = i + 1; j < n->count; ++j)
+            {
                 CHECK(!eq(NULL, n->keys[i], n->keys[j]));
+            }
+        }
         return;
     }
     unsigned count = 0;
     for (unsigned slot = 0; slot < 4; ++slot)
+    {
         count += (n->bitmap >> slot) & 1u;
+    }
     CHECK(count == n->count && count > 0 && count <= 4 && n->bitmap < 16);
     for (unsigned i = 0; i < count; ++i)
     {
@@ -67,7 +75,9 @@ static int value(const struct dh_map *m, unsigned root, struct dh_key k)
     int s = d_map_get(m, root, k, &v, NULL);
     CHECK(s == D_OK || s == D_STALE);
     if (s == D_STALE)
+    {
         CHECK(v == -999);
+    }
     return v;
 }
 
@@ -101,6 +111,7 @@ static void checks(void)
               third == 0 && cost.clones == 0);
     }
     for (unsigned operation = 0; operation < 3; ++operation)
+    {
         for (unsigned cut = 1; cut <= 17; ++cut)
         {
             int mode = 1;
@@ -125,6 +136,7 @@ static void checks(void)
                   value(&m, root, key(67, 0)) == -999);
             invariant(&m, root, 0);
         }
+    }
     int mode = 1;
     struct dh_map m;
     unsigned root = 0, roots[9] = {0};
@@ -167,7 +179,9 @@ static void observations(void)
     const struct dh_key keys[] = {{{65, 0}}, {{97, 0}}, {{66, 0}}, {{98, 0}},
                                   {{67, 1}}, {{99, 1}}, {{68, 1}}, {{100, 1}}};
     for (int mode = 0; mode < 2; ++mode)
+    {
         for (unsigned a = 0; a < 8; ++a)
+        {
             for (unsigned b = 0; b < 8; ++b)
             {
                 struct dh_map m;
@@ -181,10 +195,16 @@ static void observations(void)
                 CHECK(d_map_delete(&m, roots[2], keys[a], &roots[3], NULL) ==
                       D_OK);
                 for (unsigned version = 0; version < 4; ++version)
+                {
                     for (unsigned q = 0; q < 8; ++q)
+                    {
                         printf("M %d %u %u %u %u %d\n", mode, a, b, version, q,
                                value(&m, roots[version], keys[q]));
+                    }
+                }
             }
+        }
+    }
     int mode = 1;
     struct dh_map m;
     unsigned root = 0;
@@ -198,9 +218,13 @@ static void observations(void)
         printf("C %u %d %u %u %u %u\n", n, status, cost.comparisons,
                cost.clones, m.attempts, m.used);
         if (status == D_OK)
+        {
             root = next;
+        }
         else
+        {
             CHECK(next == 999);
+        }
     }
     printf("L %zu %zu %zu\n", sizeof(struct dh_map_node), sizeof(struct dh_map),
            sizeof(struct dh_key));
@@ -211,10 +235,16 @@ int main(int argc, char **argv)
     CHECK(argc == 2);
     test_name = argv[1];
     if (!strcmp(argv[1], "dictionary"))
+    {
         checks();
+    }
     else if (!strcmp(argv[1], "oracle"))
+    {
         observations();
+    }
     else
+    {
         CHECK(0);
+    }
     return 0;
 }

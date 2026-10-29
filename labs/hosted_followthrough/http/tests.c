@@ -22,7 +22,9 @@ static int lifecycle(void)
     struct hf_handle h[5];
     int fd = -99;
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(!hf_admit(&p, 11 + (int)i, 3, &h[i]));
+    }
     CHECK(hf_admit(&p, 15, 3, &h[4]) == 1);
     CHECK(!hf_pin(&p, h[1]));
     CHECK(!hf_pin(&p, h[1]));
@@ -236,7 +238,9 @@ static int closing(void)
     CHECK(!hf_feed(&f, input, (size_t)n, &u, 1, authority, date));
     CHECK(f.requests == 2 && f.closing && u == (size_t)n - strlen(get));
     while (f.count)
+    {
         CHECK(hf_write(&f, sink, &s, 2) == 1);
+    }
     CHECK(hf_tick(&f, 2, date) == 1 && hf_tick(&f, 1001, date) == 0 &&
           hf_tick(&f, 1002, date) == 2);
     CHECK(!hf_feed(&f, get, strlen(get), &u, 3, authority, date) && u == 0 &&
@@ -251,7 +255,9 @@ static int closing(void)
             CHECK(hf_write(&f, sink, &s, 2) == 1);
         }
         else
+        {
             CHECK(u == 0);
+        }
     }
     CHECK(f.requests == 4 && f.closing);
     puts(
@@ -350,7 +356,9 @@ int main(int argc, char **argv)
     }
     if (lifecycle() || admission() || io() || response() || fifo(2) ||
         fifo(1) || prefix_fifo() || closing() || deadlines() || eof_events())
+    {
         return 1;
+    }
     puts("HF_PASS:all");
     return 0;
 }

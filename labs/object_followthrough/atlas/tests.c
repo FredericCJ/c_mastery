@@ -11,11 +11,13 @@ static void *allocations[8];
 static void cleanup(void)
 {
     for (size_t i = 0; i < 8; ++i)
+    {
         if (allocations[i])
         {
             free(allocations[i]);
             allocations[i] = NULL;
         }
+    }
 }
 
 #define REQUIRE(x)                                 \
@@ -41,17 +43,21 @@ static void *get(void *context, size_t n)
     void *p;
     ++h->gets;
     if (h->fail)
+    {
         return NULL;
+    }
     p = malloc(n);
     if (p)
     {
         for (size_t i = 0; i < 8; ++i)
+        {
             if (!allocations[i])
             {
                 allocations[i] = p;
                 ++h->live;
                 return p;
             }
+        }
         free(p);
         return NULL;
     }
@@ -64,11 +70,13 @@ static void put(void *context, void *p)
     ++h->puts;
     --h->live;
     for (size_t i = 0; i < 8; ++i)
+    {
         if (allocations[i] == p)
         {
             allocations[i] = NULL;
             break;
         }
+    }
     free(p);
 }
 
@@ -162,7 +170,9 @@ static int representation(void)
     }
     REQUIRE(oa_equal(&a, &b));
     if (padding)
+    {
         REQUIRE(memcmp(&a, &b, sizeof a) != 0);
+    }
     printf(
         "OA_LAYOUT:%zu,%zu,%zu,%zu,%zu reordered:%zu,%zu,%zu,%zu padding:%zu model:%zu,%zu,%d,%d\n",
         sizeof a, _Alignof(struct oa_record),
@@ -174,7 +184,9 @@ static int representation(void)
         sizeof(long), CHAR_BIT, DBL_MANT_DIG);
     printf("OA_BYTES:");
     for (size_t i = 0; i < sizeof a; ++i)
+    {
         printf("%02x", ap[i]);
+    }
     puts("");
     REQUIRE(reordered.marker == a.marker && reordered.number == a.number &&
             reordered.measure == a.measure);
@@ -193,7 +205,9 @@ static int equality(void)
     REQUIRE(x[0] == 'z' && x[1] == 255 && x[2] == 255 && x[3] == 255 &&
             x[4] == 254);
     for (size_t i = 5; i < 13; ++i)
+    {
         REQUIRE(x[i] == 0);
+    }
     a.measure = NAN;
     b.measure = -NAN;
     REQUIRE(a.measure != a.measure && oa_equal(&a, &b));
@@ -201,12 +215,16 @@ static int equality(void)
             !memcmp(x, y, 13));
     REQUIRE(x[5] == 127 && x[6] == 248);
     for (size_t i = 7; i < 13; ++i)
+    {
         REQUIRE(x[i] == 0);
+    }
     a.measure = 1.5;
     REQUIRE(oa_encode(&a, x, 13) == 0);
     printf("OA_CANONICAL:");
     for (size_t i = 0; i < 13; ++i)
+    {
         printf("%02x", x[i]);
+    }
     puts("");
     memcpy(prior, x, 13);
     REQUIRE(oa_encode(&a, x, 12) == -1 && !memcmp(x, prior, 13));
@@ -241,14 +259,18 @@ static int alignment(void)
     slot->number = 73;
     REQUIRE(storage.records[1].number == 73);
     for (size_t i = 0; i < 4; ++i)
+    {
         REQUIRE((i * sizeof(struct oa_record)) % _Alignof(struct oa_record) ==
                 0);
+    }
     REQUIRE(oa_wide_admit(64) && !oa_wide_admit(3));
     REQUIRE(oa_decode_u32(wire + 1, 3, &decoded) == -1 && decoded == 77);
     REQUIRE(oa_decode_u32(wire + 1, 4, &decoded) == 0 &&
             decoded == UINT32_C(0x01020304));
     if (_Alignof(max_align_t) < _Alignof(struct oa_wide))
+    {
         REQUIRE(!oa_wide_admit(_Alignof(max_align_t)));
+    }
     printf("OA_ALIGNMENT:record=%zu max=%zu wide=%zu\n",
            _Alignof(struct oa_record), _Alignof(max_align_t),
            _Alignof(struct oa_wide));
@@ -263,8 +285,11 @@ int main(int argc, char **argv)
         const size_t lengths[] = {0, 1, 7, 8, 16, 33}, widths[] = {0, 1, 8},
                      aligns[] = {0, 1, 3, 8, 64};
         for (size_t start = 0; start <= 40; ++start)
+        {
             for (size_t l = 0; l < 6; ++l)
+            {
                 for (size_t w = 0; w < 3; ++w)
+                {
                     for (size_t a = 0; a < 5; ++a)
                     {
                         size_t out = 99;
@@ -273,6 +298,9 @@ int main(int argc, char **argv)
                         printf("%zu,%zu,%zu,%zu,%d,%zu\n", start, lengths[l],
                                widths[w], aligns[a], rc, out);
                     }
+                }
+            }
+        }
         return 0;
     }
     if (argc == 3 && !strcmp(argv[1], "--place"))

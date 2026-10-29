@@ -10,9 +10,13 @@ static void *worker(void *arg)
     (void)arg;
     int e = pthread_barrier_wait(&start);
     if (e && e != PTHREAD_BARRIER_SERIAL_THREAD)
+    {
         abort();
+    }
     for (unsigned i = 0; i < 1000; i++)
+    {
         shared++;
+    }
     return NULL;
 }
 
@@ -22,9 +26,13 @@ int main(void)
     if (pthread_barrier_init(&start, NULL, 2) ||
         pthread_create(&a, NULL, worker, NULL) ||
         pthread_create(&b, NULL, worker, NULL))
+    {
         return 2;
+    }
     if (pthread_join(a, NULL) || pthread_join(b, NULL) ||
         pthread_barrier_destroy(&start))
+    {
         return 3;
+    }
     return 0;
 }

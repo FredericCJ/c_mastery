@@ -54,7 +54,9 @@ static int maps(void)
     char line[1024];
     CHECK(f != NULL);
     while (fgets(line, sizeof line, f))
+    {
         CHECK(fputs(line, stdout) >= 0);
+    }
     CHECK(!ferror(f));
     CHECK(fclose(f) == 0);
     return 0;
@@ -87,15 +89,25 @@ static int bench(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "bounds"))
+    {
         return valid();
+    }
     if (!strcmp(argv[1], "policy"))
+    {
         return policy();
+    }
     if (!strcmp(argv[1], "maps"))
+    {
         return maps();
+    }
     if (!strcmp(argv[1], "bench"))
+    {
         return bench();
+    }
     if (!strcmp(argv[1], "defect"))
     {
         volatile size_t count = 9;

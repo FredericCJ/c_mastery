@@ -55,7 +55,9 @@ static int effect_callback(void)
 {
     unsigned char *p = malloc(37);
     if (!p)
+    {
         return -1;
+    }
     p[0] = 7;
     struct timespec wait = {0, 1000000};
     while (nanosleep(&wait, &wait))
@@ -90,7 +92,9 @@ static int entry(int (*callback)(void))
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "callbacks"))
     {
         unsigned before = requests;
@@ -127,8 +131,10 @@ int main(int argc, char **argv)
         before = requests;
         CHECK(clock_gettime(CLOCK_MONOTONIC, &start) == 0);
         for (unsigned i = 0; i < 100; ++i)
+        {
             CHECK(ef_cached(&c, (const unsigned char *)"abc", 3, &out) ==
                   EF_OK);
+        }
         CHECK(clock_gettime(CLOCK_MONOTONIC, &end) == 0);
         double warm_seconds = seconds(end) - seconds(start);
         unsigned warm = requests - before;
@@ -195,7 +201,9 @@ int main(int argc, char **argv)
         struct ef_pool pool = {0};
         unsigned char *p;
         for (unsigned i = 0; i < 16; ++i)
+        {
             CHECK(ef_pool_take(&pool, &p) == EF_OK);
+        }
         unsigned before = requests;
         for (unsigned i = 0; i < 100; ++i)
         {
@@ -232,10 +240,14 @@ int main(int argc, char **argv)
                                          MAP_PRIVATE, fileno(zero), 0);
         CHECK((const void *)p != MAP_FAILED);
         for (size_t i = 0; i < length; i += (size_t)page)
+        {
             p[i] = 1;
+        }
         volatile uint32_t value = 0;
         for (uint32_t i = 0; i < 1000000; ++i)
+        {
             value += i;
+        }
         CHECK(munmap((void *)p, length) == 0 && fclose(zero) == 0 &&
               getrusage(RUSAGE_SELF, &after) == 0 &&
               clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &cpu1) == 0 &&

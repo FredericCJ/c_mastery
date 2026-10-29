@@ -14,7 +14,9 @@
 static void w32(unsigned char *p, unsigned v)
 {
     for (unsigned i = 0; i < 4; i++)
+    {
         p[i] = (unsigned char)(v >> (i * 8));
+    }
 }
 
 static void checksum(unsigned char *p, unsigned n)
@@ -22,7 +24,9 @@ static void checksum(unsigned char *p, unsigned n)
     unsigned sum = 0;
     p[9] = 0;
     for (unsigned i = 0; i < n; i++)
+    {
         sum += p[i];
+    }
     p[9] = (unsigned char)(0 - sum);
 }
 
@@ -44,7 +48,9 @@ static int madt(void)
     CHECK(!cmk2_madt_parse(p, 76, &t));
     CHECK(t.count == 4 && t.ids[3] == 9 && t.lapic == 0xfee00000);
     for (unsigned n = 0; n < 76; n++)
+    {
         CHECK(cmk2_madt_parse(p, n, &t));
+    }
     p[45] = 0;
     checksum(p, 76);
     CHECK(cmk2_madt_parse(p, 76, &t));
@@ -71,8 +77,10 @@ static int channel(void)
     for (unsigned round = 0; round < 20; round++)
     {
         for (unsigned i = 0; i < 8; i++)
+        {
             CHECK(cmk2_channel_send(
                       &q, (struct cmk2_message){round * 8 + i, i ^ 123}) == 0);
+        }
         CHECK(cmk2_channel_send(&q, (struct cmk2_message){999, 0}) ==
               CMK2_FULL);
         for (unsigned i = 0; i < 8; i++)
@@ -95,10 +103,16 @@ static int channel(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "madt"))
+    {
         return madt();
+    }
     if (!strcmp(argv[1], "channel"))
+    {
         return channel();
+    }
     return 2;
 }

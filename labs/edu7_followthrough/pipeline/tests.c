@@ -37,9 +37,13 @@ static uint32_t read_io(void *c, unsigned k)
     struct ep_uart *u = c;
     uint32_t v = k == PU_SOURCE ? 1 : u->r[k];
     if (k == PU_DR)
+    {
         u->r[PU_SR] &= ~47u;
+    }
     if (k == PU_SR && world.now < u->hold_until)
+    {
         v &= ~PU_TXE;
+    }
     return v;
 }
 
@@ -47,9 +51,13 @@ static void write_io(void *c, unsigned k, uintptr_t v)
 {
     struct ep_uart *u = c;
     if (k == PU_SR)
+    {
         u->r[k] &= (uint32_t)v;
+    }
     else
+    {
         u->r[k] = (uint32_t)v;
+    }
     if (k == PU_DR)
     {
         u->pending = 1;
@@ -88,7 +96,9 @@ static void observe(unsigned i, uint8_t byte)
 {
     size_t *used = &world.used[i];
     if (*used < 96)
+    {
         world.current[i][(*used)++] = byte;
+    }
     struct edu_frame f;
     int r = edu_frame_byte(&world.monitor[i], byte, 0, &f);
     if (r == 1 && f.kind == 0 && f.length >= 29 && f.payload[4] == 4 &&
@@ -142,6 +152,7 @@ static int tick(void)
 {
     world.now += 10;
     for (unsigned i = 0; i < 4; i++)
+    {
         if (world.u[i].pending && world.now >= world.u[i].due)
         {
             struct ep_uart *u = &world.u[i];
@@ -150,17 +161,24 @@ static int tick(void)
             arrival(i, u->byte, 0);
             observe(i, (uint8_t)u->byte);
             if (u->cut)
+            {
                 u->dropped++;
+            }
             else
             {
                 unsigned v = u->byte;
                 if (u->corrupt && !--u->corrupt)
+                {
                     v ^= 1;
+                }
                 arrival(i ^ 1u, v, 0);
             }
         }
+    }
     if ((world.u[0].de && world.u[1].de) || (world.u[2].de && world.u[3].de))
+    {
         world.collisions++;
+    }
     CHECK(ew_tick(&world.a, world.now) == 0 &&
           ew_tick(&world.r, world.now) == 0 &&
           ew_tick(&world.b, world.now) == 0);
@@ -189,7 +207,9 @@ static int done(struct ew_node *s)
     while (world.now < end)
     {
         if (!s->endpoint.outgoing_kind && !s->endpoint.tx.inner.active)
+        {
             return 0;
+        }
         CHECK(tick() == 0);
     }
     CHECK(0);
@@ -305,8 +325,12 @@ static int identities(void)
         struct edu_frame f;
         int got = 0;
         for (size_t k = 0; k < world.length[i]; k++)
+        {
             if (edu_frame_byte(&parser, world.capture[i][k], 0, &f) == 1)
+            {
                 got++;
+            }
+        }
         CHECK(got == 1 && f.payload[3] == (i == 0 || i == 3 ? 4 : 3));
         CHECK(f.source == (i == 0 || i == 2 ? 1 : 2) &&
               f.destination == (i == 0 || i == 2 ? 2 : 1));
@@ -324,20 +348,30 @@ static int identities(void)
     while (world.now < limit)
     {
         if (!pa)
+        {
             pa = ew_pause(&world.a) == 0;
+        }
         if (!pr)
+        {
             pr = ew_pause(&world.r) == 0;
+        }
         if (!pb)
+        {
             pb = ew_pause(&world.b) == 0;
+        }
         if (pa && pr && pb && ew_drained(&world.a) && ew_drained(&world.r) &&
             ew_drained(&world.b))
+        {
             break;
+        }
         CHECK(tick() == 0);
     }
     CHECK(pa && pr && pb && ew_drained(&world.a) && ew_drained(&world.r) &&
           ew_drained(&world.b));
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(!world.u[i].pending && !world.u[i].de);
+    }
     CHECK(ew_rebind(&world.a, 2) == 0 && ew_rebind(&world.b, 2) == 0 &&
           world.b.endpoint.core.receipt[0].checkpoint == 1 &&
           world.b.endpoint.effects == 1);
@@ -375,7 +409,9 @@ static int faults(void)
     world.u[1].cut = 1;
     uint32_t until = world.now + 120000;
     while (world.now < until)
+    {
         CHECK(tick() == 0);
+    }
     CHECK(world.u[1].dropped && world.a.endpoint.tx.inner.active &&
           world.b.endpoint.effects == 1 && world.u[0].pauses == 1 &&
           !world.u[0].premature);
@@ -398,12 +434,16 @@ static int faults(void)
     memcpy(f.payload, packet_bytes, z);
     until = world.now + 500000;
     while (world.a.port[0].queued && world.now < until)
+    {
         CHECK(tick() == 0);
+    }
     uint32_t dropped = world.r.route_drops;
     CHECK(ew_queue(&world.a, 0, &f) == 0);
     until = world.now + 100000;
     while (world.now < until)
+    {
         CHECK(tick() == 0);
+    }
     CHECK(world.r.route_drops > dropped && world.b.endpoint.effects == 1);
     d.hop = 4;
     d.destination = 68;
@@ -413,7 +453,9 @@ static int faults(void)
     CHECK(ew_queue(&world.a, 0, &f) == 0);
     until = world.now + 100000;
     while (world.now < until)
+    {
         CHECK(tick() == 0);
+    }
     CHECK(world.r.route_drops > dropped);
     /* Valid L4/L5 identity with malformed TLV reaches only its responsible boundary. */
     uint8_t malformed[] = {3, 0, 7, 0, 1, 0, 3, 1, 1, 1, 2, 0x7e};
@@ -422,7 +464,9 @@ static int faults(void)
     uint32_t upper = world.b.upper_drops;
     until = world.now + 500000;
     while (world.now < until && world.b.upper_drops == upper)
+    {
         CHECK(tick() == 0);
+    }
     CHECK(world.b.upper_drops > upper &&
           world.b.endpoint.core.receipt[0].checkpoint == 2 &&
           world.b.endpoint.effects == 1);
@@ -441,7 +485,9 @@ static int adversarial(void)
     CHECK(et_begin(&world.a.endpoint.tx, 1, badopen, sizeof badopen, 0) == 0);
     uint32_t end = world.now + 500000;
     while (world.now < end && !world.b.upper_drops)
+    {
         CHECK(tick() == 0);
+    }
     CHECK(world.b.upper_drops == 1 && !world.b.endpoint.core.open &&
           !world.b.endpoint.effects);
     CHECK(es_emit(&world.b.endpoint, 7, 7, 1, 0, 0, 0, 1, world.now / 1000) ==
@@ -457,7 +503,9 @@ static int adversarial(void)
                    world.now / 1000) == 0);
     end = world.now + 500000;
     while (world.now < end && !world.a.upper_drops)
+    {
         CHECK(tick() == 0);
+    }
     CHECK(world.a.upper_drops == 1 && !world.a.endpoint.rx.inner.ready &&
           !world.a.endpoint.responses &&
           world.a.endpoint.core.receipt[1].checkpoint == 0);
@@ -469,21 +517,27 @@ static int adversarial(void)
                   world.now / 1000) == 0);
     end = world.now + 500000;
     while (world.now < end && !world.b.event_ready)
+    {
         CHECK(tick() == 0);
+    }
     CHECK(world.b.event_ready && done(&world.a) == 0);
     CHECK(record(1, 42, 0, request_bytes, &n) == 0 &&
           es_emit(&world.a.endpoint, 3, 7, 1, 2, request_bytes, n, 3,
                   world.now / 1000) == 0);
     end = world.now + 500000;
     while (world.now < end && !world.b.endpoint.rx.inner.ready)
+    {
         CHECK(tick() == 0);
+    }
     CHECK(world.b.endpoint.rx.inner.ready && done(&world.a) == 0);
     CHECK(record(1, 43, 0, request_bytes, &n) == 0 &&
           es_emit(&world.a.endpoint, 3, 7, 1, 3, request_bytes, n, 4,
                   world.now / 1000) == 0);
     end = world.now + 200000;
     while (world.now < end)
+    {
         CHECK(tick() == 0);
+    }
     CHECK(world.a.endpoint.tx.inner.blocked &&
           world.a.endpoint.tx.inner.index == 0 &&
           world.b.endpoint.core.receipt[0].checkpoint == 1);
@@ -501,14 +555,22 @@ static int adversarial(void)
     while (world.now < end)
     {
         if (!pa)
+        {
             pa = ew_pause(&world.a) == 0;
+        }
         if (!pr)
+        {
             pr = ew_pause(&world.r) == 0;
+        }
         if (!pb)
+        {
             pb = ew_pause(&world.b) == 0;
+        }
         if (pa && pr && pb && ew_drained(&world.a) && ew_drained(&world.r) &&
             ew_drained(&world.b))
+        {
             break;
+        }
         CHECK(tick() == 0);
     }
     CHECK(pa && pr && pb && ew_drained(&world.a) && ew_drained(&world.r) &&
@@ -525,7 +587,9 @@ static int adversarial(void)
           0);
     end = world.now + 500000;
     while (world.now < end && !world.b.upper_drops)
+    {
         CHECK(tick() == 0);
+    }
     CHECK(world.b.upper_drops == 1 && !world.b.endpoint.core.open &&
           !world.b.endpoint.effects && done(&world.a) == 0);
     puts("EW_ADVERSARIAL_VALUES 0 0 3 0");

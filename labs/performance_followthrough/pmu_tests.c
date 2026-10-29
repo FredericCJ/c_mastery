@@ -60,9 +60,13 @@ static int mock_control(void *context, int fd, enum pf_pmu_control op,
         return -1;
     }
     if (op == PF_PMU_ID)
+    {
         *id = (uint64_t)(fd + 80);
+    }
     else
+    {
         CHECK(fd == 20);
+    }
     return 0;
 }
 
@@ -82,7 +86,9 @@ static ptrdiff_t mock_read(void *context, int fd, void *out, size_t n)
         return -1;
     }
     if (f->length > 0)
+    {
         memcpy(out, f->words, (size_t)f->length);
+    }
     return f->length;
 }
 
@@ -110,9 +116,13 @@ static enum pf_pmu_state collect(struct pf_fake *f, struct pf_pmu *p)
     const struct pf_pmu_event events[] = {{0, 1}, {0, 0}};
     enum pf_pmu_state state = pf_pmu_open(p, mock_os(f), events, 2);
     if (state == PF_PMU_READY)
+    {
         state = pf_pmu_start(p);
+    }
     if (state == PF_PMU_ACTIVE)
+    {
         state = pf_pmu_stop(p);
+    }
     return state;
 }
 
@@ -165,13 +175,21 @@ static void acquisition(void)
     {
         f = fixture();
         if (field == 0)
+        {
             f.words[0] = 1;
+        }
         if (field == 1)
+        {
             f.words[2] = 201;
+        }
         if (field == 2)
+        {
             f.words[4] = 100;
+        }
         if (field == 3)
+        {
             f.words[4] = 999;
+        }
         CHECK(collect(&f, &p) == PF_PMU_MALFORMED && f.closes == 2);
     }
     f = fixture();
@@ -200,7 +218,9 @@ static void write_ring(unsigned char *ring, size_t n, uint64_t pos,
 {
     const unsigned char *bytes = p;
     for (size_t i = 0; i < length; ++i)
+    {
         ring[(size_t)(pos + i) & (n - 1)] = bytes[i];
+    }
 }
 
 static unsigned callbacks;
@@ -250,7 +270,9 @@ static void ring(void)
     for (unsigned size = 0; size < 72; ++size)
     {
         if (size == 40)
+        {
             continue;
+        }
         uint64_t tail = 0;
         struct pf_ring_stats stats = {0};
         record.size = (uint16_t)size;
@@ -348,7 +370,9 @@ static void publication(void)
         CHECK((access(stage, F_OK) == 0) == (fail == 1));
         CHECK(!close(prior) && !close(fd) && !unlink(target));
         if (fail == 1)
+        {
             CHECK(!unlink(stage));
+        }
     }
     CHECK(!close(dfd) && !rmdir(dir));
     puts(

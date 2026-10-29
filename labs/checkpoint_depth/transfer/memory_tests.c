@@ -23,16 +23,20 @@ static void *allocate(void *context, size_t n)
 {
     struct cpx_test_backend *b = context;
     if (++b->attempts == b->fail)
+    {
         return NULL;
+    }
     void *p = malloc(n);
     CHECK(p != NULL);
     for (unsigned i = 0; i < 8; ++i)
+    {
         if (!b->blocks[i])
         {
             b->blocks[i] = p;
             ++b->live;
             return p;
         }
+    }
     CHECK(0);
     return NULL;
 }
@@ -41,6 +45,7 @@ static void release(void *context, void *p)
 {
     struct cpx_test_backend *b = context;
     for (unsigned i = 0; i < 8; ++i)
+    {
         if (b->blocks[i] == p)
         {
             b->blocks[i] = NULL;
@@ -49,6 +54,7 @@ static void release(void *context, void *p)
             free(p);
             return;
         }
+    }
     CHECK(0);
 }
 
@@ -57,7 +63,9 @@ static int subscribe(void *context, uint64_t *cookie)
     struct cpx_test_backend *b = context;
     ++b->subscribes;
     if (++b->attempts == b->fail)
+    {
         return 0;
+    }
     *cookie = 7;
     return 1;
 }
@@ -79,7 +87,9 @@ static unsigned live(const struct cpx_store *s)
 {
     unsigned n = 0;
     for (unsigned i = 0; i < s->capacity; ++i)
+    {
         n += s->state[i] == 1;
+    }
     return n;
 }
 
@@ -90,8 +100,12 @@ static struct cpx_record record(int value, size_t length)
     r.value = value;
     r.length = length;
     for (size_t i = 0; i < sizeof r.bytes; ++i)
+    {
         if (i < length)
+        {
             r.bytes[i] = (unsigned char)(value + (int)i);
+        }
+    }
     return r;
 }
 
@@ -227,12 +241,16 @@ static void distribution(void)
             struct cpx_record r = record((int)i, length);
             CHECK(cpx_allocate(&store, &r, &handles[i]) == CPX_OK);
             if (cpm_reserve(&arena, length, &span) == CPM_OK)
+            {
                 ++accepted;
+            }
         }
         CHECK(accepted == (length == 1 ? 4u : 3u));
         size_t used = arena.used;
         for (unsigned i = 0; i < 4; ++i)
+        {
             CHECK(cpx_release(&store, handles[i]) == CPX_OK);
+        }
         CHECK(live(&store) == 0 && arena.used == used);
         printf(
             "DISTRIBUTION length=%zu arena_capacity=64 arena_accepted=%u arena_payload=%zu arena_header_bytes=%u arena_retained=%zu pool_accepted=4 pool_live_after_release=0 pool_payload_capacity=64 pool_record_storage=%zu node_storage=%zu\n",

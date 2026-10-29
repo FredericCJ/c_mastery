@@ -11,9 +11,13 @@ static int consumer(void *ctx)
     {
         enum lg_status r = lg_receive(p, &value);
         if (r == LG_OK)
+        {
             return value == 37 ? 0 : 1;
+        }
         if (r != LG_PENDING)
+        {
             return 2;
+        }
         thrd_yield();
     }
     return 3;
@@ -60,19 +64,27 @@ int main(void)
 #ifdef LG_USE_C_THREADS
         thrd_t t;
         if (thrd_create(&t, consumer, &p) != thrd_success)
+        {
             return 1;
+        }
         lg_publish(&p, 37);
         int result;
         if (thrd_join(t, &result) != thrd_success || result)
+        {
             return 1;
+        }
 #else
         struct context c = {&p, 0};
         pthread_t t;
         if (pthread_create(&t, NULL, consumer, &c))
+        {
             return 1;
+        }
         lg_publish(&p, 37);
         if (pthread_join(t, NULL) || c.result)
+        {
             return 1;
+        }
 #endif
     }
     puts("CONTROL-PASS:32 actual thread publications before join;finite retry "

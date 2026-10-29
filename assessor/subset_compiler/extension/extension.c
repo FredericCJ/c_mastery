@@ -54,12 +54,16 @@ static int next(struct cc_parser *p)
     {
         while (i < p->n && (p->s[i] == ' ' || p->s[i] == '\n' ||
                             p->s[i] == '\t' || p->s[i] == '\r'))
+        {
             ++i;
+        }
         if (i + 1 < p->n && p->s[i] == '/' && p->s[i + 1] == '/')
         {
             i += 2;
             while (i < p->n && p->s[i] != '\n')
+            {
                 ++i;
+            }
             continue;
         }
         if (i + 1 < p->n && p->s[i] == '/' && p->s[i + 1] == '*')
@@ -67,7 +71,9 @@ static int next(struct cc_parser *p)
             size_t start = i;
             i += 2;
             while (i + 1 < p->n && (p->s[i] != '*' || p->s[i + 1] != '/'))
+            {
                 ++i;
+            }
             if (i + 1 >= p->n)
             {
                 p->lo = start;
@@ -95,13 +101,17 @@ static int next(struct cc_parser *p)
                (alpha((unsigned char)p->s[i]) || digit((unsigned char)p->s[i])))
         {
             if (k < 15)
+            {
                 p->word[k++] = p->s[i];
+            }
             ++i;
         }
         p->word[k] = 0;
         p->hi = i;
         if (i - p->lo > 15)
+        {
             return fail(p, 2);
+        }
         p->tok = ID;
     }
     else if (digit((unsigned char)p->s[i]))
@@ -123,24 +133,34 @@ static int next(struct cc_parser *p)
                     ? (unsigned)(p->s[i] - '0')
                     : (unsigned)((p->s[i] | 32) - 'a' + 10);
             if (v > (UINT32_MAX - d) / base)
+            {
                 bad = 1;
+            }
             else
+            {
                 v = v * base + d;
+            }
             ++i;
         }
         if (i == k)
+        {
             bad = 1;
+        }
         if (i < p->n &&
             (alpha((unsigned char)p->s[i]) || digit((unsigned char)p->s[i])))
         {
             bad = 1;
             while (i < p->n && (alpha((unsigned char)p->s[i]) ||
                                 digit((unsigned char)p->s[i])))
+            {
                 ++i;
+            }
         }
         p->hi = i;
         if (bad)
+        {
             return fail(p, 3);
+        }
         p->tok = NUM;
         p->num = v;
     }
@@ -166,14 +186,18 @@ static int kw(struct cc_parser *p, const char *s)
 static int take(struct cc_parser *p, unsigned t)
 {
     if (p->tok != t)
+    {
         return fail(p, 4);
+    }
     return next(p);
 }
 
 static int ins(struct cc_parser *p, unsigned op, unsigned arg)
 {
     if (p->p.count == CE_CODE)
+    {
         return fail(p, 5);
+    }
     p->p.code[p->p.count++] = (struct ce_ins){op, arg};
     return 1;
 }
@@ -182,8 +206,12 @@ static int var(struct cc_parser *p, const char *s)
 {
     unsigned i;
     for (i = 0; i < p->p.fn[p->f].locals; ++i)
+    {
         if (!strcmp(p->vars[i], s))
+        {
             return (int)i;
+        }
+    }
     return -1;
 }
 
@@ -195,84 +223,118 @@ static int atom(struct cc_parser *p, unsigned *t)
     int slot;
     unsigned i, u;
     if (++p->depth > 32)
+    {
         return fail(p, 6);
+    }
     if (p->tok == NUM)
     {
         u = p->num;
         if (!next(p) || !ins(p, CE_CONST, u))
+        {
             return 0;
+        }
         *t = CE_U32;
     }
     else if (p->tok == '(')
     {
         if (!next(p) || !expr(p, t) || !take(p, ')'))
+        {
             return 0;
+        }
     }
     else if (p->tok == '&')
     {
         if (!next(p) || !kw(p, "a") || !next(p) || !take(p, '[') ||
             !expr(p, &u) || u != CE_U32 || !take(p, ']') || !ins(p, CE_ADDR, 0))
+        {
             return fail(p, 7);
+        }
         *t = CE_PTR;
     }
     else if (p->tok == '*')
     {
         if (!next(p) || !atom(p, &u) || u != CE_PTR || !ins(p, CE_READ, 0))
+        {
             return fail(p, 7);
+        }
         *t = CE_U32;
     }
     else if (p->tok == ID)
     {
         strcpy(name, p->word);
         if (!next(p))
+        {
             return 0;
+        }
         if (!strcmp(name, "tick"))
         {
             if (!take(p, '(') || !expr(p, &u) || u != CE_U32 || !take(p, ')') ||
                 !ins(p, CE_TICK, 0))
+            {
                 return fail(p, 7);
+            }
             *t = CE_U32;
         }
         else if (!strcmp(name, "i32") || !strcmp(name, "u32"))
         {
             unsigned want = !strcmp(name, "i32") ? CE_I32 : CE_U32;
             if (!take(p, '(') || !expr(p, &u) || u == CE_PTR || !take(p, ')'))
+            {
                 return fail(p, 7);
+            }
             if (u != want && !ins(p, want == CE_I32 ? CE_TO_I32 : CE_TO_U32, 0))
+            {
                 return 0;
+            }
             *t = want;
         }
         else if (!strcmp(name, "a"))
         {
             if (!take(p, '[') || !expr(p, &u) || u != CE_U32 || !take(p, ']') ||
                 !ins(p, CE_ADDR, 0) || !ins(p, CE_READ, 0))
+            {
                 return fail(p, 7);
+            }
             *t = CE_U32;
         }
         else if (p->tok == '(')
         {
             for (i = 0; i < p->f; ++i)
+            {
                 if (!strcmp(p->p.fn[i].name, name))
+                {
                     break;
+                }
+            }
             if (i == p->f)
+            {
                 return fail(p, 8);
+            }
             if (!next(p) || !expr(p, &u) || u != CE_U32 || !take(p, ')') ||
                 !ins(p, CE_CALL, i))
+            {
                 return fail(p, 7);
+            }
             *t = CE_U32;
         }
         else
         {
             slot = var(p, name);
             if (slot < 0)
+            {
                 return fail(p, 8);
+            }
             *t = p->p.fn[p->f].types[slot];
             if (!ins(p, CE_LOAD, (unsigned)slot))
+            {
                 return 0;
+            }
         }
     }
     else
+    {
         return fail(p, 4);
+    }
     --p->depth;
     return 1;
 }
@@ -281,14 +343,20 @@ static int numeric(struct cc_parser *p, unsigned left, unsigned right,
                    unsigned *out)
 {
     if (left == CE_PTR || right == CE_PTR)
+    {
         return fail(p, 7);
+    }
     *out = left == CE_I32 && right == CE_I32 ? CE_I32 : CE_U32;
     if (*out == CE_U32)
     {
         if (left == CE_I32 && !ins(p, CE_TO_U32, 1))
+        {
             return 0;
+        }
         if (right == CE_I32 && !ins(p, CE_TO_U32, 0))
+        {
             return 0;
+        }
     }
     return 1;
 }
@@ -297,12 +365,16 @@ static int mul(struct cc_parser *p, unsigned *t)
 {
     unsigned u, v;
     if (!atom(p, t))
+    {
         return 0;
+    }
     while (p->tok == '*')
     {
         if (!next(p) || !atom(p, &u) || !numeric(p, *t, u, &v) ||
             !ins(p, v == CE_I32 ? CE_SMUL : CE_MUL, 0))
+        {
             return fail(p, 7);
+        }
         *t = v;
     }
     return 1;
@@ -312,16 +384,22 @@ static int add(struct cc_parser *p, unsigned *t)
 {
     unsigned op, u, v;
     if (!mul(p, t))
+    {
         return 0;
+    }
     while (p->tok == '+' || p->tok == '-')
     {
         op = p->tok;
         if (!next(p) || !mul(p, &u))
+        {
             return 0;
+        }
         if (*t == CE_PTR)
         {
             if (op != '+' || u != CE_U32 || !ins(p, CE_PADD, 0))
+            {
                 return fail(p, 7);
+            }
         }
         else
         {
@@ -330,7 +408,9 @@ static int add(struct cc_parser *p, unsigned *t)
                      v == CE_I32 ? (op == '+' ? CE_SADD : CE_SSUB)
                                  : (op == '+' ? CE_ADD : CE_SUB),
                      0))
+            {
                 return 0;
+            }
             *t = v;
         }
     }
@@ -341,7 +421,9 @@ static int expr(struct cc_parser *p, unsigned *t)
 {
     unsigned op, u, v;
     if (!add(p, t))
+    {
         return 0;
+    }
     while (p->tok == '<' || p->tok == EQ)
     {
         op = p->tok;
@@ -350,7 +432,9 @@ static int expr(struct cc_parser *p, unsigned *t)
                  v == CE_I32 ? (op == '<' ? CE_SLT : CE_SEQ)
                              : (op == '<' ? CE_LT : CE_EQ),
                  0))
+        {
             return fail(p, 7);
+        }
         *t = CE_U32;
     }
     return 1;
@@ -362,31 +446,45 @@ static int block(struct cc_parser *p, int declarations)
     int slot;
     char name[16];
     if (++p->depth > 32 || !take(p, '{'))
+    {
         return fail(p, 6);
+    }
     while (p->tok != '}')
     {
         if (!p->tok)
+        {
             return fail(p, 4);
+        }
         if (kw(p, "let") || kw(p, "ptr") || kw(p, "int"))
         {
             if (!declarations)
+            {
                 return fail(p, 9);
+            }
             type = kw(p, "ptr") ? CE_PTR : kw(p, "int") ? CE_I32 : CE_U32;
             if (!next(p) || p->tok != ID)
+            {
                 return fail(p, 4);
+            }
             strcpy(name, p->word);
             if (!strcmp(name, "a") || !strcmp(name, "x") || var(p, name) >= 0 ||
                 p->p.fn[p->f].locals == CE_LOCALS)
+            {
                 return fail(p, 8);
+            }
             slot = (int)p->p.fn[p->f].locals;
             if (!next(p) || !take(p, '=') || !expr(p, &t) || t != type ||
                 !take(p, ';'))
+            {
                 return fail(p, 7);
+            }
             strcpy(p->vars[slot], name);
             p->p.fn[p->f].types[slot] = type;
             ++p->p.fn[p->f].locals;
             if (!ins(p, CE_STORE, (unsigned)slot))
+            {
                 return 0;
+            }
             continue;
         }
         declarations = 0;
@@ -394,24 +492,34 @@ static int block(struct cc_parser *p, int declarations)
         {
             if (!next(p) || !expr(p, &t) || t != CE_U32 || !take(p, ';') ||
                 !ins(p, CE_RET, 0))
+            {
                 return fail(p, 7);
+            }
         }
         else if (kw(p, "if"))
         {
             if (!next(p) || !take(p, '(') || !expr(p, &t) || t != CE_U32 ||
                 !take(p, ')'))
+            {
                 return fail(p, 7);
+            }
             j = p->p.count;
             if (!ins(p, CE_JZ, 0) || !block(p, 0))
+            {
                 return 0;
+            }
             k = p->p.count;
             if (!ins(p, CE_JMP, 0))
+            {
                 return 0;
+            }
             p->p.code[j].arg = p->p.count;
             if (kw(p, "else"))
             {
                 if (!next(p) || !block(p, 0))
+                {
                     return 0;
+                }
             }
             p->p.code[k].arg = p->p.count;
         }
@@ -420,10 +528,14 @@ static int block(struct cc_parser *p, int declarations)
             start = p->p.count;
             if (!next(p) || !take(p, '(') || !expr(p, &t) || t != CE_U32 ||
                 !take(p, ')'))
+            {
                 return fail(p, 7);
+            }
             j = p->p.count;
             if (!ins(p, CE_JZ, 0) || !block(p, 0) || !ins(p, CE_JMP, start))
+            {
                 return 0;
+            }
             p->p.code[j].arg = p->p.count;
         }
         else if (p->tok == '*')
@@ -431,32 +543,42 @@ static int block(struct cc_parser *p, int declarations)
             if (!next(p) || !atom(p, &t) || t != CE_PTR || !take(p, '=') ||
                 !expr(p, &t) || t != CE_U32 || !take(p, ';') ||
                 !ins(p, CE_WRITE, 0))
+            {
                 return fail(p, 7);
+            }
         }
         else if (p->tok == ID)
         {
             strcpy(name, p->word);
             slot = var(p, name);
             if (!next(p))
+            {
                 return 0;
+            }
             if (!strcmp(name, "a"))
             {
                 if (!take(p, '[') || !expr(p, &t) || t != CE_U32 ||
                     !take(p, ']') || !ins(p, CE_ADDR, 0) || !take(p, '=') ||
                     !expr(p, &t) || t != CE_U32 || !take(p, ';') ||
                     !ins(p, CE_WRITE, 0))
+                {
                     return fail(p, 7);
+                }
             }
             else
             {
                 if (slot < 0 || !take(p, '=') || !expr(p, &t) ||
                     t != p->p.fn[p->f].types[slot] || !take(p, ';') ||
                     !ins(p, CE_STORE, (unsigned)slot))
+                {
                     return fail(p, 7);
+                }
             }
         }
         else
+        {
             return fail(p, 4);
+        }
     }
     --p->depth;
     return next(p);
@@ -469,38 +591,56 @@ int ce_compile(const char *s, size_t n, struct ce_program *out,
     unsigned h[CE_CODE], i;
     struct ce_diagnostic local;
     if (!s || !out)
+    {
         return 0;
+    }
     if (!d)
+    {
         d = &local;
+    }
     memset(&p, 0, sizeof p);
     p.s = s;
     p.n = n;
     p.d = d;
     if (!next(&p))
+    {
         return 0;
+    }
     while (p.tok)
     {
         if (p.f == CE_FUNCS || !kw(&p, "fn") || !next(&p) || p.tok != ID)
+        {
             return fail(&p, 4);
+        }
         for (i = 0; i < p.f; ++i)
+        {
             if (!strcmp(p.p.fn[i].name, p.word))
+            {
                 return fail(&p, 8);
+            }
+        }
         strcpy(p.p.fn[p.f].name, p.word);
         if (!strcmp(p.word, "a"))
+        {
             return fail(&p, 8);
+        }
         p.p.fn[p.f].begin = p.p.count;
         p.p.fn[p.f].locals = 1;
         p.p.fn[p.f].types[0] = CE_U32;
         strcpy(p.vars[0], "x");
         if (!next(&p) || !take(&p, '(') || !kw(&p, "x") || !next(&p) ||
             !take(&p, ')') || !block(&p, 1))
+        {
             return 0;
+        }
         p.p.fn[p.f].end = p.p.count;
         ++p.f;
         p.p.functions = p.f;
     }
     if (!p.f || strcmp(p.p.fn[p.f - 1].name, "main") || !ce_verify(&p.p, h))
+    {
         return fail(&p, 10);
+    }
     *out = p.p;
     d->begin = d->end = n;
     d->reason = 0;
@@ -516,30 +656,46 @@ int ce_verify(const struct ce_program *p, unsigned heights[CE_CODE])
         seen[CE_CODE] = {0}, types[CE_CODE][CE_STACK], stack[CE_STACK];
     if (!p || !heights || !p->functions || p->functions > CE_FUNCS ||
         !p->count || p->count > CE_CODE)
+    {
         return 0;
+    }
     for (f = 0; f < p->functions; ++f)
     {
         const struct ce_func *fn = &p->fn[f];
         if (fn->begin != (f ? p->fn[f - 1].end : 0) || fn->end <= fn->begin ||
             fn->end > p->count || !fn->locals || fn->locals > CE_LOCALS ||
             fn->types[0] != CE_U32)
+        {
             return 0;
+        }
         for (i = 0; i < fn->locals; ++i)
+        {
             if (fn->types[i] != CE_U32 && fn->types[i] != CE_PTR &&
                 fn->types[i] != CE_I32)
+            {
                 return 0;
+            }
+        }
         for (pc = fn->begin; pc < fn->end; ++pc)
         {
             struct ce_ins a = p->code[pc];
             if (a.op < CE_CONST || a.op > CE_TICK)
+            {
                 return 0;
+            }
             if ((a.op == CE_LOAD || a.op == CE_STORE) && a.arg >= fn->locals)
+            {
                 return 0;
+            }
             if ((a.op == CE_JZ || a.op == CE_JMP) &&
                 (a.arg < fn->begin || a.arg >= fn->end))
+            {
                 return 0;
+            }
             if (a.op == CE_CALL && a.arg >= f)
+            {
                 return 0;
+            }
         }
         head = tail = 0;
         q[tail++] = fn->begin;
@@ -552,7 +708,9 @@ int ce_verify(const struct ce_program *p, unsigned heights[CE_CODE])
             pc = q[head++];
             sp = heights[pc];
             for (i = 0; i < sp; ++i)
+            {
                 stack[i] = types[pc][i];
+            }
             a = p->code[pc];
 #define POP(t)                           \
     do                                   \
@@ -590,14 +748,18 @@ int ce_verify(const struct ce_program *p, unsigned heights[CE_CODE])
                     break;
                 case CE_TO_I32:
                     if (a.arg)
+                    {
                         return 0;
+                    }
                     POP(CE_U32);
                     PUSH(CE_I32);
                     break;
                 case CE_TO_U32:
                     if (a.arg > 1 || sp <= a.arg ||
                         stack[sp - 1 - a.arg] != CE_I32)
+                    {
                         return 0;
+                    }
                     stack[sp - 1 - a.arg] = CE_U32;
                     break;
                 case CE_SADD:
@@ -641,7 +803,9 @@ int ce_verify(const struct ce_program *p, unsigned heights[CE_CODE])
                 case CE_RET:
                     POP(CE_U32);
                     if (sp)
+                    {
                         return 0;
+                    }
                     break;
                 default:
                     return 0;
@@ -649,7 +813,9 @@ int ce_verify(const struct ce_program *p, unsigned heights[CE_CODE])
             if (a.op != CE_RET && a.op != CE_JMP)
             {
                 if (pc + 1 >= fn->end)
+                {
                     return 0;
+                }
                 targets[nt++] = pc + 1;
             }
             for (u = 0; u < nt; ++u)
@@ -658,17 +824,25 @@ int ce_verify(const struct ce_program *p, unsigned heights[CE_CODE])
                 if (seen[dst])
                 {
                     if (heights[dst] != sp)
+                    {
                         return 0;
+                    }
                     for (i = 0; i < sp; ++i)
+                    {
                         if (types[dst][i] != stack[i] && CE_MUTATION != 2)
+                        {
                             return 0;
+                        }
+                    }
                 }
                 else
                 {
                     seen[dst] = 1;
                     heights[dst] = sp;
                     for (i = 0; i < sp; ++i)
+                    {
                         types[dst][i] = stack[i];
+                    }
                     q[tail++] = dst;
                 }
             }
@@ -677,10 +851,16 @@ int ce_verify(const struct ce_program *p, unsigned heights[CE_CODE])
         }
     }
     if (p->fn[p->functions - 1].end != p->count)
+    {
         return 0;
+    }
     for (pc = 0; pc < p->count; ++pc)
+    {
         if (!seen[pc])
+        {
             heights[pc] = UINT_MAX;
+        }
+    }
     return 1;
 }
 
@@ -699,7 +879,9 @@ static int execute(const struct ce_program *p, unsigned f, uint32_t x,
     {
         struct ce_ins in = p->code[pc++];
         if (!*fuel)
+        {
             return 0;
+        }
         --*fuel;
         switch (in.op)
         {
@@ -728,7 +910,9 @@ static int execute(const struct ce_program *p, unsigned f, uint32_t x,
                 break;
             case CE_TO_I32:
                 if (s[sp - 1] > INT32_MAX)
+                {
                     return 0;
+                }
                 break;
             case CE_TO_U32:
                 break;
@@ -745,25 +929,33 @@ static int execute(const struct ce_program *p, unsigned f, uint32_t x,
                             : in.op == CE_SLT  ? x < y
                                                : x == y;
                 if (r < INT32_MIN || r > INT32_MAX)
+                {
                     return 0;
+                }
                 s[sp - 1] = (uint32_t)r;
                 break;
             }
             case CE_ADDR:
                 if (s[sp - 1] > CE_ARRAY)
+                {
                     return 0;
+                }
                 break;
             case CE_PADD:
                 b = s[--sp];
                 v = s[sp - 1];
                 if (v > CE_ARRAY || b > CE_ARRAY - v)
+                {
                     return 0;
+                }
                 s[sp - 1] = v + b;
                 break;
             case CE_READ:
                 v = s[sp - 1];
                 if (v >= CE_ARRAY && CE_MUTATION != 3)
+                {
                     return 0;
+                }
                 if (v >= CE_ARRAY)
                 {
                     s[sp - 1] = 0;
@@ -775,12 +967,16 @@ static int execute(const struct ce_program *p, unsigned f, uint32_t x,
                 v = s[--sp];
                 b = s[--sp];
                 if (b >= CE_ARRAY)
+                {
                     return 0;
+                }
                 a[b] = v;
                 break;
             case CE_JZ:
                 if (!s[--sp])
+                {
                     pc = in.arg;
+                }
                 break;
             case CE_JMP:
                 pc = in.arg;
@@ -791,7 +987,9 @@ static int execute(const struct ce_program *p, unsigned f, uint32_t x,
                 break;
             case CE_CALL:
                 if (!execute(p, in.arg, s[sp - 1], fuel, effects, &v))
+                {
                     return 0;
+                }
                 s[sp - 1] = v;
                 break;
             case CE_RET:
@@ -811,7 +1009,9 @@ int ce_run(const struct ce_program *p, uint32_t x, unsigned *fuel,
     uint32_t v, effects = 0;
     if (!fuel || !out || !ce_verify(p, h) ||
         !execute(p, p->functions - 1, x, fuel, &effects, &v))
+    {
         return 0;
+    }
     *out = v;
     return 1;
 }
@@ -831,7 +1031,9 @@ static void put(struct cc_writer *w, const char *fmt, ...)
     int n;
     va_list ap;
     if (!w->ok)
+    {
         return;
+    }
     va_start(ap, fmt);
     n = vsnprintf(w->b + w->n, w->cap - w->n, fmt, ap);
     va_end(ap);
@@ -856,61 +1058,85 @@ int ce_emit(const struct ce_program *p, unsigned target, char *out, size_t cap)
     char stage[131072];
     struct cc_writer w = {stage, sizeof stage, 0, 1};
     if (target == 2)
+    {
         return ce_emit_thumb1(p, out, cap);
+    }
     if (!out || target > 1 || !ce_verify(p, h))
+    {
         return 0;
+    }
     put(&w, target ? ".syntax unified\n.thumb\n.text\n" : ".text\n");
     for (f = 0; f < p->functions; ++f)
     {
         const struct ce_func *fn = &p->fn[f];
         put(&w, target ? ".thumb_func\n" : "");
         if (f + 1 == p->functions)
+        {
             put(&w, ".globl cm_ext\ncm_ext:\n");
+        }
         put(&w, "ce_f%u:\n", f);
         if (!target)
         {
             put(&w,
                 "pushq %%rbp\nmovq %%rsp,%%rbp\nsubq $512,%%rsp\nmovq %%rsi,-8(%%rbp)\nmovq %%rdx,-16(%%rbp)\nmovl %%edi,-32(%%rbp)\n");
             for (i = 1; i < CE_LOCALS; ++i)
+            {
                 put(&w, "movl $0,-%u(%%rbp)\n", 32 + 4 * i);
+            }
             for (i = 0; i < CE_ARRAY; ++i)
+            {
                 put(&w, "movl $0,-%u(%%rbp)\n", 96 + 4 * i);
+            }
         }
         else
         {
             put(&w,
                 "push {r4-r7,lr}\nsub sp,#508\nmov r7,sp\nstr r1,[r7,#8]\nstr r2,[r7,#16]\nstr r0,[r7,#32]\nstr r3,[r7,#24]\nmovs r3,#0\n");
             for (i = 1; i < CE_LOCALS; ++i)
+            {
                 put(&w, "str r3,[r7,#%u]\n", 32 + 4 * i);
+            }
             for (i = 0; i < CE_ARRAY; ++i)
+            {
                 put(&w, "str r3,[r7,#%u]\n", 96 + 4 * i);
+            }
         }
         if (!target)
         {
             if (f + 1 == p->functions)
+            {
                 put(&w, "movl $0,-136(%%rbp)\nleaq -136(%%rbp),%%rcx\n");
+            }
             put(&w, "movq %%rcx,-24(%%rbp)\n");
         }
         else
         {
             if (f + 1 == p->functions)
+            {
                 put(&w, "str r3,[r7,#136]\nadd r3,r7,#136\nstr r3,[r7,#24]\n");
+            }
         }
         for (pc = fn->begin; pc < fn->end; ++pc)
         {
             struct ce_ins a = p->code[pc];
             sp = h[pc];
             if (sp == UINT_MAX)
+            {
                 continue;
+            }
             put(&w, ".L%u:\n", pc);
             if (!target)
+            {
                 put(&w,
                     "movq -8(%%rbp),%%rsi\ncmpl $0,(%%rsi)\nje .Lfail%u\nsubl $1,(%%rsi)\n",
                     f);
+            }
             else
+            {
                 put(&w,
                     "ldr r1,[r7,#8]\nldr r3,[r1]\ncmp r3,#0\nbeq.w .Lfail%u\nsubs r3,#1\nstr r3,[r1]\n",
                     f);
+            }
             z = sp ? so(sp - 1) : 0;
             if (!target)
             {
@@ -938,15 +1164,23 @@ int ce_emit(const struct ce_program *p, unsigned target, char *out, size_t cap)
                             "movl -%u(%%rbp),%%eax\nmovl -%u(%%rbp),%%ecx\n",
                             so(sp - 2), z);
                         if (a.op == CE_ADD)
+                        {
                             put(&w, "addl %%ecx,%%eax\n");
+                        }
                         else if (a.op == CE_SUB)
+                        {
                             put(&w, "subl %%ecx,%%eax\n");
+                        }
                         else if (a.op == CE_MUL)
+                        {
                             put(&w, "imull %%ecx,%%eax\n");
+                        }
                         else
+                        {
                             put(&w,
                                 "cmpl %%ecx,%%eax\n%s %%al\nmovzbl %%al,%%eax\n",
                                 a.op == CE_LT ? "setb" : "sete");
+                        }
                         put(&w, "movl %%eax,-%u(%%rbp)\n", so(sp - 2));
                         break;
                     case CE_TO_I32:
@@ -964,15 +1198,19 @@ int ce_emit(const struct ce_program *p, unsigned target, char *out, size_t cap)
                             "movl -%u(%%rbp),%%eax\nmovl -%u(%%rbp),%%ecx\n",
                             so(sp - 2), z);
                         if (a.op == CE_SLT || a.op == CE_SEQ)
+                        {
                             put(&w,
                                 "cmpl %%ecx,%%eax\n%s %%al\nmovzbl %%al,%%eax\n",
                                 a.op == CE_SLT ? "setl" : "sete");
+                        }
                         else
+                        {
                             put(&w, "%s %%ecx,%%eax\njo .Lfail%u\n",
                                 a.op == CE_SADD   ? "addl"
                                 : a.op == CE_SSUB ? "subl"
                                                   : "imull",
                                 f);
+                        }
                         put(&w, "movl %%eax,-%u(%%rbp)\n", so(sp - 2));
                         break;
                     case CE_ADDR:
@@ -1038,16 +1276,24 @@ int ce_emit(const struct ce_program *p, unsigned target, char *out, size_t cap)
                         put(&w, "ldr r0,[r7,#%u]\nldr r1,[r7,#%u]\n",
                             so(sp - 2), z);
                         if (a.op == CE_ADD)
+                        {
                             put(&w, "adds r0,r0,r1\n");
+                        }
                         else if (a.op == CE_SUB)
+                        {
                             put(&w, "subs r0,r0,r1\n");
+                        }
                         else if (a.op == CE_MUL)
+                        {
                             put(&w, "mul r0,r0,r1\n");
+                        }
                         else
+                        {
                             put(&w,
                                 "cmp r0,r1\nmov.w r0,#0\nit %s\nmov%s r0,#1\n",
                                 a.op == CE_LT ? "lo" : "eq",
                                 a.op == CE_LT ? "lo" : "eq");
+                        }
                         put(&w, "str r0,[r7,#%u]\n", so(sp - 2));
                         break;
                     case CE_TO_I32:
@@ -1064,17 +1310,23 @@ int ce_emit(const struct ce_program *p, unsigned target, char *out, size_t cap)
                         put(&w, "ldr r0,[r7,#%u]\nldr r1,[r7,#%u]\n",
                             so(sp - 2), z);
                         if (a.op == CE_SLT || a.op == CE_SEQ)
+                        {
                             put(&w,
                                 "cmp r0,r1\nmov.w r0,#0\nit %s\nmov%s r0,#1\n",
                                 a.op == CE_SLT ? "lt" : "eq",
                                 a.op == CE_SLT ? "lt" : "eq");
+                        }
                         else if (a.op == CE_SMUL)
+                        {
                             put(&w,
                                 "smull r2,r3,r0,r1\nasr r1,r2,#31\ncmp r1,r3\nbne.w .Lfail%u\nmov r0,r2\n",
                                 f);
+                        }
                         else
+                        {
                             put(&w, "%s r0,r0,r1\nbvs.w .Lfail%u\n",
                                 a.op == CE_SADD ? "adds" : "subs", f);
+                        }
                         put(&w, "str r0,[r7,#%u]\n", so(sp - 2));
                         break;
                     case CE_ADDR:
@@ -1120,18 +1372,26 @@ int ce_emit(const struct ce_program *p, unsigned target, char *out, size_t cap)
             }
         }
         if (!target)
+        {
             put(&w,
                 ".Lfail%u:\nmovq -16(%%rbp),%%rdx\nmovl $1,(%%rdx)\nxorl %%eax,%%eax\n.Lend%u:\nleave\nret\n",
                 f, f);
+        }
         else
+        {
             put(&w,
                 ".Lfail%u:\nldr r2,[r7,#16]\nmovs r3,#1\nstr r3,[r2]\nmovs r0,#0\n.Lend%u:\nadd sp,#508\npop {r4-r7,pc}\n",
                 f, f);
+        }
     }
     if (!target)
+    {
         put(&w, ".section .note.GNU-stack,\"\",@progbits\n");
+    }
     if (!w.ok || w.n + 1 > cap)
+    {
         return 0;
+    }
     memcpy(out, stage, w.n + 1);
     return 1;
 }

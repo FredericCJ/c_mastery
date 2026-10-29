@@ -10,24 +10,30 @@ static void *allocated[32];
 static void cleanup(void)
 {
     for (unsigned i = 0; i < 32; i++)
+    {
         if (allocated[i])
         {
             free(allocated[i]);
             allocated[i] = NULL;
         }
+    }
 }
 
 static void *allocate(size_t n)
 {
     void *p = malloc(n ? n : 1);
     if (!p)
+    {
         return NULL;
+    }
     for (unsigned i = 0; i < 32; i++)
+    {
         if (!allocated[i])
         {
             allocated[i] = p;
             return p;
         }
+    }
     free(p);
     return NULL;
 }
@@ -35,14 +41,18 @@ static void *allocate(size_t n)
 static void release(void *p)
 {
     if (!p)
+    {
         return;
+    }
     for (unsigned i = 0; i < 32; i++)
+    {
         if (allocated[i] == p)
         {
             free(p);
             allocated[i] = NULL;
             return;
         }
+    }
     abort();
 }
 
@@ -95,19 +105,29 @@ static int twin_clone(void *context, const struct mp_twin *in,
 {
     struct mp_context *c = context;
     if (++c->step == c->fail)
+    {
         return 1;
+    }
     out->first = allocate(1);
     if (!out->first)
+    {
         return 1;
+    }
     c->live++;
     *out->first = *in->first;
     if (++c->step == c->fail)
+    {
         return 1;
+    }
     if (++c->step == c->fail)
+    {
         return 1;
+    }
     out->second = allocate(1);
     if (!out->second)
+    {
         return 1;
+    }
     c->live++;
     *out->second = *in->second;
     return ++c->step == c->fail;
@@ -135,12 +155,18 @@ static int clone_blob(void *context, const struct mpo_blob *in,
 {
     struct mp_context *c = context;
     if (++c->step == c->fail)
+    {
         return 1;
+    }
     unsigned char *p = allocate(in->length);
     if (!p)
+    {
         return 1;
+    }
     for (size_t i = 0; i < in->length; i++)
+    {
         p[i] = in->bytes[i];
+    }
     *out = (struct mpo_blob){p, in->length};
     c->live++;
     return ++c->step == c->fail;
@@ -164,12 +190,18 @@ static int clone_words(void *context, const struct mpo_words *in,
 {
     struct mp_context *c = context;
     if (++c->step == c->fail)
+    {
         return 1;
+    }
     uint32_t *p = allocate(in->count * sizeof *p);
     if (!p)
+    {
         return 1;
+    }
     for (size_t i = 0; i < in->count; i++)
+    {
         p[i] = in->values[i];
+    }
     *out = (struct mpo_words){p, in->count};
     c->live++;
     return ++c->step == c->fail;
@@ -221,8 +253,10 @@ static int ordinary(void)
           pair.x == 0 && pair.y == 9);
     CHECK(mp_u32_push(&u, 4) && mp_pair_push(&p, (struct mp_pair){4, 13}));
     for (unsigned i = 1; i < 5; i++)
+    {
         CHECK(mp_u32_pop(&u, &x) && x == i && mp_pair_pop(&p, &pair) &&
               pair.x == i && pair.y == i + 9);
+    }
     x = 99;
     CHECK(!mp_u32_pop(&u, &x) && x == 99);
     puts("MPO_BASE actual-two-instances wrap FIFO fields");
@@ -244,7 +278,9 @@ static int failures(void)
               r.head == 0 && c.live == 0 && c.drop_calls == 1 &&
               input.bytes == &byte && byte == 7);
         for (unsigned i = 0; i < 4; i++)
+        {
             CHECK(r.data[i].bytes == NULL && r.data[i].length == 0);
+        }
         c.fail = 0;
         CHECK(mpo_blob_push(&r, &input) == MPO_OK && r.count == 1 &&
               c.live == 1);
@@ -256,7 +292,9 @@ static int failures(void)
     CHECK(mpo_blob_init(&r, (struct mpo_blob_ops){&c, clone_blob, drop_blob}) ==
           MPO_OK);
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(mpo_blob_push(&r, &input) == MPO_OK);
+    }
     unsigned steps = c.step, drops = c.drop_calls;
     CHECK(mpo_blob_push(&r, &input) == MPO_FULL && c.step == steps &&
           c.drop_calls == drops && r.count == 4);
@@ -289,7 +327,9 @@ static int transfer(void)
     mpo_blob_clear(&r);
     CHECK(c.live == 0 && c.n == 5);
     for (unsigned i = 0; i < 5; i++)
+    {
         CHECK(c.trace[i] == i + 1);
+    }
     unsigned drops = c.drop_calls;
     mpo_blob_clear(&r);
     CHECK(c.drop_calls == drops && r.count == 0 && r.head == 1);
@@ -366,7 +406,9 @@ static uint64_t trace_hash(const struct mp_context *c)
 {
     uint64_t h = 0;
     for (unsigned i = 0; i < c->n; i++)
+    {
         h = h * 257 + c->trace[i];
+    }
     return h;
 }
 
@@ -417,21 +459,31 @@ static int histories(void)
                         drop_blob(&c, &out);
                     }
                     else
+                    {
                         CHECK(out.bytes == NULL && out.length == 99);
+                    }
                 }
                 else if (line[i] == 'C')
                 {
                     if (mode == 0)
+                    {
                         mpo_blob_clear(&typed);
+                    }
                     else if (mode == 1)
+                    {
                         mpo_manual_clear(&typed);
+                    }
                     else
+                    {
                         mpo_erased_clear(&erased_ring);
+                    }
                 }
                 else
+                {
                     status = mode == 0   ? mpo_blob_push(&typed, &in)
                              : mode == 1 ? mpo_manual_push(&typed, &in)
                                          : mpo_erased_push(&erased_ring, &in);
+                }
                 size_t head = mode < 2 ? typed.head : erased_ring.head,
                        count = mode < 2 ? typed.count : erased_ring.count;
                 CHECK(head < 4 && count <= 4 && c.live == count);
@@ -441,11 +493,17 @@ static int histories(void)
             }
             puts("]");
             if (mode == 0)
+            {
                 mpo_blob_clear(&typed);
+            }
             else if (mode == 1)
+            {
                 mpo_manual_clear(&typed);
+            }
             else
+            {
                 mpo_erased_clear(&erased_ring);
+            }
             CHECK(c.live == 0);
         }
     }
@@ -458,6 +516,7 @@ static int metrics(void)
     uint64_t checksum[3] = {0};
     const unsigned iterations = 10000;
     for (unsigned mode = 0; mode < 3; mode++)
+    {
         for (unsigned sample = 0; sample < 7; sample++)
         {
             struct mp_context c = {0};
@@ -504,6 +563,7 @@ static int metrics(void)
                   c.drop_calls == iterations * 4);
             checksum[mode] = sum;
         }
+    }
     printf(
         "{\"iterations\":%u,\"checksum\":%" PRIu64
         ",\"typed_size\":%zu,\"erased_control_size\":%zu,\"erased_storage_size\":%zu,\"element_size\":%zu,\"element_alignment\":%zu",
@@ -516,7 +576,9 @@ static int metrics(void)
         CHECK(checksum[m] == checksum[0]);
         printf(",\"%s\":[", names[m]);
         for (unsigned s = 0; s < 7; s++)
+        {
             printf("%s%.9f", s ? "," : "", elapsed[m][s]);
+        }
         printf("]");
     }
     puts("}");
@@ -526,18 +588,32 @@ static int metrics(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "mono_base"))
+    {
         return ordinary();
+    }
     if (!strcmp(argv[1], "owning_failure"))
+    {
         return failures();
+    }
     if (!strcmp(argv[1], "owning_transfer"))
+    {
         return transfer();
+    }
     if (!strcmp(argv[1], "owning_erased"))
+    {
         return erased();
+    }
     if (!strcmp(argv[1], "histories"))
+    {
         return histories();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

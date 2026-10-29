@@ -33,16 +33,22 @@ static void append(void)
     /* Exhaustive scalar admission over valid32-byte extents, with full state checks. */
     unsigned char input[32];
     for (unsigned i = 0; i < 32; i++)
+    {
         input[i] = (unsigned char)(i + 1);
+    }
     for (size_t cap = 0; cap <= 32; cap++)
+    {
         for (size_t len = 0; len <= cap; len++)
+        {
             for (size_t n = 0; n <= 32; n++)
             {
                 struct api_buffer value;
                 value.capacity = cap;
                 value.length = len;
                 for (unsigned i = 0; i < 32; i++)
+                {
                     value.data[i] = (unsigned char)(200 + i);
+                }
                 enum api_status status = api_append(&value, input, n);
                 CHECK(status == (n <= cap - len ? API_OK : API_FULL));
                 CHECK(value.capacity == cap &&
@@ -56,6 +62,8 @@ static void append(void)
                     CHECK(value.data[i] == expected);
                 }
             }
+        }
+    }
 }
 struct ac_context;
 
@@ -146,7 +154,9 @@ static void registry(void)
         h[i] = (struct api_handle){99, 99};
     }
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(api_add(&r, callback, c + i, drop, h + i) == API_OK);
+    }
     CHECK(api_add(&r, callback, c + 4, drop, h + 4) == API_FULL &&
           h[4].index == 99 && c[4].drops == 0);
     struct api_handle old = h[0];
@@ -158,7 +168,9 @@ static void registry(void)
     CHECK(api_destroy(&r) == API_OK);
     api_registry_init(&r);
     for (unsigned i = 0; i < 4; i++)
+    {
         r.slots[i].generation = UINT32_MAX;
+    }
     h[0] = (struct api_handle){99, 99};
     CHECK(api_add(&r, callback, c, drop, h) == API_FULL && h[0].index == 99);
     CHECK(api_remove(&r, (struct api_handle){4, 1}) == API_INVALID);
@@ -167,12 +179,20 @@ static void registry(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "append"))
+    {
         append();
+    }
     else if (!strcmp(argv[1], "registry"))
+    {
         registry();
+    }
     else
+    {
         return 2;
+    }
     return 0;
 }

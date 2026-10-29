@@ -26,10 +26,14 @@ static struct sv_write_result sink(void *context, const unsigned char *bytes,
     struct ac_sink *state = context;
     ++state->calls;
     if (state->bad_count)
+    {
         return (struct sv_write_result){length + 1, SV_PROGRESS};
+    }
     size_t take = length < state->quota ? length : state->quota;
     for (size_t i = 0; i < take; ++i)
+    {
         state->bytes[state->used++] = bytes[i];
+    }
     return (struct sv_write_result){take, state->disposition};
 }
 
@@ -39,16 +43,22 @@ vector_sink(void *context, const struct sv_span *spans, size_t count)
     struct ac_sink *state = context;
     ++state->calls;
     if (!count || count > 3)
+    {
         state->bad_span = 1;
+    }
     size_t left = state->quota, total = 0;
     state->spans += count;
     for (size_t i = 0; i < count; ++i)
     {
         if (!spans[i].length)
+        {
             state->bad_span = 1;
+        }
         size_t take = spans[i].length < left ? spans[i].length : left;
         for (size_t j = 0; j < take; ++j)
+        {
             state->bytes[state->used++] = spans[i].data[j];
+        }
         total += take;
         left -= take;
     }
@@ -60,12 +70,16 @@ static int decoded(const unsigned char *wire, size_t length,
                    const unsigned char *payload, size_t n)
 {
     if (length != n + 2 || wire[0] != n)
+    {
         return 0;
+    }
     unsigned checksum = 0;
     for (size_t i = 0; i < n; ++i)
     {
         if (wire[i + 1] != payload[i])
+        {
             return 0;
+        }
         checksum = (checksum + payload[i]) % 256;
     }
     return wire[n + 1] == checksum;
@@ -165,9 +179,12 @@ static int vector_case(void)
               decoded(state.bytes, state.used, original, 3));
     }
     for (size_t i = 0; i < 64; ++i)
+    {
         payload[i] = (unsigned char)(i * 17 + 3);
+    }
     unsigned cases = 0;
     for (size_t n = 0; n <= 64; ++n)
+    {
         for (size_t quota = 1; quota <= 7; ++quota)
         {
             struct sv_stream stream = {0};
@@ -178,7 +195,9 @@ static int vector_case(void)
             size_t accepted = 99;
             int result = SF_PENDING;
             for (unsigned step = 0; step < 67 && result == SF_PENDING; ++step)
+            {
                 result = sv_pumpv(handle, vector_sink, &state, 1, &accepted);
+            }
             CHECK(result == SF_DONE && accepted == n + 2 && !state.bad_span);
             CHECK(decoded(state.bytes, state.used, payload, n));
             unsigned calls = state.calls;
@@ -187,6 +206,7 @@ static int vector_case(void)
                   state.calls == calls);
             ++cases;
         }
+    }
     for (size_t cut = 0; cut <= 5; ++cut)
     {
         struct sv_stream stream = {0};
@@ -228,8 +248,10 @@ static int queue_case(void)
         CHECK(event.handle.owner == first.owner && event.accepted == step + 1);
     }
     for (unsigned step = 0; step < 3; ++step)
+    {
         CHECK(svq_pump(&queue, sink, &state, 1, &event) ==
               (step == 2 ? SF_DONE : SF_PENDING));
+    }
     const unsigned char original_one[] = {1, 2, 3}, original_two[] = {8};
     CHECK(decoded(state.bytes, 5, original_one, 3) &&
           decoded(state.bytes + 5, 3, original_two, 1));
@@ -290,12 +312,20 @@ static int queue_case(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "result"))
+    {
         return result_case();
+    }
     if (!strcmp(argv[1], "vector"))
+    {
         return vector_case();
+    }
     if (!strcmp(argv[1], "queue"))
+    {
         return queue_case();
+    }
     return 2;
 }

@@ -11,7 +11,9 @@ NOINLINE uint32_t ef_stack_callback(uint32_t value)
 {
     volatile unsigned char bytes[64];
     for (unsigned i = 0; i < 64; ++i)
+    {
         bytes[i] = (unsigned char)(value + i);
+    }
     return bytes[value % 64];
 }
 
@@ -19,7 +21,9 @@ NOINLINE uint32_t ef_stack_entry(uint32_t value)
 {
     volatile unsigned char bytes[32];
     for (unsigned i = 0; i < 32; ++i)
+    {
         bytes[i] = (unsigned char)(value + i);
+    }
     return ef_stack_callback(bytes[value % 32]) + bytes[0];
 }
 
@@ -28,17 +32,23 @@ NOINLINE uint32_t ef_stack_recursive(unsigned depth)
     volatile unsigned char bytes[16];
     bytes[0] = (unsigned char)depth;
     if (!depth)
+    {
         return bytes[0];
+    }
     return ef_stack_recursive(depth - 1) + bytes[0];
 }
 
 NOINLINE uint32_t ef_stack_vla(size_t n)
 {
     if (n == 0 || n > 256)
+    {
         return 0;
+    }
     volatile unsigned char bytes[n];
     for (size_t i = 0; i < n; ++i)
+    {
         bytes[i] = (unsigned char)i;
+    }
     return bytes[n - 1];
 }
 

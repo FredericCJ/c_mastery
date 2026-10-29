@@ -5,5 +5,7 @@ void kernel_main(unsigned magic, unsigned boot_info)
     (void)magic;
     (void)boot_info;
     for (;;)
+    {
         __asm__ volatile("hlt");
+    }
 }

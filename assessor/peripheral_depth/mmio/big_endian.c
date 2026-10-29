@@ -10,7 +10,9 @@ static size_t length(const char *s)
 {
     size_t n = 0;
     while (s[n])
+    {
         ++n;
+    }
     return n;
 }
 
@@ -23,7 +25,9 @@ int pm_puts(const char *s)
 {
     size_t n = length(s);
     if (sa_raw_write(s, n) != (long)n)
+    {
         return -1;
+    }
     return (int)sa_raw_write("\n", 1);
 }
 
@@ -32,7 +36,9 @@ void *memcpy(void *d, const void *s, size_t n)
     volatile unsigned char *out = d;
     const volatile unsigned char *in = s;
     for (size_t i = 0; i < n; ++i)
+    {
         out[i] = in[i];
+    }
     return d;
 }
 
@@ -40,6 +46,8 @@ void *memset(void *d, int v, size_t n)
 {
     volatile unsigned char *out = d;
     for (size_t i = 0; i < n; ++i)
+    {
         out[i] = (unsigned char)v;
+    }
     return d;
 }

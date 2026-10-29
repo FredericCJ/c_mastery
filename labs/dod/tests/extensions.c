@@ -17,25 +17,32 @@ static const char *test_name = "arguments";
 static void layout(void)
 {
     for (size_t n = 0; n <= 8; ++n)
+    {
         for (unsigned cold = 0; cold < 2; ++cold)
         {
             struct d_row rows[8], result[8];
             for (unsigned i = 0; i < 8; ++i)
+            {
                 rows[i] =
                     (struct d_row){(int32_t)i - 3, (int32_t)i % 3 - 1, i + 40};
+            }
             struct d_columns8 columns;
             struct d_tiles tiles;
             CHECK(d_rows_to_columns(rows, n, &columns) == D_OK);
             CHECK(d_columns_to_rows(&columns, result, n) == D_OK);
             for (size_t i = 0; i < n; ++i)
+            {
                 CHECK(result[i].x == rows[i].x &&
                       result[i].cold == rows[i].cold);
+            }
             CHECK(d_rows_to_tiles(rows, n, cold, &tiles) == D_OK);
             CHECK(d_tiles_to_rows(&tiles, result, n) == D_OK);
             for (size_t i = 0; i < n; ++i)
+            {
                 CHECK(result[i].x == rows[i].x &&
                       result[i].velocity == rows[i].velocity &&
                       result[i].cold == (cold ? rows[i].cold : 0));
+            }
             result[0] = (struct d_row){91, 92, 93};
             if (n)
             {
@@ -45,18 +52,25 @@ static void layout(void)
             CHECK(d_rows_step(rows, n, 2) == D_OK &&
                   d_columns8_step(&columns, 2) == D_OK);
             for (size_t i = 0; i < n; ++i)
+            {
                 CHECK(rows[i].x == columns.x[i] &&
                       rows[i].cold == columns.cold[i]);
+            }
         }
+    }
     for (unsigned bad = 0; bad < 8; ++bad)
     {
         struct d_row rows[8];
         for (unsigned i = 0; i < 8; ++i)
+        {
             rows[i] = (struct d_row){5, 1, 90};
+        }
         rows[bad].x = INT32_MAX;
         CHECK(d_rows_step(rows, 8, 1) == D_RANGE);
         for (unsigned i = 0; i < 8; ++i)
+        {
             CHECK(rows[i].x == (i == bad ? INT32_MAX : 5));
+        }
     }
     CHECK(d_rows_step(NULL, 0, 0) == D_OK);
     struct d_row large[32];
@@ -70,8 +84,10 @@ static void layout(void)
     CHECK(d_rows_step_many(large, 32, 10) == D_OK &&
           d_columns_step_many(x, velocity, 32, 10) == D_OK);
     for (unsigned i = 0; i < 32; ++i)
+    {
         CHECK(large[i].x == (int32_t)i + 20 && x[i] == large[i].x &&
               large[i].cold == i + 40);
+    }
     large[31].x = INT32_MAX;
     x[31] = INT32_MAX;
     CHECK(d_rows_step_many(large, 32, 1) == D_RANGE &&
@@ -88,13 +104,17 @@ static void layout(void)
     }
     CHECK(d_rows_to_arrays(large, 32, x, velocity, cold, 32) == D_OK);
     for (unsigned i = 0; i < 32; ++i)
+    {
         CHECK(x[i] == large[i].x && velocity[i] == large[i].velocity &&
               cold[i] == large[i].cold);
+    }
     CHECK(d_arrays_to_rows(x, velocity, cold, 32, roundtrip, 32) == D_OK);
     for (unsigned i = 0; i < 32; ++i)
+    {
         CHECK(roundtrip[i].x == large[i].x &&
               roundtrip[i].velocity == large[i].velocity &&
               roundtrip[i].cold == large[i].cold);
+    }
     x[0] = 123;
     roundtrip[0].x = 456;
     CHECK(d_rows_to_arrays(large, 32, x, velocity, cold, 31) == D_FULL &&
@@ -112,7 +132,9 @@ static uint32_t scalar16(uint32_t a, uint32_t b)
     {
         uint32_t n = ((a >> (16 * i)) & 65535) + ((b >> (16 * i)) & 65535);
         if (n > 65535)
+        {
             n = 65535;
+        }
         out |= n << (16 * i);
     }
     return out;
@@ -122,14 +144,20 @@ static void swar16(void)
 {
     const uint32_t edge[] = {0, 1, 32767, 32768, 65534, 65535};
     for (unsigned i = 0; i < 6; ++i)
+    {
         for (unsigned j = 0; j < 6; ++j)
+        {
             for (unsigned k = 0; k < 6; ++k)
+            {
                 for (unsigned l = 0; l < 6; ++l)
                 {
                     uint32_t a = edge[i] | (edge[k] << 16),
                              b = edge[j] | (edge[l] << 16);
                     CHECK(d_swar16_add(a, b) == scalar16(a, b));
                 }
+            }
+        }
+    }
     for (uint32_t i = 0; i < 65536; ++i)
     {
         uint32_t a = i | ((65535 - i) << 16), b = 1u | (i << 16);
@@ -157,7 +185,9 @@ static void segmented(void)
     struct d_resources r = {0};
     unsigned ids[32];
     for (unsigned i = 0; i < 32; ++i)
+    {
         ids[i] = i;
+    }
     struct d_segment s;
     d_segment_init(&s, destroy, &r);
     struct d_segment_handle h[8];
@@ -191,10 +221,14 @@ static void segmented(void)
     CHECK(r.live[11]);
     r.live[11] = 0;
     for (unsigned i = 1; i < 8; ++i)
+    {
         CHECK(d_segment_remove(&s, h[i]) == D_OK);
+    }
     CHECK(r.calls == 10);
     for (unsigned i = 0; i < 32; ++i)
+    {
         CHECK(!r.live[i]);
+    }
 }
 
 static void query(void)
@@ -209,6 +243,7 @@ static void query(void)
     CHECK(d_query_set(&w, 0, 3, 10, 2) == D_OK);
     CHECK(d_query_get(&w, 1, 2, &cache) == D_OK && cache.count == 0);
     for (unsigned req = 0; req < 4; ++req)
+    {
         for (unsigned exc = 0; exc < 4; ++exc)
         {
             struct d_query before = cache;
@@ -232,6 +267,7 @@ static void query(void)
             }
             CHECK(cache.count == n);
         }
+    }
     w.version = UINT_MAX;
     unsigned mask = w.ecs.mask[2];
     CHECK(d_query_set(&w, 2, 2, 0, 1) == D_FULL && w.ecs.mask[2] == mask);
@@ -241,8 +277,11 @@ static void oracle(void)
 {
     const uint32_t edge[] = {0, 1, 32767, 32768, 65534, 65535};
     for (unsigned i = 0; i < 6; ++i)
+    {
         for (unsigned j = 0; j < 6; ++j)
+        {
             for (unsigned k = 0; k < 6; ++k)
+            {
                 for (unsigned l = 0; l < 6; ++l)
                 {
                     uint32_t a = edge[i] | (edge[k] << 16),
@@ -251,23 +290,32 @@ static void oracle(void)
                         "{\"kind\":\"swar16\",\"a\":%u,\"b\":%u,\"sum\":%u}\n",
                         a, b, d_swar16_add(a, b));
                 }
+            }
+        }
+    }
     for (size_t n = 0; n <= 8; ++n)
+    {
         for (unsigned cold = 0; cold < 2; ++cold)
         {
             struct d_row rows[8], out[8];
             for (unsigned i = 0; i < 8; ++i)
+            {
                 rows[i] =
                     (struct d_row){(int32_t)i - 3, (int32_t)i % 3 - 1, i + 40};
+            }
             struct d_tiles t;
             CHECK(d_rows_to_tiles(rows, n, cold, &t) == D_OK);
             CHECK(d_tiles_to_rows(&t, out, n) == D_OK);
             printf("{\"kind\":\"tiles\",\"count\":%zu,\"cold\":%u,\"rows\":[",
                    n, cold);
             for (size_t i = 0; i < n; ++i)
+            {
                 printf("%s[%d,%d,%u]", i ? "," : "", out[i].x, out[i].velocity,
                        out[i].cold);
+            }
             puts("]}");
         }
+    }
 }
 
 int main(int argc, char **argv)
@@ -275,16 +323,28 @@ int main(int argc, char **argv)
     CHECK(argc == 2);
     test_name = argv[1];
     if (!strcmp(argv[1], "layout"))
+    {
         layout();
+    }
     else if (!strcmp(argv[1], "swar16"))
+    {
         swar16();
+    }
     else if (!strcmp(argv[1], "segmented"))
+    {
         segmented();
+    }
     else if (!strcmp(argv[1], "query"))
+    {
         query();
+    }
     else if (!strcmp(argv[1], "oracle"))
+    {
         oracle();
+    }
     else
+    {
         CHECK(0);
+    }
     return 0;
 }

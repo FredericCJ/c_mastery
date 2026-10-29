@@ -19,7 +19,9 @@ int main(void)
         CHECK(cr_cooperative(cut, 1000, 0, &result) == CR_OK);
         unsigned n = cut < 100 ? cut : 100, sum = 0;
         for (unsigned i = 0; i < n; i++)
+        {
             sum += i * (i % 16 + 1);
+        }
         CHECK(result.jobs == n && result.sum == sum && result.steps > 0);
         printf("CR_COOP_ROW:%u,%u,%u,%u,%u,%u\n", cut, result.jobs, result.sum,
                result.steps, result.blocked, result.wakes);

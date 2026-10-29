@@ -16,7 +16,9 @@ static FILE *input(const char *s)
 {
     FILE *f = tmpfile();
     if (!f)
+    {
         return NULL;
+    }
     size_t n = strlen(s);
     if (fwrite(s, 1, n, f) != n || fseek(f, 0, SEEK_SET))
     {

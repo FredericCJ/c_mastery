@@ -3,7 +3,9 @@ static void stg_worker(unsigned cpu)
 {
     (void)cpu;
     for (;;)
+    {
         __asm__ volatile("cli;hlt");
+    }
 }
 
 void stg_bsp(void)
@@ -12,5 +14,7 @@ void stg_bsp(void)
     unsigned value = 17;
     __asm__ volatile("outl %0,$0xf4" ::"a"(value));
     for (;;)
+    {
         __asm__ volatile("cli;hlt");
+    }
 }

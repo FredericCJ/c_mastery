@@ -27,6 +27,7 @@ static struct pf_ledger query(const struct cd_csr *g, unsigned stop)
     const size_t n[] = {1, 4};
     struct pf_ledger r = {0};
     for (unsigned v = 0; v < g->vertices; ++v)
+    {
         if (d[v] != UINT32_MAX)
         {
             ++r.vertices;
@@ -44,16 +45,21 @@ static struct pf_ledger query(const struct cd_csr *g, unsigned stop)
                                    1, &match, &w);
                     r.inspected += w.comparisons;
                     if (status == ALGO_MISSING)
+                    {
                         break;
+                    }
                     C(status == ALGO_OK);
                     ++r.attempted;
                     if (r.attempted == stop)
+                    {
                         return r;
+                    }
                     r.identities[r.accepted++] = e * 8 + (unsigned)(at + match);
                     at += match + 1;
                 }
             }
         }
+    }
     return r;
 }
 
@@ -68,11 +74,15 @@ int main(void)
     C(partial.vertices == 1 && partial.edges == 2 && partial.attempted == 5 &&
       partial.accepted == 4);
     for (unsigned i = 0; i < partial.accepted; ++i)
+    {
         C(full.identities[i] == partial.identities[i]);
+    }
     struct cd_csr old = g;
     C(cd_csr_build(&g, 2, e, 3, 0) == CD_DUPLICATE);
     for (unsigned i = 0; i < 3; ++i)
+    {
         C(g.edges[i].to == old.edges[i].to);
+    }
     puts(
         "PF_GRAPH_PASS:V2:E3:Z9:byte-comparisons9:parallel-retained:stream-attempt5-accepted4-prefix");
     return 0;

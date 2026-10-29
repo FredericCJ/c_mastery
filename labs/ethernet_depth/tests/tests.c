@@ -108,19 +108,27 @@ static int bread(void *ctx, unsigned csr, uint32_t *out)
     struct ed_test_bus *b = ctx;
     b->reads++;
     if (b->fail)
+    {
         return 1;
+    }
     if (csr == 0)
     {
         *out = (b->stuck == 1 || (b->stuck == 2 && b->writes)) ? 1 : 0;
         return 0;
     }
     if (csr != 1)
+    {
         return 1;
+    }
     unsigned reg = (b->control >> 6) & 31;
     if (reg == 1 && b->bsr_reads++ == 0)
+    {
         *out = b->old_bsr;
+    }
     else
+    {
         *out = b->regs[reg];
+    }
     return 0;
 }
 
@@ -128,7 +136,9 @@ static int bwrite(void *ctx, unsigned csr, uint32_t value)
 {
     struct ed_test_bus *b = ctx;
     if (b->fail || csr != 0)
+    {
         return 1;
+    }
     b->control = value;
     b->writes++;
     return 0;
@@ -228,7 +238,9 @@ static void barrier(void *p)
     struct ed_barrier *b = p;
     b->calls++;
     if (b->state->slots[0].head & UINT32_C(0x80000000))
+    {
         b->bad++;
+    }
 }
 
 static int tx(void)
@@ -293,20 +305,36 @@ static int handoff(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "layers"))
+    {
         return layers();
+    }
     if (!strcmp(argv[1], "frame"))
+    {
         return frame();
+    }
     if (!strcmp(argv[1], "bridge"))
+    {
         return bridge();
+    }
     if (!strcmp(argv[1], "phy"))
+    {
         return phy();
+    }
     if (!strcmp(argv[1], "rx"))
+    {
         return rx();
+    }
     if (!strcmp(argv[1], "tx"))
+    {
         return tx();
+    }
     if (!strcmp(argv[1], "handoff"))
+    {
         return handoff();
+    }
     return 2;
 }

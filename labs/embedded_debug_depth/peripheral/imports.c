@@ -25,7 +25,9 @@ static uint32_t ur(void *v, unsigned reg)
 {
     struct du_registers *m = v;
     if (reg == PU_GATE)
+    {
         m->gate_seen = 1;
+    }
     return m->r[reg];
 }
 
@@ -33,7 +35,9 @@ static void uw(void *v, unsigned reg, uintptr_t value)
 {
     struct du_registers *m = v;
     if (reg == PU_RESET && !m->gate_seen)
+    {
         m->bad_sequence = 1;
+    }
     m->r[reg] = (uint32_t)value;
     if (reg == PU_DR)
     {
@@ -150,14 +154,20 @@ static void visibility(void *v, unsigned op, uint32_t address, uint32_t bytes)
     struct du_memory *m = v;
     (void)bytes;
     if (op == PD_RELEASE)
+    {
         m->release++;
+    }
     if (op == PD_ACQUIRE)
+    {
         m->acquire++;
+    }
     if (op == PD_CLEAN)
     {
         m->clean++;
         if (address == m->source)
+        {
             memcpy(m->memory_source, m->cpu_source, 32);
+        }
         else if (address == m->destination && m->dest_dirty)
         {
             memcpy(m->memory_dest, m->cpu_dest, 32);
@@ -221,7 +231,9 @@ static int dma(unsigned cached)
     CHECK(pd_finalize(&s, io, 1, &r) == PD_OK && r.status == PD_CANCELLED &&
           r.complete_bytes == 12 && r.possibly_written_bytes == 12);
     if (!cached || !m.dest_valid)
+    {
         memcpy(m.cpu_dest, m.memory_dest, 32);
+    }
     CHECK(m.cpu_dest[0] == 1 && m.cpu_dest[11] == 12 && m.cpu_dest[12] == 99);
     CHECK(pd_finalize(&s, io, 1, &r) == PD_STALE);
     CHECK(pd_submit(&s, io, cached ? PD_H745 : PD_F439, cached, &e, 1, 2) ==
@@ -244,7 +256,9 @@ static int dma(unsigned cached)
 int main(void)
 {
     if (serial() || dma(0) || dma(1))
+    {
         return 1;
+    }
     puts("DP_PASS:actual-provider-composition");
     return 0;
 }

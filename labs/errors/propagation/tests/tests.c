@@ -104,9 +104,13 @@ static er_result *destination(struct er_calls *c)
 static void invocation(struct er_calls *c, unsigned yes)
 {
     if (yes)
+    {
         EPR_TRY(fresh_value, counted(c), destination(c), failed);
+    }
     else
+    {
         c->after = 2;
+    }
     c->after = 1;
 failed:
     return;
@@ -191,6 +195,7 @@ static int metrics(void)
     double times[3][7];
     uint64_t sum = 0;
     for (unsigned k = 0; k < 3; ++k)
+    {
         for (unsigned s = 0; s < 7; ++s)
         {
             clock_t start = clock();
@@ -209,6 +214,7 @@ static int metrics(void)
             }
             times[k][s] = (double)(clock() - start) / CLOCKS_PER_SEC;
         }
+    }
     printf("{\"iterations\":10000,\"checksum\":%" PRIu64
            ",\"parser_size\":%zu,\"parser_align\":%zu,\"allocation_calls\":0",
            sum, sizeof(struct epr_parser), _Alignof(struct epr_parser));
@@ -218,7 +224,9 @@ static int metrics(void)
                                     : k == 1 ? "explicit"
                                              : "macro");
         for (unsigned s = 0; s < 7; ++s)
+        {
             printf("%s%.9f", s ? "," : "", times[k][s]);
+        }
         putchar(']');
     }
     puts("}");
@@ -228,18 +236,32 @@ static int metrics(void)
 int main(int n, char **v)
 {
     if (n != 2)
+    {
         return 2;
+    }
     if (!strcmp(v[1], "prop_ordinary"))
+    {
         return ordinary();
+    }
     if (!strcmp(v[1], "prop_stream"))
+    {
         return stream();
+    }
     if (!strcmp(v[1], "prop_macro"))
+    {
         return macro();
+    }
     if (!strcmp(v[1], "prop_base"))
+    {
         return base();
+    }
     if (!strcmp(v[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(v[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

@@ -30,8 +30,12 @@ static unsigned inject_capture, bad, stages;
 static struct dg_reg *reg(uintptr_t a)
 {
     for (unsigned i = 0; i < used; i++)
+    {
         if (regs[i].a == a)
+        {
             return &regs[i];
+        }
+    }
     regs[used].a = a;
     return &regs[used++];
 }
@@ -46,7 +50,9 @@ uint32_t pt_read(uintptr_t a)
     {
         reg(0x40000810u)->v &= ~2u;
         if (inject_capture)
+        {
             reg(0x40000810u)->v |= 0x200u;
+        }
     }
     return v;
 }
@@ -60,11 +66,17 @@ void pt_write(uintptr_t a, uint32_t v)
         (a == 0x40000428u || a == 0x4000042cu || a == 0x40000434u ||
          a == 0x40000438u) &&
         !(reg(0x40000400u)->v & 2u))
+    {
         bad = 1;
+    }
     if (a == 0x40000810u)
+    {
         reg(a)->v &= v;
+    }
     else
+    {
         reg(a)->v = v;
+    }
 }
 
 int main(void)

@@ -3,7 +3,9 @@ static void srg_worker(unsigned c)
 {
     (void)c;
     for (;;)
+    {
         __asm__ volatile("cli;hlt");
+    }
 }
 
 void srg_bsp(void)
@@ -12,5 +14,7 @@ void srg_bsp(void)
     unsigned code = 17;
     __asm__ volatile("outl %0,$0xf4" ::"a"(code));
     for (;;)
+    {
         __asm__ volatile("cli;hlt");
+    }
 }

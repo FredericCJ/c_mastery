@@ -37,18 +37,28 @@ void reset(void)
 {
     uint32_t *src = &__data_load;
     for (uint32_t *p = &__data_start; p < &__data_end;)
+    {
         *p++ = *src++;
+    }
     for (uint32_t *p = &__bss_start; p < &__bss_end;)
+    {
         *p++ = 0;
+    }
     const char *cases[] = {"topology", "placement", "lease", "arbitration",
                            "bridge"};
 #ifdef MB_TEST_CASE
     if (mb_test(cases[MB_TEST_CASE]))
+    {
         stop(1);
+    }
 #else
     for (unsigned i = 0; i < 5; ++i)
+    {
         if (mb_test(cases[i]))
+        {
             stop(1);
+        }
+    }
 #endif
     stop(0);
 }

@@ -9,17 +9,23 @@
 enum lf_status lf_add(int32_t a, int32_t b, int32_t *out)
 {
     if (!out)
+    {
         return LF_INVALID;
+    }
 #if LF_MUTANT == 1
     *out = 0;
 #endif
 #ifdef LF_ENHANCED
     int32_t v;
     if (ckd_add(&v, a, b))
+    {
         return LF_INVALID;
+    }
 #else
     if ((b > 0 && a > INT32_MAX - b) || (b < 0 && a < INT32_MIN - b))
+    {
         return LF_INVALID;
+    }
     int32_t v = a + b;
 #endif
     *out = v;
@@ -29,11 +35,15 @@ enum lf_status lf_add(int32_t a, int32_t b, int32_t *out)
 enum lf_status lf_mixed(int32_t a, uint32_t b, uint16_t *out)
 {
     if (!out)
+    {
         return LF_INVALID;
+    }
 #ifdef LF_ENHANCED
     uint16_t v;
     if (ckd_add(&v, a, b))
+    {
         return LF_INVALID;
+    }
     *out = v;
 #else
     uint32_t v;
@@ -41,18 +51,24 @@ enum lf_status lf_mixed(int32_t a, uint32_t b, uint16_t *out)
     {
         uint32_t magnitude = (uint32_t)(-(a + 1)) + 1u;
         if (b < magnitude)
+        {
             return LF_INVALID;
+        }
         v = b - magnitude;
     }
     else
     {
         if ((uint32_t)a > UINT16_MAX || b > UINT16_MAX - (uint32_t)a)
+        {
             return LF_INVALID;
+        }
         v = (uint32_t)a + b;
     }
 #if LF_MUTANT != 2
     if (v > UINT16_MAX)
+    {
         return LF_INVALID;
+    }
 #endif
     *out = (uint16_t)v;
 #endif
@@ -62,7 +78,9 @@ enum lf_status lf_mixed(int32_t a, uint32_t b, uint16_t *out)
 enum lf_status lf_bits(uint32_t v, struct lf_bits *out)
 {
     if (!out)
+    {
         return LF_INVALID;
+    }
 #ifdef LF_ENHANCED
     struct lf_bits r = {(unsigned)stdc_leading_zeros(v),
                         (unsigned)stdc_trailing_zeros(v),
@@ -89,7 +107,9 @@ enum lf_status lf_bits(uint32_t v, struct lf_bits *out)
 #endif
 #if LF_MUTANT == 3
     if (v == 0)
+    {
         r.trailing = 0;
+    }
 #endif
     *out = r;
     return LF_OK;
@@ -98,12 +118,16 @@ enum lf_status lf_bits(uint32_t v, struct lf_bits *out)
 enum lf_status lf_div(uint64_t a, uint64_t b, uint64_t *out)
 {
     if (!out)
+    {
         return LF_INVALID;
+    }
 #if LF_MUTANT == 4
     *out = 0;
 #endif
     if (!b)
+    {
         return LF_INVALID;
+    }
 #ifdef LF_ENHANCED
     *out = a / b;
 #else
@@ -127,7 +151,9 @@ enum lf_status lf_div(uint64_t a, uint64_t b, uint64_t *out)
 enum lf_status lf_select(unsigned observed, unsigned strict, unsigned *out)
 {
     if (!out || observed > 31 || strict > 1)
+    {
         return LF_INVALID;
+    }
 #if LF_MUTANT == 5
     *out = (observed & 1u) != 0;
 #else

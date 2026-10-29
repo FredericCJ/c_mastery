@@ -35,22 +35,38 @@ static int same_vm(const struct cvm_cvm *x, const struct cvm_cvm *y)
         x->host_budget != y->host_budget || x->allocations != y->allocations ||
         x->collections != y->collections || x->host != y->host ||
         x->host_context != y->host_context)
+    {
         return 0;
+    }
     for (unsigned i = 0; i < CVM_STACK; i++)
+    {
         if (!same_value(x->stack[i], y->stack[i]))
+        {
             return 0;
+        }
+    }
     for (unsigned i = 0; i < CVM_ROOTS; i++)
+    {
         if (!same_value(x->roots[i], y->roots[i]))
+        {
             return 0;
+        }
+    }
     for (unsigned i = 0; i < CVM_FRAMES; i++)
     {
         const struct cvm_frame *p = &x->frames[i], *q = &y->frames[i];
         if (p->function != q->function || p->ip != q->ip || p->base != q->base)
+        {
             return 0;
+        }
         for (unsigned j = 0; j < CVM_LOCALS; j++)
+        {
             if (p->initialized[j] != q->initialized[j] ||
                 !same_value(p->locals[j], q->locals[j]))
+            {
                 return 0;
+            }
+        }
     }
     for (unsigned i = 0; i < CVM_HEAP; i++)
     {
@@ -58,7 +74,9 @@ static int same_vm(const struct cvm_cvm *x, const struct cvm_cvm *y)
         if (p->used != q->used || p->marked != q->marked ||
             p->generation != q->generation || !same_value(p->left, q->left) ||
             !same_value(p->right, q->right))
+        {
             return 0;
+        }
     }
     return 1;
 }
@@ -189,8 +207,10 @@ static int allocation(void)
     CHECK(vg_reset(&a, 0) == VG_OK);
     struct vg_ref p[16], parent, out;
     for (unsigned i = 0; i < 16; i++)
+    {
         CHECK(vg_pair(&a, integer(&a, (int32_t)i), integer(&a, 0), &p[i]) ==
               VG_OK);
+    }
     CHECK(vg_pair(&a, p[0], p[1], &parent) == VG_OK);
     CHECK(vg_field(&a, p[0], 0, &out) == VG_OK && out.value.integer == 0);
     CHECK(vg_field(&a, p[1], 0, &out) == VG_OK && out.value.integer == 1);
@@ -198,12 +218,16 @@ static int allocation(void)
           out.value.integer == p[1].value.integer);
     unsigned occupied = 0;
     for (unsigned i = 0; i < 16; i++)
+    {
         occupied += a.vm.heap[i].used;
+    }
     CHECK(occupied == 3 && a.commits == 1 && a.temporary_count == 0);
     memset(&a, 0, sizeof a);
     CHECK(vg_reset(&a, 1) == VG_OK);
     for (unsigned i = 0; i < 16; i++)
+    {
         CHECK(vg_pair(&a, integer(&a, 0), integer(&a, 0), &p[i]) == VG_OK);
+    }
     out = integer(&a, 91);
     CHECK(vg_pair(&a, p[0], p[1], &out) == VG_FULL && out.value.integer == 91);
     a.vm.allocations = UINT32_MAX;
@@ -248,7 +272,9 @@ static int transfer(void)
     CHECK(vg_field(&b, field, 0, &out) == VG_OK && out.value.integer == 11);
     CHECK(vg_pair(&a, integer(&a, 1), integer(&a, 2), &x) == VG_OK);
     for (unsigned i = 4; i < 16; i++)
+    {
         CHECK(vg_pair(&b, integer(&b, 0), integer(&b, 0), &out) == VG_OK);
+    }
     before = b.vm;
     out = integer(&b, 91);
     CHECK(vg_transfer(&a, &b, x, 0, &out) == VG_FULL &&
@@ -266,8 +292,10 @@ static int baseline(void)
     struct cvm_value p[16], out;
     cvm_init(&base, 0, UINT32_MAX, 0);
     for (unsigned i = 0; i < 16; i++)
+    {
         CHECK(cvm_pair(&base, cvm_int((int32_t)i), cvm_int(0), &p[i]) ==
               CVM_OK);
+    }
     base.heap[0].right = p[1];
     base.heap[1].right = p[0];
     CHECK(cvm_root_push(&base, p[0]) == CVM_OK);
@@ -284,20 +312,28 @@ static int baseline(void)
         base.gc_budget = budget;
         CHECK(cvm_collect(&base) == CVM_GC_BUDGET);
         for (unsigned i = 0; i < 16; i++)
+        {
             CHECK(base.heap[i].used == before.heap[i].used &&
                   base.heap[i].generation == before.heap[i].generation);
+        }
         CHECK(base.collections == 0);
         base.gc_budget = 27;
         CHECK(cvm_collect(&base) == CVM_OK && base.gc_budget == 0);
         for (unsigned i = 0; i < 16; i++)
+        {
             CHECK(base.heap[i].used == (i < 4));
+        }
     }
     cvm_init(&base, 0, UINT32_MAX, 0);
     for (unsigned i = 0; i < 16; i++)
+    {
         CHECK(cvm_pair(&base, cvm_int((int32_t)i), cvm_int(0), &p[i]) ==
               CVM_OK);
+    }
     for (unsigned i = 0; i < 7; i++)
+    {
         CHECK(cvm_root_push(&base, cvm_int(0)) == CVM_OK);
+    }
     out = cvm_int(91);
     before = base;
     CHECK(cvm_pair(&base, p[0], p[1], &out) == CVM_STACK_LIMIT &&
@@ -310,8 +346,10 @@ static int baseline(void)
     CHECK(cvm_field(&base, p[1], 0, &p[2]) == CVM_OK && p[2].integer == 1);
     cvm_init(&base, 0, UINT32_MAX, 0);
     for (unsigned i = 0; i < 16; i++)
+    {
         CHECK(cvm_pair(&base, cvm_int((int32_t)i), cvm_int(0), &p[i]) ==
               CVM_OK);
+    }
     /* A helper allocation occurs after evaluating left, before right exists. */
     CHECK(cvm_root_push(&base, p[0]) == CVM_OK);
     CHECK(cvm_pair(&base, cvm_int(50), cvm_int(51), &out) == CVM_OK);
@@ -323,15 +361,19 @@ static int baseline(void)
      * a native C use-after-free or a claim of code execution. */
     cvm_init(&base, 0, UINT32_MAX, 0);
     for (unsigned i = 0; i < 16; i++)
+    {
         CHECK(cvm_pair(&base, cvm_int((int32_t)i), cvm_int(0), &p[i]) ==
               CVM_OK);
+    }
     CHECK(cvm_pair(&base, cvm_int(50), cvm_int(51), &out) == CVM_OK);
     CHECK(cvm_field(&base, p[0], 0, &p[2]) == CVM_STALE);
     cvm_init(&base, 0, UINT32_MAX, 0);
     base.arena = 1;
     for (unsigned i = 0; i < 16; i++)
+    {
         CHECK(cvm_pair(&base, cvm_int((int32_t)i), cvm_int(0), &p[i]) ==
               CVM_OK);
+    }
     CHECK(cvm_pair(&base, cvm_int(0), cvm_int(0), &out) == CVM_HEAP_LIMIT);
     /* Explicit stopped raw-VM policy transition; no controller API is bypassed.
      */
@@ -339,7 +381,9 @@ static int baseline(void)
     CHECK(cvm_pair(&base, cvm_int(0), cvm_int(0), &out) == CVM_OK);
     unsigned occupied = 0;
     for (unsigned i = 0; i < 16; i++)
+    {
         occupied += base.heap[i].used;
+    }
     CHECK(occupied == 1 && base.collections == 1);
     CHECK(cvm_field(&base, p[15], 0, &out) == CVM_STALE);
     puts("VG_BASELINE_PASS roots_cycles_27_budget_cuts_second_push_helper");
@@ -349,7 +393,9 @@ static int baseline(void)
 int main(void)
 {
     if (identities() || barriers() || allocation() || transfer() || baseline())
+    {
         return 1;
+    }
     puts("VG_PASS actual_CVM_ORVM_incremental_weak_phase_transfer");
     return 0;
 }

@@ -26,18 +26,28 @@ static int send_bytes(int fd, const unsigned char *p, unsigned n, unsigned cap)
     while (done < n)
     {
         if (!ready(fd, POLLOUT))
+        {
             return 0;
+        }
         unsigned count = n - done;
         if (count > cap)
+        {
             count = cap;
+        }
         ssize_t got = send(fd, p + done, count, MSG_DONTWAIT | MSG_NOSIGNAL);
         if (got > 0)
+        {
             done += (unsigned)got;
+        }
         else if (got < 0 &&
                  (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK))
+        {
             continue;
+        }
         else
+        {
             return 0;
+        }
     }
     return 1;
 }
@@ -50,22 +60,32 @@ static int receive_frame(int fd, unsigned char p[16], unsigned cap,
     while (done < 16)
     {
         if (!ready(fd, POLLIN))
+        {
             return -1;
+        }
         unsigned count = 16 - done;
         if (count > cap)
+        {
             count = cap;
+        }
         ssize_t got = recv(fd, p + done, count, MSG_DONTWAIT);
         if (got > 0)
+        {
             done += (unsigned)got;
+        }
         else if (got == 0)
         {
             *partial = done;
             return done ? -1 : 0;
         }
         else if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK)
+        {
             continue;
+        }
         else
+        {
             return -1;
+        }
     }
     return 1;
 }
@@ -88,18 +108,30 @@ static int client(int fd)
         ds_broker_request(request, operations[i], target[i], i == 6 ? 1 : 0,
                           capid[i], sequence[i], 1, value);
         if (i == 9)
+        {
             request[0] = 99;
+        }
         if (!send_bytes(fd, request, 16, 1 + i % 7))
+        {
             return 1;
+        }
         unsigned partial = 0;
         if (receive_frame(fd, reply, 5, &partial) != 1 || reply[1] != status[i])
+        {
             return 1;
+        }
         if (i == 1 && ds_broker_u32(reply + 12) != 5)
+        {
             return 1;
+        }
         if (i == 6 && ds_broker_u32(reply + 4) != 4)
+        {
             return 1;
+        }
         if (status[i] != DS_OK && ds_broker_u32(reply + 12) != 0)
+        {
             return 1;
+        }
     }
     unsigned char partial[16];
     ds_broker_request(partial, DS_B_ADD, 0, 0, 1, 10, 1, 7);
@@ -110,7 +142,9 @@ int ds_broker_process_experiment(void)
 {
     int pair[2] = {-1, -1};
     if (socketpair(AF_UNIX, SOCK_STREAM, 0, pair))
+    {
         return 1;
+    }
     volatile int private_value = 17;
     pid_t child = fork();
     if (child < 0)
@@ -138,7 +172,9 @@ int ds_broker_process_experiment(void)
         unsigned char request[16], reply[16];
         stream_status = receive_frame(pair[0], request, 3, &partial);
         if (stream_status != 1)
+        {
             break;
+        }
         if (ds_broker_apply(&authority, 0, request, reply) != DS_OK)
         {
             stream_status = -2;

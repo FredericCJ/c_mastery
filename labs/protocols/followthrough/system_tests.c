@@ -31,12 +31,18 @@ static void write_reg(void *p, unsigned r, uint32_t v)
     if (r == FW_DMA)
     {
         if (v)
+        {
             e->busy = 1;
+        }
         else
+        {
             ++e->stops;
+        }
     }
     if (r == FW_WATCHDOG)
+    {
         ++e->feeds;
+    }
 }
 
 static void release(void *p, void *v)
@@ -67,12 +73,16 @@ static void deadline(void)
     C(pf_system_tick(&s, 108) == PT_RANGE && s.last_time == 109);
     struct ad_brand b;
     for (unsigned i = 0; i < 4; i++)
+    {
         C(pf_system_post(&s, 0, PF_COMPLETE, r, 31, 0, &b) == PT_OK);
+    }
     C(pf_system_tick(&s, 110) == PT_RANGE && s.timer_armed && !e.frees);
     C(pf_system_step(&s) == PT_PENDING);
     C(pf_system_tick(&s, 110) == PT_OK && !s.timer_armed);
     for (unsigned i = 0; i < 4; i++)
+    {
         C(pf_system_step(&s) == PT_PENDING);
+    }
     C(e.stops == 1 && !e.frees && s.driver.owned && s.driver.reset_pending);
     e.busy = 0;
     C(pf_system_post(&s, 1, PF_QUIET, r, 31, 1, &b) == PT_OK);
@@ -126,12 +136,16 @@ int main(void)
     struct pf_recovery next;
     C(pf_driver_start(&s.driver, &p, 2, 0, &next) == PT_OK);
     for (unsigned i = 0; i < 4; ++i)
+    {
         C(pf_system_post(&s, i % 2, PF_COMPLETE, r, 9, 1, &brand) == PT_OK);
+    }
     struct ad_brand canary = {0};
     C(pf_system_post(&s, 0, PF_COMPLETE, r, 9, 1, &canary) == PT_RANGE &&
       !canary.owner);
     for (unsigned i = 0; i < 4; ++i)
+    {
         C(pf_system_step(&s) == PT_STATE && e.frees == 1);
+    }
     e.busy = 0;
     C(pf_system_post(&s, 0, PF_COMPLETE, next, 10, 1, &brand) == PT_OK);
     C(pf_system_step(&s) == PT_OK && e.frees == 2 && e.feeds == 1);

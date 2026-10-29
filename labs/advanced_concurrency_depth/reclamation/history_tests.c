@@ -29,7 +29,9 @@ static void *work(void *ptr)
     struct ag_work *w = ptr;
     atomic_fetch_add(w->ready, 1);
     while (atomic_load(w->ready) < 4)
+    {
         sched_yield();
+    }
     struct ah_operation *op = w->op;
     op->participant = w->actor;
     op->operation = w->actor < 2 ? AH_INSERT : AH_REMOVE;
@@ -48,7 +50,9 @@ static void *work(void *ptr)
         op->result = r == AP_OK ? AH_VALUE : AH_EMPTY;
         op->value = r == AP_OK ? v.sequence : 0;
         if (r == AP_OK)
+        {
             CHECK(v.inverse == ~v.sequence);
+        }
     }
     op->respond = atomic_fetch_add(w->clock, 1);
     CHECK(ap_leave(w->q, w->lease) == AP_OK);
@@ -64,8 +68,12 @@ static void replay(const struct ah_operation *ops, const struct ah_witness *w)
         unsigned j = w->order[i];
         CHECK(j < 4 && !(used & (1u << j)));
         for (unsigned k = 0; k < 4; k++)
+        {
             if (ops[k].respond < ops[j].invoke)
+            {
                 CHECK(used & (1u << k));
+            }
+        }
         used |= 1u << j;
         CHECK(w->result[j] == ops[j].result && w->value[j] == ops[j].value);
         if (ops[j].operation == AH_INSERT)
@@ -74,12 +82,16 @@ static void replay(const struct ah_operation *ops, const struct ah_witness *w)
             fifo[n++] = ops[j].value;
         }
         else if (ops[j].result == AH_EMPTY)
+        {
             CHECK(n == 0);
+        }
         else
         {
             CHECK(n && fifo[0] == ops[j].value);
             for (unsigned k = 1; k < n; k++)
+            {
                 fifo[k - 1] = fifo[k];
+            }
             n--;
         }
     }
@@ -104,17 +116,23 @@ int main(void)
             args[i] = (struct ag_work){&q, lease, &ops[i], &clock, &ready, i};
         }
         for (unsigned i = 0; i < 4; i++)
+        {
             CHECK(!pthread_create(&threads[i], NULL, work, &args[i]));
+        }
         for (unsigned i = 0; i < 4; i++)
+        {
             CHECK(!pthread_join(threads[i], NULL));
+        }
         struct ah_witness w;
         CHECK(ah_history(ops, 4, 4, AH_FIFO, AH_COMPLETE_ONLY, &w) == AH_VALID);
         replay(ops, &w);
         printf("TRACE %u", run);
         for (unsigned i = 0; i < 4; i++)
+        {
             printf(" %u,%u,%u,%u,%u,%u", ops[i].invoke, ops[i].respond,
                    ops[i].participant, ops[i].operation, ops[i].value,
                    ops[i].result);
+        }
         puts("");
     }
     struct ah_operation bad[] = {{0, 1, 0, AH_INSERT, 11, AH_VALUE},

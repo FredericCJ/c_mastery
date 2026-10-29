@@ -23,8 +23,12 @@ static int equal(const void *a, const void *b, size_t n)
 {
     const unsigned char *x = a, *y = b;
     for (size_t i = 0; i < n; ++i)
+    {
         if (x[i] != y[i])
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
@@ -60,7 +64,9 @@ static int ordinary(void)
     CHECK(r.hits == 3 && r.compulsory == 4 && r.conflict == 2 && !r.capacity);
     uint32_t raw[9];
     for (unsigned i = 0; i < 9; ++i)
+    {
         raw[i] = (uint32_t)a[i];
+    }
     algo_cache_result old;
     CHECK(algo_cache(raw, 9, &old) == ALGO_OK && old.hits == r.hits &&
           old.compulsory == r.compulsory && old.conflict == r.conflict &&
@@ -91,19 +97,27 @@ static int layouts(void)
     int64_t a[64];
     struct ach_config c = {4, 16, 1, 0};
     for (unsigned i = 0; i < 16; ++i)
+    {
         a[i] = (int64_t)(i % 8) * 32;
+    }
     CHECK(ach_trace(a, 16, c, &r) == ACH_OK && !r.hits);
     trace(10, a, 16, c, &r);
     for (unsigned i = 0; i < 16; ++i)
+    {
         a[i] = (int64_t)(i % 8) * 4;
+    }
     CHECK(ach_trace(a, 16, c, &r) == ACH_OK && r.hits == 14);
     trace(11, a, 16, c, &r);
     for (unsigned i = 0; i < 64; ++i)
+    {
         a[i] = 4 * i;
+    }
     CHECK(ach_trace(a, 64, c, &r) == ACH_OK && r.hits == 48);
     trace(12, a, 64, c, &r);
     for (unsigned i = 0; i < 64; ++i)
+    {
         a[i] = (i % 8) * 32 + (i / 8) * 4;
+    }
     CHECK(ach_trace(a, 64, c, &r) == ACH_OK && !r.hits);
     trace(13, a, 64, c, &r);
     return 0;
@@ -115,14 +129,20 @@ static int geometry(void)
     int64_t a[] = {0, 1, 15, 16, 31, 32, 63, 64, 255, 256, 0, UINT32_MAX};
     unsigned key = 100;
     for (unsigned lines = 1; lines <= 8; lines *= 2)
+    {
         for (unsigned ways = 1; ways <= lines; ways *= 2)
+        {
             for (unsigned block = 1; block <= 256; block *= 16)
+            {
                 for (unsigned fifo = 0; fifo < 2; ++fifo)
                 {
                     struct ach_config c = {lines, block, ways, fifo};
                     CHECK(ach_trace(a, 12, c, &r) == ACH_OK);
                     trace(key++, a, 12, c, &r);
                 }
+            }
+        }
+    }
     struct ach_config c = {4, 16, 1, 0};
     CHECK(ach_trace(0, 0, c, &r) == ACH_OK && !r.count);
     r.count = 99;
@@ -199,6 +219,7 @@ static int overlap(void)
     struct ach_miss a[4] = {{0, 20, -1}, {0, 20, -1}, {0, 20, -1}, {0, 20, -1}};
     struct ach_overlap r, old;
     for (unsigned mode = 0; mode < 3; ++mode)
+    {
         for (unsigned slots = 1; slots <= 4; ++slots)
         {
             for (unsigned i = 0; i < 4; ++i)
@@ -209,11 +230,17 @@ static int overlap(void)
             }
             CHECK(ach_overlap(a, 4, slots, &r) == ACH_OK);
             if (mode == 0 && slots == 2)
+            {
                 CHECK(r.makespan == 41);
+            }
             if (mode == 0 && slots == 4)
+            {
                 CHECK(r.makespan == 23);
+            }
             if (mode == 1)
+            {
                 CHECK(r.makespan == 80);
+            }
             for (unsigned i = 0; i < 4; ++i)
             {
                 uint32_t row[] = {mode,
@@ -228,6 +255,7 @@ static int overlap(void)
                 ach_emit("overlap", row, 9);
             }
         }
+    }
     old = r;
     a[3].predecessor = 3;
     CHECK(ach_overlap(a, 4, 2, &r) == ACH_INVALID &&
@@ -235,7 +263,9 @@ static int overlap(void)
     CHECK(ach_overlap(0, 0, 2, &r) == ACH_OK && !r.count && !r.makespan);
     struct ach_miss maximum[16];
     for (unsigned i = 0; i < 16; ++i)
+    {
         maximum[i] = (struct ach_miss){256, 256, (int)i - 1};
+    }
     CHECK(ach_overlap(maximum, 16, 4, &r) == ACH_OK && r.makespan == 4352);
     return 0;
 }
@@ -243,14 +273,24 @@ static int overlap(void)
 int ach_test(const char *s)
 {
     if (name(s, "ordinary"))
+    {
         return ordinary();
+    }
     if (name(s, "layouts"))
+    {
         return layouts();
+    }
     if (name(s, "geometry"))
+    {
         return geometry();
+    }
     if (name(s, "costs"))
+    {
         return costs();
+    }
     if (name(s, "overlap"))
+    {
         return overlap();
+    }
     return 42;
 }

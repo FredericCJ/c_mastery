@@ -41,7 +41,9 @@ static int work(void *unused)
 {
     (void)unused;
     for (unsigned i = 0; i < 10000; i++)
+    {
         atomic_fetch_add(&count, 1);
+    }
     return 7;
 }
 
@@ -51,14 +53,18 @@ int main(void)
     int x, y;
     atomic_init(&count, 0);
     if (thrd_create(&a, work, 0) != thrd_success)
+    {
         return 2;
+    }
     if (thrd_create(&b, work, 0) != thrd_success)
     {
         thrd_join(a, &x);
         return 2;
     }
     if (thrd_join(a, &x) != thrd_success || thrd_join(b, &y) != thrd_success)
+    {
         return 3;
+    }
     return x != 7 || y != 7 || atomic_load(&count) != 20000;
 }
 #elif LP_FEATURE == 6

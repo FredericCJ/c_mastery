@@ -37,7 +37,9 @@ void xf_target_main(void)
     {
         int r = et_tests(i);
         if (r)
+        {
             finish((unsigned)r);
+        }
     }
     puts("ET_GUEST_PASS actual_Thumb_original_EDU7_no_physical_RS485");
     finish(0);

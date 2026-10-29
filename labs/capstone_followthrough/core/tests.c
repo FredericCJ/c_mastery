@@ -31,23 +31,35 @@ static struct cs_io sink(void *context, const unsigned char *bytes, size_t n)
         k = sizes[s->call];
     }
     if (s->mode == 2 && s->call == 0)
+    {
         k = 5;
+    }
     if (s->mode == 3)
+    {
         return (struct cs_io){n + 1, CS_IO_PROGRESS, 0};
+    }
     if (s->mode == 2 && s->call == 1)
     {
         ++s->call;
         return (struct cs_io){0, CS_IO_ERROR, 5};
     }
     if (k > n || s->count + k > sizeof s->bytes)
+    {
         abort();
+    }
     for (size_t i = 0; i < k; ++i)
+    {
         s->bytes[s->count++] = bytes[i];
+    }
     enum cs_io_kind kind = CS_IO_PROGRESS;
     if (s->mode == 1 && s->call == 1)
+    {
         kind = CS_IO_AGAIN;
+    }
     if (s->mode == 1 && s->call == 3)
+    {
         kind = CS_IO_INTERRUPTED;
+    }
     ++s->call;
     return (struct cs_io){k, kind, 0};
 }
@@ -58,7 +70,9 @@ static struct cp_message message(unsigned seq, size_t n)
     m.sequence = (uint16_t)seq;
     m.length = n;
     for (size_t i = 0; i < n; ++i)
+    {
         m.payload[i] = (unsigned char)(i * 7u + 0xa5u);
+    }
     return m;
 }
 
@@ -73,12 +87,18 @@ static int feed_all(struct cs_service *s, unsigned session,
                                     &used, authorized, 0);
         cursor += used;
         if (st == CS_MORE)
+        {
             return cursor == n ? 0 : 1;
+        }
         if (st != CS_REJECT && st != CS_FRAME && st != CS_FULL &&
             st != CS_DENIED)
+        {
             return 1;
+        }
         if (cursor == n && !s->input[session].used)
+        {
             return 0;
+        }
     }
     return 1;
 }
@@ -251,7 +271,9 @@ static void final_free(void *p, uint16_t id, enum cs_status status)
 {
     struct cf_final *f = p;
     if (id != 19 || status != CS_CLOSED)
+    {
         abort();
+    }
     ++f->called;
     free(f->owner);
     f->owner = NULL;
@@ -280,14 +302,24 @@ static int terminal(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "framing"))
+    {
         return framing();
+    }
     if (!strcmp(argv[1], "progress"))
+    {
         return progress();
+    }
     if (!strcmp(argv[1], "pressure"))
+    {
         return pressure();
+    }
     if (!strcmp(argv[1], "terminal"))
+    {
         return terminal();
+    }
     return 2;
 }

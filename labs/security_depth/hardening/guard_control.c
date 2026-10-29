@@ -14,9 +14,13 @@ void sh_target_touch(volatile unsigned char *p)
 _Noreturn void __stack_chk_fail(void)
 {
     if (puts("OBS actual_guard_mismatch_handler") < 0)
+    {
         _Exit(43);
+    }
     if (fflush(stdout))
+    {
         _Exit(43);
+    }
     _Exit(42);
 }
 

@@ -26,11 +26,17 @@ int sfi_begin(struct sfi_op *o, struct sfi_io io, unsigned writing,
 {
     if (!o || !ticket || writing > 1 || !io.pages || page >= io.pages ||
         (writing ? (!input || !io.write) : (!output || !io.read)))
+    {
         return SFI_INVALID;
+    }
     if (o->state)
+    {
         return SFI_BUSY;
+    }
     if (o->generation == UINT64_MAX)
+    {
         return SFI_FULL;
+    }
     o->io = io;
     o->offset = (uint64_t)page * 4096u;
     o->done = 0;
@@ -39,7 +45,9 @@ int sfi_begin(struct sfi_op *o, struct sfi_io io, unsigned writing,
     o->generation++;
     o->state = 1;
     if (writing)
+    {
         memcpy(o->bytes, input, 4096);
+    }
     *ticket = (struct sfi_ticket){o, o->generation};
     return SFI_OK;
 }
@@ -47,20 +55,34 @@ int sfi_begin(struct sfi_op *o, struct sfi_io io, unsigned writing,
 int sfi_step(struct sfi_ticket t, unsigned ready, unsigned budget)
 {
     if (!valid(t))
+    {
         return SFI_STALE;
+    }
     if (ready > 1)
+    {
         return SFI_INVALID;
+    }
     struct sfi_op *o = t.owner;
     if (o->state == 3)
+    {
         return SFI_DONE;
+    }
     if (o->state == 4)
+    {
         return SFI_IO;
+    }
     if (o->state == 5)
+    {
         return SFI_CANCELLED;
+    }
     if (o->state == 2 && !ready && SFI_MUTANT != 2)
+    {
         return SFI_WAIT;
+    }
     if (!budget)
+    {
         return SFI_BUDGET;
+    }
     o->state = 1;
     while (budget--)
     {
@@ -71,7 +93,9 @@ int sfi_step(struct sfi_ticket t, unsigned ready, unsigned budget)
                                  : o->io.read(o->io.context, o->offset + at,
                                               o->bytes + at, left);
         if (n == SFI_INTR)
+        {
             continue;
+        }
         if (n == SFI_AGAIN)
         {
             o->state = 2;
@@ -86,7 +110,9 @@ int sfi_step(struct sfi_ticket t, unsigned ready, unsigned budget)
         if (o->done == 4096)
         {
             if (!o->writing)
+            {
                 memcpy(o->output, o->bytes, 4096);
+            }
             o->state = 3;
             return SFI_DONE;
         }
@@ -97,9 +123,13 @@ int sfi_step(struct sfi_ticket t, unsigned ready, unsigned budget)
 int sfi_cancel(struct sfi_ticket t)
 {
     if (!valid(t))
+    {
         return SFI_STALE;
+    }
     if (t.owner->state >= 3)
+    {
         return SFI_BUSY;
+    }
     t.owner->state = 5;
     return SFI_CANCELLED;
 }
@@ -107,9 +137,13 @@ int sfi_cancel(struct sfi_ticket t)
 int sfi_release(struct sfi_ticket t)
 {
     if (!valid(t))
+    {
         return SFI_STALE;
+    }
     if (t.owner->state < 3)
+    {
         return SFI_BUSY;
+    }
     uint64_t generation = t.owner->generation;
     memset(t.owner, 0, sizeof *t.owner);
     t.owner->generation = generation;
@@ -129,7 +163,9 @@ static int syncfd(int fd)
 int sfi_close(store_file *f)
 {
     if (!f || f->fd < 0)
+    {
         return SFI_INVALID;
+    }
     int fd = f->fd;
     f->fd = -1;
     return close(fd) ? SFI_UNCERTAIN : SFI_OK;
@@ -138,34 +174,50 @@ int sfi_close(store_file *f)
 int sfi_create(int dirfd, const char *name, uint32_t pages, store_file *out)
 {
     if (dirfd < 0 || !name || !out || pages < STORE_IMAGE_PAGES)
+    {
         return SFI_INVALID;
+    }
     size_t n = 0;
     while (name[n])
     {
         unsigned char c = (unsigned char)name[n];
         if (n == 32 || !((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
                          (c >= '0' && c <= '9') || c == '-' || c == '_'))
+        {
             return SFI_INVALID;
+        }
         n++;
     }
     if (!n)
+    {
         return SFI_INVALID;
+    }
     int fd = openat(dirfd, name,
                     O_RDWR | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0600);
     if (fd < 0)
+    {
         return errno == EEXIST ? SFI_EXISTS : SFI_IO;
+    }
     store_file built = {fd, pages};
     int failed = posix_fallocate(fd, 0, (off_t)pages * 4096) != 0;
     if (!failed)
+    {
         failed = store_format(store_file_io(&built)) != STORE_OK;
+    }
     if (!failed)
+    {
         failed = syncfd(fd) != 0;
+    }
     if (!failed && SFI_MUTANT != 3)
+    {
         failed = syncfd(dirfd) != 0;
+    }
     if (failed)
     {
         if (SFI_MUTANT == 4)
+        {
             *out = built;
+        }
         (void)sfi_close(&built);
         return SFI_UNCERTAIN;
     }

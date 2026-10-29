@@ -62,12 +62,16 @@ static void delay_until(uint64_t deadline)
     {
         uint64_t n = clock_ns(CLOCK_MONOTONIC);
         if (n >= deadline)
+        {
             return;
+        }
         uint64_t d = deadline - n;
         struct timespec t = {(time_t)(d / 1000000000u),
                              (long)(d % 1000000000u)};
         if (nanosleep(&t, NULL) == 0)
+        {
             return;
+        }
         CHECK(errno == EINTR);
     }
 }
@@ -82,7 +86,9 @@ static int create_file(const char *directory)
     for (size_t off = 0; off < FILE_BYTES; off += sizeof b)
     {
         for (size_t i = 0; i < sizeof b; ++i)
+        {
             b[i] = pattern(off + i);
+        }
         CHECK(write(fd, b, sizeof b) == sizeof b);
     }
     CHECK(fsync(fd) == 0);
@@ -92,12 +98,16 @@ static int create_file(const char *directory)
 static unsigned resident(int fd, int cold)
 {
     if (cold)
+    {
         CHECK(posix_fadvise(fd, 0, FILE_BYTES, POSIX_FADV_DONTNEED) == 0);
+    }
     else
     {
         unsigned char data[4096];
         for (off_t off = 0; off < FILE_BYTES; off += 4096)
+        {
             CHECK(pread(fd, data, sizeof data, off) == sizeof data);
+        }
     }
     long page = sysconf(_SC_PAGESIZE);
     CHECK(page > 0 && FILE_BYTES % (unsigned long)page == 0);
@@ -108,7 +118,9 @@ static unsigned resident(int fd, int cold)
     CHECK(map != MAP_FAILED && mincore(map, FILE_BYTES, v) == 0);
     unsigned sum = 0;
     for (size_t i = 0; i < count; ++i)
+    {
         sum += (v[i] & 1u) != 0;
+    }
     CHECK(munmap(map, FILE_BYTES) == 0);
     free(v);
     return sum;
@@ -144,7 +156,9 @@ int main(int argc, char **argv)
                    MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
         CHECK(map != MAP_FAILED);
         for (unsigned i = 0; i < 4; ++i)
+        {
             buffers[i] = map + 4096 * i;
+        }
         CHECK(co_init(&pool, buffers, 4096, 0x7fffffffu) == 0);
     }
     if (ring_mode)
@@ -160,7 +174,9 @@ int main(int argc, char **argv)
     {
         struct iovec v[4];
         for (unsigned i = 0; i < 4; ++i)
+        {
             v[i] = (struct iovec){buffers[i], 4096};
+        }
         int rc = (int)syscall(__NR_io_uring_register, ring.fd,
                               IORING_REGISTER_BUFFERS, v, 4);
         if (rc)
@@ -227,13 +243,16 @@ int main(int argc, char **argv)
         }
         size_t retained = send_mode ? 0 : depth * length;
         if (retained > maximum_buffer)
+        {
             maximum_buffer = retained;
+        }
         unsigned complete = 0;
         uint64_t stalled_until = base == 0 ? setup_end + 10000000u : 0;
         while (complete < depth)
         {
             int progress = 0;
             for (unsigned i = 0; i < depth; ++i)
+            {
                 if (sent[i] < length)
                 {
                     ssize_t n;
@@ -245,9 +264,11 @@ int main(int argc, char **argv)
                         n = sendfile(sockets[i][0], fd, &position, wanted);
                         ++syscalls;
                         if (n >= 0)
+                        {
                             CHECK(position ==
                                   (off_t)(offset_for(base + i, length) +
                                           sent[i] + (size_t)n));
+                        }
                     }
                     else
                     {
@@ -257,35 +278,49 @@ int main(int argc, char **argv)
                     if (n > 0)
                     {
                         if ((size_t)n < wanted)
+                        {
                             ++partial;
+                        }
                         sent[i] += (size_t)n;
                         progress = 1;
                     }
                     else if (n < 0 && (errno == EAGAIN || errno == EWOULDBLOCK))
+                    {
                         ++would_block;
+                    }
                     else if (n < 0 && errno == EINTR)
                     {
                     }
                     else
+                    {
                         CHECK(0);
+                    }
                 }
+            }
             size_t outstanding = 0;
             for (unsigned i = 0; i < depth; ++i)
+            {
                 outstanding += sent[i] - received[i];
+            }
             if (outstanding > maximum_unconsumed)
+            {
                 maximum_unconsumed = outstanding;
+            }
             if (stalled_until)
             {
                 delay_until(stalled_until);
                 stalled_until = 0;
             }
             for (unsigned i = 0; i < depth; ++i)
+            {
                 if (received[i] < length)
                 {
                     unsigned char data[1024];
                     size_t wanted = length - received[i];
                     if (wanted > sizeof data)
+                    {
                         wanted = sizeof data;
+                    }
                     ssize_t n = read(sockets[i][1], data, wanted);
                     ++syscalls;
                     if (n > 0)
@@ -306,14 +341,19 @@ int main(int argc, char **argv)
                             ++complete;
                             total += length;
                             if (ring_mode)
+                            {
                                 CHECK(co_release(&pool, token[i]) == 1);
+                            }
                         }
                     }
                     else
+                    {
                         CHECK(n < 0 &&
                               (errno == EAGAIN || errno == EWOULDBLOCK ||
                                errno == EINTR));
+                    }
                 }
+            }
             if (!progress)
             {
                 struct pollfd p[8];
@@ -333,7 +373,9 @@ int main(int argc, char **argv)
     CHECK(total == REQUESTS * length && (send_mode || co_quiescent(&pool)));
     uint64_t workload_end = clock_ns(CLOCK_MONOTONIC);
     for (unsigned i = 0; i < depth; ++i)
+    {
         CHECK(close(sockets[i][0]) == 0 && close(sockets[i][1]) == 0);
+    }
     if (fixed)
     {
         CHECK(syscall(__NR_io_uring_register, ring.fd,

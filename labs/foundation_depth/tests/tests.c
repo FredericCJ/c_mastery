@@ -21,7 +21,9 @@ static int semantic(void)
     /* Public gate checks submission completeness only. Correct classification,
      * rationale and authority are separate assessor obligations. */
     for (unsigned i = 0; i < FD_CASE_COUNT; i++)
+    {
         CHECK(fd_verdict((enum fd_case)i) != FD_UNKNOWN);
+    }
 #endif
     CHECK(fd_verdict((enum fd_case) - 1) == FD_UNKNOWN);
     int value = 5, old = 99;
@@ -42,8 +44,11 @@ static int semantic(void)
 static int extent(void)
 {
     for (size_t offset = 0; offset < 18; offset++)
+    {
         for (size_t count = 0; count < 18; count++)
+        {
             for (size_t width = 0; width < 18; width++)
+            {
                 for (size_t limit = 0; limit < 32; limit++)
                 {
                     size_t out = 917, exact = offset + count * width;
@@ -52,6 +57,9 @@ static int extent(void)
                     CHECK(s == (exact <= limit ? FD_OK : FD_RANGE));
                     CHECK(out == (exact <= limit ? exact : 917));
                 }
+            }
+        }
+    }
     size_t out = 917;
     STATUS(fd_extent(SIZE_MAX, 1, 1, SIZE_MAX, &out), FD_RANGE);
     CHECK(out == 917);
@@ -157,6 +165,7 @@ static int codec(void)
         CHECK(record_equal(result, expected[i]));
     }
     for (size_t n = 0; n <= 9; n++)
+    {
         if (n != 8)
         {
             unsigned char wire[9] = {1, 0};
@@ -164,7 +173,9 @@ static int codec(void)
             STATUS(fd_decode(wire, n, &result), FD_RANGE);
             CHECK(record_equal(result, (struct fd_record){3, 999, 42}));
         }
+    }
     for (unsigned field = 0; field < 2; field++)
+    {
         for (unsigned value = 0; value <= 255; value++)
         {
             unsigned char wire[8] = {1, 0};
@@ -173,16 +184,23 @@ static int codec(void)
             int valid = field == 0 ? value == 1 : value <= 3;
             STATUS(fd_decode(wire, 8, &result), valid ? FD_OK : FD_INVALID);
             if (!valid)
+            {
                 CHECK(record_equal(result, (struct fd_record){3, 999, 42}));
+            }
         }
+    }
     unsigned char wire[8];
     memset(wire, 0xa5, sizeof wire);
     STATUS(fd_encode((struct fd_record){4, 0, 0}, wire, 8), FD_INVALID);
     for (size_t i = 0; i < 8; i++)
+    {
         CHECK(wire[i] == 0xa5);
+    }
     STATUS(fd_encode((struct fd_record){0, 0, 0}, wire, 7), FD_RANGE);
     for (size_t i = 0; i < 8; i++)
+    {
         CHECK(wire[i] == 0xa5);
+    }
     return 0;
 }
 
@@ -199,10 +217,14 @@ static void *allocate(void *ctx, size_t size, size_t align)
     l->allocations++;
     if (size != sizeof(struct fd_value) || align != _Alignof(struct fd_value) ||
         l->fail_alloc)
+    {
         return 0;
+    }
     void *p = malloc(size);
     if (p)
+    {
         l->live++;
+    }
     return p;
 }
 
@@ -219,7 +241,9 @@ static int initialize(void *ctx, struct fd_value *p)
     struct fd_life *l = ctx;
     l->initializations++;
     if (l->slot->state != FD_ACQUIRED)
+    {
         return 1;
+    }
     p->value = 37;
     p->serial = 123;
     return l->fail_init ? 1 : 0;
@@ -229,7 +253,9 @@ static void destroy(void *ctx, struct fd_value *p)
 {
     struct fd_life *l = ctx;
     if (p->value == 37 && p->serial == 123)
+    {
         l->destructions++;
+    }
 }
 
 static int lifecycle(void)
@@ -292,20 +318,30 @@ static int lifecycle(void)
 static int overlap(void)
 {
     for (size_t dst = 0; dst <= 12; dst++)
+    {
         for (size_t src = 0; src <= 12; src++)
+        {
             for (size_t n = 0; n <= 12; n++)
             {
                 unsigned char a[12], snapshot[12], expected[12];
                 for (size_t i = 0; i < 12; i++)
+                {
                     a[i] = snapshot[i] = expected[i] =
                         (unsigned char)(i * 17 + 3);
+                }
                 int valid = n <= 12 - dst && n <= 12 - src;
                 if (valid)
+                {
                     for (size_t i = 0; i < n; i++)
+                    {
                         expected[dst + i] = snapshot[src + i];
+                    }
+                }
                 STATUS(fd_move(a, 12, dst, src, n), valid ? FD_OK : FD_RANGE);
                 CHECK(!memcmp(a, expected, 12));
             }
+        }
+    }
     STATUS(fd_move(0, 0, 0, 0, 0), FD_OK);
     STATUS(fd_move(0, 1, 0, 0, 0), FD_INVALID);
     unsigned char a[12] = {0};
@@ -314,13 +350,17 @@ static int overlap(void)
     {
         unsigned char src[256], dst[258];
         for (unsigned i = 0; i < 256; i++)
+        {
             src[i] = (unsigned char)i;
+        }
         dst[0] = 77;
         dst[257] = 88;
         fd_transform(dst + 1, src, 256, (unsigned char)mask);
         CHECK(dst[0] == 77 && dst[257] == 88);
         for (unsigned i = 0; i < 256; i++)
+        {
             CHECK(dst[i + 1] == (unsigned char)(i ^ mask));
+        }
     }
     fd_transform(0, 0, 0, 0);
     return 0;
@@ -342,6 +382,7 @@ static int handles(void)
     size_t count = 0;
     struct fd_value out = {99, 99};
     for (size_t slot = 0; slot < FD_POOL_CAPACITY; slot++)
+    {
         for (unsigned generation = 1; generation <= FD_GENERATION_MAX;
              generation++)
         {
@@ -365,11 +406,14 @@ static int handles(void)
             STATUS(fd_pool_release(&p, h), FD_OK);
             STATUS(fd_pool_release(&p, h), FD_STALE);
         }
+    }
     struct fd_handle before = h;
     STATUS(fd_pool_acquire(&p, (struct fd_value){0, 0}, &h), FD_FULL);
     CHECK(handle_equal(h, before));
     for (size_t i = 0; i < FD_POOL_CAPACITY; i++)
+    {
         CHECK(p.entries[i].retired && !p.entries[i].live);
+    }
     STATUS(fd_pool_get(&p, (struct fd_handle){&p, SIZE_MAX, 1}, &out),
            FD_STALE);
     out = (struct fd_value){99, 99};
@@ -379,11 +423,15 @@ static int handles(void)
     STATUS(fd_pool_get(&p, h, 0), FD_INVALID);
     struct fd_handle active[FD_POOL_CAPACITY];
     for (size_t i = 0; i < FD_POOL_CAPACITY; i++)
+    {
         STATUS(fd_pool_acquire(&other, (struct fd_value){0, 0}, &active[i]),
                FD_OK);
+    }
     STATUS(fd_pool_acquire(&other, (struct fd_value){0, 0}, &h), FD_FULL);
     for (size_t i = 0; i < FD_POOL_CAPACITY; i++)
+    {
         STATUS(fd_pool_release(&other, active[i]), FD_OK);
+    }
     return 0;
 }
 
@@ -396,6 +444,7 @@ static int defense(void)
     STATUS(fd_apply(valid, 8, 1, &counter), FD_OK);
     CHECK(counter == 16);
     for (size_t n = 0; n <= 9; n++)
+    {
         if (n != 8)
         {
             unsigned char supplied[9] = {1, 0, 0, 2, 0, 0, 0, 3, 0};
@@ -403,6 +452,7 @@ static int defense(void)
             STATUS(fd_apply(supplied, n, 1, &counter), FD_RANGE);
             CHECK(counter == 10);
         }
+    }
     unsigned char invalid[8] = {2, 0, 0, 2, 0, 0, 0, 3};
     counter = 10;
     STATUS(fd_apply(invalid, 8, 1, &counter), FD_INVALID);
@@ -434,9 +484,15 @@ int main(int argc, char **argv)
                  {"handles", handles},     {"defense", defense}};
 
     if (argc != 2)
+    {
         return 2;
+    }
     for (size_t i = 0; i < sizeof cases / sizeof cases[0]; i++)
+    {
         if (!strcmp(argv[1], cases[i].name))
+        {
             return cases[i].test();
+        }
+    }
     return 2;
 }

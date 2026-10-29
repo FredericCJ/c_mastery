@@ -38,9 +38,13 @@ static int pin(int cpu)
     CPU_ZERO(&set);
     CPU_SET(cpu, &set);
     if (pthread_setaffinity_np(pthread_self(), sizeof(set), &set))
+    {
         return 0;
+    }
     if (pthread_getaffinity_np(pthread_self(), sizeof(observed), &observed))
+    {
         return 0;
+    }
     return CPU_COUNT(&observed) == 1 && CPU_ISSET(cpu, &observed) &&
            sched_getcpu() == cpu;
 }
@@ -79,7 +83,9 @@ static void *exchange(void *argument)
             shared->need = round;
             pthread_cond_broadcast(&shared->changed);
             while (shared->world.nodes[0].linked && !shared->stop)
+            {
                 pthread_cond_wait(&shared->changed, &shared->lock);
+            }
             if (!shared->stop &&
                 (shared->world.nodes[0].result != CMX_OK ||
                  shared->value != round || shared->checksum != ~round))
@@ -91,12 +97,18 @@ static void *exchange(void *argument)
         else
         {
             while (shared->need < round && !shared->stop)
+            {
                 pthread_cond_wait(&shared->changed, &shared->lock);
+            }
             if (shared->stop)
+            {
                 break;
+            }
             shared->value = round;
             if (CW_NATIVE_MUTANT != 1)
+            {
                 shared->checksum = ~round;
+            }
             if (cw_post(&shared->world, 0) != CMX_OK)
             {
                 failed(shared);
@@ -127,11 +139,17 @@ static void *contend(void *argument)
     pthread_barrier_wait(context->start);
     pthread_mutex_lock(&context->shared->lock);
     if (context->event == 0)
+    {
         context->result = cw_ready_callback(context->token);
+    }
     else if (context->event == 1)
+    {
         context->result = cw_timeout(context->token, context->now);
+    }
     else
+    {
         context->result = cw_cancel(context->token);
+    }
     pthread_mutex_unlock(&context->shared->lock);
     return NULL;
 }
@@ -144,8 +162,12 @@ int main(void)
           0);
     unsigned found = 0;
     for (int cpu = 0; cpu < CPU_SETSIZE && found < 2; ++cpu)
+    {
         if (CPU_ISSET(cpu, &allowed))
+        {
             shared.cpus[found++] = cpu;
+        }
+    }
     CHECK(found == 2);
     CHECK(pthread_mutex_init(&shared.lock, NULL) == 0);
     CHECK(pthread_cond_init(&shared.changed, NULL) == 0);

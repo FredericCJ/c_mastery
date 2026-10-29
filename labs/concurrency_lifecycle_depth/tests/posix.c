@@ -51,7 +51,9 @@ static void *consumer(void *arg)
         uint64_t ticket = 0;
         int r = clp_recv(w->queue, b, 4, &n, &p, &s, &ticket, 0);
         if (r == EPIPE)
+        {
             break;
+        }
         CHECK(r == 0 && n == 4 && p < 3 && s < 500 && ticket >= 1 &&
               ticket <= 1500);
         CHECK(b[0] == p && b[1] == (unsigned char)s &&
@@ -96,7 +98,9 @@ static void threaded(void)
     CHECK(clp_init(&q, 0) == 0);
     struct cl_delivery trace[1500];
     for (unsigned i = 0; i < 1500; i++)
+    {
         trace[i] = (struct cl_delivery){99, 99};
+    }
     struct cl_worker w[5];
     pthread_t threads[5];
     for (unsigned i = 0; i < 5; i++)
@@ -106,10 +110,14 @@ static void threaded(void)
                              &w[i]) == 0);
     }
     for (unsigned i = 0; i < 3; i++)
+    {
         CHECK(pthread_join(threads[i], 0) == 0);
+    }
     CHECK(clp_close(&q, 0) == 0);
     for (unsigned i = 3; i < 5; i++)
+    {
         CHECK(pthread_join(threads[i], 0) == 0);
+    }
     unsigned next[3] = {0};
     for (unsigned i = 0; i < 1500; i++)
     {
@@ -151,7 +159,9 @@ static void enrolled(struct clp_queue *q, unsigned send)
     deadline.tv_sec += 5;
     CHECK(pthread_mutex_lock(&q->mutex) == 0);
     while ((send ? q->send_waiters : q->recv_waiters) == 0)
+    {
         CHECK(pthread_cond_timedwait(&q->enrolled, &q->mutex, &deadline) == 0);
+    }
     CHECK(pthread_mutex_unlock(&q->mutex) == 0);
 }
 
@@ -169,7 +179,9 @@ static void *timer(void *arg)
     t->entered = 1;
     CHECK(pthread_cond_broadcast(&t->condition) == 0);
     while (!t->stop)
+    {
         CHECK(pthread_cond_wait(&t->condition, &t->lock) == 0);
+    }
     CHECK(pthread_mutex_unlock(&t->lock) == 0);
     return 0;
 }
@@ -178,7 +190,9 @@ static void waiting(void)
 {
     struct clp_queue q;
     for (unsigned i = 1; i <= 4; i++)
+    {
         CHECK(clp_init(&q, i) == EAGAIN && q.initialized == 0);
+    }
     CHECK(clp_init(&q, 0) == 0 && clp_destroy(&q) == EBUSY);
     unsigned char b = 1;
     CHECK(clp_send(&q, 0, 1, &b, 1, 0) == 0 &&
@@ -238,7 +252,9 @@ static void waiting(void)
     CHECK(pthread_create(&thread, 0, timer, &t) == 0);
     CHECK(pthread_mutex_lock(&t.lock) == 0);
     while (!t.entered)
+    {
         CHECK(pthread_cond_wait(&t.condition, &t.lock) == 0);
+    }
     cl_life_close(&life);
     CHECK(cl_life_drained(&life) == CL_OK && cl_destroy(&life) == CL_BUSY);
     t.stop = 1;
@@ -327,15 +343,25 @@ static void robust(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "threaded"))
+    {
         threaded();
+    }
     else if (!strcmp(argv[1], "waiting"))
+    {
         waiting();
+    }
     else if (!strcmp(argv[1], "robust"))
+    {
         robust();
+    }
     else
+    {
         return 2;
+    }
     printf("CL_PASS %s\n", argv[1]);
     return 0;
 }

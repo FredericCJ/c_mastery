@@ -30,10 +30,14 @@ int pf_perf_control(int enable)
 {
     int control = descriptor("PF_PERF_CONTROL_FD");
     if (control < 0)
+    {
         return -1;
+    }
     int ack = descriptor("PF_PERF_ACK_FD");
     if (ack < 0)
+    {
         return -1;
+    }
     const char *command = enable ? "enable\n" : "disable\n";
     size_t length = strlen(command), sent = 0;
     for (unsigned attempt = 0; sent < length && attempt < 8; ++attempt)
@@ -42,7 +46,9 @@ int pf_perf_control(int enable)
         if (result < 0)
         {
             if (errno == EINTR)
+            {
                 continue;
+            }
             return -1;
         }
         if (!result)
@@ -68,7 +74,9 @@ int pf_perf_control(int enable)
         if (ready < 0)
         {
             if (errno == EINTR)
+            {
                 continue;
+            }
             return -1;
         }
         if (!ready)
@@ -80,7 +88,9 @@ int pf_perf_control(int enable)
         if (got < 0)
         {
             if (errno == EINTR)
+            {
                 continue;
+            }
             return -1;
         }
         if (!got)

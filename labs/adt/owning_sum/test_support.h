@@ -33,26 +33,34 @@ static void cleanup_allocations(void)
 static void remember(unsigned char *p)
 {
     if (!p)
+    {
         return;
+    }
     for (unsigned i = 0; i < 8; ++i)
+    {
         if (!allocations[i])
         {
             allocations[i] = p;
             return;
         }
+    }
     abort();
 }
 
 static void forget(unsigned char *p)
 {
     if (!p)
+    {
         return;
+    }
     for (unsigned i = 0; i < 8; ++i)
+    {
         if (allocations[i] == p)
         {
             allocations[i] = NULL;
             return;
         }
+    }
     abort();
 }
 
@@ -62,10 +70,14 @@ static int clone_bytes(void *context, const unsigned char *p, size_t n,
     struct adp_counter *c = context;
     ++c->calls;
     if (c->fail == c->calls && !c->partial)
+    {
         return 0;
+    }
     unsigned char *q = n ? malloc(n) : NULL;
     if (n && !q)
+    {
         return 0;
+    }
     if (c->fail == c->calls)
     {
         free(q);
@@ -73,7 +85,9 @@ static int clone_bytes(void *context, const unsigned char *p, size_t n,
         return 0;
     }
     for (size_t i = 0; i < n; ++i)
+    {
         q[i] = p[i];
+    }
     remember(q);
     *out = q;
     ++c->live;

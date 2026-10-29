@@ -3,7 +3,9 @@
 int ld_bit_encode(int32_t value, unsigned char out[2])
 {
     if (!out || value < -4096 || value > 4095)
+    {
         return 0;
+    }
     _BitInt(13) s = (_BitInt(13))value;
     unsigned _BitInt(13) u = (unsigned _BitInt(13))s;
     unsigned int wire = (unsigned int)u;
@@ -15,7 +17,9 @@ int ld_bit_encode(int32_t value, unsigned char out[2])
 int ld_bit_decode(const unsigned char in[2], int32_t *out)
 {
     if (!in || !out || in[0] > 31)
+    {
         return 0;
+    }
     unsigned _BitInt(13) u =
         (unsigned _BitInt(13))((unsigned)in[0] * 256u + in[1]);
     /* Arithmetic sign decoding avoids implementation-defined out-of-range

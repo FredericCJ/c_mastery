@@ -9,10 +9,12 @@ int main(int argc, char **argv)
                              test_queue,   test_wake,     test_deadline,
                              test_barrier, test_fairness, test_permit};
     for (unsigned i = 0; i < 9; i++)
+    {
         if (!strcmp(argv[1], names[i]))
         {
             tests[i]();
             return 0;
         }
+    }
     return 2;
 }

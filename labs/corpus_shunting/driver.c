@@ -36,7 +36,9 @@ int main(void)
                 for (size_t i = 0; stream == PD_OK || stream == PD_PENDING; ++i)
                 {
                     if (i == t.count)
+                    {
                         break;
+                    }
                     stream = sy_push(&s, &t.tokens[i], &d);
                 }
                 if (stream == PD_OK)
@@ -48,7 +50,9 @@ int main(void)
                         (v.count != a.count || v.root != a.root ||
                          vc.reductions != c.reductions ||
                          vc.pushes != c.pushes))
+                    {
                         same = 0;
+                    }
                     for (unsigned i = 0; same && i < a.count; ++i)
                     {
                         struct pd_expr x = a.nodes[i], y = v.nodes[i];

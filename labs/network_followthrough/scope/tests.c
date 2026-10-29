@@ -20,7 +20,9 @@ int main(void)
     CHECK(nw_lengths(1461, &length) == NW_INVALID);
     unsigned char data[600];
     for (unsigned i = 0; i < sizeof data; ++i)
+    {
         data[i] = (unsigned char)i;
+    }
     struct nw_tx a, b;
     CHECK(nw_tx_init(&a, 7, 41) == NW_OK && nw_tx_init(&b, 7, 42) == NW_OK);
     CHECK(nw_offer(&a, data, sizeof data) == NW_OK &&

@@ -58,11 +58,15 @@ static int worklist(void)
     CHECK(adf_start(invalid, 2, &s) == ADF_INVALID && s.values[2] == old);
     struct adf_node reverse[8];
     for (unsigned i = 0; i < 8; ++i)
+    {
         reverse[i] = (struct adf_node){1u << ((i + 7) % 8), 1u << i,
                                        255u ^ (1u << ((i + 3) % 8))};
+    }
     CHECK(adf_start(reverse, 8, &s) == ADF_OK);
     for (unsigned i = 0; i < 8; ++i)
+    {
         reverse[i] = (struct adf_node){0, 256, 0};
+    }
     out = (struct adf_result){{333}, 444};
     enum adf_status status = ADF_BUDGET;
     unsigned calls = 0;
@@ -71,12 +75,16 @@ static int worklist(void)
         status = adf_step(&s, 1, &out);
         ++calls;
         if (status == ADF_BUDGET)
+        {
             CHECK(out.values[0] == 333 && out.evaluations == 444);
+        }
     }
     CHECK(status == ADF_OK);
     unsigned expected[8] = {241, 227, 199, 143, 31, 62, 124, 248};
     for (unsigned i = 0; i < 8; ++i)
+    {
         CHECK(out.values[i] == expected[i]);
+    }
     CHECK(out.evaluations == calls);
     puts("ADF_FLOW cyclic-union-reschedule owned-reverse-ring");
     return 0;
@@ -135,7 +143,9 @@ static int baseline(void)
     CHECK(!ad_eval(nodes, 3, (struct ad_node_index){0}, &out) && out == 16);
     nodes[0].value = 1;
     for (unsigned i = 1; i < 32; ++i)
+    {
         nodes[i] = (struct ad_node){1, 0, {i - 1}, {i - 1}};
+    }
     CHECK(ad_eval(nodes, 32, (struct ad_node_index){31}, &out) &&
           out == UINT32_C(2147483648));
     CHECK(!ad_eval(nodes, 0, (struct ad_node_index){0}, &out));
@@ -149,18 +159,26 @@ static int arena_oracle(void)
     while (scanf("%u %u", &n, &root) == 2)
     {
         if (n > 33)
+        {
             return 2;
+        }
         struct ad_node nodes[33];
         for (unsigned i = 0; i < n; ++i)
+        {
             if (scanf("%u %" SCNu32 " %u %u", &nodes[i].kind, &nodes[i].value,
                       &nodes[i].left.index, &nodes[i].right.index) != 4)
+            {
                 return 2;
+            }
+        }
         uint32_t base = 777, cached = 777;
         int ok = ad_eval(nodes, n, (struct ad_node_index){root}, &base);
         struct adf_arena arena = {0};
         enum adf_status ctor = adf_arena(nodes, n, &arena), get = ADF_INVALID;
         if (ctor == ADF_OK)
+        {
             get = adf_root(&arena, (struct ad_node_index){root}, &cached);
+        }
         printf("%d %" PRIu32 " %u %u %" PRIu32 "\n", ok, base, (unsigned)ctor,
                (unsigned)get, cached);
     }
@@ -173,12 +191,18 @@ static int flow_oracle(void)
     while (scanf("%u %u", &n, &budget) == 2)
     {
         if (!n || n > 8)
+        {
             return 2;
+        }
         struct adf_node nodes[8];
         for (unsigned i = 0; i < n; ++i)
+        {
             if (scanf("%u %u %u", &nodes[i].predecessors, &nodes[i].generate,
                       &nodes[i].keep) != 3)
+            {
                 return 2;
+            }
+        }
         struct adf_session s;
         enum adf_status ctor = adf_start(nodes, n, &s);
         printf("%u", (unsigned)ctor);
@@ -186,16 +210,22 @@ static int flow_oracle(void)
         {
             struct adf_result result;
             for (unsigned i = 0; i < 8; ++i)
+            {
                 result.values[i] = 333;
+            }
             result.evaluations = 444;
             enum adf_status first = adf_step(&s, budget, &result);
             unsigned preserved = result.evaluations == 444;
             for (unsigned i = 0; i < 8; ++i)
+            {
                 preserved &= result.values[i] == 333;
+            }
             printf(" %u %u %u %u", (unsigned)first, s.pending, s.evaluations,
                    preserved);
             for (unsigned i = 0; i < n; ++i)
+            {
                 printf(" %u", s.values[i]);
+            }
             unsigned turns = 0;
             enum adf_status last = first;
             while (last == ADF_BUDGET && turns < 520)
@@ -205,7 +235,9 @@ static int flow_oracle(void)
             }
             printf(" %u %u %u", (unsigned)last, s.pending, result.evaluations);
             for (unsigned i = 0; i < n; ++i)
+            {
                 printf(" %u", result.values[i]);
+            }
             CHECK(last == ADF_OK);
             struct adf_result repeated = result;
             CHECK(adf_step(&s, 0, &repeated) == ADF_OK &&
@@ -222,12 +254,18 @@ static int boolean_oracle(void)
     while (scanf("%u %u", &n, &budget) == 2)
     {
         if (!n || n > 4)
+        {
             return 2;
+        }
         struct adf_boolean nodes[4];
         for (unsigned i = 0; i < n; ++i)
+        {
             if (scanf("%u %u %u", &nodes[i].left, &nodes[i].right,
                       &nodes[i].table) != 3)
+            {
                 return 2;
+            }
+        }
         unsigned result = 99;
         enum adf_status s = adf_boolean(nodes, n, budget, &result);
         printf("%u %u\n", (unsigned)s, result);
@@ -247,7 +285,9 @@ static double seconds(void)
 {
     struct timespec t;
     if (clock_gettime(CLOCK_MONOTONIC, &t))
+    {
         return 0;
+    }
     return (double)t.tv_sec + (double)t.tv_nsec / 1e9;
 }
 
@@ -255,7 +295,9 @@ static int metrics(void)
 {
     struct ad_node nodes[16] = {{0, 1, {0}, {0}}};
     for (unsigned i = 1; i < 16; ++i)
+    {
         nodes[i] = (struct ad_node){1, 0, {i - 1}, {i - 1}};
+    }
     unsigned visits = 0;
     CHECK(tree(nodes, 15, &visits) == 32768 && visits == 65535);
     struct adf_arena a;
@@ -265,7 +307,9 @@ static int metrics(void)
     unsigned evaluations = 0;
     struct adf_node ring[8];
     for (unsigned i = 0; i < 8; ++i)
+    {
         ring[i] = (struct adf_node){1u << ((i + 1) % 8), 1u << i, 255};
+    }
     for (unsigned k = 0; k < 7; ++k)
     {
         double t = seconds();
@@ -296,7 +340,9 @@ static int metrics(void)
             CHECK(adf_start(ring, 8, &s) == ADF_OK);
             CHECK(adf_step(&s, 520, &r) == ADF_OK);
             for (unsigned j = 0; j < 8; ++j)
+            {
                 flow_checksum += r.values[j];
+            }
             evaluations = r.evaluations;
         }
         flow[k] = seconds() - t;
@@ -308,13 +354,19 @@ static int metrics(void)
         visits, checksum, sizeof(struct adf_arena), _Alignof(struct adf_arena),
         sizeof(struct adf_session), flow_checksum, evaluations);
     for (unsigned i = 0; i < 7; ++i)
+    {
         printf("%s%.9f", i ? "," : "", base[i]);
+    }
     printf("],\"cached_seconds\":[");
     for (unsigned i = 0; i < 7; ++i)
+    {
         printf("%s%.9f", i ? "," : "", cached[i]);
+    }
     printf("],\"flow_seconds\":[");
     for (unsigned i = 0; i < 7; ++i)
+    {
         printf("%s%.9f", i ? "," : "", flow[i]);
+    }
     puts("]}");
     return 0;
 }
@@ -322,22 +374,40 @@ static int metrics(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "arena_certificate"))
+    {
         return certificate();
+    }
     if (!strcmp(argv[1], "arena_worklist"))
+    {
         return worklist();
+    }
     if (!strcmp(argv[1], "arena_outcomes"))
+    {
         return outcomes();
+    }
     if (!strcmp(argv[1], "arena_base"))
+    {
         return baseline();
+    }
     if (!strcmp(argv[1], "arena_oracle"))
+    {
         return arena_oracle();
+    }
     if (!strcmp(argv[1], "flow_oracle"))
+    {
         return flow_oracle();
+    }
     if (!strcmp(argv[1], "boolean_oracle"))
+    {
         return boolean_oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

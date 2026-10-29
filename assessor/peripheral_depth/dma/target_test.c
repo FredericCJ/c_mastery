@@ -23,8 +23,12 @@ static unsigned used, cache_ops, clear_writes, clear_reads;
 static uint32_t *reg(uint32_t a)
 {
     for (unsigned i = 0; i < used; i++)
+    {
         if (r[i].a == a)
+        {
             return &r[i].v;
+        }
+    }
     r[used].a = a;
     return &r[used++].v;
 }
@@ -32,7 +36,9 @@ static uint32_t *reg(uint32_t a)
 uint32_t pd_reg_read(uint32_t a)
 {
     if (a == (PD_BOARD ? 0x40020408u : 0x40026408u))
+    {
         clear_reads++;
+    }
     return *reg(a);
 }
 

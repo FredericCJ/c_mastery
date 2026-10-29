@@ -86,19 +86,28 @@ static int permutation(unsigned litmus, unsigned first, unsigned second)
     /* Independent SC oracle: enumerate all24 total orders and execute stores and
        loads. This oracle is deliberately not used for relaxed or RA outcomes. */
     for (unsigned a = 0; a < 4; a++)
+    {
         for (unsigned b = 0; b < 4; b++)
+        {
             for (unsigned c = 0; c < 4; c++)
+            {
                 for (unsigned d = 0; d < 4; d++)
                 {
                     unsigned p[4] = {a, b, c, d};
                     if (a == b || a == c || a == d || b == c || b == d ||
                         c == d)
+                    {
                         continue;
+                    }
                     unsigned pos[4];
                     for (unsigned i = 0; i < 4; i++)
+                    {
                         pos[p[i]] = i;
+                    }
                     if (pos[0] > pos[1] || pos[2] > pos[3])
+                    {
                         continue;
+                    }
                     unsigned x = 0, y = 0, r = 2, s = 2;
                     for (unsigned i = 0; i < 4; i++)
                     {
@@ -109,15 +118,23 @@ static int permutation(unsigned litmus, unsigned first, unsigned second)
                                 break;
                             case 1:
                                 if (litmus == TA_MP)
+                                {
                                     y = 1;
+                                }
                                 else
+                                {
                                     r = y;
+                                }
                                 break;
                             case 2:
                                 if (litmus == TA_MP)
+                                {
                                     r = y;
+                                }
                                 else
+                                {
                                     y = 1;
+                                }
                                 break;
                             case 3:
                                 s = x;
@@ -125,8 +142,13 @@ static int permutation(unsigned litmus, unsigned first, unsigned second)
                         }
                     }
                     if (r == first && s == second)
+                    {
                         return 1;
+                    }
                 }
+            }
+        }
+    }
     return 0;
 }
 
@@ -134,15 +156,23 @@ static void model(void)
 {
     const unsigned masks[2][4] = {{15, 11, 11, 15}, {15, 15, 14, 15}};
     for (unsigned l = 0; l < 2; l++)
+    {
         for (unsigned m = 0; m < 4; m++)
+        {
             for (unsigned a = 0; a < 2; a++)
+            {
                 for (unsigned b = 0; b < 2; b++)
                 {
                     int expected = (int)((masks[l][m] >> (2 * a + b)) & 1u);
                     CHECK(ta_litmus(l, m, a, b) == expected);
                     if (m == TA_MODEL_SC)
+                    {
                         CHECK(expected == permutation(l, a, b));
+                    }
                 }
+            }
+        }
+    }
     CHECK(ta_litmus(2, 0, 0, 0) == -1);
     puts("OBS model32 exact MP/SB order-outcomes; SC independently enumerated; "
          "RA SB00 permitted; mixed loads outside SC order");
@@ -164,7 +194,9 @@ static void *consume_reader(void *p)
     {
         node = atomic_load_explicit(&m->pointer, memory_order_consume);
         if (!node)
+        {
             sched_yield();
+        }
     } while (!node);
     m->result = (int)node->value;
     return NULL;
@@ -174,7 +206,9 @@ static void *fence_reader(void *p)
 {
     struct tw_message *m = p;
     while (!atomic_load_explicit(&m->ready, memory_order_relaxed))
+    {
         sched_yield();
+    }
     atomic_thread_fence(memory_order_acquire);
     m->result = (int)m->node.value;
     return NULL;
@@ -220,14 +254,24 @@ int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (!strcmp(argv[1], "operations"))
+    {
         operations();
+    }
     else if (!strcmp(argv[1], "lockfree"))
+    {
         lockfree();
+    }
     else if (!strcmp(argv[1], "model"))
+    {
         model();
+    }
     else if (!strcmp(argv[1], "dependency"))
+    {
         dependency();
+    }
     else
+    {
         return 2;
+    }
     return 0;
 }

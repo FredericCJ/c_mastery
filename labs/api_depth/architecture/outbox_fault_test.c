@@ -22,10 +22,14 @@ ssize_t __wrap_pwrite(int fd, const void *p, size_t n, off_t at)
         return -1;
     }
     if (n > 1)
+    {
         n = 1;
+    }
     ssize_t result = __real_pwrite(fd, p, n, at);
     if (result > 0)
+    {
         committed += (int)result;
+    }
     return result;
 }
 

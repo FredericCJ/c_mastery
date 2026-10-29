@@ -18,7 +18,9 @@ static void buffers(void)
 {
     unsigned char input[128];
     for (unsigned i = 0; i < 128; ++i)
+    {
         input[i] = (unsigned char)i;
+    }
     struct d_inline f = {0};
     CHECK(d_inline_append(&f, input, 16) == D_OK && f.length == 16);
     CHECK(d_inline_append(&f, input, 1) == D_FULL && f.length == 16);
@@ -42,14 +44,18 @@ static void buffers(void)
             CHECK(result == D_FAILED && a.data == old_a && b.data == old_b &&
                   a.length == 16 && b.length == 16 && q.live == 32);
             for (unsigned i = 0; i < 16; ++i)
+            {
                 CHECK(a.data[i] == i && b.data[i] == i);
+            }
         }
         else
         {
             CHECK(result == D_OK && a.length == 32 && b.length == 32 &&
                   q.live == 64 && q.peak == 96);
             for (unsigned i = 0; i < 32; ++i)
+            {
                 CHECK(a.data[i] == i && b.data[i] == i);
+            }
         }
         CHECK(d_zero_move(&moved, &a) == D_OK && !a.data && !a.length);
         d_zero_reset(&a);
@@ -57,7 +63,9 @@ static void buffers(void)
         d_zero_reset(&b);
         CHECK(!q.live);
         for (unsigned i = 0; i < 4; ++i)
+        {
             CHECK(!q.used[i]);
+        }
     }
     struct d_quota q = {0};
     struct d_zero a, b;
@@ -100,9 +108,13 @@ static uint32_t oracle(uint32_t a, uint32_t b)
         int32_t n = signed16((a >> (16 * lane)) & 65535) +
                     signed16((b >> (16 * lane)) & 65535);
         if (n > 32767)
+        {
             n = 32767;
+        }
         if (n < -32768)
+        {
             n = -32768;
+        }
         r |= ((uint32_t)n & 65535) << (16 * lane);
     }
     return r;
@@ -112,14 +124,20 @@ static void signed_lanes(void)
 {
     const uint32_t edge[] = {0, 1, 32766, 32767, 32768, 32769, 65535};
     for (unsigned i = 0; i < 7; ++i)
+    {
         for (unsigned j = 0; j < 7; ++j)
+        {
             for (unsigned k = 0; k < 7; ++k)
+            {
                 for (unsigned l = 0; l < 7; ++l)
                 {
                     uint32_t a = edge[i] | (edge[k] << 16),
                              b = edge[j] | (edge[l] << 16);
                     CHECK(d_swar16_signed(a, b) == oracle(a, b));
                 }
+            }
+        }
+    }
     uint32_t random = 1;
     for (unsigned i = 0; i < 100000; ++i)
     {
@@ -136,17 +154,25 @@ static void traces(void)
 {
     const uint32_t edge[] = {0, 1, 32766, 32767, 32768, 32769, 65535};
     for (unsigned i = 0; i < 7; ++i)
+    {
         for (unsigned j = 0; j < 7; ++j)
+        {
             for (unsigned k = 0; k < 7; ++k)
+            {
                 for (unsigned l = 0; l < 7; ++l)
                 {
                     uint32_t a = edge[i] | (edge[k] << 16),
                              b = edge[j] | (edge[l] << 16);
                     printf("S %u %u %u\n", a, b, d_swar16_signed(a, b));
                 }
+            }
+        }
+    }
     unsigned char bytes[32];
     for (unsigned i = 0; i < 32; ++i)
+    {
         bytes[i] = (unsigned char)i;
+    }
     for (unsigned cut = 0; cut <= 2; ++cut)
     {
         struct d_quota q = {0};
@@ -170,12 +196,20 @@ int main(int argc, char **argv)
     CHECK(argc == 2);
     test_name = argv[1];
     if (!strcmp(argv[1], "buffers"))
+    {
         buffers();
+    }
     else if (!strcmp(argv[1], "swarsigned"))
+    {
         signed_lanes();
+    }
     else if (!strcmp(argv[1], "oracle"))
+    {
         traces();
+    }
     else
+    {
         CHECK(0);
+    }
     return 0;
 }

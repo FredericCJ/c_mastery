@@ -23,9 +23,13 @@ static int ring(void *p, unsigned c)
     struct sa_port *x = p;
     x->rings++;
     if (!atomic_load_explicit(&x->world->work[c], memory_order_acquire))
+    {
         x->early++;
+    }
     if (x->fail)
+    {
         return 0;
+    }
     x->level[c] = 1;
     return 1;
 }
@@ -47,7 +51,9 @@ int main(void)
     struct sq_transfer ticket;
     CHECK(sw_init(&w, 2, 4, (struct sw_port){ring, ack, &p}) == SQ_OK);
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(sw_create(&w, 0, 1, i, &ids[i], &event) == SQ_OK);
+    }
     for (unsigned i = 0; i < 4; i++)
     {
         CHECK(sw_dispatch(&w, 1, &run, &event, &stats) == SQ_OK);
@@ -56,7 +62,9 @@ int main(void)
     CHECK(sw_prepare_idle(&w, 1, 0, &stats) == SQ_INVALID &&
           sw_prepare_idle(&w, 1, 1, &stats) == SQ_IDLE && p.level[1] == 0);
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(sw_wake(&w, 0, 1, ids[i], &event, &stats) == SQ_OK);
+    }
     CHECK(p.rings == 1 && p.early == 0 && p.level[1] == 1 &&
           atomic_load(&w.work[1]) == 4);
     old = event;

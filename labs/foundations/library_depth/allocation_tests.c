@@ -44,14 +44,18 @@ static void *allocate(void *v, size_t n, size_t a)
         return NULL;
     }
     if (b->fail_alloc || n > 256 || !supports(v, a))
+    {
         return NULL;
+    }
     for (unsigned i = 0; i < 3; ++i)
+    {
         if (!b->slots[i].live)
         {
             b->slots[i].live = 1;
             memset(b->slots[i].data, 0xa5, 256);
             return b->slots[i].data;
         }
+    }
     return NULL;
 }
 
@@ -59,10 +63,13 @@ static void release(void *v, void *p)
 {
     struct backend *b = v;
     for (unsigned i = 0; i < 3; ++i)
+    {
         if (b->slots[i].data == p)
         {
             if (!b->slots[i].live)
+            {
                 b->bad_release = 1;
+            }
             else
             {
                 b->slots[i].live = 0;
@@ -70,6 +77,7 @@ static void release(void *v, void *p)
             }
             return;
         }
+    }
     b->bad_release = 1;
 }
 
@@ -83,7 +91,9 @@ static void *resize(void *v, void *p, size_t n)
         return NULL;
     }
     if (b->fail_resize || n > 256)
+    {
         return NULL; /* Same storage, all old bytes stay valid. */
+    }
     return p;
 }
 
@@ -94,7 +104,9 @@ static int copy(void *v, void *d, const void *s, size_t n)
     for (size_t i = 0; i < n; ++i)
     {
         if (b->copy_after == i)
+        {
             return 1;
+        }
         ((unsigned char *)d)[i] = ((const unsigned char *)s)[i];
     }
     return b->copy_after == n;

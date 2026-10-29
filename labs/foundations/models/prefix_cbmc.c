@@ -13,19 +13,25 @@ int main(void)
     int valid = 1;
     __CPROVER_assume(n <= 4);
     for (unsigned i = 0; i < n; i++)
+    {
         input[i] = nondet_int32_t();
+    }
     for (unsigned i = 0; i < n; i++)
     {
         sum += input[i];
         if (sum < INT32_MIN || sum > INT32_MAX)
+        {
             valid = 0;
+        }
     }
     enum f_status status = f_prefix(input, n, output, 4);
     if (!valid)
     {
         assert(status == F_RANGE);
         for (unsigned i = 0; i < 4; i++)
+        {
             assert(output[i] == 77);
+        }
     }
     else
     {

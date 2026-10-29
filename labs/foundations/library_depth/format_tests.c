@@ -30,7 +30,9 @@ static int sized_render(void *ctx, char *d, size_t cap)
     {
         size_t n = (size_t)s->required < cap ? (size_t)s->required : cap - 1;
         for (size_t i = 0; i < n; ++i)
+        {
             d[i] = 'x';
+        }
         d[n] = 0;
     }
     return s->required;
@@ -41,7 +43,9 @@ static int render(void *ctx, char *d, size_t n)
     struct backend *b = ctx;
     ++b->calls;
     if (!n && b->fail_query)
+    {
         return -1;
+    }
     if (n && b->fail_render)
     {
         d[0] = '!';
@@ -50,7 +54,9 @@ static int render(void *ctx, char *d, size_t n)
     if (n && b->no_term)
     {
         for (size_t i = 0; i < n; ++i)
+        {
             d[i] = 'x';
+        }
         return 6;
     }
     int result = snprintf(d, n, "%s", "abcdef");
@@ -74,11 +80,17 @@ int main(void)
               r.complete == (i == 3));
         CHECK(b.calls == 1);
         for (size_t j = 0; j < written[i]; ++j)
+        {
             CHECK(buf[j] == "abcdef"[j]);
+        }
         if (caps[i])
+        {
             CHECK(buf[written[i]] == 0);
+        }
         for (size_t j = caps[i]; j < sizeof buf; ++j)
+        {
             CHECK(buf[j] == '#');
+        }
     }
     for (size_t cap = 0; cap <= 8; ++cap)
     {
@@ -92,12 +104,16 @@ int main(void)
         {
             CHECK(st == LF_CAPACITY && b.calls == 1 && r.required == 91);
             for (size_t i = 0; i < sizeof buf; ++i)
+            {
                 CHECK(buf[i] == '#');
+            }
         }
         else
+        {
             CHECK(st == LF_OK && b.calls == 2 && r.required == 6 &&
                   r.written == 6 && r.terminated && r.complete &&
                   !strcmp(buf, "abcdef") && buf[7] == '#');
+        }
     }
     for (unsigned failure = 0; failure < 4; ++failure)
     {
@@ -114,7 +130,9 @@ int main(void)
               r.required == 91 && r.written == 92 &&
               b.calls == (failure == 0 ? 1 : 2));
         for (size_t i = 0; i < sizeof buf; ++i)
+        {
             CHECK(buf[i] == '#');
+        }
     }
     const int lengths[] = {0, 63, 64, INT_MAX};
     for (unsigned k = 0; k < 4; ++k)
@@ -135,7 +153,9 @@ int main(void)
         {
             CHECK(r.required == 91);
             for (size_t j = 0; j < 64; ++j)
+            {
                 CHECK(bytes[j] == '#');
+            }
         }
         CHECK(bytes[64] == '#' && bytes[65] == '#');
     }

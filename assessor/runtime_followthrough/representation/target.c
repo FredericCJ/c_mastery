@@ -11,7 +11,9 @@ static void emit(const char *s)
 {
     size_t n = 0;
     while (s[n])
+    {
         n++;
+    }
     (void)sa_raw_write(s, n);
 }
 #else
@@ -46,7 +48,9 @@ int printf(const char *fmt, ...)
         }
         ++fmt;
         if (*fmt == 's')
+        {
             emit(va_arg(ap, const char *));
+        }
         else if (*fmt == 'u')
         {
             unsigned n = va_arg(ap, unsigned);
@@ -77,7 +81,9 @@ int memcmp(const void *a, const void *b, size_t n)
     for (size_t i = 0; i < n; i++)
     {
         if (x[i] != y[i])
+        {
             return (int)x[i] - (int)y[i];
+        }
     }
     return 0;
 }
@@ -104,7 +110,9 @@ void xf_fault(void)
 void xf_target_main(void)
 {
     if (rv_public_tests())
+    {
         stop(1);
+    }
     puts("RV_TARGET_PASS");
     stop(0);
 }

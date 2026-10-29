@@ -38,7 +38,9 @@ int main(void)
         logical_module(&private_counter);
         if (write(f[1], &private_counter, sizeof private_counter) !=
             (ssize_t)sizeof private_counter)
+        {
             _exit(1);
+        }
         close(f[1]);
         _exit(0);
     }

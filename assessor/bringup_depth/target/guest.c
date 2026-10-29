@@ -63,9 +63,13 @@ static _Noreturn void end(unsigned status)
     for (;;)
     {
         if (BU_WATCHDOG)
+        {
             REG(0x40003000) = 0xaaaa;
+        }
         else
+        {
             __asm__ volatile("wfi");
+        }
     }
 #else
     uint32_t args[2] = {0x20026, status};
@@ -138,7 +142,9 @@ __attribute__((noinline)) static void leaf(unsigned n)
 {
     volatile unsigned char local[64];
     for (unsigned i = 0; i < 64; i++)
+    {
         local[i] = (unsigned char)(n + i);
+    }
     __asm__ volatile("svc 0" ::: "memory");
     scratch_sink = local[n & 63];
 }
@@ -147,7 +153,9 @@ __attribute__((noinline)) static void middle(unsigned n)
 {
     volatile unsigned char local[48];
     for (unsigned i = 0; i < 48; i++)
+    {
         local[i] = (unsigned char)(n - i);
+    }
     leaf(n);
     scratch_sink ^= local[n & 31];
 }
@@ -164,7 +172,9 @@ void bu_main(void)
           "BU_CHECK:vtor\n");
 #if BU_RAM_VECTORS
     for (unsigned i = 0; i < 107; i++)
+    {
         ram_vectors[i] = bu_vectors_target[i];
+    }
     REG(0xe000ed08) = (uint32_t)(uintptr_t)ram_vectors;
     __asm__ volatile("dsb sy\nisb" ::: "memory");
     check(REG(0xe000ed08) == (uint32_t)(uintptr_t)ram_vectors,
@@ -181,7 +191,9 @@ void bu_main(void)
     if (BU_GUARD_FAULT)
     {
         if (!BU_MASK_GUARD)
+        {
             __asm__ volatile("cpsie i" ::: "memory");
+        }
         REG((uintptr_t)_stack_low - 4) = 7;
     }
     REG(0xe000ed1c) = (REG(0xe000ed1c) & 0x00ffffffu) | (0x80u << 24);
@@ -192,7 +204,9 @@ void bu_main(void)
     check(svc_count == 1 && ticks == 1, "BU_CHECK:nesting\n");
     uintptr_t p = (uintptr_t)_stack_low;
     while (p < (uintptr_t)_stack_top && *(const unsigned char *)p == 0xa5)
+    {
         ++p;
+    }
     unsigned used = (unsigned)((uintptr_t)_stack_top - p);
     check(used >= 112 && used < 2048, "BU_CHECK:watermark\n");
     out("BU_STACK ");

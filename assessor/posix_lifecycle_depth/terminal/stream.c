@@ -15,7 +15,9 @@ void pt_session_init(struct pt_session *s)
 enum cp_status pt_session_open(struct pt_session *s)
 {
     if (!s || s->connected || s->epoch == UINT64_MAX)
+    {
         return CP_INVALID;
+    }
     ++s->epoch;
     s->connected = true;
     s->rejects = 0;
@@ -42,7 +44,9 @@ enum cp_status pt_session_feed(struct pt_session *s, const unsigned char *bytes,
                                size_t n, size_t *used)
 {
     if (!s || !s->connected || !used || (!bytes && n))
+    {
         return CP_INVALID;
+    }
     *used = 0;
     for (;;)
     {
@@ -54,25 +58,33 @@ enum cp_status pt_session_feed(struct pt_session *s, const unsigned char *bytes,
         {
             result = cp_deliver(&s->parser, &s->queue);
             if (result != CP_OK)
+            {
                 return result;
+            }
         }
         else if (result == CP_REJECT)
         {
             if (s->rejects != SIZE_MAX)
+            {
                 ++s->rejects;
+            }
 #if PS_MUTANT == 2
             *used = n;
             return CP_NEED_MORE;
 #endif
         }
         else
+        {
             return result;
+        }
     }
 }
 
 enum cp_status pt_session_take(struct pt_session *s, struct cp_message *m)
 {
     if (!s || !s->connected || !m)
+    {
         return CP_INVALID;
+    }
     return cp_take(&s->queue, m);
 }

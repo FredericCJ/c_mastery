@@ -25,13 +25,21 @@ static struct ta_write_result script(void *p, const unsigned char *bytes,
     struct ta_script *s = p;
     s->calls++;
     if (s->mode == 1)
+    {
         return (struct ta_write_result){TA_WRITE_WAIT, 0};
+    }
     if (s->mode == 2)
+    {
         return (struct ta_write_result){TA_WRITE_OK, 0};
+    }
     if (s->mode == 3)
+    {
         return (struct ta_write_result){TA_WRITE_ERROR, 0};
+    }
     if (s->mode == 4)
+    {
         return (struct ta_write_result){TA_WRITE_OK, n + 1};
+    }
     if (s->mode == 5)
     {
         s->bytes[s->used++] = bytes[0];
@@ -44,6 +52,7 @@ static struct ta_write_result script(void *p, const unsigned char *bytes,
 int main(void)
 {
     for (unsigned layout = 0; layout < 4; layout++)
+    {
         for (unsigned cap = 1; cap <= 8; cap++)
         {
             struct
@@ -100,6 +109,7 @@ int main(void)
             CHECK(box.before == UINT64_C(0x12345678) &&
                   box.after == UINT64_C(0x87654321));
         }
+    }
     /* Harness allocation substitution: component receives identical typed objects. */
     for (unsigned mode = 0; mode < 2; mode++)
     {
@@ -114,7 +124,9 @@ int main(void)
         CHECK(ta_pop(&q, &out) == TA_OK && out == 7);
         CHECK(ta_pop(&q, &out) == TA_OK && out == 8);
         if (mode)
+        {
             free(s);
+        }
     }
     for (unsigned layout = 0; layout < 4; layout++)
     {
@@ -146,13 +158,17 @@ int main(void)
                 CHECK(s.calls == 2);
             }
             else
+            {
                 CHECK(ta_step(&f, script, &s) ==
                       (mode == 4 ? TA_INVALID : TA_IO));
+            }
             size_t calls = s.calls;
             CHECK(ta_step(&f, script, &s) == f.state && s.calls == calls);
             CHECK(f.uncertain == (mode == 4));
             if (mode == 5)
+            {
                 CHECK(f.offset == 1 && s.used == 1);
+            }
         }
         s = (struct ta_script){0};
         CHECK(ta_begin(&f, packet, 3, (enum ta_layout)layout, 2) == TA_OK);

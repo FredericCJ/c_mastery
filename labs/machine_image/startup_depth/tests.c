@@ -16,7 +16,9 @@
 static void put(unsigned char *p, uint64_t value, unsigned width)
 {
     for (unsigned i = 0; i < width; i++)
+    {
         p[i] = (unsigned char)(value >> (8 * i));
+    }
 }
 
 static int stacks(void)
@@ -26,7 +28,9 @@ static int stacks(void)
     for (unsigned width = 4; width <= 8; width += 4)
     {
         for (unsigned i = 0; i < 12; i++)
+        {
             put(data + 1 + i * width, words[i], width);
+        }
         struct sd_stack view;
         CHECK(sd_stack_decode(data + 1, 12 * width, width, &view) == SD_OK);
         CHECK(view.argc == 2 && view.argv == width && view.envp == 4 * width &&
@@ -81,6 +85,7 @@ static int decimals(void)
                            &parsed) == SD_OK &&
               parsed == value);
         for (int terminated = 0; terminated < 2; terminated++)
+        {
             for (unsigned mode = 0; mode < 2; mode++)
             {
                 unsigned char output[16];
@@ -110,8 +115,11 @@ static int decimals(void)
                                         terminated, &n);
                 CHECK(status == SD_RANGE && n == 777);
                 for (size_t j = 0; j < sizeof output; j++)
+                {
                     CHECK(output[j] == 0xa5);
+                }
             }
+        }
     }
     const char *bad[] = {"",           "+1",          "-1",      " 1",
                          "1 ",         "0x1",         "1_0",     "4294967296",
@@ -201,6 +209,7 @@ static int transfers(void)
     const long zero[] = {0}, partialzero[] = {2, 0}, intr[] = {-4, -4, 3},
                excess[] = {8};
     for (int reading = 0; reading < 2; reading++)
+    {
         for (int partial = 0; partial < 2; partial++)
         {
             s = (struct script){.steps = partial ? partialzero : zero,
@@ -211,6 +220,7 @@ static int transfers(void)
                       (reading ? SD_EOF : SD_STALLED) &&
                   state.offset == (size_t)(partial ? 2 : 0));
         }
+    }
     s = (struct script){.steps = intr, .count = 3, .base = bytes};
     CHECK(sd_transfer_init(&state, bytes, 3, 0) == SD_OK);
     CHECK(sd_transfer_step(&state, scripted, &s, 2, 0) == SD_YIELD &&
@@ -241,7 +251,9 @@ static int transfers(void)
 int main(void)
 {
     if (stacks() || decimals() || transfers())
+    {
         return 1;
+    }
     puts(
         "STARTUP-CORE-PASS: stack bounds, decimal oracle, partial progress and raw-result range");
     return 0;

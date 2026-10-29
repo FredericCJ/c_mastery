@@ -35,8 +35,10 @@ static void setup(void)
 {
     cmx_init(&kernel, CMX_FIXED);
     for (unsigned t = 0; t < 4; t++)
+    {
         CHECK(cmx_task_add(&kernel, 9 - t, 0, 0x20006000 + 0x200 * t, 256) ==
               (int)t);
+    }
     CHECK(cdq_init(&queue, &kernel, 1, 1) == CMX_OK);
 }
 
@@ -76,11 +78,15 @@ static void exercise(void)
     CHECK(cdq_destroy(&queue) == CMX_OK);
     setup();
     for (unsigned t = 0; t < 3; t++)
+    {
         CHECK(cdq_begin(&queue, t, CDQ_GET, 0, cmx_forever()) == CMX_BLOCKED);
+    }
     CHECK(cmx_mutex_lock(&kernel, &queue.mutex, 3, cmx_forever()) == CMX_OK);
     CHECK(cdq_put_locked(&queue, 3, 44) == CMX_OK);
     for (unsigned t = 0; t < 3; t++)
+    {
         CHECK(kernel.task[t].wait == CMX_W_MUTEX);
+    }
     CHECK(cmx_mutex_unlock(&kernel, &queue.mutex, 3) == CMX_OK);
     CHECK(cdq_resume(&queue, 0) == CMX_OK &&
           cdq_resume(&queue, 1) == CMX_BLOCKED &&
@@ -104,10 +110,14 @@ void cl_reset(void)
     uintptr_t source = (uintptr_t)&cl_data_load;
     for (uintptr_t p = (uintptr_t)&cl_data_start; p < (uintptr_t)&cl_data_end;
          p += 4, source += 4)
+    {
         *(uint32_t *)p = *(const uint32_t *)source;
+    }
     for (uintptr_t p = (uintptr_t)&cl_bss_start; p < (uintptr_t)&cl_bss_end;
          p += 4)
+    {
         *(uint32_t *)p = 0;
+    }
     exercise();
     stop(0);
 }

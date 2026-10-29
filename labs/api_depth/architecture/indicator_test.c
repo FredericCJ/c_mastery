@@ -22,9 +22,13 @@ static void write_reg(void *p, uintptr_t a, uint32_t v)
     d->last = v;
     d->address = a;
     if (a == 60)
+    {
         d->words[a / 4] &= ~v;
+    }
     else
+    {
         d->words[a / 4] = v;
+    }
 }
 
 int main(void)

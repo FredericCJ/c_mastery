@@ -25,6 +25,7 @@ static void donation(void)
     CHECK(tp_donate(base, owners, 4, out) == TP_OK && out[0] == 2);
     /* Independent reachability: every waiting chain carries the base priority. */
     for (unsigned b = 0; b < 256; b++)
+    {
         for (unsigned g = 0; g < 625; g++)
         {
             unsigned code = b, graph = g, expected[4];
@@ -41,14 +42,19 @@ static void donation(void)
                 for (unsigned depth = 0; depth < 4 && at >= 0; depth++)
                 {
                     if (expected[(unsigned)at] < base[i])
+                    {
                         expected[(unsigned)at] = base[i];
+                    }
                     at = owners[(unsigned)at];
                 }
             }
             CHECK(tp_donate(base, owners, 4, out) == TP_OK);
             for (unsigned i = 0; i < 4; i++)
+            {
                 CHECK(out[i] == expected[i]);
+            }
         }
+    }
     owners[0] = 4;
     out[0] = 77;
     CHECK(tp_donate(base, owners, 4, out) == TP_INVALID && out[0] == 77);
@@ -76,7 +82,9 @@ static void effects(void)
 {
     CHECK(tp_nonsleepable(0) == TP_OK);
     for (unsigned i = 0; i < 6; i++)
+    {
         CHECK(tp_nonsleepable(1u << i) == TP_UNSUPPORTED);
+    }
     CHECK(tp_nonsleepable(64) == TP_INVALID);
     uint64_t path[5] = {50, 200, 300, 400, 500}, out = 77;
     CHECK(tp_bound(path, 5, 0, 1000, &out) == TP_UNSUPPORTED && out == 77);
@@ -139,14 +147,24 @@ int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (!strcmp(argv[1], "donation"))
+    {
         donation();
+    }
     else if (!strcmp(argv[1], "bound"))
+    {
         bound();
+    }
     else if (!strcmp(argv[1], "effects"))
+    {
         effects();
+    }
     else if (!strcmp(argv[1], "history"))
+    {
         history();
+    }
     else
+    {
         return 2;
+    }
     return 0;
 }

@@ -16,7 +16,9 @@ static void setup(cmx_kernel *k)
 {
     cmx_init(k, CMX_FIXED);
     for (unsigned i = 0; i < 4; i++)
+    {
         (void)cmx_task_add(k, 9 - i * 2, 40 - i * 8, 0x1000 + i * 0x1000, 512);
+    }
 }
 
 static int admission(void)
@@ -28,7 +30,9 @@ static int admission(void)
     CHECK(cmx_task_add(&k, 4, 10, 0x2001, 512) == CMX_NONE);
     CHECK(cmx_task_add(&k, 4, 10, UINTPTR_MAX - 7, 512) == CMX_NONE);
     for (unsigned i = 1; i < CMX_TASKS; i++)
+    {
         CHECK(cmx_task_add(&k, 4, 10, 0x1000 + i * 0x1000, 512) == (int)i);
+    }
     CHECK(cmx_task_add(&k, 4, 10, 0x100000, 512) == CMX_NONE);
     return 0;
 }
@@ -434,7 +438,9 @@ static int spsc(void)
     atomic_store(&q.head, UINT32_MAX - 1);
     atomic_store(&q.tail, UINT32_MAX - 1);
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(cmx_spsc_push(&q, i) == CMX_OK);
+    }
     CHECK(cmx_spsc_push(&q, 8) == CMX_FULL);
     for (unsigned i = 0; i < 4; i++)
     {
@@ -513,14 +519,20 @@ int main(int argc, char **argv)
                  {"epoch", epoch}};
 
     if (argc != 2)
+    {
         return 2;
+    }
     for (size_t i = 0; i < sizeof tests / sizeof tests[0]; i++)
+    {
         if (!strcmp(argv[1], tests[i].name))
         {
             int r = tests[i].test();
             if (!r)
+            {
                 printf("PASS execution.%s\n", argv[1]);
+            }
             return r;
         }
+    }
     return 2;
 }

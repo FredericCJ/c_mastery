@@ -19,10 +19,14 @@ int main(void)
 {
     unsigned char *p = ef_local_alloc(8);
     if (!p)
+    {
         return 1;
+    }
     *p = 7;
     if (requests != 1 || hooks != 0)
+    {
         return 2;
+    }
     printf("{\"same_translation_unit_requests\":%u,\"link_wrap_hooks\":%u}\n",
            requests, hooks);
     return 0;

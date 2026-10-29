@@ -9,11 +9,17 @@ static int boolean(unsigned x)
 int e7_grant_begin(struct e7_grant *s, uint32_t now, uint32_t *out)
 {
     if (!s || !out || now < s->last || now > UINT32_MAX - 25000)
+    {
         return E7_INVALID;
+    }
     if (s->phase || now < s->turn_due)
+    {
         return E7_BUSY;
+    }
     if (s->generation == UINT32_MAX)
+    {
         return E7_FULL;
+    }
     s->generation++;
     s->last = now;
     s->turn_due = now + 25000;
@@ -27,11 +33,17 @@ int e7_grant_begin(struct e7_grant *s, uint32_t now, uint32_t *out)
 int e7_grant_first(struct e7_grant *s, uint32_t token, uint32_t now)
 {
     if (!s || now < s->last || now > UINT32_MAX - 10000)
+    {
         return E7_INVALID;
+    }
     if (!token || token != s->generation || s->phase != 1)
+    {
         return E7_STALE;
+    }
     if (now < s->start_earliest)
+    {
         return E7_BUSY;
+    }
     if (now > s->start_deadline)
     {
         s->phase = 0;
@@ -47,9 +59,13 @@ int e7_grant_first(struct e7_grant *s, uint32_t token, uint32_t now)
 int e7_grant_finish(struct e7_grant *s, uint32_t token, uint32_t now)
 {
     if (!s || now < s->last)
+    {
         return E7_INVALID;
+    }
     if (!token || token != s->generation || s->phase != 2)
+    {
         return E7_STALE;
+    }
     s->last = now;
     s->phase = 0;
     return now > s->end_deadline ? E7_END_TIMEOUT : E7_OK;
@@ -58,7 +74,9 @@ int e7_grant_finish(struct e7_grant *s, uint32_t token, uint32_t now)
 int e7_grant_tick(struct e7_grant *s, uint32_t now)
 {
     if (!s || now < s->last)
+    {
         return E7_INVALID;
+    }
     s->last = now;
     if (s->phase == 1 && now > s->start_deadline)
     {
@@ -87,17 +105,23 @@ int e7_link_admit(unsigned kind, unsigned local, unsigned destination,
     if (!out || kind > 2 || local < 1 || local > 2 || destination < 1 ||
         destination > 2 || !boolean(granted) || !boolean(transmitting) ||
         !boolean(fault))
+    {
         return E7_INVALID;
+    }
     if (transmitting)
     {
         *out = 0;
         return E7_OK;
     }
     if (fault || destination != local || (kind == 1 && local != 2))
+    {
         return E7_REJECTED;
+    }
 #ifndef E7_MUTATE_GRANT2
     if (kind != 1 && !granted)
+    {
         return E7_REJECTED;
+    }
 #endif
     *out = kind == 0;
     return E7_OK;
@@ -115,13 +139,21 @@ int e7_send_begin(struct e7_sender *s, uint16_t id, unsigned src, unsigned dst,
     if (!s || !p || !n || n > 120 || !id ||
         !((src == 7 && dst == 8) || (src == 8 && dst == 7)) ||
         !sender_time(s, now))
+    {
         return E7_INVALID;
+    }
     if (s->active)
+    {
         return E7_BUSY;
+    }
     if (id <= s->id)
+    {
         return E7_STALE;
+    }
     for (i = 0; i < n; i++)
+    {
         s->bytes[i] = p[i];
+    }
     s->length = (uint8_t)n;
     s->id = id;
     s->source = (uint8_t)src;
@@ -141,11 +173,17 @@ int e7_send_offer(struct e7_sender *s, uint32_t now, struct e7_fragment *out,
     struct e7_fragment f = {0};
     unsigned pos, n, i;
     if (!s || !out || !token || !sender_time(s, now))
+    {
         return E7_INVALID;
+    }
     if (!s->active)
+    {
         return E7_STALE;
+    }
     if (s->offered)
+    {
         return E7_BUSY;
+    }
     if (s->blocked && now - s->blocked_since >= 500)
     {
         s->active = 0;
@@ -153,7 +191,9 @@ int e7_send_offer(struct e7_sender *s, uint32_t now, struct e7_fragment *out,
         return E7_TIMEOUT;
     }
     if (now < s->due)
+    {
         return E7_WAIT;
+    }
     if (s->waiting && s->credit && s->retries == 3)
     {
         s->active = 0;
@@ -161,7 +201,9 @@ int e7_send_offer(struct e7_sender *s, uint32_t now, struct e7_fragment *out,
         return E7_TIMEOUT;
     }
     if (s->offer_token == UINT32_MAX)
+    {
         return E7_FULL;
+    }
     f.id = s->id;
     f.source = s->source;
     f.destination = s->destination;
@@ -174,10 +216,14 @@ int e7_send_offer(struct e7_sender *s, uint32_t now, struct e7_fragment *out,
         pos = (unsigned)s->index * 24;
         n = s->length - pos;
         if (n > 24)
+        {
             n = 24;
+        }
         f.length = (uint8_t)n;
         for (i = 0; i < n; i++)
+        {
             f.data[i] = s->bytes[pos + i];
+        }
     }
     s->offer = f;
     s->offered = 1;
@@ -195,9 +241,13 @@ int e7_send_accept(struct e7_sender *s, uint32_t token, unsigned accepted,
                    uint32_t now)
 {
     if (!s || !boolean(accepted) || !sender_time(s, now))
+    {
         return E7_INVALID;
+    }
     if (!s->active || !s->offered || !token || token != s->offer_token)
+    {
         return E7_STALE;
+    }
     s->last = now;
     if (s->blocked && now - s->blocked_since >= 500)
     {
@@ -206,11 +256,15 @@ int e7_send_accept(struct e7_sender *s, uint32_t token, unsigned accepted,
     }
     s->offered = 0;
     if (!accepted)
+    {
         return E7_BUSY;
+    }
     if (s->offer.type == 1)
     {
         if (s->waiting)
+        {
             s->retries++;
+        }
         s->waiting = 1;
     }
     s->due = now + 100;
@@ -220,14 +274,20 @@ int e7_send_accept(struct e7_sender *s, uint32_t token, unsigned accepted,
 int e7_send_ack(struct e7_sender *s, const struct e7_fragment *a, uint32_t now)
 {
     if (!s || !a || !sender_time(s, now) || !boolean(a->credit))
+    {
         return E7_INVALID;
+    }
     if (!s->active || s->offered || a->type != 2 || a->length ||
         a->id != s->id || a->source != s->destination ||
         a->destination != s->source || a->index != s->index ||
         a->count != s->count)
+    {
         return E7_STALE;
+    }
     if (!s->waiting && !s->blocked)
+    {
         return E7_STALE;
+    }
     s->last = now;
     if (s->blocked && now - s->blocked_since >= 500)
     {
@@ -248,7 +308,9 @@ int e7_send_ack(struct e7_sender *s, const struct e7_fragment *a, uint32_t now)
     {
 #ifndef E7_MUTATE_OFFER2
         if (!s->blocked)
+        {
             s->blocked_since = now;
+        }
 #else
         s->blocked_since = now;
 #endif
@@ -268,7 +330,9 @@ int e7_send_ack(struct e7_sender *s, const struct e7_fragment *a, uint32_t now)
 int e7_send_expire(struct e7_sender *s, uint32_t now)
 {
     if (!s || !sender_time(s, now))
+    {
         return E7_INVALID;
+    }
     s->last = now;
     if (s->active && s->blocked && now - s->blocked_since >= 500)
     {
@@ -287,8 +351,12 @@ static int equal(const uint8_t *a, const uint8_t *b, size_t n)
 {
     size_t i;
     for (i = 0; i < n; i++)
+    {
         if (a[i] != b[i])
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
@@ -297,12 +365,18 @@ int e7_session_open(struct e7_session *s, uint16_t session, uint16_t epoch,
 {
     unsigned i;
     if (!s || !session || !epoch || schema != 1 || unit != 1)
+    {
         return E7_INVALID;
+    }
     if (s->open)
+    {
         return s->session == session && s->epoch == epoch ? E7_DUPLICATE
                                                           : E7_BUSY;
+    }
     if (epoch <= s->epoch)
+    {
         return E7_STALE;
+    }
     s->session = session;
     s->epoch = epoch;
     s->holder = 17;
@@ -327,33 +401,51 @@ int e7_session_prepare(struct e7_session *s, unsigned sender, uint16_t session,
     size_t i;
     if (!s || !p || !n || n > 80 || !token || !cached_length ||
         (!cached && cap) || !cp || d < 0)
+    {
         return E7_INVALID;
+    }
     if (!s->open || s->session != session || s->epoch != epoch)
+    {
         return E7_STALE;
+    }
     r = &s->receipt[d];
     if (cp == r->checkpoint)
     {
         if (n != r->request_length || !equal(p, r->request, n))
+        {
             return E7_REJECTED;
+        }
         if (cap < r->response_length)
+        {
             return E7_FULL;
+        }
         for (i = 0; i < r->response_length; i++)
+        {
             cached[i] = r->response[i];
+        }
         *cached_length = r->response_length;
         *token = 0;
         return E7_DUPLICATE;
     }
     if (s->pending_token || s->token_pending || s->holder != sender)
+    {
         return E7_BUSY;
+    }
     if (r->checkpoint == UINT16_MAX || cp != (unsigned)r->checkpoint + 1)
+    {
         return E7_STALE;
+    }
     if (s->generation == UINT32_MAX)
+    {
         return E7_FULL;
+    }
     s->pending_direction = (uint8_t)d;
     s->pending_checkpoint = cp;
     s->pending_length = (uint8_t)n;
     for (i = 0; i < n; i++)
+    {
         s->pending[i] = p[i];
+    }
     s->pending_token = ++s->generation;
     *token = s->pending_token;
     *cached_length = 0;
@@ -370,9 +462,13 @@ int e7_session_commit(struct e7_session *s, uint32_t token, unsigned accepted,
     size_t i;
     if (!s || !boolean(accepted) || n > 80 || (!response && n) ||
         (!accepted && n))
+    {
         return E7_INVALID;
+    }
     if (!s->open || !token || token != s->pending_token)
+    {
         return E7_STALE;
+    }
     if (accepted)
     {
         r = &s->receipt[s->pending_direction];
@@ -380,9 +476,13 @@ int e7_session_commit(struct e7_session *s, uint32_t token, unsigned accepted,
         r->request_length = s->pending_length;
         r->response_length = (uint8_t)n;
         for (i = 0; i < r->request_length; i++)
+        {
             r->request[i] = s->pending[i];
+        }
         for (i = 0; i < n; i++)
+        {
             r->response[i] = response[i];
+        }
 #ifdef E7_MUTATE_SESSION2
         s->receipt[1 - s->pending_direction].checkpoint = r->checkpoint;
 #endif
@@ -395,9 +495,13 @@ int e7_session_commit(struct e7_session *s, uint32_t token, unsigned accepted,
 int e7_token_begin(struct e7_session *s, unsigned sender, unsigned next)
 {
     if (!s || direction(sender) < 0 || direction(next) < 0 || sender == next)
+    {
         return E7_INVALID;
+    }
     if (!s->open || s->holder != sender || s->token_pending || s->pending_token)
+    {
         return E7_BUSY;
+    }
     s->token_pending = (uint8_t)next;
     return E7_OK;
 }
@@ -405,11 +509,17 @@ int e7_token_begin(struct e7_session *s, unsigned sender, unsigned next)
 int e7_token_complete(struct e7_session *s, unsigned next, unsigned confirmed)
 {
     if (!s || direction(next) < 0 || !boolean(confirmed))
+    {
         return E7_INVALID;
+    }
     if (!s->open || s->token_pending != next)
+    {
         return E7_STALE;
+    }
     if (!confirmed)
+    {
         return E7_BUSY;
+    }
     s->holder = (uint8_t)next;
     s->token_pending = 0;
     return E7_OK;
@@ -420,7 +530,9 @@ int e7_session_resume(const struct e7_session *s, uint16_t session,
 {
     int d = direction(sender);
     if (!s || d < 0)
+    {
         return E7_INVALID;
+    }
     return s->open && s->session == session && s->epoch == epoch &&
                    s->receipt[d].checkpoint == cp
                ? E7_OK
@@ -430,9 +542,13 @@ int e7_session_resume(const struct e7_session *s, uint16_t session,
 int e7_session_close(struct e7_session *s)
 {
     if (!s)
+    {
         return E7_INVALID;
+    }
     if (s->pending_token || s->token_pending)
+    {
         return E7_BUSY;
+    }
     s->open = 0;
     return E7_OK;
 }

@@ -48,6 +48,7 @@ static void hrelease(void *c, struct cd_bucket *p)
 int main(void)
 {
     for (unsigned n = 4; n <= 16; n *= 2)
+    {
         for (unsigned cluster = 0; cluster < 2; ++cluster)
         {
             struct cd_vector vector;
@@ -73,6 +74,7 @@ int main(void)
                           CD_OK);
             }
             for (unsigned sample = 0; sample < 5; ++sample)
+            {
                 for (unsigned kind = 0; kind < 3; ++kind)
                 {
                     uint64_t comparisons = 0, sum = 0, start = now();
@@ -126,6 +128,7 @@ int main(void)
                         n, cluster, kind, sample, 2000 * n, elapsed,
                         comparisons, sum);
                 }
+            }
             for (unsigned sample = 0; sample < 5; ++sample)
             {
                 uint64_t totalprobes = 0, sum = 0, start = now();
@@ -150,6 +153,7 @@ int main(void)
             /* Indexed-read control uses logical positions; the hash is not an ordered-sequence substitute. */
             uint64_t steps = 0, sum = 0, start = now();
             for (unsigned round = 0; round < 2000; ++round)
+            {
                 for (unsigned i = 0; i < n; ++i)
                 {
                     struct cd_link *p = list.head;
@@ -161,6 +165,7 @@ int main(void)
                     CHECK(p->value == vector.data[i]);
                     sum += (unsigned)p->value;
                 }
+            }
             printf(
                 "{\"workload\":\"list-indexed-vs-array-check\",\"size\":%u,\"nanoseconds\":%" PRIu64
                 ",\"pointer_steps\":%" PRIu64 ",\"checksum\":%" PRIu64 "}\n",
@@ -168,5 +173,6 @@ int main(void)
             CHECK(cd_vector_destroy(&vector) == CD_OK &&
                   cd_hash_destroy(&hash) == CD_OK);
         }
+    }
     return 0;
 }

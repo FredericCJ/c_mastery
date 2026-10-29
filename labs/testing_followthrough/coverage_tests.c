@@ -33,9 +33,15 @@ int main(int argc, char **argv)
     CHECK(cv_decision(1, 1) == 1 && cv_decision(0, 1) == 0 &&
           cv_decision(1, 0) == 0);
     for (int a = 0; a < 2; a++)
+    {
         for (int b = 0; b < 2; b++)
+        {
             for (int d = 0; d < 2; d++)
+            {
                 CHECK(cv_changed(a, b, d) == ((a + b == 2) || d));
+            }
+        }
+    }
     puts(
         "CV_PASS:capacity,authorization,rejection-effect,cleanup,truth-relations");
     return 0;

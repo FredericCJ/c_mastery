@@ -6,8 +6,12 @@ static int su_target_compare(const void *a, const void *b, size_t n)
 {
     const unsigned char *x = a, *y = b;
     for (size_t i = 0; i < n; i++)
+    {
         if (x[i] != y[i])
+        {
             return 1;
+        }
+    }
     return 0;
 }
 
@@ -45,11 +49,13 @@ static int cohort(void)
     CHECK(su_active(&s, 51, 1) == CMX_OK && su_invariant(&s));
     unsigned old = 0, newer = 0;
     for (unsigned i = 0; i < s.q; ++i)
+    {
         if (s.unit[i].active)
         {
             old += s.unit[i].anchor == 40;
             newer += s.unit[i].anchor == 50;
         }
+    }
     CHECK(old == 1 && newer == 18);
     CHECK(su_run(&s, 51, 19) == CMX_OK && su_active(&s, 70, 0) == CMX_OK);
     CHECK(su_active(&s, 90, 1) == CMX_OK && su_available(&s) == 2);
@@ -89,7 +95,9 @@ static int overrun(void)
     su_flawed_run(&bad, 10, 3);
     unsigned total = bad.remaining;
     for (unsigned i = 0; i < bad.count; ++i)
+    {
         total += bad.amount[i];
+    }
     CHECK(total == 5 && total > bad.q);
     puts("SU_OVERRUN:pass");
     return 0;
@@ -125,30 +133,48 @@ static unsigned completion(unsigned flawed)
     struct su_state s;
     struct su_flawed bad;
     if (su_init(&s, 20, 50, 0, 0) != CMX_OK)
+    {
         return 0;
+    }
     su_flawed_init(&bad, 20, 50);
     unsigned release[3] = {0, 40, 90}, cost[3] = {18, 20, 20}, left[3] = {0},
              hp = 0, low = 49;
     for (unsigned t = 0; t < 150; ++t)
     {
         for (unsigned i = 0; i < 3; ++i)
+        {
             if (release[i] == t)
+            {
                 left[i] = cost[i];
+            }
+        }
         if (t == 41)
+        {
             hp = 10;
+        }
         if (flawed)
+        {
             su_flawed_update(&bad, t);
+        }
         else if (su_active(&s, t, s.active) != CMX_OK)
+        {
             return 0;
+        }
         unsigned index = 0;
         while (index < 3 && !left[index])
+        {
             ++index;
+        }
         unsigned available = flawed ? bad.remaining : su_available(&s);
         unsigned active = hp || (index < 3 && available);
         if (flawed)
+        {
             su_flawed_active(&bad, t, active);
+        }
         else if (su_active(&s, t, active) != CMX_OK)
+        {
             return 0;
+        }
 #ifndef SU_TARGET
         printf("TRACE %u %u %u %u %u\n", flawed, t,
                hp                       ? 3
@@ -157,17 +183,25 @@ static unsigned completion(unsigned flawed)
                available, low);
 #endif
         if (hp)
+        {
             --hp;
+        }
         else if (index < 3 && available)
         {
             if (flawed)
+            {
                 su_flawed_run(&bad, t, 1);
+            }
             else if (su_run(&s, t, 1) != CMX_OK)
+            {
                 return 0;
+            }
             --left[index];
         }
         else if (low && !--low)
+        {
             return t + 1;
+        }
     }
     return 0;
 }
@@ -200,14 +234,18 @@ static int stream(void)
         {
             unsigned op, t, arg;
             if (scanf("%u%u%u", &op, &t, &arg) != 3)
+            {
                 return 2;
+            }
             enum cmx_result r = op ? su_run(&s, t, arg) : su_active(&s, t, arg);
             printf("U %u %u %u %llu %llu %u", (unsigned)r, s.last, s.active,
                    (unsigned long long)s.served, (unsigned long long)s.borrowed,
                    su_available(&s));
             for (unsigned j = 0; j < s.q; ++j)
+            {
                 printf(" %u %u %u", s.unit[j].due, s.unit[j].anchor,
                        s.unit[j].active);
+            }
             puts("");
         }
     }
@@ -217,17 +255,29 @@ static int stream(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "cohort"))
+    {
         return cohort();
+    }
     if (!strcmp(argv[1], "overrun"))
+    {
         return overrun();
+    }
     if (!strcmp(argv[1], "guard"))
+    {
         return guard();
+    }
     if (!strcmp(argv[1], "comparison"))
+    {
         return comparison();
+    }
     if (!strcmp(argv[1], "stream"))
+    {
         return stream();
+    }
     return 2;
 }
 #endif

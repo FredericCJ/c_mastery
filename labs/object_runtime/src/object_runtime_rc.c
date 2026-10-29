@@ -3,7 +3,9 @@
 void orr_init(struct orr_heap *h)
 {
     if (h)
+    {
         *h = (struct orr_heap){0};
+    }
 }
 
 int orr_invariant(const struct orr_heap *h)

@@ -25,7 +25,9 @@ static unsigned registered(const struct or_vm *o)
 {
     unsigned i, n = 0;
     for (i = 0; i < 16; i++)
+    {
         n += o->roots[i] != NULL;
+    }
     return n;
 }
 
@@ -85,15 +87,23 @@ static int roots(void)
           cvm_field(&v, garbage, 0, &field) == CVM_STALE);
     CHECK(cvm_field(&v, a.base, 0, &field) == CVM_OK && field.integer == 77);
     for (i = 0; i < v.depth; i++)
+    {
         for (j = 0; j < CVM_LOCALS; j++)
+        {
             if (v.frames[i].initialized[j] &&
                 v.frames[i].locals[j].tag == CVM_REF)
+            {
                 CHECK(cvm_field(&v, v.frames[i].locals[j], 1, &field) ==
                           CVM_OK &&
                       field.integer == 88);
+            }
+        }
+    }
     CHECK(v.frames[2].locals[7].integer == 999);
     for (i = 0; i < 3; i++)
+    {
         CHECK(orv_unregister(&o, tickets[i]) == OR_OK);
+    }
     CHECK(orv_unregister(&o, tickets[0]) == OR_MISS && registered(&o) == 0);
     /* Full 216-slot map: all initialized copies, not one representative. */
     {
@@ -104,15 +114,21 @@ static int roots(void)
         v.sp = CVM_STACK;
         v.depth = CVM_FRAMES;
         for (i = 0; i < CVM_ROOTS; i++)
+        {
             v.roots[i] = live;
+        }
         for (i = 0; i < CVM_STACK; i++)
+        {
             v.stack[i] = i & 1 ? live : cvm_int(0);
+        }
         for (i = 0; i < CVM_FRAMES; i++)
+        {
             for (j = 0; j < CVM_LOCALS; j++)
             {
                 v.frames[i].locals[j] = live;
                 v.frames[i].initialized[j] = 1;
             }
+        }
         for (i = 0; i < 16; i++)
         {
             extra[i] = (struct orv_derived){live, (uint8_t)(i % 3)};
@@ -123,7 +139,9 @@ static int roots(void)
         CHECK(orv_collect(&o, 1000, 0, &stats) == OR_OK && stats.slots == 216 &&
               stats.frames == 27 && stats.root_copies == 184);
         for (i = 0; i < 16; i++)
+        {
             CHECK(orv_unregister(&o, ids[i]) == OR_OK);
+        }
     }
     before = v;
     prior = stats;
@@ -176,11 +194,15 @@ static enum or_status callback(struct or_vm *o, struct orv_derived *a,
         if (orv_call(o, a->base, b->base, callback, context, &ignored) !=
                 OR_STATE ||
             orv_pause(o, 0) != OR_STATE)
+        {
             return OR_INVALID;
+        }
     }
     s = orv_pair(o, a, b, 1, f->cut, out);
     if (s)
+    {
         return s;
+    }
     return f->mode == 2 ? OR_STATE : OR_OK;
 }
 
@@ -204,7 +226,9 @@ static int foreign(void)
               (cut ? OR_FULL : OR_OK));
         CHECK(context.calls == 1 && registered(&o) == 0 && o.foreign == 0);
         if (cut)
+        {
             CHECK(out.tag == CVM_INT && out.integer == 999);
+        }
         else
         {
             CHECK(out.tag == CVM_REF &&
@@ -248,7 +272,9 @@ static int foreign(void)
         CHECK(orv_call(&o, value, value, callback, &context, &out) == OR_FULL &&
               context.calls == 0 && registered(&o) == 14 && out.integer == 999);
         for (i = 0; i < 14; i++)
+        {
             CHECK(orv_unregister(&o, ids[i]) == OR_OK);
+        }
     }
     return 0;
 }
@@ -258,6 +284,7 @@ static int oracle(void)
 {
     unsigned code, roots_mask;
     for (code = 0; code < 4096; code++)
+    {
         for (roots_mask = 0; roots_mask < 8; roots_mask++)
         {
             struct cvm_cvm v;
@@ -271,9 +298,12 @@ static int oracle(void)
             {
                 if (cvm_pair(&v, cvm_int((int32_t)(100 + i)), cvm_int(0),
                              &handles[i]) != CVM_OK)
+                {
                     return 1;
+                }
             }
             for (i = 0; i < 3; i++)
+            {
                 for (j = 0; j < 2; j++)
                 {
                     unsigned edge = remaining % 4;
@@ -282,28 +312,44 @@ static int oracle(void)
                     value =
                         edge ? handles[edge - 1] : cvm_int((int32_t)(100 + i));
                     if (j)
+                    {
                         v.heap[i].right = value;
+                    }
                     else
+                    {
                         v.heap[i].left = value;
+                    }
                 }
+            }
             for (i = 0; i < 3; i++)
+            {
                 if (roots_mask & (1u << i))
+                {
                     if (cvm_root_push(&v, handles[i]) != CVM_OK)
+                    {
                         return 1;
+                    }
+                }
+            }
             {
                 struct cvm_cvm baseline = v;
                 if (cvm_collect(&baseline) != CVM_OK ||
                     orv_collect(&o, 1000, 0, &stats) != OR_OK)
+                {
                     return 1;
+                }
                 printf("VM %u %u %u", code, roots_mask, stats.live);
                 for (i = 0; i < 3; i++)
                 {
                     printf(" %u", stats.forwarding[i]);
                     if ((baseline.heap[i].used != 0) !=
                         (stats.forwarding[i] != 0))
+                    {
                         return 1;
+                    }
                 }
                 for (i = 0; i < 3; i++)
+                {
                     for (j = 0; j < 2; j++)
                     {
                         if (v.heap[i].used)
@@ -315,28 +361,42 @@ static int oracle(void)
                                               : value.integer);
                         }
                         else
+                        {
                             printf(" -1");
+                        }
                     }
+                }
                 for (i = 0; i < v.root_count; i++)
                 {
                     if (cvm_field(&v, v.roots[i], 0, &ignored) != CVM_OK)
+                    {
                         return 1;
+                    }
                 }
                 puts("");
             }
         }
+    }
     return 0;
 }
 
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "roots"))
+    {
         return roots();
+    }
     if (!strcmp(argv[1], "foreign"))
+    {
         return foreign();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     return 2;
 }

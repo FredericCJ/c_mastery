@@ -31,26 +31,42 @@ static uint32_t rd(void *ctx, unsigned r)
 {
     struct dg_device *m = ctx;
     if (m->log_n < 128)
+    {
         m->log[m->log_n++] = r;
+    }
     if (r == PU_SOURCE)
+    {
         return ++m->source_reads >= m->source_after && m->source_after;
+    }
     if (r == PU_GATE)
     {
         m->synced = m->gate;
         return m->gate;
     }
     if (r == PU_DMA_GATE)
+    {
         return 1;
+    }
     if (r == PU_DMA_BUSY)
+    {
         return m->dma_busy;
+    }
     if (r == PU_DMA_COUNT)
+    {
         return m->dma_count;
+    }
     if (r == PU_DMA_FLAGS)
+    {
         return m->dma_flags;
+    }
     if (r == PU_CR1)
+    {
         return m->cr1;
+    }
     if (r == PU_SR)
+    {
         return m->sr;
+    }
     if (r == PU_DR)
     {
         m->dr_reads++;
@@ -64,7 +80,9 @@ static void wr(void *ctx, unsigned r, uintptr_t v)
 {
     struct dg_device *m = ctx;
     if (m->log_n < 128)
+    {
         m->log[m->log_n++] = r + 32;
+    }
     if (r == PU_GATE)
     {
         m->gate = 1;
@@ -74,42 +92,70 @@ static void wr(void *ctx, unsigned r, uintptr_t v)
     if (r == PU_RESET)
     {
         if (!m->synced)
+        {
             m->bad++;
+        }
         m->reset = (unsigned)v;
         return;
     }
     if (r == PU_DMA_GATE)
+    {
         return;
+    }
     if (!m->synced || m->reset)
+    {
         m->bad++;
+    }
     if (r == PU_CR1)
+    {
         m->cr1 = (uint32_t)v;
+    }
     if (r == PU_CR3)
+    {
         m->cr3 = (uint32_t)v;
+    }
     if (r == PU_BRR)
+    {
         m->brr = (uint32_t)v;
+    }
     if (r == PU_SR)
+    {
         m->sr &= (uint32_t)v | ~0x360u;
+    }
     if (r == PU_DR)
     {
         if (!(m->sr & PU_TXE) || m->writes == 8)
+        {
             m->bad++;
+        }
         else
+        {
             m->wire[m->writes++] = (uint8_t)v;
+        }
         m->sr &= ~PU_TC;
     }
     if (r == PU_DMA_ADDRESS)
+    {
         m->address = v;
+    }
     if (r == PU_DMA_COUNT)
+    {
         m->dma_count = (uint32_t)v;
+    }
     if (r == PU_DMA_CLEAR)
+    {
         m->dma_flags = 0;
+    }
     if (r == PU_DMA_CONTROL)
     {
         if (v)
+        {
             m->dma_busy = 1;
+        }
         else
+        {
             m->dma_stop++;
+        }
     }
 }
 

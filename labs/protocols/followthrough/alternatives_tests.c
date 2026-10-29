@@ -18,7 +18,9 @@ int main(void)
                    lengths[] = {0, 1, 4, 16, 64, 65},
                    times[] = {0, 1, 1000, 1001};
     for (unsigned a = 0; a < 7; a++)
+    {
         for (unsigned l = 0; l < 6; l++)
+        {
             for (unsigned t = 0; t < 4; t++)
             {
                 struct pa_empty empty = {{0}};
@@ -31,22 +33,30 @@ int main(void)
                     two = pa_address(empty, addresses[a], &address);
                 C(one == two);
                 if (one)
+                {
                     continue;
+                }
                 one = pt_builder_set(&b, 1, lengths[l]);
                 two = pa_length(address, lengths[l], &length);
                 C(one == two);
                 if (one)
+                {
                     continue;
+                }
                 one = pt_builder_set(&b, 2, times[t]);
                 two = pa_timeout(length, times[t], &timeout);
                 C(one == two);
                 if (one)
+                {
                     continue;
+                }
                 one = pt_builder_finish(&b, &x);
                 two = pa_finish(timeout, &y);
                 C(one == two && memcmp(&x, &y, sizeof x) == 0);
                 configurations++;
             }
+        }
+    }
     for (unsigned pattern = 0; pattern < 256; pattern++)
     {
         struct pt_thread a = {0}, b = {0};
@@ -60,7 +70,9 @@ int main(void)
                 two = pa_thread_sum(&b, available, value, &y);
             C(one == two && a.count == b.count && a.sum == b.sum && x == y);
             if (available && a.count < 3)
+            {
                 supplied++;
+            }
         }
     }
     struct pt_thread t = {0, 2, UINT32_MAX};

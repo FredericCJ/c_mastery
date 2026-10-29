@@ -25,7 +25,9 @@ static int read_page(void *ctx, uint32_t page, void *out)
 {
     struct cpx_device *d = ctx;
     if (page >= STORE_IMAGE_PAGES)
+    {
         return 1;
+    }
     memcpy(out, d->working[page], STORE_PAGE_SIZE);
     return 0;
 }
@@ -34,12 +36,18 @@ static int write_page(void *ctx, uint32_t page, const void *in)
 {
     struct cpx_device *d = ctx;
     if (page >= STORE_IMAGE_PAGES)
+    {
         return 1;
+    }
     if (d->owner)
+    {
         CHECK(!d->owner->durable);
+    }
     ++d->operation;
     if (d->cut == d->operation)
+    {
         return 1;
+    }
     memcpy(d->working[page], in, STORE_PAGE_SIZE);
     return 0;
 }
@@ -48,10 +56,14 @@ static int flush(void *ctx)
 {
     struct cpx_device *d = ctx;
     if (d->owner)
+    {
         CHECK(!d->owner->durable);
+    }
     ++d->operation;
     if (d->cut == d->operation && !d->persist_before_error)
+    {
         return 1;
+    }
     memcpy(d->stable, d->working, sizeof d->stable);
     return d->cut == d->operation;
 }
@@ -109,6 +121,7 @@ int main(void)
     snapshot = disk;
     unsigned operations = reference(), cuts = 0;
     for (unsigned mode = 0; mode < 2; ++mode)
+    {
         for (unsigned cut = 1; cut <= operations; ++cut)
         {
             disk = snapshot;
@@ -153,6 +166,7 @@ int main(void)
             disk.owner = NULL;
             ++cuts;
         }
+    }
     printf(
         "CPX_PASS queued/held/written/durable/acknowledged phases; %u flush/write cuts; %u operations\n",
         cuts, operations);

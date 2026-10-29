@@ -6,7 +6,9 @@
 enum lm_status lm_observe(double (*f)(double), double x, struct lm_sample *out)
 {
     if (!f || !out)
+    {
         return LM_ARGUMENT;
+    }
 #if (defined(__FAST_MATH__) ||                                   \
      (defined(__FINITE_MATH_ONLY__) && __FINITE_MATH_ONLY__)) && \
     !defined(LM_MUTANT_POLICY)

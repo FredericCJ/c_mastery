@@ -14,13 +14,17 @@ static unsigned width(unsigned b)
 static int continuation(const struct lu_state *s, unsigned b)
 {
     if (b < 0x80 || b > 0xbf)
+    {
         return 0;
+    }
 #ifndef LU_MUTANT_RANGE
     if (s->used == 1 && ((s->bytes[0] == 0xe0 && b < 0xa0) ||
                          (s->bytes[0] == 0xed && b > 0x9f) ||
                          (s->bytes[0] == 0xf0 && b < 0x90) ||
                          (s->bytes[0] == 0xf4 && b > 0x8f)))
+    {
         return 0;
+    }
 #endif
     return 1;
 }
@@ -33,7 +37,9 @@ static uint32_t scalar(const struct lu_state *s)
                                 : n == 3 ? 0x0fu
                                          : 0x07u);
     for (unsigned i = 1; i < n; ++i)
+    {
         u = (u << 6) | (s->bytes[i] & 0x3fu);
+    }
     return u;
 }
 
@@ -53,7 +59,9 @@ static enum lu_status walk(struct lu_state *s, const unsigned char *b, size_t n,
             if (!w)
             {
                 if (p == LU_STRICT)
+                {
                     return LU_INVALID;
+                }
                 u = 0xfffd;
                 emit = 1;
                 ++i;
@@ -74,7 +82,9 @@ static enum lu_status walk(struct lu_state *s, const unsigned char *b, size_t n,
         else if (!continuation(s, x))
         {
             if (p == LU_STRICT)
+            {
                 return LU_INVALID;
+            }
             s->used = 0;
             u = 0xfffd;
             emit =
@@ -97,9 +107,13 @@ static enum lu_status walk(struct lu_state *s, const unsigned char *b, size_t n,
         if (emit)
         {
             if (k == cap)
+            {
                 return LU_FULL;
+            }
             if (out)
+            {
                 out[k] = u;
+            }
             ++k;
         }
     }
@@ -113,12 +127,16 @@ enum lu_status lu_decode(struct lu_state *s, const unsigned char *b, size_t n,
 {
     if (!s || !r || (!b && n) || (!out && cap) ||
         (p != LU_STRICT && p != LU_REPLACE) || s->used > 3)
+    {
         return LU_ARGUMENT;
+    }
     struct lu_state trial = *s;
     size_t count = 0;
     enum lu_status status = walk(&trial, b, n, NULL, SIZE_MAX, p, &count);
     if ((status == LU_OK || status == LU_INCOMPLETE) && count > cap)
+    {
         status = LU_FULL;
+    }
     if (status != LU_OK && status != LU_INCOMPLETE)
     {
 #ifdef LU_MUTANT_ROLLBACK
@@ -141,16 +159,22 @@ enum lu_status lu_finish(struct lu_state *s, uint32_t *out, size_t cap,
 {
     if (!s || !r || (!out && cap) || (p != LU_STRICT && p != LU_REPLACE) ||
         s->used > 3)
+    {
         return LU_ARGUMENT;
+    }
     if (!s->used)
     {
         *r = (struct lu_result){0, 0};
         return LU_OK;
     }
     if (p == LU_STRICT)
+    {
         return LU_INVALID;
+    }
     if (!cap)
+    {
         return LU_FULL;
+    }
     out[0] = 0xfffd;
     s->used = 0;
     *r = (struct lu_result){0, 1};
@@ -166,14 +190,22 @@ enum lu_status lu_encode(uint32_t u, unsigned char *out, size_t cap,
                          size_t *written)
 {
     if (!written || (!out && cap))
+    {
         return LU_ARGUMENT;
+    }
     if (!valid(u))
+    {
         return LU_INVALID;
+    }
     unsigned n = u < 0x80 ? 1 : u < 0x800 ? 2 : u < 0x10000 ? 3 : 4;
     if (cap < n)
+    {
         return LU_FULL;
+    }
     if (n == 1)
+    {
         out[0] = (unsigned char)u;
+    }
     else
     {
         uint32_t v = u;
@@ -191,14 +223,22 @@ enum lu_status lu_encode(uint32_t u, unsigned char *out, size_t cap,
 enum lu_status lu_utf16(uint32_t u, uint16_t *out, size_t cap, size_t *written)
 {
     if (!written || (!out && cap))
+    {
         return LU_ARGUMENT;
+    }
     if (!valid(u))
+    {
         return LU_INVALID;
+    }
     unsigned n = u < 0x10000 ? 1 : 2;
     if (cap < n)
+    {
         return LU_FULL;
+    }
     if (n == 1)
+    {
         out[0] = (uint16_t)u;
+    }
     else
     {
         u -= 0x10000;

@@ -9,10 +9,16 @@ static int handlers(const struct ch_handler *h)
     while (h)
     {
         if (count == 4 || !h->answer || h->questions > 3)
+        {
             return 0;
+        }
         for (unsigned i = 0; i < count; i++)
+        {
             if (seen[i] == h)
+            {
                 return 0;
+            }
+        }
         seen[count++] = h;
         h = h->parent;
     }
@@ -35,10 +41,14 @@ int ch_create(struct co_allocator a, const struct ch_handler *h,
 {
     if (!out || !bytes || !a.allocate || !a.release || dynamic > 1 ||
         !handlers(h))
+    {
         return CO_INVALID;
+    }
     struct ch_effect *f = a.allocate(a.context, sizeof *f);
     if (!f)
+    {
         return CO_RANGE;
+    }
     unsigned char *p = a.allocate(a.context, 4);
     if (!p)
     {
@@ -46,7 +56,9 @@ int ch_create(struct co_allocator a, const struct ch_handler *h,
         return CO_RANGE;
     }
     for (unsigned i = 0; i < 4; i++)
+    {
         p[i] = bytes[i];
+    }
     *f = (struct ch_effect){.allocator = a,
                             .lexical = h,
                             .dynamic = dynamic,
@@ -61,28 +73,44 @@ int ch_step(struct ch_effect *f, const struct ch_handler *dynamic,
             uint32_t *out)
 {
     if (!f || !out)
+    {
         return CO_INVALID;
+    }
     if (!f->active)
+    {
         return CO_STATE;
+    }
     const struct ch_handler *h = f->dynamic ? dynamic : f->lexical;
     if (!handlers(h))
+    {
         return CO_INVALID;
+    }
     unsigned q = f->token.question;
     while (h && !(h->questions & (1u << (q - 1))))
+    {
         h = h->parent;
+    }
     if (!h)
+    {
         return CO_STATE;
+    }
     uint32_t answer = 0;
     int r = h->answer(h->context, q, &answer);
     if (r == CO_PENDING)
+    {
         return r;
+    }
     if (r)
+    {
         return CO_IO;
+    }
     struct co_continuation next = {0};
     uint32_t value = 0;
     r = co_effect_resume(&f->token, answer, &next, &value);
     if (r == CO_REQUEST)
+    {
         f->token = next;
+    }
     else if (r == CO_DONE)
     {
         f->active = 0;
@@ -95,13 +123,19 @@ int ch_step(struct ch_effect *f, const struct ch_handler *dynamic,
 int ch_clone(const struct ch_effect *from, struct ch_effect **out)
 {
     if (!from || !out)
+    {
         return CO_INVALID;
+    }
     if (!from->active || !from->resource)
+    {
         return CO_STATE;
+    }
     struct co_allocator a = from->allocator;
     struct ch_effect *f = a.allocate(a.context, sizeof *f);
     if (!f)
+    {
         return CO_RANGE;
+    }
     unsigned char *p =
         CH_MUTANT == 1 ? from->resource : a.allocate(a.context, 4);
     if (!p)
@@ -110,7 +144,9 @@ int ch_clone(const struct ch_effect *from, struct ch_effect **out)
         return CO_RANGE;
     }
     for (unsigned i = 0; i < 4; i++)
+    {
         p[i] = from->resource[i];
+    }
     *f = *from;
     f->resource = p;
     f->token.owner = &f->core;
@@ -121,28 +157,42 @@ int ch_clone(const struct ch_effect *from, struct ch_effect **out)
 int ch_abort(struct ch_effect *f)
 {
     if (!f)
+    {
         return CO_INVALID;
+    }
     if (!f->active)
+    {
         return CO_OK;
+    }
     int r = co_effect_abort(&f->token);
     if (r)
+    {
         return r;
+    }
     f->active = 0;
     if (CH_MUTANT != 2)
+    {
         drop(f);
+    }
     return CO_OK;
 }
 
 int ch_destroy(struct ch_effect **owner)
 {
     if (!owner)
+    {
         return CO_INVALID;
+    }
     if (!*owner)
+    {
         return CO_OK;
+    }
     struct ch_effect *f = *owner;
     int r = ch_abort(f);
     if (r)
+    {
         return r;
+    }
     struct co_allocator a = f->allocator;
     *owner = NULL;
     a.release(a.context, f);

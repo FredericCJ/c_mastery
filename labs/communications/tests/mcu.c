@@ -27,28 +27,40 @@ static int transfer(void *v, const uint8_t *tx, uint8_t *rx, size_t n)
     memcpy(m->last, tx, n);
     memset(rx, 0, n);
     if (m->fail)
+    {
         return -1;
+    }
     unsigned command = tx[0] >> 4, address = ((tx[0] & 15u) << 8) | tx[1];
     if (command == 0)
     {
         if (n != 2 || address || ((m->memory[2] >> 5) & 7) != 4)
+        {
             return -1;
+        }
         m->resets++;
         return 0;
     }
     if (n != 6 || address + 4 > 4096)
+    {
         return -1;
+    }
     if (command == 3)
+    {
         memcpy(rx + 2, m->memory + address, 4);
+    }
     else if (command == 2)
     {
         memcpy(m->memory + address, tx + 2, 4);
         if (!address && !m->mode_stuck)
+        {
             m->memory[2] =
                 (uint8_t)((m->memory[2] & 31) | ((m->memory[3] & 7) << 5));
+        }
     }
     else
+    {
         return -1;
+    }
     return 0;
 }
 
@@ -110,11 +122,15 @@ static int dma(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     int r = !strcmp(argv[1], "spi")   ? spi()
             : !strcmp(argv[1], "dma") ? dma()
                                       : 2;
     if (!r)
+    {
         printf("PASS mcu_%s (model only)\n", argv[1]);
+    }
     return r;
 }

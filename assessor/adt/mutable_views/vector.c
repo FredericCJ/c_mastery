@@ -10,7 +10,9 @@ typedef uint64_t adv_lanes __attribute__((vector_size(16)));
 uint64_t adv_vector4(const uint32_t *p)
 {
     if (ADV_MUTATION == 5)
+    {
         return (uint32_t)(p[0] + p[1]) + (uint64_t)(uint32_t)(p[2] + p[3]);
+    }
     adv_lanes a = {p[0], p[1]}, b = {p[2], ADV_MUTATION == 6 ? 0 : p[3]};
     adv_lanes sum = a + b;
     return sum[0] + sum[1];

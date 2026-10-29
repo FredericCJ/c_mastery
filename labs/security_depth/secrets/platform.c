@@ -6,5 +6,7 @@
 void ss_wipe(void *p, size_t count)
 {
     if (count)
+    {
         explicit_bzero(p, count);
+    }
 }

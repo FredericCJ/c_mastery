@@ -28,7 +28,9 @@ int main(void)
     size_t n = 99;
     unsigned char p[4] = {1, 2, 3, 4};
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(sx_remap(&m, i, 1, 1, 1, 55) == B5_OK);
+    }
     CHECK(sx_copy(&m, 14, p, 4, revoke, &page) == B5_CONFLICT &&
           m.pages[0].bytes[14] == 55 && m.pages[1].bytes[0] == 88);
     CHECK(sx_partial(&m, 14, p, 4, &result) == B5_OK && result.copied == 2 &&

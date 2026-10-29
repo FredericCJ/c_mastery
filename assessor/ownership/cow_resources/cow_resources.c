@@ -13,14 +13,18 @@ static void discard(struct ocr_memory m, struct ocr_ops ops,
                     struct ocr_block *b)
 {
     for (unsigned i = 3; i; i--)
+    {
         ops.drop(ops.context, &b->resource[i - 1]);
+    }
     m.release(m.context, b);
 }
 
 static void drop(struct ocr_store *s, struct ocr_block *b)
 {
     if (--b->refs == 0)
+    {
         discard(s->memory, s->ops, b);
+    }
 }
 
 static enum ow_status copy(struct ocr_memory m, struct ocr_ops ops,
@@ -29,7 +33,9 @@ static enum ow_status copy(struct ocr_memory m, struct ocr_ops ops,
 {
     struct ocr_block *b = m.take(m.context, sizeof(*b));
     if (!b)
+    {
         return OW_NOMEM;
+    }
     *b = (struct ocr_block){0};
     b->refs = 1;
     for (unsigned i = 0; i < 3; ++i)
@@ -39,7 +45,9 @@ static enum ow_status copy(struct ocr_memory m, struct ocr_ops ops,
             b->resource[i].length != src[i].length)
         {
             if (OCR_MUTATION == 2)
+            {
                 b->resource[i] = (struct ocr_resource){0};
+            }
             discard(m, ops, b);
             return q == OW_OK ? OW_INVALID : q;
         }
@@ -52,14 +60,22 @@ enum ow_status ocr_init(struct ocr_store *s, struct ocr_memory m,
                         struct ocr_ops ops, const struct ocr_resource seed[3])
 {
     if (!s || !seed || !m.take || !m.release || !ops.clone || !ops.drop)
+    {
         return OW_INVALID;
+    }
     for (unsigned i = 0; i < 3; ++i)
+    {
         if (!seed[i].data || !seed[i].length || seed[i].length > 16)
+        {
             return OW_INVALID;
+        }
+    }
     struct ocr_block *b = NULL;
     enum ow_status q = copy(m, ops, seed, &b);
     if (q != OW_OK)
+    {
         return q;
+    }
     if (pthread_mutex_init(&s->mutex, NULL) != 0)
     {
         discard(m, ops, b);
@@ -69,7 +85,9 @@ enum ow_status ocr_init(struct ocr_store *s, struct ocr_memory m,
     s->ops = ops;
     s->current = b;
     for (unsigned i = 0; i < 4; ++i)
+    {
         s->loan[i] = (struct ocr_loan){0};
+    }
     s->closed = 0;
     s->ready = 1;
     return OW_OK;
@@ -78,7 +96,9 @@ enum ow_status ocr_init(struct ocr_store *s, struct ocr_memory m,
 static struct ocr_loan *find(struct ocr_store *s, struct ocr_snapshot token)
 {
     if (token.owner != s || token.slot >= 4)
+    {
         return NULL;
+    }
     struct ocr_loan *p = &s->loan[token.slot];
     return p->active && (OCR_MUTATION == 3 || p->serial == token.serial) ? p
                                                                          : NULL;
@@ -87,17 +107,27 @@ static struct ocr_loan *find(struct ocr_store *s, struct ocr_snapshot token)
 enum ow_status ocr_snapshot(struct ocr_store *s, struct ocr_snapshot *out)
 {
     if (!s || !out || !s->ready)
+    {
         return OW_INVALID;
+    }
     pthread_mutex_lock(&s->mutex);
     enum ow_status q = OW_FULL;
     if (s->closed && OCR_MUTATION != 4)
+    {
         q = OW_DEAD;
+    }
     else if (!s->current)
+    {
         q = OW_DEAD;
+    }
     else if (s->current->refs == UINT_MAX)
+    {
         q = OW_FULL;
+    }
     else
+    {
         for (unsigned i = 0; i < 4; ++i)
+        {
             if (!s->loan[i].active && !s->loan[i].retired)
             {
                 struct ocr_loan *p = &s->loan[i];
@@ -114,6 +144,8 @@ enum ow_status ocr_snapshot(struct ocr_store *s, struct ocr_snapshot *out)
                 q = OW_OK;
                 break;
             }
+        }
+    }
     pthread_mutex_unlock(&s->mutex);
     return q;
 }
@@ -123,14 +155,18 @@ enum ow_status ocr_read(struct ocr_snapshot token, size_t resource,
 {
     struct ocr_store *s = token.owner;
     if (!s || !s->ready || !out)
+    {
         return OW_INVALID;
+    }
     pthread_mutex_lock(&s->mutex);
     struct ocr_loan *p = find(s, token);
     enum ow_status q = OW_STALE;
     if (p)
     {
         if (resource >= 3 || element >= p->block->resource[resource].length)
+        {
             q = OW_INVALID;
+        }
         else
         {
             *out = p->block->resource[resource].data[element];
@@ -145,7 +181,9 @@ enum ow_status ocr_release(struct ocr_snapshot token)
 {
     struct ocr_store *s = token.owner;
     if (!s || !s->ready)
+    {
         return OW_INVALID;
+    }
     pthread_mutex_lock(&s->mutex);
     struct ocr_loan *p = find(s, token);
     enum ow_status q = OW_STALE;
@@ -155,7 +193,9 @@ enum ow_status ocr_release(struct ocr_snapshot token)
         p->active = 0;
         p->block = NULL;
         if (p->serial == UINT_MAX)
+        {
             p->retired = 1;
+        }
         drop(s, b);
         q = OW_OK;
     }
@@ -167,16 +207,24 @@ enum ow_status ocr_write(struct ocr_store *s, size_t resource, size_t element,
                          int32_t value)
 {
     if (!s || !s->ready)
+    {
         return OW_INVALID;
+    }
     pthread_mutex_lock(&s->mutex);
     enum ow_status q = OW_OK;
     struct ocr_block *old = s->current;
     if (s->closed || !old)
+    {
         q = OW_DEAD;
+    }
     else if (resource >= 3 || element >= old->resource[resource].length)
+    {
         q = OW_INVALID;
+    }
     else if (old->refs == 1 || OCR_MUTATION == 1)
+    {
         old->resource[resource].data[element] = value;
+    }
     else
     {
         struct ocr_block *fresh = NULL;
@@ -195,7 +243,9 @@ enum ow_status ocr_write(struct ocr_store *s, size_t resource, size_t element,
 enum ow_status ocr_close(struct ocr_store *s)
 {
     if (!s || !s->ready)
+    {
         return OW_INVALID;
+    }
     pthread_mutex_lock(&s->mutex);
     if (!s->closed)
     {
@@ -214,14 +264,18 @@ enum ow_status ocr_close(struct ocr_store *s)
 enum ow_status ocr_destroy(struct ocr_store *s)
 {
     if (!s || !s->ready)
+    {
         return OW_INVALID;
+    }
     pthread_mutex_lock(&s->mutex);
     for (unsigned i = 0; i < 4; ++i)
+    {
         if (s->loan[i].active)
         {
             pthread_mutex_unlock(&s->mutex);
             return OW_BUSY;
         }
+    }
     if (s->current)
     {
         struct ocr_block *old = s->current;
@@ -231,7 +285,9 @@ enum ow_status ocr_destroy(struct ocr_store *s)
     s->closed = 1;
     pthread_mutex_unlock(&s->mutex);
     if (pthread_mutex_destroy(&s->mutex) != 0)
+    {
         return OW_INVALID;
+    }
     s->ready = 0;
     return OW_OK;
 }

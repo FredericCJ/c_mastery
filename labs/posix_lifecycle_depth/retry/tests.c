@@ -29,7 +29,9 @@ static int read_page(void *ctx, uint32_t page, void *out)
 {
     struct pt_image *m = ctx;
     if (m->dead || page >= STORE_IMAGE_PAGES)
+    {
         return -1;
+    }
     memcpy(out, m->pending[page], STORE_PAGE_SIZE);
     return 0;
 }
@@ -38,7 +40,9 @@ static int write_page(void *ctx, uint32_t page, const void *in)
 {
     struct pt_image *m = ctx;
     if (m->dead || page >= STORE_IMAGE_PAGES)
+    {
         return -1;
+    }
     if (++m->event == m->cut)
     {
         m->dead = 1;
@@ -52,11 +56,15 @@ static int flush(void *ctx)
 {
     struct pt_image *m = ctx;
     if (m->dead)
+    {
         return -1;
+    }
     if (++m->event == m->cut)
     {
         if (m->mode)
+        {
             memcpy(m->stable, m->pending, sizeof m->stable);
+        }
         m->dead = 1;
         return -1;
     }
@@ -100,6 +108,7 @@ int main(void)
     CHECK(sdr_value(&server, &value) == SDR_OK && value == 7);
     unsigned cuts = 0;
     for (unsigned mode = 0; mode < 2; ++mode)
+    {
         for (unsigned cut = 1; cut <= events; ++cut)
         {
             image = baseline;
@@ -119,6 +128,7 @@ int main(void)
                   store_check(&server) == STORE_OK);
             ++cuts;
         }
+    }
     out = 99;
     CHECK(sdr_apply(&server, 1, 1, 5, 8, &out) == SDR_CONFLICT && out == 99);
     CHECK(sdr_apply(&server, 2, 1, 9, 3, &out) == SDR_OK && out == 10);

@@ -15,8 +15,11 @@ int main(void)
     const unsigned lengths[] = {3, 256, 257, 600, 1600}, msses[] = {1, 7, 256},
                    windows[] = {1, 17, 512};
     for (unsigned a = 0; a < 5; ++a)
+    {
         for (unsigned b = 0; b < 3; ++b)
+        {
             for (unsigned c = 0; c < 3; ++c)
+            {
                 for (unsigned order = 0; order < 2; ++order)
                 {
                     struct nw_tx tx[2];
@@ -25,14 +28,18 @@ int main(void)
                     for (unsigned owner = 0; owner < 2; ++owner)
                     {
                         for (unsigned i = 0; i < lengths[a]; ++i)
+                        {
                             source[i] = (unsigned char)(17 * i + owner);
+                        }
                         CHECK(nw_tx_init(&tx[owner], 9, owner + 40000) ==
                               NW_OK);
                         CHECK(nw_offer(&tx[owner], source, lengths[a]) ==
                               NW_OK);
                     }
                     for (unsigned i = 0; i < 1600; ++i)
+                    {
                         source[i] = 0;
+                    }
                     while (tx[0].acknowledged < lengths[a] ||
                            tx[1].acknowledged < lengths[a])
                     {
@@ -40,7 +47,9 @@ int main(void)
                         {
                             struct nw_tx *s = &tx[owner];
                             if (s->acknowledged == s->length)
+                            {
                                 continue;
+                            }
                             struct nw_segment segment;
                             CHECK(nw_prepare(s, msses[b], 0, &segment) ==
                                   NW_WAIT);
@@ -64,12 +73,16 @@ int main(void)
                             wrong.owner = 40000 + !owner;
                             CHECK(nw_ack(s, wrong, s->sent) == NW_STALE);
                             if (order == 0)
+                            {
                                 CHECK(nw_dma_done(s, segment.ticket) == NW_OK &&
                                       s->flight);
+                            }
                             if (segment.length > 1)
+                            {
                                 CHECK(nw_ack(s, segment.ticket, s->sent - 1) ==
                                           NW_OK &&
                                       s->flight);
+                            }
                             CHECK(nw_ack(s, segment.ticket, s->sent) == NW_OK);
                             if (order == 1)
                             {
@@ -90,5 +103,8 @@ int main(void)
                               tx[owner].generation == 2);
                     }
                 }
+            }
+        }
+    }
     return 0;
 }

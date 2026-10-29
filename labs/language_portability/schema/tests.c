@@ -16,7 +16,9 @@
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "wire"))
     {
         struct ls_fields f = {5, 17, 2}, g;
@@ -52,7 +54,9 @@ int main(int argc, char **argv)
     else if (!strcmp(argv[1], "oracle"))
     {
         for (uint32_t a = 0; a < 8; ++a)
+        {
             for (uint32_t b = 0; b < 32; ++b)
+            {
                 for (uint32_t c = 0; c < 4; ++c)
                 {
                     struct ls_fields f = {a, b, c}, g;
@@ -62,12 +66,18 @@ int main(int argc, char **argv)
                     printf("%u %u %u %u %u %u %u\n", a, b, c, (unsigned)w,
                            g.tag, g.length, g.flags);
                 }
+            }
+        }
     }
     else if (!strcmp(argv[1], "metrics"))
+    {
         printf(
             "{\"record_bytes\":%zu,\"fields_bytes\":%zu,\"allocations\":0,\"carrier_bits\":16}\n",
             ls_record_size(), sizeof(struct ls_fields));
+    }
     else
+    {
         return 2;
+    }
     return 0;
 }

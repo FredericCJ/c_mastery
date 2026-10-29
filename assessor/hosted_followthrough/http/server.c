@@ -34,7 +34,9 @@ static uint64_t now_ms(void)
 {
     struct timespec t;
     if (clock_gettime(CLOCK_MONOTONIC, &t))
+    {
         abort();
+    }
     return (uint64_t)t.tv_sec * 1000 + (unsigned)t.tv_nsec / 1000000;
 }
 
@@ -75,7 +77,9 @@ static int listener_init(unsigned short port, unsigned fault, int *out,
 {
     int fd = socket(AF_INET, SOCK_STREAM, 0);
     if (fd < 0)
+    {
         return -1;
+    }
     struct sockaddr_in a = {0};
     a.sin_family = AF_INET;
     a.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
@@ -97,17 +101,25 @@ static int listener_init(unsigned short port, unsigned fault, int *out,
 static const char *utc_date(unsigned mode, char out[30])
 {
     if (mode == 0)
+    {
         return 0;
+    }
     time_t t = mode == 2 ? (time_t)1672531200 : time(0);
     if (t < 0)
+    {
         return 0;
+    }
     uint64_t seconds = (uint64_t)t;
     if (seconds / 86400 > 2932896)
+    {
         return 0;
+    }
     size_t n;
     if (hd_date(1, (uint32_t)(seconds / 86400), (uint32_t)(seconds % 86400),
                 out, 30, &n))
+    {
         return 0;
+    }
     return out;
 }
 
@@ -127,7 +139,9 @@ static void release(struct hf_pool *p, struct hf_connection *c)
     {
         int fd = -1;
         if (!hf_close(p, c->handle, &fd))
+        {
             close(fd);
+        }
         c->fd = -1;
     }
 }
@@ -137,18 +151,24 @@ int main(int argc, char **argv)
     unsigned cap = argc > 1 ? (unsigned)strtoul(argv[1], 0, 10) : 2,
              mode = argc > 2 ? (unsigned)strtoul(argv[2], 0, 10) : 1;
     if (cap < 1 || cap > 2 || mode > 2)
+    {
         return 2;
+    }
     int listener = -1;
     struct sockaddr_in addr = {0};
     if (listener_init(0, 0, &listener, &addr))
+    {
         return 2;
+    }
     char authority[128];
     snprintf(authority, sizeof authority, "127.0.0.1:%u", ntohs(addr.sin_port));
     struct hf_pool pool = {0};
     struct hf_connection c[4];
     memset(c, 0, sizeof c);
     for (unsigned i = 0; i < 4; i++)
+    {
         c[i].fd = -1;
+    }
     signal(SIGINT, interrupted);
     signal(SIGTERM, interrupted);
     printf("READY %s capacity=%u date=%u ledger=%zu flags=%d,%d\n", authority,
@@ -167,9 +187,13 @@ int main(int argc, char **argv)
             {
                 if (c[i].flow.draining ||
                     (!c[i].flow.closing && c[i].flow.count < cap && !c[i].have))
+                {
                     events |= POLLIN;
+                }
                 if (c[i].flow.count)
+                {
                     events |= POLLOUT;
+                }
             }
             f[i + 1] = (struct pollfd){c[i].fd, events, 0};
         }
@@ -177,7 +201,9 @@ int main(int argc, char **argv)
         if (ready < 0)
         {
             if (errno == EINTR)
+            {
                 continue;
+            }
             break;
         }
         uint64_t now = now_ms();
@@ -211,7 +237,9 @@ int main(int argc, char **argv)
         {
             struct hf_connection *s = &c[i];
             if (s->fd < 0)
+            {
                 continue;
+            }
             /* A poll snapshot cannot refer to a newly admitted slot incarnation. */
             short ev = captured[i].generation == s->handle.generation &&
                                f[i + 1].fd == s->fd
@@ -236,7 +264,9 @@ int main(int argc, char **argv)
                     }
                 }
                 if (hf_tick(&s->flow, now, d) == 2)
+                {
                     release(&pool, s);
+                }
                 continue;
             }
             if ((ev & (POLLIN | POLLHUP)) && !s->flow.closing &&
@@ -272,7 +302,9 @@ int main(int argc, char **argv)
                 }
                 s->used += used;
                 if (s->used == s->have)
+                {
                     s->used = s->have = 0;
+                }
             }
             if ((ev & POLLOUT) &&
                 hf_write(&s->flow, write_socket, &s->fd, now) < 0)
@@ -282,13 +314,19 @@ int main(int argc, char **argv)
             }
             int action = hf_tick(&s->flow, now, d);
             if (action == 1)
+            {
                 shutdown(s->fd, SHUT_WR);
+            }
             else if (action == 2 || action == 3)
+            {
                 release(&pool, s);
+            }
         }
     }
     for (unsigned i = 0; i < 4; i++)
+    {
         release(&pool, &c[i]);
+    }
     close(listener);
     return 0;
 }

@@ -61,11 +61,17 @@ enum tq_status tp_wait(struct tp_clock *clock, unsigned task, uint32_t delay,
     unsigned old_armed = clock->timer->armed;
     enum tq_status status = tq_advance(clock->timer, tp_now(clock));
     if (status == TQ_OK)
+    {
         status = tq_wait(clock->timer, task, delay, infinite);
+    }
     if (TP_MUTANT != 1)
+    {
         CSR = 0;
+    }
     else
+    {
         clock->timer->armed = old_armed;
+    }
     unlock(mask);
     return status;
 }
@@ -81,11 +87,17 @@ enum tq_status tp_at(struct tp_clock *clock, unsigned task, uint32_t at)
     unsigned old_armed = clock->timer->armed;
     enum tq_status status = tq_advance(clock->timer, tp_now(clock));
     if (status == TQ_OK)
+    {
         status = tq_wait(clock->timer, task, at - clock->timer->kernel.now, 0);
+    }
     if (TP_MUTANT != 1)
+    {
         CSR = 0;
+    }
     else
+    {
         clock->timer->armed = old_armed;
+    }
     unlock(mask);
     return status;
 }
@@ -93,7 +105,9 @@ enum tq_status tp_at(struct tp_clock *clock, unsigned task, uint32_t at)
 enum tq_status tp_arm(struct tp_clock *clock, uint32_t injected)
 {
     if (injected >= UINT32_C(0x80000000))
+    {
         return TQ_INVALID;
+    }
     uint32_t mask = lock();
     if (clock->stopped)
     {
@@ -125,7 +139,9 @@ enum tq_status tp_arm(struct tp_clock *clock, uint32_t injected)
     {
         uint32_t distance = plan.at - plan.observed;
         if (distance > 0x00ffffffu)
+        {
             distance = 0x00ffffffu;
+        }
         RVR = distance;
         CVR = 0;
         CSR = 7;
@@ -200,7 +216,9 @@ enum tq_status tp_resume(struct tp_clock *clock)
     }
     enum tq_status status = tq_resume(clock->timer, &clock->resume, tp_raw());
     if (status == TQ_OK)
+    {
         clock->stopped = 0;
+    }
     unlock(mask);
     return status;
 }

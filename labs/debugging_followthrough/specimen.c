@@ -53,7 +53,9 @@ __attribute__((noinline)) int dx_acquire(void)
     {
         violations++;
         if (DX_CLAMP)
+        {
             used = capacity;
+        }
         return 0;
     }
 #endif
@@ -66,7 +68,9 @@ __attribute__((noinline)) void dx_private_candidate(void)
     unsigned candidate = used + 1;
     dx_marker(40);
     if (candidate > capacity)
+    {
         violations++;
+    }
     used = candidate;
     dx_marker(41);
 }
@@ -111,31 +115,45 @@ static int assignment(unsigned n)
 {
 #if DX_FIXED
     if (n == 0)
+    {
         return 0;
+    }
 #elif DX_PAREN
     if ((n = 0))
+    {
         return 0;
+    }
 #else
     if (n = 0)
+    {
         return 0;
+    }
 #endif
     if (n > capacity)
+    {
         return 0;
+    }
     return 1;
 }
 
 int main(int argc, char **argv)
 {
     if (argc < 2)
+    {
         return 2;
+    }
     const char *configured = getenv("DX_CAP");
     if (configured)
+    {
         capacity = (unsigned)strtoul(configured, NULL, 10);
+    }
     if (!strcmp(argv[1], "assignment"))
     {
         unsigned inputs[] = {0, 1, 4, 5};
         for (unsigned i = 0; i < 4; i++)
+        {
             printf("ADMIT:%u:%d\n", inputs[i], assignment(inputs[i]));
+        }
         return 0;
     }
     if (!strcmp(argv[1], "macros"))
@@ -167,7 +185,9 @@ int main(int argc, char **argv)
     if (!strcmp(argv[1], "counter"))
     {
         for (unsigned i = 0; i < 5; i++)
+        {
             dx_acquire();
+        }
         used--;
         printf("COUNTER:%u:%u:%u\n", used, violations, observed);
         return 0;
@@ -188,7 +208,9 @@ int main(int argc, char **argv)
     {
         unsigned *p = malloc(sizeof *p);
         if (!p)
+        {
             return 3;
+        }
         *p = 4;
         dx_marker(50);
         unsigned *q = malloc(sizeof *q);
@@ -210,14 +232,22 @@ int main(int argc, char **argv)
     if (!strcmp(argv[1], "parser"))
     {
         if (argc != 3 || strlen(argv[2]) > 18)
+        {
             return 2;
+        }
         const char *s = argv[2];
         size_t n = strlen(s);
         if (n < 2 || s[0] != '[' || s[n - 1] != ']')
+        {
             return 2;
+        }
         for (size_t i = 1; i + 1 < n; i++)
+        {
             if (s[i] != 'A' && s[i] != 'N' && s[i] != 'T' && s[i] != 'C')
+            {
                 return 2;
+            }
+        }
         if (strchr(s, 'T'))
         {
             struct timespec t = {2, 0};
@@ -233,8 +263,12 @@ int main(int argc, char **argv)
         capacity = mode && !strcmp(mode, "small") ? 3 : 4;
         used = capacity;
         for (size_t i = 1; i + 1 < n; i++)
+        {
             if (s[i] == 'A')
+            {
                 dx_acquire();
+            }
+        }
         printf("TRANSITION:admission:seed=%s:used=%u:violations=%u\n",
                getenv("DX_SEED") ? getenv("DX_SEED") : "0", used, violations);
         return violations ? 1 : 0;

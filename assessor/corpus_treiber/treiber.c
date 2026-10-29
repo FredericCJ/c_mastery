@@ -5,7 +5,9 @@
 enum ts_status ts_init(struct ts_stack *s, unsigned n)
 {
     if (!s || !n || n > TS_NODES)
+    {
         return TS_INVALID;
+    }
     s->capacity = n;
     atomic_init(&s->head, TS_NONE);
     int supported = atomic_is_lock_free(&s->head);
@@ -13,7 +15,9 @@ enum ts_status ts_init(struct ts_stack *s, unsigned n)
     {
         atomic_init(&s->hazard[p], TS_NONE);
         if (!atomic_is_lock_free(&s->hazard[p]))
+        {
             supported = 0;
+        }
     }
     for (unsigned i = 0; i < TS_NODES; i++)
     {
@@ -21,7 +25,9 @@ enum ts_status ts_init(struct ts_stack *s, unsigned n)
         s->node[i].next = TS_NONE;
         s->node[i].value = 0;
         if (!atomic_is_lock_free(&s->node[i].state))
+        {
             supported = 0;
+        }
     }
     return supported ? TS_OK : TS_UNSUPPORTED;
 }
@@ -29,7 +35,9 @@ enum ts_status ts_init(struct ts_stack *s, unsigned n)
 enum ts_status ts_push(struct ts_stack *s, uint32_t value)
 {
     if (!s)
+    {
         return TS_INVALID;
+    }
     unsigned n = TS_NONE;
     for (unsigned i = 0; i < s->capacity; i++)
     {
@@ -42,7 +50,9 @@ enum ts_status ts_push(struct ts_stack *s, uint32_t value)
         }
     }
     if (n == TS_NONE)
+    {
         return TS_FULL;
+    }
     s->node[n].value = value;
     unsigned head = atomic_load(&s->head);
     do
@@ -58,7 +68,9 @@ enum ts_status ts_push(struct ts_stack *s, uint32_t value)
 enum ts_status ts_begin(struct ts_stack *s, unsigned p, struct ts_pop *out)
 {
     if (!s || !out || p >= TS_THREADS)
+    {
         return TS_INVALID;
+    }
     unsigned n;
     do
     {
@@ -66,7 +78,9 @@ enum ts_status ts_begin(struct ts_stack *s, unsigned p, struct ts_pop *out)
         atomic_store(&s->hazard[p], TS_MUTANT == 3 ? TS_NONE : n);
     } while (TS_MUTANT != 6 && n != atomic_load(&s->head));
     if (n == TS_NONE)
+    {
         return TS_EMPTY;
+    }
     /* Hazard remains live through the later CAS and final payload access. */
     out->owner = s;
     out->participant = p;
@@ -79,7 +93,9 @@ enum ts_status ts_begin(struct ts_stack *s, unsigned p, struct ts_pop *out)
 enum ts_status ts_cancel(struct ts_pop *v)
 {
     if (!v || !v->owner)
+    {
         return TS_INVALID;
+    }
     atomic_store(&v->owner->hazard[v->participant], TS_NONE);
     v->owner = 0;
     return TS_OK;
@@ -88,7 +104,9 @@ enum ts_status ts_cancel(struct ts_pop *v)
 enum ts_status ts_commit(struct ts_pop *v, uint32_t *out)
 {
     if (!v || !v->owner || !out)
+    {
         return TS_INVALID;
+    }
     struct ts_stack *s = v->owner;
     unsigned expected = v->node;
     if (!atomic_compare_exchange_strong(&s->head, &expected, v->next))
@@ -107,29 +125,43 @@ enum ts_status ts_commit(struct ts_pop *v, uint32_t *out)
 enum ts_status ts_pop(struct ts_stack *s, unsigned p, uint32_t *out)
 {
     if (!s || !out || p >= TS_THREADS)
+    {
         return TS_INVALID;
+    }
     for (;;)
     {
         struct ts_pop v;
         enum ts_status r = ts_begin(s, p, &v);
         if (r != TS_OK)
+        {
             return r;
+        }
         r = ts_commit(&v, out);
         if (r != TS_RETRY)
+        {
             return r;
+        }
     }
 }
 
 enum ts_status ts_scan(struct ts_stack *s, unsigned n, struct ts_retired *out)
 {
     if (!s || !out || n >= s->capacity)
+    {
         return TS_INVALID;
+    }
     unsigned state = atomic_load(&s->node[n].state);
     if ((state & 3u) != 2u || state / 4u == TS_GEN_MAX)
+    {
         return TS_RETRY;
+    }
     for (unsigned p = 0; p < TS_THREADS; p++)
+    {
         if (atomic_load(&s->hazard[p]) == n)
+        {
             return TS_RETRY;
+        }
+    }
     out->owner = s;
     out->node = n;
     out->state = state;
@@ -139,14 +171,20 @@ enum ts_status ts_scan(struct ts_stack *s, unsigned n, struct ts_retired *out)
 enum ts_status ts_reclaim(struct ts_retired *r)
 {
     if (!r || !r->owner)
+    {
         return TS_INVALID;
+    }
     struct ts_stack *s = r->owner;
     unsigned expected = r->state, n = r->node;
     r->owner = 0;
     if (TS_MUTANT == 4)
+    {
         expected = atomic_load(&s->node[n].state);
+    }
     if ((expected & 3u) != 2u || expected / 4u == TS_GEN_MAX)
+    {
         return TS_RETRY;
+    }
     return atomic_compare_exchange_strong(&s->node[n].state, &expected,
                                           (expected & ~3u) + 4u)
                ? TS_OK
@@ -156,13 +194,17 @@ enum ts_status ts_reclaim(struct ts_retired *r)
 unsigned ts_collect(struct ts_stack *s)
 {
     if (!s)
+    {
         return 0;
+    }
     unsigned count = 0;
     for (unsigned i = 0; i < s->capacity; i++)
     {
         struct ts_retired r;
         if (ts_scan(s, i, &r) == TS_OK && ts_reclaim(&r) == TS_OK)
+        {
             count++;
+        }
     }
     return count;
 }

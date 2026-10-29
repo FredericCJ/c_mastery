@@ -26,11 +26,15 @@ static void maximum_generation(struct d_medium *m)
     {
         c ^= record[i];
         for (unsigned j = 0; j < 8; j++)
+        {
             c = (c >> 1) ^ (UINT32_C(0xedb88320) & (0u - (c & 1u)));
+        }
     }
     c = ~c;
     for (unsigned i = 0; i < 4; i++)
+    {
         record[4092 + i] = (uint8_t)(c >> (i * 8));
+    }
     memcpy(m->stable[0], record, 4096);
     memcpy(m->stable[1], record, 4096);
 }
@@ -48,11 +52,17 @@ static int image(struct sd_store *s, unsigned state)
     {
         memset(expected, 0, sizeof expected);
         if (p == 0)
+        {
             expected[0] = (uint8_t)(state ? 11 : 10);
+        }
         if (p == 1)
+        {
             expected[0] = (uint8_t)(state ? 0 : 20);
+        }
         if (p == 31)
+        {
             expected[0] = (uint8_t)(state ? 77 : 30);
+        }
         CHECK(sd_read(s, p, bytes) == SD_OK && !memcmp(bytes, expected, 4096));
     }
     return 0;
@@ -64,7 +74,9 @@ static int change(struct sd_store *s, unsigned newer)
     uint8_t old[] = {10, 20, 30}, next[] = {11, 0, 77};
     CHECK(sd_begin(s) == SD_OK);
     for (unsigned i = 0; i < 3; i++)
+    {
         CHECK(sd_write(s, pages[i], 0, newer ? next + i : old + i, 1) == SD_OK);
+    }
     return 0;
 }
 
@@ -129,7 +141,9 @@ static int boundary(unsigned full)
     work.short_read = 1;
     CHECK(sd_read(&subject, 0, out) == SD_IO);
     for (unsigned i = 0; i < 4096; i++)
+    {
         CHECK(out[i] == 0xa5);
+    }
     reset(&work);
     maximum_generation(&work);
     CHECK(sd_open(&subject, dm_io(&work), full) == SD_OK &&
@@ -158,6 +172,7 @@ static int cuts(unsigned full, int checkpoint, int emit)
         committed_subject = subject;
     }
     for (unsigned mode = 0; mode < 7; mode++)
+    {
         for (unsigned cut = 1; cut <= events; cut++)
         {
             if (checkpoint)
@@ -170,7 +185,9 @@ static int cuts(unsigned full, int checkpoint, int emit)
                 subject.wal_mask = full ? UINT32_MAX : UINT32_C(0x80000003);
             }
             else
+            {
                 CHECK(staged(full) == 0);
+            }
             CHECK(dm_arm(&work, cut, mode, 0, 0, 0) == 0);
             int r = checkpoint ? sd_checkpoint(&subject) : sd_commit(&subject);
             CHECK(r == (checkpoint          ? SD_IO
@@ -185,7 +202,9 @@ static int cuts(unsigned full, int checkpoint, int emit)
                 (cut >= events - 1 && (mode == DM_EVEN || mode == DM_ALL));
             CHECK(image(&subject, newest) == 0);
             if (emit)
+            {
                 printf("%u,%u,%u,%d,%u\n", full, mode, cut, r, newest);
+            }
             uint8_t homes[32][4096];
             memcpy(homes, work.stable + 2, sizeof homes);
             reset(&work);
@@ -193,9 +212,12 @@ static int cuts(unsigned full, int checkpoint, int emit)
                   !memcmp(homes, work.stable + 2, sizeof homes));
             CHECK(work.writes == 0);
         }
+    }
     if (!emit)
+    {
         printf("SD %s validated policy=%u cuts=%u full-image-checked\n",
                checkpoint ? "checkpoint" : "commit", full, events * 7);
+    }
     return 0;
 }
 
@@ -208,6 +230,7 @@ static int repeated(unsigned full)
     committed_subject = subject;
     unsigned events = full ? 37 : 8, histories = 0;
     for (unsigned first = 1; first <= events; first++)
+    {
         for (unsigned second = 1; second <= events; second++)
         {
             work = committed;
@@ -227,6 +250,7 @@ static int repeated(unsigned full)
             CHECK(image(&subject, 1) == 0);
             histories++;
         }
+    }
     printf("SD repeated validated policy=%u histories=%u\n", full, histories);
     return 0;
 }
@@ -280,13 +304,17 @@ static int cost(unsigned full, int emit)
           work.flushes == 3);
     CHECK(image(&subject, 1) == 0);
     if (emit)
+    {
         printf(
             "{\"full\":%u,\"commit\":[%llu,%llu,%llu],\"checkpoint\":[%u,%u,3],"
             "\"useful_bytes\":3}",
             full, (unsigned long long)cr, (unsigned long long)cw,
             (unsigned long long)cf, full ? 65 : 36, full ? 34 : 5);
+    }
     else
+    {
         printf("SD cost validated policy=%u same-transaction-contract\n", full);
+    }
     return 0;
 }
 
@@ -296,7 +324,9 @@ static int page(unsigned full)
     CHECK(staged(full) == 0);
     CHECK(sd_commit(&subject) == SD_OK);
     for (unsigned i = 0; i < 4096; i++)
+    {
         printf("%02x", work.stable[66][i]);
+    }
     puts("");
     return 0;
 }
@@ -304,17 +334,23 @@ static int page(unsigned full)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "oracle"))
     {
         for (unsigned f = 0; f < 2; f++)
+        {
             CHECK(cuts(f, 0, 1) == 0);
+        }
         return 0;
     }
     if (!strcmp(argv[1], "pages"))
     {
         for (unsigned f = 0; f < 2; f++)
+        {
             CHECK(page(f) == 0);
+        }
         return 0;
     }
     if (!strcmp(argv[1], "metrics"))
@@ -336,7 +372,9 @@ int main(int argc, char **argv)
                 : !strcmp(argv[1], "cost")       ? cost(f, 0)
                                                  : 2;
         if (r)
+        {
             return r;
+        }
     }
     return 0;
 }

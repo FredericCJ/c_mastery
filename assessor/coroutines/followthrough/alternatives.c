@@ -10,7 +10,9 @@ static int selected(struct cr_unfused *f, uint32_t *out)
         int r = co_next(&f->flow.source, &x);
         f->flow.pulls++;
         if (r)
+        {
             return r;
+        }
         f->predicates++;
         if (x % 2 == 0)
         {
@@ -29,13 +31,19 @@ static uint32_t mapped(struct cr_unfused *f, uint32_t x)
 int cr_unfused_next(struct cr_unfused *f, uint32_t *out)
 {
     if (!f || !out)
+    {
         return CO_INVALID;
+    }
     if (CX_MUTANT != 1 && !f->flow.remaining)
+    {
         return CO_DONE;
+    }
     uint32_t x;
     int r = selected(f, &x);
     if (r)
+    {
         return r;
+    }
     *out = CX_MUTANT == 2 ? x : mapped(f, x);
     f->flow.remaining--;
     return CO_OK;
@@ -44,7 +52,9 @@ int cr_unfused_next(struct cr_unfused *f, uint32_t *out)
 int cr_caller_init(struct cr_caller_generator *f, unsigned count)
 {
     if (!f || count > 47)
+    {
         return CO_INVALID;
+    }
     *f = (struct cr_caller_generator){0, 1, 0, count};
     return CO_OK;
 }
@@ -52,9 +62,13 @@ int cr_caller_init(struct cr_caller_generator *f, unsigned count)
 int cr_caller_next(struct cr_caller_generator *f, uint32_t *out)
 {
     if (!f || !out)
+    {
         return CO_INVALID;
+    }
     if (CX_MUTANT == 3 ? f->index > f->count : f->index >= f->count)
+    {
         return CO_DONE;
+    }
     *out = f->a;
     f->index++;
     if (f->index < f->count)
@@ -64,7 +78,9 @@ int cr_caller_next(struct cr_caller_generator *f, uint32_t *out)
         f->b = n;
     }
     if (CX_MUTANT == 4)
+    {
         *out = 0;
+    }
     return CO_OK;
 }
 
@@ -72,7 +88,9 @@ int cr_push(struct cf_batch *f, size_t available, unsigned eof, cr_sink_fn sink,
             void *ctx, unsigned budget, size_t *emitted)
 {
     if (!f || !sink || !emitted)
+    {
         return CO_INVALID;
+    }
     size_t count = 0;
     while (budget--)
     {
@@ -83,7 +101,9 @@ int cr_push(struct cf_batch *f, size_t available, unsigned eof, cr_sink_fn sink,
         if (r != CO_OK)
         {
             if (r == CO_PENDING || r == CO_DONE)
+            {
                 *f = next;
+            }
             *emitted = count;
             return r;
         }
@@ -91,7 +111,9 @@ int cr_push(struct cf_batch *f, size_t available, unsigned eof, cr_sink_fn sink,
         if (accepted == CO_PENDING)
         {
             if (CX_MUTANT == 5)
+            {
                 *f = next;
+            }
             *emitted = count;
             return CO_PENDING;
         }
@@ -103,7 +125,9 @@ int cr_push(struct cf_batch *f, size_t available, unsigned eof, cr_sink_fn sink,
         *f = next;
         count++;
         if (CX_MUTANT == 6)
+        {
             count++;
+        }
     }
     *emitted = count;
     return CO_PENDING;

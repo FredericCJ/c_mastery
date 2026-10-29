@@ -22,7 +22,9 @@ void fr_div64_words(const uint32_t *input, uint32_t *output)
         return;
     }
     if (fr_divmod128(n, d, &q, &r) != FR_OK)
+    {
         __builtin_trap();
+    }
     output[0] = q.limb[0];
     output[1] = q.limb[1];
     output[2] = r.limb[0];

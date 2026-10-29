@@ -37,7 +37,9 @@ static int thresholds(void)
         s.device = TR_RS232_FIXTURE;
         CHECK(tr_sample(&s, &d) == TR_OK);
         if (d != expected)
+        {
             ++changed;
+        }
     }
     CHECK(points == 50001 && changed == 4200);
     s.device = TR_MAX3232_33;
@@ -66,7 +68,9 @@ static int connections(void)
     CHECK(tr_connections(&dte, &dce, straight, 2) == TR_INVALID);
     unsigned accepted = 0;
     for (unsigned a = 1; a <= 3; ++a)
+    {
         for (unsigned b = 1; b <= 3; ++b)
+        {
             for (unsigned c = 1; c <= 3; ++c)
             {
                 struct tr_wire w[] = {{1, a}, {2, b}, {3, c}};
@@ -74,6 +78,8 @@ static int connections(void)
                 CHECK((r == TR_OK) == (a == 1 && b == 2 && c == 3));
                 accepted += r == TR_OK;
             }
+        }
+    }
     struct tr232_circuit circuit = {
         3300, 115200, 3000, 1000, {100, 100, 100, 100}, 100, 25};
     CHECK(tr_232_circuit(&circuit) == TR_OK);
@@ -109,7 +115,9 @@ static void write_uart(void *context, unsigned k, uintptr_t v)
     if (k == PU_DR)
     {
         if (m->count < 16)
+        {
             m->bytes[m->count++] = (uint8_t)v;
+        }
         m->regs[PU_SR] &= ~(PU_TXE | PU_TC);
     }
 }
@@ -154,7 +162,9 @@ static int capture232(void)
     struct pu_clock clock = {42000000, 1, 1, 1, 1, 0};
     uint8_t bytes[16];
     for (unsigned i = 0; i < 16; ++i)
+    {
         bytes[i] = (uint8_t)(0xa5u ^ i);
+    }
     CHECK(pu_open(&tx.byte, io, &clock, 115200, 0, 1) == PU_OK);
     CHECK(ua_begin(&tx, io, 1, 1, bytes, 16, 0, 100) == PU_OK);
     unsigned now = 0;
@@ -166,7 +176,9 @@ static int capture232(void)
     }
     CHECK(!tx.active && m.count == 16 && tx.offset == 16 && tx.byte.token == 2);
     for (unsigned i = 0; i < 16; ++i)
+    {
         CHECK(m.bytes[i] == bytes[i]);
+    }
     tr_values("capture232", bits, m.count, tx.byte.token, 5);
     return 0;
 }

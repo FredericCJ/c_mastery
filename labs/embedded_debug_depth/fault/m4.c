@@ -18,7 +18,9 @@ static void done(unsigned n)
     register void *arg __asm__("r1") = block;
     __asm__ volatile("bkpt 0xab" : "+r"(op) : "r"(arg) : "memory");
     for (;;)
+    {
         __asm__ volatile("wfi");
+    }
 }
 
 static void failed(void)
@@ -31,9 +33,13 @@ void cl_reset(void)
 {
     uint32_t *s = &cl_data_load;
     for (uint32_t *d = &cl_data_start; d < &cl_data_end; ++d)
+    {
         *d = *s++;
+    }
     for (uint32_t *d = &cl_bss_start; d < &cl_bss_end; ++d)
+    {
         *d = 0;
+    }
     int result = df_target();
     output(
         result

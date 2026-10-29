@@ -16,7 +16,9 @@ static _Noreturn void fail(void)
 {
     __asm__ volatile("cpsid i");
     for (;;)
+    {
         __asm__ volatile("wfi");
+    }
 }
 
 void af_fault(void)
@@ -38,8 +40,12 @@ static void wait_phase(unsigned wanted)
 {
     uint32_t start = now();
     while (atomic_load_explicit(&SH->phase, memory_order_acquire) != wanted)
+    {
         if ((uint32_t)(now() - start) > 100000000u)
+        {
             fail();
+        }
+    }
 }
 
 void af_entry(void)
@@ -54,7 +60,9 @@ void af_entry(void)
     /* Exact cold entry requires BCM4 held and D-cache disabled. Shared SRAM3 is
      * noncacheable, shareable, XN on M7. Private DTCM is never peer/DMA payload. */
     if (REG(0xe000ed14u) & (1u << 16))
+    {
         fail();
+    }
     REG(0x580244dcu) |= 0xe0000000u;
     barrier();
     REG(0xe000ed94u) = 0;
@@ -81,7 +89,9 @@ void af_entry(void)
     {
         wait_phase(0);
         if (sfw_offer(SH, SF_BURST))
+        {
             fail();
+        }
         atomic_store_explicit(&SH->phase, 1, memory_order_release);
     }
     wait_phase(0);
@@ -96,23 +106,39 @@ void af_entry(void)
         {
             phase = atomic_load_explicit(&SH->phase, memory_order_acquire);
             if ((uint32_t)(now() - start) > 100000000u)
+            {
                 fail();
+            }
         } while (phase != 1 && phase != 2);
         if (phase == 2)
+        {
             break;
+        }
         if (sfw_work(SH))
+        {
             fail();
+        }
         atomic_store_explicit(&SH->phase, 0, memory_order_release);
     }
     while (af_queued(&SH->ring) > 2)
+    {
         if (sfw_work(SH))
+        {
             fail();
+        }
+    }
     if (sfw_quiescent(SH, 1, 1) || sfw_check(SH))
+    {
         fail();
+    }
     atomic_store_explicit(&SH->phase, 3, memory_order_release);
 #endif
     if (sfw_check(SH))
+    {
         fail();
+    }
     for (;;)
+    {
         __asm__ volatile("wfi");
+    }
 }

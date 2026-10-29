@@ -8,7 +8,9 @@ void cc_target(void)
     size_t n = 0, k = 0;
     int status = cc_compress(input, 8, frame, sizeof frame, &n);
     if (status == CC_OK)
+    {
         status = cc_expand(frame, n, output, sizeof output, &k);
+    }
     cc_observed = (unsigned)status + (unsigned)k;
     for (;;)
     {

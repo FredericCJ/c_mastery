@@ -31,13 +31,17 @@ static er_progress write_port(void *context, const unsigned char *bytes,
     struct er_port *p = context;
     ++p->writes;
     if (n > p->quota)
+    {
         n = p->quota;
+    }
     ssize_t count = write(p->fd, bytes, n);
     er_progress result = {0, ER_IO};
     if (count < 0)
     {
         if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)
+        {
             result.code = ER_AGAIN;
+        }
         return result;
     }
     result.next = (size_t)count;
@@ -57,7 +61,9 @@ static struct ept_flush_result sync_port(void *context, size_t accepted,
         return r;
     }
     if (p->mode == 1)
+    {
         return r; /* Injected pre-call refusal, not an actual fsync error. */
+    }
     ++p->syncs;
     if (fsync(p->fd) < 0)
     {
@@ -86,7 +92,9 @@ static int pipe_case(void)
     unsigned rounds = 0;
     ssize_t count;
     while ((count = write(fd[1], fill, sizeof fill)) > 0)
+    {
         CHECK(++rounds < 4096);
+    }
     CHECK(count < 0 && (errno == EAGAIN || errno == EWOULDBLOCK));
     struct ept_stream stream = {0};
     struct ept_handle handle = {0};

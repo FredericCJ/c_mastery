@@ -37,7 +37,9 @@ void xf_target_main(void)
     {
         int r = ep_tests(i);
         if (r)
+        {
             finish((unsigned)r);
+        }
     }
     puts("EP_GUEST_PASS actual_Thumb_original_UART_EDU7_no_physical_RS485");
     finish(0);

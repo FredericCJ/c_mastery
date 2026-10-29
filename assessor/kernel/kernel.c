@@ -9,7 +9,9 @@ void *memset(void *d, int c, size_t n)
 {
     unsigned char *p = d;
     while (n--)
+    {
         *p++ = (unsigned char)c;
+    }
     return d;
 }
 
@@ -18,7 +20,9 @@ void *memcpy(void *d, const void *s, size_t n)
     unsigned char *p = d;
     const unsigned char *q = s;
     while (n--)
+    {
         *p++ = *q++;
+    }
     return d;
 }
 
@@ -29,14 +33,20 @@ void *memmove(void *d, const void *s, size_t n)
     /* Fixed x86-64 flat-address profile: compare integer addresses, not C
        pointers that may belong to different allocated objects. */
     if ((uintptr_t)p < (uintptr_t)q)
+    {
         while (n--)
+        {
             *p++ = *q++;
+        }
+    }
     else
+    {
         while (n)
         {
             n--;
             p[n] = q[n];
         }
+    }
     return d;
 }
 
@@ -46,7 +56,9 @@ int memcmp(const void *a, const void *b, size_t n)
     while (n--)
     {
         if (*p != *q)
+        {
             return *p < *q ? -1 : 1;
+        }
         p++;
         q++;
     }
@@ -96,31 +108,39 @@ static void serial_init(void)
 static void put(char c)
 {
     for (unsigned n = 0; n < 1000000; n++)
+    {
         if (inb(0x3fd) & 32)
         {
             outb(0x3f8, (unsigned char)c);
             return;
         }
+    }
 }
 
 static void say(const char *s)
 {
     while (*s)
+    {
         put(*s++);
+    }
 }
 
 static void hex(uint64_t n)
 {
     say("0x");
     for (int i = 60; i >= 0; i -= 4)
+    {
         put("0123456789abcdef"[(n >> i) & 15]);
+    }
 }
 
 static __attribute__((noreturn)) void stop(int success)
 {
     outl(0xf4, success ? 0x10 : 0x11);
     for (;;)
+    {
         __asm__ volatile("cli; hlt");
+    }
 }
 
 static __attribute__((noreturn)) void panic(const char *s)
@@ -215,7 +235,9 @@ static void tables(void)
     uint16_t sel = 40;
     __asm__ volatile("ltr %0" ::"r"(sel));
     for (unsigned i = 0; i < 32; i++)
+    {
         gate(i, (void (*)(void))isr_table[i], 0, i == 8 ? 1 : 0);
+    }
     gate(32, isr32, 0, 0);
     gate(128, isr128, 3, 0);
     struct desc_ptr di = {sizeof(idt) - 1, (uint64_t)(uintptr_t)idt};
@@ -240,7 +262,9 @@ static uint32_t take(void)
 {
     uint32_t p = cmk_frame_take(&frames);
     if (!p)
+    {
         panic("frame exhaustion");
+    }
     memset((void *)(uintptr_t)p, 0, 4096);
     return p;
 }
@@ -249,10 +273,14 @@ static int map_user(struct task *t, unsigned index, unsigned writable,
                     unsigned executable)
 {
     if (index >= 512 || t->pt[index])
+    {
         return -1;
+    }
     uint32_t p = cmk_frame_take(&frames);
     if (!p)
+    {
         return -1;
+    }
     memset((void *)(uintptr_t)p, 0, 4096);
     t->pt[index] =
         (uint64_t)p | 5 | (writable ? 2 : 0) | (executable ? 0 : PTE_NX);
@@ -269,16 +297,22 @@ static void *physical(struct task *t, uint64_t address)
 static int user_ok(struct task *t, uint64_t p, uint64_t n, int write)
 {
     if (!cmk_user_range(p, n))
+    {
         return 0;
+    }
     while (n)
     {
         unsigned index = (unsigned)((p - CMK_USER_BASE) / 4096);
         uint64_t e = t->pt[index];
         if ((e & 5) != 5 || (write && !(e & 2)))
+        {
             return 0;
+        }
         uint64_t step = 4096 - (p & 4095);
         if (step > n)
+        {
             step = n;
+        }
         p += step;
         n -= step;
     }
@@ -288,13 +322,17 @@ static int user_ok(struct task *t, uint64_t p, uint64_t n, int write)
 static int load_task(const char *name, int disk)
 {
     if (task_count == TASKS)
+    {
         return -1;
+    }
     const unsigned char *data;
     size_t size;
     struct cmk_elf elf;
     if (cmk_archive_find(archive, archive_size, name, &data, &size) ||
         cmk_elf_parse(data, size, &elf))
+    {
         return -1;
+    }
     struct task *t = &tasks[task_count];
     memset(t, 0, sizeof *t);
     t->name = name;
@@ -302,7 +340,9 @@ static int load_task(const char *name, int disk)
     t->handle_open = disk;
     t->pml4[0] = (uint64_t)(uintptr_t)t->pdpt | 7;
     for (unsigned i = 0; i < 4; i++)
+    {
         t->pdpt[i] = boot_pdpt[i];
+    }
     t->pdpt[1] = (uint64_t)(uintptr_t)t->pd | 7;
     t->pd[0] = (uint64_t)(uintptr_t)t->pt | 7;
     for (unsigned i = 0; i < elf.count; i++)
@@ -310,15 +350,25 @@ static int load_task(const char *name, int disk)
         struct cmk_segment *s = &elf.segments[i];
         uint64_t end = s->address + s->memsz;
         for (uint64_t a = s->address & ~UINT64_C(4095); a < end; a += 4096)
+        {
             if (map_user(t, (unsigned)((a - CMK_USER_BASE) / 4096),
                          s->flags & 2, s->flags & 1))
+            {
                 panic("ELF mapping");
+            }
+        }
         for (uint64_t j = 0; j < s->filesz; j++)
+        {
             *(unsigned char *)physical(t, s->address + j) = data[s->offset + j];
+        }
     }
     for (unsigned i = 480; i < 512; i++)
+    {
         if (map_user(t, i, 1, 0))
+        {
             panic("stack mapping");
+        }
+    }
     t->frame = (struct frame *)(void *)(t->stack + sizeof t->stack -
                                         sizeof(struct frame));
     memset(t->frame, 0, sizeof *t->frame);
@@ -347,15 +397,21 @@ static void reap(void)
     {
         struct task *t = &tasks[j];
         if (t->alive || t->reaped)
+        {
             continue;
+        }
         for (unsigned i = 0; i < 512; i++)
+        {
             if (t->pt[i] & 1)
             {
                 uint32_t p = (uint32_t)(t->pt[i] & UINT64_C(0xfffff000));
                 if (cmk_frame_put(&frames, p))
+                {
                     panic("reap ownership");
+                }
                 t->pt[i] = 0;
             }
+        }
         t->reaped = 1;
     }
 }
@@ -429,12 +485,20 @@ static void virtio_init(void)
 {
     unsigned d;
     for (d = 0; d < 256; d++)
+    {
         if (pci_read(d, 0) == 0x10421af4)
+        {
             break;
+        }
+    }
     if (d == 256)
+    {
         panic("modern virtio-blk absent");
+    }
     if (!(pci_read(d, 4) & 0x100000))
+    {
         panic("PCI capability list absent");
+    }
     volatile unsigned char *notify_base = 0;
     uint32_t mult = 0;
     unsigned cap = pci_byte(d, 0x34) & ~3u;
@@ -443,7 +507,9 @@ static void virtio_init(void)
     while (cap && seen++ < 48)
     {
         if (cap < 0x40 || cap > 0xec)
+        {
             panic("PCI capability bounds");
+        }
         unsigned next = pci_byte(d, cap + 1) & ~3u;
         if (pci_byte(d, cap) == 9)
         {
@@ -455,34 +521,46 @@ static void virtio_init(void)
                 continue;
             }
             if (len < 16 || bar > 5 || cap + len > 256)
+            {
                 panic("virtio capability extent");
+            }
             uint32_t lo = pci_read(d, 0x10 + bar * 4);
             if (lo & 1)
+            {
                 panic("virtio I/O BAR");
+            }
             uint64_t base = lo & ~UINT32_C(15);
             if ((lo & 6) == 4)
             {
                 if (bar == 5)
+                {
                     panic("64-bit BAR index");
+                }
                 base |= (uint64_t)pci_read(d, 0x14 + bar * 4) << 32;
             }
             uint32_t off = pci_read(d, cap + 8), size = pci_read(d, cap + 12);
             if (!size || base < 0x80000000 ||
                 base + off >= UINT64_C(0x100000000) ||
                 size > UINT64_C(0x100000000) - base - off)
+            {
                 panic("virtio BAR scope");
+            }
             volatile unsigned char *p =
                 (volatile unsigned char *)(uintptr_t)(base + off);
             if (kind == 1)
             {
                 if (size < 56)
+                {
                     panic("common length");
+                }
                 common_cfg = p;
             }
             if (kind == 2)
             {
                 if (len < 20)
+                {
                     panic("notify length");
+                }
                 notify_base = p;
                 notify_size = size;
                 mult = pci_read(d, cap + 16);
@@ -490,36 +568,50 @@ static void virtio_init(void)
             if (kind == 4)
             {
                 if (size < 8)
+                {
                     panic("device length");
+                }
                 device_cfg = p;
             }
         }
         cap = next;
     }
     if (cap || !common_cfg || !device_cfg || !notify_base)
+    {
         panic("virtio capability contract");
+    }
     pci_write(d, 4, (pci_read(d, 4) & 65535) | 6);
     common_cfg[20] = 0;
     barrier();
     if (common_cfg[20])
+    {
         panic("virtio reset");
+    }
     common_cfg[20] = 3;
     R32(common_cfg, 0) = 1;
     if (!(R32(common_cfg, 4) & 1))
+    {
         panic("VERSION_1 absent");
+    }
     R32(common_cfg, 0) = 0;
     if (!(R32(common_cfg, 4) & (1u << 9)))
+    {
         panic("FLUSH absent");
+    }
     R32(common_cfg, 8) = 0;
     R32(common_cfg, 12) = 1u << 9;
     R32(common_cfg, 8) = 1;
     R32(common_cfg, 12) = 1;
     common_cfg[20] = 11;
     if (!(common_cfg[20] & 8))
+    {
         panic("feature negotiation");
+    }
     R16(common_cfg, 22) = 0;
     if (R16(common_cfg, 24) < 8)
+    {
         panic("queue too small");
+    }
     R16(common_cfg, 24) = 8;
     R16(common_cfg, 26) = 65535;
     R64(common_cfg, 32) = (uint64_t)(uintptr_t)vd;
@@ -527,13 +619,17 @@ static void virtio_init(void)
     R64(common_cfg, 48) = (uint64_t)(uintptr_t)&vu;
     uint64_t notify_offset = (uint64_t)R16(common_cfg, 30) * mult;
     if (notify_size < 2 || notify_offset > notify_size - 2)
+    {
         panic("notify bounds");
+    }
     notify = (volatile uint16_t *)(notify_base + notify_offset);
     R16(common_cfg, 28) = 1;
     common_cfg[20] = 15;
     uint64_t sectors = R64(device_cfg, 0);
     if (sectors < 16 || sectors / 8 > UINT32_MAX)
+    {
         panic("disk size contract");
+    }
     disk_pages = (uint32_t)(sectors / 8);
     disk_ready = 1;
     say("PASS virtio-modern-flush\n");
@@ -542,7 +638,9 @@ static void virtio_init(void)
 static int block(unsigned type, uint32_t page)
 {
     if (!disk_ready || (type != 4 && page >= disk_pages))
+    {
         return -1;
+    }
     request.type = type;
     request.reserved = 0;
     request.sector = (uint64_t)page * 8;
@@ -559,7 +657,9 @@ static int block(unsigned type, uint32_t page)
     *notify = 0;
     unsigned poll;
     for (poll = 0; poll < 20000000 && vu.idx == used_idx; poll++)
+    {
         __asm__ volatile("pause" ::: "memory");
+    }
     barrier();
     if (vu.idx == used_idx)
     {
@@ -575,7 +675,9 @@ static int block(unsigned type, uint32_t page)
     }
     used_idx++;
     if (vu.idx != used_idx || request_status != 0)
+    {
         return -1;
+    }
     return 0;
 }
 
@@ -584,10 +686,16 @@ static void complete(void)
     if (boot_mode != 2)
     {
         if (faults != 1 || preemptions < 2 || ticks < 6)
+        {
             panic("isolation/preemption evidence missing");
+        }
         for (unsigned i = 0; i < task_count; i++)
+        {
             if (i != 3 && tasks[i].status)
+            {
                 panic("user test failed");
+            }
+        }
         say("PASS isolation-preemption\nPASS kernel-suite\n");
         stop(1);
     }
@@ -620,15 +728,23 @@ static int64_t syscall(struct frame *f)
     {
         case CMK_WRITE:
             if (b > 512 || !user_ok(t, a, b, 0))
+            {
                 return -1;
+            }
             for (uint64_t i = 0; i < b; i++)
+            {
                 put(((const char *)(uintptr_t)a)[i]);
+            }
             return (int64_t)b;
         case CMK_READ:
             if (!user_ok(t, a, 1, 1))
+            {
                 return -1;
+            }
             if (!(inb(0x3fd) & 1))
+            {
                 return 0;
+            }
             *(unsigned char *)(uintptr_t)a = inb(0x3f8);
             return 1;
         case CMK_EXIT:
@@ -648,23 +764,37 @@ static int64_t syscall(struct frame *f)
         case CMK_ALLOC:
         {
             if (!a || a > 16)
+            {
                 return -1;
+            }
             unsigned first;
             for (first = 256; first + a <= 479; first++)
             {
                 unsigned j;
                 for (j = 0; j < a; j++)
+                {
                     if (t->pt[first + j])
+                    {
                         break;
+                    }
+                }
                 if (j == a)
+                {
                     break;
+                }
             }
             if (first + a > 479)
+            {
                 return -1;
+            }
             unsigned j;
             for (j = 0; j < a; j++)
+            {
                 if (map_user(t, first + j, 1, 0))
+                {
                     break;
+                }
+            }
             if (j != a)
             {
                 while (j)
@@ -682,13 +812,17 @@ static int64_t syscall(struct frame *f)
             if (!cmk_handle_valid((uint32_t)a, 0, t->generation,
                                   t->handle_open) ||
                 a > UINT32_MAX)
+            {
                 return -1;
+            }
             return disk_pages;
         case CMK_CLOSE:
             if (!cmk_handle_valid((uint32_t)a, 0, t->generation,
                                   t->handle_open) ||
                 a > UINT32_MAX)
+            {
                 return -1;
+            }
             t->handle_open = 0;
             t->generation++;
             return 0;
@@ -699,35 +833,55 @@ static int64_t syscall(struct frame *f)
             if (a > UINT32_MAX ||
                 !cmk_handle_valid((uint32_t)a, 0, t->generation,
                                   t->handle_open))
+            {
                 return -1;
+            }
             if (f->rax == CMK_BLOCK_FLUSH)
+            {
                 return block(4, 0);
+            }
             if (b >= disk_pages ||
                 !user_ok(t, c, 4096, f->rax == CMK_BLOCK_READ))
+            {
                 return -1;
+            }
             if (f->rax == CMK_BLOCK_WRITE)
+            {
                 memcpy(bounce, (const void *)(uintptr_t)c, 4096);
+            }
             int r = block(f->rax == CMK_BLOCK_READ ? 0 : 1, (uint32_t)b);
             if (!r && f->rax == CMK_BLOCK_READ)
+            {
                 memcpy((void *)(uintptr_t)c, bounce, 4096);
+            }
             return r;
         }
         case CMK_BOOT_FILE:
         {
             char name[24];
             if (!user_ok(t, a, 24, 0) || c > 65536 || !user_ok(t, b, c, 1))
+            {
                 return -1;
+            }
             memcpy(name, (const void *)(uintptr_t)a, 24);
             unsigned terminated = 0;
             for (unsigned i = 0; i < sizeof name; i++)
+            {
                 if (!name[i])
+                {
                     terminated = 1;
+                }
+            }
             if (!terminated)
+            {
                 return (uint64_t)-1;
+            }
             const unsigned char *p;
             size_t n;
             if (cmk_archive_find(archive, archive_size, name, &p, &n) || n > c)
+            {
                 return -1;
+            }
             memcpy((void *)(uintptr_t)b, p, n);
             return (int64_t)n;
         }
@@ -761,7 +915,9 @@ struct frame *dispatch(struct frame *f)
         uint64_t n = f->rax;
         f->rax = (uint64_t)syscall(f);
         if (n == CMK_YIELD || !tasks[current].alive)
+        {
             return schedule();
+        }
         return f;
     }
     if (f->vector == 14 && current == 3)
@@ -769,7 +925,9 @@ struct frame *dispatch(struct frame *f)
         uint64_t cr2;
         __asm__ volatile("mov %%cr2,%0" : "=r"(cr2));
         if (cr2 != 0x100000 || (f->error & 7) != 7)
+        {
             panic("unexpected protection fault");
+        }
         faults++;
         say("PASS user-kernel-write-denied\n");
         tasks[current].alive = 0;
@@ -793,15 +951,21 @@ void kernel_main(unsigned magic, unsigned info)
     serial_init();
     say("CMK v1 boot\n");
     if (magic != 0x36d76289)
+    {
         panic("multiboot magic");
+    }
     struct cmk_boot b;
     const unsigned char *p = (const unsigned char *)(uintptr_t)info;
     uint32_t bytes = *(const uint32_t *)p;
     if (info > 0x8000000 || bytes > 1048576 || bytes > 0x8000000 - info ||
         cmk_boot_parse(p, bytes, &b))
+    {
         panic("boot tags");
+    }
     if (b.module_end > 0x8000000)
+    {
         panic("archive placement");
+    }
     archive = (const unsigned char *)(uintptr_t)b.module_start;
     archive_size = b.module_end - b.module_start;
     for (unsigned off = 8; off + 8 <= bytes;)
@@ -813,41 +977,63 @@ void kernel_main(unsigned magic, unsigned info)
             const char *s = (const char *)(p + off + 8);
             size_t n = size - 8;
             for (size_t i = 0; i + 6 < n; i++)
+            {
                 if (!memcmp(s + i, "verify", 6))
+                {
                     boot_mode = 1;
+                }
+            }
             for (size_t i = 0; i + 11 < n; i++)
+            {
                 if (!memcmp(s + i, "interactive", 11))
+                {
                     boot_mode = 2;
+                }
+            }
         }
         if (!type)
+        {
             break;
+        }
         off = (off + size + 7) & ~7u;
     }
     uint32_t reserved = (uint32_t)(uintptr_t)kernel_end;
     if (b.module_end > reserved)
+    {
         reserved = b.module_end;
+    }
     if (info + bytes > reserved)
+    {
         reserved = info + bytes;
+    }
     reserved = (reserved + 4095) & ~4095u;
     cmk_frames_init(&frames, &b, reserved);
     uint32_t probe = take();
     if (cmk_frame_put(&frames, probe))
+    {
         panic("allocator");
+    }
     say("PASS boot-map-frames\n");
     tables();
     virtio_init();
     if (load_task(boot_mode == 2 ? "shell" : "init", 1))
+    {
         panic("init ELF");
+    }
     if (boot_mode != 2)
     {
         if (load_task("worker", 0) || load_task("worker", 0) ||
             load_task("fault", 0))
+        {
             panic("test ELF");
+        }
         const unsigned char *vm;
         size_t n;
         if (!cmk_archive_find(archive, archive_size, "vm", &vm, &n) &&
             load_task("vm", 0))
+        {
             panic("VM ELF");
+        }
     }
     say("PASS elf-load\n");
     activate(0);

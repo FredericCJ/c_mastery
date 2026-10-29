@@ -30,7 +30,9 @@ static int source_length(const void *p, size_t *out)
     {
         *out = 0;
         while (*out < s->n && s->bytes[*out])
+        {
             ++*out;
+        }
     }
     return s->fail == 1 ? DS_FAILED : DS_OK;
 }
@@ -40,9 +42,13 @@ static int source_copy(const void *p, unsigned char *out, size_t cap, size_t *n)
     struct ds_source *s = (struct ds_source *)p;
     ++s->copy_calls;
     if (cap < s->n)
+    {
         return DS_FULL;
+    }
     for (size_t i = 0; i < s->n; ++i)
+    {
         out[i] = s->bytes[i];
+    }
     *n = s->wrong && s->n ? s->n - 1 : s->n;
     return s->fail == 2 ? DS_FAILED : DS_OK;
 }
@@ -78,12 +84,16 @@ static int counted_fail(const void *p, int *out)
 static void laws(int emit)
 {
     for (size_t n = 0; n <= 16; ++n)
+    {
         for (unsigned cut = 0; cut < 3; ++cut)
+        {
             for (unsigned wrong = 0; wrong < 2; ++wrong)
             {
                 struct ds_source s = {.n = n, .fail = cut, .wrong = wrong};
                 for (size_t i = 0; i < n; ++i)
+                {
                     s.bytes[i] = (unsigned char)(i % 3 ? i : 0);
+                }
                 unsigned char out[16];
                 memset(out, 99, sizeof out);
                 size_t length = 91;
@@ -102,9 +112,13 @@ static void laws(int emit)
                     sum += out[i];
                 }
                 if (emit)
+                {
                     printf("L %zu %u %u %d %zu %u %u %u\n", n, cut, wrong, rc,
                            length, s.length_calls, s.copy_calls, sum);
+                }
             }
+        }
+    }
     struct ds_source s = {.bytes = {1, 0, 2}, .n = 3, .zero_terminated = 1};
     unsigned char out[4] = {91, 92, 93, 94};
     size_t n = 97;
@@ -122,6 +136,7 @@ static void laws(int emit)
           !s.copy_calls);
     const struct ds_ops measured[2] = {{counted_int}, {counted_fail}};
     for (int value = -8; value <= 8; ++value)
+    {
         for (unsigned failure = 0; failure < 2; ++failure)
         {
             int result = 91;
@@ -131,9 +146,12 @@ static void laws(int emit)
             CHECK(rc == (failure ? DS_FAILED : DS_OK) &&
                   result == (failure ? 91 : value) && measure_calls == 1);
             if (emit)
+            {
                 printf("V %d %u %d %d %u\n", value, failure, rc, result,
                        measure_calls);
+            }
         }
+    }
 }
 
 static void subobjects(void)
@@ -145,6 +163,7 @@ static void subobjects(void)
     CHECK(views[0].object == &owner.bytes &&
           views[1].object == &owner.scalar.value);
     for (size_t n = 0; n <= 16; ++n)
+    {
         for (int value = -16; value <= 16; ++value)
         {
             owner.bytes.length = n;
@@ -153,6 +172,7 @@ static void subobjects(void)
             CHECK(ds_measure(views[0], &a) == DS_OK && a == (int)n);
             CHECK(ds_measure(views[1], &b) == DS_OK && b == value);
         }
+    }
     owner.scalar.ops = &fail_ops;
     CHECK(ds_multi_views(&owner, views) == DS_OK);
     int out = 91;
@@ -229,7 +249,9 @@ static void admission(void)
 static void histories(int emit)
 {
     for (unsigned mode = 0; mode < 3; ++mode)
+    {
         for (int initial = -4; initial <= 4; ++initial)
+        {
             for (unsigned code = 0; code < 729; ++code)
             {
                 struct ds_closure c;
@@ -246,9 +268,13 @@ static void histories(int emit)
                     {
                         output = value + arg;
                         if (mode == DS_MUTABLE)
+                        {
                             value = output;
+                        }
                         if (mode == DS_ONCE)
+                        {
                             active = 0;
+                        }
                     }
                     int actual = 91;
                     int rc = ds_closure_call(&c, arg, &actual);
@@ -256,10 +282,14 @@ static void histories(int emit)
                           c.active == active &&
                           actual == (expected ? 91 : output));
                     if (emit)
+                    {
                         printf("H %u %d %u %u %d %d %d %u\n", mode, initial,
                                code, step, rc, actual, c.capture, c.active);
+                    }
                 }
             }
+        }
+    }
     for (unsigned mode = 0; mode < 3; ++mode)
     {
         struct ds_closure c;
@@ -282,28 +312,46 @@ static void histories(int emit)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     test = argv[1];
     if (!strcmp(test, "copy_laws"))
+    {
         laws(0);
+    }
     else if (!strcmp(test, "subobjects"))
+    {
         subobjects();
+    }
     else if (!strcmp(test, "capture_admission"))
+    {
         admission();
+    }
     else if (!strcmp(test, "closure_histories"))
+    {
         histories(0);
+    }
     else if (!strcmp(test, "oracle_laws"))
+    {
         laws(1);
+    }
     else if (!strcmp(test, "oracle_closures"))
+    {
         histories(1);
+    }
     else if (!strcmp(test, "layout"))
+    {
         printf("%zu %zu %zu %zu %zu %zu\n", sizeof(struct ds_copy_view),
                sizeof(struct ds_copy_ops), sizeof(struct ds_multi),
                offsetof(struct ds_multi, bytes),
                offsetof(struct ds_multi, scalar) +
                    offsetof(struct ds_box, value),
                sizeof(struct ds_capture_spec));
+    }
     else
+    {
         return 2;
+    }
     return 0;
 }

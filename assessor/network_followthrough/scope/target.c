@@ -82,9 +82,13 @@ void xf_target_main(void)
     for (unsigned i = 0; i < 6; ++i)
     {
         for (unsigned j = 0; j < 2048; ++j)
+        {
             dma_buffers[i][j] = 0;
+        }
         for (unsigned j = 0; j < 4; ++j)
+        {
             dma_descriptors[i][j] = 0;
+        }
     }
     CHECK(sizeof dma_buffers + sizeof dma_descriptors == 12384);
     CHECK(((uintptr_t)dma_buffers & 31) == 0 &&
@@ -93,7 +97,9 @@ void xf_target_main(void)
           (uintptr_t)dma_buffers + sizeof dma_buffers <= 0x20008000);
     unsigned char source[600];
     for (unsigned i = 0; i < 600; ++i)
+    {
         source[i] = (unsigned char)i;
+    }
     for (unsigned k = 0; k < 2; ++k)
     {
         CHECK(nw_tx_init(&connections[k], 1, k + 40000) == NW_OK);
@@ -110,10 +116,14 @@ void xf_target_main(void)
             CHECK(segment.length == (packets < 2 ? 256 : 88));
             CHECK(nw_submit(s, segment.ticket, 1) == NW_OK);
             if (k == 0)
+            {
                 CHECK(nw_dma_done(s, segment.ticket) == NW_OK && s->flight);
+            }
             CHECK(nw_ack(s, segment.ticket, s->sent) == NW_OK);
             if (k == 1)
+            {
                 CHECK(s->dma && nw_dma_done(s, segment.ticket) == NW_OK);
+            }
             ++packets;
         }
         CHECK(packets == 3);

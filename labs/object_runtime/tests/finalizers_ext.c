@@ -44,28 +44,44 @@ static enum or_status callback(struct orf_heap *h, struct orf_handle a,
     enum or_status status = OR_UNIMPLEMENTED;
     c->calls++;
     if (c->resurrect && orf_root(h, a, 1) != OR_OK)
+    {
         c->errors++;
+    }
     if (orf_collect(h, &dead) != OR_STATE || dead != 123)
+    {
         c->errors++;
+    }
     if (orf_run_one(h, &out, &status) != OR_STATE || out.slot != 99 ||
         status != OR_UNIMPLEMENTED)
+    {
         c->errors++;
+    }
     if (orf_cleanup(h, 1, &released) != OR_STATE || released != 123)
+    {
         c->errors++;
+    }
     if (orf_close(h) != OR_STATE)
+    {
         c->errors++;
+    }
     if (c->allocate)
     {
         enum or_status s = orf_new(h, 0, 0, 0, c->fail_alloc, &out);
         if (c->fail_alloc)
         {
             if (s != OR_FULL || out.slot != 99)
+            {
                 c->errors++;
+            }
         }
         else if (s != OR_OK)
+        {
             c->errors++;
+        }
         else
+        {
             c->child = out;
+        }
     }
     return OR_FULL; /* Application finalization failed after committed mutations. */
 }
@@ -142,7 +158,9 @@ static int finalizers(void)
           memcmp(&h, &before, sizeof h) == 0);
     CHECK(orf_collect(&h, &dead) == OR_OK && !dead && h.weak.pending == 65535);
     for (i = 0; i < 16; i++)
+    {
         CHECK(orf_run_one(&h, &out, &status) == OR_OK && out.slot == i + 1);
+    }
     CHECK(c.calls == 16 && !c.errors && h.cleanup_pending == 65535);
     CHECK(orf_cleanup(&h, 5, &released) == OR_OK && released == 5);
     CHECK(orf_cleanup(&h, 99, &released) == OR_DONE && released == 11 &&
@@ -219,7 +237,9 @@ static int ephemeron(void)
     CHECK(orf_collect(&h, &dead) == OR_OK && dead == 15 &&
           h.weak.graph.live == 0);
     for (i = 0; i < 4; i++)
+    {
         CHECK(!h.weak.key[i] && !h.weak.value[i]);
+    }
     CHECK(orf_pair(&h, 0, nil, a[0]) == OR_INVALID);
     return 0;
 }
@@ -231,8 +251,11 @@ static int oracle(void)
     struct orf_handle a[4];
     uint16_t dead;
     for (graph = 0; graph < 64; graph++)
+    {
         for (mask = 0; mask < 16; mask++)
+        {
             for (v0 = 0; v0 < 5; v0++)
+            {
                 for (v1 = 0; v1 < 5; v1++)
                 {
                     orf_init(&h);
@@ -257,18 +280,29 @@ static int oracle(void)
                     printf("F %u %u %u %u %u %u\n", graph, mask, v0, v1,
                            h.weak.graph.live, dead);
                 }
+            }
+        }
+    }
     return 0;
 }
 
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "finalizers"))
+    {
         return finalizers();
+    }
     if (!strcmp(argv[1], "ephemeron_graph"))
+    {
         return ephemeron();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     return 2;
 }

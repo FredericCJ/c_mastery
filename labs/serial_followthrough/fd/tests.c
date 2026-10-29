@@ -17,11 +17,15 @@ static int admission(void)
                                       8, 12, 16, 20, 24, 32, 48, 64};
     uint8_t bytes[65];
     for (unsigned i = 0; i < 65; ++i)
+    {
         bytes[i] = (uint8_t)i;
+    }
     unsigned cases = 0;
     struct fd_packet out = {0};
     for (unsigned dlc = 0; dlc < 16; ++dlc)
+    {
         for (unsigned brs = 0; brs < 2; ++brs)
+        {
             for (unsigned esi = 0; esi < 2; ++esi)
             {
                 struct fd_input in = {dlc, length[dlc], 1, brs, esi, 0, 1};
@@ -30,6 +34,8 @@ static int admission(void)
                       out.metadata.crc_width == (in.length <= 16 ? 17 : 21));
                 ++cases;
             }
+        }
+    }
     struct fd_input in = {9, 12, 1, 2, 0, 0, 1};
     out.payload_length = 99;
     CHECK(fd_admit(&in, bytes, 12, &out) == FD_INVALID &&
@@ -51,16 +57,22 @@ static int admission(void)
         int status = fd_length(0, bytes, n, 1, 0, &out);
         unsigned found = 0;
         for (unsigned i = 0; i < 16; ++i)
+        {
             found |= length[i] == n;
+        }
         CHECK(status == (found ? FD_OK : FD_LENGTH));
         exact += found;
         CHECK(fd_length(1, bytes, n, 1, 0, &out) == FD_OK &&
               out.payload_length == n && out.metadata.length >= n &&
               out.padding == out.metadata.length - n);
         for (unsigned j = 0; j < n; ++j)
+        {
             CHECK(out.payload[j] == j);
+        }
         for (unsigned j = n; j < 64; ++j)
+        {
             CHECK(out.payload[j] == 0);
+        }
         ++padded;
     }
     out.payload_length = 99;
@@ -87,14 +99,18 @@ static int wire(void)
           b.crc == 44951); /* separately derived polynomial oracle */
     unsigned different = 0;
     for (unsigned i = 0; i < b.count; ++i)
+    {
         different += a.bits[i] != b.bits[i];
+    }
     CHECK(different > 0);
     /* Decode current count/parity independently of the implementation helper. */
     unsigned at = a.crc_start;
     CHECK(a.bits[at] != a.bits[at - 1]);
     unsigned sbc = 0;
     for (unsigned i = 1; i <= 4; ++i)
+    {
         sbc = (sbc << 1) | a.bits[at + i];
+    }
     static const unsigned codes[] = {0, 3, 6, 5, 12, 15, 10, 9};
     CHECK(sbc == codes[a.dynamic_stuff % 8]);
     fd_values("wire", a.count, b.count, a.crc, b.crc);
@@ -102,24 +118,32 @@ static int wire(void)
     uint32_t fingerprint = 2166136261u;
     unsigned largest = 0, frames = 0;
     for (unsigned dlc = 0; dlc < 16; ++dlc)
+    {
         for (unsigned pattern = 0; pattern < 4; ++pattern)
         {
             for (unsigned i = 0; i < 64; ++i)
+            {
                 bytes[i] = (uint8_t)(pattern == 0   ? 0
                                      : pattern == 1 ? 255
                                      : pattern == 2 ? (i & 1 ? 0x0f : 0xf0)
                                                     : i * 37 + 3);
+            }
             struct sd_fd metadata;
             CHECK(sd_fd(dlc, 1, 1, 0, 0, 1, &metadata) == SD_OK);
             CHECK(fd_length(0, bytes, metadata.length, 1, 0, &p) == FD_OK);
             CHECK(fd_wire(0, &p, 1, &a) == FD_OK && a.count <= 709 &&
                   a.width == metadata.crc_width);
             for (unsigned j = 0; j < a.count; ++j)
+            {
                 fingerprint = (fingerprint ^ a.bits[j]) * 16777619u;
+            }
             if (a.count > largest)
+            {
                 largest = a.count;
+            }
             ++frames;
         }
+    }
     fd_values("wire_matrix", frames, largest, fingerprint, 709);
     CHECK(frames == 64 && largest == 681 &&
           fingerprint == UINT32_C(2090412385));
@@ -172,7 +196,9 @@ static int tdc(void)
        Delayed input is compared with the saved transmitted bit, not the current
        output bit two bit periods later. No physical delay measurement is claimed. */
     for (unsigned t = 0; t < 85; ++t)
+    {
         rx[t] = t < 18 ? 1 : tx[(t - 18) / 10];
+    }
     struct fd_tdc out = {0};
     CHECK(fd_tdc(tx, 8, rx, 85, 10, 5, 18, 4, &out) == FD_OK &&
           out.checked == 7 && out.skipped == 1 && out.mismatches == 0);

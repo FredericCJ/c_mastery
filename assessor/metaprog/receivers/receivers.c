@@ -57,9 +57,13 @@ int mpv_update(struct mpv_rw view, uint32_t clear, uint32_t set)
 {
     uint32_t old;
     if (!view.word)
+    {
         return MPV_INVALID;
+    }
     if ((clear | set) & ~view.writable)
+    {
         return MPV_RANGE;
+    }
     old = *view.word;
     *view.word = (old & ~(MPV_MUTATION == 5 ? 0 : clear)) | set;
     return MPV_OK;
@@ -68,9 +72,13 @@ int mpv_update(struct mpv_rw view, uint32_t clear, uint32_t set)
 int mpv_ack(struct mpv_w1_c view, uint32_t flags)
 {
     if (!view.word)
+    {
         return MPV_INVALID;
+    }
     if (flags & ~view.allowed)
+    {
         return MPV_RANGE;
+    }
     *view.word = MPV_MUTATION == 4 ? (*view.word | flags) : flags;
     return MPV_OK;
 }

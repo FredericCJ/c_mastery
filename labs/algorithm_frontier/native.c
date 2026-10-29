@@ -13,9 +13,13 @@ static void step(char kind, const struct ag_step *s)
     printf("STEP %c %u %u %u %u", kind, s->selected, s->done, s->seen,
            s->count);
     for (unsigned i = 0; i < 8; ++i)
+    {
         printf(" %llu", (unsigned long long)s->distance[i]);
+    }
     for (unsigned i = 0; i < s->count; ++i)
+    {
         printf(" %u %d", s->frontier[i], s->priority[i]);
+    }
     puts("");
 }
 
@@ -24,12 +28,18 @@ void ag_emit(unsigned code, unsigned source, const struct ag_result *r,
 {
     printf("GRAPH %u %u %u %u\n", code, source, r->vertices, r->reachable);
     for (unsigned i = 0; i < r->vertices; ++i)
+    {
         printf("RESULT %u %u %u %u\n", i, r->distance[i], r->hops[i],
                r->previous[i]);
+    }
     for (unsigned i = 0; i < t->bfs_count; ++i)
+    {
         step('B', &t->bfs[i]);
+    }
     for (unsigned i = 0; i < t->weighted_count; ++i)
+    {
         step('W', &t->weighted[i]);
+    }
     for (unsigned i = 0; i < t->relaxations; ++i)
     {
         struct ag_relax r = t->relaxation[i];
@@ -46,14 +56,20 @@ int main(int argc, char **argv)
     const char *names[] = {"fixture", "boundaries", "parallel", "certificates",
                            "exhaustive"};
     if (argc != 2)
+    {
         return 2;
+    }
     for (unsigned i = 0; i < 5; ++i)
+    {
         if (!strcmp(argv[1], names[i]))
         {
             int r = ag_test(i);
             if (!r)
+            {
                 printf("OBS %s\n", names[i]);
+            }
             return r;
         }
+    }
     return 2;
 }

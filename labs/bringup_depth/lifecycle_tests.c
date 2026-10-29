@@ -31,7 +31,9 @@ int main(void)
     {
         CK(bu_task_start(&t) == BU_OK && t.generation == i);
         for (unsigned j = 0; j < 8; ++j)
+        {
             CK(t.task_bytes[j] == 0);
+        }
         t.task_bytes[7] = 99;
         CK(bu_task_return(&t, i, -(int)i, 2) == BU_OK && t.phase == 2);
         CK(bu_task_start(&t) == BU_INVALID && t.generation == i);

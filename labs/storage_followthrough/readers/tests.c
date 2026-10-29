@@ -26,7 +26,9 @@ static int rd(void *p, uint32_t id, void *out)
     struct store_image *d = p;
     d->reads++;
     if (d->failread || id >= 67)
+    {
         return 1;
+    }
     memcpy(out, d->pages[id], 4096);
     return 0;
 }
@@ -36,7 +38,9 @@ static int wr(void *p, uint32_t id, const void *in)
     struct store_image *d = p;
     d->writes++;
     if (d->failwrite || id >= 67)
+    {
         return 1;
+    }
     memcpy(d->pages[id], in, 4096);
     return 0;
 }
@@ -162,7 +166,9 @@ static int failure(void)
     struct sr_lease a, out = {0};
     CHECK(sr_capture(&hub, &a) == SR_OK);
     for (unsigned i = 0; i < 4; i++)
+    {
         hub.reader.cache[i].valid = 0;
+    }
     CHECK(sc_init(&hub.cache, SC_TWO_WAY) == STORE_OK);
     image.failread = 1;
     struct sr_lease before = out;
@@ -198,8 +204,12 @@ static void *writer(void *ctx)
     (void)ctx;
     wait_start();
     for (unsigned i = 1; i <= 32; i++)
+    {
         if (publish(i) != SR_OK)
+        {
             writer_error = 1;
+        }
+    }
     return NULL;
 }
 
@@ -214,7 +224,9 @@ static void *reader(void *ctx)
         size_t n = 0;
         int r = sr_get(&hub, &key, 1, &value, 1, &n);
         if (r || n != 1 || value < previous || value > 32 || get(l, 0))
+        {
             reader_error = 1;
+        }
         previous = value;
     }
     return NULL;
@@ -255,8 +267,12 @@ static int oracle(void)
             if (initialized)
             {
                 for (unsigned i = 0; i < 2; i++)
+                {
                     if (owned[i])
+                    {
                         CHECK(sr_release(tokens[i]) == SR_OK);
+                    }
+                }
                 CHECK(done() == 0);
             }
             CHECK(start() == 0);
@@ -265,7 +281,9 @@ static int oracle(void)
         }
         int result = 0;
         if (op < 2)
+        {
             result = publish(op + 1);
+        }
         else if (op == 2)
         {
             struct sr_lease out = {0};
@@ -280,18 +298,26 @@ static int oracle(void)
         {
             unsigned slot = 0;
             while (slot < 2 && !owned[slot])
+            {
                 slot++;
+            }
             if (slot == 2)
+            {
                 result = STORE_NOT_FOUND;
+            }
             else
             {
                 result = sr_release(tokens[slot]);
                 if (!result)
+                {
                     owned[slot] = 0;
+                }
             }
         }
         else if (op == 4)
+        {
             result = sr_close(&hub);
+        }
         else
         {
             uint8_t key = 1, value = 0;
@@ -319,8 +345,12 @@ static int oracle(void)
     if (initialized)
     {
         for (unsigned i = 0; i < 2; i++)
+        {
             if (owned[i])
+            {
                 CHECK(sr_release(tokens[i]) == SR_OK);
+            }
+        }
         CHECK(done() == 0);
     }
     return 0;
@@ -329,18 +359,32 @@ static int oracle(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "snapshots"))
+    {
         return snapshots();
+    }
     if (!strcmp(argv[1], "shared"))
+    {
         return shared();
+    }
     if (!strcmp(argv[1], "limits"))
+    {
         return limits();
+    }
     if (!strcmp(argv[1], "failure"))
+    {
         return failure();
+    }
     if (!strcmp(argv[1], "threaded"))
+    {
         return threaded();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     return 2;
 }

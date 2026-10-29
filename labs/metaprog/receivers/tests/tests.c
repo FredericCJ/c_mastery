@@ -239,10 +239,14 @@ static int metrics(void)
         sizeof(struct mpv_read), sizeof(struct mpv_rw),
         sizeof(struct mpv_w1_c));
     for (sample = 0; sample < 7; ++sample)
+    {
         printf("%s%.9f", sample ? "," : "", generic[sample]);
+    }
     printf("],\"direct_seconds\":[");
     for (sample = 0; sample < 7; ++sample)
+    {
         printf("%s%.9f", sample ? "," : "", direct[sample]);
+    }
     puts("]}");
     return 0;
 }
@@ -250,18 +254,32 @@ static int metrics(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "receiver_dispatch"))
+    {
         return dispatch();
+    }
     if (!strcmp(argv[1], "receiver_effects"))
+    {
         return effects();
+    }
     if (!strcmp(argv[1], "receiver_device"))
+    {
         return device();
+    }
     if (!strcmp(argv[1], "receiver_base"))
+    {
         return baseline();
+    }
     if (!strcmp(argv[1], "driver"))
+    {
         return driver();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

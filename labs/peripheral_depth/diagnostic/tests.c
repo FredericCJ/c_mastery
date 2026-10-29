@@ -20,8 +20,12 @@ int pm_puts(const char *);
 static int same(const uint8_t *a, const uint8_t *b, size_t n)
 {
     for (size_t i = 0; i < n; ++i)
+    {
         if (a[i] != b[i])
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
@@ -40,7 +44,9 @@ int main(void)
     CHECK(dg_encode(&m, wire, sizeof wire, &n) == DG_OK && n == 6 &&
           same(wire, golden, 6));
     for (size_t i = 0; i < 6; ++i)
+    {
         CHECK(dg_decode(wire, i, &out) == DG_FRAME && out.sequence == 99);
+    }
     CHECK(dg_decode(wire, 7, &out) == DG_FRAME && out.sequence == 99);
     CHECK(dg_decode(wire, 6, &out) == DG_OK && out.sequence == 1 &&
           out.length == 2);
@@ -59,7 +65,9 @@ int main(void)
     {
         m.length = (uint16_t)length;
         for (unsigned i = 0; i < length; ++i)
+        {
             m.payload[i] = (uint8_t)(i * 17);
+        }
         CHECK(dg_encode(&m, wire + 2, 78, &n) == DG_OK);
         wire[0] = 0;
         wire[1] = (uint8_t)n;
@@ -71,7 +79,9 @@ int main(void)
             CHECK(dg_stream_feed(&stream, wire, cut, &used) == DG_OK &&
                   used == cut);
             if (cut < n + 2)
+            {
                 CHECK(dg_stream_take(&stream, &s, &out) == DG_BUSY);
+            }
             CHECK(dg_stream_feed(&stream, wire + cut, n + 2 - cut, &used) ==
                   (cut == n + 2 ? DG_BUSY : DG_OK));
             CHECK(dg_stream_take(&stream, &s, &out) == DG_OK &&
@@ -122,9 +132,13 @@ int main(void)
             0}; /* DMA status reports retained FCS; hardware already checked it. */
         uint8_t complete[64];
         for (size_t i = 0; i < 60; ++i)
+        {
             complete[i] = wire[i];
+        }
         for (size_t i = 0; i < 4; ++i)
+        {
             complete[60 + i] = fcs[i];
+        }
         struct ed_descriptor d[2] = {{complete, (uint16_t)split, 1u << 9},
                                      {complete + split, (uint16_t)(64 - split),
                                       (64u << 16) | (1u << 8)}};

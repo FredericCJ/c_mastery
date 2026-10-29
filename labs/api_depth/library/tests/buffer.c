@@ -5,6 +5,7 @@
 int main(void)
 {
     for (size_t cap = 0; cap <= 8; cap++)
+    {
         for (size_t n = 0; n <= 9; n++)
         {
             struct lc_buffer *p = lc_create(cap);
@@ -31,6 +32,7 @@ int main(void)
             CHECK(lc_append(p, NULL, 1) == LC_INVALID || got == cap);
             lc_release_buffer(p);
         }
+    }
     struct lc_bytes needed = {77};
     CHECK(lc_extent((struct lc_elements){3}, 4, (struct lc_bytes){12},
                     &needed) == LC_OK &&

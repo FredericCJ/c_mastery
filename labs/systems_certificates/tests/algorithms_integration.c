@@ -29,17 +29,23 @@ static int snapshot(const algo_avl *source, struct sc_tree *out)
             n->key, n->left, n->right, -1, (uint8_t)n->height, n->live};
     }
     for (i = 0; i < 64; i++)
+    {
         if (t.nodes[i].live)
+        {
             for (j = 0; j < 2; j++)
             {
                 int child = j ? t.nodes[i].right : t.nodes[i].left;
                 if (child >= 0)
                 {
                     if (child >= 64 || t.nodes[child].parent != -1)
+                    {
                         return 1;
+                    }
                     t.nodes[child].parent = (int16_t)i;
                 }
             }
+        }
+    }
     *out = t;
     return 0;
 }
@@ -55,23 +61,33 @@ int main(void)
     {
         if (sc_unique_insert(&tree, has, put, keys[i]) != SC_OK ||
             snapshot(&tree, &cert) || sc_tree_check(&cert, &height) != SC_OK)
+        {
             return 1;
+        }
     }
     before = tree;
     if (algo_avl_insert(&tree, 20) != ALGO_OK ||
         memcmp(&tree, &before, sizeof tree))
+    {
         return 1;
+    }
     if (sc_unique_insert(&tree, has, put, 20) != SC_DUPLICATE ||
         memcmp(&tree, &before, sizeof tree))
+    {
         return 1;
+    }
     for (i = 0; i < 10; i++)
     {
         if (algo_avl_delete(&tree, keys[i]) != ALGO_OK ||
             snapshot(&tree, &cert) || sc_tree_check(&cert, &height) != SC_OK)
+        {
             return 1;
+        }
     }
     if (height || tree.count)
+    {
         return 1;
+    }
     puts(
         "SC_INTEGRATION: baseline idempotence preserved; reject-duplicate adapter and20 mutation certificates passed");
     return 0;

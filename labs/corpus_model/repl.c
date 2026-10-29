@@ -26,7 +26,9 @@ int main(void)
         if (c == EOF)
         {
             if (ferror(stdin))
+            {
                 return 2;
+            }
             (void)cm_finish(&session);
             return flush(&session) ? 3 : 0;
         }
@@ -34,9 +36,13 @@ int main(void)
         size_t used;
         int rc = cm_feed(&session, &byte, 1, &used);
         if (rc != CM_OK && rc != CM_PENDING)
+        {
             return 4;
+        }
         if (flush(&session))
+        {
             return 3;
+        }
     }
     return 0;
 }

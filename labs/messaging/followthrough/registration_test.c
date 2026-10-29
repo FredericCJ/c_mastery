@@ -34,7 +34,9 @@ static void *produce(void *p)
         {
             s = mfr_send(a->h, a->k, a->k * 1000 + i);
             if (s == MSG_FULL)
+            {
                 sched_yield();
+            }
         } while (s == MSG_FULL);
         CHECK(s == MSG_OK);
     }
@@ -93,7 +95,9 @@ int main(void)
     {
         enum msg_status s = mfr_select(&h, 3, true, &k, &v);
         if (s == MSG_CLOSED)
+        {
             break;
+        }
         CHECK(s == MSG_OK && v < 2000 && k == v / 1000 && seen[v]++ == 0);
         ++count;
     }
@@ -107,7 +111,9 @@ int main(void)
     {
         mfr_observe(&h, &waiting, &sleeps);
         if (!waiting)
+        {
             sched_yield();
+        }
     } while (!waiting);
     CHECK(mfr_destroy(&h) == MSG_BUSY);
     mfr_cancel(&h);

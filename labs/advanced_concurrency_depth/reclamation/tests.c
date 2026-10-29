@@ -45,17 +45,23 @@ static void hook(void *ctx, unsigned point, unsigned p, unsigned node)
     (void)p;
     struct ag_gate *g = ctx;
     if (role != 1)
+    {
         return;
+    }
     CHECK(!pthread_mutex_lock(&g->lock));
     if (point == AP_VALIDATED && g->first_validated == AP_NONE)
+    {
         g->first_validated = node;
+    }
     if (g->armed && point == g->point && node == g->node)
     {
         g->armed = 0;
         g->reached = 1;
         CHECK(!pthread_cond_broadcast(&g->cv));
         while (!g->released)
+        {
             CHECK(!pthread_cond_wait(&g->cv, &g->lock));
+        }
     }
     CHECK(!pthread_mutex_unlock(&g->lock));
 }
@@ -64,7 +70,9 @@ static void reached(struct ag_gate *g)
 {
     CHECK(!pthread_mutex_lock(&g->lock));
     while (!g->reached)
+    {
         CHECK(!pthread_cond_wait(&g->cv, &g->lock));
+    }
     CHECK(!pthread_mutex_unlock(&g->lock));
 }
 
@@ -96,11 +104,17 @@ static void *operate(void *ptr)
     struct ag_operation *op = ptr;
     role = 1;
     if (op->operation == 0)
+    {
         op->result = ap_pop(op->q, op->lease, &op->out);
+    }
     else if (op->operation == 1)
+    {
         op->result = ap_push(op->q, op->lease, value(11));
+    }
     else
+    {
         op->result = (int)ap_collect(op->q);
+    }
     return NULL;
 }
 
@@ -234,7 +248,9 @@ static void generation(void)
         CHECK(count == expected);
         unsigned retired = 0;
         for (unsigned i = 0; i < 32; i++)
+        {
             retired += ((atomic_load(&q.node[i].state) & 3u) == 2);
+        }
         CHECK(retired == 31);
         CHECK(ap_collect(&q) == 0);
         CHECK(ap_pop(&q, lease, &v) == AP_RETRY);
@@ -249,7 +265,9 @@ static void registration(void)
     struct ap_lease leases[8], later;
     CHECK(ap_init(&q, 4, UINT_MAX >> 2, NULL, NULL) == AP_OK);
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(ap_register(&q, &leases[i]) == AP_OK);
+    }
     later = leases[0];
     CHECK(ap_register(&q, &later) == AP_FULL && later.generation == 1);
     CHECK(ap_leave(&q, leases[0]) == AP_OK);
@@ -279,7 +297,9 @@ static void retention(void)
         struct ap_lease lease[8];
         CHECK(ap_init(&q, participants, UINT_MAX >> 2, NULL, NULL) == AP_OK);
         for (unsigned p = 0; p < participants; p++)
+        {
             CHECK(ap_register(&q, &lease[p]) == AP_OK);
+        }
         struct ap_lease actor = lease[participants - 1];
         struct ap_value v;
         unsigned held = 2 * (participants - 1);
@@ -293,7 +313,9 @@ static void retention(void)
         CHECK(ap_collect(&q) == 0);
         unsigned admitted = 31 - held;
         for (unsigned i = 0; i < admitted; i++)
+        {
             CHECK(ap_push(&q, actor, value(100 + i)) == AP_OK);
+        }
         CHECK(ap_push(&q, actor, value(999)) == AP_FULL);
         atomic_store(&q.hazard[0][0], AP_NONE);
         CHECK(ap_collect(&q) == 1);
@@ -356,7 +378,9 @@ static void *stress_thread(void *ptr)
             unsigned n = s->index * 512 + i + 1;
             int r;
             while ((r = ap_push(s->q, s->lease, value(n))) == AP_FULL)
+            {
                 ap_collect(s->q);
+            }
             CHECK(r == AP_OK);
         }
         atomic_fetch_add(s->done, 1);
@@ -394,7 +418,9 @@ static void stress(void)
         atomic_init(&received, 0);
         atomic_init(&done, 0);
         for (unsigned i = 0; i < total; i++)
+        {
             atomic_init(&seen[i], 0);
+        }
         struct ag_stress args[8];
         pthread_t threads[8];
         for (unsigned i = 0; i < participants; i++)
@@ -405,13 +431,19 @@ static void stress(void)
                                          total, seen,  &received, &done};
         }
         for (unsigned i = 0; i < participants; i++)
+        {
             CHECK(!pthread_create(&threads[i], NULL, stress_thread, &args[i]));
+        }
         for (unsigned i = 0; i < participants; i++)
+        {
             CHECK(!pthread_join(threads[i], NULL));
+        }
         CHECK(atomic_load(&done) == producers &&
               atomic_load(&received) == total);
         for (unsigned i = 0; i < total; i++)
+        {
             CHECK(atomic_load(&seen[i]) == 1);
+        }
         ap_collect(&q);
         unsigned live = 0;
         for (unsigned n = 0; n < 32; n++)
@@ -430,26 +462,48 @@ static void stress(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "validation"))
+    {
         validation();
+    }
     else if (!strcmp(argv[1], "protection"))
+    {
         protection();
+    }
     else if (!strcmp(argv[1], "publication"))
+    {
         publication();
+    }
     else if (!strcmp(argv[1], "collector"))
+    {
         collector();
+    }
     else if (!strcmp(argv[1], "registration"))
+    {
         registration();
+    }
     else if (!strcmp(argv[1], "generation"))
+    {
         generation();
+    }
     else if (!strcmp(argv[1], "retention"))
+    {
         retention();
+    }
     else if (!strcmp(argv[1], "departure"))
+    {
         departure();
+    }
     else if (!strcmp(argv[1], "stress"))
+    {
         stress();
+    }
     else
+    {
         return 2;
+    }
     return 0;
 }

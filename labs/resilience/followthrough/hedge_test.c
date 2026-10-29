@@ -59,7 +59,9 @@ static void wait_mask(struct rz_context *c, unsigned *field, unsigned mask)
 {
     CHECK(!pthread_mutex_lock(&c->mutex));
     while ((*field & mask) != mask)
+    {
         CHECK(!pthread_cond_wait(&c->changed, &c->mutex));
+    }
     CHECK(!pthread_mutex_unlock(&c->mutex));
 }
 
@@ -75,19 +77,29 @@ static int decode(void *p, const unsigned char *data, size_t n, unsigned *value)
 {
     struct rz_context *c = p;
     if (!data || n < 6 || data[0] > 1)
+    {
         return RZ_INVALID;
+    }
     unsigned bit = 1u << data[0];
     CHECK(!pthread_mutex_lock(&c->mutex));
     c->decode_enter |= bit;
     CHECK(!pthread_cond_broadcast(&c->changed));
     while ((c->decode_pause & bit) && !(c->decode_release & bit))
+    {
         CHECK(!pthread_cond_wait(&c->changed, &c->mutex));
+    }
     CHECK(!pthread_mutex_unlock(&c->mutex));
     if (data[1] != 0xa5)
+    {
         return RZ_INVALID;
+    }
     for (size_t i = 6; i < n; ++i)
+    {
         if (data[i] != (unsigned char)i)
+        {
             return RZ_INVALID;
+        }
+    }
     *value = (unsigned)data[2] << 24 | (unsigned)data[3] << 16 |
              (unsigned)data[4] << 8 | data[5];
     return RZ_OK;
@@ -101,7 +113,9 @@ static void blob_dispose(void *p, unsigned char *data)
     c->dispose_enter |= bit;
     CHECK(!pthread_cond_broadcast(&c->changed));
     while ((c->dispose_pause & bit) && !(c->dispose_release & bit))
+    {
         CHECK(!pthread_cond_wait(&c->changed, &c->mutex));
+    }
     CHECK(!pthread_mutex_unlock(&c->mutex));
     atomic_fetch_add(&c->freed[tag], 1);
     free(data);
@@ -120,14 +134,18 @@ static struct rzh_blob blob(struct rz_context *c, unsigned tag, bool valid,
     p[4] = (unsigned char)(value >> 8);
     p[5] = (unsigned char)value;
     for (size_t i = 6; i < n; ++i)
+    {
         p[i] = (unsigned char)i;
+    }
     return (struct rzh_blob){p, n, c, blob_dispose};
 }
 
 static void drop(struct rzh_blob *b)
 {
     if (b->data)
+    {
         b->dispose(b->context, b->data);
+    }
     *b = (struct rzh_blob){0};
 }
 
@@ -177,6 +195,7 @@ static void setup(struct rz_context *c, struct rzh_arbiter *a,
 static void ordered(void)
 {
     for (unsigned first = 0; first < 2; ++first)
+    {
         for (unsigned accepted = 0; accepted < 4; ++accepted)
         {
             struct rz_context c;
@@ -213,7 +232,9 @@ static void ordered(void)
             CHECK(rzh_quiescent(&a) == RZ_BUSY);
             release_mask(&c, &c.decode_release, 1u << !first);
             for (unsigned i = 0; i < 2; ++i)
+            {
                 CHECK(!pthread_join(threads[i], NULL));
+            }
             CHECK(rzh_quiescent(&a) == RZ_OK);
             struct rzh_snapshot snapshot;
             CHECK(rzh_snapshot(&a, &snapshot) == RZ_OK && snapshot.total == 3 &&
@@ -242,6 +263,7 @@ static void ordered(void)
             CHECK(rzh_destroy(&a) == RZ_OK && atomic_load(&c.scopes) == 1);
             context_destroy(&c);
         }
+    }
 }
 
 static void simultaneous(void)
@@ -265,7 +287,9 @@ static void simultaneous(void)
         wait_mask(&c, &c.decode_enter, 3);
         release_mask(&c, &c.decode_release, 3);
         for (unsigned i = 0; i < 2; ++i)
+        {
             CHECK(!pthread_join(threads[i], NULL));
+        }
         CHECK((workers[0].status == RZ_OK) + (workers[1].status == RZ_OK) == 1);
         struct rzh_result result = {0};
         CHECK(rzh_take(&a, &result) == RZ_OK &&
@@ -351,18 +375,26 @@ static void cancellation_and_decode(void)
         CHECK(rzh_complete(&a, t[0], &duplicate) == RZ_BUSY && duplicate.data);
         drop(&duplicate);
         if (mode == 0)
+        {
             CHECK(rzh_abandon(&a) == RZ_OK);
+        }
         else if (mode == 1)
+        {
             atomic_store(&c.time, 5);
+        }
         else
+        {
             rz_cancel(&s->core);
+        }
         bool cancelled = false;
         CHECK(rzh_cancelled(&a, t[1], &cancelled) == RZ_OK && cancelled);
         rzf_scope_release(&s);
         CHECK(!atomic_load(&c.scopes) && rzh_quiescent(&a) == RZ_BUSY);
         release_mask(&c, &c.decode_release, 3);
         for (unsigned i = 0; i < 2; ++i)
+        {
             CHECK(!pthread_join(threads[i], NULL));
+        }
         struct rzh_snapshot snapshot;
         CHECK(rzh_snapshot(&a, &snapshot) == RZ_OK && snapshot.winner == -1 &&
               snapshot.finalized == 3 && !snapshot.permits);
@@ -417,9 +449,13 @@ static void oracle(void)
         {
             int status = RZ_OK;
             if (word[i] == 't')
+            {
                 atomic_store(&c.time, 5);
+            }
             else if (word[i] == 'x')
+            {
                 status = rzh_abandon(&a);
+            }
             else if (word[i] == 'r')
             {
                 struct rzh_result result = {0};
@@ -508,7 +544,9 @@ static void population(void)
             CHECK(status == RZ_OK || status == RZ_DONE || status == RZ_EXPIRED);
             CHECK(rzh_snapshot(&a, &snapshot) == RZ_OK);
             if (latency < 0 && snapshot.winner >= 0)
+            {
                 latency = (int)due[attempt];
+            }
         }
         struct rzh_result result = {0};
         int status = rzh_take(&a, &result);

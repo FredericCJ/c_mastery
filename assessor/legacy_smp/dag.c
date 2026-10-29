@@ -22,7 +22,9 @@ static int dg_lock(struct sa_dg *g, struct sl_guard *guard)
 static int sum(uint64_t a, uint64_t b, uint64_t *out)
 {
     if (a > UINT64_MAX - b && DG_MUTANT != 8)
+    {
         return 0;
+    }
     *out = a + b;
     return 1;
 }
@@ -31,7 +33,9 @@ int dg_init(struct sa_dg *g, uint64_t world, const struct dg_spec *spec)
 {
     if (!g || !world || !spec || spec->count > DG_LIMIT ||
         spec->edge_count > DG_EDGES)
+    {
         return DG_INVALID;
+    }
     struct dg_node next[DG_LIMIT] = {0};
     uint64_t work = 0, span = 0;
     for (unsigned i = 0; i < spec->count; i++)
@@ -40,16 +44,22 @@ int dg_init(struct sa_dg *g, uint64_t world, const struct dg_spec *spec)
         next[i].cost = spec->costs[i];
         next[i].owner = 4;
         if (!sum(work, spec->costs[i], &work))
+        {
             return DG_RANGE;
+        }
     }
     for (unsigned i = 0; i < spec->edge_count; i++)
     {
         unsigned from = spec->edges[i].from, to = spec->edges[i].to;
         if (from >= spec->count || to >= spec->count)
+        {
             return DG_INVALID;
+        }
         uint16_t bit = (uint16_t)(1u << to);
         if ((next[from].successors & bit) && DG_MUTANT != 1)
+        {
             return DG_DUPLICATE;
+        }
         next[from].successors |= bit;
         next[to].predecessors |= (uint16_t)(1u << from);
     }
@@ -66,34 +76,50 @@ int dg_init(struct sa_dg *g, uint64_t world, const struct dg_spec *spec)
     {
         unsigned selected = spec->count;
         for (unsigned i = 0; i < spec->count; i++)
+        {
             if (!(visited & (1u << i)) && !degree[i])
             {
                 selected = i;
                 break;
             }
+        }
         if (selected == spec->count)
         {
             if (DG_MUTANT == 2)
+            {
                 break;
+            }
             return DG_CYCLE;
         }
         visited |= (uint16_t)(1u << selected);
         order[count++] = selected;
         for (unsigned j = 0; j < spec->count; j++)
+        {
             if (next[selected].successors & (1u << j))
+            {
                 degree[j]--;
+            }
+        }
     }
     for (unsigned k = 0; k < count; k++)
     {
         unsigned i = order[k];
         uint64_t longest = 0;
         for (unsigned p = 0; p < spec->count; p++)
+        {
             if ((next[i].predecessors & (1u << p)) && next[p].span > longest)
+            {
                 longest = next[p].span;
+            }
+        }
         if (!sum(longest, next[i].cost, &next[i].span))
+        {
             return DG_RANGE;
+        }
         if (next[i].span > span)
+        {
             span = next[i].span;
+        }
     }
     g->world = world;
     g->work = work;
@@ -103,7 +129,9 @@ int dg_init(struct sa_dg *g, uint64_t world, const struct dg_spec *spec)
     g->sealed = g->terminal = 0;
     (void)sl_init(&g->lock, SL_TAS, 1, 0);
     for (unsigned i = 0; i < DG_LIMIT; i++)
+    {
         g->nodes[i] = next[i];
+    }
     return DG_OK;
 }
 
@@ -124,15 +152,20 @@ static void terminal(struct sa_dg *g, unsigned node, unsigned state,
         unsigned from = pending[begin++];
         struct dg_node *source = &g->nodes[from];
         for (unsigned i = 0; i < g->count; i++)
+        {
             if (source->successors & (1u << i))
             {
                 struct dg_node *target = &g->nodes[i];
                 if (target->state != DG_WAITING)
+                {
                     continue;
+                }
                 unsigned failed = source->state != DG_DONE && DG_MUTANT != 5;
                 if (!failed &&
                     !sum(target->input, source->result, &target->input))
+                {
                     failed = 2;
+                }
                 if (failed)
                 {
                     target->state = failed == 2 ? DG_FAILED : DG_SKIPPED;
@@ -144,38 +177,53 @@ static void terminal(struct sa_dg *g, unsigned node, unsigned state,
                 }
                 target->remaining--;
                 if (DG_MUTANT == 3)
+                {
                     target->remaining = 0;
+                }
                 if (!target->remaining)
                 {
                     target->state = DG_READY;
                     target->ready_events++;
                 }
             }
+        }
     }
     if (DG_MUTANT == 9 && state == DG_DONE)
+    {
         first->result = result;
+    }
 }
 
 int dg_append(struct sa_dg *g, uint64_t payload, uint64_t cost,
               const unsigned *parents, unsigned count, unsigned *out)
 {
     if (!g || !out || (count && !parents) || count > DG_LIMIT)
+    {
         return DG_INVALID;
+    }
     struct sl_guard guard;
     if (!dg_lock(g, &guard))
+    {
         return DG_BUSY;
+    }
     int status = DG_OK;
     uint16_t mask = 0;
     uint64_t work = 0, span = 0, input = payload;
     unsigned remaining = 0, skip = 0;
     if (g->sealed)
+    {
         status = DG_CLOSED;
+    }
     else if (g->count == DG_LIMIT || count > DG_EDGES - g->edges)
+    {
         status = DG_CAPACITY;
+    }
     else
     {
         if (DG_MUTANT == 6)
+        {
             *out = g->count;
+        }
         for (unsigned i = 0; i < count; i++)
         {
             unsigned p = parents[i];
@@ -192,7 +240,9 @@ int dg_append(struct sa_dg *g, uint64_t payload, uint64_t cost,
             mask |= (uint16_t)(1u << p);
             struct dg_node *n = &g->nodes[p];
             if (n->span > span)
+            {
                 span = n->span;
+            }
             if (n->state == DG_DONE)
             {
                 if (!sum(input, n->result, &input))
@@ -203,13 +253,19 @@ int dg_append(struct sa_dg *g, uint64_t payload, uint64_t cost,
             }
             else if (n->state == DG_FAILED || n->state == DG_SKIPPED ||
                      n->state == DG_CANCELLED)
+            {
                 skip = 1;
+            }
             else
+            {
                 remaining++;
+            }
         }
         if (status == DG_OK &&
             (!sum(g->work, cost, &work) || !sum(span, cost, &span)))
+        {
             status = DG_RANGE;
+        }
     }
     if (status == DG_OK)
     {
@@ -230,12 +286,20 @@ int dg_append(struct sa_dg *g, uint64_t payload, uint64_t cost,
         g->edges += count;
         g->work = work;
         if (span > g->span)
+        {
             g->span = span;
+        }
         if (skip)
+        {
             g->terminal++;
+        }
         for (unsigned i = 0; i < index; i++)
+        {
             if (mask & (1u << i))
+            {
                 g->nodes[i].successors |= (uint16_t)(1u << index);
+            }
+        }
         *out = index;
     }
     (void)sl_leave(&guard, NULL);
@@ -245,10 +309,14 @@ int dg_append(struct sa_dg *g, uint64_t payload, uint64_t cost,
 int dg_seal(struct sa_dg *g)
 {
     if (!g)
+    {
         return DG_INVALID;
+    }
     struct sl_guard guard;
     if (!dg_lock(g, &guard))
+    {
         return DG_BUSY;
+    }
     g->sealed = 1;
     (void)sl_leave(&guard, NULL);
     return DG_OK;
@@ -257,12 +325,17 @@ int dg_seal(struct sa_dg *g)
 int dg_claim(struct sa_dg *g, unsigned worker, struct dg_claim *out)
 {
     if (!g || !out || worker >= 4)
+    {
         return DG_INVALID;
+    }
     struct sl_guard guard;
     if (!dg_lock(g, &guard))
+    {
         return DG_BUSY;
+    }
     int status = DG_EMPTY;
     for (unsigned i = 0; i < g->count; i++)
+    {
         if (g->nodes[i].state == DG_READY)
         {
             struct dg_node *n = &g->nodes[i];
@@ -272,6 +345,7 @@ int dg_claim(struct sa_dg *g, unsigned worker, struct dg_claim *out)
             status = DG_OK;
             break;
         }
+    }
     (void)sl_leave(&guard, NULL);
     return status;
 }
@@ -280,10 +354,14 @@ int dg_finish(struct sa_dg *g, struct dg_claim claim, unsigned outcome,
               uint64_t result)
 {
     if (!g || claim.worker >= 4 || (outcome != DG_DONE && outcome != DG_FAILED))
+    {
         return DG_INVALID;
+    }
     struct sl_guard guard;
     if (!dg_lock(g, &guard))
+    {
         return DG_BUSY;
+    }
     int status = DG_STALE;
     if (claim.world == g->world && claim.node < g->count)
     {
@@ -304,10 +382,14 @@ int dg_finish(struct sa_dg *g, struct dg_claim claim, unsigned outcome,
 int dg_cancel(struct sa_dg *g, unsigned node)
 {
     if (!g)
+    {
         return DG_INVALID;
+    }
     struct sl_guard guard;
     if (!dg_lock(g, &guard))
+    {
         return DG_BUSY;
+    }
     int status = DG_INVALID;
     if (node < g->count)
     {
@@ -316,7 +398,9 @@ int dg_cancel(struct sa_dg *g, unsigned node)
         {
             n->cancel = 1;
             if (DG_MUTANT == 7)
+            {
                 terminal(g, node, DG_CANCELLED, 0, DG_CANCELLED);
+            }
             status = DG_REQUESTED;
         }
         else if (n->state == DG_WAITING || n->state == DG_READY)
@@ -325,7 +409,9 @@ int dg_cancel(struct sa_dg *g, unsigned node)
             status = DG_OK;
         }
         else
+        {
             status = DG_STALE;
+        }
     }
     (void)sl_leave(&guard, NULL);
     return status;
@@ -334,10 +420,14 @@ int dg_cancel(struct sa_dg *g, unsigned node)
 int dg_snapshot(struct sa_dg *g, struct dg_snapshot *out)
 {
     if (!g || !out)
+    {
         return DG_INVALID;
+    }
     struct sl_guard guard;
     if (!dg_lock(g, &guard))
+    {
         return DG_BUSY;
+    }
     struct dg_snapshot next = {0};
     next.world = g->world;
     next.work = g->work;
@@ -363,10 +453,14 @@ int dg_snapshot(struct sa_dg *g, struct dg_snapshot *out)
 int dg_drained(struct sa_dg *g)
 {
     if (!g)
+    {
         return DG_INVALID;
+    }
     struct sl_guard guard;
     if (!dg_lock(g, &guard))
+    {
         return DG_BUSY;
+    }
     int status = g->sealed && g->terminal == g->count ? DG_OK : DG_BUSY;
     (void)sl_leave(&guard, NULL);
     return status;

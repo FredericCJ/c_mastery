@@ -18,7 +18,9 @@ static int verify_node(const struct cd_tree *t, int at, int parent, int64_t low,
                        int64_t high, uint32_t *seen)
 {
     if (at < 0)
+    {
         return 0;
+    }
     CHECK(at < 32 && !(*seen & (UINT32_C(1) << (unsigned)at)));
     *seen |= UINT32_C(1) << (unsigned)at;
     const struct cd_tree_node *n = &t->nodes[at];
@@ -28,7 +30,9 @@ static int verify_node(const struct cd_tree *t, int at, int parent, int64_t low,
         right = verify_node(t, n->right, at, n->key, high, seen);
     CHECK(n->height == 1 + (left > right ? left : right));
     if (t->balanced)
+    {
         CHECK(left - right <= 1 && right - left <= 1);
+    }
     return n->height;
 }
 
@@ -136,21 +140,27 @@ int main(void)
     uint64_t bottom = heap.comparisons;
     cd_heap_init(&heap, 0);
     for (unsigned i = 0; i < 5; ++i)
+    {
         CHECK(cd_heap_insert(&heap, keys[i], i, &handles[i]) == CD_OK);
+    }
     uint64_t repeated = heap.comparisons;
     int value;
     unsigned id;
     for (unsigned i = 0; i < 5; ++i)
+    {
         CHECK(cd_heap_get(&heap, handles[i], &value, &id) == CD_OK &&
               value == keys[i] && id == i);
+    }
     CHECK(cd_heap_insert(&heap, 3, 5, &handles[5]) == CD_OK);
     CHECK(cd_heap_change(&heap, handles[0], -3) == CD_OK &&
           cd_heap_take(&heap, &value, &id) == CD_OK && value == -3 && id == 0 &&
           cd_heap_get(&heap, handles[0], &value, &id) == CD_INVALID);
     int expected[5] = {-2, 0, 1, 3, 7};
     for (unsigned i = 0; i < 5; ++i)
+    {
         CHECK(cd_heap_take(&heap, &value, &id) == CD_OK &&
               value == expected[i]);
+    }
     CHECK(cd_heap_take(&heap, &value, &id) == CD_EMPTY);
     cd_heap_init(&heap, 1);
     CHECK(cd_heap_insert(&heap, 4, 90, &handles[0]) == CD_OK &&
@@ -172,7 +182,9 @@ int main(void)
     cd_tree_init(&tree, 0, 0);
     int order[7] = {4, 2, 6, 1, 3, 5, 7}, slot;
     for (unsigned i = 0; i < 7; ++i)
+    {
         CHECK(cd_tree_insert(&tree, order[i], 0, &slot) == CD_OK);
+    }
     verify(&tree);
     int old_root = cd_tree_find(&tree, 4), successor = cd_tree_find(&tree, 5);
     struct cd_tree_node *identity = &tree.nodes[successor];
@@ -187,7 +199,9 @@ int main(void)
     {
         cd_tree_init(&tree, 0, 0);
         for (unsigned i = 0; i < 7; ++i)
+        {
             CHECK(cd_tree_insert(&tree, order[i], 0, &slot) == CD_OK);
+        }
         if (shape == 1)
         {
             CHECK(cd_tree_delete(&tree, 1) == CD_OK);
@@ -207,7 +221,9 @@ int main(void)
     verify(&tree);
     cd_tree_init(&tree, 0, 0);
     for (int i = 7; i >= 0; --i)
+    {
         CHECK(cd_tree_insert(&tree, i, 0, &slot) == CD_OK);
+    }
     unsigned stack[8];
     int output[10];
     size_t used = 99;
@@ -216,7 +232,9 @@ int main(void)
     CHECK(cd_tree_walk(&tree, stack, 8, output, 10, &used) == CD_OK &&
           used == 8);
     for (unsigned i = 0; i < 8; ++i)
+    {
         CHECK(output[i] == (int)i);
+    }
     CHECK(cd_tree_parent_walk(&tree, output, 4, &used) == CD_FULL && used == 4);
     CHECK(cd_tree_parent_walk(&tree, output, 10, &used) == CD_OK && used == 8);
     int rotations[4][3] = {
@@ -225,7 +243,9 @@ int main(void)
     {
         cd_tree_init(&tree, 1, 0);
         for (unsigned i = 0; i < 3; ++i)
+        {
             CHECK(cd_tree_insert(&tree, rotations[kind][i], 0, &slot) == CD_OK);
+        }
         verify(&tree);
         CHECK(tree.nodes[tree.root].key == 20 &&
               tree.nodes[tree.root].height == 2 &&
@@ -263,8 +283,10 @@ int main(void)
     {
         cd_tree_init(&tree, 1, 0);
         for (unsigned i = 0; i < 32; ++i)
+        {
             CHECK(cd_tree_insert(&tree, (int)((i * 13 + round) % 32), 0,
                                  &slot) == CD_OK);
+        }
         for (unsigned i = 0; i < 32; ++i)
         {
             unsigned before = tree.repair_steps, rot = tree.rotations;

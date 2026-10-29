@@ -21,7 +21,9 @@ static void *allocate(void *v, size_t n)
 {
     void *p = malloc(n);
     if (p)
+    {
         ((struct co_alloc *)v)->live++;
+    }
     return p;
 }
 
@@ -57,7 +59,9 @@ static int edges(void)
     struct ca_ticket t[4], extra = {0};
     C(ca_ack(f) == CO_STATE);
     for (unsigned i = 0; i < 4; i++)
+    {
         C(ca_reserve(f, t + i) == 0);
+    }
     C(ca_reserve(f, &extra) == CO_RANGE && !extra.owner && f->inflight == 4);
     struct ca_ticket wrong = t[0];
     wrong.generation++;
@@ -114,7 +118,9 @@ int main(void)
                     C(r == 0);
                 }
                 else
+                {
                     C(r == CO_STATE);
+                }
             }
             else
             {
@@ -124,23 +130,33 @@ int main(void)
                 {
                     C(r == 0);
                     if (++received == 2)
+                    {
                         expected = 2;
+                    }
                 }
                 else
+                {
                     C(r == CO_STATE);
+                }
             }
             C(ca_poll(f, out, &n) == CO_PENDING && out[0] == 91 && n == 92);
             if (f->closing && f->inflight)
+            {
                 C(ca_ack(f) == CO_PENDING);
+            }
         }
         C(ca_notify(&copy, (const unsigned char *)"x", 1) == CO_STATE);
         C(ca_ack(f) == 0);
         int r = ca_poll(f, out, &n);
         C(r == (expected == 2 ? CO_DONE : CO_STATE));
         if (expected == 2)
+        {
             C(n == 2 && out[0] != 91);
+        }
         else
+        {
             C(n == 92 && out[0] == 91);
+        }
         n = 77;
         C(ca_poll(f, out, &n) == r && n == 77);
         C(ca_destroy(&f) == 0 && !f && !a.live);
@@ -166,9 +182,13 @@ int main(void)
         size_t n = 92;
         C(ca_poll(f, out, &n) == (cancelled == 0 ? CO_STATE : CO_DONE));
         if (cancelled == 0)
+        {
             C(out[0] == 91 && n == 92);
+        }
         else
+        {
             C(n == 2 && out[0] == 'q' && out[1] == 'q');
+        }
         C(ca_destroy(&f) == 0 && !a.live);
     }
     puts(

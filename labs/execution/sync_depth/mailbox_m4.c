@@ -34,8 +34,10 @@ static void exercise(void)
 {
     cmx_init(&kernel, CMX_FIXED);
     for (unsigned t = 0; t < 3; t++)
+    {
         CHECK(cmx_task_add(&kernel, 9 - t, 0, 0x20006000 + 0x200 * t, 256) ==
               (int)t);
+    }
     CHECK(cdmb_init(&mailbox, &kernel, 0, 1) == CMX_OK);
     unsigned char input[4] = {11, 0, 0, 0}, reply[4] = {22, 0, 0, 0},
                   out[4] = {99, 99, 99, 99};
@@ -83,10 +85,14 @@ void cl_reset(void)
     uintptr_t source = (uintptr_t)&cl_data_load;
     for (uintptr_t p = (uintptr_t)&cl_data_start; p < (uintptr_t)&cl_data_end;
          p += 4, source += 4)
+    {
         *(uint32_t *)p = *(const uint32_t *)source;
+    }
     for (uintptr_t p = (uintptr_t)&cl_bss_start; p < (uintptr_t)&cl_bss_end;
          p += 4)
+    {
         *(uint32_t *)p = 0;
+    }
     exercise();
     stop(0);
 }

@@ -27,7 +27,9 @@ int main(void)
             checksum += out.bits;
         }
         else
+        {
             ++rejected;
+        }
     }
     printf("{\"values\":4294967296,\"accepted\":%" PRIu64
            ",\"rejected\":%" PRIu64 ",\"checksum\":%" PRIu64

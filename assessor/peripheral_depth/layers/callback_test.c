@@ -36,7 +36,9 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *u)
     callbacks++;
     ready_seen += u->gState == HAL_UART_STATE_READY;
     if (callbacks == 1)
+    {
         nested = HAL_UART_Transmit_IT(u, &next_byte, 1);
+    }
 }
 
 int main(void)

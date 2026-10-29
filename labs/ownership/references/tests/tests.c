@@ -89,10 +89,14 @@ static void *raw_take(void *p, size_t n)
     ++r->calls;
     r->bytes = n;
     if (r->calls == r->fail)
+    {
         return NULL;
+    }
     void *v = malloc(n);
     if (v)
+    {
         ++r->live;
+    }
     return v;
 }
 
@@ -128,10 +132,13 @@ static int cycle(void)
 static int failures(void)
 {
     for (unsigned raw_fail = 0; raw_fail <= 2; ++raw_fail)
+    {
         for (unsigned cell_fail = 0; cell_fail <= 2; ++cell_fail)
         {
             if (!raw_fail && !cell_fail)
+            {
                 continue;
+            }
             struct ow_raw raw = {0};
             raw.fail = raw_fail;
             struct ow_allocator cells = {0};
@@ -142,6 +149,7 @@ static int failures(void)
             CHECK(!raw.live && !cells.live && out.retained_values == 91 &&
                   out.queued_releases == 96);
         }
+    }
     puts("ORC_FAILURE raw-versus-typed-acquisition unwind unchanged-report");
     return 0;
 }
@@ -171,11 +179,17 @@ static void *retainer(void *p)
 {
     struct ref_worker *w = p;
     for (unsigned i = 0; i < 5000; ++i)
+    {
         if (ow_atomic_retain(w->refs) != OW_OK ||
             ow_atomic_drop(w->refs) != OW_OK)
+        {
             w->failed = 1;
+        }
+    }
     if (ow_atomic_drop(w->refs) != OW_OK)
+    {
         w->failed = 1;
+    }
     return NULL;
 }
 
@@ -201,7 +215,9 @@ static int threads(void)
     }
     CHECK(ow_atomic_drop(&a) == OW_OK);
     for (unsigned i = 0; i < 4; ++i)
+    {
         CHECK(pthread_join(threads[i], NULL) == 0 && !work[i].failed);
+    }
     CHECK(atomic_load(&a.strong) == 0 && atomic_load(&a.weak) == 1 &&
           atomic_load(&counts.destroyed) == 1 &&
           atomic_load(&counts.released) == 0);
@@ -225,7 +241,9 @@ static void start(struct ow_gate *g)
     ++g->arrived;
     pthread_cond_broadcast(&g->cond);
     while (!g->go)
+    {
         pthread_cond_wait(&g->cond, &g->mutex);
+    }
     pthread_mutex_unlock(&g->mutex);
 }
 
@@ -277,14 +295,22 @@ static void *upgrader(void *p)
     {
         if (atomic_load(&w->node->counts->destroyed) != 0 ||
             *w->node->payload != 41)
+        {
             w->failed = 1;
+        }
         if (ow_atomic_drop(&w->node->refs) != OW_OK)
+        {
             w->failed = 1;
+        }
     }
     else if (w->status != OW_DEAD)
+    {
         w->failed = 1;
+    }
     if (ow_atomic_weak_drop(&w->node->refs) != OW_OK)
+    {
         w->failed = 1;
+    }
     return NULL;
 }
 
@@ -320,16 +346,22 @@ static int race(void)
               pthread_create(&ut, NULL, upgrader, &u) == 0);
         pthread_mutex_lock(&gate.mutex);
         while (gate.arrived != 2)
+        {
             pthread_cond_wait(&gate.cond, &gate.mutex);
+        }
         gate.go = 1;
         pthread_cond_broadcast(&gate.cond);
         pthread_mutex_unlock(&gate.mutex);
         CHECK(pthread_join(dt, NULL) == 0 && pthread_join(ut, NULL) == 0 &&
               d.status == OW_OK && !u.failed);
         if (u.status == OW_OK)
+        {
             ++wins;
+        }
         else
+        {
             ++dead;
+        }
         CHECK(atomic_load(&n->refs.strong) == 0 &&
               atomic_load(&n->refs.weak) == 1 &&
               atomic_load(&counts.destroyed) == 1 &&
@@ -362,7 +394,9 @@ static int oracle(void)
             a.release = released;
             a.context = &c;
             if (mode)
+            {
                 putchar('|');
+            }
             for (size_t i = 0; ops[i] && ops[i] != '-'; ++i)
             {
                 enum ow_status q;
@@ -399,14 +433,18 @@ static int oracle(void)
                 enum ow_status q =
                     mode ? ow_atomic_drop(&a) : ow_shared_drop(&s);
                 if (q != OW_OK)
+                {
                     return 2;
+                }
             }
             while (mode ? atomic_load(&a.weak) : s.weak)
             {
                 enum ow_status q =
                     mode ? ow_atomic_weak_drop(&a) : ow_shared_weak_drop(&s);
                 if (q != OW_OK)
+                {
                     return 2;
+                }
             }
         }
         puts("");
@@ -444,7 +482,9 @@ static int metrics(void)
         sum, sizeof(atomic_uint), _Alignof(atomic_uint),
         atomic_is_lock_free(&a.strong));
     for (unsigned i = 0; i < 7; ++i)
+    {
         printf("%s%.9f", i ? "," : "", times[i]);
+    }
     puts("]}");
     return 0;
 }
@@ -452,22 +492,40 @@ static int metrics(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "references_base"))
+    {
         return base();
+    }
     if (!strcmp(argv[1], "references_overflow"))
+    {
         return overflow();
+    }
     if (!strcmp(argv[1], "references_cycle"))
+    {
         return cycle();
+    }
     if (!strcmp(argv[1], "references_failures"))
+    {
         return failures();
+    }
     if (!strcmp(argv[1], "references_threads"))
+    {
         return threads();
+    }
     if (!strcmp(argv[1], "references_race"))
+    {
         return race();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

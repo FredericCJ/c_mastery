@@ -23,7 +23,9 @@ int main(void)
         {2, 1, 1, 1, 2, 77}};
     const size_t lengths[] = {6, 4, 2, 2, 2, 3, 10, 6};
     for (unsigned i = 0; i < 8; i++)
+    {
         CHECK(one_case(seeds[i], lengths[i]));
+    }
     CHECK(one_case(NULL, 0));
     struct tf_packet out = {0};
     CHECK(tf_parse(0, NULL, SIZE_MAX, &out) == TF_LENGTH);

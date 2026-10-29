@@ -44,6 +44,7 @@ static void exhaust(void)
     unsigned count = 0;
     uint32_t h = 0;
     for (unsigned slot = 0; slot < 16; slot++)
+    {
         for (unsigned gen = 1; gen <= 255; gen++)
         {
             CHECK(ai_take(&p, &h) == AI_OK);
@@ -53,10 +54,13 @@ static void exhaust(void)
             CHECK(!ai_valid(&p, h));
             count++;
         }
+    }
     h = 99;
     CHECK(ai_take(&p, &h) == AI_FULL && h == 99);
     for (unsigned i = 0; i < 16; i++)
+    {
         CHECK(p.retired[i] && !p.used[i]);
+    }
     printf("OBS exhaust incarnations=%u permanently-retired=16\n", count);
 }
 
@@ -67,7 +71,9 @@ static void compact(void)
     CHECK(ai_init(&p, 24) == AI_OK);
     /* Boundary projection, no claim that all sixteen-million generations ran. */
     for (unsigned i = 0; i < 16; i++)
+    {
         p.generation[i] = UINT32_C(0xffffff);
+    }
     for (unsigned i = 0; i < 16; i++)
     {
         CHECK(ai_take(&p, &h) == AI_OK);
@@ -121,18 +127,32 @@ static void aba(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "pool"))
+    {
         pool();
+    }
     else if (!strcmp(argv[1], "exhaust"))
+    {
         exhaust();
+    }
     else if (!strcmp(argv[1], "compact"))
+    {
         compact();
+    }
     else if (!strcmp(argv[1], "retained"))
+    {
         retained();
+    }
     else if (!strcmp(argv[1], "aba"))
+    {
         aba();
+    }
     else
+    {
         return 2;
+    }
     return 0;
 }

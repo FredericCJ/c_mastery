@@ -28,7 +28,9 @@ int main(void)
             {
                 expected = state == 2 ? LC_OK : LC_PENDING;
                 if (state != 2)
+                {
                     state = 1;
+                }
                 CHECK(lc_cancel(p) == expected);
             }
             else if (event == 1)
@@ -45,7 +47,9 @@ int main(void)
             {
                 expected = state == 0 ? LC_BUSY : LC_OK;
                 if (state == 1)
+                {
                     state = 2;
+                }
                 CHECK(lc_ack(p) == expected);
             }
             CHECK((result != 0) == (state == 2));

@@ -16,7 +16,9 @@ static void hex(uint32_t value)
 {
     char b[10];
     for (unsigned i = 0; i < 8; ++i)
+    {
         b[i] = "0123456789abcdef"[(value >> (28 - 4 * i)) & 15];
+    }
     b[8] = ' ';
     b[9] = 0;
     output(b);
@@ -82,19 +84,25 @@ void xf_capture(uint32_t *sp, uint32_t er, unsigned id, uint32_t msp)
     unsigned extended = (er & 16u) == 0;
     r->fpcar = REG(0xe000ef38);
     if (extended && r->lazy_before)
+    {
         CHECK(r->fpcar == r->sp + 32u);
+    }
     CHECK(xf_frame(sp, 27, r->sp, er, 1, extended && !r->lazy_before, 1, 0,
                    &r->frame) == XF_OK);
     CHECK(r->frame.fp_materialized == (extended && !r->lazy_before));
     if (id == 16)
     {
         if (XF_FP_CALLEE)
+        {
             xf_fp_callee(7);
+        }
         r->lazy_after = REG(0xe000ef34) & 1;
         if (extended && XF_FP_CALLEE)
+        {
             CHECK(xf_frame(sp, 27, r->sp, er, 1, 1, 1, 0, &r->frame) == XF_OK &&
                   r->frame.fp[0] == 0x3f800000 &&
                   r->frame.fp[15] == 0x41700000);
+        }
         REG(0xe000e200) = 6;
         __asm__ volatile("dsb\nisb" ::: "memory");
         CHECK(
@@ -123,15 +131,20 @@ void xf_target_main(void)
     BYTE(0xe000e400) = 255;
     unsigned mask = BYTE(0xe000e400), bits = 0;
     for (unsigned x = mask; x & 128; x = (x << 1) & 255)
+    {
         ++bits;
+    }
     CHECK(bits >= 3 && bits <= 8 && mask == (256u - (1u << (8 - bits))));
     output("XF_PRIORITY_READBACK ");
     hex(mask);
     hex(bits);
     output("\n");
     for (unsigned grouping = 3; grouping <= 6; grouping += 3)
+    {
         for (unsigned fp = 0; fp < 2; ++fp)
+        {
             for (unsigned lazy = 0; lazy < 2; ++lazy)
+            {
                 for (unsigned pad = 0; pad < 2; ++pad)
                 {
                     __asm__ volatile("cpsid i" ::: "memory");
@@ -176,19 +189,25 @@ void xf_target_main(void)
                     CHECK(a->frame.r[0] == 1 && a->frame.r[1] == 2 &&
                           a->frame.r[2] == 3 && a->frame.r[3] == 4);
                     if (grouping == 3)
+                    {
                         CHECK(b->frame.psp == 0 && b->frame.thread == 0 &&
                               (b->frame.xpsr & 511) == 16 &&
                               (b->active & 3) == 3);
+                    }
                     else
+                    {
                         CHECK(b->frame.psp && b->frame.thread &&
                               b->sp == a->sp && b->active == 2);
+                    }
                     CHECK(c->sp == a->sp && c->frame.pc == a->frame.pc &&
                           c->er == a->er && c->frame.thread && c->frame.psp &&
                           c->active == 4);
                     CHECK((after->active & 3) == 1 && (after->pending & 4));
                     CHECK(a->lazy_before == (fp && lazy));
                     if (fp && lazy && XF_FP_CALLEE)
+                    {
                         CHECK(!a->lazy_after && a->frame.fp_materialized);
+                    }
                     output("XF_TRACE ");
                     hex(grouping);
                     hex(fp);
@@ -205,5 +224,8 @@ void xf_target_main(void)
                     hex(a->fpcar);
                     output("\n");
                 }
+            }
+        }
+    }
     finish(0);
 }

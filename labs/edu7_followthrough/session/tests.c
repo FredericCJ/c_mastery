@@ -47,11 +47,15 @@ static int move(struct es_peer *from, struct es_peer *to, uint32_t *time,
         r = es_receive(to, wire, n, *time, ack, sizeof ack, &z);
         CHECK(r == E7_OK || r == ET_COMPLETE);
         if (drop && r == ET_COMPLETE)
+        {
             return 0;
+        }
         CHECK(es_ack(from, ack, z, *time) == E7_OK);
         (*time)++;
         if (!from->tx.inner.active)
+        {
             return 0;
+        }
     }
     CHECK(0);
     return 41;

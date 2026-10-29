@@ -75,11 +75,15 @@ static void irq0(void)
         int result = cds_high_offer(&deferred);
         CHECK(result == CMX_OK || result == CMX_FULL);
         if (result == CMX_FULL)
+        {
             ++overflows;
+        }
         /* This faulty adapter control calls the scheduler in the forbidden urgent
          * handler. It is intentionally separate from the correct port source. */
         if (CDSEM_IRQ_MUTANT == 2)
+        {
             (void)cmx_schedule(&kernel);
+        }
         CHECK(kernel.current == 0 && semaphore.wait.nodes[1].linked &&
               semaphore.wait.nodes[2].linked);
     }
@@ -111,7 +115,9 @@ static void fire(unsigned expected)
     REG32(0xe000e200u) = 1;
     __asm__ volatile("dsb\nisb" ::: "memory");
     for (unsigned i = 0; i < 100000 && interrupts != expected; ++i)
+    {
         __asm__ volatile("nop" ::: "memory");
+    }
     CHECK(interrupts == expected);
 }
 
@@ -154,7 +160,9 @@ static void exercise(void)
           overflows == 1);
     basepri(0);
     for (unsigned i = 0; i < 100000 && pend_calls != 2; ++i)
+    {
         __asm__ volatile("nop" ::: "memory");
+    }
     CHECK(pend_calls == 2 && pend_number == 14 && deferred.pending == 0 &&
           deferred.drained == 2);
     CHECK(semaphore.wait.objects[0].posts == 3 &&
@@ -168,10 +176,14 @@ void cl_reset(void)
     uintptr_t source = (uintptr_t)&cl_data_load;
     for (uintptr_t p = (uintptr_t)&cl_data_start; p < (uintptr_t)&cl_data_end;
          p += 4, source += 4)
+    {
         *(uint32_t *)p = *(const uint32_t *)source;
+    }
     for (uintptr_t p = (uintptr_t)&cl_bss_start; p < (uintptr_t)&cl_bss_end;
          p += 4)
+    {
         *(uint32_t *)p = 0;
+    }
     exercise();
     stop(0);
 }

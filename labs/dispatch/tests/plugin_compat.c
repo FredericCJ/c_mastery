@@ -21,7 +21,9 @@ void ds_constructor_note(void)
 int main(int argc, char **argv)
 {
     if (argc != 12)
+    {
         return 2;
+    }
     unsigned known = ds_client_features();
     for (unsigned variant = 0; variant < 10; ++variant)
     {
@@ -70,14 +72,20 @@ int main(int argc, char **argv)
                   n == 97 && bytes[0] == 91);
         }
         else
+        {
             CHECK(rc == DS_UNSUPPORTED && n == 97 && bytes[0] == 91);
+        }
         struct ds_feature more[3] = {{0}}, overflow = {0};
         for (unsigned i = 0; i < 3; ++i)
+        {
             CHECK(ds_feature_acquire(&module, known, &more[i]) == DS_OK);
+        }
         CHECK(ds_feature_acquire(&module, known, &overflow) == DS_FULL &&
               !overflow.active && module.borrows == 4);
         for (unsigned i = 0; i < 3; ++i)
+        {
             CHECK(ds_feature_release(&more[i]) == DS_OK);
+        }
         CHECK(ds_feature_release(&feature) == DS_OK && !feature.active &&
               module.borrows == 0);
         CHECK(ds_feature_release(&feature) == DS_INVALID);

@@ -51,7 +51,9 @@ static unsigned successors(const struct cvm_program *p, unsigned pc,
 {
     struct vg_rule q = rules[p->code[pc]];
     if (q.flow == RETURN)
+    {
         return 0;
+    }
     if (q.flow == JUMP)
     {
         next[0] = word(p->code + pc + 1);
@@ -76,11 +78,15 @@ int vv_verify(const struct cvm_program *p, unsigned dialect, unsigned definite,
               struct vv_work *w, struct vv_report *r)
 {
     if (!p || !w || !r || dialect > 1 || definite > 1)
+    {
         return VV_ARGUMENT;
+    }
     *r = (struct vv_report){0};
     if (!p->count || p->count > CVM_FUNCTIONS || !p->length ||
         p->length > CVM_CODE || p->functions[0].arity)
+    {
         return fail(r, VV_LAYOUT, 0);
+    }
     for (unsigned i = 0; i < CVM_CODE; i++)
     {
         w->boundary[i] = 0;
@@ -95,22 +101,32 @@ int vv_verify(const struct cvm_program *p, unsigned dialect, unsigned definite,
         unsigned end = (unsigned)fn->entry + fn->length;
         if (fn->entry != expected || !fn->length || end > p->length ||
             fn->locals > CVM_LOCALS || fn->arity > fn->locals)
+        {
             return fail(r, VV_LAYOUT, fn->entry);
+        }
         for (unsigned pc = fn->entry; pc < end;)
         {
             unsigned op = p->code[pc];
             if (!op || op > VV_SPLIT || (op == VV_SPLIT && !dialect))
+            {
                 return fail(r, VV_DECODE, pc);
+            }
             struct vg_rule q = rules[op];
             if (!q.width || q.width > end - pc)
+            {
                 return fail(r, VV_DECODE, pc);
+            }
             if ((op == OP_LOAD || op == OP_STORE) &&
                 p->code[pc + 1] >= fn->locals)
+            {
                 return fail(r, VV_DECODE, pc);
+            }
             if (op == OP_CALL &&
                 (p->code[pc + 1] >= p->count ||
                  p->code[pc + 2] != p->functions[p->code[pc + 1]].arity))
+            {
                 return fail(r, VV_DECODE, pc);
+            }
             w->boundary[pc] = 1;
             r->decoded++;
             pc += q.width;
@@ -118,7 +134,9 @@ int vv_verify(const struct cvm_program *p, unsigned dialect, unsigned definite,
         expected = end;
     }
     if (expected != p->length)
+    {
         return fail(r, VV_LAYOUT, expected);
+    }
     for (unsigned f = 0; f < p->count; f++)
     {
         const struct cvm_function *fn = p->functions + f;
@@ -139,9 +157,13 @@ int vv_verify(const struct cvm_program *p, unsigned dialect, unsigned definite,
                 n = VV_MUTANT == 1 ? 1 : 2;
             }
             for (unsigned k = 0; k < n; k++)
+            {
                 if (targets[k] < fn->entry || targets[k] >= end ||
                     !w->boundary[targets[k]])
+                {
                     return fail(r, VV_TARGET, pc);
+                }
+            }
         }
     }
     for (unsigned f = 0; f < p->count; f++)
@@ -156,7 +178,9 @@ int vv_verify(const struct cvm_program *p, unsigned dialect, unsigned definite,
         w->queued[fn->entry] = 1;
         r->discovered++;
         if (count > r->max_queue)
+        {
             r->max_queue = count;
+        }
         while (count)
         {
             unsigned pc = w->queue[head];
@@ -174,18 +198,26 @@ int vv_verify(const struct cvm_program *p, unsigned dialect, unsigned definite,
             }
             if (h < (int)need || h + delta < 0 || h + delta > (int)CVM_STACK ||
                 (op == OP_RET && h != 1))
+            {
                 return fail(r, VV_HEIGHT, pc);
+            }
             if (definite && op == OP_LOAD && !(mask & (1u << p->code[pc + 1])))
+            {
                 return fail(r, VV_INITIALIZED, pc);
+            }
             if (op == OP_STORE)
+            {
                 mask |= (uint8_t)(1u << p->code[pc + 1]);
+            }
             unsigned next[2], n = successors(p, pc, next);
             for (unsigned k = 0; k < n; k++)
             {
                 unsigned target = next[k];
                 r->edges++;
                 if (target < fn->entry || target >= end || !w->boundary[target])
+                {
                     return fail(r, VV_TARGET, pc);
+                }
                 int changed = 0;
                 if (w->height[target] < 0)
                 {
@@ -197,7 +229,9 @@ int vv_verify(const struct cvm_program *p, unsigned dialect, unsigned definite,
                 else
                 {
                     if (w->height[target] != h + delta && VV_MUTANT != 2)
+                    {
                         return fail(r, VV_HEIGHT, target);
+                    }
                     if (definite)
                     {
                         uint8_t joined =
@@ -215,13 +249,17 @@ int vv_verify(const struct cvm_program *p, unsigned dialect, unsigned definite,
                 if (changed && !w->queued[target])
                 {
                     if (count == CVM_CODE)
+                    {
                         return fail(r, VV_SPACE, target);
+                    }
                     w->queue[tail] = (uint16_t)target;
                     tail = (tail + 1) % CVM_CODE;
                     count++;
                     w->queued[target] = 1;
                     if (count > r->max_queue)
+                    {
                         r->max_queue = count;
+                    }
                 }
             }
         }
@@ -235,7 +273,9 @@ int vv_load(const uint8_t *b, size_t n, unsigned dialect, unsigned definite,
             struct vv_work *w, struct cvm_program *out, struct vv_report *r)
 {
     if (!out || !w || !r || dialect > 1 || definite > 1)
+    {
         return VV_ARGUMENT;
+    }
     struct cvm_program temp;
     if (cvm_decode(b, n, &temp) != CVM_OK)
     {
@@ -243,10 +283,14 @@ int vv_load(const uint8_t *b, size_t n, unsigned dialect, unsigned definite,
         return fail(r, VV_LAYOUT, 0);
     }
     if (VV_MUTANT == 5)
+    {
         *out = temp;
+    }
     int status = vv_verify(&temp, dialect, definite, w, r);
     if (status == VV_OK)
+    {
         *out = temp;
+    }
     return status;
 }
 
@@ -254,17 +298,23 @@ int vv_lower(const struct cvm_program *p, unsigned dialect, struct vv_work *w,
              struct cvm_program *out, struct vv_report *r)
 {
     if (!out)
+    {
         return VV_ARGUMENT;
+    }
     int status = vv_verify(p, dialect, 0, w, r);
     if (status != VV_OK)
+    {
         return status;
+    }
     unsigned pos = 0;
     for (unsigned pc = 0; pc < p->length; pc += rules[p->code[pc]].width)
     {
         w->relocation[pc] = (uint16_t)pos;
         pos += p->code[pc] == VV_SPLIT ? 6 : rules[p->code[pc]].width;
         if (pos > CVM_CODE)
+        {
             return fail(r, VV_SPACE, pc);
+        }
     }
     w->relocation[p->length] = (uint16_t)pos;
     struct cvm_program result = {0};
@@ -294,14 +344,20 @@ int vv_lower(const struct cvm_program *p, unsigned dialect, struct vv_work *w,
         else
         {
             for (unsigned i = 0; i < rules[op].width; i++)
+            {
                 result.code[at + i] = p->code[pc + i];
+            }
             if (op == OP_JMP || op == OP_JFALSE)
+            {
                 put(result.code + at + 1,
                     w->relocation[word(p->code + pc + 1)]);
+            }
         }
     }
     if (cvm_verify(&result) != CVM_OK)
+    {
         return fail(r, VV_TARGET, 0);
+    }
     *out = result;
     return VV_OK;
 }

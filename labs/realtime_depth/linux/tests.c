@@ -32,7 +32,9 @@ int main(int argc, char **argv)
         return 0;
     }
     if (argc != 1)
+    {
         return 2;
+    }
     struct lc_entity e[3] = {{-1, 1}, {0, 20}, {1, 10}};
     size_t out = 77;
     CHECK(lc_select(e, 3, &out) == 1 && out == 2);

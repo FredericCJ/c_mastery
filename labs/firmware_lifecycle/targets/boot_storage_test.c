@@ -30,7 +30,9 @@ static uint32_t get(const unsigned char *p)
 static void put(unsigned char *p, uint32_t v)
 {
     for (unsigned i = 0; i < 4; ++i)
+    {
         p[i] = (unsigned char)(v >> (8 * i));
+    }
 }
 
 static int read_word(void *v, uint32_t a, uint32_t *out)
@@ -38,7 +40,9 @@ static int read_word(void *v, uint32_t a, uint32_t *out)
     struct f4_store *s = v;
     s->reads++;
     if (a == s->failure)
+    {
         return 0;
+    }
     for (unsigned r = 0; r < 2; ++r)
     {
         uint32_t base = 0x080C0000u + r * 0x20000u;
@@ -49,6 +53,7 @@ static int read_word(void *v, uint32_t a, uint32_t *out)
         }
     }
     for (unsigned c = 0; c < 2; ++c)
+    {
         for (unsigned slot = 0; slot < 2; ++slot)
         {
             uint32_t base = s->layouts.core[c][slot].base - 32;
@@ -58,6 +63,7 @@ static int read_word(void *v, uint32_t a, uint32_t *out)
                 return 1;
             }
         }
+    }
     s->bad++;
     return 0;
 }
@@ -111,6 +117,7 @@ int main(void)
       chosen.record == 1 && chosen.sequence == 10 && !storage.bad);
     /* Fault every header/payload/signature word of each newest component. */
     for (unsigned core = 0; core < 2; ++core)
+    {
         for (unsigned word = 0; word < 168; ++word)
         {
             storage.failure = storage.layouts.core[core][1].base - 32 +
@@ -119,7 +126,9 @@ int main(void)
                         &chosen) == 1 &&
               chosen.record == 0 && chosen.sequence == 9 && !storage.bad);
         }
+    }
     for (unsigned record = 0; record < 2; ++record)
+    {
         for (unsigned word = 0; word < 32; ++word)
         {
             storage.failure = records[record] + 4 * word;
@@ -127,6 +136,7 @@ int main(void)
                         &chosen) == 1 &&
               chosen.record == (1 - record));
         }
+    }
     storage.failure = 0;
     /* A structurally valid journal with an authenticated-image digest mismatch. */
     unsigned char saved[128];

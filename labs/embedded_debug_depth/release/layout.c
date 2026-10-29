@@ -6,5 +6,7 @@ void release_entry(void)
 {
     release_zero = release_initialized;
     for (;;)
+    {
         __asm__ volatile("nop");
+    }
 }

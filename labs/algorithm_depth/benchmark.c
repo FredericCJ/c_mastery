@@ -10,7 +10,9 @@ static uint64_t clock_ns(void)
 {
     struct timespec t;
     if (clock_gettime(CLOCK_MONOTONIC, &t))
+    {
         exit(2);
+    }
     return (uint64_t)t.tv_sec * UINT64_C(1000000000) + (unsigned)t.tv_nsec;
 }
 
@@ -42,35 +44,51 @@ int main(void)
 {
     unsigned sizes[] = {0, 1, 4, 8, 16};
     for (unsigned distribution = 0; distribution < 3; ++distribution)
+    {
         for (unsigned s = 0; s < 5; ++s)
+        {
             for (unsigned method = 0; method < 8; ++method)
             {
                 size_t n = sizes[s];
                 struct ad_record original[16], p[16], scratch[16];
                 for (size_t i = 0; i < n; ++i)
+                {
                     original[i] = (struct ad_record){
                         (int32_t)(distribution == 0   ? i % 8
                                   : distribution == 1 ? (n - i) % 8
                                                       : i % 2),
                         (unsigned)i};
+                }
                 struct ad_work work = {0};
                 for (size_t i = 0; i < n; ++i)
+                {
                     p[i] = original[i];
+                }
                 if (sort(method, p, n, scratch, &work) != AD_OK)
+                {
                     return 3;
+                }
                 for (size_t i = 1; i < n; ++i)
+                {
                     if (p[i - 1].key > p[i].key)
+                    {
                         return 4;
+                    }
+                }
                 for (unsigned trial = 0; trial < 3; ++trial)
                 {
                     uint64_t start = clock_ns();
                     for (unsigned repeat = 0; repeat < 64; ++repeat)
                     {
                         for (size_t i = 0; i < n; ++i)
+                        {
                             p[i] = original[i];
+                        }
                         struct ad_work repeated = {0};
                         if (sort(method, p, n, scratch, &repeated) != AD_OK)
+                        {
                             return 3;
+                        }
                         consumed += n ? (unsigned)p[n - 1].key : 0;
                     }
                     uint64_t elapsed = clock_ns() - start;
@@ -84,10 +102,14 @@ int main(void)
                         sizeof(struct cd_heap), sizeof(struct ad_record));
                 }
             }
+        }
+    }
     unsigned byte_sizes[] = {0, 1, 16, 64, 256, 1024};
     unsigned char input[1024], encoded[2048], decoded[1024];
     for (unsigned distribution = 0; distribution < 3; ++distribution)
+    {
         for (unsigned s = 0; s < 6; ++s)
+        {
             for (unsigned method = 0; method < 3; ++method)
             {
                 size_t n = byte_sizes[s], encoded_length = 0,
@@ -113,7 +135,9 @@ int main(void)
                                       &encoded_length) != AD_OK ||
                         ad_rle_decode(encoded, encoded_length, 1, decoded, 1024,
                                       &decoded_length) != AD_OK)
+                    {
                         return 5;
+                    }
                 }
                 else
                 {
@@ -121,10 +145,14 @@ int main(void)
                                          &encoded_length) != AD_OK ||
                         ad_tagged_decode(encoded, encoded_length, decoded, 1024,
                                          &decoded_length) != AD_OK)
+                    {
                         return 5;
+                    }
                 }
                 if (decoded_length != n || fr_compare(input, decoded, n))
+                {
                     return 6;
+                }
                 for (unsigned trial = 0; trial < 3; ++trial)
                 {
                     uint64_t start = clock_ns();
@@ -142,7 +170,9 @@ int main(void)
                                 ad_rle_decode(encoded, encoded_length, 1,
                                               decoded, 1024,
                                               &decoded_length) != AD_OK)
+                            {
                                 return 5;
+                            }
                         }
                         else
                         {
@@ -151,7 +181,9 @@ int main(void)
                                 ad_tagged_decode(encoded, encoded_length,
                                                  decoded, 1024,
                                                  &decoded_length) != AD_OK)
+                            {
                                 return 5;
+                            }
                         }
                         consumed += n ? decoded[n - 1] : 0;
                     }
@@ -162,5 +194,7 @@ int main(void)
                         (unsigned long long)elapsed, encoded_length);
                 }
             }
+        }
+    }
     return 0;
 }

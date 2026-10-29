@@ -45,7 +45,9 @@ void g4_target_main(void)
             g4_capture.status = (uint32_t)G4_CLOCK_TIMEOUT;
             g4_capture.done = 1;
             for (;;)
+            {
                 __asm__ volatile("nop");
+            }
         }
         g4_capture.reserved[2] = io.read(io.context, G4_RCC_CFGR);
         g4_capture.reserved[3] = io.read(io.context, G4_GPIO_AFRH);
@@ -56,7 +58,9 @@ void g4_target_main(void)
            that an iteration count measures elapsed microseconds. */
         g4_capture.reserved[0] = 1;
         while (g4_release_tx != 0x54585245u)
+        {
             __asm__ volatile("nop");
+        }
         g4_capture.reserved[1] = 1;
         const uint8_t pattern[] = {0x55, 0x00, 0xff, 0xa5, 0x5a};
         struct pl_byte_port p =
@@ -68,15 +72,21 @@ void g4_target_main(void)
             int tx = pl_byte(p, pattern[n], 100000);
             g4_capture.transfer_status = (uint32_t)tx;
             if (tx)
+            {
                 break;
+            }
             ++g4_capture.bytes;
         }
     }
     g4_capture.count_ticks = ticks;
     if (result.stage >= 3)
+    {
         g4_capture.isr = io.read(io.context, G4_USART_ISR);
+    }
     __asm__ volatile("dsb" ::: "memory");
     g4_capture.done = 1;
     for (;;)
+    {
         __asm__ volatile("nop");
+    }
 }

@@ -28,14 +28,20 @@ int cc_irq_join0(struct cc_port *p)
     uint32_t ipsr;
     __asm__ volatile("mrs %0,ipsr" : "=r"(ipsr)::"memory");
     if (ipsr || !p)
+    {
         return CC_INVALID;
+    }
     uint32_t previous = cw_irq_save();
     cc_irq_join_hook();
     if (CC_IRQ_MUTANT != 1)
+    {
         REG(0xe000e180) = 1;
+    }
     __asm__ volatile("dsb\nisb" ::: "memory");
     if (CC_IRQ_MUTANT != 2)
+    {
         REG(0xe000e280) = 1;
+    }
     __asm__ volatile("dsb\nisb" ::: "memory");
     int result =
         (REG(0xe000e100) & 1) || (REG(0xe000e200) & 1) || (REG(0xe000e300) & 1)

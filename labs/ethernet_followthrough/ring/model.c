@@ -10,13 +10,19 @@ static int read_register(void *p, unsigned offset, uint32_t *out)
 {
     struct en_model *m = p;
     if ((offset & 3u) || offset / 4 >= 1032 || !out || fault(m))
+    {
         return 1;
+    }
     if (offset == 0x1000 && (m->reg[offset / 4] & 1u) && !m->reset_stuck)
     {
         if (m->reset_reads)
+        {
             m->reset_reads--;
+        }
         else
+        {
             m->reg[offset / 4] &= ~1u;
+        }
     }
     *out = m->reg[offset / 4];
     return 0;
@@ -26,7 +32,9 @@ static int write_register(void *p, unsigned offset, uint32_t value)
 {
     struct en_model *m = p;
     if ((offset & 3u) || offset / 4 >= 1032 || fault(m))
+    {
         return 1;
+    }
     if (!m->settled)
     {
         m->violation++;
@@ -43,7 +51,9 @@ static int write_register(void *p, unsigned offset, uint32_t value)
     if (offset == 0x1000 && (value & 1u))
     {
         for (unsigned i = 0; i < 1032; i++)
+        {
             m->reg[i] = 0;
+        }
         m->reset_reads = 2;
         m->tx_current = m->rx_current = 0;
     }
@@ -76,12 +86,18 @@ static int write_register(void *p, unsigned offset, uint32_t value)
             m->reg[0x1014 / 4] = (m->reg[0x1014 / 4] & ~0x7e0000u) | 0x160000u;
         }
         else if (!m->stop_stuck)
+        {
             m->reg[0x1014 / 4] &= ~0x7e0000u;
+        }
     }
     if (offset == 0x1004)
+    {
         m->tx_demands++;
+    }
     if (offset == 0x1008)
+    {
         m->rx_demands++;
+    }
     m->reg[offset / 4] = value;
     return 0;
 }
@@ -96,7 +112,9 @@ static int settle(void *p)
 {
     struct en_model *m = p;
     if (fault(m))
+    {
         return 1;
+    }
     m->settled = 1;
     return 0;
 }
@@ -118,7 +136,9 @@ struct en_bus en_model_bus(struct en_model *m)
 int en_model_tx(struct en_model *m, unsigned error)
 {
     if (!m || error > 1 || !(m->reg[0x1018 / 4] & 0x2000u))
+    {
         return ED_INVALID;
+    }
     unsigned i = m->tx_current;
     struct en_descriptor *d = &m->memory->tx[i];
     uint32_t s = d->word[0];
@@ -139,7 +159,9 @@ int en_model_tx(struct en_model *m, unsigned error)
     }
     size_t padded = n < 60 ? 60 : n;
     for (size_t j = 0; j < padded; j++)
+    {
         m->wire[j] = j < n ? m->memory->tx_bytes[i][j] : 0;
+    }
     /* The model captures bytes before MAC FCS insertion; no wire CRC claim. */
     m->wire_length = (unsigned)padded;
     d->word[0] = error ? 0x8002u : 0;
@@ -153,7 +175,9 @@ int en_model_rx(struct en_model *m, const void *bytes, size_t n,
 {
     if (!m || !bytes || !n || n > EN_BUFFER || (status & OWN) ||
         !(m->reg[0x1018 / 4] & 2u))
+    {
         return ED_INVALID;
+    }
     unsigned i = m->rx_current;
     struct en_descriptor *d = &m->memory->rx[i];
     if (!(d->word[0] & OWN))
@@ -171,7 +195,9 @@ int en_model_rx(struct en_model *m, const void *bytes, size_t n,
     }
     const unsigned char *p = bytes;
     for (size_t j = 0; j < n; j++)
+    {
         m->memory->rx_bytes[i][j] = p[j];
+    }
     d->word[0] = status;
     m->reg[0x1014 / 4] |= 64u;
     m->rx_current = i == 3 ? 0 : i + 1;

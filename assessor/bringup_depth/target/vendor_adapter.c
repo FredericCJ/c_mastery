@@ -43,9 +43,13 @@ void SystemInit(void)
     /* Pre-data/BSS hook: only constants, linker addresses and explicit stores. */
     stage = 1;
     for (uintptr_t p = (uintptr_t)_sbss; p < (uintptr_t)_ebss; p += 4)
+    {
         *(volatile uint32_t *)p = 0xa5a5a5a5;
+    }
     for (uintptr_t p = (uintptr_t)_sccmram; p < (uintptr_t)_eccmram; p += 4)
+    {
         *(volatile uint32_t *)p = 0xa5a5a5a5;
+    }
 }
 
 void __libc_init_array(void)

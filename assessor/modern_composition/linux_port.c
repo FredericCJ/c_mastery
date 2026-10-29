@@ -35,12 +35,16 @@ static void *worker(void *context)
             ++p->queued;
             pthread_cond_broadcast(&p->changed);
             while (p->notification && !p->stopping)
+            {
                 pthread_cond_wait(&p->changed, &p->mutex);
+            }
         }
         unsigned stopping = p->stopping;
         pthread_mutex_unlock(&p->mutex);
         if (stopping)
+        {
             break;
+        }
     }
     pthread_mutex_lock(&p->mutex);
     --p->references;
@@ -53,22 +57,30 @@ static void *worker(void *context)
 int mc_linux_init(struct mc_linux_port *p, struct mc_read *read, int fd)
 {
     if (!p || !read || fd < 0)
+    {
         return 0;
+    }
     int flags = fcntl(fd, F_GETFL);
     if (flags < 0 || !(flags & O_NONBLOCK))
+    {
         return 0;
+    }
     *p = (struct mc_linux_port){0};
     p->fd = fd;
     p->read = read;
     if (pipe(p->wake))
+    {
         return 0;
+    }
     for (unsigned i = 0; i < 2; ++i)
+    {
         if (fcntl(p->wake[i], F_SETFL, O_NONBLOCK) < 0)
         {
             close(p->wake[0]);
             close(p->wake[1]);
             return 0;
         }
+    }
     if (pthread_mutex_init(&p->mutex, NULL))
     {
         close(p->wake[0]);
@@ -92,11 +104,17 @@ static struct co_read_result read_bytes(void *context, unsigned char *out,
     struct mc_linux_port *p = context;
     ssize_t n = read(p->fd, out, size);
     if (n > 0)
+    {
         return (struct co_read_result){CO_READ_DATA, (size_t)n};
+    }
     if (n == 0)
+    {
         return (struct co_read_result){CO_READ_EOF, 0};
+    }
     if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)
+    {
         return (struct co_read_result){CO_READ_AGAIN, 0};
+    }
     return (struct co_read_result){CO_READ_ERROR, 0};
 }
 
@@ -104,7 +122,9 @@ static int arm(void *context, uint32_t generation)
 {
     struct mc_linux_port *p = context;
     if (p->started || p->stopping)
+    {
         return -1;
+    }
     p->generation = generation;
     pthread_mutex_lock(&p->mutex);
     ++p->references;
@@ -123,7 +143,9 @@ static int arm(void *context, uint32_t generation)
 int mc_linux_request_cancel(struct mc_linux_port *p)
 {
     if (!p || !p->initialized)
+    {
         return 0;
+    }
     pthread_mutex_lock(&p->mutex);
     unsigned first = !p->stopping;
     p->stopping = 1;
@@ -138,7 +160,9 @@ int mc_linux_request_cancel(struct mc_linux_port *p)
             n = write(p->wake[1], &byte, 1);
         } while (n < 0 && errno == EINTR);
         if (n < 0 && errno != EAGAIN && errno != EWOULDBLOCK)
+        {
             return 0;
+        }
     }
     return 1;
 }
@@ -146,13 +170,19 @@ int mc_linux_request_cancel(struct mc_linux_port *p)
 static int quiesce(struct mc_linux_port *p)
 {
     if (!mc_linux_request_cancel(p))
+    {
         return 0;
+    }
     if (MC_MUTANT == 7)
+    {
         return 1; /* cancellation request is not quiescence */
+    }
     if (p->started)
     {
         if (pthread_join(p->worker, NULL))
+        {
             return 0;
+        }
         p->started = 0;
         ++p->joined;
     }
@@ -173,7 +203,9 @@ static void disarm(void *context, uint32_t generation)
     /* The void port contract cannot report failed quiescence. An unexpected
        broken pthread/descriptor precondition must never authorize reclamation. */
     if (generation != p->generation || !quiesce(p))
+    {
         abort();
+    }
 }
 
 struct co_async_port mc_linux_interface(struct mc_linux_port *p)
@@ -184,10 +216,14 @@ struct co_async_port mc_linux_interface(struct mc_linux_port *p)
 int mc_linux_wait(struct mc_linux_port *p, unsigned milliseconds)
 {
     if (!p || !p->initialized)
+    {
         return 0;
+    }
     struct timespec deadline;
     if (clock_gettime(CLOCK_REALTIME, &deadline))
+    {
         return 0;
+    }
     deadline.tv_sec += (time_t)(milliseconds / 1000);
     deadline.tv_nsec += (long)(milliseconds % 1000) * 1000000L;
     if (deadline.tv_nsec >= 1000000000L)
@@ -198,7 +234,9 @@ int mc_linux_wait(struct mc_linux_port *p, unsigned milliseconds)
     pthread_mutex_lock(&p->mutex);
     int r = 0;
     while (!p->notification && !p->stopping && !r)
+    {
         r = pthread_cond_timedwait(&p->changed, &p->mutex, &deadline);
+    }
     int ready = p->notification != 0;
     pthread_mutex_unlock(&p->mutex);
     return ready;
@@ -207,7 +245,9 @@ int mc_linux_wait(struct mc_linux_port *p, unsigned milliseconds)
 int mc_linux_dispatch(struct mc_linux_port *p)
 {
     if (!p || !p->initialized)
+    {
         return 0;
+    }
     pthread_mutex_lock(&p->mutex);
     unsigned ready = p->notification && !p->stopping;
     if (ready)
@@ -224,7 +264,9 @@ int mc_linux_dispatch(struct mc_linux_port *p)
 enum msg_status mc_linux_finish_cancel(struct mc_linux_port *p)
 {
     if (!p || !p->initialized || !quiesce(p))
+    {
         return MSG_FAILED;
+    }
     struct mc_read *read = p->read;
     return mc_read_cancel(read); /* receiver can destroy read and p */
 }
@@ -232,7 +274,9 @@ enum msg_status mc_linux_finish_cancel(struct mc_linux_port *p)
 int mc_linux_quiescent(struct mc_linux_port *p)
 {
     if (!p || !p->initialized)
+    {
         return 0;
+    }
     pthread_mutex_lock(&p->mutex);
     int result = !p->started && !p->references && !p->notification;
     pthread_mutex_unlock(&p->mutex);
@@ -242,7 +286,9 @@ int mc_linux_quiescent(struct mc_linux_port *p)
 int mc_linux_destroy(struct mc_linux_port *p)
 {
     if (!p || !p->initialized || !mc_linux_quiescent(p))
+    {
         return 0;
+    }
     close(p->wake[0]);
     close(p->wake[1]);
     pthread_cond_destroy(&p->changed);

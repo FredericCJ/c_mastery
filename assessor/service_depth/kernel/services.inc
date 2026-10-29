@@ -27,10 +27,14 @@ static unsigned sd_current_version, sd_mutable_ready, sd_mutable_owner,
 static unsigned sd_file(uint64_t token, unsigned pid)
 {
     for (unsigned i = 0; i < 16; i++)
+    {
         if (sd_handles[i].open && (sd_handles[i].owners & (1u << pid)) &&
             token <= UINT32_MAX &&
             cmk_handle_valid((uint32_t)token, i, sd_handles[i].generation, 1))
+        {
             return i;
+        }
+    }
     return 16;
 }
 
@@ -38,13 +42,19 @@ static void sd_file_close(unsigned h, unsigned pid)
 {
     struct sd_open_description *d = &sd_descriptions[sd_handles[h].description];
     if (!d->refs)
+    {
         panic("sd file references");
+    }
     d->refs--;
     sd_handles[h].owners &= ~(1u << pid);
     if (!sd_handles[h].owners)
+    {
         sd_handles[h].open = 0;
+    }
     if (!d->refs && d->version < 2 && !d->live)
+    {
         sd_versions[d->version].refs--;
+    }
 }
 
 static void sd_fork_files(unsigned parent, unsigned child)
@@ -55,11 +65,13 @@ static void sd_fork_files(unsigned parent, unsigned child)
     return;
 #endif
     for (unsigned h = 0; h < 16; h++)
+    {
         if (sd_handles[h].open && (sd_handles[h].owners & (1u << parent)))
         {
             sd_handles[h].owners |= 1u << child;
             sd_descriptions[sd_handles[h].description].refs++;
         }
+    }
 }
 
 struct sd_message
@@ -94,18 +106,24 @@ static void sd_thread_cleanup(unsigned tid)
 {
     sd_waiters[tid].active = 0;
     for (unsigned q = 0; q < 8; q++)
+    {
         if (sd_queues[q].open && sd_queues[q].count)
         {
             struct sd_message *m = &sd_queues[q].message[sd_queues[q].head];
             if (m->reader == tid)
+            {
                 m->reader = THREADS;
+            }
         }
+    }
 }
 
 static unsigned sd_cap(uint64_t token, unsigned pid, unsigned rights)
 {
     if (token > UINT32_MAX)
+    {
         return 32;
+    }
     for (unsigned i = 0; i < 32; i++)
     {
         struct sd_capability *c = &sd_caps[i];
@@ -116,7 +134,9 @@ static unsigned sd_cap(uint64_t token, unsigned pid, unsigned rights)
         {
 #ifndef SDK_MUTANT_RIGHTS
             if ((c->rights & rights) != rights)
+            {
                 return 32;
+            }
 #else
             (void)rights;
 #endif
@@ -129,6 +149,7 @@ static unsigned sd_cap(uint64_t token, unsigned pid, unsigned rights)
 static int64_t sd_new_cap(unsigned pid, unsigned q, unsigned rights)
 {
     for (unsigned i = 0; i < 32; i++)
+    {
         if (!sd_caps[i].open && sd_caps[i].generation < 65535)
         {
             struct sd_capability *c = &sd_caps[i];
@@ -140,12 +161,14 @@ static int64_t sd_new_cap(unsigned pid, unsigned q, unsigned rights)
             c->rights = rights;
             return cmk_handle(i, c->generation);
         }
+    }
     return SDK_FULL;
 }
 
 static void sd_wake(unsigned q)
 {
     for (unsigned i = 0; i < thread_count; i++)
+    {
         if (sd_waiters[i].active && sd_waiters[i].queue == q)
         {
             if (sd_waiters[i].incarnation != sd_queues[q].generation)
@@ -158,7 +181,9 @@ static void sd_wake(unsigned q)
             if (sd_waiters[i].sending)
             {
                 if (sd_queues[q].open == 1 && sd_queues[q].count == 2)
+                {
                     continue;
+                }
                 if (sd_queues[q].open == 1)
                 {
                     sd_queues[q]
@@ -168,13 +193,18 @@ static void sd_wake(unsigned q)
                     uthreads[i].frame->rax = 0;
                 }
                 else
+                {
                     uthreads[i].frame->rax = (uint64_t)(int64_t)SDK_CLOSED;
+                }
             }
             else
+            {
                 uthreads[i].frame->rax = SDK_RETRY;
+            }
             sd_waiters[i].active = 0;
             uthreads[i].state = UT_READY;
         }
+    }
 }
 
 static void sd_close_queue(unsigned q)
@@ -186,27 +216,43 @@ static void sd_close_queue(unsigned q)
 static void sd_process_cleanup(unsigned pid)
 {
     for (unsigned h = 0; h < 16; h++)
+    {
         if (sd_handles[h].open && (sd_handles[h].owners & (1u << pid)))
+        {
             sd_file_close(h, pid);
+        }
+    }
     for (unsigned i = 0; i < thread_count; i++)
+    {
         if (uthreads[i].process == pid)
+        {
             sd_waiters[i].active = 0;
+        }
+    }
     for (unsigned q = 0; q < 8; q++)
+    {
         if (sd_queues[q].open && sd_queues[q].owner == pid)
         {
             sd_close_queue(q);
             /* This profile grants only within the owning process; no surviving grantee. */
             sd_queues[q].open = 0;
         }
+    }
     for (unsigned i = 0; i < 32; i++)
+    {
         if (sd_caps[i].owner == pid)
+        {
             sd_caps[i].open = 0;
+        }
+    }
 }
 
 static int sd_span(struct task *p, uint64_t address, struct sdk_span *span)
 {
     if (!user_ok(p, address, sizeof *span, 0))
+    {
         return 0;
+    }
     memcpy(span, (void *)(uintptr_t)address, sizeof *span);
     return 1;
 }
@@ -227,15 +273,19 @@ static int64_t sd_syscall(struct frame *f)
             if (cmk_archive_find(archive, archive_size, "spawn", &data,
                                  &size) ||
                 cmk_elf_parse(data, size, &elf))
+            {
                 return SDK_INVALID;
+            }
             unsigned expected = 32;
             for (unsigned s = 0; s < elf.count; s++)
+            {
                 expected +=
                     (unsigned)(((elf.segments[s].address +
                                  elf.segments[s].memsz + 4095) &
                                 ~UINT64_C(4095)) -
                                (elf.segments[s].address & ~UINT64_C(4095))) /
                     4096;
+            }
             static struct cmk_frames old_frames;
             static uint16_t old_refs[CMK_MAX_FRAMES];
             for (unsigned cut = 0; cut < expected; cut++)
@@ -251,7 +301,9 @@ static int64_t sd_syscall(struct frame *f)
                     thread_count != old_threads ||
                     memcmp(&old_frames, &frames, sizeof frames) ||
                     memcmp(old_refs, page_refs, sizeof old_refs))
+                {
                     return SDK_INVALID;
+                }
             }
             return expected;
         }
@@ -259,10 +311,15 @@ static int64_t sd_syscall(struct frame *f)
         case SDK_CLONE_IMMUTABLE:
             /* New restricted operation; retained CMK2_FORK_SINGLE shared behavior is intact. */
             for (unsigned i = 0; i < 512; i++)
+            {
                 if ((p->pt[i] & PTE_SHARED) &&
                     (f->rax == SDK_CLONE_PRIVATE || (p->pt[i] & 2)))
+                {
                     return SDK_DENIED;
+                }
+            }
             for (unsigned i = 0; i < 512; i++)
+            {
                 if (p->pt[i] & 1)
                 {
                     unsigned n =
@@ -270,17 +327,24 @@ static int64_t sd_syscall(struct frame *f)
                                    4096);
                     if (n >= CMK_MAX_FRAMES || !page_refs[n] ||
                         page_refs[n] == 65535)
+                    {
                         return SDK_FULL;
+                    }
                 }
+            }
             return fork_single(f);
         case SDK_SHARE_IMMUTABLE:
         {
             if (a % 4096 || !user_ok(p, a, 4096, 0))
+            {
                 return SDK_INVALID;
+            }
             unsigned i = (unsigned)((a - CMK_USER_BASE) / 4096);
             uint64_t e = p->pt[i];
             if (!(e & PTE_NX) || (e & PTE_COW))
+            {
                 return SDK_DENIED;
+            }
             p->pt[i] = (e & ~UINT64_C(2)) | PTE_SHARED;
 #ifdef SDK_MUTANT_IMMUTABLE
             p->pt[i] =
@@ -295,24 +359,38 @@ static int64_t sd_syscall(struct frame *f)
             if (sd_mutable_ready &&
                 (sd_mutable_owner != pid ||
                  sd_mutable_owner_generation != p->generation))
+            {
                 return SDK_DENIED;
+            }
             struct sdk_span span;
             if (!sd_span(p, a, &span) || span.length > 32 ||
                 (span.length && !user_ok(p, span.pointer, span.length, 0)))
+            {
                 return SDK_COPY;
+            }
             unsigned v;
             for (v = 0; v < 2; v++)
+            {
                 if (!sd_versions[v].refs)
+                {
                     break;
+                }
+            }
             if (v == 2)
+            {
                 return SDK_FULL;
+            }
             if (span.length)
+            {
                 memcpy(sd_versions[v].bytes, (void *)(uintptr_t)span.pointer,
                        (size_t)span.length);
+            }
             sd_versions[v].length = (unsigned)span.length;
             sd_versions[v].refs = 1;
             if (sd_mutable_ready)
+            {
                 sd_versions[sd_current_version].refs--;
+            }
             sd_current_version = v;
             sd_mutable_ready = 1;
             sd_mutable_owner = pid;
@@ -323,16 +401,28 @@ static int64_t sd_syscall(struct frame *f)
         case SDK_OPEN_LIVE:
         {
             if (!sd_mutable_ready)
+            {
                 return SDK_INVALID;
+            }
             unsigned h, d;
             for (h = 0; h < 16; h++)
+            {
                 if (!sd_handles[h].open && sd_handles[h].generation < 65535)
+                {
                     break;
+                }
+            }
             for (d = 0; d < 8; d++)
+            {
                 if (!sd_descriptions[d].refs)
+                {
                     break;
+                }
+            }
             if (h == 16 || d == 8)
+            {
                 return SDK_FULL;
+            }
             unsigned live = f->rax == SDK_OPEN_LIVE, v = sd_current_version;
 #ifdef SDK_MUTANT_SNAPSHOT
             live = 1;
@@ -340,7 +430,9 @@ static int64_t sd_syscall(struct frame *f)
             sd_descriptions[d] = (struct sd_open_description){
                 sd_versions[v].bytes, sd_versions[v].length, 0, 1, v, live};
             if (!live)
+            {
                 sd_versions[v].refs++;
+            }
             sd_handles[h].generation++;
             sd_handles[h].open = 1;
             sd_handles[h].owners = 1u << pid;
@@ -350,23 +442,37 @@ static int64_t sd_syscall(struct frame *f)
         case SDK_OPEN:
         {
             if (!b || b > 23 || !user_ok(p, a, b, 0))
+            {
                 return SDK_COPY;
+            }
             char name[24];
             memcpy(name, (void *)(uintptr_t)a, (size_t)b);
             name[b] = 0;
             const unsigned char *data;
             size_t length;
             if (cmk_archive_find(archive, archive_size, name, &data, &length))
+            {
                 return SDK_INVALID;
+            }
             unsigned h, d;
             for (h = 0; h < 16; h++)
+            {
                 if (!sd_handles[h].open && sd_handles[h].generation < 65535)
+                {
                     break;
+                }
+            }
             for (d = 0; d < 8; d++)
+            {
                 if (!sd_descriptions[d].refs)
+                {
                     break;
+                }
+            }
             if (h == 16 || d == 8)
+            {
                 return SDK_FULL;
+            }
             sd_descriptions[d] =
                 (struct sd_open_description){data, length, 0, 1, 2, 0};
             sd_handles[h].generation++;
@@ -379,10 +485,14 @@ static int64_t sd_syscall(struct frame *f)
         {
             unsigned h = sd_file(a, pid);
             if (h == 16)
+            {
                 return SDK_STALE;
+            }
             struct sdk_span span;
             if (!sd_span(p, b, &span) || span.length > 256)
+            {
                 return SDK_COPY;
+            }
             struct sd_open_description *d =
                 &sd_descriptions[sd_handles[h].description];
             const unsigned char *data =
@@ -391,14 +501,20 @@ static int64_t sd_syscall(struct frame *f)
                 d->live ? sd_versions[sd_current_version].length : d->length;
             size_t n = d->offset < length ? length - d->offset : 0;
             if (n > span.length)
+            {
                 n = (size_t)span.length;
+            }
 #ifdef SDK_MUTANT_OFFSET
             d->offset += n;
 #endif
             if (n && !user_ok(p, span.pointer, n, 1))
+            {
                 return SDK_COPY;
+            }
             if (n)
+            {
                 memcpy((void *)(uintptr_t)span.pointer, data + d->offset, n);
+            }
 #ifndef SDK_MUTANT_OFFSET
             d->offset += n;
 #endif
@@ -408,13 +524,19 @@ static int64_t sd_syscall(struct frame *f)
         {
             unsigned h = sd_file(a, pid);
             if (h == 16)
+            {
                 return SDK_STALE;
+            }
             struct sdk_seek s;
             if (!user_ok(p, b, sizeof s, 0))
+            {
                 return SDK_COPY;
+            }
             memcpy(&s, (void *)(uintptr_t)b, sizeof s);
             if (s.origin > 2 || s.reserved)
+            {
                 return SDK_INVALID;
+            }
             struct sd_open_description *d =
                 &sd_descriptions[sd_handles[h].description];
             size_t length =
@@ -424,10 +546,14 @@ static int64_t sd_syscall(struct frame *f)
                                : (int64_t)(s.origin == 1 ? d->offset : length);
             if ((s.offset > 0 && base > INT64_MAX - s.offset) ||
                 (s.offset < 0 && base < INT64_MIN - s.offset))
+            {
                 return SDK_INVALID;
+            }
             int64_t result = base + s.offset;
             if (result < 0 || (uint64_t)result > length)
+            {
                 return SDK_INVALID;
+            }
             d->offset = (size_t)result;
             return result;
         }
@@ -435,8 +561,11 @@ static int64_t sd_syscall(struct frame *f)
         {
             unsigned h = sd_file(a, pid);
             if (h == 16)
+            {
                 return SDK_STALE;
+            }
             for (unsigned j = 0; j < 16; j++)
+            {
                 if (!sd_handles[j].open && sd_handles[j].generation < 65535)
                 {
                     sd_handles[j].generation++;
@@ -446,18 +575,22 @@ static int64_t sd_syscall(struct frame *f)
                     sd_descriptions[sd_handles[j].description].refs++;
                     return cmk_handle(j, sd_handles[j].generation);
                 }
+            }
             return SDK_FULL;
         }
         case SDK_CLOSE:
         {
             unsigned h = sd_file(a, pid);
             if (h == 16)
+            {
                 return SDK_STALE;
+            }
             sd_file_close(h, pid);
             return 0;
         }
         case SDK_CHANNEL:
             for (unsigned q = 0; q < 8; q++)
+            {
                 if (!sd_queues[q].open && sd_queues[q].generation < 65535)
                 {
                     sd_queues[q].generation++;
@@ -466,15 +599,20 @@ static int64_t sd_syscall(struct frame *f)
                     sd_queues[q].count = sd_queues[q].head = 0;
                     int64_t cap = sd_new_cap(pid, q, 7);
                     if (cap < 0)
+                    {
                         sd_queues[q].open = 0;
+                    }
                     return cap;
                 }
+            }
             return SDK_FULL;
         case SDK_ATTENUATE:
         {
             unsigned cap = sd_cap(a, pid, 0);
             if (cap == 32 || !b || b > 7 || (b & sd_caps[cap].rights) != b)
+            {
                 return SDK_DENIED;
+            }
             return sd_new_cap(pid, sd_caps[cap].queue, (unsigned)b);
         }
         case SDK_SEND:
@@ -484,29 +622,43 @@ static int64_t sd_syscall(struct frame *f)
             unsigned sending = f->rax == SDK_SEND,
                      cap = sd_cap(a, pid, sending ? 1 : 2);
             if (cap == 32)
+            {
                 return SDK_DENIED;
+            }
             if (c > 1)
+            {
                 return SDK_INVALID;
+            }
             struct sdk_span span;
             if (!sd_span(p, b, &span) || span.length > 32)
+            {
                 return SDK_COPY;
+            }
             unsigned q = sd_caps[cap].queue;
             struct sd_queue *queue = &sd_queues[q];
             if (sending)
             {
                 if (queue->open != 1)
+                {
                     return SDK_CLOSED;
+                }
                 struct sd_message m = {0};
                 m.n = (unsigned)span.length;
                 m.reader = THREADS;
                 if (m.n && !user_ok(p, span.pointer, m.n, 0))
+                {
                     return SDK_COPY;
+                }
                 if (m.n)
+                {
                     memcpy(m.bytes, (void *)(uintptr_t)span.pointer, m.n);
+                }
                 if (queue->count == 2)
                 {
                     if (c)
+                    {
                         return SDK_FULL;
+                    }
                     sd_waiters[current] =
                         (struct sd_pending){1, q, queue->generation, 1, m};
                     uthreads[current].state = UT_SD_WAIT;
@@ -520,9 +672,13 @@ static int64_t sd_syscall(struct frame *f)
             if (!queue->count)
             {
                 if (queue->open != 1)
+                {
                     return SDK_CLOSED;
+                }
                 if (c)
+                {
                     return SDK_FULL;
+                }
                 sd_waiters[current].active = 1;
                 sd_waiters[current].queue = q;
                 sd_waiters[current].incarnation = queue->generation;
@@ -533,24 +689,38 @@ static int64_t sd_syscall(struct frame *f)
             struct sd_message *m = &queue->message[queue->head];
             unsigned n = m->n - m->consumed;
             if (m->reader != THREADS && m->reader != current)
+            {
                 return SDK_DENIED;
+            }
             if (f->rax == SDK_RECEIVE_PARTIAL)
             {
                 if (n && !span.length)
+                {
                     return SDK_FULL;
+                }
                 if (n > span.length)
+                {
                     n = (unsigned)span.length;
+                }
             }
             else if (m->consumed || span.length < n)
+            {
                 return SDK_FULL;
+            }
             if (n && !user_ok(p, span.pointer, n, 1))
+            {
                 return SDK_COPY;
+            }
             if (n)
+            {
                 memcpy((void *)(uintptr_t)span.pointer, m->bytes + m->consumed,
                        n);
+            }
 #ifdef SDK_MUTANT_PARTIAL
             if (f->rax != SDK_RECEIVE_PARTIAL)
+            {
                 m->consumed += n;
+            }
 #else
             m->consumed += n;
 #endif
@@ -570,7 +740,9 @@ static int64_t sd_syscall(struct frame *f)
         {
             unsigned cap = sd_cap(a, pid, 4);
             if (cap == 32)
+            {
                 return SDK_DENIED;
+            }
             sd_close_queue(sd_caps[cap].queue);
             return 0;
         }
@@ -578,17 +750,29 @@ static int64_t sd_syscall(struct frame *f)
         {
             unsigned cap = sd_cap(a, pid, 4);
             if (cap == 32)
+            {
                 return SDK_DENIED;
+            }
             unsigned q = sd_caps[cap].queue;
             if (sd_queues[q].open != 2 || sd_queues[q].count)
+            {
                 return SDK_INVALID;
+            }
             for (unsigned i = 0; i < THREADS; i++)
+            {
                 if (sd_waiters[i].active && sd_waiters[i].queue == q)
+                {
                     return SDK_INVALID;
+                }
+            }
             sd_queues[q].open = 0;
             for (unsigned i = 0; i < 32; i++)
+            {
                 if (sd_caps[i].queue == q)
+                {
                     sd_caps[i].open = 0;
+                }
+            }
             return 0;
         }
         case SDK_INCARNATION:
@@ -606,7 +790,9 @@ static int64_t sd_syscall(struct frame *f)
             unsigned q = (unsigned)a;
             if (q >= 8 || sd_queues[q].generation != (unsigned)(a >> 32) ||
                 !sd_queues[q].open)
+            {
                 return SDK_STALE;
+            }
             sd_wake(q);
             return 0;
         }
@@ -618,11 +804,17 @@ static int64_t sd_syscall(struct frame *f)
                 uthreads[tid].process != pid ||
                 !cmk_handle_valid((uint32_t)a, tid, uthreads[tid].generation,
                                   1))
+            {
                 return SDK_STALE;
+            }
             if (f->rax == SDK_BLOCKED)
+            {
                 return sd_waiters[tid].active;
+            }
             if (!sd_waiters[tid].active)
+            {
                 return SDK_INVALID;
+            }
 #ifndef SDK_MUTANT_CANCEL
             sd_waiters[tid].active = 0;
 #endif
@@ -632,7 +824,9 @@ static int64_t sd_syscall(struct frame *f)
         }
         case SDK_CUT:
             if (!p->handle_open || block(0, 0))
+            {
                 return SDK_DENIED;
+            }
             return (uint32_t)bounce[0] | (uint32_t)bounce[1] << 8 |
                    (uint32_t)bounce[2] << 16 | (uint32_t)bounce[3] << 24;
         case SDK_CRASH:

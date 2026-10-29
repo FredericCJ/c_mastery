@@ -3,7 +3,9 @@
 static _Noreturn void incomplete(void)
 {
     for (;;)
+    {
         __asm__ volatile("wfi");
+    }
 }
 
 void af_entry(void)

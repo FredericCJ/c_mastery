@@ -15,7 +15,9 @@ int main(void)
     {
         a[i] = nondet_uint32_t();
         if (i)
+        {
             __CPROVER_assume(a[i - 1] <= a[i]);
+        }
     }
 #ifdef VACUOUS
     __CPROVER_assume(n > 8);
@@ -26,9 +28,13 @@ int main(void)
     pos = vf_lower_bound(a, n, key);
     assert(pos <= n);
     for (i = 0; i < pos; ++i)
+    {
         assert(a[i] < key);
+    }
     for (i = (unsigned)pos; i < n; ++i)
+    {
         assert(a[i] >= key);
+    }
     r.capacity = nondet_unsigned();
     r.head = nondet_unsigned();
     r.size = nondet_unsigned();

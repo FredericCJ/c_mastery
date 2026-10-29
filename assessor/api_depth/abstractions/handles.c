@@ -10,14 +10,18 @@ void ah_pool_init(struct ah_pool *p)
         *p = (struct ah_pool){0};
         p->epoch = 1;
         for (unsigned i = 0; i < 3; ++i)
+        {
             p->slots[i].generation = 1;
+        }
     }
 }
 
 static int valid(const struct ah_pool *p, struct ah_handle h)
 {
     if (!p || h.index >= 3 || h.epoch != p->epoch || !h.generation)
+    {
         return 0;
+    }
     const struct ah_slot *s = p->slots + h.index;
     return s->occupied && h.generation == s->generation;
 }
@@ -26,8 +30,11 @@ enum ah_result ah_allocate(struct ah_pool *p, unsigned value,
                            struct ah_handle *out)
 {
     if (!p || !out || !p->epoch)
+    {
         return AH_INVALID;
+    }
     for (unsigned i = 0; i < 3; ++i)
+    {
         if (!p->slots[i].occupied && !p->slots[i].retired)
         {
             p->slots[i].occupied = 1;
@@ -35,6 +42,7 @@ enum ah_result ah_allocate(struct ah_pool *p, unsigned value,
             *out = (struct ah_handle){i, p->slots[i].generation, p->epoch};
             return AH_OK;
         }
+    }
     return AH_FULL;
 }
 
@@ -42,9 +50,13 @@ enum ah_result ah_read(const struct ah_pool *p, struct ah_handle h,
                        unsigned *out)
 {
     if (!p || !out)
+    {
         return AH_INVALID;
+    }
     if (!valid(p, h))
+    {
         return AH_STALE;
+    }
     *out = p->slots[h.index].value;
     return AH_OK;
 }
@@ -52,18 +64,26 @@ enum ah_result ah_read(const struct ah_pool *p, struct ah_handle h,
 enum ah_result ah_release(struct ah_pool *p, struct ah_handle h)
 {
     if (!p)
+    {
         return AH_INVALID;
+    }
     if (!valid(p, h))
+    {
         return AH_STALE;
+    }
     struct ah_slot *s = p->slots + h.index;
     s->occupied = 0;
 #ifdef AH_MUTANT_WRAP
     s->generation = s->generation == 3 ? 1 : s->generation + 1;
 #else
     if (s->generation == 3)
+    {
         s->retired = 1;
+    }
     else
+    {
         ++s->generation;
+    }
 #endif
     return AH_OK;
 }
@@ -71,9 +91,13 @@ enum ah_result ah_release(struct ah_pool *p, struct ah_handle h)
 enum ah_result ah_enter(struct ah_pool *p)
 {
     if (!p || !p->epoch)
+    {
         return AH_INVALID;
+    }
     if (p->borrowers == 3)
+    {
         return AH_FULL;
+    }
     ++p->borrowers;
     return AH_OK;
 }
@@ -81,7 +105,9 @@ enum ah_result ah_enter(struct ah_pool *p)
 enum ah_result ah_leave(struct ah_pool *p)
 {
     if (!p || !p->borrowers)
+    {
         return AH_INVALID;
+    }
     --p->borrowers;
     return AH_OK;
 }
@@ -89,16 +115,26 @@ enum ah_result ah_leave(struct ah_pool *p)
 enum ah_result ah_reuse(struct ah_pool *p)
 {
     if (!p || !p->epoch)
+    {
         return AH_INVALID;
+    }
 #ifndef AH_MUTANT_QUIESCENCE
     if (p->borrowers)
+    {
         return AH_BUSY;
+    }
 #endif
     for (unsigned i = 0; i < 3; ++i)
+    {
         if (p->slots[i].occupied)
+        {
             return AH_BUSY;
+        }
+    }
     if (p->epoch == 3)
+    {
         return AH_FULL;
+    }
     unsigned next = p->epoch + 1;
     ah_pool_init(p);
     p->epoch = next;
@@ -125,10 +161,14 @@ enum ah_result ah_shared_create(unsigned value, struct ah_stats *stats,
                                 struct ah_shared **out)
 {
     if (!stats || !out)
+    {
         return AH_INVALID;
+    }
     struct ah_shared *s = malloc(sizeof *s);
     if (!s)
+    {
         return AH_NOMEM;
+    }
     unsigned *p = malloc(sizeof *p);
     if (!p)
     {
@@ -155,22 +195,32 @@ enum ah_result ah_shared_create(unsigned value, struct ah_stats *stats,
 enum ah_result ah_promote(struct ah_shared *s)
 {
     if (!s)
+    {
         return AH_INVALID;
+    }
     pthread_mutex_lock(&s->lock);
     enum ah_result result = AH_OK;
 #ifdef AH_MUTANT_RESURRECT
     if (s->strong == 0)
+    {
         s->strong = 1;
+    }
 #else
     if (!s->strong)
+    {
         result = AH_DEAD;
+    }
 #endif
     if (result == AH_OK)
     {
         if (s->strong == 3)
+        {
             result = AH_FULL;
+        }
         else
+        {
             ++s->strong;
+        }
     }
     pthread_mutex_unlock(&s->lock);
     return result;
@@ -184,7 +234,9 @@ enum ah_result ah_retain(struct ah_shared *s)
 enum ah_result ah_drop(struct ah_shared *s)
 {
     if (!s)
+    {
         return AH_INVALID;
+    }
     pthread_mutex_lock(&s->lock);
     if (!s->strong)
     {
@@ -201,14 +253,18 @@ enum ah_result ah_drop(struct ah_shared *s)
     int last = !s->weak;
     pthread_mutex_unlock(&s->lock);
     if (last)
+    {
         dispose(s);
+    }
     return AH_OK;
 }
 
 enum ah_result ah_weak_retain(struct ah_shared *s)
 {
     if (!s)
+    {
         return AH_INVALID;
+    }
     pthread_mutex_lock(&s->lock);
     enum ah_result result = AH_FULL;
     if (s->weak < 3)
@@ -223,7 +279,9 @@ enum ah_result ah_weak_retain(struct ah_shared *s)
 enum ah_result ah_weak_drop(struct ah_shared *s)
 {
     if (!s)
+    {
         return AH_INVALID;
+    }
     pthread_mutex_lock(&s->lock);
     if (s->weak <= (s->strong ? 1u : 0u))
     {
@@ -233,14 +291,18 @@ enum ah_result ah_weak_drop(struct ah_shared *s)
     int last = !--s->weak;
     pthread_mutex_unlock(&s->lock);
     if (last)
+    {
         dispose(s);
+    }
     return AH_OK;
 }
 
 enum ah_result ah_counts(struct ah_shared *s, unsigned *strong, unsigned *weak)
 {
     if (!s || !strong || !weak)
+    {
         return AH_INVALID;
+    }
     pthread_mutex_lock(&s->lock);
     *strong = s->strong;
     *weak = s->weak;
@@ -251,15 +313,23 @@ enum ah_result ah_counts(struct ah_shared *s, unsigned *strong, unsigned *weak)
 enum ah_result ah_add(struct ah_shared *s, unsigned value)
 {
     if (!s)
+    {
         return AH_INVALID;
+    }
     pthread_mutex_lock(&s->lock);
     enum ah_result result = AH_OK;
     if (!s->strong)
+    {
         result = AH_DEAD;
+    }
     else if (value > UINT_MAX - *s->payload)
+    {
         result = AH_FULL;
+    }
     else
+    {
         *s->payload += value;
+    }
     pthread_mutex_unlock(&s->lock);
     return result;
 }

@@ -60,14 +60,20 @@ static void chained(void *arg, enum msg_status status, struct mfo_value value)
     CHECK(((struct msg_payload *)value.data)->number == 42);
     counts->callbacks++;
     if (next)
+    {
         next->value = value;
+    }
     else
+    {
         mfo_drop(&value);
+    }
     counts->frees++;
     free(owner);
     /* Successor observes ownership already transferred, predecessor no longer live. */
     if (next)
+    {
         CHECK(mfo_start(&next->op) == MSG_OK);
+    }
 }
 
 struct msg_later

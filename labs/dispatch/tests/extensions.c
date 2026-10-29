@@ -55,7 +55,9 @@ static void nominal(void)
     CHECK(ds_measure(DS_RECEIVER(count_receiver(&i, &calls)), &out) == DS_OK &&
           calls == 1);
     for (number = -8; number <= 8; ++number)
+    {
         CHECK(ds_measure(DS_RECEIVER(&i), &out) == DS_OK && out == number);
+    }
     unsigned char span[16] = {0};
     for (size_t n = 0; n <= 16; ++n)
     {
@@ -77,7 +79,9 @@ static int read_part(void *ctx, unsigned char *p, size_t capacity, size_t *out)
     struct ds_test_reader *r = ctx;
     ++r->calls;
     for (size_t i = 0; i < r->count && i < capacity; ++i)
+    {
         p[i] = (unsigned char)(65 + i);
+    }
     *out = r->count;
     return r->status;
 }
@@ -85,6 +89,7 @@ static int read_part(void *ctx, unsigned char *p, size_t capacity, size_t *out)
 static void progress(void)
 {
     for (int status = 0; status <= 1; ++status)
+    {
         for (size_t n = 0; n <= 16; ++n)
         {
             struct ds_test_reader r = {n, status ? DS_FAILED : DS_OK, 0};
@@ -95,8 +100,11 @@ static void progress(void)
             CHECK(result.status == r.status && result.count == n &&
                   r.calls == 1);
             for (size_t i = 0; i < 16; ++i)
+            {
                 CHECK(buffer[i] == (i < n ? 65 + i : 99));
+            }
         }
+    }
     struct ds_test_reader r = {0, DS_EMPTY, 0};
     CHECK(ds_read_progress((struct ds_reader){&r, read_part}, NULL, 0).status ==
               DS_EMPTY &&
@@ -140,7 +148,9 @@ static struct ds_owned_result body(struct ds_resource resource, int arg)
     CHECK(r->live);
     ++r->calls;
     if (arg == 0)
+    {
         return (struct ds_owned_result){DS_FAILED, 0, resource};
+    }
     int value = r->value;
     resource.drop(resource.object);
     return (struct ds_owned_result){arg == 1 ? DS_OK : DS_RANGE, value, {0}};
@@ -204,14 +214,18 @@ static int copy_resource(void *context, const void *source, void **out)
     const struct ds_test_resource *r = source;
     ++p->attempts;
     if (p->fail_at && p->attempts == p->fail_at)
+    {
         return DS_FAILED;
+    }
     for (unsigned i = 0; i < 8; ++i)
+    {
         if (!p->rows[i].live)
         {
             p->rows[i] = (struct ds_test_resource){1, 0, 0, r->value};
             *out = &p->rows[i];
             return DS_OK;
         }
+    }
     return DS_FULL;
 }
 
@@ -228,14 +242,18 @@ static unsigned live(const struct resource_pool *p)
 {
     unsigned n = 0;
     for (unsigned i = 0; i < 8; ++i)
+    {
         n += p->rows[i].live;
+    }
     return n;
 }
 
 static int thunk(const unsigned char *p, size_t n, int arg, int *out)
 {
     if (!n || arg < 0 || arg > 100)
+    {
         return DS_INVALID;
+    }
     *out = p[0] + arg;
     return DS_OK;
 }
@@ -254,7 +272,9 @@ static void clone_case(unsigned cut, size_t n, int emit)
     ds_clone_capture_init(&dest, ds_counted_bytes(&dst_pool), ops);
     unsigned char bytes[20];
     for (size_t i = 0; i < 20; ++i)
+    {
         bytes[i] = (unsigned char)(i + 5);
+    }
     CHECK(ds_clone_capture_adopt(&source, bytes, n, thunk, &resources.rows[0],
                                  &resources.rows[1]) == DS_OK);
     int status = ds_clone_capture(&dest, &source);
@@ -271,10 +291,14 @@ static void clone_case(unsigned cut, size_t n, int emit)
         CHECK(!dest.erased.active && !dest.parts[0] && !dest.parts[1] &&
               live(&resources) == 2 && dst_pool.live == 0);
         if (cut == 2)
+        {
             CHECK(resources.drops == 1 && resources.log[0] == 7);
+        }
         if (cut == 3)
+        {
             CHECK(resources.drops == 2 && resources.log[0] == 8 &&
                   resources.log[1] == 7);
+        }
     }
     else
     {
@@ -283,8 +307,10 @@ static void clone_case(unsigned cut, size_t n, int emit)
         CHECK(ds_erased_call(&dest.erased, 3, &value) == DS_OK && value == 8);
     }
     if (emit)
+    {
         printf("C %u %zu %d %u %u %u %zu\n", cut, n, status, resources.attempts,
                resources.drops, live(&resources), dst_pool.live);
+    }
     ds_clone_capture_drop(&dest);
     ds_clone_capture_drop(&dest);
     CHECK(live(&resources) == 2);
@@ -296,16 +322,25 @@ static void clone_case(unsigned cut, size_t n, int emit)
 static void clones(void)
 {
     for (unsigned cut = 0; cut <= 3; ++cut)
+    {
         for (size_t n = 8; n <= 20; n += 12)
+        {
             clone_case(cut, n, 0);
+        }
+    }
 }
 
 static void oracle(void)
 {
     for (unsigned cut = 0; cut <= 3; ++cut)
+    {
         for (size_t n = 8; n <= 20; n += 12)
+        {
             clone_case(cut, n, 1);
+        }
+    }
     for (int status = 0; status <= 1; ++status)
+    {
         for (size_t n = 0; n <= 16; ++n)
         {
             struct ds_test_reader r = {n, status ? DS_FAILED : DS_OK, 0};
@@ -314,10 +349,13 @@ static void oracle(void)
                 ds_read_progress((struct ds_reader){&r, read_part}, b, 16);
             unsigned sum = 0;
             for (size_t i = 0; i < p.count; ++i)
+            {
                 sum += b[i];
+            }
             printf("P %d %zu %d %zu %u %u\n", status, n, p.status, p.count,
                    r.calls, sum);
         }
+    }
 }
 
 int main(int argc, char **argv)
@@ -325,16 +363,28 @@ int main(int argc, char **argv)
     CHECK(argc == 2);
     test_name = argv[1];
     if (!strcmp(argv[1], "nominal"))
+    {
         nominal();
+    }
     else if (!strcmp(argv[1], "progress"))
+    {
         progress();
+    }
     else if (!strcmp(argv[1], "owned_closure"))
+    {
         owned_closure();
+    }
     else if (!strcmp(argv[1], "clone_pair"))
+    {
         clones();
+    }
     else if (!strcmp(argv[1], "oracle"))
+    {
         oracle();
+    }
     else
+    {
         CHECK(0);
+    }
     return 0;
 }

@@ -24,11 +24,17 @@ static ptrdiff_t write_sink(void *v, const unsigned char *b, size_t n)
     struct ac_sink *s = v;
     s->calls++;
     if (s->special)
+    {
         return s->special;
+    }
     if (n > s->quota)
+    {
         n = s->quota;
+    }
     if (s->used + n > sizeof s->data)
+    {
         return -1;
+    }
     memcpy(s->data + s->used, b, n);
     s->used += n;
     return (ptrdiff_t)n;
@@ -37,6 +43,7 @@ static ptrdiff_t write_sink(void *v, const unsigned char *b, size_t n)
 int main(void)
 {
     for (size_t n = 0; n <= 64; n++)
+    {
         for (size_t quota = 1; quota <= 7; quota++)
         {
             unsigned char input[64];
@@ -59,7 +66,9 @@ int main(void)
                 int r = sf_pump(h, write_sink, &sink, 1, &accepted);
                 C(r == SF_PENDING || r == SF_DONE);
                 if (r == SF_DONE)
+                {
                     break;
+                }
             }
             C(sink.used == n + 2 && sink.data[0] == n &&
               sink.data[n + 1] == sum && memcmp(input, sink.data + 1, n) == 0 &&
@@ -68,6 +77,7 @@ int main(void)
             C(sf_pump(h, write_sink, &sink, 1, &accepted) == SF_DONE &&
               sink.calls == calls);
         }
+    }
     struct sf_stream s;
     sf_init(&s);
     struct sf_handle old, h;

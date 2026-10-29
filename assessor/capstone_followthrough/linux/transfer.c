@@ -44,7 +44,9 @@ int main(void)
         {
             struct cp_message m = {(uint16_t)(300 + session), 32, {0}};
             for (unsigned i = 0; i < 32; ++i)
+            {
                 m.payload[i] = (unsigned char)(i % 5 == 0 ? 0xa5 : i + session);
+            }
             unsigned char wire[42];
             size_t n, used;
             CHECK(cp_encode(&m, wire, 42, &n) == CP_OK);

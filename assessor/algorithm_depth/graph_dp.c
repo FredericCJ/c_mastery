@@ -6,14 +6,22 @@ static int graph_valid(const struct cd_csr *g)
 {
     if (!g || g->vertices > 8 || g->count > 32 || g->offset[0] ||
         g->offset[g->vertices] != g->count)
+    {
         return 0;
+    }
     for (unsigned v = 0; v < g->vertices; ++v)
     {
         if (g->offset[v] > g->offset[v + 1] || g->offset[v + 1] > g->count)
+        {
             return 0;
+        }
         for (unsigned e = g->offset[v]; e < g->offset[v + 1]; ++e)
+        {
             if (g->edges[e].from != v || g->edges[e].to >= g->vertices)
+            {
                 return 0;
+            }
+        }
     }
     return 1;
 }
@@ -34,9 +42,13 @@ enum ad_status ad_reachable_stack(const struct cd_csr *g, unsigned start,
                                   unsigned *out)
 {
     if (!graph_valid(g) || !out || start >= g->vertices)
+    {
         return AD_INVALID;
+    }
     if (capacity < g->vertices || !stack)
+    {
         return AD_SPACE;
+    }
     unsigned seen = 1u << start, used = 1;
     stack[0] = start;
     while (used)
@@ -62,18 +74,26 @@ enum ad_status ad_bfs(const struct cd_csr *g, unsigned start, unsigned forest,
 {
     if (!graph_valid(g) || !out || forest > 1 ||
         (g->vertices && start >= g->vertices))
+    {
         return AD_INVALID;
+    }
     if (capacity < g->vertices || (g->vertices && !queue))
+    {
         return AD_SPACE;
+    }
     struct ad_traversal t = empty();
     unsigned seen = 0;
     for (unsigned pass = 0; pass < (forest ? g->vertices : 1u); ++pass)
     {
         if (!g->vertices)
+        {
             break;
+        }
         unsigned root = pass ? ((pass <= start) ? pass - 1 : pass) : start;
         if (seen & (1u << root))
+        {
             continue;
+        }
         unsigned head = 0, tail = 1;
         queue[0] = root;
         seen |= 1u << root;
@@ -83,7 +103,9 @@ enum ad_status ad_bfs(const struct cd_csr *g, unsigned start, unsigned forest,
         while (head < tail)
         {
             if (t.peak < tail - head)
+            {
                 t.peak = tail - head;
+            }
             unsigned v = queue[head++];
             t.order[t.count++] = v;
             for (unsigned e = g->offset[v]; e < g->offset[v + 1]; ++e)
@@ -110,19 +132,27 @@ enum ad_status ad_dfs(const struct cd_csr *g, unsigned start, unsigned forest,
 {
     if (!graph_valid(g) || !out || forest > 1 ||
         (g->vertices && start >= g->vertices))
+    {
         return AD_INVALID;
+    }
     /* Conservative admission gives unchanged output before any frontier write. */
     if (capacity < g->vertices || (g->vertices && !frames))
+    {
         return AD_SPACE;
+    }
     struct ad_traversal t = empty();
     unsigned seen = 0;
     for (unsigned pass = 0; pass < (forest ? g->vertices : 1u); ++pass)
     {
         if (!g->vertices)
+        {
             break;
+        }
         unsigned root = pass ? ((pass <= start) ? pass - 1 : pass) : start;
         if (seen & (1u << root))
+        {
             continue;
+        }
         unsigned used = 1;
         frames[0] = (struct ad_frame){root, g->offset[root]};
         seen |= 1u << root;
@@ -133,7 +163,9 @@ enum ad_status ad_dfs(const struct cd_csr *g, unsigned start, unsigned forest,
         while (used)
         {
             if (t.peak < used)
+            {
                 t.peak = used;
+            }
             struct ad_frame *f = &frames[used - 1];
             if (f->next == g->offset[f->vertex + 1])
             {
@@ -165,18 +197,26 @@ enum ad_status ad_topological(const struct cd_csr *g, unsigned out[8])
     }
     unsigned degree[8] = {0}, order[8] = {0}, done = 0;
     for (unsigned e = 0; e < g->count; ++e)
+    {
         ++degree[g->edges[e].to];
+    }
     for (unsigned at = 0; at < g->vertices; ++at)
     {
         unsigned v = 0;
         while (v < g->vertices && ((done & (1u << v)) || degree[v]))
+        {
             ++v;
+        }
         if (v == g->vertices)
+        {
             return AD_FAILED;
+        }
         done |= 1u << v;
         order[at] = v;
         for (unsigned e = g->offset[v]; e < g->offset[v + 1]; ++e)
+        {
             --degree[g->edges[e].to];
+        }
     }
     for (unsigned i = 0; i < 8; ++i)
     {
@@ -191,10 +231,16 @@ enum ad_status ad_dijkstra(const struct cd_csr *g, unsigned start,
 {
     if (!graph_valid(g) || !out || !previous || start >= g->vertices ||
         limit == UINT64_MAX)
+    {
         return AD_INVALID;
+    }
     for (unsigned e = 0; e < g->count; ++e)
+    {
         if (g->edges[e].weight < 0)
+        {
             return AD_INVALID;
+        }
+    }
     uint64_t distance[8];
     unsigned pred[8], done = 0;
     for (unsigned i = 0; i < 8; ++i)
@@ -208,18 +254,26 @@ enum ad_status ad_dijkstra(const struct cd_csr *g, unsigned start,
     {
         unsigned v = 8;
         for (unsigned i = 0; i < g->vertices; ++i)
+        {
             if (!(done & (1u << i)) && distance[i] != UINT64_MAX &&
                 (v == 8 || distance[i] < distance[v]))
+            {
                 v = i;
+            }
+        }
         if (v == 8)
+        {
             break;
+        }
         done |= 1u << v;
         for (unsigned e = g->offset[v]; e < g->offset[v + 1]; ++e)
         {
             unsigned w = g->edges[e].to;
             uint64_t weight = (unsigned)g->edges[e].weight;
             if (weight > limit - distance[v])
+            {
                 return AD_OVERFLOW;
+            }
             uint64_t next = distance[v] + weight;
             if (!(done & (1u << w)) && next < distance[w])
             {
@@ -247,7 +301,9 @@ enum ad_status ad_intervals(const struct ad_interval *p, size_t n,
     for (size_t i = 0; i < n; ++i)
     {
         if (p[i].start >= p[i].end)
+        {
             return AD_INVALID;
+        }
         indices[i] = (unsigned)i;
     }
     for (size_t i = 1; i < n; ++i)
@@ -289,17 +345,25 @@ enum ad_status ad_knapsack(const struct ad_item *p, size_t n, unsigned capacity,
         return AD_INVALID;
     }
     for (size_t i = 0; i < n; ++i)
+    {
         if (!p[i].weight)
+        {
             return AD_INVALID;
+        }
+    }
     uint32_t values[33] = {0};
     unsigned reachable[33];
     for (unsigned c = 0; c <= capacity; ++c)
+    {
         reachable[c] = !exact || c == 0;
+    }
     for (size_t i = 0; i < n; ++i)
     {
         unsigned weight = p[i].weight;
         if (weight > capacity)
+        {
             continue;
+        }
         for (unsigned step = 0; step <= capacity - weight; ++step)
         {
             unsigned c =
@@ -307,7 +371,9 @@ enum ad_status ad_knapsack(const struct ad_item *p, size_t n, unsigned capacity,
             if (reachable[c - weight])
             {
                 if (p[i].value > UINT32_MAX - values[c - weight])
+                {
                     return AD_OVERFLOW;
+                }
                 uint32_t candidate = values[c - weight] + p[i].value;
                 if (!reachable[c] || candidate > values[c])
                 {

@@ -15,7 +15,9 @@ int main(void)
 {
     unsigned cases = 0;
     for (unsigned owner = 0; owner < 3; owner++)
+    {
         for (unsigned cut = 0; cut <= 9; cut++)
+        {
             for (int retry = 0; retry <= 1; retry++)
             {
                 struct sx_journal journal = {0};
@@ -29,7 +31,9 @@ int main(void)
                 CHECK(sx_once_enter(&o, (owner + 1) % 3, table, &checksum) ==
                       MB_BUSY);
                 for (unsigned i = 0; i < cut; i++)
+                {
                     CHECK(sx_once_step(&o, owner) == MB_BUSY);
+                }
                 CHECK(sx_once_cancel(&o, (owner + 1) % 3) == MB_STALE);
                 CHECK(sx_once_cancel(&o, owner) == MB_OK &&
                       o.publications == 0 && checksum == 999 && table[0] == 99);
@@ -39,22 +43,30 @@ int main(void)
                     CHECK(sx_once_enter(&o, (owner + 1) % 3, table,
                                         &checksum) == MB_INIT);
                     for (unsigned i = 0; i < 9; i++)
+                    {
                         CHECK(sx_once_step(&o, (owner + 1) % 3) == MB_BUSY);
+                    }
                     CHECK(sx_once_step(&o, (owner + 1) % 3) == MB_OK &&
                           o.attempts == 2 && o.publications == 1 &&
                           journal.effects == 1);
                     CHECK(sx_once_enter(&o, owner, table, &checksum) == MB_OK &&
                           checksum == 484);
                     for (unsigned i = 0; i < 8; i++)
+                    {
                         CHECK(table[i] == 17 * i + 1);
+                    }
                     CHECK(sx_once_cancel(&o, (owner + 1) % 3) == MB_STALE);
                 }
                 else
+                {
                     CHECK(sx_once_enter(&o, (owner + 1) % 3, table,
                                         &checksum) == MB_FAILED &&
                           o.attempts == 1);
+                }
                 cases++;
             }
+        }
+    }
     {
         struct sx_journal j = {0};
         struct sx_once a, b;

@@ -14,9 +14,13 @@ int main(int argc, char **argv)
      * arguments cannot alter the first error. Copy pointer values with their
      * permitted qualification conversion, rather than casting char **. */
     if (count > FT_CAPACITY + 1)
+    {
         count = FT_CAPACITY + 1;
+    }
     for (size_t i = 0; i < count; ++i)
+    {
         tokens[i] = argv[i + 1];
+    }
     enum ft_status s = ft_tokens(tokens, count, 0, &result, &errors);
     if (s == FT_OK || s == FT_EMPTY)
     {

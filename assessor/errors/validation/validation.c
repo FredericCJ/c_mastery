@@ -27,7 +27,9 @@ struct evv_summary evv_validate(const struct evv_input *input, unsigned root,
     }
     unsigned quota[3] = {0}, denominator[3] = {0};
     if (EVV_MUTATION == 1)
+    {
         *output = *input;
+    }
     for (size_t i = 0; i < input->count; ++i)
     {
         er_config c = input->item[i];
@@ -37,11 +39,16 @@ struct evv_summary evv_validate(const struct evv_input *input, unsigned root,
         quota[i] = good[1];
         denominator[i] = good[2];
         for (unsigned field = 0; field < 3; ++field)
+        {
             if (!good[field] && (EVV_MUTATION != 2 || r.total == 0))
+            {
                 emit(&r, errors, capacity, root, (unsigned)i, field + 1);
+            }
+        }
     }
     size_t independent = r.total;
     for (size_t i = 0; i < input->count; ++i)
+    {
         if (quota[i] && denominator[i] &&
             (EVV_MUTATION != 4 || independent == 0))
         {
@@ -52,10 +59,15 @@ struct evv_summary evv_validate(const struct evv_input *input, unsigned root,
                 q / d > input->limit ||
                 (EVV_MUTATION != 3 && q / d == input->limit && q % d != 0);
             if (bad)
+            {
                 emit(&r, errors, capacity, root, (unsigned)i, 4);
+            }
         }
+    }
     r.truncated = EVV_MUTATION == 6 ? 0 : r.stored < r.total;
     if (!r.total)
+    {
         *output = *input;
+    }
     return r;
 }

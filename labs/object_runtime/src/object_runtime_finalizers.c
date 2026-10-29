@@ -3,7 +3,9 @@
 void orf_init(struct orf_heap *h)
 {
     if (h)
+    {
         *h = (struct orf_heap){0};
+    }
 }
 
 enum or_status orf_new(struct orf_heap *h, orf_finalizer_fn cb, void *ctx,

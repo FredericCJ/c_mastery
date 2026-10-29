@@ -18,7 +18,9 @@ int main(void)
     r.value = 0;
     r.present = 0;
     if (!r.present)
+    {
         puts("empty");
+    }
     for (i = 0; i < 3; i++)
     {
         r.value = values[i];

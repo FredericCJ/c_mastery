@@ -36,7 +36,9 @@ int __wrap_pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
         stage = 1;
         CHECK(!pthread_cond_broadcast(&changed));
         while (stage != 2)
+        {
             CHECK(!__real_pthread_cond_wait(&changed, &gate));
+        }
         CHECK(!pthread_mutex_unlock(&gate));
         CHECK(!pthread_mutex_lock(mutex));
     }
@@ -60,7 +62,9 @@ static void *thief(void *arg)
     (void)arg;
     CHECK(!pthread_mutex_lock(&gate));
     while (stage != 1)
+    {
         CHECK(!pthread_cond_wait(&changed, &gate));
+    }
     CHECK(!pthread_mutex_unlock(&gate));
     struct cpa_handle h;
     struct cp_message m;
@@ -82,7 +86,9 @@ static void wait_for(unsigned wakes)
         int ok = q.waiters == 1 && q.wakes >= wakes;
         CHECK(!pthread_mutex_unlock(&q.mutex));
         if (ok)
+        {
             return;
+        }
         struct timespec t = {0, 1000000};
         nanosleep(&t, 0);
     }

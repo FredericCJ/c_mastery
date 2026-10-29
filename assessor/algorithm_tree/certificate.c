@@ -20,7 +20,9 @@ static void begin(struct at_pool *p, struct at_work *w)
     at_pool = p;
     at_work = w;
     if (w)
+    {
         *w = (struct at_work){0};
+    }
 }
 
 static void end(void)
@@ -34,7 +36,9 @@ int at_contains(struct at_pool *p, int32_t key, unsigned free_list,
 {
     if (!p || free_list > 1 ||
         (p->allocation_mode != UINT_MAX && p->allocation_mode != free_list))
+    {
         return -1;
+    }
     begin(p, w);
     int found = free_list ? at_free_contains(&p->tree, key)
                           : at_observed_contains(&p->tree, key);
@@ -47,7 +51,9 @@ int at_insert(struct at_pool *p, int32_t key, unsigned free_list,
 {
     if (!p || free_list > 1 ||
         (p->allocation_mode != UINT_MAX && p->allocation_mode != free_list))
+    {
         return ALGO_BAD;
+    }
     begin(p, w);
     int duplicate = free_list ? at_free_contains(&p->tree, key)
                               : at_observed_contains(&p->tree, key);
@@ -68,7 +74,9 @@ int at_insert(struct at_pool *p, int32_t key, unsigned free_list,
                            : at_observed_insert(&p->tree, key);
     end();
     if (status == ALGO_OK)
+    {
         p->allocation_mode = free_list;
+    }
     return status;
 }
 
@@ -77,25 +85,37 @@ int at_delete(struct at_pool *p, int32_t key, unsigned free_list,
 {
     if (!p || free_list > 1 ||
         (p->allocation_mode != UINT_MAX && p->allocation_mode != free_list))
+    {
         return ALGO_BAD;
+    }
     unsigned live[64];
     for (unsigned i = 0; i < 64; ++i)
+    {
         live[i] = p->tree.nodes[i].live;
+    }
     begin(p, w);
     int status = free_list ? at_free_delete(&p->tree, key)
                            : at_observed_delete(&p->tree, key);
     end();
     if (status == ALGO_OK)
+    {
         for (unsigned i = 0; i < 64; ++i)
+        {
             if (live[i] && !p->tree.nodes[i].live)
+            {
                 ++p->generation[i];
+            }
+        }
+    }
     return status;
 }
 
 int at_certificate(const struct at_pool *p, struct at_certificate *out)
 {
     if (!p || !out)
+    {
         return ALGO_BAD;
+    }
     struct at_certificate c = {0};
     c.root = p->tree.root;
     c.capacity = 64;
@@ -107,17 +127,23 @@ int at_certificate(const struct at_pool *p, struct at_certificate *out)
             n.key, n.left, n.right, -1, n.height, n.live, 0, p->generation[i]};
     }
     for (unsigned i = 0; i < 64; ++i)
+    {
         if (c.nodes[i].live)
         {
             int child[2] = {c.nodes[i].left, c.nodes[i].right};
             for (unsigned j = 0; j < 2; ++j)
+            {
                 if (child[j] >= 0)
                 {
                     if (child[j] >= 64)
+                    {
                         return ALGO_BAD;
+                    }
                     c.nodes[child[j]].parent = (int)i;
                 }
+            }
         }
+    }
     *out = c;
     return ALGO_OK;
 }
@@ -125,7 +151,9 @@ int at_certificate(const struct at_pool *p, struct at_certificate *out)
 int at_cd_certificate(const struct cd_tree *p, struct at_certificate *out)
 {
     if (!p || !out)
+    {
         return ALGO_BAD;
+    }
     struct at_certificate c = {0};
     c.root = p->root;
     c.capacity = 32;
@@ -174,10 +202,14 @@ static int visit(struct at_check *x, int at, int parent, int64_t low,
     int h = 1 + (l > r ? l : r);
 #ifndef AT_MUTANT_HEIGHT
     if (x->policy != 2 && n.height != h)
+    {
         x->failed = 1;
+    }
 #endif
     if (x->policy == 1 && (l - r > 1 || r - l > 1))
+    {
         x->failed = 1;
+    }
     if (x->policy == 2)
     {
         if (lb != rb ||
@@ -185,11 +217,15 @@ static int visit(struct at_check *x, int at, int parent, int64_t low,
                         x->c->nodes[n.left].red) ||
                        (n.right >= 0 && n.right < (int)x->c->capacity &&
                         x->c->nodes[n.right].red))))
+        {
             x->failed = 1;
+        }
         *black = lb + !n.red;
     }
     else
+    {
         *black = 0;
+    }
     return h;
 }
 
@@ -197,22 +233,30 @@ int at_check(const struct at_certificate *c, unsigned policy, int *out)
 {
     if (!c || !out || !c->capacity || c->capacity > 64 ||
         c->count > c->capacity || policy > 2)
+    {
         return ALGO_BAD;
+    }
     struct at_check x = {.c = c, .policy = policy};
     int black = 0, h = visit(&x, c->root, -1, INT64_MIN, INT64_MAX, &black);
     unsigned count = 0;
     for (unsigned i = 0; i < c->capacity; ++i)
     {
         if (x.seen[i] != (c->nodes[i].live != 0))
+        {
             x.failed = 1;
+        }
         count += x.seen[i];
     }
     if (count != c->count ||
         (policy == 2 && c->root >= 0 && c->root < (int)c->capacity &&
          c->nodes[c->root].red))
+    {
         x.failed = 1;
+    }
     if (x.failed)
+    {
         return ALGO_BAD;
+    }
     *out = h;
     return ALGO_OK;
 }

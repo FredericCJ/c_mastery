@@ -19,7 +19,9 @@ void cf_pendsv(void)
 {
     struct cpf_sample sample = {73, 0xa5, 6};
     if (cf_acquire(&target_service, 1, &sample) == CF_OK)
+    {
         irq_seen = 1;
+    }
 }
 
 static int target_clock(void *context)
@@ -56,7 +58,9 @@ void cf_fault_handler(uint32_t *words)
 {
     if (W(0xe000ed28) != 0x82u ||
         words[6] != (uint32_t)(uintptr_t)cf_denied_instruction)
+    {
         cf_trap();
+    }
     words[6] = (uint32_t)(uintptr_t)cf_denied_resume;
     fault_seen = 1;
     W(0xe000ed28) = 0x82u;
@@ -74,7 +78,9 @@ void cf_svc_handler(uint32_t *words)
 static int mpu(void)
 {
     if (((W(0xe000ed90) >> 8) & 255) < 3)
+    {
         return 0;
+    }
     W(0xe000ed94) = 0;
     guard[0] = 17;
     W(0xe000ed98) = 0;
@@ -118,20 +124,28 @@ void cf_target_main(void)
         end(41);
     }
     if (cf_boot(&target_service, target_clock, 0, 1) != CF_OK)
+    {
         cf_trap();
+    }
     W(0xe000ed04) = 1u << 28;
     __asm__ volatile("dsb\n\tisb" ::: "memory");
     for (unsigned n = 0; n < 1000 && !irq_seen; ++n)
+    {
         __asm__ volatile("nop");
+    }
     if (!irq_seen || cf_foreground(&target_service, 1) != CF_OK ||
         target_service.core.accepted != 1)
+    {
         cf_trap();
+    }
     for (unsigned i = 0; i < 8; ++i)
+    {
         if (cf_checks(i))
         {
             emit("CAP_MCU_CORE_REJECT\n");
             end(41);
         }
+    }
     if (!mpu())
     {
         emit("CAP_MCU_MPU_REJECT\n");

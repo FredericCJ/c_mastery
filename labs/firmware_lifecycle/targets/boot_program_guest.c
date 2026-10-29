@@ -18,7 +18,9 @@ static _Noreturn void exit_guest(unsigned pass)
     register uint32_t *r3 __asm__("r1") = code;
     __asm__ volatile("bkpt 0xab" : "+r"(r2) : "r"(r3) : "memory");
     for (;;)
+    {
         __asm__ volatile("wfi");
+    }
 }
 
 void fp_handler(uint32_t *frame, uint32_t ret)
@@ -26,7 +28,9 @@ void fp_handler(uint32_t *frame, uint32_t ret)
     if (ret != 0xFFFFFFF9u || W(0xE000ED28u) != 0x82u ||
         W(0xE000ED34u) != 0x20010000u ||
         frame[6] != (uint32_t)(uintptr_t)fp_store)
+    {
         exit_guest(0);
+    }
     frame[6] = (uint32_t)(uintptr_t)fp_abort;
     W(0xE000ED28u) = 0x82u;
     __asm__ volatile("dsb sy\n\tisb sy" ::: "memory");
@@ -43,7 +47,9 @@ void fp_main(void)
     W(0xE000ED94u) = 5;
     __asm__ volatile("dsb sy\n\tisb sy" ::: "memory");
     if (fp_raw(0x20010000u, 9) || W(0x20010000u) != 7)
+    {
         exit_guest(0);
+    }
     fb_program_mode();
     unsigned permitted = fp_raw(0x20010000u, 11);
     exit_guest(permitted && W(0x20010000u) == 11);

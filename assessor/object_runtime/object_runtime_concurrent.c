@@ -4,16 +4,22 @@
 static void unlock(struct orc_concurrent *c)
 {
     if (pthread_mutex_unlock(&c->mutex))
+    {
         abort();
+    }
 }
 
 enum or_status orcm_concurrent_init(struct orc_concurrent *c,
                                     enum orc_policy policy)
 {
     if (!c || policy > ORC_RESTART || policy < ORC_BLACK)
+    {
         return OR_INVALID;
+    }
     if (pthread_mutex_init(&c->mutex, NULL))
+    {
         return OR_FULL;
+    }
     orcm_init(&c->heap, policy);
     c->initialized = 1;
     return OR_OK;
@@ -26,9 +32,13 @@ enum or_status orcm_concurrent_call(struct orc_concurrent *c,
     struct orc_response r = {0};
     enum or_status s;
     if (!c || !q || !out || !c->initialized)
+    {
         return OR_INVALID;
+    }
     if (pthread_mutex_lock(&c->mutex))
+    {
         return OR_STATE;
+    }
     switch (q->operation)
     {
         case ORC_ALLOCATE:
@@ -71,7 +81,9 @@ enum or_status orcm_concurrent_call(struct orc_concurrent *c,
             break;
     }
     if (s == OR_OK || s == OR_DONE)
+    {
         *out = r;
+    }
     unlock(c);
     return s;
 }
@@ -79,9 +91,13 @@ enum or_status orcm_concurrent_call(struct orc_concurrent *c,
 enum or_status orcm_concurrent_close(struct orc_concurrent *c)
 {
     if (!c || !c->initialized)
+    {
         return OR_INVALID;
+    }
     if (pthread_mutex_lock(&c->mutex))
+    {
         return OR_STATE;
+    }
     if ((c->heap.graph.live || c->heap.graph.active) &&
         c->heap.revision != ORC_REV_LIMIT)
     {
@@ -90,7 +106,9 @@ enum or_status orcm_concurrent_close(struct orc_concurrent *c)
     }
     unlock(c);
     if (pthread_mutex_destroy(&c->mutex))
+    {
         return OR_STATE;
+    }
     c->initialized = 0;
     return OR_OK;
 }

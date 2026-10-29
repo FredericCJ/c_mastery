@@ -39,7 +39,9 @@ static void wr(void *p, unsigned reg, uintptr_t value)
     if (reg == PS_DR)
     {
         if (m->writes < 16)
+        {
             m->wire[m->writes] = (uint8_t)value;
+        }
         m->writes++;
         m->r[PS_SR] = (m->r[PS_SR] & (PS_RXNE | PS_OVR)) | PS_BSY;
         return;
@@ -56,9 +58,13 @@ static void wr(void *p, unsigned reg, uintptr_t value)
     }
     m->r[reg] = (uint32_t)value;
     if (reg == PS_TX_START)
+    {
         m->r[PS_TX_EN] = 1;
+    }
     if (reg == PS_RX_START)
+    {
         m->r[PS_RX_EN] = 1;
+    }
     if (reg == PS_RESET)
     {
         m->reset++;
@@ -75,9 +81,13 @@ static struct ps_io io(struct mc_model *m)
 static void receive(struct mc_model *m, uint8_t value)
 {
     if (m->r[PS_SR] & PS_RXNE)
+    {
         m->r[PS_SR] |= PS_OVR;
+    }
     else
+    {
         m->r[PS_DR] = value;
+    }
     m->r[PS_SR] |= PS_TXE | PS_RXNE | PS_BSY;
 }
 
@@ -86,7 +96,9 @@ int ss_edges(void)
     unsigned cases = 0;
     uint8_t level[16], sample[16], mosi[16], rx;
     for (unsigned mode = 0; mode < 4; mode++)
+    {
         for (unsigned tx = 0; tx < 256; tx++)
+        {
             for (unsigned peer = 0; peer < 256; peer++)
             {
                 CHECK(sd_spi_edge(mode, (uint8_t)tx, (uint8_t)peer, level,
@@ -100,6 +112,8 @@ int ss_edges(void)
                 }
                 cases++;
             }
+        }
+    }
     uint8_t cmd[3], wire[3] = {0xa6, 0x34, 0x12};
     uint16_t value = 99;
     CHECK(ps_command(1, 3, cmd) == PS_OK && cmd[0] == 0xc3 && !cmd[1] &&
@@ -160,7 +174,9 @@ int ss_queue(void)
         CHECK(ss_take(&q, 1, &result, out) == PS_OK && result.status == PS_OK &&
               result.sent == n && result.received == n);
         for (unsigned i = 0; i < 16; i++)
+        {
             CHECK(out[i] == (i < n ? 0x30 + i : 0xcc));
+        }
         CHECK(q.pending.count == 1 &&
               ss_enqueue(&q, 3, tx, 1, 0, 100, 0, 0) == PS_OK);
         CHECK(ss_run(&q, io(&m), ss_portable_submit, at + 4) == PS_BUSY &&
@@ -170,8 +186,10 @@ int ss_queue(void)
         for (uint32_t token = 2; token <= 3; token++)
         {
             if (token == 3)
+            {
                 CHECK(ss_run(&q, io(&m), ss_portable_submit, tick++) ==
                       PS_BUSY);
+            }
             m.r[PS_SR] = PS_TXE;
             CHECK(ss_event(&q, io(&m), token, tick++) == PS_BUSY);
             receive(&m, 0x44);
@@ -189,7 +207,9 @@ int ss_queue(void)
     {
         flawed.r[PS_SR] |= PS_TXE;
         if (rd(&flawed, PS_SR) & PS_TXE)
+        {
             wr(&flawed, PS_DR, i);
+        }
         receive(&flawed, (uint8_t)(0x11 * (i + 1)));
     }
     CHECK((flawed.r[PS_SR] & PS_OVR) && flawed.r[PS_DR] == 0x11 &&
@@ -226,7 +246,9 @@ int ss_quiescence(void)
         CHECK(ss_reset(&q, io(&m), 1, 9) == PS_BUSY && !m.reset &&
               q.driver.ready);
         for (unsigned i = 0; i < 3; i++)
+        {
             q.slots[0].rx_words[i] = (uint16_t)(0xa0 + i);
+        }
         unsigned first = order ? PS_RX_EN : PS_TX_EN,
                  second = order ? PS_TX_EN : PS_RX_EN;
         m.r[first] = 0;
@@ -325,7 +347,9 @@ int ss_irq_native(void)
 {
     int r = ss_irq_prepare();
     if (r)
+    {
         return r;
+    }
     ss_irq_old_event();
     return ss_irq_verify();
 }
@@ -357,12 +381,18 @@ int ss_device(void)
         /* A short transport is incomplete device framing; do not decode zero padding. */
         unsigned complete = (r.received == 3);
         if (complete)
+        {
             CHECK(ps_decode(1, out, &value) == PS_OK && value == 0x1234);
+        }
         else
+        {
             CHECK(value == 0x7777);
+        }
         CHECK(m.writes == n && m.reads == n && m.wire[0] == 0xc3);
         for (unsigned i = 1; i < n; i++)
+        {
             CHECK(m.wire[i] == 0);
+        }
         ss_values("device", n, r.received, complete, value);
     }
     return 0;

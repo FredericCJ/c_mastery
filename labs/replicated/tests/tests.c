@@ -34,7 +34,9 @@ static int log_test(void)
     }
     log.arena.fail_after = 0;
     while (log.count < 16)
+    {
         CHECK(rp_log_append(&log, log.count, 1) == RP_OK);
+    }
     CHECK(rp_log_append(&log, 1, 2) == RP_FULL && log.count == 16 &&
           log.arena.used == 48);
     return 0;
@@ -56,7 +58,9 @@ static void *project_thread(void *pointer)
         (void)pthread_mutex_lock(&shared->mutex);
         if (rp_project(&shared->projection,
                        (struct rp_event){i, i - 1, (int)i}) != RP_OK)
+        {
             shared->failed = 1;
+        }
         (void)pthread_mutex_unlock(&shared->mutex);
     }
     return NULL;
@@ -151,7 +155,9 @@ static int sets_test(void)
     rp_set_merge(&b, &db);
     CHECK(!rp_set_contains(&b, 2));
     for (i = 1; i < 8; ++i)
+    {
         CHECK(rp_set_add(&a, 0, 0, &da) == RP_OK);
+    }
     CHECK(rp_set_add(&a, 0, 0, &da) == RP_FULL && a.next[0] == 8);
     return 0;
 }
@@ -266,24 +272,44 @@ static int replay_test(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "log"))
+    {
         return log_test();
+    }
     if (!strcmp(argv[1], "projection"))
+    {
         return projection_test();
+    }
     if (!strcmp(argv[1], "clocks"))
+    {
         return clocks_test();
+    }
     if (!strcmp(argv[1], "counters"))
+    {
         return counters_test();
+    }
     if (!strcmp(argv[1], "sets"))
+    {
         return sets_test();
+    }
     if (!strcmp(argv[1], "sequence"))
+    {
         return sequence_test();
+    }
     if (!strcmp(argv[1], "merkle"))
+    {
         return merkle_test();
+    }
     if (!strcmp(argv[1], "wire"))
+    {
         return wire_test();
+    }
     if (!strcmp(argv[1], "replay"))
+    {
         return replay_test();
+    }
     return 2;
 }

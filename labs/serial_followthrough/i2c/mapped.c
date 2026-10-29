@@ -18,12 +18,20 @@ uint32_t pi_test_primask;
 volatile uint32_t *pi_test_register(uint32_t a)
 {
     if (critical && !pi_test_primask)
+    {
         violation = 1;
+    }
     for (unsigned i = 0; i < used; i++)
+    {
         if (addresses[i] == a)
+        {
             return values + i;
+        }
+    }
     if (used == 32)
+    {
         return 0;
+    }
     addresses[used] = a;
     return values + used++;
 }

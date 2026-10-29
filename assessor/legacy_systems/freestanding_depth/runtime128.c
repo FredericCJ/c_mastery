@@ -16,7 +16,9 @@ static u128 value(struct fr_u128 a)
 {
     u128 n = 0;
     for (unsigned i = 4; i > 0; --i)
+    {
         n = (n << 32) | a.limb[i - 1];
+    }
     return n;
 }
 
@@ -26,9 +28,13 @@ u128 __udivmodti4(u128 n, u128 d, u128 *rem)
 {
     struct fr_u128 q, r;
     if (fr_divmod128(limbs(n), limbs(d), &q, &r) != FR_OK)
+    {
         __builtin_trap();
+    }
     if (rem)
+    {
         *rem = value(r);
+    }
     return value(q);
 }
 
@@ -42,7 +48,9 @@ void fr_div64_words(const uint32_t *input, uint32_t *output)
     struct fr_u128 n = {{input[0], input[1], 0, 0}},
                    d = {{input[2], input[3], 0, 0}}, q, r;
     if (fr_divmod128(n, d, &q, &r) != FR_OK)
+    {
         __builtin_trap();
+    }
     output[0] = q.limb[0];
     output[1] = q.limb[1];
     output[2] = r.limb[0];

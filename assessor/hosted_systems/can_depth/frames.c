@@ -6,14 +6,22 @@
 static int valid(const struct ca_frame *f)
 {
     if (!f || f->extended > 1 || f->length > 8 || f->local > 1 || f->own > 1)
+    {
         return 0;
+    }
     if (f->raw_dlc && (f->length != 8 || f->raw_dlc < 9 || f->raw_dlc > 15))
+    {
         return 0;
+    }
     if (f->kind == CA_ERROR)
+    {
         return !f->extended && f->length == CAN_ERR_DLC && !f->raw_dlc &&
                !(f->id & ~CAN_ERR_MASK);
+    }
     if (f->kind != CA_DATA && f->kind != CA_REMOTE)
+    {
         return 0;
+    }
     return !(f->id & ~(f->extended ? CAN_EFF_MASK : CAN_SFF_MASK));
 }
 
@@ -21,7 +29,9 @@ int ca_decode(const void *bytes, size_t length, int flags, struct ca_frame *out)
 {
     if (!bytes || !out || length != CAN_MTU ||
         (flags & (MSG_TRUNC | MSG_CTRUNC)))
+    {
         return -1;
+    }
     struct can_frame raw;
     /* The raw address may be unaligned; no typed overlay or aliasing assumption.
      */
@@ -35,7 +45,9 @@ int ca_decode(const void *bytes, size_t length, int flags, struct ca_frame *out)
     if (raw.can_id & CAN_ERR_FLAG)
     {
         if (raw.can_id & (CAN_EFF_FLAG | CAN_RTR_FLAG))
+        {
             return -1;
+        }
         f.kind = CA_ERROR;
         f.id = raw.can_id & CAN_ERR_MASK;
     }
@@ -46,12 +58,18 @@ int ca_decode(const void *bytes, size_t length, int flags, struct ca_frame *out)
     }
 #ifdef CA_MUTANT_LENGTH
     if (f.length > 8)
+    {
         f.length = 8;
+    }
 #endif
     if (!valid(&f))
+    {
         return -1;
+    }
     if (f.kind != CA_REMOTE)
+    {
         memcpy(f.data, raw.data, f.length);
+    }
     *out = f;
     return 0;
 }
@@ -59,7 +77,9 @@ int ca_decode(const void *bytes, size_t length, int flags, struct ca_frame *out)
 int ca_encode(const struct ca_frame *f, struct can_frame *out)
 {
     if (!out || !valid(f) || f->kind == CA_ERROR)
+    {
         return -1;
+    }
     struct can_frame raw;
     memset(&raw, 0, sizeof raw);
     raw.can_id = f->id | (f->extended ? CAN_EFF_FLAG : 0) |
@@ -67,7 +87,9 @@ int ca_encode(const struct ca_frame *f, struct can_frame *out)
     raw.len = (unsigned char)f->length;
     raw.len8_dlc = (unsigned char)f->raw_dlc;
     if (f->kind == CA_DATA)
+    {
         memcpy(raw.data, f->data, f->length);
+    }
     *out = raw;
     return 0;
 }
@@ -77,7 +99,9 @@ int ca_filter(uint32_t id, unsigned extended, unsigned remote,
 {
     if (!out || extended > 1 || remote > 1 ||
         (id & ~(extended ? CAN_EFF_MASK : CAN_SFF_MASK)))
+    {
         return -1;
+    }
     struct can_filter f = {
         id | (extended ? CAN_EFF_FLAG : 0) | (remote ? CAN_RTR_FLAG : 0),
         CAN_EFF_FLAG | CAN_RTR_FLAG | (extended ? CAN_EFF_MASK : CAN_SFF_MASK)};
@@ -92,7 +116,9 @@ int ca_accept(const struct ca_frame *f, const struct can_filter *filter,
               uint32_t errors)
 {
     if (!valid(f) || !filter || (errors & ~CAN_ERR_MASK))
+    {
         return -1;
+    }
     if (f->kind == CA_ERROR)
     {
 #ifdef CA_MUTANT_ERROR
@@ -112,15 +138,23 @@ int ca_loopback(unsigned sender, unsigned receiver, unsigned enabled,
                 struct ca_frame *out)
 {
     if (sender > 1 || receiver > 1 || enabled > 1 || own > 1 || !out)
+    {
         return -1;
+    }
     int accept = ca_accept(f, filter, errors);
     if (accept < 0)
+    {
         return -1;
+    }
     if (!enabled || !accept)
+    {
         return 0;
+    }
 #ifndef CA_MUTANT_OWN
     if (sender == receiver && !own)
+    {
         return 0;
+    }
 #endif
     *out = *f;
     out->local = 1;

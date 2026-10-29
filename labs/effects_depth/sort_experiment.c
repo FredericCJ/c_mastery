@@ -19,7 +19,9 @@ static int record_cmp(const void *a, const void *b)
     const struct ef_record *x = a, *y = b;
     volatile unsigned checksum = 0;
     for (unsigned i = 0; i < 32; ++i)
+    {
         checksum += x->payload[i] + y->payload[i];
+    }
     (void)checksum;
     return (x->key > y->key) - (x->key < y->key);
 }
@@ -28,7 +30,9 @@ static uint64_t now(void)
 {
     struct timespec t;
     if (clock_gettime(CLOCK_MONOTONIC, &t))
+    {
         abort();
+    }
     return (uint64_t)t.tv_sec * 1000000000u + (uint64_t)t.tv_nsec;
 }
 
@@ -43,9 +47,13 @@ int main(void)
         {
             int a[16];
             for (unsigned i = 0; i < 16; ++i)
+            {
                 a[i] = (int)((i * 11 + repeat) % 7);
+            }
             if (ef_sort(a, 16) != EF_OK)
+            {
                 abort();
+            }
             checksum += (unsigned)a[0];
         }
         uint64_t bounded = now() - start;
@@ -55,7 +63,9 @@ int main(void)
         {
             int a[16];
             for (unsigned i = 0; i < 16; ++i)
+            {
                 a[i] = (int)((i * 11 + repeat) % 7);
+            }
             qsort(a, 16, sizeof *a, cmp);
             checksum += (unsigned)a[0];
         }
@@ -77,8 +87,12 @@ int main(void)
     qsort(records, 16, sizeof *records, record_cmp);
     uint64_t large = now() - start;
     for (unsigned i = 0; i < 16; ++i)
+    {
         if (records[i].key != (int)i)
+        {
             abort();
+        }
+    }
     printf(
         "],\"large_record_ns\":%llu,\"large_record_comparisons\":%u,\"checksum\":%u,\"contract\":\"ascending keys and permutation; qsort stability not assumed\"}\n",
         (unsigned long long)large, comparisons, checksum);

@@ -9,10 +9,14 @@ int pd_lex(const unsigned char *s, size_t n, struct pd_tokens *out,
     struct pd_tokens t = {0};
     size_t p = 0, line = 1, col = 1;
     if ((!s && n) || !out || !d)
+    {
         return PD_INVALID;
+    }
     *d = (struct pd_diagnostic){0};
     if (n > 256)
+    {
         return PD_RANGE;
+    }
     while (p < n)
     {
         size_t begin = p, startcol = col;
@@ -26,7 +30,9 @@ int pd_lex(const unsigned char *s, size_t n, struct pd_tokens *out,
                 col = 1;
             }
             else
+            {
                 ++col;
+            }
             ++p;
             continue;
         }
@@ -120,7 +126,9 @@ static unsigned power(unsigned kind)
 static unsigned expression(struct pd_pratt *p, unsigned minimum, unsigned depth)
 {
     if (p->status)
+    {
         return 0;
+    }
     if (depth > 64)
     {
         p->status = PD_RANGE;
@@ -146,7 +154,9 @@ static unsigned expression(struct pd_pratt *p, unsigned minimum, unsigned depth)
         ++p->pos;
         left = expression(p, 0, depth + 1);
         if (!p->status && p->t->tokens[p->pos].kind == 4)
+        {
             ++p->pos;
+        }
         else
         {
             p->status = PD_NO_MATCH;
@@ -165,7 +175,9 @@ static unsigned expression(struct pd_pratt *p, unsigned minimum, unsigned depth)
         const struct pd_token *op = &p->t->tokens[p->pos++];
         unsigned bp = power(op->kind);
         if (op->kind == 6 && p->right && PD_MUTANT != 5)
+        {
             --bp;
+        }
         unsigned right = expression(p, bp, depth + 1);
         left =
             node(p, op->kind == 5 ? 8 : op->kind, left, right, 0, op->offset);
@@ -177,18 +189,28 @@ int pd_pratt(const struct pd_tokens *t, unsigned right, struct pd_tree *out,
              struct pd_diagnostic *d)
 {
     if (!t || !out || !d || right > 1)
+    {
         return PD_INVALID;
+    }
     *d = (struct pd_diagnostic){0};
     if (!t->count || t->count > 65 || t->tokens[t->count - 1].kind != 7)
+    {
         return PD_INVALID;
+    }
     for (size_t i = 0; i < t->count - 1; ++i)
+    {
         if (t->tokens[i].kind >= 7 ||
             (t->tokens[i].kind == 0 && t->tokens[i].value < 0))
+        {
             return PD_INVALID;
+        }
+    }
     struct pd_pratt p = {.t = t, .right = right, .d = d};
     p.tree.root = expression(&p, 0, 0);
     if (p.status)
+    {
         return p.status;
+    }
     if (p.pos != t->count - 1)
     {
         d->offset = t->tokens[p.pos].offset;
@@ -202,7 +224,9 @@ int pd_pratt(const struct pd_tokens *t, unsigned right, struct pd_tree *out,
 static int checked(int64_t value, int32_t *out)
 {
     if (value < INT32_MIN || value > INT32_MAX)
+    {
         return PD_RANGE;
+    }
     *out = (int32_t)value;
     return PD_OK;
 }
@@ -211,7 +235,9 @@ int pd_evaluate(const struct pd_tree *t, int32_t *out)
 {
     int32_t values[64];
     if (!t || !out || !t->count || t->count > 64 || t->root >= t->count)
+    {
         return PD_INVALID;
+    }
     for (unsigned i = 0; i < t->count; ++i)
     {
         const struct pd_expr *n = &t->nodes[i];
@@ -222,35 +248,55 @@ int pd_evaluate(const struct pd_tree *t, int32_t *out)
             continue;
         }
         if (n->left >= i || (n->kind != 5 && n->right >= i))
+        {
             return PD_INVALID;
+        }
         int32_t a = values[n->left], b = n->kind == 5 ? 0 : values[n->right];
         if (n->kind == 1)
+        {
             rc = checked((int64_t)a + b, &values[i]);
+        }
         else if (n->kind == 2)
+        {
             rc = checked((int64_t)a * b, &values[i]);
+        }
         else if (n->kind == 8)
+        {
             rc = checked((int64_t)a - b, &values[i]);
+        }
         else if (n->kind == 5)
+        {
             rc = checked(-(int64_t)a, &values[i]);
+        }
         else if (n->kind == 6)
         {
             if (b < 0 || b > 31)
+            {
                 return PD_DOMAIN;
+            }
             int32_t value = 1;
             for (int32_t j = 0; j < b; ++j)
             {
                 rc = checked((int64_t)value * a, &value);
                 if (rc)
+                {
                     break;
+                }
             }
             values[i] = value;
         }
         else
+        {
             return PD_INVALID;
+        }
         if (rc && PD_MUTANT != 6)
+        {
             return rc;
+        }
         if (rc)
+        {
             values[i] = 0;
+        }
     }
     *out = values[t->root];
     return PD_OK;

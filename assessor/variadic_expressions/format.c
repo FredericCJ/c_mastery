@@ -15,13 +15,19 @@ static enum tf_status next(struct tf_reader *r, struct tf_arg *out)
 {
     out->tag = r->list ? va_arg(*r->list, int) : r->array[r->position].tag;
     if (out->tag == 'I')
+    {
         out->integer =
             r->list ? va_arg(*r->list, int) : r->array[r->position].integer;
+    }
     else if (out->tag == 'D')
+    {
         out->real =
             r->list ? va_arg(*r->list, double) : r->array[r->position].real;
+    }
     else
+    {
         return TF_INVALID; /* No unknown payload is consumed. */
+    }
     ++r->position;
     return TF_OK;
 }
@@ -43,13 +49,19 @@ static enum tf_status sizing(struct tf_reader *r, unsigned count,
         struct tf_arg arg = {0};
         enum tf_status status = next(r, &arg);
         if (status != TF_OK)
+        {
             return status;
+        }
         int n = convert(scalar, arg, NULL, 0);
         if (n < 0)
+        {
             return TF_FORMAT;
+        }
         /* Reserve the final NUL without wrapping size_t. */
         if ((uintmax_t)(unsigned)n > SIZE_MAX - sum - 1)
+        {
             return TF_SIZE;
+        }
         sizes[i] = (size_t)n;
         sum += (size_t)n;
     }
@@ -80,10 +92,14 @@ static enum tf_status render(struct tf_reader *r, unsigned count,
         struct tf_arg arg = {0};
         enum tf_status status = next(r, &arg);
         if (status != TF_OK)
+        {
             return status;
+        }
         int n = convert(scalar, arg, stage + at, total + 1 - at);
         if (n < 0 || (uintmax_t)(unsigned)n != sizes[i])
+        {
             return TF_FORMAT;
+        }
         at += sizes[i];
     }
     return at == total ? TF_OK : TF_FORMAT;
@@ -115,11 +131,15 @@ static enum tf_status finish(char *out, size_t *required, struct tf_allocator a,
     if (status == TF_OK)
     {
         for (size_t i = 0; i <= total; ++i)
+        {
             out[i] = stage[i];
+        }
         *required = TF_MUTANT == 1 ? total + 1 : total;
     }
     if (TF_MUTANT != 2)
+    {
         a.release(a.context, stage);
+    }
     return status;
 }
 
@@ -128,7 +148,9 @@ enum tf_status tf_format(char *out, size_t capacity, size_t *required,
                          unsigned count, ...)
 {
     if (!admitted(out, capacity, required, a, scalar, count))
+    {
         return TF_INVALID;
+    }
     va_list source;
     va_start(source, count);
     size_t sizes[4], total = 0;
@@ -143,7 +165,9 @@ enum tf_status tf_format(char *out, size_t capacity, size_t *required,
     {
         *required = total;
         if (TF_MUTANT == 3 && out && capacity)
+        {
             out[0] = 0;
+        }
         va_end(source);
         return TF_FULL;
     }
@@ -165,12 +189,16 @@ enum tf_status tf_array(char *out, size_t capacity, size_t *required,
 {
     if (!admitted(out, capacity, required, a, scalar, count) ||
         count > available || (count && !args))
+    {
         return TF_INVALID;
+    }
     struct tf_reader first = {NULL, args, 0};
     size_t sizes[4], total = 0;
     enum tf_status status = sizing(&first, count, scalar, sizes, &total);
     if (status != TF_OK)
+    {
         return status;
+    }
     if (capacity <= total)
     {
         *required = total;
@@ -178,7 +206,9 @@ enum tf_status tf_array(char *out, size_t capacity, size_t *required,
     }
     char *stage = a.acquire(a.context, total + 1);
     if (!stage)
+    {
         return TF_NOMEM;
+    }
     struct tf_reader second = {NULL, args, 0};
     status = render(&second, count, scalar, sizes, stage, total);
     return finish(out, required, a, stage, total, status);

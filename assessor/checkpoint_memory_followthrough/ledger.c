@@ -33,6 +33,7 @@ static void verify(struct p1_ledger *l)
     unsigned live = 0;
     size_t bytes = 0;
     for (unsigned i = 0; i < 8; i++)
+    {
         if (l->blocks[i].pointer)
         {
             uintptr_t a = (uintptr_t)l->blocks[i].pointer;
@@ -41,13 +42,16 @@ static void verify(struct p1_ledger *l)
             ++live;
             bytes += n;
             for (unsigned j = i + 1; j < 8; j++)
+            {
                 if (l->blocks[j].pointer)
                 {
                     uintptr_t b = (uintptr_t)l->blocks[j].pointer;
                     size_t m = l->blocks[j].size;
                     CHECK(m <= UINTPTR_MAX - b && (a + n <= b || b + m <= a));
                 }
+            }
         }
+    }
     CHECK(live == l->live && bytes == l->bytes && bytes <= l->peak);
 }
 
@@ -55,20 +59,26 @@ static void *allocate(void *context, size_t n)
 {
     struct p1_ledger *l = context;
     if (++l->attempts == l->fail)
+    {
         return NULL;
+    }
     void *p = malloc(n);
     CHECK(p);
     for (unsigned i = 0; i < 8; i++)
+    {
         if (!l->blocks[i].pointer)
         {
             l->blocks[i] = (struct p1_block){p, n};
             ++l->live;
             l->bytes += n;
             if (l->bytes > l->peak)
+            {
                 l->peak = l->bytes;
+            }
             verify(l);
             return p;
         }
+    }
     CHECK(0);
     return NULL;
 }
@@ -77,6 +87,7 @@ static void release(void *context, void *p)
 {
     struct p1_ledger *l = context;
     for (unsigned i = 0; i < 8; i++)
+    {
         if (l->blocks[i].pointer == p)
         {
             l->bytes -= l->blocks[i].size;
@@ -87,6 +98,7 @@ static void release(void *context, void *p)
             verify(l);
             return;
         }
+    }
     CHECK(0);
 }
 
@@ -94,7 +106,9 @@ static int subscribe(void *context, uint64_t *cookie)
 {
     struct p1_ledger *l = context;
     if (++l->attempts == l->fail)
+    {
         return 0;
+    }
     *cookie = 71;
     return 1;
 }
@@ -118,7 +132,9 @@ static struct cpx_record record(unsigned index, size_t length)
     r.value = (int)index;
     r.length = length;
     for (size_t i = 0; i < length; i++)
+    {
         r.bytes[i] = (unsigned char)(index + i);
+    }
     return r;
 }
 
@@ -175,7 +191,9 @@ static void failures(void)
         s.node_fail_at = failure;
         struct cpx_record rows[4];
         for (unsigned i = 0; i < 4; i++)
+        {
             rows[i] = record(i + 1, i + 1);
+        }
         size_t accepted = 917;
         CHECK(cpx_batch(&s, rows, 4, &accepted) == CPX_FULL &&
               accepted == failure - 1);
@@ -228,8 +246,11 @@ static volatile size_t consumed;
 static void measurements(void)
 {
     for (unsigned distribution = 0; distribution < 3; distribution++)
+    {
         for (unsigned instrument = 0; instrument < 2; instrument++)
+        {
             for (unsigned pool = 0; pool < 2; pool++)
+            {
                 for (int sample = -3; sample < 31; sample++)
                 {
                     uint64_t ns = 0;
@@ -245,15 +266,23 @@ static void measurements(void)
                         CHECK(cpm_arena_init(&arena, bytes, 64, 8, 1) ==
                               CPM_OK);
                         if (pool)
+                        {
                             CHECK(cpx_init(&store, backend(&l), 4, 4) ==
                                   CPX_OK);
+                        }
                         size_t lengths[4] = {1, 4, 8, 16};
                         if (distribution < 2)
+                        {
                             for (unsigned i = 0; i < 4; i++)
+                            {
                                 lengths[i] = distribution ? 16 : 1;
+                            }
+                        }
                         struct cpx_record rows[4];
                         for (unsigned i = 0; i < 4; i++)
+                        {
                             rows[i] = record(i + 1, lengths[i]);
+                        }
                         size_t payload = 0, accepted = 0, observed_peak = 0;
                         struct cpx_handle handles[4];
                         struct cpm_span spans[4];
@@ -268,8 +297,10 @@ static void measurements(void)
                             if (good)
                             {
                                 if (!pool)
+                                {
                                     memcpy(bytes + spans[i].offset,
                                            rows[i].bytes, lengths[i]);
+                                }
                                 payload += lengths[i];
                                 ++accepted;
                             }
@@ -279,14 +310,22 @@ static void measurements(void)
                                 if (pool)
                                 {
                                     for (unsigned j = 0; j < 4; j++)
+                                    {
                                         if (store.state[j] == 1)
+                                        {
                                             live += store.records[j].length;
+                                        }
+                                    }
                                 }
                                 else
+                                {
                                     live = payload;
+                                }
                                 CHECK(live == payload);
                                 if (live > observed_peak)
+                                {
                                     observed_peak = live;
+                                }
                             }
                         }
                         for (unsigned i = 0; i < accepted; i++)
@@ -298,13 +337,19 @@ static void measurements(void)
                                           CPX_OK &&
                                       r->length == lengths[i]);
                                 for (size_t j = 0; j < r->length; j++)
+                                {
                                     checksum += r->bytes[j];
+                                }
                                 CHECK(cpx_release(&store, handles[i]) ==
                                       CPX_OK);
                             }
                             else
+                            {
                                 for (size_t j = 0; j < spans[i].length; j++)
+                                {
                                     checksum += bytes[spans[i].offset + j];
+                                }
+                            }
                         }
                         uint64_t end = now();
                         CHECK(end >= begin);
@@ -312,7 +357,9 @@ static void measurements(void)
                         CHECK(accepted ==
                               (!pool && distribution == 1 ? 3u : 4u));
                         if (instrument)
+                        {
                             CHECK(observed_peak == payload);
+                        }
                         all_payload += payload;
                         all_accepted += accepted;
                         all_headers += pool ? 0 : 3 * accepted;
@@ -322,9 +369,13 @@ static void measurements(void)
                         backing = pool ? l.bytes : sizeof bytes;
                         peak = pool ? l.peak : sizeof bytes;
                         if (pool)
+                        {
                             CHECK(cpx_close(&store) == CPX_OK && l.bytes == 0);
+                        }
                         else
+                        {
                             CHECK(cpm_reset(&arena) == CPM_OK);
+                        }
                     }
                     consumed = checksum;
                     CHECK(checksum == 128 * (distribution == 0 ? 10u
@@ -338,6 +389,7 @@ static void measurements(void)
                     CHECK(all_headers == (pool ? 0 : 3 * all_accepted) &&
                           all_padding == 0);
                     if (sample >= 0)
+                    {
                         printf(
                             "{\"distribution\":%u,\"instrumented\":%u,\"pool\":%u,\"sample\":%d,\"iterations\":128,\"ns\":%llu,\"offered\":512,\"accepted\":%zu,\"payload\":%zu,\"headers\":%zu,\"padding\":%zu,\"retained_after_logical_release\":%zu,\"backing\":%zu,\"peak_backing\":%zu,\"control_bytes\":%zu,\"pool_slot_payload_capacity\":64,\"checksum\":%zu}\n",
                             distribution, instrument, pool, sample,
@@ -347,7 +399,11 @@ static void measurements(void)
                             pool ? sizeof(struct cpx_store)
                                  : sizeof(struct cpm_arena),
                             checksum);
+                    }
                 }
+            }
+        }
+    }
     puts(
         "P1_MEASURE_PASS samples=372 paired_workloads allocation_outside_interval explicit_different_acceptance");
 }
@@ -356,8 +412,12 @@ int main(int argc, char **argv)
 {
     failures();
     if (argc == 2 && strcmp(argv[1], "--measure") == 0)
+    {
         measurements();
+    }
     else if (argc != 1)
+    {
         return 2;
+    }
     return 0;
 }

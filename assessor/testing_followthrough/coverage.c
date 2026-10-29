@@ -5,7 +5,9 @@
 int cv_allow(struct cv_cv *c, size_t length, int authorized)
 {
     if (length <= 4 && (CV_MUTANT == 2 ? !authorized : authorized))
+    {
         return 1;
+    }
     c->rejection_count += CV_MUTANT == 4 ? 0u : 1u;
     return 0;
 }
@@ -13,7 +15,9 @@ int cv_allow(struct cv_cv *c, size_t length, int authorized)
 int cv_push(struct cv_cv *c, int value)
 {
     if (c->count > 4)
+    {
         return -1; /* Defensive unreachable under initializer/API invariant. */
+    }
     if (CV_MUTANT == 1 ? c->count + 1 < 4 : c->count + 1 <= 4)
     {
         c->queue[c->count++] = value;

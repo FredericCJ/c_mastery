@@ -50,8 +50,10 @@ int main(void)
     CHECK(cd_ring_push(&ring, &value, 1, 0, &written) == CD_OK &&
           cd_queue_push(&queue, 4, 0, 0) == CD_OK);
     for (int i = 2; i <= 4; ++i)
+    {
         CHECK(cd_ring_pop(&ring, &left, 1) == CD_OK &&
               cd_queue_pop(&queue, &right) == CD_OK && left == i && right == i);
+    }
     for (int i = 1; i <= 6; ++i)
     {
         CHECK(cd_queue_push(&queue, i, 1, 0) == CD_OK);
@@ -68,7 +70,9 @@ int main(void)
     int *first = NULL, *last = NULL;
     CHECK(cd_segmented_append(&segmented, 10, &first) == CD_OK);
     for (int i = 1; i < 16; ++i)
+    {
         CHECK(cd_segmented_append(&segmented, i, &last) == CD_OK);
+    }
     CHECK(first == &segmented.blocks[0][0] && *first == 10 &&
           last == &segmented.blocks[3][3] &&
           cd_segmented_append(&segmented, 99, &last) == CD_FULL);

@@ -6,12 +6,16 @@
 static void cleanup(struct ce_frame *f)
 {
     for (unsigned i = 0; i < f->depth; i++)
+    {
         if (f->stack[i].left)
         {
             if (CE_MUTANT != 1)
+            {
                 f->allocator.release(f->allocator.context, f->stack[i].left);
+            }
             f->stack[i].left = NULL;
         }
+    }
     f->depth = 0;
 }
 
@@ -19,15 +23,23 @@ int ce_init(struct ce_frame *f, const struct ce_node *n, size_t count,
             struct co_allocator a, ce_deliver_fn deliver, void *ctx)
 {
     if (!f || !n || !a.allocate || !a.release)
+    {
         return CO_INVALID;
+    }
     if (!count || count > 16)
+    {
         return CO_RANGE;
+    }
     for (size_t i = 0; i < count; i++)
+    {
         if (n[i].kind > CE_MULTIPLY ||
             (n[i].kind != CE_LITERAL &&
              (n[i].left <= i || n[i].right <= i || n[i].left >= count ||
               n[i].right >= count)))
+        {
             return CO_INVALID;
+        }
+    }
     *f = (struct ce_frame){.nodes = n,
                            .count = count,
                            .allocator = a,
@@ -48,11 +60,17 @@ static int fail(struct ce_frame *f, int error)
 int ce_step(struct ce_frame *f, unsigned budget, int32_t *out)
 {
     if (!f || !out)
+    {
         return CO_INVALID;
+    }
     if (f->state == 2)
+    {
         return CO_DONE;
+    }
     if (f->state == 3)
+    {
         return CO_STATE;
+    }
     while (budget--)
     {
         f->steps++;
@@ -65,7 +83,9 @@ int ce_step(struct ce_frame *f, unsigned budget, int32_t *out)
                 return CO_PENDING;
             }
             if (r)
+            {
                 return fail(f, CO_IO);
+            }
             f->state = 2;
             *out = f->result;
             return CO_DONE;
@@ -88,10 +108,14 @@ int ce_step(struct ce_frame *f, unsigned budget, int32_t *out)
         else if (c->phase == 1)
         {
             if (!f->have)
+            {
                 return fail(f, CO_STATE);
+            }
             int32_t *p = f->allocator.allocate(f->allocator.context, sizeof *p);
             if (!p)
+            {
                 return fail(f, CO_RANGE);
+            }
             *p = f->result;
             c->left = p;
             c->phase = 2;
@@ -101,11 +125,15 @@ int ce_step(struct ce_frame *f, unsigned budget, int32_t *out)
         else
         {
             if (!f->have || !c->left)
+            {
                 return fail(f, CO_STATE);
+            }
             int64_t result = n->kind == CE_ADD ? (int64_t)*c->left + f->result
                                                : (int64_t)*c->left * f->result;
             if (CE_MUTANT != 2 && (result < INT32_MIN || result > INT32_MAX))
+            {
                 return fail(f, CO_RANGE);
+            }
             f->allocator.release(f->allocator.context, c->left);
             c->left = NULL;
             f->result = (int32_t)result;
@@ -113,7 +141,9 @@ int ce_step(struct ce_frame *f, unsigned budget, int32_t *out)
             f->have = 1;
         }
         if (f->depth > f->max_depth)
+        {
             f->max_depth = f->depth;
+        }
     }
     return CO_PENDING;
 }
@@ -121,9 +151,13 @@ int ce_step(struct ce_frame *f, unsigned budget, int32_t *out)
 int ce_cancel(struct ce_frame *f)
 {
     if (!f)
+    {
         return CO_INVALID;
+    }
     if (f->state == 2 || f->state == 3)
+    {
         return CO_OK;
+    }
     cleanup(f);
     f->state = 3;
     return CO_OK;

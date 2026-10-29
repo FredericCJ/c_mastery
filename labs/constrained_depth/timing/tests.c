@@ -25,7 +25,9 @@ static void change(void *context, unsigned phase)
     {
         struct ct_stamp s = {7, 1, 1000, 0, 8};
         if (ct_publish(h->clock, s) != CT_OK)
+        {
             exit(2);
+        }
     }
 }
 

@@ -38,7 +38,9 @@ int ni_composition(void);
 void xf_target_main(void)
 {
     if (ni_public_tests() || ni_validation() || ni_composition())
+    {
         finish(1);
+    }
     puts("NI_TARGET_PASS actual_IPv4_checksum_reassembly_ICMP "
          "synthetic_frames_only");
     finish(0);

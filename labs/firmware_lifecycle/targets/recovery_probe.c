@@ -21,8 +21,12 @@ _Noreturn void st_main(void)
 {
     struct fh_io io = st_target_io();
     if (!st_cold_h745(io) || rt_uart_init(io, 100000) != 1)
+    {
         for (;;)
+        {
             __asm__ volatile("wfi");
+        }
+    }
     rt_reset(&frame);
     unsigned budget = 10000000;
     uint32_t status;
@@ -43,7 +47,11 @@ _Noreturn void st_main(void)
         }
     }
     if (!rt_probe)
+    {
         rt_probe = 4;
+    }
     for (;;)
+    {
         __asm__ volatile("wfi");
+    }
 }

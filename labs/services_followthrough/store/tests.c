@@ -10,7 +10,9 @@ static int read_page(void *p, uint32_t n, void *out)
 {
     (void)p;
     if (n >= STORE_IMAGE_PAGES)
+    {
         return -1;
+    }
     memcpy(out, live[n], STORE_PAGE_SIZE);
     return 0;
 }
@@ -19,7 +21,9 @@ static int write_page(void *p, uint32_t n, const void *in)
 {
     (void)p;
     if (n >= STORE_IMAGE_PAGES)
+    {
         return -1;
+    }
     memcpy(live[n], in, STORE_PAGE_SIZE);
     writes++;
     return 0;

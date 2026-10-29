@@ -27,7 +27,9 @@ static int stream(void)
         bytes[0] = (unsigned char)(n >> 8);
         bytes[1] = (unsigned char)n;
         for (k = 0; k < n; ++k)
+        {
             bytes[k + 2] = (unsigned char)(k ^ n);
+        }
         for (j = 0; j <= n + 2; ++j)
         {
             memset(&s, 0, sizeof s);
@@ -37,17 +39,21 @@ static int stream(void)
                       used == j,
                   "split_prefix");
             if (j < n + 2)
+            {
                 CHECK(ew_feed(&s, bytes + j, n + 2 - j, &used) == EW_READY &&
                           used == n + 2 - j,
                       "split_tail");
+            }
             memcpy(&old, &s, sizeof s);
             got = 999;
             memset(out, 0xa5, sizeof out);
             if (n)
+            {
                 CHECK(ew_take(&s, out, n - 1, &got) == EW_FULL &&
                           memcmp(&s, &old, sizeof s) == 0 && got == 999 &&
                           out[0] == 0xa5,
                       "take_atomic");
+            }
             CHECK(ew_take(&s, out, 256, &got) == EW_OK && got == n &&
                       memcmp(out, bytes + 2, n) == 0,
                   "record_value");
@@ -99,7 +105,9 @@ static int vlan(void)
     size_t n, len, got;
     unsigned cases = 0;
     for (n = 0; n < 1500; ++n)
+    {
         payload[n] = (unsigned char)(n * 17u + 3u);
+    }
     for (n = 0; n <= 1500; ++n)
     {
         CHECK(ew_vlan_build(b, a, 5, 42, (unsigned)n, payload, n, wire,
@@ -168,7 +176,9 @@ static int frame(void)
               n == 64,
           "length_frame");
     for (i = 17; i < 60; ++i)
+    {
         CHECK(wire[i] == 0, "zero_padding");
+    }
     CHECK(ed_frame_parse(wire, n, 1, &f) == ED_OK && f.payload_length == 3 &&
               f.stored_payload == 46,
           "length_parse");
@@ -196,7 +206,9 @@ static int frame(void)
           "hardware_tx_span");
     CHECK(ed_crc32(wire, n, &full) == ED_OK, "device_crc_model");
     for (i = 0; i < 4; ++i)
+    {
         wire[n + i] = (unsigned char)(full >> (8 * i));
+    }
     CHECK(ed_frame_parse(wire, n + 4, 1, &f) == ED_OK &&
               ed_frame_parse(wire, n, 0, &f) == ED_OK && f.stored_payload == 46,
           "capture_formats");
@@ -262,6 +274,7 @@ static int loop(void)
     unsigned wave, mask, forwarded = 0, cut = 0, i, ports[2] = {2, 3};
     /* Two parallel links between two bridges. A broadcast has no hop limit. */
     for (wave = 0; wave < 8; ++wave)
+    {
         for (i = 0; i < 2; ++i)
         {
             CHECK(ew_bridge(&s[wave % 2], a, group, ports[i], wave, 0, &mask) ==
@@ -271,6 +284,7 @@ static int loop(void)
                   "loop_survives");
             ++forwarded;
         }
+    }
     memset(s, 0, sizeof s);
     CHECK(ew_bridge(&s[0], a, group, 1, 0, 0, &mask) == ED_OK,
           "blocked_initial");

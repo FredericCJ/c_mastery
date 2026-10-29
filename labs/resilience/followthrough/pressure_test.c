@@ -95,20 +95,27 @@ static void drain(struct rzp_pump *p)
         struct rzp_credit credit;
         int status = rzp_receive(p, &v, &credit);
         if (status == RZ_OK)
+        {
             CHECK(rzp_release(p, credit) == RZ_OK);
+        }
         else
+        {
             CHECK(status == RZ_EMPTY || status == RZ_CLOSED);
+        }
         struct rzp_snapshot snapshot;
         CHECK(rzp_snapshot(p, &snapshot) == RZ_OK);
         check_balance(p);
         if (!snapshot.queued && !snapshot.transport && !snapshot.leased)
+        {
             break;
+        }
     }
 }
 
 static void policies(void)
 {
     for (unsigned policy = 0; policy < 5; ++policy)
+    {
         for (unsigned count = 0; count <= 4; ++count)
         {
             struct rz_counter c = {0};
@@ -141,9 +148,13 @@ static void policies(void)
             }
             CHECK(n == (count < 4 ? count + 1 : 4));
             if (count == 4 && policy == 3)
+            {
                 CHECK(output[0] == 2 && output[3] == 9);
+            }
             if (count == 4 && policy == 4)
+            {
                 CHECK(output[0] == 1 && output[3] == 9);
+            }
             CHECK(c.made == c.dropped);
             rzp_owned_close(&q);
             v = value(&c, 10);
@@ -151,6 +162,7 @@ static void policies(void)
                   !v.owned);
             CHECK(c.made == c.dropped);
         }
+    }
 }
 
 struct rz_waiter
@@ -177,7 +189,9 @@ static void waiting(struct rzp_pump *p, unsigned producer)
         bool wait = p->producer[producer].polling;
         pthread_mutex_unlock(&p->mutex);
         if (wait)
+        {
             return;
+        }
         sched_yield();
     }
 }
@@ -194,7 +208,9 @@ static void duplex(void)
     {
         CHECK(rzp_init(&endpoints[k], 1) == RZ_OK);
         for (unsigned i = 0; i < 4; ++i)
+        {
             submit(&endpoints[k], s, &counter, 10 * k + i);
+        }
         struct rzp_value v = value(&counter, 10 * k + 4);
         struct rzp_ticket ticket = {0};
         CHECK(rzp_begin(&endpoints[k], 0, s, 0, &v, &ticket) == RZ_PENDING &&
@@ -241,7 +257,9 @@ static void tests(void)
     struct rzp_pump p;
     CHECK(rzp_init(&p, 1) == RZ_OK);
     for (unsigned i = 1; i <= 4; ++i)
+    {
         submit(&p, s, &c, i);
+    }
     struct rzp_value a = value(&c, 5), b = value(&c, 6);
     struct rzp_ticket ta = {0}, tb = {0};
     CHECK(rzp_begin(&p, 0, s, 0, &a, &ta) == RZ_PENDING && !a.owned &&
@@ -260,7 +278,9 @@ static void tests(void)
     CHECK(!pthread_create(&at, NULL, waiter, &wa));
     CHECK(!pthread_create(&bt, NULL, waiter, &wb));
     while (!atomic_load(&wa.entered) || !atomic_load(&wb.entered))
+    {
         sched_yield();
+    }
     struct rzp_value borrowed;
     struct rzp_credit credit;
     CHECK(rzp_receive(&p, &borrowed, &credit) == RZ_OK && borrowed.value == 1);
@@ -299,7 +319,9 @@ static void tests(void)
     s = scope(&freed, 2);
     CHECK(rzp_init(&p, 1) == RZ_OK);
     for (unsigned i = 0; i < 4; ++i)
+    {
         submit(&p, s, &c, i);
+    }
     a = value(&c, 5);
     CHECK(rzp_begin(&p, 0, s, 0, &a, &ta) == RZ_PENDING);
     CHECK(rzp_tick(&p, 2) == RZ_OK);
@@ -389,12 +411,16 @@ static void policy_oracle(void)
             }
             printf("%d:%u:%u[", status, observed, atomic_load(&c.dropped));
             for (size_t j = 0; j < q.core.count; ++j)
+            {
                 printf("%u,", q.values[(q.core.head + j) % 4].value);
+            }
             printf("]; ");
         }
         struct rzp_value v;
         while (rzp_owned_pop(&q, &v) == RZ_OK)
+        {
             rzp_value_drop(&v);
+        }
         CHECK(c.made == c.dropped);
         puts("");
     }
@@ -463,7 +489,9 @@ static void pump_oracle(void)
                     {
                         last = credits[0];
                         for (unsigned j = 1; j < held; ++j)
+                        {
                             credits[j - 1] = credits[j];
+                        }
                         --held;
                     }
                     status = rzp_release(&p, last);
@@ -480,8 +508,10 @@ static void pump_oracle(void)
                     int results[2] = {99, 99};
                     int statuses[2];
                     for (unsigned j = 0; j < 2; ++j)
+                    {
                         statuses[j] =
                             rzp_poll(&p, tickets[j], false, &results[j]);
+                    }
                     status = statuses[0] * 100 + statuses[1];
                     observed = (unsigned)(results[0] * 100 + results[1]);
                     break;
@@ -505,7 +535,9 @@ static void pump_oracle(void)
             CHECK(status == RZ_OK || status == RZ_STALE);
         }
         for (unsigned j = 0; j < held; ++j)
+        {
             CHECK(rzp_release(&p, credits[j]) == RZ_OK);
+        }
         drain(&p);
         CHECK(rzp_destroy(&p) == RZ_OK);
         rzf_scope_release(&s);
@@ -518,12 +550,20 @@ int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (!strcmp(argv[1], "test"))
+    {
         tests();
+    }
     else if (!strcmp(argv[1], "policy"))
+    {
         policy_oracle();
+    }
     else if (!strcmp(argv[1], "pump"))
+    {
         pump_oracle();
+    }
     else
+    {
         return 2;
+    }
     return 0;
 }

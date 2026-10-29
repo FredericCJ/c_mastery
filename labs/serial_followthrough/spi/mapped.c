@@ -16,10 +16,16 @@ static unsigned used;
 volatile uint32_t *ps_test_register(uint32_t address)
 {
     for (unsigned i = 0; i < used; i++)
+    {
         if (addresses[i] == address)
+        {
             return values + i;
+        }
+    }
     if (used == 64)
+    {
         return 0;
+    }
     addresses[used] = address;
     return values + used++;
 }

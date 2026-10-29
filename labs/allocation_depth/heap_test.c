@@ -77,6 +77,7 @@ int main(void)
     CHECK(al_heap_check(&h) == AL_CORRUPT);
     unsigned operations = 0;
     for (unsigned policy = 0; policy < 2; ++policy)
+    {
         for (unsigned seed = 1; seed <= 96; ++seed)
         {
             CHECK(al_heap_init(&h, 256, policy, 0, 1) == AL_OK);
@@ -99,10 +100,14 @@ int main(void)
                         lengths[index] = request;
                         CHECK(al_heap_view(&h, out, &p, &n) == AL_OK);
                         for (unsigned k = 0; k < n; ++k)
+                        {
                             p[k] = (unsigned char)(index * 17 + k);
+                        }
                     }
                     else
+                    {
                         CHECK(memcmp(&h, &copy, sizeof h) == 0);
+                    }
                 }
                 else if (op == 0)
                 {
@@ -125,19 +130,26 @@ int main(void)
                         unsigned retained =
                             lengths[index] < request ? lengths[index] : request;
                         for (unsigned k = 0; k < retained; ++k)
+                        {
                             CHECK(p[k] == (unsigned char)(index * 17 + k));
+                        }
                         for (unsigned k = retained; k < n; ++k)
+                        {
                             p[k] = (unsigned char)(index * 17 + k);
+                        }
                         live[index] = out;
                         lengths[index] = request;
                     }
                     else
+                    {
                         CHECK(memcmp(&h, &copy, sizeof h) == 0);
+                    }
                 }
                 CHECK(al_heap_check(&h) == AL_OK);
                 unsigned occupancy[256] = {0};
                 size_t payload = 0;
                 for (unsigned j = 0; j < 12; ++j)
+                {
                     if (lengths[j])
                     {
                         CHECK(al_heap_view(&h, live[j], &p, &n) == AL_OK &&
@@ -152,15 +164,21 @@ int main(void)
                         }
                         payload += n;
                     }
+                }
                 CHECK(h.payload == payload);
                 ++operations;
             }
             for (unsigned j = 0; j < 12; ++j)
+            {
                 if (lengths[j])
+                {
                     CHECK(al_heap_release(&h, live[j]) == AL_OK);
+                }
+            }
             CHECK(al_heap_stats(&h, &total, &big) == AL_OK && total == 256 &&
                   big == 256);
         }
+    }
     printf("PASS heap operations=%u patterns/nonoverlap/failure/metadata\n",
            operations);
     return 0;

@@ -218,7 +218,9 @@ static void transfer_cases(void)
     int total = 0;
     ssize_t n;
     while ((n = write(a[1], data, sizeof data)) > 0)
+    {
         total += (int)n;
+    }
     C(errno == EAGAIN && total >= 4096);
     C(read(a[0], data, 4096) == 4096);
     char x[3000], y[3000];
@@ -240,7 +242,9 @@ static void transfer_cases(void)
     ssize_t got = read(a[0], data, (size_t)n);
     C(got == n);
     for (ssize_t i = 0; i < n; i++)
+    {
         C(data[i] == (i < 3000 ? 'A' : 'B'));
+    }
     printf("writev partial=%zd of6000; zero-length vector preserved prefix\n",
            progress);
     close(a[0]);

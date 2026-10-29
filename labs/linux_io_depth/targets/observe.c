@@ -89,9 +89,11 @@ int main(void)
         "FSYNC file+directory and SENDFILE observed; no physical power-loss claim");
     ring = (int)syscall(SYS_io_uring_setup, 2, &params);
     if (ring < 0)
+    {
         printf(
             "IO_URING unavailable errno=%d; operation/cancellation experiments pending\n",
             errno);
+    }
     else
     {
         printf(

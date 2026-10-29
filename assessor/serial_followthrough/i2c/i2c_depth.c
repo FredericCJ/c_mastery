@@ -37,7 +37,9 @@ int ia_nominal(uint32_t v, uint32_t low, uint32_t i, uint32_t t, uint32_t c,
 {
     if (!out || !v || v > 6000 || low >= v || !i || i > 20000 || !t ||
         t > 1000000 || !c || c > 10000)
+    {
         return IA_INVALID;
+    }
     uint64_t n = (uint64_t)(v - low) * 1000;
     uint64_t lo = IA_MUTANT == 1 ? divide(n, i, 0) : ceil_div(n, i);
     uint64_t hi = divide((uint64_t)t * 10000000, (uint64_t)8473 * c, 0);
@@ -51,9 +53,13 @@ int ia_guaranteed(const struct ia_envelope *e, struct ia_interval *out)
         e->iol_ua > 20000 || !e->rise_ns || e->rise_ns > 1000000 ||
         !e->cap_pf || e->cap_pf > 10000 || e->source_leak_ua > 20000 ||
         e->sink_leak_ua > 20000 || e->tolerance_ppm > 250000)
+    {
         return IA_INVALID;
+    }
     if (e->source_leak_ua >= e->iol_ua)
+    {
         return interval(1, 0, out);
+    }
     uint64_t lo = ceil_div((uint64_t)(e->vmax_mv - e->vol_mv) * 1000 * 1000000,
                            (uint64_t)(e->iol_ua - e->source_leak_ua) *
                                (1000000 - e->tolerance_ppm));
@@ -71,17 +77,25 @@ int ia_arbitrate(const uint8_t bits[3][32], unsigned n, unsigned count,
                  struct ia_trace *out)
 {
     if (!bits || !out || !low || !high || !n || n > 3 || !count || count > 32)
+    {
         return IA_INVALID;
+    }
     for (unsigned j = 0; j < n; j++)
     {
         if (!low[j] || !high[j])
+        {
             return IA_INVALID;
+        }
         for (unsigned k = 0; k < count; k++)
         {
             if (bits[j][k] > 3)
+            {
                 return IA_INVALID;
+            }
             if (bits[j][k] > 1 && IA_MUTANT != 3)
+            {
                 return IA_UNSUPPORTED;
+            }
         }
     }
     struct ia_trace r = {0};
@@ -90,24 +104,36 @@ int ia_arbitrate(const uint8_t bits[3][32], unsigned n, unsigned count,
     for (unsigned j = 0; j < n; j++)
     {
         if (low[j] > r.low)
+        {
             r.low = low[j];
+        }
         if (high[j] < r.high)
+        {
             r.high = high[j];
+        }
     }
     for (unsigned k = 0; k < count; k++)
     {
         unsigned bus = 1;
         for (unsigned j = 0; j < n; j++)
+        {
             if (active & (1u << j))
+            {
                 bus &= bits[j][k] & 1;
+            }
+        }
         r.bus[k] = (uint8_t)bus;
         for (unsigned j = 0; j < n; j++)
+        {
             if ((active & (1u << j)) && bits[j][k] != bus)
             {
                 r.lost[k] |= (uint8_t)(1u << j);
                 if (IA_MUTANT != 4)
+                {
                     active &= ~(1u << j);
+                }
             }
+        }
         r.active[k] = (uint8_t)active;
     }
     r.survivors = (uint8_t)active;

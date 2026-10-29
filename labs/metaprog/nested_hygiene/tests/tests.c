@@ -196,37 +196,53 @@ static int oracle(void)
         p.count = defs;
         if (defs > 4 || scanf("%u %u %u %u", &b.depth, &b.tokens, &b.steps,
                               &b.allow_capture) != 4)
+        {
             return 2;
+        }
         for (size_t i = 0; i < 2; ++i)
         {
             if (scanf("%zu", &a[i].count) != 1 || a[i].count > 4)
+            {
                 return 2;
+            }
             for (size_t j = 0; j < a[i].count; ++j)
+            {
                 if (scanf("%u %u %u", &a[i].tokens[j].kind,
                           &a[i].tokens[j].symbol, &a[i].tokens[j].context) != 3)
+                {
                     return 2;
+                }
+            }
         }
         for (size_t i = 0; i < defs; ++i)
         {
             if (scanf("%zu", &p.definitions[i].count) != 1 ||
                 p.definitions[i].count > 16)
+            {
                 return 2;
+            }
             for (size_t j = 0; j < p.definitions[i].count; ++j)
             {
                 struct mph_instruction *n = &p.definitions[i].code[j];
                 if (scanf("%u %u %u %u %u %u", &n->operation, &n->target,
                           &n->mask, &n->token.kind, &n->token.symbol,
                           &n->token.context) != 6)
+                {
                     return 2;
+                }
             }
         }
         int status = mph_expand(&p, entry, a, caller, b, &next, &out);
         printf("%d %u %zu %u %u %u", status, next, out.count, out.invocations,
                out.steps, out.peak_depth);
         if (status == MPH_OK)
+        {
             for (size_t i = 0; i < out.count; ++i)
+            {
                 printf(" %u %u %u", out.tokens[i].kind, out.tokens[i].symbol,
                        out.tokens[i].context);
+            }
+        }
         putchar('\n');
     }
     return 0;
@@ -256,7 +272,9 @@ static int metrics(void)
            ",\"program_size\":%zu,\"result_size\":%zu,\"seconds\":[",
            sum, sizeof p, sizeof out);
     for (unsigned i = 0; i < 7; ++i)
+    {
         printf("%s%.9f", i ? "," : "", seconds[i]);
+    }
     puts("]}");
     return 0;
 }
@@ -264,18 +282,32 @@ static int metrics(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "macro_nested"))
+    {
         return nested();
+    }
     if (!strcmp(argv[1], "macro_budgets"))
+    {
         return budgets();
+    }
     if (!strcmp(argv[1], "macro_capture"))
+    {
         return capture();
+    }
     if (!strcmp(argv[1], "macro_base"))
+    {
         return base();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

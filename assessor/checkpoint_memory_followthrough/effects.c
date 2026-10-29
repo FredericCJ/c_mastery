@@ -28,7 +28,9 @@ static int compare(void *context, int a, int b)
     {
         volatile unsigned char *p = malloc(1);
         if (!p)
+        {
             exit(2);
+        }
         ++e->heap;
         *p = 17;
         free((void *)p);
@@ -46,7 +48,9 @@ static void logger(void *context, int value)
     {
         ++e->waits;
         if (poll(NULL, 0, 1) != 0)
+        {
             exit(2);
+        }
     }
 }
 
@@ -59,12 +63,16 @@ static unsigned consume(struct cpm_pool *p, struct cpm_ring *q,
     while (cpm_pop(q, &h) == CPM_OK)
     {
         if (cpm_lookup(p, h, &r) != CPM_OK)
+        {
             exit(2);
+        }
         int same = hooks.compare(hooks.context, r->value, 22) == 0;
         matches += (unsigned)same;
         hooks.log(hooks.context, same);
         if (cpm_release(p, h) != CPM_OK)
+        {
             exit(2);
+        }
     }
     return matches;
 }
@@ -79,15 +87,23 @@ int main(void)
     size_t accepted = 0;
     struct p1_effects effects = {0};
     if (cpm_prefix(&p, &q, values, 4, &accepted) != CPM_OK || accepted != 4)
+    {
         return 2;
+    }
     unsigned matches =
         consume(&p, &q, (struct p1_hooks){&effects, compare, logger});
     if (matches != 1 || effects.comparisons != 4 || effects.logs != 4 ||
         q.count)
+    {
         return 2;
+    }
     for (unsigned i = 0; i < 4; i++)
+    {
         if (p.state[i] != 0)
+        {
             return 2;
+        }
+    }
     if (effects.heap || effects.waits)
     {
         printf(

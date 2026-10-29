@@ -22,9 +22,13 @@ static uint32_t rd(void *v, enum g4_reg r)
     struct g4_model *m = v;
     ++m->reads[r];
     if (r == G4_RCC_CR && m->ready && m->reads[r] >= m->ready)
+    {
         m->reg[r] |= 1u << 10;
+    }
     if (r == G4_USART_ISR && m->ack && m->reads[r] >= m->ack)
+    {
         m->reg[r] |= 1u << 21;
+    }
     return m->reg[r];
 }
 

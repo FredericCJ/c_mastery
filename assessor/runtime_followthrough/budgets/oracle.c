@@ -7,7 +7,9 @@ static int host(void *ctx, uint8_t id, int32_t x, int32_t *out)
 {
     (void)ctx;
     if (id != 1)
+    {
         return 1;
+    }
     effects++;
     *out = x + 11;
     return 0;
@@ -43,7 +45,9 @@ int main(void)
         count++;
     }
     if (!feof(stdin) || count != 693)
+    {
         return 2;
+    }
     printf("VL_ORACLE_PASS cases=%u independent_order_and_charge\n", count);
     return 0;
 }

@@ -22,10 +22,14 @@ static void *allocate(void *v, size_t n)
     struct co_alloc *a = v;
     a->calls++;
     if (a->calls == a->fail_at)
+    {
         return NULL;
+    }
     void *p = malloc(n);
     if (p)
+    {
         a->live++;
+    }
     return p;
 }
 
@@ -42,10 +46,14 @@ static int map(void *v, uint32_t value, struct cf_item *out)
     struct co_alloc *a = v;
     unsigned char *p = allocate(a, 4);
     if (!p)
+    {
         return 1;
+    }
     *out = (struct cf_item){p, 4, {a, allocate, release}};
     for (unsigned i = 0; i < 4; i++)
+    {
         p[i] = (unsigned char)(value >> (i * 8));
+    }
     return value == a->callback_fail;
 }
 
@@ -53,7 +61,9 @@ static uint32_t value(const unsigned char *p)
 {
     uint32_t n = 0;
     for (unsigned i = 0; i < 4; i++)
+    {
         n |= (uint32_t)p[i] << (8 * i);
+    }
     return n;
 }
 
@@ -70,7 +80,9 @@ static int mapper(void)
             int r = cf_map_next(&s, map, &a, &out);
             C(s.index == i + 1);
             if (i + 1 == fail)
+            {
                 C(r == CO_IO && !out.data && !a.live);
+            }
             else
             {
                 C(r == CO_OK && value(out.data) == i + 1);
@@ -80,6 +92,7 @@ static int mapper(void)
         C(cf_map_next(&s, map, &a, &out) == CO_DONE && a.calls == 5);
     }
     for (size_t na = 0; na <= 5; na++)
+    {
         for (size_t nb = 0; nb <= 5; nb++)
         {
             struct co_alloc a = {0};
@@ -98,6 +111,7 @@ static int mapper(void)
               x.index == count && y.index == count && a.calls == 2 * count &&
               !a.live);
         }
+    }
     struct co_alloc a = {0, 0, 0, 2, 99};
     struct cf_source x = {vals, 5, 0}, y = {vals, 5, 0};
     struct cf_item u = {0}, v = {0};
@@ -175,10 +189,16 @@ static int generator(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "mapper"))
+    {
         return mapper();
+    }
     if (!strcmp(argv[1], "generator"))
+    {
         return generator();
+    }
     return 2;
 }

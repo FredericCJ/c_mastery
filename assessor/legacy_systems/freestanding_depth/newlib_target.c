@@ -37,7 +37,9 @@ _ssize_t _write(int fd, const void *b, size_t n)
         return -1;
     }
     for (size_t i = 0; i < count; ++i)
+    {
         captured[accepted++] = ((const unsigned char *)b)[i];
+    }
     return (_ssize_t)count;
 }
 
@@ -92,14 +94,18 @@ void target_main(void)
     static char storage[24];
 #ifndef OMIT_HOOKS
     if (_sbrk(1) != (void *)-1 || errno != ENOMEM || heap_calls != 1)
+    {
         fr_stop(7);
+    }
     unsigned char untouched = 93;
     struct stat state;
     state.st_mode = 77;
     if (_read(0, &untouched, 1) != -1 || untouched != 93 ||
         _fstat(1, &state) != -1 || state.st_mode != 77 || _close(1) != -1 ||
         _lseek(1, 0, 0) != -1 || _isatty(1) != 0)
+    {
         fr_stop(8);
+    }
 #endif
     if (setvbuf(stdout, storage, _IOFBF, sizeof storage))
     {
@@ -115,8 +121,12 @@ void target_main(void)
         fr_stop(4);
     }
     for (unsigned i = 0; i < 9; ++i)
+    {
         if (captured[i] != (unsigned char)expected[i])
+        {
             fr_stop(5);
+        }
+    }
     refuse = 1;
     if (printf("x") != 1 || fflush(stdout) != EOF || !ferror(stdout))
     {

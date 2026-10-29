@@ -22,8 +22,12 @@ int main(void)
     CHECK(nd_sum(a, 4097, 0, &o) == ND_BAD && o == 37);
     double x[4096];
     for (size_t i = 0; i < 4096; i++)
+    {
         x[i] = 1;
+    }
     for (unsigned m = 0; m < 4; m++)
+    {
         CHECK(nd_sum(x, 4096, m, &o) == ND_OK && o == 4096);
+    }
     puts("PASS sums and nonfinite strong output");
 }

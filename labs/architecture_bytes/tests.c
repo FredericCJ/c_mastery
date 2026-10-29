@@ -14,8 +14,12 @@ static int equal(const void *a, const void *b, size_t n)
 {
     const unsigned char *x = a, *y = b;
     for (size_t i = 0; i < n; ++i)
+    {
         if (x[i] != y[i])
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
@@ -45,7 +49,9 @@ static int registers(void)
     ab_registers(actual);
     CHECK(equal(actual, want, sizeof(want)));
     for (unsigned kind = 0; kind < 2; ++kind)
+    {
         for (unsigned count = 0; count < 8; ++count)
+        {
             for (unsigned add = 0; add < 256; ++add)
             {
                 uint64_t got = ab_dependency(kind, UINT64_C(0x1122334455667788),
@@ -53,10 +59,14 @@ static int registers(void)
                 CHECK(got == (count ? ((17 + add) & 255)
                                     : UINT64_C(0x1122334455667788)));
             }
+        }
+    }
 #else
     CHECK(ab_thumb_register() == 0xaa);
     for (unsigned i = 0; i < 3; ++i)
+    {
         actual[i] = want[i];
+    }
 #endif
     ab_emit("registers", actual, 3);
     v = 99;
@@ -91,8 +101,11 @@ static int bytes(void)
     CHECK(ab_address(UINT64_MAX - 1, 0, 1, 0, 2, 2, &start, &end) == AB_RANGE);
     CHECK(ab_address(0, 0, 1, 0, 1, 1, &start, &start) == AB_INVALID);
     for (unsigned scale = 1; scale <= 8; scale *= 2)
+    {
         for (unsigned index = 0; index < 9; ++index)
+        {
             for (int disp = -9; disp <= 9; ++disp)
+            {
                 for (unsigned width = 1; width <= 8; ++width)
                 {
                     int pos = (int)(scale * index) + disp;
@@ -111,6 +124,9 @@ static int bytes(void)
                                       end};
                     ab_emit("address", row, 7);
                 }
+            }
+        }
+    }
     return 0;
 }
 
@@ -120,7 +136,9 @@ static int storage(void)
     struct aw_record pool[2] = {{0, 0}, {0, 0}};
     unsigned char wire[8];
     for (unsigned a = 0; a < 5; ++a)
+    {
         for (unsigned b = 0; b < 5; ++b)
+        {
             for (unsigned big = 0; big < 2; ++big)
             {
                 pool[0] = (struct aw_record){values[a], values[b]};
@@ -135,17 +153,25 @@ static int storage(void)
                                   wire[5], wire[6], wire[7]};
                 ab_emit("storage", row, 11);
             }
+        }
+    }
     pool[1] = (struct aw_record){77, 88};
     for (unsigned n = 0; n < 8; ++n)
+    {
         CHECK(ab_record_decode(wire, n, 0, pool + 1) == AB_TRUNCATED &&
               pool[1].id == 77 && pool[1].rank == 88);
+    }
     CHECK(ab_record_decode(wire, 8, 2, pool + 1) == AB_INVALID &&
           pool[1].id == 77);
     for (unsigned i = 0; i < 8; ++i)
+    {
         wire[i] = 0xa5;
+    }
     CHECK(ab_record_encode(pool, 0, wire, 7) == AB_TRUNCATED);
     for (unsigned i = 0; i < 8; ++i)
+    {
         CHECK(wire[i] == 0xa5);
+    }
     CHECK(ab_record_copy(0, pool) == AB_INVALID);
     return 0;
 }
@@ -226,6 +252,7 @@ static int branches(void)
     struct ab_instruction out = {0}, old = {0};
     old.target = 123;
     for (unsigned base = 0; base < 3; ++base)
+    {
         for (unsigned imm = 0; imm < 256; ++imm)
         {
             uint64_t pc = 0x1006 + base * 0x1000;
@@ -236,6 +263,7 @@ static int branches(void)
             uint64_t row[] = {pc, imm, out.target};
             ab_emit("xbranch", row, 3);
         }
+    }
     out = old;
     p[1] = 128;
     CHECK(ab_x86(p, 2, 0, 0, &out) == AB_RANGE &&
@@ -243,7 +271,9 @@ static int branches(void)
     CHECK(ab_x86(p, 2, UINT64_MAX, 0, &out) == AB_RANGE &&
           equal(&out, &old, sizeof(out)));
     for (unsigned base = 0; base < 2; ++base)
+    {
         for (unsigned cond = 0; cond < 14; ++cond)
+        {
             for (unsigned imm = 0; imm < 256; ++imm)
             {
                 uint32_t pc = 0x2000 + base * 0x1000;
@@ -256,6 +286,8 @@ static int branches(void)
                 uint64_t row[] = {pc, cond, imm, out.target};
                 ab_emit("tbranch", row, 4);
             }
+        }
+    }
     p[0] = 0;
     p[1] = 0xde;
     out = old;
@@ -273,14 +305,24 @@ static int branches(void)
 int ab_test(const char *s)
 {
     if (name(s, "registers"))
+    {
         return registers();
+    }
     if (name(s, "bytes"))
+    {
         return bytes();
+    }
     if (name(s, "storage"))
+    {
         return storage();
+    }
     if (name(s, "decode"))
+    {
         return decode();
+    }
     if (name(s, "branches"))
+    {
         return branches();
+    }
     return 42;
 }

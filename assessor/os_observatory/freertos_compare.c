@@ -18,7 +18,9 @@ static void producer(void *unused)
 {
     (void)unused;
     for (unsigned i = 0; i < 256; ++i)
+    {
         configASSERT(xQueueSend(q, &i, portMAX_DELAY) == pdPASS);
+    }
     unsigned end = UINT_MAX;
     configASSERT(xQueueSend(q, &end, portMAX_DELAY) == pdPASS);
     vTaskSuspend(NULL);
@@ -36,7 +38,9 @@ static void consumer(void *unused)
         unsigned item;
         configASSERT(xQueueReceive(q, &item, portMAX_DELAY) == pdPASS);
         if (item == UINT_MAX)
+        {
             break;
+        }
         configASSERT(item == n);
         ++n;
         total += item;

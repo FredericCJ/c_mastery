@@ -43,8 +43,10 @@ static void even(void)
     int8_t values[] = {1, 3, 5, -1, -3, -5}, gain = 64, out = 77;
     int expected[] = {0, 2, 2, 0, -2, -2};
     for (unsigned i = 0; i < 6; ++i)
+    {
         CHECK(bf_q7_even(&values[i], &gain, 1, &out) == B2_OK &&
               out == expected[i]);
+    }
     CHECK(bf_q7_even(NULL, NULL, 0, &out) == B2_OK && out == 0);
     out = 77;
     CHECK(bf_q7_even(&values[0], &gain, 1025, &out) == B2_RANGE && out == 77 &&
@@ -167,13 +169,17 @@ static void scale16(void)
     int8_t a[] = {3, -3, 64, 0}, b[] = {8, 8, 64, 127};
     int expected[] = {2, -2, 127, 0};
     for (unsigned i = 0; i < 4; ++i)
+    {
         CHECK(bf_mul16(a[i], b[i], BF_AWAY, &s) == B2_OK &&
               s.output == expected[i] && s.clipped == (i == 2));
+    }
     int8_t ties[] = {1, 3, 5, -1, -3, -5};
     int even_result[] = {0, 2, 2, 0, -2, -2};
     for (unsigned i = 0; i < 6; ++i)
+    {
         CHECK(bf_mul16(ties[i], 8, BF_EVEN, &s) == B2_OK &&
               s.output == even_result[i]);
+    }
     struct bf_small prior = s;
     CHECK(bf_mul16(1, 1, 2, &s) == B2_INVALID &&
           s.error_numerator == prior.error_numerator);
@@ -256,33 +262,59 @@ int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (!strcmp(argv[1], "scale16"))
+    {
         scale16();
+    }
     else if (!strcmp(argv[1], "mixed"))
+    {
         mixed();
+    }
     else if (!strcmp(argv[1], "cascade"))
+    {
         cascade();
+    }
     else if (!strcmp(argv[1], "small_oracle"))
+    {
         return small_oracle();
+    }
     else if (!strcmp(argv[1], "cascade_oracle"))
+    {
         return cascade_oracle();
+    }
     else if (!strcmp(argv[1], "q7"))
+    {
         q7();
+    }
     else if (!strcmp(argv[1], "even"))
+    {
         even();
+    }
     else if (!strcmp(argv[1], "q11"))
+    {
         q11();
+    }
     else if (!strcmp(argv[1], "units"))
+    {
         units();
+    }
     else if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     else if (!strcmp(argv[1], "wide"))
+    {
         return wide();
+    }
     else if (!strcmp(argv[1], "metrics"))
+    {
         printf(
             "{\"int_bits\":%zu,\"size_bits\":%zu,\"q7_terms\":1024,\"q11_terms\":65536,\"q7_sum_bound\":16777216,\"q11_sum_bound\":70368744177664,\"signal_bytes\":%zu}\n",
             sizeof(int) * CHAR_BIT, sizeof(size_t) * CHAR_BIT,
             sizeof(struct bf_signal));
+    }
     else
+    {
         return 2;
+    }
     return 0;
 }

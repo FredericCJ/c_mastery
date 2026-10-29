@@ -3,7 +3,9 @@
 void sf_init(struct sf_stream *s)
 {
     if (s)
+    {
         *s = (struct sf_stream){0};
+    }
 }
 
 int sf_start(struct sf_stream *a, const unsigned char *b, size_t c,

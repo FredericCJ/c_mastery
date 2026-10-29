@@ -18,7 +18,9 @@ static int submit(void *ctx, const uint8_t *bytes, unsigned n, uint32_t token,
     if (u->backend == PU_DMA && PL_TARGET_MUTANT != 1 &&
         (!n || n > 8 || address < 0x20000000u || address >= 0x20030000u ||
          n > 0x20030000u - address))
+    {
         return PL_INVALID;
+    }
     struct pl_transport t = pl_uart_transport(u);
     return t.submit(t.context, bytes, n, token, now, budget);
 }
@@ -27,6 +29,8 @@ struct pl_transport pl_f439_transport(struct pl_uart *u)
 {
     struct pl_transport t = pl_uart_transport(u);
     if (u)
+    {
         t.submit = submit;
+    }
     return t;
 }

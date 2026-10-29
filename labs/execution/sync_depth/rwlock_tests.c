@@ -26,23 +26,39 @@ static int rw_setup(cmx_kernel *k, struct cd_rw *r, struct cdr_handle h[4],
 {
     cmx_init(k, CMX_FIXED);
     for (unsigned i = 0; i < 4; i++)
+    {
         if (cmx_task_add(k, 5 + i, 0, 0x1000 + 256 * i, 256) != (int)i)
+        {
             return 0;
+        }
+    }
     if (cdr_init(r, k, limit) != CMX_OK)
+    {
         return 0;
+    }
     for (unsigned i = 0; i < 4; i++)
+    {
         if (cdr_register(r, i, &h[i]) != CMX_OK)
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
 static int rw_close_all(struct cd_rw *r, struct cdr_handle h[4])
 {
     if (cdr_close(r) != CMX_OK)
+    {
         return 0;
+    }
     for (unsigned i = 0; i < 4; i++)
+    {
         if (cdr_release(&h[i]) != CMX_OK)
+        {
             return 0;
+        }
+    }
     return cdr_destroy(r) == CMX_OK;
 }
 
@@ -85,9 +101,13 @@ static int rw_cancelled(void)
         CHECK(cdr_begin(h[2], CDR_READ, cmx_forever(), &c) == CMX_BLOCKED);
         CHECK(cdr_begin(h[3], CDR_WRITE, cmx_forever(), &d) == CMX_BLOCKED);
         if (timeout)
+        {
             cmx_tick(&k, 5);
+        }
         else
+        {
             CHECK(cdr_cancel(b) == CMX_CLOSED);
+        }
         CHECK(cdr_result(b) == (timeout ? CMX_TIMEOUT : CMX_CLOSED) &&
               cdr_result(c) == CMX_BLOCKED);
         CHECK(cdr_cancel(d) == CMX_CLOSED && cdr_result(d) == CMX_CLOSED);
@@ -180,15 +200,25 @@ static int rw_starvation(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "policy"))
+    {
         return rw_policy();
+    }
     if (!strcmp(argv[1], "cancel"))
+    {
         return rw_cancelled();
+    }
     if (!strcmp(argv[1], "bounds"))
+    {
         return rw_bounds();
+    }
     if (!strcmp(argv[1], "starvation"))
+    {
         return rw_starvation();
+    }
     return 2;
 }
 

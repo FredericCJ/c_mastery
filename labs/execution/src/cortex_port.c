@@ -85,7 +85,9 @@ void cmx_port_finish(unsigned code)
 {
     cmx_port_status = 0xdead0000u | code;
     for (;;)
+    {
         __asm__ volatile("wfi");
+    }
 }
 
 void cmx_fault(void)

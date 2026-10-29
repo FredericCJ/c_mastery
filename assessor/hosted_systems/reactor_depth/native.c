@@ -78,7 +78,9 @@ static int prefill(int fd, size_t *count)
             continue;
         }
         if (n == -1 && would_block())
+        {
             return 0;
+        }
         return -1;
     }
     return -1;
@@ -92,7 +94,9 @@ static int drain_exact(int fd, size_t count)
         size_t want = count < sizeof bytes ? count : sizeof bytes;
         ssize_t n = recv(fd, bytes, want, 0);
         if (n <= 0)
+        {
             return -1;
+        }
         count -= (size_t)n;
     }
     return 0;
@@ -223,7 +227,9 @@ static uint64_t now_ns(void)
 {
     struct timespec t;
     if (clock_gettime(CLOCK_MONOTONIC, &t))
+    {
         abort();
+    }
     return (uint64_t)t.tv_sec * 1000000000u + (uint64_t)t.tv_nsec;
 }
 
@@ -238,10 +244,12 @@ static int overload_policies(void)
         unsigned at;
         CHECK(ep >= 0 && !rd_service_init(&s, 256));
         for (unsigned i = 0; i < 4; ++i)
+        {
             CHECK(!socketpair(AF_UNIX,
                               SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0,
                               pair[i]) &&
                   rd_service_open(&s, &at) == 1 && at == i);
+        }
         struct epoll_event event = {.events = EPOLLIN, .data.u64 = 1}, observed;
         CHECK(!epoll_ctl(ep, EPOLL_CTL_ADD, pair[0][0], &event));
         for (unsigned i = 0; i < 9; ++i)
@@ -306,7 +314,9 @@ static int overload_policies(void)
         for (unsigned i = 0; i < 4; ++i)
         {
             if (pair[i][0] >= 0)
+            {
                 CHECK(!close(pair[i][0]));
+            }
             CHECK(!close(pair[i][1]));
         }
         CHECK(!close(ep));
@@ -366,7 +376,9 @@ static int shutdown_service(void)
     {
         uint64_t observed = now_ns();
         if (observed >= deadline)
+        {
             break;
+        }
         uint64_t remaining = deadline - observed;
         struct timespec t = {(time_t)(remaining / 1000000000u),
                              (long)(remaining % 1000000000u)};
@@ -377,14 +389,20 @@ static int shutdown_service(void)
     CHECK(!rd_tick(&s, finish) && s.phase == RD_CANCELLING && s.terminal == 1 &&
           s.borrowers == 1);
     for (unsigned i = 1; i < 32; ++i)
+    {
         CHECK(m[i].owner == RF_OUTBOX);
+    }
     CHECK(!rd_service_return(&s) && s.phase == RD_RELEASED &&
           !rd_stop(&s, finish, finish) && s.terminal == 32);
     for (unsigned i = 0; i < 32; ++i)
+    {
         CHECK(s.records[i].id == i + 1 &&
               s.records[i].outcome == (i ? RF_CANCELLED : RF_DELIVERED));
+    }
     for (unsigned i = 0; i < 4; ++i)
+    {
         CHECK(!close_pair(sockets[i]));
+    }
     printf("REACTOR-SHUTDOWN:accepted=32;completed=1;cancelled=31;deferred_"
            "borrow=1;elapsed_ns=%llu;\n",
            (unsigned long long)(finish - begin));
@@ -394,22 +412,40 @@ static int shutdown_service(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "cursor"))
+    {
         return cursor();
+    }
     if (!strcmp(argv[1], "duplex"))
+    {
         return duplex();
+    }
     if (!strcmp(argv[1], "lt"))
+    {
         return notification(0, 0);
+    }
     if (!strcmp(argv[1], "et"))
+    {
         return notification(1, 0);
+    }
     if (!strcmp(argv[1], "oneshot"))
+    {
         return notification(1, 1);
+    }
     if (!strcmp(argv[1], "reuse"))
+    {
         return reuse();
+    }
     if (!strcmp(argv[1], "shutdown"))
+    {
         return shutdown_service();
+    }
     if (!strcmp(argv[1], "policies"))
+    {
         return overload_policies();
+    }
     return 2;
 }

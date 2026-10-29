@@ -64,7 +64,9 @@ static int pool(void)
     cl_pool_init(&p);
     cl_owned_init(&q);
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(cl_alloc(&p, 4, &h[i]) == CL_OK);
+    }
     CHECK(cl_release(&p, h[0]) == CL_OK && cl_release(&p, h[2]) == CL_OK);
     CHECK(cl_alloc(&p, 6, &out) == CL_FRAGMENTED && out.slot == 99 &&
           p.allocations == 4);
@@ -104,7 +106,9 @@ static int life(void)
     struct cl_lease h[5], old;
     cl_life_init(&l);
     for (unsigned i = 0; i < 5; i++)
+    {
         CHECK(cl_acquire(&l, &h[i]) == CL_OK);
+    }
     old = h[0];
     CHECK(cl_transition(&l, h[0], CL_ACTIVE, CL_SEND_WAIT) == CL_OK);
     CHECK(cl_transition(&l, h[1], CL_ACTIVE, CL_RECV_WAIT) == CL_OK);
@@ -139,7 +143,9 @@ static int life(void)
     struct cl_life service[3];
     struct cl_lease consumer_to_worker, worker_to_timer;
     for (unsigned i = 0; i < 3; i++)
+    {
         cl_life_init(&service[i]);
+    }
     CHECK(cl_acquire(&service[1], &consumer_to_worker) == CL_OK &&
           cl_acquire(&service[2], &worker_to_timer) == CL_OK);
     for (unsigned i = 0; i < 3; i++)
@@ -223,10 +229,14 @@ static int ack(void)
     CHECK(cl_acknowledge(&a, 1) == CL_OK &&
           cl_request(&a, 5, 1, 7, &out) == CL_STALE);
     for (unsigned i = 2; i < 6; i++)
+    {
         CHECK(cl_request(&a, 5, i, 1, &out) == CL_PENDING);
+    }
     CHECK(cl_request(&a, 5, 6, 1, &out) == CL_FULL && a.highwater == 5);
     for (unsigned i = 2; i < 6; i++)
+    {
         CHECK(cl_apply(&a, i) == CL_OK && cl_acknowledge(&a, i) == CL_OK);
+    }
     CHECK(a.value == 11 && cl_request(&a, 6, 6, 1, &out) == CL_STALE);
     CHECK(cl_request(&a, 5, UINT32_MAX, UINT32_MAX, &out) == CL_PENDING);
     CHECK(cl_apply(&a, UINT32_MAX) == CL_RANGE && a.value == 11);
@@ -243,19 +253,33 @@ static int ack(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     int r = 2;
     if (!strcmp(argv[1], "queue"))
+    {
         r = queue();
+    }
     if (!strcmp(argv[1], "pool"))
+    {
         r = pool();
+    }
     if (!strcmp(argv[1], "life"))
+    {
         r = life();
+    }
     if (!strcmp(argv[1], "record"))
+    {
         r = record();
+    }
     if (!strcmp(argv[1], "ack"))
+    {
         r = ack();
+    }
     if (!r)
+    {
         printf("CL_PASS %s\n", argv[1]);
+    }
     return r;
 }

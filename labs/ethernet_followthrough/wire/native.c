@@ -11,7 +11,9 @@ void ew_observation(const char *s, const uint32_t *v, size_t n)
 {
     printf("OBS wire_%s", s);
     for (size_t i = 0; i < n; ++i)
+    {
         printf(" %u", (unsigned)v[i]);
+    }
     puts("");
 }
 

@@ -21,7 +21,9 @@ static int32_t read_value(struct vg_vh *h)
 {
     int32_t v = INT32_MIN;
     if (vh_host(h, 2, 0, &v))
+    {
         return INT32_MIN;
+    }
     return v;
 }
 
@@ -76,7 +78,9 @@ static int restore(void)
 static int arm_all(unsigned target, unsigned cut, unsigned mode)
 {
     for (unsigned i = 0; i < 3; i++)
+    {
         CHECK(dm_arm(disks + i, i == target ? cut : 0, mode, 0, 0, 0) == 0);
+    }
     return 0;
 }
 
@@ -92,7 +96,9 @@ static int finish(unsigned decline)
             CHECK(read_value(&left) == (decline ? 10 : 6) &&
                   read_value(&right) == (decline ? 20 : 24));
             for (unsigned i = 0; i < 3; i++)
+            {
                 CHECK(store_check(databases + i) == STORE_OK);
+            }
             return 0;
         }
         CHECK(r == SW_PROGRESS);
@@ -139,9 +145,13 @@ static int cuts(void)
                   baseline == (decline ? SW_COMPENSATED : SW_DONE));
             unsigned events[3];
             for (unsigned i = 0; i < 3; i++)
+            {
                 events[i] = disks[i].event;
+            }
             for (unsigned device = 0; device < 3; device++)
+            {
                 for (unsigned mode = 0; mode < 2; mode++)
+                {
                     for (unsigned cut = 1; cut <= events[device]; cut++)
                     {
                         CHECK(restore() == 0);
@@ -160,6 +170,8 @@ static int cuts(void)
                         CHECK(finish(decline) == 0);
                         histories++;
                     }
+                }
+            }
         }
     }
     printf("SW cuts validated histories=%u "
@@ -172,6 +184,7 @@ static int create_cut(void)
 {
     unsigned histories = 0;
     for (unsigned mode = 0; mode < 2; mode++)
+    {
         for (unsigned cut = 1; cut <= 37; cut++)
         {
             for (unsigned i = 0; i < 3; i++)
@@ -198,6 +211,7 @@ static int create_cut(void)
             CHECK(r == (mode && cut >= 36 ? STORE_OK : STORE_NOT_FOUND));
             histories++;
         }
+    }
     printf("SW create validated cuts=%u no-effect-before-durable-intent\n",
            histories);
     return 0;
@@ -239,7 +253,9 @@ static enum cvm_status call(struct vg_vh *h, unsigned service, unsigned budget,
     p.code[0] = OP_INT;
     uint32_t u = (uint32_t)value;
     for (unsigned i = 0; i < 4; i++)
+    {
         p.code[i + 1] = (uint8_t)(u >> (8 * i));
+    }
     p.code[5] = OP_HOST;
     p.code[6] = (uint8_t)service;
     p.code[7] = OP_RET;
@@ -249,7 +265,9 @@ static enum cvm_status call(struct vg_vh *h, unsigned service, unsigned budget,
     struct cvm_value outv = cvm_int(*out);
     enum cvm_status r = cvm_run(&vm, &p, &outv);
     if (r == CVM_OK)
+    {
         *out = outv.integer;
+    }
     return r;
 }
 
@@ -320,6 +338,7 @@ static int oracle(void)
 {
     const int32_t amounts[] = {1, 4, 10};
     for (unsigned d = 0; d < 2; d++)
+    {
         for (unsigned a = 0; a < 3; a++)
         {
             CHECK(init_amount(d, amounts[a]) == 0);
@@ -336,19 +355,24 @@ static int oracle(void)
                 printf("%u,%d,%u,%u,%d,%d,%d,", d, amounts[a], step, flow.phase,
                        r, read_value(&left), read_value(&right));
                 for (size_t j = 0; j < n; j++)
+                {
                     printf("%02x", p[j]);
+                }
                 puts("");
                 CHECK(open_all() == 0);
                 CHECK(sw_open(&flow, databases, &left, &right) == SW_PROGRESS);
             }
         }
+    }
     return 0;
 }
 
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     return !strcmp(argv[1], "ordinary")    ? ordinary()
            : !strcmp(argv[1], "cuts")      ? cuts()
            : !strcmp(argv[1], "create")    ? create_cut()

@@ -17,7 +17,9 @@ int main(void)
     {
         size_t n = total - at;
         if (n > 7)
+        {
             n = 7;
+        }
         size_t len = nc_wire(packet, s.rcv_nxt, s.snd_nxt, 0x18, 512,
                              request + at, n, 0);
         CHECK(nc_receive(&s, packet, len, 81 + at) == NC_OK);
@@ -28,7 +30,9 @@ int main(void)
             result = nc_http_pump(&s, &http, 3, &used);
             consumed += used;
             if (!s.rx.count || !used || result == HTTP_DONE)
+            {
                 break;
+            }
         }
     }
     CHECK(result == HTTP_DONE && http.request.body_length == 4 &&
@@ -57,7 +61,9 @@ int main(void)
     uint64_t finishes[2] = {0, 0};
     unsigned char data[1024];
     for (unsigned i = 0; i < 1024; i++)
+    {
         data[i] = (unsigned char)i;
+    }
     for (unsigned policy = 0; policy < 2; policy++)
     {
         CHECK(!nc_establish(&s, 512, 0xfffffff0, 30, policy ? 256 : 64));
@@ -83,7 +89,9 @@ int main(void)
         CHECK(!s.flight && s.tx_at == 1024);
         finishes[policy] = now;
         for (unsigned i = 0; i < 1024; i++)
+        {
             data[i] = (unsigned char)i;
+        }
     }
     CHECK(counts[0] == 16 && counts[1] == 4 && finishes[0] == 1748 &&
           finishes[1] == 512);

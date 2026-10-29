@@ -4,7 +4,9 @@
 enum fr_status fr_service_init(struct fr_service *s, fr_output f, void *p)
 {
     if (!s || !f)
+    {
         return FR_ARGUMENT;
+    }
     s->used = 0;
     s->offset = 0;
     s->ready = 0;
@@ -17,7 +19,9 @@ enum fr_status fr_service_init(struct fr_service *s, fr_output f, void *p)
 enum fr_status fr_service_ready(struct fr_service *s)
 {
     if (!s || !s->output)
+    {
         return FR_ARGUMENT;
+    }
     s->ready = 1;
     return FR_OK;
 }
@@ -26,15 +30,25 @@ enum fr_status fr_service_begin(struct fr_service *s, const unsigned char *b,
                                 size_t n)
 {
     if (!s || (!b && n) || !s->output)
+    {
         return FR_ARGUMENT;
+    }
     if (!s->ready)
+    {
         return FR_NOT_READY;
+    }
     if (s->active)
+    {
         return FR_BLOCKED;
+    }
     if (n > sizeof s->bytes)
+    {
         return FR_RANGE;
+    }
     for (size_t i = 0; i < n; ++i)
+    {
         s->bytes[i] = b[i];
+    }
     s->used = n;
     s->offset = 0;
     s->active = n != 0;
@@ -44,11 +58,17 @@ enum fr_status fr_service_begin(struct fr_service *s, const unsigned char *b,
 enum fr_status fr_service_pump(struct fr_service *s)
 {
     if (!s || !s->output || s->offset > s->used || s->used > sizeof s->bytes)
+    {
         return FR_ARGUMENT;
+    }
     if (!s->ready)
+    {
         return FR_NOT_READY;
+    }
     if (!s->active)
+    {
         return FR_OK;
+    }
     size_t left = s->used - s->offset;
     struct fr_progress p = s->output(s->context, s->bytes + s->offset, left);
     if (p.accepted > left ||
@@ -91,12 +111,18 @@ enum fr_status fr_allocate(struct fr_arena *a, size_t n, size_t align,
 {
     if (!a || !out || !n || !align || (align & (align - 1)) ||
         align > _Alignof(max_align_t))
+    {
         return FR_ARGUMENT;
+    }
     if (a->used > sizeof a->bytes)
+    {
         return FR_RANGE;
+    }
     size_t pad = (align - (a->used & (align - 1))) & (align - 1);
     if (pad > sizeof a->bytes - a->used || n > sizeof a->bytes - a->used - pad)
+    {
         return FR_EXHAUSTED;
+    }
     size_t start = a->used + pad;
     *out = a->bytes + start;
     a->used = start + n;
@@ -119,40 +145,58 @@ enum fr_status fr_startup(unsigned char *ram, size_t n,
                           const struct fr_start_plan *p, size_t cut)
 {
     if (!ram || !rom || !p)
+    {
         return FR_ARGUMENT;
+    }
     struct fr_region r[4] = {p->data, p->bss, p->retained, p->stack};
     for (unsigned i = 0; i < 4; ++i)
     {
         if (!valid(r[i], n))
+        {
             return FR_RANGE;
+        }
         for (unsigned j = 0; j < i; ++j)
+        {
             if (intersects(r[i], r[j]))
+            {
                 return FR_OVERLAP;
+            }
+        }
     }
     if (p->stack.begin == p->stack.end || (p->stack.begin & 7) ||
         (p->stack.end & 7))
+    {
         return FR_ARGUMENT;
+    }
     size_t count = p->data.end - p->data.begin;
     if (p->load > m || count > m - p->load)
+    {
         return FR_RANGE;
+    }
     size_t done = 0;
     for (size_t i = 0; i < count; ++i)
     {
         if (done == cut)
+        {
             return FR_NOT_READY;
+        }
         ram[p->data.begin + i] = rom[p->load + i];
         ++done;
     }
     for (size_t i = p->bss.begin; i < p->bss.end; ++i)
     {
         if (done == cut)
+        {
             return FR_NOT_READY;
+        }
         ram[i] = 0;
         ++done;
     }
 #ifdef FR_MUTANT_RETAIN
     for (size_t i = p->retained.begin; i < p->retained.end; ++i)
+    {
         ram[i] = 0;
+    }
 #endif
     return FR_OK;
 }
@@ -167,8 +211,11 @@ enum fr_status fr_task_create(struct fr_tasks *t, unsigned value,
                               struct fr_handle *out)
 {
     if (!t || !out)
+    {
         return FR_ARGUMENT;
+    }
     for (unsigned i = 0; i < 4; ++i)
+    {
         if (!t->slot[i].active && t->slot[i].generation != UINT_MAX)
         {
             struct fr_task *p = &t->slot[i];
@@ -180,6 +227,7 @@ enum fr_status fr_task_create(struct fr_tasks *t, unsigned value,
             out->generation = p->generation;
             return FR_OK;
         }
+    }
     return FR_EXHAUSTED;
 }
 
@@ -187,11 +235,17 @@ enum fr_status fr_task_hook(struct fr_tasks *t, struct fr_handle h,
                             const struct fr_service *s)
 {
     if (!live(t, h) || !s)
+    {
         return FR_ARGUMENT;
+    }
     if (!s->ready)
+    {
         return FR_NOT_READY;
+    }
     if (t->slot[h.index].hooks)
+    {
         return FR_ARGUMENT;
+    }
     ++t->slot[h.index].hooks;
     return FR_OK;
 }
@@ -200,7 +254,9 @@ enum fr_status fr_task_read(const struct fr_tasks *t, struct fr_handle h,
                             unsigned *out)
 {
     if (!live(t, h) || !out)
+    {
         return FR_ARGUMENT;
+    }
 #ifdef FR_MUTANT_TLS
     *out = t->slot[0].value;
 #else
@@ -212,7 +268,9 @@ enum fr_status fr_task_read(const struct fr_tasks *t, struct fr_handle h,
 enum fr_status fr_task_destroy(struct fr_tasks *t, struct fr_handle h)
 {
     if (!live(t, h))
+    {
         return FR_ARGUMENT;
+    }
     t->slot[h.index].value = 0;
     t->slot[h.index].hooks = 0;
     t->slot[h.index].active = 0;

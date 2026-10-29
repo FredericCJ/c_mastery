@@ -19,7 +19,9 @@ static uint32_t crc(const uint8_t *p, size_t n)
     {
         c ^= p[i];
         for (unsigned j = 0; j < 8; j++)
+        {
             c = (c >> 1) ^ (UINT32_C(0xedb88320) & (0u - (c & 1u)));
+        }
     }
     return ~c;
 }
@@ -28,7 +30,9 @@ static void seal(uint8_t *p)
 {
     uint32_t c = crc(p, 4092);
     for (unsigned i = 0; i < 4; i++)
+    {
         p[4092 + i] = (uint8_t)(c >> (i * 8));
+    }
 }
 
 static int transaction(store *s, unsigned v)
@@ -75,14 +79,17 @@ static int cuts(void)
     CHECK(store_format(dm_io(&medium)) == STORE_OK &&
           store_open(&s, dm_io(&medium)) == STORE_OK);
     for (unsigned gen = 1; gen <= 2; gen++)
+    {
         CHECK(transaction(&s, gen) == 0 &&
               dm_arm(&medium, 0, 0, 0, 0, 0) == 0 &&
               store_checkpoint(&s) == STORE_OK);
+    }
     CHECK(transaction(&s, 3) == 0);
     saved = medium;
     store source = s;
     unsigned cases = 0;
     for (unsigned mode = 0; mode < 7; mode++)
+    {
         for (unsigned cut = 1; cut <= 37; cut++)
         {
             medium = saved;
@@ -94,6 +101,7 @@ static int cuts(void)
                   s.generation == 3 && value(&s, 3));
             cases++;
         }
+    }
     printf("DUR third_cuts validated schedules=%u older-checkpoint-new-WAL\n",
            cases);
     return 0;
@@ -125,12 +133,20 @@ static int maximum(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "selection"))
+    {
         return selection();
+    }
     if (!strcmp(argv[1], "cuts"))
+    {
         return cuts();
+    }
     if (!strcmp(argv[1], "maximum"))
+    {
         return maximum();
+    }
     return 2;
 }

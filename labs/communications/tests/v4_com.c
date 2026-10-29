@@ -21,7 +21,9 @@ static uint32_t rd(void *p, unsigned r)
 {
     struct edu_can *c = p;
     if (c->stuck && r == 0)
+    {
         return 0;
+    }
     return c->r[r];
 }
 
@@ -29,11 +31,15 @@ static void wr(void *p, unsigned r, uint32_t v)
 {
     struct edu_can *c = p;
     if ((r == 1 || r == 2) && c->r[0] != 3)
+    {
         c->bad = 1;
+    }
     c->r[r] = v;
     c->writes++;
     if (r == 4)
+    {
         c->r[5] = 1;
+    }
 }
 
 static int drop(void *p, const struct net_packet *n)
@@ -46,7 +52,9 @@ static int drop(void *p, const struct net_packet *n)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "reassembly"))
     {
         struct v4_reassembly r = {0};
@@ -87,7 +95,9 @@ int main(int argc, char **argv)
               !a.pending);
         CHECK(v4_arp_queue(&a, 42, p, 3, 0) == 0);
         for (unsigned i = 0; i < 3; i++)
+        {
             CHECK(v4_arp_poll(&a, 100 * i) == 1);
+        }
         CHECK(v4_arp_poll(&a, 300) < 0 && !a.pending);
     }
     else if (!strcmp(argv[1], "tcp_fault"))
@@ -118,7 +128,9 @@ int main(int argc, char **argv)
               c.r[1] == 0x123 && c.r[2] == 0x45 && c.r[0] == 0);
         uint8_t in[64], out[64];
         for (unsigned i = 0; i < 64; i++)
+        {
             in[i] = (uint8_t)i;
+        }
         CHECK(v4_can_loopback(io, in, 64, out, 64, 3) == 0 &&
               !memcmp(in, out, 64));
         CHECK(v4_can_loopback(io, in, 9, out, 64, 3) < 0);
@@ -126,6 +138,8 @@ int main(int argc, char **argv)
         CHECK(v4_can_init(io, 1, 1, 2) < 0 && c.r[1] == 0);
     }
     else
+    {
         return 2;
+    }
     return 0;
 }

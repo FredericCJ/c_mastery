@@ -63,5 +63,7 @@ int main(void)
     pass &= admitted == 1024;
     report(pass);
     for (;;)
+    {
         __asm__ volatile("sleep");
+    }
 }

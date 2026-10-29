@@ -53,7 +53,9 @@ static uint64_t time_ns(clockid_t clock)
 static uint64_t digest(uint64_t value, const unsigned char *b)
 {
     for (size_t i = 0; i < WIDTH; ++i)
+    {
         value = (value ^ b[i]) * UINT64_C(1099511628211);
+    }
     return value;
 }
 
@@ -104,7 +106,9 @@ int main(void)
     for (unsigned p = 0; p < 16; p += 2)
     {
         for (size_t i = 0; i < WIDTH; ++i)
+        {
             block[i] = (unsigned char)(p * 7 + i);
+        }
         CHECK(pwrite(fd, block, sizeof block,
                      (off_t)((size_t)p * (size_t)page)) == sizeof block);
     }

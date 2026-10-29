@@ -13,12 +13,16 @@
 static int admitted(const double *x, size_t n)
 {
     if (n > 4096 || (n && !x))
+    {
         return 0;
+    }
     for (size_t i = 0; i < n; i++)
     {
         double a = fabs(x[i]);
         if (!isfinite(x[i]) || a > 0x1p100 || (a != 0 && a < 0x1p-100))
+        {
             return 0;
+        }
     }
     return 1;
 }
@@ -27,13 +31,21 @@ enum ff_status ff_sum(const double *x, size_t n, enum ff_method method,
                       double *out)
 {
     if (!out || method < FF_NAIVE || method > FF_NEUMAIER)
+    {
         return FF_RANGE;
+    }
     if (FF_MUTANT == 2)
+    {
         *out = 0;
+    }
     if (!admitted(x, n))
+    {
         return FF_RANGE;
+    }
     if (fegetround() != FE_TONEAREST)
+    {
         return FF_MODEL;
+    }
     double sum = 0, correction = 0;
     for (size_t i = 0; i < n; i++)
     {
@@ -49,9 +61,13 @@ enum ff_status ff_sum(const double *x, size_t n, enum ff_method method,
             if (method == FF_NEUMAIER)
             {
                 if (fabs(sum) >= fabs(x[i]))
+                {
                     correction += (sum - t) + x[i];
+                }
                 else
+                {
                     correction += (x[i] - t) + sum;
+                }
             }
             sum = t;
         }
@@ -63,9 +79,13 @@ enum ff_status ff_sum(const double *x, size_t n, enum ff_method method,
 enum ff_status ff_dot(const double *a, const double *b, size_t n, double *out)
 {
     if (!out || !admitted(a, n) || !admitted(b, n))
+    {
         return FF_RANGE;
+    }
     if (fegetround() != FE_TONEAREST)
+    {
         return FF_MODEL;
+    }
     double sum = 0;
     for (size_t i = 0; i < n; i++)
     {
@@ -81,7 +101,9 @@ enum ff_status ff_compare(double a, double b, double absolute, double relative,
 {
     if (!out || !isfinite(a) || !isfinite(b) || !isfinite(absolute) ||
         !isfinite(relative) || absolute < 0 || relative < 0 || relative > 1)
+    {
         return FF_RANGE;
+    }
     if (signed_zero && a == 0 && b == 0 && FF_MUTANT != 3)
     {
         *out = !!signbit(a) == !!signbit(b);
@@ -105,13 +127,19 @@ enum ff_status ff_ulps(double a, double b, uint64_t *out)
     uint64_t one = 0, ua, ub, sign = UINT64_C(1) << 63;
     double d = 1;
     if (!out || !isfinite(a) || !isfinite(b))
+    {
         return FF_RANGE;
+    }
     if (CHAR_BIT != 8 || sizeof(double) != sizeof(uint64_t) || FLT_RADIX != 2 ||
         DBL_MANT_DIG != 53 || DBL_MAX_EXP != 1024)
+    {
         return FF_MODEL;
+    }
     memcpy(&one, &d, sizeof one);
     if (one != UINT64_C(0x3ff0000000000000))
+    {
         return FF_MODEL;
+    }
     memcpy(&ua, &a, sizeof ua);
     memcpy(&ub, &b, sizeof ub);
     if (FF_MUTANT != 4)
@@ -143,7 +171,9 @@ enum ff_status ff_probe_ops(double x, double y, struct ff_round *out,
         return FF_ENV;
     }
     if (ops->hold(&held) != 0)
+    {
         status = FF_ENV;
+    }
     int modes[] = {
 #ifdef FE_TONEAREST
         FE_TONEAREST,
@@ -171,10 +201,14 @@ enum ff_status ff_probe_ops(double x, double y, struct ff_round *out,
         result.values[result.count++] = value;
     }
     if (FF_MUTANT != 5 && ops->restore(&saved) != 0)
+    {
         status = FF_RESTORE;
+    }
     errno = saved_errno;
     if (status == FF_OK)
+    {
         *out = result;
+    }
     return status;
 }
 

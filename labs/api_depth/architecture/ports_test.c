@@ -14,7 +14,9 @@ static void *alloc(void *p, size_t n)
     struct ac_adapter *a = p;
     CHECK(n <= 8);
     if (a->fail_alloc)
+    {
         return 0;
+    }
     ++a->allocations;
     return a->storage;
 }
@@ -35,11 +37,17 @@ static int notify(void *p, unsigned on)
 {
     struct ac_adapter *a = p;
     if (on && a->fail_sub)
+    {
         return AR_FAILED;
+    }
     if (on)
+    {
         CHECK(!a->subscribed);
+    }
     else
+    {
         CHECK(a->subscribed);
+    }
     a->subscribed = on;
     return AR_OK;
 }
@@ -53,7 +61,9 @@ static struct ar_result write_data(void *p, const unsigned char *bytes,
     if (r.count > 0 && (size_t)r.count <= n)
     {
         for (ptrdiff_t i = 0; i < r.count; ++i)
+        {
             a->received[a->received_n++] = bytes[i];
+        }
     }
     return r;
 }

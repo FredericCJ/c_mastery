@@ -10,7 +10,9 @@ static int read_reg(void *p, unsigned reg, uint32_t *value)
 {
     (void)p;
     if (reg > 1 || !value)
+    {
         return 1;
+    }
     uint32_t address =
         UINT32_C(0x40028010) + reg * (EP_TARGET_MUTANT == 1 ? 8u : 4u);
 #ifdef EP_TARGET_MODEL
@@ -25,7 +27,9 @@ static int write_reg(void *p, unsigned reg, uint32_t value)
 {
     (void)p;
     if (reg > 1)
+    {
         return 1;
+    }
     uint32_t address =
         UINT32_C(0x40028010) + reg * (EP_TARGET_MUTANT == 1 ? 8u : 4u);
 #ifdef EP_TARGET_MODEL
@@ -45,7 +49,9 @@ static uint32_t clock_reg(void *p)
 int ep_f439_bus(struct ep_mmio_clock *clock, struct ed_bus *out)
 {
     if (!clock || !clock->clock || !out)
+    {
         return ED_INVALID;
+    }
     struct ed_bus result = {clock, read_reg, write_reg, clock_reg};
     *out = result;
     return ED_OK;

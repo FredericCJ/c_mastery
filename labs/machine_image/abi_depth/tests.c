@@ -53,13 +53,16 @@ int main(int argc, char **argv)
     {
         uint32_t a[] = {1, UINT32_MAX, 3};
         for (unsigned selected = 0; selected < 6; selected++)
+        {
             for (unsigned pass = 0; pass < 64; pass++)
             {
                 uint64_t seeds[6];
                 for (unsigned k = 0; k < 6; k++)
+                {
                     seeds[k] = (UINT64_C(0x9123456789abcdef) >> (k + 1)) ^
                                (k == selected ? (UINT64_C(1) << pass) : 0) ^
                                (k * 37u);
+                }
                 for (unsigned n = 0; n <= 3; n++)
                 {
                     struct ad_observation o = {0};
@@ -76,6 +79,7 @@ int main(int argc, char **argv)
                           "nested call alignment");
                 }
             }
+        }
     }
     else if (!strcmp(argv[1], "call8"))
     {
@@ -95,12 +99,18 @@ int main(int argc, char **argv)
     {
         uint32_t values[] = {0, 1, 2, 7, UINT32_MAX, UINT32_C(0x80000000)};
         for (unsigned a = 0; a < 6; a++)
+        {
             for (unsigned b = 0; b < 6; b++)
+            {
                 CHECK(ad_inline_add(values[a], values[b]) ==
                           (uint32_t)((uint64_t)values[a] + values[b]),
                       "early clobber additive contract");
+            }
+        }
         for (unsigned i = 0; i < 256; i++)
+        {
             CHECK(ad_inline_add(i, i) == 2 * i, "equal valued loop allocation");
+        }
         uint32_t v = UINT32_MAX;
         CHECK(ad_named_memory(&v) == 0 && v == 0, "precise memory operand");
         CHECK(ad_opaque_memory(&v) == 1 && v == 1, "opaque pointer clobber");
@@ -112,7 +122,9 @@ int main(int argc, char **argv)
         CHECK(trace_calls == 1, "normal call and early return paths");
     }
     else
+    {
         return 2;
+    }
     puts("AD_PASS");
     return 0;
 }

@@ -18,7 +18,9 @@ static int init_a(void *p)
 {
     struct ac_recovery *r = p;
     if (r->fail_a)
+    {
         return AR_FAILED;
+    }
     ++r->a;
     return AR_OK;
 }
@@ -27,7 +29,9 @@ static int init_b(void *p)
 {
     struct ac_recovery *r = p;
     if (r->fail_b)
+    {
         return AR_FAILED;
+    }
     ++r->b;
     return AR_OK;
 }
@@ -46,8 +50,10 @@ int main(void)
     struct ac_recovery r = {0};
     unsigned events[] = {0, 1, 1, 0, 2}, modes[] = {0, 0, 1, 0, 2};
     for (unsigned i = 0; i < 5; ++i)
+    {
         CHECK(ar_supervise(&s, events[i], log_full, &r) == AR_OK &&
               s.mode == modes[i] && s.lost_logs == i + 1);
+    }
     CHECK(s.streak == 0 && r.calls == 5);
     CHECK(ar_supervise(&s, 0, log_full, &r) == AR_STATE && r.calls == 5);
     r.fail_b = 1;

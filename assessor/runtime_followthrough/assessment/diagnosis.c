@@ -41,7 +41,9 @@ static int roots(void)
         CHECK(cvm_pair(&vm, cvm_int(11), cvm_int(12), &a) == CVM_OK);
         CHECK(cvm_pair(&vm, cvm_int(21), cvm_int(22), &b) == CVM_OK);
         for (unsigned i = 2; i < count; i++)
+        {
             CHECK(cvm_pair(&vm, cvm_int(0), cvm_int(0), &o) == CVM_OK);
+        }
         CHECK(cvm_pair(&vm, a, b, &o) == CVM_OK);
         struct cvm_value x, y;
         CHECK(cvm_field(&vm, a, 0, &x) == CVM_OK && x.integer == 11);
@@ -86,9 +88,13 @@ static int callback(void *context, uint8_t id, int32_t input, int32_t *out)
 {
     struct vg_loan *l = context;
     if (id != 1 || input != 0)
+    {
         return -1;
+    }
     if (l->checked && (!l->slot->live || l->slot->epoch != l->epoch))
+    {
         return -1;
+    }
     *out = l->slot->synthetic;
     return 0;
 }
@@ -130,7 +136,9 @@ static int lifetime(void)
 int main(void)
 {
     if (verifier() || roots() || budget() || lifetime())
+    {
         return 1;
+    }
     puts("VP_DIAG_PASS three_minimal_pairs_host_lifetime_boundary");
     return 0;
 }

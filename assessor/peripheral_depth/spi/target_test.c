@@ -20,8 +20,12 @@ static unsigned count;
 volatile uint32_t *ps_test_register(uint32_t address)
 {
     for (unsigned i = 0; i < count; i++)
+    {
         if (regs[i].address == address)
+        {
             return &regs[i].value;
+        }
+    }
     regs[count].address = address;
     return &regs[count++].value;
 }

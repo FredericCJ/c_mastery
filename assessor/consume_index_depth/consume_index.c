@@ -13,7 +13,9 @@ unsigned ci_value_index(_Atomic(struct ci_node *) *publication,
 {
     struct ci_node *n = atomic_load_explicit(publication, memory_order_consume);
     if (!n)
+    {
         return 0;
+    }
 #if CI_MUTATION == 1
     return values[1];
 #else
@@ -28,9 +30,13 @@ unsigned ci_branch_index(_Atomic(struct ci_node *) *publication,
     struct ci_node *n = atomic_load_explicit(publication, memory_order_consume);
     unsigned index;
     if (n)
+    {
         index = 1;
+    }
     else
+    {
         index = 0;
+    }
 #if CI_MUTATION == 2
     index = n ? 0 : 1;
 #endif
@@ -42,7 +48,9 @@ unsigned ci_killed_index(_Atomic(struct ci_node *) *publication,
 {
     struct ci_node *n = atomic_load_explicit(publication, memory_order_consume);
     if (!n)
+    {
         return 0;
+    }
     unsigned index = kill_dependency(n->index);
     return values[index];
 }
@@ -53,9 +61,13 @@ unsigned ci_acquire_branch(_Atomic(struct ci_node *) *publication,
     struct ci_node *n = atomic_load_explicit(publication, memory_order_acquire);
     unsigned index;
     if (n)
+    {
         index = 1;
+    }
     else
+    {
         index = 0;
+    }
     return values[index];
 }
 

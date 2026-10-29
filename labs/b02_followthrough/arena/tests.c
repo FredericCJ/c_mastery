@@ -41,12 +41,16 @@ static void marks(void)
     b2_arena_init(&a);
     struct b2_mark stack[4];
     for (unsigned i = 0; i < 4; ++i)
+    {
         CHECK(b2_mark(&a, &stack[i]) == B2_OK);
+    }
     struct b2_mark before = stack[0];
     CHECK(b2_mark(&a, &before) == B2_FULL && before.id == stack[0].id &&
           a.next_id == 5);
     for (unsigned i = 4; i > 0; --i)
+    {
         CHECK(b2_rollback(&a, stack[i - 1]) == B2_OK);
+    }
     for (unsigned i = 5; i <= 15; ++i)
     {
         CHECK(b2_mark(&a, &inner) == B2_OK && inner.id == i &&
@@ -151,7 +155,9 @@ static void cleanup(void)
     CHECK(bf_arena_rollback(&full, mark) == B2_OK && used == 9 &&
           trace[0] == 9);
     for (unsigned i = 1; i < 9; ++i)
+    {
         CHECK(trace[i] == 9 - i && counts[i - 1].calls == 1);
+    }
     puts(
         "BF cleanup validated reverse3-2-1 retry2 no-double-close retained-byte-authority busy-reentry");
 }
@@ -215,12 +221,16 @@ static void borrow(void)
           bf_arena_reserve(&a, 1, 1, &latest) == B2_OK && old.id != latest.id &&
           bf_arena_get(&a, old, 0, &out) == B2_STALE);
     for (unsigned id = 3; id <= 17; ++id)
+    {
         CHECK(bf_arena_reserve(&a, 0, 1, &latest) == B2_OK && latest.id == id);
+    }
     CHECK(bf_arena_reserve(&a, 0, 1, &latest) == B2_FULL &&
           bf_arena_rollback(&a, mark) == B2_OK &&
           bf_arena_mark(&a, &mark) == B2_OK);
     for (unsigned id = 18; id <= 31; ++id)
+    {
         CHECK(bf_arena_reserve(&a, 0, 1, &latest) == B2_OK && latest.id == id);
+    }
     CHECK(bf_arena_reserve(&a, 0, 1, &latest) == B2_FULL &&
           bf_arena_rollback(&a, mark) == B2_OK &&
           bf_arena_reserve(&a, 0, 1, &latest) == B2_FULL);
@@ -262,13 +272,17 @@ static int history(void)
             int rc;
             struct b2_mark token = {&a.raw, 1, 0};
             if (depth)
+            {
                 token = stack[op == 3 ? 0 : depth - 1];
+            }
             if (op == 0)
             {
                 struct b2_mark m;
                 rc = bf_arena_mark(&a, &m);
                 if (rc == B2_OK)
+                {
                     stack[depth] = m;
+                }
             }
             else if (op == 1)
             {
@@ -276,9 +290,13 @@ static int history(void)
                 rc = bf_arena_reserve(&a, 1, 2, &b);
             }
             else if (op == 4)
+            {
                 rc = bf_arena_commit(&a, token);
+            }
             else
+            {
                 rc = bf_arena_rollback(&a, token);
+            }
             printf(" %d %zu %zu %u %zu", rc, a.raw.cursor, a.raw.depth,
                    a.raw.next_id, a.count);
         }
@@ -291,24 +309,42 @@ int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (!strcmp(argv[1], "marks"))
+    {
         marks();
+    }
     else if (!strcmp(argv[1], "cleanup"))
+    {
         cleanup();
+    }
     else if (!strcmp(argv[1], "commit"))
+    {
         commit();
+    }
     else if (!strcmp(argv[1], "borrow"))
+    {
         borrow();
+    }
     else if (!strcmp(argv[1], "extents"))
+    {
         return extents();
+    }
     else if (!strcmp(argv[1], "oracle"))
+    {
         return history();
+    }
     else if (!strcmp(argv[1], "metrics"))
+    {
         printf(
             "{\"arena_bytes\":%zu,\"backing_bytes\":64,\"object_capacity\":16,\"cleanup_capacity\":8,\"mark_capacity\":4,\"mark_ids\":15,\"object_ids\":31}\n",
             sizeof(struct bf_arena));
+    }
     else if (!strcmp(argv[1], "limits"))
+    {
         printf("%zu\n", SIZE_MAX);
+    }
     else
+    {
         return 2;
+    }
     return 0;
 }

@@ -61,7 +61,9 @@ int main(void)
     CHECK(pthread_create(&worker, NULL, waiter, NULL) == 0);
     CHECK(pthread_mutex_lock(&gate) == 0);
     while (!ready)
+    {
         CHECK(pthread_cond_wait(&changed, &gate) == 0);
+    }
     CHECK(pthread_mutex_unlock(&gate) == 0);
     /* Trylock is an observed busy result, not a recursive blocking test. */
     CHECK(pthread_mutex_trylock(&held) == EBUSY);
@@ -79,7 +81,9 @@ int main(void)
     const unsigned next[3] = {1, 2, 0};
     unsigned vertex = 0;
     for (unsigned i = 0; i < 3; ++i)
+    {
         vertex = next[vertex];
+    }
     CHECK(vertex == 0);
     pthread_t a, b;
     CHECK(pthread_create(&a, NULL, logger, (void *)(size_t)1) == 0 &&

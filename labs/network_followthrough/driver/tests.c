@@ -39,7 +39,9 @@ static int boot(void)
     CHECK(ep_begin(&phy, 16, 1000) == ED_BUSY);
     int e = ED_BUSY;
     for (unsigned i = 0; i < 16 && e == ED_BUSY; i++)
+    {
         e = ep_step(&phy);
+    }
     CHECK(e == ED_OK);
     en_model_init(&model, &memory, 0x20001000);
     struct en_bus bus = en_model_bus(&model);
@@ -61,7 +63,9 @@ static int inject(const unsigned char *ip, size_t length)
     memcpy(f + 14, ip, length);
     size_t wire = 14 + length;
     if (wire < 60)
+    {
         wire = 60;
+    }
     return en_model_rx(&model, f, wire + 4,
                        ((uint32_t)(wire + 4) << 16) | 0x300u);
 }
@@ -123,7 +127,9 @@ static int ownership(void)
     CHECK(!boot() && !handshake(1));
     unsigned char data[32];
     for (unsigned i = 0; i < 32; i++)
+    {
         data[i] = (unsigned char)(i + 1);
+    }
     CHECK(nb_offer(&net, data, 32) == NB_OK && nb_step(&net, 4) == NB_OK &&
           net.tcp.flight && net.tcp.dma);
     data[0] = 99;
@@ -195,7 +201,9 @@ static int stop_ownership(void)
     CHECK(ep_begin(&phy, 16, 1000) == ED_BUSY);
     int e = ED_BUSY;
     for (unsigned i = 0; i < 16 && e == ED_BUSY; i++)
+    {
         e = ep_step(&phy);
+    }
     CHECK(e == ED_OK);
     CHECK(en_reset_begin(&ring, 8, 4, 100) == ED_BUSY &&
           en_reset_step(&ring, 9) == ED_BUSY &&
@@ -263,7 +271,9 @@ static void echo_packet(unsigned char p[84])
     nc_w16(p + 24, 0x1234);
     nc_w16(p + 26, 7);
     for (unsigned i = 0; i < 56; i++)
+    {
         p[28 + i] = (unsigned char)(i ^ 0xa5);
+    }
     nc_w16(p + 22, nc_sum(p + 20, 64, 0));
     nc_w16(p + 10, nc_sum(p, 20, 0));
 }

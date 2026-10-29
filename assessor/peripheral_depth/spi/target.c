@@ -33,14 +33,18 @@ static uint32_t read_reg(void *context, unsigned r)
         {
             uint32_t enabled = REG(TX) & 1u;
             if (!enabled)
+            {
                 dma_barrier();
+            }
             return enabled;
         }
         case PS_RX_EN:
         {
             uint32_t enabled = REG(RX) & 1u;
             if (!enabled)
+            {
                 dma_barrier();
+            }
             return enabled;
         }
         case PS_TX_COUNT:
@@ -81,17 +85,25 @@ static void write_reg(void *context, unsigned r, uintptr_t value)
             break;
         case PS_ENABLE:
             if (v)
+            {
                 REG(SPI) |= 64u;
+            }
             else
+            {
                 REG(SPI) &= ~64u;
+            }
             break;
         case PS_TX_EN:
             if (!v)
+            {
                 REG(TX) &= ~1u;
+            }
             break;
         case PS_RX_EN:
             if (!v)
+            {
                 REG(RX) &= ~1u;
+            }
             break;
         case PS_TX_COUNT:
             REG(TX + 4u) = v;
@@ -169,13 +181,19 @@ int ps_f439_begin(struct ps_spi *s, uint32_t generation, uint32_t token,
 {
     uintptr_t a = (uintptr_t)tx, b = (uintptr_t)rx;
     if (!count || count > 16 || dma)
+    {
         return PS_INVALID;
+    }
     if (dma && (a < 0x20000000u || b < 0x20000000u || a >= 0x20030000u ||
                 b >= 0x20030000u || count > 0x20030000u - a ||
                 count > 0x20030000u - b))
+    {
         return PS_INVALID;
+    }
     if ((a <= b && b - a < count) || (b < a && a - b < count))
+    {
         return PS_INVALID;
+    }
     return ps_begin(s, ps_f439_io(), generation, token, tx, rx, count, dma, now,
                     budget, setup, hold);
 }
@@ -188,14 +206,20 @@ int ps_f439_begin_dma(struct ps_spi *s, uint32_t generation, uint32_t token,
     uintptr_t a = (uintptr_t)tx, b = (uintptr_t)rx;
     unsigned bytes;
     if (!count || count > 16)
+    {
         return PS_INVALID;
+    }
     bytes = 2u * count;
     if ((a & 1u) || (b & 1u) || a < 0x20000000u || b < 0x20000000u ||
         a >= 0x20030000u || b >= 0x20030000u || bytes > 0x20030000u - a ||
         bytes > 0x20030000u - b)
+    {
         return PS_INVALID;
+    }
     if ((a <= b && b - a < bytes) || (b < a && a - b < bytes))
+    {
         return PS_INVALID;
+    }
     /* Direct mode has equal halfword memory/peripheral accesses. DFF remains8. */
     return ps_begin(s, ps_f439_io(), generation, token, (const uint8_t *)tx,
                     (uint8_t *)rx, count, 1, now, budget, setup, hold);

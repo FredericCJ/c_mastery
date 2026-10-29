@@ -76,7 +76,9 @@ int main(int argc, char **argv)
             struct lp_order order = {reverse_order};
             CHECK(lp_sort(values, n, &order) == LP_OK);
             for (size_t i = 0; i < n; ++i)
+            {
                 printf("%d:%u ", values[i].key, values[i].serial);
+            }
             puts("");
         }
         return 0;
@@ -98,15 +100,25 @@ int main(int argc, char **argv)
         return 0;
     }
     if (!strcmp(argv[1], "sum"))
+    {
         sum();
+    }
     else if (!strcmp(argv[1], "adapter"))
+    {
         adapter();
+    }
     else if (!strcmp(argv[1], "reverse"))
+    {
         reverse();
+    }
     else if (!strcmp(argv[1], "stable"))
+    {
         stable();
+    }
     else
+    {
         CHECK(0);
+    }
     printf("LP %s validated\n", argv[1]);
     return 0;
 }

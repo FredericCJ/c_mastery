@@ -111,13 +111,19 @@ static int identities(void)
         {
             unsigned event = permutations[p][step];
             if (event == 0)
+            {
                 CHECK(rd_complete(&r, rx1, 1, &byte) == 1 &&
                       rd_complete(&r, rx1, 1, &byte) == 0);
+            }
             else if (event == 1)
+            {
                 CHECK(rd_complete(&r, tx1, 1, 0) == 1 &&
                       rd_complete(&r, tx1, 1, 0) == 0);
+            }
             else
+            {
                 CHECK(!rd_return(&r, fresh));
+            }
             CHECK(r.slots[0].active == (step < 2));
         }
         CHECK(r.slots[0].generation == 2);
@@ -169,7 +175,9 @@ static int scheduling(void)
     CHECK(!rd_turn(&s, 8, callback, &w, &t) && t.successes == 6 &&
           t.callbacks == 6);
     for (unsigned i = 0; i < 6; ++i)
+    {
         CHECK(t.order[i] == i / 2);
+    }
     s = (struct rd_scheduler){.ready = 7};
     w = (struct rd_work){.scheduler = &s, .zero = 1};
     for (unsigned turn = 0; turn < 3; ++turn)
@@ -192,7 +200,9 @@ static int scheduling(void)
     /* Bounded execution of the flawed always-drain policy; no infinite hang. */
     w = (struct rd_work){.scheduler = &s};
     for (unsigned step = 0; step < 16; ++step)
+    {
         CHECK(callback(&w, 0) == 1);
+    }
     CHECK(w.counts[0] == 16 && w.counts[1] == 0);
     return 0;
 }
@@ -207,7 +217,9 @@ static int policies(void)
         struct rf_frame frame = {.length = 1, .bytes = {42}};
         CHECK(!rd_service_init(&s, 256));
         for (unsigned i = 0; i < 4; ++i)
+        {
             CHECK(rd_service_open(&s, &slots[i]) == 1);
+        }
         CHECK(rd_service_open(&s, &extra) == 0 && extra == 99);
         for (unsigned i = 0; i < 9; ++i)
         {
@@ -220,25 +232,32 @@ static int policies(void)
         {
             CHECK(s.terminal == 8 && !s.outbox.connections[0].active);
             for (unsigned i = 0; i < 8; ++i)
+            {
                 CHECK(messages[i].owner == RF_CANCELLED);
+            }
         }
         else if (policy == RD_PAUSE_READ)
         {
             CHECK(s.paused == 1 && rd_resume(&s, 0) == 0);
             for (unsigned i = 0; i < 5; ++i)
+            {
                 CHECK(!rd_commit(&s, 0, 2));
+            }
             CHECK(rd_admit(&s, 0, &messages[8], RD_PAUSE_READ) == 0);
             CHECK(rd_resume(&s, 0) == 1 &&
                   rd_admit(&s, 0, &messages[8], RD_PAUSE_READ) == 1);
         }
         else
+        {
             CHECK(s.terminal == 0 && !s.paused &&
                   s.outbox.connections[0].count == 8);
+        }
         CHECK(!rd_stop(&s, 1, 1) && s.phase == RD_RELEASED &&
               s.terminal == s.accepted);
     }
     unsigned cells = 0;
     for (unsigned limit = 0; limit <= 32; ++limit)
+    {
         for (unsigned length = 0; length <= 8; ++length)
         {
             struct rd_service s;
@@ -263,6 +282,7 @@ static int policies(void)
             CHECK(!rd_stop(&s, 0, 0) && s.terminal == accepted);
             ++cells;
         }
+    }
     CHECK(cells == 297);
     struct rd_service epoch;
     struct rf_message message;
@@ -290,11 +310,17 @@ static int shutdowns(void)
     unsigned at;
     CHECK(!rd_service_init(&s, 8) && rd_service_open(&s, &at) == 1);
     for (unsigned i = 0; i < 7; ++i)
+    {
         CHECK(!rf_message_init(&m[i], i + 1, 1, &f));
+    }
     for (unsigned i = 0; i < 6; ++i)
+    {
         CHECK(rd_admit(&s, at, &m[i], RD_DROP_NEWEST) == 1);
+    }
     for (unsigned i = 0; i < 3; ++i)
+    {
         CHECK(!rd_commit(&s, at, 2));
+    }
     CHECK(!rd_service_borrow(&s) && !rd_stop(&s, 10, 20) &&
           s.phase == RD_DRAINING);
     CHECK(!rd_stop(&s, 11, 30) && s.deadline == 20 &&
@@ -304,13 +330,17 @@ static int shutdowns(void)
     CHECK(!rd_tick(&s, 20) && s.phase == RD_CANCELLING && s.terminal == 3 &&
           s.borrowers == 1);
     for (unsigned i = 3; i < 6; ++i)
+    {
         CHECK(m[i].owner == RF_OUTBOX);
+    }
     CHECK(!rd_stop(&s, 25, 25) && s.terminal == 3 && s.phase == RD_CANCELLING);
     CHECK(!rd_service_return(&s) && s.phase == RD_RELEASED &&
           !rd_stop(&s, 30, 30) && s.terminal == 6);
     for (unsigned i = 0; i < 6; ++i)
+    {
         CHECK(s.records[i].id == i + 1 &&
               s.records[i].outcome == (i < 3 ? RF_DELIVERED : RF_CANCELLED));
+    }
     CHECK(!rd_service_init(&s, 8) && !rd_service_borrow(&s));
     /* Reentrant stop during a callback may settle work but cannot destroy the
      * service until the current callback returns its borrow. */

@@ -15,11 +15,17 @@ static struct ar_result write_width(void *p, const unsigned char *b, size_t n,
 {
     struct ac_sink *s = p;
     if (s->fail)
+    {
         return (struct ar_result){0, AR_FAILED};
+    }
     if (n > width)
+    {
         n = width;
+    }
     for (size_t i = 0; i < n; ++i)
+    {
         s->bytes[s->length++] = b[i];
+    }
     return (struct ar_result){(ptrdiff_t)n, AR_OK};
 }
 
@@ -51,9 +57,13 @@ __attribute__((noinline)) static int pump(ac_write_fn w, struct ac_sink *s)
     {
         struct ar_result r = w(s, bytes + offset, 3 - offset);
         if (r.state != AR_OK)
+        {
             return AR_FAILED;
+        }
         if (r.count <= 0 || (size_t)r.count > 3 - offset)
+        {
             return AR_CONTRACT;
+        }
         offset += (size_t)r.count;
     }
     return AR_OK;

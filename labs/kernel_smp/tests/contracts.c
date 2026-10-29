@@ -21,13 +21,17 @@ static void w16(unsigned char *p, unsigned n)
 static void w32(unsigned char *p, uint32_t n)
 {
     for (unsigned i = 0; i < 4; i++)
+    {
         p[i] = (unsigned char)(n >> (8 * i));
+    }
 }
 
 static void w64(unsigned char *p, uint64_t n)
 {
     for (unsigned i = 0; i < 8; i++)
+    {
         p[i] = (unsigned char)(n >> (8 * i));
+    }
 }
 
 static size_t boot(unsigned char *p)
@@ -58,7 +62,9 @@ static int test_boot(void)
     CHECK(cmk_boot_parse(p, n, &b) == 0);
     CHECK(b.entry_size == 40 && b.map_bytes == 40 && b.module_end == 0x210000);
     for (size_t i = 0; i < n; i++)
+    {
         CHECK(cmk_boot_parse(p, i, &b) != 0);
+    }
     w32(p + 12, 7);
     CHECK(cmk_boot_parse(p, n, &b) != 0);
     boot(p);
@@ -90,7 +96,9 @@ static int test_frames(void)
     CHECK(cmk_frame_put(&f, first) != 0);
     unsigned count = 0;
     while (cmk_frame_take(&f))
+    {
         count++;
+    }
     CHECK(count == 256);
     return 0;
 }
@@ -129,7 +137,9 @@ static int test_elf(void)
     CHECK(e.count == 1 && e.segments[0].filesz == 1 &&
           e.segments[0].memsz == 4096);
     for (size_t i = 0; i <= 4096; i++)
+    {
         CHECK(cmk_elf_parse(p, i, &e) != 0);
+    }
     w32(p + 68, 7);
     CHECK(cmk_elf_parse(p, sizeof p, &e) != 0);
     elf(p);
@@ -168,7 +178,9 @@ static int test_archive(void)
     memset(unbounded_name, 'x', sizeof unbounded_name);
     CHECK(cmk_archive_find(p, 64, unbounded_name, &d, &n) != 0);
     for (size_t i = 0; i < 64; i++)
+    {
         CHECK(cmk_archive_find(p, i, "init", &d, &n) != 0);
+    }
     w32(p + 40, 55);
     CHECK(cmk_archive_find(p, 64, "init", &d, &n) != 0);
     return 0;
@@ -202,23 +214,41 @@ static int test_ranges(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     int r;
     if (!strcmp(argv[1], "boot"))
+    {
         r = test_boot();
+    }
     else if (!strcmp(argv[1], "frames"))
+    {
         r = test_frames();
+    }
     else if (!strcmp(argv[1], "elf"))
+    {
         r = test_elf();
+    }
     else if (!strcmp(argv[1], "archive"))
+    {
         r = test_archive();
+    }
     else if (!strcmp(argv[1], "handles"))
+    {
         r = test_handles();
+    }
     else if (!strcmp(argv[1], "ranges"))
+    {
         r = test_ranges();
+    }
     else
+    {
         return 2;
+    }
     if (!r)
+    {
         printf("PASS %s\n", argv[1]);
+    }
     return r;
 }

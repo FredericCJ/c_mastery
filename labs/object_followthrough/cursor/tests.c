@@ -54,20 +54,32 @@ static int allocated_rows(void)
         goto done;
     }
     for (size_t r = 0; r < 2; ++r)
+    {
         for (size_t c = 0; c < 3; ++c)
+        {
             rows[r][c] = (int)(10 * r + c);
+        }
+    }
     if (oc_read(&m, 1, 2, &out) || out != 12)
+    {
         result = 41;
+    }
     lengths[1] = 2;
     if (oc_read(&m, 1, 2, &out) != -1 || out != 12)
+    {
         result = 41;
+    }
 done:
     free(rows[0]);
     free(rows[1]);
     if (result)
+    {
         puts("OC_ALLOCATED_ASSERT:actual row table");
+    }
     else
+    {
         puts("OC_ALLOCATED_PASS");
+    }
     return result;
 }
 

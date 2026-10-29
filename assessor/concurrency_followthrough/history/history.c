@@ -27,7 +27,9 @@ static int step(struct cf_state *s, const struct ch_op *o, unsigned cap,
     if (o->operation == CH_INSERT)
     {
         if (s->count == cap)
+        {
             *r = CH_FULL;
+        }
         else
         {
             s->values[s->count++] = o->value;
@@ -35,18 +37,24 @@ static int step(struct cf_state *s, const struct ch_op *o, unsigned cap,
         }
     }
     else if (!s->count)
+    {
         *r = CH_EMPTY;
+    }
     else
     {
         *r = CH_VALUE;
         if (spec == CH_STACK)
+        {
             *v = s->values[--s->count];
+        }
         else
         {
             *v = s->values[0];
             s->count--;
             for (unsigned i = 0; i < s->count; i++)
+            {
                 s->values[i] = s->values[i + 1];
+            }
         }
     }
     return o->pending ||
@@ -69,28 +77,42 @@ static int search(struct cf_search *c, unsigned remaining,
         return 1;
     }
     for (unsigned i = 0; i < c->n; i++)
+    {
         if (remaining & (1u << i))
         {
             unsigned blocked = 0;
             for (unsigned j = 0; j < c->n; j++)
+            {
                 if ((remaining & (1u << j)) &&
                     before(&c->ops[j], &c->ops[i], c->event_mode))
+                {
                     blocked = 1;
+                }
+            }
 #ifdef CH_MUTANT_PRECEDENCE
             blocked = 0;
 #endif
             if (blocked)
+            {
                 continue;
+            }
             struct cf_state next = state;
             if (!step(&next, &c->ops[i], c->capacity, c->spec, &w->result[i],
                       &w->value[i]))
+            {
                 continue;
+            }
             w->order[depth] = i;
             if (search(c, remaining & ~(1u << i), next, w, depth + 1))
+            {
                 return 1;
+            }
             if (c->limit)
+            {
                 return 0;
+            }
         }
+    }
     return 0;
 }
 
@@ -101,7 +123,9 @@ int ch_check(const struct ch_op *ops, unsigned n, unsigned cap, unsigned spec,
     if ((n && !ops) || !out || !visited || n > 10 || !cap || cap > 8 ||
         spec > CH_STACK || extend > 1 || events > 1 || !budget ||
         budget > 1000000)
+    {
         return CH_INVALID;
+    }
     unsigned pending = 0, complete = 0;
     for (unsigned i = 0; i < n; i++)
     {
@@ -112,38 +136,58 @@ int ch_check(const struct ch_op *ops, unsigned n, unsigned cap, unsigned spec,
               (o->respond == o->invoke &&
                (!events || o->respond_event <= o->invoke_event)) ||
               (events && o->respond_event <= o->invoke_event))))
+        {
             return CH_INVALID;
+        }
         for (unsigned j = 0; j < i; j++)
         {
             const struct ch_op *p = &ops[j];
             if (o->participant == p->participant && !before(o, p, events) &&
                 !before(p, o, events))
+            {
                 return CH_INVALID;
+            }
         }
         if (events)
+        {
             for (unsigned j = 0; j < n; j++)
+            {
                 for (unsigned a = 0; a < 2; a++)
+                {
                     for (unsigned b = 0; b < 2; b++)
                     {
                         if ((a && o->pending) || (b && ops[j].pending) ||
                             (i == j && a == b))
+                        {
                             continue;
+                        }
                         uint32_t ei = a ? o->respond_event : o->invoke_event,
                                  ej = b ? ops[j].respond_event
                                         : ops[j].invoke_event;
                         uint32_t ti = a ? o->respond : o->invoke,
                                  tj = b ? ops[j].respond : ops[j].invoke;
                         if (ei == ej || (ei < ej && ti > tj))
+                        {
                             return CH_INVALID;
+                        }
                     }
+                }
+            }
+        }
         if (o->pending)
+        {
             pending |= 1u << i;
+        }
         else
+        {
             complete |= 1u << i;
+        }
     }
     *visited = 0;
     if (pending && !extend)
+    {
         return CH_PENDING;
+    }
     struct cf_search c = {ops, n, cap, spec, events, budget, 0, 0};
     unsigned subset = pending;
 #ifdef CH_MUTANT_DROP_PENDING
@@ -168,7 +212,9 @@ int ch_check(const struct ch_op *ops, unsigned n, unsigned cap, unsigned spec,
             return CH_LIMIT;
         }
         if (!subset)
+        {
             break;
+        }
         subset = (subset - 1u) & pending;
     }
     *visited = c.visited;

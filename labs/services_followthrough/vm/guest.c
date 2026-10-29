@@ -29,7 +29,9 @@ static int64_t receive(uint64_t q, void *p, size_t n, uint64_t *sender)
         s = cmk_call(SF_RECEIVE, q, (uintptr_t)&r, 0);
     } while (s == SF_RETRY);
     if (sender)
+    {
         *sender = r.sender;
+    }
     return s;
 }
 
@@ -45,7 +47,9 @@ void _start(void)
     check(image_word == 1);
     struct sf_bootstrap b;
     while (cmk_call(SF_BOOTSTRAP, (uintptr_t)&b, 0, 0) == SF_FULL)
+    {
         cmk_call(CMK_YIELD, 0, 0, 0);
+    }
     struct sfv_config config;
     uint64_t sender = 0;
     check(receive(b.request, &config, sizeof config, &sender) ==
@@ -59,7 +63,9 @@ void _start(void)
         struct sfv_wire w;
         int64_t size = receive(b.request, &w, sizeof w, &sender);
         if (size == SF_CLOSED)
+        {
             break;
+        }
         check(size == sizeof w);
         unsigned client = sender == config.clients[0]
                               ? 0
@@ -74,7 +80,9 @@ void _start(void)
         {
             r = sfv_submit(&service, client, &w.request);
             for (unsigned i = 0; i < 100001 && r == SFV_RUNNING; i++)
+            {
                 r = sfv_step(&service, client);
+            }
         }
         struct sfv_response reply = {
             w.request.session, w.request.id, (unsigned)r, 0, {0}};
@@ -93,11 +101,15 @@ void _start(void)
             (void)sfv_cancel(&service, client, w.request.session, w.request.id);
             abandoned++;
             if (sent == SF_CLOSED)
+            {
                 check(
                     !cmk_call(SF_CHANNEL_DESTROY, config.reply[client], 0, 0));
+            }
         }
         else
+        {
             check(!sent);
+        }
     }
 #if SF_CASE == 20
     check(abandoned == 1);

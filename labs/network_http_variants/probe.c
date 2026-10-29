@@ -14,7 +14,9 @@ int main(void)
             char bytes[128];
             if (scanf("%" SCNu32 " %" SCNu32 " %127s", &maximum, &cap, bytes) !=
                 3)
+            {
                 return 2;
+            }
             int r = nv_length((const unsigned char *)bytes, strlen(bytes),
                               maximum, cap, &out);
             printf("%d %" PRIu32 "\n", r, out);
@@ -26,13 +28,19 @@ int main(void)
             size_t n = 77;
             memset(out, '!', sizeof out);
             if (scanf("%" SCNu32 " %" SCNu32, &d, &s) != 2)
+            {
                 return 2;
+            }
             int r = nv_date(1, d, s, out, sizeof out, &n);
             printf("%d %zu ", r, n);
             if (!r)
+            {
                 fputs(out, stdout);
+            }
             else
+            {
                 putchar(out[0]);
+            }
             putchar('\n');
         }
         else if (op == 'S')
@@ -41,12 +49,16 @@ int main(void)
             unsigned char bytes[128];
             if (scanf("%u %u %u", &length, &a, &b) != 3 || length > 128 ||
                 a > b || b > length)
+            {
                 return 2;
+            }
             for (unsigned i = 0; i < length; i++)
             {
                 unsigned v;
                 if (scanf("%u", &v) != 1 || v > 255)
+                {
                     return 2;
+                }
                 bytes[i] = (unsigned char)v;
             }
             struct nv_sum x, y, z;
@@ -56,7 +68,9 @@ int main(void)
             printf("%d %u %u\n", r, (unsigned)(uint16_t)~x.sum, x.odd);
         }
         else
+        {
             return 2;
+        }
     }
     return ferror(stdin) ? 2 : 0;
 }

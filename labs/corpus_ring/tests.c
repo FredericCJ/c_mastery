@@ -43,8 +43,10 @@ static int membership(void)
     CHECK(cr_build(t, 2, 7, &r) == CR_OK);
     old = r;
     for (size_t cut = 0; cut <= 4; cut++)
+    {
         CHECK(cr_change(&r, 3, add, 2, cut) == CR_ABORTED &&
               !memcmp(&r, &old, sizeof r));
+    }
     CHECK(cr_change(&r, 3, add, 2, SIZE_MAX) == CR_OK && r.epoch == 8);
     CHECK(cr_owner(&r, 15, 7, &out, &c) == CR_STALE && out == 99);
     for (unsigned key = 0; key < 65536; key++)
@@ -64,7 +66,9 @@ static int membership(void)
           !memcmp(moves, prior, sizeof moves));
     CHECK(cr_plan(&old, &r, keys, 9, moves, 9, &n) == CR_OK && n == 4);
     for (size_t i = 0; i < n; i++)
+    {
         CHECK(moves[i].after == 3);
+    }
     CHECK(cr_change(&r, 3, NULL, 0, SIZE_MAX) == CR_OK && r.epoch == 9);
     for (unsigned key = 0; key < 65536; key++)
     {
@@ -108,7 +112,9 @@ static int hash(void *ctx, const unsigned char *bytes, size_t n,
     (void)bytes;
     (void)n;
     for (unsigned i = 0; i < 32; i++)
+    {
         out[i] = 0;
+    }
     out[0] = 1;
     out[1] = 2;
     return ctx != NULL;
@@ -140,6 +146,8 @@ int main(int argc, char **argv)
             : !strcmp(argv[1], "routing")    ? routing()
                                              : 1;
     if (!s)
+    {
         printf("CR_CHECK:%s passed\n", argv[1]);
+    }
     return s;
 }

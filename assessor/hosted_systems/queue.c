@@ -3,11 +3,15 @@
 int hs_queue_init(struct hs_queue *q)
 {
     if (!q)
+    {
         return -1;
+    }
     q->head = q->count = 0;
     q->closed = 0;
     if (pthread_mutex_init(&q->mutex, 0))
+    {
         return -1;
+    }
     if (pthread_cond_init(&q->readable, 0))
     {
         pthread_mutex_destroy(&q->mutex);
@@ -25,10 +29,14 @@ int hs_queue_init(struct hs_queue *q)
 int hs_queue_push(struct hs_queue *q, int value)
 {
     if (!q)
+    {
         return -1;
+    }
     pthread_mutex_lock(&q->mutex);
     while (q->count == 4 && !q->closed)
+    {
         pthread_cond_wait(&q->writable, &q->mutex);
+    }
     if (q->closed)
     {
         pthread_mutex_unlock(&q->mutex);
@@ -44,10 +52,14 @@ int hs_queue_push(struct hs_queue *q, int value)
 int hs_queue_pop(struct hs_queue *q, int *value)
 {
     if (!q || !value)
+    {
         return -1;
+    }
     pthread_mutex_lock(&q->mutex);
     while (!q->count && !q->closed)
+    {
         pthread_cond_wait(&q->readable, &q->mutex);
+    }
     if (!q->count)
     {
         pthread_mutex_unlock(&q->mutex);
@@ -64,7 +76,9 @@ int hs_queue_pop(struct hs_queue *q, int *value)
 int hs_queue_close(struct hs_queue *q)
 {
     if (!q)
+    {
         return -1;
+    }
     pthread_mutex_lock(&q->mutex);
     q->closed = 1;
     pthread_cond_broadcast(&q->readable);
@@ -76,7 +90,9 @@ int hs_queue_close(struct hs_queue *q)
 int hs_queue_destroy(struct hs_queue *q)
 {
     if (!q)
+    {
         return -1;
+    }
     int a = pthread_cond_destroy(&q->readable),
         b = pthread_cond_destroy(&q->writable),
         c = pthread_mutex_destroy(&q->mutex);

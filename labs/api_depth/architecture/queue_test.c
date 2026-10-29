@@ -14,28 +14,36 @@ static void trace(const unsigned arrivals[3], unsigned before,
         struct ar_item item;
         struct ar_eviction e;
         if (before)
+        {
             while (serviced < 2 && ar_pop(&q, &item) == AR_OK)
             {
                 CHECK(item.id > last);
                 last = item.id;
                 ++serviced;
             }
+        }
         for (unsigned i = 0; i < arrivals[tick]; ++i)
         {
             ++id;
             int r = ar_push(&q, (struct ar_item){id, 0}, 0, &e);
             if (r == AR_FULL)
+            {
                 ++dropped;
+            }
             else
+            {
                 CHECK(r == AR_OK && !e.valid);
+            }
         }
         if (!before)
+        {
             while (serviced < 2 && ar_pop(&q, &item) == AR_OK)
             {
                 CHECK(item.id > last);
                 last = item.id;
                 ++serviced;
             }
+        }
         CHECK(q.length == expected_pending[tick] &&
               dropped == expected_drop[tick] &&
               serviced == expected_service[tick]);

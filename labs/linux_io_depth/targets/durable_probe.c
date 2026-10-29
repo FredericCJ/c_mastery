@@ -26,7 +26,9 @@ int __wrap_fsync(int fd)
     struct stat s;
     C(fstat(fd, &s) == 0);
     if (syncs < 3)
+    {
         synced[syncs] = s.st_ino;
+    }
     syncs++;
     return __real_fsync(fd);
 }
@@ -36,7 +38,9 @@ static unsigned char data[4096];
 static void fill(int newer)
 {
     for (unsigned i = 0; i < 4096; i++)
+    {
         data[i] = (unsigned char)((i + (newer ? 17 : 0)) % 251);
+    }
 }
 
 static void stop(unsigned phase, void *arg)
@@ -45,11 +49,15 @@ static void stop(unsigned phase, void *arg)
     if (phase == cut)
     {
         if (cut == 5)
+        {
             C(syncs == 3 && synced[1] != synced[2]);
+        }
         printf("B06_DURABLE_CUT phase=%u syncs=%u\n", phase, syncs);
         fflush(stdout);
         for (;;)
+        {
             pause();
+        }
     }
 }
 
@@ -68,7 +76,9 @@ static int check(int d)
     C(read(f, &extra, 1) == 0 && close(f) == 0);
     fill(0);
     if (!memcmp(bytes, data, 4096))
+    {
         return 0;
+    }
     fill(1);
     C(!memcmp(bytes, data, 4096));
     return 1;
@@ -104,7 +114,9 @@ int main(int argc, char **argv)
         C(argc == 4);
         int value = check(b);
         if (atoi(argv[3]) == 5)
+        {
             C(value == 1);
+        }
         printf("B06_DURABLE_RECOVER value=%s cut=%s\n", value ? "new" : "old",
                argv[3]);
     }
@@ -131,7 +143,9 @@ int main(int argc, char **argv)
                phase, fault > 3 ? "new" : "old");
     }
     else
+    {
         C(0);
+    }
     close(a);
     close(b);
     return 0;

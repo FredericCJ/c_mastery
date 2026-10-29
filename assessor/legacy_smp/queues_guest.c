@@ -28,7 +28,9 @@ static void sqg_fail(const char *reason)
     unsigned value = 17;
     __asm__ volatile("outl %0,$0xf4" ::"a"(value));
     for (;;)
+    {
         __asm__ volatile("cli;hlt");
+    }
 }
 
 static uint64_t sqg_ticks(void)
@@ -41,7 +43,9 @@ static uint64_t sqg_ticks(void)
 static void sqg_log(unsigned c, struct sq_event e)
 {
     if (c != e.actor || sqg_count[c] == 128)
+    {
         sqg_fail("trace-capacity-or-actor");
+    }
     sqg_events[c][sqg_count[c]++] = e;
 }
 
@@ -50,17 +54,25 @@ static void sqg_task(void)
     unsigned slot = sqg_current[cmk2_cpu_index()];
     volatile uint64_t canary[8];
     for (unsigned j = 0; j < 8; j++)
+    {
         canary[j] = UINT64_C(0xabc000) + slot * 16 + j;
+    }
     for (unsigned iteration = 0; iteration < 7; iteration++)
     {
         unsigned c = cmk2_cpu_index();
         if (sqg_current[c] != slot ||
             atomic_load(&sqg_world.task[slot].state) != SQ_RUNNING ||
             !sqg_executing[slot])
+        {
             sqg_fail("context-without-exclusive-owner");
+        }
         for (unsigned j = 0; j < 8; j++)
+        {
             if (canary[j] != UINT64_C(0xabc000) + slot * 16 + j)
+            {
                 sqg_fail("saved-stack-canary");
+            }
+        }
         sqg_seen[slot] |= 1u << c;
         sqg_actions[slot]++;
         sqg_requested[slot] = iteration == 2
@@ -77,21 +89,31 @@ static int sqg_step(unsigned c)
     struct sq_event event;
     int result = sq_dispatch(&sqg_world, c, &id, &event, &sqg_stats[c]);
     if (result == SQ_IDLE)
+    {
         return 0;
+    }
     if (result != SQ_OK)
+    {
         sqg_fail("dispatch-admission");
+    }
     sqg_log(c, event);
     sqg_current[c] = id.slot;
     if (__atomic_exchange_n(&sqg_executing[id.slot], 1, __ATOMIC_ACQ_REL))
+    {
         sqg_fail("duplicate-running-stack");
+    }
     if (SQ_GUEST_MUTANT == 1)
     {
         if (sq_finish(&sqg_world, c, id, SQ_READY, &event, &sqg_stats[c]) !=
             SQ_OK)
+        {
             sqg_fail("early-finish-control");
+        }
     }
     if (atomic_load(&sqg_world.task[id.slot].state) != SQ_RUNNING)
+    {
         sqg_fail("published-context-before-save");
+    }
     uint64_t begin = sqg_ticks();
     cmk2_switch(&sqg_idle[c], sqg_sp[id.slot]);
     sqg_active[c] += sqg_ticks() - begin;
@@ -99,10 +121,14 @@ static int sqg_step(unsigned c)
     __atomic_store_n(&sqg_executing[id.slot], 0, __ATOMIC_RELEASE);
     if (sq_finish(&sqg_world, c, id, sqg_requested[id.slot], &event,
                   &sqg_stats[c]) != SQ_OK)
+    {
         sqg_fail("saved-context-finish");
+    }
     sqg_log(c, event);
     if (sqg_requested[id.slot] == SQ_EXITED)
+    {
         __atomic_fetch_add(&sqg_done, 1, __ATOMIC_RELEASE);
+    }
     return 1;
 }
 
@@ -115,7 +141,9 @@ static void sqg_run(unsigned c)
         {
             if (atomic_load(&sqg_world.task[2 * c].state) != SQ_BLOCKED ||
                 atomic_load(&sqg_world.task[2 * c + 1].state) != SQ_BLOCKED)
+            {
                 sqg_fail("last-task-block-state");
+            }
             sqg_empty[c]++;
             break;
         }
@@ -124,16 +152,24 @@ static void sqg_run(unsigned c)
     if (c == 0)
     {
         for (unsigned i = 1; i < topology.count; i++)
+        {
             while (!__atomic_load_n(&sqg_parked[i], __ATOMIC_ACQUIRE))
+            {
                 pause_cpu();
+            }
+        }
         if (!sq_invariant(&sqg_world))
+        {
             sqg_fail("blocked-snapshot");
+        }
         for (unsigned slot = 0; slot < 2 * topology.count; slot++)
         {
             struct sq_event e;
             if (sq_wake(&sqg_world, 0, slot / 2, sqg_ids[slot], &e,
                         &sqg_stats[0]) != SQ_OK)
+            {
                 sqg_fail("remote-wake");
+            }
             sqg_log(0, e);
         }
         if (topology.count > 1)
@@ -142,20 +178,30 @@ static void sqg_run(unsigned c)
             struct sq_event e;
             if (sq_transfer_begin(&sqg_world, 0, 0, 1, sqg_ids[0], &t, &e,
                                   &sqg_stats[0]) != SQ_OK)
+            {
                 sqg_fail("saved-transfer-begin");
+            }
             sqg_log(0, e);
             if (sq_transfer_end(&sqg_world, 0, t, 1, &e, &sqg_stats[0]) !=
                 SQ_OK)
+            {
                 sqg_fail("saved-transfer-end");
+            }
             sqg_log(0, e);
         }
         if (!sq_invariant(&sqg_world))
+        {
             sqg_fail("transfer-snapshot");
+        }
         __atomic_store_n(&sqg_phase, 1, __ATOMIC_RELEASE);
     }
     else
+    {
         while (!__atomic_load_n(&sqg_phase, __ATOMIC_ACQUIRE))
+        {
             pause_cpu();
+        }
+    }
     while (__atomic_load_n(&sqg_done, __ATOMIC_ACQUIRE) < 2 * topology.count)
     {
         uint64_t idle = sqg_ticks();
@@ -172,44 +218,64 @@ static void sqg_run(unsigned c)
 static void sqg_worker(unsigned c)
 {
     while (!__atomic_load_n(&sqg_go, __ATOMIC_ACQUIRE))
+    {
         pause_cpu();
+    }
     sqg_run(c);
     for (;;)
+    {
         __asm__ volatile("cli;hlt");
+    }
 }
 
 void sqg_bsp(void)
 {
     if (sq_init(&sqg_world, topology.count, 4, SQ_COARSE) != SQ_OK)
+    {
         sqg_fail("world-init");
+    }
     for (unsigned slot = 0; slot < 2 * topology.count; slot++)
     {
         struct sq_event e;
         if (sq_create(&sqg_world, 0, slot / 2, slot, &sqg_ids[slot], &e) !=
             SQ_OK)
+        {
             sqg_fail("task-create");
+        }
         sqg_log(0, e);
         uint64_t *sp = (uint64_t *)(sqg_stack[slot] + 8192);
         *--sp = 0;
         *--sp = (uintptr_t)sqg_task;
         for (unsigned i = 0; i < 6; i++)
+        {
             *--sp = 0;
+        }
         sqg_sp[slot] = sp;
     }
     __atomic_store_n(&sqg_go, 1, __ATOMIC_RELEASE);
     sqg_run(0);
     for (unsigned c = 1; c < topology.count; c++)
+    {
         while (!__atomic_load_n(&sqg_finished[c], __ATOMIC_ACQUIRE))
+        {
             pause_cpu();
+        }
+    }
     if (!sq_invariant(&sqg_world))
+    {
         sqg_fail("final-snapshot");
+    }
     for (unsigned slot = 0; slot < 2 * topology.count; slot++)
     {
         if (sqg_actions[slot] != 7 || sqg_executing[slot] ||
             atomic_load(&sqg_world.task[slot].state) != SQ_EXITED)
+        {
             sqg_fail("task-completion");
+        }
         if (slot == 0 && topology.count > 1 && sqg_seen[slot] != 3)
+        {
             sqg_fail("context-migration-missing");
+        }
     }
     for (unsigned c = 0; c < topology.count; c++)
     {
@@ -260,5 +326,7 @@ void sqg_bsp(void)
     unsigned value = 16;
     __asm__ volatile("outl %0,$0xf4" ::"a"(value));
     for (;;)
+    {
         __asm__ volatile("cli;hlt");
+    }
 }

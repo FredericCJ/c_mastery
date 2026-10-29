@@ -57,9 +57,13 @@ uint32_t HAL_GetTick(void)
     struct dg_model *m = current;
     m->calls++;
     if (m->calls >= m->ready)
+    {
         *m->status |= 128;
+    }
     if (m->calls >= m->complete && *m->data != 999)
+    {
         *m->status |= 64;
+    }
     return m->frozen ? m->clock : m->clock++;
 }
 
@@ -79,8 +83,11 @@ int main(void)
     for (unsigned revision = 0; revision < 1; revision++)
 #endif
         for (unsigned ready = 1; ready <= 4; ready++)
+        {
             for (unsigned complete = ready + 1; complete <= 7; complete++)
+            {
                 for (unsigned budget = 0; budget < 9; budget++)
+                {
                     for (unsigned wrap = 0; wrap < 2; wrap++)
                     {
                         int first = -1;
@@ -180,15 +187,22 @@ int main(void)
                                 first_calls = m.calls;
                             }
                             else
+                            {
                                 CHECK(r == first && words[d] == first_data &&
                                       m.calls == first_calls);
+                            }
                             if (revision)
+                            {
                                 CHECK(
                                     words[0] == 0 &&
                                     words[1] ==
                                         0); /* stale F4 offsets would corrupt CR1/CR2 */
+                            }
                         }
                     }
+                }
+            }
+        }
 #ifndef PL_NATIVE
     /* HAL READY after timeout is not proof of wire completion. */
     {

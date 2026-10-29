@@ -41,7 +41,9 @@ static enum cpl_status pump(struct cpl_reader *r, uint64_t token,
     {
         enum cpl_status s = cpl_pump(r, token, q);
         if (s != CPL_PROGRESS)
+        {
             return s;
+        }
     }
     CHECK(0);
     return CPL_ERROR;
@@ -63,7 +65,9 @@ static void *worker(void *argument)
         struct cp_message message;
         enum cpa_status status = cpa_take(w->queue, &handle, &message, 1);
         if (status == CPA_CLOSED)
+        {
             return 0;
+        }
         CHECK(status == CPA_OK && message.sequence < 64 &&
               message.payload[0] == 0x31);
         CHECK(!pthread_mutex_lock(&w->mutex));
@@ -87,10 +91,14 @@ static void pipeline(void)
     CHECK(!pthread_mutex_init(&workers.mutex, 0));
     pthread_t ids[2];
     for (unsigned i = 0; i < 2; ++i)
+    {
         CHECK(!pthread_create(&ids[i], 0, worker, &workers));
+    }
     /* 832 bytes fit the Linux pipe minimum; no remote sender or network target. */
     for (unsigned i = 0; i < 64; ++i)
+    {
         send_frame(p[1], i);
+    }
     CHECK(!close(p[1]));
     struct epoll_event event;
     CHECK(epoll_wait(epfd, &event, 1, 1000) == 1);
@@ -109,11 +117,15 @@ static void pipeline(void)
     enum cpa_status closed = cpa_close(&q, 0);
     CHECK(closed == CPA_CLOSED || closed == CPA_PENDING);
     for (unsigned i = 0; i < 2; ++i)
+    {
         CHECK(!pthread_join(ids[i], 0));
+    }
     CHECK(workers.total == 64 && q.accepted == 64 && q.completed == 64 &&
           q.releases == 64 && !q.discarded);
     for (unsigned i = 0; i < 64; ++i)
+    {
         CHECK(workers.seen[i] == 1);
+    }
     CHECK(cpa_destroy(&q) == CPA_OK && !pthread_mutex_destroy(&workers.mutex));
     CHECK(!cpl_close(&r) && !close(epfd));
 }

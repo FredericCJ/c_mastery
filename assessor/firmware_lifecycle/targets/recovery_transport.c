@@ -24,7 +24,9 @@ void rt_reset(struct rt_frame *f)
 enum rt_result rt_byte(struct rt_frame *f, unsigned char c)
 {
     if (!f)
+    {
         return RT_BAD;
+    }
     if (f->state || f->used >= f->need || f->need > RT_CAPACITY || f->need < 12)
     {
         f->state = 2;
@@ -57,11 +59,15 @@ int rt_admit(const struct rt_frame *f, const struct fb_policy *p,
 {
     if (!f || !p || !l || !out || f->state != 1 || f->used != f->need ||
         f->need < 622 || f->need > RT_CAPACITY)
+    {
         return 0;
+    }
     unsigned core = f->bytes[5], slot = f->bytes[6],
              n = (unsigned)f->bytes[8] | (unsigned)f->bytes[9] << 8;
     if (core > 1 || slot > 1 || f->need != 12 + n + 64)
+    {
         return 0;
+    }
     if (RT_MUTANT == 1)
     {
         out->version = 1;
@@ -74,14 +80,18 @@ int rt_admit(const struct rt_frame *f, const struct fb_policy *p,
 int rt_uart_init(struct fh_io x, unsigned budget)
 {
     if (!io_ok(x) || !budget || (x.read(x.ctx, RCC + 0x54u) & 7u))
+    {
         return -1;
+    }
     x.write(x.ctx, RCC + 0xE0u, x.read(x.ctx, RCC + 0xE0u) | 8u);
     x.write(x.ctx, RCC + 0xE8u, x.read(x.ctx, RCC + 0xE8u) | (1u << 18));
     (void)x.read(x.ctx, RCC + 0xE8u);
     x.sync(x.ctx);
     if (x.read(x.ctx, UART) || x.read(x.ctx, UART + 4u) ||
         x.read(x.ctx, UART + 8u) || x.read(x.ctx, UART + 0x2Cu))
+    {
         return -1;
+    }
     x.write(x.ctx, GPIO + 0x24u, (x.read(x.ctx, GPIO + 0x24u) & ~255u) | 0x77u);
     x.write(x.ctx, GPIO + 4u, x.read(x.ctx, GPIO + 4u) & ~0x300u);
     x.write(x.ctx, GPIO + 8u,
@@ -94,8 +104,12 @@ int rt_uart_init(struct fh_io x, unsigned budget)
     x.write(x.ctx, UART + 0x18u, 8u);
     x.write(x.ctx, UART, 13u);
     for (unsigned i = 0; i < budget; ++i)
+    {
         if ((x.read(x.ctx, UART + 0x1Cu) & 0x600000u) == 0x600000u)
+        {
             return 1;
+        }
+    }
     x.write(x.ctx, UART, 0);
     x.sync(x.ctx);
     return 0;
@@ -104,7 +118,9 @@ int rt_uart_init(struct fh_io x, unsigned budget)
 int rt_uart_rx(struct fh_io x, unsigned char *out, uint32_t *status)
 {
     if (!io_ok(x) || !out || !status)
+    {
         return -1;
+    }
     uint32_t s = x.read(x.ctx, UART + 0x1Cu);
     *status = s;
     if (RT_MUTANT != 2 && (s & 15u))
@@ -114,7 +130,9 @@ int rt_uart_rx(struct fh_io x, unsigned char *out, uint32_t *status)
         return -1;
     }
     if (!(s & 32u))
+    {
         return 0;
+    }
     *out = (unsigned char)x.read(x.ctx, UART + 0x24u);
     return 1;
 }
@@ -122,24 +140,38 @@ int rt_uart_rx(struct fh_io x, unsigned char *out, uint32_t *status)
 int rt_uart_tx(struct fh_io x, unsigned char byte, unsigned budget)
 {
     if (!io_ok(x) || !budget)
+    {
         return -1;
+    }
     unsigned i;
     for (i = 0; i < budget; ++i)
+    {
         if (x.read(x.ctx, UART + 0x1Cu) & 128u)
+        {
             break;
+        }
+    }
     if (i == budget)
+    {
         return 0;
+    }
     x.write(x.ctx, UART + 0x28u, byte);
     for (i = 0; i < budget; ++i)
+    {
         if (x.read(x.ctx, UART + 0x1Cu) & 64u)
+        {
             return 1;
+        }
+    }
     return 0;
 }
 
 int rt_uart_step(struct fh_io x, struct rt_frame *f, uint32_t *s)
 {
     if (!f || !s || f->state)
+    {
         return -1;
+    }
     unsigned char byte;
     int r = rt_uart_rx(x, &byte, s);
     if (r < 0)
@@ -148,7 +180,9 @@ int rt_uart_step(struct fh_io x, struct rt_frame *f, uint32_t *s)
         return -1;
     }
     if (!r)
+    {
         return 1;
+    }
     enum rt_result z = rt_byte(f, byte);
     return z == RT_READY ? 2 : z == RT_BAD ? -1 : 0;
 }

@@ -28,10 +28,14 @@ static void probe(unsigned id)
     {
         mf_async_probe(p);
         for (unsigned j = 0; j < 8; j++)
+        {
             mf_require(p->integer[j] == p->observed_integer[j], 130 + j);
+        }
 #if MF_FP
         for (unsigned j = 0; j < 16; j++)
+        {
             mf_require(p->high_fp[j] == p->observed_fp[j], 140 + j);
+        }
         mf_require(p->fpscr == p->observed_fpscr, 156);
         mf_require(p->rounded == 0x3f800000u + id, 186);
 #endif
@@ -65,7 +69,9 @@ static void first(void)
     before = MF_REG(0xe000e018);
     p = mf_mask_enter(80);
     for (volatile unsigned n = 0; n < 23; n++)
+    {
         __asm__ volatile("nop");
+    }
 #ifdef MF_LOG_MASK
     mf_text("MF deliberately measured logging inside mask\n");
     mf_number(0x12345678);
@@ -200,7 +206,9 @@ static void supervisor(void)
     {
         unsigned first = 0;
         while (first < 1024 && stacks[i][first] == 0xa5a5a5a5u)
+        {
             first++;
+        }
         mf_text("MF task/high-water-words\n");
         mf_number(i + 1);
         mf_number(1024 - first);
@@ -221,13 +229,19 @@ void mf_main(void)
     for (unsigned i = 0; i < 2; i++)
     {
         for (unsigned j = 0; j < 8; j++)
+        {
             probes[i].integer[j] = 0x22000000u + i * 0x100u + j;
+        }
         for (unsigned j = 0; j < 16; j++)
+        {
             probes[i].high_fp[j] = 0x3f800000u + i * 0x10000u + j * 32u;
+        }
         probes[i].fpscr = i << 22;
     }
     void (*entries[4])(void) = {first, second, broken, supervisor};
     for (unsigned i = 0; i < 4; i++)
+    {
         handles[i] = mf_port_add(entries[i], stacks[i], 1024);
+    }
     mf_port_start();
 }

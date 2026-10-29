@@ -5,6 +5,7 @@ int main(void)
 {
     unsigned histories = 0;
     for (unsigned policy = 0; policy < 3; ++policy)
+    {
         for (unsigned encoding = 0; encoding < 4096; ++encoding)
         {
             struct ar_queue model;
@@ -36,6 +37,7 @@ int main(void)
             }
             ++histories;
         }
+    }
     printf("PASS actual CDRing policy adapter histories=%u payload association "
            "and eviction ownership\n",
            histories);

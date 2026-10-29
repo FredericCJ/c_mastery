@@ -4,8 +4,12 @@ static int at_bytescmp(const void *x, const void *y, size_t n)
 {
     const unsigned char *a = x, *b = y;
     for (size_t i = 0; i < n; ++i)
+    {
         if (a[i] != b[i])
+        {
             return a[i] < b[i] ? -1 : 1;
+        }
+    }
     return 0;
 }
 
@@ -27,17 +31,25 @@ static int freelist(const struct at_pool *p)
 {
     unsigned seen[64] = {0};
     if (p->free_count > 64 || p->tree.count + p->free_count != 64)
+    {
         return 0;
+    }
     for (unsigned i = 0; i < p->free_count; ++i)
     {
         unsigned slot = p->free_slots[i];
         if (slot >= 64 || seen[slot] || p->tree.nodes[slot].live)
+        {
             return 0;
+        }
         seen[slot] = 1;
     }
     for (unsigned i = 0; i < 64; ++i)
+    {
         if (seen[i] == (p->tree.nodes[i].live != 0))
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
@@ -67,7 +79,9 @@ static int rotations(void)
     struct at_work w;
     struct at_certificate c;
     for (unsigned i = 0; i < 14; ++i)
+    {
         CHECK(at_insert(&p, keys[i], 0, &w) == ALGO_OK);
+    }
     CHECK(certificate(&p, &c) && p.tree.nodes[p.tree.root].key == 20 &&
           p.tree.nodes[p.tree.root].height == 5);
     at_emit("before-delete", &c, &w);
@@ -109,7 +123,9 @@ static int reject(void)
     at_init(&p);
     struct at_work w;
     for (int i = 1; i <= 3; ++i)
+    {
         CHECK(at_insert(&p, i, 0, &w) == ALGO_OK);
+    }
     struct at_pool before = p;
     CHECK(at_insert(&p, 2, 0, &w) == AT_DUPLICATE &&
           memcmp(&p, &before, sizeof p) == 0);
@@ -148,7 +164,9 @@ static int policies(void)
     at_init(&p);
     struct at_work w;
     for (int i = 1; i <= 3; ++i)
+    {
         CHECK(at_insert(&p, i, 0, &w) == ALGO_OK);
+    }
     struct at_certificate c;
     CHECK(certificate(&p, &c));
     int h;
@@ -177,7 +195,9 @@ static int costs(void)
     at_init(&p);
     struct at_work w;
     for (int i = 1; i <= 3; ++i)
+    {
         CHECK(at_insert(&p, i, 0, &w) == ALGO_OK);
+    }
     CHECK(at_contains(&p, 3, 0, &w) == 1 && w.search_nodes == 2 &&
           w.key_predicates == 3);
     p.tree = (algo_avl){.root = 0, .count = 3};
@@ -212,8 +232,10 @@ static int costs(void)
               freelist(&free));
         CHECK(certificate(&scan, &a) && certificate(&free, &b));
         for (int key = 0; key < 132; ++key)
+        {
             CHECK(algo_avl_contains(&scan.tree, key) ==
                   algo_avl_contains(&free.tree, key));
+        }
     }
     CHECK(free.free_count == 0);
     struct at_pool saved = free;

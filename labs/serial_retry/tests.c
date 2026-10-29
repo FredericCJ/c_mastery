@@ -17,6 +17,7 @@ static int stretch(void)
     uint32_t d = 99;
     unsigned count = 0;
     for (unsigned start = 0; start < 256; start++)
+    {
         for (unsigned n = 1; n < 128; n++)
         {
             CHECK(sr_timer_begin(&t, 8, start, n) == SR_OK);
@@ -26,6 +27,7 @@ static int stretch(void)
                   t.remaining == 0);
             count++;
         }
+    }
     CHECK(count == 32512);
     CHECK(sr_timer_begin(&t, 8, 250, 20) == SR_OK);
     struct sr_timer old = t;
@@ -46,7 +48,9 @@ static int stretch(void)
           s.bit.state == S_I2C_LOST);
     CHECK(sr_byte_begin(&s, 0, 8, 0, 10, 5) == SR_OK);
     for (unsigned i = 0; i < 8; i++)
+    {
         CHECK(sr_byte_sample(&s, i, 1, 0, 1) == SR_PENDING);
+    }
     CHECK(sr_byte_sample(&s, 8, 1, 1, 1) == SR_NACK);
     CHECK(sr_byte_begin(&s, 0, 8, 0, 10, 5) == SR_OK);
     CHECK(sr_byte_sample(&s, 10, 1, 0, 1) == SR_TIMEOUT && s.bit.bit == 0);
@@ -60,6 +64,7 @@ static int transaction(void)
     const unsigned registers[] = {0, 0x80, 255};
     unsigned count = 0;
     for (unsigned a = 0; a < 4; a++)
+    {
         for (unsigned reg = 0; reg < 3; reg++)
         {
             struct sr_txn t;
@@ -83,11 +88,15 @@ static int transaction(void)
                 CHECK(sr_txn_bit(&t, 7, now, 1, 0) ==
                       (phase == 2 ? SR_READY : SR_PENDING));
                 if (phase == 0)
+                {
                     CHECK(t.action == SD_WRITE_REGISTER &&
                           t.wire == registers[reg]);
+                }
                 if (phase == 1)
+                {
                     CHECK(t.action == SD_RESTART_READ &&
                           t.wire == addresses[a] * 2 + 1);
+                }
             }
             CHECK(t.action == SD_READ_NACK_STOP && t.bus.active);
             uint8_t out = 99;
@@ -99,13 +108,16 @@ static int transaction(void)
                   out == 0x5a && t.action == SD_STOP && !t.bus.active);
             count++;
         }
+    }
     struct sr_txn t;
     CHECK(sr_txn_begin(&t, 1, 0x50, 0, 8, 0, 20) == SR_OK);
     CHECK(sr_txn_bit(&t, 1, 1, 1, 0) == SR_LOST && t.action == SD_RELEASE &&
           !t.bus.active);
     CHECK(sr_txn_begin(&t, 1, 0, 0, 8, 0, 20) == SR_OK);
     for (unsigned i = 0; i < 8; i++)
+    {
         CHECK(sr_txn_bit(&t, 1, i, 1, 0) == SR_PENDING);
+    }
     CHECK(sr_txn_bit(&t, 1, 8, 1, 1) == SR_NACK && t.action == SD_STOP);
     CHECK(sr_txn_begin(&t, 1, 0, 0, 8, 0, 20) == SR_OK);
     CHECK(sr_txn_bit(&t, 1, 20, 1, 0) == SR_TIMEOUT && t.action == SD_STOP &&

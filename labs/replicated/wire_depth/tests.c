@@ -93,14 +93,18 @@ static int nested(void)
         memset(&got, 0xa5, sizeof got);
         memcpy(&before, &got, sizeof got);
         for (i = 0; i < 5; ++i)
+        {
             CHECK(rpw_decode(invalid[i], lengths[i], all(), &got) ==
                       RPW_INVALID &&
                   !memcmp(&got, &before, sizeof got));
+        }
     }
     {
         int32_t values[] = {INT32_MIN, -1, 0, 1, INT32_MAX};
         for (i = 0; i < 5; ++i)
+        {
             CHECK(rp_unzigzag(rp_zigzag(values[i])) == values[i]);
+        }
     }
     puts(
         "WIRE_NESTED reordered-records flat-producer varint-extrema duplicates "
@@ -178,7 +182,9 @@ static int bounds(void)
         }
         r->fields[r->count++] = integer(8, 0);
         if (cap < 5)
+        {
             r->fields[r->count++] = integer(9, 0);
+        }
     }
     CHECK(rpw_encode(&d, all(), wire, sizeof wire, &n) == RPW_OK &&
           rpw_decode(wire, n, all(), &got) == RPW_OK && canonical(&d, &got));
@@ -344,13 +350,21 @@ static int oracle(void)
         }
         r = rpw_decode(raw, n, l, &d);
         if (!r)
+        {
             r = rpw_encode(&d, l, out, sizeof out, &z);
+        }
         printf("%d ", r);
         if (!r)
+        {
             for (i = 0; i < z; ++i)
+            {
                 printf("%02x", out[i]);
+            }
+        }
         else
+        {
             putchar('-');
+        }
         putchar('\n');
     }
     return 0;
@@ -398,6 +412,7 @@ static int metrics(void)
     CHECK(end != (clock_t)-1 && end >= start &&
           rpw_frame(&d, all(), framed, sizeof framed, &m) == 0);
     for (mode = 0; mode < 2; ++mode)
+    {
         for (sample = 0; sample < 7; ++sample)
         {
             clock_t begin = clock(), finish;
@@ -424,6 +439,7 @@ static int metrics(void)
             CHECK(finish != (clock_t)-1 && finish >= begin);
             samples[mode][sample] = (double)(finish - begin) / CLOCKS_PER_SEC;
         }
+    }
     printf("{\"document_size\":%zu,\"stream_size\":%zu,\"depth\":4,\"byte_"
            "budget\":256,\"field_budget\":32,\"nested_bytes\":%zu,\"framed_"
            "bytes\":%zu,\"runs\":10000,\"cpu_seconds\":%.9f,\"feed_runs\":5000,"
@@ -431,10 +447,14 @@ static int metrics(void)
            sizeof d, sizeof(struct rpw_stream), n, m,
            (double)(end - start) / CLOCKS_PER_SEC);
     for (sample = 0; sample < 7; ++sample)
+    {
         printf("%s%.9f", sample ? "," : "", samples[0][sample]);
+    }
     printf("],\"byte_cpu_seconds\":[");
     for (sample = 0; sample < 7; ++sample)
+    {
         printf("%s%.9f", sample ? "," : "", samples[1][sample]);
+    }
     puts("]}");
     return 0;
 }
@@ -442,20 +462,36 @@ static int metrics(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "wire_nested"))
+    {
         return nested();
+    }
     if (!strcmp(argv[1], "wire_limits"))
+    {
         return bounds();
+    }
     if (!strcmp(argv[1], "wire_stream"))
+    {
         return streaming();
+    }
     if (!strcmp(argv[1], "wire_evolution"))
+    {
         return evolution();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "normalization_oracle"))
+    {
         return normalization_oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

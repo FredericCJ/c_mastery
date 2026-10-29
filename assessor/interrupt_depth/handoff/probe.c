@@ -4,13 +4,16 @@
 int main(void)
 {
     for (unsigned slots = 2; slots <= 8; slots *= 2)
+    {
         for (unsigned seed = 0; seed < 256; ++seed)
         {
             struct xi_queue q;
             struct xi_latest latest;
             struct xi_record out = {0};
             if (xi_init(&q, slots))
+            {
                 return 1;
+            }
             xi_latest_init(&latest);
             uint32_t state = seed + 1;
             for (unsigned i = 0; i < 64; ++i)
@@ -34,8 +37,11 @@ int main(void)
                        op ? i : out.sequence, lr, r.sequence, latest.dropped);
             }
         }
+    }
     for (unsigned prior = 0; prior < 256; prior += 16)
+    {
         for (unsigned a = 0; a < 256; a += 16)
+        {
             for (unsigned b = 0; b < 256; b += 16)
             {
                 struct xi_mask m;
@@ -43,18 +49,28 @@ int main(void)
                 if (xi_mask_init(&m, (struct xf_priority_config){4, 3}, 1,
                                  prior) ||
                     xi_mask_enter(&m, a, &t))
+                {
                     return 1;
+                }
                 unsigned first = m.value;
                 if (xi_mask_enter(&m, b, &u))
+                {
                     return 1;
+                }
                 unsigned second = m.value;
                 if (xi_mask_leave(&m, u))
+                {
                     return 1;
+                }
                 unsigned third = m.value;
                 if (xi_mask_leave(&m, t))
+                {
                     return 1;
+                }
                 printf("M %u %u %u %u %u %u %u\n", prior, a, b, first, second,
                        third, m.value);
             }
+        }
+    }
     return 0;
 }

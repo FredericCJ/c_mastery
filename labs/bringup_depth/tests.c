@@ -33,7 +33,9 @@ int main(void)
     CK(bu_vectors(vec, 8, 1, code.base, code, stack, &v) == BU_OK &&
        v.stack == 0x20030000 && v.reset == 0x08000201);
     for (size_t n = 0; n < 8; n++)
+    {
         CK(bu_vectors(vec, n, 1, code.base, code, stack, &v) == BU_INVALID);
+    }
     CK(bu_vectors(vec, 8, 2, code.base, code, stack, &v) == BU_UNSUPPORTED);
     vec[4] = 0;
     CK(bu_vectors(vec, 8, 1, code.base, code, stack, &v) == BU_INVALID);
@@ -48,7 +50,9 @@ int main(void)
     CK(!bu_overlap((struct bu_range){9, 4}, (struct bu_range){13, 2}));
     unsigned char ram[64], rom[32], before[64];
     for (unsigned i = 0; i < 32; i++)
+    {
         rom[i] = (unsigned char)(17 * i + 3);
+    }
     memset(ram, 0xa5, sizeof ram);
     struct bu_copy cp[3] = {{1, 2, 7}, {13, 32, 8}, {32, 64, 0}};
     struct bu_range zp[2] = {{13, 5}, {45, 7}};
@@ -58,11 +62,17 @@ int main(void)
     {
         unsigned e = 0xa5;
         if (i >= 2 && i < 9)
+        {
             e = rom[i - 1];
+        }
         else if (i >= 32 && i < 40)
+        {
             e = rom[i - 19];
+        }
         else if ((i >= 13 && i < 18) || (i >= 45 && i < 52))
+        {
             e = 0;
+        }
         CK(ram[i] == e);
     }
     memcpy(before, ram, 64);
@@ -75,6 +85,7 @@ int main(void)
     CK(!bu_f439_dma((struct bu_range){0x10000000, 4}));
     struct bu_clock clock;
     for (unsigned limit = 1; limit <= 8; limit++)
+    {
         for (unsigned ready = 1; ready <= limit + 1; ready++)
         {
             CK(bu_clock_start(&clock, limit, 1) == BU_OK);
@@ -88,14 +99,19 @@ int main(void)
                 CK(clock.phase == 2 && !clock.dependencies);
                 CK(bu_clock_reconfigure(&clock, 0) == BU_FAILED);
                 for (unsigned i = 1; i <= limit; i++)
+                {
                     CK(bu_clock_step(&clock, 1, i == limit) == BU_OK);
+                }
                 CK(clock.phase == 3 && clock.dependencies);
                 CK(bu_clock_failure(&clock) == BU_OK && !clock.dependencies &&
                    clock.epoch == 1);
             }
             else
+            {
                 CK(clock.phase == 4 && !clock.dependencies);
+            }
         }
+    }
     unsigned calls = 0, done = 99;
     struct bu_hook h[3] = {
         {0, 1, hook, &calls}, {1, 2, hook, &calls}, {2, 0, hook, &calls}};

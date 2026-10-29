@@ -162,14 +162,20 @@ int main(int argc, char **argv)
              {"comparison", comparison}};
 
     if (argc != 2)
+    {
         return 2;
+    }
     for (unsigned i = 0; i < sizeof t / sizeof t[0]; i++)
+    {
         if (!strcmp(argv[1], t[i].name))
         {
             int r = t[i].test();
             if (!r)
+            {
                 printf("PASS execution.%s\n", argv[1]);
+            }
             return r;
         }
+    }
     return 2;
 }

@@ -17,8 +17,12 @@ static unsigned divisor_gcd(unsigned a, unsigned b)
 {
     unsigned best = 0;
     for (unsigned d = 1; d <= 4095; ++d)
+    {
         if (a % d == 0 && b % d == 0)
+        {
             best = d;
+        }
+    }
     return best;
 }
 
@@ -39,7 +43,9 @@ static int euclid(void)
     {
         enum ai_status s = ai_step(state, 1, &next);
         if (s == AI_DONE)
+        {
             break;
+        }
         CHECK(s == AI_OK && next.a + next.b < state.a + state.b);
         state = next;
         CHECK(++count < 8190);
@@ -47,8 +53,11 @@ static int euclid(void)
     CHECK(state.a == 21 && state.b == 21 && count == 11);
     unsigned cases = 0;
     for (unsigned a = 0; a < 64; ++a)
+    {
         for (unsigned b = 0; b < 64; ++b)
+        {
             if (a || b)
+            {
                 for (unsigned mode = 0; mode < 2; ++mode)
                 {
                     state = (struct ai_state){a, b};
@@ -57,18 +66,27 @@ static int euclid(void)
                     {
                         enum ai_status status = ai_step(state, mode, &next);
                         if (status == AI_DONE)
+                        {
                             break;
+                        }
                         CHECK(status == AI_OK);
                         if (mode)
+                        {
                             CHECK(next.a + next.b < state.a + state.b);
+                        }
                         else
+                        {
                             CHECK(next.b < state.b);
+                        }
                         state = next;
                         CHECK(++count < 128);
                     }
                     CHECK((state.a ? state.a : state.b) == divisor_gcd(a, b));
                     ++cases;
                 }
+            }
+        }
+    }
     next = (struct ai_state){99, 88};
     CHECK(ai_step((struct ai_state){0, 0}, 0, &next) == AI_INVALID &&
           next.a == 99 && next.b == 88);
@@ -162,13 +180,19 @@ static int queues(void)
         }
         CHECK(at == -1);
         if (event == 2)
+        {
             CHECK(removed == 11);
+        }
         if (event == 6)
+        {
             CHECK(removed == 22);
+        }
         if (event == 5)
+        {
             CHECK(!memcmp(&old, &q.queue, sizeof old) &&
                   !memcmp(&ring, &q.ring, sizeof ring) &&
                   !memcmp(old_backing, q.backing, sizeof old_backing));
+        }
         printf(
             "QUEUE %u head=%zu count=%zu nodes=%d,%d ring=%u,%u,%u,%u linked=%u,%u,%u,%u\n",
             event, q.ring.head, q.ring.count, q.queue.head, q.queue.tail,
@@ -188,7 +212,9 @@ static int queues(void)
         CHECK(ai_ring_counts.transfers == (event == 5 ? 0u : 1u) &&
               ai_link_counts.transfers == (event == 5 ? 0u : 1u));
         if (event == 5)
+        {
             CHECK(ai_link_counts.slot_probes == 0 && ai_link_counts.links == 0);
+        }
 #endif
     }
     CHECK(ai_queue_event(&q, 0, 0, &removed) == CD_OK && removed == 33);
@@ -203,14 +229,24 @@ static int queues(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "euclid"))
+    {
         return euclid();
+    }
     if (!strcmp(argv[1], "growth"))
+    {
         return growth();
+    }
     if (!strcmp(argv[1], "permutation"))
+    {
         return permutation();
+    }
     if (!strcmp(argv[1], "queues"))
+    {
         return queues();
+    }
     return 2;
 }

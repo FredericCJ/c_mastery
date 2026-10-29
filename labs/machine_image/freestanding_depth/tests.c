@@ -15,14 +15,20 @@
 static void seed(unsigned char a[24])
 {
     for (unsigned i = 0; i < 24; ++i)
+    {
         a[i] = (unsigned char)(31 * i + 17);
+    }
 }
 
 static int same128(struct fr_u128 a, struct fr_u128 b)
 {
     for (unsigned i = 0; i < 4; ++i)
+    {
         if (a.limb[i] != b.limb[i])
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
@@ -30,7 +36,9 @@ int main(void)
 {
     unsigned triples = 0, copies = 0;
     for (size_t n = 0; n <= 16; ++n)
+    {
         for (size_t s = 0; s + n <= 16; ++s)
+        {
             for (size_t d = 0; d + n <= 16; ++d)
             {
                 unsigned char a[24], before[24], expected[24];
@@ -38,7 +46,9 @@ int main(void)
                 memcpy(before, a, 24);
                 memcpy(expected, a, 24);
                 for (size_t i = 0; i < n; ++i)
+                {
                     expected[4 + d + i] = before[4 + s + i];
+                }
                 CHECK(fr_move(a + 4 + d, a + 4 + s, n) == a + 4 + d);
                 CHECK(memcmp(a, expected, 24) == 0);
                 seed(a);
@@ -59,13 +69,18 @@ int main(void)
                 seed(a);
                 memcpy(expected, a, 24);
                 for (size_t i = 0; i < n; ++i)
+                {
                     expected[4 + d + i] = 0x80;
+                }
                 CHECK(fr_set(a + 4 + d, 0x80, n) == a + 4 + d);
                 CHECK(memcmp(a, expected, 24) == 0);
                 ++triples;
             }
+        }
+    }
     CHECK(triples == 1785 && copies > 0);
     for (unsigned a = 0; a < 256; ++a)
+    {
         for (unsigned b = 0; b < 256; ++b)
         {
             unsigned char x = (unsigned char)a, y = (unsigned char)b;
@@ -73,7 +88,9 @@ int main(void)
             CHECK((cmp > 0) - (cmp < 0) == (a > b) - (a < b));
             CHECK((cmp > 0) - (cmp < 0) == -((back > 0) - (back < 0)));
         }
+    }
     for (size_t n = 0; n <= 16; ++n)
+    {
         for (size_t split = 0; split <= n; ++split)
         {
             unsigned char source[16], one[16], two[16];
@@ -87,9 +104,12 @@ int main(void)
             fr_copy(two + split, source + split, n - split);
             CHECK(memcmp(one, two, 16) == 0);
         }
+    }
     unsigned char a[16], before[16];
     for (unsigned i = 0; i < 16; ++i)
+    {
         a[i] = before[i] = (unsigned char)i;
+    }
     CHECK(fr_arena_move(a, 16, 17, 0, 0) == FR_RANGE);
     CHECK(fr_arena_move(a, 16, 0, 15, 2) == FR_RANGE);
     CHECK(fr_arena_copy(a, 16, SIZE_MAX, 0, 1) == FR_RANGE);
@@ -102,7 +122,9 @@ int main(void)
     unsigned char *x = malloc(16), *y = malloc(16);
     CHECK(x && y);
     for (unsigned i = 0; i < 16; ++i)
+    {
         x[i] = (unsigned char)i;
+    }
     fr_move(y, x, 16);
     CHECK(memcmp(x, y, 16) == 0);
     free(x);

@@ -26,7 +26,9 @@ static uint64_t ns(clockid_t clock)
 {
     struct timespec t;
     if (clock_gettime(clock, &t))
+    {
         exit(2);
+    }
     return (uint64_t)t.tv_sec * UINT64_C(1000000000) + (uint64_t)t.tv_nsec;
 }
 
@@ -34,7 +36,9 @@ int main(int argc, char **argv)
 {
     if (argc != 2 || (strcmp(argv[1], "other") && strcmp(argv[1], "fifo") &&
                       strcmp(argv[1], "rr") && strcmp(argv[1], "deadline")))
+    {
         return 2;
+    }
     /* Kernel CPU-time limits and a wall alarm bound admitted RT experiments. */
     struct rlimit rt = {200000, 300000};
     if (setrlimit(RLIMIT_RTTIME, &rt))
@@ -60,7 +64,9 @@ int main(int argc, char **argv)
                      : !strcmp(argv[1], "rr") ? SCHED_RR
                                               : SCHED_OTHER;
         if (policy == SCHED_OTHER)
+        {
             parameter.sched_priority = 0;
+        }
         result = sched_setscheduler(0, policy, &parameter);
     }
     if (result)
@@ -71,19 +77,25 @@ int main(int argc, char **argv)
     }
     struct rusage before, after;
     if (getrusage(RUSAGE_SELF, &before))
+    {
         return 2;
+    }
     uint64_t start = ns(CLOCK_MONOTONIC), cpu = ns(CLOCK_PROCESS_CPUTIME_ID),
              state = 1, rounds = 0;
     while (ns(CLOCK_MONOTONIC) - start < UINT64_C(100000000))
     {
         for (unsigned i = 0; i < 1000; ++i)
+        {
             state = state * UINT64_C(6364136223846793005) + 1;
+        }
         ++rounds;
     }
     uint64_t cpu_delta = ns(CLOCK_PROCESS_CPUTIME_ID) - cpu,
              wall_delta = ns(CLOCK_MONOTONIC) - start;
     if (getrusage(RUSAGE_SELF, &after))
+    {
         return 2;
+    }
     printf(
         "{\"status\":\"observed\",\"policy\":\"%s\",\"actual_policy\":%d,\"wall_ns\":%" PRIu64
         ",\"cpu_ns\":%" PRIu64 ",\"rounds\":%" PRIu64 ",\"checksum\":%" PRIu64

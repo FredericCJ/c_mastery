@@ -19,7 +19,9 @@ int main(void)
     struct hs_queue q;
     CHECK(hs_queue_init(&q) == 0);
     for (int i = 1; i <= 4; i++)
+    {
         CHECK(hs_queue_push(&q, i) == 0);
+    }
     CHECK(hs_queue_close(&q) == 0);
     CHECK(hs_queue_push(&q, 9) == -1);
     for (int i = 1; i <= 4; i++)

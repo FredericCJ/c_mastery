@@ -95,7 +95,9 @@ static void limits(void)
         struct rlimit seen;
         if (getrlimit(RLIMIT_NOFILE, &seen) ||
             seen.rlim_cur != smaller.rlim_cur)
+        {
             ok = 0;
+        }
         ssize_t sent;
         do
         {
@@ -146,7 +148,9 @@ static void samples(void)
         CHECK(clock_gettime(CLOCK_MONOTONIC, &dispatch) == 0);
         volatile unsigned sum = 0;
         for (unsigned k = 0; k < 10000; ++k)
+        {
             sum += k;
+        }
         CHECK(sum == 49995000 && clock_gettime(CLOCK_MONOTONIC, &end) == 0);
         printf("PC_SAMPLE planned=%" PRIu64 " wake=%" PRIu64
                " dispatch=%" PRIu64 " done=%" PRIu64 " late=%" PRIu64 "\n",
@@ -172,7 +176,9 @@ static void samples(void)
     {
         r = clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &t, NULL);
         if (r == EINTR)
+        {
             ++interrupted;
+        }
     } while (r == EINTR);
     CHECK(r == 0 && signals > 0 && setitimer(ITIMER_REAL, &off, NULL) == 0 &&
           sigaction(SIGALRM, &old, NULL) == 0);

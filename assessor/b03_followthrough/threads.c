@@ -24,7 +24,9 @@ static int retry(unsigned *n)
         return 0;
     }
     if (!(*n % 128))
+    {
         sched_yield();
+    }
     return 1;
 }
 
@@ -37,8 +39,12 @@ static void *old_producer(void *v)
         unsigned tries = 0;
         int rc;
         while ((rc = b3_publish(&old, i)) == B3_WAIT)
+        {
             if (!retry(&tries))
+            {
                 return NULL;
+            }
+        }
         if (rc != B3_OK)
         {
             problem();
@@ -57,8 +63,12 @@ static void *old_consumer(void *v)
         unsigned tries = 0;
         int rc, value = 0;
         while ((rc = b3_take(&old, &value)) == B3_WAIT)
+        {
             if (!retry(&tries))
+            {
                 return NULL;
+            }
+        }
         if (rc != B3_OK || value != i)
         {
             problem();
@@ -76,8 +86,12 @@ static void *producer(void *v)
         unsigned tries = 0;
         int rc;
         while ((rc = bf_put(&box, id * COUNT + i)) == B3_WAIT)
+        {
             if (!retry(&tries))
+            {
                 return NULL;
+            }
+        }
         if (rc != B3_OK)
         {
             problem();
@@ -96,8 +110,12 @@ static void *consumer(void *v)
         unsigned tries = 0;
         int rc, value = 0, id, sequence;
         while ((rc = bf_get(&box, &value)) == B3_WAIT)
+        {
             if (!retry(&tries))
+            {
                 return NULL;
+            }
+        }
         if (rc != B3_OK || value < 1 || value > 2 * COUNT)
         {
             problem();
@@ -113,7 +131,9 @@ static void *consumer(void *v)
         last[id] = sequence;
     }
     if (last[0] != COUNT || last[1] != COUNT)
+    {
         problem();
+    }
     return NULL;
 }
 
@@ -130,16 +150,24 @@ int main(void)
         atomic_is_lock_free(&old.ready), atomic_is_lock_free(&box.state));
     if (pthread_create(&a, NULL, old_producer, NULL) ||
         pthread_create(&b, NULL, old_consumer, NULL))
+    {
         return 2;
+    }
     if (pthread_join(a, NULL) || pthread_join(b, NULL) || atomic_load(&failed))
+    {
         return 1;
+    }
     if (pthread_create(&a, NULL, producer, &ids[0]) ||
         pthread_create(&b, NULL, producer, &ids[1]) ||
         pthread_create(&c, NULL, consumer, NULL))
+    {
         return 2;
+    }
     if (pthread_join(a, NULL) || pthread_join(b, NULL) ||
         pthread_join(c, NULL) || atomic_load(&failed))
+    {
         return 1;
+    }
     printf("THREAD_PASS spsc=%d claim=%d producer_order=2\n", COUNT, 2 * COUNT);
     return 0;
 }

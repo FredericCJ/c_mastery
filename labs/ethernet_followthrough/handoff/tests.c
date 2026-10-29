@@ -31,9 +31,13 @@ static void packet(unsigned char *p, uint32_t src, uint32_t dst)
     p32(p + 12, src);
     p32(p + 16, dst);
     for (unsigned i = 0; i < 20; i += 2)
+    {
         s += (unsigned)p[i] * 256 + p[i + 1];
+    }
     while (s >> 16)
+    {
         s = (s & 65535) + (s >> 16);
+    }
     s ^= 65535;
     p[10] = (unsigned char)(s >> 8);
     p[11] = (unsigned char)s;

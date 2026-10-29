@@ -39,9 +39,13 @@ __attribute__((noreturn)) void cl_reset(void)
 {
     uint32_t *source = &cl_data_load;
     for (uint32_t *p = &cl_data_start; p < &cl_data_end;)
+    {
         *p++ = *source++;
+    }
     for (uint32_t *p = &cl_bss_start; p < &cl_bss_end;)
+    {
         *p++ = 0;
+    }
     CHECK(!order_case() && !edf_case() && !backlog_case() &&
           !assumptions_case() && !refusal_case());
     sj_target_stop(0);

@@ -15,7 +15,9 @@ int ep_faults(void);
 int main(int argc, char **argv)
 {
     if (argc != 2 || argv[1][1])
+    {
         return 42;
+    }
     switch (argv[1][0])
     {
         case '0':

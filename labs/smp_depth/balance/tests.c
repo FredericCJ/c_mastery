@@ -108,7 +108,9 @@ static int balance(void)
     struct sl_stats stats = {0};
     CHECK(sb_init(&w, 2, 4, (struct sw_port){ring, ack, &p}) == SQ_OK);
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(sb_create(&w, 0, 0, i, i ? 3 : 1, &id[i], &first) == SQ_OK);
+    }
     CHECK(sb_balance(&w, 0, &first, &last, &stats) == SQ_OK &&
           first.slot == 1 && last.destination == 1);
     CHECK(sb_balance(&w, 0, &first, &last, &stats) == SQ_OK &&
@@ -118,11 +120,13 @@ static int balance(void)
           w.wake.queues.queue[1].count == 2 &&
           atomic_load(&w.wake.queues.task[0].home) == 0);
     for (unsigned cpu = 0; cpu < 2; cpu++)
+    {
         for (unsigned i = 0; i < 2; i++)
         {
             CHECK(sb_dispatch(&w, cpu, &run, &first, &stats) == SQ_OK);
             CHECK(sb_finish(&w, cpu, run, SQ_EXITED, &first, &stats) == SQ_OK);
         }
+    }
     CHECK(sb_invariant(&w));
     return 0;
 }
@@ -182,7 +186,9 @@ static int capacity(void)
 int main(void)
 {
     if (contract() || balance() || limits() || capacity())
+    {
         return 1;
+    }
     puts(
         "SB_PASS:affinity-safe-boundary-transfer-rollback-timer-routing-pinning");
     return 0;

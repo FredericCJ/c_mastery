@@ -15,7 +15,9 @@ static int serial(void)
 {
     unsigned pairs = 0;
     for (unsigned m = 2; m <= 65; m++)
+    {
         for (unsigned a = 0; a < m; a++)
+        {
             for (unsigned b = 0; b < m; b++)
             {
                 int v = 77;
@@ -23,17 +25,25 @@ static int serial(void)
                 while (pos != b)
                 {
                     if (++pos == m)
+                    {
                         pos = 0;
+                    }
                     d++;
                 }
                 int expected = d == 0 ? 0 : d <= m / 2 ? -1 : 1;
                 int r = lt_order(m, a, b, &v);
                 if (d && !(m & 1) && d == m / 2)
+                {
                     C(r == LT_AMBIGUOUS && v == 77);
+                }
                 else
+                {
                     C(r == LT_OK && v == expected);
+                }
                 pairs++;
             }
+        }
+    }
     unsigned base = 13, outstanding = 3;
     C(lt_ack(15, &base, &outstanding, 0) == LT_OK && base == 0 &&
       outstanding == 1);
@@ -72,8 +82,11 @@ static int borrow(void)
 {
     unsigned char input[256], wire[258];
     for (unsigned i = 0; i < 256; i++)
+    {
         input[i] = (unsigned char)i;
+    }
     for (unsigned n = 0; n <= 256; n++)
+    {
         for (unsigned limit = 1; limit <= 17; limit++)
         {
             struct lt_borrow s = {0};
@@ -93,6 +106,7 @@ static int borrow(void)
             C(used == n + 2 && wire[0] == (n >> 8) && wire[1] == (n & 255) &&
               memcmp(wire + 2, input, n) == 0 && !s.bytes);
         }
+    }
     struct lt_borrow s = {0};
     const unsigned char *p;
     size_t n;
@@ -140,14 +154,18 @@ static int read_bus(void *ctx, unsigned csr, uint32_t *out)
 {
     struct lt_bus *s = ctx;
     if (++s->reads == s->fail)
+    {
         return 1;
+    }
     if (!csr)
     {
         *out = (s->stuck && s->writes) ? 1 : 0;
         return 0;
     }
     if (csr != 1)
+    {
         return 1;
+    }
     unsigned reg = (s->control >> 6) & 31;
     *out = (reg == 1 && s->bsr++ == 0) ? 0 : s->reg[reg];
     return 0;
@@ -157,7 +175,9 @@ static int write_bus(void *ctx, unsigned csr, uint32_t v)
 {
     struct lt_bus *s = ctx;
     if (csr)
+    {
         return 1;
+    }
     s->control = v;
     s->writes++;
     return 0;

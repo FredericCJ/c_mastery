@@ -41,7 +41,9 @@ static int evaluation(void)
                   tick(&c[3], 16)) == MPL_OK);
     CHECK(c[0] == 4 && c[1] == 3 && c[2] == 2 && c[3] == 1);
     for (i = 0; i < 4; ++i)
+    {
         CHECK(s.records[i].count == i + 1);
+    }
     CHECK(s.records[3].fields[0].number == 13 &&
           s.records[3].fields[3].number == 16);
     CHECK(MPL_LOG(sink_tick(&sc, &s), tick(&c[0], 17)) == MPL_FULL && sc == 2 &&
@@ -130,8 +132,10 @@ static int baseline(void)
     unsigned n, calls = 91;
     uint32_t out = 92;
     for (n = 0; n <= 4; ++n)
+    {
         CHECK(mp_variadic(n, 7, &calls, &out) && calls == n &&
               out == n * 7 + n * (n - 1) / 2);
+    }
     CHECK(!mp_variadic(5, 7, &calls, &out) && calls == 4 && out == 34);
     CHECK(mp_variadic(4, UINT32_MAX, &calls, &out) && calls == 4 && out == 2);
     puts("MPL_BASE actual-numeric-dispatch modulo empty-identity");
@@ -151,7 +155,9 @@ static uint64_t digest(const struct mpl_record *r)
     h = fold(h, r->line);
     h = fold(h, r->count);
     for (i = 0; r->file[i]; ++i)
+    {
         h = fold(h, (unsigned char)r->file[i]);
+    }
     for (i = 0; i < r->count; ++i)
     {
         const struct mpl_value *v = &r->fields[i];
@@ -159,7 +165,9 @@ static uint64_t digest(const struct mpl_record *r)
         h = fold(h, v->number);
         h = fold(h, v->length);
         for (j = 0; j < v->length; ++j)
+        {
             h = fold(h, v->bytes[j]);
+        }
     }
     return h;
 }
@@ -178,19 +186,27 @@ static int driver(void)
         size_t i, j;
         int status;
         if (used > 5 || mode > 3 || sl > 256 || n > 5)
+        {
             return 2;
+        }
         for (i = 0; i < n; ++i)
         {
             unsigned kind, len, isnull;
             if (scanf("%u%u%u", &kind, &len, &isnull) != 3 || len > 9)
+            {
                 return 2;
+            }
             for (j = 0; j < 9; ++j)
+            {
                 data[i][j] = (unsigned char)(seed + i + j);
+            }
             fields[i] = (struct mpl_field){kind, seed + (uint32_t)i,
                                            isnull ? NULL : data[i], len};
         }
         for (i = 0; i < sl; ++i)
+        {
             file[i] = (char)('a' + i % 26);
+        }
         file[sl] = 0;
         p = (struct mpl_site){mode == 2 ? NULL : file, mode == 3 ? 0 : 17};
         s.count = used;
@@ -241,10 +257,14 @@ static int metrics(void)
         "{\"iterations\":10000,\"checksum\":40000,\"sink_size\":%zu,\"record_size\":%zu,\"field_size\":%zu,\"macro_seconds\":[",
         sizeof s, sizeof(struct mpl_record), sizeof(struct mpl_field));
     for (sample = 0; sample < 7; ++sample)
+    {
         printf("%s%.9f", sample ? "," : "", macro[sample]);
+    }
     printf("],\"direct_seconds\":[");
     for (sample = 0; sample < 7; ++sample)
+    {
         printf("%s%.9f", sample ? "," : "", direct[sample]);
+    }
     puts("]}");
     return 0;
 }
@@ -252,18 +272,32 @@ static int metrics(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "logging_eval"))
+    {
         return evaluation();
+    }
     if (!strcmp(argv[1], "logging_copy"))
+    {
         return copying();
+    }
     if (!strcmp(argv[1], "logging_atomic"))
+    {
         return atomicity();
+    }
     if (!strcmp(argv[1], "logging_base"))
+    {
         return baseline();
+    }
     if (!strcmp(argv[1], "driver"))
+    {
         return driver();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

@@ -5,6 +5,7 @@ int main(void)
 {
     /* Every length-seven word over PUSH7,PUSH8,POP,PEEK, for each layout. */
     for (unsigned layout = 0; layout < 4; layout++)
+    {
         for (unsigned word = 0; word < 16384; word++)
         {
             struct ta_queue q;
@@ -12,7 +13,9 @@ int main(void)
             unsigned code = word, accepted = 0, removed = 0;
             if (ta_init(&q, &s, (enum ta_layout)layout, 2,
                         2 + (layout == TA_RING)) != TA_OK)
+            {
                 return 2;
+            }
             for (unsigned step = 0; step < 7; step++)
             {
                 unsigned op = code % 4;
@@ -34,5 +37,6 @@ int main(void)
                        accepted, removed, ta_invariant(&q));
             }
         }
+    }
     return 0;
 }

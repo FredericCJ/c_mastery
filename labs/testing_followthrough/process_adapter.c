@@ -11,18 +11,26 @@ static int one(unsigned kind)
 {
     int fds[2];
     if (pipe(fds))
+    {
         return 2;
+    }
     pid_t child = fork();
     if (child < 0)
+    {
         return 2;
+    }
     if (!child)
     {
         close(fds[0]);
         unsigned char reply[5] = {7, 9, 0, 0, 2};
         if (kind == 1)
+        {
             reply[4] = 6; /* Remaining5, oversized6. */
+        }
         if (kind == 2)
+        {
             reply[1] = 8; /* Stale request sequence. */
+        }
         size_t n = kind == 3 ? 3 : 5;
         ssize_t sent = write(fds[1], reply, n);
         close(fds[1]);
@@ -47,16 +55,22 @@ static int one(unsigned kind)
             break;
         }
         if (!n)
+        {
             break;
+        }
         got += (size_t)n;
     }
     close(fds[0]);
     int status;
     if (waitpid(child, &status, 0) != child || !WIFEXITED(status) ||
         WEXITSTATUS(status))
+    {
         return 2;
+    }
     if (infrastructure)
+    {
         return 2;
+    }
     unsigned count =
         ((unsigned)wire[2] << 16) | ((unsigned)wire[3] << 8) | wire[4];
     int valid = got == 5 && wire[0] == 7 && wire[1] == 9 && count <= 5;
@@ -71,7 +85,9 @@ int main(void)
     {
         int r = one(k);
         if (r)
+        {
             return r;
+        }
     }
     puts("IPC_PASS:extent,token,sequence,count,owned-child-reaped");
     return 0;

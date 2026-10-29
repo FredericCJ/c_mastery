@@ -57,12 +57,18 @@ static int transfer(int fd, unsigned char *b, size_t n, int sending)
             return -1;
         }
         if (errno == EINTR)
+        {
             continue;
+        }
         if (errno != EAGAIN && errno != EWOULDBLOCK)
+        {
             return -1;
+        }
         struct pollfd p = {fd, sending ? POLLOUT : POLLIN, 0};
         if (ppoll(&p, 1, &left, 0) < 0 && errno != EINTR)
+        {
             return -1;
+        }
     }
     return 0;
 }
@@ -77,15 +83,23 @@ static int receive_frames(int fd, struct rf_parser *parser,
         unsigned char bytes[2];
         ssize_t n = recv(fd, bytes, sizeof bytes, 0);
         if (n == 0)
+        {
             return rf_eof(parser);
+        }
         if (n < 0)
         {
             if (errno == EINTR)
+            {
                 continue;
+            }
             if (errno != EAGAIN && errno != EWOULDBLOCK)
+            {
                 return -1;
+            }
             if (es_wait_fd(fd, end) <= 0)
+            {
                 return -1;
+            }
             continue;
         }
         size_t at = 0;
@@ -95,12 +109,16 @@ static int receive_frames(int fd, struct rf_parser *parser,
             struct rf_frame frame;
             int r = rf_feed(parser, bytes + at, (size_t)n - at, &used, &frame);
             if (r < 0 || !used)
+            {
                 return -1;
+            }
             at += used;
             if (r)
             {
                 if (*count == 2)
+                {
                     return -1;
+                }
                 frames[(*count)++] = frame;
             }
         }
@@ -171,12 +189,18 @@ static int replay(void)
               value == 3 && cache.total == 3);
         unsigned char reply[5] = {4, 0, 0, 0, (unsigned char)value}, out[5];
         if (attempt)
+        {
             CHECK(transfer(fd[1], reply, 5, 1) == 0);
+        }
         CHECK(close(fd[1]) == 0);
         if (attempt)
+        {
             CHECK(transfer(fd[0], out, 5, 0) == 0 && !memcmp(out, reply, 5));
+        }
         else
+        {
             CHECK(recv(fd[0], out, 5, 0) == 0);
+        }
         CHECK(close(fd[0]) == 0);
     }
     CHECK(cache.count == 1);
@@ -208,7 +232,9 @@ static int pressure(void)
             {
                 prefill[i] += (size_t)n;
                 if ((size_t)n < sizeof padding)
+                {
                     ++short_writes;
+                }
                 CHECK(prefill[i] <= 65536);
                 continue;
             }
@@ -221,7 +247,9 @@ static int pressure(void)
     {
         struct rf_frame f = {.length = 8};
         for (unsigned j = 0; j < 8; ++j)
+        {
             f.bytes[j] = (unsigned char)(i + j);
+        }
         CHECK(rf_message_init(&messages[i], i + 1, 2, &f) == 0);
         CHECK(rf_enqueue(&q, i % 4, &messages[i]) == (i < 32));
         CHECK(messages[i].owner == (i < 32 ? RF_OUTBOX : RF_CALLER));
@@ -246,8 +274,11 @@ static int pressure(void)
     struct rf_parser parsers[4];
     unsigned completed[4] = {0};
     for (unsigned i = 0; i < 4; ++i)
+    {
         CHECK(rf_parser_init(&parsers[i], 2) == 0);
+    }
     for (unsigned step = 0; step < 80; ++step)
+    {
         for (unsigned i = 0; i < 4; ++i)
         {
             const unsigned char *bytes;
@@ -264,18 +295,25 @@ static int pressure(void)
             {
                 CHECK(frame.length == 8);
                 for (unsigned j = 0; j < 8; ++j)
+                {
                     CHECK(frame.bytes[j] == i + 4 * completed[i] + j);
+                }
                 ++completed[i];
             }
             CHECK(rf_outbox_invariant(&q));
         }
+    }
     CHECK(q.bytes == 0);
     for (unsigned i = 0; i < 32; ++i)
+    {
         CHECK(messages[i].owner == RF_DELIVERED);
+    }
     for (unsigned i = 0; i < 4; ++i)
+    {
         CHECK(completed[i] == 8 && rf_eof(&parsers[i]) == 0 &&
               rf_disconnect(&q, i) == 0 && close(fd[i][0]) == 0 &&
               close(fd[i][1]) == 0);
+    }
     /* A faster producer under zero drain: explicit global payload budget64. */
     CHECK(rf_outbox_init(&q, 64) == 0);
     for (unsigned i = 0; i < 4; ++i)
@@ -308,10 +346,14 @@ static int pressure(void)
         CHECK(q.bytes == expected_bytes && q.bytes <= 64);
     }
     for (unsigned i = 0; i < 4; ++i)
+    {
         CHECK(rf_disconnect(&q, i) == 0);
+    }
     CHECK(q.bytes == 0);
     for (unsigned i = 0; i < admitted; ++i)
+    {
         CHECK(messages[i].owner == RF_CANCELLED);
+    }
     printf(
         "STREAM-PRESSURE:actual_connections=4;queued_frames=32;ninth_rejected="
         "4;would_block_owners_retained=4;one_byte_frame_progress=320;observed_"
@@ -326,10 +368,16 @@ int main(int argc, char **argv)
     alarm(15);
     CHECK(argc == 2);
     if (!strcmp(argv[1], "halfclose"))
+    {
         return half_close();
+    }
     if (!strcmp(argv[1], "replay"))
+    {
         return replay();
+    }
     if (!strcmp(argv[1], "pressure"))
+    {
         return pressure();
+    }
     return 2;
 }

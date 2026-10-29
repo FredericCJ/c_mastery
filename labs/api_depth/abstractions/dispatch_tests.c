@@ -15,7 +15,9 @@ int main(void)
 {
     unsigned cases = 0;
     for (unsigned form = 0; form < 3; ++form)
+    {
         for (unsigned kind = 0; kind < (form == 2 ? 1u : 3u); ++kind)
+        {
             for (unsigned n = 0; n <= 64; ++n)
             {
                 unsigned char data[64], gold[66];
@@ -62,7 +64,10 @@ int main(void)
                       sink->calls == calls);
                 ++cases;
             }
+        }
+    }
     for (unsigned form = 0; form < 3; ++form)
+    {
         for (unsigned mode = 1; mode <= 4; ++mode)
         {
             struct ad_direct d;
@@ -98,8 +103,11 @@ int main(void)
                       accepted == 5);
             }
             else
+            {
                 CHECK(sf_pump(h, write, ctx, 1, &accepted) == SF_STATE);
+            }
         }
+    }
     struct ad_direct d = {.kind = 99};
     struct ad_erased e = {0};
     struct ad_ops bad = {2, 0, ad_one};

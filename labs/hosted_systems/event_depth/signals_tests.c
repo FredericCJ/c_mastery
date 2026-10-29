@@ -39,7 +39,9 @@ static int wait_step(void *arg, const struct timespec *t)
     struct rd_script *s = arg;
     static const long nanos[] = {1000000000, 600000000, 200000000};
     if (s->call >= 3 || t->tv_sec * 1000000000 + t->tv_nsec != nanos[s->call])
+    {
         s->error = 1;
+    }
     ++s->call;
     errno = EINTR;
     return -1;
@@ -63,7 +65,9 @@ int main(void)
                     int expected = used < 2;
                     CHECK(es_counted_push(&q, op + 1) == expected);
                     if (expected)
+                    {
                         model[used++] = op + 1;
+                    }
                 }
                 else
                 {
@@ -77,7 +81,9 @@ int main(void)
                         --used;
                     }
                     else
+                    {
                         CHECK(out == 99);
+                    }
                 }
                 CHECK(q.count == used);
             }
@@ -88,6 +94,7 @@ int main(void)
     CHECK(histories == 9841);
     unsigned cases = 0;
     for (long n = 0; n <= 2000; n += 5)
+    {
         for (long d = 0; d <= 2000; d += 5)
         {
             struct timespec r = {-1, -1};
@@ -99,6 +106,7 @@ int main(void)
             CHECK(r.tv_sec * 1000 + r.tv_nsec / 1000000 == expected);
             ++cases;
         }
+    }
     struct rd_script s = {0, 0};
     CHECK(es_wait_until((struct es_wait){now, wait_step, &s},
                         (struct timespec){1, 0}) == 0);
@@ -112,7 +120,9 @@ int main(void)
     unsigned capacity = 0;
     ssize_t n;
     while ((n = write(port.write_fd, bytes, sizeof bytes)) > 0)
+    {
         capacity += (unsigned)n;
+    }
     CHECK(errno == EAGAIN && capacity > 0);
     CHECK(pthread_sigmask(SIG_SETMASK, &port.waiting_mask, 0) == 0);
     errno = EDOM;
@@ -129,7 +139,9 @@ int main(void)
     CHECK(es_close(&port) == 0);
     CHECK(pthread_sigmask(SIG_SETMASK, 0, &after) == 0);
     for (int i = 1; i < NSIG; ++i)
+    {
         CHECK(sigismember(&before, i) == sigismember(&after, i));
+    }
     printf(
         "SIGNALS-PASS:deadline_cases=%u;interruptions=3;full_pipe=%u;"
         "predicates=2;atomic_wait=1;mask_restored=1;counted_histories=9841;\n",

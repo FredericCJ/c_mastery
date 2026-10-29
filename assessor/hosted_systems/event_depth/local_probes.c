@@ -34,7 +34,9 @@ enum
 static int inject(struct rd_ledger *l, unsigned op)
 {
     if (l->fail != op)
+    {
         return 0;
+    }
     l->fail = 0;
     errno = EIO;
     return 1;
@@ -60,7 +62,9 @@ static int new_socket(void *p, int family, int type, int protocol)
 {
     struct rd_ledger *l = p;
     if (inject(l, FAIL_SOCKET))
+    {
         return -1;
+    }
     return track(l, l->system.socket_fd(0, family, type, protocol));
 }
 
@@ -93,6 +97,7 @@ static int close_socket(void *p, int fd)
 {
     struct rd_ledger *l = p;
     for (unsigned i = 0; i < l->used; ++i)
+    {
         if (l->slots[i].fd == fd && l->slots[i].live)
         {
             l->slots[i].live = 0;
@@ -100,6 +105,7 @@ static int close_socket(void *p, int fd)
             ++l->closed;
             return l->system.close_fd(0, fd);
         }
+    }
     ++l->bad;
     errno = EBADF;
     return -1;
@@ -146,9 +152,13 @@ static int accept_ready(struct el_ops o, int listener,
     {
         int r = el_accept(o, listener, on_cancel, context, out);
         if (r == 0)
+        {
             return 0;
+        }
         if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR)
+        {
             return -1;
+        }
         struct timespec now, left;
         clock_gettime(CLOCK_MONOTONIC, &now);
         if (es_remaining(now, end, &left) <= 0)
@@ -159,7 +169,9 @@ static int accept_ready(struct el_ops o, int listener,
         struct pollfd p = {listener, POLLIN, 0};
         r = ppoll(&p, 1, &left, 0);
         if (r < 0 && errno != EINTR)
+        {
             return -1;
+        }
     }
 }
 
@@ -219,7 +231,9 @@ static int candidates(void)
     {
         ssize_t got = read(accepted, &byte, 1);
         if (got == 1)
+        {
             break;
+        }
         CHECK(got < 0 &&
               (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR));
         CHECK(es_wait_fd(accepted, read_deadline) > 0);
@@ -260,7 +274,9 @@ static int failures(void)
             int r =
                 el_connect(o, &address, 1, deadline(), &connection, &checks);
             if (fault == FAIL_CONNECT)
+            {
                 CHECK(r == -1 && errno == EIO && connection == -1);
+            }
             else
             {
                 CHECK(r == 0);
@@ -305,14 +321,18 @@ static int families(const char *path)
         unsigned checked = 0;
         CHECK(el_listener(o, &a, &listener) == 0);
         if (!i)
+        {
             CHECK(bound_address(listener, &a) == 0);
+        }
         CHECK(el_connect(o, &a, 1, deadline(), &connection, &checked) == 0 &&
               accept_ready(o, listener, 0, 0, &accepted) == 0);
         CHECK(o.close_fd(&l, accepted) == 0 &&
               o.close_fd(&l, connection) == 0 &&
               o.close_fd(&l, listener) == 0 && l.live == 0 && l.bad == 0);
         if (i)
+        {
             CHECK(unlink(path) == 0);
+        }
     }
     puts("LOCAL-FAMILIES:actual_ipv6_loopback=1;actual_private_unix=1;all_"
          "handles_closed=1;");
@@ -324,10 +344,16 @@ int main(int argc, char **argv)
     alarm(10);
     CHECK(argc >= 2);
     if (!strcmp(argv[1], "candidates"))
+    {
         return candidates();
+    }
     if (!strcmp(argv[1], "failures"))
+    {
         return failures();
+    }
     if (!strcmp(argv[1], "families") && argc == 3)
+    {
         return families(argv[2]);
+    }
     return 2;
 }

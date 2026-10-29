@@ -16,7 +16,9 @@ static size_t wrong_length(unsigned count)
 static void cursor(const unsigned char *p, uint16_t out[2])
 {
     for (unsigned i = 0; i < 2; i++)
+    {
         out[i] = wrong_endian(p + 2 + 2 * i);
+    }
 }
 
 static void fold(const unsigned char *p, uint16_t out[2])
@@ -27,7 +29,9 @@ static void fold(const unsigned char *p, uint16_t out[2])
     {
         bytes[(i - 2) % 2] = p[i];
         if (i & 1u)
+        {
             out[pair++] = wrong_endian(bytes);
+        }
     }
 }
 

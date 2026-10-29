@@ -41,7 +41,9 @@ static uint64_t burn(unsigned count)
 {
     volatile uint64_t v = 1;
     for (unsigned i = 0; i < count; ++i)
+    {
         v = v * 33 + i;
+    }
     return v;
 }
 
@@ -68,11 +70,15 @@ static void clocks(void)
     struct pf_thread r[2] = {{0}};
     pthread_t threads[2];
     for (unsigned i = 0; i < 2; ++i)
+    {
         C(!pthread_create(threads + i, NULL, worker, r + i));
+    }
     struct timespec delay = {0, 20000000};
     C(!nanosleep(&delay, NULL));
     for (unsigned i = 0; i < 2; ++i)
+    {
         C(!pthread_join(threads[i], NULL));
+    }
     uint64_t wall = stamp(CLOCK_MONOTONIC) - a,
              process = stamp(CLOCK_PROCESS_CPUTIME_ID) - p,
              maincpu = stamp(CLOCK_THREAD_CPUTIME_ID) - t;
@@ -121,9 +127,13 @@ uint32_t pf_lower_core(const uint32_t *a, uint32_t n, uint32_t key)
     {
         uint32_t mid = lo + (hi - lo) / 2;
         if (a[mid] < key)
+        {
             lo = mid + 1;
+        }
         else
+        {
             hi = mid;
+        }
     }
     return lo;
 }
@@ -149,11 +159,17 @@ static void pairs(void)
 {
     uint32_t data[65536];
     for (unsigned i = 0; i < 65536; ++i)
+    {
         data[i] = i * 2;
+    }
     uint64_t sum;
     for (unsigned k = 0; k < 3; ++k)
+    {
         for (unsigned j = 0; j < 2; ++j)
+        {
             (void)bench(j, data, 1024, 1000, &sum);
+        }
+    }
     for (unsigned size = 0; size < 3; ++size)
     {
         unsigned n = size == 0 ? 16 : size == 1 ? 1024 : 65536;
@@ -188,13 +204,17 @@ static void pairs(void)
     uint32_t *lookup = malloc(131073 * sizeof *lookup);
     C(lookup);
     for (unsigned i = 0; i < 131073; ++i)
+    {
         lookup[i] = (i + 1) / 2;
+    }
     for (unsigned i = 0; i < 31; ++i)
     {
         uint64_t sa = 0, sb = 0, ta = bench(0, data, 65536, 8192, &sa),
                  start = stamp(CLOCK_MONOTONIC);
         for (unsigned q = 0; q < 8192; ++q)
+        {
             sb += lookup[(q * 17u) % 131073u];
+        }
         uint64_t tb = stamp(CLOCK_MONOTONIC) - start;
         C(sa == sb);
         printf(
@@ -216,9 +236,13 @@ static void pairs(void)
             rng = rng * 1664525u + 1013904223u;
             unsigned take = pattern ? rng >> 31 : i & 1u;
             if (take)
+            {
                 total += 3;
+            }
             else
+            {
                 total += 1;
+            }
         }
         printf(
             "{\"case\":\"branch-pattern\",\"pattern\":%u,\"comparisons\":1000000,\"elapsed_ns\":%" PRIu64
@@ -237,7 +261,9 @@ static unsigned read_file(int fd, unsigned char *b, size_t n)
         ssize_t r = read(fd, b + done, n - done);
         ++calls;
         if (r < 0 && errno == EINTR)
+        {
             continue;
+        }
         C(r > 0);
         done += (size_t)r;
     }
@@ -266,7 +292,9 @@ static void files(void)
     C(fd >= 0);
     unsigned char bytes[8192], readback[8192];
     for (unsigned i = 0; i < sizeof bytes; ++i)
+    {
         bytes[i] = (unsigned char)i;
+    }
     uint64_t start = stamp(CLOCK_MONOTONIC);
     size_t done = 0;
     unsigned calls = 0;
@@ -275,7 +303,9 @@ static void files(void)
         ssize_t r = write(fd, bytes + done, sizeof bytes - done);
         ++calls;
         if (r < 0 && errno == EINTR)
+        {
             continue;
+        }
         C(r > 0);
         done += (size_t)r;
     }
@@ -300,7 +330,9 @@ static void files(void)
             {
                 int other = open(path, O_RDONLY | O_CLOEXEC);
                 if (other < 0)
+                {
                     _exit(1);
+                }
                 unsigned char copy[8192];
                 unsigned k = read_file(other, copy, sizeof copy);
                 close(other);
@@ -371,7 +403,9 @@ static void pmu(void)
     struct pf_pmu group;
     enum pf_pmu_state state = pf_pmu_open(&group, pf_pmu_linux(), events, 4);
     if (state == PF_PMU_READY)
+    {
         state = pf_pmu_start(&group);
+    }
     if (state == PF_PMU_ACTIVE)
     {
         (void)burn(1000000);
@@ -385,9 +419,13 @@ static void pmu(void)
             names[i], pf_pmu_state_name(state), group.error,
             group.cleanup_error, group.ids[i], group.enabled, group.running);
         if (state == PF_PMU_MEASURED)
+        {
             printf("%" PRIu64, group.raw[i]);
+        }
         else
+        {
             fputs("null", stdout);
+        }
         puts("}");
     }
     pf_pmu_close(&group);
@@ -409,7 +447,9 @@ static void memory(void)
     unsigned char *p = malloc(1048576);
     C(p);
     for (unsigned i = 0; i < 1048576; i += 4096)
+    {
         p[i] = (unsigned char)i;
+    }
     size_t during = resident();
     volatile unsigned checksum = p[0];
     free(p);
@@ -422,9 +462,13 @@ static void memory(void)
 int main(int argc, char **argv)
 {
     if (argc == 2 && !strcmp(argv[1], "pairs"))
+    {
         pairs();
+    }
     else if (argc == 2 && !strcmp(argv[1], "pmu"))
+    {
         pmu();
+    }
     else
     {
         clocks();

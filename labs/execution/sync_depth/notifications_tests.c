@@ -16,7 +16,9 @@ static int setup(cmx_kernel *k, struct cd_notify *n, struct cdn_handle *h,
 {
     cmx_init(k, CMX_FIXED);
     if (cmx_task_add(k, 5, 0, 0x1000, 256) != 0)
+    {
         return 0;
+    }
     cdn_init(n, k);
     return cdn_attach(n, 0, maximum, h) == CMX_OK;
 }
@@ -224,14 +226,24 @@ static int histories(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "ledger"))
+    {
         return ledger();
+    }
     if (!strcmp(argv[1], "handoff"))
+    {
         return handoff();
+    }
     if (!strcmp(argv[1], "lifetime"))
+    {
         return lifetime();
+    }
     if (!strcmp(argv[1], "histories"))
+    {
         return histories();
+    }
     return 2;
 }

@@ -261,10 +261,14 @@ enum ow_status ow_flawed_write(struct ow_tenant_arena *a, unsigned tenant,
                                unsigned offset, unsigned count, int32_t value)
 {
     if (!a || tenant > 1 || count > 8 || offset + count > 8)
+    {
         return OW_INVALID;
+    }
     /* Deliberate defined wrap and masked access: remains within actual array. */
     for (unsigned i = 0; i < count; i++)
+    {
         a->data[(tenant * 8u + offset + i) & 15u] = value;
+    }
     return OW_OK;
 }
 

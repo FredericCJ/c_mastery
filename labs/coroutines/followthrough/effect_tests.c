@@ -21,10 +21,14 @@ static void *allocate(void *v, size_t n)
 {
     struct co_alloc *a = v;
     if (++a->calls == a->fail)
+    {
         return NULL;
+    }
     void *p = malloc(n);
     if (p)
+    {
         a->live++;
+    }
     return p;
 }
 
@@ -93,7 +97,9 @@ int main(void)
         C(ch_create((struct co_allocator){&a, allocate, release}, &nested, 0,
                     bytes, &f) == 0);
         if (stage)
+        {
             C(ch_step(f, NULL, &out) == CO_REQUEST);
+        }
         C(ch_abort(f) == 0 && a.live == 1 && !f->resource);
         C(ch_abort(f) == 0);
         C(ch_destroy(&f) == 0 && !a.live);

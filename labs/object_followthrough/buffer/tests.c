@@ -34,16 +34,20 @@ static void *allocate(void *context, size_t bytes)
     struct ob_trace *t = context;
     void *p;
     if (++t->calls == t->fail_call)
+    {
         return NULL;
+    }
     p = malloc(bytes);
     if (p)
     {
         for (size_t i = 0; i < 16; ++i)
+        {
             if (!owned[i])
             {
                 owned[i] = p;
                 return p;
             }
+        }
         free(p);
     }
     return NULL;
@@ -54,12 +58,14 @@ static void release(void *context, void *p)
     struct ob_trace *t = context;
     ++t->releases;
     for (size_t i = 0; i < 16; ++i)
+    {
         if (owned[i] == p)
         {
             free(p);
             owned[i] = NULL;
             return;
         }
+    }
 }
 
 static void *resize(void *context, void *old, size_t oldbytes, size_t newbytes)
@@ -68,23 +74,33 @@ static void *resize(void *context, void *old, size_t oldbytes, size_t newbytes)
     size_t slot = 16;
     void *p;
     for (size_t i = 0; i < 16; ++i)
+    {
         if (owned[i] == old)
         {
             slot = i;
             break;
         }
+    }
     if (slot == 16)
+    {
         return NULL;
+    }
     ++t->resize_calls;
     if (++t->calls == t->fail_call)
+    {
         return NULL;
+    }
     if (t->move)
     {
         p = malloc(newbytes);
         if (!p)
+        {
             return NULL;
+        }
         for (size_t i = 0; i < oldbytes && i < newbytes; ++i)
+        {
             ((unsigned char *)p)[i] = ((unsigned char *)old)[i];
+        }
         free(old);
     }
     else
@@ -94,7 +110,9 @@ static void *resize(void *context, void *old, size_t oldbytes, size_t newbytes)
 #endif
         p = realloc(old, newbytes);
         if (!p)
+        {
             return NULL;
+        }
 #ifdef UINTPTR_MAX
         t->same_bits = (uintptr_t)p == bits;
 #endif
@@ -121,7 +139,9 @@ static int initialization(void)
     REQUIRE(ob_record_encode(&c.value, wire, sizeof wire) == 0 &&
             wire[0] == 1 && wire[1] == 2 && wire[2] == 'A' && wire[3] == 0);
     for (size_t i = 4; i < 8; ++i)
+    {
         REQUIRE(wire[i] == 0xa5);
+    }
     REQUIRE(ob_cleanup(&c, a) == 0 && !c.initialized && !t.releases);
     REQUIRE(ob_construct(&c, 17, NULL, 'B', 1) == -1 && c.initialized == 1);
     REQUIRE(ob_cleanup(&c, a) == 0 && !t.releases);
@@ -168,7 +188,9 @@ static int sizing(void)
         p->alignment = 1.0;
         p->tag = 3;
         for (size_t i = 0; i < 3; ++i)
+        {
             p->payload[i] = (unsigned char)(i + 1);
+        }
         REQUIRE(p->payload[2] == 3);
         release(&t, p);
     }
@@ -216,7 +238,9 @@ static int representations(void)
     t.fail_call = 0;
     REQUIRE(ob_create(&flex, a, 11, 3) == 0 && t.calls == 2);
     for (size_t i = 0; i < 3; ++i)
+    {
         REQUIRE(ob_append(&flex, source[i]) == 0);
+    }
     t.fail_call = t.calls + 2;
     REQUIRE(ob_split_create(a, 3, &split) == -1 && !split && t.releases == 1);
     t.fail_call = 0;
@@ -303,7 +327,9 @@ static int handles(void)
     unsigned char out = 99;
     REQUIRE(ob_create(&a, allocator(&t), 17, 4) == 0);
     for (unsigned char i = 1; i <= 3; ++i)
+    {
         REQUIRE(ob_append(&a, i) == 0);
+    }
     REQUIRE(ob_handle(&a, 1, &first) == 0);
     {
         unsigned char *same_slot = a.value->payload + 1;

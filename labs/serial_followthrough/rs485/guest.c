@@ -99,7 +99,9 @@ void xf_target_main(void)
     {
         int r = r5_test(i);
         if (r)
+        {
             stop((unsigned)r);
+        }
     }
     placement();
     text("R5_GUEST_PASS actual-Thumb RAM-register-effects no-physical-RS485\n");

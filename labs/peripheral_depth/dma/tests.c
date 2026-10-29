@@ -29,7 +29,9 @@ static int config(void *ctx, const struct pd_extent *e, uint32_t token)
     struct dg_model *m = ctx;
     m->configure++;
     if (m->configure == m->fail)
+    {
         return 0;
+    }
     m->current = *e;
     m->snap = (struct pd_snapshot){token, 0, e->bytes / e->width, 0, 1};
     return 1;
@@ -59,13 +61,21 @@ static void visible(void *ctx, unsigned op, uint32_t a, uint32_t n)
     (void)a;
     (void)n;
     if (op == PD_CLEAN)
+    {
         m->clean++;
+    }
     if (op == PD_INVALIDATE)
+    {
         m->invalidate++;
+    }
     if (op == PD_RELEASE)
+    {
         m->release++;
+    }
     if (op == PD_ACQUIRE)
+    {
         m->acquire++;
+    }
 }
 
 static struct pd_io bus(struct dg_model *m)
@@ -105,6 +115,7 @@ int main(void)
     bad.source++;
     CHECK(pd_validate(PD_H745, 1, &bad, 1, &total) == PD_INVALID);
     for (unsigned cancel = 0; cancel < 2; cancel++)
+    {
         for (unsigned remaining = 0; remaining <= 16; remaining++)
         {
             struct dg_model m = {0};
@@ -115,7 +126,9 @@ int main(void)
                   m.enable == 1);
             CHECK(pd_finalize(&s, io, 1, &r) == PD_BUSY && r.token == 99);
             if (cancel)
+            {
                 CHECK(pd_cancel(&s, io, 1) == PD_BUSY && m.stop == 1);
+            }
             m.snap.remaining = remaining;
             m.snap.flags = PD_TC;
             m.snap.enabled = 0; /* FIFO still flushing */
@@ -136,6 +149,7 @@ int main(void)
             CHECK(pd_finalize(&s, io, 1, &r) == PD_STALE &&
                   pd_submit(&s, io, PD_F439, 0, &e, 1, 1) == PD_STALE);
         }
+    }
     {
         struct dg_model m = {0};
         struct pd_transfer s = {0};
@@ -210,10 +224,14 @@ int main(void)
                 CHECK(r == PD_OK && n == (cut == 48 ? 0 : 3 - cut / 16));
                 unsigned bytes = 0;
                 for (unsigned j = 0; j < n; j++)
+                {
                     bytes += out[j].bytes;
+                }
                 CHECK(bytes == 48 - cut);
                 if (n)
+                {
                     CHECK(out[0].source == v[cut / 16].source + cut % 16);
+                }
             }
         }
         unsigned n = 99;

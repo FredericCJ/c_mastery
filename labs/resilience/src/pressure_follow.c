@@ -3,7 +3,9 @@
 void rzp_owned_init(struct rzp_owned_queue *p)
 {
     if (p)
+    {
         *p = (struct rzp_owned_queue){0};
+    }
 }
 
 void rzp_value_drop(struct rzp_value *p)

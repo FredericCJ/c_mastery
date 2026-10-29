@@ -41,7 +41,9 @@ static uint64_t now(clockid_t clock)
 {
     struct timespec t;
     if (clock_gettime(clock, &t))
+    {
         abort();
+    }
     return (uint64_t)t.tv_sec * UINT64_C(1000000000) + (uint64_t)t.tv_nsec;
 }
 
@@ -68,21 +70,27 @@ static struct dg_spec specification(unsigned variant)
     s.costs[2] = variant == 2 ? 2 : 5;
     s.costs[3] = variant == 2 ? 3 : 1;
     if (variant == 2)
+    {
         s.costs[4] = 1;
+    }
     s.edges[s.edge_count++] = (struct dg_edge){0, 1};
     s.edges[s.edge_count++] = (struct dg_edge){0, 2};
     if (variant == 2)
     {
         s.edges[s.edge_count++] = (struct dg_edge){0, 3};
         for (unsigned i = 1; i <= 3; i++)
+        {
             s.edges[s.edge_count++] = (struct dg_edge){i, 4};
+        }
     }
     else
     {
         s.edges[s.edge_count++] = (struct dg_edge){1, 3};
         s.edges[s.edge_count++] = (struct dg_edge){2, 3};
         if (variant == 1)
+        {
             s.edges[s.edge_count++] = (struct dg_edge){1, 2};
+        }
     }
     return s;
 }
@@ -97,9 +105,13 @@ static void *worker(void *pointer)
     CPU_SET(c->cpus[index], &set);
     if (pthread_setaffinity_np(pthread_self(), sizeof set, &set) ||
         sched_getcpu() != c->cpus[index])
+    {
         atomic_store(&c->bad, 1);
+    }
     while (!atomic_load_explicit(&c->gate, memory_order_acquire))
+    {
         sched_yield();
+    }
     while (dg_drained(&c->graph) != DG_OK)
     {
         struct dg_claim claim;
@@ -131,11 +143,17 @@ static void *worker(void *pointer)
             result = 0;
         }
         else if (n == 1)
+        {
             result = mix(50000, 30000);
+        }
         else if (n == 2)
+        {
             result = mix(0, claim.cost * 10000);
+        }
         else if (c->variant == 2 && n == 3)
+        {
             result = mix(20000, 30000);
+        }
         else
         {
             volatile uint64_t observed = mix(200000, claim.cost * 10000);
@@ -147,11 +165,15 @@ static void *worker(void *pointer)
         {
             atomic_fetch_add_explicit(&c->diamond, 1, memory_order_release);
             while (atomic_load_explicit(&c->diamond, memory_order_acquire) != 2)
+            {
                 sched_yield();
+            }
         }
         c->before[n] = now(CLOCK_MONOTONIC);
         if (dg_finish(&c->graph, claim, DG_DONE, result) != DG_OK)
+        {
             atomic_store(&c->bad, 1);
+        }
         c->after[n] = now(CLOCK_MONOTONIC);
     }
     return NULL;
@@ -168,13 +190,19 @@ static int experiment(unsigned workers, unsigned variant, unsigned trial)
     atomic_init(&c.bad, 0);
     atomic_init(&c.diamond, 0);
     for (unsigned i = 0; i < 16; i++)
+    {
         atomic_init(&c.visits[i], 0);
+    }
     cpu_set_t allowed;
     CHECK(!sched_getaffinity(0, sizeof allowed, &allowed));
     unsigned found = 0;
     for (int cpu = 0; cpu < CPU_SETSIZE && found < 4; cpu++)
+    {
         if (CPU_ISSET(cpu, &allowed))
+        {
             c.cpus[found++] = cpu;
+        }
+    }
     CHECK(found >= workers);
     uint64_t begin = now(CLOCK_MONOTONIC), cpu = now(CLOCK_PROCESS_CPUTIME_ID);
     c.init_before = now(CLOCK_MONOTONIC);
@@ -188,7 +216,9 @@ static int experiment(unsigned workers, unsigned variant, unsigned trial)
     }
     atomic_store_explicit(&c.gate, 1, memory_order_release);
     for (unsigned i = 0; i < workers; i++)
+    {
         CHECK(!pthread_join(c.threads[i], NULL));
+    }
     cpu = now(CLOCK_PROCESS_CPUTIME_ID) - cpu;
     uint64_t wall = now(CLOCK_MONOTONIC) - begin;
     struct dg_snapshot snapshot;
@@ -208,15 +238,21 @@ static int experiment(unsigned workers, unsigned variant, unsigned trial)
         uint64_t lower = 0, upper = 0;
         unsigned predecessors = 0;
         for (unsigned j = 0; j < c.spec.edge_count; j++)
+        {
             if (c.spec.edges[j].to == i)
             {
                 unsigned p = c.spec.edges[j].from;
                 predecessors++;
                 if (c.before[p] > lower)
+                {
                     lower = c.before[p];
+                }
                 if (c.after[p] > upper)
+                {
                     upper = c.after[p];
+                }
             }
+        }
         if (!predecessors)
         {
             lower = c.init_before;
@@ -258,9 +294,13 @@ static void *runtime_worker(void *pointer)
     }
     atomic_store_explicit(&r->claimed, 1, memory_order_release);
     while (!atomic_load_explicit(&r->release, memory_order_acquire))
+    {
         sched_yield();
+    }
     if (dg_finish(&r->graph, claim, r->fail ? DG_FAILED : DG_DONE, 7) != DG_OK)
+    {
         atomic_store(&r->bad, 1);
+    }
     return NULL;
 }
 
@@ -282,7 +322,9 @@ static int runtime(void)
         pthread_t thread;
         CHECK(!pthread_create(&thread, NULL, runtime_worker, &r));
         while (!atomic_load_explicit(&r.claimed, memory_order_acquire))
+        {
             sched_yield();
+        }
         unsigned parent = 0, node;
         struct dg_snapshot snapshot;
         if (mode == 1)
@@ -307,15 +349,21 @@ static int runtime(void)
         CHECK(!atomic_load(&r.bad));
         struct dg_claim claim;
         if (mode < 2)
+        {
             CHECK(dg_claim(&r.graph, 1, &claim) == DG_OK && claim.node == 1 &&
                   claim.input == 9 &&
                   dg_finish(&r.graph, claim, DG_DONE, claim.input) == DG_OK);
+        }
         else
+        {
             CHECK(dg_claim(&r.graph, 1, &claim) == DG_EMPTY);
+        }
         CHECK(dg_snapshot(&r.graph, &snapshot) == DG_OK &&
               snapshot.terminal == 2 && dg_drained(&r.graph) == DG_OK);
         if (mode >= 2)
+        {
             CHECK(snapshot.states[1] == DG_SKIPPED && snapshot.results[1] == 0);
+        }
     }
     puts("DG_NATIVE_RUNTIME:before=1 after=1 skipped=1 retained-cancel=1");
     return 0;
@@ -324,12 +372,22 @@ static int runtime(void)
 int main(void)
 {
     if (runtime())
+    {
         return 1;
+    }
     for (unsigned trial = 0; trial < 3; trial++)
+    {
         for (unsigned workers = 1; workers <= 4; workers *= 2)
+        {
             for (unsigned variant = 0; variant < 3; variant++)
+            {
                 if (experiment(workers, variant, trial))
+                {
                     return 1;
+                }
+            }
+        }
+    }
     puts(
         "DG_NATIVE_PASS:actual-last-predecessors-runtime-admission-and-equivalent-split-work");
     return 0;

@@ -26,12 +26,18 @@ enum msg_status mfx_create(struct mfx_completion **out,
                            bool fail)
 {
     if (!out || !receiver)
+    {
         return MSG_INVALID;
+    }
     if (fail)
+    {
         return MSG_FAILED;
+    }
     struct mfx_completion *c = malloc(sizeof(*c));
     if (!c)
+    {
         return MSG_FAILED;
+    }
     atomic_init(&c->references, 1);
     atomic_init(&c->flags, 0);
     c->receiver = receiver;
@@ -53,14 +59,20 @@ enum msg_status mfx_retain(struct mfx_completion *c,
                            struct mfx_completion **out)
 {
     if (!c || !out)
+    {
         return MSG_INVALID;
+    }
     size_t count = atomic_load_explicit(&c->references, memory_order_relaxed);
     do
     {
         if (count == SIZE_MAX)
+        {
             return MSG_OVERFLOW;
+        }
         if (MFX_MUTANT == 112)
+        {
             break;
+        }
     } while (!atomic_compare_exchange_weak_explicit(
         &c->references, &count, count + 1, memory_order_relaxed,
         memory_order_relaxed));
@@ -71,7 +83,9 @@ enum msg_status mfx_retain(struct mfx_completion *c,
 void mfx_drop(struct mfx_completion **token)
 {
     if (!token || !*token)
+    {
         return;
+    }
     struct mfx_completion *c = *token;
     *token = NULL;
     if (atomic_fetch_sub_explicit(&c->references, 1, memory_order_acq_rel) == 1)
@@ -80,14 +94,18 @@ void mfx_drop(struct mfx_completion **token)
         void *context = c->released_context;
         free(c);
         if (released)
+        {
             released(context);
+        }
     }
 }
 
 enum msg_status mfx_cancel(struct mfx_completion *c)
 {
     if (!c)
+    {
         return MSG_INVALID;
+    }
     unsigned before =
         atomic_fetch_or_explicit(&c->flags, CANCEL, memory_order_acq_rel);
     return before & CLAIMED ? MSG_CLOSED : MSG_OK;
@@ -98,18 +116,24 @@ enum msg_status mfx_complete(struct mfx_completion *c, enum msg_status status,
 {
     if (!c || !owner || (owner->data && !owner->drop) ||
         (status != MSG_OK && status != MSG_FAILED && status != MSG_CANCELLED))
+    {
         return MSG_INVALID;
+    }
     unsigned flags = atomic_load_explicit(&c->flags, memory_order_acquire);
     do
     {
         if ((flags & CLAIMED) && MFX_MUTANT != 111)
+        {
             return MSG_BUSY;
+        }
     } while (!atomic_compare_exchange_weak_explicit(
         &c->flags, &flags, flags | CLAIMED, memory_order_acq_rel,
         memory_order_acquire));
     /* Only the winner accesses the ordinary operation and receiver context. */
     if (flags & CANCEL)
+    {
         status = MSG_CANCELLED;
+    }
     c->pending = *owner;
     *owner = (struct mfo_value){0};
     return msg_complete(&c->operation, status, 0);

@@ -50,7 +50,9 @@ int main(void)
     CHECK(snprintf(before, sizeof before, "%.2f", 12.5) > 0);
     const char *selected = setlocale(LC_NUMERIC, "C.utf8");
     if (!selected)
+    {
         selected = setlocale(LC_NUMERIC, "C.UTF-8");
+    }
     CHECK(selected);
     char selected_name[64];
     CHECK(strlen(selected) < sizeof selected_name);

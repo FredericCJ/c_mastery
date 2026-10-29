@@ -5,8 +5,11 @@ static int checksums(void)
 {
     unsigned char bytes[257];
     for (unsigned i = 0; i < 257; i++)
+    {
         bytes[i] = 255;
+    }
     for (unsigned n = 0; n <= 257; n++)
+    {
         for (unsigned split = 0; split <= n; split++)
         {
             struct s_checksum s = {0};
@@ -18,6 +21,7 @@ static int checksums(void)
             CHECK(actual == ni_test_sum(bytes, n));
             CHECK(!s_checksum_finish(&s, &again) && again == actual);
         }
+    }
     struct s_checksum s = {0};
     uint16_t value = 0;
     unsigned char odd = 0x61;
@@ -28,7 +32,9 @@ static int checksums(void)
     CHECK(!s_checksum_finish(&s, &value) && value == 0x9e9d);
     s = (struct s_checksum){0};
     for (unsigned i = 0; i < 510; i++)
+    {
         CHECK(!s_checksum_add(&s, bytes, 257));
+    }
     CHECK(!s_checksum_add(&s, bytes, 6));
     CHECK(!s_checksum_finish(&s, &value) && value == 0);
     /* 131076 all-FF bytes exceed an unbounded32-bit accumulator's safe count. */
@@ -48,7 +54,9 @@ static int ipv4(void)
     {
         ni_test_echo(input, n);
         for (unsigned i = n + 28; i < 100; i++)
+        {
             input[i] = 0x7b;
+        }
         CHECK(ni_parse(&config, input, 100, 0, &v) == NI_OK &&
               v.length == n + 8);
         CHECK(ni_echo(&config, input, 100, &out) == NI_OK &&
@@ -61,7 +69,9 @@ static int ipv4(void)
         CHECK(ni_test_sum(out.bytes, 20) == 0 &&
               ni_test_sum(out.bytes + 20, n + 8) == 0);
         for (unsigned i = 0; i < n; i++)
+        {
             CHECK(out.bytes[28 + i] == (unsigned char)(0x61 + i));
+        }
     }
     ni_test_echo(input, 5);
     out.length = 999;
@@ -84,19 +94,27 @@ static int reassembly(void)
     CHECK(ni_init(&s, config, 2, NI_STRICT, 100, 60000) == NI_OK);
     ni_test_header(p, 8, 7, 0, 1, 1);
     for (unsigned j = 0; j < 8; j++)
+    {
         p[20 + j] = (unsigned char)j;
+    }
     CHECK(ni_receive(&s, p, 28, 100, &index) == NI_WAIT && index == 0);
     ni_test_header(p, 8, 7, 16, 0, 1);
     for (unsigned j = 0; j < 8; j++)
+    {
         p[20 + j] = (unsigned char)(16 + j);
+    }
     CHECK(ni_receive(&s, p, 28, 101, &index) == NI_WAIT);
     ni_test_header(p, 8, 7, 8, 1, 1);
     for (unsigned j = 0; j < 8; j++)
+    {
         p[20 + j] = (unsigned char)(8 + j);
+    }
     CHECK(ni_receive(&s, p, 28, 102, &index) == NI_OK);
     CHECK(ni_take(&s, index, &out) == NI_OK && out.length == 44);
     for (unsigned j = 0; j < 24; j++)
+    {
         CHECK(out.bytes[20 + j] == j);
+    }
     CHECK(ni_test_sum(out.bytes, 20) == 0 && out.bytes[6] == 0 &&
           out.bytes[7] == 0);
     CHECK(ni_receive(&s, p, 28, 103, &index) == NI_CONFLICT);
@@ -129,7 +147,9 @@ static int reassembly(void)
 int main(void)
 {
     if (checksums() || ipv4() || reassembly())
+    {
         return 1;
+    }
     puts("NI_PASS");
     return 0;
 }

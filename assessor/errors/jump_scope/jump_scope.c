@@ -29,7 +29,9 @@ static void dispose(void *context)
     struct er_state *s = r->state;
     int32_t *cell = r->cell;
     if (!cell)
+    {
         return;
+    }
     r->cell = NULL;
     s->report.held &= ~(1u << r->id);
     if (s->report.trace_count < 5)
@@ -48,7 +50,9 @@ static int acquire(struct er_state *s, unsigned id)
     r->id = id;
     r->cell = s->allocator.take(s->allocator.context, id);
     if (!r->cell)
+    {
         return 0;
+    }
     *r->cell = (int32_t)id;
     s->report.held |= 1u << id;
     return 1;
@@ -67,7 +71,9 @@ static er_result inner_body(er_frame *frame, void *context)
     s->report.inner_entered = 1;
     s->report.outer_live = s->resource[0].cell != NULL;
     if (EJD_MUTATION != 1 && er_defer(frame, finish_scope, s) != ER_OK)
+    {
         return er_error(ER_CONTRACT, 0);
+    }
     for (unsigned i = 0; i < 3; ++i)
     {
         if (s->plan.cut == 2 * i)
@@ -88,7 +94,9 @@ static er_result inner_body(er_frame *frame, void *context)
         {
             s->report.stage = 2 * i + 1;
             if (EJD_MUTATION != 5)
+            {
                 dispose(&s->resource[id - 1]);
+            }
             (void)er_raise(frame, s->plan.code);
             return er_error(ER_INVALID, 0);
         }
@@ -125,20 +133,28 @@ static er_result outer_body(er_frame *frame, void *context)
         return er_error(ER_CONTRACT, 20);
     }
     if (EJD_MUTATION == 4)
+    {
         dispose(&s->resource[0]);
+    }
     s->report.inner = er_run(&s->inner, inner_body, s);
     if (EJD_MUTATION == 2 && s->report.inner.tag != ER_OK)
+    {
         *s->published = s->start;
+    }
     if (!acquire(s, 5))
+    {
         return er_error(ER_IO, 21);
+    }
     if (er_defer(frame, dispose, &s->resource[4]) != ER_OK)
     {
         dispose(&s->resource[4]);
         return er_error(ER_CONTRACT, 21);
     }
     if (s->report.inner.tag != ER_OK)
+    {
         return er_error(EJD_MUTATION == 3 ? s->report.inner.tag : ER_CONTRACT,
                         EJD_MUTATION == 6 ? 0 : s->report.stage);
+    }
     return er_ok(99);
 }
 
@@ -149,7 +165,9 @@ int ejd_run(struct v4_allocator allocator, struct ejd_plan plan,
         *published > UINT_MAX - 3 || plan.cut > 7 ||
         (plan.cut == 7 ? plan.code != ER_OK
                        : plan.code <= ER_OK || plan.code > ER_NOT_IMPLEMENTED))
+    {
         return EJD_INVALID;
+    }
     struct er_state s = {0};
     s.allocator = allocator;
     s.plan = plan;

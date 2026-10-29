@@ -26,10 +26,16 @@
 static int same_result(const struct rta_result *a, const struct rta_result *b)
 {
     if (a->estimate != b->estimate || a->iterations != b->iterations)
+    {
         return 0;
+    }
     for (unsigned i = 0; i <= RTA_STEPS; i++)
+    {
         if (a->trace[i] != b->trace[i])
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
@@ -103,7 +109,9 @@ static int arithmetic(void)
     r.estimate = 777;
     r.iterations = 42;
     for (unsigned i = 0; i <= RTA_STEPS; i++)
+    {
         r.trace[i] = 100 + i;
+    }
     struct rta_result unchanged = r;
     CHECK(rta_response(t, 2, 1, 8, &r) == RTA_OVERFLOW &&
           same_result(&r, &unchanged));
@@ -176,7 +184,9 @@ static int stream(void)
         {
             uint64_t a, b, d, q = 777;
             if (scanf("%" SCNu64 " %" SCNu64 " %" SCNu64, &a, &b, &d) != 3)
+            {
                 return 2;
+            }
             enum rta_status status = rta_ceil_sum(a, b, d, &q);
             printf("A %u %" PRIu64 "\n", (unsigned)status, q);
         }
@@ -184,25 +194,35 @@ static int stream(void)
         {
             unsigned n, target, cap;
             if (scanf("%u %u %u", &n, &target, &cap) != 3 || n > RTA_TASKS)
+            {
                 return 2;
+            }
             struct rta_task tasks[RTA_TASKS];
             for (unsigned i = 0; i < n; i++)
+            {
                 if (scanf("%" SCNu64 " %" SCNu64 " %" SCNu64 " %" SCNu64
                           " %" SCNu64 " %" SCNu64,
                           &tasks[i].cost, &tasks[i].period, &tasks[i].deadline,
                           &tasks[i].jitter, &tasks[i].blocking,
                           &tasks[i].overhead) != 6)
+                {
                     return 2;
+                }
+            }
             struct rta_result r = {.estimate = 777};
             enum rta_status status = rta_response(tasks, n, target, cap, &r);
             printf("R %u %" PRIu64 " %u", (unsigned)status, r.estimate,
                    r.iterations);
             for (unsigned i = 0; i <= r.iterations; i++)
+            {
                 printf(" %" PRIu64, r.trace[i]);
+            }
             puts("");
         }
         else
+        {
             return 2;
+        }
     }
     return 0;
 }
@@ -210,19 +230,33 @@ static int stream(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "basic"))
+    {
         return basic();
+    }
     if (!strcmp(argv[1], "jitter"))
+    {
         return jitter();
+    }
     if (!strcmp(argv[1], "arithmetic"))
+    {
         return arithmetic();
+    }
     if (!strcmp(argv[1], "limit"))
+    {
         return limit();
+    }
     if (!strcmp(argv[1], "interference"))
+    {
         return interference();
+    }
     if (!strcmp(argv[1], "stream"))
+    {
         return stream();
+    }
     return 2;
 }
 #endif

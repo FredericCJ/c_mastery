@@ -22,7 +22,9 @@ static void w16(uint8_t *b, unsigned x)
 static void w32(uint8_t *b, uint32_t x)
 {
     for (unsigned i = 0; i < 4; i++)
+    {
         b[i] = (uint8_t)(x >> (8 * i));
+    }
 }
 
 static void seal(uint8_t *b)
@@ -32,7 +34,9 @@ static void seal(uint8_t *b)
     {
         c ^= b[i];
         for (unsigned j = 0; j < 8; j++)
+        {
             c = (c >> 1) ^ (UINT32_C(0xedb88320) & (0u - (c & 1u)));
+        }
     }
     w32(b + 4092, ~c);
 }
@@ -48,9 +52,13 @@ static store_node sample(unsigned n)
         s.klen[i] = 16;
         s.vlen[i] = 64;
         for (unsigned j = 0; j < 16; j++)
+        {
             s.key[i][j] = (uint8_t)(16 * i + j);
+        }
         for (unsigned j = 0; j < 64; j++)
+        {
             s.value[i][j] = (uint8_t)(i + j);
+        }
     }
     return s;
 }
@@ -229,7 +237,9 @@ static int rd(void *p, uint32_t page, void *out)
 {
     struct store_image *m = p;
     if (page >= STORE_IMAGE_PAGES)
+    {
         return 1;
+    }
     m->reads++;
     if (m->read_fail == m->reads)
     {
@@ -244,7 +254,9 @@ static int wr(void *p, uint32_t page, const void *in)
 {
     struct store_image *m = p;
     if (page >= STORE_IMAGE_PAGES)
+    {
         return 1;
+    }
     m->event++;
     m->writes++;
     if (m->event == m->fail)
@@ -274,7 +286,9 @@ static int acquire(void *p, struct sf_image *out)
     struct store_image *m = p;
     m->acquires++;
     if (m->acquired)
+    {
         return 0;
+    }
     m->acquired = 1;
     m->identity++;
     memset(m->bytes, 0xa5, sizeof m->bytes);
@@ -288,7 +302,9 @@ static void discard(void *p, struct sf_image out)
 {
     struct store_image *m = p;
     if (out.identity != m->identity || out.io.ctx != m || !m->acquired)
+    {
         abort();
+    }
     m->discards++;
     m->acquired = 0;
 }
@@ -373,10 +389,14 @@ static int reopen_case(void)
             seal(established.bytes[3]);
         }
         if (test == 2)
+        {
             established.read_fail = 1;
+        }
         if (test == 3)
+        {
             established.bytes[0][4095] ^=
                 1; /* Valid newest checkpoint remains. */
+        }
         struct store_image *saved = malloc(sizeof *saved);
         CHECK(saved != NULL);
         memcpy(saved, &established, sizeof *saved);
@@ -413,7 +433,9 @@ static int oracle(void)
     while ((n = fread(b, 1, 4096, stdin)) != 0)
     {
         if (n != 4096)
+        {
             return 2;
+        }
         store_node out, before;
         memset(&out, 0xa5, sizeof out);
         before = out;
@@ -427,9 +449,13 @@ static int oracle(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strncmp(argv[1], "dump", 4))
     {
         store_node n = sample(strstr(argv[1], "max") ? 7 : 0);
@@ -437,20 +463,34 @@ int main(int argc, char **argv)
         int r = argv[1][4] == '2' ? store_page_encode(7, GEN, &n, b)
                                   : sf_leaf_encode(7, GEN, &n, b);
         if (r)
+        {
             return 1;
+        }
         return fwrite(b, 1, 4096, stdout) == 4096 ? 0 : 2;
     }
     if (!strcmp(argv[1], "original"))
+    {
         return original();
+    }
     if (!strcmp(argv[1], "migration"))
+    {
         return migrate();
+    }
     if (!strcmp(argv[1], "variable"))
+    {
         return variable();
+    }
     if (!strcmp(argv[1], "atomic"))
+    {
         return atomic_case();
+    }
     if (!strcmp(argv[1], "fresh"))
+    {
         return fresh();
+    }
     if (!strcmp(argv[1], "reopen"))
+    {
         return reopen_case();
+    }
     return 2;
 }

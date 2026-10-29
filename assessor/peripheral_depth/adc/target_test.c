@@ -22,22 +22,34 @@ volatile uint32_t *pa_test_register(uint32_t a)
     for (unsigned i = 0; i < n; i++)
     {
         if (regs[i].address != 0x40023820u)
+        {
             continue;
+        }
         if (!(regs[i].value & 2u))
+        {
             resetting = 0;
+        }
         else if (!resetting)
         {
             resetting = 1;
             reset_count++;
             for (unsigned j = 0; j < n; j++)
+            {
                 if (regs[j].address >= 0x40000400u &&
                     regs[j].address < 0x40000460u)
+                {
                     regs[j].value = 0;
+                }
+            }
         }
     }
     for (unsigned i = 0; i < n; i++)
+    {
         if (regs[i].address == a)
+        {
             return &regs[i].value;
+        }
+    }
     regs[n].address = a;
     return &regs[n++].value;
 }

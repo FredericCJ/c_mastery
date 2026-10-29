@@ -9,7 +9,9 @@ static struct rt_frame frame;
 static _Noreturn void stop(void)
 {
     for (;;)
+    {
         __asm__ volatile("wfi");
+    }
 }
 
 static int read_slot(void *c, uint32_t a, uint32_t *v)
@@ -32,22 +34,32 @@ static void finish(enum fh_result e)
 {
     unsigned n = 80000000;
     while (e == FH_PENDING && n--)
+    {
         e = f4_poll(&writer);
+    }
     if (e != FH_DONE)
+    {
         stop();
+    }
 }
 
 _Noreturn void st_main(void)
 {
     struct fm_io io = f4_target_io();
     if (!f4_cold(io.bus))
+    {
         stop();
+    }
     WORD(0xE000ED24u) |= 1u << 17;
     __asm__ volatile("dsb sy\n\tisb sy" ::: "memory");
     if (f4_select(read_slot, 0, &policy, layouts, &prior) != 1)
+    {
         stop();
+    }
     if (!f4_uart_init(io.bus))
+    {
         stop();
+    }
     unsigned n = 1000000;
     unsigned char b = 0;
     uint32_t status = 0;
@@ -56,11 +68,15 @@ _Noreturn void st_main(void)
     {
     }
     if (r < 0)
+    {
         stop();
+    }
     if (r == 1)
     {
         if (b != 'M')
+        {
             stop();
+        }
         rt_reset(&frame);
         n = 10000000;
         int z = 0;
@@ -68,26 +84,36 @@ _Noreturn void st_main(void)
         {
             r = f4_uart_rx(io.bus, &b, &status);
             if (r < 0)
+            {
                 stop();
+            }
             if (r)
             {
                 z = rt_byte(&frame, b);
                 if (z < 0 || z == 2)
+                {
                     break;
+                }
             }
         }
         if (z != 2 || frame.bytes[5])
+        {
             stop();
+        }
         finish(f4_install_begin(&writer, io, &prior, &frame, &policy, layouts));
         struct fb_image installed;
         if (!f4_install_result(&writer, read_slot, 0, &policy, layouts,
                                &installed) ||
             !f4_uart_tx(io.bus, 5, 100000))
+        {
             stop();
+        }
         writer.state = 0;
         finish(f4_trial_begin(&writer, io, &prior, &installed));
         if (!f4_trial_probe(read_slot, 0, &policy, layouts, &prior, &selected))
+        {
             stop();
+        }
         trial = 1;
     }
     else
@@ -103,7 +129,9 @@ _Noreturn void st_main(void)
         selected.image.key = prior.image.key;
         selected.image.core = prior.image.core;
         for (unsigned i = 0; i < 32; ++i)
+        {
             selected.image.digest[i] = prior.image.digest[i];
+        }
     }
     WORD(0x4000440Cu) = 0;
     __asm__ volatile("dsb sy" ::: "memory");
@@ -114,7 +142,9 @@ _Noreturn void th_report_main(uint32_t result, uint32_t generation)
 {
     if (!trial || generation != selected.image.generation ||
         result != 671377293u)
+    {
         stop(); /* Privileged bank2 service leaves application RO flash MPU before programming. */
+    }
     fb_program_mode();
     writer.state = 0;
     finish(f4_commit_begin(&writer, f4_target_io(), &prior, &selected,

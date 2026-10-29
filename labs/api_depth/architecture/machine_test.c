@@ -68,9 +68,13 @@ int main(void)
                                {&m, &lock, {m.incarnation, id, 0}, -1}};
     pthread_t workers[2];
     for (unsigned i = 0; i < 2; ++i)
+    {
         CHECK(!pthread_create(&workers[i], 0, produce, &p[i]));
+    }
     for (unsigned i = 0; i < 2; ++i)
+    {
         CHECK(!pthread_join(workers[i], 0) && p[i].result == AR_OK);
+    }
     CHECK(ar_step(&m) == AR_OK && ar_step(&m) == AR_STATE && m.releases == 4);
     CHECK(!pthread_mutex_destroy(&lock));
     m.incarnation = UINT32_MAX;

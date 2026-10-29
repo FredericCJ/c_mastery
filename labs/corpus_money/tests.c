@@ -68,7 +68,9 @@ static int allocation(void)
           b[0].minor == INT64_MIN && b[1].minor == 0);
     struct cm_money old[4];
     for (size_t i = 0; i < 4; i++)
+    {
         old[i] = b[i];
+    }
     w[1] = 1;
     CHECK(cm_allocate(m(4), w, 4, b) == CM_OVERFLOW &&
           !memcmp(b, old, sizeof b));
@@ -86,10 +88,14 @@ static int settlement(void)
     CHECK(cm_settle(a, 4, 0, dest, w, 3, m(2), SIZE_MAX) == CM_OK &&
           a[0].minor == 8 && a[1].minor == 1 && a[2].minor == 1);
     for (size_t i = 0; i < 4; i++)
+    {
         old[i] = a[i];
+    }
     for (size_t cut = 0; cut <= 3; cut++)
+    {
         CHECK(cm_settle(a, 4, 0, dest, w, 3, m(2), cut) == CM_ABORTED &&
               !memcmp(a, old, sizeof a));
+    }
     dest[1] = 1;
     CHECK(cm_settle(a, 4, 0, dest, w, 3, m(2), SIZE_MAX) == CM_INVALID &&
           !memcmp(a, old, sizeof a));
@@ -98,7 +104,9 @@ static int settlement(void)
           !memcmp(a, old, sizeof a));
     a[3] = m(INT64_MAX);
     for (size_t i = 0; i < 4; i++)
+    {
         old[i] = a[i];
+    }
     CHECK(cm_settle(a, 4, 0, dest, w, 3, m(6), SIZE_MAX) == CM_OVERFLOW &&
           !memcmp(a, old, sizeof a));
     return 0;
@@ -113,6 +121,8 @@ int main(int argc, char **argv)
             : !strcmp(argv[1], "settlement") ? settlement()
                                              : 1;
     if (!s)
+    {
         printf("CM_CHECK:%s passed\n", argv[1]);
+    }
     return s;
 }

@@ -28,7 +28,9 @@ void fc_fail(unsigned line)
 void fc_done(const struct fc_report *r)
 {
     if (fc_checks(r))
+    {
         fc_fail(0);
+    }
     say("FC_M4_PASS:queue-inheritance-timeout-cleanup\n");
     finish(0);
 }
@@ -46,9 +48,13 @@ void cl_reset(void)
 {
     unsigned *d = &cl_data_start, *s = &cl_data_load;
     while (d < &cl_data_end)
+    {
         *d++ = *s++;
+    }
     for (d = &cl_bss_start; d < &cl_bss_end;)
+    {
         *d++ = 0;
+    }
     static struct fc_report report;
 #ifdef FC_VENDOR
     *(volatile unsigned *)0xe000ed88u |= 0xfu << 20;

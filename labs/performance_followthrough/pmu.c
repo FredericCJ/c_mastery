@@ -8,7 +8,9 @@ enum pf_pmu_state pf_pmu_open(struct pf_pmu *p, struct pf_pmu_os os,
     (void)e;
     (void)n;
     if (p)
+    {
         *p = (struct pf_pmu){.state = PF_PMU_UNIMPLEMENTED};
+    }
     return PF_PMU_UNIMPLEMENTED;
 }
 

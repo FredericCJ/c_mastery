@@ -23,10 +23,14 @@ static void unlock(struct ds_deferred *c)
 int ds_deferred_init(struct ds_deferred *c)
 {
     if (!c)
+    {
         return DS_INVALID;
+    }
     *c = (struct ds_deferred){0};
     if (pthread_mutex_init(&c->mutex, NULL))
+    {
         return DS_FAILED;
+    }
     if (pthread_cond_init(&c->condition, NULL))
     {
         (void)pthread_mutex_destroy(&c->mutex);
@@ -40,11 +44,17 @@ int ds_deferred_init(struct ds_deferred *c)
 int ds_deferred_destroy(struct ds_deferred *c)
 {
     if (!c || !c->initialized)
+    {
         return DS_INVALID;
+    }
     if (c->active || c->job)
+    {
         return DS_BUSY;
+    }
     if (pthread_cond_destroy(&c->condition) || pthread_mutex_destroy(&c->mutex))
+    {
         return DS_FAILED;
+    }
     c->initialized = 0;
     return DS_OK;
 }
@@ -53,13 +63,21 @@ int ds_deferred_bind(struct ds_deferred *c, struct ow_shared *environment,
                      ds_deferred_body_fn body, struct ds_deferred_token *out)
 {
     if (!c || !c->initialized || !environment || !body || !out)
+    {
         return DS_INVALID;
+    }
     if (c->active)
+    {
         return DS_BUSY;
+    }
     if (c->generation > 3)
+    {
         return DS_FULL;
+    }
     if (DS_DEFERRED_MUTANT != 1 && ow_shared_retain(environment) != OW_OK)
+    {
         return DS_FAILED;
+    }
     c->environment = environment;
     c->body = body;
     c->active = 1;
@@ -73,7 +91,9 @@ static void *worker(void *context)
     struct ds_deferred *c = context;
     lock(c);
     while (!c->go && !c->cancel)
+    {
         (void)pthread_cond_wait(&c->condition, &c->mutex);
+    }
     if (c->cancel)
     {
         c->status = DS_STALE;
@@ -103,7 +123,9 @@ int ds_deferred_submit(struct ds_deferred_token token, int arg)
 {
     struct ds_deferred *c = owner(token);
     if (!c)
+    {
         return DS_STALE;
+    }
     lock(c);
     if (c->job || c->cancel)
     {
@@ -128,7 +150,9 @@ int ds_deferred_start(struct ds_deferred_token token)
 {
     struct ds_deferred *c = owner(token);
     if (!c)
+    {
         return DS_STALE;
+    }
     lock(c);
     if (!c->job || c->go || c->cancel)
     {
@@ -158,7 +182,9 @@ int ds_deferred_cancel(struct ds_deferred_token token)
 {
     struct ds_deferred *c = owner(token);
     if (!c)
+    {
         return DS_STALE;
+    }
     lock(c);
     c->cancel = 1;
     (void)pthread_cond_broadcast(&c->condition);
@@ -175,10 +201,14 @@ int ds_deferred_cancel(struct ds_deferred_token token)
 int ds_deferred_drain(struct ds_deferred_token token, int *out)
 {
     if (!out)
+    {
         return DS_INVALID;
+    }
     struct ds_deferred *c = owner(token);
     if (!c)
+    {
         return DS_STALE;
+    }
     lock(c);
     if (!c->job)
     {
@@ -192,11 +222,15 @@ int ds_deferred_drain(struct ds_deferred_token token, int *out)
     }
     unlock(c);
     if (pthread_join(c->thread, NULL))
+    {
         return DS_FAILED;
+    }
     lock(c);
     int rc = c->cancel && DS_DEFERRED_MUTANT != 2 ? DS_STALE : c->status;
     if (rc == DS_OK)
+    {
         *out = c->result;
+    }
     struct ow_shared *environment = consume(c);
     unlock(c);
     (void)ow_shared_drop(environment);

@@ -35,9 +35,13 @@ enum msg_status msg_join(struct msg_nursery *n, int *result)
 enum msg_status msg_hub_init(struct msg_hub *h, size_t a, size_t b)
 {
     if (a > 4 || b > 4)
+    {
         return MSG_INVALID;
+    }
     if (pthread_mutex_init(&h->mutex, NULL))
+    {
         return MSG_FAILED;
+    }
     if (pthread_cond_init(&h->changed, NULL))
     {
         pthread_mutex_destroy(&h->mutex);
@@ -144,7 +148,9 @@ enum msg_status msg_supervisor_init(struct msg_supervisor *s, size_t limit,
                                     uint64_t window)
 {
     if (!limit || limit > 4 || !window)
+    {
         return MSG_INVALID;
+    }
     *s = (struct msg_supervisor){.limit = limit, .window = window};
     return MSG_OK;
 }
@@ -167,7 +173,9 @@ void msg_deque_init(struct msg_deque *q)
     atomic_init(&q->top, 1);
     atomic_init(&q->bottom, 1);
     for (unsigned i = 0; i < 8; i++)
+    {
         atomic_init(&q->slots[i], 0);
+    }
 }
 
 enum msg_status msg_push(struct msg_deque *q, unsigned v)
@@ -237,13 +245,19 @@ enum msg_status msg_commit(struct msg_txn *t)
 enum msg_status msg_versions_init(struct msg_versions *s)
 {
     if (pthread_mutex_init(&s->mutex, NULL))
+    {
         return MSG_FAILED;
+    }
     s->clock = 0;
     for (unsigned i = 0; i < 8; i++)
+    {
         s->versions[i] = (struct msg_version){0};
+    }
     s->versions[0].live = true;
     for (unsigned i = 0; i < 4; i++)
+    {
         s->pins[i] = (struct msg_pin){0};
+    }
     return MSG_OK;
 }
 

@@ -20,12 +20,16 @@ static int mono(void)
     struct mp_pair pair = {92, 93};
     unsigned i;
     for (i = 0; i < 4; ++i)
+    {
         CHECK(mp_u32_push(&a, i));
+    }
     CHECK(!mp_u32_push(&a, 9));
     CHECK(mp_u32_pop(&a, &v) && v == 0);
     CHECK(mp_u32_push(&a, 4));
     for (i = 1; i < 5; ++i)
+    {
         CHECK(mp_u32_pop(&a, &v) && v == i);
+    }
     CHECK(!mp_u32_pop(&a, &v) && v == 4);
     CHECK(mp_pair_push(&b, (struct mp_pair){3, 7}) &&
           mp_pair_push(&b, (struct mp_pair){9, 11}));
@@ -65,8 +69,10 @@ static int variadic(void)
     unsigned n, calls = 91;
     uint32_t out = 92;
     for (n = 0; n <= 4; ++n)
+    {
         CHECK(mp_variadic(n, 7, &calls, &out) && calls == n &&
               out == n * 7 + n * (n - 1) / 2);
+    }
     CHECK(!mp_variadic(5, 7, &calls, &out) && calls == 4 && out == 34);
     return 0;
 }
@@ -120,12 +126,14 @@ static int laws(void)
     struct mp_pair witness = {91, 92};
     CHECK(!mp_equal((struct mp_key){1, 2, 0}, (struct mp_key){1, 3, 0}));
     for (x = 0; x < 4; ++x)
+    {
         for (y = 0; y < 4; ++y)
         {
             struct mp_key a = {x, y, 0}, b = {x, y, 9};
             CHECK(mp_equal(a, b));
             CHECK(mp_hash(a) == mp_hash(b));
         }
+    }
     CHECK(mp_find_counterexample(sum_below_five, NULL, 8, &witness) == 1 &&
           witness.x + witness.y == 5);
     CHECK(mp_find_counterexample(reflexive, NULL, 8, &witness) == 0);
@@ -196,26 +204,48 @@ static int buildgraph(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "mono"))
+    {
         return mono();
+    }
     if (!strcmp(argv[1], "constraints"))
+    {
         return constraints();
+    }
     if (!strcmp(argv[1], "policies"))
+    {
         return policies();
+    }
     if (!strcmp(argv[1], "variadic"))
+    {
         return variadic();
+    }
     if (!strcmp(argv[1], "generic"))
+    {
         return generic();
+    }
     if (!strcmp(argv[1], "reflection"))
+    {
         return reflection();
+    }
     if (!strcmp(argv[1], "laws"))
+    {
         return laws();
+    }
     if (!strcmp(argv[1], "formatting"))
+    {
         return formatting();
+    }
     if (!strcmp(argv[1], "hygiene"))
+    {
         return hygiene();
+    }
     if (!strcmp(argv[1], "buildgraph"))
+    {
         return buildgraph();
+    }
     return 2;
 }

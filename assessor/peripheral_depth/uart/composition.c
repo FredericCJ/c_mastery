@@ -13,7 +13,9 @@ static uint32_t read_fw(void *p, unsigned r)
 {
     struct dg_adapter *a = p;
     if (r == FW_DMA)
+    {
         return a->device.dma_busy;
+    }
     if (r == FW_STATUS)
     {
         uint32_t sr = rd(&a->device, PU_SR);
@@ -26,11 +28,17 @@ static void write_fw(void *p, unsigned r, uint32_t v)
 {
     struct dg_adapter *a = p;
     if (r == FW_DE)
+    {
         a->de = v;
+    }
     else if (r == FW_DMA)
+    {
         wr(&a->device, PU_DMA_CONTROL, v);
+    }
     else if (r == FW_DATA)
+    {
         wr(&a->device, PU_DR, v);
+    }
 }
 
 int main(void)

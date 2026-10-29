@@ -72,8 +72,12 @@ static void copy_case(void)
     {
         close(p[0]);
         for (int i = 0; i < 200; i++)
+        {
             if (write(p[1], "xyz", 3) != 3)
+            {
                 _exit(1);
+            }
+        }
         close(p[1]);
         _exit(0);
     }
@@ -89,7 +93,9 @@ static void copy_case(void)
     char b[600];
     assert(read(f, b, 600) == 600);
     for (int i = 0; i < 600; i++)
+    {
         assert(b[i] == "xyz"[i % 3]);
+    }
     assert(lseek(f, 0, SEEK_SET) == 0);
     int dest = temporary();
     assert(!hs_copy(f, dest, 7, &n) && n == 7);
@@ -166,7 +172,9 @@ static int frame_input(const unsigned char *b, size_t n)
     int p[2];
     pipe_make(p);
     for (size_t i = 0; i < n; i++)
+    {
         assert(write(p[1], b + i, 1) == 1);
+    }
     close(p[1]);
     return p[0];
 }
@@ -204,7 +212,9 @@ static void signal_case(void)
     assert(hs_signal_roundtrip(SIGKILL) == -1);
     assert(!pthread_sigmask(SIG_SETMASK, 0, &after));
     for (int sig = 1; sig < NSIG; sig++)
+    {
         assert(sigismember(&before, sig) == sigismember(&after, sig));
+    }
     sigset_t pending;
     assert(!sigpending(&pending));
     assert(!sigismember(&pending, SIGUSR1) && !sigismember(&pending, SIGUSR2));
@@ -214,10 +224,14 @@ static void ipc(void)
 {
     unsigned char out[64] = {0}, input[64];
     for (unsigned i = 0; i < 64; i++)
+    {
         input[i] = (unsigned char)i;
+    }
     assert(hs_local_exchange(input, 64, out, 64) == 64);
     for (unsigned i = 0; i < 64; i++)
+    {
         assert(out[i] == 63 - i);
+    }
     assert(hs_local_exchange("abc", 3, out, 2) == -1);
     assert(hs_local_exchange(input, 65, out, 64) == -1);
     assert(hs_local_exchange(input, 0, out, 64) == 0);
@@ -244,7 +258,9 @@ static void reactor(void)
     sum = 99;
     assert(hs_reactor_sum(fds, 3, &sum) == -2 && sum == 99);
     for (int i = 0; i < 3; i++)
+    {
         close(fds[i]);
+    }
     assert(hs_reactor_sum(fds, 0, &sum) == -1);
 }
 
@@ -304,7 +320,9 @@ static void queue(void)
     pthread_t t;
     assert(!pthread_create(&t, 0, consume, &c));
     for (int i = 0; i < 1000; i++)
+    {
         assert(!hs_queue_push(&q, i));
+    }
     assert(!hs_queue_close(&q));
     assert(!hs_queue_close(&q));
     assert(!pthread_join(t, 0));
@@ -325,7 +343,9 @@ static void queue(void)
     assert(!hs_queue_destroy(&q));
     assert(!hs_queue_init(&q));
     for (int i = 0; i < 4; i++)
+    {
         assert(!hs_queue_push(&q, i));
+    }
     assert(!pthread_create(&t, 0, blocked_push, &q));
     delay();
     assert(!hs_queue_close(&q));
@@ -364,31 +384,57 @@ int main(int argc, char **argv)
 {
     assert(argc == 2);
     if (!strcmp(argv[1], "descriptor"))
+    {
         descriptor();
+    }
     else if (!strcmp(argv[1], "copy"))
+    {
         copy_case();
+    }
     else if (!strcmp(argv[1], "deadline"))
+    {
         deadline();
+    }
     else if (!strcmp(argv[1], "process"))
+    {
         process();
+    }
     else if (!strcmp(argv[1], "mapping"))
+    {
         mapping();
+    }
     else if (!strcmp(argv[1], "frame"))
+    {
         frame();
+    }
     else if (!strcmp(argv[1], "signal"))
+    {
         signal_case();
+    }
     else if (!strcmp(argv[1], "ipc"))
+    {
         ipc();
+    }
     else if (!strcmp(argv[1], "reactor"))
+    {
         reactor();
+    }
     else if (!strcmp(argv[1], "pool"))
+    {
         pool();
+    }
     else if (!strcmp(argv[1], "queue"))
+    {
         queue();
+    }
     else if (!strcmp(argv[1], "clocks"))
+    {
         clocks();
+    }
     else
+    {
         return 2;
+    }
     puts(
         "actual hosted mechanism gate passed; complete project evidence remains");
     return 0;

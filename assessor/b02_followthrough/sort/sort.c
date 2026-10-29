@@ -5,7 +5,9 @@
 int bf_sort_width(size_t n, size_t width, size_t *out)
 {
     if (!out || n < 2 || !width || width >= n)
+    {
         return B2_INVALID;
+    }
     *out = width > n - width ? n : width + width;
     return B2_OK;
 }
@@ -14,13 +16,19 @@ int bf_sort_bottom(struct b2_item *a, size_t n, struct b2_item *s,
                    size_t capacity, struct bf_work *out)
 {
     if (!out || (n && !a))
+    {
         return B2_INVALID;
+    }
     if (n > 64)
+    {
         return B2_RANGE;
+    }
     if (n > 1 && (!s || capacity < n))
     {
         if (BF_MUTANT == 3)
+        {
             a[0].key = 0;
+        }
         return B2_FULL;
     }
     struct bf_work work = {0, 0, 0};
@@ -71,11 +79,17 @@ int bf_sort_indirect(const struct bf_record *a, size_t n, size_t *indices,
                      struct bf_work *out)
 {
     if (!out || (n && (!a || !indices)))
+    {
         return B2_INVALID;
+    }
     if (n > 64)
+    {
         return B2_RANGE;
+    }
     if (capacity < n || (n > 1 && (!scratch || scratch_capacity < n)))
+    {
         return B2_FULL;
+    }
     struct bf_work work = {0, 0, 0};
     for (size_t i = 0; i < n; ++i)
     {

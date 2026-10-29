@@ -9,9 +9,13 @@ int main(void)
              apb[] = {1, 2, 4, 8, 16};
     uint32_t sys[] = {16000000, 168000000, 180000000};
     for (unsigned s = 0; s < 3; s++)
+    {
         for (unsigned h = 0; h < 9; h++)
+        {
             for (unsigned a = 0; a < 5; a++)
+            {
                 for (unsigned b = 0; b < 5; b++)
+                {
                     for (unsigned t = 0; t < 2; t++)
                     {
                         struct pu_clock c = {sys[s], 1,      ahb[h],
@@ -22,8 +26,14 @@ int main(void)
                                c.ahb, c.apb1, c.apb2, t, rc, r.core, r.apb1,
                                r.apb2, r.timer1, r.timer2);
                     }
+                }
+            }
+        }
+    }
     for (unsigned clock = 1; clock <= 255; clock++)
+    {
         for (unsigned baud = 1; baud <= 32; baud++)
+        {
             for (unsigned over = 0; over < 2; over++)
             {
                 struct sd_uart out = {0};
@@ -31,6 +41,8 @@ int main(void)
                 printf("B %u %u %u %d %u %u\n", clock, baud, over, rc,
                        out.divisor, out.brr);
             }
+        }
+    }
     for (unsigned code = 0; code < 4096; code++)
     {
         unsigned x = code;
@@ -43,18 +55,26 @@ int main(void)
             unsigned event = x % 4;
             x /= 4;
             if (event < 2)
+            {
                 (void)pu_receive(&q, PU_RXNE | (event ? PU_ORE : 0),
                                  event ? 255 : 0);
+            }
             else if (event == 2)
+            {
                 (void)pu_take(&q, &v);
+            }
             else
+            {
                 (void)pu_receive(&q, 0, 99);
+            }
         }
         unsigned ready;
         pu_peer_ready(&q, &ready);
         printf("Q %u %u %u %u %u", code, q.count, q.dropped, q.errors, ready);
         while (pu_take(&q, &v) == PU_OK)
+        {
             printf(" %u %u", v.value, v.error);
+        }
         puts("");
     }
     for (unsigned code = 0; code < 7776; code++)
@@ -80,20 +100,30 @@ int main(void)
                 m.dma_flags = 1;
             }
             else if (event == 2)
+            {
                 m.sr |= PU_TC;
+            }
             else if (event == 3)
+            {
                 (void)pu_cancel(&d, io, 1);
+            }
             else if (event == 4)
+            {
                 (void)pu_reset_notice(&d, io);
+            }
             else if (event == 5)
+            {
                 m.dma_flags |= 2;
+            }
             int rc = pu_step(&d, io, 1, i);
             printf("D %u %u %d %u %u %u %u %u %u\n", code, i, rc, d.active,
                    d.memory_owned, d.line_owned, d.cancel, d.result, d.ready);
         }
     }
     for (unsigned clock = 8000000; clock <= 16000000; clock *= 2)
+    {
         for (unsigned n = 1; n <= 8; n++)
+        {
             for (unsigned div = 8; div <= 65535; div = div == 8     ? 139
                                                        : div == 139 ? 65535
                                                                     : 65536)
@@ -106,5 +136,7 @@ int main(void)
                            fits);
                 }
             }
+        }
+    }
     return 0;
 }

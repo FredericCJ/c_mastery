@@ -21,7 +21,9 @@ static EVP_PKEY *teaching_key(unsigned id, struct lce_keyring *r)
 {
     unsigned char seed[32];
     for (unsigned i = 0; i < 32; i++)
+    {
         seed[i] = (unsigned char)(id * 31 + i);
+    }
     EVP_PKEY *k =
         EVP_PKEY_new_raw_private_key(EVP_PKEY_ED25519, NULL, seed, 32);
     C(k);
@@ -63,7 +65,9 @@ static void compose(EVP_PKEY *key, struct lce_keyring *r)
 {
     unsigned char image[32] = {8, 0, 0, 0, 2, 2}, sig[64], record[24];
     for (unsigned i = 6; i < 32; i++)
+    {
         image[i] = (unsigned char)i;
+    }
     sign_image(key, image, 32, sig);
     uint32_t version = 0;
     C(lce_admit(image, 32, sig, 64, 6, 2, 8, lce_signature_bridge, r,
@@ -72,7 +76,9 @@ static void compose(EVP_PKEY *key, struct lce_keyring *r)
     struct fi_image flash;
     C(fi_init(&flash, 8));
     for (unsigned i = 0; i < 4; i++)
+    {
         C(fi_program(&flash, image, i, 64, 1));
+    }
     C(fi_commit(&flash, image, 2, record));
     C(fi_record_matches(flash.bytes, record) &&
       lce_admit(flash.bytes, 32, sig, 64, 6, 2, 8, lce_signature_bridge, r,

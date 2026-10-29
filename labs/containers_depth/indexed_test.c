@@ -21,10 +21,14 @@ static struct cd_bucket *take(void *v, unsigned n)
 {
     struct cd_alloc *a = v;
     if (++a->calls == a->fail)
+    {
         return NULL;
+    }
     struct cd_bucket *p = malloc(n * sizeof *p);
     if (p)
+    {
         ++a->live;
+    }
     return p;
 }
 
@@ -77,9 +81,13 @@ static void hashes(void)
     CHECK(cd_hash_init(&h, 4, (struct cd_hash_allocator){&a, take, release},
                        0) == CD_OK);
     for (unsigned k = 0; k < 4; ++k)
+    {
         CHECK(cd_hash_put(&h, k, (int)k, &probes) == CD_OK);
+    }
     for (unsigned k = 0; k < 4; ++k)
+    {
         CHECK(cd_hash_delete(&h, k) == CD_OK);
+    }
     CHECK(h.live == 0 && h.occupied == 4 &&
           cd_hash_get(&h, 21, &out, &probes) == CD_MISSING && probes == 4);
     CHECK(cd_hash_put(&h, 9, 90, &probes) == CD_OK && probes == 4 &&
@@ -89,7 +97,9 @@ static void hashes(void)
     CHECK(cd_hash_init(&h, 16, (struct cd_hash_allocator){&a, take, release},
                        1) == CD_OK);
     for (unsigned k = 0; k < 16; ++k)
+    {
         CHECK(cd_hash_put(&h, k, (int)k, &probes) == CD_OK && probes == k + 1);
+    }
     CHECK(cd_hash_get(&h, 99, &out, &probes) == CD_MISSING && probes == 16);
     CHECK(cd_hash_destroy(&h) == CD_OK);
     struct cd_byte_map m = {0};
@@ -117,7 +127,9 @@ static void tries(void)
     unsigned char a[3] = {65, 0, 66};
     CHECK(cd_trie_insert(&t, NULL, 0, 0) == CD_OK);
     for (size_t n = 1; n <= 3; ++n)
+    {
         CHECK(cd_trie_insert(&t, a, n, 0) == CD_OK);
+    }
     struct cd_trie_cursor cursor;
     CHECK(cd_trie_prefix(&t, a, 1, &cursor) == CD_OK && cursor.count == 3);
     struct cd_key key;
@@ -206,13 +218,17 @@ static void sets(void)
           cd_sets_union(&u, 3, 4) == CD_OK && cd_sets_union(&u, 2, 4) == CD_OK);
     unsigned r[6];
     for (unsigned i = 0; i < 6; ++i)
+    {
         CHECK(cd_sets_find(&u, i, &r[i]) == CD_OK);
+    }
     CHECK(r[0] == r[2] && r[2] == r[3] && r[3] == r[4] && r[1] != r[0] &&
           r[5] != r[0] && r[1] != r[5] && u.size[r[0]] == 4);
     CHECK(cd_sets_union(&u, 0, 4) == CD_OK && u.size[r[0]] == 4);
     CHECK(cd_sets_rollback(&u, empty) == CD_OK);
     for (unsigned i = 0; i < 6; ++i)
+    {
         CHECK(u.parent[i] == i && u.size[i] == 1);
+    }
     CHECK(cd_sets_union(&u, 0, 1) == CD_OK &&
           cd_sets_union(&u, 2, 3) == CD_OK && cd_sets_union(&u, 0, 2) == CD_OK);
     CHECK(u.parent[3] == 2);
@@ -235,7 +251,9 @@ static void graphs(void)
     CHECK(cd_csr_build(&csr, 4, edges, 3, 0) == CD_OK);
     unsigned expected[5] = {0, 2, 2, 3, 3};
     for (unsigned i = 0; i <= 4; ++i)
+    {
         CHECK(csr.offset[i] == expected[i]);
+    }
     unsigned matrix[4][4] = {{0}}, list[4][4] = {{0}}, degrees[4] = {0};
     for (unsigned i = 0; i < 3; ++i)
     {
@@ -248,8 +266,10 @@ static void graphs(void)
               csr.offset[v + 1] <= csr.count &&
               degrees[v] == csr.offset[v + 1] - csr.offset[v]);
         for (unsigned j = 0; j < degrees[v]; ++j)
+        {
             CHECK(csr.edges[csr.offset[v] + j].to == list[v][j] &&
                   matrix[v][list[v][j]]);
+        }
     }
     struct cd_csr before = csr;
     struct cd_edge bad = {4, 0, 0};
@@ -276,12 +296,16 @@ static void filters(void)
         unsigned result;
         CHECK(cd_filter_query(filter, k, &result) == CD_OK);
         if (k == 1 || k == 2)
+        {
             CHECK(result);
+        }
         if (result)
         {
             ++matches;
             if (k != 1 && k != 2)
+            {
                 ++false_hits;
+            }
         }
     }
     CHECK(matches == 4 && false_hits == 2);
@@ -307,7 +331,9 @@ static void filters(void)
         !result); /* known-present key9 was lost by clearing key1's shared bits */
     struct cd_counting_filter counting = {0};
     for (unsigned i = 0; i < 3; ++i)
+    {
         CHECK(cd_counting_insert(&counting, 1) == CD_OK);
+    }
     struct cd_counting_filter saved = counting;
     CHECK(cd_counting_insert(&counting, 9) == CD_FULL &&
           !memcmp(&saved, &counting, sizeof saved));

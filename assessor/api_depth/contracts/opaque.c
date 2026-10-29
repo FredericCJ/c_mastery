@@ -17,14 +17,18 @@ int ac_opaque_create(uint32_t id, uint32_t n, struct ac_allocate a,
                      struct ac_opaque **out)
 {
     if (!out || !a.allocate || !a.release)
+    {
         return 1;
+    }
 #ifdef AC_MUTANT_OUTPUT
     *out = NULL;
 #endif
     struct ac_opaque *s =
         a.allocate(a.context, sizeof *s, _Alignof(struct ac_opaque));
     if (!s)
+    {
         return 2;
+    }
     s->identity = id;
     s->count = n;
     s->allocator = a;
@@ -35,7 +39,9 @@ int ac_opaque_create(uint32_t id, uint32_t n, struct ac_allocate a,
 int ac_opaque_get(const struct ac_opaque *s, struct ac_exposed_v1 *out)
 {
     if (!s || !out)
+    {
         return 1;
+    }
     *out = (struct ac_exposed_v1){s->identity, (uint32_t)s->count};
     return 0;
 }

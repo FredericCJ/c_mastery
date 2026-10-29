@@ -55,9 +55,13 @@ int main(void)
     {
         size_t x = vt_desc(a, 4, k);
         for (size_t i = 0; i < x; i++)
+        {
             C(a[i].key > k);
+        }
         for (size_t i = x; i < 4; i++)
+        {
             C(a[i].key <= k);
+        }
     }
     struct vt_queue q = {0};
     struct vt_context c = {&q, 0, 0, 0, 0};
@@ -85,6 +89,7 @@ int main(void)
         }
         bytes[len + 1] = (unsigned char)check;
         for (size_t i = 0; i <= len + 2; i++)
+        {
             for (size_t j = i; j <= len + 2; j++)
             {
                 struct vt_stream s = {0};
@@ -101,6 +106,7 @@ int main(void)
                 C(vt_feed(&s, bytes, len + 2) && vt_finish(&s, &out) &&
                   out == want);
             }
+        }
     }
     struct vt_event ev[] = {{1, 4}, {2, 0}, {3, 1}, {4, 4},
                             {5, 3}, {6, 3}, {7, 2}};

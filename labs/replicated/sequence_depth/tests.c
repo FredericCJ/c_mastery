@@ -46,7 +46,9 @@ static int tree(void)
               out[4] == 0xbf);
         CHECK(rps_init(&t, 1, mode) == RPS_OK);
         for (i = 1; i <= 16; ++i)
+        {
             CHECK(rps_remove(&t, 1, i) == RPS_OK);
+        }
         CHECK(rps_insert(&t, 1, 20, 0, 'z') == (mode ? RPS_FULL : RPS_OK));
         CHECK(rps_remove(&t, 1, 17) == RPS_FULL);
     }
@@ -119,7 +121,9 @@ static int setup(void)
     unsigned i;
     CHECK(rps_server_init(&server, 1) == RPS_OK);
     for (i = 0; i < 3; ++i)
+    {
         CHECK(rps_client_init(&clients[i], 1, i) == RPS_OK);
+    }
     return 0;
 }
 
@@ -127,8 +131,12 @@ static int drain(unsigned from, unsigned to)
 {
     unsigned i, j;
     for (i = from; i <= to; ++i)
+    {
         for (j = 0; j < 3; ++j)
+        {
             CHECK(rps_deliver(&clients[j], &commits[i - 1]) == RPS_OK);
+        }
+    }
     return 0;
 }
 
@@ -140,7 +148,9 @@ static int context(void)
     unsigned i;
     CHECK(setup() == 0);
     for (i = 0; i < 3; ++i)
+    {
         CHECK(rps_prepare(&clients[i], 1, 0, 'a' + i, &requests[i]) == RPS_OK);
+    }
     bad = requests[2];
     bad.vector[0] = 1;
     CHECK(rps_submit(&server, &bad, &out) == RPS_GAP);
@@ -202,9 +212,13 @@ static int delivery(void)
     unsigned i;
     CHECK(setup() == 0);
     for (i = 0; i < 3; ++i)
+    {
         CHECK(rps_prepare(&clients[i], 1, 0, 'a' + i, &requests[i]) == RPS_OK);
+    }
     for (i = 0; i < 3; ++i)
+    {
         CHECK(rps_submit(&server, &requests[i], &commits[i]) == RPS_OK);
+    }
     saved = clients[2];
     CHECK(rps_deliver(&clients[2], &commits[1]) == RPS_GAP &&
           !memcmp(&saved, &clients[2], sizeof saved));
@@ -236,21 +250,33 @@ static int tree_oracle(void)
     while (scanf(" %c %u %u %u", &op, &a, &b, &c) == 4)
     {
         if (op == 'I')
+        {
             r = rps_init(&t, 1, a);
+        }
         else if (op == 'A')
+        {
             r = rps_insert(&t, 1, a, b, c);
+        }
         else if (op == 'D')
+        {
             r = rps_remove(&t, 1, a);
+        }
         else
+        {
             return 2;
+        }
         CHECK(rps_snapshot(&t, wire) == RPS_OK);
         CHECK(rps_render(&t, bytes, 64, &n) == RPS_OK);
         printf("%d ", r);
         for (i = 0; i < 368; ++i)
+        {
             printf("%02x", wire[i]);
+        }
         putchar(' ');
         for (i = 0; i < n; ++i)
+        {
             printf("%02x", bytes[i]);
+        }
         puts("");
     }
     return 0;
@@ -270,13 +296,17 @@ static int ot_oracle(void)
             r = RPS_OK;
         }
         else if (op == 'P')
+        {
             r = rps_prepare(&clients[a], b, c, d, &requests[a]);
+        }
         else if (op == 'S')
         {
             struct rps_commit out;
             r = rps_submit(&server, &requests[a], &out);
             if (!r)
+            {
                 commits[out.revision - 1] = out;
+            }
         }
         else if (op == 'D')
         {
@@ -284,18 +314,26 @@ static int ot_oracle(void)
             r = rps_deliver(&clients[a], &commits[b - 1]);
         }
         else
+        {
             return 2;
+        }
         printf("%d %u %u", r, server.count, server.lengths[server.count]);
         for (i = 0; i < server.lengths[server.count]; ++i)
+        {
             printf(" %u", server.documents[server.count][i]);
+        }
         for (i = 0; i < 3; ++i)
         {
             struct rps_client *x = &clients[i];
             printf(" %u %u %u", x->revision, x->pending, x->length);
             for (j = 0; j < 3; ++j)
+            {
                 printf(" %u", x->vector[j]);
+            }
             for (j = 0; j < x->length; ++j)
+            {
                 printf(" %u", x->document[j]);
+            }
         }
         puts("");
     }
@@ -305,19 +343,33 @@ static int ot_oracle(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "seq_tree"))
+    {
         return tree();
+    }
     if (!strcmp(argv[1], "seq_snapshot"))
+    {
         return snapshot();
+    }
     if (!strcmp(argv[1], "ot_context"))
+    {
         return context();
+    }
     if (!strcmp(argv[1], "ot_delivery"))
+    {
         return delivery();
+    }
     if (!strcmp(argv[1], "tree_oracle"))
+    {
         return tree_oracle();
+    }
     if (!strcmp(argv[1], "ot_oracle"))
+    {
         return ot_oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
     {
         printf(

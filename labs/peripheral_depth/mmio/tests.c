@@ -99,7 +99,9 @@ int main(void)
             int x = pm_step(&r, &m);
             CK(x == (step == ready ? 0 : step == 3 ? -2 : 1));
             if (x <= 0)
+            {
                 break;
+            }
         }
         CK(m.tx_count == (ready <= 3));
         CK(pm_step(&r, &m) == -1);
@@ -129,7 +131,9 @@ int main(void)
     CK(pm_filter_init(&d, 3, 0, 0) == 0);
     unsigned samples[] = {0, 1, 0, 1, 1, 1};
     for (unsigned i = 0; i < 6; ++i)
+    {
         CK(pm_sample(&d, samples[i], i, &changed) == 0 && changed == (i == 5));
+    }
     CK(d.events == 1 && d.stable == 1);
     CK(pm_filter_init(&d, 3, 10, 7) == 0);
     CK(pm_sample(&d, 1, UINT32_MAX - 4, &changed) == 0 && !changed);

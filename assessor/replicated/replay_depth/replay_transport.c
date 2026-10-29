@@ -10,10 +10,14 @@ int rpr_input_frame(struct rpr_input input, unsigned char out[18])
     unsigned i;
     int r;
     if (!out)
+    {
         return RPR_INVALID;
+    }
     r = rpr_input_encode(input, raw);
     if (r)
+    {
         return r;
+    }
     for (i = 0; i < 2; ++i)
     {
         struct rf_frame f = {0};
@@ -21,7 +25,9 @@ int rpr_input_frame(struct rpr_input input, unsigned char out[18])
         f.length = 8;
         memcpy(f.bytes, raw + 8 * i, 8);
         if (rf_message_init(&m, i + 1, 1, &f))
+        {
             return RPR_STATE;
+        }
         memcpy(wire + 9 * i, m.wire, 9);
     }
     memcpy(out, wire, 18);
@@ -36,9 +42,13 @@ int rpr_input_unframe(const unsigned char *wire, size_t n, unsigned chunk,
     size_t at = 0, count = 0;
     unsigned frames = 0;
     if (!wire || !out || !chunk || chunk > 32)
+    {
         return RPR_INVALID;
+    }
     if (rf_parser_init(&p, 1))
+    {
         return RPR_STATE;
+    }
     while (at < n)
     {
         struct rf_frame f;
@@ -46,19 +56,27 @@ int rpr_input_unframe(const unsigned char *wire, size_t n, unsigned chunk,
         int r = rf_feed(&p, wire + at, take, &used, &f);
         at += used;
         if (r < 0)
+        {
             return RPR_CORRUPT;
+        }
         if (r == 1)
         {
             if ((f.length != 8 && RPR_MUTATION != 10) || f.length > 16 - count)
+            {
                 return RPR_CORRUPT;
+            }
             memcpy(raw + count, f.bytes, f.length);
             count += f.length;
             ++frames;
             if (RPR_MUTATION == 9 && count == 16)
+            {
                 break;
+            }
         }
     }
     if (rf_eof(&p) || count != 16 || (frames != 2 && RPR_MUTATION != 10))
+    {
         return RPR_CORRUPT;
+    }
     return rpr_input_decode(raw, out);
 }

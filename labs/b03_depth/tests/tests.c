@@ -30,7 +30,9 @@ static long scripted(void *c, const unsigned char *p, size_t n)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "io"))
     {
         const unsigned char bytes[] = {1, 2, 3, 4, 5};
@@ -78,13 +80,17 @@ int main(int argc, char **argv)
         CHECK(b3_due(4, 250, 10, &out) == B3_OK && out == 1);
         CHECK(b3_due(128, 0, 1, &out) == B3_AMBIGUOUS && out == 1);
         for (start = 0; start < 256; start++)
+        {
             for (elapsed = 0; elapsed < 128; elapsed++)
+            {
                 for (delay = 0; delay < 128; delay++)
                 {
                     CHECK(b3_due((uint8_t)(start + elapsed), (uint8_t)start,
                                  (uint8_t)delay, &out) == B3_OK);
                     CHECK(out == (elapsed >= delay));
                 }
+            }
+        }
     }
     else if (!strcmp(argv[1], "publication"))
     {
@@ -103,6 +109,8 @@ int main(int argc, char **argv)
               b3_store_order() == memory_order_seq_cst);
     }
     else
+    {
         return 2;
+    }
     return 0;
 }

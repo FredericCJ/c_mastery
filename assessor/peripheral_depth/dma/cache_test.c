@@ -21,7 +21,9 @@ static unsigned load(struct dg_cache *c, unsigned i)
     if (!c->valid[l])
     {
         for (unsigned k = l * 32; k < (l + 1) * 32; k++)
+        {
             c->cache[k] = c->ram[k];
+        }
         c->valid[l] = 1;
         c->dirty[l] = 0;
     }
@@ -48,7 +50,9 @@ static void emit(void *ctx, enum fw_cache_op op, uint32_t a)
     if (op == FW_CLEAN && c->valid[l] && c->dirty[l])
     {
         for (unsigned k = l * 32; k < (l + 1) * 32; k++)
+        {
             c->ram[k] = c->cache[k];
+        }
         c->dirty[l] = 0;
     }
     if (op == H7_INVALIDATE)

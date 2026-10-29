@@ -11,7 +11,9 @@ static int get(void *ctx, size_t i, struct ar_record *out)
 {
     struct ac_store *s = ctx;
     if (i >= 3)
+    {
         return AR_RANGE;
+    }
     *out = s->rows[s->reverse ? 2 - i : i];
     return AR_OK;
 }
@@ -32,7 +34,9 @@ int main(void)
     {
         unsigned total = 1;
         for (unsigned i = 0; i < n; ++i)
+        {
             total *= 3;
+        }
         for (unsigned k = 0; k < total; ++k)
         {
             unsigned v = k;
@@ -43,7 +47,9 @@ int main(void)
             }
             CHECK(ar_double(in, n, out) == AR_OK);
             for (unsigned i = 0; i < n; ++i)
+            {
                 CHECK(out[i] == in[i] + in[i]);
+            }
             ++enumerated;
         }
     }
@@ -58,9 +64,13 @@ int main(void)
         int status = ar_double(&v, 1, &result);
         int64_t expected = signed_v * 2;
         if (expected < INT32_MIN || expected > INT32_MAX)
+        {
             CHECK(status == AR_RANGE && result == 77);
+        }
         else
+        {
             CHECK(status == AR_OK && result == expected);
+        }
     }
     struct ac_store a = {{{1}, {3}, {5}}, 0}, b = {{{5}, {3}, {1}}, 1};
     int32_t x[3], y[3];

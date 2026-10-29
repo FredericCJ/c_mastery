@@ -17,10 +17,14 @@ int main(int argc, char **argv)
         return 0;
     }
     if (argc == 2)
+    {
         return vc_test((unsigned)strtoul(argv[1], 0, 10));
+    }
     if (argc != 6 ||
         (strcmp(argv[1], "--program") && strcmp(argv[1], "--legacy")))
+    {
         return 2;
+    }
     struct vc_options o = {256, (unsigned)strtoul(argv[5], 0, 10)};
     struct vc_report r;
     struct cvm_program p;
@@ -30,15 +34,21 @@ int main(int argc, char **argv)
                  : vc_compile(argv[2], strlen(argv[2]), &o, &work, &p, &r);
     printf("VC_COMPILE %d\n", rc);
     if (rc)
+    {
         return 0;
+    }
     printf("VC_CODE %u ", p.length);
     for (unsigned i = 0; i < p.length; i++)
+    {
         printf("%02x", p.code[i]);
+    }
     putchar('\n');
     for (unsigned i = 0; i < p.count; i++)
+    {
         printf("VC_FN %u %u %u %u\n", p.functions[i].entry,
                p.functions[i].length, p.functions[i].arity,
                p.functions[i].locals);
+    }
     cvm_init(&vm, (uint32_t)strtoul(argv[3], 0, 10),
              (uint32_t)strtoul(argv[4], 0, 10), 100);
     rc = cvm_run(&vm, &p, &v);

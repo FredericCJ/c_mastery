@@ -10,7 +10,9 @@ int main(int argc, char **argv)
     {
         uint64_t scalar = (uint64_t)(uintptr_t)old_space, result;
         for (i = 0; i < 8; i++)
+        {
             old_space[i] = (unsigned char)(10 + i);
+        }
         result = sp_entry(old_space, offset, scalar);
         CHECK(result == scalar + 27 + offset);
         CHECK(slots >= 1 && polls == offset + 1);

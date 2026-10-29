@@ -27,7 +27,9 @@ static int transfer(int fd, const unsigned char *p, size_t n, unsigned inject,
     {
         ptrdiff_t raw;
         if (inject && step++ == 0)
+        {
             raw = -EINTR;
+        }
         else if (inject && step == 3)
         {
             step++;
@@ -37,13 +39,17 @@ static int transfer(int fd, const unsigned char *p, size_t n, unsigned inject,
         {
             size_t ask = n - t.done;
             if (inject && ask > 113)
+            {
                 ask = 113;
+            }
             ssize_t got = write(fd, p + t.done, ask);
             raw = got < 0 ? -errno : got;
         }
         enum of_status rc = of_progress(&t, raw, 0);
         if (rc == OF_ERROR || rc == OF_INPUT)
+        {
             return 1;
+        }
     }
     *done = t.done;
     return 0;
@@ -62,7 +68,9 @@ static int close_model(void)
         struct of_slot slot = {1, 1, 0};
         slot.closes++;
         if (!retaining)
+        {
             slot.open = 0;
+        }
         int result = -EINTR;
         CHECK(result == -EINTR);
         if (retaining)
@@ -92,7 +100,9 @@ int main(void)
 {
     unsigned char data[7168];
     for (size_t i = 0; i < sizeof data; i++)
+    {
         data[i] = (unsigned char)(i % 251);
+    }
     char name[] = "/tmp/of-io-XXXXXX";
     int fd = mkstemp(name);
     CHECK(fd >= 0 && !unlink(name));

@@ -15,10 +15,14 @@ static unsigned fail_at, attempt, live, cleaned;
 static void *take(size_t n)
 {
     if (++attempt == fail_at)
+    {
         return NULL;
+    }
     void *p = malloc(n);
     if (p)
+    {
         live++;
+    }
     return p;
 }
 
@@ -43,14 +47,18 @@ static int transaction(unsigned *published)
         if (!p[i])
         {
             for (unsigned j = i; j > 0; j--)
+            {
                 drop(p[j - 1]);
+            }
             CHECK(*published == old);
             return -1;
         }
     }
     *published = old + 1;
     for (unsigned i = 3; i > 0; i--)
+    {
         drop(p[i - 1]);
+    }
     return 0;
 }
 

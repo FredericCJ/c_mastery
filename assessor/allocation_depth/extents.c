@@ -6,25 +6,35 @@ int al_extent_choose(struct al_extent *a, size_t *count, size_t bytes,
 {
     if (!a || !count || !bytes || !minimum || best > 1 || !offset || !charged ||
         *count > 16)
+    {
         return AL_BAD;
+    }
     size_t chosen = 16;
     for (size_t i = 0; i < *count; ++i)
     {
         if (!a[i].size || a[i].offset > SIZE_MAX - a[i].size ||
             (i && a[i - 1].offset + a[i - 1].size > a[i].offset))
+        {
             return AL_BAD;
+        }
         if (a[i].size >= bytes &&
             (chosen == 16 || (best && a[i].size < a[chosen].size)))
+        {
             chosen = i;
+        }
     }
     if (chosen == 16)
+    {
         return AL_FULL;
+    }
     size_t at = a[chosen].offset,
            n = a[chosen].size - bytes < minimum ? a[chosen].size : bytes;
     if (n == a[chosen].size)
     {
         for (size_t i = chosen + 1; i < *count; ++i)
+        {
             a[i - 1] = a[i];
+        }
         --*count;
     }
     else
@@ -40,13 +50,17 @@ int al_extent_choose(struct al_extent *a, size_t *count, size_t bytes,
 int al_extent_coalesce(struct al_extent *a, size_t *count, size_t capacity)
 {
     if (!a || !count || *count > 16)
+    {
         return AL_BAD;
+    }
     struct al_extent sorted[16];
     for (size_t i = 0; i < *count; ++i)
     {
         if (!a[i].size || a[i].offset > capacity ||
             a[i].size > capacity - a[i].offset)
+        {
             return AL_BAD;
+        }
         sorted[i] = a[i];
     }
     for (size_t i = 1; i < *count; ++i)
@@ -68,7 +82,9 @@ int al_extent_coalesce(struct al_extent *a, size_t *count, size_t capacity)
             struct al_extent *p = &sorted[used - 1];
             size_t end = p->offset + p->size;
             if (end > sorted[i].offset)
+            {
                 return AL_BAD;
+            }
             if (end == sorted[i].offset)
             {
                 p->size += sorted[i].size;
@@ -78,7 +94,9 @@ int al_extent_coalesce(struct al_extent *a, size_t *count, size_t capacity)
         sorted[used++] = sorted[i];
     }
     for (size_t i = 0; i < used; ++i)
+    {
         a[i] = sorted[i];
+    }
     *count = used;
     return AL_OK;
 }
@@ -101,7 +119,9 @@ static int resize(void *p, struct al_handle h, size_t n, struct al_handle *out)
 int al_heap_api(struct al_heap *h, struct al_allocator *out)
 {
     if (!h || !out)
+    {
         return AL_BAD;
+    }
     *out = (struct al_allocator){h, 8, allocate, release, resize};
     return AL_OK;
 }
@@ -111,6 +131,8 @@ int al_api_allocate(const struct al_allocator *a, size_t n, size_t align,
 {
     if (!a || !a->allocate || !a->owner || !out || !n || !align ||
         (align & (align - 1)) || align > a->max_alignment)
+    {
         return AL_BAD;
+    }
     return a->allocate(a->owner, n, align, out);
 }

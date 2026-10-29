@@ -25,13 +25,21 @@ static int locate(const struct cd_hash *h, uint32_t key, unsigned *empty,
         ++*probes;
         const struct cd_bucket *b = &h->slots[at];
         if (b->state == 1 && b->key == key)
+        {
             return (int)at;
+        }
         if (b->state != 1 && *empty == h->capacity)
+        {
             *empty = at;
+        }
         if (b->state == 0 || (CD_MUTANT == 6 && b->state == 2))
+        {
             break;
+        }
         if (++at == h->capacity)
+        {
             at = 0;
+        }
     }
     return -1;
 }
@@ -41,12 +49,18 @@ enum cd_status cd_hash_init(struct cd_hash *h, unsigned cap,
                             unsigned cluster)
 {
     if (!h || !cap || cap > 16 || !allocator.take || !allocator.release)
+    {
         return CD_INVALID;
+    }
     struct cd_bucket *p = allocator.take(allocator.context, cap);
     if (!p)
+    {
         return CD_NOMEM;
+    }
     for (unsigned i = 0; i < cap; ++i)
+    {
         p[i] = (struct cd_bucket){0, 0, 0};
+    }
     *h = (struct cd_hash){p, cap, 0, 0, cluster != 0, allocator};
     return CD_OK;
 }
@@ -55,16 +69,22 @@ enum cd_status cd_hash_put(struct cd_hash *h, uint32_t key, int value,
                            unsigned *probes)
 {
     if (!hash_valid(h) || !probes)
+    {
         return CD_INVALID;
+    }
     unsigned empty;
     int at = locate(h, key, &empty, probes);
     if (at < 0)
     {
         if (empty == h->capacity)
+        {
             return CD_FULL;
+        }
         at = (int)empty;
         if (h->slots[at].state == 0)
+        {
             ++h->occupied;
+        }
         ++h->live;
     }
     h->slots[at] = (struct cd_bucket){key, value, 1};
@@ -75,11 +95,15 @@ enum cd_status cd_hash_get(const struct cd_hash *h, uint32_t key, int *out,
                            unsigned *probes)
 {
     if (!hash_valid(h) || !out || !probes)
+    {
         return CD_INVALID;
+    }
     unsigned empty;
     int at = locate(h, key, &empty, probes);
     if (at < 0)
+    {
         return CD_MISSING;
+    }
     *out = h->slots[at].value;
     return CD_OK;
 }
@@ -87,11 +111,15 @@ enum cd_status cd_hash_get(const struct cd_hash *h, uint32_t key, int *out,
 enum cd_status cd_hash_delete(struct cd_hash *h, uint32_t key)
 {
     if (!hash_valid(h))
+    {
         return CD_INVALID;
+    }
     unsigned empty, probes;
     int at = locate(h, key, &empty, &probes);
     if (at < 0)
+    {
         return CD_MISSING;
+    }
     h->slots[at].state = 2;
     --h->live;
     return CD_OK;
@@ -100,19 +128,25 @@ enum cd_status cd_hash_delete(struct cd_hash *h, uint32_t key)
 enum cd_status cd_hash_rebuild(struct cd_hash *h, unsigned cap)
 {
     if (!hash_valid(h) || cap < h->live || !cap || cap > 16)
+    {
         return CD_INVALID;
+    }
     struct cd_hash replacement;
     enum cd_status result =
         cd_hash_init(&replacement, cap, h->allocator, h->clustered);
     if (result != CD_OK)
+    {
         return result;
+    }
     for (unsigned i = 0; i < h->capacity; ++i)
+    {
         if (h->slots[i].state == 1)
         {
             unsigned probes;
             cd_hash_put(&replacement, h->slots[i].key, h->slots[i].value,
                         &probes);
         }
+    }
     struct cd_bucket *old = h->slots;
     *h = replacement;
     h->allocator.release(h->allocator.context, old);
@@ -122,7 +156,9 @@ enum cd_status cd_hash_rebuild(struct cd_hash *h, unsigned cap)
 enum cd_status cd_hash_destroy(struct cd_hash *h)
 {
     if (!hash_valid(h))
+    {
         return CD_INVALID;
+    }
     struct cd_bucket *old = h->slots;
     h->slots = 0;
     h->capacity = h->live = h->occupied = 0;
@@ -134,17 +170,25 @@ static unsigned key_hash(const unsigned char *p, size_t n)
 {
     unsigned h = 0;
     for (size_t i = 0; i < n; ++i)
+    {
         h = (h * 33u + p[i]) % 4;
+    }
     return h;
 }
 
 static int equal(const struct cd_key *k, const unsigned char *p, size_t n)
 {
     if (k->length != n)
+    {
         return 0;
+    }
     for (size_t i = 0; i < n; ++i)
+    {
         if (k->bytes[i] != p[i])
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
@@ -152,7 +196,9 @@ enum cd_status cd_bytemap_put(struct cd_byte_map *m, const unsigned char *p,
                               size_t n, int value)
 {
     if (!m || (!p && n) || n > 8)
+    {
         return CD_INVALID;
+    }
     unsigned at = key_hash(p, n);
     for (unsigned i = 0; i < 4; ++i)
     {
@@ -160,7 +206,9 @@ enum cd_status cd_bytemap_put(struct cd_byte_map *m, const unsigned char *p,
         if (!m->live[at] || equal(k, p, n))
         {
             for (size_t j = 0; j < n; ++j)
+            {
                 k->bytes[j] = p[j];
+            }
             k->length = n;
             k->value = value;
             m->live[at] = 1;
@@ -175,12 +223,16 @@ enum cd_status cd_bytemap_get(const struct cd_byte_map *m,
                               const unsigned char *p, size_t n, int *out)
 {
     if (!m || !out || (!p && n) || n > 8)
+    {
         return CD_INVALID;
+    }
     unsigned at = key_hash(p, n);
     for (unsigned i = 0; i < 4; ++i)
     {
         if (!m->live[at])
+        {
             return CD_MISSING;
+        }
         if (equal(&m->keys[at], p, n))
         {
             *out = m->keys[at].value;
@@ -194,7 +246,9 @@ enum cd_status cd_bytemap_get(const struct cd_byte_map *m,
 void cd_trie_init(struct cd_trie *t)
 {
     for (unsigned i = 0; i < 64; ++i)
+    {
         t->nodes[i] = (struct cd_trie_node){-1, -1, -1, 0, 0, 0};
+    }
     t->nodes[0].live = 1;
     t->generation = 1;
     t->count = 1;
@@ -204,7 +258,9 @@ static int child(const struct cd_trie *t, int parent, unsigned char byte)
 {
     int at = t->nodes[parent].child;
     while (at >= 0 && t->nodes[at].byte != byte)
+    {
         at = t->nodes[at].sibling;
+    }
     return at;
 }
 
@@ -212,7 +268,9 @@ static int path(const struct cd_trie *t, const unsigned char *p, size_t n)
 {
     int at = 0;
     for (size_t i = 0; i < n && at >= 0; ++i)
+    {
         at = child(t, at, p[i]);
+    }
     return at;
 }
 
@@ -220,31 +278,45 @@ enum cd_status cd_trie_insert(struct cd_trie *t, const unsigned char *p,
                               size_t n, unsigned fail)
 {
     if (!t || (!p && n) || n > 8 || !t->generation)
+    {
         return CD_INVALID;
+    }
     int parent = 0;
     size_t matched = 0;
     while (matched < n)
     {
         int next = child(t, parent, p[matched]);
         if (next < 0)
+        {
             break;
+        }
         parent = next;
         ++matched;
     }
     if (matched == n && t->nodes[parent].terminal)
+    {
         return CD_DUPLICATE;
+    }
     if (t->generation == UINT32_MAX)
+    {
         return CD_FULL;
+    }
     unsigned needed = (unsigned)(n - matched), slots[8], made = 0;
     for (unsigned i = 1; i < 64 && made < needed; ++i)
+    {
         if (!t->nodes[i].live)
         {
             if (fail == made + 1)
+            {
                 return CD_NOMEM;
+            }
             slots[made++] = i;
         }
+    }
     if (made != needed)
+    {
         return CD_FULL;
+    }
     for (unsigned i = 0; i < needed; ++i)
     {
         unsigned at = slots[i];
@@ -263,18 +335,26 @@ enum cd_status cd_trie_delete(struct cd_trie *t, const unsigned char *p,
                               size_t n)
 {
     if (!t || (!p && n) || n > 8)
+    {
         return CD_INVALID;
+    }
     int at = path(t, p, n);
     if (at < 0 || !t->nodes[at].terminal)
+    {
         return CD_MISSING;
+    }
     if (t->generation == UINT32_MAX)
+    {
         return CD_FULL;
+    }
     t->nodes[at].terminal = 0;
     while (at && t->nodes[at].child < 0 && !t->nodes[at].terminal)
     {
         int parent = t->nodes[at].parent, *edge = &t->nodes[parent].child;
         while (*edge != at)
+        {
             edge = &t->nodes[*edge].sibling;
+        }
         *edge = t->nodes[at].sibling;
         t->nodes[at].live = 0;
         --t->count;
@@ -289,7 +369,9 @@ static int descendant(const struct cd_trie *t, int at, int root)
     while (at >= 0)
     {
         if (at == root)
+        {
             return 1;
+        }
         at = t->nodes[at].parent;
     }
     return 0;
@@ -299,15 +381,23 @@ enum cd_status cd_trie_prefix(const struct cd_trie *t, const unsigned char *p,
                               size_t n, struct cd_trie_cursor *out)
 {
     if (!t || !out || (!p && n) || n > 8)
+    {
         return CD_INVALID;
+    }
     int root = path(t, p, n);
     if (root < 0)
+    {
         return CD_MISSING;
+    }
     struct cd_trie_cursor cursor = {t, t->generation, {0}, 0, 0};
     for (unsigned i = 0; i < 64; ++i)
+    {
         if (t->nodes[i].live && t->nodes[i].terminal &&
             descendant(t, (int)i, root))
+        {
             cursor.nodes[cursor.count++] = i;
+        }
+    }
     *out = cursor;
     return CD_OK;
 }
@@ -315,24 +405,34 @@ enum cd_status cd_trie_prefix(const struct cd_trie *t, const unsigned char *p,
 enum cd_status cd_trie_next(struct cd_trie_cursor *c, struct cd_key *out)
 {
     if (!c || !out || !c->owner)
+    {
         return CD_INVALID;
+    }
     if (c->generation != c->owner->generation && CD_MUTANT != 7)
+    {
         return CD_BUSY;
+    }
     if (c->position == c->count)
+    {
         return CD_EMPTY;
+    }
     unsigned char reverse[8];
     size_t n = 0;
     int at = (int)c->nodes[c->position];
     while (at)
     {
         if (n == 8)
+        {
             return CD_INVALID;
+        }
         reverse[n++] = c->owner->nodes[at].byte;
         at = c->owner->nodes[at].parent;
     }
     struct cd_key key = {{0}, n, 0};
     for (size_t i = 0; i < n; ++i)
+    {
         key.bytes[i] = reverse[n - 1 - i];
+    }
     *out = key;
     ++c->position;
     return CD_OK;
@@ -343,7 +443,9 @@ void cd_sparse_init(struct cd_sparse *s)
     s->count = 0;
     s->generation = 1;
     for (unsigned i = 0; i < 32; ++i)
+    {
         s->tags[i] = s->sparse[i] = 0;
+    }
 }
 
 int cd_sparse_has(const struct cd_sparse *s, unsigned key)
@@ -355,11 +457,17 @@ int cd_sparse_has(const struct cd_sparse *s, unsigned key)
 enum cd_status cd_sparse_insert(struct cd_sparse *s, unsigned key)
 {
     if (!s || key >= 32)
+    {
         return CD_INVALID;
+    }
     if (cd_sparse_has(s, key))
+    {
         return CD_DUPLICATE;
+    }
     if (s->count == 16)
+    {
         return CD_FULL;
+    }
     s->sparse[key] = s->count;
     s->tags[key] = s->generation;
     s->dense[s->count++] = key;
@@ -369,9 +477,13 @@ enum cd_status cd_sparse_insert(struct cd_sparse *s, unsigned key)
 enum cd_status cd_sparse_remove(struct cd_sparse *s, unsigned key)
 {
     if (!s || key >= 32)
+    {
         return CD_INVALID;
+    }
     if (!cd_sparse_has(s, key))
+    {
         return CD_MISSING;
+    }
     unsigned at = s->sparse[key], last = s->dense[--s->count];
     s->dense[at] = last;
     s->sparse[last] = at;
@@ -385,17 +497,23 @@ void cd_sparse_clear(struct cd_sparse *s)
     if (s->generation == 3)
     {
         for (unsigned i = 0; i < 32; ++i)
+        {
             s->tags[i] = 0;
+        }
         s->generation = 1;
     }
     else
+    {
         ++s->generation;
+    }
 }
 
 enum cd_status cd_sets_init(struct cd_sets *s, unsigned n)
 {
     if (!s || n > 16)
+    {
         return CD_INVALID;
+    }
     s->count = n;
     s->used = 0;
     for (unsigned i = 0; i < n; ++i)
@@ -410,7 +528,9 @@ static unsigned root(unsigned *p, unsigned at)
 {
     unsigned r = at;
     while (p[r] != r)
+    {
         r = p[r];
+    }
     while (p[at] != at)
     {
         unsigned next = p[at];
@@ -425,9 +545,13 @@ static enum cd_status commit(struct cd_sets *s, const unsigned *p,
 {
     size_t required = 0;
     for (unsigned i = 0; i < s->count; ++i)
+    {
         required += (p[i] != s->parent[i]) + (size[i] != s->size[i]);
+    }
     if (required > 128 - s->used)
+    {
         return CD_FULL;
+    }
     for (unsigned i = 0; i < s->count; ++i)
     {
         if (p[i] != s->parent[i])
@@ -447,7 +571,9 @@ static enum cd_status commit(struct cd_sets *s, const unsigned *p,
 enum cd_status cd_sets_find(struct cd_sets *s, unsigned at, unsigned *out)
 {
     if (!s || !out || at >= s->count || s->used > 128)
+    {
         return CD_INVALID;
+    }
     unsigned p[16], sizes[16];
     for (unsigned i = 0; i < s->count; ++i)
     {
@@ -457,14 +583,18 @@ enum cd_status cd_sets_find(struct cd_sets *s, unsigned at, unsigned *out)
     unsigned r = root(p, at);
     enum cd_status status = commit(s, p, sizes);
     if (status == CD_OK)
+    {
         *out = r;
+    }
     return status;
 }
 
 enum cd_status cd_sets_union(struct cd_sets *s, unsigned a, unsigned b)
 {
     if (!s || a >= s->count || b >= s->count || s->used > 128)
+    {
         return CD_INVALID;
+    }
     unsigned p[16], sizes[16];
     for (unsigned i = 0; i < s->count; ++i)
     {
@@ -489,14 +619,20 @@ enum cd_status cd_sets_union(struct cd_sets *s, unsigned a, unsigned b)
 enum cd_status cd_sets_rollback(struct cd_sets *s, size_t mark)
 {
     if (!s || mark > s->used)
+    {
         return CD_INVALID;
+    }
     while (s->used > mark)
     {
         struct cd_undo change = s->log[--s->used];
         if (change.field)
+        {
             s->size[change.index] = change.old;
+        }
         else
+        {
             s->parent[change.index] = change.old;
+        }
     }
     return CD_OK;
 }
@@ -506,26 +642,42 @@ enum cd_status cd_csr_build(struct cd_csr *out, unsigned vertices,
                             unsigned parallel)
 {
     if (!out || vertices > 8 || n > 32 || (!edges && n) || parallel > 1)
+    {
         return CD_INVALID;
+    }
     struct cd_csr result = {vertices, (unsigned)n, {0}, {{0}}};
     for (size_t i = 0; i < n; ++i)
     {
         if (edges[i].from >= vertices || edges[i].to >= vertices)
+        {
             return CD_INVALID;
+        }
         if (!parallel)
+        {
             for (size_t j = 0; j < i; ++j)
+            {
                 if (edges[j].from == edges[i].from &&
                     edges[j].to == edges[i].to)
+                {
                     return CD_DUPLICATE;
+                }
+            }
+        }
         ++result.offset[edges[i].from + 1];
     }
     for (unsigned i = 1; i <= vertices; ++i)
+    {
         result.offset[i] += result.offset[i - 1];
+    }
     unsigned next[8];
     for (unsigned i = 0; i < vertices; ++i)
+    {
         next[i] = result.offset[i];
+    }
     for (size_t i = 0; i < n; ++i)
+    {
         result.edges[next[edges[i].from]++] = edges[i];
+    }
     *out = result;
     return CD_OK;
 }
@@ -533,7 +685,9 @@ enum cd_status cd_csr_build(struct cd_csr *out, unsigned vertices,
 enum cd_status cd_filter_insert(unsigned char *bits, unsigned key)
 {
     if (!bits || key >= 16)
+    {
         return CD_INVALID;
+    }
     *bits |= (unsigned char)((1u << (key % 8)) | (1u << ((3 * key + 1) % 8)));
     return CD_OK;
 }
@@ -541,7 +695,9 @@ enum cd_status cd_filter_insert(unsigned char *bits, unsigned key)
 enum cd_status cd_filter_query(unsigned char bits, unsigned key, unsigned *out)
 {
     if (!out || key >= 16)
+    {
         return CD_INVALID;
+    }
     unsigned mask = (1u << (key % 8)) | (1u << ((3 * key + 1) % 8));
     *out = (bits & mask) == mask;
     return CD_OK;
@@ -550,10 +706,14 @@ enum cd_status cd_filter_query(unsigned char bits, unsigned key, unsigned *out)
 enum cd_status cd_counting_insert(struct cd_counting_filter *f, unsigned key)
 {
     if (!f || key >= 16)
+    {
         return CD_INVALID;
+    }
     unsigned a = key % 8, b = (3 * key + 1) % 8;
     if (f->cells[a] == 3 || f->cells[b] == 3 || f->keys[key] == 3)
+    {
         return CD_FULL;
+    }
     ++f->cells[a];
     ++f->cells[b];
     ++f->keys[key];
@@ -563,9 +723,13 @@ enum cd_status cd_counting_insert(struct cd_counting_filter *f, unsigned key)
 enum cd_status cd_counting_delete(struct cd_counting_filter *f, unsigned key)
 {
     if (!f || key >= 16)
+    {
         return CD_INVALID;
+    }
     if (!f->keys[key])
+    {
         return CD_MISSING;
+    }
     --f->cells[key % 8];
     --f->cells[(3 * key + 1) % 8];
     --f->keys[key];
@@ -576,27 +740,39 @@ void cd_chain_init(struct cd_chain *c)
 {
     c->count = 0;
     for (unsigned i = 0; i < 4; ++i)
+    {
         c->head[i] = -1;
+    }
     for (unsigned i = 0; i < 16; ++i)
+    {
         c->nodes[i] = (struct cd_chain_node){0, 0, -1, 0};
+    }
 }
 
 enum cd_status cd_chain_put(struct cd_chain *c, uint32_t key, int value)
 {
     if (!c)
+    {
         return CD_INVALID;
+    }
     unsigned bucket = key % 4;
     for (int i = c->head[bucket]; i >= 0; i = c->nodes[i].next)
+    {
         if (c->nodes[i].key == key)
         {
             c->nodes[i].value = value;
             return CD_OK;
         }
+    }
     unsigned free_slot = 0;
     while (free_slot < 16 && c->nodes[free_slot].live)
+    {
         ++free_slot;
+    }
     if (free_slot == 16)
+    {
         return CD_FULL;
+    }
     c->nodes[free_slot] =
         (struct cd_chain_node){key, value, c->head[bucket], 1};
     c->head[bucket] = (int)free_slot;
@@ -608,7 +784,9 @@ enum cd_status cd_chain_get(const struct cd_chain *c, uint32_t key, int *out,
                             unsigned *probes)
 {
     if (!c || !out || !probes)
+    {
         return CD_INVALID;
+    }
     *probes = 0;
     for (int i = c->head[key % 4]; i >= 0; i = c->nodes[i].next)
     {
@@ -625,7 +803,9 @@ enum cd_status cd_chain_get(const struct cd_chain *c, uint32_t key, int *out,
 enum cd_status cd_chain_delete(struct cd_chain *c, uint32_t key)
 {
     if (!c)
+    {
         return CD_INVALID;
+    }
     int *edge = &c->head[key % 4];
     while (*edge >= 0)
     {
@@ -646,7 +826,9 @@ enum cd_status cd_chain_delete(struct cd_chain *c, uint32_t key)
 enum cd_status cd_bitset_mask(unsigned universe, uint32_t *out)
 {
     if (!out || universe > 32)
+    {
         return CD_INVALID;
+    }
     *out = universe == 32 ? UINT32_MAX : ((UINT32_C(1) << universe) - 1);
     return CD_OK;
 }
@@ -658,7 +840,9 @@ enum cd_status cd_bitset_algebra(uint32_t a, uint32_t b, unsigned universe,
     uint32_t mask;
     if (!join || !meet || !difference ||
         cd_bitset_mask(universe, &mask) != CD_OK)
+    {
         return CD_INVALID;
+    }
     *join = (a | b) & mask;
     *meet = (a & b) & mask;
     *difference = (a & ~b) & mask;
@@ -669,10 +853,14 @@ enum cd_status cd_bitset_next(uint32_t bits, unsigned universe,
                               unsigned *position, unsigned *out)
 {
     if (!position || !out || universe > 32 || *position > universe)
+    {
         return CD_INVALID;
+    }
     unsigned at = *position;
     while (at < universe && !(bits & (UINT32_C(1) << at)))
+    {
         ++at;
+    }
     if (at == universe)
     {
         *position = at;

@@ -7,7 +7,9 @@ struct tl_pool *tl_pool_start(unsigned n, unsigned f, int a, int *e)
     (void)f;
     (void)a;
     if (e)
+    {
         *e = ENOSYS;
+    }
     return 0;
 }
 

@@ -16,8 +16,12 @@ int main(void)
                    &cost) == ND_SINGULAR &&
           out[0] == 99 && memcmp(&old, &cost, sizeof cost) == 0);
     for (size_t i = 0; i < 6; i++)
+    {
         if (i % 3 != 2)
+        {
             a[i] *= 1e90;
+        }
+    }
     b[0] *= 1e90;
     b[1] *= 1e90;
     CHECK(nd_solve(v, b, 2, 1e-12, out, &cost) == ND_OK &&

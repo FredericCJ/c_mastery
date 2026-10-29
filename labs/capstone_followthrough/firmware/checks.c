@@ -30,9 +30,13 @@ static struct cs_io capture(void *p, const unsigned char *b, size_t n)
 {
     struct cf_capture *c = p;
     if (n > 256 - c->used)
+    {
         return (struct cs_io){0, CS_IO_ERROR, 1};
+    }
     for (size_t i = 0; i < n; ++i)
+    {
         c->bytes[c->used++] = b[i];
+    }
     return (struct cs_io){n, CS_IO_PROGRESS, 0};
 }
 
@@ -42,7 +46,9 @@ static int drain(struct cf_firmware *f, struct cf_capture *c)
     {
         if (cs_begin(&f->core) != CS_OK ||
             cs_step(&f->core, capture, c) != CS_DONE)
+        {
             return 0;
+        }
     }
     return 1;
 }
@@ -50,8 +56,12 @@ static int drain(struct cf_firmware *f, struct cf_capture *c)
 static int same(const unsigned char *a, const unsigned char *b, size_t n)
 {
     for (size_t i = 0; i < n; ++i)
+    {
         if (a[i] != b[i])
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
@@ -70,7 +80,9 @@ static int service(void)
         if (i % 3 == 2)
         {
             for (unsigned j = 0; j < 3; ++j)
+            {
                 C(cf_foreground(&irq, 1) == CF_OK);
+            }
             C(drain(&irq, &b));
         }
     }
@@ -84,7 +96,9 @@ static int service(void)
     }
     C(irq.samples.dropped == 1);
     for (unsigned i = 0; i < 3; ++i)
+    {
         C(cf_foreground(&irq, 1) == CF_OK);
+    }
     struct cpf_sample s = {205, 1, 1};
     C(cf_acquire(&irq, 1, &s) == CF_OK && cf_foreground(&irq, 1) == CF_FULL &&
       irq.core.rejected == 1);
@@ -121,7 +135,9 @@ static int configure(void *p, const struct pd_extent *e, uint32_t token)
     struct cf_device *d = p;
     if (d->s.enabled || e->source != 0x20001000u ||
         e->destination != 0x20002000u || e->bytes != 8)
+    {
         return 0;
+    }
     d->s = (struct pd_snapshot){token, 0, 8, 0, 1};
     return 1;
 }
@@ -147,15 +163,21 @@ static void visibility(void *p, unsigned op, uint32_t address, uint32_t n)
     (void)address;
     (void)n;
     if (op == PD_RELEASE)
+    {
         ++d->release;
+    }
     if (op == PD_ACQUIRE)
+    {
         ++d->acquire;
+    }
 }
 
 static void write_bytes(struct cf_device *d, unsigned begin, unsigned end)
 {
     for (unsigned i = begin; i < end; ++i)
+    {
         d->f->dma_destination[i] = d->f->dma_source[i];
+    }
     d->s.remaining = 8 - end;
 }
 
@@ -167,7 +189,9 @@ static int dma(void)
     struct pd_io io = {&d, configure, enable, stop, snapshot, visibility};
     const unsigned char sample[8] = {7, 0, 0, 0, 0xa5, 0, 0xfe, 0xff};
     for (unsigned i = 0; i < 8; ++i)
+    {
         f.dma_source[i] = sample[i];
+    }
     C(cf_dma_begin(&f, io, 0x20001000u, 0x20002000u, 1) == CF_OK &&
       f.dma_token == 1);
     write_bytes(&d, 0, 4);
@@ -207,7 +231,9 @@ static int recovery(void)
     C(boot(&f));
     unsigned observations[] = {1, 3, 2, 3}, expected[] = {0, 1, 0, 1};
     for (unsigned i = 0; i < 4; ++i)
+    {
         C(cf_watchdog(&f, observations[i]) == expected[i]);
+    }
     C(f.feeds == 2);
     cf_fault(&f, 21);
     C(f.state == CF_RECOVERING && f.attempts == 1 && f.first_fault == 21 &&

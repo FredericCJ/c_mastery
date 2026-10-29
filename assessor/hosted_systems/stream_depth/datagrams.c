@@ -21,12 +21,18 @@ static int descriptors(void)
 {
     DIR *d = opendir("/proc/self/fd");
     if (!d)
+    {
         return -1;
+    }
     int count = 0;
     struct dirent *e;
     while ((e = readdir(d)))
+    {
         if (strcmp(e->d_name, ".") && strcmp(e->d_name, ".."))
+        {
             ++count;
+        }
+    }
     return closedir(d) ? -1 : count;
 }
 
@@ -139,8 +145,10 @@ static int ancillary(void)
     CHECK(received[0] != pipefd[0] && received[1] != pipefd[1] &&
           descriptors() == before + 2);
     for (unsigned i = 0; i < 2; ++i)
+    {
         CHECK((fcntl(received[i], F_GETFD) & FD_CLOEXEC) != 0 &&
               close(received[i]) == 0);
+    }
     CHECK(descriptors() == before);
     CHECK(close(fd[0]) == 0 && close(fd[1]) == 0 && close(pipefd[0]) == 0 &&
           close(pipefd[1]) == 0);
@@ -209,10 +217,16 @@ int main(int argc, char **argv)
     alarm(8);
     CHECK(argc == 2);
     if (!strcmp(argv[1], "truncation"))
+    {
         return truncation();
+    }
     if (!strcmp(argv[1], "ancillary"))
+    {
         return ancillary();
+    }
     if (!strcmp(argv[1], "ack"))
+    {
         return acknowledgments();
+    }
     return 2;
 }

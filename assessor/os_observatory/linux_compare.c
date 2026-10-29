@@ -23,7 +23,9 @@ static void *producer(void *unused)
     {
         assert(!pthread_mutex_lock(&q.lock));
         while (q.count == 8)
+        {
             assert(!pthread_cond_wait(&q.space, &q.lock));
+        }
         q.data[(q.head + q.count) % 8] = i;
         ++q.count;
         assert(!pthread_cond_signal(&q.ready));
@@ -43,7 +45,9 @@ static void *consumer(void *unused)
     {
         assert(!pthread_mutex_lock(&q.lock));
         while (!q.count && !q.closed)
+        {
             assert(!pthread_cond_wait(&q.ready, &q.lock));
+        }
         if (!q.count)
         {
             assert(q.closed);

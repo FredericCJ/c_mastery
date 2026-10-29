@@ -70,7 +70,9 @@ void xf_capture(uint32_t *sp, uint32_t er, unsigned irq, uint32_t msp)
     (void)er;
     (void)msp;
     if (irq != 16)
+    {
         xf_fault();
+    }
     ss_irq_old_event();
     interrupts++;
 }
@@ -87,19 +89,29 @@ void xf_target_main(void)
 {
     int r = ss_edges();
     if (r)
+    {
         stop((unsigned)r);
+    }
     r = ss_queue();
     if (r)
+    {
         stop((unsigned)r);
+    }
     r = ss_quiescence();
     if (r)
+    {
         stop((unsigned)r);
+    }
     r = ss_device();
     if (r)
+    {
         stop((unsigned)r);
+    }
     r = ss_irq_prepare();
     if (r)
+    {
         stop((unsigned)r);
+    }
     /* The original imported IRQ0 wrapper enters xf_capture; foreground is masked. */
     *(volatile uint32_t *)0xe000e100u = 1;
     *(volatile uint32_t *)0xe000e280u = 1;
@@ -113,11 +125,15 @@ void xf_target_main(void)
     }
     r = ss_irq_verify();
     if (r)
+    {
         stop((unsigned)r);
+    }
     ss_values("irq_exception", interrupts, 16, 1, 0);
     r = ss_mapped();
     if (r)
+    {
         stop((unsigned)r);
+    }
     text("SS_GUEST_PASS CPU-IRQ-and-RAM-model no-physical-SPI\n");
     stop(0);
 }

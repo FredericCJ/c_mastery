@@ -37,9 +37,13 @@ int pt_f439_start(const struct pt_config *c)
 {
     struct pt_ratio f, t, d[2];
     if (pt_ratios(c, &f, &t, d) != PT_OK)
+    {
         return PT_INVALID;
+    }
     if (generation)
+    {
         return PT_BUSY;
+    }
     gate(2u);
     pt_write(T3, 0x80u | (c->center ? 0x20u : 0u));
     pt_write(T3 + 0x18u, PT_TARGET_MUTANT == 1 ? 0x6060u : 0x6868u);
@@ -59,19 +63,29 @@ int pt_f439_stage(const struct pt_config *c, uint32_t current)
     struct pt_ratio f, t, d[2];
     uint32_t control;
     if (pt_ratios(c, &f, &t, d) != PT_OK)
+    {
         return PT_INVALID;
+    }
     if (!generation || c->generation != generation || current != generation ||
         c->clock != configured_clock)
+    {
         return PT_STALE;
+    }
     if (mode != c->center)
+    {
         return PT_BUSY;
+    }
     control = pt_read(T3);
     if (!(control & 1u) || (control & 2u))
+    {
         return PT_BUSY;
+    }
     /* Caller excludes all other register writers. UDIS prevents mixed latching.
      */
     if (PT_TARGET_MUTANT != 2)
+    {
         pt_write(T3, control | 2u);
+    }
     values(c);
     pt_write(T3, control);
     return PT_OK;
@@ -89,7 +103,9 @@ void pt_f439_stop(void)
 int pt_f439_capture_start(unsigned psc)
 {
     if (psc > 65535u)
+    {
         return PT_INVALID;
+    }
     gate(4u);
     pt_write(T4, 0u);
     pt_write(T4 + 0x28u, psc);
@@ -106,9 +122,13 @@ int pt_f439_capture(unsigned *out)
 {
     uint32_t value, status;
     if (!out)
+    {
         return PT_INVALID;
+    }
     if (!(pt_read(T4 + 0x10u) & 2u))
+    {
         return PT_BUSY;
+    }
     if (PT_TARGET_MUTANT == 3)
     {
         status = pt_read(T4 + 0x10u);

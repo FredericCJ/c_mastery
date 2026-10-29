@@ -16,46 +16,72 @@ int cn_fault(struct cn_fault *s, const struct cn_event *e,
         e->active_or_overload > 1 || e->ack_missing > 1 ||
         e->passive_flag_all_recessive > 1 ||
         e->prearbitration_stuff_exception > 1)
+    {
         return CN_INVALID;
+    }
     if ((s->state == CN_OFF) != (s->tec > 255) ||
         (s->state != CN_OFF &&
          ((s->tec > 127 || s->rec > 127) != (s->state == CN_PASSIVE))))
+    {
         return CN_INVALID;
+    }
     if ((e->kind == CN_RECEIVER_ERROR || e->kind == CN_FIRST_DOMINANT ||
          e->kind == CN_RECEIVE_SUCCESS) &&
         e->transmitter)
+    {
         return CN_INVALID;
+    }
     if ((e->kind == CN_ARBITRATION_LOSS || e->kind == CN_TRANSMITTER_FLAG ||
          e->kind == CN_TRANSMIT_SUCCESS) &&
         !e->transmitter)
+    {
         return CN_INVALID;
+    }
     if (e->kind == CN_RECOVERY_BIT && e->value > 1)
+    {
         return CN_INVALID;
+    }
     if (e->kind == CN_DOMINANT_RUN && e->value > 1024)
+    {
         return CN_INVALID;
+    }
     if (e->kind != CN_TRANSMITTER_FLAG &&
         (e->ack_missing || e->passive_flag_all_recessive ||
          e->prearbitration_stuff_exception))
+    {
         return CN_INVALID;
+    }
     if (e->kind != CN_DOMINANT_RUN && e->kind != CN_RECOVERY_BIT && e->value)
+    {
         return CN_INVALID;
+    }
     if (e->kind != CN_RECEIVER_ERROR && e->kind != CN_BIT_DURING_FLAG &&
         e->kind != CN_DOMINANT_RUN && e->active_or_overload)
+    {
         return CN_INVALID;
+    }
     if (e->kind == CN_BIT_DURING_FLAG && !e->active_or_overload)
+    {
         return CN_INVALID;
+    }
     if ((e->passive_flag_all_recessive && !e->ack_missing) ||
         (e->prearbitration_stuff_exception &&
          (e->ack_missing || e->passive_flag_all_recessive)))
+    {
         return CN_INVALID;
+    }
     if (s->state != CN_OFF && (s->restart || s->idles || s->recessive))
+    {
         return CN_INVALID;
+    }
     struct cn_fault f = *s;
     struct cn_effect effect = {s->tec, s->rec, s->state, 0, 0, 0, 0};
     if (!s->enabled)
     {
         if (s->state != CN_ACTIVE || s->tec || s->rec)
+        {
             return CN_INVALID;
+        }
         goto publish;
     }
     if (s->state == CN_OFF)
@@ -68,7 +94,9 @@ int cn_fault(struct cn_fault *s, const struct cn_event *e,
         else if (e->kind == CN_RECOVERY_BIT && s->restart)
         {
             if (e->value == 0)
+            {
                 f.recessive = 0;
+            }
             else if (++f.recessive == 11)
             {
                 f.recessive = 0;
@@ -83,16 +111,22 @@ int cn_fault(struct cn_fault *s, const struct cn_event *e,
             }
         }
         else
+        {
             return CN_BUSY;
+        }
         goto publish;
     }
     if (e->kind == CN_RESTART || e->kind == CN_RECOVERY_BIT)
+    {
         return CN_INVALID;
+    }
     switch (e->kind)
     {
         case CN_ARBITRATION_LOSS:
             if (CN_FAULT_MUTANT == 1)
+            {
                 f.tec = add(f.tec, 8, 256);
+            }
             break;
         case CN_RECEIVER_ERROR:
             if (!e->active_or_overload)
@@ -136,22 +170,32 @@ int cn_fault(struct cn_fault *s, const struct cn_event *e,
             {
                 effect.rules = 32;
                 if (e->transmitter)
+                {
                     f.tec = add(f.tec, 8 * increments, 256);
+                }
                 else
+                {
                     f.rec = add(f.rec, 8 * increments, 255);
+                }
             }
             break;
         }
         case CN_TRANSMIT_SUCCESS:
             if (f.tec)
+            {
                 --f.tec;
+            }
             effect.rules = 64;
             break;
         case CN_RECEIVE_SUCCESS:
             if (f.rec > 127)
+            {
                 f.rec = CN_FAULT_MUTANT == 3 ? 0u : 127u;
+            }
             else if (f.rec)
+            {
                 --f.rec;
+            }
             effect.rules = 128;
             break;
         default:

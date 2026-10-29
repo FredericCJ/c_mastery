@@ -6,7 +6,9 @@ void *memset(void *p, int c, size_t n)
 {
     unsigned char *a = p;
     while (n--)
+    {
         *a++ = (unsigned char)c;
+    }
     return p;
 }
 
@@ -15,7 +17,9 @@ void *memcpy(void *p, const void *q, size_t n)
     unsigned char *a = p;
     const unsigned char *b = q;
     while (n--)
+    {
         *a++ = *b++;
+    }
     return p;
 }
 
@@ -24,14 +28,20 @@ void *memmove(void *p, const void *q, size_t n)
     unsigned char *a = p;
     const unsigned char *b = q;
     if ((uintptr_t)a < (uintptr_t)b)
+    {
         while (n--)
+        {
             *a++ = *b++;
+        }
+    }
     else
+    {
         while (n)
         {
             n--;
             a[n] = b[n];
         }
+    }
     return p;
 }
 
@@ -41,7 +51,9 @@ int memcmp(const void *p, const void *q, size_t n)
     while (n--)
     {
         if (*a != *b)
+        {
             return *a < *b ? -1 : 1;
+        }
         a++;
         b++;
     }
@@ -55,7 +67,9 @@ static void print(const char *s)
 {
     size_t n = 0;
     while (s[n])
+    {
         n++;
+    }
     cmk_write(s, n);
 }
 
@@ -69,7 +83,9 @@ static void number(unsigned n)
         n /= 10;
     } while (n);
     while (i)
+    {
         cmk_write(text + --i, 1);
+    }
 }
 
 static void finish(unsigned status)
@@ -107,14 +123,18 @@ static void boundary(void)
 static int read_page(void *ctx, uint32_t page, void *out)
 {
     if (page >= STORE_IMAGE_PAGES)
+    {
         return -1;
+    }
     return cmk2_block(ctx, 0, page + 128, out);
 }
 
 static int write_page(void *ctx, uint32_t page, const void *in)
 {
     if (page >= STORE_IMAGE_PAGES)
+    {
         return -1;
+    }
     boundary();
     int r = cmk2_block(ctx, 1, page + 128, (void *)in);
     if (r)

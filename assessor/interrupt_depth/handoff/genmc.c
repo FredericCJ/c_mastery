@@ -16,9 +16,11 @@ static void *producer(void *unused)
         r.copied = 2;
         r.flags = 0;
         for (unsigned j = 0; j < 8; ++j)
+        {
             r.bytes[j] = j == 0   ? (unsigned char)i
                          : j == 1 ? (unsigned char)(i + 7)
                                   : 0;
+        }
         int rc = xi_push(&q, &r);
         assert(rc == XI_OK || rc == XI_FULL);
         published += rc == XI_OK;

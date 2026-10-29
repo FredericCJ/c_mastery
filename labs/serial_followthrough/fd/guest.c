@@ -76,7 +76,9 @@ void xf_target_main(void)
     {
         int r = fd_test(i);
         if (r)
+        {
             stop((unsigned)r);
+        }
     }
     text(
         "FD_GUEST_PASS actual-Thumb synthetic-frame-and-time no-physical-FD\n");

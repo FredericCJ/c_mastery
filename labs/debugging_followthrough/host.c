@@ -26,12 +26,16 @@ static void pipe_case(int ignored)
     {
         close(f[0]);
         if (signal(SIGPIPE, ignored ? SIG_IGN : SIG_DFL) == SIG_ERR)
+        {
             _exit(4);
+        }
         sigset_t set;
         sigemptyset(&set);
         sigaddset(&set, SIGPIPE);
         if (pthread_sigmask(SIG_UNBLOCK, &set, NULL))
+        {
             _exit(5);
+        }
         errno = 0;
         ssize_t n = write(f[1], "x", 1);
         _exit(ignored && n == -1 && errno == EPIPE ? 0 : 6);

@@ -17,7 +17,9 @@ enum lg_status lg_raise(void)
     observed = 0;
     void (*previous)(int) = signal(SIGTERM, mark);
     if (previous == SIG_ERR)
+    {
         return LG_FAILURE;
+    }
     int result = raise(SIGTERM);
     int seen = observed;
     int restored = signal(SIGTERM, previous) != SIG_ERR;
@@ -27,21 +29,31 @@ enum lg_status lg_raise(void)
 static void work(struct lg_owner *o, jmp_buf destination, unsigned mode)
 {
     if (mode == 2)
+    {
         return;
+    }
     o->allocation = malloc(8);
     if (!o->allocation)
+    {
         return;
+    }
     ++o->acquired;
     if (mode == 1)
+    {
         longjmp(destination, 2);
+    }
     if (mode == 3)
+    {
         longjmp(destination, 0);
+    }
 }
 
 enum lg_status lg_jump(struct lg_owner *o, unsigned mode, int *out)
 {
     if (!o || !out || o->allocation || mode > 3)
+    {
         return LG_ARGUMENT;
+    }
     jmp_buf destination;
     volatile int changed = 0;
     enum lg_status result = LG_FAILURE;

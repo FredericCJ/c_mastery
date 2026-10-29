@@ -16,7 +16,9 @@
 int main(int argc, char **argv)
 {
     if (argc != 2 || argv[1][0] < '1' || argv[1][0] > '4' || argv[1][1])
+    {
         return 2;
+    }
     unsigned version = (unsigned)(argv[1][0] - '0');
     unsigned char *bytes = NULL;
     size_t required = fb_plugin_copy(NULL, 0);

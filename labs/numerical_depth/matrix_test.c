@@ -10,7 +10,9 @@ int main(void)
     for (unsigned m = 0; m < 3; m++)
     {
         for (size_t i = 0; i < 6; i++)
+        {
             c[i] = -99;
+        }
         CHECK(nd_matrix(av, bv, cv, m) == ND_OK);
         CHECK(c[0] == 58 && c[1] == 64 && c[3] == 139 && c[4] == 154 &&
               c[2] == -99 && c[5] == -99);

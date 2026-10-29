@@ -23,18 +23,24 @@ enum fh_result th_commit_begin(struct fm_recycle *r, struct fm_io io,
         t->image[1].generation <= o->image[1].generation ||
         (TH_MUTANT != 1 && parked != t->image[0].generation) ||
         (TH_MUTANT != 2 && p->generation != t->image[0].generation))
+    {
         return FH_REJECT;
+    }
     unsigned char hashes[64];
     uint32_t vectors[2], versions[2];
     for (unsigned c = 0; c < 2; ++c)
     {
         if (t->image[c].base == o->image[c].base ||
             t->image[c].version < o->image[c].version)
+        {
             return FH_REJECT;
+        }
         vectors[c] = t->image[c].base;
         versions[c] = t->image[c].version;
         for (unsigned i = 0; i < 32; ++i)
+        {
             hashes[32 * c + i] = t->image[c].digest[i];
+        }
     }
     return fm_recycle_begin(r, io, 0x080C0000u + o->record * 0x20000u, p,
                             t->sequence, hashes, vectors, versions);

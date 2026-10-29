@@ -30,7 +30,9 @@ static int boot(void)
     CHECK(ep_begin(&phy, 16, 1000) == ED_BUSY);
     int rc = ED_BUSY;
     for (unsigned i = 0; i < 16 && rc == ED_BUSY; i++)
+    {
         rc = ep_step(&phy);
+    }
     CHECK(rc == ED_OK);
     en_model_init(&model, &memory, 0x20001000);
     struct en_bus b = en_model_bus(&model);

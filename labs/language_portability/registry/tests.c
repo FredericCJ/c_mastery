@@ -14,7 +14,9 @@
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "unknown"))
     {
         int x = 77;
@@ -66,12 +68,14 @@ int main(int argc, char **argv)
     else if (!strcmp(argv[1], "oracle"))
     {
         for (uint32_t id = 0; id < 16; ++id)
+        {
             for (int x = 0; x < 4; ++x)
             {
                 int out = 77;
                 int status = lr_dispatch(id, x, &out);
                 printf("D %u %d %d %d\n", id, x, status, out);
             }
+        }
         for (unsigned n = 0; n < 9; ++n)
         {
             struct lr_generic r;
@@ -81,10 +85,14 @@ int main(int argc, char **argv)
         }
     }
     else if (!strcmp(argv[1], "metrics"))
+    {
         printf(
             "{\"entries\":%zu,\"pointer_bytes\":%zu,\"generic_bytes\":%zu,\"allocations\":0}\n",
             lr_count(), sizeof(void (*)(void)), sizeof(struct lr_generic));
+    }
     else
+    {
         return 2;
+    }
     return 0;
 }

@@ -30,13 +30,19 @@ static int work(void *arg, const atomic_bool *cancel)
     struct msg_task *p = arg;
     atomic_fetch_or(p->ready, 1u << p->index);
     while (!atomic_load(p->go))
+    {
         sched_yield();
+    }
     if (p->order && p->index < 2)
     {
         unsigned earlier = p->order == 1 ? 1 : 0;
         if (p->index != earlier)
+        {
             while (!(atomic_load(p->finished) & (1u << earlier)))
+            {
                 sched_yield();
+            }
+        }
     }
     p->cancelled = atomic_load(cancel);
     atomic_fetch_or(p->finished, 1u << p->index);
@@ -69,7 +75,9 @@ static void *release_after_cancel(void *arg)
 {
     struct msg_release *p = arg;
     while (!atomic_load(&p->tree->outer.cancel))
+    {
         sched_yield();
+    }
     atomic_store(p->go, true);
     return NULL;
 }
@@ -106,11 +114,15 @@ static void outcome(unsigned order, unsigned stop, size_t outer_fail,
     pthread_t releaser;
     struct msg_release release = {&tree, &go};
     if (outer_fail || inner0 || inner1)
+    {
         atomic_store(&go, true);
+    }
     else
     {
         while (atomic_load(&ready) != 15)
+        {
             sched_yield();
+        }
         if (stop == 1)
         {
             mfn_cancel(&tree);
@@ -121,32 +133,46 @@ static void outcome(unsigned order, unsigned stop, size_t outer_fail,
             CHECK(!pthread_create(&releaser, NULL, release_after_cancel,
                                   &release));
             if (stop == 3)
+            {
                 CHECK(write(cancellation[1], "x", 1) == 1);
+            }
         }
         else
+        {
             atomic_store(&go, true);
+        }
     }
     CHECK(mfn_wait(&tree, cancellation[0], stop == 2 ? 0 : deadline(),
                    &result) == MSG_OK);
     if (stop == 2 || stop == 3)
+    {
         CHECK(!pthread_join(releaser, NULL));
+    }
     CHECK(atomic_load(&drops) == 15 && !tree.active);
     CHECK(result.spawn_failed == (outer_fail || inner0 || inner1));
     if (stop)
     {
         for (unsigned i = 0; i < 4; i++)
+        {
             CHECK(data[i].cancelled);
+        }
         CHECK(result.stop == (stop == 2   ? MFN_DEADLINE
                               : stop == 3 ? MFN_EXTERNAL_CANCEL
                                           : MFN_COMPLETE));
     }
     if (order)
+    {
         CHECK(result.errors[0] == 11 && result.errors[1] == 22 &&
               result.primary == 11);
+    }
     else
+    {
         CHECK(result.primary == 0);
+    }
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(result.admitted[i] == ((atomic_load(&ready) & (1u << i)) != 0));
+    }
     unsigned char previous[sizeof(result)];
     memcpy(previous, &result, sizeof(result));
     CHECK(mfn_wait(&tree, cancellation[0], deadline(), &result) == MSG_CLOSED);
@@ -174,7 +200,9 @@ static void pool(void)
     CHECK(mfn_wait(&tree, cancellation[0], deadline(), &out) == MSG_OK &&
           out.primary == 0);
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(pools[i].sum == 12 && out.admitted[i]);
+    }
     close(cancellation[0]);
     close(cancellation[1]);
     atomic_bool cancelled;
@@ -205,11 +233,15 @@ static int cancellation_child(void *arg, const atomic_bool *cancel)
     if (child->fails)
     {
         while (atomic_load(child->ready) != 8)
+        {
             sched_yield();
+        }
         return 7;
     }
     while (!atomic_load(cancel))
+    {
         sched_yield();
+    }
     atomic_fetch_add(child->ack, 1);
     return 0;
 }
@@ -225,19 +257,25 @@ static void core_admission_edges(void)
     {
         msg_nursery_init(&n, fail);
         for (size_t i = 1; i < fail; i++)
+        {
             CHECK(msg_spawn(&n, fixed_result, &zero) == MSG_OK);
+        }
         CHECK(msg_spawn(&n, fixed_result, &zero) == MSG_FAILED &&
               n.count == fail - 1 && atomic_load(&n.cancel));
         CHECK(msg_join(&n, &result) == MSG_OK && result == 0);
         for (size_t i = 0; i < n.count; i++)
+        {
             CHECK(n.child[i].joined);
+        }
     }
     msg_nursery_init(&n, 0);
     CHECK(msg_spawn(&n, fixed_result, &zero) == MSG_OK);
     CHECK(msg_join(&n, &result) == MSG_OK && n.count == 1 && n.child[0].joined);
     msg_nursery_init(&n, 0);
     for (unsigned i = 0; i < 8; i++)
+    {
         CHECK(msg_spawn(&n, fixed_result, &zero) == MSG_OK);
+    }
     CHECK(msg_spawn(&n, fixed_result, &zero) == MSG_FULL && n.count == 8 &&
           n.attempts == 8);
     CHECK(msg_join(&n, &result) == MSG_OK && result == 0);
@@ -274,12 +312,16 @@ static void oracle(void)
         int cancellation[2];
         CHECK(!pipe(cancellation));
         for (unsigned i = 0; i < 4; i++)
+        {
             tasks[i] = (struct mfn_task){fixed_result, NULL, &codes[i]};
+        }
         CHECK(mfn_start(&tree, tasks, outer, fail) == MSG_OK);
         CHECK(mfn_wait(&tree, cancellation[0], deadline(), &result) == MSG_OK);
         unsigned mask = 0;
         for (unsigned i = 0; i < 4; i++)
+        {
             mask |= (unsigned)result.admitted[i] << i;
+        }
         printf("%u %u %d %d %d %d %d\n", mask, (unsigned)result.spawn_failed,
                result.primary, result.errors[0], result.errors[1],
                result.errors[2], result.errors[3]);
@@ -291,7 +333,9 @@ static void oracle(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "oracle"))
     {
         oracle();
@@ -311,10 +355,18 @@ int main(int argc, char **argv)
         outcome(1, 0, 0, 0, 0);
         outcome(2, 0, 0, 0, 0);
         for (size_t outer = 0; outer <= 2; outer++)
+        {
             for (size_t a = 0; a <= 2; a++)
+            {
                 for (size_t b = 0; b <= 2; b++)
+                {
                     if (outer || a || b)
+                    {
                         outcome(0, 0, outer, a, b);
+                    }
+                }
+            }
+        }
         struct mfn_tree tree;
         memset(&tree, 0x5a, sizeof(tree));
         unsigned char before[sizeof(tree)];
@@ -325,7 +377,9 @@ int main(int argc, char **argv)
               !memcmp(before, &tree, sizeof(tree)));
     }
     else
+    {
         return 2;
+    }
     puts("nested nursery adapter checks passed");
     return 0;
 }

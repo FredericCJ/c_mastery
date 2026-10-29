@@ -14,7 +14,9 @@
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "diagnosis"))
     {
         for (uint32_t cap = 1; cap < 20; cap++)
@@ -45,6 +47,8 @@ int main(int argc, char **argv)
         CHECK(v4_measure(&a, &b, &o) < 0 && !memcmp(&o, &old, sizeof o));
     }
     else
+    {
         return 2;
+    }
     return 0;
 }

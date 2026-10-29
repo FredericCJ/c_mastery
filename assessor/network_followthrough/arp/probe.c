@@ -17,7 +17,9 @@ int main(void)
     const unsigned steps[] = {1, 17, 999, 1000, 2000, 4000};
     const uint64_t starts[] = {0, UINT32_MAX - 999, UINT64_MAX - 40000};
     for (unsigned b = 0; b < 3; ++b)
+    {
         for (unsigned k = 0; k < 6; ++k)
+        {
             for (unsigned mask = 0; mask < 4; ++mask)
             {
                 struct na_arp state;
@@ -42,5 +44,7 @@ int main(void)
                            state.pending);
                 }
             }
+        }
+    }
     return 0;
 }

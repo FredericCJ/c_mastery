@@ -20,7 +20,9 @@ static struct dg_spec diamond(void)
     s.costs[2] = 5;
     s.costs[3] = 1;
     for (unsigned i = 0; i < 4; i++)
+    {
         s.payloads[i] = i + 1;
+    }
     s.edges[0] = (struct dg_edge){0, 1};
     s.edges[1] = (struct dg_edge){0, 2};
     s.edges[2] = (struct dg_edge){1, 3};
@@ -52,7 +54,9 @@ static int ordinary(void)
     CHECK(dg_snapshot(&g, &snapshot) == DG_OK && snapshot.terminal == 4 &&
           snapshot.results[3] == 11);
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(snapshot.ready_events[i] == 1);
+    }
     s.edges[s.edge_count++] = (struct dg_edge){1, 2};
     CHECK(dg_init(&g, 2, &s) == DG_OK && dg_snapshot(&g, &snapshot) == DG_OK &&
           snapshot.work == 11 && snapshot.span == 11);
@@ -169,7 +173,9 @@ static int runtime(void)
           dg_seal(&g) == DG_OK && dg_drained(&g) == DG_OK);
     CHECK(dg_init(&g, 8, &empty) == DG_OK);
     for (unsigned i = 0; i < DG_LIMIT; i++)
+    {
         CHECK(dg_append(&g, i, 0, NULL, 0, &id) == DG_OK && id == i);
+    }
     id = 99;
     CHECK(dg_append(&g, 1, 0, NULL, 0, &id) == DG_CAPACITY && id == 99);
     return 0;
@@ -178,7 +184,9 @@ static int runtime(void)
 int main(void)
 {
     if (ordinary() || validation() || failures() || runtime())
+    {
         return 1;
+    }
     puts(
         "DG_PASS:arbitrary-validation-runtime-admission-last-dependency-and-failure-ownership");
     return 0;

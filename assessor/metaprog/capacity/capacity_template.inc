@@ -15,9 +15,13 @@ _Static_assert(sizeof(((MPC_RING *)0)->data) / sizeof(uint32_t) == MPC_CAPACITY,
 int MPC_JOIN(MPC_PREFIX, _push)(MPC_RING *r, uint32_t value)
 {
     if (!r)
+    {
         return MPC_INVALID;
+    }
     if (r->count == MPC_CAPACITY)
+    {
         return MPC_FULL;
+    }
     r->data[(MPC_MUTATION == 1 ? r->count : r->head + r->count) &
             (MPC_CAPACITY - 1)] = value;
     r->count++;
@@ -27,12 +31,18 @@ int MPC_JOIN(MPC_PREFIX, _push)(MPC_RING *r, uint32_t value)
 int MPC_JOIN(MPC_PREFIX, _pop)(MPC_RING *r, uint32_t *out)
 {
     if (!r || !out)
+    {
         return MPC_INVALID;
+    }
     if (!r->count)
+    {
         return MPC_EMPTY;
+    }
     *out = r->data[r->head];
     if (MPC_MUTATION != 2)
+    {
         r->head = (r->head + 1) & (MPC_CAPACITY - 1);
+    }
     r->count--;
     return MPC_OK;
 }

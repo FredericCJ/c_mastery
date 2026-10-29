@@ -64,5 +64,7 @@ int main(void)
     put(pass ? 'S' : 'L');
     put('\n');
     for (;;)
+    {
         __asm__ volatile("sleep");
+    }
 }

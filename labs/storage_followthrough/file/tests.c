@@ -69,7 +69,9 @@ static ptrdiff_t transfer(void *out, const void *in, size_t n, uint64_t offset)
         return -1;
     }
     if (out)
+    {
         memcpy(out, hook.bytes + hook.done, take);
+    }
     else if (memcmp(in, hook.bytes + hook.done, take))
     {
         hook.bad = 1;
@@ -83,22 +85,30 @@ static ptrdiff_t transfer(void *out, const void *in, size_t n, uint64_t offset)
 ssize_t __wrap_pread(int fd, void *p, size_t n, off_t off)
 {
     if (hook.active && fd == 12345)
+    {
         return (ssize_t)transfer(p, NULL, n, (uint64_t)off);
+    }
     ssize_t r = __real_pread(fd, p, n, off);
     real_read_calls++;
     if (r > 0)
+    {
         accepted_read += (uint64_t)r;
+    }
     return r;
 }
 
 ssize_t __wrap_pwrite(int fd, const void *p, size_t n, off_t off)
 {
     if (hook.active && fd == 12345)
+    {
         return (ssize_t)transfer(NULL, p, n, (uint64_t)off);
+    }
     ssize_t r = __real_pwrite(fd, p, n, off);
     real_write_calls++;
     if (r > 0)
+    {
         accepted_write += (uint64_t)r;
+    }
     return r;
 }
 
@@ -107,12 +117,18 @@ int __wrap_fsync(int fd)
     struct stat st;
     int directory = !fstat(fd, &st) && S_ISDIR(st.st_mode);
     if (sync_calls < 256)
+    {
         sync_kinds[sync_calls] = (unsigned)directory;
+    }
     sync_calls++;
     if (directory)
+    {
         dir_syncs++;
+    }
     else
+    {
         file_syncs++;
+    }
     if (sync_intr)
     {
         sync_intr--;
@@ -121,7 +137,9 @@ int __wrap_fsync(int fd)
     }
     int result = 0;
     if (sync_calls != sync_fail || sync_after)
+    {
         result = __real_fsync(fd);
+    }
     if (sync_calls == sync_fail)
     {
         errno = EIO;
@@ -154,7 +172,9 @@ static void counts(void)
 static void pattern(unsigned char *p)
 {
     for (unsigned i = 0; i < 4096; i++)
+    {
         p[i] = (unsigned char)(i * 17u + i / 251u);
+    }
 }
 
 static int original_transfer(void)
@@ -165,7 +185,9 @@ static int original_transfer(void)
     store_io io = store_file_io(&f);
     pattern(hook.bytes);
     for (unsigned writing = 0; writing < 2; writing++)
+    {
         for (unsigned mode = 0; mode < 5; mode++)
+        {
             for (unsigned first = mode < 3 ? 1 : 0; first < 4096; first++)
             {
                 hook.active = 1;
@@ -180,10 +202,16 @@ static int original_transfer(void)
                       (mode < 3 ? r == 0 && hook.done == 4096
                                 : r != 0 && hook.done == first));
                 if (!writing)
+                {
                     for (unsigned i = 0; i < 4096; i++)
+                    {
                         CHECK(out[i] == (i < hook.done ? hook.bytes[i] : 0xa5));
+                    }
+                }
                 cases++;
             }
+        }
+    }
     hook.active = 0;
     printf("SFI original_transfer validated histories=%u all-positive-shorts "
            "EINTR-before-and-after zero-error-prefixes wide-offset\n",
@@ -204,7 +232,9 @@ static ptrdiff_t read_bytes(void *ctx, uint64_t off, void *p, size_t n)
     struct store_bytes *b = ctx;
     b->calls++;
     if (off != b->base + b->done || n != 4096 - b->done)
+    {
         return -1;
+    }
     if (b->retry)
     {
         b->retry--;
@@ -216,11 +246,17 @@ static ptrdiff_t read_bytes(void *ctx, uint64_t off, void *p, size_t n)
         return SFI_AGAIN;
     }
     if (b->zero)
+    {
         return 0;
+    }
     if (b->oversize)
+    {
         return (ptrdiff_t)n + 1;
+    }
     if (n > b->chunk)
+    {
         n = b->chunk;
+    }
     memcpy(p, b->bytes + b->done, n);
     b->done += n;
     return (ptrdiff_t)n;
@@ -231,7 +267,9 @@ static ptrdiff_t write_bytes(void *ctx, uint64_t off, const void *p, size_t n)
     struct store_bytes *b = ctx;
     b->calls++;
     if (off != b->base + b->done || n != 4096 - b->done)
+    {
         return -1;
+    }
     if (b->retry)
     {
         b->retry--;
@@ -243,11 +281,17 @@ static ptrdiff_t write_bytes(void *ctx, uint64_t off, const void *p, size_t n)
         return SFI_AGAIN;
     }
     if (b->zero)
+    {
         return 0;
+    }
     if (b->oversize)
+    {
         return (ptrdiff_t)n + 1;
+    }
     if (n > b->chunk)
+    {
         n = b->chunk;
+    }
     memcpy(b->bytes + b->done, p, n);
     b->done += n;
     return (ptrdiff_t)n;
@@ -259,6 +303,7 @@ static int nonblocking(int oracle)
     pattern(input);
     unsigned cases = 0;
     for (unsigned writing = 0; writing < 2; writing++)
+    {
         for (unsigned chunk = 1; chunk <= 4096; chunk = chunk == 1      ? 127
                                                         : chunk == 127  ? 4095
                                                         : chunk == 4095 ? 4096
@@ -273,7 +318,9 @@ static int nonblocking(int oracle)
             b.retry = 2;
             b.again = 2;
             if (!writing)
+            {
                 memcpy(b.bytes, input, 4096);
+            }
             memset(output, 0xa5, 4096);
             CHECK(sfi_begin(&op,
                             (struct sfi_io){&b, read_bytes, write_bytes, 8},
@@ -298,9 +345,12 @@ static int nonblocking(int oracle)
             CHECK(sfi_step(t, 0, 9) == SFI_DONE && b.calls == calls &&
                   sfi_release(t) == SFI_OK && sfi_step(t, 1, 9) == SFI_STALE);
             if (oracle)
+            {
                 printf("%u %u %u %zu\n", writing, chunk, calls, op.done);
+            }
             cases++;
         }
+    }
     for (unsigned mode = 0; mode < 3; mode++)
     {
         struct sfi_op op;
@@ -314,8 +364,10 @@ static int nonblocking(int oracle)
                         0, NULL, output, &t) == SFI_OK &&
               sfi_step(t, 0, 1) == SFI_BUDGET && op.done == 17);
         if (mode == 0)
+        {
             CHECK(sfi_cancel(t) == SFI_CANCELLED &&
                   sfi_step(t, 1, 9) == SFI_CANCELLED);
+        }
         else
         {
             b.zero = mode == 1;
@@ -323,7 +375,9 @@ static int nonblocking(int oracle)
             CHECK(sfi_step(t, 0, 1) == SFI_IO && op.done == 17);
         }
         for (unsigned i = 0; i < 4096; i++)
+        {
             CHECK(output[i] == 0xa5);
+        }
         CHECK(sfi_release(t) == SFI_OK);
     }
     struct sfi_op op;
@@ -341,9 +395,11 @@ static int nonblocking(int oracle)
                     input, NULL, &t) == SFI_FULL &&
           sfi_step(old, 1, 1) == SFI_STALE);
     if (!oracle)
+    {
         printf("SFI nonblocking validated cases=%u "
                "readiness-budget-terminal-prefix-retirement\n",
                cases);
+    }
     return 0;
 }
 
@@ -359,14 +415,20 @@ static ptrdiff_t pipe_read(void *ctx, uint64_t at, void *p, size_t n)
     struct store_pipe *a = ctx;
     a->calls++;
     if (at != a->next)
+    {
         return -1;
+    }
     ssize_t r = read(a->fd, p, n);
     if (r < 0)
+    {
         return errno == EINTR                              ? SFI_INTR
                : (errno == EAGAIN || errno == EWOULDBLOCK) ? SFI_AGAIN
                                                            : -1;
+    }
     if (r > 0)
+    {
         a->next += (uint64_t)r;
+    }
     return r;
 }
 
@@ -552,20 +614,36 @@ static int amplification(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "original_transfer"))
+    {
         return original_transfer();
+    }
     if (!strcmp(argv[1], "nonblocking"))
+    {
         return nonblocking(0);
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return nonblocking(1);
+    }
     if (!strcmp(argv[1], "readiness"))
+    {
         return readiness();
+    }
     if (!strcmp(argv[1], "native"))
+    {
         return native();
+    }
     if (!strcmp(argv[1], "fresh"))
+    {
         return fresh();
+    }
     if (!strcmp(argv[1], "amplification"))
+    {
         return amplification();
+    }
     return 2;
 }

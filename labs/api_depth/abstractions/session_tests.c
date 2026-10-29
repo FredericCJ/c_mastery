@@ -18,20 +18,30 @@ static void observe(void *ctx, struct as_session *s)
     ++observer_calls;
     if (!s->ready || s->state != AS_NEW || s->count || !s->ledger->held[0] ||
         s->ledger->held[1])
+    {
         ++observer_errors;
+    }
     for (unsigned event = 0; event < 6; ++event)
+    {
         if (as_event(s, (enum as_event)event) != AS_INVALID)
+        {
             ++observer_errors;
+        }
+    }
 }
 
 static void *allocate(void *ctx, size_t size, size_t alignment)
 {
     (void)ctx;
     if (fail_alloc || alignment > _Alignof(max_align_t))
+    {
         return 0;
+    }
     void *p = malloc(size);
     if (p)
+    {
         ++allocs;
+    }
     return p;
 }
 
@@ -52,7 +62,9 @@ int main(void)
                                 {-1, -1, 3, -1, 1, 3},
                                 {-1, -1, 3, -1, -1, 3}};
     for (unsigned state = 0; state < 4; ++state)
+    {
         for (unsigned count = 0; count < 16; ++count)
+        {
             for (unsigned ev = 0; ev < 6; ++ev)
             {
                 struct ac_ledger l = {0};
@@ -62,9 +74,13 @@ int main(void)
                 {
                     CHECK(as_construct(&s, 0, 0, 0) == AS_OK);
                     if (state == AS_SUSPENDED)
+                    {
                         CHECK(as_event(&s, AS_SUSPEND) == AS_OK);
+                    }
                     if (state == AS_STOPPED)
+                    {
                         CHECK(as_event(&s, AS_STOP) == AS_OK);
+                    }
                 }
                 s.count = count;
                 struct as_session old = s;
@@ -75,8 +91,10 @@ int main(void)
                                : (next == -2 && count == 15 ? AS_FULL : AS_OK);
                 CHECK(as_event(&s, (enum as_event)ev) == want);
                 if (want != AS_OK)
+                {
                     CHECK(s.state == old.state && s.count == old.count &&
                           s.ready == old.ready && l.count == old_l.count);
+                }
                 else
                 {
                     CHECK(s.state ==
@@ -86,10 +104,14 @@ int main(void)
                                           : (ev == AS_START ? 0 : count)));
                 }
                 if (s.state == AS_ACTIVE || s.state == AS_SUSPENDED)
+                {
                     CHECK(as_event(&s, AS_STOP) == AS_OK);
+                }
                 CHECK(!l.held[0] && !l.held[1]);
                 ++cases;
             }
+        }
+    }
     for (unsigned fail = 0; fail < 2; ++fail)
     {
         struct ac_ledger l = {0};
@@ -98,7 +120,9 @@ int main(void)
         CHECK(as_construct(&s, fail, observe, 0) == (fail ? AS_FAILED : AS_OK));
         CHECK(!observer_errors && observer_calls == fail + 1);
         if (!fail)
+        {
             CHECK(as_event(&s, AS_STOP) == AS_OK);
+        }
         CHECK(l.acquisitions[0] == 1 && l.releases[0] == 1);
         CHECK(l.acquisitions[1] == !fail && l.releases[1] == !fail);
         CHECK(as_event(&s, AS_STOP) == AS_OK);

@@ -16,8 +16,11 @@ static int interval(void)
 {
     size_t cases = 0;
     for (size_t o = 0; o < 16; ++o)
+    {
         for (size_t n = 0; n < 16; ++n)
+        {
             for (size_t w = 0; w < 16; ++w)
+            {
                 for (size_t limit = 0; limit < 16; ++limit)
                 {
                     struct ff_interval out = {711, 913};
@@ -28,6 +31,9 @@ static int interval(void)
                           out.end == (expected == FD_OK ? exact : 913));
                     ++cases;
                 }
+            }
+        }
+    }
     struct ff_interval out = {711, 913};
     CHECK(ff_interval(0, SIZE_MAX, 2, SIZE_MAX, &out) == FD_RANGE);
     CHECK(out.begin == 711 && out.end == 913);
@@ -158,7 +164,9 @@ static int codec(int only_roundtrip)
            offsetof(struct fd_record, value));
     const unsigned char *p = (const unsigned char *)&record;
     for (size_t i = 0; i < sizeof record; ++i)
+    {
         printf("%02x", p[i]);
+    }
     puts("\nFF_OK:codec:258");
     return 0;
 }
@@ -168,8 +176,11 @@ static int partition(void)
     const unsigned char bytes[] = {1, 2, 3, 4, 5, 6, 7, 8};
     size_t cases = 0;
     for (size_t length = 0; length <= 8; ++length)
+    {
         for (size_t at = 0; at <= length; ++at)
+        {
             for (size_t a = 0; a <= length - at; ++a)
+            {
                 for (size_t b = 0; b <= length - at - a; ++b)
                 {
                     struct fd_cursor one = {bytes, length, at}, two = one;
@@ -179,11 +190,18 @@ static int partition(void)
                           fd_take(&two, b, &r) == FD_OK);
                     CHECK(one.position == two.position && p == q && r == p + a);
                     for (size_t i = 0; i < a; ++i)
+                    {
                         CHECK(q[i] == bytes[at + i]);
+                    }
                     for (size_t i = 0; i < b; ++i)
+                    {
                         CHECK(r[i] == bytes[at + a + i]);
+                    }
                     ++cases;
                 }
+            }
+        }
+    }
     printf("FF_OK:partition:%zu\n", cases);
     return 0;
 }
@@ -191,18 +209,32 @@ static int partition(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "interval"))
+    {
         return interval();
+    }
     if (!strcmp(argv[1], "copy"))
+    {
         return copy();
+    }
     if (!strcmp(argv[1], "codec"))
+    {
         return codec(0);
+    }
     if (!strcmp(argv[1], "roundtrip"))
+    {
         return codec(1);
+    }
     if (!strcmp(argv[1], "partition"))
+    {
         return partition();
+    }
     if (!strcmp(argv[1], "lifecycle"))
+    {
         return lifecycle();
+    }
     return 2;
 }

@@ -15,11 +15,15 @@ int main(void)
         struct sc_authority a = {generation, allowed};
         enum sc_result r;
         if (n > sizeof bytes)
+        {
             return 2;
+        }
         for (i = 0; i < n; ++i)
         {
             if (scanf("%u", &value) != 1 || value > 255)
+            {
                 return 2;
+            }
             bytes[i] = (unsigned char)value;
         }
         r = sc_decode(bytes, n, &a, (int)ext, &b, &m);
@@ -32,7 +36,9 @@ int main(void)
                 const struct sc_command *c = &b.commands[i];
                 printf(" %u %u %u", c->opcode, c->count, c->generation);
                 for (j = 0; j < c->count; ++j)
+                {
                     printf(" %u", c->values[j]);
+                }
             }
         }
         putchar('\n');

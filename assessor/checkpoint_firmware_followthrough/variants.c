@@ -50,6 +50,7 @@ static void histories(void)
     /* Independent shifting-array oracle: all 3^8 offer/take/idle histories,
        identical workload under physical capacities4 and2. No ISR data race. */
     for (unsigned capacity = 2; capacity <= 4; capacity += 2)
+    {
         for (unsigned code = 0; code < 6561; code++)
         {
             struct cpf_ring r;
@@ -65,9 +66,13 @@ static void histories(void)
                                                step, (uint16_t)(100 + step),
                                                0}) == expected);
                     if (expected)
+                    {
                         model[count++] = step;
+                    }
                     else
+                    {
                         drops++;
+                    }
                 }
                 if (action == 1)
                 {
@@ -77,11 +82,15 @@ static void histories(void)
                     {
                         CHECK(out.sequence == model[0]);
                         for (unsigned i = 1; i < count; i++)
+                        {
                             model[i - 1] = model[i];
+                        }
                         count--;
                     }
                     else
+                    {
                         CHECK(out.sequence == 99);
+                    }
                 }
                 CHECK(r.dropped == drops);
             }
@@ -93,6 +102,7 @@ static void histories(void)
             struct cpf_sample out;
             CHECK(!cpf_take(&r, &out));
         }
+    }
 }
 
 static void failed_abort(void)

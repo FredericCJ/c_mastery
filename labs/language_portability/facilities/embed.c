@@ -8,7 +8,9 @@ static const unsigned char resource[] = {
 int main(void)
 {
     for (unsigned i = 0; i < sizeof resource; i++)
+    {
         printf("%02x", resource[i]);
+    }
     puts("");
     return 0;
 }

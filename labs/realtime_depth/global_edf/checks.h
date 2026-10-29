@@ -21,8 +21,12 @@ static int gs(const void *a, const void *b, unsigned n)
 {
     const unsigned char *x = a, *y = b;
     for (unsigned i = 0; i < n; i++)
+    {
         if (x[i] != y[i])
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
@@ -77,8 +81,12 @@ static int conserved(const struct ge_job *jobs, unsigned n,
                    q->strand != v->strand);
             }
             for (unsigned before = 0; before < jobs[v->job].strands; before++)
+            {
                 if (jobs[v->job].predecessors[v->strand] & (1u << before))
+                {
                     GC(served[v->job][before] == jobs[v->job].cost[before]);
+                }
+            }
         }
         GC(queues <= 1);
         for (unsigned cpu = 0; cpu < c->cpus; cpu++)
@@ -96,15 +104,21 @@ static int conserved(const struct ge_job *jobs, unsigned n,
        migrate == r->migration_overhead && idle == r->idle);
     GC(work + queue + wait + migrate + idle == c->horizon * c->cpus);
     for (unsigned i = 0; i < n; i++)
+    {
         for (unsigned v = 0; v < jobs[i].strands; v++)
         {
             GC(served[i][v] == r->jobs[i].executed[v]);
             if (r->jobs[i].state == GE_ACTIVE ||
                 r->jobs[i].state == GE_COMPLETE)
+            {
                 GC(served[i][v] + r->jobs[i].remaining[v] == jobs[i].cost[v]);
+            }
             else
+            {
                 GC(served[i][v] == 0);
+            }
         }
+    }
     return 0;
 }
 

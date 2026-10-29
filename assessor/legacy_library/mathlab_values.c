@@ -7,7 +7,9 @@ int main(void)
 {
     if (FLT_RADIX != 2 || DBL_MANT_DIG != 53 || sizeof(double) != 8 ||
         fesetround(FE_TONEAREST))
+    {
         return 1;
+    }
     const double roots[] = {0,
                             0x1p-1074,
                             0x1p-1022,
@@ -27,8 +29,12 @@ int main(void)
                              0x1.fffffffffffffp-1,
                              1};
     for (size_t i = 0; i < sizeof roots / sizeof *roots; ++i)
+    {
         printf("sqrt %a %a\n", roots[i], sqrt(roots[i]));
+    }
     for (size_t i = 0; i < sizeof angles / sizeof *angles; ++i)
+    {
         printf("acos %a %a\n", angles[i], acos(angles[i]));
+    }
     return 0;
 }

@@ -21,22 +21,30 @@ static void failure(void)
 {
     ca_ready = 3;
     for (;;)
+    {
         __asm__ volatile("nop");
+    }
 }
 
 void cl_reset(void)
 {
     uint32_t *src = &cl_data_load;
     for (uint32_t *d = &cl_data_start; d < &cl_data_end; ++d)
+    {
         *d = *src++;
+    }
     for (uint32_t *d = &cl_bss_start; d < &cl_bss_end; ++d)
+    {
         *d = 0;
+    }
     ca_result = 0;
     ca_fault = 0;
     ca_ready = ca_target_paths() && ca_target_init(CA_RELOAD) ? 1 : 2;
     ca_checkpoint();
     for (;;)
+    {
         __asm__ volatile("wfi");
+    }
 }
 
 __attribute__((section(".vectors"), used)) const uintptr_t vectors[25] = {

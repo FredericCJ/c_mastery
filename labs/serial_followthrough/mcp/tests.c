@@ -29,7 +29,9 @@ static uint32_t load(unsigned a)
 static void save(unsigned a, uint32_t v)
 {
     for (unsigned i = 0; i < 4; i++)
+    {
         m.mem[a + i] = (uint8_t)(v >> (8 * i));
+    }
 }
 
 static uint16_t crc(const uint8_t *p, unsigned n)
@@ -41,7 +43,9 @@ static uint16_t crc(const uint8_t *p, unsigned n)
                  top = (unsigned)(c >> 15) & 1;
         c = (c << 1) & 65535;
         if (top ^ b)
+        {
             c ^= 0x8005;
+        }
     }
     return (uint16_t)c;
 }
@@ -130,7 +134,9 @@ static int transfer(void *ctx, const uint8_t *tx, uint8_t *rx, size_t n)
         memcpy(check, tx, 3);
         memcpy(rx + 3, m.mem + a, bytes);
         if (m.all_ones)
+        {
             memset(rx + 3, 255, bytes);
+        }
         memcpy(check + 3, rx + 3, bytes);
         uint16_t c = crc(check, bytes + 3);
         rx[n - 2] = (uint8_t)(c >> 8);
@@ -158,7 +164,9 @@ static int transfer(void *ctx, const uint8_t *tx, uint8_t *rx, size_t n)
             if (value & 4)
             {
                 if (load(0x5c) & 0x200)
+                {
                     m.illegal++;
+                }
                 save(0x60, 5);
                 save(0x64, 0);
                 save(0x5c, load(0x5c) & ~0x700u);
@@ -192,7 +200,9 @@ static int transfer(void *ctx, const uint8_t *tx, uint8_t *rx, size_t n)
             }
         }
         else if (a == 0x6c && bytes == 1)
+        {
             m.mem[a] &= tx[2];
+        }
         else
         {
             uint32_t oldcon = load(0);
@@ -203,7 +213,9 @@ static int transfer(void *ctx, const uint8_t *tx, uint8_t *rx, size_t n)
                 uint32_t v = load(0);
                 v = (v & ~(7u << 21)) | (oldcon & (7u << 21));
                 if (!m.stuck)
+                {
                     v = (v & ~(7u << 21)) | want << 21;
+                }
                 save(0, v);
                 if (want != 4 && !m.stuck)
                 {
@@ -216,9 +228,13 @@ static int transfer(void *ctx, const uint8_t *tx, uint8_t *rx, size_t n)
                 }
             }
             if (a == 0xe00)
+            {
                 save(0xe00, load(0xe00) | 0x400);
+            }
             if (a >= 0x400 && a < 0xc00)
+            {
                 m.ram_writes += bytes;
+            }
         }
     }
     else
@@ -235,7 +251,9 @@ static uint32_t now(void *ctx)
 {
     (void)ctx;
     if (!m.freeze)
+    {
         m.ticks++;
+    }
     return m.ticks;
 }
 
@@ -257,6 +275,7 @@ int mc_test_layout(void)
     struct mc_layout l = {0};
     unsigned combos = 0;
     for (unsigned c = 0; c < 8; c++)
+    {
         for (unsigned n = 1; n <= 16; n++)
         {
             CHECK(mc_layout(c, n, &l) == MC_OK);
@@ -264,6 +283,7 @@ int mc_test_layout(void)
             CHECK(l.rx_bytes == n * l.tx_bytes);
             combos++;
         }
+    }
     l.total = 99;
     CHECK(mc_layout(8, 1, &l) == MC_INVALID && l.total == 99);
     CHECK(mc_layout(7, 0, &l) == MC_INVALID);
@@ -275,6 +295,7 @@ int mc_test_layout(void)
 int mc_test_init(void)
 {
     for (unsigned code = 0; code < 8; code++)
+    {
         for (unsigned rate = 1; rate <= 2; rate++)
         {
             start();
@@ -291,6 +312,7 @@ int mc_test_init(void)
             CHECK(load(0xe0c) == 7);
             CHECK(m.mem[0xe04] == 3 && m.mem[0xe07] == 0);
         }
+    }
     unsigned calls = m.calls;
     start();
     struct mc_driver d = {0};
@@ -310,6 +332,7 @@ int mc_test_failure(void)
     CHECK(mc_init(&d, bus(), &c, 100) == MC_OK);
     unsigned count = m.calls;
     for (unsigned phase = 1; phase <= count; phase++)
+    {
         for (unsigned partial = 0; partial < 2; partial++)
         {
             start();
@@ -320,6 +343,7 @@ int mc_test_failure(void)
                   !m.active);
             CHECK(m.calls == phase);
         }
+    }
     start();
     memset(&d, 0, sizeof d);
     m.all_ones = 1;
@@ -352,6 +376,7 @@ int mc_test_transfer(void)
                                        8, 12, 16, 20, 24, 32, 48, 64};
     unsigned admitted = 0;
     for (unsigned code = 0; code < 8; code++)
+    {
         for (unsigned dlc = 0; dlc < 16; dlc++)
         {
             start();
@@ -380,6 +405,7 @@ int mc_test_transfer(void)
             CHECK(mc_send(&d, bus(), 1, &f) == MC_STALE);
             admitted++;
         }
+    }
     start();
     struct mc_driver d = {0};
     struct mc_config c = config(7);
@@ -404,7 +430,9 @@ int mc_test_receive(void)
     CHECK(mc_init(&d, bus(), &c, 100) == MC_OK);
     struct mc_frame f = {.id = 0x123, .dlc = 15, .brs = 1}, out = {.id = 999};
     for (unsigned i = 0; i < 64; i++)
+    {
         f.data[i] = (uint8_t)i;
+    }
     CHECK(mc_receive(&d, bus(), &out) == MC_EMPTY && out.id == 999);
     inject(&f);
     CHECK(mc_receive(&d, bus(), &out) == MC_OK && out.id == f.id &&
@@ -436,6 +464,7 @@ int mc_test_bench(void)
 {
     unsigned bytes = 0;
     for (unsigned brs = 0; brs < 2; brs++)
+    {
         for (unsigned i = 0; i < 6; i++)
         {
             struct mc_frame f;
@@ -451,6 +480,7 @@ int mc_test_bench(void)
                 CHECK(mc_bench_match(i, brs, &f) == MC_FAILED);
             }
         }
+    }
     CHECK(mc_bench_frame(6, 0, 0) == MC_INVALID);
     mc_values("bench", 12, bytes, 0x300, 0x305);
     return 0;
@@ -468,12 +498,16 @@ static uint32_t spi_read(void *ctx, unsigned reg)
 {
     (void)ctx;
     if (reg == PS_SR)
+    {
         return w.fail_wire ? (w.reset_stuck ? PS_BSY : 0)
                            : (PS_TXE | (w.ready ? PS_RXNE : 0));
+    }
     if (reg == PS_DR)
     {
         if (w.fail_after_byte)
+        {
             w.fail_wire = 1;
+        }
         w.ready = 0;
         return w.reply;
     }
@@ -493,7 +527,9 @@ static void spi_write(void *ctx, unsigned reg, uintptr_t value)
         else if (w.cs)
         {
             if (w.index >= 2 && w.tx[0] >> 4 != 11)
+            {
                 (void)transfer(0, w.tx, w.rx, w.index);
+            }
             w.cs = 0;
         }
     }
@@ -512,10 +548,14 @@ static void spi_write(void *ctx, unsigned reg, uintptr_t value)
             unsigned addr = ((w.tx[0] & 15u) << 8) | w.tx[1];
             w.n = (addr >= 0x400 && addr < 0xc00 ? 4u * w.tx[2] : w.tx[2]) + 5;
             if (w.n <= 16)
+            {
                 (void)transfer(0, w.tx, w.rx, w.n);
+            }
         }
         if (w.n && at >= 3 && at < w.n)
+        {
             w.reply = w.rx[at];
+        }
         w.ready = 1;
     }
 }
@@ -567,6 +607,7 @@ int mc_test_atomic(void)
     CHECK(mc_send(&d, bus(), 1, &f) == MC_OK);
     unsigned send_calls = m.calls - before;
     for (unsigned i = 1; i <= send_calls; i++)
+    {
         for (unsigned partial = 0; partial < 2; partial++)
         {
             start();
@@ -577,8 +618,11 @@ int mc_test_atomic(void)
             CHECK(mc_send(&d, bus(), 1, &f) != MC_OK && d.state == MC_POISONED);
             CHECK(m.calls == m.fail);
             if (i == send_calls)
+            {
                 CHECK(d.pending && d.token == 1);
+            }
         }
+    }
     start();
     memset(&d, 0, sizeof d);
     CHECK(mc_init(&d, bus(), &c, 100) == MC_OK);
@@ -588,6 +632,7 @@ int mc_test_atomic(void)
     CHECK(mc_receive(&d, bus(), &out) == MC_OK);
     unsigned receive_calls = m.calls - before;
     for (unsigned i = 1; i <= receive_calls; i++)
+    {
         for (unsigned partial = 0; partial < 2; partial++)
         {
             start();
@@ -601,6 +646,7 @@ int mc_test_atomic(void)
                   d.state == MC_POISONED);
             CHECK(m.rx_consumed == (i == receive_calls && partial ? 1u : 0u));
         }
+    }
     mc_values("atomic", send_calls * 2, receive_calls * 2, 1, 999);
     return 0;
 }

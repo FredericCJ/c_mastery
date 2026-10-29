@@ -27,7 +27,9 @@ static void srg_fail(const char *why)
     unsigned code = 17;
     __asm__ volatile("outl %0,$0xf4" ::"a"(code));
     for (;;)
+    {
         __asm__ volatile("cli;hlt");
+    }
 }
 
 static void srg_job(unsigned worker)
@@ -57,10 +59,14 @@ static void srg_worker(unsigned cpu)
         {
             __atomic_store_n(&srg_done[cpu], command, __ATOMIC_RELEASE);
             for (;;)
+            {
                 __asm__ volatile("cli;hlt");
+            }
         }
         if (!SRG_MUTANT)
+        {
             srg_job(cpu);
+        }
         __atomic_store_n(&srg_done[cpu], command, __ATOMIC_RELEASE);
     }
 }
@@ -72,45 +78,69 @@ static void srg_case(unsigned sequence, size_t count, unsigned mode,
                 mode == SR_BYTES ? (const void *)srg_bytes
                                  : (const void *)srg_values,
                 srg_visits, count, topology.count, mode) != SR_OK)
+    {
         srg_fail("init");
+    }
     srg_failure = failure;
     struct sr_result out = {0};
     out.unsigned_sum = 91;
     if (sr_finish(&srg_world, &out) != SR_INCOMPLETE || out.unsigned_sum != 91)
+    {
         srg_fail("early-completion-missing-owned-indices");
+    }
     uint64_t start = srg_ticks();
     __atomic_store_n(&srg_command, sequence, __ATOMIC_RELEASE);
     srg_job(0);
     if (SRG_MUTANT)
+    {
         for (unsigned i = 1; i < topology.count; i++)
+        {
             srg_job(i);
+        }
+    }
     for (unsigned cpu = 1; cpu < topology.count; cpu++)
+    {
         for (unsigned n = 0;
              __atomic_load_n(&srg_done[cpu], __ATOMIC_ACQUIRE) != sequence; n++)
         {
             if (n == 100000000)
+            {
                 srg_fail("worker-progress");
+            }
             pause_cpu();
         }
+    }
     unsigned result = (unsigned)sr_finish(&srg_world, &out);
     uint64_t elapsed = srg_ticks() - start;
     if (failure)
     {
         if (result != SR_FAILED || out.unsigned_sum != 91)
+        {
             srg_fail("failed-worker-published-total");
+        }
     }
     else
     {
         if (result != SR_OK || out.count != count)
+        {
             srg_fail("reduction-result");
+        }
         uint64_t expected = 0;
         for (size_t i = 0; i < count; i++)
+        {
             expected += srg_values[i];
+        }
         if (mode == SR_UNSIGNED && out.unsigned_sum != expected)
+        {
             srg_fail("integer-oracle");
+        }
         for (size_t i = 0; i < count; i++)
+        {
             if (atomic_load(srg_visits + i) != 1)
+            {
                 srg_fail("index-ownership");
+            }
+        }
     }
     text("SR_CASE sequence=");
     number(sequence);
@@ -128,13 +158,19 @@ static void srg_case(unsigned sequence, size_t count, unsigned mode,
     for (unsigned cpu = 0; cpu < topology.count; cpu++)
     {
         if (srg_observed[cpu] != cpu)
+        {
             srg_fail("all-workers-one-CPU");
+        }
         struct sr_range r;
         if (sr_partition(count, topology.count, cpu, &r) != SR_OK)
+        {
             srg_fail("range");
+        }
         if (srg_errors[cpu] !=
             (failure && cpu + 1 == topology.count ? SR_FAILED : SR_OK))
+        {
             srg_fail("worker-error");
+        }
         text("SR_PART sequence=");
         number(sequence);
         text(" worker=");
@@ -172,8 +208,12 @@ static void srg_case(unsigned sequence, size_t count, unsigned mode,
 void srg_bsp(void)
 {
     for (unsigned cpu = 1; cpu < topology.count; cpu++)
+    {
         while (!__atomic_load_n(&srg_ready[cpu], __ATOMIC_ACQUIRE))
+        {
             pause_cpu();
+        }
+    }
     for (unsigned i = 0; i < 257; i++)
     {
         srg_values[i] = (uint64_t)(i + 1) * (i + 1);
@@ -187,13 +227,19 @@ void srg_bsp(void)
     srg_case(6, 257, SR_BYTES, 0);
     __atomic_store_n(&srg_command, 99, __ATOMIC_RELEASE);
     for (unsigned c = 1; c < topology.count; c++)
+    {
         while (__atomic_load_n(&srg_done[c], __ATOMIC_ACQUIRE) != 99)
+        {
             pause_cpu();
+        }
+    }
     text("SR_GUEST_PASS:actual-static-owned-reduction cpus=");
     number(topology.count);
     text(" cases=6\n");
     unsigned code = 16;
     __asm__ volatile("outl %0,$0xf4" ::"a"(code));
     for (;;)
+    {
         __asm__ volatile("cli;hlt");
+    }
 }

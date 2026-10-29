@@ -45,7 +45,9 @@ int co_fiber_init(struct co_fiber *f, void *stack, size_t n, co_fiber_fn fn,
                   void *arg)
 {
     if (!f || !stack || !fn || n < 65536 || (uintptr_t)stack % 16 || n % 16)
+    {
         return 1;
+    }
     /* The caller provides one live disjoint stack object and an uninitialized
      * fiber. Reinitializing a live fiber is outside the initialization contract. */
     struct co_fiber fresh = {0};
@@ -63,7 +65,9 @@ int co_fiber_init(struct co_fiber *f, void *stack, size_t n, co_fiber_fn fn,
 #if defined(CO_TSAN)
     fresh.context.tsan = __tsan_create_fiber(0);
     if (!fresh.context.tsan)
+    {
         return 2;
+    }
 #endif
     *f = fresh;
     return 0;
@@ -82,9 +86,13 @@ void co_fiber_boot(struct co_fiber *f)
 int co_fiber_resume(struct co_fiber *f)
 {
     if (!f)
+    {
         return 1;
+    }
     if (f->state > 1)
+    {
         return 3;
+    }
     struct co_context caller = {0};
 #if defined(CO_TSAN)
     caller.tsan = __tsan_get_current_fiber();
@@ -101,7 +109,9 @@ int co_fiber_resume(struct co_fiber *f)
 int co_fiber_yield(struct co_fiber *f)
 {
     if (!f || f->state != 2 || !f->caller)
+    {
         return 3;
+    }
     f->state = 1;
     start(&f->context, f->caller, 0);
     co_context_switch(&f->context, f->caller);
@@ -112,10 +122,14 @@ int co_fiber_yield(struct co_fiber *f)
 int co_fiber_destroy(struct co_fiber *f)
 {
     if (!f)
+    {
         return 1;
+    }
 #ifndef CR_MUTATE_FIBER2
     if (f->state != 0 && f->state != 3)
+    {
         return 3;
+    }
 #endif
 #if defined(CO_TSAN)
     __tsan_destroy_fiber(f->context.tsan);

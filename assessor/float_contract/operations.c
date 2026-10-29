@@ -21,8 +21,12 @@ double ff_missing(const double *a, size_t n)
 {
     double s = 0;
     for (size_t i = 0; i < n; i++)
+    {
         if (!isnan(a[i]))
+        {
             s += a[i];
+        }
+    }
     return s;
 }
 
@@ -30,6 +34,8 @@ double ff_kernel(const double *a, size_t n)
 {
     double s = 0;
     for (size_t i = 0; i < n; i++)
+    {
         s += a[i];
+    }
     return s;
 }

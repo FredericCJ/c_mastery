@@ -50,7 +50,9 @@ static int operate(unsigned op, uint32_t epoch, uint32_t seq,
                    int boot)
 {
     if (!epoch)
+    {
         return PD_INVALID;
+    }
     uint32_t mask = pd_port_mask(), id = PD_PEER_M7 ? 3u : 1u;
     if (PD_READ(0x58026484u) != (0x80000000u | (id << 8)))
     {
@@ -59,7 +61,9 @@ static int operate(unsigned op, uint32_t epoch, uint32_t seq,
     }
     pd_port_barrier();
     if (PD_PORT_MUTANT != 1)
+    {
         (void)fw_h745_cache(0x30040020u, 32, H7_INVALIDATE);
+    }
     int r;
     if (boot)
     {
@@ -68,11 +72,17 @@ static int operate(unsigned op, uint32_t epoch, uint32_t seq,
         r = PD_OK;
     }
     else
+    {
         r = pd_notice(pd_port_memory(), op, epoch, seq, message, out);
+    }
     if (r == PD_OK && op == PD_NOTICE_TAKE && !boot && PD_PORT_MUTANT != 2)
+    {
         (void)fw_h745_cache(out->destination, out->extent, H7_INVALIDATE);
+    }
     if (PD_PORT_MUTANT != 3)
+    {
         (void)fw_h745_cache(0x30040020u, 32, FW_CLEAN);
+    }
     pd_port_barrier();
     PD_WRITE(0x58026404u, id << 8);
     pd_port_barrier();

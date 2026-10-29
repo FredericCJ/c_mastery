@@ -31,12 +31,18 @@ static unsigned descriptors(void)
 {
     DIR *d = opendir("/proc/self/fd");
     if (!d)
+    {
         return 99999;
+    }
     unsigned n = 0;
     struct dirent *entry;
     while ((entry = readdir(d)))
+    {
         if (entry->d_name[0] != '.')
+        {
             ++n;
+        }
+    }
     closedir(d);
     return n;
 }
@@ -60,7 +66,9 @@ int main(void)
         struct sigaction saved[3], got;
         CHECK(pthread_sigmask(SIG_SETMASK, 0, &mask) == 0);
         for (unsigned i = 0; i < 3; ++i)
+        {
             CHECK(sigaction(sigs[i], 0, &saved[i]) == 0);
+        }
         unsigned before = descriptors();
         CHECK(before != 99999);
         stage = cut;
@@ -71,14 +79,18 @@ int main(void)
         CHECK(descriptors() == before);
         CHECK(pthread_sigmask(SIG_SETMASK, 0, &after) == 0);
         for (int i = 1; i < NSIG; ++i)
+        {
             CHECK(sigismember(&mask, i) == sigismember(&after, i));
+        }
         for (unsigned i = 0; i < 3; ++i)
         {
             CHECK(sigaction(sigs[i], 0, &got) == 0);
             CHECK(got.sa_handler == saved[i].sa_handler);
             for (int j = 1; j < NSIG; ++j)
+            {
                 CHECK(sigismember(&got.sa_mask, j) ==
                       sigismember(&saved[i].sa_mask, j));
+            }
         }
         stage = 0;
         CHECK(es_open(&p) == 0 && es_close(&p) == 0);

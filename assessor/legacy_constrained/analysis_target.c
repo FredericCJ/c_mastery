@@ -36,13 +36,19 @@ unsigned ca_target_paths(void)
 {
     unsigned char in[32], out[32];
     for (unsigned i = 0; i < 32; ++i)
+    {
         in[i] = (unsigned char)i;
+    }
     volatile uint32_t n = UINT32_MAX, d = 3;
     uint64_t quotient = CA_WIDE ? ca_div64(n, d) : ca_div32(n, d);
     if (quotient != UINT32_C(1431655765))
+    {
         return 0;
+    }
     if (CA_WIDE && ca_div64(UINT64_MAX, 3) != UINT64_C(6148914691236517205))
+    {
         return 0;
+    }
     uint32_t sum = queue_copy(out, in, 32);
     fault_record(sum);
     ca_result = (uint32_t)quotient;
@@ -52,7 +58,9 @@ unsigned ca_target_paths(void)
 unsigned ca_target_init(uint32_t n)
 {
     if (!n)
+    {
         return 0;
+    }
     volatile uint32_t *t = (volatile uint32_t *)UINT32_C(0x40000000);
     t[0] = 0;
     t[2] = n;

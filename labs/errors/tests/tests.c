@@ -43,9 +43,13 @@ static int propagation(void)
                                     strlen(cases[i]), &out);
         CHECK(r.tag == tags[i]);
         if (r.tag == ER_OK)
+        {
             CHECK(out == (i == 0 ? 0 : 65535));
+        }
         else
+        {
             CHECK(out == 99 && r.as.offset == offsets[i]);
+        }
     }
     return 0;
 }
@@ -152,7 +156,9 @@ static er_result throwing(er_frame *f, void *context)
     cleanup_context *c = context;
     if (er_defer(f, cleanup, c) != ER_OK ||
         er_defer(f, cleanup, c + 1) != ER_OK)
+    {
         return er_error(ER_INVALID, 0);
+    }
     (void)er_raise(f, ER_THROWN);
     return er_ok(99);
 }
@@ -160,7 +166,9 @@ static er_result throwing(er_frame *f, void *context)
 static er_result returning(er_frame *f, void *context)
 {
     if (er_defer(f, cleanup, context) != ER_OK)
+    {
         return er_error(ER_INVALID, 0);
+    }
     return er_ok(9);
 }
 
@@ -190,10 +198,12 @@ static int arithmetic(void)
     CHECK(er_serial16(0, 65535, &order) == ER_OK && order == 1);
     CHECK(er_serial16(65535, 0, &order) == ER_OK && order == -1);
     for (a = 0; a < 256; ++a)
+    {
         for (b = 0; b < 256; ++b)
         {
             CHECK(er_add16(a, b, ER_CHECKED, &out) == ER_OK && out == a + b);
         }
+    }
     return 0;
 }
 
@@ -239,9 +249,15 @@ int main(int argc, char **argv)
                             arithmetic,  contracts,   refinement};
     size_t i;
     if (argc != 2)
+    {
         return 2;
+    }
     for (i = 0; i < 9; ++i)
+    {
         if (strcmp(argv[1], names[i]) == 0)
+        {
             return tests[i]();
+        }
+    }
     return 2;
 }

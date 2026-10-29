@@ -7,10 +7,14 @@ static void *alloc(void *ctx, size_t n, size_t align)
 {
     (void)ctx;
     if (align > _Alignof(max_align_t))
+    {
         return 0;
+    }
     void *p = malloc(n);
     if (p)
+    {
         ++allocations;
+    }
     return p;
 }
 
@@ -41,7 +45,9 @@ int main(void)
         outcome = 99;
         if (ac_submit_v2(&op, 0, 0, (struct ac_allocate){0, alloc, drop},
                          terminal, 0, 0, &ticket) != ACX_OK)
+        {
             return 2;
+        }
         for (size_t i = 0; trace[i]; ++i)
         {
             enum ac_async_status status;
@@ -70,9 +76,13 @@ int main(void)
         printf("|%u,%u,%u,%u,%u,%u,%u\n", (unsigned)op.core.state, op.committed,
                op.core.releases, calls, outcome, allocations, frees);
         if (op.core.state != F_DONE && ac_finish_v2(&op, ticket, 0) != ACX_OK)
+        {
             return 4;
+        }
         if (allocations != frees)
+        {
             return 5;
+        }
     }
     return 0;
 }

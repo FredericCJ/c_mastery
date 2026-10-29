@@ -41,7 +41,9 @@ int main(void)
           cpx_tag_equal(tag, expected));
     struct cpx_auth_state sender = {0}, receiver = {0};
     for (unsigned i = 0; i < 32; ++i)
+    {
         sender.key[i] = (unsigned char)i;
+    }
     sender.key_id = 7;
     sender.epoch = 19;
     receiver = sender;
@@ -91,7 +93,9 @@ int main(void)
     changed[26 + 6] ^= 1;
     uint32_t crc = cp_crc32(changed + 27, inner_n - 5);
     for (unsigned i = 0; i < 4; ++i)
+    {
         changed[26 + inner_n - 4 + i] = (unsigned char)(crc >> (8 * i));
+    }
     wrong = sender;
     CHECK(cpx_auth_open(&wrong, changed, n, output, sizeof output, &written,
                         cpx_openssl_mac) == CPX_AUTH_FAILED);

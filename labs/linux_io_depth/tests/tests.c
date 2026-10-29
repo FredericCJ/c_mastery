@@ -96,22 +96,40 @@ static int test_zerocopy(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (strcmp(argv[1], "iov") == 0)
+    {
         return test_iov();
+    }
     if (strcmp(argv[1], "readiness") == 0)
+    {
         return test_readiness();
+    }
     if (strcmp(argv[1], "ring") == 0)
+    {
         return test_ring();
+    }
     if (strcmp(argv[1], "completion") == 0)
+    {
         return test_completion();
+    }
     if (strcmp(argv[1], "cancel") == 0)
+    {
         return test_cancel();
+    }
     if (strcmp(argv[1], "deadline") == 0)
+    {
         return test_deadline();
+    }
     if (strcmp(argv[1], "durability") == 0)
+    {
         return test_durability();
+    }
     if (strcmp(argv[1], "zerocopy") == 0)
+    {
         return test_zerocopy();
+    }
     return 2;
 }

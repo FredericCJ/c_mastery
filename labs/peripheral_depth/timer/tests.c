@@ -43,12 +43,16 @@ int main(void)
     n.ccr[0] = 125;
     n.ccr[1] = 375;
     for (unsigned i = 0; i < 250; i++)
+    {
         CHECK(pt_tick(&m) == PT_OK);
+    }
     CHECK(pt_level(&m, 0, &level) == PT_OK && !level);
     CHECK(pt_stage(&m, &n) == PT_OK && m.active.arr == 999 &&
           m.active.ccr[1] == 750);
     for (unsigned i = 250; i < 1000; i++)
+    {
         CHECK(pt_tick(&m) == PT_OK);
+    }
     CHECK(m.counter == 0 && m.active.arr == 499 && m.active.ccr[0] == 125 &&
           m.active.ccr[1] == 375 && m.updates == 1);
     n = c;

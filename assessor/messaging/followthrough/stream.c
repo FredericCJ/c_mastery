@@ -83,14 +83,20 @@ static void *executor(void *ctx)
             pthread_cond_broadcast(&s->changed);
             pthread_mutex_unlock(&s->mutex);
             if (MFQ_MUTANT == 81 && !s->core.demand)
+            {
                 (void)msg_request(&s->core, 1);
+            }
             status = msg_emit(&s->core, value);
             pthread_mutex_lock(&s->mutex);
             s->stats.inflight = 0;
             if (status == MSG_OK)
+            {
                 ++s->stats.delivered;
+            }
             else
+            {
                 ++s->stats.discarded;
+            }
             pthread_cond_broadcast(&s->changed);
             pthread_mutex_unlock(&s->mutex);
             continue;
@@ -108,9 +114,13 @@ enum msg_status mfq_init(struct mfq_stream *s, unsigned capacity,
 {
     if (!s || !ctx || !ctx->data || !ctx->drop || !n || !t || capacity < 1 ||
         capacity > 4)
+    {
         return MSG_INVALID;
+    }
     if (pthread_mutex_init(&s->mutex, NULL))
+    {
         return MSG_FAILED;
+    }
     if (pthread_cond_init(&s->changed, NULL))
     {
         pthread_mutex_destroy(&s->mutex);
@@ -146,13 +156,19 @@ enum msg_status mfq_init(struct mfq_stream *s, unsigned capacity,
 enum msg_status mfq_acquire(struct mfq_stream *s, struct mfq_handle *out)
 {
     if (!s || !out)
+    {
         return MSG_INVALID;
+    }
     pthread_mutex_lock(&s->mutex);
     enum msg_status status = MSG_OK;
     if (!s->stats.accepting)
+    {
         status = MSG_CLOSED;
+    }
     else if (s->stats.handles == UINT_MAX)
+    {
         status = MSG_OVERFLOW;
+    }
     else
     {
         ++s->stats.handles;
@@ -165,7 +181,9 @@ enum msg_status mfq_acquire(struct mfq_stream *s, struct mfq_handle *out)
 void mfq_release(struct mfq_handle *h)
 {
     if (!h || !h->owner)
+    {
         return;
+    }
     struct mfq_stream *s = h->owner;
     h->owner = NULL;
     pthread_mutex_lock(&s->mutex);
@@ -177,7 +195,9 @@ void mfq_release(struct mfq_handle *h)
 enum msg_status mfq_request(struct mfq_handle *h, uint64_t n)
 {
     if (!h || !h->owner)
+    {
         return MSG_INVALID;
+    }
     struct mfq_stream *s = h->owner;
     pthread_mutex_lock(&s->mutex);
     if (!s->stats.accepting)
@@ -192,8 +212,10 @@ enum msg_status mfq_request(struct mfq_handle *h, uint64_t n)
         s->stats.accepting = false;
     }
     else
+    {
         s->requests =
             UINT64_MAX - s->requests < n ? UINT64_MAX : s->requests + n;
+    }
     pthread_cond_broadcast(&s->changed);
     pthread_mutex_unlock(&s->mutex);
     return MSG_OK;
@@ -204,7 +226,9 @@ enum msg_status mfq_submit(struct mfq_handle *h, unsigned value,
 {
     if (!h || !h->owner ||
         (policy != MFQ_WAIT && policy != MFQ_DROP && policy != MFQ_FAIL))
+    {
         return MSG_INVALID;
+    }
     struct mfq_stream *s = h->owner;
     pthread_mutex_lock(&s->mutex);
     while (s->stats.accepting && s->stats.queued == s->capacity)
@@ -212,7 +236,9 @@ enum msg_status mfq_submit(struct mfq_handle *h, unsigned value,
         if (policy != MFQ_WAIT)
         {
             if (s->stats.rejected < UINT64_MAX)
+            {
                 ++s->stats.rejected;
+            }
             if (policy == MFQ_FAIL && MFQ_MUTANT != 84)
             {
                 s->end_pending = true;
@@ -264,7 +290,9 @@ enum msg_status mfq_end(struct mfq_handle *h, enum msg_status status)
 {
     if (!h || !h->owner ||
         (status != MSG_OK && status != MSG_FAILED && status != MSG_INVALID))
+    {
         return MSG_INVALID;
+    }
     struct mfq_stream *s = h->owner;
     pthread_mutex_lock(&s->mutex);
     if (!s->stats.accepting)
@@ -284,7 +312,9 @@ enum msg_status mfq_end(struct mfq_handle *h, enum msg_status status)
 enum msg_status mfq_close(struct mfq_stream *s)
 {
     if (!s)
+    {
         return MSG_INVALID;
+    }
     pthread_mutex_lock(&s->mutex);
     s->idle = false;
     s->stats.accepting = false;
@@ -297,16 +327,22 @@ enum msg_status mfq_close(struct mfq_stream *s)
 enum msg_status mfq_cancel(struct mfq_handle *h)
 {
     if (!h || !h->owner)
+    {
         return MSG_INVALID;
+    }
     return mfq_close(h->owner);
 }
 
 enum msg_status mfq_join(struct mfq_stream *s)
 {
     if (!s)
+    {
         return MSG_INVALID;
+    }
     if (pthread_equal(pthread_self(), s->worker))
+    {
         return MSG_BUSY;
+    }
     pthread_mutex_lock(&s->mutex);
     if (s->stats.accepting)
     {
@@ -316,9 +352,13 @@ enum msg_status mfq_join(struct mfq_stream *s)
     bool joined = s->stats.joined;
     pthread_mutex_unlock(&s->mutex);
     if (joined)
+    {
         return MSG_OK;
+    }
     if (pthread_join(s->worker, NULL))
+    {
         return MSG_FAILED;
+    }
     pthread_mutex_lock(&s->mutex);
     s->stats.joined = true;
     pthread_mutex_unlock(&s->mutex);
@@ -328,12 +368,18 @@ enum msg_status mfq_join(struct mfq_stream *s)
 enum msg_status mfq_idle(struct mfq_stream *s)
 {
     if (!s)
+    {
         return MSG_INVALID;
+    }
     if (pthread_equal(pthread_self(), s->worker))
+    {
         return MSG_BUSY;
+    }
     pthread_mutex_lock(&s->mutex);
     while (!s->idle && !s->stats.finished)
+    {
         pthread_cond_wait(&s->changed, &s->mutex);
+    }
     pthread_mutex_unlock(&s->mutex);
     return MSG_OK;
 }
@@ -341,7 +387,9 @@ enum msg_status mfq_idle(struct mfq_stream *s)
 enum msg_status mfq_stats(struct mfq_stream *s, struct mfq_stats *out)
 {
     if (!s || !out)
+    {
         return MSG_INVALID;
+    }
     pthread_mutex_lock(&s->mutex);
     *out = s->stats;
     pthread_mutex_unlock(&s->mutex);
@@ -351,7 +399,9 @@ enum msg_status mfq_stats(struct mfq_stream *s, struct mfq_stats *out)
 enum msg_status mfq_destroy(struct mfq_stream *s)
 {
     if (!s)
+    {
         return MSG_INVALID;
+    }
     pthread_mutex_lock(&s->mutex);
     if (!s->stats.joined || (s->stats.handles && MFQ_MUTANT != 82))
     {

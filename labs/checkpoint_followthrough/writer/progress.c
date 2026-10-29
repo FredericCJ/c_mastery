@@ -71,9 +71,13 @@ static struct cpw_result descriptor(void *context, const unsigned char *p,
     struct cwf_fd *f = context;
     ++f->calls;
     if (n > 3)
+    {
         n = 3;
+    }
     if (f->raw)
+    {
         f->last = cpw_raw(raw_write(f->fd, p, n));
+    }
     else
     {
         ssize_t r = write(f->fd, p, n);
@@ -112,7 +116,9 @@ static void drain(int fd, size_t n)
         ssize_t r = read(fd, bytes, take);
         CHECK(r > 0);
         for (ssize_t i = 0; i < r; ++i)
+        {
             CHECK(bytes[i] == 0x55);
+        }
         n -= (size_t)r;
     }
 }
@@ -184,7 +190,9 @@ int main(void)
     }
     const size_t remaining[] = {9, 6, 6, 4}, offset[] = {0, 3, 3, 5};
     for (unsigned i = 0; i < 4; ++i)
+    {
         CHECK(s.remaining[i] == remaining[i] && s.offset[i] == offset[i]);
+    }
     CHECK(s.used == 9 && !memcmp(s.out, bytes, 9));
     s = (struct cwf_script){.results = {3, 0, -5}, .base = bytes};
     CHECK(cpw_begin(&t, bytes, 9, 72) == CPW_PENDING);

@@ -14,7 +14,9 @@ static void hex(uint32_t x)
 {
     char b[10];
     for (unsigned i = 0; i < 8; ++i)
+    {
         b[i] = "0123456789abcdef"[(x >> (28 - 4 * i)) & 15];
+    }
     b[8] = ' ';
     b[9] = 0;
     xk_print(b);
@@ -83,11 +85,15 @@ void xk_timer(void)
     __asm__ volatile("dsb sy" ::: "memory");
     uint64_t software = 999;
     if (current == 0)
+    {
         CHECK(!cpf_clock_read(&software_clock, 2, &software) &&
               software == 999);
+    }
     else
+    {
         CHECK(cpf_clock_read(&software_clock, 2, &software) &&
               software == UINT64_C(0x800000000));
+    }
     struct xk_snapshot snapshot;
     CHECK(xk_snapshot((struct xk_io){0, hi, lo, guard},
                       (struct xk_policy){32, 1, 2, 2001, 2000},
@@ -102,7 +108,9 @@ void xk_timer(void)
     int rc = xi_push(&queue, &record);
     CHECK(rc == (current >= 3 && current < 6 ? XI_FULL : XI_OK));
     if (rc == XI_FULL)
+    {
         ++drops;
+    }
     done = 1;
 }
 
@@ -128,7 +136,9 @@ void xf_target_main(void)
                    &touching) == XK_OK &&
           touching == XK_AMBIGUOUS);
     if (xk_integration())
+    {
         finish(1);
+    }
     CHECK(cpf_clock_init(&software_clock));
     CHECK(cpf_clock_write(&software_clock, UINT64_C(0x7ffffffff)));
     CHECK(xi_init(&queue, 4) == XI_OK);
@@ -166,7 +176,9 @@ void xf_target_main(void)
         REG(0x40000008) = 1000;
         REG(0x40000000) = 9;
         while (!done)
+        {
             __asm__ volatile("nop" ::: "memory");
+        }
         struct xk_calibration calibration = {0, 0, 0, 40, 0, 1};
         struct xk_interval interval;
         CHECK(xk_calibrate(&calibration, begins[current], ends[current],

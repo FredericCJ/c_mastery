@@ -24,7 +24,9 @@ static int scripted(pthread_t t, void **out, void *arg)
     struct join_script *s = arg;
     s->calls++;
     if (s->calls == s->fail)
+    {
         return EBUSY;
+    }
     return pthread_join(t, out);
 }
 
@@ -37,24 +39,30 @@ static void pool(void)
     CHECK(!tl_pool_start(2, 3, 0, &e) && e == EINVAL);
     CHECK(!tl_pool_start(2, 0, 1, &e) && e == ENOMEM);
     for (unsigned n = 0; n <= 4; n++)
+    {
         for (unsigned f = 0; f <= n; f++)
         {
             struct tl_pool *p = tl_pool_start(n, f, 0, &e);
             CHECK(p && e == 0);
             unsigned count = f ? f - 1 : n;
             if (count)
+            {
                 CHECK(tl_pool_dispose(&p) == EBUSY && p);
+            }
             struct tl_stats out = {99, 99, 99, 99, 99};
             CHECK(tl_pool_collect(p, NULL, NULL, &out) == 0);
             unsigned sum = 0;
             for (unsigned i = 1; i <= count; i++)
+            {
                 sum += i * i;
+            }
             CHECK(out.created == count && out.joined == count &&
                   out.completed == count && out.sum == sum &&
                   out.create_error == (f ? EAGAIN : 0));
             CHECK(tl_pool_dispose(&p) == 0 && !p);
             CHECK(tl_pool_dispose(&p) == EINVAL);
         }
+    }
     for (unsigned failure = 1; failure <= 4; failure++)
     {
         struct tl_pool *p = tl_pool_start(4, 0, 0, &e);
@@ -93,11 +101,15 @@ static void detached(void)
         CHECK(pthread_create(&creator, NULL, tl_detached_creator, &c) == 0);
         CHECK(pthread_mutex_lock(&m.mutex) == 0);
         while (!m.creator_waiting)
+        {
             CHECK(pthread_cond_wait(&m.changed, &m.mutex) == 0);
+        }
         CHECK(m.created == 1 && m.freed == 0);
         CHECK(pthread_mutex_unlock(&m.mutex) == 0);
         if (cancel)
+        {
             CHECK(pthread_cancel(creator) == 0);
+        }
         void *result = (void *)&m;
         CHECK(pthread_join(creator, &result) == 0);
         CHECK(result == (cancel ? PTHREAD_CANCELED : NULL));
@@ -109,7 +121,9 @@ static void detached(void)
         m.release_worker = 1;
         CHECK(pthread_cond_broadcast(&m.changed) == 0);
         while (!m.freed)
+        {
             CHECK(pthread_cond_wait(&m.changed, &m.mutex) == 0);
+        }
         CHECK(m.freed == 1 && m.live_refs == 0 && m.completed == 1 &&
               m.sum == 10);
         CHECK(pthread_mutex_unlock(&m.mutex) == 0);
@@ -127,14 +141,18 @@ static void detached(void)
         CHECK(pthread_create(&creator, NULL, tl_detached_creator, &c) == 0);
         CHECK(pthread_mutex_lock(&m.mutex) == 0);
         while (!m.creator_waiting)
+        {
             CHECK(pthread_cond_wait(&m.changed, &m.mutex) == 0);
+        }
         m.release_worker = 1;
         CHECK(pthread_cond_broadcast(&m.changed) == 0);
         CHECK(pthread_mutex_unlock(&m.mutex) == 0);
         CHECK(pthread_join(creator, NULL) == 0 && c.error == 0);
         CHECK(pthread_mutex_lock(&m.mutex) == 0);
         while (!m.freed)
+        {
             CHECK(pthread_cond_wait(&m.changed, &m.mutex) == 0);
+        }
         CHECK(m.sum == 2 * n && m.freed == 1 && m.live_refs == 0);
         CHECK(pthread_mutex_unlock(&m.mutex) == 0);
         CHECK(tl_monitor_destroy(&m) == 0);
@@ -152,10 +170,16 @@ int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (!strcmp(argv[1], "pool"))
+    {
         pool();
+    }
     else if (!strcmp(argv[1], "detached"))
+    {
         detached();
+    }
     else
+    {
         CHECK(0);
+    }
     return 0;
 }

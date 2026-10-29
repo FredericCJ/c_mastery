@@ -19,8 +19,12 @@ static struct rp_pn pn(unsigned bits)
 static int pn_equal(struct rp_pn a, struct rp_pn b)
 {
     for (unsigned i = 0; i < 3; ++i)
+    {
         if (a.positive[i] != b.positive[i] || a.negative[i] != b.negative[i])
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
@@ -29,7 +33,9 @@ static int laws(void)
     const unsigned permutations[6][3] = {{0, 1, 2}, {0, 2, 1}, {1, 0, 2},
                                          {1, 2, 0}, {2, 0, 1}, {2, 1, 0}};
     for (unsigned a = 0; a < 64; ++a)
+    {
         for (unsigned b = 0; b < 64; ++b)
+        {
             for (unsigned c = 0; c < 64; ++c)
             {
                 struct rp_pn values[3] = {pn(a), pn(b), pn(c)},
@@ -43,13 +49,19 @@ static int laws(void)
                     CHECK(pn_equal(got, expected));
                 }
             }
+        }
+    }
     for (unsigned a = 0; a < 10; ++a)
+    {
         for (unsigned b = 0; b < 10; ++b)
+        {
             for (unsigned c = 0; c < 10; ++c)
             {
                 unsigned indexes[3] = {a, b, c}, max = a > b ? a : b;
                 if (c > max)
+                {
                     max = c;
+                }
                 struct rp_register values[3];
                 for (unsigned i = 0; i < 3; ++i)
                 {
@@ -68,6 +80,8 @@ static int laws(void)
                           got.value == (int)max);
                 }
             }
+        }
+    }
     struct rp_register a = {1, 0, 10}, b = {1, 0, 20}, c = {2, 0, 30};
     CHECK(rp_register_merge(&a, b) == RP_CONFLICT && a.value == 10);
     CHECK(rp_register_merge(&a, c) == 0 && rp_register_merge(&a, b) == 0 &&
@@ -134,7 +148,9 @@ static int metrics(void)
         "{\"pn_size\":%zu,\"register_size\":%zu,\"runs\":%u,\"cpu_seconds\":[",
         sizeof(struct rp_pn), sizeof(struct rp_register), runs);
     for (unsigned i = 0; i < 7; ++i)
+    {
         printf("%s%.9f", i ? "," : "", elapsed[i]);
+    }
     puts("]}");
     return 0;
 }
@@ -142,19 +158,29 @@ static int metrics(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "ordinary_laws"))
+    {
         return laws();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     if (!strncmp(argv[1], "ordinary_", 9))
     {
         char *args[] = {argv[0], argv[1] + 9};
         int r = rpo_baseline_main(2, args);
         if (!r)
+        {
             printf("ORDINARY_BASE %s passed\n", args[1]);
+        }
         return r;
     }
     return 2;

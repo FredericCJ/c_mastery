@@ -59,12 +59,20 @@ enum ci_status ci_segment_init(struct ci_segment *s, const uint32_t *v,
                                unsigned n)
 {
     if (!s || (!v && n))
+    {
         return CI_INVALID;
+    }
     if (n > CI_CAP)
+    {
         return CI_RANGE;
+    }
     for (unsigned i = 0; i < n; i++)
+    {
         if (v[i] >= CI_MOD)
+        {
             return CI_RANGE;
+        }
+    }
     s->n = n;
     for (unsigned i = 0; i < 4 * CI_CAP; i++)
     {
@@ -73,7 +81,9 @@ enum ci_status ci_segment_init(struct ci_segment *s, const uint32_t *v,
         s->node[i].b = 0;
     }
     if (n)
+    {
         build(s, 1, 0, n, v);
+    }
     return CI_OK;
 }
 
@@ -91,9 +101,13 @@ static void update(struct ci_segment *s, unsigned p, unsigned lo, unsigned hi,
     s->node[p].a = 1;
     s->node[p].b = 0;
     if (l < m)
+    {
         update(s, p * 2, lo, m, l, r, a, b);
+    }
     if (r > m)
+    {
         update(s, p * 2 + 1, m, hi, l, r, a, b);
+    }
     s->node[p].value = join(s->node[p * 2].value, s->node[p * 2 + 1].value);
 }
 
@@ -101,11 +115,17 @@ enum ci_status ci_segment_apply(struct ci_segment *s, unsigned l, unsigned r,
                                 uint32_t a, uint32_t b)
 {
     if (!s)
+    {
         return CI_INVALID;
+    }
     if (l > r || r > s->n || a >= CI_MOD || b >= CI_MOD)
+    {
         return CI_RANGE;
+    }
     if (l < r)
+    {
         update(s, 1, 0, s->n, l, r, a, b);
+    }
     return CI_OK;
 }
 
@@ -124,9 +144,13 @@ static struct ci_aggregate query(const struct ci_segment *s, unsigned p,
     unsigned m = lo + (hi - lo) / 2;
     struct ci_aggregate x = identity(), y = identity();
     if (l < m)
+    {
         x = query(s, p * 2, lo, m, l, r, na, nb);
+    }
     if (r > m)
+    {
         y = query(s, p * 2 + 1, m, hi, l, r, na, nb);
+    }
     return join(x, y);
 }
 
@@ -134,9 +158,13 @@ enum ci_status ci_segment_query(const struct ci_segment *s, unsigned l,
                                 unsigned r, struct ci_aggregate *out)
 {
     if (!s || !out)
+    {
         return CI_INVALID;
+    }
     if (l > r || r > s->n)
+    {
         return CI_RANGE;
+    }
     *out = l == r ? identity() : query(s, 1, 0, s->n, l, r, 1, 0);
     return CI_OK;
 }

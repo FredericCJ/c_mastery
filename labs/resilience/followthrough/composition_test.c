@@ -41,11 +41,17 @@ static int read_bytes(void *p, size_t at, unsigned char *out, size_t n,
 {
     struct rz_memory *m = p;
     if (at > m->size)
+    {
         return RZ_INVALID;
+    }
     if (n > m->size - at)
+    {
         n = m->size - at;
+    }
     for (size_t i = 0; i < n; ++i)
+    {
         out[i] = m->bytes[at + i];
+    }
     *done = n;
     return RZ_OK;
 }
@@ -55,15 +61,25 @@ static int write_bytes(void *p, size_t at, const unsigned char *in, size_t n,
 {
     struct rz_memory *m = p;
     if (++m->calls == m->fail_at)
+    {
         return RZJ_UNCERTAIN;
+    }
     if (at > sizeof m->bytes || n > sizeof m->bytes - at)
+    {
         return RZJ_UNCERTAIN;
+    }
     if (n > 3)
+    {
         n = 3;
+    }
     for (size_t i = 0; i < n; ++i)
+    {
         m->bytes[at + i] = in[i];
+    }
     if (at + n > m->size)
+    {
         m->size = at + n;
+    }
     m->written += n;
     *done = n;
     return RZ_OK;
@@ -73,7 +89,9 @@ static int truncate_bytes(void *p, size_t n)
 {
     struct rz_memory *m = p;
     if (n > m->size)
+    {
         return RZ_INVALID;
+    }
     m->size = n;
     return RZ_OK;
 }
@@ -95,21 +113,27 @@ static void *allocate(void *p, size_t n)
     struct rz_allocator *a = p;
     ++a->calls;
     if (a->calls == a->fail_at)
+    {
         return NULL;
+    }
     void *v = malloc(n);
     if (v)
     {
         ++a->made;
         unsigned slot = 0;
         while (slot < 4 && a->objects[slot])
+        {
             ++slot;
+        }
         CHECK(slot < 4);
         a->objects[slot] = v;
         a->sizes[slot] = n;
         a->live += n;
         a->allocated += n;
         if (a->live > a->peak)
+        {
             a->peak = a->live;
+        }
     }
     return v;
 }
@@ -119,7 +143,9 @@ static void deallocate(void *p, void *v)
     struct rz_allocator *a = p;
     unsigned slot = 0;
     while (slot < 4 && a->objects[slot] != v)
+    {
         ++slot;
+    }
     CHECK(slot < 4);
     a->live -= a->sizes[slot];
     a->objects[slot] = NULL;
@@ -163,7 +189,9 @@ static void tests(void)
           result.started == 2 && result.winner == 1 && result.reply_at == 3 &&
           result.quiet_at == 4 && result.deliveries == 2 && result.resets == 1);
     for (unsigned mask = 0; mask < 16; ++mask)
+    {
         for (unsigned second = 0; second < 16; ++second)
+        {
             for (unsigned deadline = 1; deadline <= 16; ++deadline)
             {
                 config = (struct rzc_config){{mask, second},
@@ -186,10 +214,14 @@ static void tests(void)
                       result.acknowledged == result.applied &&
                       result.quiet_at >= result.reply_at);
                 if (result.winner >= 0)
+                {
                     CHECK(result.reply_at < deadline &&
                           (!config.cancel_at ||
                            result.reply_at < config.cancel_at));
+                }
             }
+        }
+    }
     config = (struct rzc_config){{0, 0}, {4, 1}, 10, 0, 0, 4, 0, true, true};
     for (unsigned failure = 1; failure <= 4; ++failure)
     {
@@ -197,10 +229,14 @@ static void tests(void)
         int status = run(config, failure, 0, &result);
         CHECK(status == (failure == 1 ? RZ_FULL : RZ_OK));
         if (failure == 1)
+        {
             CHECK(result.total == 99);
+        }
         else
+        {
             CHECK(result.applied == 1 &&
                   result.allocated_responses == result.freed_responses);
+        }
     }
     for (unsigned failure = 1; failure <= 45; ++failure)
     {
@@ -208,7 +244,9 @@ static void tests(void)
         int status = run(config, 0, failure, &result);
         CHECK(status == RZ_OK || status == RZJ_UNCERTAIN);
         if (status != RZ_OK)
+        {
             CHECK(result.total == 99);
+        }
     }
     puts("composition passed");
 }
@@ -239,7 +277,9 @@ static struct rzc_config workload(unsigned mode)
 {
     struct rzc_config c = {{0, 0}, {1, 1}, 16, 0, 0, 8, 0, false, false};
     if (mode == 1)
+    {
         c.drops[0] = 3;
+    }
     if (mode == 2 || mode == 3)
     {
         c.delay[0] = 8;
@@ -346,7 +386,9 @@ int main(int argc, char **argv)
         return 0;
     }
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "test"))
     {
         tests();

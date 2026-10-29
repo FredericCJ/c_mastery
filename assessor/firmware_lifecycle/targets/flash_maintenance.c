@@ -29,7 +29,9 @@ static void snapshot(struct fm_io io, uint32_t base, unsigned char out[128])
     {
         uint32_t v = io.bus.read(io.bus.ctx, base + 4 * i);
         for (unsigned b = 0; b < 4; ++b)
+        {
             out[4 * i + b] = (unsigned char)(v >> (8 * b));
+        }
     }
 }
 
@@ -38,14 +40,18 @@ static enum fh_result begin(struct fm_operation *o, struct fm_io io,
                             uint32_t span, uint32_t value, unsigned sector)
 {
     if (!o || o->state || !valid_io(io))
+    {
         return FH_REJECT;
+    }
     unsigned h = profile == FM_H745;
     uint32_t craddr = h ? HCR : FCR, sraddr = h ? HSR : FSR,
              lock = h ? 1u : 0x80000000u;
     uint32_t sr = io.bus.read(io.bus.ctx, sraddr),
              cr = io.bus.read(io.bus.ctx, craddr);
     if ((sr & (h ? 15u : 0x10000u)) || (cr & ~(h ? 0x31u : 0x80000300u)))
+    {
         return FH_REJECT;
+    }
     o->io = io;
     o->address = address;
     o->span = span;
@@ -90,14 +96,18 @@ enum fh_result fm_erase(struct fm_operation *o, struct fm_io io,
     if (p == FM_H745)
     {
         if (s < 6 || s > 7)
+        {
             return FH_REJECT;
+        }
         return begin(o, io, p, 1, 0x08000000u + s * 0x20000u, 0x20000u,
                      UINT32_MAX, s);
     }
     if (p == FM_F439)
     {
         if (s < 10 || s > 11)
+        {
             return FH_REJECT;
+        }
         return begin(o, io, p, 1, 0x080C0000u + (s - 10) * 0x20000u, 0x20000u,
                      UINT32_MAX, s);
     }
@@ -108,14 +118,18 @@ enum fh_result fm_f439_program(struct fm_operation *o, struct fm_io io,
                                uint32_t a, uint32_t v)
 {
     if ((a & 3u) || a < 0x080C0000u || a > 0x080FFFFCu)
+    {
         return FH_REJECT;
+    }
     return begin(o, io, FM_F439, 2, a, 4, v, 0);
 }
 
 enum fh_result fm_poll(struct fm_operation *o)
 {
     if (!o || (o->state != 1 && o->state != 2))
+    {
         return FH_REJECT;
+    }
     struct fh_io io = o->io.bus;
     unsigned h = o->profile == FM_H745;
     uint32_t sraddr = h ? HSR : FSR, craddr = h ? HCR : FCR,
@@ -124,13 +138,19 @@ enum fh_result fm_poll(struct fm_operation *o)
     {
         uint32_t sr = io.read(io.ctx, sraddr);
         if (FM_MUTANT != 1 && (sr & (h ? 7u : 0x10000u)))
+        {
             return FH_PENDING;
+        }
         if (h && !(sr & (HERR | 0x10000u)))
+        {
             return FH_PENDING;
+        }
         io.sync(io.ctx);
         io.write(io.ctx, craddr, o->control & ~(h ? 1u : 0x80000000u));
         if (o->control & (h ? 1u : 0x80000000u))
+        {
             io.write(io.ctx, craddr, o->control);
+        }
         io.sync(io.ctx);
         if (sr & err)
         {
@@ -167,15 +187,25 @@ int fm_recover(const unsigned char a[128], const unsigned char b[128])
 {
     int va = fh_record_valid(a), vb = fh_record_valid(b);
     if (!va)
+    {
         return vb ? 2 : 0;
+    }
     if (!vb)
+    {
         return 1;
+    }
     uint32_t sa = read4(a + 4), sb = read4(b + 4);
     if (sa != sb)
+    {
         return sa > sb ? 1 : 2;
+    }
     for (unsigned i = 0; i < 128; ++i)
+    {
         if (a[i] != b[i])
+        {
             return -1;
+        }
+    }
     return 1;
 }
 
@@ -186,37 +216,49 @@ enum fh_result fm_recycle_begin(struct fm_recycle *r, struct fm_io io,
 {
     if (!r || r->state || !valid_io(io) ||
         (old != 0x080C0000u && old != 0x080E0000u))
+    {
         return FH_REJECT;
+    }
     unsigned char prior[128], record[128];
     io.fresh(io.bus.ctx, old, 128);
     snapshot(io, old, prior);
     if (!fh_record_valid(prior) || n <= read4(prior + 4) ||
         !fh_record(p, n, h, v, ver, record))
+    {
         return FH_REJECT;
+    }
     r->io = io;
     r->old_base = old;
     r->new_base = old ^ 0x20000u;
     r->state = 1;
     r->erase.state = 0;
     for (unsigned i = 0; i < 128; ++i)
+    {
         r->record[i] = record[i];
+    }
     enum fh_result e = fm_erase(&r->erase, io, FM_H745,
                                 (r->new_base - 0x08000000u) / 0x20000u);
     if (e != FH_PENDING)
+    {
         r->state = 5;
+    }
     return e;
 }
 
 enum fh_result fm_recycle_poll(struct fm_recycle *r)
 {
     if (!r || r->state < 1 || r->state > 3)
+    {
         return FH_REJECT;
+    }
     enum fh_result e;
     if (r->state == 1)
     {
         e = fm_poll(&r->erase);
         if (e == FH_PENDING)
+        {
             return e;
+        }
         if (e != FH_DONE)
         {
             r->state = 5;
@@ -230,10 +272,14 @@ enum fh_result fm_recycle_poll(struct fm_recycle *r)
         r->append.word = 0;
         r->append.session.active = 0;
         for (unsigned i = 0; i < 128; ++i)
+        {
             r->append.record[i] = r->record[i];
+        }
         uint32_t w[8];
         for (unsigned i = 0; i < 8; ++i)
+        {
             w[i] = read4(r->record + 4 * i);
+        }
         e = fh_start(&r->append.session, r->io.bus, r->new_base, w);
         if (e != FH_PENDING)
         {
@@ -247,7 +293,9 @@ enum fh_result fm_recycle_poll(struct fm_recycle *r)
     {
         e = fh_append_poll(&r->append);
         if (e == FH_PENDING)
+        {
             return e;
+        }
         if (e != FH_DONE)
         {
             r->state = 5;
@@ -259,11 +307,13 @@ enum fh_result fm_recycle_poll(struct fm_recycle *r)
         if (FM_MUTANT != 3)
         {
             for (unsigned i = 0; i < 128; ++i)
+            {
                 if (check[i] != r->record[i])
                 {
                     r->state = 5;
                     return FH_ERROR;
                 }
+            }
             if (!fh_record_valid(check))
             {
                 r->state = 5;
@@ -283,8 +333,12 @@ enum fh_result fm_recycle_poll(struct fm_recycle *r)
     }
     e = fm_poll(&r->erase);
     if (e == FH_DONE)
+    {
         r->state = 4;
+    }
     else if (e != FH_PENDING)
+    {
         r->state = 5;
+    }
     return e;
 }

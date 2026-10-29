@@ -7,6 +7,8 @@ void *memcpy(void *restrict destination, const void *restrict source, size_t n)
     volatile unsigned char *d = destination;
     const volatile unsigned char *s = source;
     for (size_t i = 0; i < n; ++i)
+    {
         d[i] = s[i];
+    }
     return destination;
 }

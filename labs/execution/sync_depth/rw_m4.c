@@ -37,10 +37,14 @@ void cl_reset(void)
     uintptr_t source = (uintptr_t)&cl_data_load;
     for (uintptr_t p = (uintptr_t)&cl_data_start; p < (uintptr_t)&cl_data_end;
          p += 4, source += 4)
+    {
         *(uint32_t *)p = *(const uint32_t *)source;
+    }
     for (uintptr_t p = (uintptr_t)&cl_bss_start; p < (uintptr_t)&cl_bss_end;
          p += 4)
+    {
         *(uint32_t *)p = 0;
+    }
     CHECK(rw_policy() == 0 && rw_cancelled() == 0 && rw_bounds() == 0 &&
           rw_starvation() == 0);
     CHECK(pf_phases() == 0 && pf_upgrade() == 0 && pf_cancelled() == 0 &&

@@ -20,15 +20,21 @@ static int decode(const unsigned char *wire, size_t n, unsigned width,
     while (at < n)
     {
         if (count == 2 || n - at < width)
+        {
             return -1;
+        }
         unsigned len =
             width == 1 ? wire[at] : (unsigned)wire[at] * 256 + wire[at + 1];
         at += width;
         if (len > 8 || n - at < len)
+        {
             return -1;
+        }
         out[count].length = len;
         for (unsigned i = 0; i < len; ++i)
+        {
             out[count].bytes[i] = wire[at + i];
+        }
         ++count;
         at += len;
     }
@@ -44,7 +50,9 @@ static int framing(unsigned long *histories)
 {
     *histories = 0;
     for (unsigned width = 1; width <= 2; ++width)
+    {
         for (unsigned a = 0; a <= 8; ++a)
+        {
             for (unsigned b = 0; b <= 8; ++b)
             {
                 unsigned char wire[20] = {0};
@@ -53,11 +61,15 @@ static int framing(unsigned long *histories)
                 for (unsigned f = 0; f < 2; ++f)
                 {
                     if (width == 2)
+                    {
                         wire[n++] = 0;
+                    }
                     wire[n++] = (unsigned char)lengths[f];
                     for (unsigned i = 0; i < lengths[f]; ++i)
+                    {
                         wire[n++] =
                             (unsigned char)(i % 3 == 0 ? 0 : 255 - i - f);
+                    }
                 }
                 struct rf_frame expected[2] = {{0}};
                 CHECK(decode(wire, n, width, expected) == 2);
@@ -69,6 +81,7 @@ static int framing(unsigned long *histories)
                     size_t first = 0;
                     unsigned frames = 0;
                     for (size_t end = 1; end <= n; ++end)
+                    {
                         if (end == n || (mask & (1UL << (end - 1))))
                         {
                             size_t cursor = first;
@@ -88,10 +101,13 @@ static int framing(unsigned long *histories)
                                     ++frames;
                                 }
                                 else
+                                {
                                     CHECK(out.length == 99);
+                                }
                             }
                             first = end;
                         }
+                    }
                     CHECK(frames == 2 && rf_eof(&parser) == 0);
                     ++*histories;
                 }
@@ -103,13 +119,19 @@ static int framing(unsigned long *histories)
                     CHECK(rf_parser_init(&p, width) == 0);
                     struct rf_frame out;
                     for (size_t i = 0; i < cut; ++i)
+                    {
                         CHECK(rf_push(&p, wire[i], &out) >= 0);
+                    }
                     int boundary = cut == 0 || cut == width + a || cut == n;
                     CHECK((rf_eof(&p) == 0) == boundary);
                     if (!boundary)
+                    {
                         CHECK(rf_push(&p, 0, &out) == -1);
+                    }
                 }
             }
+        }
+    }
     for (unsigned length = 0; length < 65536; ++length)
     {
         struct rf_parser p;
@@ -119,7 +141,9 @@ static int framing(unsigned long *histories)
         int r = rf_push(&p, (unsigned char)length, &f);
         CHECK(length == 0 ? r == 1 : length <= 8 ? r == 0 : r == -1);
         if (length > 8)
+        {
             CHECK(p.failed == 1 && f.length == 99);
+        }
     }
     return 0;
 }
@@ -128,6 +152,7 @@ static int queues(unsigned *cases)
 {
     *cases = 0;
     for (unsigned budget = 0; budget <= 256; ++budget)
+    {
         for (unsigned length = 0; length <= 8; ++length)
         {
             struct rf_outbox q;
@@ -135,14 +160,18 @@ static int queues(unsigned *cases)
             struct rf_message messages[36];
             unsigned ids[4];
             for (unsigned i = 0; i < 4; ++i)
+            {
                 CHECK(rf_open(&q, &ids[i]) == 1 && ids[i] == i);
+            }
             unsigned untouched = 99;
             CHECK(rf_open(&q, &untouched) == 0 && untouched == 99);
             size_t model_bytes = 0;
             unsigned model_count[4] = {0};
             struct rf_frame frame = {.length = length};
             for (unsigned j = 0; j < length; ++j)
+            {
                 frame.bytes[j] = (unsigned char)j;
+            }
             for (unsigned i = 0; i < 36; ++i)
             {
                 unsigned slot = i % 4;
@@ -157,7 +186,9 @@ static int queues(unsigned *cases)
                     CHECK(messages[i].owner == RF_OUTBOX);
                 }
                 else
+                {
                     CHECK(messages[i].owner == RF_CALLER);
+                }
                 CHECK(q.bytes == model_bytes && rf_outbox_invariant(&q));
             }
             for (unsigned slot = 0; slot < 4; ++slot)
@@ -184,6 +215,7 @@ static int queues(unsigned *cases)
             CHECK(q.bytes == 0 && rf_outbox_invariant(&q));
             ++*cases;
         }
+    }
     struct rf_outbox q;
     struct rf_message message, duplicate;
     struct rf_frame frame = {.length = 8};
@@ -213,12 +245,18 @@ static int short_writer(void *context, const unsigned char *bytes,
     struct short_writer *s = context;
     ++s->calls;
     if (!(s->calls % 2))
+    {
         return 0;
+    }
     if (!length || s->count == 10)
+    {
         return -1;
+    }
     s->wire[s->count++] = bytes[0];
     if (length > 1)
+    {
         ++s->short_returns;
+    }
     return 1;
 }
 
@@ -253,7 +291,9 @@ static int replay_and_sequences(void)
     CHECK(rf_effect(&d, 4, 7, 3, &result) == 0 && result == 3 && d.total == 3);
     CHECK(rf_effect(&d, 4, 7, 4, &result) == -1 && result == 3 && d.total == 3);
     for (unsigned id = 8; id <= 10; ++id)
+    {
         CHECK(rf_effect(&d, 4, id, 1, &result) == 1);
+    }
     CHECK(d.total == 6 && rf_effect(&d, 4, 7, 3, &result) == 0 && result == 3 &&
           d.total == 6);
     CHECK(rf_effect(&d, 4, 11, 1, &result) == -1 && d.count == 4 &&
@@ -274,7 +314,9 @@ static int replay_and_sequences(void)
         CHECK(rf_arrive(&s, 1, arrivals[i], out, &n) == expected[i] &&
               n == counts[i]);
         for (unsigned j = 0; j < n; ++j)
+        {
             all[at++] = out[j];
+        }
     }
     CHECK(at == 3 && all[0] == 7 && all[1] == 8 && all[2] == 9);
     CHECK(rf_sequence_init(&s, 2, 0) == 0 &&

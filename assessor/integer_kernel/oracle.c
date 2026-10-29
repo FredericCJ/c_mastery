@@ -27,6 +27,7 @@ int main(void)
     {
         struct fi_range range = ranges[k];
         for (int a = range.low; a <= range.high; ++a)
+        {
             for (int b = range.low; b <= range.high; ++b)
             {
                 for (unsigned op = 0; op < 3; ++op)
@@ -57,13 +58,16 @@ int main(void)
                 {
                     int wantq = 917, wantr = 919, found = 0;
                     if (b)
+                    {
                         for (int candidate = range.low; candidate <= range.high;
                              ++candidate)
                         {
                             int residual = a - candidate * b;
                             if (residual < range.low || residual > range.high ||
                                 magnitude(residual) >= magnitude(b))
+                            {
                                 continue;
+                            }
                             int sign =
                                 op == FI_TRUNCATE ? (residual == 0 ||
                                                      (residual < 0) == (a < 0))
@@ -78,6 +82,7 @@ int main(void)
                                 wantr = residual;
                             }
                         }
+                    }
                     int q = 917, r = 919;
                     /* Baseline rejects unrepresentable truncating quotient before either / or %,
                      * even if another application's rounding convention could otherwise differ. */
@@ -87,6 +92,7 @@ int main(void)
                     ++division;
                 }
             }
+        }
     }
     printf("FI_ORACLE_PASS arithmetic=%lu saturation=%lu division=%lu\n",
            arithmetic, saturation, division);

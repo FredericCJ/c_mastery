@@ -172,6 +172,37 @@ def same_tokens(old: str, new: str) -> bool:
     return _key(tokenize(old)) == _key(tokenize(new))
 
 
+_BRACES = (("punct", "{"), ("punct", "}"))
+
+
+def _match_at(keys, start, needle):
+    """End index of a match of `needle` at `start`, or None.
+
+    Braces present in the source but absent from the anchor may be skipped,
+    so an anchor written for `if (x) stmt;` still matches the house style's
+    `if (x) { stmt; }`. The skipped braces must balance inside the match, so
+    replacing the span with an equally self-contained statement keeps the
+    file well formed; an unbalanced match is not a match.
+    """
+    j, depth = start, 0
+    for k, wanted in enumerate(needle):
+        while j < len(keys) and keys[j] != wanted and keys[j] in _BRACES:
+            depth += 1 if keys[j] == _BRACES[0] else -1
+            if depth < 0:
+                return None
+            j += 1
+        if j >= len(keys) or keys[j] != wanted:
+            return None
+        j += 1
+        if k + 1 < len(needle):
+            continue
+        # Absorb closing braces that balance braces opened inside the match.
+        while depth > 0 and j < len(keys) and keys[j] == _BRACES[1]:
+            depth -= 1
+            j += 1
+    return j - 1 if depth == 0 else None
+
+
 def find_all(text: str, anchor: str):
     """Character spans of every token-sequence match of `anchor` in `text`."""
     needle = _key(tokenize(anchor))
@@ -181,9 +212,12 @@ def find_all(text: str, anchor: str):
     keys = [(t.kind, t.text) for t in hay]
     spans = []
     first = needle[0]
-    for i in range(len(keys) - len(needle) + 1):
-        if keys[i] == first and keys[i:i + len(needle)] == needle:
-            spans.append((hay[i].start, hay[i + len(needle) - 1].end))
+    for i in range(len(keys)):
+        if keys[i] != first:
+            continue
+        end = _match_at(keys, i, needle)
+        if end is not None:
+            spans.append((hay[i].start, hay[end].end))
     return spans
 
 

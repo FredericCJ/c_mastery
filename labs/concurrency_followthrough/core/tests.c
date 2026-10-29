@@ -33,7 +33,9 @@ static void hook(void *p)
     g->entered = 1;
     CK(!pthread_cond_broadcast(&g->cv));
     while (!g->released)
+    {
         CK(!pthread_cond_wait(&g->cv, &g->lock));
+    }
     CK(!pthread_mutex_unlock(&g->lock));
 }
 
@@ -41,7 +43,9 @@ static void wait_gate(struct cf_gate *g)
 {
     CK(!pthread_mutex_lock(&g->lock));
     while (!g->entered)
+    {
         CK(!pthread_cond_wait(&g->cv, &g->lock));
+    }
     CK(!pthread_mutex_unlock(&g->lock));
 }
 
@@ -80,9 +84,13 @@ static void boundary(void)
         CK(cf_ring_init(&q, 4, 4, 32) == CF_OK);
         struct cf_batch b = {&q, &g, {{0, 0}}, pop, -1};
         for (unsigned i = 0; i < 4; i++)
+        {
             b.v[i] = val(i + 1);
+        }
         if (pop)
+        {
             CK(cf_push(&q, b.v, 4, NULL, NULL) == CF_OK);
+        }
         pthread_t thread;
         CK(!pthread_create(&thread, NULL, batch, &b));
         wait_gate(&g);
@@ -95,12 +103,20 @@ static void boundary(void)
         CK(!pthread_join(thread, NULL));
         CK(b.result == CF_OK);
         if (!pop)
+        {
             CK(cf_pop(&q, other, 4, NULL, NULL) == CF_OK);
+        }
         else
+        {
             for (unsigned i = 0; i < 4; i++)
+            {
                 other[i] = b.v[i];
+            }
+        }
         for (unsigned i = 0; i < 4; i++)
+        {
             CK(other[i].sequence == i + 1 && other[i].inverse == ~(i + 1));
+        }
         CK(!pthread_cond_destroy(&g.cv));
         CK(!pthread_mutex_destroy(&g.lock));
     }
@@ -113,6 +129,7 @@ static void ring(void)
     {
         unsigned mask = bits == 8 ? 255u : UINT_MAX;
         for (unsigned offset = 0; offset < 256; offset++)
+        {
             for (unsigned n = 1; n <= 4; n++)
             {
                 struct cf_ring q;
@@ -124,16 +141,21 @@ static void ring(void)
                                 out[4] = {val(99), val(99), val(99), val(99)};
                 CK(cf_push(&q, v, n, NULL, NULL) == CF_OK);
                 if (n < 4)
+                {
                     CK(cf_push(&q, v + n, 4 - n, NULL, NULL) == CF_OK);
+                }
                 CK(cf_push(&q, v, 1, NULL, NULL) == CF_FULL);
                 CK(((atomic_load(&q.head) - atomic_load(&q.tail)) & mask) == 4);
                 CK(cf_pop(&q, out, 4, NULL, NULL) == CF_OK);
                 for (unsigned i = 0; i < 4; i++)
+                {
                     CK(out[i].sequence == i + 7 && out[i].inverse == ~(i + 7));
+                }
                 out[0] = val(99);
                 CK(cf_pop(&q, out, 1, NULL, NULL) == CF_EMPTY &&
                    out[0].sequence == 99);
             }
+        }
     }
     struct cf_ring q;
     CK(cf_ring_init(&q, 4, 4, 16) == CF_INVALID);
@@ -253,9 +275,13 @@ static void diagnostic(void)
         struct cf_value v = val(i);
         int r = cf_push(&q, &v, 1, NULL, NULL);
         if (r == CF_FULL)
+        {
             dropped++;
+        }
         else
+        {
             CK(r == CF_OK);
+        }
     }
     CK(dropped == 5);
     for (unsigned i = 0; i < 4; i++)
@@ -270,18 +296,32 @@ static void diagnostic(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "ring"))
+    {
         ring();
+    }
     else if (!strcmp(argv[1], "batch"))
+    {
         boundary();
+    }
     else if (!strcmp(argv[1], "cas"))
+    {
         cas();
+    }
     else if (!strcmp(argv[1], "pool"))
+    {
         pool();
+    }
     else if (!strcmp(argv[1], "diagnostic"))
+    {
         diagnostic();
+    }
     else
+    {
         return 2;
+    }
     return 0;
 }

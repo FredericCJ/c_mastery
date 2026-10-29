@@ -13,17 +13,29 @@ int main(void)
         {
             enum msg_status status;
             if (line[i] == '+')
+            {
                 status = msg_push(&q, next++);
+            }
             else if (line[i] == 'p')
+            {
                 status = msg_pop(&q, &value);
+            }
             else if (line[i] == 's')
+            {
                 status = msg_steal(&q, &value);
+            }
             else
+            {
                 return 2;
+            }
             if (status == MSG_OK && line[i] != '+')
+            {
                 printf("v%u,", value);
+            }
             else
+            {
                 printf("s%d,", (int)status);
+            }
         }
         puts("");
     }

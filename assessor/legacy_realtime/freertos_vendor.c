@@ -35,7 +35,9 @@ void fc_irq(void)
     FC_REQUIRE(wake == pdTRUE);
     report->isr = 1;
     if (FC_MUTANT != 4)
+    {
         portYIELD_FROM_ISR(wake);
+    }
 }
 
 static void irq_raise(void)
@@ -55,7 +57,9 @@ static void low(void *unused)
         if (command == 1)
         {
             for (unsigned n = 0; n < 256; ++n)
+            {
                 FC_REQUIRE(xQueueSend(queue, &n, portMAX_DELAY) == pdPASS);
+            }
             unsigned end = UINT_MAX;
             FC_REQUIRE(xQueueSend(queue, &end, portMAX_DELAY) == pdPASS);
             xTaskNotifyGive(tasks[0]);
@@ -85,7 +89,9 @@ static void low(void *unused)
 #endif
         }
         else
+        {
             fc_fail(__LINE__);
+        }
     }
 }
 
@@ -121,7 +127,9 @@ static void controller(void *unused)
     report->ticks = ticks;
     FC_REQUIRE(pdMS_TO_TICKS(21) == (21u * configTICK_RATE_HZ) / 1000u);
     for (unsigned n = 0; n < 8; ++n)
+    {
         FC_REQUIRE(xQueueSend(queue, &n, 0) == pdPASS);
+    }
     TickType_t before = xTaskGetTickCount();
     value = 999;
     report->full = xQueueSend(queue, &value, ticks) == errQUEUE_FULL;
@@ -142,7 +150,9 @@ static void controller(void *unused)
     {
         FC_REQUIRE(xQueueReceive(queue, &value, portMAX_DELAY) == pdPASS);
         if (value == UINT_MAX)
+        {
             break;
+        }
         FC_REQUIRE(value == report->count);
         ++report->count;
         report->sum += value;
@@ -159,7 +169,9 @@ static void controller(void *unused)
     (void)xTaskResumeAll();
     unsigned finished = 0;
     while (finished < 3)
+    {
         finished += (unsigned)ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+    }
     FC_REQUIRE(finished == 3);
     command = 3;
     xTaskNotifyGive(tasks[1]);
@@ -171,7 +183,9 @@ static void controller(void *unused)
     (void)isr_after;
 #endif
     for (unsigned n = 1; n < 4; ++n)
+    {
         vTaskDelete(tasks[n]);
+    }
     FC_REQUIRE(uxQueueMessagesWaiting(queue) == 0);
     vQueueDelete(queue);
     vSemaphoreDelete(mutex);
@@ -199,7 +213,9 @@ void fc_run(struct fc_report *r)
     second = xSemaphoreCreateMutexStatic(&second_control);
     FC_REQUIRE(queue && mutex && second);
     if (FC_MUTANT == 3)
+    {
         FC_REQUIRE(xSemaphoreGive(mutex) == pdPASS);
+    }
     tasks[0] = xTaskCreateStatic(controller, "control", FC_STACK, 0, 4,
                                  stacks[0], &controls[0]);
     tasks[1] = xTaskCreateStatic(low, "low", FC_STACK, 0, fc_priority(3),

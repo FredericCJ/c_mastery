@@ -50,7 +50,9 @@ static void after_submit(void *arg)
     struct msg_sender *s = arg;
     atomic_store(&s->entered, true);
     while (!atomic_load(&s->go))
+    {
         sched_yield();
+    }
 }
 
 static void *send_one(void *arg)
@@ -109,11 +111,15 @@ static void rendezvous(bool accepted)
               ((struct msg_payload *)out.data)->serial == 3);
         mfo_drop(&out);
         while (!atomic_load(&sender.entered))
+        {
             sched_yield();
+        }
         pthread_mutex_lock(&h.records_mutex);
         unsigned used = 0;
         for (unsigned i = 0; i < 8; i++)
+        {
             used += h.records[i].used;
+        }
         pthread_mutex_unlock(&h.records_mutex);
         CHECK(used ==
               1); /* Receiver finish cannot recycle a sender's live record. */
@@ -185,7 +191,9 @@ static void threaded(void)
         struct mfo_value out = {0};
         enum msg_status s = mfc_select(&h, 3, true, &channel, &out);
         if (s == MSG_CLOSED)
+        {
             break;
+        }
         CHECK(s == MSG_OK && out.data);
         unsigned serial = ((struct msg_payload *)out.data)->serial;
         CHECK(serial < 1000 && serial / 500 == channel && !seen[serial]);
@@ -291,7 +299,9 @@ static void oracle(void)
                 status =
                     mfc_send(&h, (unsigned)(c - 'a'), &v, false, NULL, NULL);
                 if (status == MSG_OK)
+                {
                     CHECK(!v.data);
+                }
                 else
                 {
                     CHECK(v.data);
@@ -308,7 +318,9 @@ static void oracle(void)
                 }
             }
             else if (c == 'c' || c == 'd')
+            {
                 status = mfc_close(&h, (unsigned)(c - 'c'));
+            }
             else
             {
                 CHECK(c == 'x');
@@ -334,7 +346,9 @@ static void *notify_before_registration(void *arg)
 {
     struct msg_lost *l = arg;
     while (!atomic_load(&l->checked))
+    {
         sched_yield();
+    }
     atomic_store(&l->published, true);
     CHECK(!pthread_cond_signal(&l->changed));
     return NULL;
@@ -377,7 +391,9 @@ static void lost_notification(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "oracle"))
     {
         oracle();
@@ -392,9 +408,13 @@ int main(int argc, char **argv)
         lost_notification();
     }
     else if (!strcmp(argv[1], "actors"))
+    {
         actors();
+    }
     else
+    {
         return 2;
+    }
     puts("owned messaging transfer and destruction checks passed");
     return 0;
 }

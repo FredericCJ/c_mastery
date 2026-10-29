@@ -17,7 +17,9 @@ int main(void)
             struct dt_record r = {99, 0, 0, 0};
             int s = op ? dt_emit(&q, 1, i, i) : dt_take(&q, &r);
             if (!op && s == DT_OK)
+            {
                 last = r.sequence;
+            }
             printf("Q %u %u %d %u %u %u %u\n", word, i, s, q.next, q.dropped,
                    q.count, last);
         }

@@ -115,7 +115,9 @@ int en_publication(void)
         {
             CHECK(ev_own(&s, i) == ED_OK);
             if (i > 1)
+            {
                 CHECK(ev_own(&s, 0) == ED_BUSY);
+            }
             histories++;
         }
         CHECK(ev_own(&s, 0) == ED_OK && ev_complete(&s, 0, 0) == ED_BUSY &&

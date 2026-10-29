@@ -23,6 +23,7 @@ static void codec(void)
 {
     const int32_t values[] = {INT32_MIN, INT32_MAX, 1, -1, 2, -2, 3, -3};
     for (size_t n = 1; n <= 8; ++n)
+    {
         for (unsigned fail = 0; fail < 2; ++fail)
         {
             struct ow_allocator pool = {0};
@@ -45,9 +46,13 @@ static void codec(void)
                 b = ds_borrowed_i32(values, n, 3, &borrowed);
             CHECK(a == b);
             if (a == DS_OK)
+            {
                 CHECK(out == borrowed);
+            }
             else
+            {
                 CHECK(out == 91 && borrowed == 92);
+            }
             CHECK(ds_erased_move(&moved, &owner) == DS_OK && !owner.active &&
                   moved.active);
             ds_erased_drop(&owner);
@@ -57,6 +62,7 @@ static void codec(void)
             CHECK(drops == 1 && pool.live == 0 && !pool.invalid_releases &&
                   pool.releases == (n > 4));
         }
+    }
 
     struct ds_self
     {
@@ -79,7 +85,9 @@ static void codec(void)
     }
     CHECK(pool.live == 8 && pool.attempts == 9 && !drops && !owners[8].active);
     for (unsigned i = 0; i < 9; ++i)
+    {
         ds_erased_drop(&owners[i]);
+    }
     CHECK(pool.live == 0 && pool.releases == 8 && drops == 8 &&
           !pool.invalid_releases);
     struct d_allocator bytes = ds_counted_bytes(&pool);
@@ -88,7 +96,9 @@ static void codec(void)
     unsigned char *whole = bytes.allocate(bytes.context, 64);
     CHECK(whole && pool.live == 1);
     for (unsigned i = 0; i < 64; ++i)
+    {
         whole[i] = (unsigned char)i;
+    }
     bytes.release(bytes.context, whole);
     CHECK(pool.live == 0 && pool.releases == 9 && !pool.invalid_releases);
     struct ds_erased invalid;
@@ -101,11 +111,14 @@ static void codec(void)
 static void typed(void)
 {
     for (size_t n = 1; n <= 8; ++n)
+    {
         for (unsigned fail = 0; fail < 2; ++fail)
         {
             int32_t values[8];
             for (unsigned i = 0; i < 8; ++i)
+            {
                 values[i] = (int32_t)i - 3;
+            }
             struct ow_allocator pool = {0};
             pool.fail_at = fail;
             struct ds_typed_capture c, moved;
@@ -130,6 +143,7 @@ static void typed(void)
             CHECK(!pool.live && !pool.invalid_releases &&
                   pool.releases == (n > 4));
         }
+    }
     printf("capture footprints: DSmall=%zu DSErased=%zu typed_union=%zu\n",
            sizeof(struct d_small), sizeof(struct ds_erased),
            sizeof(struct ds_typed_capture));
@@ -139,7 +153,9 @@ static void oracle(void)
 {
     const int32_t values[] = {INT32_MIN, INT32_MAX, 1, -1, 2, -2, 3, -3};
     for (size_t n = 1; n <= 8; ++n)
+    {
         for (unsigned fail = 0; fail < 2; ++fail)
+        {
             for (unsigned ai = 0; ai < 3; ++ai)
             {
                 const int args[] = {INT_MIN, 3, INT_MAX};
@@ -160,13 +176,19 @@ static void oracle(void)
                 {
                     const unsigned char *p = d_small_data(&owner.capture);
                     for (size_t i = 0; i < owner.capture.length; ++i)
+                    {
                         printf("%02x", p[i]);
+                    }
                 }
                 else
+                {
                     printf("-");
+                }
                 ds_erased_drop(&owner);
                 printf(" %zu %u %zu\n", pool.releases, drops, pool.live);
             }
+        }
+    }
 }
 
 int main(int argc, char **argv)
@@ -174,12 +196,20 @@ int main(int argc, char **argv)
     CHECK(argc == 2);
     test_name = argv[1];
     if (!strcmp(argv[1], "capture_codec"))
+    {
         codec();
+    }
     else if (!strcmp(argv[1], "typed_capture"))
+    {
         typed();
+    }
     else if (!strcmp(argv[1], "oracle"))
+    {
         oracle();
+    }
     else
+    {
         CHECK(0);
+    }
     return 0;
 }

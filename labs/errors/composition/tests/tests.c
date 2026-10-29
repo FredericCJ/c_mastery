@@ -68,16 +68,22 @@ static er_result input(unsigned tag, unsigned value)
     er_result r = {0};
     r.tag = (er_code)tag;
     if (tag == ER_OK)
+    {
         r.as.value = value;
+    }
     else
+    {
         r.as.offset = value;
+    }
     return r;
 }
 
 static int laws(void)
 {
     for (unsigned a = 0; a < 16; ++a)
+    {
         for (unsigned b = 0; b < 16; ++b)
+        {
             for (unsigned x = 0; x < 8; ++x)
             {
                 struct er_fn f = {a, 0, 0}, g = {b, 0, 0}, h = {a, 0, 0},
@@ -91,8 +97,12 @@ static int laws(void)
                       g.calls == k.calls && f.trace == h.trace &&
                       g.trace == k.trace);
             }
+        }
+    }
     for (unsigned a = 0; a < 72; ++a)
+    {
         for (unsigned b = 0; b < 72; ++b)
+        {
             for (unsigned x = 0; x < 8; ++x)
             {
                 struct er_fn f = {a, 0, 0}, g = {b, 0, 0}, h = {a, 0, 0},
@@ -106,6 +116,8 @@ static int laws(void)
                       g.calls == k.calls && f.trace == h.trace &&
                       g.trace == k.trace);
             }
+        }
+    }
     puts(
         "ERC_LAWS finite-table map-identity composition bind-associativity exact-callback-traces");
     return 0;
@@ -178,7 +190,9 @@ static void release(void *p, int32_t *v)
 {
     struct er_watch *w = p;
     if (w->result->tag == ERC_EMPTY)
+    {
         ++w->empties;
+    }
     w->underlying.release(w->underlying.context, v);
 }
 
@@ -292,7 +306,9 @@ static int oracle(void)
             struct erc_error e = {0}, out = {0};
             e.count = a;
             for (unsigned i = 0; i < a && i < 4; ++i)
+            {
                 e.cause[i] = (struct erc_cause){1 + i, 2 + i, x + i};
+            }
             out.count = 99;
             out.cause[0] = (struct erc_cause){91, 92, 93};
             int c = erc_wrap(&e, (struct erc_cause){b, tag, 77}, &out);
@@ -313,18 +329,24 @@ static int oracle(void)
             if (s == EOP_OK)
             {
                 if (erc_adopt(&source, &r) != ERC_OK)
+                {
                     return 2;
+                }
                 c = erc_map_clone(&r, flip, &m, &o);
             }
             int32_t v = o.tag == ERC_VALUE ? *o.as.owner.as.some.cell : 91;
             size_t live = arena.live;
             if (erc_drop(&r) != ERC_OK || erc_drop(&o) != ERC_OK)
+            {
                 return 2;
+            }
             printf("%d %d %u %d %zu %zu %zu %zu\n", s, c, m.calls, v, live,
                    arena.attempts, arena.releases, arena.live);
         }
         else
+        {
             return 2;
+        }
     }
     return ferror(stdin) ? 2 : 0;
 }
@@ -368,10 +390,14 @@ static int metrics(void)
         checksum, allocations, releases, sizeof(struct erc_result),
         _Alignof(struct erc_result), sizeof(struct erc_error));
     for (unsigned i = 0; i < 7; ++i)
+    {
         printf("%s%.9f", i ? "," : "", scalar[i]);
+    }
     printf("],\"owned_seconds\":[");
     for (unsigned i = 0; i < 7; ++i)
+    {
         printf("%s%.9f", i ? "," : "", owned[i]);
+    }
     puts("]}");
     return 0;
 }
@@ -379,22 +405,40 @@ static int metrics(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "compose_laws"))
+    {
         return laws();
+    }
     if (!strcmp(argv[1], "compose_base"))
+    {
         return base();
+    }
     if (!strcmp(argv[1], "compose_effects"))
+    {
         return effects();
+    }
     if (!strcmp(argv[1], "compose_owner"))
+    {
         return owner();
+    }
     if (!strcmp(argv[1], "compose_failure"))
+    {
         return failure();
+    }
     if (!strcmp(argv[1], "compose_cause"))
+    {
         return cause();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

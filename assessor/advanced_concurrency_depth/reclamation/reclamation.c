@@ -4,7 +4,9 @@
 static void event(struct ap_queue *q, unsigned point, unsigned p, unsigned n)
 {
     if (q->hook)
+    {
         q->hook(q->hook_context, point, p, n);
+    }
 }
 
 static int lease_valid(const struct ap_queue *q, struct ap_lease lease)
@@ -20,7 +22,9 @@ int ap_init(struct ap_queue *q, unsigned participants, unsigned limit,
 {
     if (!q || !participants || participants > AP_PARTICIPANTS || !limit ||
         limit > (UINT_MAX >> 2))
+    {
         return AP_INVALID;
+    }
     q->participants = participants;
     q->generation_limit = limit;
     q->hook = hook;
@@ -31,7 +35,9 @@ int ap_init(struct ap_queue *q, unsigned participants, unsigned limit,
     {
         atomic_init(&q->registration[p], 4);
         for (unsigned h = 0; h < 2; h++)
+        {
             atomic_init(&q->hazard[p][h], AP_NONE);
+        }
     }
     for (unsigned n = 0; n < AP_NODES; n++)
     {
@@ -46,7 +52,9 @@ int ap_init(struct ap_queue *q, unsigned participants, unsigned limit,
 int ap_register(struct ap_queue *q, struct ap_lease *out)
 {
     if (!q || !out)
+    {
         return AP_INVALID;
+    }
     for (unsigned p = 0; p < q->participants; p++)
     {
         unsigned old = atomic_load(&q->registration[p]);
@@ -71,7 +79,9 @@ static void clear(struct ap_queue *q, unsigned p)
 int ap_leave(struct ap_queue *q, struct ap_lease lease)
 {
     if (!lease_valid(q, lease))
+    {
         return AP_INVALID;
+    }
     unsigned old = (lease.generation << 2) | 1u;
     clear(q, lease.participant);
     unsigned next = lease.generation == (UINT_MAX >> 2)
@@ -119,9 +129,15 @@ unsigned ap_collect(struct ap_queue *q)
         event(q, AP_RETIRE_SNAPSHOT, AP_NONE, n);
         unsigned protected = 0;
         for (unsigned p = 0; p < q->participants; p++)
+        {
             for (unsigned h = 0; h < 2; h++)
+            {
                 if (atomic_load(&q->hazard[p][h]) == n)
+                {
                   protected
+                }
+            }
+        }
         = 1;
 #ifdef AP_MUTANT_PROTECTION
       protected
@@ -135,7 +151,9 @@ unsigned ap_collect(struct ap_queue *q)
 #else
             if (atomic_compare_exchange_strong(&q->node[n].state, &old,
                                                (old & ~3u) + 4u))
+            {
                 count++;
+            }
 #endif
         }
     }
@@ -145,7 +163,9 @@ unsigned ap_collect(struct ap_queue *q)
 int ap_push(struct ap_queue *q, struct ap_lease lease, struct ap_value value)
 {
     if (!lease_valid(q, lease))
+    {
         return AP_INVALID;
+    }
     unsigned n = AP_NONE, p = lease.participant;
     for (unsigned i = 0; i < AP_NODES; i++)
     {
@@ -163,7 +183,9 @@ int ap_push(struct ap_queue *q, struct ap_lease lease, struct ap_value value)
         }
     }
     if (n == AP_NONE)
+    {
         return AP_FULL;
+    }
     q->node[n].value.sequence = value.sequence;
     q->node[n].value.inverse = value.inverse;
     atomic_store(&q->node[n].next, AP_NONE);
@@ -172,7 +194,9 @@ int ap_push(struct ap_queue *q, struct ap_lease lease, struct ap_value value)
         unsigned tail = protect(q, p, 0, &q->tail),
                  next = atomic_load(&q->node[tail].next);
         if (tail != atomic_load(&q->tail))
+        {
             continue;
+        }
         if (next == AP_NONE)
         {
             unsigned empty = AP_NONE;
@@ -185,14 +209,18 @@ int ap_push(struct ap_queue *q, struct ap_lease lease, struct ap_value value)
             }
         }
         else
+        {
             atomic_compare_exchange_weak(&q->tail, &tail, next);
+        }
     }
 }
 
 int ap_pop(struct ap_queue *q, struct ap_lease lease, struct ap_value *out)
 {
     if (!out || !lease_valid(q, lease))
+    {
         return AP_INVALID;
+    }
     unsigned p = lease.participant;
     for (;;)
     {
@@ -200,7 +228,9 @@ int ap_pop(struct ap_queue *q, struct ap_lease lease, struct ap_value *out)
                  tail = atomic_load(&q->tail),
                  next = protect(q, p, 1, &q->node[head].next);
         if (head != atomic_load(&q->head))
+        {
             continue;
+        }
         if (next == AP_NONE)
         {
             clear(q, p);

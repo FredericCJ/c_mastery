@@ -14,13 +14,19 @@ int main(void)
 {
     struct af_ledger s = {.epoch = 1};
     for (unsigned id = 1; id <= 100; id++)
+    {
         C(af_admit(&s, 1, id) == AF_OK);
+    }
     for (unsigned id = 1; id <= 90; id++)
+    {
         C(af_terminal(&s, 1, id, AF_DONE) == AF_OK);
+    }
     /* Five items are explicitly dropped AFTER admission, not five rejected
        admissions. The exact original criterion counts 100 accepted inputs. */
     for (unsigned id = 91; id <= 95; id++)
+    {
         C(af_terminal(&s, 1, id, AF_DROPPED) == AF_OK);
+    }
     C(af_ledger_restart(&s, 0, 1) == AF_BUSY && s.epoch == 1 &&
       s.item[95].state == AF_ACCEPTED);
     C(af_ledger_restart(&s, 1, 0) == AF_BUSY);

@@ -57,7 +57,9 @@ static void inject(unsigned wanted, unsigned at)
 int mf_nap_finish(struct mf_nap *s)
 {
     if (!s->armed || s->credited)
+    {
         return 0;
+    }
     R(0x40001000) = 0;
     uint32_t elapsed = mf_clock_now() - s->start;
     mf_require(elapsed < 0x80000000u, 201);

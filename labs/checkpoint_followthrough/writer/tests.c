@@ -26,7 +26,9 @@ static ptrdiff_t byte_write(void *context, const uint8_t *p, size_t n)
     if (r > 0 && (size_t)r <= n)
     {
         for (long i = 0; i < r; ++i)
+        {
             s->output[s->used++] = p[i];
+        }
     }
     return (ptrdiff_t)r;
 }
@@ -43,7 +45,9 @@ static struct cpw_result span_write(void *context, const unsigned char *p,
     if (out.kind == CPW_PROGRESS && out.accepted <= n)
     {
         for (size_t j = 0; j < out.accepted; ++j)
+        {
             s->output[s->used++] = p[j];
+        }
     }
     return out;
 }
@@ -59,7 +63,9 @@ int main(int argc, char **argv)
         struct cwf_error error;
         REQUIRE(algo_ring_init(&q, 16) == ALGO_OK);
         for (unsigned i = 0; i < 9; ++i)
+        {
             REQUIRE(algo_ring_put(&q, original[i]) == ALGO_OK);
+        }
         REQUIRE(cwf_span_take(&q, &s, 10, 71) == -1 && q.count == 9 &&
                 !s.active);
         REQUIRE(cwf_span_take(&q, &s, 9, 71) == 0 && !q.count);
@@ -108,7 +114,9 @@ int main(int argc, char **argv)
     (void)cwf_byte_step(&q, &s, byte_write, &sink, 1);
     printf("CWF_SINK:%zu", sink.used);
     for (size_t i = 0; i < sink.used; ++i)
+    {
         printf(":%u", sink.output[i]);
+    }
     putchar('\n');
     REQUIRE(sink.used == 2 && !q.count && !s.active.valid &&
             s.error.accepted == 2 && s.error.primary == 1001 &&

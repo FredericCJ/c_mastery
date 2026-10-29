@@ -114,15 +114,25 @@ int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (!strcmp(argv[1], "record"))
+    {
         return record();
+    }
     if (!strcmp(argv[1], "transform"))
+    {
         return transform();
+    }
     if (!strcmp(argv[1], "matrix"))
+    {
         return matrix();
+    }
     if (!strcmp(argv[1], "trace"))
+    {
         return trace();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
     {
         printf(

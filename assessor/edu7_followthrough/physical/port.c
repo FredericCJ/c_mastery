@@ -51,9 +51,13 @@ static uint32_t rd2(void *p, unsigned k)
                            1u);
     }
     if (k == PU_GATE)
+    {
         return (REG(0x40023840u) >> 17) & 1u;
+    }
     if (k >= PU_SR && k <= PU_CR3)
+    {
         return REG(0x40004400u + offset(k));
+    }
     return 0;
 }
 
@@ -61,16 +65,24 @@ static void wr2(void *p, unsigned k, uintptr_t v)
 {
     (void)p;
     if (k == PU_GATE)
+    {
         REG(0x40023840u) |= 1u << 17;
+    }
     else if (k == PU_RESET)
     {
         if (v)
+        {
             REG(0x40023820u) |= 1u << 17;
+        }
         else
+        {
             REG(0x40023820u) &= ~(1u << 17);
+        }
     }
     else if (k >= PU_SR && k <= PU_CR3)
+    {
         REG(0x40004400u + offset(k)) = (uint32_t)v;
+    }
 }
 
 static void drive2(void *p, unsigned on)
@@ -111,7 +123,9 @@ int ep_f439_open_port(struct ep_tx *s, const struct pu_clock *clock,
                       uint32_t now)
 {
     if (!s || s->enabled || s->phase || device > R5_THVD1400 || port > 1)
+    {
         return EP_INVALID;
+    }
     struct r5_timing timing = {device, 0, 1000, 200000};
     if (port)
     {

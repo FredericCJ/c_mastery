@@ -20,9 +20,13 @@ static unsigned descriptors(void)
     unsigned n = 0;
     DIR *d = opendir("/proc/self/fd");
     if (!d)
+    {
         return 9999;
+    }
     while (readdir(d))
+    {
         n++;
+    }
     closedir(d);
     return n;
 }
@@ -32,7 +36,9 @@ static int pair(int *a, int *b)
     struct sockaddr_in addr = {0};
     int listener = -1;
     if (listener_init(0, 0, &listener, &addr))
+    {
         return -1;
+    }
     int client = socket(AF_INET, SOCK_STREAM, 0);
     if (client < 0)
     {
@@ -91,7 +97,9 @@ int main(int argc, char **argv)
         {
             ssize_t n = send(a, padding, sizeof padding, MSG_NOSIGNAL);
             if (n > 0)
+            {
                 total += (size_t)n;
+            }
             else if (errno == EAGAIN)
             {
                 waits++;
@@ -99,7 +107,9 @@ int main(int argc, char **argv)
                 nanosleep(&nap, 0);
             }
             else
+            {
                 CHECK(0);
+            }
         }
         CHECK(waits && total < 2097152);
         struct hf_flow flow;
@@ -156,9 +166,13 @@ int main(int argc, char **argv)
     {
         ssize_t z = recv(a, got + n, 1, 0);
         if (z > 0)
+        {
             n += (size_t)z;
+        }
         else if (z == 0)
+        {
             break;
+        }
         else
         {
             CHECK(errno == EAGAIN || errno == EINTR);

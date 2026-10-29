@@ -23,7 +23,9 @@ static void reset(struct d_medium *m)
 static void word(uint8_t *p, uint64_t v)
 {
     for (unsigned i = 0; i < 8; i++)
+    {
         p[i] = (uint8_t)(v >> (8 * i));
+    }
 }
 
 static void seal(uint8_t *p)
@@ -33,11 +35,15 @@ static void seal(uint8_t *p)
     {
         c ^= p[i];
         for (unsigned j = 0; j < 8; j++)
+        {
             c = (c >> 1) ^ (UINT32_C(0xedb88320) & (0u - (c & 1u)));
+        }
     }
     c = ~c;
     for (unsigned i = 0; i < 4; i++)
+    {
         p[4092 + i] = (uint8_t)(c >> (8 * i));
+    }
 }
 
 static int setup(void)
@@ -82,6 +88,7 @@ static int cuts(int checkpoint, int emit)
         saved = counter;
     }
     for (unsigned mode = 0; mode < 7; mode++)
+    {
         for (unsigned cut = 1; cut <= 4; cut++)
         {
             if (checkpoint)
@@ -91,7 +98,9 @@ static int cuts(int checkpoint, int emit)
                 counter.io = dm_io(&work);
             }
             else
+            {
                 CHECK(begin() == 0);
+            }
             out = (struct sl_receipt){999, 999};
             CHECK(dm_arm(&work, cut, mode, 0, 0, 0) == 0);
             int r = checkpoint ? sl_checkpoint(&counter)
@@ -109,13 +118,20 @@ static int cuts(int checkpoint, int emit)
                   (newest ? SL_DUPLICATE : SL_OK));
             CHECK(out.id == 2 && out.total == 17);
             if (newest)
+            {
                 CHECK(work.writes == writes && work.flushes == flushes);
+            }
             if (emit)
+            {
                 printf("%u,%u,%d,%u\n", mode, cut, r, newest);
+            }
         }
+    }
     if (!emit)
+    {
         printf("SL %s validated cuts=28 exact-once-counter-under-ID-policy\n",
                checkpoint ? "checkpoint" : "commit");
+    }
     return 0;
 }
 
@@ -129,7 +145,9 @@ static int repeated(void)
     saved = counter;
     unsigned histories = 0;
     for (unsigned mode = 0; mode < 7; mode++)
+    {
         for (unsigned first = 1; first <= 4; first++)
+        {
             for (unsigned second = 1; second <= 4; second++)
             {
                 work = committed;
@@ -148,6 +166,8 @@ static int repeated(void)
                       out.total == 17);
                 histories++;
             }
+        }
+    }
     printf(
         "SL repeated validated histories=%u sequence-skips-applied-command\n",
         histories);
@@ -285,15 +305,19 @@ static int histories(int emit)
                 CHECK(value(step + 2, expected) == 0);
             }
             if (emit)
+            {
                 printf("%u,%u,%lld\n", n, code, (long long)expected);
+            }
             count++;
         }
         power *= 3;
     }
     if (!emit)
+    {
         printf("SL histories validated histories=%u "
                "reopen-after-every-logical-operation\n",
                count);
+    }
     return 0;
 }
 
@@ -304,7 +328,9 @@ static int page(void)
     struct sl_receipt out;
     CHECK(sl_apply(&counter, 2, -7, &out) == SL_OK);
     for (unsigned i = 0; i < 4096; i++)
+    {
         printf("%02x", work.stable[2][i]);
+    }
     puts("");
     return 0;
 }
@@ -312,7 +338,9 @@ static int page(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     const char *a = argv[1];
     return !strcmp(a, "commit")       ? cuts(0, 0)
            : !strcmp(a, "checkpoint") ? cuts(1, 0)

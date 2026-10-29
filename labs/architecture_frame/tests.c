@@ -12,8 +12,12 @@ static int equal(const void *a, const void *b, size_t n)
 {
     const unsigned char *x = a, *y = b;
     for (size_t i = 0; i < n; ++i)
+    {
         if (x[i] != y[i])
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
@@ -21,7 +25,9 @@ static void poison(void *p, size_t n)
 {
     unsigned char *q = p;
     for (size_t i = 0; i < n; ++i)
+    {
         q[i] = 0xa5;
+    }
 }
 
 static int reset(void)
@@ -40,6 +46,7 @@ static int reset(void)
                          r.reset_pc,       r.irq_vector};
     mf_emit("reset", packet, 6);
     for (unsigned boot = 0; boot < 2; ++boot)
+    {
         for (unsigned relocated = 0; relocated < 2; ++relocated)
         {
             uint32_t base = boot ? 0x20000000 : 0x08000000;
@@ -55,6 +62,7 @@ static int reset(void)
                 r.reset_pc, r.irq_vector};
             mf_emit("remap", p, 6);
         }
+    }
     poison(&r, sizeof r);
     old = r;
     c.vtor = 0x08000000;
@@ -62,8 +70,10 @@ static int reset(void)
           equal(&r, &old, sizeof r));
     c.vtor = 0;
     for (size_t n = 0; n < 22; ++n)
+    {
         CHECK(mf_reset(c, table, n, &r) == MF_SHORT &&
               equal(&r, &old, sizeof r));
+    }
     table[1] &= ~1u;
     CHECK(mf_reset(c, table, 256, &r) == MF_STATE && equal(&r, &old, sizeof r));
     table[1] |= 1;
@@ -94,9 +104,11 @@ static int capture(void)
     poison(&f, sizeof f);
     old = f;
     for (size_t n = 0; n < 8; ++n)
+    {
         CHECK(mf_capture(w, n, 0x20000fe0, 0xfffffffd, 0, 0, 0, 1, 0, &f) ==
                   MF_SHORT &&
               equal(&f, &old, sizeof f));
+    }
     w[7] |= 512;
     CHECK(mf_capture(w, 9, 0x20000fe0, 0xfffffffd, 0, 0, 0, 1, 0, &f) ==
               MF_UNSUPPORTED &&
@@ -108,12 +120,16 @@ static int capture(void)
     CHECK(mf_capture(w, 27, 0x20000f98, 0xffffffed, 0, 1, 1, 1, 0, &f) ==
           MF_UNSUPPORTED);
     for (unsigned extended = 0; extended < 2; ++extended)
+    {
         for (unsigned pad = 0; pad < 2; ++pad)
+        {
             for (unsigned material = 0; material <= extended; ++material)
             {
                 w[7] = 0x01000000u + pad * 512;
                 for (unsigned i = 0; i < 16; ++i)
+                {
                     w[8 + i] = 0x3f800000u + i;
+                }
                 w[24] = 0x01000000;
                 unsigned size = extended ? 26 : 8;
                 uint32_t sp = extended ? 0x20000f98 : 0x20000fe0,
@@ -134,6 +150,8 @@ static int capture(void)
                                  0, &f) == MF_SHORT &&
                       equal(&f, &old, sizeof f));
             }
+        }
+    }
     w[7] = 0;
     CHECK(mf_capture(w, 8, 0x20000fe0, 0xfffffffd, 1, 0, 0, 1, 0, &f) ==
               MF_STATE &&

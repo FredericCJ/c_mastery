@@ -15,8 +15,12 @@ static int setup(cmx_kernel *k, struct cd_mailbox *m, unsigned capacity)
 {
     cmx_init(k, CMX_FIXED);
     for (unsigned t = 0; t < 3; t++)
+    {
         if (cmx_task_add(k, 9 - t, 0, 0x1000 + 0x200 * t, 256) != (int)t)
+        {
             return 0;
+        }
+    }
     return cdmb_init(m, k, capacity, 1) == CMX_OK;
 }
 
@@ -35,7 +39,9 @@ static int transport(void)
               (capacity ? CMX_OK : CMX_BLOCKED));
         CHECK(cdmb_delivery(&m, 0) == (capacity ? CMX_OK : CMX_BLOCKED));
         if (capacity)
+        {
             input[0] = 22; /* Mailbox's owned copy already exists. */
+        }
         request = (struct cdmb_request){{77, 88, 99}, {66, 66, 66, 66}};
         CHECK(cdmb_receive(&m, &request, 3, cmx_forever()) == CMX_FULL &&
               request.id.session == 77 && request.id.generation == 88 &&
@@ -71,15 +77,19 @@ static int transport(void)
             CHECK(cdmb_begin(&m, 0, input, cmx_forever(), &id) ==
                   (capacity ? CMX_OK : CMX_BLOCKED));
             if (after)
+            {
                 CHECK(cdmb_receive(&m, &request, 4, cmx_forever()) == CMX_OK &&
                       request.bytes[0] == 11);
+            }
             int expected = after || capacity ? CDMB_UNKNOWN : CMX_CLOSED;
             CHECK(cdmb_cancel(&m, 0) == expected &&
                   cdmb_poll(&m, 0, out, 4) == expected);
             CHECK(cdmb_poll(&m, 0, out, 4) == CMX_INVALID);
             if (!after)
+            {
                 CHECK(cdmb_receive(&m, &request, 4, cmx_at(k.now)) ==
                       (capacity ? CDMB_STALE : CMX_TIMEOUT));
+            }
             printf(
                 "TRANSFER:capacity=%u;after=%u;terminal=%d;receiver_bytes=%u\n",
                 capacity, after, expected, after ? request.bytes[0] : 0);
@@ -99,8 +109,10 @@ static int transport(void)
     CHECK(k.task[0].wait == CMX_W_SEND && k.task[1].wait == CMX_W_SEND &&
           m.queue.count == 0);
     for (unsigned s = 0; s < 2; s++)
+    {
         CHECK(cdmb_cancel(&m, s) == CMX_CLOSED &&
               cdmb_poll(&m, s, out, 4) == CMX_CLOSED);
+    }
     puts("CDMB_TRANSPORT:capacity0-1;borrow-copy-boundaries;sender-receiver-"
          "cancel;same-direction-stall");
     return 0;
@@ -249,9 +261,11 @@ static int receipts(void)
     uint32_t value = 777;
     CHECK(setup(&k, &m, 0));
     for (uint32_t id = 1; id <= 4; id++)
+    {
         CHECK(cdmb_effect(&m, (struct cdmb_identity){1, id, 0}, 1, &value) ==
                   CMX_OK &&
               value == id);
+    }
     value = 777;
     CHECK(cdmb_effect(&m, (struct cdmb_identity){1, 5, 0}, 1, &value) ==
               CMX_FULL &&
@@ -309,18 +323,32 @@ static int restart(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "transport"))
+    {
         return transport();
+    }
     if (!strcmp(argv[1], "generations"))
+    {
         return generations();
+    }
     if (!strcmp(argv[1], "clients"))
+    {
         return clients();
+    }
     if (!strcmp(argv[1], "unknown"))
+    {
         return unknown();
+    }
     if (!strcmp(argv[1], "receipts"))
+    {
         return receipts();
+    }
     if (!strcmp(argv[1], "restart"))
+    {
         return restart();
+    }
     return 2;
 }

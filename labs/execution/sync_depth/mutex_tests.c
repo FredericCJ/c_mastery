@@ -16,8 +16,12 @@ static int setup(cmx_kernel *k)
 {
     cmx_init(k, CMX_FIXED);
     for (unsigned i = 0; i < 4; i++)
+    {
         if (cmx_task_add(k, 9 - i, 0, 0x1000u + 0x200u * i, 256) != (int)i)
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
@@ -77,11 +81,15 @@ static int step(struct cmx_model *m, unsigned operation)
     if (!(operation % 2))
     {
         if (m->waiter == (int)task)
+        {
             return CMX_INVALID;
+        }
         if (m->owner == (int)task)
         {
             if (m->depth == 2)
+            {
                 return CMX_FULL;
+            }
             ++m->depth;
             return CMX_OK;
         }
@@ -95,13 +103,19 @@ static int step(struct cmx_model *m, unsigned operation)
         return CMX_BLOCKED;
     }
     if (m->owner != (int)task)
+    {
         return CMX_NOT_OWNER;
+    }
     if (--m->depth)
+    {
         return CMX_OK;
+    }
     m->owner = m->waiter;
     m->waiter = -1;
     if (m->owner >= 0)
+    {
         m->depth = 1;
+    }
     return CMX_OK;
 }
 
@@ -125,7 +139,9 @@ static int recursive(void)
             CHECK(got == want && r.mutex.owner == m.owner &&
                   r.depth == m.depth);
             for (unsigned t = 0; t < 2; t++)
+            {
                 CHECK((k.task[t].state == CMX_WAITING) == (m.waiter == (int)t));
+            }
             CHECK(cmx_invariant(&k));
             ++transitions;
         }
@@ -289,16 +305,28 @@ static int rollback(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "ownership"))
+    {
         return ownership();
+    }
     if (!strcmp(argv[1], "recursive"))
+    {
         return recursive();
+    }
     if (!strcmp(argv[1], "order"))
+    {
         return order();
+    }
     if (!strcmp(argv[1], "record"))
+    {
         return record();
+    }
     if (!strcmp(argv[1], "rollback"))
+    {
         return rollback();
+    }
     return 2;
 }

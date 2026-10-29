@@ -34,7 +34,9 @@ int main(int argc, char **argv)
     }
     status = cvm_compile(source, n, &program);
     if (status == CVM_OK)
+    {
         status = cvm_save(&program, bytes, sizeof bytes, &written);
+    }
     if (status != CVM_OK)
     {
         fprintf(stderr, "%s\n", cvm_status_name(status));
@@ -52,7 +54,9 @@ int main(int argc, char **argv)
         return 1;
     }
     if (fclose(file))
+    {
         return 1;
+    }
     printf("CVM1 bytes=%zu functions=%u\n", written, (unsigned)program.count);
     return 0;
 }

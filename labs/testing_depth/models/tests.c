@@ -64,7 +64,9 @@ int main(void)
         CHECK(a[0] == 1 && a[1] == 3 && a[2] == 5);
         CHECK(tm_fir(&g, double_input, 3, 0, b) == TM_OK);
         for (unsigned i = 0; i < 3; i++)
+        {
             CHECK(b[i] == 2 * a[i]);
+        }
         CHECK(tm_fir(&h, input, split, 0, c) == TM_OK &&
               tm_fir(&h, input + split, 3 - split, 0, c + split) == TM_OK);
         CHECK(memcmp(a, c, sizeof a) == 0);

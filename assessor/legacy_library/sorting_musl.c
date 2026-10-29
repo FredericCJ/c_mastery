@@ -7,7 +7,9 @@ static unsigned active, requests;
 void *__wrap_malloc(size_t n)
 {
     if (active)
+    {
         ++requests;
+    }
     return __real_malloc(n);
 }
 
@@ -34,18 +36,28 @@ int main(void)
         qsort(records, 96, width, cmp);
         active = 0;
         if (requests)
+        {
             return 1;
+        }
         unsigned seen[96] = {0};
         for (unsigned i = 0; i < 96; ++i)
         {
             unsigned id = records[i * width + 1];
             if (id >= 96 || seen[id]++ || records[i * width] != (96 - id) % 7)
+            {
                 return 2;
+            }
             for (size_t k = 1; k < width; ++k)
+            {
                 if (records[i * width + k] != id)
+                {
                     return 3;
+                }
+            }
             if (i && records[(i - 1) * width] > records[i * width])
+            {
                 return 4;
+            }
         }
         printf(
             "width=%zu count=96 observed_malloc=0 public_order_permutation=pass\n",

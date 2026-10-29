@@ -38,9 +38,13 @@ static void w32(uint8_t *p, uint32_t v)
 static uint16_t checksum(const uint8_t *p, size_t n, uint32_t sum)
 {
     for (size_t i = 0; i < n; i++)
+    {
         sum += (uint32_t)p[i] << (i % 2 ? 0 : 8);
+    }
     while (sum > 65535)
+    {
         sum = (sum & 65535) + (sum >> 16);
+    }
     return (uint16_t)(65535 - sum);
 }
 
@@ -91,13 +95,17 @@ static void tcp(struct net_packet *p, uint32_t seq, uint32_t ack,
     t[13] = (uint8_t)flags;
     w16(t + 14, window);
     if (n)
+    {
         memcpy(t + 20, data, n);
+    }
     uint32_t pseudo = r16(peer_ip) + r16(peer_ip + 2) + r16(local_ip) +
                       r16(local_ip + 2) + 6 + 20 + (uint32_t)n;
     w16(t + 16, checksum(t, n + 20, pseudo));
     p->length = 54 + n;
     if (p->length < 60)
+    {
         p->length = 60;
+    }
 }
 
 static int prepare(struct net_stack *s, uint32_t seq)
@@ -332,7 +340,9 @@ static int expect_continue(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     int r = !strcmp(argv[1], "packets")       ? packets()
             : !strcmp(argv[1], "arp")         ? arp_test()
             : !strcmp(argv[1], "sequence")    ? sequence()
@@ -343,6 +353,8 @@ int main(int argc, char **argv)
             : !strcmp(argv[1], "continue")    ? expect_continue()
                                               : 2;
     if (!r)
+    {
         printf("PASS net_%s\n", argv[1]);
+    }
     return r;
 }

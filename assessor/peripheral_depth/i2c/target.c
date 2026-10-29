@@ -144,7 +144,9 @@ int pi_f439_open(struct pi_i2c *s, const struct pu_clock *clock)
     uint32_t key = irq_save();
     int result = pi_open(s, pi_f439_io(), clock);
     if (result == PI_OK)
+    {
         af();
+    }
     irq_restore(key);
     return result;
 }
@@ -178,7 +180,9 @@ static void line_release(void *p, unsigned line, unsigned high)
 {
     (void)p;
     if (line <= PI_SDA && high <= 1)
+    {
         REG(0x40020418u) = 1u << (8u + line + (high ? 0u : 16u));
+    }
 }
 
 struct pi_lines pi_f439_lines(void)
@@ -191,11 +195,17 @@ int pi_f439_recovery_prepare(struct pi_i2c *s, unsigned exclusive,
                              unsigned peers)
 {
     if (!s || exclusive > 1 || peers > 1)
+    {
         return PI_INVALID;
+    }
     if (!exclusive || peers)
+    {
         return PI_FORBIDDEN;
+    }
     if (s->phase && s->phase != 10)
+    {
         return PI_BUSY;
+    }
     uint32_t key = irq_save();
     REG(0x40023820u) |= 1u << 21;
     (void)REG(0x40023820u);

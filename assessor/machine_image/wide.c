@@ -3,7 +3,9 @@
 mi_u128 mi_divide(mi_u128 n, mi_u128 d)
 {
     if (!d)
+    {
         return 0;
+    }
     mi_u128 q = 0, r = 0;
     for (unsigned i = 128; i > 0; --i)
     {

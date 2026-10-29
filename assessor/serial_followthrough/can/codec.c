@@ -6,7 +6,9 @@ static unsigned field(const uint8_t *p, unsigned n)
 {
     unsigned v = 0;
     while (n--)
+    {
         v = (v << 1) | *p++;
+    }
     return v;
 }
 
@@ -18,7 +20,9 @@ static uint16_t crc(const uint8_t *p, unsigned n)
         unsigned f = ((unsigned)r >> 14) ^ *p++;
         r = (uint16_t)((r << 1) & 0x7fffu);
         if (f & 1)
+        {
             r ^= 0x4599u;
+        }
     }
     return r;
 }
@@ -29,12 +33,20 @@ int cn_feed(struct cn_stream *s, const uint8_t *p, size_t n, size_t *consumed,
     if (!s || (!p && n) || n > 160 || !consumed || !out || s->stage > 2 ||
         s->used > 98 || s->total > 160 || s->tail > 10 || s->run > 5 ||
         s->expect > 1)
+    {
         return CN_INVALID;
+    }
     if (s->stage)
+    {
         return CN_BUSY;
+    }
     for (size_t i = 0; i < n; ++i)
+    {
         if (p[i] > 1)
+        {
             return CN_INVALID;
+        }
+    }
     if (CN_MUTANT == 1)
     {
         s->run = 0;
@@ -54,7 +66,9 @@ int cn_feed(struct cn_stream *s, const uint8_t *p, size_t n, size_t *consumed,
         if (s->needed && s->used == s->needed && !s->expect)
         {
             if (s->tail == 1)
+            {
                 s->ack = b;
+            }
             else if (b != 1)
             {
                 s->stage = 2;
@@ -74,8 +88,10 @@ int cn_feed(struct cn_stream *s, const uint8_t *p, size_t n, size_t *consumed,
                 decoded.frame.length = (uint8_t)len;
                 decoded.ack = s->ack;
                 for (unsigned j = 0; j < len; ++j)
+                {
                     decoded.frame.data[j] =
                         (uint8_t)field(s->raw + 19 + 8 * j, 8);
+                }
                 *out = decoded;
                 s->stage = 1;
                 return CN_FRAME;
@@ -127,27 +143,39 @@ int cn_search(uint32_t clock, uint32_t rate, unsigned num, unsigned den,
 {
     if (!out || !clock || clock > 180000000u || !rate || rate > 1000000u ||
         !num || num >= den || den > 1000 || propagation > 1000000)
+    {
         return CN_INVALID;
+    }
     struct cn_search result = {0};
     unsigned best_error = 0, best_total = 1;
     for (unsigned pre = 1; pre <= 1024; ++pre)
     {
         uint32_t divisor = pre * rate;
         if (clock % divisor)
+        {
             continue;
+        }
         unsigned total = clock / divisor;
         if (total < 3 || total > 25)
+        {
             continue;
+        }
         for (unsigned bs1 = 1; bs1 <= 16; ++bs1)
         {
             if (total <= 1 + bs1)
+            {
                 continue;
+            }
             unsigned bs2 = total - 1 - bs1;
             if (bs2 > 8)
+            {
                 continue;
+            }
             if (CN_MUTANT != 3 && (uint64_t)bs1 * pre * 1000000000u <
                                       (uint64_t)propagation * clock)
+            {
                 continue;
+            }
             unsigned a = (1 + bs1) * den, b = num * total,
                      error = a > b ? a - b : b - a;
             ++result.candidates;
@@ -156,7 +184,9 @@ int cn_search(uint32_t clock, uint32_t rate, unsigned num, unsigned den,
             {
                 if (sd_can_timing(clock, pre, bs1, bs2, 1, &result.timing) !=
                     SD_OK)
+                {
                     return CN_ERROR;
+                }
                 best_error = error;
                 best_total = total;
                 result.sample_num = 1 + bs1;
@@ -165,7 +195,9 @@ int cn_search(uint32_t clock, uint32_t rate, unsigned num, unsigned den,
         }
     }
     if (!result.candidates)
+    {
         return CN_UNAVAILABLE;
+    }
     *out = result;
     return CN_OK;
 }

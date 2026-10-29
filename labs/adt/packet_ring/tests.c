@@ -68,7 +68,9 @@ static int base(void)
     large[1] = 255;
     large[2] = 255;
     for (size_t i = 3; i < 65538; i++)
+    {
         large[i] = (unsigned char)i;
+    }
     CHECK(adp_parse(large, 65538, &p) == ADP_OK && p.length == 65535 &&
           p.payload == large + 3);
     free(large);
@@ -159,7 +161,9 @@ static int pipe_case(const unsigned char *input, size_t n, size_t cap,
                 k = write(f[1], input + i, 1);
             } while (k < 0 && errno == EINTR);
             if (k != 1)
+            {
                 _exit(3);
+            }
         }
         close(f[1]);
         _exit(0);
@@ -175,10 +179,14 @@ static int pipe_case(const unsigned char *input, size_t n, size_t cap,
           WEXITSTATUS(status) == 0);
     CHECK(got == expected);
     if (got == ADP_OK)
+    {
         CHECK(p.payload == storage + 3 && p.kind == input[2] &&
               p.length == n - 5);
+    }
     else
+    {
         CHECK(same(p, before));
+    }
     return 0;
 }
 
@@ -187,7 +195,9 @@ static int pipes(void)
     const unsigned char packet[] = {0, 5, 1, 0, 2, 7, 8};
     CHECK(pipe_case(packet, sizeof packet, 32, ADP_OK) == 0);
     for (size_t n = 0; n < sizeof packet; n++)
+    {
         CHECK(pipe_case(packet, n, 32, ADP_EOF) == 0);
+    }
     const unsigned char large[] = {0, 33};
     CHECK(pipe_case(large, 2, 32, ADP_OVERSIZE) == 0);
     const unsigned char empty[] = {0, 0};
@@ -237,7 +247,9 @@ static int oracle(void)
         {
             int a = digit(text[i * 2]), b = digit(text[i * 2 + 1]);
             if (a < 0 || b < 0)
+            {
                 return 2;
+            }
             bytes[i] = (unsigned char)(a * 16 + b);
         }
         memset(copy, 0xa5, sizeof copy);
@@ -259,7 +271,9 @@ static int oracle(void)
             second = v.part[1].length;
             CHECK(adp_copy(&r, v, copy, sizeof copy) == ADP_OK);
             if (cancel)
+            {
                 CHECK(adp_cancel(&r, v.token) == ADP_OK);
+            }
             valid = adp_validate(&r, v.token);
             CHECK(adp_feed(&r, fill, 32 - r.count) == ADP_OK);
             release = adp_release(&r, v.token);
@@ -275,7 +289,9 @@ static int oracle(void)
                feed, acquired, kind, length, first, second, valid, release,
                stale, r.head, r.count, r.next, r.retired, direct, preserved);
         for (unsigned i = 0; i < 32; i++)
+        {
             printf("%02x", copy[i]);
+        }
         putchar('\n');
     }
     return ferror(stdin) ? 1 : 0;
@@ -335,11 +351,14 @@ static int metrics(void)
 {
     unsigned char packet[32] = {1, 0, 29}, copy[29];
     for (unsigned i = 3; i < 32; i++)
+    {
         packet[i] = (unsigned char)i;
+    }
     double borrowing[7], copying[7];
     const unsigned iterations = 10000;
     uint64_t checksum = 0;
     for (unsigned sample = 0; sample < 7; sample++)
+    {
         for (unsigned mode = 0; mode < 2; mode++)
         {
             clock_t start = clock();
@@ -355,33 +374,52 @@ static int metrics(void)
                 {
                     CHECK(adp_copy(&r, v, copy, sizeof copy) == ADP_OK);
                     for (unsigned j = 0; j < 29; j++)
+                    {
                         checksum += copy[j];
+                    }
                 }
                 else
+                {
                     for (unsigned k = 0; k < 2; k++)
+                    {
                         for (size_t j = 0; j < v.part[k].length; j++)
+                        {
                             checksum += v.part[k].data[j];
+                        }
+                    }
+                }
                 if (i % 2)
+                {
                     CHECK(adp_cancel(&r, v.token) == ADP_OK);
+                }
                 CHECK(adp_release(&r, v.token) == ADP_OK);
             }
             double seconds = (double)(clock() - start) / CLOCKS_PER_SEC;
             if (mode)
+            {
                 copying[sample] = seconds;
+            }
             else
+            {
                 borrowing[sample] = seconds;
+            }
             CHECK(checksum == 4930000);
         }
+    }
     printf(
         "{\"iterations\":%u,\"checksum\":%" PRIu64
         ",\"payload\":29,\"ring_size\":%zu,\"ring_alignment\":%zu,\"borrow_seconds\":[",
         iterations, checksum, sizeof(struct adp_ring),
         _Alignof(struct adp_ring));
     for (unsigned i = 0; i < 7; i++)
+    {
         printf("%s%.9f", i ? "," : "", borrowing[i]);
+    }
     printf("],\"copy_seconds\":[");
     for (unsigned i = 0; i < 7; i++)
+    {
         printf("%s%.9f", i ? "," : "", copying[i]);
+    }
     puts("]}");
     return 0;
 }
@@ -389,20 +427,36 @@ static int metrics(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "packet_base"))
+    {
         return base();
+    }
     if (!strcmp(argv[1], "packet_ring"))
+    {
         return ring();
+    }
     if (!strcmp(argv[1], "packet_lifetime"))
+    {
         return lifetime();
+    }
     if (!strcmp(argv[1], "packet_pipe"))
+    {
         return pipes();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "history"))
+    {
         return history();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

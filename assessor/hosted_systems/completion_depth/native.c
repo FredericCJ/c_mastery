@@ -73,13 +73,17 @@ static int setup(struct rd_context *c, int fixed, int cut)
     memset(c, 0, sizeof *c);
     c->ring.fd = -1;
     if (cut == 0)
+    {
         return -1;
+    }
     c->map = mmap(NULL, 16384, PROT_READ | PROT_WRITE,
                   MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     CHECK(c->map != MAP_FAILED);
     unsigned char *b[4];
     for (unsigned i = 0; i < 4; ++i)
+    {
         b[i] = c->map + 4096 * i;
+    }
     CHECK(co_init(&c->pool, b, 4096, 0x7fffffffu) == 0);
     if (cut == 1)
     {
@@ -105,15 +109,23 @@ static int setup(struct rd_context *c, int fixed, int cut)
     CHECK(reg(c->ring.fd, IORING_REGISTER_PROBE, probe, 256) == 0);
     unsigned found = 0;
     for (unsigned i = 0; i < probe->ops_len; ++i)
+    {
         if (probe->ops[i].flags & IO_URING_OP_SUPPORTED)
         {
             if (probe->ops[i].op == IORING_OP_READ)
+            {
                 found |= 1;
+            }
             if (probe->ops[i].op == IORING_OP_READ_FIXED)
+            {
                 found |= 2;
+            }
             if (probe->ops[i].op == IORING_OP_ASYNC_CANCEL)
+            {
                 found |= 4;
+            }
         }
+    }
     free(probe);
     CHECK(found == 7);
     struct rlimit limit;
@@ -130,7 +142,9 @@ static int setup(struct rd_context *c, int fixed, int cut)
     {
         struct iovec v[4];
         for (unsigned i = 0; i < 4; ++i)
+        {
             v[i] = (struct iovec){b[i], 4096};
+        }
         if (reg(c->ring.fd, IORING_REGISTER_BUFFERS, v, 4))
         {
             int e = errno;
@@ -267,7 +281,9 @@ static void boundaries(int fixed)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "cancel"))
     {
         cancellation(0);
@@ -282,7 +298,9 @@ int main(int argc, char **argv)
     {
         struct rd_context c;
         for (int i = 0; i < 5; ++i)
+        {
             CHECK(setup(&c, 1, i) == -1);
+        }
         CHECK(setup(&c, 1, -1) == 0);
         cleanup(&c);
         puts(
@@ -290,5 +308,7 @@ int main(int argc, char **argv)
             "release_before_unmap=1;");
     }
     else
+    {
         return 2;
+    }
 }

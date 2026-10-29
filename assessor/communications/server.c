@@ -42,7 +42,9 @@ static uint64_t now_ms(void)
 {
     struct timespec t;
     if (clock_gettime(CLOCK_MONOTONIC, &t))
+    {
         abort();
+    }
     return (uint64_t)t.tv_sec * 1000 + (unsigned)t.tv_nsec / 1000000;
 }
 
@@ -58,7 +60,9 @@ static int nonblock(int fd)
 static void release(struct edu_connection *c)
 {
     if (c->fd >= 0)
+    {
         close(c->fd);
+    }
     memset(c, 0, sizeof *c);
     c->fd = -1;
 }
@@ -68,18 +72,26 @@ static int send_part(void *ctx, const void *p, size_t n)
     struct edu_connection *c = ctx;
     ssize_t r = send(c->fd, p, n, MSG_NOSIGNAL);
     if (r >= 0)
+    {
         return (int)r;
+    }
     if (errno == EINTR)
+    {
         return -1;
+    }
     if (errno == EAGAIN || errno == EWOULDBLOCK)
+    {
         return -2;
+    }
     return -3;
 }
 
 static int enqueue(struct edu_connection *c, int interim, uint64_t now)
 {
     if (c->count == 2)
+    {
         return -1;
+    }
     struct edu_output *o = &c->output[(c->head + c->count) % 2];
     o->offset = 0;
     o->started = now;
@@ -93,12 +105,16 @@ static int enqueue(struct edu_connection *c, int interim, uint64_t now)
     {
         c->requests++;
         if (c->requests >= 4)
+        {
             c->parser.request.close = 1;
+        }
         c->closing = c->parser.request.close || c->eof;
         /* Clock injection is deliberately deterministic for the bounded lab. */
         if (http_response(&c->parser.request, "Sat, 10 Oct 2026 00:00:00 GMT",
                           c->closing, o->bytes, sizeof o->bytes, &o->length))
+        {
             return -1;
+        }
     }
     c->count++;
     return 0;
@@ -115,12 +131,16 @@ static int parse(struct edu_connection *c, uint64_t now, const char *authority)
         if (r == HTTP_CONTINUE)
         {
             if (enqueue(c, 1, now))
+            {
                 return -1;
+            }
         }
         else if (r == HTTP_DONE || r == HTTP_ERROR)
         {
             if (enqueue(c, 0, now))
+            {
                 return -1;
+            }
             if (!c->closing)
             {
                 http_init(&c->parser, authority);
@@ -128,10 +148,14 @@ static int parse(struct edu_connection *c, uint64_t now, const char *authority)
             }
         }
         else if (!n)
+        {
             break;
+        }
     }
     if (c->used == c->have)
+    {
         c->used = c->have = 0;
+    }
     return 0;
 }
 
@@ -143,13 +167,19 @@ int main(int argc, char **argv)
         char *end;
         port = strtoul(argv[1], &end, 10);
         if (*end || port > 65535)
+        {
             return 2;
+        }
     }
     else if (argc != 1)
+    {
         return 2;
+    }
     int listener = socket(AF_INET, SOCK_STREAM, 0);
     if (listener < 0 || nonblock(listener))
+    {
         return 2;
+    }
     int one = 1;
     setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, &one, sizeof one);
     struct sockaddr_in addr = {0};
@@ -158,14 +188,20 @@ int main(int argc, char **argv)
     addr.sin_port = htons((uint16_t)port);
     if (bind(listener, (struct sockaddr *)&addr, sizeof addr) ||
         listen(listener, 4))
+    {
         return 2;
+    }
     socklen_t alen = sizeof addr;
     if (getsockname(listener, (struct sockaddr *)&addr, &alen))
+    {
         return 2;
+    }
     char authority[128];
     snprintf(authority, sizeof authority, "127.0.0.1:%u", ntohs(addr.sin_port));
     for (unsigned i = 0; i < 4; i++)
+    {
         connections[i].fd = -1;
+    }
     signal(SIGINT, interrupted);
     signal(SIGTERM, interrupted);
     printf("READY %s\n", authority);
@@ -181,9 +217,13 @@ int main(int argc, char **argv)
             {
                 if (c->draining ||
                     (!c->closing && c->count < 2 && c->have == 0))
+                {
                     events |= POLLIN;
+                }
                 if (c->count)
+                {
                     events |= POLLOUT;
+                }
             }
             f[i + 1] = (struct pollfd){c->fd, events, 0};
         }
@@ -191,7 +231,9 @@ int main(int argc, char **argv)
         if (ready < 0)
         {
             if (errno == EINTR)
+            {
                 continue;
+            }
             break;
         }
         uint64_t now = now_ms();
@@ -203,13 +245,19 @@ int main(int argc, char **argv)
                 if (fd < 0)
                 {
                     if (errno == EINTR)
+                    {
                         continue;
+                    }
                     break;
                 }
                 unsigned i;
                 for (i = 0; i < 4; i++)
+                {
                     if (connections[i].fd < 0)
+                    {
                         break;
+                    }
+                }
                 if (i == 4 || nonblock(fd))
                 {
                     close(fd);
@@ -226,7 +274,9 @@ int main(int argc, char **argv)
         {
             struct edu_connection *c = &connections[i];
             if (c->fd < 0)
+            {
                 continue;
+            }
             short ev = f[i + 1].revents;
             if (ev & (POLLERR | POLLNVAL))
             {
@@ -247,7 +297,9 @@ int main(int argc, char **argv)
                     }
                 }
                 if (now - c->drain_started >= 1000)
+                {
                     release(c);
+                }
                 continue;
             }
             if ((ev & (POLLIN | POLLHUP)) && !c->closing && c->count < 2 &&
@@ -330,7 +382,9 @@ int main(int argc, char **argv)
         }
     }
     for (unsigned i = 0; i < 4; i++)
+    {
         release(&connections[i]);
+    }
     close(listener);
     return 0;
 }

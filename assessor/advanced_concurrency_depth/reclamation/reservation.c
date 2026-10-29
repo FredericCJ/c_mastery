@@ -31,12 +31,16 @@ void ar_init(struct ar_queue *q, ap_hook_fn hook, void *context)
 int ar_reserve(struct ar_queue *q, struct ar_ticket *out)
 {
     if (!q || !out)
+    {
         return AR_INVALID;
+    }
     unsigned head = atomic_load(&q->head);
     for (;;)
     {
         if (head >= AR_LIMIT)
+        {
             return AR_EXHAUSTED;
+        }
         unsigned tail = atomic_load(&q->tail);
         if (head < tail)
         {
@@ -44,7 +48,9 @@ int ar_reserve(struct ar_queue *q, struct ar_ticket *out)
             continue;
         }
         if (head - tail >= AR_CAPACITY)
+        {
             return AR_FULL;
+        }
         if (atomic_compare_exchange_weak(&q->head, &head, head + 1u))
         {
             atomic_store(&q->cells[head % AR_CAPACITY].state,
@@ -66,7 +72,9 @@ static int valid(struct ar_queue *q, struct ar_ticket t)
 int ar_cancel(struct ar_queue *q, struct ar_ticket t)
 {
     if (!valid(q, t))
+    {
         return AR_INVALID;
+    }
     struct ar_cell *cell = &q->cells[t.sequence % AR_CAPACITY];
     unsigned expected = tag(t.sequence, RESERVED);
 #ifdef AR_MUTANT_CANCEL
@@ -75,32 +83,46 @@ int ar_cancel(struct ar_queue *q, struct ar_ticket t)
     unsigned desired = tag(t.sequence, REQUESTED);
 #endif
     if (atomic_compare_exchange_strong(&cell->state, &expected, desired))
+    {
         return AR_OK;
+    }
     if (expected == tag(t.sequence, REQUESTED))
+    {
         return AR_OK;
+    }
     if (expected == tag(t.sequence, PUBLISHED) ||
         expected == tag(t.sequence, CONSUMING) ||
         expected == tag(t.sequence, CANCELLED))
+    {
         return AR_TOO_LATE;
+    }
     return AR_INVALID;
 }
 
 int ar_finish(struct ar_queue *q, struct ar_ticket t, struct ap_value v)
 {
     if (!valid(q, t))
+    {
         return AR_INVALID;
+    }
     struct ar_cell *cell = &q->cells[t.sequence % AR_CAPACITY];
     unsigned old = atomic_load(&cell->state);
     if (old != tag(t.sequence, RESERVED) && old != tag(t.sequence, REQUESTED))
+    {
         return AR_INVALID;
+    }
     cell->value.sequence = v.sequence;
     cell->value.inverse = v.inverse;
     if (q->hook)
+    {
         q->hook(q->context, AP_LINKED, 0, t.sequence);
+    }
     old = tag(t.sequence, RESERVED);
     if (atomic_compare_exchange_strong(&cell->state, &old,
                                        tag(t.sequence, PUBLISHED)))
+    {
         return AR_OK;
+    }
     if (old == tag(t.sequence, REQUESTED))
     {
         atomic_store(&cell->state, tag(t.sequence, CANCELLED));
@@ -112,10 +134,14 @@ int ar_finish(struct ar_queue *q, struct ar_ticket t, struct ap_value v)
 int ar_pop(struct ar_queue *q, struct ap_value *out)
 {
     if (!q || !out)
+    {
         return AR_INVALID;
+    }
     unsigned tail = atomic_load(&q->tail);
     if (tail == atomic_load(&q->head))
+    {
         return AR_EMPTY;
+    }
     struct ar_cell *cell = &q->cells[tail % AR_CAPACITY];
     unsigned old = atomic_load(&cell->state);
     int cancelled = old == tag(tail, CANCELLED);
@@ -129,7 +155,9 @@ int ar_pop(struct ar_queue *q, struct ap_value *out)
     }
     if (!atomic_compare_exchange_strong(&cell->state, &old,
                                         tag(tail, CONSUMING)))
+    {
         return AR_PENDING;
+    }
     struct ap_value v = {0, 0};
     if (!cancelled)
     {
@@ -139,7 +167,9 @@ int ar_pop(struct ar_queue *q, struct ap_value *out)
     atomic_store(&cell->state, FREE);
     atomic_store(&q->tail, tail + 1u);
     if (cancelled)
+    {
         return AR_CANCELLED;
+    }
     out->sequence = v.sequence;
     out->inverse = v.inverse;
     return AR_OK;

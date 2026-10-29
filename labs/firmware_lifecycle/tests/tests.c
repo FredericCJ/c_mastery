@@ -101,22 +101,40 @@ static int test_capture(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (strcmp(argv[1], "program") == 0)
+    {
         return test_program();
+    }
     if (strcmp(argv[1], "crc") == 0)
+    {
         return test_crc();
+    }
     if (strcmp(argv[1], "header") == 0)
+    {
         return test_header();
+    }
     if (strcmp(argv[1], "boot") == 0)
+    {
         return test_boot();
+    }
     if (strcmp(argv[1], "journal") == 0)
+    {
         return test_journal();
+    }
     if (strcmp(argv[1], "floor") == 0)
+    {
         return test_floor();
+    }
     if (strcmp(argv[1], "peer") == 0)
+    {
         return test_peer();
+    }
     if (strcmp(argv[1], "capture") == 0)
+    {
         return test_capture();
+    }
     return 2;
 }

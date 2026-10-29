@@ -34,7 +34,9 @@ static int recover(void)
 {
     struct b5_redo r[3] = {{6, 12, 0, 1}, {7, 18, 0, 1}, {8, 23, 0, 1}};
     for (unsigned i = 0; i < 3; i++)
+    {
         r[i].checksum = b5_checksum(r[i].generation, r[i].value);
+    }
     for (size_t n = 0; n <= 3; n++)
     {
         uint32_t out = 99;
@@ -70,9 +72,13 @@ static int copy(void)
     struct b5_page p[4] = {0};
     unsigned char input[64];
     for (unsigned i = 0; i < 64; i++)
+    {
         input[i] = (unsigned char)(i + 1);
+    }
     for (unsigned i = 0; i < 4; i++)
+    {
         p[i].present = p[i].user = p[i].writable = 1;
+    }
     CHECK(!b5_copy_to_user(p, 14, input, 4) && p[0].bytes[14] == 1 &&
           p[1].bytes[1] == 4);
     p[1].writable = 0;
@@ -161,7 +167,9 @@ static int request(void)
 int main(int n, char **a)
 {
     if (n != 2)
+    {
         return 2;
+    }
 
     const struct
     {
@@ -174,7 +182,9 @@ int main(int n, char **a)
     for (size_t i = 0; i < sizeof c / sizeof *c; i++)
     {
         if (!strcmp(a[1], c[i].n))
+        {
             return c[i].f();
+        }
     }
     return 2;
 }

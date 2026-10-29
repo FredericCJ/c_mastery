@@ -15,20 +15,26 @@
 int main(int argc, char **argv)
 {
     if (argc != 5)
+    {
         return 2;
+    }
     size_t chars = strlen(argv[1]), chunk = (size_t)strtoul(argv[2], NULL, 10),
            capacity = (size_t)strtoul(argv[3], NULL, 10),
            pause = (size_t)strtoul(argv[4], NULL, 10);
     if (chars % 2 || chars > 512 || !chunk || chunk > 256 || !capacity ||
         capacity > CP_QUEUE || pause > 256)
+    {
         return 2;
+    }
     unsigned char input[256];
     size_t n = chars / 2;
     for (size_t i = 0; i < n; ++i)
     {
         unsigned b;
         if (sscanf(argv[1] + 2 * i, "%2x", &b) != 1)
+        {
             return 2;
+        }
         input[i] = (unsigned char)b;
     }
     struct cp_parser p;
@@ -53,13 +59,17 @@ int main(int argc, char **argv)
             {
                 printf("%u:", (unsigned)out.sequence);
                 for (size_t i = 0; i < out.length; ++i)
+                {
                     printf("%02x", out.payload[i]);
+                }
                 putchar('\n');
             }
         }
         size_t offer = n - offset;
         if (offer > chunk)
+        {
             offer = chunk;
+        }
         size_t used = 999;
         enum cp_status status = cp_feed(&p, input + offset, offer, &used);
         CHECK(used <= offer && p.used <= CP_WIRE);
@@ -85,10 +95,14 @@ int main(int argc, char **argv)
             }
         }
         else
+        {
             CHECK(status == CP_NEED_MORE || status == CP_REJECT);
+        }
         CHECK(q.count <= capacity);
         if (q.count > peak)
+        {
             peak = q.count;
+        }
         if (offset == n && status == CP_NEED_MORE && !p.ready && !q.count)
         {
             fprintf(

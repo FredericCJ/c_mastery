@@ -36,7 +36,9 @@ static void h_fresh(void *c, uint32_t a, uint32_t n)
     (void)c;
     __asm__ volatile("dsb sy" ::: "memory");
     for (uint32_t off = 0; off < n; off += 32)
+    {
         wr(0, 0xE000EF5Cu, a + off);
+    }
     __asm__ volatile("dsb sy\n\tisb sy" ::: "memory");
 }
 

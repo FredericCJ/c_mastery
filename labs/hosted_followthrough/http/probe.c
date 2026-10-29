@@ -13,7 +13,9 @@ static void hex(const void *v, size_t n)
 {
     const unsigned char *s = v;
     for (size_t i = 0; i < n; i++)
+    {
         printf("%02x", s[i]);
+    }
 }
 
 int main(void)
@@ -27,15 +29,21 @@ int main(void)
         int got = sscanf(line, "%79s %zu %zu %u %127s %40000s", id, &split,
                          &second, &eof, authority, encoded);
         if (got != 6 || strlen(encoded) % 2)
+        {
             return 2;
+        }
         size_t n = strlen(encoded) / 2;
         if (n > sizeof bytes || split > second || second > n)
+        {
             return 2;
+        }
         for (size_t i = 0; i < n; i++)
         {
             int a = digit(encoded[2 * i]), b = digit(encoded[2 * i + 1]);
             if (a < 0 || b < 0)
+            {
                 return 2;
+            }
             bytes[i] = (unsigned char)(a * 16 + b);
         }
         struct http_parser p;
@@ -49,10 +57,14 @@ int main(void)
             r = http_feed(&p, bytes + total, end - total, &take);
             total += take;
             if (!take)
+            {
                 break;
+            }
         }
         if (eof && r != HTTP_DONE && r != HTTP_ERROR)
+        {
             r = http_eof(&p);
+        }
         size_t z = 0;
         int sr =
             (r == HTTP_DONE || r == HTTP_ERROR)
@@ -68,7 +80,9 @@ int main(void)
         printf("\",\"authority\":\"%s\",\"serializer\":%d,\"response_hex\":\"",
                p.request.authority, sr);
         if (!sr)
+        {
             hex(output, z);
+        }
         puts("\"}");
     }
     return ferror(stdin) ? 2 : 0;

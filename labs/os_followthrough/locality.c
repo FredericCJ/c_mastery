@@ -25,7 +25,9 @@ static uint64_t ns(clockid_t id)
 {
     struct timespec t;
     if (clock_gettime(id, &t))
+    {
         abort();
+    }
     return (uint64_t)t.tv_sec * 1000000000u + (unsigned long)t.tv_nsec;
 }
 
@@ -39,17 +41,23 @@ static unsigned long huge_kib(const void *address)
 {
     FILE *f = fopen("/proc/self/smaps", "r");
     if (!f)
+    {
         return ~0ul;
+    }
     char line[256];
     unsigned long low, high, answer = 0;
     unsigned selected = 0;
     while (fgets(line, sizeof line, f))
     {
         if (sscanf(line, "%lx-%lx", &low, &high) == 2)
+        {
             selected = (uintptr_t)address >= low && (uintptr_t)address < high;
+        }
         else if (selected &&
                  sscanf(line, "AnonHugePages: %lu kB", &answer) == 1)
+        {
             break;
+        }
     }
     fclose(f);
     return answer;
@@ -61,13 +69,17 @@ __attribute__((noinline)) uint64_t of_touch(unsigned char *a, size_t pages,
 {
     uint64_t sum = 0;
     for (unsigned r = 0; r < rounds; r++)
+    {
         for (size_t i = 0; i < pages; i++)
         {
             size_t offset = order[i] * page;
             if (write)
+            {
                 a[offset] = (unsigned char)(order[i] % 251 + 1);
+            }
             sum += a[offset];
         }
+    }
     return sum;
 }
 
@@ -90,7 +102,9 @@ int main(int argc, char **argv)
         unsigned char block[4096];
         memset(block, 73, sizeof block);
         for (unsigned i = 0; i < 64; i++)
+        {
             CHECK(write(file, block, sizeof block) == sizeof block);
+        }
         CHECK(lseek(file, 0, SEEK_SET) == 0 &&
               pipe2(stop, O_NONBLOCK | O_CLOEXEC) == 0 &&
               pipe2(report, O_CLOEXEC) == 0);
@@ -106,24 +120,34 @@ int main(int argc, char **argv)
                 char token;
                 ssize_t control = read(stop[0], &token, 1);
                 if (control == 0)
+                {
                     break;
+                }
                 ssize_t got = read(file, block, sizeof block);
                 if (got == 0)
                 {
                     if (lseek(file, 0, SEEK_SET) != 0)
+                    {
                         _exit(4);
+                    }
                     continue;
                 }
                 if (got < 0)
+                {
                     _exit(5);
+                }
                 read_bytes += (size_t)got;
                 for (ssize_t i = 0; i < got; i++)
+                {
                     checksum += block[i];
+                }
             }
             if (checksum != read_bytes * 73 ||
                 write(report[1], &read_bytes, sizeof read_bytes) !=
                     sizeof read_bytes)
+            {
                 _exit(6);
+            }
             close(file);
             close(report[1]);
             close(stop[0]);
@@ -146,18 +170,23 @@ int main(int argc, char **argv)
             phase[k] = tmp;
         }
         for (unsigned index = 0; index < 3; index++)
+        {
             for (unsigned write = 0; write < 2; write++)
             {
                 unsigned mode = phase[index];
                 for (size_t i = 0; i < pages; i++)
+                {
                     order[i] = mode == 1 ? (i * 17) % pages : i;
+                }
                 if (mode == 2)
+                {
                     for (size_t i = pages - 1; i > 0; i--)
                     {
                         size_t j = random32(&rng) % (i + 1), tmp = order[i];
                         order[i] = order[j];
                         order[j] = tmp;
                     }
+                }
                 uint64_t allocation_start = ns(CLOCK_MONOTONIC);
                 unsigned char *a = mmap(NULL, bytes, PROT_READ | PROT_WRITE,
                                         MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
@@ -173,7 +202,9 @@ int main(int argc, char **argv)
                 CHECK(getrusage(RUSAGE_SELF, &after) == 0);
                 uint64_t expected = 0;
                 for (size_t i = 0; i < pages; i++)
+                {
                     expected += write ? (i % 251 + 1) * 16 : 0;
+                }
                 CHECK(sum == expected);
                 printf(
                     "%s{\"trial\":%u,\"position\":%u,\"pattern\":%u,\"write_first\":"
@@ -191,6 +222,7 @@ int main(int argc, char **argv)
                     huge_kib(a));
                 CHECK(munmap(a, bytes) == 0);
             }
+        }
     }
     free(order);
     if (competing)

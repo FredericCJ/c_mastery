@@ -11,12 +11,16 @@ static void trace(os_policy policy, const os_job *jobs, size_t n,
     assert(os_simulate(jobs, n, policy, quantum, &s) == 0);
     assert(s.ticks == ticks && s.completed == n);
     for (size_t i = 0; i < ticks; ++i)
+    {
         assert(s.timeline[i] == expected[i]);
+    }
     for (size_t i = 0; i < n; ++i)
     {
         unsigned service = 0;
         for (size_t t = 0; t < ticks; ++t)
+        {
             service += s.timeline[t] == (int)i;
+        }
         assert(service == jobs[i].service && s.first[i] >= jobs[i].arrival);
         assert(s.waiting[i] + jobs[i].service == s.finish[i] - jobs[i].arrival);
     }
@@ -79,19 +83,33 @@ int main(int argc, char **argv)
         assert(os_clock_faults(refs, 8, 0) == SIZE_MAX);
     }
     else if (!strcmp(which, "process"))
+    {
         assert(!os_process_probe());
+    }
     else if (!strcmp(which, "thread"))
+    {
         assert(!os_thread_probe());
+    }
     else if (!strcmp(which, "descriptor"))
+    {
         assert(!os_descriptor_probe());
+    }
     else if (!strcmp(which, "signal"))
+    {
         assert(!os_signal_probe());
+    }
     else if (!strcmp(which, "memory"))
+    {
         assert(!os_memory_probe());
+    }
     else if (!strcmp(which, "io"))
+    {
         assert(!os_io_probe());
+    }
     else
+    {
         return 2;
+    }
     puts("OS boundary accepted for this finite experiment");
     return 0;
 }

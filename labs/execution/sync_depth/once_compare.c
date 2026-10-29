@@ -37,7 +37,9 @@ static int reader(void *unused)
 {
     (void)unused;
     while (!atomic_load_explicit(&start, memory_order_acquire))
+    {
         thrd_yield();
+    }
     call_once(&ready_flag, initialize);
     return table[0] != 17 || table[1] != 23 || table[2] != 40;
 }
@@ -54,7 +56,9 @@ int main(void)
     thrd_t threads[3];
     atomic_init(&start, 0);
     for (unsigned i = 0; i < 3; i++)
+    {
         CHECK(thrd_create(&threads[i], reader, 0) == thrd_success);
+    }
     atomic_store_explicit(&start, 1, memory_order_release);
     for (unsigned i = 0; i < 3; i++)
     {

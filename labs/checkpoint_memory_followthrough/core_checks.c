@@ -14,7 +14,9 @@ unsigned p1_checks(void)
     struct cpm_arena arena;
     struct cpm_span span = {917, 918, 919};
     for (size_t i = 0; i < sizeof storage; i++)
+    {
         storage[i] = 0xa5;
+    }
     REQUIRE(cpm_arena_init(&arena, storage, 32, 8, 8) == CPM_OK);
     REQUIRE(cpm_reserve(&arena, 24, &span) == CPM_OK && span.offset == 8 &&
             arena.used == 32);
@@ -23,11 +25,15 @@ unsigned p1_checks(void)
     span = (struct cpm_span){917, 918, 919};
     unsigned char saved[40];
     for (size_t i = 0; i < 40; i++)
+    {
         saved[i] = storage[i];
+    }
     REQUIRE(cpm_reserve(&arena, 24, &span) == CPM_FULL && arena.used == 0 &&
             span.offset == 917);
     for (size_t i = 0; i < 40; i++)
+    {
         REQUIRE(saved[i] == storage[i]);
+    }
     REQUIRE(cpm_arena_init(&arena, storage, 32, 8, 16) == CPM_INVALID &&
             arena.capacity == 31 && arena.used == 0);
     REQUIRE(cpm_reserve(&arena, SIZE_MAX, &span) == CPM_INVALID &&
@@ -49,7 +55,9 @@ unsigned p1_checks(void)
         REQUIRE(cpm_atomic(&pool, &ring, values, 4) == CPM_FULL &&
                 ring.count == 0 && pool.attempts == 0);
         for (unsigned i = 0; i < 4; i++)
+        {
             REQUIRE(pool.state[i] == 0 && pool.generation[i] == 1);
+        }
     }
     cpm_pool_init(&pool);
     struct cpm_handle old = {0, 1}, h;
@@ -85,7 +93,9 @@ unsigned p1_checks(void)
                 REQUIRE(result == (n == 4 ? CPM_FULL : CPM_OK) &&
                         accepted == (n == 4 ? 0u : 1u));
                 if (n < 4)
+                {
                     model[n++] = value;
+                }
             }
             else
             {
@@ -97,14 +107,18 @@ unsigned p1_checks(void)
                             record->value == model[0]);
                     REQUIRE(cpm_release(&pool, h) == CPM_OK);
                     for (unsigned i = 1; i < n; i++)
+                    {
                         model[i - 1] = model[i];
+                    }
                     --n;
                 }
             }
             REQUIRE(ring.count == n);
             unsigned live = 0;
             for (unsigned i = 0; i < 4; i++)
+            {
                 live += pool.state[i] == 1;
+            }
             REQUIRE(live == n);
         }
         while (n)
@@ -114,7 +128,9 @@ unsigned p1_checks(void)
                     record->value == model[0]);
             REQUIRE(cpm_release(&pool, h) == CPM_OK);
             for (unsigned i = 1; i < n; i++)
+            {
                 model[i - 1] = model[i];
+            }
             --n;
         }
     }

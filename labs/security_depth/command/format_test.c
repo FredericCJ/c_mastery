@@ -26,7 +26,9 @@ int main(void)
         CHECK(out[cap - 1] == 0);
         CHECK((n >= (int)cap) == (cap < 3));
         if (cap == 3)
+        {
             CHECK(!strcmp(out, "%n"));
+        }
 #else
         CHECK(marker == 0 && n == 0 && out[0] == 0);
 #endif

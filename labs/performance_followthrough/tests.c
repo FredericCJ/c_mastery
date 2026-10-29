@@ -21,6 +21,7 @@ static void sorting(void)
     const unsigned char keys[3] = {0, 1, 2};
     unsigned cases = 0;
     for (unsigned n = 0, power = 1; n <= 6; ++n, power *= 3)
+    {
         for (unsigned code = 0; code < power; ++code)
         {
             struct f_record retained[6];
@@ -36,8 +37,12 @@ static void sorting(void)
                 a[i] = b[i] = (struct pf_bytes){keys + k, 1, i};
             }
             for (unsigned i = 0; i < n; ++i)
+            {
                 for (unsigned j = i + 1; j < n; ++j)
+                {
                     inversions += retained[i].key > retained[j].key;
+                }
+            }
             C(f_sort(retained, n, &old) == F_OK);
             C(old.shifts == inversions && old.placements == (n ? n - 1 : 0));
             for (unsigned binary = 0; binary < 2; ++binary)
@@ -48,10 +53,13 @@ static void sorting(void)
                 C(w.available && w.shifts == inversions &&
                   w.placements == (n ? n - 1 : 0));
                 for (unsigned i = 0; i < n; ++i)
+                {
                     C(p[i].identity == retained[i].ordinal);
+                }
             }
             ++cases;
         }
+    }
     struct pf_bytes a[3] = {{(const unsigned char *)"aa", 2, 0},
                             {(const unsigned char *)"ab", 2, 1},
                             {(const unsigned char *)"a", 1, 2}};
@@ -74,6 +82,7 @@ static void cache(void)
 {
     unsigned count = 0;
     for (unsigned n = 0, power = 1; n <= 5; ++n, power *= 6)
+    {
         for (unsigned code = 0; code < power; ++code)
         {
             for (unsigned fifo = 0; fifo < 2; ++fifo)
@@ -88,8 +97,12 @@ static void cache(void)
                     t /= 6;
                     unsigned block = x / 2, wr = x % 2, pos = used;
                     for (unsigned j = 0; j < used; ++j)
+                    {
                         if (blocks[j] == block)
+                        {
                             pos = j;
+                        }
+                    }
                     if (pos == used)
                     {
                         reads += 8;
@@ -120,7 +133,9 @@ static void cache(void)
                       c.writes == writes && c.useful == (i + 1) * 4);
                 }
                 for (unsigned j = 0; j < used; ++j)
+                {
                     writes += dirty[j] * 8;
+                }
                 C(!pf_flush(&c) && c.writes == writes);
                 struct pf_cache saved = c;
                 C(!pf_flush(&c) && !memcmp(&c, &saved, sizeof c));
@@ -128,6 +143,7 @@ static void cache(void)
             }
             ++count;
         }
+    }
     struct pf_cache a = {0}, b = {0};
     b.fifo = 1;
     unsigned refs[] = {0, 2, 0, 4, 0};
@@ -139,7 +155,9 @@ static void cache(void)
     C(a.reads == 24 && b.reads == 32);
     struct pf_cache warm = {0};
     for (unsigned i = 0; i < 8; ++i)
+    {
         C(!pf_cache(&warm, 0, 0));
+    }
     C(warm.reads == 8 && warm.useful == 32);
     struct pf_cache bad = warm;
     bad.fifo = 2;
@@ -164,7 +182,9 @@ static int *take(void *p, size_t n)
 {
     struct pf_alloc *s = p;
     if (++s->allocs == s->fail)
+    {
         return NULL;
+    }
     int *r = malloc(n * sizeof *r);
     C(r);
     ++s->live;
@@ -187,7 +207,9 @@ static void table(void)
     C(cd_vector_init(&v, (struct cd_allocator){&s, take, release}) == CD_OK);
     C(cd_vector_reserve(&v, 8) == CD_OK);
     for (unsigned i = 0; i < 5; ++i)
+    {
         C(cd_vector_insert(&v, v.length, (int)i) == CD_OK);
+    }
     int64_t phi0 = 2 * (int64_t)v.length - (int64_t)v.capacity, actual = 0,
             amortized = 0;
     unsigned failed = 0, max = 0;
@@ -212,7 +234,9 @@ static void table(void)
         unsigned cost = (unsigned)(1 + v.copies - copies);
         actual += cost;
         if (cost > max)
+        {
             max = cost;
+        }
         int64_t after = 2 * (int64_t)v.length - (int64_t)v.capacity;
         amortized += cost + after - before;
         C(actual == amortized - after + phi0);
@@ -236,7 +260,9 @@ static int clone(void *p, const struct cd_payload *in, struct cd_payload *out)
 {
     struct pf_payload *s = p;
     if (++s->calls == s->fail)
+    {
         return 1;
+    }
     C(s->calls < 16 && in->value > 0);
     unsigned char *b = malloc((size_t)in->value);
     C(b);
@@ -279,7 +305,9 @@ static void payload(void)
         {
             C(result == CD_OK && s.live == 3 && s.bytes == 37);
             for (unsigned i = 0; i < 3; ++i)
+            {
                 destroy(&s, out + i);
+            }
             C(!s.live);
         }
     }
@@ -313,15 +341,20 @@ static void writes(void)
 {
     unsigned cases = 0;
     for (unsigned cursor = 0; cursor < 8; ++cursor)
+    {
         for (unsigned kind = 0; kind < 5; ++kind)
         {
             struct pf_writer s = {{0}, 0, 0, 0, {0}};
             if (cursor)
+            {
                 s.events[s.n++] = cursor;
+            }
             ptrdiff_t ev[] = {1, -2, 0, -1, 9};
             s.events[s.n++] = ev[kind];
             if (kind < 2)
+            {
                 s.events[s.n++] = (ptrdiff_t)(8 - cursor - (kind == 0));
+            }
             size_t done = 99;
             enum f_status status = f_write_all(
                 writer, &s, (const uint8_t *)"abcdefgh", 8, 8, &done);
@@ -330,6 +363,7 @@ static void writes(void)
             C(status == (kind < 2 ? F_OK : F_IO));
             ++cases;
         }
+    }
     struct pf_writer budget = {{3, -2, 2, -2, 3}, 0, 5, 0, {0}};
     size_t done;
     C(f_write_all(writer, &budget, (const uint8_t *)"abcdefgh", 8, 4, &done) ==

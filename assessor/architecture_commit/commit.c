@@ -3,13 +3,23 @@
 int at_same(const struct sc_machine *a, const struct sc_machine *b)
 {
     if (!a || !b)
+    {
         return 0;
+    }
     for (unsigned i = 0; i < 4; ++i)
+    {
         if (a->reg[i] != b->reg[i])
+        {
             return 0;
+        }
+    }
     for (unsigned i = 0; i < 16; ++i)
+    {
         if (a->memory[i] != b->memory[i])
+        {
             return 0;
+        }
+    }
     return a->pc == b->pc && a->halted == b->halted && a->commits == b->commits;
 }
 
@@ -23,7 +33,9 @@ static unsigned zflag(unsigned previous, struct sc_instruction op,
                       struct sc_control c)
 {
     if (op.operation != SC_SUB)
+    {
         return previous;
+    }
 #ifdef AT_MUTANT_ZERO
     return c.alu != 0;
 #else
@@ -43,7 +55,9 @@ enum at_status at_init(struct at_machine *out, const struct sc_machine *state,
                        unsigned zero)
 {
     if (!out || !state || state->halted > 1 || state->pc >= 16 || zero > 1)
+    {
         return AT_INVALID;
+    }
     struct at_machine next = {0};
     next.state = *state;
     next.zero = zero;
@@ -54,7 +68,9 @@ enum at_status at_init(struct at_machine *out, const struct sc_machine *state,
 enum at_status at_input(struct at_machine *m, unsigned reg, unsigned value)
 {
     if (!valid(m) || reg > 3 || value > 255 || m->pending || m->state.halted)
+    {
         return AT_INVALID;
+    }
 #ifdef AT_MUTANT_INPUT
     (void)value;
 #else
@@ -68,14 +84,20 @@ enum at_status at_begin(struct at_machine *m, const struct sc_instruction *p,
 {
     if (!valid(m) || !out || !p || !n || n > 16 || m->pending ||
         m->ticks == UINT32_MAX)
+    {
         return AT_INVALID;
+    }
     struct sc_machine next = m->state;
     struct sc_control c = {0};
     enum sc_status s = sc_clock(&next, p, n, &c);
     if (s == SC_DONE)
+    {
         return AT_DONE;
+    }
     if (s != SC_OK)
+    {
         return AT_INVALID;
+    }
     struct sc_instruction op = p[m->state.pc];
     struct at_machine value = *m;
     struct at_trace trace = {0};
@@ -89,11 +111,17 @@ enum at_status at_begin(struct at_machine *m, const struct sc_instruction *p,
         trace.right = m->state.reg[op.c];
     }
     else if (op.operation == SC_LI)
+    {
         trace.right = op.b;
+    }
     else if (op.operation == SC_ST || op.operation == SC_BNZ)
+    {
         trace.left = m->state.reg[op.a];
+    }
     else if (op.operation == SC_LD)
+    {
         trace.right = m->state.memory[op.b];
+    }
     unsigned zero = zflag(m->zero, op, c);
     if (op.operation == SC_LD)
     {
@@ -118,11 +146,17 @@ enum at_status at_poll(struct at_machine *m, unsigned ready, unsigned cancel,
                        struct at_trace *out)
 {
     if (!valid(m) || !out || ready > 1 || cancel > 1)
+    {
         return AT_INVALID;
+    }
     if (!m->pending)
+    {
         return AT_NO_PENDING;
+    }
     if (m->ticks == UINT32_MAX)
+    {
         return AT_INVALID;
+    }
     struct at_machine value = *m;
     struct at_trace trace = {0};
     trace.wires = m->pending_control;
@@ -176,12 +210,16 @@ enum at_status at_predict(const struct at_machine *m,
     if (!valid(m) || m->pending || m->state.halted || !out || out->active ||
         !p || !n || n > 16 || m->state.pc >= n || prediction >= n ||
         p[m->state.pc].operation != SC_BNZ)
+    {
         return AT_INVALID;
+    }
     struct at_spec value = {0};
     value.origin = m->state;
     value.branch = m->state;
     if (sc_clock(&value.branch, p, n, &value.branch_control) != SC_OK)
+    {
         return AT_INVALID;
+    }
     value.active = 1;
     value.predicted_pc = prediction;
     value.candidate = value.branch;
@@ -189,8 +227,10 @@ enum at_status at_predict(const struct at_machine *m,
     value.candidate_valid =
         sc_clock(&value.candidate, p, n, &value.candidate_control) == SC_OK;
     if (value.candidate_valid)
+    {
         value.candidate_zero =
             zflag(m->zero, p[prediction], value.candidate_control);
+    }
     *out = value;
     return AT_OK;
 }
@@ -200,9 +240,13 @@ enum at_status at_resolve(struct at_machine *m, struct at_spec *s,
 {
     if (!valid(m) || m->pending || !s || s->active != 1 || !out ||
         m->ticks == UINT32_MAX)
+    {
         return AT_INVALID;
+    }
     if (!at_same(&m->state, &s->origin))
+    {
         return AT_STALE;
+    }
     struct at_machine value = *m;
     struct at_spec spec = *s;
     struct at_trace trace = {0};
@@ -217,7 +261,9 @@ enum at_status at_resolve(struct at_machine *m, struct at_spec *s,
     {
 #ifdef AT_MUTANT_SQUASH
         if (s->candidate_valid)
+        {
             value.state = s->candidate;
+        }
 #endif
         spec = (struct at_spec){0};
         status = AT_SQUASHED;
@@ -243,9 +289,13 @@ enum at_status at_retire(struct at_machine *m, struct at_spec *s,
 {
     if (!valid(m) || m->pending || !s || s->active != 2 ||
         !s->candidate_valid || !out || m->ticks == UINT32_MAX)
+    {
         return AT_INVALID;
+    }
     if (!at_same(&m->state, &s->branch))
+    {
         return AT_STALE;
+    }
     struct at_machine value = *m;
     struct at_trace trace = {0};
     value.state = s->candidate;
@@ -264,7 +314,9 @@ enum at_status at_retire(struct at_machine *m, struct at_spec *s,
 enum at_status at_discard(struct at_spec *s)
 {
     if (!s || s->active > 2)
+    {
         return AT_INVALID;
+    }
     *s = (struct at_spec){0};
     return AT_OK;
 }

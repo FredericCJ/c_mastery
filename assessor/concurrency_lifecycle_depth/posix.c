@@ -7,13 +7,21 @@
 static int cleanup_init(struct clp_queue *q, int error)
 {
     if (q->initialized & 8u)
+    {
         (void)pthread_cond_destroy(&q->enrolled);
+    }
     if (q->initialized & 4u)
+    {
         (void)pthread_cond_destroy(&q->writable);
+    }
     if (q->initialized & 2u)
+    {
         (void)pthread_cond_destroy(&q->readable);
+    }
     if (q->initialized & 1u)
+    {
         (void)pthread_mutex_destroy(&q->mutex);
+    }
     q->initialized = 0;
     return error;
 }
@@ -28,17 +36,25 @@ int clp_init(struct clp_queue *q, unsigned fail)
     q->recv_waiters = 0;
     cl_queue_init(&q->core, q->slots);
     if (fail == 1)
+    {
         return EAGAIN;
+    }
     r = pthread_mutex_init(&q->mutex, 0);
     if (r)
+    {
         return r;
+    }
     q->initialized = 1;
     r = pthread_condattr_init(&attr);
     if (r)
+    {
         return cleanup_init(q, r);
+    }
     r = pthread_condattr_setclock(&attr, CLOCK_MONOTONIC);
     if (!r)
+    {
         r = fail == 2 ? EAGAIN : pthread_cond_init(&q->readable, &attr);
+    }
     if (!r)
     {
         q->initialized |= 2u;
@@ -50,10 +66,14 @@ int clp_init(struct clp_queue *q, unsigned fail)
         r = fail == 4 ? EAGAIN : pthread_cond_init(&q->enrolled, &attr);
     }
     if (!r)
+    {
         q->initialized |= 8u;
+    }
     int a = pthread_condattr_destroy(&attr);
     if (!r)
+    {
         r = a;
+    }
     return r ? cleanup_init(q, r) : 0;
 }
 
@@ -68,9 +88,13 @@ static void unlock(void *arg)
 {
     volatile struct cl_cleanup *c = arg;
     if (c->waiting)
+    {
         (*c->waiters)--;
+    }
     if (CLP_MUTANT != 2)
+    {
         c->q->active--;
+    }
     (void)pthread_cond_broadcast(&c->q->enrolled);
     (void)pthread_mutex_unlock(&c->q->mutex);
 }
@@ -93,7 +117,9 @@ int clp_send(struct clp_queue *q, uint32_t p, uint32_t seq,
 {
     int r = pthread_mutex_lock(&q->mutex);
     if (r)
+    {
         return r;
+    }
     /* The C cleanup macro may use setjmp-based unwinding. Preserve changes to
      * this automatic record across cancellation, including optimized builds. */
     volatile struct cl_cleanup c = {q, &q->send_waiters, 0};
@@ -117,7 +143,9 @@ int clp_send(struct clp_queue *q, uint32_t p, uint32_t seq,
         /* This contract chooses timeout if a timed wait returns ETIMEDOUT;
          * it does not enqueue a coincident newly available item afterward. */
         if (r)
+        {
             break;
+        }
         if (CLP_MUTANT == 1)
         {
             r = 0;
@@ -133,10 +161,14 @@ int clp_recv(struct clp_queue *q, unsigned char *out, size_t cap, size_t *n,
              const struct timespec *deadline)
 {
     if (!ticket)
+    {
         return EINVAL;
+    }
     int r = pthread_mutex_lock(&q->mutex);
     if (r)
+    {
         return r;
+    }
     volatile struct cl_cleanup c = {q, &q->recv_waiters, 0};
     q->active++;
     pthread_cleanup_push(unlock, (void *)&c);
@@ -157,7 +189,9 @@ int clp_recv(struct clp_queue *q, unsigned char *out, size_t cap, size_t *n,
         }
         r = wait_for(&c, &q->readable, deadline);
         if (r)
+        {
             break;
+        }
     }
     pthread_cleanup_pop(1);
     return r;
@@ -167,11 +201,17 @@ int clp_close(struct clp_queue *q, unsigned abort_queued)
 {
     int r = pthread_mutex_lock(&q->mutex);
     if (r)
+    {
         return r;
+    }
     if (abort_queued)
+    {
         (void)cl_abort(&q->core);
+    }
     else
+    {
         cl_close(&q->core);
+    }
     (void)pthread_cond_broadcast(&q->writable);
     (void)pthread_cond_broadcast(&q->readable);
     return pthread_mutex_unlock(&q->mutex);
@@ -180,15 +220,21 @@ int clp_close(struct clp_queue *q, unsigned abort_queued)
 int clp_destroy(struct clp_queue *q)
 {
     if (!q->initialized)
+    {
         return EINVAL;
+    }
     int r = pthread_mutex_lock(&q->mutex);
     if (r)
+    {
         return r;
+    }
     unsigned busy = !q->core.closed || q->core.count || q->active ||
                     q->send_waiters || q->recv_waiters;
     (void)pthread_mutex_unlock(&q->mutex);
     if (busy && CLP_MUTANT != 3)
+    {
         return EBUSY;
+    }
     return cleanup_init(q, 0);
 }
 
@@ -197,20 +243,30 @@ int clp_record_recover(pthread_mutex_t *m, struct clp_record *r,
 {
     int error = pthread_mutex_lock(m);
     if (error == ENOTRECOVERABLE)
+    {
         return error;
+    }
     if (error != 0 && error != EOWNERDEAD)
+    {
         return error;
+    }
     if (error == EOWNERDEAD)
     {
         if (repair)
         {
             if (CLP_MUTANT != 4)
+            {
                 r->value = r->committed;
+            }
             r->checksum = ~r->value;
             if (CLP_MUTANT != 5)
+            {
                 error = pthread_mutex_consistent(m);
+            }
             else
+            {
                 error = 0;
+            }
         }
         else
         {
@@ -219,7 +275,9 @@ int clp_record_recover(pthread_mutex_t *m, struct clp_record *r,
         }
     }
     if (!error && r->checksum != ~r->value)
+    {
         error = EPROTO;
+    }
     int unlock_error = pthread_mutex_unlock(m);
     return error ? error : unlock_error;
 }

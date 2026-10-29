@@ -17,10 +17,16 @@ int main(void)
             b[i] = (int16_t)((int32_t)(rng % 65536u) - 32768);
         }
         if (!ns_add(a, b, n, scalar) || !ns_vector_add(a, b, n, vector))
+        {
             return 1;
+        }
         for (i = 0; i < n; ++i)
+        {
             if (scalar[i] != vector[i])
+            {
                 return 2;
+            }
+        }
     }
     puts("VECTOR_DIFFERENTIAL lengths=68 seed=7");
     return 0;

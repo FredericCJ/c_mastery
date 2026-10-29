@@ -23,8 +23,12 @@ int main(int argc, char **argv)
         return i < 8 ? (tests[i]() ? 41 : 0) : 2;
     }
     for (unsigned i = 0; i < 8; i++)
+    {
         if (tests[i]())
+        {
             return 41;
+        }
+    }
     puts("MCP_NATIVE_PASS");
     return 0;
 }

@@ -22,7 +22,9 @@ static uint32_t oracle(const uint32_t *a, uint32_t n, uint32_t key,
 {
     uint32_t i = 0;
     while (i < n && (a[i] < key || (upper && a[i] == key)))
+    {
         ++i;
+    }
     return i;
 }
 
@@ -52,9 +54,13 @@ static int search(void)
             CHECK(p.lo <= p.mid && p.mid < p.hi && p.hi <= 5 &&
                   p.next_hi - p.next_lo < p.hi - p.lo);
             for (unsigned j = 0; j < p.lo; ++j)
+            {
                 CHECK(a[j] < keys[i]);
+            }
             for (unsigned j = p.hi; j < 5; ++j)
+            {
                 CHECK(a[j] >= keys[i]);
+            }
             printf("TRACE %u %u %u %u %u %u %u\n", keys[i], s, p.lo, p.hi,
                    p.mid, p.next_lo, p.next_hi);
         }
@@ -76,8 +82,11 @@ static int search(void)
     unsigned cases = 0;
     uint32_t repeated[1024];
     for (unsigned i = 0; i < 1024; ++i)
+    {
         repeated[i] = i / 4;
+    }
     for (unsigned n = 0; n <= 1024; ++n)
+    {
         for (unsigned q = 0; q < 5; ++q)
         {
             uint32_t key = q == 4 ? UINT32_MAX : q * 85;
@@ -85,6 +94,7 @@ static int search(void)
                   out == oracle(repeated, n, key, 0) && validation == 0);
             ++cases;
         }
+    }
     CHECK(ab_checked(a, 5, 5, 7, 1, &out, &validation) == 0 && out == 1 &&
           validation == 0);
     puts(
@@ -114,6 +124,7 @@ static int callback(void)
 {
     const uint32_t a[5] = {0, 7, 7, 0x80000000u, UINT32_MAX};
     for (unsigned poison = 0; poison < 2; ++poison)
+    {
         for (unsigned i = 0; i < 5; ++i)
         {
             struct ab_context context = {0, 0,
@@ -124,6 +135,7 @@ static int callback(void)
                       trace.index &&
                   context.calls == trace.count && context.misaligned == 0);
         }
+    }
     struct ab_context zero = {0};
     CHECK(ab_callback_lower(NULL, 0, 0, ab_poison, &zero) == 0 &&
           zero.calls == 0);
@@ -137,7 +149,9 @@ static int windows(void)
     const uint32_t a[5] = {0, 7, 7, 0x80000000u, UINT32_MAX};
     CHECK(ab_ms_lower(NULL, 0, 9) == 0);
     for (unsigned i = 0; i < 5; ++i)
+    {
         CHECK(ab_ms_lower(a, 5, a[i]) == oracle(a, 5, a[i], 0));
+    }
     puts(
         "OBS windows MS-register-and-shadow-store contract native-ms_abi not-Windows-OS");
     return 0;
@@ -181,7 +195,9 @@ static int guard(void)
             {
                 struct rlimit limit = {0, 0};
                 if (setrlimit(RLIMIT_CORE, &limit))
+                {
                     _exit(43);
+                }
                 uint32_t result = algo_asm_lower(
                     nonempty ? last : (const uint32_t *)boundary, nonempty, 8);
                 _exit(result == nonempty ? 0 : 42);
@@ -221,22 +237,40 @@ static int signedness(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "search"))
+    {
         return search();
+    }
     if (!strcmp(argv[1], "abi"))
+    {
         return abi();
+    }
     if (!strcmp(argv[1], "callback"))
+    {
         return callback();
+    }
     if (!strcmp(argv[1], "windows"))
+    {
         return windows();
+    }
     if (!strcmp(argv[1], "records"))
+    {
         return records();
+    }
     if (!strcmp(argv[1], "guard"))
+    {
         return guard();
+    }
     if (!strcmp(argv[1], "scale"))
+    {
         return scale();
+    }
     if (!strcmp(argv[1], "signedness"))
+    {
         return signedness();
+    }
     return 2;
 }

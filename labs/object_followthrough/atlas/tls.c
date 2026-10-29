@@ -20,7 +20,9 @@ static void *worker(void *unused)
     ready = 1;
     pthread_cond_signal(&changed);
     while (!finish)
+    {
         pthread_cond_wait(&changed, &lock);
+    }
     observed = owned.number;
     pthread_mutex_unlock(&lock);
     return NULL;
@@ -31,13 +33,19 @@ int main(void)
     pthread_t thread;
     int result = 0;
     if (pthread_create(&thread, NULL, worker, NULL))
+    {
         return 2;
+    }
     pthread_mutex_lock(&lock);
     while (!ready)
+    {
         pthread_cond_wait(&changed, &lock);
+    }
     if (owned.number != 31 || !published || published->number != 31 ||
         published == &owned)
+    {
         result = 41;
+    }
 #ifndef OA_TLS_NOWRITE
     published->number = 73;
 #endif
@@ -46,15 +54,23 @@ int main(void)
     pthread_cond_signal(&changed);
     pthread_mutex_unlock(&lock);
     if (pthread_join(thread, NULL))
+    {
         return 3;
+    }
     if (observed != 73 || owned.number != 31)
+    {
         result = 41;
+    }
     pthread_cond_destroy(&changed);
     pthread_mutex_destroy(&lock);
     if (!result)
+    {
         puts(
             "OA_TLS_PASS:published only while creator alive; pointer cleared before exit");
+    }
     else
+    {
         puts("OA_TLS_ASSERT:identity or synchronized transfer");
+    }
     return result;
 }

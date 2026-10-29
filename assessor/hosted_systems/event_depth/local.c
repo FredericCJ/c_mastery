@@ -61,11 +61,15 @@ static int ops_valid(struct el_ops o)
 static int address_valid(const struct el_address *a)
 {
     if (!a)
+    {
         return 0;
+    }
     if (a->storage.ss_family == AF_INET)
     {
         if (a->length != sizeof(struct sockaddr_in))
+        {
             return 0;
+        }
         struct sockaddr_in v;
         memcpy(&v, &a->storage, sizeof v);
         return ntohl(v.sin_addr.s_addr) == INADDR_LOOPBACK;
@@ -73,7 +77,9 @@ static int address_valid(const struct el_address *a)
     if (a->storage.ss_family == AF_INET6)
     {
         if (a->length != sizeof(struct sockaddr_in6))
+        {
             return 0;
+        }
         struct sockaddr_in6 v;
         memcpy(&v, &a->storage, sizeof v);
         return IN6_IS_ADDR_LOOPBACK(&v.sin6_addr);
@@ -84,10 +90,14 @@ static int address_valid(const struct el_address *a)
         const struct sockaddr_un *u = &v;
         size_t base = offsetof(struct sockaddr_un, sun_path);
         if (a->length <= base || a->length > sizeof v)
+        {
             return 0;
+        }
         memcpy(&v, &a->storage, a->length);
         if (u->sun_path[0] != '/')
+        {
             return 0;
+        }
         size_t n = a->length - base;
         return u->sun_path[n - 1] == '\0' && strnlen(u->sun_path, n) == n - 1;
     }
@@ -119,7 +129,9 @@ int el_loopback(int family, unsigned port, struct el_address *out)
     for (struct addrinfo *r = list; r; r = r->ai_next)
     {
         if (r->ai_family != family || r->ai_addrlen > sizeof next.storage)
+        {
             continue;
+        }
         memcpy(&next.storage, r->ai_addr, r->ai_addrlen);
         next.length = r->ai_addrlen;
         if (address_valid(&next))
@@ -171,7 +183,9 @@ int el_listener(struct el_ops o, const struct el_address *a, int *out)
     int fd = o.socket_fd(o.context, a->storage.ss_family,
                          SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0);
     if (fd < 0)
+    {
         return -1;
+    }
     if (o.bind_fd(o.context, fd, (const struct sockaddr *)&a->storage,
                   a->length) ||
         o.listen_fd(o.context, fd, 4))
@@ -204,7 +218,9 @@ int el_connect(struct el_ops o, const struct el_address *a, unsigned count,
         }
         struct timespec now, left;
         if (clock_gettime(CLOCK_MONOTONIC, &now))
+        {
             return -1;
+        }
         int remains = es_remaining(now, deadline, &left);
         if (remains <= 0)
         {
@@ -240,7 +256,9 @@ int el_connect(struct el_ops o, const struct el_address *a, unsigned count,
                 struct pollfd p = {fd, POLLOUT, 0};
                 r = ppoll(&p, 1, &left, 0);
                 if (r < 0 && errno == EINTR)
+                {
                     continue;
+                }
                 if (r < 0)
                 {
                     error = errno;
@@ -279,7 +297,9 @@ int el_connect(struct el_ops o, const struct el_address *a, unsigned count,
         final = error;
         o.close_fd(o.context, fd);
         if (error == ETIMEDOUT)
+        {
             break;
+        }
     }
     *checks = inspected;
     errno = final;
@@ -296,7 +316,9 @@ int el_accept(struct el_ops o, int listener, int (*cancel)(void *, int),
     }
     int fd = o.accept_fd(o.context, listener);
     if (fd < 0)
+    {
         return -1;
+    }
     if (cancel && cancel(context, fd))
     {
 #ifndef EL_MUTANT_CANCEL_LEAK

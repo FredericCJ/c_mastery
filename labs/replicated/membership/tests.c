@@ -22,7 +22,9 @@ static struct rpm_permit permit(uint64_t id)
     p.active = 1;
     p.positive_limit = p.negative_limit = 100;
     for (i = 0; i < 32; ++i)
+    {
         p.key[i] = (unsigned char)(i + id);
+    }
     return p;
 }
 
@@ -205,7 +207,9 @@ static void printhex(const unsigned char *p, size_t n)
 {
     size_t i;
     for (i = 0; i < n; ++i)
+    {
         printf("%02x", p[i]);
+    }
 }
 
 static int oracle(void)
@@ -225,7 +229,9 @@ static int oracle(void)
         {
             unsigned i;
             for (i = 0; i < 3; ++i)
+            {
                 CHECK(rpm_make(9, 10 * (i + 1), &state[i]) == RPM_OK);
+            }
             status = RPM_OK;
         }
         else if (op == 'A')
@@ -233,23 +239,31 @@ static int oracle(void)
             CHECK(amount <= UINT32_MAX);
             status = rpm_add(&state[a], (int)b, (uint32_t)amount, &next);
             if (status == RPM_OK)
+            {
                 state[a] = next;
+            }
         }
         else if (op == 'R')
         {
             status = rpm_replace(&state[a], amount, &next);
             if (status == RPM_OK)
+            {
                 state[a] = next;
+            }
         }
         else if (op == 'M')
         {
             CHECK(b < 3);
             status = rpm_merge(&state[a], &state[b], &next);
             if (status == RPM_OK)
+            {
                 state[a] = next;
+            }
         }
         else
+        {
             return 2;
+        }
         CHECK(rpm_value(&state[a], &value) == RPM_OK);
         CHECK(rpm_encode(&state[a], wirebytes) == RPM_OK);
         p = permit(state[a].self);
@@ -274,18 +288,32 @@ static int metrics(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "membership_join"))
+    {
         return join() || laws();
+    }
     if (!strcmp(argv[1], "membership_wire"))
+    {
         return wire();
+    }
     if (!strcmp(argv[1], "membership_auth"))
+    {
         return auth();
+    }
     if (!strcmp(argv[1], "membership_replay"))
+    {
         return replay();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

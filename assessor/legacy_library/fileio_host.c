@@ -38,7 +38,9 @@ static ptrdiff_t file_write(void *v, const uint8_t *p, size_t n)
 {
     FILE *f = v;
     if (ferror(f))
+    {
         return -1;
+    }
     size_t k = fwrite(p, 1, n, f);
     return k ? (ptrdiff_t)k : -1;
 }
@@ -58,7 +60,9 @@ static enum li_status copy(struct li_copy *c, LIRead r, void *rc, f_writer_fn w,
 {
     enum li_status s = LI_PENDING;
     for (unsigned i = 0; i < 64 && s == LI_PENDING; ++i)
+    {
         s = li_pump(c, r, rc, w, wc, 1);
+    }
     return s;
 }
 
@@ -77,7 +81,9 @@ static ssize_t faulty_read(void *v, char *p, size_t n)
     {
         size_t k = 2 - c->position;
         if (k > n)
+        {
             k = n;
+        }
         memcpy(p, data + c->position, k);
         c->position += k;
         return (ssize_t)k;
@@ -116,7 +122,9 @@ static ptrdiff_t pipe_write(void *v, const uint8_t *p, size_t n)
     int fd = *(int *)v;
     ssize_t k = write(fd, p, n);
     if (k < 0 && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR))
+    {
         return -2;
+    }
     return k > 0 ? (ptrdiff_t)k : -1;
 }
 

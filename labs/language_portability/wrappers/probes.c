@@ -60,9 +60,13 @@ int main(void)
 {
     int value = 0;
     if (1)
+    {
         TWO();
+    }
     else
+    {
         value = 3;
+    }
     return value;
 }
 #elif CASE == 7

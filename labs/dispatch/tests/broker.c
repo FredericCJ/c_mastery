@@ -64,10 +64,14 @@ static int checks(void)
           b.counters[0] == 1);
     ds_broker_init(&b);
     for (unsigned byte = 0; byte < 16; ++byte)
+    {
         reply[byte] = 91;
+    }
     CHECK(ds_broker_apply(NULL, 0, p, reply) == DS_INVALID);
     for (unsigned byte = 0; byte < 16; ++byte)
+    {
         CHECK(reply[byte] == 91);
+    }
     /* Reply may replace request after all fields have been decoded. */
     ds_broker_request(p, DS_B_ADD, 0, 0, 1, 1, 1, 7);
     CHECK(ds_broker_apply(&b, 0, p, p) == DS_OK && p[1] == DS_OK &&
@@ -86,10 +90,15 @@ static int oracle(void)
 {
     const uint32_t values[3] = {0, 7, 1001};
     for (unsigned op = 1; op <= 4; ++op)
+    {
         for (unsigned target = 0; target < 2; ++target)
+        {
             for (unsigned id = 0; id < 5; ++id)
+            {
                 for (unsigned rights = 0; rights < 4; ++rights)
+                {
                     for (unsigned epoch = 0; epoch < 5; ++epoch)
+                    {
                         for (unsigned v = 0; v < 3; ++v)
                         {
                             struct ds_broker b = {0};
@@ -104,6 +113,11 @@ static int oracle(void)
                                    ds_broker_u32(reply + 4), b.counters[0],
                                    b.counters[1], b.next_sequence[0]);
                         }
+                    }
+                }
+            }
+        }
+    }
     for (unsigned code = 0; code < 1024; ++code)
     {
         struct ds_broker b = {0};
@@ -131,7 +145,9 @@ static int oracle(void)
 int main(int argc, char **argv)
 {
     if (argc < 2)
+    {
         return 2;
+    }
     test = argv[1];
     if (!strcmp(test, "layout"))
     {
@@ -140,8 +156,12 @@ int main(int argc, char **argv)
         return 0;
     }
     if (!strcmp(test, "broker"))
+    {
         return checks();
+    }
     if (!strcmp(test, "oracle"))
+    {
         return oracle();
+    }
     return 2;
 }

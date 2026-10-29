@@ -39,14 +39,18 @@ static int memory(void)
     struct sd_image a = {0}, b = {0};
     unsigned char data[130];
     for (unsigned i = 0; i < 130; i++)
+    {
         data[i] = (unsigned char)(i + 1);
+    }
     for (int fail = 0; fail < 3; fail++)
     {
         a.length = 99;
         CHECK(sd_load(&m, data, sizeof data, fail, &a) == SD_FULL &&
               a.length == 99);
         for (unsigned i = 0; i < 16; i++)
+        {
             CHECK(m.refs[i] == 0);
+        }
     }
     CHECK(sd_load(&m, data, sizeof data, -1, &a) == 0 && a.count == 3 &&
           m.bytes[a.frames[2]][1] == 130 && m.bytes[a.frames[2]][2] == 0);
@@ -67,18 +71,26 @@ static int memory(void)
     CHECK(sd_write(&m, &a, 0, 88, 0) == 0 && a.frames[0] == old);
     CHECK(sd_release(&m, &a) == 0);
     for (unsigned i = 0; i < 16; i++)
+    {
         CHECK(!m.refs[i]);
+    }
     /* Preserve existing ownership when the final needed frame is unavailable. */
     struct sd_image occupied[4];
     unsigned char page[256] = {3};
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(sd_load(&m, page, sizeof page, -1, &occupied[i]) == SD_OK);
+    }
     a.length = 123;
     CHECK(sd_load(&m, page, 1, -1, &a) == SD_FULL && a.length == 123);
     for (unsigned i = 0; i < 16; i++)
+    {
         CHECK(m.refs[i] == 1);
+    }
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(sd_release(&m, &occupied[i]) == SD_OK);
+    }
     CHECK(sd_load(&m, data, sizeof data, -1, &a) == SD_OK);
     /* Controlled reference-count boundary injection; restore before teardown. */
     m.refs[a.frames[2]] = 65535;
@@ -202,14 +214,20 @@ static int files(void)
     struct sd_handle held[8];
     CHECK(sd_open(&fs, "alpha", &held[0]) == SD_OK);
     for (unsigned i = 1; i < 8; i++)
+    {
         CHECK(sd_dup(&fs, held[0], &held[i]) == SD_OK);
+    }
     a = (struct sd_handle){99, 99};
     CHECK(sd_dup(&fs, held[0], &a) == SD_FULL && a.index == 99);
     for (unsigned i = 0; i < 8; i++)
+    {
         CHECK(sd_close(&fs, held[i]) == SD_OK);
+    }
     /* Exhausted generations never return a previously issued incarnation. */
     for (unsigned i = 0; i < 8; i++)
+    {
         fs.handles[i].generation = UINT32_MAX;
+    }
     CHECK(sd_open(&fs, "alpha", &a) == SD_FULL && a.index == 99);
     return 0;
 }
@@ -254,13 +272,17 @@ static int journal(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     int r = !strcmp(argv[1], "memory")    ? memory()
             : !strcmp(argv[1], "channel") ? channel()
             : !strcmp(argv[1], "files")   ? files()
             : !strcmp(argv[1], "journal") ? journal()
                                           : 2;
     if (!r)
+    {
         puts("PASS service depth");
+    }
     return r;
 }

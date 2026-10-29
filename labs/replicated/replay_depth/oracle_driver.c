@@ -19,7 +19,9 @@ static int capture(const struct rpr_session *s, struct rph_sha *h)
     unsigned char b[512];
     struct rpr_session copy;
     if (rpr_encode(s, b) || rpr_decode(9, b, &copy) || !rpr_invariant(&copy))
+    {
         return 1;
+    }
     return rph_update(h, b, sizeof b);
 }
 
@@ -44,8 +46,10 @@ int rpr_oracle(void)
             rc /= 3;
         }
         for (unsigned i = 0; i < n; ++i)
+        {
             CHECK(rpr_advance(&s, local[i], &notice) == 0 &&
                   capture(&s, &h) == 0);
+        }
         for (unsigned i = 0; i < n; ++i)
         {
             unsigned tick = order % 9;
@@ -56,11 +60,15 @@ int rpr_oracle(void)
         }
         CHECK(!order && s.confirmed == n);
         for (unsigned i = 0; i < n; ++i)
+        {
             CHECK(rpr_prepare(&s, &effect) == 0 && capture(&s, &h) == 0 &&
                   rpr_feedback(&s, effect, AR_OK) == 0 && capture(&s, &h) == 0);
+        }
         CHECK(rph_final(&h, digest) == 0);
         for (unsigned i = 0; i < 32; ++i)
+        {
             printf("%02x", digest[i]);
+        }
         putchar('\n');
     }
     return ferror(stdin) ? 1 : 0;
@@ -80,12 +88,18 @@ int rpr_metrics(void)
         {
             CHECK(rpr_init(9, 8, initial, &s) == 0);
             for (unsigned i = 0; i < 8; ++i)
+            {
                 CHECK(rpr_advance(&s, 1, &notice) == 0);
+            }
             for (unsigned i = 8; i; --i)
+            {
                 CHECK(rpr_correct(&s, 9, i, -1, &notice) == 0);
+            }
             for (unsigned i = 0; i < 8; ++i)
+            {
                 CHECK(rpr_prepare(&s, &effect) == 0 &&
                       rpr_feedback(&s, effect, AR_OK) == 0);
+            }
         }
         times[sample] = (double)(clock() - start) / CLOCKS_PER_SEC;
     }
@@ -94,7 +108,9 @@ int rpr_metrics(void)
            "\"cpu_seconds\":[",
            sizeof s, sizeof(struct rpr_durable), runs);
     for (unsigned i = 0; i < 7; ++i)
+    {
         printf("%s%.9f", i ? "," : "", times[i]);
+    }
     puts("]}");
     return 0;
 }
@@ -114,18 +130,26 @@ int rpr_counterexamples(void)
     unsigned inputs[3] = {1, 2, 3};
     uint32_t first = 0, replay = 0;
     for (unsigned i = 0; i < 3; ++i)
+    {
         first += hidden_step(inputs[i]);
+    }
     for (unsigned i = 0; i < 3; ++i)
+    {
         replay += hidden_step(inputs[i]);
+    }
     CHECK(first != replay);
     /* A callback outside the durable transaction is repeated after an uncertain
        acknowledgement, even though both deliveries name the same effect. */
     unsigned external_counter = 0;
     struct rpr_effect a = {9, 1, 22}, b = a;
     if (a.timeline == 9 && a.tick == 1)
+    {
         ++external_counter;
+    }
     if (b.timeline == 9 && b.tick == 1)
+    {
         ++external_counter;
+    }
     CHECK(external_counter == 2);
     printf("REPLAY_COUNTEREXAMPLES hidden-random-first%u replay%u "
            "external-effect-count%u\n",

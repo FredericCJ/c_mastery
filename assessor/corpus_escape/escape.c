@@ -15,18 +15,28 @@ static int admitted(unsigned char c)
 static size_t special(unsigned char c)
 {
     for (size_t i = 0; i < 5; i++)
+    {
         if (specials[i] == c)
+        {
             return i;
+        }
+    }
     return 5;
 }
 
 static int same(const unsigned char *s, size_t n, const char *t, size_t z)
 {
     if (n < z)
+    {
         return 0;
+    }
     for (size_t i = 0; i < z; i++)
+    {
         if (s[i] != (unsigned char)t[i])
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
@@ -52,12 +62,18 @@ static int decode(const unsigned char *s, size_t n, unsigned html,
                 }
             }
             if (k == 5)
+            {
                 return ES_SYNTAX;
+            }
         }
         else if (!admitted(c) || special(c) != 5)
+        {
             return ES_SYNTAX;
+        }
         if (r.length == ES_PLAIN)
+        {
             return ES_RANGE;
+        }
         r.bytes[r.length++] = c;
     }
     *out = r;
@@ -67,25 +83,41 @@ static int decode(const unsigned char *s, size_t n, unsigned html,
 int es_encode(const unsigned char *s, size_t n, size_t cap, struct es_text *out)
 {
     if (!out || (!s && n) || cap > ES_ENCODED)
+    {
         return ES_INVALID;
+    }
     if (n > ES_PLAIN)
+    {
         return ES_RANGE;
+    }
     struct es_text r = {{0}, 0};
     for (size_t i = 0; i < n; i++)
     {
         if (!admitted(s[i]))
+        {
             return ES_SYNTAX;
+        }
         size_t k = special(s[i]);
         if (ES_MUTANT == 1 && s[i] == '&')
+        {
             k = 5;
+        }
         if (k == 5)
+        {
             r.bytes[r.length++] = s[i];
+        }
         else
+        {
             for (size_t j = 0; j < widths[k]; j++)
+            {
                 r.bytes[r.length++] = (unsigned char)named[k][j];
+            }
+        }
     }
     if (r.length > cap)
+    {
         return ES_CAPACITY;
+    }
     *out = r;
     return ES_OK;
 }
@@ -93,21 +125,31 @@ int es_encode(const unsigned char *s, size_t n, size_t cap, struct es_text *out)
 int es_decode(const unsigned char *s, size_t n, size_t cap, struct es_text *out)
 {
     if (!out || (!s && n) || cap > ES_ENCODED)
+    {
         return ES_INVALID;
+    }
     if (n > ES_ENCODED)
+    {
         return ES_RANGE;
+    }
     struct es_text r = {{0}, 0};
     int status = decode(s, n, 0, &r);
     if (status)
+    {
         return status;
+    }
     if (ES_MUTANT == 2)
     {
         struct es_text twice = {{0}, 0};
         if (decode(r.bytes, r.length, 0, &twice) == ES_OK)
+        {
             r = twice;
+        }
     }
     if (r.length > cap)
+    {
         return ES_CAPACITY;
+    }
     *out = r;
     return ES_OK;
 }
@@ -116,9 +158,13 @@ int es_recode_html(const unsigned char *s, size_t n, size_t cap,
                    struct es_text *out)
 {
     if (!out || (!s && n) || cap > ES_ENCODED)
+    {
         return ES_INVALID;
+    }
     if (n > ES_ENCODED)
+    {
         return ES_RANGE;
+    }
     struct es_text plain = {{0}, 0};
     int status = decode(s, n, 1, &plain);
     return status ? status : es_encode(plain.bytes, plain.length, cap, out);

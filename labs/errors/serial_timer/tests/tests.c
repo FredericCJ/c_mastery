@@ -128,7 +128,9 @@ static int admission(void)
     CHECK(eat_window_advance(&q, 8) == ER_RANGE &&
           memcmp(&q, &old, sizeof q) == 0);
     for (unsigned i = 0; i < 4; ++i)
+    {
         CHECK(eat_window_arm(&q, i, 0) == ER_OK);
+    }
     old = q;
     CHECK(eat_window_arm(&q, 0, 0) == ER_INVALID &&
           memcmp(&q, &old, sizeof q) == 0);
@@ -139,7 +141,9 @@ static int admission(void)
     struct eat_epoch e;
     CHECK(eat_epoch_init(&e, 4, 0) == ER_OK);
     for (unsigned i = 0; i < 4; ++i)
+    {
         CHECK(eat_epoch_arm(&e, i, 0) == ER_OK);
+    }
     struct eat_epoch before = e;
     CHECK(eat_epoch_arm(&e, 0, 0) == ER_INVALID &&
           memcmp(&e, &before, sizeof e) == 0);
@@ -232,7 +236,9 @@ static int metrics(void)
         "{\"iterations\":10000,\"checksum\":%lu,\"allocation_calls\":0,\"window_size\":%zu,\"epoch_size\":%zu,\"seconds\":[",
         sum, sizeof(struct eat_window), sizeof(struct eat_epoch));
     for (unsigned i = 0; i < 7; ++i)
+    {
         printf("%s%.9f", i ? "," : "", samples[i]);
+    }
     puts("]}");
     return 0;
 }
@@ -240,22 +246,40 @@ static int metrics(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "timer_base"))
+    {
         return base();
+    }
     if (!strcmp(argv[1], "timer_relation"))
+    {
         return relation();
+    }
     if (!strcmp(argv[1], "timer_window"))
+    {
         return window();
+    }
     if (!strcmp(argv[1], "timer_lifetime"))
+    {
         return lifetime();
+    }
     if (!strcmp(argv[1], "timer_epoch"))
+    {
         return epoch();
+    }
     if (!strcmp(argv[1], "timer_admission"))
+    {
         return admission();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

@@ -33,7 +33,9 @@ static int rd(void *c, uint32_t p, void *b)
 {
     (void)c;
     if (p >= 67)
+    {
         return 1;
+    }
     io_calls++;
     memcpy(b, disk[p], io_calls == io_fail ? 137 : 4096);
     return io_calls == io_fail;
@@ -43,7 +45,9 @@ static int wr(void *c, uint32_t p, const void *b)
 {
     (void)c;
     if (p >= 67)
+    {
         return 1;
+    }
     io_calls++;
     memcpy(disk[p], b, io_calls == io_fail ? 137 : 4096);
     return io_calls == io_fail;
@@ -62,12 +66,16 @@ static int prepare(store *s)
     memset(disk, 0, sizeof disk);
     fail_at = io_fail = 0;
     if (store_format(io) || store_open(s, io) || store_begin(s))
+    {
         return 1;
+    }
     for (unsigned i = 0; i < 35; i++)
     {
         uint8_t k = (uint8_t)i;
         if (store_put(s, &k, 1, &k, 1))
+        {
             return 1;
+        }
     }
     return store_commit(s);
 }
@@ -233,7 +241,9 @@ static int capacity(void)
     }
     CHECK(stop > 35 && stop < 256 && s.active);
     for (unsigned i = 0; i < stop; i++)
+    {
         CHECK(get(&s, i, i ? i : 99) == 0);
+    }
     store baseline = s;
     k = (uint8_t)stop;
     CHECK(store_put(&baseline, &k, 1, &k, 1) == STORE_FULL &&
@@ -379,24 +389,44 @@ static int oracle(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "original_abort"))
+    {
         return original_abort();
+    }
     if (!strcmp(argv[1], "operation"))
+    {
         return operation();
+    }
     if (!strcmp(argv[1], "savepoint"))
+    {
         return savepoint();
+    }
     if (!strcmp(argv[1], "lifecycle"))
+    {
         return lifecycle();
+    }
     if (!strcmp(argv[1], "nosteal"))
+    {
         return nosteal();
+    }
     if (!strcmp(argv[1], "cost"))
+    {
         return cost();
+    }
     if (!strcmp(argv[1], "capacity"))
+    {
         return capacity();
+    }
     if (!strcmp(argv[1], "uncertain"))
+    {
         return uncertain();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     return 2;
 }

@@ -15,6 +15,8 @@ int ua_cases(unsigned);
 int main(int argc, char **argv)
 {
     if (argc != 2 || argv[1][0] < '0' || argv[1][0] > '4' || argv[1][1])
+    {
         return 42;
+    }
     return ua_cases((unsigned)(argv[1][0] - '0'));
 }

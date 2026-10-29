@@ -33,17 +33,25 @@ static void *worker(void *arg)
             if (r == CMX_OK)
             {
                 if (v >= 2 * ITEMS)
+                {
                     atomic_fetch_add(&errors, 1);
+                }
                 else if (atomic_fetch_add(&seen[v], 1))
+                {
                     atomic_fetch_add(&errors, 1);
+                }
                 atomic_fetch_add(&consumed, 1);
                 cmx_hp_collect(&queue);
             }
             else if (atomic_load(&produced) == 2 * ITEMS &&
                      atomic_load(&consumed) == 2 * ITEMS)
+            {
                 break;
+            }
             else
+            {
                 sched_yield();
+            }
         }
     }
     return NULL;
@@ -59,16 +67,30 @@ int main(void)
     }
     pthread_t threads[4];
     for (unsigned i = 0; i < 4; i++)
+    {
         if (pthread_create(&threads[i], NULL, worker, (void *)(uintptr_t)i))
+        {
             return 2;
+        }
+    }
     for (unsigned i = 0; i < 4; i++)
+    {
         if (pthread_join(threads[i], NULL))
+        {
             return 2;
+        }
+    }
     if (atomic_load(&errors) || atomic_load(&consumed) != 2 * ITEMS)
+    {
         return 1;
+    }
     for (unsigned i = 0; i < 2 * ITEMS; i++)
+    {
         if (atomic_load(&seen[i]) != 1)
+        {
             return 1;
+        }
+    }
     puts(
         "PASS actual four-pthread MPMC: 40000 unique transfers; finite stress, "
         "not proof");

@@ -36,7 +36,9 @@ int nr_public_tests(void);
 void xf_target_main(void)
 {
     if (nr_public_tests())
+    {
         finish(1);
+    }
     puts("NR_TARGET_PASS actual_Reno_core "
          "CPU_state_only");
     finish(0);

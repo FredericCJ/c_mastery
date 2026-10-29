@@ -21,7 +21,9 @@ static void *phase_worker(void *arg)
     p->cells[p->index] = (int)p->index + 1;
     CHECK(tw_barrier_wait(p->barrier) == 0);
     if (!p->index)
+    {
         *p->total = p->cells[0] + p->cells[1] + p->cells[2];
+    }
     CHECK(tw_barrier_wait(p->barrier) == 0);
     CHECK(*p->total == 6);
     return NULL;
@@ -42,7 +44,9 @@ void test_barrier(void)
         CHECK(pthread_create(&t[i], NULL, phase_worker, &p[i]) == 0);
     }
     for (unsigned i = 0; i < 3; i++)
+    {
         CHECK(pthread_join(t[i], NULL) == 0);
+    }
     CHECK(total == 6 && b.generation == 2 && b.arrived == 0);
     tw_barrier_destroy(&b);
     CHECK(tw_barrier_init(&b, 3) == 0);
@@ -57,12 +61,16 @@ void test_barrier(void)
         unsigned arrived = b.arrived;
         CHECK(pthread_mutex_unlock(&b.mutex) == 0);
         if (arrived == 2)
+        {
             break;
+        }
         sched_yield();
     }
     CHECK(tw_barrier_break(&b) == 0);
     for (unsigned i = 0; i < 2; i++)
+    {
         CHECK(pthread_join(t[i], NULL) == 0);
+    }
     CHECK(p[0].result == ECANCELED && p[1].result == ECANCELED);
     CHECK(tw_barrier_wait(&b) == ECANCELED);
     tw_barrier_destroy(&b);
@@ -88,7 +96,9 @@ void test_fairness(void)
         readers++;
         readers--;
         if (tw_writer_admit(readers, writer))
+        {
             writer_entries++;
+        }
         CHECK(readers == 1 && !writer);
     }
     CHECK(writer_entries == 0);
@@ -97,9 +107,13 @@ void test_fairness(void)
     {
         owner = 0; /* release */
         if (!owner)
+        {
             owner = 1; /* stealer */
+        }
         if (!owner)
+        {
             waiter_entries++;
+        }
         CHECK(owner == 1);
     }
     CHECK(waiter_entries == 0);
@@ -111,7 +125,9 @@ void test_fairness(void)
         CHECK(!tw_reader_admit(0, writer, 1, 1));
         writer = 0;
         if (tw_reader_admit(0, writer, 1, 1))
+        {
             reader_entries++;
+        }
     }
     CHECK(reader_entries == 0);
     CHECK(!tw_reader_admit(0, 0, 1, 1));
@@ -155,7 +171,9 @@ static void async_region(atomic_uint *entered)
     (void)pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &old);
     atomic_store(entered, 1);
     for (;;)
+    {
         atomic_signal_fence(memory_order_seq_cst);
+    }
 }
 
 static void permit_cleanup(void *p)
@@ -189,20 +207,28 @@ void test_permit(void)
     CHECK(tw_select(4) == -1);
     pthread_t t[4];
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(pthread_create(&t[i], NULL, once_worker, NULL) == 0);
+    }
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(pthread_join(t[i], NULL) == 0);
+    }
     CHECK(initialized == 1);
     struct tw_permits p;
     CHECK(tw_permits_init(&p) == 0);
     unsigned tokens[3], sentinel = 99;
     for (unsigned i = 0; i < 3; i++)
+    {
         CHECK(tw_permit_take(&p, &tokens[i]) == 0);
+    }
     CHECK(p.mask == 7);
     CHECK(tw_permit_take(&p, &sentinel) == EAGAIN && sentinel == 99);
     CHECK(tw_permit_release(&p, 3) == EINVAL);
     for (unsigned i = 0; i < 3; i++)
+    {
         CHECK(tw_permit_release(&p, tokens[i]) == 0);
+    }
     CHECK(tw_permit_release(&p, tokens[0]) == EALREADY);
     CHECK(p.mask == 0 && p.settlements == 3);
     struct tw_async a = {.pool = &p};
@@ -210,16 +236,22 @@ void test_permit(void)
     CHECK(atomic_is_lock_free(&a.entered));
     CHECK(pthread_create(&t[0], NULL, async_worker, &a) == 0);
     while (!atomic_load(&a.entered))
+    {
         sched_yield();
+    }
     CHECK(pthread_cancel(t[0]) == 0);
     void *result = NULL;
     CHECK(pthread_join(t[0], &result) == 0 && result == PTHREAD_CANCELED);
     CHECK(a.released == 1 && p.mask == 0 && p.settlements == 4);
     for (unsigned i = 0; i < 3; i++)
+    {
         CHECK(tw_permit_take(&p, &tokens[i]) == 0);
+    }
     CHECK(tw_permit_take(&p, &sentinel) == EAGAIN);
     for (unsigned i = 0; i < 3; i++)
+    {
         CHECK(tw_permit_release(&p, tokens[i]) == 0);
+    }
     tw_permits_destroy(&p);
     /* Actual read/write exclusion, no selected preference assumption. */
     pthread_rwlock_t rw;

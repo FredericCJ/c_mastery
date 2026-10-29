@@ -27,7 +27,9 @@ static void high(unsigned i, uint32_t count)
 {
     uint32_t old = atomic_load(&SH->high[i]);
     if (count > old)
+    {
         atomic_store(&SH->high[i], count);
+    }
 }
 
 void cmx_port_tick_hook(void)
@@ -42,12 +44,16 @@ void cmx_port_tick_hook(void)
         {
             uint32_t seq = atomic_load(&SH->samples) + 1;
             if (seq > pipe_limit)
+            {
                 break;
+            }
             atomic_store(&SH->samples, seq);
             struct af_message m = {
                 .epoch = epoch, .sequence = seq, .length = 4};
             for (unsigned k = 0; k < 4; k++)
+            {
                 m.bytes[k] = (unsigned char)(seq >> (8 * k));
+            }
             if (af_queued(&acquisition) >= 2 ||
                 af_batch(&acquisition, epoch, &m, 1) != AF_OK)
             {
@@ -55,12 +61,18 @@ void cmx_port_tick_hook(void)
                 atomic_fetch_add(&SH->dropped, 1);
             }
             else
+            {
                 high(0, af_queued(&acquisition));
+            }
         }
     }
     if (AF_INTERFERENCE && cmx_port_ticks % 17 == 0)
+    {
         for (volatile unsigned n = 0; n < 5000; n++)
+        {
             __asm__ volatile("nop");
+        }
+    }
 #endif
 }
 
@@ -90,21 +102,29 @@ static void producer_task(void)
         {
             atomic_store(&pipe_epoch, 0);
             if (epoch)
+            {
                 atomic_store_explicit(&SH->boot.parked, epoch,
                                       memory_order_release);
+            }
             unsigned expired;
             if (af_elapsed(start, now(), 100000000, &expired) != AF_OK ||
                 expired)
+            {
                 fail(0xe0);
+            }
             cmx_port_yield();
             continue;
         }
         if (ready != epoch)
         {
             if (have || af_queued(&acquisition))
+            {
                 fail(0xe1);
+            }
             if (af_boot_ack(&SH->boot, 2, AF_LAYOUT, ready) != AF_OK)
+            {
                 fail(0xe2);
+            }
             epoch = ready;
             pipe_limit = epoch == 1 ? 256 : 512;
             atomic_store(&pipe_epoch, epoch);
@@ -124,7 +144,9 @@ static void producer_task(void)
                 have = 1;
             }
             else if (r != AF_EMPTY)
+            {
                 fail(0xe3);
+            }
         }
         if (have)
         {
@@ -136,13 +158,19 @@ static void producer_task(void)
                 {
                     uint32_t value = pending.sequence + 1;
                     for (unsigned k = 0; k < 4; k++)
+                    {
                         pending.bytes[k] = (unsigned char)(value >> (8 * k));
+                    }
                 }
                 if (af_batch(out, epoch, &pending, 1) != AF_OK)
+                {
                     fail(0xe4);
+                }
                 high(AF_LOCAL ? 2 : 1, af_queued(out));
                 if (!AF_LOCAL)
+                {
                     atomic_fetch_add(&SH->traffic, 1);
+                }
                 have = 0;
                 ring();
             }
@@ -168,18 +196,28 @@ static void sink_task(void)
             {
                 uint32_t value = 0;
                 for (unsigned k = 0; k < 4; k++)
+                {
                     value |= (uint32_t)bytes[k] << (8 * k);
+                }
                 if (len != 4 || seq <= last || seq > 512 || value != seq + 1)
+                {
                     fail(0xe5);
+                }
                 last = seq;
                 if (AF_PIPE_MUTANT != 2)
+                {
                     SH->completed[(seq - 1) / 32] |= 1u << ((seq - 1) % 32);
+                }
                 uint32_t done = atomic_fetch_add(&SH->done, 1);
                 if (done < 128)
+                {
                     SH->trace[done] = seq;
+                }
             }
             else if (r != AF_EMPTY)
+            {
                 fail(0xe6);
+            }
         }
         cmx_port_yield();
     }
@@ -213,9 +251,13 @@ static void worker_task(void)
         {
             int r = af_boot_status(&supervisor, &SH->boot, now());
             if (r == AF_OK)
+            {
                 booted = 1;
+            }
             else if (r != AF_BUSY)
+            {
                 fail(0xe7);
+            }
             else
             {
                 cmx_port_yield();
@@ -231,23 +273,33 @@ static void worker_task(void)
             if (r == AF_OK)
             {
                 if (len != 4 || !seq || seq > 512)
+                {
                     fail(0xe8);
+                }
                 struct af_message m = {
                     .epoch = epoch, .sequence = seq, .length = 4};
                 uint32_t value = seq + (AF_PIPE_MUTANT == 1 ? 2 : 1);
                 for (unsigned k = 0; k < 4; k++)
+                {
                     m.bytes[k] = (unsigned char)(value >> (8 * k));
+                }
                 int32_t applied;
                 if (af_effect(&receipt, 1, receipt.last_id + 1, 1, &applied) !=
                     AF_OK)
+                {
                     fail(0xe9);
+                }
                 if (af_batch(&SH->response, epoch, &m, 1) != AF_OK)
+                {
                     fail(0xea);
+                }
                 high(2, af_queued(&SH->response));
                 ring();
             }
             else if (r != AF_EMPTY)
+            {
                 fail(0xeb);
+            }
         }
         atomic_fetch_add(&SH->progress[0], 1);
         uint32_t seen = atomic_load(&SH->progress[1]);
@@ -261,7 +313,9 @@ static void worker_task(void)
             unsigned expired;
             if (af_elapsed(watchdog, now(), 100000000, &expired) != AF_OK ||
                 expired)
+            {
                 fail(0xec);
+            }
         }
         uint32_t samples = atomic_load(&SH->samples),
                  done = atomic_load(&SH->done),
@@ -271,13 +325,19 @@ static void worker_task(void)
             if (epoch == 2)
             {
                 for (unsigned i = 0; i < 16; i++)
+                {
                     if ((SH->rejected[i] & SH->completed[i]) ||
                         (SH->rejected[i] | SH->completed[i]) != UINT32_MAX)
+                    {
                         fail(0xed);
+                    }
+                }
                 if (atomic_load(&SH->high[0]) > 2 ||
                     atomic_load(&SH->high[1]) > 4 ||
                     atomic_load(&SH->high[2]) > 8 || cmx_port_switches < 20)
+                {
                     fail(0xee);
+                }
 #if AF_QEMU
                 print_word(samples);
                 print_word(done);
@@ -285,7 +345,9 @@ static void worker_task(void)
                 print_word(epoch);
                 print_word(atomic_load(&SH->traffic));
                 for (unsigned i = 0; i < 3; i++)
+                {
                     print_word(atomic_load(&SH->high[i]));
+                }
                 print_word(cmx_port_switches);
                 for (unsigned i = 0; i < 16; i++)
                 {
@@ -295,7 +357,9 @@ static void worker_task(void)
                 cmx_port_finish(0);
 #else
                 for (;;)
+                {
                     cmx_port_yield();
+                }
 #endif
             }
             atomic_store_explicit(&SH->boot.ready, 0, memory_order_release);
@@ -306,7 +370,9 @@ static void worker_task(void)
                 unsigned expired;
                 if (af_elapsed(start, now(), 100000000, &expired) != AF_OK ||
                     expired)
+                {
                     fail(0xef);
+                }
                 cmx_port_yield();
             }
 #if !AF_QEMU
@@ -316,12 +382,16 @@ static void worker_task(void)
                 unsigned expired;
                 if (af_elapsed(start, now(), 100000000, &expired) != AF_OK ||
                     expired)
+                {
                     fail(0xf7);
+                }
                 cmx_port_yield();
             }
 #endif
             if (af_boot_close(&supervisor, &SH->boot, 1, 1) != AF_OK)
+            {
                 fail(0xf1);
+            }
             publish(epoch);
             epoch = supervisor.next_epoch;
             booted = 0;
@@ -339,9 +409,13 @@ static void device_task(void)
     {
 #if !AF_QEMU
         if (!atomic_load(&device_pause) || buffers.transfer.phase)
+        {
             dma_step();
+        }
         if (atomic_load(&device_pause) && !buffers.transfer.phase)
+        {
             atomic_store(&device_parked, 1);
+        }
 #else
         (void)dma_step;
         (void)port;
@@ -359,20 +433,26 @@ static void primary(void)
     af_ring_init(&acquisition, 0);
     struct xd_fence cold = {0, 1, 1, 1};
     if (af_buffers_init(&buffers, &cold) != AF_OK)
+    {
         fail(0xf2);
+    }
     cmx_port_init();
 #if AF_QEMU
     if (cmx_port_task(producer_task, task_stacks[0], 512, 4) < 0 ||
         cmx_port_task(sink_task, task_stacks[1], 512, 4) < 0 ||
         cmx_port_task(worker_task, task_stacks[2], 512, 4) < 0 ||
         cmx_port_task(idle_task, task_stacks[3], 512, 255) < 0)
+    {
         fail(0xf3);
+    }
     (void)device_task;
 #else
     if (cmx_port_task(worker_task, task_stacks[0], 512, 4) < 0 ||
         cmx_port_task(device_task, task_stacks[1], 512, 4) < 0 ||
         cmx_port_task(idle_task, task_stacks[2], 512, 255) < 0)
+    {
         fail(0xf4);
+    }
     REG(0x580244a0u) |= 8;
     fence(0);
 #endif
@@ -385,11 +465,15 @@ static void secondary(void)
     cmx_port_init();
     uint32_t previous = atomic_load(&SH->boot.ready);
     if (previous && atomic_load(&SH->boot.ack) == previous)
+    {
         fail(0xf5);
+    }
     if (cmx_port_task(producer_task, task_stacks[0], 512, 4) < 0 ||
         cmx_port_task(sink_task, task_stacks[1], 512, 4) < 0 ||
         cmx_port_task(idle_task, task_stacks[2], 512, 255) < 0)
+    {
         fail(0xf6);
+    }
     cmx_port_start();
 }
 #endif

@@ -30,10 +30,14 @@ static void *allocate(void *ctx, size_t n)
     struct msg_memory *m = ctx;
     unsigned call = atomic_fetch_add(&m->calls, 1) + 1;
     if (call == m->fail)
+    {
         return NULL;
+    }
     void *p = malloc(n);
     if (p)
+    {
         atomic_fetch_add(&m->allocations, 1);
+    }
     return p;
 }
 
@@ -100,7 +104,9 @@ static void wait_entered(struct msg_pause *p)
 {
     pthread_mutex_lock(&p->mutex);
     while (!p->entered)
+    {
         pthread_cond_wait(&p->condition, &p->mutex);
+    }
     pthread_mutex_unlock(&p->mutex);
 }
 
@@ -119,7 +125,9 @@ static void pause_hook(void *ctx)
     p->entered = true;
     pthread_cond_broadcast(&p->condition);
     while (!p->resume)
+    {
         pthread_cond_wait(&p->condition, &p->mutex);
+    }
     pthread_mutex_unlock(&p->mutex);
 }
 
@@ -140,7 +148,9 @@ static void *slow_thief(void *ctx)
         mfl_drop(&lease);
     }
     else
+    {
         CHECK(!lease);
+    }
     return NULL;
 }
 
@@ -247,9 +257,13 @@ static void *consume(void *ctx)
             mfl_drop(&p);
         }
         else
+        {
             CHECK(s == MSG_EMPTY || s == MSG_CONFLICT);
+        }
         if (s == MSG_EMPTY && atomic_load(&w->done))
+        {
             break;
+        }
         sched_yield();
     }
     return NULL;
@@ -264,7 +278,9 @@ static void concurrent(void)
     struct msg_work w = {.q = &q};
     atomic_init(&w.done, false);
     for (unsigned i = 0; i < 1000; i++)
+    {
         atomic_init(&w.seen[i], 0);
+    }
     pthread_t a, b;
     CHECK(!pthread_create(&a, NULL, consume, &w));
     CHECK(!pthread_create(&b, NULL, consume, &w));
@@ -273,14 +289,18 @@ static void concurrent(void)
         struct mfo_value v = value(&m, i);
         enum msg_status s;
         while ((s = mfg_push(&q, &v)) == MSG_FULL)
+        {
             sched_yield();
+        }
         CHECK(s == MSG_OK && !v.data);
     }
     atomic_store(&w.done, true);
     CHECK(!pthread_join(a, NULL));
     CHECK(!pthread_join(b, NULL));
     for (unsigned i = 0; i < 1000; i++)
+    {
         CHECK(atomic_load(&w.seen[i]) == 1);
+    }
     CHECK(mfg_destroy(&q) == MSG_OK);
     CHECK(atomic_load(&m.drops) == 1000 &&
           atomic_load(&m.allocations) == atomic_load(&m.frees));
@@ -389,13 +409,19 @@ static void oracle(void)
             {
                 struct mfo_value v = value(&m, ++serial);
                 if (line[i] == 'f')
+                {
                     m.fail = atomic_load(&m.calls) + 1;
+                }
                 status = mfg_push(&q, &v);
                 m.fail = 0;
                 if (status != MSG_OK)
+                {
                     mfo_drop(&v);
+                }
                 else
+                {
                     CHECK(!v.data);
+                }
             }
             else
             {
@@ -409,7 +435,9 @@ static void oracle(void)
                     mfl_drop(&p);
                 }
                 else
+                {
                     CHECK(!p);
+                }
             }
             printf("%d:%u:%zu:%u,", status, observed, q.capacity,
                    atomic_load(&m.drops));
@@ -430,16 +458,22 @@ int main(int argc, char **argv)
         concurrent();
     }
     else if (!strcmp(argv[1], "snapshot"))
+    {
         snapshots();
+    }
     else if (!strcmp(argv[1], "references"))
+    {
         references();
+    }
     else if (!strcmp(argv[1], "oracle"))
     {
         oracle();
         return 0;
     }
     else
+    {
         CHECK(false);
+    }
     puts("lifetime passed");
     return 0;
 }

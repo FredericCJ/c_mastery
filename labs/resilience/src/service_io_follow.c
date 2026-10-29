@@ -10,7 +10,9 @@ int rzv_request_encode(struct rzj_request r, unsigned char b[RZV_FRAME_BYTES])
 void rzv_frame_init(struct rzv_frame *f)
 {
     if (f)
+    {
         *f = (struct rzv_frame){0};
+    }
 }
 
 int rzv_frame_feed(struct rzv_frame *f, const unsigned char *p, size_t n,

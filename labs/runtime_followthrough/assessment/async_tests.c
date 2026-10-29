@@ -26,7 +26,9 @@ struct vg_file
 static int transfer(struct vg_file *f, uint32_t page, void *buffer, int writing)
 {
     if (page >= STORE_IMAGE_PAGES)
+    {
         return -1;
+    }
     unsigned char *p = buffer;
     size_t n = STORE_PAGE_SIZE;
     off_t pos = (off_t)page * STORE_PAGE_SIZE;
@@ -35,9 +37,13 @@ static int transfer(struct vg_file *f, uint32_t page, void *buffer, int writing)
         ssize_t k =
             writing ? pwrite(f->fd, p, n, pos) : pread(f->fd, p, n, pos);
         if (k < 0 && errno == EINTR)
+        {
             continue;
+        }
         if (k <= 0)
+        {
             return -1;
+        }
         p += k;
         n -= (size_t)k;
         pos += k;
@@ -65,11 +71,15 @@ static int flush(void *p)
         f->entered = 1;
         pthread_cond_broadcast(&f->condition);
         while (!f->released)
+        {
             pthread_cond_wait(&f->condition, &f->mutex);
+        }
         pthread_mutex_unlock(&f->mutex);
     }
     if (fsync(f->fd))
+    {
         return -1;
+    }
     return f->lose_reply && f->flushes == f->gate ? -1 : 0;
 }
 
@@ -82,7 +92,9 @@ static int wait_gate(struct vg_file *f)
 {
     struct timespec t;
     if (clock_gettime(CLOCK_REALTIME, &t))
+    {
         return 0;
+    }
     t.tv_sec += 3;
     pthread_mutex_lock(&f->mutex);
     while (!f->entered)
@@ -112,7 +124,9 @@ static int finish(struct vg_va *a)
     {
         int r = va_poll(a);
         if (r != VA_BUSY)
+        {
             return r;
+        }
         struct timespec t = {0, 1000000};
         nanosleep(&t, 0);
     }
@@ -182,7 +196,9 @@ static int scenario(unsigned cancel, unsigned lost)
     struct cvm_value result;
     CHECK(cvm_run(&other, &simple, &result) == CVM_OK && result.integer == 47);
     if (cancel)
+    {
         CHECK(va_cancel(&task) == VA_BUSY);
+    }
     release(&f);
     int status = finish(&task);
     /* Contain a lying completion specimen before reporting its semantic failure.
@@ -228,7 +244,9 @@ static int scenario(unsigned cancel, unsigned lost)
 int main(void)
 {
     if (scenario(0, 0) || scenario(1, 0) || scenario(0, 1) || scenario(1, 1))
+    {
         return 1;
+    }
     puts("VA_PASS real_file_commit_pending_cancel_quiescence");
     return 0;
 }

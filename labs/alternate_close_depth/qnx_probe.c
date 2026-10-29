@@ -31,18 +31,30 @@ int main(int argc, char **argv)
     int old, fd, closed_errno, closed_rc;
     if (argc != 2 || strncmp(argv[1], prefix, sizeof prefix - 1) ||
         !argv[1][sizeof prefix - 1])
+    {
         return 2;
+    }
     for (const char *p = argv[1] + sizeof prefix - 1; *p; p++)
+    {
         if (*p < '0' || *p > '9')
+        {
             return 2;
+        }
+    }
     if (uname(&u) || strcmp(u.sysname, "QNX") || strncmp(u.release, "8.", 2))
+    {
         return 3;
+    }
     if (pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &old))
+    {
         return 4;
+    }
     /* One client, one fresh manager. No duplicate or concurrently borrowed fd. */
     fd = open(argv[1], O_RDWR);
     if (fd < 0 || fstat(fd, &before) || qc_init(&owner, fd) != QC_OK)
+    {
         return 5;
+    }
     enum qc_status a = qc_once(&owner, actual_close, &calls, &first);
     int live = fstat(fd, &after) == 0;
     int same =
@@ -53,7 +65,9 @@ int main(int argc, char **argv)
         owner.fd == fd && owner.state == QC_RETRY, calls, live, same);
     if (a != QC_AGAIN || first.error != EINTR || calls != 1 || !same ||
         owner.fd != fd || owner.state != QC_RETRY)
+    {
         return 6;
+    }
     enum qc_status b = qc_once(&owner, actual_close, &calls, &last);
     errno = 0;
     closed_rc = fstat(fd, &after);
@@ -62,9 +76,13 @@ int main(int argc, char **argv)
            calls, closed_rc == -1 && closed_errno == EBADF);
     if (b != QC_OK || owner.state != QC_CLOSED || calls != 2 ||
         closed_rc != -1 || closed_errno != EBADF)
+    {
         return 7;
+    }
     if (pthread_setcancelstate(old, NULL))
+    {
         return 8;
+    }
     printf("QC_QNX_ID sysname=%s release=%s machine=%s\n", u.sysname, u.release,
            u.machine);
     puts("QC_QNX_OK:resource-manager-error-path");

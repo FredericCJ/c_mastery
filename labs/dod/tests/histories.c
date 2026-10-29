@@ -23,8 +23,11 @@ static void columns(void)
     {
         unsigned combinations = 1;
         for (size_t i = 0; i < n; ++i)
+        {
             combinations *= 9;
+        }
         for (unsigned code = 0; code < combinations; ++code)
+        {
             for (unsigned tick = 0; tick < 3; ++tick)
             {
                 int ticks = tick == 2 ? 10 : (int)tick;
@@ -33,7 +36,9 @@ static void columns(void)
                     {91, 92, 93, 94}, {81, 82, 83, 84}, {11, 12, 13, 14}, n};
                 int32_t expected[4];
                 for (unsigned i = 0; i < 4; ++i)
+                {
                     expected[i] = c.x[i];
+                }
                 for (size_t i = 0; i < n; ++i)
                 {
                     c.x[i] = (int)(script % 3) - 1;
@@ -46,13 +51,17 @@ static void columns(void)
                 struct d_columns before = c;
                 HC(d_columns_step(&c, ticks) == D_OK);
                 for (unsigned i = 0; i < 4; ++i)
+                {
                     HC(c.x[i] == expected[i] &&
                        c.velocity[i] == before.velocity[i] &&
                        c.cold[i] == before.cold[i]);
+                }
                 ++cases;
             }
+        }
     }
     for (unsigned bad = 0; bad < 4; ++bad)
+    {
         for (unsigned sign = 0; sign < 2; ++sign)
         {
             struct d_columns c = {{1, 2, 3, 4}, {1, 1, 1, 1}, {9, 8, 7, 6}, 4};
@@ -61,10 +70,13 @@ static void columns(void)
             struct d_columns before = c;
             HC(d_columns_step(&c, 1) == D_RANGE);
             for (unsigned i = 0; i < 4; ++i)
+            {
                 HC(c.x[i] == before.x[i] &&
                    c.velocity[i] == before.velocity[i] &&
                    c.cold[i] == before.cold[i]);
+            }
         }
+    }
     HC(cases == 22143);
     printf(
         "history columns: %u signed-product cases and8 late-rejection cases\n",
@@ -81,7 +93,9 @@ static unsigned char *alloc(void *ctx, size_t n)
     struct d_ha *a = ctx;
     ++a->attempts;
     if (a->fail_at == a->attempts)
+    {
         return NULL;
+    }
     unsigned char *p = malloc(n);
     HC(p);
     ++a->live;
@@ -105,10 +119,14 @@ static void small(void)
     {
         extra[i] = (unsigned char)(255 - i);
         if (i < 128)
+        {
             initial[i] = (unsigned char)i;
+        }
     }
     for (size_t n = 0; n <= 128; ++n)
+    {
         for (size_t add = 0; add <= 129; ++add)
+        {
             for (unsigned fail = 0; fail < 2; ++fail)
             {
                 struct d_ha a = {0};
@@ -126,16 +144,22 @@ static void small(void)
                 size_t length = wanted == D_OK ? n + add : n;
                 HC(s.length == length);
                 if (wanted != D_OK)
+                {
                     HC(s.heap == old && s.capacity == capacity);
+                }
                 const unsigned char *bytes = d_small_data(&s);
                 for (size_t i = 0; i < length; ++i)
+                {
                     HC(bytes[i] == (i < n ? initial[i] : extra[i - n]));
+                }
                 HC(d_small_move(&s, &s) == D_INVALID);
                 d_small_reset(&s);
                 d_small_reset(&s);
                 HC(a.live == 0);
                 ++cases;
             }
+        }
+    }
     for (size_t n = 0; n <= 16; ++n)
     {
         struct d_ha a = {0};
@@ -150,7 +174,9 @@ static void small(void)
         HC(d_small_truncate(&s, n) == D_OK && d_small_compact(&s) == D_OK &&
            !s.heap && s.capacity == 16 && !a.live);
         for (size_t i = 0; i < n; ++i)
+        {
             HC(d_small_data(&s)[i] == initial[i]);
+        }
         d_small_reset(&d);
         HC(d_small_move(&d, &s) == D_OK && d.length == n && !s.length);
         d_small_reset(&s);
@@ -177,8 +203,11 @@ static uint32_t scalar8(uint32_t a, uint32_t b)
 static void swar(void)
 {
     for (unsigned a = 0; a < 256; ++a)
+    {
         for (unsigned b = 0; b < 256; ++b)
+        {
             for (unsigned lane = 0; lane < 4; ++lane)
+            {
                 for (unsigned pattern = 0; pattern < 2; ++pattern)
                 {
                     uint32_t mask = UINT32_C(255) << (lane * 8),
@@ -190,6 +219,9 @@ static void swar(void)
                     y |= (uint32_t)b << (lane * 8);
                     HC(d_swar_add(x, y) == scalar8(x, y));
                 }
+            }
+        }
+    }
     uint32_t random = 1;
     for (unsigned i = 0; i < 100000; ++i)
     {
@@ -224,12 +256,16 @@ static int sparse_step(struct d_sparse *s, struct sparse_model *m,
     {
         unsigned slot = 0;
         while (slot < 4 && (m->live[slot] || m->generation[slot] > 3))
+        {
             ++slot;
+        }
         struct d_handle h = {NULL, 99, 98};
         int status = d_sparse_add(s, (int)id, &h);
         HC(status == (slot == 4 ? D_FULL : D_OK));
         if (slot == 4)
+        {
             HC(!h.owner && h.slot == 99 && h.generation == 98);
+        }
         else
         {
             HC(h.owner == s && h.slot == slot &&
@@ -293,7 +329,9 @@ static void sparse_walk(const struct d_sparse *s, const struct sparse_model *m,
 {
     sparse_check(s, m);
     if (depth == 7)
+    {
         return;
+    }
     for (unsigned op = 0; op < 8; ++op)
     {
         struct d_sparse next = *s;
@@ -330,7 +368,9 @@ static void tree_check(const struct d_tree *t, const unsigned roots[6],
     for (unsigned version = 0; version <= depth; ++version)
     {
         if (roots[version])
+        {
             ++incoming[roots[version]];
+        }
         for (unsigned i = 0; i < 8; ++i)
         {
             int value = 91;
@@ -339,12 +379,16 @@ static void tree_check(const struct d_tree *t, const unsigned roots[6],
         }
         unsigned todo[65], n = 0;
         if (roots[version])
+        {
             todo[n++] = roots[version];
+        }
         while (n)
         {
             unsigned node = todo[--n];
             if (seen[node])
+            {
                 continue;
+            }
             seen[node] = 1;
             struct d_tree_node p = t->nodes[node];
             HC(p.left < node && p.right < node);
@@ -361,7 +405,9 @@ static void tree_check(const struct d_tree *t, const unsigned roots[6],
         }
     }
     for (unsigned i = 1; i <= t->used; ++i)
+    {
         HC(seen[i] && incoming[i]);
+    }
 }
 
 static void tree_walk(const struct d_tree *t, const unsigned roots[6],
@@ -369,7 +415,9 @@ static void tree_walk(const struct d_tree *t, const unsigned roots[6],
 {
     tree_check(t, roots, model, depth);
     if (depth == 5)
+    {
         return;
+    }
     const unsigned indices[3] = {0, 3, 7};
     const int values[3] = {0, 1, -1};
     for (unsigned op = 0; op < 9; ++op)
@@ -385,9 +433,11 @@ static void tree_walk(const struct d_tree *t, const unsigned roots[6],
                    D_FAILED &&
                out == 999 && fail.used == t->used);
             for (unsigned i = 1; i <= t->used; ++i)
+            {
                 HC(fail.nodes[i].left == t->nodes[i].left &&
                    fail.nodes[i].right == t->nodes[i].right &&
                    fail.nodes[i].value == t->nodes[i].value);
+            }
             tree_check(&fail, roots, model, depth);
         }
         struct d_tree next = *t;
@@ -458,8 +508,10 @@ static void oracle(void)
             int status = sparse_step(&s, &m, op);
             printf("S %u %u %d %u", code, step, status, s.count);
             for (unsigned i = 0; i < 4; ++i)
+            {
                 printf(" %u %u %d", s.slots[i].generation, s.slots[i].live,
                        s.slots[i].live ? s.slots[i].value : 0);
+            }
             puts("");
         }
     }
@@ -469,15 +521,27 @@ void d_histories(const char *name)
 {
     history_name = name;
     if (!strcmp(name, "columns"))
+    {
         columns();
+    }
     else if (!strcmp(name, "small"))
+    {
         small();
+    }
     else if (!strcmp(name, "swar"))
+    {
         swar();
+    }
     else if (!strcmp(name, "sparse"))
+    {
         sparse();
+    }
     else if (!strcmp(name, "persistent"))
+    {
         persistent();
+    }
     else if (!strcmp(name, "oracle"))
+    {
         oracle();
+    }
 }

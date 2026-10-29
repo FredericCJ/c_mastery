@@ -11,7 +11,9 @@ int main(void)
     float sum = bf_reduce(a, 3), z = bf_reduce(zero, 1),
           nv = bf_reduce(nan_input, 1);
     if (feclearexcept(FE_ALL_EXCEPT))
+    {
         return 2;
+    }
     volatile float biggest = FLT_MAX, two = 2.0f;
     volatile float overflow = biggest * two;
     int flags = fetestexcept(FE_ALL_EXCEPT);

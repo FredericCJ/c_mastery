@@ -27,9 +27,13 @@ int main(int argc, char **argv)
         en_boundaries,     en_failures, en_mapped,  en_chain,    en_publication,
         en_visibility,     en_consumer, en_order};
     if (argc != 2)
+    {
         return 2;
+    }
     int n = atoi(argv[1]);
     if (n < 0 || n >= 13)
+    {
         return 2;
+    }
     return tests[n]();
 }

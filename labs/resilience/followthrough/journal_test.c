@@ -29,23 +29,31 @@ struct rz_memory
 static void persist(struct rz_memory *m)
 {
     for (size_t i = 0; i < m->size; ++i)
+    {
         m->durable[i] = m->cache[i];
+    }
     m->durable_size = m->size;
 }
 
 static void crash(struct rz_memory *m)
 {
     if (m->mode == 1)
+    {
         persist(m);
+    }
     if (m->mode == 2 && m->size && !(m->size % 64) && m->size > m->durable_size)
     {
         for (size_t i = m->size - 8; i < m->size; ++i)
+        {
             m->durable[i] = m->cache[i];
+        }
         m->durable_size = m->size;
     }
     m->size = m->durable_size;
     for (size_t i = 0; i < m->size; ++i)
+    {
         m->cache[i] = m->durable[i];
+    }
 }
 
 static int event(struct rz_memory *m)
@@ -71,13 +79,21 @@ static int read_bytes(void *p, size_t offset, unsigned char *out, size_t n,
 {
     struct rz_memory *m = p;
     if (offset > m->size)
+    {
         return RZ_INVALID;
+    }
     if (n > m->size - offset)
+    {
         n = m->size - offset;
+    }
     if (m->chunk && n > m->chunk)
+    {
         n = m->chunk;
+    }
     for (size_t i = 0; i < n; ++i)
+    {
         out[i] = m->cache[offset + i];
+    }
     *done = n;
     return RZ_OK;
 }
@@ -87,13 +103,21 @@ static int write_bytes(void *p, size_t offset, const unsigned char *in,
 {
     struct rz_memory *m = p;
     if (m->failed || offset > sizeof m->cache || n > sizeof m->cache - offset)
+    {
         return RZJ_UNCERTAIN;
+    }
     if (m->chunk && n > m->chunk)
+    {
         n = m->chunk;
+    }
     for (size_t i = 0; i < n; ++i)
+    {
         m->cache[offset + i] = in[i];
+    }
     if (offset + n > m->size)
+    {
         m->size = offset + n;
+    }
     *done = n;
     return event(m);
 }
@@ -102,7 +126,9 @@ static int truncate_bytes(void *p, size_t n)
 {
     struct rz_memory *m = p;
     if (n > m->size)
+    {
         return RZ_INVALID;
+    }
     m->size = n;
     return event(m);
 }
@@ -111,10 +137,14 @@ static int flush(void *p)
 {
     struct rz_memory *m = p;
     if (m->failed)
+    {
         return RZJ_UNCERTAIN;
+    }
     int status = event(m);
     if (status == RZ_OK)
+    {
         persist(m);
+    }
     return status;
 }
 
@@ -188,16 +218,20 @@ static void nominal(void)
 
     fresh(&memory, &j, 16);
     for (unsigned i = 1; i <= 4; ++i)
+    {
         CHECK(rzj_apply(&j, 0, (struct rzj_request){i % 2, i, 1, 1}, &value,
                         &duplicate) == RZ_OK);
+    }
     count = j.records;
     CHECK(rzj_apply(&j, 0, (struct rzj_request){0, 5, 1, 1}, &value,
                     &duplicate) == RZ_FULL &&
           j.records == count && j.receiver.total == 4);
     for (unsigned i = j.records; i < RZJ_MAX_RECORDS; ++i)
+    {
         CHECK(rzj_apply(&j, 0, (struct rzj_request){1, 1, 1, 1}, &value,
                         &duplicate) == RZ_OK &&
               duplicate);
+    }
     CHECK(rzj_issue(&j, 0, &token) == RZ_FULL &&
           rzj_apply(&j, 0, (struct rzj_request){1, 1, 1, 1}, &value,
                     &duplicate) == RZ_FULL);
@@ -206,7 +240,9 @@ static void nominal(void)
 static void failure_cuts(void)
 {
     for (unsigned operation = 0; operation < 2; ++operation)
+    {
         for (unsigned mode = 0; mode < 3; ++mode)
+        {
             for (unsigned cut = 1; cut <= 68; ++cut)
             {
                 struct rz_memory memory;
@@ -237,16 +273,24 @@ static void failure_cuts(void)
                 struct rzj_journal recovered;
                 CHECK(rzj_open(io(&memory), 4, &recovered) == RZ_OK);
                 if (operation)
+                {
                     CHECK(recovered.issued == 1 || recovered.issued == 2);
+                }
                 else
+                {
                     CHECK(recovered.receiver.total == 0 ||
                           recovered.receiver.total == 3);
+                }
                 if (status == RZ_OK)
+                {
                     CHECK(operation ? recovered.issued == 2
                                     : recovered.receiver.total == 3);
+                }
                 if (operation)
+                {
                     CHECK(rzj_issue(&recovered, 1, &token) == RZ_OK &&
                           token == recovered.issued);
+                }
                 else
                 {
                     bool was_committed = recovered.receiver.total == 3;
@@ -257,6 +301,8 @@ static void failure_cuts(void)
                 }
                 CHECK(!(memory.size % 64));
             }
+        }
+    }
 }
 
 static void replica(void)
@@ -266,7 +312,9 @@ static void replica(void)
     fresh(&primary, &a, 16);
     uint64_t token = 0;
     for (unsigned i = 2; i <= 4; ++i)
+    {
         CHECK(rzj_issue(&a, 0, &token) == RZ_OK && token == i);
+    }
     secondary = primary;
     CHECK(rzj_open(io(&secondary), 16, &b) == RZ_OK);
     CHECK(rzj_issue(&a, 0, &token) == RZ_OK && token == 5);
@@ -293,6 +341,7 @@ static void replica(void)
           value == 99);
     /* The repaired follower returns a read snapshot with no effect-writer API. */
     for (unsigned mode = 0; mode < 3; ++mode)
+    {
         for (unsigned cut = 1; cut <= 70; ++cut)
         {
             secondary =
@@ -305,11 +354,13 @@ static void replica(void)
             CHECK(rzj_open(io(&secondary), 16, &b) == RZ_OK &&
                   b.receiver.total == 3 && b.issued == 5);
         }
+    }
 }
 
 static void recovery_cuts(void)
 {
     for (unsigned cut = 1; cut <= 2; ++cut)
+    {
         for (unsigned mode = 0; mode < 3; ++mode)
         {
             struct rz_memory m;
@@ -327,6 +378,7 @@ static void recovery_cuts(void)
             CHECK(rzj_open(io(&m), 4, &j) == RZ_OK && j.records == 1 &&
                   m.size == 64 && m.durable_size == 64);
         }
+    }
 }
 
 static void native_file(void)
@@ -435,7 +487,9 @@ static void invalid_progress(void)
 static void print_bytes(const struct rz_memory *m)
 {
     for (size_t i = 0; i < m->durable_size; ++i)
+    {
         printf("%02x", m->durable[i]);
+    }
 }
 
 static void oracle(void)
@@ -450,7 +504,9 @@ static void oracle(void)
         fresh(&m, &j, window);
         uint64_t token;
         for (unsigned i = 2; i <= issued; ++i)
+        {
             CHECK(rzj_issue(&j, 0, &token) == RZ_OK && token == i);
+        }
         int value;
         bool duplicate;
         CHECK(rzj_apply(&j, 0, (struct rzj_request){0, 1, issued, 1}, &value,

@@ -14,13 +14,17 @@ static enum fb_status intrinsic(unsigned width, fb_word input,
                                 struct fb_stats *out)
 {
     if (!out || !width || width > 16)
+    {
         return FB_INVALID;
+    }
     unsigned v = (unsigned)(input & (((fb_word)1 << width) - 1));
     unsigned leading = v ? (unsigned)__builtin_clz(v) - (32 - width) : width;
 #ifdef FB_INTRINSIC_ZERO
     if (!v)
+    {
         leading =
             0; /* Defined wrong zero policy, never call undefined clz(0). */
+    }
 #endif
     *out = (struct fb_stats){(unsigned)__builtin_popcount(v), width - leading,
                              leading};
@@ -31,6 +35,7 @@ int main(void)
 {
     unsigned long count = 0;
     for (unsigned width = 1; width <= 16; ++width)
+    {
         for (unsigned n = 0; n <= 65535; ++n)
         {
             struct fb_stats a, b;
@@ -45,6 +50,7 @@ int main(void)
             }
             ++count;
         }
+    }
     printf("FB_INTRINSIC_PASS cases=%lu zero_guard logical_width\n", count);
     return 0;
 }

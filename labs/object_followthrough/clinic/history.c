@@ -33,7 +33,9 @@ int main(void)
                    owner.value != NULL, owner.releases, out);
         }
         if (owner.value && mc_release(&owner))
+        {
             return 2;
+        }
     }
     return 0;
 }

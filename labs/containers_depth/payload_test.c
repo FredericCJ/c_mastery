@@ -23,10 +23,14 @@ static struct cd_payload *take(void *opaque, size_t n)
     struct cd_state *s = opaque;
     CHECK(s->owner->count == s->expected_count);
     if (++s->calls == s->fail)
+    {
         return NULL;
+    }
     struct cd_payload *p = malloc(n * sizeof *p);
     if (p)
+    {
         ++s->blocks;
+    }
     return p;
 }
 
@@ -44,7 +48,9 @@ static int clone(void *opaque, const struct cd_payload *input,
     struct cd_state *s = opaque;
     CHECK(s->owner->count == s->expected_count);
     if (++s->clones == s->clone_fail)
+    {
         return 1;
+    }
     CHECK(s->clones < 32);
     *out = (struct cd_payload){input->value, s->clones};
     s->resources |= 1u << s->clones;
@@ -77,9 +83,13 @@ int main(void)
         struct cd_payload *old = v.data;
         unsigned old_resources = s.resources;
         if (failure == 0)
+        {
             s.fail = s.calls + 1;
+        }
         else
+        {
             s.clone_fail = s.clones + failure;
+        }
         CHECK(cd_payload_append(&v, input, 4) ==
                   (failure ? CD_FAILED : CD_NOMEM) &&
               v.data == old && v.count == 1 && v.data[0].value == 4 &&

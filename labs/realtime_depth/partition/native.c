@@ -58,7 +58,9 @@ static void synchronize(struct tq_shared *s)
 static uint64_t work(uint64_t v, unsigned n)
 {
     for (unsigned i = 0; i < n; i++)
+    {
         v = v * UINT64_C(6364136223846793005) + UINT64_C(1442695040888963407);
+    }
     return v;
 }
 
@@ -80,6 +82,7 @@ static void *worker(void *argument)
     {
         synchronize(s);
         for (unsigned i = 0; i < 4; i++)
+        {
             if (s->plan.cpu[i] == w->id)
             {
                 int observed = sched_getcpu();
@@ -91,6 +94,7 @@ static void *worker(void *argument)
                 w->hash = work(w->hash, units * 1000u);
                 w->count += units;
             }
+        }
         synchronize(s);
     }
     w->wall_ns = ns(CLOCK_MONOTONIC) - wall;
@@ -142,8 +146,12 @@ int main(void)
     }
     unsigned found = 0;
     for (unsigned c = 0; c < CPU_SETSIZE && found < 2; c++)
+    {
         if (CPU_ISSET(c, &allowed))
+        {
             s.cpus[found++] = (int)c;
+        }
+    }
     if (found < 2)
     {
         puts("RP_NATIVE_ENV:two-allowed-CPUs-required");
@@ -174,11 +182,13 @@ int main(void)
           s.lease.owner == 1 && s.lease.epoch == 2 && !s.lease.busy &&
           !s.lease.prepared);
     for (unsigned i = 0; i < 2; i++)
+    {
         printf("RP_NATIVE_TRACE %u %d %d %llu %u %llu %llu %llu\n", i,
                s.cpus[i], w[i].observed, (unsigned long long)w[i].count,
                w[i].samples, (unsigned long long)w[i].hash,
                (unsigned long long)w[i].wall_ns,
                (unsigned long long)w[i].cpu_ns);
+    }
     printf("RP_NATIVE_TRANSFER %u %llu %llu %llu\n", s.lease.owner,
            (unsigned long long)s.lease.epoch, (unsigned long long)s.lease.work,
            (unsigned long long)s.payload);

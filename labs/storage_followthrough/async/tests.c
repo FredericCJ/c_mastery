@@ -23,9 +23,13 @@ static int64_t submit(void *c, uint32_t page, void *b)
     struct store_fake *f = c;
     f->submits++;
     if (page != 7)
+    {
         return -1;
+    }
     if (f->submit > 0)
+    {
         f->borrow = b;
+    }
     return f->submit;
 }
 
@@ -34,11 +38,15 @@ static int64_t wait_for(void *c, uint64_t ticket)
     struct store_fake *f = c;
     f->waits++;
     if (ticket != (uint64_t)f->submit)
+    {
         return -1;
+    }
     if (!f->wait)
     {
         for (unsigned i = 0; i < 4096; i++)
+        {
             ((uint8_t *)f->borrow)[i] = (uint8_t)(i * 13 + 7);
+        }
         f->borrow = 0;
     }
     return f->wait;
@@ -57,7 +65,9 @@ static int retained(void)
     CHECK(sa_release(&s, &out) == SA_BUSY && out == &f && f.borrow == b);
     CHECK(sa_finish(&s) == SA_DRAINED && f.waits == 1 && !f.borrow);
     for (unsigned i = 0; i < 4096; i++)
+    {
         CHECK(b[i] == (uint8_t)(i * 13 + 7));
+    }
     CHECK(sa_finish(&s) == SA_DRAINED && f.waits == 1);
     CHECK(sa_release(&s, &out) == SA_OK && out == b && s.state == SA_EMPTY);
     CHECK(sa_start(&s, p, 7, b) == SA_OK);
@@ -134,7 +144,9 @@ static int oracle(void)
 int main(int n, char **v)
 {
     if (n != 2)
+    {
         return 2;
+    }
     return !strcmp(v[1], "oracle")      ? oracle()
            : !strcmp(v[1], "retained")  ? retained()
            : !strcmp(v[1], "unknown")   ? unknown()

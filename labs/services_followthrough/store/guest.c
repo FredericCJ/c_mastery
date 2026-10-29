@@ -32,15 +32,21 @@ static int read_page(void *context, uint32_t page, void *bytes)
 static int write_page(void *context, uint32_t page, const void *bytes)
 {
     if (page >= STORE_IMAGE_PAGES)
+    {
         return -1;
+    }
     if (corrupt && page == 35)
     {
         unsigned char damaged[4096];
         memcpy(damaged, bytes, 4096);
         if (corrupt == 1)
+        {
             damaged[100] ^= 0x80;
+        }
         else
+        {
             memset(damaged + 512, 0, 4096 - 512);
+        }
         check(!cmk2_block(context, 1, page + 128, damaged) &&
               !cmk2_block(context, 4, 0, 0));
         return -1;
@@ -62,7 +68,9 @@ static int64_t receive(uint64_t q, void *p, size_t n, uint64_t *sender)
         status = cmk_call(SF_RECEIVE, q, (uintptr_t)&r, 0);
     } while (status == SF_RETRY);
     if (sender)
+    {
         *sender = r.sender;
+    }
     return status;
 }
 
@@ -78,15 +86,21 @@ void _start(void)
     check(image_word == 1);
     struct sf_bootstrap b;
     while (cmk_call(SF_BOOTSTRAP, (uintptr_t)&b, 0, 0) == SF_FULL)
+    {
         cmk_call(CMK_YIELD, 0, 0, 0);
+    }
     store_io io = {(void *)(uintptr_t)CMK_DISK_HANDLE, read_page, write_page,
                    flush, STORE_IMAGE_PAGES};
     if (!b.role)
+    {
         check(store_format(io) == STORE_OK);
+    }
     check(store_open(&database, io) == STORE_OK);
     if (!b.role)
+    {
         check(!sdr_initialize(&database) &&
               store_checkpoint(&database) == STORE_OK);
+    }
     struct sfs_config config;
     uint64_t sender;
     check(receive(b.request, &config, sizeof config, &sender) ==
@@ -97,7 +111,9 @@ void _start(void)
         struct sfs_request q;
         int64_t n = receive(b.request, &q, sizeof q, &sender);
         if (n == SF_CLOSED)
+        {
             break;
+        }
         check(n == sizeof q);
         unsigned client = sender == config.clients[0]
                               ? 1
@@ -120,7 +136,9 @@ void _start(void)
             }
             int error = sfs_apply(&database, &q, &r);
             if (error)
+            {
                 r.status = error;
+            }
         }
         if (q.flags == 1 && q.operation == SFS_INCREMENT && !r.status)
         {

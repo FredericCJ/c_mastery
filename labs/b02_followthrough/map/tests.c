@@ -23,9 +23,11 @@ static void same(const struct b2_map *a, const struct b2_map *b)
 {
     CHECK(a->count == b->count);
     for (unsigned i = 0; i < 7; ++i)
+    {
         CHECK(a->slots[i].state == b->slots[i].state &&
               a->slots[i].key == b->slots[i].key &&
               a->slots[i].value == b->slots[i].value);
+    }
 }
 
 static int get(struct b2_map *m, uint16_t key, int *out)
@@ -58,13 +60,17 @@ static void reachability(void)
     CHECK(get(&m, 7, &out) == B2_OK && out == 3);
     b2_map_init(&m);
     for (unsigned i = 0; i < 7; ++i)
+    {
         CHECK(put(&m, (uint16_t)(6 + 7 * i), (int)i) == B2_OK);
+    }
     struct b2_map saved = m;
     CHECK(put(&m, 65535, 99) == B2_FULL);
     same(&m, &saved);
     CHECK(put(&m, 13, 99) == B2_OK && m.count == 7);
     for (unsigned i = 0; i < 7; ++i)
+    {
         CHECK(remove_key(&m, (uint16_t)(6 + 7 * i)) == B2_OK);
+    }
     out = 7777;
     CHECK(get(&m, 65535, &out) == B2_ABSENT && out == 7777);
 #ifdef BF_INSTRUMENTED
@@ -82,7 +88,9 @@ static void rehash(void)
     struct b2_entry scratch[9];
     b2_map_init(&m);
     for (unsigned i = 0; i < 7; ++i)
+    {
         CHECK(put(&m, (uint16_t)(6 + 7 * i), (int)(i + 10)) == B2_OK);
+    }
     CHECK(remove_key(&m, 13) == B2_OK && remove_key(&m, 27) == B2_OK);
     struct b2_map saved = m;
     scratch[7] = (struct b2_entry){99, 99, 99};
@@ -122,7 +130,9 @@ static struct cd_bucket *take(void *v, unsigned n)
 {
     struct bf_fixed *f = v;
     if (f->fail || f->inuse || n > 16)
+    {
         return NULL;
+    }
     f->inuse = 1;
     return f->slots;
 }
@@ -230,14 +240,24 @@ int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (!strcmp(argv[1], "reachability"))
+    {
         reachability();
+    }
     else if (!strcmp(argv[1], "rehash"))
+    {
         rehash();
+    }
     else if (!strcmp(argv[1], "keys"))
+    {
         keys();
+    }
     else if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     else
+    {
         return 2;
+    }
     return 0;
 }

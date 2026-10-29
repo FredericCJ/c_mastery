@@ -12,7 +12,7 @@ def main():
  for predicate in ['d > 1','d < -1']:s=change(s,'if ('+predicate+') {','if ('+predicate+') {\n#ifdef AT_MUTANT_REPAIR\n    return p;\n#endif\n    if(at_work)at_work->repair_roots[at_work->repair_count++]=p;')
  s=change(s,'while (p >= 0) {','while (p >= 0) {\n    if(at_work){++at_work->search_nodes;++at_work->key_predicates;}')
  s=change(s,'p = key < t->nodes[p].key ?','if(at_work)++at_work->key_predicates;\n    p = key < t->nodes[p].key ?')
- allocation='int q = 0;\n  while (q < 64 && t->nodes[q].live)\n    ++q;\n  if (q == 64)\n    return ALGO_FULL;'
+ allocation='int q = 0; while (q < 64 && t->nodes[q].live) { ++q; } if (q == 64) { return ALGO_FULL; }'
  counted=change(s,allocation,'int q = 0;\n  while(q<64){if(at_work)++at_work->allocation_checks;if(!t->nodes[q].live)break;++q;}\n  if(q==64)return ALGO_FULL;')
  free=change(s,allocation,'if(!at_pool->free_count)return ALGO_FULL;\n  if(at_work)++at_work->allocation_checks;\n  int q=(int)at_pool->free_slots[--at_pool->free_count];')
  free=change(free,'n->live = 0;','n->live = 0;\n#ifndef AT_MUTANT_FREE\n    at_pool->free_slots[at_pool->free_count++]=(unsigned)p;\n#endif')

@@ -23,7 +23,9 @@ static size_t copying(void *p, unsigned char *out, size_t n)
     size_t i;
     ++c->calls;
     for (i = 0; i < n - c->residual; ++i)
+    {
         out[i] = (unsigned char)(i + 1);
+    }
     return c->residual;
 }
 
@@ -37,6 +39,7 @@ static void copy_test(void)
     CHECK(ak_copy(&p, 0, copying, &c) == AK_INVALID);
     CHECK(ak_copy(&p, 33, copying, &c) == AK_INVALID);
     for (n = 1; n <= 32; ++n)
+    {
         for (r = 0; r <= n; ++r)
         {
             struct ak_packet old = p;
@@ -44,16 +47,23 @@ static void copy_test(void)
             CHECK(ak_copy(&p, n, copying, &c) == (r ? AK_FAULT : AK_OK));
             CHECK(c.calls == 1);
             if (r)
+            {
                 CHECK(memcmp(&old, &p, sizeof p) == 0);
+            }
             else
             {
                 CHECK(p.length == n);
                 for (i = 0; i < n; ++i)
+                {
                     CHECK(p.bytes[i] == i + 1);
+                }
                 for (; i < 32; ++i)
+                {
                     CHECK(p.bytes[i] == 0);
+                }
             }
         }
+    }
     puts("OBS copy partial_boundaries=560 zero_padding_not_success=1");
 }
 
@@ -68,7 +78,9 @@ static int map(void *p, const struct as_value *v, unsigned *c)
 {
     struct ag_device *d = p;
     if (d->fail_map)
+    {
         return -1;
+    }
     CHECK(!d->mapped);
     d->mapped = 1;
     d->stage = 1;
@@ -89,7 +101,9 @@ static int submit(void *p, unsigned c)
     struct ag_device *d = p;
     CHECK(c == d->maps && d->stage == 2);
     if (d->fail_submit)
+    {
         return -1;
+    }
     d->device = 1;
     d->stage = 3;
     return 0;
@@ -100,7 +114,9 @@ static int quiesce(void *p, unsigned c)
     struct ag_device *d = p;
     CHECK(c == d->maps && d->device);
     if (!d->ready)
+    {
         return 0;
+    }
     d->device = 0;
     d->stage = 4;
     return 1;
@@ -167,10 +183,16 @@ int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (!strcmp(argv[1], "copy"))
+    {
         copy_test();
+    }
     else if (!strcmp(argv[1], "backend"))
+    {
         backend_test();
+    }
     else
+    {
         CHECK(0);
+    }
     return 0;
 }

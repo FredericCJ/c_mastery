@@ -45,19 +45,26 @@ static int orders(void)
 {
     unsigned cases = 0;
     for (unsigned a = 0; a < 4; ++a)
+    {
         for (unsigned b = 0; b < 4; ++b)
+        {
             for (unsigned d = 0; d < 4; ++d)
+            {
                 for (unsigned e = 0; e < 4; ++e)
                 {
                     unsigned p[4] = {a, b, d, e};
                     if (a == b || a == d || a == e || b == d || b == e ||
                         d == e)
+                    {
                         continue;
+                    }
                     struct ocg_cell c;
                     CHECK(ocg_init(&c, 7) == 0);
                     struct ocg_token t[4];
                     for (unsigned i = 0; i < 4; ++i)
+                    {
                         CHECK(ocg_acquire(&c, 0, &t[i]) == OW_OK);
+                    }
                     int32_t out = 91;
                     for (unsigned i = 0; i < 4; ++i)
                     {
@@ -68,6 +75,9 @@ static int orders(void)
                     CHECK(ocg_destroy(&c) == OW_OK);
                     ++cases;
                 }
+            }
+        }
+    }
     CHECK(cases == 24);
     puts("OCG_ORDERS all24-reader-release-permutations");
     return 0;
@@ -86,17 +96,27 @@ static int reenter(void *p, int32_t old, int32_t *candidate)
     struct ocg_token reader;
     enum ow_status s = ocg_acquire(x->cell, 0, &reader);
     if (s != OW_BUSY)
+    {
         x->bad = 1;
+    }
     if (s == OW_OK)
+    {
         (void)ocg_release(x->cell, reader);
+    }
     int32_t prior = 91;
     if (ocg_replace(x->cell, 77, &prior) != OW_BUSY || prior != 91)
+    {
         x->bad = 1;
+    }
     prior = 91;
     if (ocg_update(x->cell, reenter, x, &prior) != OW_BUSY || prior != 91)
+    {
         x->bad = 1;
+    }
     if (x->close && ocg_close(x->cell) != OW_OK)
+    {
         x->bad = 1;
+    }
     *candidate = old + 3;
     return x->fail ? 1 : 0;
 }
@@ -157,7 +177,9 @@ static int identity(void)
           ocg_read(&a, stale, &out) == OW_STALE && out == 91);
     CHECK(ocg_release(&a, x) == OW_OK && ocg_release(&b, y) == OW_OK);
     for (unsigned i = 0; i < 4; ++i)
+    {
         a.cell.borrows.loan[i].serial = UINT32_MAX;
+    }
     a.cell.borrows.loan[0].serial = UINT32_MAX - 1;
     CHECK(ocg_acquire(&a, 1, &x) == OW_OK && x.token.serial == UINT32_MAX);
     CHECK(ocg_release(&a, x) == OW_OK && ocg_acquire(&a, 0, &x) == OW_FULL);
@@ -187,7 +209,9 @@ static void *worker(void *p)
         int32_t old;
         enum ow_status s = ocg_update(w->cell, plus_one, NULL, &old);
         if (s == OW_OK)
+        {
             ++w->accepted;
+        }
         else if (s == OW_BUSY)
         {
             ++w->busy;
@@ -210,7 +234,9 @@ static int threads(void)
         {&c, 0, 0, 0}, {&c, 0, 0, 0}, {&c, 0, 0, 0}, {&c, 0, 0, 0}};
     pthread_t t[4];
     for (unsigned i = 0; i < 4; ++i)
+    {
         CHECK(pthread_create(&t[i], NULL, worker, &w[i]) == 0);
+    }
     unsigned busy = 0;
     for (unsigned i = 0; i < 4; ++i)
     {
@@ -246,7 +272,9 @@ static int pause_update(void *p, int32_t old, int32_t *candidate)
     x->entered = 1;
     pthread_cond_broadcast(&x->changed);
     while (!x->resume)
+    {
         pthread_cond_wait(&x->changed, &x->lock);
+    }
     pthread_mutex_unlock(&x->lock);
     *candidate = old + 1;
     return 0;
@@ -271,7 +299,9 @@ static int close_thread(void)
     CHECK(pthread_create(&thread, NULL, paused_worker, &p) == 0);
     pthread_mutex_lock(&p.lock);
     while (!p.entered)
+    {
         pthread_cond_wait(&p.changed, &p.lock);
+    }
     pthread_mutex_unlock(&p.lock);
     CHECK(ocg_close(&c) == OW_OK);
     pthread_mutex_lock(&p.lock);
@@ -295,7 +325,9 @@ static int oracle(void)
     {
         struct ocg_cell c;
         if (ocg_init(&c, 9))
+        {
             return 1;
+        }
         struct ocg_token t[4];
         unsigned n = 0;
         enum ow_status a = OW_OK;
@@ -304,7 +336,9 @@ static int oracle(void)
             struct ocg_token next;
             a = ocg_acquire(&c, (int)writer, &next);
             if (a == OW_OK)
+            {
                 t[n++] = next;
+            }
         }
         struct ow_callback x = {&c, 0, 0, fail, close};
         int32_t old = 71;
@@ -312,10 +346,16 @@ static int oracle(void)
         printf("%d %u %d %d %u %u %u\n", a, n, u, old, x.calls, x.bad,
                c.closed);
         for (unsigned i = 0; i < n; ++i)
+        {
             if (ocg_release(&c, t[i]) != OW_OK)
+            {
                 return 1;
+            }
+        }
         if (ocg_destroy(&c) != OW_OK)
+        {
             return 1;
+        }
     }
     return ferror(stdin) ? 2 : 0;
 }
@@ -342,7 +382,9 @@ static int metrics(void)
         "{\"iterations\":10000,\"checksum\":%u,\"cell_size\":%zu,\"allocation_calls\":0,\"seconds\":[",
         sum, sizeof(struct ocg_cell));
     for (unsigned i = 0; i < 7; ++i)
+    {
         printf("%s%.9f", i ? "," : "", times[i]);
+    }
     puts("]}");
     return 0;
 }
@@ -350,24 +392,44 @@ static int metrics(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "cell_guard_base"))
+    {
         return base();
+    }
     if (!strcmp(argv[1], "cell_guard_orders"))
+    {
         return orders();
+    }
     if (!strcmp(argv[1], "cell_guard_callbacks"))
+    {
         return callbacks();
+    }
     if (!strcmp(argv[1], "cell_guard_close"))
+    {
         return closing();
+    }
     if (!strcmp(argv[1], "cell_guard_identity"))
+    {
         return identity();
+    }
     if (!strcmp(argv[1], "cell_guard_threads"))
+    {
         return threads();
+    }
     if (!strcmp(argv[1], "cell_guard_async_close"))
+    {
         return close_thread();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

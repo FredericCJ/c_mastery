@@ -31,7 +31,9 @@ static void release(void *p, int32_t *a)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "array"))
     {
         struct algo_alloc p = {0};
@@ -56,7 +58,9 @@ int main(int argc, char **argv)
         int32_t x;
         CHECK(v4_list_pop(&q, &x) != 0);
         for (int i = 0; i < 8; i++)
+        {
             CHECK(v4_list_push(&q, i) == 0);
+        }
         CHECK(v4_list_push(&q, 99) != 0);
         for (int i = 0; i < 8; i++)
         {
@@ -64,7 +68,9 @@ int main(int argc, char **argv)
             CHECK(v4_list_push(&q, i + 8) == 0);
         }
         for (int i = 8; i < 16; i++)
+        {
             CHECK(v4_list_pop(&q, &x) == 0 && x == i);
+        }
         CHECK(q.used == 0 && q.head == -1 && q.tail == -1);
     }
     else if (!strcmp(argv[1], "freelist"))
@@ -102,13 +108,17 @@ int main(int argc, char **argv)
         int32_t fir, iir;
         int32_t a[] = {4, 0, 0, 0}, ef[] = {1, 2, 1, 0}, ei[] = {0, 1, 1, 0};
         for (unsigned j = 0; j < 4; j++)
+        {
             CHECK(v4_filter(&f, a[j], &fir, &iir) == 0 && fir == ef[j] &&
                   iir == ei[j]);
+        }
         f = (struct v4_filter){0};
         CHECK(v4_filter(&f, INT32_MAX, &fir, &iir) == 0 &&
               fir == INT32_MAX / 4);
     }
     else
+    {
         return 2;
+    }
     return 0;
 }

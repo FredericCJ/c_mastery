@@ -38,10 +38,14 @@ int main(void)
     int n =
         snprintf(path, sizeof path, "/dev/cmastery-close-%ld", (long)getpid());
     if (n < 0 || (size_t)n >= sizeof path)
+    {
         return 1;
+    }
     dispatch = dispatch_create();
     if (!dispatch)
+    {
         return 2;
+    }
     iofunc_func_init(_RESMGR_CONNECT_NFUNCS, &connect, _RESMGR_IO_NFUNCS, &io);
     io.close_dup = close_once;
     iofunc_attr_init(&attr, S_IFNAM | 0600, NULL, NULL);
@@ -55,7 +59,9 @@ int main(void)
     }
     context = dispatch_context_alloc(dispatch);
     if (!context)
+    {
         return 4;
+    }
     printf("QC_MANAGER_READY:%s\n", path);
     fflush(stdout);
     /* Single dispatch thread serializes the one-shot state; isolated guest owns process. */
@@ -63,7 +69,9 @@ int main(void)
     {
         context = dispatch_block(context);
         if (!context)
+        {
             return 5;
+        }
         dispatch_handler(context);
     }
 }

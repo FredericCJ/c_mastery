@@ -13,7 +13,9 @@ int main(void)
     adp_ticks ticks = 5;
     adp_microseconds result = consumes_us(ticks);
     if (result != 5)
+    {
         return 1;
+    }
     puts("ADQ_TYPEDEF substitution-accepted");
     return 0;
 }

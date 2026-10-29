@@ -149,13 +149,19 @@ static int properties(void)
             a[i].ordinal = i;
         }
         for (unsigned i = 0; i < n; i++)
+        {
             for (unsigned j = i + 1; j < n; j++)
+            {
                 inversions += a[i].key > a[j].key;
+            }
+        }
         S(f_sort(a, n, &work), F_OK);
         CHECK(work.shifts == inversions && work.placements == (n ? n - 1 : 0));
         for (unsigned i = 1; i < n; i++)
+        {
             CHECK(a[i - 1].key < a[i].key || (a[i - 1].key == a[i].key &&
                                               a[i - 1].ordinal < a[i].ordinal));
+        }
         S(f_sort(a, n, &work), F_OK);
         CHECK(work.shifts == 0);
     }
@@ -230,7 +236,9 @@ static int acquire(void *context, unsigned id)
 {
     struct f_acquisitions *a = context;
     if (id == a->fail)
+    {
         return -1;
+    }
     a->live |= 1u << id;
     return 0;
 }
@@ -252,7 +260,9 @@ static int cleanup(void)
         S(f_construct(r, &owned), F_IO);
         CHECK(!a.live && owned == 99 && a.count == fail);
         for (unsigned i = 0; i < fail; i++)
+        {
             CHECK(a.released[i] == fail - i - 1);
+        }
     }
     struct f_acquisitions a = {3, 0, {0}, 0};
     struct f_resources r = {&a, acquire, release};
@@ -260,7 +270,9 @@ static int cleanup(void)
     S(f_construct(r, &owned), F_OK);
     CHECK(owned == 7 && a.live == 7);
     for (unsigned i = 3; i > 0; i--)
+    {
         release(&a, i - 1);
+    }
     CHECK(!a.live);
     return 0;
 }
@@ -299,9 +311,15 @@ int main(int argc, char **argv)
         {"cleanup", cleanup},       {"packet", packet}};
 
     if (argc != 2)
+    {
         return 2;
+    }
     for (unsigned i = 0; i < sizeof cases / sizeof cases[0]; i++)
+    {
         if (!strcmp(cases[i].name, argv[1]))
+        {
             return cases[i].run();
+        }
+    }
     return 2;
 }

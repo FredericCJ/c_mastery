@@ -22,15 +22,25 @@ static unsigned bad, barriers;
 volatile uint32_t *ep_register(uint32_t a)
 {
     if (a >= 0x40023800u && a < 0x40023900u && !(a & 3))
+    {
         return &rcc[(a - 0x40023800u) / 4];
+    }
     if (a >= 0x40020000u && a < 0x40020040u && !(a & 3))
+    {
         return &gpioa[(a - 0x40020000u) / 4];
+    }
     if (a >= 0x40020c00u && a < 0x40020c40u && !(a & 3))
+    {
         return &gpiod[(a - 0x40020c00u) / 4];
+    }
     if (a >= 0x40004400u && a < 0x4000441cu && !(a & 3))
+    {
         return &uart2[(a - 0x40004400u) / 4];
+    }
     if (a >= 0x40026000u && a < 0x40026100u && !(a & 3))
+    {
         return &dma[(a - 0x40026000u) / 4];
+    }
     bad++;
     return &rcc[63];
 }

@@ -24,12 +24,18 @@ static bool open_resource(void *arg, unsigned g, unsigned c)
     struct msg_resources *r = arg;
     CHECK(!r->objects[g][c]);
     if (c == 1)
+    {
         CHECK(r->objects[g][0]);
+    }
     if (++r->tries == r->fail_at)
+    {
         return false;
+    }
     unsigned *p = malloc(sizeof(*p));
     if (!p)
+    {
         return false;
+    }
     *p = 4 * g + c;
     r->objects[g][c] = p;
     r->creates++;
@@ -76,14 +82,19 @@ static unsigned live(const struct msg_resources *r)
 {
     unsigned n = 0;
     for (unsigned g = 0; g < 4; g++)
+    {
         for (unsigned c = 0; c < 4; c++)
+        {
             n += r->objects[g][c] != NULL;
+        }
+    }
     return n;
 }
 
 static void ordinary(void)
 {
     for (unsigned strategy = 0; strategy < 3; strategy++)
+    {
         for (unsigned failed = 0; failed < 4; failed++)
         {
             struct msg_resources r = {0};
@@ -95,9 +106,13 @@ static void ordinary(void)
             unsigned first = strategy == MSG_ALL ? 0 : failed,
                      last = strategy == MSG_ONE ? failed : 3, n = 0;
             for (unsigned i = last + 1; i > first; i--)
+            {
                 CHECK(out.events[n++] == -(int)(8 + i));
+            }
             for (unsigned i = first; i <= last; i++)
+            {
                 CHECK(out.events[n++] == (int)(9 + i));
+            }
             CHECK(out.count == n && !out.parent_used && !out.closed &&
                   live(&r) == 16);
             struct mfs_report old = out;
@@ -113,6 +128,7 @@ static void ordinary(void)
             CHECK(mfs_destroy(&t) == MSG_OK && live(&r) == 0 &&
                   r.creates == r.destroys);
         }
+    }
 }
 
 static void hierarchy(void)
@@ -218,7 +234,9 @@ static void oracle(void)
                (unsigned)out.rollback, out.attempts, live(&r), t.parent.count,
                t.children[0].count);
         for (size_t i = 0; i < out.count; i++)
+        {
             printf("%d,", out.events[i]);
+        }
         puts("");
         CHECK(mfs_destroy(&t) == MSG_OK && r.creates == r.destroys);
     }
@@ -232,7 +250,9 @@ int main(int argc, char **argv)
         return 0;
     }
     if (argc != 1)
+    {
         return 2;
+    }
     ordinary();
     hierarchy();
     handler_failure();

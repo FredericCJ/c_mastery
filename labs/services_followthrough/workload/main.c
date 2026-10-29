@@ -13,7 +13,9 @@ int main(void)
         int r = sfw_run(&work, burst);
         clock_gettime(CLOCK_MONOTONIC, &b);
         if (r)
+        {
             return r;
+        }
         long long elapsed =
             (b.tv_sec - a.tv_sec) * 1000000000LL + b.tv_nsec - a.tv_nsec;
         printf("SFW %u %u %u %u %u %u %u %lld host-monotonic-ns\n", burst,

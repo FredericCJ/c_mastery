@@ -14,14 +14,18 @@ static struct ep_model mapped;
 int ep_test_read(uint32_t address, uint32_t *value)
 {
     if (address != 0x40028010u && address != 0x40028014u)
+    {
         return 1;
+    }
     return ep_model_read(&mapped, (address - 0x40028010u) / 4, value);
 }
 
 int ep_test_write(uint32_t address, uint32_t value)
 {
     if (address != 0x40028010u && address != 0x40028014u)
+    {
         return 1;
+    }
     return ep_model_write(&mapped, (address - 0x40028010u) / 4, value);
 }
 
@@ -39,7 +43,9 @@ int ep_mapped(void)
     unsigned i = 0;
     int r = ED_BUSY;
     while (r == ED_BUSY && i++ < 16)
+    {
         r = ep_step(&p);
+    }
     CHECK(r == ED_OK && ep_snapshot(&p, &link) == ED_OK &&
           link.mode.speed == 100);
     CHECK(mapped.reset_value == 0x8000 && mapped.restart_value == 0x1200 &&

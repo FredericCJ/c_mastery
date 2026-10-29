@@ -26,7 +26,9 @@ int main(void)
     (void)ticks;
     (void)us;
     if (status != ADQ_OK || result.value != 3 || result.inexact != 1)
+    {
         return 1;
+    }
     puts("ADQ_NOMINAL exact-result3 inexact1");
     return 0;
 }

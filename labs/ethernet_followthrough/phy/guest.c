@@ -52,7 +52,9 @@ void xf_target_main(void)
     {
         int r = tests[i]();
         if (r)
+        {
             stop((unsigned)r);
+        }
     }
     ep_note("EP_GUEST_PASS actual-Thumb RAM-MDIO-model no-physical-PHY");
     stop(0);

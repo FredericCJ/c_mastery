@@ -25,7 +25,9 @@ static int control(void *context, int fd, enum pf_pmu_control op, uint64_t *id)
 {
     (void)context;
     if (op == PF_PMU_ID)
+    {
         return ioctl(fd, PERF_EVENT_IOC_ID, id);
+    }
     unsigned long request = op == PF_PMU_RESET    ? PERF_EVENT_IOC_RESET
                             : op == PF_PMU_ENABLE ? PERF_EVENT_IOC_ENABLE
                                                   : PERF_EVENT_IOC_DISABLE;

@@ -34,17 +34,21 @@ int main(void)
                   off == i * 8 && charged == 8 && b.steps <= 15);
         }
         for (unsigned i = 0; i < 8; ++i)
+        {
             if (mask & (1u << i))
             {
                 CHECK(al_buddy_release(&b, h[i]) == AL_OK);
                 CHECK(al_buddy_check(&b) == AL_OK && b.steps <= 4);
             }
+        }
         for (unsigned i = 0; i < 8; ++i)
+        {
             if (!(mask & (1u << i)))
             {
                 CHECK(al_buddy_release(&b, h[i]) == AL_OK);
                 CHECK(al_buddy_check(&b) == AL_OK);
             }
+        }
         CHECK(!b.state[0]);
         ++histories;
     }

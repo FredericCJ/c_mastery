@@ -22,7 +22,9 @@ static void *mutate(void *arg)
     struct ts_input *p = arg;
     CHECK(!pthread_mutex_lock(&p->mutex));
     for (size_t i = 0; i < p->length; i++)
+    {
         p->values[i] = 99;
+    }
     p->version = 8;
     CHECK(!pthread_mutex_unlock(&p->mutex));
     return NULL;
@@ -44,17 +46,25 @@ static void partition(void)
 {
     int32_t input[16];
     for (unsigned i = 0; i < 16; i++)
+    {
         input[i] = (int32_t)i - 8;
+    }
     for (size_t n = 0; n <= 16; n++)
+    {
         for (unsigned w = 1; w <= 4; w++)
+        {
             for (int mode = 0; mode <= 1; mode++)
             {
                 int64_t expected = 0, out = 123;
                 for (size_t i = 0; i < n; i++)
+                {
                     expected += input[i];
+                }
                 CHECK(!ts_sum(n ? input : NULL, n, w, mode, &out));
                 CHECK(out == expected);
             }
+        }
+    }
     int64_t out = 77;
     CHECK(ts_sum(input, 17, 4, 0, &out) == EINVAL && out == 77);
     CHECK(ts_sum(input, 16, 0, 0, &out) == EINVAL && out == 77);
@@ -135,33 +145,43 @@ static void histogram(void)
 {
     uint32_t values[255];
     for (unsigned i = 0; i < 255; i++)
+    {
         values[i] = (i * i + 3 * i) % 17;
+    }
     for (size_t n = 0; n <= 255; n = n == 0    ? 1
                                      : n == 1  ? 16
                                      : n == 16 ? 255
                                                : 256)
+    {
         for (unsigned mode = 0; mode < 4; mode++)
         {
             uint64_t expected[17] = {0}, out[17];
             for (size_t i = 0; i < n; i++)
+            {
                 expected[values[i]]++;
+            }
             struct ts_resources resource = {0};
             CHECK(!ts_histogram(n ? values : NULL, n, 17, mode,
                                 4u * 1024u * 1024u, out, &resource));
             for (size_t b = 0; b < 17; b++)
+            {
                 CHECK(out[b] == expected[b]);
+            }
             CHECK(resource.requested_buffer_bytes ==
                       n * 4 + (mode == TS_PRIVATE ? 5u : 2u) * 17u * 8 &&
                   resource.workers == 4 &&
                   resource.requested_stack_bytes == 4u * 256u * 1024u);
             for (size_t b = 0; b < 17; b++)
+            {
                 out[b] = 99;
+            }
             struct ts_resources sentinel = {123, 123, 123};
             resource = sentinel;
             CHECK(ts_histogram(n ? values : NULL, n, 17, mode, 1, out,
                                &resource) == ENOMEM);
             CHECK(out[0] == 99 && resource.requested_buffer_bytes == 123);
         }
+    }
     uint64_t out[17] = {99};
     struct ts_resources resource = {0};
     values[0] = 17;
@@ -211,6 +231,7 @@ static void measure(void)
                                     out, &r));
             }
             for (unsigned trial = 0; trial < 3; trial++)
+            {
                 for (unsigned order = 0; order < 4; order++)
                 {
                     unsigned mode = (trial + order) % 4;
@@ -220,13 +241,16 @@ static void measure(void)
                                         4u * 1024u * 1024u, out, &r));
                     uint64_t end = now();
                     for (size_t b = 0; b < bins; b++)
+                    {
                         CHECK(out[b] == expected[b]);
+                    }
                     printf(
                         "SAMPLE bins=%zu distribution=%u mode=%u trial=%u ns=%" PRIu64
                         " buffers=%zu requested_stacks=%zu\n",
                         bins, distribution, mode, trial, end - begin,
                         r.requested_buffer_bytes, r.requested_stack_bytes);
                 }
+            }
         }
         free(out);
         free(expected);
@@ -241,15 +265,25 @@ int main(int argc, char **argv)
     int previous;
     CHECK(!pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &previous));
     if (!strcmp(argv[1], "partition"))
+    {
         partition();
+    }
     else if (!strcmp(argv[1], "ownership"))
+    {
         ownership();
+    }
     else if (!strcmp(argv[1], "histogram"))
+    {
         histogram();
+    }
     else if (!strcmp(argv[1], "measurement"))
+    {
         measure();
+    }
     else
+    {
         CHECK(0);
+    }
     CHECK(!pthread_setcancelstate(previous, NULL));
     return 0;
 }

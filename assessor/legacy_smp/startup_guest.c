@@ -34,7 +34,9 @@ static void ss_fail(const char *reason)
     unsigned value = 17;
     __asm__ volatile("outl %0,$0xf4" ::"a"(value));
     for (;;)
+    {
         __asm__ volatile("cli;hlt");
+    }
 }
 
 static void ss_u64(uint64_t v)
@@ -48,7 +50,9 @@ void ss_parked(unsigned index)
 {
     __atomic_store_n(&ss_observed[index].quiescent, 1, __ATOMIC_RELEASE);
     for (;;)
+    {
         __asm__ volatile("cli;hlt");
+    }
 }
 
 static void ss_entry(unsigned index, unsigned generation,
@@ -56,13 +60,23 @@ static void ss_entry(unsigned index, unsigned generation,
                      uintptr_t initial_stack)
 {
     if (index < 1 || index >= topology.count)
+    {
         ss_fail("bad-index");
+    }
     if (SS_GUEST_MUTANT == 1)
+    {
         for (;;)
+        {
             pause_cpu();
+        }
+    }
     if (SS_MODE == 2 && index == 1)
+    {
         while (!__atomic_load_n(&ss_delay_release, __ATOMIC_ACQUIRE))
+        {
             pause_cpu();
+        }
+    }
     uintptr_t current_stack;
     uint64_t cr0, cr3, cr4;
     unsigned low, high;
@@ -74,17 +88,25 @@ static void ss_entry(unsigned index, unsigned generation,
     unsigned verified = 0;
     if ((cr0 & UINT64_C(0x80010001)) == UINT64_C(0x80010001) && (cr4 & 0x20) &&
         (low & 0xd00) == 0xd00 && high == 0)
+    {
         verified |= 1;
+    }
     if (cr3 == (uintptr_t)boot_pml4)
+    {
         verified |= 2;
+    }
     uintptr_t begin = (uintptr_t)ss_boot[index],
               end = begin + sizeof ss_boot[index];
     if (current_stack >= begin && current_stack < end &&
         initial_stack == end - 8 && ((initial_stack + 8) & 15) == 0)
+    {
         verified |= 4;
+    }
     unsigned actual = lapic[0x20 / 4] >> 24;
     if (actual == expected_apic && cmk2_cpu_index() == index)
+    {
         verified |= 8;
+    }
     local_tables(index);
     ss_observed[index].generation =
         SS_GUEST_MUTANT == 2 ? generation - 1 : generation;
@@ -105,13 +127,17 @@ static void ss_launch(unsigned index)
                  (uintptr_t)ss_boot[index],
                  (uintptr_t)(ss_boot[index] + sizeof ss_boot[index]),
                  &ticket) != SS_OK)
+    {
         ss_fail("resource-admission");
+    }
     ss_tickets[index] = ticket;
     unsigned char *begins[] = {ss_ap_0_start, ss_ap_1_start, ss_ap_2_start},
                   *ends[] = {ss_ap_0_end, ss_ap_1_end, ss_ap_2_end};
     size_t n = (size_t)(ends[slot] - begins[slot]);
     if (n > 0xf00)
+    {
         ss_fail("trampoline-size");
+    }
     memcpy((void *)(uintptr_t)page, begins[slot], n);
     volatile uint64_t *m = (volatile uint64_t *)(uintptr_t)(page + 0xf00);
     m[0] = (uintptr_t)boot_pml4;
@@ -138,17 +164,23 @@ static void ss_collect(unsigned index)
         if (spin == 10000000)
         {
             if (SS_MODE != 2 || index != 1 || timed_out)
+            {
                 ss_fail("missing-ack");
+            }
             if (ss_timeout(&ss_world, t) != SS_OK ||
                 ss_release(&ss_world, t) != SS_NOT_QUIESCENT)
+            {
                 ss_fail("timeout-reuse");
+            }
             struct ss_ticket untouched = {99, 99};
             if (ss_begin(&ss_world, t.slot, index, topology.ids[index], SS_BASE,
                          (uintptr_t)ss_boot[index],
                          (uintptr_t)(ss_boot[index] + sizeof ss_boot[index]),
                          &untouched) != SS_BUSY ||
                 untouched.slot != 99)
+            {
                 ss_fail("timeout-new-attempt");
+            }
             text("SS_TIMEOUT_RETAIN:index=");
             number(index);
             text(" generation=");
@@ -166,22 +198,30 @@ static void ss_collect(unsigned index)
                                    ss_observed[index].initial_stack};
     int result = ss_ack(&ss_world, reported, evidence);
     if (result != (timed_out ? SS_LATE : SS_OK))
+    {
         ss_fail("stale-or-incomplete-ack");
+    }
     if (ss_ack(&ss_world, reported, evidence) != SS_DUPLICATE)
+    {
         ss_fail("duplicate-ack");
+    }
     for (unsigned spin = 0;
          !__atomic_load_n(&ss_observed[index].quiescent, __ATOMIC_ACQUIRE);
          ++spin)
     {
         if (spin == 10000000)
+        {
             ss_fail("quiescence-missing");
+        }
         pause_cpu();
     }
     /* The observed handoff occurs on the permanent per-CPU stack. The abandoned
        bootstrap stack, code page and mailbox are no longer reachable by that AP. */
     if (ss_quiescent(&ss_world, t, 1) != SS_OK ||
         ss_release(&ss_world, t) != SS_OK)
+    {
         ss_fail("quiescence-release");
+    }
     text("SS_CPU index=");
     number(index);
     text(" apic=");
@@ -228,14 +268,22 @@ void cmk2_smp_run(unsigned info)
     {
         ss_launch(index);
         if (SS_MODE != 1)
+        {
             ss_collect(index);
+        }
     }
     if (SS_MODE == 1)
+    {
         for (unsigned index = 1; index < topology.count; ++index)
+        {
             ss_collect(index);
+        }
+    }
     text("SS_GUEST_PASS:verified-generation-startup-and-quiescence\n");
     unsigned value = 16;
     __asm__ volatile("outl %0,$0xf4" ::"a"(value));
     for (;;)
+    {
         __asm__ volatile("cli;hlt");
+    }
 }

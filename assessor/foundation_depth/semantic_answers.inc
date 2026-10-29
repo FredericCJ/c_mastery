@@ -10,4 +10,6 @@ const enum fd_class expected[] = {FD_DEFINED,
                                   FD_DEFINED};
 
 for (unsigned i = 0; i < FD_CASE_COUNT; i++)
+{
     CHECK(fd_verdict((enum fd_case)i) == expected[i]);
+}

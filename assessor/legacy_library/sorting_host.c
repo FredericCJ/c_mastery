@@ -9,7 +9,9 @@ static ptrdiff_t acquire(void *ctx, unsigned char *out, size_t n)
     (void)ctx;
     ssize_t r = getrandom(out, n, GRND_NONBLOCK);
     if (r < 0 && errno == EINTR)
+    {
         return -2;
+    }
     return r < 0 ? -1 : (ptrdiff_t)r;
 }
 

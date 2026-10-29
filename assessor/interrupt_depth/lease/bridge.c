@@ -16,10 +16,14 @@ int xd_pd_cancel(struct xd_lease *s, struct xd_ticket t, struct pd_transfer *p,
                  struct pd_io io)
 {
     if (!compatible(s, t, p, io))
+    {
         return XD_STALE;
+    }
     int status = xd_cancel(s, t);
     if (status != XD_OK && status != XD_DUPLICATE)
+    {
         return status;
+    }
     (void)pd_cancel(p, io, t.generation);
     return status;
 }
@@ -28,12 +32,18 @@ int xd_pd_finish(struct xd_lease *s, struct xd_ticket t, struct pd_transfer *p,
                  struct pd_io io)
 {
     if (!compatible(s, t, p, io))
+    {
         return XD_STALE;
+    }
     if (pd_poll(p, io, t.generation) != PD_OK)
+    {
         return XD_BUSY;
+    }
     struct pd_result r;
     if (pd_finalize(p, io, t.generation, &r) != PD_OK)
+    {
         return XD_BUSY;
+    }
     /* Pd records the cancel request. Xd reports the completed byte contract.
      * An I/O error never becomes success merely because the count is zero. */
     unsigned event =

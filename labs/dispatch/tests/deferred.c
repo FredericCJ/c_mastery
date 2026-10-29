@@ -47,7 +47,9 @@ static int body(void *p, int arg, int *out)
         entered = 1;
         (void)pthread_cond_broadcast(&condition);
         while (!released)
+        {
             (void)pthread_cond_wait(&condition, &mutex);
+        }
         (void)pthread_mutex_unlock(&mutex);
     }
     *out = e->value + arg;
@@ -58,7 +60,9 @@ static void done(struct ds_deferred *c)
 {
     (void)pthread_mutex_lock(&c->mutex);
     while (!c->done)
+    {
         (void)pthread_cond_wait(&c->condition, &c->mutex);
+    }
     (void)pthread_mutex_unlock(&c->mutex);
 }
 
@@ -87,7 +91,9 @@ static void scenario(unsigned choice, int emit)
                                                       : 3) == DS_OK);
         CHECK(ds_deferred_submit(copy, 3) == DS_BUSY);
         if (choice == 1)
+        {
             CHECK(ds_deferred_cancel(token) == DS_BUSY && shared.strong == 1);
+        }
         else
         {
             CHECK(ds_deferred_start(token) == DS_OK);
@@ -95,7 +101,9 @@ static void scenario(unsigned choice, int emit)
             {
                 (void)pthread_mutex_lock(&mutex);
                 while (!entered)
+                {
                     (void)pthread_cond_wait(&condition, &mutex);
+                }
                 (void)pthread_mutex_unlock(&mutex);
                 CHECK(ds_deferred_cancel(token) == DS_BUSY &&
                       shared.strong == 1);
@@ -122,18 +130,24 @@ static void scenario(unsigned choice, int emit)
           ds_deferred_cancel(copy) == DS_STALE &&
           env.calls == (choice > 1 ? 1u : 0u));
     if (emit)
+    {
         printf("D %u %u %u %u %u\n", choice, env.calls, env.destroys,
                env.releases, c.generation);
+    }
     CHECK(ds_deferred_destroy(&c) == DS_OK);
 }
 
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     int emit = !strcmp(argv[1], "oracle");
     for (unsigned i = 0; i < 5; ++i)
+    {
         scenario(i, emit);
+    }
     struct ds_deferred c;
     CHECK(ds_deferred_init(&c) == DS_OK);
     struct ds_environment env = {17, 0, 0, 0};

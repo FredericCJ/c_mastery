@@ -14,11 +14,13 @@ static inline void fr_uart_init(void)
 static inline int fr_uart_byte(unsigned char b)
 {
     for (unsigned limit = 0; limit < 100000; ++limit)
+    {
         if (!(*(volatile uint32_t *)0x40004004 & 1))
         {
             *(volatile uint32_t *)0x40004000 = b;
             return 0;
         }
+    }
     return -1;
 }
 
@@ -35,6 +37,8 @@ static inline void fr_stop(unsigned code)
     unsigned a[2] = {0x20026, code};
     (void)fr_semihost(0x20, a);
     for (;;)
+    {
         __asm__ volatile("wfi");
+    }
 }
 #endif

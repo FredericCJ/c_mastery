@@ -20,13 +20,21 @@ int main(void)
         af_ring_init(&q, 0);
         C(af_boot_begin(&o, 7, UINT32_MAX - 9, 20, 1, 1) == AF_OK);
         for (unsigned i = 0; i < cut; i++)
+        {
             C(af_boot_stage(&o, &b, i, 2, AF_LAYOUT) == AF_OK);
+        }
         if (cut < 4)
+        {
             C(af_boot_ack(&b, 2, AF_LAYOUT, 8) == AF_BUSY);
+        }
         for (unsigned i = 0; i < cut; i++)
+        {
             C(af_boot_stage(&o, &b, i, 2, AF_LAYOUT) == AF_OK);
+        }
         for (unsigned i = cut; i < 4; i++)
+        {
             C(af_boot_stage(&o, &b, i, 2, AF_LAYOUT) == AF_OK);
+        }
         C(af_boot_status(&o, &b, 0) == AF_BUSY);
         C(af_boot_ack(&b, 2, AF_LAYOUT + 4, 8) == AF_STALE);
         C(af_queued(&q) == 0);
@@ -37,7 +45,9 @@ int main(void)
         C(af_boot_close(&o, &b, 1, 1) == AF_OK);
         C(af_boot_begin(&o, 8, 1, 20, 1, 1) == AF_OK);
         for (unsigned i = 0; i < 4; i++)
+        {
             C(af_boot_stage(&o, &b, i, 2, AF_LAYOUT) == AF_OK);
+        }
         C(af_boot_ack(&b, 2, AF_LAYOUT, 8) == AF_STALE);
         C(af_boot_status(&o, &b, 2) == AF_BUSY);
         C(af_boot_ack(&b, 2, AF_LAYOUT, 9) == AF_OK);
@@ -46,7 +56,9 @@ int main(void)
        requests lacking replies. The latter remain uncertain after peer reset. */
     unsigned state[100];
     for (unsigned i = 0; i < 100; i++)
+    {
         state[i] = i < 90 ? 1 : i < 95 ? 2 : 3;
+    }
     unsigned complete = 0, rejected = 0, uncertain = 0;
     for (unsigned i = 0; i < 100; i++)
     {
@@ -61,7 +73,9 @@ int main(void)
     {
         struct af_receipt s = survivor;
         if (cut)
+        {
             C(af_effect(&s, 10, 1, 5, &value) == AF_OK);
+        }
         /* Cut before effect, after effect before reply, or after reply. Receipt is
            retained in the supervisor's still-live memory, not reset with peer. */
         C(af_effect(&s, 10, 1, 5, &value) == AF_OK && value == 5 &&

@@ -111,19 +111,25 @@ static store pages;
 static void persist(void)
 {
     for (unsigned i = 0; i < STORE_IMAGE_PAGES; ++i)
+    {
         if (disk.dirty[i])
         {
             memcpy(disk.stable[i], disk.pending[i], STORE_PAGE_SIZE);
             disk.dirty[i] = 0;
         }
+    }
 }
 
 static int fault(void)
 {
     if (++disk.event != disk.cut || !disk.cut)
+    {
         return 0;
+    }
     if (disk.mode)
+    {
         persist();
+    }
     disk.dead = 1;
     return 1;
 }
@@ -132,7 +138,9 @@ static int read_page(void *ctx, uint32_t p, void *out)
 {
     (void)ctx;
     if (disk.dead || p >= STORE_IMAGE_PAGES)
+    {
         return -1;
+    }
     memcpy(out, disk.dirty[p] ? disk.pending[p] : disk.stable[p],
            STORE_PAGE_SIZE);
     return 0;
@@ -142,7 +150,9 @@ static int write_page(void *ctx, uint32_t p, const void *in)
 {
     (void)ctx;
     if (disk.dead || p >= STORE_IMAGE_PAGES)
+    {
         return -1;
+    }
     memcpy(disk.pending[p], in, STORE_PAGE_SIZE);
     disk.dirty[p] = 1;
     return fault() ? -1 : 0;
@@ -152,7 +162,9 @@ static int flush(void *ctx)
 {
     (void)ctx;
     if (disk.dead || fault())
+    {
         return -1;
+    }
     persist();
     return 0;
 }
@@ -203,7 +215,9 @@ static int store_case(void)
     store_abort(&pages);
     unsigned cuts = 0;
     for (unsigned replacement = 0; replacement < 2; ++replacement)
+    {
         for (unsigned mode = 0; mode < 2; ++mode)
+        {
             for (unsigned cut = 1; cut <= 37; ++cut)
             {
                 CHECK(!setup());
@@ -232,6 +246,8 @@ static int store_case(void)
                 CHECK(sentinel.lamport == (replacement ? 1 : committed + 1));
                 ++cuts;
             }
+        }
+    }
     printf("CLOCK_CUTS %u\n", cuts);
     return 0;
 }
@@ -240,7 +256,9 @@ static int oracle(void)
 {
     struct rpc_clock nodes[3], events[64];
     for (unsigned i = 0; i < 3; ++i)
+    {
         CHECK(rpc_make(9, 10 + i * 10, &nodes[i]) == RPC_OK);
+    }
     unsigned count = 0, node;
     int remote;
     uint64_t wall;
@@ -260,8 +278,12 @@ static int oracle(void)
         {
             uint64_t v = 0;
             for (unsigned j = 0; j < next.vector.count; ++j)
+            {
                 if (next.vector.entries[j].identity == id)
+                {
                     v = next.vector.entries[j].value;
+                }
+            }
             printf(" %" PRIu64, v);
         }
         printf(" |");
@@ -279,7 +301,9 @@ static int oracle(void)
         CHECK(rpc_encode(&events[count - 1], wire) == RPC_OK);
         printf("WIRE ");
         for (unsigned i = 0; i < 160; ++i)
+        {
             printf("%02x", wire[i]);
+        }
         putchar('\n');
     }
     return 0;
@@ -310,16 +334,28 @@ static int metrics(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "clock_identity"))
+    {
         return identity_case();
+    }
     if (!strcmp(argv[1], "clock_policy"))
+    {
         return policy_case();
+    }
     if (!strcmp(argv[1], "clock_store"))
+    {
         return store_case();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

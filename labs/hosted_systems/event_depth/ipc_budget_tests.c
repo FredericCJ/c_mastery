@@ -23,7 +23,9 @@ static ssize_t transfer(void *p, int sending, unsigned char *bytes, size_t n)
     {
         c->pending = 1;
         if (c->mode == 2)
+        {
             ++c->tick;
+        }
         errno = c->mode == 1 ? EAGAIN : EINTR;
         return -1;
     }
@@ -74,6 +76,7 @@ int main(void)
     const unsigned char request[8] = {0, 1, 2, 3, 4, 5, 6, 7},
                         expected[4] = {20, 21, 22, 23};
     for (unsigned mode = 0; mode < 3; ++mode)
+    {
         for (unsigned budget = 0; budget <= 26; ++budget)
         {
             struct rd_clock c = {.mode = mode};
@@ -85,16 +88,23 @@ int main(void)
                             (struct timespec){0, (long)budget * 1000000}, &p);
             unsigned cost = mode ? 2 : 1, completed = budget / cost;
             if (completed > 12)
+            {
                 completed = 12;
+            }
             CHECK(p.sent == (completed < 8 ? completed : 8) &&
                   p.received == (completed > 8 ? completed - 8 : 0));
             if (budget > 12 * cost)
+            {
                 CHECK(r == 0 && !memcmp(out, expected, 4));
+            }
             else
+            {
                 CHECK(r == -1 && errno == ETIMEDOUT && out[0] == 99 &&
                       out[1] == 99 && out[2] == 99 && out[3] == 99);
+            }
             ++cases;
         }
+    }
     struct rd_clock c = {0};
     struct ei_io ops = {now, transfer, wait_ready, &c};
     struct ei_progress invalid = {.sent = 9};

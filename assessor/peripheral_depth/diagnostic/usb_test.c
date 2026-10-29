@@ -48,8 +48,10 @@ int main(void)
         CHECK(control(&u, 128, 6, 512, 0, length, &c) == DG_OK &&
               c.length == (length < 32 ? length : 32));
         if (length >= 32)
+        {
             CHECK(c.bytes[2] == 32 && c.bytes[3] == 0 && c.bytes[20] == 1 &&
                   c.bytes[27] == 129);
+        }
     }
     CHECK(control(&u, 128, 6, 1536, 0, 10, &c) == DG_FRAME);
     CHECK(control(&u, 0, 5, 7, 0, 0, &c) == DG_OK && !u.address);
@@ -76,9 +78,11 @@ int main(void)
               DG_INVALID);
         CHECK(dg_usb_out(&u, 0, 0, 1, 1, &s, &out, &hs, &app) == DG_INVALID);
         for (unsigned i = 0; i < 5; ++i)
+        {
             CHECK(dg_usb_out(&u, u.toggle_out, bytes + 8 * i, 8, 1, &s, &out,
                              &hs, &app) == DG_OK &&
                   app == DG_BUSY);
+        }
         CHECK(u.out_overflow && s.accepted == 0 && out.sequence == 99);
         CHECK(dg_usb_out(&u, u.toggle_out, 0, 0, 1, &s, &out, &hs, &app) ==
                   DG_OK &&
@@ -103,7 +107,9 @@ int main(void)
         struct dg_message m = {(uint16_t)(length + 1), (uint16_t)length, {0}},
                           out = {0};
         for (unsigned i = 0; i < length; ++i)
+        {
             m.payload[i] = (uint8_t)(i + 17);
+        }
         struct dg_session session = {0};
         uint8_t wire[36];
         size_t n;
@@ -159,7 +165,9 @@ int main(void)
                       DG_OK &&
                   again == p && repeat == part && t2 == toggle);
             for (size_t i = 0; i < part; ++i)
+            {
                 CHECK(p[i] == wire[pos + i]);
+            }
             pos += part;
             ++packets;
             CHECK(dg_usb_in_ack(&u, length + 1, 1) == DG_OK);

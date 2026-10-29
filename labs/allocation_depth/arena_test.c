@@ -46,13 +46,18 @@ int main(void)
     CHECK(al_extent(0, 1, 3, 24, &at, &end) == AL_BAD);
     unsigned cases = 0;
     for (size_t cap = 0; cap <= 32; ++cap)
+    {
         for (size_t c = 0; c <= cap; ++c)
+        {
             for (size_t bytes = 1; bytes <= 33; ++bytes)
+            {
                 for (size_t align = 1; align <= 16; align *= 2)
                 {
                     size_t want = c;
                     while (want % align)
+                    {
                         ++want;
+                    }
                     int fit = want <= cap && bytes <= cap - want;
                     at = 91;
                     end = 92;
@@ -62,6 +67,9 @@ int main(void)
                               : (at == 91 && end == 92));
                     ++cases;
                 }
+            }
+        }
+    }
     CHECK(al_arena_init(&a, data, 24, 8) == AL_OK);
     CHECK(al_arena_take(&a, 3, 1, 0, 0, &h[0]) == AL_OK);
     CHECK(al_arena_take(&a, 5, 8, 0, 0, &h[1]) == AL_OK);

@@ -32,8 +32,10 @@ int main(void)
             }
             REQUIRE(cmx_spsc_push(&q, 77) == CMX_FULL);
             for (unsigned i = 0; i < cap; ++i)
+            {
                 REQUIRE(cmx_spsc_pop(&q, &value) == CMX_OK &&
                         value == round * 16 + i);
+            }
             value = 999;
             REQUIRE(cmx_spsc_pop(&q, &value) == CMX_RETRY && value == 999);
         }

@@ -21,19 +21,25 @@ static uint32_t rd(void *p, uint32_t a)
 {
     struct f4_model *m = p;
     for (unsigned i = 0; i < m->n; ++i)
+    {
         if (m->a[i] == a)
+        {
             return m->v[i];
+        }
+    }
     return 0;
 }
 
 static void set(struct f4_model *m, uint32_t a, uint32_t v)
 {
     for (unsigned i = 0; i < m->n; ++i)
+    {
         if (m->a[i] == a)
         {
             m->v[i] = v;
             return;
         }
+    }
     m->a[m->n] = a;
     m->v[m->n++] = v;
 }
@@ -49,7 +55,9 @@ static void wr(void *p, uint32_t a, uint32_t v)
             rd(m, 0x30040020) != m->sequence ||
             rd(m, 0x30040024) != m->generation ||
             rd(m, 0x30040028) != m->base || rd(m, 0x3004002C) != ~m->sequence)
+        {
             m->bad = 1;
+        }
     }
     set(m, a, v);
 }

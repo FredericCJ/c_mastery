@@ -107,9 +107,13 @@ static void *cycle(void *arg)
     atomic_fetch_add(&entering, 1);
     outcome[index] = pthread_mutex_timedlock(second, &end);
     if (!outcome[index])
+    {
         CHECK(pthread_mutex_unlock(second) == 0);
+    }
     else
+    {
         CHECK(outcome[index] == ETIMEDOUT);
+    }
     CHECK(pthread_mutex_unlock(first) == 0);
     return NULL;
 }
@@ -123,10 +127,14 @@ int main(int argc, char **argv)
     {
         unsigned ids[] = {0, 1};
         for (unsigned i = 0; i < 2; i++)
+        {
             CHECK(pthread_create(&ts[i], NULL, cycle, &ids[i]) == 0);
+        }
         observe_waits(2);
         for (unsigned i = 0; i < 2; i++)
+        {
             CHECK(pthread_join(ts[i], NULL) == 0);
+        }
         CHECK(outcome[0] == ETIMEDOUT || outcome[1] == ETIMEDOUT);
         puts("DX:wait-cycle:forced-opposite-ownership:timeout-breaks-cycle");
     }
@@ -136,7 +144,9 @@ int main(int argc, char **argv)
               pthread_create(&ts[1], NULL, producer, NULL) == 0);
         observe_waits(1);
         for (unsigned i = 0; i < 2; i++)
+        {
             CHECK(pthread_join(ts[i], NULL) == 0);
+        }
         CHECK(outcome[0] == ETIMEDOUT && predicate == 1);
         puts("DX:lost-wake:false-check:set-signal:wait-timeout:predicate1");
     }

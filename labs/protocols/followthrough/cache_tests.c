@@ -22,7 +22,9 @@ static void emit(void *p, enum fw_cache_op op, uint32_t a)
 {
     struct pf_env *e = p;
     if (op == FW_CLEAN)
+    {
         C(a == 0x30040020u || a == 0x30040040u);
+    }
     e->last = op;
     ++e->events;
 }

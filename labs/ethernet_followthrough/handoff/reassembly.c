@@ -12,21 +12,29 @@ int eh_reassembly(void)
     CHECK(ni_init(&s, c, 1, NI_IDENTICAL, 0, 60000) == NI_OK);
     ni_test_header(p, 8, 17, 16, 0, 6);
     for (unsigned i = 0; i < 8; ++i)
+    {
         p[20 + i] = (unsigned char)(16 + i);
+    }
     CHECK(ni_receive(&s, p, 28, 0, &index) == NI_WAIT);
     ni_test_header(p, 8, 17, 0, 1, 6);
     for (unsigned i = 0; i < 8; ++i)
+    {
         p[20 + i] = (unsigned char)i;
+    }
     CHECK(ni_receive(&s, p, 28, 1, &index) == NI_WAIT);
     out.length = 999;
     CHECK(ni_take(&s, index, &out) == NI_WAIT && out.length == 999);
     ni_test_header(p, 8, 17, 8, 1, 6);
     for (unsigned i = 0; i < 8; ++i)
+    {
         p[20 + i] = (unsigned char)(8 + i);
+    }
     CHECK(ni_receive(&s, p, 28, 2, &index) == NI_OK);
     CHECK(ni_take(&s, index, &out) == NI_OK && out.length == 44);
     for (unsigned i = 0; i < 24; ++i)
+    {
         CHECK(out.bytes[20 + i] == i);
+    }
     CHECK(!ni_test_sum(out.bytes, 20) && !out.bytes[6] && !out.bytes[7]);
     CHECK(ni_receive(&s, p, 28, 3, &index) == NI_CONFLICT);
     CHECK(ni_tick(&s, 60000) == NI_OK && s.slot[0].state == NI_FREE);
@@ -34,7 +42,9 @@ int eh_reassembly(void)
      * overlap poisons instead of selecting arrival-dependent application bytes. */
     ni_test_header(p, 16, 18, 0, 1, 6);
     for (unsigned i = 0; i < 16; ++i)
+    {
         p[20 + i] = (unsigned char)i;
+    }
     CHECK(ni_receive(&s, p, 36, 60000, &index) == NI_WAIT);
     CHECK(ni_receive(&s, p, 36, 60001, &index) == NI_WAIT &&
           s.slot[0].expiry == 120000);

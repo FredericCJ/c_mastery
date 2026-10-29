@@ -35,7 +35,9 @@ static void exercise(void)
     {
         uint32_t expected = 0;
         while (expected < 5 && a[expected] < a[i])
+        {
             ++expected;
+        }
         struct ab_trace trace;
         CHECK(ab_trace(a, 5, a[i], 0, &trace) == 0 && trace.index == expected &&
               trace.count == 3);
@@ -64,7 +66,9 @@ static void exercise(void)
           index == 1);
     uint32_t repeated[1024];
     for (unsigned i = 0; i < 1024; ++i)
+    {
         repeated[i] = 7;
+    }
     CHECK(algo_abi_probe(repeated, 1024, 7, &out) == 1 && out == 0);
     CHECK(algo_abi_probe(repeated, 1024, 8, &out) == 1 && out == 1024);
     uint32_t bad[2] = {2, 1};
@@ -77,9 +81,13 @@ void reset(void)
 {
     uint32_t *src = &__data_load;
     for (uint32_t *p = &__data_start; p < &__data_end;)
+    {
         *p++ = *src++;
+    }
     for (uint32_t *p = &__bss_start; p < &__bss_end;)
+    {
         *p++ = 0;
+    }
     exercise();
 }
 

@@ -29,7 +29,9 @@ static void *allocated[16];
 static void cleanup(void)
 {
     for (unsigned i = 0; i < 16; ++i)
+    {
         free(allocated[i]);
+    }
 }
 
 static void *allocate(void *ctx, size_t n)
@@ -37,17 +39,23 @@ static void *allocate(void *ctx, size_t n)
     struct adp_memory *m = ctx;
     ++m->calls;
     if (m->fail == m->calls)
+    {
         return NULL;
+    }
     void *p = malloc(n);
     if (!p)
+    {
         return NULL;
+    }
     for (unsigned i = 0; i < 16; ++i)
+    {
         if (!allocated[i])
         {
             allocated[i] = p;
             ++m->live;
             return p;
         }
+    }
     abort();
 }
 
@@ -55,6 +63,7 @@ static void deallocate(void *ctx, void *p)
 {
     struct adp_memory *m = ctx;
     for (unsigned i = 0; i < 16; ++i)
+    {
         if (allocated[i] == p)
         {
             allocated[i] = NULL;
@@ -63,6 +72,7 @@ static void deallocate(void *ctx, void *p)
             free(p);
             return;
         }
+    }
     abort();
 }
 
@@ -131,8 +141,10 @@ static int retirement(void)
     struct adp_snapshot s;
     CHECK(adp_snapshot(&p, &s) == ADP_OK);
     for (unsigned i = 0; i < 4; ++i)
+    {
         CHECK(s.slots[i].state == ADP_RETIRED &&
               s.slots[i].generation == UINT64_MAX);
+    }
     CHECK(end(&p, &m) == 0);
     CHECK(adp_init(&p, (struct adp_id){5}, ops(&m), 1) == ADP_OK);
     CHECK(adp_acquire(&p, 4, &old) == ADP_OK);
@@ -157,7 +169,9 @@ static void *moved_reader(void *context)
     {
         uint32_t v = 0;
         if (adp_get(r->pool, r->handle, &v) != ADP_OK || v != 4321)
+        {
             ++r->bad;
+        }
     }
     return NULL;
 }
@@ -171,13 +185,17 @@ static int moved_readers(struct adp_pool *p, struct adp_handle h)
     {
         r[i] = (struct moved_reader){p, h, 0};
         if (pthread_create(&threads[i], NULL, moved_reader, &r[i]))
+        {
             break;
+        }
         ++created;
     }
     for (unsigned i = 0; i < created; ++i)
     {
         if (pthread_join(threads[i], NULL))
+        {
             ++bad;
+        }
         bad += r[i].bad;
     }
     CHECK(created == 3 && bad == 0);
@@ -235,7 +253,9 @@ static void *reader(void *arg)
         enum adp_status s = adp_get(w->p, w->old, &v);
         if (!((s == ADP_OK && v == 123) || (s == ADP_STALE && v == 987) ||
               (s == ADP_CLOSED && v == 987)))
+        {
             ++w->bad;
+        }
         ++w->reads;
     }
     return NULL;
@@ -277,12 +297,16 @@ static int native(void)
     {
         w[i] = (struct adp_worker){&p, h, &start, 0, 0};
         if (pthread_create(&t[i], NULL, reader, &w[i]))
+        {
             break;
+        }
         ++created;
     }
     atomic_store_explicit(&start, 1, memory_order_release);
     if (adp_release(&p, h) != ADP_OK)
+    {
         ++bad;
+    }
     for (unsigned i = 0; i < 1000; ++i)
     {
         struct adp_handle next;
@@ -292,20 +316,34 @@ static int native(void)
             break;
         }
         if (i % 10 == 0 && adp_compact(&p) != ADP_OK)
+        {
             ++bad;
+        }
         if (adp_release(&p, next) != ADP_OK)
+        {
             ++bad;
+        }
     }
     if (adp_close(&p) != ADP_OK)
+    {
         ++bad;
+    }
     /* Join EVERY borrower before inspecting semantic failures. A rejected control
        must not turn an early return into a dangling worker-context access. */
     for (unsigned i = 0; i < created; ++i)
+    {
         if (pthread_join(t[i], NULL))
+        {
             ++bad;
+        }
+    }
     for (unsigned i = 0; i < created; ++i)
+    {
         if (w[i].bad || w[i].reads != 10000)
+        {
             ++bad;
+        }
+    }
     CHECK(created == 3 && bad == 0);
     CHECK(m.live == 0);
     uint32_t v = 9;
@@ -349,7 +387,9 @@ static int baseline(void)
     CHECK(ad_pool_release(&p, j));
     CHECK(p.slot[j.index].retired);
     for (unsigned i = 1; i < 4; ++i)
+    {
         CHECK(ad_pool_acquire(&p, i, &j) && j.index == i);
+    }
     CHECK(!ad_pool_acquire(&p, 5, &j));
     puts("ADP_BASE actual-fixed-address-pool");
     return 0;
@@ -369,7 +409,9 @@ static int oracle(void)
         size_t n = strcspn(line, "\n");
         line[n] = 0;
         if (n < 2)
+        {
             return 2;
+        }
         struct adp_memory m = {0};
         struct adp_pool p, q;
         struct adp_pool *now = &p;
@@ -383,13 +425,21 @@ static int oracle(void)
             uint32_t out = 999;
             char op = line[i];
             if (op == '0' || op == '1')
+            {
                 s = adp_acquire(now, (uint32_t)(10 + i), &h[op - '0']);
+            }
             else if (op == '2' || op == '3')
+            {
                 s = adp_get(now, h[op - '2'], &out);
+            }
             else if (op == '4' || op == '5')
+            {
                 s = adp_release(now, h[op - '4']);
+            }
             else if (op == '6')
+            {
                 s = adp_compact(now);
+            }
             else if (op == '7')
             {
                 m.fail = m.calls + 1;
@@ -408,7 +458,9 @@ static int oracle(void)
                     }
                 }
                 else
+                {
                     s = ADP_STATE;
+                }
             }
             else if (op == '9')
             {
@@ -434,14 +486,18 @@ static int oracle(void)
                 struct adp_snapshot snap;
                 CHECK(adp_snapshot(now, &snap) == ADP_OK);
                 for (unsigned j = 0; j < 4; ++j)
+                {
                     slotprint(&snap.slots[j]);
+                }
             }
             puts(";");
         }
         CHECK(adp_close(now) == ADP_OK);
         CHECK(adp_destroy(now) == ADP_OK);
         if (moved)
+        {
             CHECK(adp_destroy(&p) == ADP_OK);
+        }
         CHECK(m.live == 0);
         puts(".");
     }
@@ -463,11 +519,17 @@ static int baseoracle(void)
             uint32_t out = 999;
             char op = line[i];
             if (op == '0' || op == '1')
+            {
                 s = ad_pool_acquire(&p, (uint32_t)(10 + i), &h[op - '0']);
+            }
             else if (op == '2' || op == '3')
+            {
                 s = ad_pool_get(&p, h[op - '2'], &out);
+            }
             else if (op == '4' || op == '5')
+            {
                 s = ad_pool_release(&p, h[op - '4']);
+            }
             else
             {
                 h[1] = h[0];
@@ -476,8 +538,10 @@ static int baseoracle(void)
             printf("%d %" PRIu32 " %u %u %u %u", s, out, h[0].index,
                    h[0].generation, h[1].index, h[1].generation);
             for (unsigned j = 0; j < 4; ++j)
+            {
                 printf(" %u %u %u %" PRIu32, p.slot[j].generation,
                        p.slot[j].live, p.slot[j].retired, p.slot[j].value);
+            }
             puts(";");
         }
         puts(".");
@@ -489,7 +553,9 @@ static double seconds(void)
 {
     struct timespec t;
     if (clock_gettime(CLOCK_MONOTONIC, &t))
+    {
         abort();
+    }
     return (double)t.tv_sec + (double)t.tv_nsec / 1e9;
 }
 
@@ -534,10 +600,14 @@ static int metrics(void)
         checksum, sizeof(struct adp_pool), sizeof(struct adp_handle),
         sizeof(struct adp_snapshot));
     for (unsigned i = 0; i < 7; ++i)
+    {
         printf("%s%.9f", i ? "," : "", raw[i]);
+    }
     printf("],\"safe_seconds\":[");
     for (unsigned i = 0; i < 7; ++i)
+    {
         printf("%s%.9f", i ? "," : "", safe[i]);
+    }
     puts("]}");
     return 0;
 }
@@ -545,22 +615,40 @@ static int metrics(void)
 int main(int argc, char **argv)
 {
     if (atexit(cleanup) || argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "pool_identity"))
+    {
         return identity();
+    }
     if (!strcmp(argv[1], "pool_retirement"))
+    {
         return retirement();
+    }
     if (!strcmp(argv[1], "pool_relocation"))
+    {
         return relocation();
+    }
     if (!strcmp(argv[1], "pool_native"))
+    {
         return native();
+    }
     if (!strcmp(argv[1], "pool_base"))
+    {
         return baseline();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "baseoracle"))
+    {
         return baseoracle();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

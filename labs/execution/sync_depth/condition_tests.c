@@ -16,8 +16,12 @@ static int setup(cmx_kernel *k, struct cd_queue *q, unsigned capacity,
 {
     cmx_init(k, CMX_FIXED);
     for (unsigned t = 0; t < 4; t++)
+    {
         if (cmx_task_add(k, 9 - t, 0, 0x1000 + 0x200 * t, 256) != (int)t)
+        {
             return 0;
+        }
+    }
     return cdq_init(q, k, capacity, broadcast) == CMX_OK;
 }
 
@@ -70,11 +74,15 @@ static int broadcast(void)
     struct cd_queue q;
     CHECK(setup(&k, &q, 1, 1));
     for (unsigned t = 0; t < 3; t++)
+    {
         CHECK(cdq_begin(&q, t, CDQ_GET, 0, cmx_forever()) == CMX_BLOCKED);
+    }
     CHECK(cmx_mutex_lock(&k, &q.mutex, 3, cmx_forever()) == CMX_OK);
     CHECK(cdq_put_locked(&q, 3, 44) == CMX_OK);
     for (unsigned t = 0; t < 3; t++)
+    {
         CHECK(k.task[t].wait == CMX_W_MUTEX);
+    }
     CHECK(cmx_mutex_unlock(&k, &q.mutex, 3) == CMX_OK && q.mutex.owner == 0);
     CHECK(cdq_resume(&q, 0) == CMX_OK && q.claimed == 1 && q.consumed == 0);
     CHECK(cdq_resume(&q, 1) == CMX_BLOCKED && cdq_resume(&q, 2) == CMX_BLOCKED);
@@ -112,11 +120,17 @@ static int terminal(void)
               cmx_mutex_close(&k, &q.mutex) == CMX_BLOCKED);
         CHECK(cmx_mutex_lock(&k, &q.mutex, 1, cmx_forever()) == CMX_OK);
         if (action == 0)
+        {
             cmx_tick(&k, 5);
+        }
         else if (action == 1)
+        {
             CHECK(cmx_cancel(&k, 0) == CMX_OK);
+        }
         else
+        {
             CHECK(cdq_shutdown(&q, 1) == CMX_OK);
+        }
         int expected = action == 0 ? CMX_TIMEOUT : CMX_CLOSED;
         CHECK(k.task[0].state == CMX_WAITING && k.task[0].wait == CMX_W_MUTEX &&
               (int)k.task[0].pending == expected);
@@ -236,16 +250,28 @@ static int shutdown(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "mesa"))
+    {
         return mesa();
+    }
     if (!strcmp(argv[1], "broadcast"))
+    {
         return broadcast();
+    }
     if (!strcmp(argv[1], "terminal"))
+    {
         return terminal();
+    }
     if (!strcmp(argv[1], "predicates"))
+    {
         return predicates();
+    }
     if (!strcmp(argv[1], "shutdown"))
+    {
         return shutdown();
+    }
     return 2;
 }

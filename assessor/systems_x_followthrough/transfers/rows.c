@@ -21,7 +21,9 @@ static unsigned sum(const struct sx_map *m)
 {
     unsigned s = 0;
     for (unsigned i = 0; i < 64; i++)
+    {
         s += (i + 1) * m->pages[i / 16].bytes[i % 16];
+    }
     return s;
 }
 
@@ -30,24 +32,34 @@ int main(void)
     unsigned char input[8] = {1, 2, 3, 4, 5, 6, 7, 8};
     unsigned ledger = 0, hotplug = 0;
     for (unsigned page = 0; page < 4; page++)
+    {
         for (unsigned address = 0; address <= 65; address++)
+        {
             for (unsigned count = 0; count <= 8; count++)
             {
                 struct sx_map m = {0}, partial = {0};
                 struct sx_copy_result r;
                 int rc;
                 for (unsigned i = 0; i < 4; i++)
+                {
                     CHECK(sx_remap(&m, i, 1, 1, 1, 55) == B5_OK &&
                           sx_remap(&partial, i, 1, 1, i != page, 55) == B5_OK);
+                }
                 rc = sx_copy(&m, address, input, count, change, &page);
                 CHECK(sx_partial(&partial, address, input, count, &r) == B5_OK);
                 printf("C %u %u %u %d %u %zu %d %u\n", page, address, count, rc,
                        sum(&m), r.copied, r.status, sum(&partial));
             }
+        }
+    }
     for (unsigned owner = 0; owner < 2; owner++)
+    {
         for (unsigned allocator = 0; allocator < 2; allocator++)
+        {
             for (unsigned before = 1; before <= 16; before++)
+            {
                 for (unsigned after = 1; after <= 20; after++)
+                {
                     for (unsigned success = 0; success < 2; success++)
                     {
                         struct sx_ledger l = {0};
@@ -77,6 +89,10 @@ int main(void)
                               l.attributed[1 - owner] == 0);
                         ledger++;
                     }
+                }
+            }
+        }
+    }
     {
         struct sx_ledger l = {0};
         struct sx_alias a, b;
@@ -90,17 +106,22 @@ int main(void)
         struct sx_ledger l = {0};
         struct sx_alias a;
         for (unsigned i = 0; i < 12; i++)
+        {
             CHECK(sx_allocate(&l, i + 1, 1, 0, 0, &a) == B4_OK &&
                   sx_release(&l, a, 0, 0) == B4_OK);
+        }
         CHECK(sx_allocate(&l, 99, 1, 0, 0, &a) == B4_RANGE);
     }
     for (unsigned targets = 0; targets < 256; targets++)
     {
         struct sx_hotplug w = {0};
         for (unsigned cpu = 0; cpu < 8; cpu++)
+        {
             CHECK(sx_online(&w, cpu) == S_OK);
+        }
         CHECK(sx_begin(&w, targets) == S_OK);
         for (unsigned cpu = 0; cpu < 8; cpu++)
+        {
             if (targets & (1u << cpu))
             {
                 CHECK(sx_offline_request(&w, cpu, 1) == S_OK &&
@@ -108,6 +129,7 @@ int main(void)
                       sx_offline_quiescent(&w, cpu, 2) == S_CONFLICT);
                 CHECK(sx_offline_quiescent(&w, cpu, 1) == S_OK);
             }
+        }
         CHECK(sx_reclaim(&w) == S_OK && w.online == (255u ^ targets));
         hotplug++;
     }

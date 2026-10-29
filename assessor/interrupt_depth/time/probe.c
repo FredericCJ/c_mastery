@@ -33,8 +33,11 @@ static uint64_t guard(void *p)
 int main(void)
 {
     for (unsigned lb = 1; lb <= 4; ++lb)
+    {
         for (unsigned hb = 1; hb <= 3; ++hb)
+        {
             for (unsigned start = 0; start < (1u << (lb + hb)); ++start)
+            {
                 for (unsigned step = 0; step <= 4; ++step)
                 {
                     struct xi_counter c = {start, step, (1u << (lb + hb)) - 1,
@@ -46,6 +49,9 @@ int main(void)
                     printf("S %u %u %u %u %d %" PRIu64 " %u\n", lb, hb, start,
                            step, rc, out.value, c.part);
                 }
+            }
+        }
+    }
     uint32_t random = 0x58b49d23;
     for (unsigned i = 0; i < 4096; ++i)
     {
@@ -53,7 +59,9 @@ int main(void)
         uint64_t anchor = (uint64_t)random << 24, begin = random & 1023,
                  end = begin + ((random >> 10) & 31);
         if (i % 17 == 0)
+        {
             anchor = UINT64_MAX - (random & 1023);
+        }
         uint32_t quantum =
                      i % 13 == 0 ? UINT32_MAX : ((random >> 12) & 65535) + 1,
                  ppm = random % 1000001u;
@@ -67,9 +75,13 @@ int main(void)
     }
     uint32_t values[] = {0, 1, 2, UINT32_MAX - 1, UINT32_MAX};
     for (unsigned a = 0; a < 5; ++a)
+    {
         for (unsigned b = 0; b < 5; ++b)
+        {
             for (unsigned bound = 1; bound <= 4; ++bound)
+            {
                 for (unsigned epoch = 1; epoch <= 2; ++epoch)
+                {
                     for (unsigned full = 0; full < 2; ++full)
                     {
                         struct xk_sequence seq = {1, values[a], 1,
@@ -79,9 +91,16 @@ int main(void)
                                values[a], values[b], bound, epoch, full, rc,
                                seq.last, seq.missing);
                     }
+                }
+            }
+        }
+    }
     for (unsigned al = 0; al < 8; ++al)
+    {
         for (unsigned au = al; au < 8; ++au)
+        {
             for (unsigned bl = 0; bl < 8; ++bl)
+            {
                 for (unsigned bu = bl; bu < 8; ++bu)
                 {
                     unsigned out = 99;
@@ -89,9 +108,15 @@ int main(void)
                                       (struct xk_interval){bl, bu, 1}, &out);
                     printf("O %u %u %u %u %d %u\n", al, au, bl, bu, rc, out);
                 }
+            }
+        }
+    }
     for (unsigned lower = 0; lower < 8; ++lower)
+    {
         for (unsigned upper = lower; upper < 8; ++upper)
+        {
             for (unsigned minimum = 0; minimum < 4; ++minimum)
+            {
                 for (unsigned maximum = minimum; maximum < 4; ++maximum)
                 {
                     struct xk_interval out = {999, 1000, 9};
@@ -101,4 +126,7 @@ int main(void)
                            lower, upper, minimum, maximum, rc, out.lower,
                            out.upper, out.epoch);
                 }
+            }
+        }
+    }
 }

@@ -30,7 +30,9 @@ static int bitmap(void)
     struct qi_index x;
     uint32_t answer = 99;
     for (unsigned i = 0; i < 32; i++)
+    {
         rows[i] = row(i % 3 != 0, i % 2, (int)i, i % 8, (i + 1) % 8);
+    }
     CHECK(qi_build(rows, 32, &x) == QI_OK);
     CHECK(qi_terms(&x, 0, 0, &answer) == QI_OK && answer == x.live);
     CHECK(qi_terms(&x, 1, 0, &answer) == QI_OK);
@@ -39,6 +41,7 @@ static int bitmap(void)
     CHECK(qi_terms(&x, 1, 0, &answer) == QI_OK &&
           answer == (before & ~(UINT32_C(1) << 7)));
     for (unsigned a = 0; a < 3; a++)
+    {
         for (unsigned b = 0; b < 3; b++)
         {
             struct qi_truth ta = {a == 1 ? 2u : 0, a == 0 ? 2u : 0},
@@ -52,6 +55,7 @@ static int bitmap(void)
             CHECK(qi_logic(&x, ta, tb, 2, &out) == QI_OK && out.yes == ta.no &&
                   out.no == ta.yes);
         }
+    }
     struct qi_truth truth = {99, 77};
     CHECK(qi_compare(&x, 15, &truth) == QI_OK);
     for (unsigned i = 0; i < 32; i++)
@@ -93,8 +97,12 @@ static int postings(void)
     CHECK(qi_phrase(&x, phrase, 2, &answer) == QI_INVALID && answer == 99);
     CHECK(qi_phrase(&x, phrase, 9, &answer) == QI_INVALID && answer == 99);
     for (unsigned t = 0; t < 8; t++)
+    {
         for (unsigned i = 1; i < x.posting_count[t]; i++)
+        {
             CHECK(x.postings[t][i - 1].row < x.postings[t][i].row);
+        }
+    }
     return 0;
 }
 
@@ -105,7 +113,9 @@ static int zones(void)
     uint32_t answer;
     struct qi_cost cost;
     for (unsigned i = 0; i < 32; i++)
+    {
         rows[i] = row(1, 1, (int)i, 0, 1);
+    }
     CHECK(qi_build(rows, 32, &x) == QI_OK);
     CHECK(qi_range(&x, 4, 4, &answer, &cost) == QI_OK && answer == 16 &&
           cost.groups == 1 && cost.rows == 4);
@@ -135,7 +145,9 @@ static int zones(void)
     CHECK(qi_search(&x, 1, 0, 4, 7, phrase, 2, &answer, &cost) == QI_INVALID &&
           answer == 77 && cost.rows == 9);
     for (unsigned i = 0; i < 32; i++)
+    {
         rows[i].has_value = 0;
+    }
     CHECK(qi_build(rows, 32, &x) == QI_OK &&
           qi_range(&x, INT16_MIN, INT16_MAX, &answer, &cost) == QI_OK &&
           answer == 0 && cost.rows == 0);
@@ -150,6 +162,8 @@ int main(int argc, char **argv)
                  : !strcmp(argv[1], "zones")    ? zones()
                                                 : 1;
     if (!status)
+    {
         printf("QI_CHECK:%s passed\n", argv[1]);
+    }
     return status;
 }

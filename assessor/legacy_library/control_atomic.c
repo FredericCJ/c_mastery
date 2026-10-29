@@ -18,9 +18,13 @@ void lg_publish(struct lg_publication *p, int value)
 enum lg_status lg_receive(struct lg_publication *p, int *out)
 {
     if (!p || !out)
+    {
         return LG_ARGUMENT;
+    }
     if (!atomic_load_explicit(&p->ready, memory_order_acquire))
+    {
         return LG_PENDING;
+    }
     *out = p->payload;
     return LG_OK;
 }

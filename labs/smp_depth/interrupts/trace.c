@@ -32,13 +32,21 @@ int main(void)
             uint64_t out = 999;
             uint32_t items[] = {3, 5, 7, 11};
             if (action == 0)
+            {
                 result = si_publish(&box, items, 1, &out);
+            }
             else if (action == 1)
+            {
                 result = si_publish(&box, items, 4, &out);
+            }
             else if (action == 2)
+            {
                 result = si_drain(&box, box.sequence, add, &seen);
+            }
             else
+            {
                 result = si_timeout(&box, box.sequence);
+            }
             printf("%u %u %u %d %" PRIu64 " %" PRIu64 " %" PRIu64
                    " %u %u %" PRIu64 " %u\n",
                    history, step, action, result, out, box.sequence,

@@ -20,9 +20,13 @@ int main(void)
         if (family == 'S')
         {
             if (op == 0)
+            {
                 rc = ss_skip_put(&s, a, (int32_t)b, c, 0);
+            }
             else if (op == 1)
+            {
                 rc = ss_skip_erase(&s, a);
+            }
             else if (op == 9)
             {
                 ss_skip_init(&s);
@@ -32,33 +36,53 @@ int main(void)
         else if (family == 'T')
         {
             if (op == 0)
+            {
                 rc = ss_tree_put(&t, a, (int32_t)b, c);
+            }
             else if (op == 1)
+            {
                 rc = ss_tree_erase(&t, a, c);
+            }
             else if (op == 2 && a < 7)
+            {
                 rc = ss_tree_snapshot(&t, &versions[a]);
+            }
             else if (op == 3 && a < 7)
+            {
                 rc = ss_tree_release(&t, versions[a]);
+            }
             else if (op == 4)
+            {
                 rc = ss_tree_collect(&t, &cost);
+            }
             else if (op == 5)
+            {
                 rc = ss_tree_vacuum(&t, c);
+            }
             else if (op == 9)
             {
                 ss_tree_init(&t);
                 for (unsigned i = 0; i < 7; ++i)
+                {
                     versions[i] = (struct ss_version){0};
+                }
                 rc = SS_OK;
             }
         }
         else if (family == 'L')
         {
             if (op == 0)
+            {
                 rc = ss_lsm_write(&l, a, (int32_t)b, c);
+            }
             else if (op == 1)
+            {
                 rc = ss_lsm_flush(&l, c);
+            }
             else if (op == 2)
+            {
                 rc = ss_lsm_compact(&l, a, b, c);
+            }
             else if (op == 9)
             {
                 ss_lsm_init(&l);
@@ -75,6 +99,7 @@ int main(void)
             printf(" %d:%d", result, (int)value);
         }
         if (family == 'T')
+        {
             for (unsigned v = 0; v < 7; ++v)
             {
                 for (unsigned key = 0; key < 32; ++key)
@@ -84,6 +109,7 @@ int main(void)
                     printf(" %d:%d", result, (int)value);
                 }
             }
+        }
         putchar('\n');
     }
     return 0;

@@ -23,7 +23,9 @@ int main(void)
                    output.denominator);
         }
         else
+        {
             return 2;
+        }
     }
     return ferror(stdin) ? 2 : 0;
 }

@@ -13,7 +13,9 @@ static void number(char *s, unsigned *n, uint32_t x)
         x /= 10u;
     } while (x);
     while (k)
+    {
         s[(*n)++] = d[--k];
+    }
 }
 
 static void values(const char *name, uint32_t a, uint32_t b, uint32_t c,
@@ -23,9 +25,13 @@ static void values(const char *name, uint32_t a, uint32_t b, uint32_t c,
     unsigned n = 0;
     const char *p = "SV_VALUES ";
     while (*p)
+    {
         s[n++] = *p++;
+    }
     while (*name)
+    {
         s[n++] = *name++;
+    }
     uint32_t v[4] = {a, b, c, d};
     for (unsigned i = 0; i < 4; i++)
     {
@@ -52,6 +58,7 @@ static int baud(void)
     const uint32_t clocks[] = {48000000, 80000000, 125000000};
     const uint32_t rates[] = {9600, 115200, 1000000};
     for (unsigned i = 0; i < 3; i++)
+    {
         for (unsigned j = 0; j < 3; j++)
         {
             struct sv_baud out = {91, 92, 93};
@@ -60,6 +67,7 @@ static int baud(void)
                   out.fraction == out.units % 64u);
             values("baud", clocks[i], rates[j], out.integer, out.fraction);
         }
+    }
     struct sv_baud out = {91, 92, 93};
     CHECK(sv_baud(80000000, 115200, 79, &out) == SV_INVALID &&
           out.integer == 91 && out.fraction == 92 && out.units == 93);
@@ -82,11 +90,17 @@ static int word(void)
 {
     unsigned count = 0, checksum = 0;
     for (unsigned m = 0; m < 2; m++)
+    {
         for (unsigned par = 0; par < 3; par++)
+        {
             for (unsigned stop = 1; stop < 3; stop++)
+            {
                 for (unsigned p = 0; p < 2; p++)
+                {
                     for (unsigned h = 0; h < 2; h++)
+                    {
                         for (unsigned l = 0; l < 2; l++)
+                        {
                             for (unsigned v = 0;
                                  v < (1u << (8u + m - (par != 0))); v++)
                             {
@@ -107,17 +121,31 @@ static int word(void)
                                     parity ^= (v >> i) & 1u;
                                 }
                                 if (par)
+                                {
                                     CHECK(out.wire[bits] == parity);
+                                }
                                 for (unsigned i = bits + 1; i < out.length; i++)
+                                {
                                     CHECK(out.wire[i] == 1);
+                                }
                                 for (unsigned i = 0; i < out.edges; i++)
+                                {
                                     CHECK(out.clock[i] ==
                                               (p ^ ((i + 1) & 1u)) &&
                                           out.sample[i] == ((i & 1u) == h));
+                                }
                                 for (unsigned i = 0; i < out.length; i++)
+                                {
                                     checksum += out.wire[i];
+                                }
                                 count++;
                             }
+                        }
+                    }
+                }
+            }
+        }
+    }
     struct sv_word a;
     memset(&a, 0x55, sizeof a);
     struct sv_word before = a;
@@ -136,12 +164,15 @@ static int capture(void)
 {
     unsigned rejected = 0;
     for (unsigned p = 0; p < 2; p++)
+    {
         for (unsigned h = 0; h < 2; h++)
         {
             struct sv_edge e[18];
             for (unsigned i = 0; i < 18; i++)
+            {
                 e[i] =
                     (struct sv_edge){p ^ ((i + 1) & 1u), (i & 1u) == h, 10, 10};
+            }
             struct sv_capture out = {99, 99};
             CHECK(sv_capture(p, h, 160, e, 18, &out) == SV_OK &&
                   out.defects == 0);
@@ -169,6 +200,7 @@ static int capture(void)
             CHECK(sv_capture(p, h, 160, e, 18, &out) == SV_INVALID &&
                   out.index == 99 && out.defects == 98);
         }
+    }
     values("capture", rejected, 10, 11, 18);
     sv_note("SV_CAPTURE_PASS\n");
     return 0;
@@ -236,9 +268,11 @@ static int stream(void)
               used == 99 && !memcmp(&s, &before, sizeof s) &&
               !memcmp(&out, &old, sizeof out));
         if (k < n)
+        {
             CHECK(sv_stream_feed(&s, 1, bits + k, n - k, &used, &out) ==
                       SV_FRAME &&
                   out.frame.identifier == 0x123);
+        }
         CHECK(sv_stream_reset(&s, 1) == SV_STALE &&
               sv_stream_reset(&s, 2) == SV_OK);
         used = 99;
@@ -304,6 +338,7 @@ static int bank(void)
           filter.first == 0x24000000 && filter.second == 0xfe000006);
     unsigned count = 0, accepted = 0;
     for (unsigned id = 0; id < 2048; id++)
+    {
         for (unsigned remote = 0; remote < 2; remote++)
         {
             b.identifier = id;
@@ -312,6 +347,7 @@ static int bank(void)
                   accepted == (!remote && (id & 0x7f0) == 0x120));
             count += accepted;
         }
+    }
     b = (struct sd_can){0x120u << 18, 1, 0, 0, {0}};
     CHECK(sv_filter(&filter, &b, &accepted) == SV_OK && !accepted);
     a.identifier = 0x123;

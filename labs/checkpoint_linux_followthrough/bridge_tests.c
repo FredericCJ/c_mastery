@@ -29,7 +29,9 @@ static void read_progress(struct p5_bridge *p, size_t expected)
     struct timespec t = until(3);
     CHECK(!pthread_mutex_lock(&p->mutex));
     while (p->used < expected)
+    {
         CHECK(!pthread_cond_timedwait(&p->changed, &p->mutex, &t));
+    }
     CHECK(!memcmp(p->bytes, "ABC", expected));
     CHECK(!pthread_mutex_unlock(&p->mutex));
 }

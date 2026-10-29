@@ -29,7 +29,9 @@ static int read_fail(const void *p, int *out)
 static int add(int a, int b, int *out)
 {
     if ((b > 0 && a > INT_MAX - b) || (b < 0 && a < INT_MIN - b))
+    {
         return DS_RANGE;
+    }
     *out = a + b;
     return DS_OK;
 }
@@ -37,7 +39,9 @@ static int add(int a, int b, int *out)
 static int subtract(int a, int b, int *out)
 {
     if (a < -100 || a > 100 || b < -100 || b > 100)
+    {
         return DS_RANGE;
+    }
     *out = a - b;
     return DS_OK;
 }
@@ -45,7 +49,9 @@ static int subtract(int a, int b, int *out)
 static int reject_negative(int a, int b, int *out)
 {
     if (b < 0)
+    {
         return DS_FAILED;
+    }
     return add(a, b, out);
 }
 
@@ -64,7 +70,9 @@ static void release(void *c, unsigned char *p)
 static int thunk(const unsigned char *p, size_t n, int a, int *out)
 {
     if (n != 1 || a < -100 || a > 100)
+    {
         return DS_RANGE;
+    }
     *out = p[0] + a;
     return DS_OK;
 }
@@ -85,7 +93,9 @@ static int service_read(void *p, int *out)
     struct ds_test_service *s = p;
     s->calls++;
     if (s->calls == s->fail)
+    {
         return DS_FAILED;
+    }
     *out = s->value;
     return DS_OK;
 }
@@ -93,7 +103,9 @@ static int service_read(void *p, int *out)
 int main(int argc, char **argv)
 {
     if (argc != 5)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "traits"))
     {
         int value = 7, out = 99;
@@ -276,6 +288,8 @@ int main(int argc, char **argv)
         CHECK(ds_loaded_close(&h.current) == DS_OK);
     }
     else
+    {
         return 2;
+    }
     return 0;
 }

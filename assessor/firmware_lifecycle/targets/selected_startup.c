@@ -13,7 +13,9 @@ static int io_ok(struct fh_io x)
 int st_cold_h745(struct fh_io x)
 {
     if (!io_ok(x))
+    {
         return 0;
+    }
     uint32_t cr = x.read(x.ctx, RCC), cf = x.read(x.ctx, RCC + 0x10u);
     /* HSI64 ready, divide1, PLLs off, system clock=HSI, exact reset prescalers.
      * Do not use HSIDIVF as readiness: it resets0 until a divider transition. */
@@ -21,7 +23,9 @@ int st_cold_h745(struct fh_io x)
         x.read(x.ctx, RCC + 0x1Cu) || x.read(x.ctx, RCC + 0x20u) ||
         (x.read(x.ctx, 0xE000ED14u) & 0x30000u) || x.read(x.ctx, 0xE000ED94u) ||
         (x.read(x.ctx, RCC + 0xA0u) & 8u))
+    {
         return 0;
+    }
     x.write(x.ctx, RCC + 0xF4u, x.read(x.ctx, RCC + 0xF4u) | 2u);
     (void)x.read(x.ctx, RCC + 0xF4u);
     x.sync(x.ctx);
@@ -31,7 +35,9 @@ int st_cold_h745(struct fh_io x)
                            !(x.read(x.ctx, 0x58000700u) & 1u) ||
                            (x.read(x.ctx, 0x52002040u) & 65535u) != 0x0800u ||
                            (x.read(x.ctx, 0x52002048u) & 65535u) != 0x0810u))
+    {
         return 0;
+    }
     x.write(x.ctx, RCC + 0xDCu, x.read(x.ctx, RCC + 0xDCu) | 0xA0000000u);
     x.write(x.ctx, RCC + 0xE0u, x.read(x.ctx, RCC + 0xE0u) | (1u << 25));
     (void)x.read(x.ctx, RCC + 0xE0u);
@@ -42,7 +48,9 @@ int st_cold_h745(struct fh_io x)
 int st_cold_f439(struct fh_io x)
 {
     if (!io_ok(x))
+    {
         return 0;
+    }
     uint32_t cr = x.read(x.ctx, 0x40023800u), cf = x.read(x.ctx, 0x40023808u);
     /* HSI16, all PLLs off, reset AHB/APB divisors. No invented H7 peer. */
     return (cr & 0x15000003u) == 3u && !(cf & 0xFCFFu) &&
@@ -59,13 +67,19 @@ static int selection(const struct bs_selection *s)
 int st_release(struct fh_io x, const struct bs_selection *s)
 {
     if (!io_ok(x) || !selection(s) || (x.read(x.ctx, RCC + 0xA0u) & 8u))
+    {
         return 0;
+    }
     /* Caller already completed cold check and authenticated selection. Shared
      * SRAM is exclusive, uncached and inaccessible to any active peer so far. */
     if (ST_MUTANT == 2)
+    {
         x.write(x.ctx, RCC + 0xA0u, x.read(x.ctx, RCC + 0xA0u) | 8u);
+    }
     for (unsigned i = 0; i < 8; ++i)
+    {
         x.write(x.ctx, 0x30040000u + 4u * i, i ? 0 : s->image[0].generation);
+    }
     x.write(x.ctx, BOX, s->sequence);
     x.write(x.ctx, BOX + 4u, s->image[0].generation);
     x.write(x.ctx, BOX + 8u, s->image[1].base);
@@ -73,7 +87,9 @@ int st_release(struct fh_io x, const struct bs_selection *s)
     x.write(x.ctx, BOX + 16u, 0);
     x.sync(x.ctx);
     if (ST_MUTANT != 2)
+    {
         x.write(x.ctx, RCC + 0xA0u, x.read(x.ctx, RCC + 0xA0u) | 8u);
+    }
     x.sync(x.ctx);
     return 1;
 }
@@ -81,7 +97,9 @@ int st_release(struct fh_io x, const struct bs_selection *s)
 int st_peer_matches(struct fh_io x, const struct bs_selection *s)
 {
     if (!io_ok(x) || !selection(s))
+    {
         return 0;
+    }
     x.sync(x.ctx);
     uint32_t n = x.read(x.ctx, BOX), g = x.read(x.ctx, BOX + 4u),
              base = x.read(x.ctx, BOX + 8u), inv = x.read(x.ctx, BOX + 12u);

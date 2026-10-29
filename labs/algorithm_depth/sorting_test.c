@@ -24,7 +24,9 @@ static void sorted(const struct ad_record *p, size_t n, unsigned stable)
         {
             CHECK(p[i - 1].key <= p[i].key);
             if (stable && p[i - 1].key == p[i].key)
+            {
                 CHECK(p[i - 1].label < p[i].label);
+            }
         }
     }
     CHECK(seen == (1u << n) - 1);
@@ -38,7 +40,9 @@ static void sort_cases(void)
     {
         unsigned count = 1;
         for (unsigned i = 0; i < n; ++i)
+        {
             count *= 3;
+        }
         for (unsigned code = 0; code < count; ++code)
         {
             struct ad_record initial[16], p[16], scratch[16];
@@ -54,25 +58,41 @@ static void sort_cases(void)
                 struct ad_work work = {0};
                 enum ad_status status = AD_FAILED;
                 if (algorithm == 0)
+                {
                     status = ad_insertion(p, n, &work);
+                }
                 else if (algorithm == 1)
+                {
                     status = ad_merge_sort(p, n, scratch, 16, &work);
+                }
                 else if (algorithm == 2)
+                {
                     status = ad_heap_sort(p, n, &work);
+                }
                 else if (algorithm == 3)
+                {
                     status = ad_quick_sort(p, n, 6, 0, &work);
+                }
                 else if (algorithm == 4)
+                {
                     status = ad_quick_sort(p, n, 2, 1, &work);
+                }
                 else if (algorithm == 5)
+                {
                     status = ad_counting(p, n, scratch, 16, &work);
+                }
                 else
+                {
                     status = ad_radix(p, n, algorithm == 6 ? 4 : 8, scratch, 16,
                                       &work);
+                }
                 CHECK(status == AD_OK);
                 sorted(p, n,
                        algorithm == 0 || algorithm == 1 || algorithm >= 5);
                 for (unsigned i = 0; i < n; ++i)
+                {
                     CHECK(p[i].key == initial[p[i].label].key);
+                }
                 CHECK(work.max_depth <= 5);
             }
             ++cases;
@@ -96,9 +116,13 @@ int main(void)
         CHECK(ad_bounds(keys, 5, query[q], 0, &lower, &upper, &exact) == AD_OK);
         size_t l = 0, u = 0;
         while (l < 5 && keys[l] < query[q])
+        {
             ++l;
+        }
         while (u < 5 && keys[u] <= query[q])
+        {
             ++u;
+        }
         CHECK(lower == l && upper == u &&
               exact == (l < 5 && keys[l] == query[q] ? l : 5));
     }
@@ -115,7 +139,9 @@ int main(void)
     CHECK(ad_partition(p, 5, &pivot, 0, NULL, 0, &cut, &work) == AD_OK &&
           cut == 2);
     for (unsigned i = 0; i < 5; ++i)
+    {
         CHECK((p[i].key < 2) == (i < cut));
+    }
     struct ad_record stable[5] = {{3, 0}, {1, 1}, {2, 2}, {3, 3}, {0, 4}};
     memcpy(before, stable, sizeof stable);
     CHECK(ad_partition(stable, 5, &pivot, 1, scratch, 4, &cut, &work) ==
@@ -138,9 +164,11 @@ int main(void)
               AD_OK &&
           lower == 2 && upper == 5);
     for (unsigned i = 0; i < 6; ++i)
+    {
         CHECK(i < lower   ? three[i].key < 5
               : i < upper ? three[i].key == 5
                           : three[i].key > 5);
+    }
     struct ad_record original[5] = {{5, 0}, {1, 1}, {5, 2}, {0, 3}, {8, 4}};
     int32_t ranks[5] = {0, 1, 5, 5, 8};
     for (unsigned k = 0; k < 5; ++k)
@@ -150,9 +178,11 @@ int main(void)
         CHECK(ad_select(p, 5, k, 0, &value, &lower, &upper, &work) == AD_OK &&
               value == ranks[k] && lower <= k && k < upper);
         for (unsigned i = 0; i < 5; ++i)
+        {
             CHECK(i < lower   ? p[i].key < value
                   : i < upper ? p[i].key == value
                               : p[i].key > value);
+        }
     }
     memcpy(p, original, sizeof original);
     int32_t selected = 99;
@@ -169,22 +199,28 @@ int main(void)
               AD_OK &&
           lower == 0 && upper == 3);
     for (unsigned style = 0; style < 4; ++style)
+    {
         for (unsigned budget = 0; budget < 8; ++budget)
         {
             for (unsigned i = 0; i < 16; ++i)
+            {
                 p[i] = (struct ad_record){style == 0   ? (int)i
                                           : style == 1 ? 15 - (int)i
                                           : style == 2
                                               ? 4
                                               : (int)((i % 2) ? i : 16 - i),
                                           i};
+            }
             work = (struct ad_work){0};
             CHECK(ad_quick_sort(p, 16, budget, style % 2, &work) == AD_OK &&
                   work.max_depth <= 5);
             sorted(p, 16, 0);
             if (!budget)
+            {
                 CHECK(work.fallbacks == 1);
+            }
         }
+    }
     struct ad_record limits[5] = {
         {INT32_MIN, 0}, {INT32_MAX, 1}, {0, 2}, {-1, 3}, {INT32_MIN, 4}};
     CHECK(ad_radix(limits, 5, 8, scratch, 5, &work) == AD_OK);
@@ -193,10 +229,14 @@ int main(void)
           limits[4].key == INT32_MAX);
     struct ad_work increasing = {0}, decreasing = {0};
     for (unsigned i = 0; i < 8; ++i)
+    {
         p[i] = (struct ad_record){(int32_t)i, i};
+    }
     CHECK(ad_insertion(p, 8, &increasing) == AD_OK);
     for (unsigned i = 0; i < 8; ++i)
+    {
         p[i] = (struct ad_record){7 - (int32_t)i, i};
+    }
     CHECK(ad_insertion(p, 8, &decreasing) == AD_OK &&
           increasing.comparisons == 7 && decreasing.comparisons == 28);
     sort_cases();

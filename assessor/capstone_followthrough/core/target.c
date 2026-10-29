@@ -50,7 +50,9 @@ void cp_target_main(void)
     REQUIRE(cs_init(&service, 3, 100) == CS_OK);
     struct cp_message message = {258, 32, {0}};
     for (unsigned i = 0; i < 32; ++i)
+    {
         message.payload[i] = (unsigned char)(0xa5u + i);
+    }
     unsigned char wire[42];
     size_t n, used;
     REQUIRE(cp_encode(&message, wire, 42, &n) == CP_OK && n == 42);
@@ -60,8 +62,10 @@ void cp_target_main(void)
         enum cs_status status = cs_feed(&service, 0, wire, split, &used, 1, 0);
         REQUIRE(used == split && status == (split == 42 ? CS_FRAME : CS_MORE));
         if (split < 42)
+        {
             REQUIRE(cs_feed(&service, 0, wire + split, 42 - split, &used, 1,
                             0) == CS_FRAME);
+        }
         REQUIRE(cs_begin(&service) == CS_OK);
         size_t count = 0;
         REQUIRE(cs_step(&service, output, &count) == CS_DONE && count == 42 &&

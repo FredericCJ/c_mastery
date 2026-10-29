@@ -18,7 +18,9 @@ static int dictionary(void)
     unsigned i;
     CHECK(or_dictionary_get(&d, 1, &out) == OR_MISS && out == 777);
     for (i = 1; i <= 4; i++)
+    {
         CHECK(or_dictionary_set(&d, (uint8_t)i, (int32_t)(i * 10)) == OR_OK);
+    }
     CHECK(or_dictionary_set(&d, 3, 93) == OR_OK && d.count == 4);
     memcpy(&before, &d, sizeof d);
     CHECK(or_dictionary_set(&d, 5, 50) == OR_FULL &&
@@ -61,7 +63,9 @@ static int generic(void)
         enum or_status x, y;
         out = cached = 777;
         if (k % 7 == 0)
+        {
             CHECK(or_property_set(&s, o, 1, (int32_t)k) == OR_OK);
+        }
         x = or_property_generic(&s, o, key, &out);
         y = or_property_get(&s, o, key, &cache, &cached);
         CHECK(x == y && out == cached);
@@ -83,11 +87,15 @@ static int oracle(void)
             enum or_status status;
             code /= 6;
             if (operation < 4)
+            {
                 status =
                     or_dictionary_set(&d, (uint8_t)(operation + 1),
                                       (int32_t)(10 * (operation + 1) + step));
+            }
             else
+            {
                 status = or_dictionary_delete(&d, (uint8_t)(operation - 3));
+            }
             printf("D %u %u %u %d %u", seq, step, operation, status, d.count);
             for (k = 1; k <= 5; k++)
             {
@@ -104,12 +112,20 @@ static int oracle(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "dictionary"))
+    {
         return dictionary();
+    }
     if (!strcmp(argv[1], "generic"))
+    {
         return generic();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     return 2;
 }

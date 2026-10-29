@@ -13,6 +13,7 @@
 int main(void)
 {
     for (unsigned immediate = 0; immediate < 2; immediate++)
+    {
         for (unsigned delay = 0; delay < 4; delay++)
         {
             struct pl_posted m = {0};
@@ -26,8 +27,10 @@ int main(void)
             CHECK(pl_exchange_begin(&s, &m, 7, 8) == PL_OK &&
                   m.device.control == 1 && !m.count);
             for (unsigned k = 0; k < delay; k++)
+            {
                 CHECK(pl_exchange_step(&s, &m, &out) == PL_BUSY && out == 77 &&
                       !m.device.tx_count);
+            }
             m.device.status = 5;
             CHECK(pl_exchange_step(&s, &m, &out) == PL_OK && out == 42 &&
                   m.device.tx_count == 1 && m.device.last_tx == 7 &&
@@ -35,6 +38,7 @@ int main(void)
             CHECK(pl_exchange_step(&s, &m, &out) == PL_STALE &&
                   m.device.rx_count == 1);
         }
+    }
     {
         struct pl_posted m = {0};
         m.device.revision = 1;

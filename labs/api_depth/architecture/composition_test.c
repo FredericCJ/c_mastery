@@ -9,8 +9,10 @@ int main(void)
     size_t extent = 99;
     CHECK(f_checked_size(3, 3, 0, &extent) == F_OK && extent == 9);
     for (unsigned i = 0; i < 3; ++i)
+    {
         CHECK(ar_encode(1, (struct ar_record){values[i]}, bytes + 3 * i, 3) ==
               AR_OK);
+    }
     struct f_cursor cursor = {bytes, extent, 0};
     struct ar_ring_policy ring;
     CHECK(ar_ring_init(&ring, 3) == AR_OK);

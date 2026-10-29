@@ -33,7 +33,9 @@ static void append(void *p)
     struct er_entry *e = p;
     struct er_stack *s = e->stack;
     if (s->calls < 4)
+    {
         s->trace[s->calls++] = e->digit;
+    }
 }
 
 static er_result stack_body(er_frame *frame, void *p)
@@ -49,7 +51,9 @@ static er_result stack_body(er_frame *frame, void *p)
         ++s->attempts;
         er_code code = er_defer(frame, append, &s->entry[i < 4 ? i : 3]);
         if (code != ER_OK)
+        {
             return er_error(code, i);
+        }
         if (s->code && s->cut == i + 1)
         {
             (void)er_raise(frame, s->code);
@@ -62,14 +66,18 @@ static er_result stack_body(er_frame *frame, void *p)
 static er_result stack_run(struct er_stack *s)
 {
     for (unsigned i = 0; i < 4; ++i)
+    {
         s->entry[i] = (struct er_entry){s, i + 1};
+    }
     return er_run(&s->frame, stack_body, s);
 }
 
 static int stack(void)
 {
     for (unsigned n = 0; n <= 5; ++n)
+    {
         for (unsigned cut = 0; cut <= 6; ++cut)
+        {
             for (unsigned code = 0; code <= 8; ++code)
             {
                 struct er_stack s = {0};
@@ -91,12 +99,16 @@ static int stack(void)
                       (r.tag == ER_OK ? r.as.value : r.as.offset) == value &&
                       s.calls == registered && s.attempts == attempts);
                 for (unsigned i = 0; i < registered; ++i)
+                {
                     CHECK(s.trace[i] == registered - i);
+                }
                 CHECK(s.frame.count == 0 && !s.frame.active &&
                       !s.frame.cleaning &&
                       er_raise(&s.frame, ER_IO) == ER_INVALID &&
                       er_defer(&s.frame, append, &s.entry[0]) == ER_INVALID);
             }
+        }
+    }
     puts(
         "EJD_STACK actual-er-boundary every-code registration-cuts capacity-four LIFO inactive-refusal");
     return 0;
@@ -117,7 +129,9 @@ static int resources(void)
         unsigned order[5] = {4, 3, 2, 5, 1}, remaining[5] = {14, 6, 2, 2, 0};
         CHECK(r.trace_count == 5);
         for (unsigned i = 0; i < 5; ++i)
+        {
             CHECK(r.trace[i] == order[i] && r.remaining[i] == remaining[i]);
+        }
         CHECK(r.result.tag == (cut == 7 ? ER_OK : ER_CONTRACT));
     }
     struct ow_allocator a = {0};
@@ -231,7 +245,9 @@ static int oracle(void)
                r.stage, r.held, r.scope_finishes, r.scope_empty,
                r.frames_inactive, r.inner_entered, r.outer_live, r.trace_count);
         for (unsigned i = 0; i < 5; ++i)
+        {
             printf(" %u %u", r.trace[i], r.remaining[i]);
+        }
         putchar('\n');
     }
     return ferror(stdin) ? 2 : 0;
@@ -264,7 +280,9 @@ static int metrics(void)
         checksum, attempts, releases, sizeof(er_frame), sizeof(struct ow_scope),
         sizeof(struct ejd_report));
     for (unsigned i = 0; i < 7; ++i)
+    {
         printf("%s%.9f", i ? "," : "", samples[i]);
+    }
     puts("]}");
     return 0;
 }
@@ -272,20 +290,36 @@ static int metrics(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "jump_stack"))
+    {
         return stack();
+    }
     if (!strcmp(argv[1], "jump_resources"))
+    {
         return resources();
+    }
     if (!strcmp(argv[1], "jump_nested"))
+    {
         return nested();
+    }
     if (!strcmp(argv[1], "jump_effects"))
+    {
         return effects();
+    }
     if (!strcmp(argv[1], "jump_admission"))
+    {
         return admission();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

@@ -76,8 +76,12 @@ void xf_target_main(void)
                         mc_test_transfer, mc_test_receive, mc_test_bench,
                         mc_test_spi,      mc_test_atomic};
     for (unsigned i = 0; i < 8; i++)
+    {
         if (t[i]())
+        {
             stop(41);
+        }
+    }
     text("MCP_GUEST_PASS actual-Thumb controller-model no-physical-CAN\n");
     stop(0);
 }

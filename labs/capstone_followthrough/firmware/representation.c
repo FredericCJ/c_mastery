@@ -15,7 +15,9 @@ int main(void)
               mapped = er_map(bad, effect, &effects);
     if (good.tag != ER_OK || good.as.value != 17 || mapped.tag != ER_IO ||
         mapped.as.offset != 5 || effects)
+    {
         return 41;
+    }
     printf(
         "CAP_MCU_RESULT plain=%zu tagged=%zu errors-result=actual failure-callbacks=0 selected-target=plain\n",
         sizeof(enum cf_status), sizeof(er_result));

@@ -14,7 +14,9 @@ int rzf_bucket_init(struct rzf_bucket *out, uint64_t capacity, uint64_t p,
 {
     struct rzf_bucket b = {capacity, p, q, capacity, 0, now};
     if (!out || !valid(&b))
+    {
         return RZ_INVALID;
+    }
     *out = b;
     return RZ_OK;
 }
@@ -45,12 +47,18 @@ static void refill(struct rzf_bucket *b, uint64_t now)
 int rzf_bucket_consume(struct rzf_bucket *b, uint64_t now, uint64_t cost)
 {
     if (!valid(b))
+    {
         return RZ_INVALID;
+    }
     if (now < b->last || cost > b->capacity)
+    {
         return RZ_RANGE;
+    }
     refill(b, now);
     if (cost > b->tokens)
+    {
         return RZ_DENIED;
+    }
     b->tokens -= cost;
     return RZ_OK;
 }
@@ -59,10 +67,14 @@ int rzf_bucket_pair(struct rzf_bucket *average, struct rzf_bucket *peak,
                     uint64_t now, uint64_t cost)
 {
     if (average == peak || !valid(average) || !valid(peak))
+    {
         return RZ_INVALID;
+    }
     if (now < average->last || now < peak->last || cost > average->capacity ||
         cost > peak->capacity)
+    {
         return RZ_RANGE;
+    }
     struct rzf_bucket a = *average, p = *peak;
     refill(&a, now);
     refill(&p, now);
@@ -74,7 +86,9 @@ int rzf_bucket_pair(struct rzf_bucket *average, struct rzf_bucket *peak,
     }
 #if RZF_MUTANT == 22
     else if (cost <= a.tokens)
+    {
         a.tokens -= cost;
+    }
 #endif
     *average = a;
     *peak = p;
@@ -85,9 +99,13 @@ int rzf_credit_export(const struct rzf_bucket *b, uint64_t now,
                       struct rzf_credit *out)
 {
     if (!out || !valid(b))
+    {
         return RZ_INVALID;
+    }
     if (now < b->last)
+    {
         return RZ_RANGE;
+    }
     struct rzf_bucket copy = *b;
     refill(&copy, now);
     *out = (struct rzf_credit){copy.capacity, copy.numerator, copy.denominator,
@@ -101,14 +119,20 @@ int rzf_credit_import(const struct rzf_credit *credit, uint64_t now,
 {
     if (!credit || !out ||
         (policy != RZF_FREEZE_DOWNTIME && policy != RZF_REFILL_DOWNTIME))
+    {
         return RZ_INVALID;
+    }
     struct rzf_bucket b = {credit->capacity,    credit->numerator,
                            credit->denominator, credit->tokens,
                            credit->remainder,   0};
     if (!valid(&b))
+    {
         return RZ_INVALID;
+    }
     if (policy == RZF_REFILL_DOWNTIME)
+    {
         refill(&b, downtime);
+    }
     b.last = now;
     *out = b;
     return RZ_OK;

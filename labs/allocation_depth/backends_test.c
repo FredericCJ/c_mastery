@@ -42,7 +42,9 @@ static uint64_t now(void)
 {
     struct timespec t;
     if (clock_gettime(CLOCK_MONOTONIC, &t))
+    {
         abort();
+    }
     return (uint64_t)t.tv_sec * 1000000000u + (uint64_t)t.tv_nsec;
 }
 
@@ -54,7 +56,9 @@ static void *worker(void *argument)
         struct al_handle h;
         uint64_t start = now();
         if (pthread_mutex_lock(&w->shared->lock))
+        {
             abort();
+        }
         w->lock_ns += now() - start;
         int status = al_heap_take(&w->shared->heap, 4, 8, &h);
         if (!status)
@@ -70,9 +74,13 @@ static void *worker(void *argument)
             }
         }
         if (status)
+        {
             w->status = status;
+        }
         if (pthread_mutex_unlock(&w->shared->lock))
+        {
             abort();
+        }
     }
     return 0;
 }
@@ -87,9 +95,13 @@ static void *reader(void *argument)
 {
     struct al_publication *p = argument;
     while (!atomic_load_explicit(&p->ready, memory_order_acquire))
+    {
         sched_yield();
+    }
     if (p->value.value != 81 || p->value.measure != 2.5)
+    {
         abort();
+    }
     atomic_store_explicit(&p->done, 1, memory_order_release);
     return 0;
 }
@@ -107,7 +119,9 @@ static void *private_worker(void *argument)
     struct al_private *p = argument;
     p->status = al_arena_init(&p->arena, p->data, 24, 8);
     if (!p->status)
+    {
         p->status = al_arena_take(&p->arena, 24, 8, 0, 0, &p->held);
+    }
     return 0;
 }
 
@@ -132,7 +146,9 @@ int main(void)
         CHECK(al_arena_view(&a[i], h, &p, &n) == AL_OK);
         offsets[i] = (size_t)(p - bases[i]);
         for (size_t j = 0; j < n; ++j)
+        {
             p[j] = (unsigned char)j;
+        }
         CHECK(al_arena_reset(&a[i]) == AL_OK);
     }
     CHECK(offsets[0] == 8 && offsets[1] == 8 && offsets[2] == 8);
@@ -157,10 +173,14 @@ int main(void)
     struct al_private private_regions[2] = {0};
     pthread_t threads[2];
     for (unsigned i = 0; i < 2; ++i)
+    {
         CHECK(!pthread_create(&threads[i], 0, private_worker,
                               &private_regions[i]));
+    }
     for (unsigned i = 0; i < 2; ++i)
+    {
         CHECK(!pthread_join(threads[i], 0) && !private_regions[i].status);
+    }
     struct al_handle extra;
     CHECK(al_arena_reset(&private_regions[1].arena) == AL_OK);
     CHECK(al_arena_take(&private_regions[0].arena, 1, 1, 0, 0, &extra) ==
@@ -178,9 +198,13 @@ int main(void)
     struct al_worker workers[2] = {{&shared, 1000, 0, 0},
                                    {&shared, 1000, 0, 0}};
     for (unsigned i = 0; i < 2; ++i)
+    {
         CHECK(!pthread_create(&threads[i], 0, worker, &workers[i]));
+    }
     for (unsigned i = 0; i < 2; ++i)
+    {
         CHECK(!pthread_join(threads[i], 0) && !workers[i].status);
+    }
     CHECK(shared.successes == 2000 && al_heap_check(&shared.heap) == AL_OK);
     CHECK(!pthread_mutex_destroy(&shared.lock));
     struct al_publication publication = {0};

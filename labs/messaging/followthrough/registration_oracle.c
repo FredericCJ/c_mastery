@@ -8,7 +8,9 @@ int main(void)
     {
         struct mfr_hub h;
         if (mfr_init(&h, 2, 2) != MSG_OK)
+        {
             return 1;
+        }
         unsigned k = 99, v = 101;
         for (size_t i = 0; word[i] && word[i] != '\n'; i++)
         {
@@ -44,7 +46,9 @@ int main(void)
         }
         putchar('\n');
         if (mfr_destroy(&h) != MSG_OK)
+        {
             return 3;
+        }
     }
     return 0;
 }

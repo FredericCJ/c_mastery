@@ -18,13 +18,17 @@ static void skip_invariant(const struct ss_skip *s)
 {
     unsigned count = 0, eligible[6] = {0};
     for (unsigned n = 0; n < 32; ++n)
+    {
         if (s->nodes[n].live)
         {
             ++count;
             CHECK(s->nodes[n].height >= 1 && s->nodes[n].height <= 6);
             for (unsigned l = 0; l < s->nodes[n].height; ++l)
+            {
                 ++eligible[l];
+            }
         }
+    }
     CHECK(count == s->count);
     for (unsigned l = 0; l < 6; ++l)
     {
@@ -35,7 +39,9 @@ static void skip_invariant(const struct ss_skip *s)
             CHECK(at < 32 && seen < 32 && s->nodes[at].live &&
                   s->nodes[at].height > l);
             if (seen)
+            {
                 CHECK(last < s->nodes[at].key);
+            }
             last = s->nodes[at].key;
             ++seen;
             at = s->nodes[at].next[l];
@@ -91,7 +97,9 @@ static void skip(void)
     }
     ss_skip_init(&s);
     for (unsigned i = 0; i < 8; ++i)
+    {
         CHECK(ss_skip_put(&s, i, (int)i, 1, 0) == SS_OK);
+    }
     CHECK(ss_skip_get(&s, 7, &value, &cost) == SS_OK && cost >= 8);
     unsigned linear = cost;
     CHECK(ss_skip_erase(&s, 99) == SS_MISSING);
@@ -111,7 +119,9 @@ static void skip(void)
     {
         uint32_t expected = 0;
         for (unsigned j = 0; j < n; ++j)
+        {
             expected = expected * 1664525u + 1013904223u;
+        }
         CHECK(ss_random_advance(0, n) == expected);
     }
     CHECK(ss_random_advance(123, UINT32_MAX) ==
@@ -119,7 +129,9 @@ static void skip(void)
     /* This state advances to zero, which must be rejected for bound10. */
     uint32_t inverse = 1;
     for (unsigned i = 0; i < 5; ++i)
+    {
         inverse *= 2u - 1664525u * inverse;
+    }
     state = (0u - 1013904223u) * inverse;
     uint32_t old = state;
     out = 88;
@@ -136,7 +148,9 @@ static void skip(void)
         uint32_t seed = 123, replay = 123;
         unsigned order[32];
         for (unsigned i = 0; i < 32; ++i)
+        {
             order[i] = i;
+        }
         for (unsigned i = 32; i > 1; --i)
         {
             uint32_t selected;
@@ -180,36 +194,48 @@ static unsigned tree_node(const struct ss_tree *t, unsigned id,
     {
         CHECK(p->present[i] <= 1);
         if (i)
+        {
             CHECK(p->key[i - 1] < p->key[i]);
+        }
         if (haslo)
+        {
             CHECK(p->key[i] > lo);
+        }
         if (hashi)
+        {
             CHECK(p->key[i] < hi);
+        }
     }
     if (p->leaf)
     {
         if (*leafdepth == 999)
+        {
             *leafdepth = depth;
+        }
         CHECK(*leafdepth == depth);
         return p->count;
     }
     unsigned n = p->count;
     for (unsigned i = 0; i <= p->count; ++i)
+    {
         n += tree_node(t, p->child[i], seen, i ? p->key[i - 1] : lo,
                        i < p->count ? p->key[i] : hi, i ? 1 : haslo,
                        i < p->count ? 1 : hashi, depth + 1, leafdepth);
+    }
     return n;
 }
 
 static void tree_invariant(const struct ss_tree *t)
 {
     for (unsigned r = 0; r < 8; ++r)
+    {
         if (t->roots[r].live)
         {
             unsigned char seen[256] = {0};
             unsigned depth = 999;
             tree_node(t, t->roots[r].root, seen, 0, 0, 0, 0, 0, &depth);
         }
+    }
 }
 
 static void tree(void)
@@ -256,9 +282,13 @@ static void tree(void)
         int rc = ss_tree_put(&x, UINT32_MAX, 111, fail);
         CHECK(rc == SS_FAILED || rc == SS_OK);
         if (rc == SS_FAILED)
+        {
             CHECK(!memcmp(&x, &t, sizeof x));
+        }
         else
+        {
             break;
+        }
     }
     unsigned failures = 0;
     for (unsigned fail = 1; fail < 256; ++fail)
@@ -287,14 +317,20 @@ static void tree(void)
     tree_invariant(&t);
     struct ss_version leases[7];
     for (unsigned i = 0; i < 7; ++i)
+    {
         CHECK(ss_tree_snapshot(&t, &leases[i]) == SS_OK);
+    }
     struct ss_version unchanged = {0};
     CHECK(ss_tree_snapshot(&t, &unchanged) == SS_FULL &&
           unchanged.owner == NULL);
     for (unsigned i = 0; i < 7; ++i)
+    {
         CHECK(ss_tree_release(&t, leases[i]) == SS_OK);
+    }
     for (unsigned i = 1; i < 8; ++i)
+    {
         t.roots[i].generation = UINT32_MAX;
+    }
     CHECK(ss_tree_snapshot(&t, &unchanged) == SS_FULL);
     printf("SS_PASS tree size=%zu pages=%u vacuum_failures=%u\n", sizeof t,
            t.copies, failures);
@@ -317,7 +353,9 @@ static void lsm(void)
           !memcmp(&s, &before, sizeof s));
     CHECK(ss_lsm_compact(&s, 3, 1, 0) == SS_OK && s.runs[0].count == 0);
     for (unsigned i = 0; i < 4; ++i)
+    {
         CHECK(ss_lsm_write(&s, i, (int)i, 0) == SS_OK);
+    }
     before = s;
     CHECK(ss_lsm_write(&s, 4, 4, 0) == SS_FULL &&
           !memcmp(&s, &before, sizeof s));
@@ -343,8 +381,10 @@ static void lsm(void)
     }
     CHECK(ss_lsm_compact(&s, 7, 1, 0) == SS_OK);
     for (unsigned i = 0; i < 4; ++i)
+    {
         CHECK(ss_lsm_get(&s, i, &value, &cost) == SS_OK &&
               value == (i == 2 ? 22 : (int)i));
+    }
     s.sequence = UINT32_MAX;
     before = s;
     CHECK(ss_lsm_write(&s, 0, 1, 0) == SS_EXHAUSTED &&
@@ -362,7 +402,9 @@ static void lsm(void)
             if (i % 4 == 3)
             {
                 if (x.runs[0].live && x.runs[1].live && x.runs[2].live)
+                {
                     CHECK(ss_lsm_compact(&x, 7, 0, 0) == SS_OK);
+                }
                 CHECK(ss_lsm_flush(&x, 0) == SS_OK);
             }
         }
@@ -381,12 +423,20 @@ int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (!strcmp(argv[1], "skip"))
+    {
         skip();
+    }
     else if (!strcmp(argv[1], "tree"))
+    {
         tree();
+    }
     else if (!strcmp(argv[1], "lsm"))
+    {
         lsm();
+    }
     else
+    {
         CHECK(0);
+    }
     return 0;
 }

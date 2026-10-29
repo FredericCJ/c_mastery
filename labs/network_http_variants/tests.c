@@ -17,10 +17,14 @@ static int checksum(void)
 {
     unsigned char bytes[33];
     for (unsigned i = 0; i < 33; i++)
+    {
         bytes[i] = (unsigned char)(i * 83 + 1);
+    }
     unsigned cases = 0;
     for (size_t n = 0; n <= 33; n++)
+    {
         for (size_t a = 0; a <= n; a++)
+        {
             for (size_t b = a; b <= n; b++)
             {
                 struct nv_sum x, y, z, ab, bc, left, right, whole;
@@ -33,6 +37,8 @@ static int checksum(void)
                       left.odd == whole.odd && right.odd == whole.odd);
                 cases++;
             }
+        }
+    }
     const unsigned char allones[] = {255, 255, 255, 255}, zero[] = {0, 0};
     struct nv_sum s;
     CHECK(!nv_sum(allones, 4, &s) && s.sum == 65535);
@@ -134,12 +140,20 @@ static int date(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "checksum"))
+    {
         return checksum();
+    }
     if (!strcmp(argv[1], "length"))
+    {
         return length();
+    }
     if (!strcmp(argv[1], "date"))
+    {
         return date();
+    }
     return 2;
 }

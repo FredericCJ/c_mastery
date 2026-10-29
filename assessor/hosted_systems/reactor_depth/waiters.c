@@ -4,11 +4,15 @@
 int rd_port_init(struct rd_port *p, unsigned full, unsigned char value)
 {
     if (!p || full > 1)
+    {
         return -1;
+    }
     *p = (struct rd_port){0};
     pthread_condattr_t attr;
     if (pthread_mutex_init(&p->mutex, 0))
+    {
         return -1;
+    }
     if (pthread_condattr_init(&attr))
     {
         pthread_mutex_destroy(&p->mutex);
@@ -52,9 +56,13 @@ int rd_port_wait(struct rd_port *p, unsigned producer, struct rd_wait *w,
     if (!p || !p->initialized || producer > 1 || !w || !end ||
         w->result != RD_WAIT_PENDING || end->tv_nsec < 0 ||
         end->tv_nsec >= 1000000000L)
+    {
         return -1;
+    }
     if (pthread_mutex_lock(&p->mutex))
+    {
         return -1;
+    }
     int last = 0;
     ++p->waiters;
     for (;;)
@@ -119,10 +127,14 @@ int rd_port_enrolled(struct rd_port *p, unsigned entries,
                      const struct timespec *end)
 {
     if (!p || !p->initialized || !end || pthread_mutex_lock(&p->mutex))
+    {
         return -1;
+    }
     int result = 0;
     while (p->entries < entries && !result)
+    {
         result = pthread_cond_timedwait(&p->enrollment, &p->mutex, end);
+    }
     int unlocked = pthread_mutex_unlock(&p->mutex);
     return result || unlocked ? -1 : 0;
 }
@@ -130,11 +142,17 @@ int rd_port_enrolled(struct rd_port *p, unsigned entries,
 static int notify(struct rd_port *p, unsigned reason)
 {
     if (!p || !p->initialized || pthread_mutex_lock(&p->mutex))
+    {
         return -1;
+    }
     if (reason == 1)
+    {
         p->stopped = 1;
+    }
     if (reason == 2)
+    {
         p->peer_gone = 1;
+    }
     int r = pthread_cond_broadcast(&p->changed),
         u = pthread_mutex_unlock(&p->mutex);
     return r || u ? -1 : 0;
@@ -158,12 +176,16 @@ int rd_port_notify(struct rd_port *p)
 int rd_port_destroy(struct rd_port *p)
 {
     if (!p || !p->initialized || p->waiters)
+    {
         return -1;
+    }
     int a = pthread_cond_destroy(&p->changed),
         b = pthread_cond_destroy(&p->enrollment),
         c = pthread_mutex_destroy(&p->mutex);
     if (a || b || c)
+    {
         return -1;
+    }
     p->initialized = 0;
     return 0;
 }

@@ -26,7 +26,9 @@ int main(void)
     {
         config.bias[r] = r;
         for (i = 0; i < 3; i++)
+        {
             config.mask[r][i] = UINT32_C(1) << (i + r);
+        }
     }
     CHECK(sk_cm_init(&a, &config) == SK_OK);
     CHECK(sk_cm_init(&b, &config) == SK_OK);
@@ -41,8 +43,12 @@ int main(void)
     CHECK(sk_cm_merge(&a, &b) == SK_OK);
     CHECK(a.total == all.total);
     for (r = 0; r < 3; r++)
+    {
         for (i = 0; i < 8; i++)
+        {
             CHECK(a.cell[r][i] == all.cell[r][i]);
+        }
+    }
     old = a;
     b.config.mask[2][2] ^= 1;
     CHECK(sk_cm_merge(&a, &b) == SK_INVALID && memcmp(&a, &old, sizeof a) == 0);
@@ -92,7 +98,9 @@ int main(void)
         CHECK(sk_hll_merge(&fine, &part) == SK_OK);
         CHECK(sk_hll_fold(&coarse, &fine) == SK_OK);
         for (i = 0; i < 16; i++)
+        {
             CHECK(coarse.reg[i] == direct.reg[i]);
+        }
         old = fine;
         CHECK(sk_hll_merge(&fine, &fine) == SK_OK &&
               memcmp(&fine, &old, sizeof fine) == 0);
@@ -111,11 +119,15 @@ int main(void)
           memcmp(&fine, &old, sizeof fine) == 0);
     CHECK(sk_hll_init(&fine, 4, 91) == SK_OK);
     for (i = 0; i < 16; i++)
+    {
         fine.reg[i] = 28;
+    }
     estimate = 123;
     CHECK(sk_hll_estimate(&fine, &estimate) == SK_OK && estimate > 1e9);
     for (i = 0; i < 16; i++)
+    {
         fine.reg[i] = 29;
+    }
     estimate = 123;
     CHECK(sk_hll_estimate(&fine, &estimate) == SK_OVERFLOW && estimate == 123);
     puts(
@@ -132,8 +144,12 @@ int main(void)
     config.universe = 5;
     config.count = 10;
     for (i = 0; i < 10; i++)
+    {
         for (j = 0; j < 5; j++)
+        {
             config.rank[i][j] = (uint8_t)((i + j) % 5);
+        }
+    }
     CHECK(sk_mh_init(&a, &config) == SK_OK);
     CHECK(sk_mh_init(&b, &config) == SK_OK);
     CHECK(sk_mh_similarity(&a, &b, &f) == SK_OK && f.numerator == 10 &&
@@ -156,8 +172,10 @@ int main(void)
     CHECK(sk_mh_add(&u, 4) == SK_OK);
     CHECK(sk_mh_merge(&a, &u) == SK_OK);
     for (i = 0; i < 10; i++)
+    {
         CHECK(a.minimum[i] ==
               (old.minimum[i] < u.minimum[i] ? old.minimum[i] : u.minimum[i]));
+    }
     old = a;
     b.config.rank[0][0] = 1;
     b.config.rank[0][1] = 0;

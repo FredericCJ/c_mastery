@@ -99,22 +99,40 @@ static int test_compare(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (strcmp(argv[1], "span") == 0)
+    {
         return test_span();
+    }
     if (strcmp(argv[1], "extent") == 0)
+    {
         return test_extent();
+    }
     if (strcmp(argv[1], "generation") == 0)
+    {
         return test_generation();
+    }
     if (strcmp(argv[1], "arena") == 0)
+    {
         return test_arena();
+    }
     if (strcmp(argv[1], "dispatch") == 0)
+    {
         return test_dispatch();
+    }
     if (strcmp(argv[1], "format") == 0)
+    {
         return test_format();
+    }
     if (strcmp(argv[1], "release") == 0)
+    {
         return test_release();
+    }
     if (strcmp(argv[1], "compare") == 0)
+    {
         return test_compare();
+    }
     return 2;
 }

@@ -39,7 +39,9 @@ int main(void)
         for (size_t n = 0; n <= 4096; n++)
         {
             if (n)
+            {
                 exact += (int32_t)a[n - 1 + offset] * b[n - 1 + offset];
+            }
             int64_t scalar = 91, vec = 91;
             C(nt_dot(a + offset, b + offset, n, &scalar, 0) && scalar == exact);
             C(nt_dot(a + offset, b + offset, n, &vec, 1) && vec == exact);
@@ -49,7 +51,9 @@ int main(void)
     C(!nt_dot(a, b, 4097, &fail, 1) && fail == 91);
     double v[257];
     for (unsigned i = 0; i < 257; i++)
+    {
         v[i] = i % 4 == 0 ? 1e16 : i % 4 == 1 ? 1 : i % 4 == 2 ? -1e16 : 1;
+    }
     for (size_t n = 0; n <= 257; n++)
     {
         double serial, p0, p1;
@@ -76,14 +80,18 @@ int main(void)
       r == 14);
     puts("schedule,sample,seconds,result");
     for (unsigned schedule = 0; schedule < 3; schedule++)
+    {
         for (unsigned sample = 0; sample < 9; sample++)
         {
             double begin = now(), value = 0;
             for (unsigned repeat = 0; repeat < 16; repeat++)
+            {
                 C(schedule ? nt_parallel(v, 257, &value, schedule - 1)
                            : nd_pairwise(v, 257, &value));
+            }
             printf("%u,%u,%.9g,%a\n", schedule, sample, now() - begin, value);
         }
+    }
     puts("NT_PASS exactSSE2 fixedtree2workers ulp policies");
     return 0;
 }

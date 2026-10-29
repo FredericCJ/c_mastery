@@ -135,21 +135,29 @@ static int borrows(void)
     for (unsigned i = 0; i < 3; i++)
     {
         if (i == 0)
+        {
             x[i] = z;
+        }
         else
+        {
             CHECK(ow_borrow(&b, 0, 1, 0, &x[i]) == OW_OK);
+        }
     }
     CHECK(ow_borrow(&b, 0, 1, 0, &z) == OW_FULL);
     struct ow_borrows full = {.extent = 8};
     struct ow_token parent, others[3], children[2] = {{3, 90}, {3, 91}};
     CHECK(ow_borrow(&full, 0, 4, 1, &parent) == OW_OK);
     for (unsigned i = 0; i < 3; i++)
+    {
         CHECK(ow_borrow(&full, 4, 1, 0, &others[i]) == OW_OK);
+    }
     CHECK(ow_split(&full, parent, 2, children) == OW_FULL);
     CHECK(children[0].serial == 90 && children[1].serial == 91);
     CHECK(ow_release(&full, parent) == OW_OK);
     for (unsigned i = 0; i < 3; i++)
+    {
         CHECK(ow_release(&full, others[i]) == OW_OK);
+    }
     return 0;
 }
 
@@ -205,7 +213,9 @@ static void *worker(void *p)
         }
     }
     if (ow_atomic_drop(w->shared) != OW_OK)
+    {
         w->failed = 1;
+    }
     return NULL;
 }
 
@@ -321,14 +331,20 @@ static int facade(void)
 {
     struct ow_tenant_arena a;
     for (unsigned i = 0; i < 16; i++)
+    {
         a.data[i] = (i < 8) ? 1 : 99;
+    }
     CHECK(ow_flawed_write(&a, 0, UINT_MAX - 3u, 8, 7) == OW_OK);
     CHECK(a.data[12] == 7); /* harmless cross-tenant corruption */
     for (unsigned i = 0; i < 16; i++)
+    {
         a.data[i] = (i < 8) ? 1 : 99;
+    }
     CHECK(ow_checked_write(&a, 0, UINT_MAX - 3u, 8, 7) == OW_INVALID);
     for (unsigned i = 0; i < 16; i++)
+    {
         CHECK(a.data[i] == (i < 8 ? 1 : 99));
+    }
     CHECK(ow_checked_write(&a, 0, 8, 0, 7) == OW_OK);
     CHECK(ow_checked_write(&a, 0, 8, 1, 7) == OW_INVALID && a.data[8] == 99);
     CHECK(ow_checked_write(&a, 1, 7, 1, 7) == OW_OK && a.data[15] == 7);
@@ -339,13 +355,19 @@ static int facade(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     const char *names[] = {"frontier", "scope", "move", "borrows",   "cell",
                            "shared",   "cow",   "pin",  "allocator", "facade"};
     int (*tests[])(void) = {frontier, scope, move, borrows,   cell,
                             shared,   cow,   pin,  allocator, facade};
     for (unsigned i = 0; i < 10; i++)
+    {
         if (strcmp(argv[1], names[i]) == 0)
+        {
             return tests[i]();
+        }
+    }
     return 2;
 }

@@ -29,15 +29,23 @@ _Noreturn void st_main(void)
 {
     struct fh_io bus = st_target_io();
     if (!st_cold_h745(bus) || rt_uart_init(bus, 100000) != 1)
+    {
         for (;;)
+        {
             __asm__ volatile("wfi");
+        }
+    }
     *(volatile uint32_t *)(uintptr_t)0xE000ED24u |= 1u << 17;
     __asm__ volatile("dsb sy\n\tisb sy" ::: "memory");
     const uint32_t records[2] = {0x080C0000, 0x080E0000};
     struct bs_selection old;
     if (bs_select(slot_read, 0, &policy, &layout, records, &old) != 1)
+    {
         for (;;)
+        {
             __asm__ volatile("wfi");
+        }
+    }
     rt_reset(&frame);
     unsigned budget = 10000000;
     uint32_t status;
@@ -56,14 +64,20 @@ _Noreturn void st_main(void)
                                         &frame, &policy, &layout, &old);
             budget = 40000000;
             while (z == FH_PENDING && budget--)
+            {
                 z = fu_poll(&install, &admitted);
+            }
             rt_probe = z == FH_DONE ? 5u : 6u;
             (void)rt_uart_tx(bus, (unsigned char)rt_probe, 100000);
             break;
         }
     }
     if (!rt_probe)
+    {
         rt_probe = 4;
+    }
     for (;;)
+    {
         __asm__ volatile("wfi");
+    }
 }

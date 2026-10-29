@@ -17,7 +17,9 @@ static void text(const char *s)
 {
     size_t n = 0;
     while (s[n])
+    {
         n++;
+    }
     cmk_write(s, n);
 }
 
@@ -31,7 +33,9 @@ static void number(uint64_t v)
         v /= 10;
     } while (v);
     while (n)
+    {
         cmk_write(&out[--n], 1);
+    }
 }
 
 static void stop(unsigned status)
@@ -86,11 +90,15 @@ static void execute(unsigned worker)
     CHECK(!cmk_call(CMK2_SET_AFFINITY, 1u << wanted, 0, 0));
     unsigned cpu = (unsigned)cmk_call(CMK2_CPU_INFO, 0, 0, 0);
     if (cpu != worker)
+    {
         atomic_store(&bad, 1);
+    }
     atomic_fetch_or(&mask, 1u << cpu);
     atomic_fetch_add_explicit(&registered, 1, memory_order_release);
     while (atomic_load_explicit(&registered, memory_order_acquire) != cpus)
+    {
         yield();
+    }
     while (dg_drained(&graph) != DG_OK)
     {
         struct dg_claim claim;
@@ -114,11 +122,17 @@ static void execute(unsigned worker)
             result = 0;
         }
         else if (node == 1)
+        {
             result = mix(5000, 3000);
+        }
         else if (node == 2)
+        {
             result = mix(0, claim.cost * 1000);
+        }
         else if (variant == 2 && node == 3)
+        {
             result = mix(2000, 3000);
+        }
         else
         {
             volatile uint64_t observed = mix(200000, claim.cost * 1000);
@@ -134,7 +148,9 @@ static void execute(unsigned worker)
         {
             atomic_fetch_add_explicit(&arrived, 1, memory_order_release);
             while (atomic_load_explicit(&arrived, memory_order_acquire) != 2)
+            {
                 yield();
+            }
         }
         CHECK(dg_finish(&graph, claim,
                         mode == 2 && node == 1 ? DG_FAILED : DG_DONE,
@@ -147,9 +163,13 @@ static void entry(uintptr_t arg)
 {
     unsigned gate;
     while (!(gate = atomic_load_explicit(&launch.gate, memory_order_acquire)))
+    {
         yield();
+    }
     if (gate == 1)
+    {
         execute((unsigned)arg);
+    }
     cmk2_thread_exit(0);
 }
 
@@ -164,7 +184,9 @@ static int create(void *unused, unsigned i, void *p, uintptr_t *handle)
     (void)unused;
     int64_t h = cmk2_thread_create(entry, (unsigned char *)p + 16384, i);
     if (h < 0)
+    {
         return 1;
+    }
     *handle = (uintptr_t)h;
     return 0;
 }
@@ -190,21 +212,27 @@ static void setup(unsigned v)
     spec.costs[2] = v == 2 ? 2 : 5;
     spec.costs[3] = v == 2 ? 3 : 1;
     if (v == 2)
+    {
         spec.costs[4] = 1;
+    }
     spec.edges[spec.edge_count++] = (struct dg_edge){0, 1};
     spec.edges[spec.edge_count++] = (struct dg_edge){0, 2};
     if (v == 2)
     {
         spec.edges[spec.edge_count++] = (struct dg_edge){0, 3};
         for (unsigned i = 1; i <= 3; i++)
+        {
             spec.edges[spec.edge_count++] = (struct dg_edge){i, 4};
+        }
     }
     else
     {
         spec.edges[spec.edge_count++] = (struct dg_edge){1, 3};
         spec.edges[spec.edge_count++] = (struct dg_edge){2, 3};
         if (v == 1)
+        {
             spec.edges[spec.edge_count++] = (struct dg_edge){1, 2};
+        }
     }
 }
 
@@ -249,9 +277,13 @@ void _start(void)
         CHECK(dg_snapshot(&graph, &s) == DG_OK && s.terminal == spec.count &&
               atomic_load(&mask) == (1u << cpus) - 1);
         if (!mode)
+        {
             CHECK(s.results[spec.count - 1] == mix(0, 8000));
+        }
         else
+        {
             CHECK(s.states[3] == DG_SKIPPED && s.results[3] == 0);
+        }
         text("DG_GUEST_CASE:cpus=");
         number(cpus);
         text(" experiment=");

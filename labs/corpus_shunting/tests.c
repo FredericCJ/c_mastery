@@ -101,10 +101,14 @@ static int bounds(void)
     {
         unsigned char nested[64];
         for (unsigned i = 0; i < 31; ++i)
+        {
             nested[i] = '(';
+        }
         nested[31] = '1';
         for (unsigned i = 32; i < 63; ++i)
+        {
             nested[i] = ')';
+        }
         CHECK(pd_lex(nested, 63, &t, &d) == PD_OK);
         CHECK(sy_parse(&t, 1, 31, 1, &tree, &cost, &d) == PD_OK &&
               cost.peak_operators == 31);
@@ -128,8 +132,10 @@ static int stream(void)
     CHECK(pd_lex((const unsigned char *)"1+2*3", 5, &t, &d) == PD_OK);
     CHECK(sy_parse(&t, 1, 64, 64, &whole, &wc, &d) == PD_OK);
     for (size_t i = 0; i < t.count; ++i)
+    {
         CHECK(sy_push(&s, &t.tokens[i], &d) ==
               (i + 1 == t.count ? PD_OK : PD_PENDING));
+    }
     CHECK(sy_result(&s, &tree, &c) == PD_OK && tree.count == whole.count &&
           tree.root == whole.root);
     CHECK(c.pushes == wc.pushes && c.reductions == wc.reductions);
@@ -141,7 +147,9 @@ static int stream(void)
     CHECK(pd_lex((const unsigned char *)"(1+2", 4, &t, &d) == PD_OK);
     CHECK(sy_begin(1, 64, 64, &s) == PD_OK);
     for (size_t i = 0; i + 1 < t.count; ++i)
+    {
         CHECK(sy_push(&s, &t.tokens[i], &d) == PD_PENDING);
+    }
     saved = s;
     CHECK(sy_push(&s, &t.tokens[t.count - 1], &d) == PD_INVALID);
     CHECK(!memcmp(&s, &saved, sizeof s));
@@ -158,7 +166,9 @@ static int stream(void)
     CHECK(pd_lex((const unsigned char *)"1+2*3", 5, &t, &d) == PD_OK);
     CHECK(sy_begin(1, 1, 5, &s) == PD_OK);
     for (unsigned i = 0; i < 3; ++i)
+    {
         CHECK(sy_push(&s, &t.tokens[i], &d) == PD_PENDING);
+    }
     saved = s;
     CHECK(sy_push(&s, &t.tokens[3], &d) == PD_RANGE &&
           !memcmp(&s, &saved, sizeof s));
@@ -176,7 +186,9 @@ static int stream(void)
     {
         struct pd_token minus = {5, 0, 0, 1, 1, 1};
         for (unsigned i = 0; i < 64; ++i)
+        {
             CHECK(sy_push(&s, &minus, &d) == PD_PENDING);
+        }
         saved = s;
         CHECK(sy_push(&s, &minus, &d) == PD_RANGE &&
               !memcmp(&s, &saved, sizeof s));
@@ -187,12 +199,20 @@ static int stream(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "semantics"))
+    {
         return semantics();
+    }
     if (!strcmp(argv[1], "bounds"))
+    {
         return bounds();
+    }
     if (!strcmp(argv[1], "stream"))
+    {
         return stream();
+    }
     return 2;
 }

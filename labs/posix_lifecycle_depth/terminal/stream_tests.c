@@ -66,9 +66,13 @@ static struct pt_transport transport(unsigned kind)
 static void finish(struct pt_transport t)
 {
     if (t.rx >= 0)
+    {
         CHECK(close(t.rx) == 0);
+    }
     if (t.tx >= 0)
+    {
         CHECK(close(t.tx) == 0);
+    }
 }
 
 static void take_one(struct pt_session *s, struct pt_observed *o)
@@ -118,7 +122,9 @@ static void send_bytes(struct pt_transport t, struct pt_session *s,
     {
         size_t want = n - done;
         if (want > chunk)
+        {
             want = chunk;
+        }
         unsigned char buffer[128];
         CHECK(want <= sizeof buffer);
         if (t.rx < 0)
@@ -141,7 +147,9 @@ static void send_bytes(struct pt_transport t, struct pt_session *s,
 static void drain(struct pt_session *s, struct pt_observed *o)
 {
     while (s->queue.count)
+    {
         take_one(s, o);
+    }
 }
 
 static void message(const struct cp_message *m, unsigned sequence,
@@ -220,19 +228,27 @@ int main(int argc, char **argv)
     if (!strcmp(argv[1], "segmentation"))
     {
         for (unsigned kind = 0; kind < 3; ++kind)
+        {
             for (size_t n = 1; n <= 59; ++n)
+            {
                 corpus(kind, n);
+            }
+        }
         puts(
             "PS_TRANSFER adapters=3 chunk_bounds=59 same_parser_object independent_crc_vectors=2");
     }
     else if (!strcmp(argv[1], "reconnect"))
     {
         for (unsigned kind = 0; kind < 3; ++kind)
+        {
             reconnect(kind);
+        }
         puts("PS_RECONNECT adapters=3 partial_and_queued_reset=1");
     }
     else
+    {
         CHECK(0);
+    }
     puts("PS_PASS");
     return 0;
 }

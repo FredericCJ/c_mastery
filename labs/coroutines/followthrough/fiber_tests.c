@@ -38,7 +38,9 @@ static void inner(struct cf_fiber *f, void *v)
     owned[0] = 29;
     __asm__ volatile("movq %%rsp,%0" : "=r"(s->child_rsp));
     if (cf_fiber_suspend(f) != CO_IO || owned[0] != 29)
+    {
         s->bad = 1;
+    }
     free(owned);
     s->released++;
 }
@@ -56,13 +58,19 @@ static void outer(struct cf_fiber *f, void *v)
     owned[0] = 17;
     __asm__ volatile("movq %%rsp,%0" : "=r"(s->outer_rsp));
     if (cf_fiber_resume(&s->child) != CO_PENDING)
+    {
         s->bad = 1;
+    }
     s->stage = 1;
     if (cf_fiber_suspend(f) != CO_IO || owned[0] != 17)
+    {
         s->bad = 1;
+    }
     if (cf_fiber_cancel(&s->child) != CO_OK ||
         cf_fiber_resume(&s->child) != CO_DONE)
+    {
         s->bad = 1;
+    }
     free(owned);
     s->released++;
     s->stage = 2;

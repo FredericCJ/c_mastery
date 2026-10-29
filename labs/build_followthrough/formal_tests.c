@@ -34,7 +34,9 @@ int main(void)
     {
         unsigned possibilities = 1;
         for (size_t i = 0; i < n; ++i)
+        {
             possibilities *= 11;
+        }
         for (unsigned code = 0; code < possibilities; ++code)
         {
             unsigned x = code, expected = 0;

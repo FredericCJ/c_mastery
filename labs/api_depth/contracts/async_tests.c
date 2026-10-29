@@ -23,10 +23,14 @@ static void *allocate(void *context, size_t n, size_t alignment)
     struct ac_memory *m = context;
     ++m->attempts;
     if (m->fail || alignment > _Alignof(max_align_t))
+    {
         return 0;
+    }
     void *p = malloc(n);
     if (p)
+    {
         ++m->allocations;
+    }
     return p;
 }
 
@@ -57,23 +61,35 @@ static void receive(void *context, enum ac_async_status result,
     r->result = result;
     if (r->operation->core.state != F_DONE || r->operation->box ||
         r->operation->terminal || !r->operation->reporting)
+    {
         ++r->errors;
+    }
     if (ac_cancel_v2(r->operation, r->operation->core.generation) !=
         ACX_INVALID)
+    {
         ++r->errors;
+    }
     if (result == ACX_OK)
     {
         size_t n = 99;
         const unsigned char *p = ac_box_data(box, &n);
         if (!p || n != 3 || p[0] != 'a' || p[1] != 'b' || p[2] != 'c')
+        {
             ++r->errors;
+        }
         if (r->keep)
+        {
             r->saved = box;
+        }
         else
+        {
             ac_box_drop(box);
+        }
     }
     else if (box)
+    {
         ++r->errors;
+    }
 }
 
 struct ac_sync
@@ -88,7 +104,9 @@ static void sync_copy(void *context, const unsigned char *p, size_t n)
     struct ac_sync *s = context;
     ++s->calls;
     for (size_t i = 0; i < n; ++i)
+    {
         s->data[i] = p[i];
+    }
 }
 
 static void allocating_log(void *context, const unsigned char *p, size_t n)
@@ -132,7 +150,9 @@ static void child(void *context, struct api_registry *registry,
     ++s->children;
     if (!s->payload || *s->payload != 73 ||
         api_remove(registry, handle) != API_PENDING)
+    {
         ++s->errors;
+    }
 }
 
 static void parent(void *context, struct api_registry *registry,
@@ -148,11 +168,17 @@ static void parent(void *context, struct api_registry *registry,
         ++s->errors;
     }
     if (api_remove(registry, handle) != API_PENDING || !s->payload || s->drops)
+    {
         ++s->errors;
+    }
     if (s->destroy_inside && api_destroy(registry) != API_PENDING)
+    {
         ++s->errors;
+    }
     if (s->drops || !s->payload)
+    {
         ++s->errors; /* Current callback still owns. */
+    }
 }
 
 static int scope_cases(void)
@@ -172,14 +198,20 @@ static int scope_cases(void)
         CHECK(api_dispatch(&registry) == (close == 2 ? API_CLOSED : API_OK));
         CHECK(s.parents == 1 && !s.children && !s.errors);
         if (close == 2)
+        {
             CHECK(s.drops == 2 && !s.payload);
+        }
         else
         {
             CHECK(s.drops == 1 && s.references == 1 && s.payload);
             if (close == 1)
+            {
                 CHECK(api_destroy(&registry) == API_OK);
+            }
             else
+            {
                 CHECK(api_dispatch(&registry) == API_OK && s.children == 1);
+            }
             CHECK(s.drops == 2 && !s.payload && !s.errors);
         }
         CHECK(api_destroy(&registry) == API_OK && s.drops == 2);

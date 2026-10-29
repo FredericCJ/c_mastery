@@ -27,11 +27,15 @@ static void cases(void)
           out.sum == 0);
     const char *spelling[] = {"+", "12x", "", " 1", "1 ", "++1", "--2"};
     for (size_t i = 0; i < sizeof spelling / sizeof spelling[0]; i++)
+    {
         CHECK(ft_tokens(&spelling[i], 1, 0, &out, &e) == FT_MALFORMED);
+    }
     const char *range[] = {"32768", "-32769",
                            "9999999999999999999999999999999999999"};
     for (size_t i = 0; i < 3; i++)
+    {
         CHECK(ft_tokens(&range[i], 1, 0, &out, &e) == FT_RANGE);
+    }
     const char *limits[] = {"-32768", "32767", "1", "+00000"};
     CHECK(ft_tokens(limits, 4, 0, &out, &e) == FT_OK && out.sum == 0);
     const char *too_many[] = {"0", "0", "0", "0", "0"};
@@ -78,7 +82,9 @@ static void streams(void)
     CHECK(ft_stream_finish(&s, &r) == FT_MALFORMED && r.sum == 92);
     ft_stream_init(&s);
     for (unsigned i = 0; i < 1000; i++)
+    {
         CHECK(ft_stream_feed(&s, (const unsigned char *)"0", 1) == FT_OK);
+    }
     CHECK(ft_stream_feed(&s, (const unsigned char *)"7", 1) == FT_OK);
     CHECK(ft_stream_finish(&s, &r) == FT_OK && r.sum == 7 && r.count == 1);
     const char *failures[] = {"32768", "0 0 0 0 0", "32767 1 -1"};
@@ -95,7 +101,9 @@ static void streams(void)
         {
             feed = ft_stream_feed(&s, p, 1);
             if (feed != FT_OK)
+            {
                 break;
+            }
         }
         CHECK(feed == FT_OK || feed == statuses[j]);
         CHECK(ft_stream_finish(&s, &r) == statuses[j] && r.count == 91 &&

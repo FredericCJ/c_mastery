@@ -37,17 +37,27 @@ void reset(void)
 {
     uint32_t *src = &__data_load;
     for (uint32_t *p = &__data_start; p < &__data_end;)
+    {
         *p++ = *src++;
+    }
     for (uint32_t *p = &__bss_start; p < &__bss_end;)
+    {
         *p++ = 0;
+    }
     const char *cases[] = {"truth", "exhaustive", "admission", "branches"};
 #ifdef AA_TEST_CASE
     if (aa_test(cases[AA_TEST_CASE]))
+    {
         stop(1);
+    }
 #else
     for (unsigned i = 0; i < 4; ++i)
+    {
         if (aa_test(cases[i]))
+        {
             stop(1);
+        }
+    }
 #endif
     stop(0);
 }

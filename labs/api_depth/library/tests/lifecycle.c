@@ -13,7 +13,9 @@ static int acquire(void *v, unsigned id)
     struct ac_log *l = v;
     l->events[l->n++] = id;
     if (id == l->fail)
+    {
         return 0;
+    }
     l->live |= 1u << id;
     return 1;
 }
@@ -35,6 +37,7 @@ static void done(void *v, enum lc_status s)
 int main(void)
 {
     for (int optional = 0; optional <= 1; optional++)
+    {
         for (unsigned fail = 0; fail <= 3; fail++)
         {
             struct ac_log before = {fail, {0}, 0, 0}, after = before,
@@ -60,11 +63,14 @@ int main(void)
                 lc_destroy(&c);
             }
             else
+            {
                 CHECK(a.mask == 99 && b.mask == 99 && c.mask == 99);
+            }
             CHECK(!before.live && !after.live && !helper.live);
             CHECK(before.n == after.n && !memcmp(before.events, after.events,
                                                  before.n * sizeof(unsigned)));
         }
+    }
     unsigned log[2] = {0};
     CHECK(lc_sync(done, log) == LC_OK && log[0] == 1);
     log[0] = 0;

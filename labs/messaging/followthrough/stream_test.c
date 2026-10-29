@@ -48,7 +48,9 @@ static struct msg_sink *make_sink(atomic_uint *drops)
     atomic_init(&s->ends, 0);
     atomic_init(&s->active, 0);
     for (unsigned i = 0; i < 2000; i++)
+    {
         atomic_init(&s->seen[i], 0);
+    }
     return s;
 }
 
@@ -61,7 +63,9 @@ static void callback_enter(struct msg_sink *s)
         s->thread_set = true;
     }
     else
+    {
         CHECK(pthread_equal(s->callback_thread, pthread_self()));
+    }
 }
 
 static void next(void *ctx, unsigned value)
@@ -77,11 +81,15 @@ static void next(void *ctx, unsigned value)
         s->entered = true;
         pthread_cond_broadcast(&s->changed);
         while (!s->resume)
+        {
             pthread_cond_wait(&s->changed, &s->mutex);
+        }
     }
     pthread_mutex_unlock(&s->mutex);
     if (s->mode == 1 && value == 0)
+    {
         CHECK(mfq_request(&s->callback_handle, 1) == MSG_OK);
+    }
     if (s->mode == 2)
     {
         CHECK(mfq_request(&s->callback_handle, 0) == MSG_OK);
@@ -108,7 +116,9 @@ static void wait_entered(struct msg_sink *s)
 {
     pthread_mutex_lock(&s->mutex);
     while (!s->entered)
+    {
         pthread_cond_wait(&s->changed, &s->mutex);
+    }
     pthread_mutex_unlock(&s->mutex);
 }
 
@@ -255,7 +265,9 @@ static void wait_blocked(struct mfq_stream *s)
 {
     pthread_mutex_lock(&s->mutex);
     while (!s->stats.waiting)
+    {
         pthread_cond_wait(&s->changed, &s->mutex);
+    }
     pthread_mutex_unlock(&s->mutex);
 }
 
@@ -284,8 +296,10 @@ static void overload(void)
             wait_blocked(&s);
         }
         else
+        {
             CHECK(mfq_submit(&h, 3, (enum mfq_policy)policy) ==
                   (policy == MFQ_DROP ? MSG_FULL : MSG_FAILED));
+        }
         struct mfq_stats stats;
         CHECK(mfq_stats(&s, &stats) == MSG_OK && stats.accepted == 3 &&
               stats.inflight == 1 && stats.queued == 2 && stats.delivered == 0);
@@ -360,11 +374,15 @@ static void overload(void)
         CHECK(!pthread_create(&threads[i], NULL, produce, &producers[i]));
     }
     for (unsigned i = 0; i < 2; i++)
+    {
         CHECK(!pthread_join(threads[i], NULL) && producers[i].status == MSG_OK);
+    }
     CHECK(mfq_idle(&s) == MSG_OK);
     CHECK(atomic_load(&sink->count) == 2000);
     for (unsigned i = 0; i < 2000; i++)
+    {
         CHECK(atomic_load(&sink->seen[i]) == 1);
+    }
     stop(&s, &h, sink);
     CHECK(atomic_load(&drops) == 6);
 }
@@ -436,16 +454,22 @@ int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (!strcmp(argv[1], "executor"))
+    {
         executor();
+    }
     else if (!strcmp(argv[1], "overload"))
+    {
         overload();
+    }
     else if (!strcmp(argv[1], "oracle"))
     {
         oracle();
         return 0;
     }
     else
+    {
         CHECK(false);
+    }
     puts("stream passed");
     return 0;
 }

@@ -12,15 +12,21 @@ static uint32_t a[1024], before[1024];
 static int same(const uint32_t *x, const uint32_t *y, unsigned n)
 {
     for (unsigned i = 0; i < n; ++i)
+    {
         if (x[i] != y[i])
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
 static void copy(uint32_t *x, const uint32_t *y, unsigned n)
 {
     for (unsigned i = 0; i < n; ++i)
+    {
         x[i] = y[i];
+    }
 }
 
 static int better(uint32_t x, uint32_t y, unsigned minimum)
@@ -32,8 +38,12 @@ static int edges(const uint32_t *x, unsigned n, unsigned p, unsigned arity,
                  unsigned minimum)
 {
     for (unsigned i = 1; i < n; ++i)
+    {
         if ((i - 1) / arity != p && better(x[i], x[(i - 1) / arity], minimum))
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
@@ -48,7 +58,9 @@ static int multiset(const uint32_t *x, const uint32_t *y, unsigned n)
             ny += x[i] == y[j];
         }
         if (nx != ny)
+        {
             return 0;
+        }
     }
     return 1;
 }
@@ -69,7 +81,9 @@ static int certificate(const uint32_t *original, const uint32_t *result,
                        const struct ah_stats *s, const struct ah_trace *t)
 {
     if (t->used != s->swaps || t->used > height(n, p, arity))
+    {
         return 0;
+    }
     const uint32_t *last = original;
     unsigned comparisons = 0;
     for (unsigned k = 0; k < t->used; ++k)
@@ -77,27 +91,39 @@ static int certificate(const uint32_t *original, const uint32_t *result,
         unsigned next = t->position[k];
         if (!n || next >= n || !next || (next - 1) / arity != p ||
             height(n, next, arity) >= height(n, p, arity))
+        {
             return 0;
+        }
         unsigned first = arity * p + 1,
                  children = n - first < arity ? n - first : arity;
         comparisons += children;
         if (!better(last[next], last[p], minimum))
+        {
             return 0;
+        }
         for (unsigned j = first; j < first + children; ++j)
+        {
             if (better(last[j], last[next], minimum) ||
                 (last[j] == last[next] && j < next))
+            {
                 return 0;
+            }
+        }
         for (unsigned j = 0; j < n; ++j)
         {
             uint32_t expected = j == p      ? last[next]
                                 : j == next ? last[p]
                                             : last[j];
             if (t->state[k][j] != expected)
+            {
                 return 0;
+            }
         }
         if (!multiset(original, t->state[k], n) ||
             !edges(t->state[k], n, next, arity, minimum))
+        {
             return 0;
+        }
         last = t->state[k];
         p = next;
     }
@@ -198,7 +224,9 @@ static int exhaustive(unsigned arity, unsigned minimum)
     {
         unsigned limit = 1;
         for (unsigned i = 0; i < n; ++i)
+        {
             limit *= 3;
+        }
         for (unsigned bits = 0; bits < limit; ++bits)
         {
             unsigned x = bits;
@@ -230,17 +258,25 @@ static int equivalent(const struct cd_heap *x, const struct cd_heap *y)
 {
     if (x->count != y->count || x->max_heap != y->max_heap ||
         x->sequence != y->sequence || x->comparisons != y->comparisons)
+    {
         return 0;
+    }
     for (unsigned i = 0; i < 16; ++i)
+    {
         if (x->index[i] != y->index[i] ||
             x->generation[i] != y->generation[i] || x->state[i] != y->state[i])
+        {
             return 0;
+        }
+    }
     for (unsigned i = 0; i < x->count; ++i)
     {
         struct cd_heap_item a = x->data[i], b = y->data[i];
         if (a.priority != b.priority || a.identity != b.identity ||
             a.slot != b.slot || a.sequence != b.sequence)
+        {
             return 0;
+        }
     }
     return 1;
 }
@@ -251,14 +287,18 @@ static int valid(const struct cd_heap *h)
     {
         struct cd_heap_item a = h->data[i];
         if (a.slot >= 16 || h->index[a.slot] != i || h->state[a.slot] != 1)
+        {
             return 0;
+        }
         if (i)
         {
             struct cd_heap_item b = h->data[(i - 1) / 2];
             if (a.priority == b.priority ? a.sequence < b.sequence
                 : h->max_heap            ? a.priority > b.priority
                                          : a.priority < b.priority)
+            {
                 return 0;
+            }
         }
     }
     return 1;
@@ -270,15 +310,18 @@ static int prior(unsigned maximum)
     int input[16];
     uint32_t ignored = 0;
     for (unsigned n = 0; n <= 16; ++n)
+    {
         for (unsigned distribution = 0; distribution < 4; ++distribution)
         {
             for (unsigned i = 0; i < n; ++i)
+            {
                 input[i] = distribution == 0   ? 7
                            : distribution == 1 ? (int)i - 8
                            : distribution == 2 ? 8 - (int)i
                                                : (i % 3 == 0   ? INT_MIN
                                                   : i % 3 == 1 ? INT_MAX
                                                                : 0);
+            }
             CHECK(cd_heap_build(&x, input, n, maximum) == CD_OK &&
                   ah_heap_build(&y, input, n, maximum) == CD_OK);
             CHECK(equivalent(&x, &y) && valid(&y));
@@ -304,6 +347,7 @@ static int prior(unsigned maximum)
                 CHECK(equivalent(&x, &y) && valid(&y));
             }
         }
+    }
     cd_heap_init(&x, maximum);
     ah_heap_init(&y, maximum);
     for (unsigned round = 0; round < 3; ++round)

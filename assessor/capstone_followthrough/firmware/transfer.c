@@ -26,11 +26,17 @@ static int feed(struct cs_service *s, const unsigned char *b, size_t n)
             cs_feed(s, 1, b + position, n - position, &used, 1, 0);
         position += used;
         if (st == CS_MORE)
+        {
             return position == n;
+        }
         if (st != CS_FRAME && st != CS_REJECT)
+        {
             return 0;
+        }
         if (position == n && !s->input[1].used)
+        {
             return 1;
+        }
     }
     return 0;
 }
@@ -44,7 +50,9 @@ int main(void)
     size_t n = 0;
     C(cp_encode(&m, wire, 13, &n) == CP_OK && n == 13);
     for (unsigned i = 0; i < 13; ++i)
+    {
         bad[i] = wire[i];
+    }
     bad[12] ^= 1;
     C(feed(&f.core, bad, 13));
     C(!f.core.accepted);

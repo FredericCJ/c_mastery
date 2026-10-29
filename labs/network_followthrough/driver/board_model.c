@@ -24,13 +24,19 @@ static unsigned violations, frozen;
 uint32_t en_port_load(uint32_t a)
 {
     if (a == 0xe000edfc)
+    {
         return demcr;
+    }
     if (a == 0xe0001000)
+    {
         return ctrl;
+    }
     if (a == 0xe0001004)
     {
         if (!frozen && (ctrl & 1) && (demcr & 0x1000000))
+        {
             count += 8;
+        }
         return count;
     }
     if (a >= 0x40028000u && a <= 0x4002901cu)
@@ -38,18 +44,26 @@ uint32_t en_port_load(uint32_t a)
         uint32_t v = 0;
         struct en_bus b = en_model_bus(&ring_model);
         if (b.read(b.context, a - 0x40028000u, &v))
+        {
             violations++;
+        }
         return v;
     }
     if (a >= 0x40023800u && a <= 0x40023844u)
+    {
         return rcc[(a - 0x40023800u) / 4];
+    }
     if (a == 0x40013804)
+    {
         return pmc;
+    }
     if (a >= 0x40020000u && a < 0x40021c00u)
     {
         unsigned p = (a - 0x40020000u) / 0x400u, o = (a - 0x40020000u) % 0x400u;
         if (o <= 0x24)
+        {
             return gpio[p][o / 4];
+        }
     }
     violations++;
     return 0;
@@ -70,11 +84,15 @@ void en_port_store(uint32_t a, uint32_t v)
     if (a >= 0x40028000u && a <= 0x4002901cu)
     {
         if ((uint32_t)(count - last_write) < 720)
+        {
             violations++;
+        }
         last_write = count;
         struct en_bus b = en_model_bus(&ring_model);
         if (b.settle(b.context) || b.write(b.context, a - 0x40028000u, v))
+        {
             violations++;
+        }
         return;
     }
     if (a >= 0x40023800u && a <= 0x40023844u)
@@ -85,7 +103,9 @@ void en_port_store(uint32_t a, uint32_t v)
     if (a == 0x40013804)
     {
         if (!(rcc[0x10 / 4] & 0x2000000u) || (rcc[0x30 / 4] & 0xe000000u))
+        {
             violations++;
+        }
         pmc = v;
         return;
     }
@@ -95,7 +115,9 @@ void en_port_store(uint32_t a, uint32_t v)
         if (o <= 0x24)
         {
             if (!(rcc[0x30 / 4] & (1u << p)))
+            {
                 violations++;
+            }
             gpio[p][o / 4] = v;
             return;
         }
@@ -112,14 +134,18 @@ void en_port_barrier(void)
 int ep_test_read(uint32_t a, uint32_t *v)
 {
     if (a != 0x40028010 && a != 0x40028014)
+    {
         return 1;
+    }
     return ep_model_read(&phy_model, (a - 0x40028010) / 4, v);
 }
 
 int ep_test_write(uint32_t a, uint32_t v)
 {
     if (a != 0x40028010 && a != 0x40028014)
+    {
         return 1;
+    }
     return ep_model_write(&phy_model, (a - 0x40028010) / 4, v);
 }
 
@@ -147,7 +173,9 @@ int nb_board_tests(void)
     CHECK(begin() == NB_WAIT);
     int e = NB_WAIT;
     for (unsigned i = 0; i < 512 && e == NB_WAIT; i++)
+    {
         e = nb_board_step(&board);
+    }
     CHECK(e == NB_OK && board.phase == NB_BOARD_READY &&
           board.net.tcp.state == NC_LISTEN);
     CHECK(!violations && !ring_model.violation && !phy_model.violation);
@@ -167,7 +195,9 @@ int nb_board_tests(void)
     CHECK(begin() == NB_WAIT);
     e = NB_WAIT;
     for (unsigned i = 0; i < 512 && e == NB_WAIT; i++)
+    {
         e = nb_board_step(&board);
+    }
     CHECK(e == NB_OK && board.phy.mode.speed == 10 &&
           !(ring_model.reg[0] & 0x4000u));
     CHECK(nb_stop(&board.net, phy_model.tick + 1) == NB_WAIT);
@@ -185,7 +215,9 @@ int nb_board_tests(void)
     ring_model.reset_stuck = 1;
     e = NB_WAIT;
     for (unsigned i = 0; i < 512 && e == NB_WAIT; i++)
+    {
         e = nb_board_step(&board);
+    }
     CHECK(e == NB_FAULT && board.phase == NB_BOARD_FAILED &&
           board.ring.reset_pending);
     setup();
@@ -193,7 +225,9 @@ int nb_board_tests(void)
     frozen = 1;
     e = NB_WAIT;
     for (unsigned i = 0; i < 512 && e == NB_WAIT; i++)
+    {
         e = nb_board_step(&board);
+    }
     CHECK(e == NB_FAULT && board.phase == NB_BOARD_FAILED &&
           board.target.opened);
     puts("NB_BOARD_PASS actual_F439_ports_PHY_ring_boundaries_model_only");

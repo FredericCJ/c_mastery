@@ -11,8 +11,12 @@ static int equal(const void *a, const void *b, size_t n)
 {
     const unsigned char *x = a, *y = b;
     for (size_t i = 0; i < n; ++i)
+    {
         if (x[i] != y[i])
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
@@ -48,7 +52,9 @@ static int checked(const struct cd_edge *edges, size_t n, unsigned vertices,
                   s->priority[i] == (int)(s->distance[v] * 8u + v));
             open |= 1u << v;
             if (i)
+            {
                 CHECK(s->priority[(i - 1) / 2] <= s->priority[i]);
+            }
         }
         CHECK(s->seen == (done | open));
         done |= 1u << s->selected;
@@ -57,8 +63,10 @@ static int checked(const struct cd_edge *edges, size_t n, unsigned vertices,
     for (unsigned i = 0; i < 8; ++i)
     {
         if (distance[i] == UINT64_MAX)
+        {
             CHECK(!(r->reachable & (1u << i)) && r->distance[i] == 0 &&
                   r->hops[i] == 0 && r->previous[i] == 8);
+        }
         else
         {
             CHECK((r->reachable & (1u << i)) && r->distance[i] == distance[i] &&
@@ -81,8 +89,10 @@ static int fixture(void)
     CHECK(!checked(edges, 5, 5, 0, 0, &r, &t));
     unsigned weighted[] = {0, 2, 1, 3}, bfs[] = {0, 1, 2, 3};
     for (unsigned i = 0; i < 4; ++i)
+    {
         CHECK(t.weighted[i].selected == weighted[i] &&
               t.bfs[i].selected == bfs[i]);
+    }
     CHECK(r.reachable == 15 && r.distance[1] == 2 && r.distance[2] == 1 &&
           r.distance[3] == 3 && r.hops[1] == 1 && r.hops[3] == 2 &&
           r.previous[1] == 2 && r.previous[3] == 1);
@@ -138,7 +148,9 @@ static int parallel(void)
     struct cd_edge edges[] = {{0, 1, 9}, {0, 1, 4}, {0, 1, 2}, {1, 1, 0}};
     struct cd_edge saved[4];
     for (unsigned i = 0; i < 4; ++i)
+    {
         saved[i] = edges[i];
+    }
     struct ag_result r;
     struct ag_trace t;
     CHECK(!checked(edges, 4, 2, 0, 1, &r, &t));
@@ -206,15 +218,21 @@ static int exhaustive(void)
         struct cd_edge edges[6];
         size_t n = 0;
         for (unsigned from = 0; from < 3; ++from)
+        {
             for (unsigned to = 0; to < 3; ++to)
+            {
                 if (from != to)
                 {
                     unsigned choice = choices % 3;
                     choices /= 3;
                     if (choice)
+                    {
                         edges[n++] =
                             (struct cd_edge){from, to, choice == 1 ? 0 : 2};
+                    }
                 }
+            }
+        }
         for (unsigned source = 0; source < 3; ++source)
         {
             struct ag_result r;

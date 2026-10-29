@@ -21,16 +21,24 @@ static int fixed_pipe(int *writer)
 {
     int p[2];
     if (pipe2(p, O_NONBLOCK | O_CLOEXEC))
+    {
         return -1;
+    }
     int w = fcntl(p[1], F_DUPFD_CLOEXEC, 10);
     if (w < 0)
+    {
         return -1;
+    }
     if (close(p[1]))
+    {
         return -1;
+    }
     if (p[0] != 5)
     {
         if (dup2(p[0], 5) != 5 || close(p[0]))
+        {
             return -1;
+        }
     }
     *writer = w;
     return 5;
@@ -93,9 +101,11 @@ static int duplicate(void)
     CHECK(n == 2);
     unsigned mask = 0;
     for (int i = 0; i < n; ++i)
+    {
         mask |= events[i].data.u64 == 7   ? 1u
                 : events[i].data.u64 == 8 ? 2u
                                           : 0u;
+    }
     CHECK(mask == 3);
     char byte;
     CHECK(
@@ -124,7 +134,9 @@ static int service(int file)
         CHECK(sinkfd[1] >= 0);
     }
     else
+    {
         CHECK(!pipe2(sinkfd, O_NONBLOCK | O_CLOEXEC));
+    }
     struct cs_service s;
     struct cs_linux a;
     CHECK(cs_init(&s, 3, 1000) == CS_OK);
@@ -136,7 +148,9 @@ static int service(int file)
     {
         struct cp_message m = {(uint16_t)id, id % 3 == 0 ? 32u : 3u, {0}};
         for (size_t j = 0; j < m.length; ++j)
+        {
             m.payload[j] = (unsigned char)(id + j);
+        }
         unsigned char wire[42];
         size_t n;
         CHECK(cp_encode(&m, wire, 42, &n) == CP_OK);
@@ -159,7 +173,9 @@ static int service(int file)
         }
     }
     if (file)
+    {
         CHECK(lseek(sinkfd[0], 0, SEEK_SET) == 0);
+    }
     unsigned char got[8 * 42];
     CHECK(read(sinkfd[0], got, sizeof got) == (ssize_t)expected_n &&
           !memcmp(got, expected, expected_n));
@@ -167,7 +183,9 @@ static int service(int file)
           cs_conserved(&s));
     CHECK(cs_close(&s, 0) == CS_CLOSED);
     for (unsigned i = 0; i < 2; ++i)
+    {
         CHECK(!csl_close(&a, i) && !close(p[i][1]));
+    }
     CHECK(!close(sinkfd[0]) && !close(sinkfd[1]) && !close(ep));
     printf(
         "native-two-input-service accepted=7 denied=1 output-bytes=%zu file=%d no-durability-claim\n",
@@ -178,14 +196,24 @@ static int service(int file)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "fairness"))
+    {
         return fairness();
+    }
     if (!strcmp(argv[1], "duplicate"))
+    {
         return duplicate();
+    }
     if (!strcmp(argv[1], "service"))
+    {
         return service(0);
+    }
     if (!strcmp(argv[1], "file"))
+    {
         return service(1);
+    }
     return 2;
 }

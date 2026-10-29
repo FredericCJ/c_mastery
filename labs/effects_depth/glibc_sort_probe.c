@@ -49,37 +49,59 @@ int main(void)
     for (unsigned mode = 0; mode < 4; ++mode)
     {
         for (unsigned i = 0; i < 300; ++i)
+        {
             a[i] = (int)(300 - i);
+        }
         for (unsigned i = 0; i < 10; ++i)
+        {
             large[i].key = (int)(10 - i);
+        }
         requests = 0;
         requested = 0;
         fail = mode == 3;
         errno = E2BIG;
         tracing = 1;
         if (mode == 2)
+        {
             qsort(large, 10, sizeof *large, cmp);
+        }
         else
+        {
             qsort(a, mode == 0 ? 64 : 300, sizeof *a, cmp);
+        }
         tracing = 0;
         counts[mode] = requests;
         sizes[mode] = requested;
         if (errno != E2BIG)
+        {
             return 1;
+        }
         if (mode == 2)
         {
             for (unsigned i = 1; i < 10; ++i)
+            {
                 if (large[i - 1].key > large[i].key)
+                {
                     return 2;
+                }
+            }
         }
         else
+        {
             for (unsigned i = 1; i < (mode == 0 ? 64u : 300u); ++i)
+            {
                 if (a[i - 1] > a[i])
+                {
                     return 3;
+                }
+            }
+        }
     }
     if (counts[0] != 0 || counts[1] != 1 || sizes[1] != 1200 ||
         counts[2] != 0 || counts[3] != 1 || sizes[3] != 1200)
+    {
         return 4;
+    }
     printf(
         "{\"runtime\":\"%s\",\"observed_requests\":[%u,%u,%u,%u],\"observed_sizes\":[%zu,%zu,%zu,%zu],\"malloc_failure_sorted\":true,\"errno_preserved\":true}\n",
         gnu_get_libc_version(), counts[0], counts[1], counts[2], counts[3],

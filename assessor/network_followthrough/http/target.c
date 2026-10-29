@@ -37,7 +37,9 @@ int nb_board_tests(void);
 void xf_target_main(void)
 {
     if (nh_public_tests() || nb_board_tests())
+    {
         finish(1);
+    }
     puts("NH_TARGET_PASS actual_ring_ARP_IP_TCP_HTTP "
          "CPU_state_only");
     finish(0);

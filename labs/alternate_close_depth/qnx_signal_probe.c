@@ -18,7 +18,9 @@ static volatile sig_atomic_t caught;
 static void handler(int signo)
 {
     if (signo == SIGUSR1)
+    {
         caught = 1;
+    }
 }
 
 static struct qc_raw actual_close(void *p, int fd)
@@ -42,23 +44,37 @@ int main(int argc, char **argv)
     int old, fd, closed_rc, closed_errno;
     if (argc != 2 || strncmp(argv[1], prefix, sizeof prefix - 1) ||
         !argv[1][sizeof prefix - 1])
+    {
         return 2;
+    }
     for (const char *p = argv[1] + sizeof prefix - 1; *p; p++)
+    {
         if (*p < '0' || *p > '9')
+        {
             return 2;
+        }
+    }
     if (uname(&u) || strcmp(u.sysname, "QNX") || strncmp(u.release, "8.", 2))
+    {
         return 3;
+    }
     if (pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &old))
+    {
         return 4;
+    }
     action.sa_handler = handler;
     action.sa_flags = 0;
     if (sigemptyset(&action.sa_mask) || sigaction(SIGUSR1, &action, NULL) ||
         sigemptyset(&set) || sigaddset(&set, SIGUSR1) ||
         pthread_sigmask(SIG_UNBLOCK, &set, NULL))
+    {
         return 5;
+    }
     fd = open(argv[1], O_RDWR);
     if (fd < 0 || fstat(fd, &before) || qc_init(&owner, fd) != QC_OK)
+    {
         return 6;
+    }
     printf("QC_SIGNAL_PROBE:handler-installed-before-close pid=%jd\n",
            (intmax_t)getpid());
     fflush(stdout);
@@ -72,7 +88,9 @@ int main(int argc, char **argv)
         calls, live, same, (int)caught);
     if (a != QC_AGAIN || first.error != EINTR || calls != 1 || !same ||
         owner.fd != fd || owner.state != QC_RETRY || caught != 1)
+    {
         return 7;
+    }
     enum qc_status b = qc_once(&owner, actual_close, &calls, &last);
     errno = 0;
     closed_rc = fstat(fd, &after);
@@ -81,9 +99,13 @@ int main(int argc, char **argv)
            calls, closed_rc == -1 && closed_errno == EBADF);
     if (b != QC_OK || owner.state != QC_CLOSED || calls != 2 ||
         closed_rc != -1 || closed_errno != EBADF)
+    {
         return 8;
+    }
     if (pthread_setcancelstate(old, NULL))
+    {
         return 9;
+    }
     printf("QC_QNX_ID sysname=%s release=%s machine=%s\n", u.sysname, u.release,
            u.machine);
     puts("QC_QNX_OK:blocked-close-signal");

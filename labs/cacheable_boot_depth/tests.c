@@ -22,13 +22,17 @@ int cb_suite(void)
         CHECK(!m.bad && !m.enabled_before_invalidation);
         CHECK(m.attrs[7] == CB_M7_RASR && m.bases[7] == CB_LINE);
         for (unsigned i = 0; i < 7; ++i)
+        {
             CHECK(!m.attrs[i]);
+        }
         CHECK(m.dc_writes == sizes[z] * 4u && m.clean_writes == 1 &&
               m.line_writes == 8);
         CHECK(m.release_writes == 1 && m.release_generation == 7 && !m.dirty);
         CHECK(m.memory[0] == 7);
         for (unsigned i = 1; i < 8; ++i)
+        {
             CHECK(!m.memory[i]);
+        }
         uint32_t old = m.writes;
         CHECK(!cb_boot(x, 7) && old == m.writes);
         /* M4 has private system registers, but observes the same RAM and RCC. */
@@ -60,7 +64,9 @@ int cb_suite(void)
     CHECK(cb_boot(cb_model_io(&m), UINT32_MAX));
     CHECK(m.release_generation == UINT32_MAX);
     for (unsigned i = 8; i < 16; ++i)
+    {
         CHECK(!m.attrs[i]);
+    }
     cb_model_init(&m, 128);
     CHECK(!cb_boot(cb_model_io(&m), 0));
     CHECK(!m.writes);
@@ -102,14 +108,24 @@ int main(int argc, char **argv)
         unsigned sets = (unsigned)strtoul(argv[1], 0, 10);
         if (sets != 32 && sets != 64 && sets != 128 && sets != 256 &&
             sets != 512)
+        {
             return 2;
+        }
         cb_model_init(&m, sets);
         if (!cb_boot(cb_model_io(&m), 7))
+        {
             return 3;
+        }
         for (unsigned s = 0; s < sets; ++s)
+        {
             for (unsigned w = 0; w < 4; ++w)
+            {
                 if (m.invalid[s][w])
+                {
                     printf("%u\n", (w << 30) | (s << 5));
+                }
+            }
+        }
         return 0;
     }
     int r = cb_suite();

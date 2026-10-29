@@ -4,10 +4,12 @@ int main(void)
 {
     double x[] = {0, 2, 4}, y[] = {0, 4, 8}, out;
     for (int i = -1; i <= 5; i++)
+    {
         CHECK(nd_interp(x, y, 3, i, 1, &out) == ND_OK &&
               out == (i < 0   ? 0
                       : i > 4 ? 8
                               : 2 * i));
+    }
     out = 99;
     CHECK(nd_interp(x, y, 3, -1, 0, &out) == ND_RANGE && out == 99);
     CHECK(nd_interp(x, y, 0, 1, 1, &out) == ND_BAD && out == 99);

@@ -13,7 +13,9 @@ void b2_map_init(struct b2_map *m)
 {
     size_t i;
     for (i = 0; i < 7; i++)
+    {
         m->slots[i].state = 0;
+    }
     m->count = 0;
 }
 

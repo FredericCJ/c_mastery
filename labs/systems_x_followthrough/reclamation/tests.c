@@ -31,7 +31,9 @@ int main(void)
         CHECK(sx_read(&l, a, second, &value) == MB_OK && value == 22);
         CHECK(sx_depart(&l, a) == MB_BUSY);
         for (unsigned i = 1; i <= 3; i++)
+        {
             CHECK(sx_remove(&l, &value) == MB_OK && value == 11 * i);
+        }
         CHECK(sx_collect(&l, &count) == MB_OK &&
               count == (mode == SX_HAZARD ? 1u : 0u));
         CHECK(sx_read(&l, a, first, &value) == MB_OK && value == 11 &&
@@ -97,10 +99,12 @@ int main(void)
         unsigned count, value;
         CHECK(sx_list_init(&l, mode) == MB_OK && sx_append(&l, 11) == MB_OK);
         for (unsigned i = 0; i < 2; i++)
+        {
             CHECK(sx_register(&l, &p[i]) == MB_OK &&
                   sx_enter(&l, p[i]) == MB_OK &&
                   sx_observe(&l, p[i], 0, &o) == MB_OK &&
                   sx_protect(&l, p[i], 0, o, &r[i]) == MB_OK);
+        }
         CHECK(sx_remove(&l, &value) == MB_OK &&
               sx_collect(&l, &count) == MB_OK && count == 0);
         CHECK(sx_leave(&l, p[0]) == MB_OK && sx_collect(&l, &count) == MB_OK &&
@@ -108,7 +112,9 @@ int main(void)
               value == 11);
         CHECK(sx_leave(&l, p[1]) == MB_OK);
         if (mode == SX_EPOCH)
+        {
             CHECK(sx_advance(&l) == MB_OK && sx_advance(&l) == MB_OK);
+        }
         CHECK(sx_collect(&l, &count) == MB_OK && count == 1);
     }
     {
@@ -150,9 +156,13 @@ int main(void)
         {
             unsigned bits = 0;
             for (unsigned i = 0; i < 5; i++)
+            {
                 bits += (mask >> i) & 1u;
+            }
             if (bits != 2)
+            {
                 continue;
+            }
             struct sx_list l;
             struct sx_participant p;
             struct sx_observed obs;
@@ -163,12 +173,17 @@ int main(void)
                   sx_register(&l, &p) == MB_OK && sx_append(&l, 11) == MB_OK &&
                   sx_enter(&l, p) == MB_OK);
             for (unsigned i = 0; i < 5; i++)
+            {
                 if (mask & (1u << i))
                 {
                     if (wstep++ == 0)
+                    {
                         CHECK(sx_remove(&l, &out) == MB_OK);
+                    }
                     else
+                    {
                         CHECK(sx_collect(&l, &count) == MB_OK);
+                    }
                 }
                 else
                 {
@@ -185,9 +200,12 @@ int main(void)
                         validated = rc == MB_OK;
                     }
                     if (rstep == 2 && validated)
+                    {
                         CHECK(sx_read(&l, p, ref, &out) == MB_OK && out == 11);
+                    }
                     rstep++;
                 }
+            }
             CHECK(sx_leave(&l, p) == MB_OK && sx_collect(&l, &count) == MB_OK);
             schedules++;
         }

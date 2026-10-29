@@ -45,11 +45,15 @@ void test_three(void)
     struct dx_consumer c[3] = {{.q = &q}, {.q = &q}, {.q = &q}};
     pthread_t t[3];
     for (unsigned i = 0; i < 3; i++)
+    {
         CHECK(pthread_create(&t[i], NULL, dx_consume, &c[i]) == 0);
+    }
     CHECK(tw_wait_entries(&q, 3) == 0 && tw_noise(&q) == 0);
     CHECK(tw_wait_entries(&q, 6) == 0);
     for (int i = 1; i <= 3; i++)
+    {
         CHECK(tw_push(&q, i, NULL) == 0);
+    }
     unsigned seen = 0;
     for (unsigned i = 0; i < 3; i++)
     {

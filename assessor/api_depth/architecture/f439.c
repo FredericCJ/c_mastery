@@ -29,7 +29,9 @@ int ar_target_minimal(int32_t milli)
     struct ar_board board = {0, read_register, write_register, GPIOA_BASE, 2,
                              0};
     if (ar_board_init(&board) != AR_OK)
+    {
         return AR_FAILED;
+    }
     return ar_service(milli, 100, (struct ar_indicator){&board, ar_board_set});
 }
 

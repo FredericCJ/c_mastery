@@ -17,10 +17,14 @@ static unsigned oracle_output;
 static unsigned depth(const struct d_rope *r, unsigned root)
 {
     if (!root)
+    {
         return 0;
+    }
     const struct d_rope_node *n = &r->nodes[root];
     if (!n->left)
+    {
         return 1;
+    }
     unsigned a = depth(r, n->left), b = depth(r, n->right);
     return 1 + (a > b ? a : b);
 }
@@ -58,8 +62,10 @@ static void rope_edit(void)
         unsigned root, junk;
         CHECK(d_rope_leaf(&r, (const unsigned char *)"abcd", 4, &root) == D_OK);
         while (r.used < 64 - spare)
+        {
             CHECK(d_rope_leaf(&r, (const unsigned char *)"x", 1, &junk) ==
                   D_OK);
+        }
         unsigned before = r.used, left = 99, right = 98;
         CHECK(d_rope_split(&r, root, 2, &left, &right) == D_FULL &&
               r.used == before && left == 99 && right == 98);
@@ -116,9 +122,13 @@ static void editors(void)
                 CHECK(d_gap_insert(&gap, at, data, n) == D_OK &&
                       d_piece_insert(&table, at, data, n) == D_OK);
                 for (size_t i = length; i > at; --i)
+                {
                     flat[i + n - 1] = flat[i - 1];
+                }
                 for (size_t i = 0; i < n; ++i)
+                {
                     flat[at + i] = data[i];
+                }
                 length += n;
             }
             else
@@ -129,7 +139,9 @@ static void editors(void)
                 CHECK(d_gap_delete(&gap, at, n) == D_OK &&
                       d_piece_delete(&table, at, n) == D_OK);
                 for (size_t i = at + n; i < length; ++i)
+                {
                     flat[i - n] = flat[i];
+                }
                 length -= n;
             }
             sizes[step + 1] = length;
@@ -154,7 +166,9 @@ static void editors(void)
                     "{\"kind\":\"edit\",\"script\":%u,\"step\":%u,\"bytes\":[",
                     choice, step);
                 for (size_t i = 0; i < pn; ++i)
+                {
                     printf("%s%u", i ? "," : "", (unsigned)p[i]);
+                }
                 puts("]}");
             }
             CHECK(d_gap_delete(&gap, length + 1, 0) == D_RANGE &&
@@ -198,8 +212,10 @@ static void splice(void)
                   D_OK &&
               d_rope_concat(&r, leaf, leaf, &root) == D_OK);
         while (r.used < 64 - spare)
+        {
             CHECK(d_rope_leaf(&r, (const unsigned char *)"x", 1, &junk) ==
                   D_OK);
+        }
         unsigned before = r.used;
         int result = d_rope_splice(&r, root, 2, 2,
                                    (const unsigned char *)"12345678", 8, &out);
@@ -226,7 +242,9 @@ static void splice(void)
     unsigned root = 0;
     unsigned char full[128];
     for (unsigned i = 0; i < 128; ++i)
+    {
         full[i] = (unsigned char)i;
+    }
     CHECK(d_rope_splice(&r, 0, 0, 0, full, 128, &root) == D_OK);
     unsigned before = r.used, out = 999;
     CHECK(d_rope_splice(&r, root, 128, 0, full, 1, &out) == D_FULL &&
@@ -295,19 +313,29 @@ int main(int argc, char **argv)
     CHECK(argc == 2);
     test_name = argv[1];
     if (!strcmp(argv[1], "rope_edit"))
+    {
         rope_edit();
+    }
     else if (!strcmp(argv[1], "editors"))
+    {
         editors();
+    }
     else if (!strcmp(argv[1], "utf8"))
+    {
         utf8();
+    }
     else if (!strcmp(argv[1], "rope_splice"))
+    {
         splice();
+    }
     else if (!strcmp(argv[1], "oracle"))
     {
         oracle_output = 1;
         editors();
     }
     else
+    {
         CHECK(0);
+    }
     return 0;
 }

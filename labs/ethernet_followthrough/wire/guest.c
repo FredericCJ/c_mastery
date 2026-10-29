@@ -71,8 +71,12 @@ void xf_capture(uint32_t *s, uint32_t r, unsigned i, uint32_t m)
 void xf_target_main(void)
 {
     for (unsigned i = 0; i < 6; ++i)
+    {
         if (ew_tests(i))
+        {
             stop(41);
+        }
+    }
     text("WIRE_GUEST_PASS actual-Thumb synthetic-bytes no-physical-Ethernet\n");
     stop(0);
 }

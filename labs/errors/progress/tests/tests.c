@@ -30,7 +30,9 @@ static er_progress sink(void *context, const unsigned char *bytes, size_t n)
     if (s->next <= n && s->used + s->next <= 128)
     {
         for (size_t i = 0; i < s->next; ++i)
+        {
             s->bytes[s->used++] = bytes[i];
+        }
     }
     er_progress r = {s->next, s->code};
     return r;
@@ -270,7 +272,9 @@ static int metrics(void)
         ",\"stream_size\":%zu,\"stream_align\":%zu,\"copied_frame_bytes\":5,\"allocation_calls\":0,\"seconds\":[",
         checksum, sizeof(struct ept_stream), _Alignof(struct ept_stream));
     for (unsigned i = 0; i < 7; ++i)
+    {
         printf("%s%.9f", i ? "," : "", seconds[i]);
+    }
     puts("]}");
     return 0;
 }
@@ -278,20 +282,36 @@ static int metrics(void)
 int main(int n, char **v)
 {
     if (n != 2)
+    {
         return 2;
+    }
     if (!strcmp(v[1], "progress_core"))
+    {
         return core();
+    }
     if (!strcmp(v[1], "progress_cancel"))
+    {
         return cancel();
+    }
     if (!strcmp(v[1], "progress_epochs"))
+    {
         return epochs();
+    }
     if (!strcmp(v[1], "progress_uncertain"))
+    {
         return uncertain();
+    }
     if (!strcmp(v[1], "progress_base"))
+    {
         return base();
+    }
     if (!strcmp(v[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(v[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

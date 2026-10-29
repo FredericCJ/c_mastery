@@ -30,7 +30,9 @@ int main(void)
         unsigned code = history;
         struct ob_allocator a = {NULL, allocate, resize, release};
         if (ob_create(&t, a, 17, 4))
+        {
             return 2;
+        }
         for (unsigned step = 0; step < 4; ++step)
         {
             unsigned event = code % 5;
@@ -61,9 +63,11 @@ int main(void)
                    t.generation, t.retired, t.value ? t.value->capacity : 0,
                    t.value ? t.value->length : 0);
             for (size_t i = 0; i < 4; ++i)
+            {
                 printf(",%u", t.value && i < t.value->length
                                   ? t.value->payload[i]
                                   : 0);
+            }
             putchar('\n');
         }
         ob_reset(&t);

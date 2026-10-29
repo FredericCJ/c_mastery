@@ -52,10 +52,14 @@ void cp_target_main(void)
         uint32_t storage[9];
         volatile unsigned char *bytes = (volatile unsigned char *)storage;
         for (size_t i = 0; i < sizeof storage; ++i)
+        {
             bytes[i] = 0xa5;
+        }
         __aeabi_memclr4(storage, count);
         for (size_t i = 0; i < sizeof storage; ++i)
+        {
             REQUIRE(bytes[i] == (i < count ? 0 : 0xa5));
+        }
     }
     REQUIRE(cpf_ring_init(&ring, 4));
     /* PendSV priority is explicitly selected; reset priority is not assumed low. */

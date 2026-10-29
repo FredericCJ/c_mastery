@@ -36,11 +36,13 @@ static void persist(medium *m)
 {
     unsigned p;
     for (p = STORE_IMAGE_PAGES; p > 0; p--)
+    {
         if (m->dirty[p - 1])
         {
             memcpy(m->stable[p - 1], m->pending[p - 1], STORE_PAGE_SIZE);
             m->dirty[p - 1] = 0;
         }
+    }
 }
 
 static int boundary(medium *m, uint32_t page, int writing)
@@ -48,14 +50,20 @@ static int boundary(medium *m, uint32_t page, int writing)
     unsigned p;
     m->event++;
     if (!m->cut || m->cut != m->event)
+    {
         return 0;
+    }
     /* Admitted crash states: discard, reverse-order partial set, prefix/suffix
      * addressed-page tear, or all pending bytes persisted despite failed call. */
     if (m->mode == 1)
     {
         for (p = STORE_IMAGE_PAGES; p > 0; p--)
+        {
             if (m->dirty[p - 1] && ((p - 1) % 2 == 0))
+            {
                 memcpy(m->stable[p - 1], m->pending[p - 1], STORE_PAGE_SIZE);
+            }
+        }
     }
     if ((m->mode == 2 || m->mode == 3) && writing)
     {
@@ -63,7 +71,9 @@ static int boundary(medium *m, uint32_t page, int writing)
         memcpy(m->stable[page] + begin, m->pending[page] + begin, 2048);
     }
     if (m->mode == 4)
+    {
         persist(m);
+    }
     m->dead = 1;
     return -1;
 }
@@ -72,7 +82,9 @@ static int mread(void *ctx, uint32_t p, void *b)
 {
     medium *m = ctx;
     if (m->dead || m->read_fail || p >= STORE_IMAGE_PAGES)
+    {
         return -1;
+    }
     memcpy(b, m->dirty[p] ? m->pending[p] : m->stable[p], STORE_PAGE_SIZE);
     return 0;
 }
@@ -81,7 +93,9 @@ static int mwrite(void *ctx, uint32_t p, const void *b)
 {
     medium *m = ctx;
     if (m->dead || p >= STORE_IMAGE_PAGES)
+    {
         return -1;
+    }
     memcpy(m->pending[p], b, STORE_PAGE_SIZE);
     m->dirty[p] = 1;
     return boundary(m, p, 1);
@@ -91,9 +105,13 @@ static int mflush(void *ctx)
 {
     medium *m = ctx;
     if (m->dead)
+    {
         return -1;
+    }
     if (boundary(m, 0, 0))
+    {
         return -1;
+    }
     persist(m);
     return 0;
 }
@@ -139,7 +157,9 @@ static int get(store *s, unsigned k, unsigned *v)
     if (!r)
     {
         if (n != 4)
+        {
             return STORE_CORRUPT;
+        }
         *v = ((unsigned)b[0] << 24) | ((unsigned)b[1] << 16) |
              ((unsigned)b[2] << 8) | b[3];
     }
@@ -181,7 +201,9 @@ static int collect(void *ctx, const uint8_t *k, size_t kl, const uint8_t *v,
     x = ((unsigned)k[0] << 24) | ((unsigned)k[1] << 16) |
         ((unsigned)k[2] << 8) | k[3];
     if (c->count && x <= c->last)
+    {
         c->bad = 1;
+    }
     c->last = x;
     c->count++;
     return 0;
@@ -291,7 +313,9 @@ static int initial_image_test(void)
     CHECK(store_page_decode(1, 0, disk.stable[3], &root) == STORE_OK &&
           root.leaf && root.n == 0);
     for (unsigned p = 0; p < STORE_IMAGE_PAGES; ++p)
+    {
         CHECK(!disk.dirty[p]);
+    }
     store_io io = mio(&disk);
     io.page_count = STORE_IMAGE_PAGES - 1;
     CHECK(store_format(io) == STORE_INVALID);
@@ -359,7 +383,9 @@ static int lookup_test(void)
     root.child[1] = 2;
     CHECK(store_page_encode(3, 0, &root, disk.stable[5]) == STORE_OK);
     for (unsigned k = 0; k < 8; ++k)
+    {
         CHECK(get(&s, k, &value) == STORE_OK && value == k + 100);
+    }
     value = 999;
     CHECK(get(&s, 9, &value) == STORE_NOT_FOUND && value == 999);
     key(3, lower);
@@ -382,7 +408,9 @@ static int insertion_test(void)
         CHECK(store_check(&s) == STORE_OK);
     }
     for (unsigned i = 0; i < 92; ++i)
+    {
         CHECK(get(&s, i, &value) == STORE_OK && value == i + 100);
+    }
     CHECK(put(&s, 46, 999) == STORE_OK && get(&s, 46, &value) == STORE_OK &&
           value == 999);
     CHECK(store_scan(&s, 0, 0, collect, &scan) == STORE_OK &&
@@ -396,7 +424,9 @@ static int deletion_test(void)
     store s;
     component_state(&s, 1);
     for (unsigned i = 0; i < 92; ++i)
+    {
         CHECK(put(&s, i, i) == STORE_OK);
+    }
     uint32_t peak = s.used;
     for (unsigned i = 0; i < 92; ++i)
     {
@@ -405,7 +435,9 @@ static int deletion_test(void)
     }
     CHECK(s.used != peak && del(&s, 0) == STORE_NOT_FOUND);
     for (unsigned i = 0; i < 92; ++i)
+    {
         CHECK(put(&s, i, i) == STORE_OK);
+    }
     CHECK(store_check(&s) == STORE_OK && disk.event == 0);
     return 0;
 }
@@ -425,7 +457,9 @@ static int transaction_test(void)
     int rc = STORE_OK;
     unsigned k = 0;
     for (; k < 1000 && rc == STORE_OK; ++k)
+    {
         rc = put(&s, k, k);
+    }
     CHECK(rc == STORE_FULL && !s.active &&
           get(&s, 0, &value) == STORE_NOT_FOUND);
     CHECK(disk.event == 0);
@@ -449,7 +483,9 @@ static int publish_test(void)
           !s.active);
     CHECK(disk.stable[66][4] == 30 && disk.stable[66][8] == 1);
     for (unsigned p = 0; p < STORE_IMAGE_PAGES; ++p)
+    {
         CHECK(!disk.dirty[p]);
+    }
     CHECK(get(&s, 3, &value) == STORE_OK && value == 33);
     unsigned last = disk.event;
     CHECK(published_component(&s) == 0);
@@ -474,7 +510,9 @@ static int checkpoint_order_test(void)
     CHECK(disk.stable[1][4] == 20 && disk.stable[1][8] == 1);
     CHECK(disk.stable[66][0] == 0 && disk.stable[66][4] == 0);
     for (unsigned p = 0; p < STORE_IMAGE_PAGES; ++p)
+    {
         CHECK(!disk.dirty[p]);
+    }
     return 0;
 }
 
@@ -493,7 +531,9 @@ static int tree_test(void)
     }
     peak = s.used;
     for (i = 0; i < 92; i++)
+    {
         CHECK(get(&s, i, &v) == STORE_OK && v == i + 100);
+    }
     CHECK(store_scan(&s, NULL, 0, collect, &c) == STORE_OK && c.count == 92 &&
           !c.bad);
     CHECK(store_commit(&s) == STORE_OK);
@@ -511,7 +551,9 @@ static int tree_test(void)
     CHECK(store_commit(&s) == STORE_OK);
     CHECK(store_begin(&s) == STORE_OK);
     for (i = 0; i < 92; i++)
+    {
         CHECK(put(&s, i, i) == STORE_OK);
+    }
     CHECK(store_check(&s) == STORE_OK);
     store_abort(&s);
     CHECK(get(&s, 0, &v) == STORE_NOT_FOUND);
@@ -544,13 +586,17 @@ static int differential_test(void)
         }
         CHECK(store_check(&s) == STORE_OK);
         if (i % 13 == 0)
+        {
             for (j = 0; j < 80; j++)
             {
                 int r = get(&s, j, &v);
                 CHECK(r == (present[j] ? STORE_OK : STORE_NOT_FOUND));
                 if (present[j])
+                {
                     CHECK(v == values[j]);
+                }
             }
+        }
     }
     CHECK(store_commit(&s) == STORE_OK);
     crash(&disk);
@@ -560,7 +606,9 @@ static int differential_test(void)
         int r = get(&s, j, &v);
         CHECK(r == (present[j] ? STORE_OK : STORE_NOT_FOUND));
         if (present[j])
+        {
             CHECK(v == values[j]);
+        }
     }
     return 0;
 }
@@ -616,6 +664,7 @@ static int crash_test(void)
     crash(&disk);
     CHECK(store_open(&s, mio(&disk)) == STORE_OK && new_state(&s));
     for (mode = 0; mode < 5; mode++)
+    {
         for (cut = 1; cut <= max; cut++)
         {
             disk = base;
@@ -631,10 +680,15 @@ static int crash_test(void)
             CHECK(store_check(&s) == STORE_OK);
             CHECK(old_state(&s) || new_state(&s));
             if (r == STORE_OK)
+            {
                 CHECK(new_state(&s));
+            }
             if (r == STORE_IO)
+            {
                 CHECK(old_state(&s));
+            }
         }
+    }
     printf("commit crash schedules: %u; all five persistence modes\n", max * 5);
     return 0;
 }
@@ -653,6 +707,7 @@ static int checkpoint_test(void)
     CHECK(store_checkpoint(&s) == STORE_OK);
     max = disk.event;
     for (mode = 0; mode < 5; mode++)
+    {
         for (cut = 1; cut <= max; cut++)
         {
             disk = snap;
@@ -674,6 +729,7 @@ static int checkpoint_test(void)
             CHECK(store_open(&s, mio(&disk)) == STORE_OK);
             CHECK(new_state(&s) && store_check(&s) == STORE_OK);
         }
+    }
     printf("checkpoint crash schedules: %u\n", max * 5);
     return 0;
 }
@@ -693,6 +749,7 @@ static int recovery_test(void)
     CHECK(store_open(&s, mio(&disk)) == STORE_OK);
     max = disk.event;
     for (mode = 0; mode < 5; mode++)
+    {
         for (cut = 1; cut <= max; cut++)
         {
             disk = snap;
@@ -703,6 +760,7 @@ static int recovery_test(void)
             crash(&disk);
             CHECK(store_open(&s, mio(&disk)) == STORE_OK && new_state(&s));
         }
+    }
     printf("recovery crash schedules: %u\n", max * 5);
     return 0;
 }
@@ -729,7 +787,9 @@ static int corruption_test(void)
     CHECK(store_open(&s, mio(&disk)) == STORE_OK);
     CHECK(get(&s, 1, &v) == STORE_OK);
     for (i = 0; i < 10; i++)
+    {
         CHECK(get(&s, 1, &v) == STORE_OK);
+    }
     CHECK(s.cache_hits > 0);
     return 0;
 }
@@ -745,7 +805,9 @@ static int capacity_test(void)
     {
         r = put(&s, i, i);
         if (r)
+        {
             break;
+        }
     }
     CHECK(r == STORE_FULL && i < 1000);
     CHECK(!s.active && get(&s, 0, &v) == STORE_NOT_FOUND);
@@ -798,7 +860,9 @@ static enum cvm_status vm_call(store *s, uint8_t service, int32_t arg,
     p.functions[0].length = 8;
     p.code[0] = OP_INT;
     for (i = 0; i < 4; i++)
+    {
         p.code[i + 1] = (uint8_t)(u >> (8 * i));
+    }
     p.code[5] = OP_HOST;
     p.code[6] = service;
     p.code[7] = OP_RET;
@@ -809,7 +873,9 @@ static enum cvm_status vm_call(store *s, uint8_t service, int32_t arg,
     if (status == CVM_OK)
     {
         if (v.tag != CVM_INT)
+        {
             return CVM_TYPE;
+        }
         *out = v.integer;
     }
     return status;
@@ -846,44 +912,82 @@ int main(int argc, char **argv)
 {
     const char *n = argc == 2 ? argv[1] : "";
     if (!strcmp(n, "codec"))
+    {
         return codec_test();
+    }
     if (!strcmp(n, "initial_image"))
+    {
         return initial_image_test();
+    }
     if (!strcmp(n, "cache"))
+    {
         return cache_test();
+    }
     if (!strcmp(n, "lookup"))
+    {
         return lookup_test();
+    }
     if (!strcmp(n, "insertion"))
+    {
         return insertion_test();
+    }
     if (!strcmp(n, "deletion"))
+    {
         return deletion_test();
+    }
     if (!strcmp(n, "transaction"))
+    {
         return transaction_test();
+    }
     if (!strcmp(n, "publish"))
+    {
         return publish_test();
+    }
     if (!strcmp(n, "checkpoint_order"))
+    {
         return checkpoint_order_test();
+    }
     if (!strcmp(n, "format"))
+    {
         return format_test();
+    }
     if (!strcmp(n, "tree"))
+    {
         return tree_test();
+    }
     if (!strcmp(n, "differential"))
+    {
         return differential_test();
+    }
     if (!strcmp(n, "crash"))
+    {
         return crash_test();
+    }
     if (!strcmp(n, "checkpoint"))
+    {
         return checkpoint_test();
+    }
     if (!strcmp(n, "recovery"))
+    {
         return recovery_test();
+    }
     if (!strcmp(n, "corruption"))
+    {
         return corruption_test();
+    }
     if (!strcmp(n, "capacity"))
+    {
         return capacity_test();
+    }
     if (!strcmp(n, "file"))
+    {
         return file_test();
+    }
 #if defined(STORAGE_WITH_RUNTIME)
     if (!strcmp(n, "vm"))
+    {
         return vm_test();
+    }
 #endif
     fprintf(stderr, "unknown case\n");
     return 2;

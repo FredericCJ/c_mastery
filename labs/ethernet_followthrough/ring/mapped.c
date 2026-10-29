@@ -15,27 +15,41 @@ static unsigned writes, violation, frozen, absent, reads, barriers;
 uint32_t en_port_load(uint32_t a)
 {
     if (a == 0xe000edfc)
+    {
         return demcr;
+    }
     if (a == 0xe0001000)
+    {
         return ctrl | (absent ? 0x2000000u : 0);
+    }
     if (a == 0xe0001004)
     {
         reads++;
         if (!frozen && (ctrl & 1u) && (demcr & 0x1000000u))
+        {
             count += 8;
+        }
         return count;
     }
     if (a >= 0x40028000u && a <= 0x4002901cu)
+    {
         return eth[(a - 0x40028000u) / 4];
+    }
     if (a >= 0x40023800u && a <= 0x40023844u)
+    {
         return rcc[(a - 0x40023800u) / 4];
+    }
     if (a == 0x40013804)
+    {
         return pmc;
+    }
     if (a >= 0x40020000u && a < 0x40021c00u)
     {
         unsigned p = (a - 0x40020000u) / 0x400u, o = (a - 0x40020000u) % 0x400u;
         if (o <= 0x24)
+        {
             return gpio[p][o / 4];
+        }
     }
     violation++;
     return 0;
@@ -67,7 +81,9 @@ void en_port_store(uint32_t a, uint32_t v)
     if (a == 0x40013804)
     {
         if (!(rcc[0x10 / 4] & 0x2000000u) || (rcc[0x30 / 4] & 0xe000000u))
+        {
             violation++;
+        }
         pmc = v;
         return;
     }
@@ -77,7 +93,9 @@ void en_port_store(uint32_t a, uint32_t v)
         if (o <= 0x24)
         {
             if (!(rcc[0x30 / 4] & (1u << p)))
+            {
                 violation++;
+            }
             gpio[p][o / 4] = v;
             return;
         }
@@ -93,10 +111,16 @@ void en_port_barrier(void)
 int en_mapped(void)
 {
     for (unsigned i = 0; i < 7; i++)
+    {
         for (unsigned j = 0; j < 10; j++)
+        {
             gpio[i][j] = 0;
+        }
+    }
     for (unsigned i = 0; i < 18; i++)
+    {
         rcc[i] = 0;
+    }
     pmc = 0;
     demcr = 0x10000;
     ctrl = 0;

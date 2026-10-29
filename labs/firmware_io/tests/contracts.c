@@ -22,7 +22,9 @@ static uint32_t read_reg(void *p, unsigned r)
     struct fw_model *m = p;
     m->reads++;
     if (r == FW_SDA && m->release_after)
+    {
         return m->scl >= m->release_after;
+    }
     return m->reg[r];
 }
 
@@ -36,13 +38,17 @@ static void write_reg(void *p, unsigned r, uint32_t v)
     }
     m->reg[r] = v;
     if (r == FW_SCL && v)
+    {
         m->scl++;
+    }
 }
 
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     struct fw_model m = {0};
     struct fw_io io = {&m, read_reg, write_reg};
     if (!strcmp(argv[1], "startup"))
@@ -157,6 +163,8 @@ int main(int argc, char **argv)
               w.feeds == 1);
     }
     else
+    {
         return 2;
+    }
     return 0;
 }

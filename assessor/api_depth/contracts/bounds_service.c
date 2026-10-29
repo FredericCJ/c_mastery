@@ -5,11 +5,15 @@
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 64;
+    }
     unsigned value = 3, eval = 0;
     enum ac_status r;
     if (!strcmp(argv[1], "capacity"))
+    {
         r = ac_checked_add(2, 4, &value, &eval);
+    }
     else if (!strcmp(argv[1], "external"))
     {
         unsigned char p[3] = {5, 4, 0};
@@ -21,7 +25,9 @@ int main(int argc, char **argv)
         r = ac_checked_add(0, 4, &value, &eval);
     }
     else
+    {
         return 64;
+    }
     printf("status=%u value=%u;owned process fault boundary\n", (unsigned)r,
            value);
     return r == AC_INTERNAL ? 70 : 0;

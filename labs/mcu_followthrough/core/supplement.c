@@ -17,7 +17,9 @@ static unsigned totals[3][5];
 static void account(const struct mf_mf *m, unsigned delta)
 {
     for (unsigned t = 1; t < 3; t++)
+    {
         totals[t][m->kernel.task[t].state] += delta;
+    }
 }
 
 static int service(void)
@@ -73,7 +75,9 @@ static int expiry(void)
         0; /* Consumer owns current ticket, not only slot index. */
     mf_handle_id delayed = old;
     if (delayed == current)
+    {
         completions++;
+    }
     C(completions == 0);
     n = MF_TIMERS;
     C(mf_timer_poll(&t, 3, events, &n) == CMX_OK && n == 0);
@@ -86,7 +90,9 @@ static int expiry(void)
         current = 0;
     }
     if (events[0] == current)
+    {
         completions++;
+    }
     C(completions == 1);
     C(mf_timer_cancel(&t, old) == CMX_INVALID);
     puts(
@@ -118,7 +124,9 @@ static int burst(void)
 int main(void)
 {
     if (service() || expiry() || burst())
+    {
         return 1;
+    }
     puts("MF_PASS:supplement");
     return 0;
 }

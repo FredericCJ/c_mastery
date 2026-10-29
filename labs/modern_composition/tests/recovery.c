@@ -29,7 +29,9 @@ static int resource_open(void *context, unsigned ordinal, int *out)
     (void)ordinal;
     ++r->opens;
     if (r->fail_open == r->opens)
+    {
         return 0;
+    }
     CHECK(r->next < 16);
     int fd = open("/dev/null", O_RDONLY);
     CHECK(fd >= 0);
@@ -64,7 +66,9 @@ static unsigned live_resources(struct mc_test_resources *r)
 {
     unsigned n = 0;
     for (unsigned i = 0; i < r->next; ++i)
+    {
         n += r->live[i];
+    }
     return n;
 }
 
@@ -86,6 +90,7 @@ static void close_recovery(unsigned oracle)
     /* Cartesian failure stages include allocation, open and retained-close.
        Resource IDs are monotonic; descriptor numbers are allowed to be reused. */
     for (unsigned allocation = 0; allocation <= 3; ++allocation)
+    {
         for (unsigned open_failure = 0; open_failure <= 2; ++open_failure)
         {
             struct mc_test_resources resources = {0};
@@ -107,6 +112,7 @@ static void close_recovery(unsigned oracle)
             struct mc_recovered next = mc_publish_recoverable(
                 &state, (const unsigned char *)"7:9", 3, allocator);
             if (oracle)
+            {
                 printf(
                     "{\"allocation\":%u,\"open\":%u,\"committed\":%u,\"pending\":%u,\"cells\":%zu,\"resources\":%u,\"sum\":%d,\"generation\":%u,\"attempts\":%zu,\"releases\":%zu,\"opens\":%u}\n",
                     allocation, open_failure,
@@ -114,6 +120,7 @@ static void close_recovery(unsigned oracle)
                     pool.live, live_resources(&resources),
                     state.current.cells.block[0][0], state.generation,
                     pool.attempts, pool.releases, resources.opens);
+            }
             if (allocation || open_failure)
             {
                 CHECK(!next.publication.committed);
@@ -144,6 +151,7 @@ static void close_recovery(unsigned oracle)
             pool.fail_at = 0;
             retire(&state, &pool, &resources);
         }
+    }
     struct mc_test_resources resources = {0};
     struct ow_allocator pool = {0};
     struct mc_recovery state;
@@ -173,8 +181,10 @@ static void close_recovery(unsigned oracle)
                .publication.committed);
     CHECK(pool.attempts == attempts);
     if (!oracle)
+    {
         printf(
             "recoverable publication: 12 failure combinations, released-error and retirement boundaries\n");
+    }
 }
 
 struct async_owner
@@ -201,7 +211,9 @@ static void cleanup(void *context)
        failure, but reap its stopped worker so TSan's exit-time thread-leak
        diagnostic does not replace our intended semantic assertion status. */
     if (!quiescent && p->started)
+    {
         CHECK(pthread_join(p->worker, NULL) == 0);
+    }
     CHECK(quiescent);
     o->queued = p->queued;
     o->consumed = p->consumed;
@@ -231,7 +243,9 @@ static void receiver(void *context, enum msg_status status, unsigned value)
 static void real_io(void)
 {
     for (unsigned repeat = 0; repeat < 16; ++repeat)
+    {
         for (unsigned mode = 0; mode < 5; ++mode)
+        {
             for (unsigned release = 0; release < 2; ++release)
             {
                 int pair[2];
@@ -272,7 +286,9 @@ static void real_io(void)
                         CHECK(o.status == MSG_CANCELLED && o.progress == 0 &&
                               out[0] == 0x5a);
                         if (mode == 1)
+                        {
                             CHECK(o.discarded >= 1);
+                        }
                     }
                     else
                     {
@@ -302,14 +318,20 @@ static void real_io(void)
                     }
                 }
                 if (mode == 2 || mode == 4)
+                {
                     CHECK(o.status == MSG_OK && o.progress == 3 &&
                           !memcmp(out, "abc", 3) && out[3] == 0x5a);
+                }
                 CHECK(o.cleanups == 1 && o.receivers == 1 &&
                       o.freed == release);
                 if (!release)
+                {
                     free(o.owner);
+                }
                 CHECK(close(pair[0]) == 0 && close(pair[1]) == 0);
             }
+        }
+    }
     printf(
         "real socket backend: 160 completion/cancellation/EOF/inline-destruction histories\n");
 }
@@ -318,12 +340,20 @@ int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (!strcmp(argv[1], "publish_close"))
+    {
         close_recovery(0);
+    }
     else if (!strcmp(argv[1], "oracle"))
+    {
         close_recovery(1);
+    }
     else if (!strcmp(argv[1], "real_io"))
+    {
         real_io();
+    }
     else
+    {
         CHECK(0);
+    }
     return 0;
 }

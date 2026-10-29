@@ -65,7 +65,9 @@ static int range_case(void)
 {
     unsigned char huge[1001];
     for (unsigned i = 0; i < 1000; i++)
+    {
         huge[i] = 57;
+    }
     huge[1000] = 120;
     int32_t out = 77;
     CHECK(bf_parse_radix(huge, 1000, 10, &out) == B2_RANGE && out == 77);
@@ -158,8 +160,10 @@ static int oracle(void)
         size_t n = !strcmp(text, "-") ? 0 : strlen(text) / 2;
         CHECK(n <= 1101);
         for (size_t i = 0; i < n; i++)
+        {
             bytes[i] =
                 (unsigned char)(16 * hex(text[2 * i]) + hex(text[2 * i + 1]));
+        }
         int32_t a = 77, b = 77, c = 77, d = 77;
         int ra = base == 10 ? b2_parse(bytes, n, &a) : -1,
             rb = bf_parse_radix(bytes, n, base, &b);
@@ -170,7 +174,9 @@ static int oracle(void)
         if (split > n)
         {
             for (size_t i = 0; i < n; i++)
+            {
                 CHECK(bf_parse_feed(&s, bytes + i, 1) == B2_OK);
+            }
         }
         else
         {
@@ -188,7 +194,9 @@ static int oracle(void)
 int main(int n, char **v)
 {
     if (n != 2)
+    {
         return 2;
+    }
     return !strcmp(v[1], "baseline")    ? baseline()
            : !strcmp(v[1], "grammar")   ? grammar()
            : !strcmp(v[1], "range")     ? range_case()

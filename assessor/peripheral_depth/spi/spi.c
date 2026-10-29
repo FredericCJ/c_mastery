@@ -18,13 +18,21 @@ int ps_open(struct ps_spi *s, struct ps_io io, const struct pu_clock *clock,
     struct pu_rates rates;
     if (!s || !valid(io) || !clock || mode > 3 || divider > 7 ||
         pu_rates(clock, &rates) != PU_OK)
+    {
         return PS_INVALID;
+    }
     if (rates.apb2 > 84000000u || rates.apb2 > (1000000u << (divider + 1u)))
+    {
         return PS_INVALID;
+    }
     if (s->phase || s->tx_owned || s->rx_owned || s->cs_owned)
+    {
         return PS_BUSY;
+    }
     if (io.read(io.context, PS_SR) & PS_BSY)
+    {
         return PS_BUSY;
+    }
     io.write(io.context, PS_CS, 1);
     io.write(io.context, PS_ENABLE, 0);
     io.write(io.context, PS_CONFIG,
@@ -46,18 +54,28 @@ int ps_begin(struct ps_spi *s, struct ps_io io, uint32_t generation,
     if (!s || !valid(io) || !tx || !rx || !count || count > 16 || dma > 1 ||
         !token || !budget || budget >= UINT32_C(0x80000000) ||
         setup >= budget || hold >= budget)
+    {
         return PS_INVALID;
+    }
     if (!s->ready || generation != s->generation)
+    {
         return PS_STALE;
+    }
     if (s->phase || s->tx_owned || s->rx_owned || s->cs_owned)
+    {
         return PS_BUSY;
+    }
     if (token <= s->last_token)
+    {
         return PS_STALE;
+    }
     if ((io.read(io.context, PS_SR) &
          (PS_BSY | PS_RXNE | PS_CRCERR | PS_MODF | PS_OVR)) ||
         (dma &&
          (io.read(io.context, PS_TX_EN) || io.read(io.context, PS_RX_EN))))
+    {
         return PS_BUSY;
+    }
     s->token = s->last_token = token;
     s->last = now;
     s->deadline = now + budget;
@@ -79,19 +97,27 @@ int ps_begin(struct ps_spi *s, struct ps_io io, uint32_t generation,
 int ps_cancel(struct ps_spi *s, struct ps_io io, uint32_t token)
 {
     if (!s || !valid(io))
+    {
         return PS_INVALID;
+    }
     if (!s->phase || s->token != token)
+    {
         return PS_STALE;
+    }
     if (s->phase == 3)
     {
         if (s->result == PS_BUSY)
+        {
             s->result = PS_CANCELLED;
+        }
         return PS_BUSY;
     }
     if (s->phase != 4)
     {
         if (s->result == PS_BUSY)
+        {
             s->result = PS_CANCELLED;
+        }
         if (s->dma && s->dma_started)
         {
             io.write(io.context, PS_DMA_REQUESTS, 0);
@@ -105,7 +131,9 @@ int ps_cancel(struct ps_spi *s, struct ps_io io, uint32_t token)
         s->phase = 4;
     }
     if (PS_MUTANT == 4)
+    {
         s->tx_owned = s->rx_owned = 0;
+    }
     return PS_BUSY;
 }
 
@@ -122,36 +150,56 @@ int ps_abort_reset(struct ps_spi *s, struct ps_io io, uint32_t token,
 {
     uint32_t sr;
     if (!s || !valid(io))
+    {
         return PS_INVALID;
+    }
     if (!s->phase || s->token != token)
+    {
         return PS_STALE;
+    }
     if ((uint32_t)(now - s->last) >= UINT32_C(0x80000000))
+    {
         return PS_INVALID;
+    }
     s->last = now;
     if (s->phase != 4)
+    {
         return PS_BUSY;
+    }
     if (s->dma && s->dma_started &&
         (io.read(io.context, PS_TX_EN) || io.read(io.context, PS_RX_EN)))
+    {
         return PS_BUSY;
+    }
     s->tx_owned = s->rx_owned = 0;
     if (s->dma && s->dma_started)
     {
         unsigned tx = io.read(io.context, PS_TX_COUNT),
                  rx = io.read(io.context, PS_RX_COUNT);
         if (tx <= s->count)
+        {
             s->sent = s->count - tx;
+        }
         else
+        {
             s->result = PS_IO;
+        }
         if (rx <= s->count)
+        {
             s->received = s->count - rx;
+        }
         else
+        {
             s->result = PS_IO;
+        }
     }
     io.write(io.context, PS_RESET, 1);
     s->ready = 0;
     sr = io.read(io.context, PS_SR);
     if (!(sr & PS_TXE) || (sr & PS_BSY))
+    {
         return PS_BUSY;
+    }
     s->due = s->last + s->hold;
     s->phase = 3;
     return PS_BUSY;
@@ -161,11 +209,17 @@ int ps_step(struct ps_spi *s, struct ps_io io, uint32_t token, uint32_t now)
 {
     uint32_t sr;
     if (!s || !valid(io))
+    {
         return PS_INVALID;
+    }
     if (!s->phase || s->token != token)
+    {
         return PS_STALE;
+    }
     if ((uint32_t)(now - s->last) >= UINT32_C(0x80000000))
+    {
         return PS_INVALID;
+    }
     s->last = now;
     sr = io.read(io.context, PS_SR);
     if ((sr & (PS_CRCERR | PS_MODF | PS_OVR)) && s->phase != 4)
@@ -208,7 +262,9 @@ int ps_step(struct ps_spi *s, struct ps_io io, uint32_t token, uint32_t now)
                 {
                     s->tx_owned = 0;
                     if ((tf & 1u) && !io.read(io.context, PS_TX_COUNT))
+                    {
                         s->sent = s->count;
+                    }
                     else
                     {
                         s->result = PS_IO;
@@ -219,7 +275,9 @@ int ps_step(struct ps_spi *s, struct ps_io io, uint32_t token, uint32_t now)
                 {
                     s->rx_owned = 0;
                     if ((rf & 1u) && !io.read(io.context, PS_RX_COUNT))
+                    {
                         s->received = s->count;
+                    }
                     else
                     {
                         s->result = PS_IO;
@@ -230,7 +288,9 @@ int ps_step(struct ps_spi *s, struct ps_io io, uint32_t token, uint32_t now)
             /* DMA can finish its memory accesses after the initial SR snapshot.
                Observe wire completion after these acknowledgements. */
             if (PS_MUTANT != 7)
+            {
                 sr = io.read(io.context, PS_SR);
+            }
         }
         else
         {
@@ -239,13 +299,17 @@ int ps_step(struct ps_spi *s, struct ps_io io, uint32_t token, uint32_t now)
                 s->rx[s->received++] =
                     PS_MUTANT == 2 ? 0 : (uint8_t)io.read(io.context, PS_DR);
                 if (s->received == s->count)
+                {
                     s->rx_owned = 0;
+                }
             }
             if (s->sent == s->received && s->sent < s->count && (sr & PS_TXE))
             {
                 io.write(io.context, PS_DR, s->tx[s->sent++]);
                 if (s->sent == s->count)
+                {
                     s->tx_owned = 0;
+                }
                 /* No pre-write BSY/TXE snapshot may acknowledge this write. */
                 sr = PS_BSY;
             }
@@ -255,7 +319,9 @@ int ps_step(struct ps_spi *s, struct ps_io io, uint32_t token, uint32_t now)
             (!(sr & PS_BSY) || PS_MUTANT == 3))
         {
             if (s->dma)
+            {
                 io.write(io.context, PS_DMA_REQUESTS, 0);
+            }
             s->due = now + s->hold;
             s->phase = 3;
         }
@@ -269,23 +335,33 @@ int ps_step(struct ps_spi *s, struct ps_io io, uint32_t token, uint32_t now)
                 unsigned left = io.read(io.context, PS_TX_COUNT);
                 s->tx_owned = 0;
                 if (left <= s->count)
+                {
                     s->sent = s->count - left;
+                }
                 else
+                {
                     s->result = PS_IO;
+                }
             }
             if (!io.read(io.context, PS_RX_EN))
             {
                 unsigned left = io.read(io.context, PS_RX_COUNT);
                 s->rx_owned = 0;
                 if (left <= s->count)
+                {
                     s->received = s->count - left;
+                }
                 else
+                {
                     s->result = PS_IO;
+                }
             }
         }
         /* Draining is not a promise that a slave accepted any command. */
         if (!s->rx_owned && (sr & PS_RXNE))
+        {
             (void)io.read(io.context, PS_DR);
+        }
         if (!s->tx_owned && !s->rx_owned && (sr & PS_TXE) && !(sr & PS_BSY))
         {
             s->due = now + s->hold;
@@ -293,7 +369,9 @@ int ps_step(struct ps_spi *s, struct ps_io io, uint32_t token, uint32_t now)
         }
     }
     if (s->phase == 3 && reached(now, s->due))
+    {
         return finish(s, io);
+    }
     if (s->result == PS_BUSY && reached(now, s->deadline))
     {
         s->result = PS_TIMEOUT;
@@ -305,7 +383,9 @@ int ps_step(struct ps_spi *s, struct ps_io io, uint32_t token, uint32_t now)
 int ps_command(unsigned version, unsigned reg, uint8_t out[3])
 {
     if (!out || version > 1 || reg > 31)
+    {
         return PS_INVALID;
+    }
     out[0] = (uint8_t)((version ? 0xc0u : 0x80u) | reg);
     out[1] = 0;
     out[2] = 0;
@@ -316,13 +396,19 @@ int ps_decode(unsigned version, const uint8_t in[3], uint16_t *out)
 {
     uint16_t value;
     if (!in || !out || version > 1)
+    {
         return PS_INVALID;
+    }
     if ((in[0] != (version ? 0xa6u : 0xa5u)) && PS_MUTANT != 5)
+    {
         return PS_PROTOCOL;
+    }
     value = version ? (uint16_t)((uint16_t)in[2] << 8 | in[1])
                     : (uint16_t)((uint16_t)in[1] << 8 | in[2]);
     if (PS_MUTANT == 6)
+    {
         value = (uint16_t)((uint16_t)in[1] << 8 | in[2]);
+    }
     *out = value;
     return PS_OK;
 }
@@ -330,7 +416,9 @@ int ps_decode(unsigned version, const uint8_t in[3], uint16_t *out)
 int ps_pack(const uint8_t *src, uint16_t *dst, unsigned count)
 {
     if (!src || !dst || !count || count > 16)
+    {
         return PS_INVALID;
+    }
     for (unsigned i = 0; i < count; i++)
     {
         dst[i] = src[i];
@@ -341,7 +429,9 @@ int ps_pack(const uint8_t *src, uint16_t *dst, unsigned count)
 int ps_unpack(const uint16_t *src, uint8_t *dst, unsigned count)
 {
     if (!src || !dst || !count || count > 16)
+    {
         return PS_INVALID;
+    }
     for (unsigned i = 0; i < count; i++)
     {
         dst[i] = (uint8_t)src[i];

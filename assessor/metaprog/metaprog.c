@@ -16,9 +16,13 @@ int mp_storage_bound(size_t count, size_t width, size_t limit, size_t *out)
 {
     if (count == 0 || width == 0 ||
         (MOD_MUTATION != 3 && count > SIZE_MAX / width))
+    {
         return 0;
+    }
     if (MOD_MUTATION != 4 && count * width > limit)
+    {
         return 0;
+    }
     *out = count * width;
     return 1;
 }
@@ -29,20 +33,28 @@ int mp_reduce(const uint32_t *input, size_t count, struct mp_policy policy,
     uint32_t value = 0;
     size_t i;
     if (policy.saturate > 1 || (count && !input))
+    {
         return 0;
+    }
     for (i = 0; i < count; ++i)
     {
         if (input[i] > policy.limit - value)
         {
             if (!policy.saturate && MOD_MUTATION != 5)
+            {
                 return 0;
+            }
             value = policy.limit;
         }
         else
+        {
             value += input[i];
+        }
     }
     if (MOD_MUTATION == 6 && count == 0)
+    {
         value = policy.limit;
+    }
     *out = value;
     return 1;
 }
@@ -95,7 +107,9 @@ int mp_variadic(unsigned arity, uint32_t seed, unsigned *evaluations,
     uint32_t value;
     unsigned calls[4] = {0, 0, 0, 0};
     if (arity > 4)
+    {
         return 0;
+    }
     switch (arity)
     {
         case 0:
@@ -120,7 +134,9 @@ int mp_variadic(unsigned arity, uint32_t seed, unsigned *evaluations,
             break;
     }
     if (MOD_MUTATION == 7 && arity)
+    {
         value += mp_tick(seed, &calls[0]);
+    }
     *out = value;
     *evaluations = calls[0] + calls[1] + calls[2] + calls[3];
     return 1;
@@ -161,7 +177,9 @@ int mp_generic_receivers(uint32_t *mutable_value, const uint32_t *fixed_value,
     a = MP_RECEIVER(mp_mut_pointer(mutable_value, &calls));
     b = MP_RECEIVER(mp_const_pointer(fixed_value, &calls));
     if (MOD_MUTATION == 10)
+    {
         (void)mp_const_pointer(fixed_value, &calls);
+    }
     *out = a + b;
     *evaluations = calls;
     return 1;
@@ -184,7 +202,9 @@ int mp_record_encode(struct mp_record record, unsigned char *output,
                      size_t capacity)
 {
     if (capacity < 6)
+    {
         return 0;
+    }
     output[0] =
         (unsigned char)(MOD_MUTATION == 11 ? record.code : record.code >> 8);
     output[1] =
@@ -222,7 +242,9 @@ uint64_t mp_hash(struct mp_key value)
     uint64_t hash = mp_hash_word(UINT64_C(14695981039346656037), value.x);
     hash = mp_hash_word(hash, value.y);
     if (MOD_MUTATION == 14)
+    {
         hash = mp_hash_word(hash, value.cache);
+    }
     return hash;
 }
 
@@ -231,8 +253,11 @@ int mp_find_counterexample(mp_property_fn property, void *context,
 {
     unsigned x, y;
     if (!property || bound > 255)
+    {
         return -1;
+    }
     for (x = 0; x <= bound; ++x)
+    {
         for (y = 0; y <= bound; ++y)
         {
             struct mp_pair candidate = {x, y};
@@ -268,6 +293,7 @@ int mp_find_counterexample(mp_property_fn property, void *context,
                 return 1;
             }
         }
+    }
     return 0;
 }
 
@@ -289,24 +315,32 @@ int mp_format(struct mp_sink *sink, struct mp_arg argument)
     size_t n = 0, i;
     const unsigned char *text;
     if (sink->used > sink->capacity || (sink->capacity && !sink->bytes))
+    {
         return 0;
+    }
     if (argument.kind == 1)
     {
         uint32_t value = argument.number;
         if (MOD_MUTATION != 16 || value != 0)
+        {
             do
             {
                 temporary[n++] = (unsigned char)('0' + value % 10);
                 value /= 10;
             } while (value);
+        }
         if (n > sink->capacity - sink->used)
         {
             if (MOD_MUTATION == 15)
+            {
                 sink->used += n;
+            }
             return 0;
         }
         for (i = 0; i < n; ++i)
+        {
             sink->bytes[sink->used + i] = temporary[n - 1 - i];
+        }
     }
     else if (argument.kind == 2 && argument.text)
     {
@@ -316,16 +350,22 @@ int mp_format(struct mp_sink *sink, struct mp_arg argument)
             if (n == sink->capacity - sink->used)
             {
                 if (MOD_MUTATION == 15)
+                {
                     ++sink->used;
+                }
                 return 0;
             }
             ++n;
         }
         for (i = 0; i < n; ++i)
+        {
             sink->bytes[sink->used + i] = text[i];
+        }
     }
     else
+    {
         return 0;
+    }
     sink->used += n;
     return 1;
 }
@@ -341,25 +381,37 @@ int mp_expand(const struct mp_token *pattern, size_t count,
     if (count > 32 || count > capacity || (count && !pattern) ||
         (argument_count && !arguments) || !fresh ||
         (MOD_MUTATION != 18 && fresh == UINT_MAX))
+    {
         return 0;
+    }
     for (i = 0; i < count; ++i)
     {
         temporary[i] = pattern[i];
         if (pattern[i].kind == 1)
         {
             if (pattern[i].symbol >= argument_count)
+            {
                 return 0;
+            }
             temporary[i] = arguments[pattern[i].symbol];
             if (MOD_MUTATION == 17)
+            {
                 temporary[i].context = fresh;
+            }
         }
         else if (pattern[i].kind == 2)
+        {
             temporary[i].context = fresh;
+        }
         else if (pattern[i].kind != 0)
+        {
             return 0;
+        }
     }
     for (i = 0; i < count; ++i)
+    {
         output[i] = temporary[i];
+    }
     *next_context = fresh + 1;
     *used = count;
     return 1;
@@ -373,39 +425,57 @@ int mp_build(const struct mp_build_node *nodes, size_t count, unsigned *order,
     unsigned temporary_order[8];
     uint64_t temporary_keys[8] = {0};
     if (count > 8 || (count && !nodes))
+    {
         return 0;
+    }
     valid = (1u << (unsigned)count) - 1u;
     for (j = 0; j < count; ++j)
+    {
         if ((nodes[j].dependencies & ~valid) ||
             (nodes[j].length && !nodes[j].source))
+        {
             return 0;
+        }
+    }
     for (step = 0; step < count; ++step)
     {
         size_t chosen = count, k;
         uint64_t key;
         for (j = 0; j < count; ++j)
+        {
             if (!(done & (1u << (unsigned)j)) &&
                 !(nodes[j].dependencies & ~done))
             {
                 chosen = j;
                 break;
             }
+        }
         if (chosen == count)
+        {
             return 0;
+        }
         key =
             mp_hash_word(UINT64_C(14695981039346656037), nodes[chosen].length);
         for (k = 0; k < nodes[chosen].length; ++k)
+        {
             key = mp_hash_byte(key, nodes[chosen].source[k]);
+        }
         key = mp_hash_word(key, nodes[chosen].tool);
         if (MOD_MUTATION != 19)
+        {
             key = mp_hash_word(key, nodes[chosen].configuration);
+        }
         for (j = 0; j < count; ++j)
+        {
             if (nodes[chosen].dependencies & (1u << (unsigned)j))
             {
                 key = mp_hash_word(key, j);
                 if (MOD_MUTATION != 20)
+                {
                     key = mp_hash_word(key, temporary_keys[j]);
+                }
             }
+        }
         temporary_order[step] = (unsigned)chosen;
         temporary_keys[chosen] = key;
         done |= 1u << (unsigned)chosen;
@@ -428,15 +498,21 @@ int mp_emit_table(const uint64_t *keys, size_t count, char *output,
     size_t n = 0, i;
     unsigned j;
     if (count == 0 || count > 8 || !keys)
+    {
         return 0;
+    }
     for (i = 0; i < sizeof prefix - 1; ++i)
+    {
         temporary[n++] = prefix[i];
+    }
     for (i = 0; i < count; ++i)
     {
         temporary[n++] = '0';
         temporary[n++] = 'x';
         for (j = 0; j < 16; ++j)
+        {
             temporary[n++] = digits[(keys[i] >> (60 - 4 * j)) & 15];
+        }
         temporary[n++] = 'U';
         temporary[n++] = 'L';
         temporary[n++] = 'L';
@@ -446,9 +522,13 @@ int mp_emit_table(const uint64_t *keys, size_t count, char *output,
     temporary[n++] = ';';
     temporary[n++] = '\n';
     if (n + 1 > capacity)
+    {
         return 0;
+    }
     for (i = 0; i < n; ++i)
+    {
         output[i] = temporary[i];
+    }
     output[n] = 0;
     *used = n;
     return 1;

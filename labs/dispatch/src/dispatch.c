@@ -99,8 +99,12 @@ void ds_methods_init(struct ds_methods *m)
     unsigned i, j;
     m->epoch = 1;
     for (i = 0; i < 3; i++)
+    {
         for (j = 0; j < 3; j++)
+        {
             m->entries[i][j] = 0;
+        }
+    }
 }
 
 int ds_methods_set(struct ds_methods *arg0, unsigned arg1, unsigned arg2,

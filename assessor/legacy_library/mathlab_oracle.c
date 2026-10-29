@@ -19,10 +19,14 @@ int main(int argc, char **argv)
 {
     if (argc != 2 || FLT_RADIX != 2 || DBL_MANT_DIG != 53 ||
         sizeof(double) != 8)
+    {
         return 2;
+    }
     FILE *f = fopen(argv[1], "r");
     if (!f)
+    {
         return 2;
+    }
     char function[8], input[64], observed[64];
     unsigned rows = 0;
     printf("MPFR header=%s runtime=%s precision=512 RNDD/RNDU enclosures; "
@@ -58,12 +62,18 @@ int main(int argc, char **argv)
         if (end == input || *end || !isfinite(in) || rows >= 18 ||
             bits(in) != bits(expected[rows]) ||
             strcmp(function, rows < 9 ? "sqrt" : "acos"))
+        {
             return 2;
+        }
         double got = strtod(observed, &end);
         if (end == observed || *end || !isfinite(got) || got < 0)
+        {
             return 2;
+        }
         if (mpfr_set_d(x, in, MPFR_RNDN))
+        {
             return 2;
+        }
         if (!strcmp(function, "sqrt"))
         {
             mpfr_sqrt(lo, x, MPFR_RNDD);
@@ -77,7 +87,9 @@ int main(int argc, char **argv)
             mpfr_acos(ref, x, MPFR_RNDN);
         }
         else
+        {
             return 2;
+        }
         double lower = mpfr_get_d(lo, MPFR_RNDN),
                upper = mpfr_get_d(hi, MPFR_RNDN);
         if (bits(lower) != bits(upper))
@@ -102,12 +114,18 @@ int main(int argc, char **argv)
         if (mpfr_zero_p(ref))
         {
             if (mpfr_zero_p(error))
+            {
                 mpfr_set_zero(relative, 1);
+            }
             else
+            {
                 mpfr_set_inf(relative, 1);
+            }
         }
         else
+        {
             mpfr_div(relative, error, ref, MPFR_RNDN);
+        }
         double step = nextafter(lower, INFINITY) - lower;
         mpfr_set_d(spacing, step, MPFR_RNDN);
         mpfr_div(ulp, error, spacing, MPFR_RNDN);
@@ -118,12 +136,16 @@ int main(int argc, char **argv)
         ++rows;
     }
     if (fields != EOF || ferror(f) || fclose(f))
+    {
         return 2;
+    }
     mpfr_clears(x, lo, hi, ref, value, error, relative, spacing, ulp,
                 (mpfr_ptr)0);
     mpfr_free_cache();
     if (rows != 18)
+    {
         return 2;
+    }
     puts("MATHLAB-PASS:18 independent interval-confirmed nearest results and "
          "explicit empirical screens");
     return 0;

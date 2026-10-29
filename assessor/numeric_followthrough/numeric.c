@@ -17,7 +17,9 @@ int nf_compare(enum nf_policy policy, double want, double got,
 {
     if (!out || (policy != NF_TELEMETRY && policy != NF_AUDIT) ||
         !(want >= -1e100 && want <= 1e100) || !(got >= -1e100 && got <= 1e100))
+    {
         return -1;
+    }
     double scale = magnitude(want), error = magnitude(got - want);
     struct nf_error next = {error, error / (scale > 1 ? scale : 1), 0};
     next.accepted = policy == NF_AUDIT ? !memcmp(&want, &got, sizeof want)

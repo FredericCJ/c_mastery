@@ -55,7 +55,9 @@ static int32_t *inplace_take(void *p, size_t n)
 {
     struct ow_inplace *a = p;
     if (a->used || !n || n > 16)
+    {
         return NULL;
+    }
     a->used = n;
     return a->cells;
 }
@@ -64,7 +66,9 @@ static void inplace_release(void *p, int32_t *data)
 {
     struct ow_inplace *a = p;
     if (data == a->cells)
+    {
         a->used = 0;
+    }
 }
 
 static int32_t *inplace_resize(void *p, int32_t *data, size_t before,
@@ -72,7 +76,9 @@ static int32_t *inplace_resize(void *p, int32_t *data, size_t before,
 {
     struct ow_inplace *a = p;
     if (data != a->cells || a->used != before || !after || after > 16)
+    {
         return NULL;
+    }
     a->used = after;
     ++a->resized;
     return a->cells;
@@ -177,10 +183,14 @@ static int32_t *watch_resize(void *p, int32_t *data, size_t before,
 {
     int32_t *out = watch_take(p, after);
     if (!out)
+    {
         return NULL;
+    }
     size_t n = before < after ? before : after;
     for (size_t i = 0; i < n; ++i)
+    {
         out[i] = data[i];
+    }
     struct v4_allocator v = ow_allocator(&((struct ow_watching *)p)->cells);
     v.release(v.context, data);
     return out;
@@ -237,7 +247,9 @@ static int counters(void)
     CHECK(oaa_resize(&b, all[0], 1, &out) == OW_NOMEM && out == NULL &&
           b.live_cells == 16 && full.live == 8);
     for (unsigned i = 0; i < 8; ++i)
+    {
         v.release(v.context, all[i]);
+    }
     CHECK(!b.live && !full.live);
     puts(
         "OAA_COUNTERS allocation-refuses cleanup-remains saturation-no-wrap full-upstream-shrink-refusal");
@@ -257,8 +269,10 @@ static int consumers(void)
         enum ow_status q = ow_construct(&owner, oaa_allocator(&a), lengths);
         CHECK(q == (failure <= 3 ? OW_NOMEM : OW_OK));
         if (failure <= 3)
+        {
             CHECK(!owner.count && a.attempts == failure &&
                   a.releases == failure - 1);
+        }
         CHECK(ow_destroy(&owner) == OW_OK && !a.live && !up.live);
     }
     for (size_t failure = 1; failure <= 3; ++failure)
@@ -285,11 +299,15 @@ static int consumers(void)
             CHECK(ow_cow_drop(&original) == OW_OK);
         }
         else
+        {
             CHECK(writer == &fresh && original.refs == 1 &&
                   original.data[0] == 7 && fresh.data[0] == 9);
+        }
         CHECK(ow_cow_drop(writer) == OW_OK);
         if (q == OW_OK)
+        {
             CHECK(ow_cow_drop(&original) == OW_OK);
+        }
         CHECK(!a.live && !up.live);
     }
     struct ow_allocator up = {0};
@@ -410,7 +428,9 @@ static int metrics(void)
         "{\"iterations\":10000,\"checksum\":%u,\"attempts\":%zu,\"upstream_attempts\":%zu,\"releases\":%zu,\"upstream_releases\":%zu,\"audit_size\":%zu,\"seconds\":[",
         sum, a.attempts, up.attempts, a.releases, up.releases, sizeof(a));
     for (unsigned i = 0; i < 7; ++i)
+    {
         printf("%s%.9f", i ? "," : "", times[i]);
+    }
     puts("]}");
     return 0;
 }
@@ -434,7 +454,9 @@ static int oracle(void)
             {
                 unsigned j = op == 'a' ? 0 : 1;
                 if (p[j])
+                {
                     q = OW_BUSY;
+                }
                 else
                 {
                     p[j] = v.take(v.context, j + 1);
@@ -444,13 +466,17 @@ static int oracle(void)
                         p[j][0] = (int32_t)(11 + j);
                     }
                     else
+                    {
                         q = OW_NOMEM;
+                    }
                 }
             }
             else if (op == 'r')
             {
                 if (!p[0])
+                {
                     q = OW_INVALID;
+                }
                 else
                 {
                     int32_t *out = NULL;
@@ -471,11 +497,17 @@ static int oracle(void)
                 counts[j] = 0;
             }
             else if (op == 'f')
+            {
                 a.fail_at = a.attempts + 1;
+            }
             else if (op == 'u')
+            {
                 up.fail_at = up.attempts + 1;
+            }
             else
+            {
                 return 2;
+            }
             printf(
                 "%d,%zu,%zu,%zu,%zu,%zu,%zu,%zu,%zu,%zu,%zu,%zu,%zu,%zu,%zu,%zu,%d;",
                 q, counts[0], counts[1], a.attempts, a.successes,
@@ -485,8 +517,12 @@ static int oracle(void)
         }
         puts("");
         for (unsigned i = 0; i < 2; ++i)
+        {
             if (p[i])
+            {
                 v.release(v.context, p[i]);
+            }
+        }
         CHECK(!a.live && !up.live);
     }
     return ferror(stdin) ? 2 : 0;
@@ -495,7 +531,9 @@ static int oracle(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     const char *names[] = {"allocator_audit_base",
                            "allocator_audit_resize",
                            "allocator_audit_rollback",
@@ -508,7 +546,11 @@ int main(int argc, char **argv)
     int (*cases[])(void) = {baseline,  resize_case, rollback, poison, counters,
                             consumers, recursive,   metrics,  oracle};
     for (unsigned i = 0; i < 9; ++i)
+    {
         if (!strcmp(argv[1], names[i]))
+        {
             return cases[i]();
+        }
+    }
     return 2;
 }

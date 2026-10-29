@@ -32,7 +32,9 @@ static int boot(void)
           ep_begin(&phy, 16, 1000) == ED_BUSY);
     int e = ED_BUSY;
     for (unsigned i = 0; i < 16 && e == ED_BUSY; i++)
+    {
         e = ep_step(&phy);
+    }
     CHECK(e == ED_OK);
     en_model_init(&model, &memory, 0x20001000);
     struct en_bus bus = en_model_bus(&model);
@@ -63,9 +65,11 @@ int en_initialization(void)
           model.reg[0x100c / 4] == 0x20001000 &&
           model.reg[0x1010 / 4] == 0x20001040);
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(memory.rx[i].word[0] == 0x80000000u &&
               memory.rx[i].word[1] == (2048u | (i == 3 ? 0x8000u : 0)) &&
               memory.rx[i].word[3] == 0);
+    }
     CHECK(en_reset_begin(&ring, 1, 4, 100) == ED_BUSY && ring.epoch == 1);
     en_note("OBS ring_init 12384 35659778 51212 1");
     return 0;
@@ -76,7 +80,9 @@ int en_transmit(void)
     CHECK(boot() == 0);
     unsigned char bytes[100];
     for (unsigned i = 0; i < 100; i++)
+    {
         bytes[i] = (unsigned char)i;
+    }
     struct en_ticket a = {0}, b = {0}, out = {0};
     CHECK(en_tx_copy(&ring, bytes, 100, &a) == ED_OK);
     bytes[0] = 99;
@@ -133,7 +139,9 @@ int en_receive(void)
     CHECK(en_rx_release(&ring, held[0]) == ED_STALE &&
           en_rx_release(&ring, out.ticket) == ED_OK);
     for (unsigned i = 1; i < 4; i++)
+    {
         CHECK(en_rx_release(&ring, held[i]) == ED_OK);
+    }
     for (unsigned k = 0; k < 16; k++)
     {
         CHECK(en_model_rx(&model, frame, 64, (64u << 16) | 0x300u) == ED_OK &&
@@ -193,8 +201,10 @@ int en_drop_status(void)
                       (63u << 16) | 0x300u,
                       (1519u << 16) | 0x300u};
     for (unsigned i = 0; i < 6; i++)
+    {
         CHECK(en_model_rx(&model, frame, 64, bad[i]) == ED_OK &&
               en_rx_take(&ring, &out) == ED_IO && !out.bytes);
+    }
     CHECK(ring.dropped == 6 &&
           en_model_rx(&model, frame, 64, (64u << 16) | 0x300u) == ED_OK &&
           en_rx_take(&ring, &out) == ED_OK &&

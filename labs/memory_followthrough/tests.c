@@ -27,20 +27,28 @@ static void *take(void *v, size_t n)
     h->calls++;
     h->last = n;
     if (h->fail)
+    {
         return NULL;
+    }
     void *p = malloc(n);
     if (!p)
+    {
         return NULL;
+    }
     for (unsigned i = 0; i < 8; i++)
+    {
         if (!h->p[i])
         {
             h->p[i] = p;
             h->n[i] = n;
             h->live += n;
             if (h->live > h->peak)
+            {
                 h->peak = h->live;
+            }
             return p;
         }
+    }
     free(p);
     return NULL;
 }
@@ -49,6 +57,7 @@ static void drop(void *v, void *p)
 {
     struct mw_heap *h = v;
     for (unsigned i = 0; i < 8; i++)
+    {
         if (h->p[i] == p)
         {
             h->live -= h->n[i];
@@ -58,6 +67,7 @@ static void drop(void *v, void *p)
             free(p);
             return;
         }
+    }
     abort();
 }
 
@@ -67,21 +77,29 @@ static void *resize(void *v, void *p, size_t n)
     h->calls++;
     h->last = n;
     if (h->fail)
+    {
         return NULL;
+    }
     for (unsigned i = 0; i < 8; i++)
+    {
         if (h->p[i] == p)
         {
             size_t old = h->n[i];
             void *q = realloc(p, n);
             if (!q)
+            {
                 return NULL; /* No evaluation of p or its old aliases after success. */
+            }
             h->p[i] = q;
             h->n[i] = n;
             h->live = h->live - old + n;
             if (h->live > h->peak)
+            {
                 h->peak = h->live;
+            }
             return q;
         }
+    }
     abort();
 }
 
@@ -95,7 +113,9 @@ static int extents(void)
     unsigned trials = 0, scans = 0;
     unsigned char a[24], before[24], expected[24];
     for (size_t cap = 0; cap <= 8; cap++)
+    {
         for (ptrdiff_t i = -2; i <= 10; i++)
+        {
             for (size_t n = 0; n <= 10; n++)
             {
                 memset(a, 0xaa, sizeof a);
@@ -105,37 +125,59 @@ static int extents(void)
                 int okay = i >= 0 && (size_t)i <= cap && n <= cap - (size_t)i;
                 CHECK((s == MW_OK) == okay);
                 if (!okay)
+                {
                     CHECK(memcmp(a, before, sizeof a) == 0);
+                }
                 else
+                {
                     for (size_t j = 0; j < sizeof a; j++)
+                    {
                         CHECK(a[j] ==
                               (j >= 4 + (size_t)i && j < 4 + (size_t)i + n
                                    ? 0x33
                                    : 0xaa));
+                    }
+                }
                 trials++;
             }
+        }
+    }
     for (size_t cap = 0; cap <= 8; cap++)
+    {
         for (size_t init = 0; init <= cap; init++)
+        {
             for (size_t nul = 0; nul <= cap; nul++)
             {
                 scans++;
                 memset(a, 'x', sizeof a);
                 if (nul < cap)
+                {
                     a[4 + nul] = 0;
+                }
                 size_t out = 77;
                 enum mw_status s =
                     mw_scan(a, sizeof a, (struct mw_span){4, cap, init}, &out);
                 if (nul < init)
+                {
                     CHECK(s == MW_OK && out == nul);
+                }
                 else
+                {
                     CHECK(s == (init < cap ? MW_INIT : MW_NUL) && out == 77);
+                }
             }
+        }
+    }
     for (size_t from = 0; from <= 8; from++)
+    {
         for (size_t to = 0; to <= 8; to++)
+        {
             for (size_t n = 0; n <= 8; n++)
             {
                 for (size_t i = 0; i < sizeof a; i++)
+                {
                     a[i] = (unsigned char)(i % 5);
+                }
                 memcpy(expected, a, sizeof a);
                 memmove(expected + to, expected + from, n);
                 size_t length = 99;
@@ -144,6 +186,8 @@ static int extents(void)
                               &length) == MW_OK &&
                       length == n && memcmp(a, expected, sizeof a) == 0);
             }
+        }
+    }
     for (size_t n = 0; n <= 8; n++)
     {
         memset(a, 'q', sizeof a);
@@ -153,9 +197,13 @@ static int extents(void)
                                      (struct mw_span){12, 8, 8}, n, &length);
         CHECK((s == MW_OK) == (n < 8));
         if (s == MW_OK)
+        {
             CHECK(length == n && a[n] == 0);
+        }
         else
+        {
             CHECK(length == 99 && !memcmp(a, before, sizeof a));
+        }
     }
     memset(a, 'x', sizeof a);
     a[14] = 0;
@@ -259,7 +307,9 @@ static int layout(void)
                      (struct mw_interval){12, 16}) == MW_OK);
     CHECK(!memcmp(a, load, 4));
     for (unsigned i = 4; i < 16; i++)
+    {
         CHECK(a[i] == (i < 12 ? 0 : 0xaa));
+    }
     puts(
         "MW:layout:560-gap48-gap16-overflow40:zero-sections:overflow-preserves:startup-retained12");
     return 0;
@@ -268,13 +318,16 @@ static int layout(void)
 static int ownership(void)
 {
     for (unsigned copying = 0; copying <= 1; copying++)
+    {
         for (unsigned cycle = 0; cycle < 100; cycle++)
         {
             struct mw_heap h = {0};
             struct mw_owner o = {0};
             CHECK(mw_owner(&o, alloc(&h), 8) == MW_OK);
             for (unsigned i = 0; i < 8; i++)
+            {
                 o.data[i] = (unsigned char)(i + 1);
+            }
             struct mw_borrow a = {1, 0}, b = {1, 7};
             h.fail = 1;
             CHECK(mw_resize(&o, 12, copying) == MW_NOMEM && o.generation == 1 &&
@@ -292,7 +345,9 @@ static int ownership(void)
             CHECK(mw_read(&o, a, &value) == MW_STALE && value == 99);
             CHECK(mw_read(&o, b, &value) == MW_STALE && value == 99);
             for (unsigned i = 0; i < 12; i++)
+            {
                 CHECK(o.data[i] == (i < 8 ? i + 1 : 0));
+            }
             CHECK(mw_read(&o, (struct mw_borrow){2, 7}, &value) == MW_OK &&
                   value == 8);
             CHECK(mw_drop(&o, 1) == MW_STALE);
@@ -300,6 +355,7 @@ static int ownership(void)
                   h.drops == (copying ? 2u : 1u));
             CHECK(mw_drop(&o, 2) == MW_STALE);
         }
+    }
     struct mw_heap h = {0};
     struct mw_owner o = {0};
     CHECK(mw_owner(&o, alloc(&h), 8) == MW_OK);
@@ -316,7 +372,9 @@ static int records(void)
 {
     unsigned char src[] = {7, 0, 9};
     for (unsigned pattern = 0; pattern < 2; pattern++)
+    {
         for (unsigned version = 1; version <= 2; version++)
+        {
             for (unsigned fail = 0; fail <= 5; fail++)
             {
                 struct mw_heap h = {0};
@@ -344,13 +402,19 @@ static int records(void)
                           bytes[0] == version && bytes[1] == 3 &&
                           bytes[2] == 1 && !memcmp(bytes + 3, src, 3));
                     if (version == 2)
+                    {
                         CHECK(bytes[6] == 42);
+                    }
                     else
+                    {
                         CHECK(r.optional == 0);
+                    }
                     mw_record_drop(&r);
                     CHECK(!h.live && !r.payload && !r.tag);
                 }
             }
+        }
+    }
     puts(
         "MW:init:24-staged-cases:five-failure-prefixes:typed-fields:padding-independent:binary-zero:optional-v1-v2");
     return 0;
@@ -368,9 +432,13 @@ static int async(void)
         memcpy(snapshot, &a, sizeof a);
         CHECK(mw_reclaim(&a, t) == MW_BUSY && !memcmp(&a, snapshot, sizeof a));
         if (order & 1)
+        {
             CHECK(mw_cancel(&a, t) == MW_OK);
+        }
         if (order < 3)
+        {
             CHECK(mw_submit_return(&a, t) == MW_OK);
+        }
         CHECK(mw_terminal(&a, t) == MW_OK && a.results == 1);
         CHECK(mw_terminal(&a, t) == MW_STALE && a.results == 1);
         CHECK(mw_reclaim(&a, t) == MW_BUSY);
@@ -399,7 +467,9 @@ static int async(void)
         {
             unsigned event = permutations[k][j];
             if (!event)
+            {
                 CHECK(mw_cancel(&state, t) == (terminal ? MW_STALE : MW_OK));
+            }
             else
             {
                 CHECK(mw_terminal(&state, t) == (terminal ? MW_STALE : MW_OK));
@@ -432,7 +502,9 @@ static int async(void)
           mw_reclaim(&a, first) == MW_OK);
     CHECK(!a.scratch_mask && !a.callbacks && a.results == 2);
     for (unsigned i = 0; i < 2; i++)
+    {
         a.slots[i].generation = UINT32_MAX;
+    }
     for (unsigned i = 0; i < 2; i++)
     {
         struct mw_ticket t;
@@ -452,7 +524,9 @@ static int trees(void)
 {
     unsigned work[64], trials = 0;
     for (unsigned breadth = 0; breadth < 2; breadth++)
+    {
         for (unsigned depth = 0; depth <= 6; depth++)
+        {
             for (size_t cap = 1; cap <= 64; cap++)
             {
                 unsigned out = 99;
@@ -461,12 +535,18 @@ static int trees(void)
                 enum mw_status s =
                     mw_tree(depth, breadth, work, cap, &out, &peak);
                 if (cap < required)
+                {
                     CHECK(s == MW_EXTENT && out == 99 && peak == 99);
+                }
                 else
+                {
                     CHECK(s == MW_OK && out == (1u << depth) &&
                           peak == required);
+                }
                 trials++;
             }
+        }
+    }
     printf("MW:stack-work:%u:DFS7-vs-BFS64:capacity-denial-preserves-result\n",
            trials);
     return 0;
@@ -476,7 +556,9 @@ int main(void)
 {
     if (extents() || sizes() || layout() || ownership() || records() ||
         async() || trees())
+    {
         return 1;
+    }
     puts("MW_PASS:core");
     return 0;
 }

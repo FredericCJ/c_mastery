@@ -16,7 +16,9 @@
 static enum ad_status lookup(void *context, unsigned char name, int32_t *out)
 {
     if (name != 'x')
+    {
         return AD_MISSING;
+    }
     *out = *(int32_t *)context;
     return AD_OK;
 }
@@ -47,7 +49,9 @@ int main(void)
     CHECK(ad_lex(source, 9, tokens, 65, &count, &diagnostic) == AD_OK &&
           count == 10);
     for (unsigned i = 0; i < 9; ++i)
+    {
         CHECK(tokens[i].offset == i && tokens[i].length == 1);
+    }
     CHECK(tokens[9].kind == AD_T_END && tokens[9].offset == 9);
     CHECK(!evaluate((const char *)source, 0, 17));
     CHECK(!evaluate("2^3^2", 1, 512));
@@ -135,7 +139,9 @@ int main(void)
           count == old_count && !memcmp(old_tokens, tokens, sizeof tokens));
     size_t cases = 0;
     for (int a = 0; a < 10; ++a)
+    {
         for (int b = 0; b < 10; ++b)
+        {
             for (int c = 0; c < 10; ++c)
             {
                 char expression[64];
@@ -145,6 +151,8 @@ int main(void)
                 CHECK(!evaluate(expression, 0, (a + b) * c));
                 cases += 2;
             }
+        }
+    }
     printf(
         "ALGORITHM_PARSER_PASS grammar_cases=%zu every_AST_failure=%u lexical_syntax_semantic_separation\n",
         cases, nodes);

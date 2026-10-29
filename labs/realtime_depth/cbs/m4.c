@@ -36,7 +36,9 @@ void task_main(void)
     CHECK(cb_init(&s, 3, 10, 10, CB_SOFT_BOOK, 0) == CMX_OK &&
           cb_arrive(&s, 0) == CMX_OK);
     for (unsigned t = 0; t < 8; t++)
+    {
         CHECK(cb_charge(&s, t, 1) == CMX_OK && !s.throttled);
+    }
     CHECK(s.core.remaining == 1 && s.core.deadline == 30);
     CHECK(cb_init(&a, 4, 8, 8, CB_SOFT_BOOK, 0) == CMX_OK &&
           cb_init(&b, 4, 8, 8, CB_SOFT_RETAINED, 0) == CMX_OK);
@@ -68,7 +70,9 @@ void task_main(void)
     CHECK(cb_mutex(7, &mutex_trace) == CMX_OK && mutex_trace.waiter_missed &&
           mutex_trace.waiter_finish == 8);
     for (unsigned t = 1; t < 7; t++)
+    {
         CHECK(mutex_trace.charged[t] == 0 && mutex_trace.budget[t][1] == 2);
+    }
     say("CB_M4_PASS:soft-throttle-equality-constrained-and-real-mutex-producer\n");
     finish(0);
 }
@@ -86,9 +90,13 @@ void cl_reset(void)
 {
     unsigned *d = &cl_data_start, *s = &cl_data_load;
     while (d < &cl_data_end)
+    {
         *d++ = *s++;
+    }
     for (d = &cl_bss_start; d < &cl_bss_end;)
+    {
         *d++ = 0;
+    }
     task_main();
 }
 

@@ -7,7 +7,9 @@ static void say(const char *s)
 {
     unsigned n = 0;
     while (s[n])
+    {
         n++;
+    }
     cmk_call(CMK_WRITE, (uintptr_t)s, n, 0);
 }
 
@@ -40,7 +42,9 @@ static void used(unsigned n)
     for (unsigned i = 0; i < 10000; i++)
     {
         if (cmk_call(RQA_USED, 0, 0, 0) == n)
+        {
             return;
+        }
         cmk_call(CMK_YIELD, 0, 0, 0);
     }
     fail("actual device used entries missing");
@@ -58,7 +62,9 @@ void _start(void)
     uint64_t h = CMK_DISK_HANDLE;
 #ifdef RQA_ERROR
     for (unsigned j = 0; j < 4096; j++)
+    {
         first[j] = (unsigned char)(j * 3 + 7);
+    }
     CHECK(cmk2_block((void *)(uintptr_t)h, 1, 12, first) == -1,
           "device error propagated");
     CHECK(!cmk_call(RQA_PENDING, 0, 0, 0),
@@ -66,13 +72,17 @@ void _start(void)
     CHECK(!cmk2_block((void *)(uintptr_t)h, 0, 12, second),
           "read failed write target");
     for (unsigned j = 0; j < 4096; j++)
+    {
         CHECK(second[j] == 0, "injected write had no effect");
+    }
     CHECK(!cmk2_block((void *)(uintptr_t)h, 1, 12, first) &&
               !cmk2_block((void *)(uintptr_t)h, 4, 0, 0) &&
               !cmk2_block((void *)(uintptr_t)h, 0, 12, second),
           "error retry queue reusable");
     for (unsigned j = 0; j < 4096; j++)
+    {
         CHECK(second[j] == first[j], "successful retry exact bytes");
+    }
     say("PASS rqa-device-error-retry\n");
     cmk_call(CMK_EXIT, 0, 0, 0);
     for (;;)
@@ -82,11 +92,15 @@ void _start(void)
     if (cmk_call(CMK_PID, 0, 0, 0) != 0)
     {
         for (unsigned j = 0; j < 4096; j++)
+        {
             first[j] = (unsigned char)(j * 5 + 57);
+        }
         CHECK(!cmk_call(RQA_HOLD, 1, 0, 0), "child holds observer");
         CHECK(submit(h, 1, 11, first) >= 0, "child request admitted");
         for (unsigned j = 0; j < 4096; j++)
+        {
             first[j] = 99;
+        }
         cmk_call(CMK_EXIT, 42, 0, 0);
         for (;;)
         {
@@ -128,9 +142,11 @@ void _start(void)
               !cmk2_block((void *)(uintptr_t)h, 0, 9, second),
           "read persisted pages");
     for (unsigned i = 0; i < 4096; i++)
+    {
         CHECK(first[i] == (unsigned char)(3 * i + 17) &&
                   second[i] == (unsigned char)(5 * i + 31),
               "distinct descriptor payloads");
+    }
     CHECK(!cmk_call(RQA_HOLD, 1, 0, 0), "hold waiters observer");
     a = submit(h, 0, 8, first);
     b = submit(h, 0, 9, second);
@@ -181,8 +197,10 @@ void _start(void)
     CHECK(!cmk2_block((void *)(uintptr_t)h, 0, 8, first),
           "renegotiated queue works");
     for (unsigned i = 0; i < 4096; i++)
+    {
         CHECK(first[i] == (unsigned char)(3 * i + 17),
               "unrelated committed data survived reset");
+    }
     say("PASS rqa-reset-ack-unknown-reuse\n");
     for (unsigned cycle = 0; cycle < 131074; cycle++)
     {
@@ -210,8 +228,10 @@ void _start(void)
     CHECK(!cmk2_block((void *)(uintptr_t)h, 0, 11, second),
           "read departed owner's write");
     for (unsigned j = 0; j < 4096; j++)
+    {
         CHECK(second[j] == (unsigned char)(j * 5 + 57),
               "write copied before owner mutation and death");
+    }
     say("PASS rqa-owner-exit-keeps-request\n");
     cmk_call(CMK_EXIT, 0, 0, 0);
     for (;;)

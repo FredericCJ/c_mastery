@@ -10,22 +10,32 @@ static const algo_pair fixture[5] = {{3, 0}, {1, 1}, {3, 2}, {2, 3}, {1, 4}};
 static void copy(algo_pair *out, const algo_pair *in, unsigned n)
 {
     for (unsigned i = 0; i < n; ++i)
+    {
         out[i] = in[i];
+    }
 }
 
 static int same(const algo_pair *a, const algo_pair *b, unsigned n)
 {
     for (unsigned i = 0; i < n; ++i)
+    {
         if (a[i].key != b[i].key || a[i].tag != b[i].tag)
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
 static int sorted(const algo_pair *a, unsigned n, unsigned descending)
 {
     for (unsigned i = 1; i < n; ++i)
+    {
         if (descending ? a[i - 1].key < a[i].key : a[i - 1].key > a[i].key)
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
@@ -40,7 +50,9 @@ static int permutation(const algo_pair *a, const algo_pair *b, unsigned n)
             right += b[j].key == a[i].key && b[j].tag == a[i].tag;
         }
         if (left != right)
+        {
             return 0;
+        }
     }
     return 1;
 }
@@ -52,12 +64,16 @@ static int stable(const algo_pair *original, const algo_pair *out, unsigned n,
     {
         unsigned rank = 0;
         for (unsigned j = 0; j < n; ++j)
+        {
             rank += (descending ? original[j].key > original[i].key
                                 : original[j].key < original[i].key) ||
                     (original[j].key == original[i].key && j < i);
+        }
         if (out[rank].key != original[i].key ||
             out[rank].tag != original[i].tag)
+        {
             return 0;
+        }
     }
     return 1;
 }
@@ -81,6 +97,7 @@ static int insertion(void)
     algo_pair a[32], before[32];
     uint32_t ignored = 0;
     for (unsigned n = 0; n <= 32; ++n)
+    {
         for (unsigned distribution = 0; distribution < 4; ++distribution)
         {
             input(a, n, distribution);
@@ -91,6 +108,7 @@ static int insertion(void)
             CHECK(algo_abi_insert_probe(a, n, 0, &ignored) == 1 &&
                   stable(before, a, n, 0));
         }
+    }
     copy(a, fixture, 5);
     as_stats = (struct as_stats){0};
     as_prefixes = (struct as_prefixes){0};
@@ -119,6 +137,7 @@ static int counts(void)
 {
     algo_pair a[32], before[32];
     for (unsigned n = 0; n <= 32; ++n)
+    {
         for (unsigned distribution = 0; distribution < 4; ++distribution)
         {
             input(a, n, distribution);
@@ -128,7 +147,9 @@ static int counts(void)
             {
                 unsigned greater = 0;
                 for (unsigned j = 0; j < i; ++j)
+                {
                     greater += a[j].key > a[i].key;
+                }
                 shifts += greater;
                 comparisons += greater + (greater < i);
             }
@@ -142,6 +163,7 @@ static int counts(void)
             CHECK(stable(before, a, n, 0));
             as_metric(n, distribution, &as_stats);
         }
+    }
     return 0;
 }
 
@@ -149,6 +171,7 @@ static int descending(void)
 {
     algo_pair a[32], before[32];
     for (unsigned n = 0; n <= 32; ++n)
+    {
         for (unsigned distribution = 0; distribution < 4; ++distribution)
         {
             input(a, n, distribution);
@@ -156,6 +179,7 @@ static int descending(void)
             as_descending_insert(a, n);
             CHECK(sorted(a, n, 1) && stable(before, a, n, 1));
         }
+    }
     return 0;
 }
 
@@ -166,17 +190,23 @@ static int wide(void)
     for (unsigned n = 0; n <= 32; ++n)
     {
         for (unsigned i = 0; i < n; ++i)
+        {
             a[i] = (struct as_wide){i % 5 == 0 ? UINT32_MAX : i % 3,
                                     UINT64_C(0x8123456700000000) + i};
+        }
         for (unsigned i = 0; i < n; ++i)
+        {
             before[i] = a[i];
+        }
         CHECK(as_wide_abi_probe(a, n, 0, &ignored) == 1);
         for (unsigned i = 0; i < n; ++i)
         {
             unsigned rank = 0;
             for (unsigned j = 0; j < n; ++j)
+            {
                 rank += before[j].key < before[i].key ||
                         (before[j].key == before[i].key && j < i);
+            }
             CHECK(a[rank].key == before[i].key && a[rank].tag == before[i].tag);
         }
     }
@@ -209,6 +239,7 @@ static int failure(void)
 {
     algo_pair a[5];
     for (unsigned malformed = 0; malformed < 2; ++malformed)
+    {
         for (unsigned fail = 1; fail <= 9; ++fail)
         {
             copy(a, fixture, 5);
@@ -218,6 +249,7 @@ static int failure(void)
                   same(a, fixture, 5) && c.calls == fail &&
                   work.comparisons == fail);
         }
+    }
     copy(a, fixture, 5);
     struct as_compare c = {0, 0, 0};
     struct as_stats work = {0};
@@ -241,6 +273,7 @@ static int prior(void)
     algo_pair original[16], out[16], assembly[16];
     unsigned unstable = 0;
     for (unsigned n = 0; n <= 16; ++n)
+    {
         for (unsigned d = 0; d < 4; ++d)
         {
             input(original, n, d);
@@ -252,11 +285,16 @@ static int prior(void)
                 CHECK(as_prior(original, n, method, out, &cost) == 0 &&
                       sorted(out, n, 0) && permutation(original, out, n));
                 if (method < 2)
+                {
                     CHECK(same(out, assembly, n));
+                }
                 else if (!same(out, assembly, n))
+                {
                     ++unstable;
+                }
             }
         }
+    }
     CHECK(unstable > 0);
     const algo_pair runs[5] = {{1, 1}, {3, 0}, {1, 4}, {2, 3}, {3, 2}},
                     expected[5] = {{1, 1}, {1, 4}, {2, 3}, {3, 0}, {3, 2}};

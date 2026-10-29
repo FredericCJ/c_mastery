@@ -32,7 +32,9 @@ static int exchange(struct e7_session *s, unsigned sender, uint16_t cp,
         return 0;
     }
     if (r)
+    {
         return r;
+    }
     if (edu_record_decode(bytes, n, &request))
     {
         CHECK(e7_session_commit(s, token, 0, NULL, 0) == E7_OK);
@@ -47,7 +49,9 @@ static int exchange(struct e7_session *s, unsigned sender, uint16_t cp,
     CHECK(en <= sizeof encoded);
     CHECK(e7_session_commit(s, token, 1, encoded, en) == E7_OK);
     if (request.verb == 2 && response.verb == 3)
+    {
         (*effects)++;
+    }
     *set = staged;
     memcpy(out, encoded, en);
     *outlen = en;

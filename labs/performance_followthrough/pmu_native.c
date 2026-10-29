@@ -61,9 +61,13 @@ __attribute__((noinline)) static uint64_t operation1(uint64_t v)
 static uint64_t execute(struct pf_work *w, unsigned repetitions)
 {
     if (w->family == 6)
+    {
         return pf_concurrency_work(w->n, w->variant, repetitions);
+    }
     if (w->family == 7)
+    {
         return pf_service_work(w->n, w->variant, repetitions);
+    }
     uint64_t sum = 0;
     for (unsigned repeat = 0; repeat < repetitions; ++repeat)
     {
@@ -81,21 +85,31 @@ static uint64_t execute(struct pf_work *w, unsigned repetitions)
                     {
                         size_t mid = i + (hi - i) / 2;
                         if (w->values[mid] < key)
+                        {
                             i = mid + 1;
+                        }
                         else
+                        {
                             hi = mid;
+                        }
                     }
                 }
                 else
+                {
                     while (i < w->n && w->values[i] < key)
+                    {
                         ++i;
+                    }
+                }
                 sum += i;
             }
         }
         else if (w->family == 1)
         {
             for (size_t i = 0; i < w->n; ++i)
+            {
                 sum += w->variant ? w->wide[i].value : w->values[i];
+            }
         }
         else if (w->family == 2)
         {
@@ -112,11 +126,17 @@ static uint64_t execute(struct pf_work *w, unsigned repetitions)
                 }
                 sum += a + b + c + d;
                 for (; i < w->n; ++i)
+                {
                     sum += w->values[i];
+                }
             }
             else
+            {
                 for (size_t i = 0; i < w->n; ++i)
+                {
                     sum += w->values[i];
+                }
+            }
         }
         else if (w->family == 3)
         {
@@ -134,30 +154,42 @@ static uint64_t execute(struct pf_work *w, unsigned repetitions)
             {
                 uint64_t *block = malloc(w->n * sizeof *block);
                 if (!block)
+                {
                     return UINT64_MAX;
+                }
                 for (size_t i = 0; i < w->n; ++i)
+                {
                     block[i] = w->values[i] + repeat;
+                }
                 for (size_t i = 0; i < w->n; ++i)
+                {
                     sum += block[i];
+                }
                 free(block);
             }
             else
             {
                 uint64_t **items = calloc(w->n, sizeof *items);
                 if (!items)
+                {
                     return UINT64_MAX;
+                }
                 size_t i;
                 for (i = 0; i < w->n; ++i)
                 {
                     items[i] = malloc(sizeof **items);
                     if (!items[i])
+                    {
                         break;
+                    }
                     *items[i] = w->values[i] + repeat;
                 }
                 if (i != w->n)
                 {
                     for (size_t j = 0; j < i; ++j)
+                    {
                         free(items[j]);
+                    }
                     free(items);
                     return UINT64_MAX;
                 }
@@ -172,16 +204,22 @@ static uint64_t execute(struct pf_work *w, unsigned repetitions)
         else
         { /* existing retained stable sorting interfaces, n <=1024 */
             for (size_t i = 0; i < w->n; ++i)
+            {
                 w->records[i] =
                     (algo_pair){(uint32_t)((w->n - i) % 17), (uint32_t)i};
+            }
             int rc = w->variant ? algo_merge(w->records, (uint32_t)w->n,
                                              (uint32_t)w->n, NULL)
                                 : algo_insertion(w->records, (uint32_t)w->n,
                                                  (uint32_t)w->n, NULL);
             if (rc)
+            {
                 return UINT64_MAX;
+            }
             for (size_t i = 0; i < w->n; ++i)
+            {
                 sum += (i + 1) * (w->records[i].key + 31u * w->records[i].tag);
+            }
         }
     }
     return sum;
@@ -201,25 +239,45 @@ static uint64_t oracle(const struct pf_work *w, unsigned repetitions)
             }
         }
         else if (w->family == 1 || w->family == 2)
+        {
             total += n * (n - 1);
+        }
         else if (w->family == 3)
+        {
             total += 33 * (n * (n - 1) + n * r) + (17 + 2 * (r & 1u)) * n;
+        }
         else if (w->family == 4)
+        {
             total += n * (n - 1) + n * r;
+        }
         else if (w->family == 5)
         {
             size_t position = 0;
             for (unsigned key = 0; key < 17; ++key)
+            {
                 for (size_t tag = 0; tag < n; ++tag)
+                {
                     if ((n - tag) % 17 == key)
+                    {
                         total += (++position) * (key + 31u * tag);
+                    }
+                }
+            }
         }
         else if (w->family == 6)
+        {
             total += n * 2;
+        }
         else
+        {
             for (size_t i = 0; i < n; ++i)
+            {
                 if (i % 5)
+                {
                     total += 18 + i;
+                }
+            }
+        }
     }
     return total;
 }
@@ -238,21 +296,27 @@ static void mapping_identity(void)
     FILE *maps = fopen("/proc/self/maps", "r");
     char line[1024];
     if (!maps)
+    {
         return;
+    }
     while (fgets(line, sizeof line, maps))
     {
         fputs("{\"kind\":\"mapping\",\"line\":\"", stdout);
         for (const char *p = line; *p; ++p)
         {
             if (*p == '\n')
+            {
                 fputs("\\n", stdout);
+            }
             else if (*p == '\\' || *p == '\"')
             {
                 putchar('\\');
                 putchar(*p);
             }
             else if ((unsigned char)*p >= 32)
+            {
                 putchar(*p);
+            }
         }
         puts("\"}");
     }
@@ -310,7 +374,9 @@ static int sampled(struct pf_work *w, unsigned precision)
     uint64_t tail = 0;
     if (offset > length || size > length - offset || !size ||
         (size & (size - 1)))
+    {
         rc = PF_RING_INVALID;
+    }
     if (!rc && (ioctl(fd, PERF_EVENT_IOC_RESET, 0) ||
                 ioctl(fd, PERF_EVENT_IOC_ENABLE, 0)))
     {
@@ -319,7 +385,9 @@ static int sampled(struct pf_work *w, unsigned precision)
     }
     /* Print only after disable: serialization is outside measured workload. */
     if (!rc)
+    {
         observable ^= execute(w, 256);
+    }
     if (ioctl(fd, PERF_EVENT_IOC_DISABLE, 0))
     {
         rc = PF_RING_INVALID;
@@ -331,7 +399,9 @@ static int sampled(struct pf_work *w, unsigned precision)
     {
         got = read(fd, counts, sizeof counts);
         if (got >= 0 || errno != EINTR)
+        {
             break;
+        }
     }
     if (!rc)
     {
@@ -342,13 +412,19 @@ static int sampled(struct pf_work *w, unsigned precision)
         __atomic_thread_fence(__ATOMIC_SEQ_CST);
         __atomic_store_n(&meta->data_tail, tail, __ATOMIC_RELEASE);
         if (tail != head && !rc)
+        {
             rc = PF_RING_PARTIAL;
+        }
     }
     int cleanup = 0;
     if (munmap(mapping, length))
+    {
         cleanup = errno;
+    }
     if (close(fd) && !cleanup)
+    {
         cleanup = errno;
+    }
     const char *status =
         rc || got != (ssize_t)sizeof counts || counts[2] > counts[1] ? "invalid"
         : !counts[2]     ? "never-scheduled"
@@ -382,17 +458,25 @@ int main(int argc, char **argv)
     char *end;
     unsigned long n = strtoul(argv[3], &end, 10);
     if (*end || !n || n > 4194304 || w.family == 8)
+    {
         return 2;
+    }
     w.n = (size_t)n;
     w.variant = (unsigned)strtoul(argv[4], &end, 10);
     if (*end || w.variant > 1)
+    {
         return 2;
+    }
     unsigned repetitions = argc > 5 ? (unsigned)strtoul(argv[5], &end, 10) : 16;
     if (!repetitions || repetitions > 1024 || *end)
+    {
         return 2;
+    }
     if ((w.family == 4 && n > 65536) ||
         ((w.family == 5 || w.family == 7) && n > 1024))
+    {
         return 2;
+    }
     w.values = malloc(w.n * sizeof *w.values);
     w.wide = w.family == 1 ? malloc(w.n * sizeof *w.wide) : NULL;
     w.records = w.family == 5 ? malloc(w.n * sizeof *w.records) : NULL;
@@ -408,7 +492,9 @@ int main(int argc, char **argv)
     {
         w.values[i] = i * 2;
         if (w.wide)
+        {
             w.wide[i].value = i * 2;
+        }
     }
     w.dispatch[0] = operation0;
     w.dispatch[1] = operation1;
@@ -431,18 +517,28 @@ int main(int argc, char **argv)
     {
         uint64_t independent = (uint64_t)w.n * (w.n - 1) * repetitions;
         if (expected != independent)
+        {
             return 1;
+        }
     }
     if (w.family == 6 && expected != (uint64_t)n * repetitions * 2)
+    {
         return 1;
+    }
     if (w.family == 7)
     {
         uint64_t independent = 0;
         for (size_t i = 0; i < n; ++i)
+        {
             if (i % 5)
+            {
                 independent += 18 + i;
+            }
+        }
         if (expected != independent * repetitions)
+        {
             return 1;
+        }
     }
     observable ^= execute(&w, 1);
     int rc = 0;
@@ -451,7 +547,9 @@ int main(int argc, char **argv)
         unsigned precision =
             argc > 6 ? (unsigned)strtoul(argv[6], &end, 10) : 0;
         if (precision > 3 || *end)
+        {
             return 2;
+        }
         rc = sampled(&w, precision);
     }
     else
@@ -461,7 +559,9 @@ int main(int argc, char **argv)
         uint64_t brackets[31], overhead = 0;
         struct timespec resolution;
         if (clock_getres(CLOCK_MONOTONIC_RAW, &resolution))
+        {
             return 2;
+        }
         uint64_t resolution_ns = (uint64_t)resolution.tv_sec * 1000000000u +
                                  (uint64_t)resolution.tv_nsec;
         for (unsigned i = 0; i < 31; ++i)
@@ -469,11 +569,15 @@ int main(int argc, char **argv)
             uint64_t begin = clock_ns();
             brackets[i] = clock_ns() - begin;
             if (brackets[i] > overhead)
+            {
                 overhead = brackets[i];
+            }
         }
         int count = !strcmp(argv[1], "count");
         if (!count && strcmp(argv[1], "work"))
+        {
             return 2;
+        }
         const struct pf_pmu_event events[] = {
             {PERF_TYPE_HARDWARE, PERF_COUNT_HW_INSTRUCTIONS},
             {PERF_TYPE_HARDWARE, PERF_COUNT_HW_CPU_CYCLES}};
@@ -481,7 +585,9 @@ int main(int argc, char **argv)
         {
             state = pf_pmu_open(&group, pf_pmu_linux(), events, 2);
             if (state == PF_PMU_READY)
+            {
                 state = pf_pmu_start(&group);
+            }
         }
         else if (pf_perf_control(1))
         {
@@ -493,7 +599,9 @@ int main(int argc, char **argv)
                  elapsed = clock_ns() - start;
         int after = sched_getcpu();
         if (count && state == PF_PMU_ACTIVE)
+        {
             state = pf_pmu_stop(&group);
+        }
         else if (!count && pf_perf_control(0))
         {
             perror("perf-control disable");
@@ -519,7 +627,9 @@ int main(int argc, char **argv)
             group.cleanup_error, group.enabled, group.running, group.raw[0],
             group.raw[1], group.ids[0], group.ids[1], resolution_ns, overhead);
         for (unsigned i = 0; i < 31; ++i)
+        {
             printf("%s%" PRIu64, i ? "," : "", brackets[i]);
+        }
         puts("]}");
         pf_pmu_close(&group);
     }

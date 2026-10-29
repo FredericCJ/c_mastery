@@ -29,7 +29,9 @@ static void receiver(void *v, enum ae_code code, unsigned generation,
     ++c->reports;
     if ((code != AE_OK && code != AE_TIMEOUT) || generation != 1 || n != 4 ||
         p[0] != 1 || p[3] != 4)
+    {
         ++c->bad;
+    }
     c->timeout = code == AE_TIMEOUT;
     struct ae_operation *old = c->operation;
     c->operation = 0;
@@ -43,11 +45,15 @@ static void *complete(void *v)
     {
     }
     if (c->yield)
+    {
         sched_yield();
+    }
     pthread_mutex_lock(&c->lock);
     if (c->operation &&
         ae_operation_event(c->operation, 1, AE_COMPLETE) != AE_OK)
+    {
         ++c->bad;
+    }
     pthread_mutex_unlock(&c->lock);
     return 0;
 }
@@ -69,10 +75,14 @@ int main(void)
         CHECK(!pthread_create(&t, 0, complete, &c));
         atomic_store_explicit(&c.ready, 1, memory_order_release);
         if (!c.yield)
+        {
             sched_yield();
+        }
         pthread_mutex_lock(&c.lock);
         if (c.operation)
+        {
             CHECK(ae_operation_event(c.operation, 1, AE_DEADLINE) == AE_AGAIN);
+        }
         pthread_mutex_unlock(&c.lock);
         CHECK(!pthread_join(t, 0));
         CHECK(!c.operation && c.reports == 1 && !c.bad);

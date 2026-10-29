@@ -29,7 +29,9 @@ static int prediction(void)
     int local[] = {1, 0, -1, 1}, remote[] = {-1, 1, 0, -1};
     CHECK(rpr_init(9, 4, initial, &s) == 0);
     for (i = 0; i < 4; ++i)
+    {
         CHECK(rpr_advance(&s, local[i], &n) == 0);
+    }
     saved = s;
     memset(&n, 0xa5, sizeof n);
     memcpy(&before, &n, sizeof n);
@@ -116,7 +118,9 @@ static int read_page(void *ctx, uint32_t page, void *out)
 {
     struct rp_disk *d = ctx;
     if (page >= STORE_IMAGE_PAGES)
+    {
         return -1;
+    }
     memcpy(out, d->volatile_bytes + page * STORE_PAGE_SIZE, STORE_PAGE_SIZE);
     return 0;
 }
@@ -125,7 +129,9 @@ static int write_page(void *ctx, uint32_t page, const void *in)
 {
     struct rp_disk *d = ctx;
     if (page >= STORE_IMAGE_PAGES)
+    {
         return -1;
+    }
     ++d->operations;
     if (d->operations == d->fail)
     {
@@ -149,8 +155,10 @@ static int flush(void *ctx)
     if (d->operations == d->fail)
     {
         if (d->persist)
+        {
             memcpy(d->durable_bytes, d->volatile_bytes,
                    sizeof d->durable_bytes);
+        }
         return -1;
     }
     memcpy(d->durable_bytes, d->volatile_bytes, sizeof d->durable_bytes);
@@ -170,11 +178,17 @@ static int setup(struct rpr_durable *d, unsigned op)
     CHECK(store_format(io()) == 0 && store_open(&pages, io()) == 0 &&
           rpr_create(&pages, 9, 4, initial, d) == 0);
     if (op >= 1)
+    {
         CHECK(rpr_advance_durable(d, 1, &n) == 0);
+    }
     if (op >= 2)
+    {
         CHECK(rpr_correct_durable(d, 9, 1, -1, &n) == 0);
+    }
     if (op >= 3)
+    {
         CHECK(rpr_prepare_durable(d, &e) == 0);
+    }
     CHECK(store_checkpoint(&pages) == 0);
     return 0;
 }
@@ -184,11 +198,17 @@ static int transition(struct rpr_durable *d, unsigned op)
     struct rpr_notice n;
     struct rpr_effect e;
     if (op == 0)
+    {
         return rpr_advance_durable(d, 1, &n);
+    }
     if (op == 1)
+    {
         return rpr_correct_durable(d, 9, 1, -1, &n);
+    }
     if (op == 2)
+    {
         return rpr_prepare_durable(d, &e);
+    }
     e = (struct rpr_effect){9, d->session.effects.effect.id,
                             d->session.effects.effect.value};
     return rpr_feedback_durable(d, e, AR_OK);
@@ -213,6 +233,7 @@ static int durable(void)
         CHECK(transition(&d, op) == 0 && disk.operations == 37);
         newstate = d.session;
         for (mode = 0; mode < 2; ++mode)
+        {
             for (cut = 1; cut <= 37; ++cut)
             {
                 memcpy(disk.durable_bytes, baseline, sizeof baseline);
@@ -234,6 +255,7 @@ static int durable(void)
                            mode && cut >= 36 ? &newstate : &old));
                 ++cases;
             }
+        }
     }
     printf("REPLAY_DURABLE cuts%u four-transitions old-or-new "
            "no-early-publication stale-control\n",
@@ -281,8 +303,10 @@ static int transport(void)
     unsigned chunk, i;
     CHECK(rpr_input_frame((struct rpr_input){9, 3, -1}, wire) == 0);
     for (chunk = 1; chunk <= 32; ++chunk)
+    {
         CHECK(rpr_input_unframe(wire, 18, chunk, &p) == 0 && p.timeline == 9 &&
               p.tick == 3 && p.movement == -1);
+    }
     for (i = 0; i < 18; ++i)
     {
         p = before;
@@ -312,22 +336,40 @@ int rpr_counterexamples(void);
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "replay_prediction"))
+    {
         return prediction();
+    }
     if (!strcmp(argv[1], "replay_snapshot"))
+    {
         return snapshot();
+    }
     if (!strcmp(argv[1], "replay_durable"))
+    {
         return durable();
+    }
     if (!strcmp(argv[1], "replay_effects"))
+    {
         return effects();
+    }
     if (!strcmp(argv[1], "replay_transport"))
+    {
         return transport();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return rpr_oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return rpr_metrics();
+    }
     if (!strcmp(argv[1], "counterexamples"))
+    {
         return rpr_counterexamples();
+    }
     return 2;
 }

@@ -22,10 +22,16 @@ static unsigned used;
 volatile uint32_t *pu_test_register(uint32_t a)
 {
     for (unsigned i = 0; i < used; i++)
+    {
         if (addresses[i] == a)
+        {
             return values + i;
+        }
+    }
     if (used == 32)
+    {
         return 0;
+    }
     addresses[used] = a;
     return values + used++;
 }

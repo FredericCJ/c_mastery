@@ -125,7 +125,9 @@ static bool handle(void *p, unsigned v)
 {
     unsigned *sum = p;
     if (v == 99)
+    {
         return false;
+    }
     *sum += v;
     return true;
 }
@@ -181,10 +183,14 @@ static int stealing(void)
     CHECK(msg_steal(&q, &v) == MSG_OK && v == 7);
     CHECK(msg_steal(&q, &v) == MSG_EMPTY);
     for (unsigned i = 0; i < 8; i++)
+    {
         CHECK(msg_push(&q, i) == MSG_OK);
+    }
     CHECK(msg_push(&q, 9) == MSG_FULL);
     for (unsigned i = 0; i < 8; i++)
+    {
         CHECK(msg_steal(&q, &v) == MSG_OK && v == i);
+    }
     atomic_store(&q.top, SIZE_MAX - 1);
     atomic_store(&q.bottom, SIZE_MAX - 1);
     CHECK(msg_push(&q, 1) == MSG_OVERFLOW);
@@ -269,12 +275,16 @@ static void next(void *p, unsigned v)
     ++s->count;
     s->last = v;
     if (v == 99)
+    {
         (void)msg_request(s->stream, 1);
+    }
     if (v == 100 || v == 101)
     {
         (void)msg_request(s->stream, 0);
         if (v == 101)
+        {
             msg_stream_cancel(s->stream);
+        }
     }
 }
 
@@ -282,7 +292,9 @@ static void terminal(void *p, enum msg_status status)
 {
     struct msg_sink *s = p;
     if (s->stream->delivering)
+    {
         s->nested_end = true;
+    }
     ++s->ends;
     s->end = status;
 }
@@ -331,14 +343,22 @@ static void *thief(void *p)
         if (s == MSG_OK)
         {
             if (v < 4000)
+            {
                 atomic_fetch_add(&r->seen[v], 1);
+            }
             else
+            {
                 abort();
+            }
         }
         else if (atomic_load(&r->done) && s == MSG_EMPTY)
+        {
             break;
+        }
         else
+        {
             sched_yield();
+        }
     }
     return NULL;
 }
@@ -353,7 +373,9 @@ static void *seqwriter(void *p)
 {
     struct race_seq *r = p;
     for (unsigned i = 1; i <= 10000; i++)
+    {
         (void)msg_sequence_write(&r->sequence, i, 2 * i);
+    }
     atomic_store(&r->done, true);
     return NULL;
 }
@@ -365,7 +387,9 @@ static void *seqreader(void *p)
     do
     {
         if (msg_sequence_read(&r->sequence, 3, v) == MSG_OK && v[1] != 2 * v[0])
+        {
             atomic_store(&r->bad, true);
+        }
     } while (!atomic_load(&r->done));
     return NULL;
 }
@@ -385,13 +409,19 @@ static void *transactor(void *p)
         unsigned a, b;
         msg_begin(&r->store, &t);
         if (msg_read(&t, 0, &a) != MSG_OK || msg_read(&t, 1, &b) != MSG_OK)
+        {
             continue;
+        }
         if (a != b)
+        {
             atomic_store(&r->bad, true);
+        }
         (void)msg_write(&t, 0, a + 1);
         (void)msg_write(&t, 1, b + 1);
         if (msg_commit(&t) == MSG_OK)
+        {
             i++;
+        }
     }
     return NULL;
 }
@@ -402,14 +432,18 @@ static int threads(void)
     msg_deque_init(&r.q);
     atomic_init(&r.done, false);
     for (unsigned i = 0; i < 4000; i++)
+    {
         atomic_init(&r.seen[i], 0);
+    }
     pthread_t a, b;
     CHECK(pthread_create(&a, NULL, thief, &r) == 0);
     CHECK(pthread_create(&b, NULL, thief, &r) == 0);
     for (unsigned i = 0; i < 4000; i++)
     {
         while (msg_push(&r.q, i) == MSG_FULL)
+        {
             sched_yield();
+        }
         if (i % 3 == 0)
         {
             unsigned v;
@@ -424,7 +458,9 @@ static int threads(void)
     atomic_store(&r.done, true);
     CHECK(pthread_join(a, NULL) == 0 && pthread_join(b, NULL) == 0);
     for (unsigned i = 0; i < 4000; i++)
+    {
         CHECK(atomic_load(&r.seen[i]) == 1);
+    }
     struct race_seq sq;
     msg_sequence_init(&sq.sequence);
     atomic_init(&sq.done, false);
@@ -452,7 +488,9 @@ static int threads(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     const char *names[] = {"nursery",      "channels",    "operations",
                            "actors",       "supervision", "stealing",
                            "transactions", "snapshots",   "sequences",
@@ -461,7 +499,11 @@ int main(int argc, char **argv)
                             supervision, stealing, transactions, snapshots,
                             sequences,   streams,  threads};
     for (size_t i = 0; i < sizeof cases / sizeof *cases; i++)
+    {
         if (!strcmp(argv[1], names[i]))
+        {
             return cases[i]();
+        }
+    }
     return 2;
 }

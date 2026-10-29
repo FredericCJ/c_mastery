@@ -13,12 +13,16 @@ int main(void)
     }
     long page = sysconf(_SC_PAGESIZE);
     if (page < 200)
+    {
         return 2;
+    }
     unsigned char *memory = mmap(0, (size_t)page * 2, PROT_READ | PROT_WRITE,
                                  MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     if (memory == MAP_FAILED ||
         mprotect(memory + page, (size_t)page, PROT_NONE))
+    {
         return 2;
+    }
     unsigned char input[76];
     sa_base(input, 76);
     for (unsigned i = 0; i < 4; ++i)
@@ -34,7 +38,9 @@ int main(void)
     {
         unsigned char *start = memory + page - n;
         for (unsigned j = 0; j < n; ++j)
+        {
             start[j] = input[j];
+        }
         struct sa_topology result = {0}, old = {0};
         result.count = 9;
         old = result;
@@ -46,7 +52,9 @@ int main(void)
         }
     }
     if (munmap(memory, (size_t)page * 2))
+    {
         return 2;
+    }
     puts("SA_GUARD_PASS:76-protected-truncations");
     return 0;
 }

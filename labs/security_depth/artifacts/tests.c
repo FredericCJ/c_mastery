@@ -25,7 +25,9 @@ static int keys(unsigned char seed, EVP_PKEY **key, unsigned char pub[32])
     *key = EVP_PKEY_new_raw_private_key_ex(NULL, "ED25519", NULL, private_bytes,
                                            sizeof private_bytes);
     if (*key && owned_count < 2)
+    {
         owned_keys[owned_count++] = *key;
+    }
     return *key && EVP_PKEY_get_raw_public_key(*key, pub, &n) == 1 && n == 32;
 }
 
@@ -186,7 +188,9 @@ static int service(void)
                     out) == SC_OK &&
           privileged == 1 && !memcmp(out, "SAFE", 4) && s.used_bytes == 0);
     for (unsigned i = 0; i < 4; ++i)
+    {
         CHECK(s.staging[ticket.index][i] == 0);
+    }
     CHECK(sa_finish(&s, ticket, 0, &a, fileno(log), &ordinary, &privileged,
                     out) == SC_STALE);
     CHECK(sa_submit(&s, &r, &a, resource, sizeof resource, &ticket) == SC_OK);
@@ -336,22 +340,40 @@ int main(int argc, char **argv)
 {
     int result = 2;
     if (argc != 2)
+    {
         return result;
+    }
     if (!strcmp(argv[1], "artifact"))
+    {
         result = artifact();
+    }
     else if (!strcmp(argv[1], "rotation"))
+    {
         result = rotation();
+    }
     else if (!strcmp(argv[1], "service"))
+    {
         result = service();
+    }
     else if (!strcmp(argv[1], "shared"))
+    {
         result = shared();
+    }
     else if (!strcmp(argv[1], "integrated"))
+    {
         result = integrated();
+    }
     else if (!strcmp(argv[1], "provider_failure"))
+    {
         result = provider_failure();
+    }
     while (owned_count)
+    {
         EVP_PKEY_free(owned_keys[--owned_count]);
+    }
     if (owned_log && fclose(owned_log))
+    {
         return 42;
+    }
     return result;
 }

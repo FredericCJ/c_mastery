@@ -14,7 +14,9 @@ int main(void)
         if (!n || n > sizeof image || header[2] > 1 ||
             fread(image, 1, n, stdin) != n ||
             cvm_decode(image, n, &p) != CVM_OK)
+        {
             return 2;
+        }
         int got = vv_verify(&p, 0, 1, &work, &r);
         if (got != (header[2] ? VV_OK : VV_INITIALIZED) ||
             r.processed > 9 * r.decoded || r.edges > 2 * r.processed ||
@@ -26,10 +28,14 @@ int main(void)
         }
         accepted += header[2];
         if (++count > 12288)
+        {
             return 2;
+        }
     }
     if (!feof(stdin) || count != 12288)
+    {
         return 2;
+    }
     printf("VV_ORACLE_PASS cases=%u accepted=%u concrete_path_sets\n", count,
            accepted);
     return 0;

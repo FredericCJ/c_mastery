@@ -40,10 +40,14 @@ static void *produce(void *v)
         {
             r = pa_active_post(w->active, w->id, PT_PING);
             if (r == PT_RANGE)
+            {
                 sched_yield();
+            }
         } while (r == PT_RANGE);
         if (r)
+        {
             atomic_store(w->bad, 1);
+        }
     }
     atomic_fetch_add(w->done, 1);
     return NULL;
@@ -59,11 +63,15 @@ static void *consume(void *v)
         if (r == PT_PENDING)
         {
             if (atomic_load(w->done) == 2)
+            {
                 break;
+            }
             sched_yield();
         }
         else if (r || used)
+        {
             atomic_store(w->bad, 1);
+        }
     }
     return NULL;
 }
@@ -105,7 +113,9 @@ int main(void)
         C(pthread_create(t + i, NULL, i < 2 ? produce : consume, w + i) == 0);
     }
     for (unsigned i = 0; i < 4; i++)
+    {
         C(pthread_join(t[i], NULL) == 0);
+    }
     C(!atomic_load(&bad) && a.machine.pings == 2000 && !a.held &&
       !a.queue.count && cmx_invariant(&a.kernel));
     C(pthread_mutex_destroy(&mutex) == 0);

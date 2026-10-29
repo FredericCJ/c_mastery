@@ -26,9 +26,13 @@ struct ow_harness
 static void event(struct ow_harness *h, unsigned value)
 {
     if (h->n < 32)
+    {
         h->events[h->n++] = value;
+    }
     else
+    {
         h->bad = 1;
+    }
 }
 
 static int32_t *take(void *p, size_t count)
@@ -48,7 +52,9 @@ static int32_t *take(void *p, size_t count)
     }
     event(h, 10 + id);
     if (h->constructing && h->published->count)
+    {
         h->bad = 1;
+    }
     int32_t *r = h->upstream.take(h->upstream.context, count);
     h->by_id[id] = r;
     return r;
@@ -59,8 +65,12 @@ static void release(void *p, int32_t *block)
     struct ow_harness *h = p;
     unsigned id = 4;
     for (unsigned i = 0; i < 4; ++i)
+    {
         if (h->by_id[i] == block)
+        {
             id = i;
+        }
+    }
     if (id == 4)
     {
         h->bad = 1;
@@ -68,7 +78,9 @@ static void release(void *p, int32_t *block)
     }
     event(h, 40 + id);
     if (h->constructing && h->published->count)
+    {
         h->bad = 1;
+    }
     h->upstream.release(h->upstream.context, block);
     h->by_id[id] = NULL;
 }
@@ -81,21 +93,29 @@ static int initialize(void *p, unsigned id, int32_t *block, size_t length,
     unsigned deps = id == 0 ? 0 : id == 3 ? 2 : 1;
     if ((v->initialized & deps) != deps || (v->initialized & (1u << id)) ||
         h->published->count)
+    {
         h->bad = 1;
+    }
     for (unsigned i = 0; i < 4; ++i)
     {
         if (((v->initialized >> i) & 1u) != (unsigned)(v->block[i] != NULL))
+        {
             h->bad = 1;
+        }
     }
     for (size_t i = 0; i < length; ++i)
+    {
         block[i] = (int32_t)(id + 1);
+    }
     if (h->fail_init == id + 1)
     {
         block[0] = -99;
         return 1;
     }
     if (deps && v->block[id == 3 ? 1 : 0] && v->block[id == 3 ? 1 : 0][0] <= 0)
+    {
         h->bad = 1;
+    }
     return 0;
 }
 
@@ -108,7 +128,9 @@ static void destroy(void *p, unsigned id, int32_t *block, size_t length,
     if (!length || block[0] != (int32_t)(id + 1) ||
         (v->initialized & deps) != deps || (v->initialized & (1u << id)) ||
         v->block[id] != NULL)
+    {
         h->bad = 1;
+    }
     block[0] = -7;
 }
 
@@ -150,7 +172,9 @@ static int baseline(void)
         unsigned acquired = fail <= 3 ? fail - 1 : 3;
         CHECK(h.pool.releases == acquired);
         for (unsigned i = 0; i < acquired; ++i)
+        {
             CHECK(h.events[h.n - acquired + i] == 40 + acquired - 1 - i);
+        }
     }
     struct ocf_owner dummy = {0};
     struct ow_harness h;
@@ -179,19 +203,25 @@ static int dag(void)
         struct ow_harness h;
         struct ocf_plan p = {{0}, {1, 2, 3, 4}};
         for (unsigned i = 0; i < 4; ++i)
+        {
             p.order[i] = orders[k][i];
+        }
         setup(&h, &o, p, 0, 0);
         CHECK(construct(&h, &o) == OCF_OK && o.count == 4 && o.acquired == 15 &&
               o.initialized == 15);
         h.constructing = 0;
         for (unsigned id = 0; id < 4; ++id)
+        {
             CHECK(o.block[id][o.length[id] - 1] == (int32_t)id + 1);
+        }
         CHECK(ocf_destroy(&o) == OCF_OK && ocf_destroy(&o) == OCF_OK);
         CHECK(o.count == 0 && o.acquired == 0 && o.initialized == 0 && !h.bad &&
               !h.pool.live && h.pool.releases == 4);
         for (unsigned i = 0; i < 4; ++i)
+        {
             CHECK(h.events[8 + 2 * i] == 30 + orders[k][3 - i] &&
                   h.events[9 + 2 * i] == 40 + orders[k][3 - i]);
+        }
     }
     puts(
         "OCF_DAG three-topological-orders initialized-set dependency-preserving-cleanup");
@@ -211,7 +241,9 @@ static int partial(void)
           h.pool.live == 0 && h.pool.releases == 4 && !h.bad &&
           h.n == sizeof(expected) / sizeof(expected[0]));
     for (unsigned i = 0; i < h.n; ++i)
+    {
         CHECK(h.events[i] == expected[i]);
+    }
     for (unsigned fail = 1; fail <= 4; ++fail)
     {
         setup(&h, &o, p, fail, 0);
@@ -257,7 +289,9 @@ static int callbacks(void)
     h.constructing = 0;
     CHECK(ocf_destroy(&o) == OCF_OK && !h.bad);
     for (unsigned i = 0; i < 4; ++i)
+    {
         CHECK(h.pool.storage[i][0] == INT32_MIN);
+    }
     puts(
         "OCF_CALLBACKS clear-initialized-before-destroy dependencies-still-live matching-release");
     return 0;
@@ -281,12 +315,16 @@ static int oracle(void)
         {
             h.constructing = 0;
             if (ocf_destroy(&o) != OCF_OK)
+            {
                 h.bad = 1;
+            }
         }
         printf("%d %u %u %u %zu %zu %zu %u %u", s, count, acquired, initialized,
                h.pool.live, h.pool.attempts, h.pool.releases, h.bad, h.n);
         for (unsigned i = 0; i < h.n; ++i)
+        {
             printf(" %u", h.events[i]);
+        }
         putchar('\n');
     }
     return ferror(stdin) ? 2 : 0;
@@ -319,7 +357,9 @@ static int metrics(void)
         "{\"iterations\":1000,\"checksum\":%u,\"takes\":%zu,\"releases\":%zu,\"owner_size\":%zu,\"seconds\":[",
         checksum, takes, drops, sizeof(struct ocf_owner));
     for (unsigned i = 0; i < 7; ++i)
+    {
         printf("%s%.9f", i ? "," : "", seconds[i]);
+    }
     puts("]}");
     return 0;
 }
@@ -327,20 +367,36 @@ static int metrics(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "frontier_base"))
+    {
         return baseline();
+    }
     if (!strcmp(argv[1], "frontier_dag"))
+    {
         return dag();
+    }
     if (!strcmp(argv[1], "frontier_partial"))
+    {
         return partial();
+    }
     if (!strcmp(argv[1], "frontier_admission"))
+    {
         return admission();
+    }
     if (!strcmp(argv[1], "frontier_callbacks"))
+    {
         return callbacks();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

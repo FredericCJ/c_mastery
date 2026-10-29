@@ -23,8 +23,12 @@ static int equal(const void *a, const void *b, size_t n)
 {
     const unsigned char *x = a, *y = b;
     for (size_t i = 0; i < n; ++i)
+    {
         if (x[i] != y[i])
+        {
             return 0;
+        }
+    }
     return 1;
 }
 static const struct sc_instruction loop[] = {
@@ -98,7 +102,9 @@ static int input(void)
     struct at_trace trace;
     CHECK(at_init(&m, &initial, 0) == AT_OK);
     for (unsigned i = 0; i < 3; ++i)
+    {
         CHECK(at_begin(&m, loop, 7, &trace) == AT_OK);
+    }
     CHECK(m.state.pc == 3 && m.state.reg[1] == 2);
     CHECK(at_input(&m, 1, 0) == AT_OK);
     CHECK(at_begin(&m, loop, 7, &trace) == AT_OK && m.state.pc == 4 &&
@@ -160,6 +166,7 @@ static int status(void)
     unsigned zeros = 0;
     struct sc_instruction sub[] = {{SC_SUB, 0, 0, 1}, {SC_HALT, 0, 0, 0}};
     for (unsigned a = 0; a < 256; ++a)
+    {
         for (unsigned b = 0; b < 256; ++b)
         {
             struct sc_machine initial = {0};
@@ -179,6 +186,7 @@ static int status(void)
             }
             CHECK(at_begin(&m, sub, 2, &trace) == AT_OK && m.zero == (a == b));
         }
+    }
     unsigned row[] = {65536, zeros};
     at_emit("status_count", row, 2);
     CHECK(zeros == 256);
@@ -189,6 +197,7 @@ static int load(void)
 {
     struct sc_instruction code[] = {{SC_LD, 1, 5, 0}, {SC_HALT, 0, 0, 0}};
     for (unsigned stalls = 0; stalls < 4; ++stalls)
+    {
         for (unsigned cancel = 0; cancel < 2; ++cancel)
         {
             struct sc_machine initial = {0};
@@ -201,8 +210,10 @@ static int load(void)
                   at_same(&m.state, &initial) && trace.wires.alu == 42 &&
                   trace.wires.reg_write == 2 && !trace.committed);
             for (unsigned i = 0; i < stalls; ++i)
+            {
                 CHECK(at_poll(&m, 0, 0, &trace) == AT_PENDING &&
                       at_same(&m.state, &initial) && !trace.committed);
+            }
             struct at_machine old = m;
             CHECK(at_input(&m, 0, 7) == AT_INVALID &&
                   equal(&m, &old, sizeof(m)));
@@ -222,6 +233,7 @@ static int load(void)
                               m.state.commits, m.ticks, m.zero};
             at_emit("load", row, 6);
         }
+    }
     struct sc_machine initial = {0};
     struct at_machine m;
     struct at_trace trace = {0};
@@ -236,8 +248,11 @@ static int load(void)
 static int speculation(void)
 {
     for (unsigned condition = 0; condition < 2; ++condition)
+    {
         for (unsigned prediction = 1; prediction <= 2; ++prediction)
+        {
             for (unsigned op1 = 0; op1 < 3; ++op1)
+            {
                 for (unsigned op2 = 0; op2 < 3; ++op2)
                 {
                     struct sc_instruction code[] = {{SC_BNZ, 0, 2, 0},
@@ -248,9 +263,13 @@ static int speculation(void)
                     code[1].operation = (uint8_t)ops[op1];
                     code[2].operation = (uint8_t)ops[op2];
                     if (op1 == 1)
+                    {
                         code[1].b = 5;
+                    }
                     if (op2 == 1)
+                    {
                         code[2].b = 6;
+                    }
                     struct sc_machine initial = {0};
                     initial.reg[0] = (uint8_t)condition;
                     initial.reg[1] = 9;
@@ -294,6 +313,9 @@ static int speculation(void)
                                       m.ticks};
                     at_emit("spec", row, 11);
                 }
+            }
+        }
+    }
     struct sc_machine initial = {0};
     struct sc_instruction code[] = {
         {SC_BNZ, 0, 2, 0}, {SC_LI, 1, 7, 0}, {SC_HALT, 0, 0, 0}};
@@ -322,16 +344,28 @@ static int speculation(void)
 int at_test(const char *s)
 {
     if (name(s, "baseline"))
+    {
         return baseline();
+    }
     if (name(s, "clocked"))
+    {
         return clocked();
+    }
     if (name(s, "input"))
+    {
         return input();
+    }
     if (name(s, "status"))
+    {
         return status();
+    }
     if (name(s, "load"))
+    {
         return load();
+    }
     if (name(s, "speculation"))
+    {
         return speculation();
+    }
     return 42;
 }

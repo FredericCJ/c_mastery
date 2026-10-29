@@ -25,10 +25,14 @@ static void *get(void *p, size_t n)
     struct mp_alloc *a = p;
     ++a->calls;
     if (a->calls == a->fail)
+    {
         return NULL;
+    }
     void *q = malloc(n);
     if (q)
+    {
         ++a->live;
+    }
     return q;
 }
 
@@ -58,7 +62,9 @@ static int owner(void)
     okay = status == MPT_NOMEM && o.bytes == old && o.length == 3 &&
            o.cache == 99 && a.live == 1;
     if (okay)
+    {
         okay = !memcmp(o.bytes, word, 3);
+    }
     mpt_drop(&o);
     CHECK(okay && a.live == 0 && !o.bytes && !o.length && !o.cache);
     mpt_drop(&o);
@@ -98,7 +104,9 @@ static int canonical(void)
     const char *texts[] = {"", "A", "a", " A ", "B", " b  ", "ab", "a b"};
     unsigned i, j, k;
     for (i = 0; i < 8; ++i)
+    {
         for (j = 0; j < 8; ++j)
+        {
             for (k = 0; k < 8; ++k)
             {
                 unsigned ab, ba, bc, ac;
@@ -116,13 +124,17 @@ static int canonical(void)
                 CHECK(mpt_equal(v, w, MPT_ASCII_TEXT, &bc) == MPT_OK &&
                       mpt_equal(u, w, MPT_ASCII_TEXT, &ac) == MPT_OK);
                 if (ab && bc)
+                {
                     CHECK(ac);
+                }
                 if (ab)
                 {
                     CHECK(mpt_hash(u, MPT_ASCII_TEXT, &x) == MPT_OK &&
                           mpt_hash(v, MPT_ASCII_TEXT, &y) == MPT_OK && x == y);
                 }
             }
+        }
+    }
     puts(
         "MPT_CANONICAL explicit-ascii-equivalence prefix-length cache-exclusion");
     return 0;
@@ -132,9 +144,13 @@ static int eq(void *p, struct mpt_view a, struct mpt_view b)
 {
     unsigned variant = *(unsigned *)p, same = 0;
     if (variant == 3)
+    {
         return 1;
+    }
     if (variant == 2 && (!a.length || !b.length))
+    {
         return -1;
+    }
     return mpt_equal(a, b, MPT_ASCII_TEXT, &same) == MPT_OK ? (int)same : -1;
 }
 
@@ -143,7 +159,9 @@ static uint64_t hash(void *p, struct mpt_view a)
     unsigned variant = *(unsigned *)p;
     uint64_t value = 0;
     if (variant == 3)
+    {
         return a.length == 1 && (a.bytes[0] == 'A' || a.bytes[0] == 'B');
+    }
     (void)mpt_hash(a, variant ? MPT_BYTES : MPT_ASCII_TEXT, &value);
     return value;
 }
@@ -220,7 +238,9 @@ static int base(void)
     CHECK(mp_hash((struct mp_key){1, 2, 0}) ==
           mp_hash((struct mp_key){1, 2, 99}));
     for (a = 0; a < 8; ++a)
+    {
         for (b = 0; b < 8; ++b)
+        {
             for (c = 0; c < 8; ++c)
             {
                 struct mp_key x = {a / 2, a % 2, a}, y = {b / 2, b % 2, b},
@@ -228,10 +248,16 @@ static int base(void)
                 CHECK(mp_equal(x, x));
                 CHECK(mp_equal(x, y) == mp_equal(y, x));
                 if (mp_equal(x, y) && mp_equal(y, z))
+                {
                     CHECK(mp_equal(x, z));
+                }
                 if (mp_equal(x, y))
+                {
                     CHECK(mp_hash(x) == mp_hash(y));
+                }
             }
+        }
+    }
     CHECK(mp_find_counterexample(prop, NULL, 8, &witness) == 1 &&
           witness.x + witness.y == 5);
     puts("MPT_BASE actual-key-laws finite-triples unsigned-fnv");
@@ -252,13 +278,17 @@ static int oracle(void)
             uint64_t h = 99;
             int status;
             if (scanf("%u %u %18s", &mode, &cache, hex) != 3)
+            {
                 return 2;
+            }
             n = !strcmp(hex, "-") ? 0 : strlen(hex) / 2;
             for (i = 0; i < n; ++i)
             {
                 unsigned b;
                 if (sscanf(hex + i * 2, "%2x", &b) != 1)
+                {
                     return 2;
+                }
                 bytes[i] = (unsigned char)b;
             }
             status = mpt_hash((struct mpt_view){bytes, n, cache}, mode, &h);
@@ -274,11 +304,17 @@ static int oracle(void)
             if (scanf("%zu %u %u %u", &t.count, &t.fail_at, &variant,
                       &shrink) != 4 ||
                 t.count > 12)
+            {
                 return 2;
+            }
             for (i = 0; i < t.count; ++i)
+            {
                 if (scanf("%u %u %u", &t.steps[i].operation, &t.steps[i].slot,
                           &t.steps[i].value) != 3)
+                {
                     return 2;
+                }
+            }
             struct mpt_laws laws = {eq, hash, &variant};
             status = shrink ? mpt_shrink(&t, laws, &out, &attempts)
                             : mpt_replay(&t, laws, &o);
@@ -287,17 +323,23 @@ static int oracle(void)
                 printf("%d %u %zu %u", status, attempts, out.count,
                        out.fail_at);
                 for (i = 0; i < out.count; ++i)
+                {
                     printf(" %u %u %u", out.steps[i].operation,
                            out.steps[i].slot, out.steps[i].value);
+                }
                 puts("");
             }
             else
+            {
                 printf("%d %u %zu %u %u %u %u\n", status, o.failure,
                        o.first_step, o.allocations, o.refusals, o.releases,
                        o.live);
+            }
         }
         else
+        {
             return 2;
+        }
     }
     return 0;
 }
@@ -323,7 +365,9 @@ static int metrics(void)
            ",\"owner_size\":%zu,\"trace_size\":%zu,\"seconds\":[",
            checksum, sizeof(struct mpt_owner), sizeof(struct mpt_trace));
     for (i = 0; i < 7; ++i)
+    {
         printf("%s%.9f", i ? "," : "", seconds[i]);
+    }
     puts("]}");
     return 0;
 }
@@ -331,18 +375,32 @@ static int metrics(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "law_owner"))
+    {
         return owner();
+    }
     if (!strcmp(argv[1], "law_canonical"))
+    {
         return canonical();
+    }
     if (!strcmp(argv[1], "law_shrink"))
+    {
         return shrinking();
+    }
     if (!strcmp(argv[1], "law_base"))
+    {
         return base();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

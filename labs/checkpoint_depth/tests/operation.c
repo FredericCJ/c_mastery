@@ -24,7 +24,9 @@ static void *allocate(void *c, size_t n)
 {
     struct cpx_context *x = c;
     if (x->fail)
+    {
         return 0;
+    }
     ++x->allocations;
     return malloc(n);
 }
@@ -70,7 +72,9 @@ void cp_test_operation(void)
     struct cp_operation operation;
     struct cpx_context context = {.operation = &operation};
     for (size_t i = 0; i < sizeof context.expected; ++i)
+    {
         context.expected[i] = (unsigned char)(i ^ 0xa5);
+    }
     unsigned char input[128];
     memcpy(input, context.expected, sizeof input);
     CHECK(cpo_init(&operation, 2, &context, allocate, release, report) ==

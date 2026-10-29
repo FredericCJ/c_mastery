@@ -40,12 +40,16 @@ static int zero(void)
     orr_init(&h);
     CHECK(orr_new(&h, &a) == OR_OK);
     for (i = 1; i < 255; i++)
+    {
         CHECK(orr_retain(&h, a) == OR_OK);
+    }
     before = h;
     CHECK(orr_retain(&h, a) == OR_FULL && !memcmp(&h, &before, sizeof h));
     for (i = 0; i < 255; i++)
+    {
         CHECK(orr_release(&h, a, 0, &dead) == OR_OK &&
               dead == (i == 254 ? 1 : 0));
+    }
     CHECK(orr_invariant(&h));
     orr_init(&h);
     for (i = 0; i < 48; i++)
@@ -61,7 +65,9 @@ static int zero(void)
     orr_init(&h);
     CHECK(orr_new(&h, &a) == OR_OK);
     while (h.revision < 65535)
+    {
         CHECK(orr_store(&h, a, 0, nil, 0, &dead) == OR_OK);
+    }
     before = h;
     dead = 777;
     CHECK(orr_release(&h, a, 0, &dead) == OR_FULL && dead == 777 &&
@@ -82,10 +88,14 @@ static int deferred(void)
     CHECK(orr_new(&h, &a) == OR_OK && orr_new(&h, &b) == OR_OK);
     CHECK(orr_store(&h, b, 0, a, 0, &dead) == OR_OK);
     for (i = 0; i < 8; i++)
+    {
         CHECK(orr_retain(&h, a) == OR_OK);
+    }
     for (i = 0; i < 8; i++)
+    {
         CHECK(orr_release(&h, a, 1, &dead) == OR_OK && !dead &&
               orr_invariant(&h));
+    }
     before = h;
     dead = 777;
     CHECK(orr_release(&h, a, 1, &dead) == OR_FULL && dead == 777 &&
@@ -142,12 +152,16 @@ static void *worker(void *opaque)
     {
         q.operation = w->release ? ORR_RELEASE : ORR_RETAIN;
         if (orrc_call(w->owner, &q, &r) != OR_OK)
+        {
             w->failed = 1;
+        }
         if (w->stress)
         {
             q.operation = ORR_RELEASE;
             if (orrc_call(w->owner, &q, &r) != OR_OK)
+            {
                 w->failed = 1;
+            }
         }
     }
     return NULL;
@@ -252,14 +266,19 @@ static int oracle(void)
     struct orr_trial t;
     uint16_t dead;
     for (graph = 0; graph < 4096; graph++)
+    {
         for (mask = 0; mask < 8; mask++)
+        {
             for (mode = 0; mode < 2; mode++)
             {
                 orr_init(&h);
                 for (i = 0; i < 3; i++)
+                {
                     CHECK(orr_new(&h, &a[i]) == OR_OK);
+                }
                 code = graph;
                 for (i = 0; i < 3; i++)
+                {
                     for (j = 0; j < 2; j++)
                     {
                         unsigned target = code % 4;
@@ -268,9 +287,14 @@ static int oracle(void)
                                         target ? a[target - 1] : nil, 0,
                                         &dead) == OR_OK);
                     }
+                }
                 for (i = 0; i < 3; i++)
+                {
                     if (!(mask >> i & 1))
+                    {
                         CHECK(orr_release(&h, a[i], (int)mode, &dead) == OR_OK);
+                    }
+                }
                 CHECK(orr_flush(&h, 8, &n, &dead) == OR_DONE &&
                       orr_prepare(&h, &t) == OR_OK);
                 CHECK(orr_commit(&h, &t, &dead) == OR_OK && orr_invariant(&h));
@@ -278,20 +302,32 @@ static int oracle(void)
                        h.counts.live, h.counts.refs[0], h.counts.refs[1],
                        h.counts.refs[2]);
             }
+        }
+    }
     return 0;
 }
 
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "zero"))
+    {
         return zero();
+    }
     if (!strcmp(argv[1], "deferred"))
+    {
         return deferred();
+    }
     if (!strcmp(argv[1], "concurrent"))
+    {
         return concurrent();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     return 2;
 }

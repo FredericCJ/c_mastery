@@ -136,10 +136,14 @@ int main(int argc, char **argv)
             lc_utf_init(&s);
             int status = lc_utf_feed(&s, bytes, split);
             if (status == LC_OK)
+            {
                 status = lc_utf_feed(&s, bytes + split, n - split);
+            }
             size_t out = 77;
             if (status == LC_OK)
+            {
                 status = lc_utf_finish(&s, &out);
+            }
             printf("%d %zu\n", status, out);
         }
         return 0;
@@ -153,15 +157,25 @@ int main(int argc, char **argv)
         return 0;
     }
     if (!strcmp(argv[1], "strict"))
+    {
         strict();
+    }
     else if (!strcmp(argv[1], "partial"))
+    {
         partial();
+    }
     else if (!strcmp(argv[1], "locale"))
+    {
         locale_case();
+    }
     else if (!strcmp(argv[1], "combining"))
+    {
         combining();
+    }
     else
+    {
         CHECK(0);
+    }
     printf("LP %s validated\n", argv[1]);
     return 0;
 }

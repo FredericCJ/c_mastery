@@ -7,8 +7,12 @@ static int ct_compare(const void *x, const void *y, size_t n)
 {
     const unsigned char *a = x, *b = y;
     for (size_t i = 0; i < n; ++i)
+    {
         if (a[i] != b[i])
+        {
             return 1;
+        }
+    }
     return 0;
 }
 
@@ -41,6 +45,7 @@ static int stream(void)
     memset(&before, 0x5a, sizeof before);
     unsigned cases = 0;
     for (size_t a = 0; a <= sizeof wire; ++a)
+    {
         for (size_t b = a; b <= sizeof wire; ++b)
         {
             ct_init(&s);
@@ -55,6 +60,7 @@ static int stream(void)
             CHECK(ct_feed(&s, NULL, 0, 1, &c, &out) == CT_STATE);
             ++cases;
         }
+    }
     for (size_t n = 0; n < sizeof wire; ++n)
     {
         ct_init(&s);
@@ -127,6 +133,7 @@ static struct at_certificate balanced(void)
     struct at_certificate c = {.root = 0, .capacity = 64, .count = 7};
     const int keys[] = {40, 20, 60, 10, 30, 50, 70};
     for (unsigned i = 0; i < 7; ++i)
+    {
         c.nodes[i] = (struct at_node){.key = keys[i],
                                       .left = i < 3 ? (int)(2 * i + 1) : -1,
                                       .right = i < 3 ? (int)(2 * i + 2) : -1,
@@ -135,6 +142,7 @@ static struct at_certificate balanced(void)
                                                 : i < 3 ? 2
                                                         : 1,
                                       .live = 1};
+    }
     return c;
 }
 
@@ -176,7 +184,9 @@ static int tree(void)
         c = balanced();
         CHECK(!pair(&c, policy, &cases));
         for (unsigned node = 0; node < 7; ++node)
+        {
             for (unsigned field = 0; field < 7; ++field)
+            {
                 for (int value = -2; value < 9; ++value)
                 {
                     c = balanced();
@@ -207,15 +217,19 @@ static int tree(void)
                     }
                     CHECK(!pair(&c, policy, &cases));
                 }
+            }
+        }
     }
     c = (struct at_certificate){.root = 0, .capacity = 64, .count = 64};
     for (int i = 0; i < 64; ++i)
+    {
         c.nodes[i] = (struct at_node){.key = i,
                                       .left = -1,
                                       .right = i == 63 ? -1 : i + 1,
                                       .parent = i - 1,
                                       .height = 64 - i,
                                       .live = 1};
+    }
     CHECK(!pair(&c, 0, &cases));
     h = 1234;
     CHECK(ct_tree(&c, 0, &w, 64, &h) == ALGO_OK && h == 64 &&

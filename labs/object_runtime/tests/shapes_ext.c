@@ -67,13 +67,17 @@ static int shapes(void)
     {
         s = orx_define(&w, a, 1, 0, 1, NULL, NULL);
         if (s == OR_FULL)
+        {
             break;
+        }
         CHECK(s == OR_OK);
         CHECK(orx_delete(&w, a, 1) == OR_OK);
     }
     CHECK(i == 45);
     for (i = 1; i < 16; i++)
+    {
         retired += w.shape[i].generation == 4;
+    }
     CHECK(retired == 15);
     memcpy(&before, &w, sizeof w);
     CHECK(orx_define(&w, a, 2, 0, 2, NULL, NULL) == OR_FULL &&
@@ -84,8 +88,10 @@ static int shapes(void)
     CHECK(orx_world_new(&w, &a) == OR_OK);
     CHECK(orx_world_new(&w, &b) == OR_OK);
     for (i = 0; i < 254; i++)
+    {
         CHECK(orx_prototype(&w, a, i % 2 ? (struct orx_handle){0, 0} : b) ==
               OR_OK);
+    }
     CHECK(w.epoch == UINT8_MAX);
     memcpy(&before, &w, sizeof w);
     CHECK(orx_prototype(&w, a, b) == OR_FULL && !memcmp(&before, &w, sizeof w));
@@ -118,31 +124,45 @@ static enum or_status mutate(void *context, struct orx_world *w,
     a->nested = orx_get(w, receiver, 1, &nested, &n);
     s = orx_define(w, receiver, 1, 0, 99, NULL, NULL);
     if (s != OR_OK)
+    {
         return s;
+    }
     if (a->consume_owned_roots)
     {
         s = orx_prototype(w, receiver, (struct orx_handle){0, 0});
         if (s != OR_OK)
+        {
             return s;
+        }
         /* The context explicitly owns these original roots, not the temporary
            holds acquired by orx_get. */
         if (orx_release(&w->heap, receiver) != OR_OK ||
             orx_release(&w->heap, a->holder) != OR_OK)
+        {
             return OR_STATE;
+        }
         a->consume_owned_roots = 0;
     }
     s = orx_world_new(w, &temporary);
     if (s != OR_OK)
+    {
         return s;
+    }
     s = orx_release(&w->heap, temporary);
     if (s != OR_OK)
+    {
         return s;
+    }
     s = orx_world_collect(w, &a->dead);
     if (s != OR_OK)
+    {
         return s;
+    }
     a->receiver_live = w->heap.entry[receiver.slot].live;
     if (a->holder.generation)
+    {
         a->holder_live = w->heap.entry[a->holder.slot].live;
+    }
     *out = 42;
     return a->fail ? OR_FULL : OR_OK;
 }
@@ -227,16 +247,23 @@ static int oracle(void)
 {
     unsigned a, b, c, d, remove, shadow, readonly, k, index = 0;
     for (a = 1; a <= 4; a++)
+    {
         for (b = 1; b <= 4; b++)
+        {
             for (c = 1; c <= 4; c++)
+            {
                 for (d = 1; d <= 4; d++)
                 {
                     unsigned order[4] = {a, b, c, d};
                     if (a == b || a == c || a == d || b == c || b == d ||
                         c == d)
+                    {
                         continue;
+                    }
                     for (remove = 0; remove <= 4; remove++)
+                    {
                         for (shadow = 0; shadow < 3; shadow++)
+                        {
                             for (readonly = 0; readonly < 2; readonly++)
                             {
                                 struct orx_world w;
@@ -248,20 +275,24 @@ static int oracle(void)
                                 CHECK(orx_world_new(&w, &base) == OR_OK);
                                 CHECK(orx_world_new(&w, &child) == OR_OK);
                                 for (k = 0; k < 4; k++)
+                                {
                                     CHECK(orx_define(&w, base, order[k],
                                                      readonly && order[k] == 2
                                                          ? ORX_READONLY
                                                          : 0,
                                                      (int32_t)(order[k] * 10),
                                                      NULL, NULL) == OR_OK);
+                                }
                                 CHECK(orx_prototype(&w, child, base) == OR_OK);
                                 if (shadow)
                                 {
                                     CHECK(orx_define(&w, child, 1, 0, 91, NULL,
                                                      NULL) == OR_OK);
                                     if (shadow == 2)
+                                    {
                                         CHECK(orx_delete(&w, child, 1) ==
                                               OR_OK);
+                                    }
                                 }
                                 status = remove ? orx_delete(&w, base, remove)
                                                 : OR_OK;
@@ -279,20 +310,33 @@ static int oracle(void)
                                 CHECK(orx_world_collect(&w, &dead) == OR_OK &&
                                       dead == 2);
                             }
+                        }
+                    }
                     index++;
                 }
+            }
+        }
+    }
     return 0;
 }
 
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "shapes"))
+    {
         return shapes();
+    }
     if (!strcmp(argv[1], "cache"))
+    {
         return cache();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     return 2;
 }

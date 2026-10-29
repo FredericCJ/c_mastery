@@ -21,10 +21,14 @@ static int descriptors(void)
 {
     DIR *d = opendir("/proc/self/fd");
     if (!d)
+    {
         return -1;
+    }
     int n = 0;
     while (readdir(d))
+    {
         ++n;
+    }
     closedir(d);
     return n;
 }
@@ -32,7 +36,9 @@ static int descriptors(void)
 int main(int argc, char **argv)
 {
     if (argc != 3)
+    {
         return 2;
+    }
     char *args[] = {argv[2], "127", NULL};
     struct pl_launch result = {PL_SIGNALED, 999};
     int initial = descriptors();

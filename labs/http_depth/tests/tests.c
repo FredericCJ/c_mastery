@@ -23,7 +23,9 @@ static int length(void)
         CHECK(hd_length((const unsigned char *)s[i], strlen(s[i]), 1024, &n) ==
               expected[i]);
         if (expected[i])
+        {
             CHECK(n == 777);
+        }
     }
     uint32_t n = 999;
     CHECK(hd_length((const unsigned char *)"0", 1, 0, &n) == 0 && n == 0);
@@ -89,12 +91,16 @@ static int lifecycle(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     int r = !strcmp(argv[1], "length")      ? length()
             : !strcmp(argv[1], "date")      ? date()
             : !strcmp(argv[1], "lifecycle") ? lifecycle()
                                             : 2;
     if (!r)
+    {
         puts("PASS HTTP depth");
+    }
     return r;
 }

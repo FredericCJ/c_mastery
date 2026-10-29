@@ -18,7 +18,9 @@ int main(void)
     const unsigned repeats = 2000;
     if (clock_gettime(CLOCK_MONOTONIC, &begin) ||
         clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &cpu_begin))
+    {
         return 2;
+    }
     for (unsigned run = 0; run < repeats; run++)
     {
         for (unsigned i = 0; i < 32; i++)
@@ -38,7 +40,9 @@ int main(void)
     }
     if (clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &cpu_end) ||
         clock_gettime(CLOCK_MONOTONIC, &end))
+    {
         return 2;
+    }
     printf(
         "{\"n\":32,\"repeats\":%u,\"elapsed_ns\":%llu,\"process_cpu_ns\":%llu,"
         "\"comparisons\":%llu,\"shifts\":%llu,\"consumed\":%llu,\"boundary\":"

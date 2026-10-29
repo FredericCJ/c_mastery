@@ -102,22 +102,40 @@ static int test_tolerance(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (strcmp(argv[1], "q15") == 0)
+    {
         return test_q15();
+    }
     if (strcmp(argv[1], "rounding") == 0)
+    {
         return test_rounding();
+    }
     if (strcmp(argv[1], "dot") == 0)
+    {
         return test_dot();
+    }
     if (strcmp(argv[1], "compensated") == 0)
+    {
         return test_compensated();
+    }
     if (strcmp(argv[1], "norm") == 0)
+    {
         return test_norm();
+    }
     if (strcmp(argv[1], "matrix") == 0)
+    {
         return test_matrix();
+    }
     if (strcmp(argv[1], "lanes") == 0)
+    {
         return test_lanes();
+    }
     if (strcmp(argv[1], "tolerance") == 0)
+    {
         return test_tolerance();
+    }
     return 2;
 }

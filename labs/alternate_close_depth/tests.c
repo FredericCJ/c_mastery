@@ -95,7 +95,9 @@ static struct qc_raw real_close(void *p, int fd)
     struct qc_real *r = p;
     r->calls++;
     if (r->inject && r->calls == 1)
+    {
         return (struct qc_raw){-1, EINTR};
+    }
     int rc = close(fd);
     return (struct qc_raw){rc, rc < 0 ? errno : 0};
 }
@@ -165,7 +167,9 @@ static void *worker(void *p)
     s->ready = 1;
     CHECK(pthread_cond_broadcast(&s->cv) == 0);
     while (!s->go)
+    {
         CHECK(pthread_cond_wait(&s->cv, &s->m) == 0);
+    }
     CHECK(qc_handoff(&o, &s->fd) == QC_OK);
     CHECK(pthread_mutex_unlock(&s->m) == 0);
     CHECK(pthread_setcancelstate(old, NULL) == 0);
@@ -205,12 +209,20 @@ int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (!strcmp(argv[1], "core"))
+    {
         core();
+    }
     else if (!strcmp(argv[1], "native"))
+    {
         native();
+    }
     else if (!strcmp(argv[1], "cancel"))
+    {
         cancellation();
+    }
     else
+    {
         return 2;
+    }
     return 0;
 }

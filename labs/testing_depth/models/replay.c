@@ -25,7 +25,9 @@ int main(void)
 {
     unsigned ops[64], identity = 0;
     for (unsigned radix = 3; radix <= 4; radix++)
+    {
         for (unsigned n = 0, total = 1; n <= 6; n++, total *= radix)
+        {
             for (unsigned word = 0; word < total; word++)
             {
                 unsigned code = word;
@@ -36,6 +38,8 @@ int main(void)
                 }
                 sequence(ops, n, radix, identity++);
             }
+        }
+    }
     for (unsigned seed = 1; seed <= 32; seed++)
     {
         uint32_t state = seed;
@@ -48,11 +52,15 @@ int main(void)
     }
     unsigned char wire[12];
     for (unsigned count = 0; count <= 5; count++)
+    {
         for (size_t n = 0; n <= 12; n++)
+        {
             for (unsigned opcode = 0; opcode < 2; opcode++)
             {
                 for (unsigned i = 0; i < 12; i++)
+                {
                     wire[i] = (unsigned char)(i * 17 + 3);
+                }
                 wire[0] = (unsigned char)opcode;
                 wire[1] = (unsigned char)count;
                 struct tm_packet a = {0}, b = {0};
@@ -61,13 +69,21 @@ int main(void)
                 printf("D %u %zu %u %u %u %u %u", count, n, opcode, sa, sb,
                        a.count, b.count);
                 for (unsigned i = 0; i < 4; i++)
+                {
                     printf(" %u %u", a.values[i], b.values[i]);
+                }
                 puts("");
             }
+        }
+    }
     for (int first = -3; first <= 3; first++)
+    {
         for (int second = -3; second <= 3; second++)
+        {
             for (int third = -3; third <= 3; third++)
+            {
                 for (unsigned split = 0; split <= 3; split++)
+                {
                     for (int sat = 0; sat < 2; sat++)
                     {
                         int32_t input[3] = {first, second, third};
@@ -81,5 +97,9 @@ int main(void)
                                (long long)output[0], (long long)output[1],
                                (long long)output[2]);
                     }
+                }
+            }
+        }
+    }
     return 0;
 }

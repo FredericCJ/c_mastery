@@ -22,7 +22,9 @@ static void epoch(void)
     ag_init(&d, 0);
     CHECK(ag_register(&d, &l) == AG_OK);
     for (unsigned e = 0; e < 4; e++)
+    {
         CHECK(ag_advance(&d) == AG_OK);
+    }
     CHECK(ag_enter(&d, l) == AG_OK && d.retained.seen[0] == 4);
     CHECK(ag_enter(&d, l) == AG_INVALID);
     CHECK(ag_advance(&d) == AG_OK);
@@ -117,7 +119,9 @@ static void pressure(void)
     CHECK(ag_publish(&s, 1, 17) == AG_FULL);
     unsigned retired = 0;
     for (unsigned i = 0; i < 17; i++)
+    {
         retired += s.objects[i].active && s.objects[i].retired;
+    }
     CHECK(retired == 16 && s.domain.retained.epoch == 1);
     CHECK(ag_depart(&s.domain, l) == AG_BUSY);
     CHECK(ag_read_end(&s, b) == AG_OK);
@@ -143,7 +147,9 @@ static void callback(void *ctx, struct ag_store *s, struct api_handle self,
 {
     struct ag_log *log = ctx;
     for (unsigned i = 0; i < 32; i++)
+    {
         CHECK(bytes[i] == 1);
+    }
     log->trace[log->length++] = 'A';
     CHECK(ag_collect(s) == 0);
     if (log->remove)
@@ -155,7 +161,9 @@ static void callback(void *ctx, struct ag_store *s, struct api_handle self,
         log->remove = 0;
     }
     if (log->destroy)
+    {
         CHECK(ag_destroy_callbacks(s) == API_PENDING);
+    }
 }
 
 static void callbacks(void)
@@ -196,7 +204,9 @@ static void callbacks(void)
     CHECK(ag_register(&full.domain, &l) == AG_OK &&
           ag_read(&full, l, &b) == AG_OK);
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(ag_capture(&full, b, callback, &log, &h[i]) == API_OK);
+    }
     CHECK(ag_capture(&full, b, callback, &log, &sentinel) == API_FULL &&
           sentinel.index == 99 && full.objects[0].refs == 4);
     CHECK(ag_destroy_callbacks(&full) == API_OK && full.objects[0].refs == 0);
@@ -245,9 +255,13 @@ static void writers(void)
     struct ag_writer args[2] = {{&s, &mutex, 1, &done}, {&s, &mutex, 2, &done}};
     pthread_t threads[2];
     for (unsigned i = 0; i < 2; i++)
+    {
         CHECK(!pthread_create(&threads[i], NULL, writer, &args[i]));
+    }
     for (unsigned i = 0; i < 2; i++)
+    {
         CHECK(!pthread_join(threads[i], NULL));
+    }
     CHECK(done == 64 && s.writer == AG_NONE);
     CHECK(!pthread_mutex_destroy(&mutex));
     puts("OBS writers two_actual_threads explicit_mutex_domain publications=64 "
@@ -292,20 +306,36 @@ static void departure(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "epoch"))
+    {
         epoch();
+    }
     else if (!strcmp(argv[1], "versions"))
+    {
         versions();
+    }
     else if (!strcmp(argv[1], "pressure"))
+    {
         pressure();
+    }
     else if (!strcmp(argv[1], "callbacks"))
+    {
         callbacks();
+    }
     else if (!strcmp(argv[1], "writers"))
+    {
         writers();
+    }
     else if (!strcmp(argv[1], "departure"))
+    {
         departure();
+    }
     else
+    {
         return 2;
+    }
     return 0;
 }

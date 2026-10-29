@@ -41,9 +41,13 @@ static void guards(void)
     {
         struct cpv_plan plan;
         if (cpv_plan(&plan, (enum cpv_backend)backend) == CPN_UNSUPPORTED)
+        {
             continue;
+        }
         for (size_t n = 0; n <= 9; n++)
+        {
             for (unsigned side = 0; side < 2; side++)
+            {
                 for (size_t offset = 0; offset < 4; offset++)
                 {
                     double *in =
@@ -51,7 +55,9 @@ static void guards(void)
                         (side ? (ptrdiff_t)offset : -(ptrdiff_t)(n + offset));
                     double *out = (double *)(void *)(om + 2 * bytes) - n;
                     for (size_t i = 0; i < n; i++)
+                    {
                         in[i] = (double)((int)i - 3) / 8;
+                    }
                     double expected[9];
                     struct cpn_double reference = {4, -8}, actual = reference;
                     CHECK(cpn_double(&reference, in, n, expected, n) == CPN_OK);
@@ -61,6 +67,8 @@ static void guards(void)
                           actual.older == reference.older);
                     guarded++;
                 }
+            }
+        }
     }
     CHECK(!munmap(im, 3 * bytes) && !munmap(om, 3 * bytes));
     printf("NF_GUARDS %u\n", guarded);
@@ -116,9 +124,13 @@ static void corpus(void)
         CHECK(cpn_exact(&s, x, 5, out, 5) == CPN_OK);
         printf("NF_EXACT");
         for (unsigned j = 0; j < 5; j++)
+        {
             printf(" %d", x[j]);
+        }
         for (unsigned j = 0; j < 5; j++)
+        {
             printf(" %lld", (long long)out[j]);
+        }
         puts("");
     }
     for (int64_t n = -10001; n <= 10001; n++)
@@ -140,9 +152,13 @@ int main(int argc, char **argv)
     policies();
     guards();
     if (argc == 2 && !strcmp(argv[1], "corpus"))
+    {
         corpus();
+    }
     else
+    {
         CHECK(argc == 1);
+    }
     puts("NF_PASS");
     return 0;
 }

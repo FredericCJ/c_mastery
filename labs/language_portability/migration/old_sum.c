@@ -6,9 +6,13 @@ int b;
 int *out;
 {
     if (!out)
+    {
         return 1;
+    }
     if ((b > 0 && a > INT_MAX - b) || (b < 0 && a < INT_MIN - b))
+    {
         return 2;
+    }
     *out = a + b;
     return 0;
 }

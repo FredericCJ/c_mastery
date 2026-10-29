@@ -28,9 +28,13 @@ static int operation(int a, int b, int *out)
     int status = DS_OK;
     long long value = policy == 1 ? (long long)a - b : (long long)a + b;
     if (policy == 2 && b < 0)
+    {
         status = DS_FAILED;
+    }
     else if (value < INT_MIN || value > INT_MAX)
+    {
         status = DS_RANGE;
+    }
     events[calls++] = (struct ds_event){a, b, status};
     *out = status ? 999 : (int)value;
     return status;
@@ -44,8 +48,11 @@ static void dictionary(int emit)
     {
         unsigned count = 1;
         for (size_t i = 0; i < n; ++i)
+        {
             count *= 3;
+        }
         for (unsigned code = 0; code < count; ++code)
+        {
             for (policy = 0; policy < 3; ++policy)
             {
                 unsigned script = code;
@@ -87,12 +94,15 @@ static void dictionary(int emit)
                     printf("D %zu %u %u %d %d %u", n, code, policy, status, out,
                            calls);
                     for (unsigned i = 0; i < calls; ++i)
+                    {
                         printf(" %d %d %d", events[i].a, events[i].b,
                                events[i].status);
+                    }
                     puts("");
                 }
                 ++cases;
             }
+        }
     }
     CHECK(cases == 1092);
     policy = 0;
@@ -130,12 +140,14 @@ static void reduction(void)
 {
     const int edge[7] = {INT_MIN, INT_MIN + 1, -1, 0, 1, INT_MAX - 1, INT_MAX};
     for (unsigned i = 0; i < 7; ++i)
+    {
         for (unsigned j = 0; j < 7; ++j)
         {
             int out = 91;
             CHECK(ds_sat_add(edge[i], edge[j], &out) == DS_OK &&
                   out == scalar(edge[i], edge[j]));
         }
+    }
     int input[3] = {INT_MAX, 1, -1}, left = 91, tree = 91;
     CHECK(ds_sat_left(input, 3, &left) == DS_OK && left == INT_MAX - 1);
     CHECK(ds_sat_tree(input, 3, &tree) == DS_OK && tree == INT_MAX &&
@@ -201,8 +213,12 @@ int main(int argc, char **argv)
         kinds();
     }
     else if (!strcmp(argv[1], "oracle"))
+    {
         dictionary(1);
+    }
     else
+    {
         CHECK(0);
+    }
     return 0;
 }

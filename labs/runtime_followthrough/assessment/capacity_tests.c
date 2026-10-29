@@ -20,7 +20,9 @@ int main(void)
     {
         CHECK(cvm_pair(&vm, cvm_int((int32_t)i), cvm_int(0), &tmp) == CVM_OK);
         if (!i)
+        {
             first = tmp;
+        }
         last = tmp;
     }
     CHECK(cvm_pair(&vm, cvm_int(0), cvm_int(0), &tmp) == CVM_HEAP_LIMIT);
@@ -32,14 +34,18 @@ int main(void)
           vm.gc_budget == CVM_HEAP - 1);
     unsigned used = 0;
     for (unsigned i = 0; i < CVM_HEAP; i++)
+    {
         used += vm.heap[i].used;
+    }
     CHECK(used == CVM_HEAP);
     vm.gc_budget = CVM_HEAP + 6;
     CHECK(cvm_collect(&vm) == CVM_OK && vm.gc_budget == 0 &&
           vm.collections == 1);
     used = 0;
     for (unsigned i = 0; i < CVM_HEAP; i++)
+    {
         used += vm.heap[i].used;
+    }
     CHECK(used == 2);
     CHECK(cvm_field(&vm, first, 0, &tmp) == CVM_OK && tmp.integer == 0);
     CHECK(cvm_field(&vm, last, 0, &tmp) == CVM_OK &&

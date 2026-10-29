@@ -34,7 +34,9 @@ int __wrap_pthread_create(pthread_t *t, const pthread_attr_t *a,
 int __wrap_close(int fd)
 {
     if (fd != fail_close)
+    {
         return __real_close(fd);
+    }
     ++targeted_calls;
     CHECK(!__real_close(fd));
     /* Real descriptor retirement/reuse, injected Linux late-error outcome.

@@ -56,7 +56,9 @@ static int pressure(void)
     CHECK(q.head == before_expiry.head && q.count == before_expiry.count &&
           q.closed == before_expiry.closed);
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(q.values[i] == before_expiry.values[i]);
+    }
     return 0;
 }
 
@@ -97,18 +99,24 @@ static int bucket(void)
     CHECK(rz_consume(&b, UINT64_MAX, 4) == RZ_OK && b.tokens == 0);
     CHECK(rz_consume(&b, 0, 1) == RZ_INVALID);
     for (unsigned cap = 1; cap <= 16; cap++)
+    {
         for (unsigned rate = 1; rate <= 16; rate++)
+        {
             for (unsigned elapsed = 0; elapsed < 20; elapsed++)
             {
                 CHECK(rz_bucket_init(&b, cap, rate, 0) == RZ_OK);
                 CHECK(rz_consume(&b, 0, cap) == RZ_OK);
                 unsigned available = elapsed * rate;
                 if (available > cap)
+                {
                     available = cap;
+                }
                 int s = rz_consume(&b, elapsed, 1);
                 CHECK(s == (available ? RZ_OK : RZ_FULL));
                 CHECK(b.tokens == (available ? available - 1 : 0));
             }
+        }
+    }
     return 0;
 }
 
@@ -236,7 +244,9 @@ static int service(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
 #define RUN(name)                    \
     if (strcmp(argv[1], #name) == 0) \
     return name()

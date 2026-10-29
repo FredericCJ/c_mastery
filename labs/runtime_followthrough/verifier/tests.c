@@ -106,7 +106,9 @@ static int structural(void)
     p.length = CVM_CODE;
     p.functions[0].length = CVM_CODE;
     for (unsigned i = 0; i < CVM_CODE - 2; i++)
+    {
         p.code[i] = OP_GC;
+    }
     p.code[CVM_CODE - 2] = OP_NIL;
     p.code[CVM_CODE - 1] = OP_RET;
     CHECK(vv_verify(&p, 0, 0, &work, &r) == VV_OK && r.decoded == CVM_CODE &&
@@ -131,7 +133,9 @@ static int initialized(void)
     uint8_t b[32] = {OP_TRUE, OP_JFALSE, 14,       0, OP_INT, 42, 0,
                      0,       0,         OP_STORE, 0, OP_JMP, 29, 0};
     for (unsigned i = 14; i < 26; i++)
+    {
         b[i] = OP_GC;
+    }
     b[26] = OP_JMP;
     b[27] = 29;
     b[28] = 0;
@@ -248,12 +252,16 @@ static int limits(void)
     p.count = 2;
     unsigned at = 0;
     for (unsigned i = 0; i < 63; i++)
+    {
         p.code[at++] = OP_NIL;
+    }
     p.code[at++] = OP_CALL;
     p.code[at++] = 1;
     p.code[at++] = 0;
     for (unsigned i = 0; i < 63; i++)
+    {
         p.code[at++] = OP_POP;
+    }
     p.code[at++] = OP_RET;
     p.functions[0].length = (uint16_t)at;
     p.functions[1] = (struct cvm_function){(uint16_t)at, 4, 0, 0};

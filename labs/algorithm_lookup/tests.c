@@ -17,7 +17,9 @@ static struct cd_bucket *take(void *c, unsigned n)
 {
     struct al_bank *b = c;
     if (b->allocated || n > 16)
+    {
         return 0;
+    }
     b->allocated = 1;
     return b->slots;
 }
@@ -26,15 +28,21 @@ static void release(void *c, struct cd_bucket *p)
 {
     struct al_bank *b = c;
     if (p == b->slots)
+    {
         b->allocated = 0;
+    }
 }
 
 static int equal(const void *a, const void *b, size_t n)
 {
     const unsigned char *x = a, *y = b;
     for (size_t i = 0; i < n; ++i)
+    {
         if (x[i] != y[i])
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
@@ -57,7 +65,9 @@ static int lookup(void)
     CHECK(al_lookup(&h, 22, &value, &p) == AL_MISSING && value == 77 &&
           p.index == -1 && p.used == 6);
     for (unsigned i = 0; i < 6; ++i)
+    {
         CHECK(p.visits[i] == path[i]);
+    }
     al_emit_lookup(0, 22, &p);
     CHECK(al_lookup(&h, 16, &value, &p) == AL_OK && value == 160 &&
           p.index == 0 && p.used == 1);
@@ -98,7 +108,9 @@ static int lookup(void)
     CHECK(al_quadratic(8, 0, &p) == AL_OK && p.used == 8);
     unsigned seen = 0;
     for (unsigned i = 0; i < p.used; ++i)
+    {
         seen |= 1u << p.visits[i];
+    }
     CHECK(seen == 0x13);
     al_emit_lookup(2, 0, &p);
     savedp = p;
@@ -109,6 +121,7 @@ static int lookup(void)
 static int prior(void)
 {
     for (unsigned cluster = 0; cluster < 2; ++cluster)
+    {
         for (unsigned cap = 1; cap <= 16; ++cap)
         {
             struct al_bank bank = {0};
@@ -118,8 +131,10 @@ static int prior(void)
                                (struct cd_hash_allocator){&bank, take, release},
                                cluster) == CD_OK);
             for (unsigned i = 0; i < cap; ++i)
+            {
                 CHECK(cd_hash_put(&h, i * 16u + 3u, (int)(100 + i), &probes) ==
                       CD_OK);
+            }
             for (unsigned i = 0; i <= cap; ++i)
             {
                 uint32_t key = i == cap ? UINT32_MAX : i * 16u + 3u;
@@ -131,18 +146,25 @@ static int prior(void)
                       (expected == CD_MISSING && got == AL_MISSING));
                 CHECK(a == b && probes == p.used && p.used <= cap);
                 if (i == cap)
+                {
                     CHECK(p.used == cap);
+                }
             }
             for (unsigned i = 0; i < cap; ++i)
+            {
                 CHECK(cd_hash_delete(&h, i * 16u + 3u) == CD_OK);
+            }
             int value = 77;
             struct al_probe p;
             CHECK(al_lookup(&h, 99, &value, &p) == AL_MISSING && value == 77 &&
                   p.used == cap);
             if (cap == 8)
+            {
                 al_emit_lookup(1, 99, &p);
+            }
             CHECK(cd_hash_destroy(&h) == CD_OK && !bank.allocated);
         }
+    }
     return 0;
 }
 
@@ -153,6 +175,7 @@ static size_t independent(const unsigned char *t, size_t n,
     size_t count = 0;
     *cost = 0;
     if (m <= n)
+    {
         for (size_t i = 0; i <= n - m; ++i)
         {
             int found = 1;
@@ -166,8 +189,11 @@ static size_t independent(const unsigned char *t, size_t n,
                 }
             }
             if (found)
+            {
                 out[count++] = i;
+            }
         }
+    }
     return count;
 }
 
@@ -176,55 +202,77 @@ static int matching(void)
     const unsigned char t[] = {0, 97, 0, 97, 0}, p[] = {0, 97, 0};
     uint64_t out[67];
     for (unsigned i = 0; i < 67; ++i)
+    {
         out[i] = 0xdead;
+    }
     size_t count = 77;
     struct al_match_work w = {77, 77};
     CHECK(al_match(t, 5, p, 3, out + 1, 1, &count, &w) == AL_SPACE &&
           count == 2 && w.comparisons == 7 && w.required == 2);
     for (unsigned i = 0; i < 67; ++i)
+    {
         CHECK(out[i] == 0xdead);
+    }
     CHECK(al_match(t, 5, p, 3, out + 1, 65, &count, &w) == AL_OK &&
           count == 2 && out[1] == 0 && out[2] == 2 && w.comparisons == 7 &&
           out[0] == 0xdead && out[3] == 0xdead);
     CHECK(al_match(t, 5, p + 1, 2, out + 1, 65, &count, &w) == AL_OK &&
           count == 2 && out[1] == 1 && out[2] == 3 && w.comparisons == 6);
     for (size_t n = 0; n <= 5; ++n)
+    {
         for (unsigned bits = 0; bits < (1u << n); ++bits)
+        {
             for (size_t m = 0; m <= 3; ++m)
+            {
                 for (unsigned pattern = 0; pattern < (1u << m); ++pattern)
                 {
                     unsigned char text[64] = {0}, needle[16] = {0};
                     for (size_t i = 0; i < n; ++i)
+                    {
                         text[i] = (unsigned char)((bits >> i) & 1u);
+                    }
                     for (size_t i = 0; i < m; ++i)
+                    {
                         needle[i] = (unsigned char)((pattern >> i) & 1u);
+                    }
                     uint64_t expected[65], cost;
                     size_t used =
                         independent(text, n, needle, m, expected, &cost);
                     count = 77;
                     for (unsigned i = 0; i < 67; ++i)
+                    {
                         out[i] = 0xdead;
+                    }
                     CHECK(al_match(text, n, needle, m, out + 1, 65, &count,
                                    &w) == AL_OK &&
                           count == used && w.comparisons == cost &&
                           w.required == used && out[0] == 0xdead &&
                           out[used + 1] == 0xdead);
                     for (size_t i = 0; i < used; ++i)
+                    {
                         CHECK(out[i + 1] == expected[i]);
+                    }
                     al_emit_match(bits, n, pattern, m, out + 1, count,
                                   w.comparisons);
                     for (size_t capacity = 0; capacity < used; ++capacity)
                     {
                         for (unsigned i = 0; i < 67; ++i)
+                        {
                             out[i] = 0xdead;
+                        }
                         count = 77;
                         CHECK(al_match(text, n, needle, m, out + 1, capacity,
                                        &count, &w) == AL_SPACE &&
                               count == used && w.comparisons == cost);
                         for (unsigned i = 0; i < 67; ++i)
+                        {
                             CHECK(out[i] == 0xdead);
+                        }
                     }
                 }
+            }
+        }
+    }
     unsigned char zeros[64] = {0};
     count = 77;
     CHECK(al_match(zeros, 64, 0, 0, out + 1, 65, &count, &w) == AL_OK &&
@@ -254,7 +302,9 @@ static int callback(void *context, uint64_t at)
     struct al_callback *c = context;
     size_t call = c->calls++;
     if (call == c->stop)
+    {
         return (int)c->result;
+    }
     c->offsets[c->accepted++] = at;
     return 0;
 }
@@ -264,6 +314,7 @@ static int callbacks(void)
     const unsigned char text[] = {0, 97, 0, 97, 0};
     struct al_publication p;
     for (unsigned result = 1; result <= 2; ++result)
+    {
         for (size_t stop = 0; stop <= 6; ++stop)
         {
             struct al_callback c = {{0}, 0, 0, stop, result};
@@ -275,8 +326,11 @@ static int callbacks(void)
                   p.accepted == c.accepted && p.attempted == c.calls &&
                   p.comparisons == 0);
             for (size_t i = 0; i < c.accepted; ++i)
+            {
                 CHECK(c.offsets[i] == i);
+            }
         }
+    }
     struct al_callback c = {{0}, 0, 0, 1, 2};
     CHECK(al_publish(text, 5, text, 3, callback, &c, &p) == AL_CANCELLED &&
           c.calls == 2 && c.accepted == 1 && c.offsets[0] == 0 &&
@@ -290,15 +344,22 @@ static int callbacks(void)
 static int stream(void)
 {
     for (size_t n = 0; n <= 5; ++n)
+    {
         for (unsigned bits = 0; bits < (1u << n); ++bits)
+        {
             for (size_t m = 0; m <= 3; ++m)
+            {
                 for (unsigned pattern = 0; pattern < (1u << m); ++pattern)
                 {
                     unsigned char text[6] = {0}, needle[4] = {0};
                     for (size_t i = 0; i < n; ++i)
+                    {
                         text[i] = (unsigned char)((bits >> i) & 1u);
+                    }
                     for (size_t i = 0; i < m; ++i)
+                    {
                         needle[i] = (unsigned char)((pattern >> i) & 1u);
+                    }
                     uint64_t expected[65], cost;
                     size_t used =
                         independent(text, n, needle, m, expected, &cost);
@@ -307,7 +368,9 @@ static int stream(void)
                         struct al_stream s;
                         uint64_t out[67];
                         for (unsigned i = 0; i < 67; ++i)
+                        {
                             out[i] = 0xdead;
+                        }
                         CHECK(al_stream_init(&s, needle, m) == AL_OK);
                         size_t a = 77, b = 77;
                         CHECK(al_stream_feed(&s, text, split, out + 1, 65,
@@ -318,7 +381,9 @@ static int stream(void)
                               a + b == used && s.consumed == n);
                         CHECK(out[0] == 0xdead && out[used + 1] == 0xdead);
                         for (size_t i = 0; i < used; ++i)
+                        {
                             CHECK(out[i + 1] == expected[i]);
+                        }
                         al_emit_stream(bits, n, pattern, m, split, out + 1,
                                        used);
                         size_t z = 77;
@@ -326,6 +391,9 @@ static int stream(void)
                               z == 0);
                     }
                 }
+            }
+        }
+    }
     unsigned char text[] = {0, 97, 0, 97, 0};
     struct al_stream s;
     CHECK(al_stream_init(&s, text, 3) == AL_OK);

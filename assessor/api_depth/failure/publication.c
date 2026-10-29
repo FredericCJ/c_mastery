@@ -28,10 +28,14 @@ static void drop(struct ae_publication *p, struct ae_published_node *n)
 struct ae_publication *ae_publication_new(const struct ae_config *c)
 {
     if (!c || c->count > 3)
+    {
         return NULL;
+    }
     struct ae_publication *p = calloc(1, sizeof *p);
     if (!p)
+    {
         return NULL;
+    }
     if (pthread_mutex_init(&p->lock, NULL))
     {
         free(p);
@@ -53,12 +57,18 @@ enum ae_code ae_publication_replace(struct ae_publication *p,
                                     const struct ae_config *c, unsigned fail)
 {
     if (!p || !c || c->count > 3 || fail > 1)
+    {
         return AE_INVALID;
+    }
     if (fail)
+    {
         return AE_EXHAUSTED;
+    }
     struct ae_published_node *n = malloc(sizeof *n);
     if (!n)
+    {
         return AE_EXHAUSTED;
+    }
     *n = (struct ae_published_node){*c, 1};
     pthread_mutex_lock(&p->lock);
     if (p->closed || p->live == 3 || p->made == 65535)
@@ -80,7 +90,9 @@ enum ae_code ae_publication_acquire(struct ae_publication *p,
                                     struct ae_read_lease *out)
 {
     if (!p || !out)
+    {
         return AE_INVALID;
+    }
     pthread_mutex_lock(&p->lock);
     if (p->closed || p->current->references == 65535)
     {
@@ -99,7 +111,9 @@ enum ae_code ae_publication_read(const struct ae_read_lease *l,
                                  struct ae_config *out)
 {
     if (!l || !l->owner || !l->node || !out)
+    {
         return AE_INVALID;
+    }
     *out = l->node->config;
     return AE_OK;
 }
@@ -107,7 +121,9 @@ enum ae_code ae_publication_read(const struct ae_read_lease *l,
 enum ae_code ae_publication_release(struct ae_read_lease *l)
 {
     if (!l || !l->owner || !l->node)
+    {
         return AE_INVALID;
+    }
     struct ae_publication *p = l->owner;
     pthread_mutex_lock(&p->lock);
     drop(p, l->node);
@@ -120,7 +136,9 @@ enum ae_code ae_publication_counts(struct ae_publication *p, unsigned *m,
                                    unsigned *f, unsigned *l)
 {
     if (!p || !m || !f || !l)
+    {
         return AE_INVALID;
+    }
     pthread_mutex_lock(&p->lock);
     *m = p->made;
     *f = p->freed;
@@ -132,7 +150,9 @@ enum ae_code ae_publication_counts(struct ae_publication *p, unsigned *m,
 enum ae_code ae_publication_close(struct ae_publication *p)
 {
     if (!p)
+    {
         return AE_INVALID;
+    }
     pthread_mutex_lock(&p->lock);
     if (!p->closed)
     {
@@ -147,13 +167,17 @@ enum ae_code ae_publication_close(struct ae_publication *p)
 enum ae_code ae_publication_destroy(struct ae_publication **owner)
 {
     if (!owner || !*owner)
+    {
         return AE_INVALID;
+    }
     struct ae_publication *p = *owner;
     pthread_mutex_lock(&p->lock);
     unsigned ready = p->closed && !p->live;
     pthread_mutex_unlock(&p->lock);
     if (!ready)
+    {
         return AE_AGAIN;
+    }
     pthread_mutex_destroy(&p->lock);
     free(p);
     *owner = NULL;

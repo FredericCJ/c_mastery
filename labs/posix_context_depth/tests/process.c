@@ -41,7 +41,9 @@ static void *worker(void *p)
     ++ready;
     CHECK(pthread_cond_broadcast(&cond) == 0);
     while (!release_workers)
+    {
         CHECK(pthread_cond_wait(&cond, &mutex) == 0);
+    }
     CHECK(pthread_mutex_unlock(&mutex) == 0);
     return NULL;
 }
@@ -53,7 +55,9 @@ static void read_exact(int f, void *p, size_t n)
     {
         ssize_t r = read(f, (unsigned char *)p + used, n - used);
         if (r < 0 && errno == EINTR)
+        {
             continue;
+        }
         CHECK(r > 0);
         used += (size_t)r;
     }
@@ -71,10 +75,14 @@ static void identity(void)
     shared_byte = shared;
     CHECK(pipe2(channel, O_CLOEXEC) == 0);
     for (int i = 0; i < 2; ++i)
+    {
         CHECK(pthread_create(&threads[i], NULL, worker, &ids[i]) == 0);
+    }
     CHECK(pthread_mutex_lock(&mutex) == 0);
     while (ready < 2)
+    {
         CHECK(pthread_cond_wait(&cond, &mutex) == 0);
+    }
     /* The mutex remains locked across fork: child must never call pthread APIs. */
     pid_t pid = fork();
     CHECK(pid >= 0);
@@ -93,11 +101,17 @@ static void identity(void)
         {
             ssize_t n = write(channel[1], p + used, sizeof x - used);
             if (n > 0)
+            {
                 used += (size_t)n;
+            }
             else if (n < 0 && errno == EINTR)
+            {
                 continue;
+            }
             else
+            {
                 _exit(99);
+            }
         }
         _exit(0);
     }
@@ -113,7 +127,9 @@ static void identity(void)
     CHECK(pthread_cond_broadcast(&cond) == 0);
     CHECK(pthread_mutex_unlock(&mutex) == 0);
     for (int i = 0; i < 2; ++i)
+    {
         CHECK(pthread_join(threads[i], NULL) == 0);
+    }
     CHECK(ids[0].pid == getpid() && ids[1].pid == getpid() &&
           ids[0].tid != ids[1].tid);
     CHECK(ids[0].uid == geteuid() && ids[1].gid == getegid());
@@ -154,20 +170,28 @@ static void launch_case(const char *helper, int spawn, int missing, int bad,
     {
         ssize_t n = read(fd[0], output + used, sizeof output - 1 - used);
         if (n < 0 && errno == EINTR)
+        {
             continue;
+        }
         CHECK(n >= 0);
         if (!n)
+        {
             break;
+        }
         used += (size_t)n;
         CHECK(used < sizeof output - 1);
     }
     close(fd[0]);
     close(cwd);
     if (bad)
+    {
         CHECK(r.kind == 2 && r.value == ENOENT);
+    }
     else if (missing)
+    {
         CHECK(r.kind == 1 && r.value == 23 &&
               strstr(output, "PC_MISSING_CONFIG"));
+    }
     else
     {
         CHECK(r.kind == 1 && r.value == 0 && strstr(output, "PC_HELPER") &&
@@ -188,7 +212,9 @@ static void launch_case(const char *helper, int spawn, int missing, int bad,
     printf("PC_LAUNCH backend=%s missing=%d bad=%d kind=%d value=%d %s",
            spawn ? "spawn" : "fork", missing, bad, r.kind, r.value, output);
     if (!used)
+    {
         putchar('\n');
+    }
 }
 
 static void offsets(const char *dir)
@@ -230,10 +256,14 @@ int main(int argc, char **argv)
     ready = 0;
     release_workers = 0;
     for (int i = 0; i < 2; ++i)
+    {
         CHECK(pthread_create(&threads[i], NULL, worker, &ids[i]) == 0);
+    }
     CHECK(pthread_mutex_lock(&mutex) == 0);
     while (ready < 2)
+    {
         CHECK(pthread_cond_wait(&cond, &mutex) == 0);
+    }
     for (int s = 0; s < 2; ++s)
     {
         launch_case(argv[1], s, 0, 0, dir);
@@ -244,7 +274,9 @@ int main(int argc, char **argv)
     CHECK(pthread_cond_broadcast(&cond) == 0 &&
           pthread_mutex_unlock(&mutex) == 0);
     for (int i = 0; i < 2; ++i)
+    {
         CHECK(pthread_join(threads[i], NULL) == 0);
+    }
     offsets(dir);
     CHECK(rmdir(dir) == 0);
     puts("PC_PROCESS_PASS");

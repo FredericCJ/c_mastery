@@ -59,10 +59,14 @@ static int graph_cases(void)
     }
     CHECK(ad_topological(&g, order) == AD_FAILED);
     for (unsigned i = 0; i < 8; ++i)
+    {
         CHECK(order[i] == 99);
+    }
     struct cd_edge path[7];
     for (unsigned i = 0; i < 7; ++i)
+    {
         path[i] = (struct cd_edge){i, i + 1, 1};
+    }
     CHECK(cd_csr_build(&g, 8, path, 7, 1) == CD_OK);
     CHECK(ad_dfs(&g, 0, 0, frames, 7, &dfs) == AD_SPACE);
     CHECK(ad_dfs(&g, 0, 0, frames, 8, &dfs) == AD_OK && dfs.peak == 8);
@@ -81,6 +85,7 @@ static int all_graphs(void)
         unsigned m = 0, bit = 0, reach[4][4] = {{0}};
         uint32_t shortest[4][4];
         for (unsigned i = 0; i < 4; ++i)
+        {
             for (unsigned j = 0; j < 4; ++j)
             {
                 shortest[i][j] = i == j ? 0 : 99;
@@ -95,27 +100,40 @@ static int all_graphs(void)
                     ++bit;
                 }
             }
+        }
         for (unsigned k = 0; k < 4; ++k)
+        {
             for (unsigned i = 0; i < 4; ++i)
+            {
                 for (unsigned j = 0; j < 4; ++j)
                 {
                     reach[i][j] |= reach[i][k] && reach[k][j];
                     if (shortest[i][k] + shortest[k][j] < shortest[i][j])
+                    {
                         shortest[i][j] = shortest[i][k] + shortest[k][j];
+                    }
                 }
+            }
+        }
         struct cd_csr g;
         CHECK(cd_csr_build(&g, 4, edges, m, 1) == CD_OK);
         unsigned order[8], position[8], cyclic = 0;
         for (unsigned i = 0; i < 4; ++i)
+        {
             cyclic |= reach[i][i];
+        }
         enum ad_status rc = ad_topological(&g, order);
         CHECK(rc == (cyclic ? AD_FAILED : AD_OK));
         if (!cyclic)
         {
             for (unsigned i = 0; i < 4; ++i)
+            {
                 position[order[i]] = i;
+            }
             for (unsigned i = 0; i < m; ++i)
+            {
                 CHECK(position[edges[i].from] < position[edges[i].to]);
+            }
         }
         for (unsigned s = 0; s < 4; ++s)
         {
@@ -154,6 +172,7 @@ static int all_graphs(void)
         struct cd_edge edges[6];
         uint64_t oracle[3][3];
         for (unsigned i = 0; i < 3; ++i)
+        {
             for (unsigned j = 0; j < 3; ++j)
             {
                 oracle[i][j] = i == j ? 0 : 99;
@@ -168,11 +187,20 @@ static int all_graphs(void)
                     }
                 }
             }
+        }
         for (unsigned k = 0; k < 3; ++k)
+        {
             for (unsigned i = 0; i < 3; ++i)
+            {
                 for (unsigned j = 0; j < 3; ++j)
+                {
                     if (oracle[i][k] + oracle[k][j] < oracle[i][j])
+                    {
                         oracle[i][j] = oracle[i][k] + oracle[k][j];
+                    }
+                }
+            }
+        }
         struct cd_csr g;
         CHECK(cd_csr_build(&g, 3, edges, m, 1) == CD_OK);
         for (unsigned s = 0; s < 3; ++s)
@@ -193,12 +221,14 @@ static int all_graphs(void)
                         CHECK(++steps <= 3);
                         unsigned p = previous[x], found = 0;
                         for (unsigned i = 0; i < m; ++i)
+                        {
                             if (edges[i].from == p && edges[i].to == x)
                             {
                                 cost += (unsigned)edges[i].weight;
                                 found = 1;
                                 break;
                             }
+                        }
                         CHECK(found);
                         x = p;
                     }
@@ -220,11 +250,13 @@ static uint32_t subset(const struct ad_item *p, unsigned n, unsigned capacity,
         unsigned weight = 0;
         uint32_t value = 0;
         for (unsigned i = 0; i < n; ++i)
+        {
             if (mask & (1u << i))
             {
                 weight += p[i].weight;
                 value += p[i].value;
             }
+        }
         if ((exact ? weight == capacity : weight <= capacity) &&
             (!*found || value > best))
         {
@@ -261,21 +293,31 @@ static int dp_cases(void)
         {
             unsigned used = 0, okay = 1;
             for (unsigned i = 0; i < 4; ++i)
+            {
                 if (mask & (1u << i))
                 {
                     ++used;
                     for (unsigned j = i + 1; j < 4; ++j)
+                    {
                         if ((mask & (1u << j)) &&
                             intervals[i].start < intervals[j].end &&
                             intervals[j].start < intervals[i].end)
+                        {
                             okay = 0;
+                        }
+                    }
                 }
+            }
             if (okay && used > best)
+            {
                 best = used;
+            }
         }
         CHECK(count == best);
         for (size_t i = 1; i < count; ++i)
+        {
             CHECK(intervals[chosen[i - 1]].end <= intervals[chosen[i]].start);
+        }
     }
     struct ad_item items[] = {{2, 3}, {3, 4}, {4, 5}};
     uint32_t result = 99;
@@ -295,6 +337,7 @@ static int dp_cases(void)
             rest /= 9;
         }
         for (unsigned c = 0; c <= 8; ++c)
+        {
             for (unsigned exact = 0; exact < 2; ++exact)
             {
                 unsigned found;
@@ -304,6 +347,7 @@ static int dp_cases(void)
                       (found ? AD_OK : AD_MISSING));
                 CHECK(result == (found ? expected : 99));
             }
+        }
     }
     struct ad_item overflow[] = {{1, UINT32_MAX}, {1, 1}};
     result = 99;
@@ -317,7 +361,9 @@ static int dp_cases(void)
 int main(void)
 {
     if (graph_cases() || all_graphs() || dp_cases())
+    {
         return 1;
+    }
     puts(
         "ALGORITHM_GRAPH_DP_PASS digraphs=4096 weighted_graphs=4096 interval_tuples=1296 item_tuples=729");
     return 0;

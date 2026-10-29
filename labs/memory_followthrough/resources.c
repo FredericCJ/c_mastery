@@ -26,14 +26,18 @@ static void release(void *v, unsigned i)
 {
     struct mw_ledger *l = v;
     if (!l->p[i])
+    {
         abort();
+    }
     free(l->p[i]);
     l->p[i] = NULL;
     l->live -= sizes[i];
     l->events[l->used++] = 10 + i;
     l->releases++;
     if (l->cleanup_fail && !l->first)
+    {
         l->first = 900;
+    }
 }
 
 static int acquire(void *v, unsigned i)
@@ -53,7 +57,9 @@ static int acquire(void *v, unsigned i)
     l->acquisitions++;
     l->live += sizes[i];
     if (l->live > l->peak)
+    {
         l->peak = l->live;
+    }
     l->events[l->used++] = i;
     if (l->fail == i + 1 && l->after)
     {
@@ -69,7 +75,9 @@ int main(void)
     unsigned cycles = 0;
     size_t expected_before[] = {0, 32, 80}, expected_after[] = {32, 80, 96};
     for (unsigned repeat = 0; repeat < 100; repeat++)
+    {
         for (unsigned after = 0; after < 2; after++)
+        {
             for (unsigned fail = 1; fail <= 4; fail++)
             {
                 struct mw_ledger l = {0};
@@ -96,19 +104,25 @@ int main(void)
                     } /* Failure after all acquisitions, before publication. */
                     l.first = 400;
                     for (unsigned i = 3; i > 0; i--)
+                    {
                         release(&l, i - 1);
+                    }
                     CHECK(l.first == 400);
                 }
                 CHECK(!l.live && l.releases == l.acquisitions);
                 unsigned previous = 3;
                 for (unsigned i = 0; i < l.used; i++)
+                {
                     if (l.events[i] >= 10)
                     {
                         CHECK(l.events[i] - 10 < previous);
                         previous = l.events[i] - 10;
                     }
+                }
                 cycles++;
             }
+        }
+    }
     /* Child takes ownership before parent acquisition2 fails. Parent must not
        release the transferred allocation; the child eventually releases it. */
     struct mw_ledger parent = {0}, child = {0};
@@ -156,7 +170,9 @@ int main(void)
         CHECK(cache);
         cache_live += request;
         if (cache_live > cache_peak)
+        {
             cache_peak = cache_live;
+        }
         CHECK(cache_live <= 16);
         free(cache);
         cache_live -= request;

@@ -35,7 +35,9 @@ static void gate_wait(struct nv_gate *g)
     g->ready++;
     pthread_cond_broadcast(&g->c);
     while (!g->go)
+    {
         pthread_cond_wait(&g->c, &g->m);
+    }
     pthread_mutex_unlock(&g->m);
 }
 
@@ -43,7 +45,9 @@ static void gate_go(struct nv_gate *g, unsigned ready)
 {
     pthread_mutex_lock(&g->m);
     while (g->ready < ready)
+    {
         pthread_cond_wait(&g->c, &g->m);
+    }
     g->go = 1;
     pthread_cond_broadcast(&g->c);
     pthread_mutex_unlock(&g->m);
@@ -93,9 +97,13 @@ static void *worker(void *v)
     {
         gate_wait(w->gate);
         if (w->op == 1)
+        {
             w->result = nv_owned_close(w->pool, w->handle);
+        }
         else
+        {
             w->result = nv_owned_admit(w->pool, w->fd, &w->handle);
+        }
     }
     return 0;
 }
@@ -120,7 +128,9 @@ int main(void)
     CHECK(!pthread_create(&t, 0, worker, &w));
     pthread_mutex_lock(&g.m);
     while (!g.ready)
+    {
         pthread_cond_wait(&g.c, &g.m);
+    }
     pthread_mutex_unlock(&g.m);
     CHECK(!nv_owned_close(&p, h[0]));
     CHECK(nv_owned_close(&p, h[0]) == NV_STALE);
@@ -166,12 +176,16 @@ int main(void)
         h[0] = admit_work.handle;
     }
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(!nv_owned_close(&p, h[i]));
+    }
     CHECK(!nv_owned_destroy(&p));
     struct nv_owned q;
     CHECK(!nv_owned_init(&q));
     for (unsigned i = 0; i < 4; i++)
+    {
         q.core.slot[i].generation = UINT32_MAX;
+    }
     candidate = descriptor();
     next = (struct hf_handle){99, 99};
     CHECK(nv_owned_admit(&q, candidate, &next) == NV_FULL && next.index == 99 &&

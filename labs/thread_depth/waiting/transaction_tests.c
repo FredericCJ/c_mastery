@@ -29,7 +29,9 @@ static void *transfer(void *p)
         CHECK(pthread_mutex_unlock(&t->bank->lock) == 0);
     }
     else
+    {
         CHECK(tw_transfer(t->bank, 10, bank_hook, t) == 0);
+    }
     return NULL;
 }
 
@@ -85,7 +87,9 @@ void test_bank(void)
     pthread_t reader;
     CHECK(pthread_create(&reader, NULL, snap_reader, &run) == 0);
     for (int i = 0; i < 10000; i++)
+    {
         CHECK(tw_snapshot_write(&s, i % 101) == 0);
+    }
     atomic_store(&run.stop, 1);
     CHECK(pthread_join(reader, NULL) == 0);
     CHECK(run.samples > 0);
@@ -128,7 +132,9 @@ static void *order_worker(void *p)
         gate(o->gate);
         o->blocked = pthread_mutex_trylock(second);
         if (o->blocked == 0)
+        {
             CHECK(pthread_mutex_unlock(second) == 0);
+        }
         gate(o->gate);
     }
     CHECK(pthread_mutex_unlock(first) == 0);

@@ -14,7 +14,9 @@
 static void put(unsigned char *p, uint32_t x)
 {
     for (unsigned k = 0; k < 4; k++)
+    {
         p[k] = (unsigned char)(x >> (8 * k));
+    }
 }
 
 static int image(uint32_t version, struct du_slot *out)
@@ -40,7 +42,9 @@ static int nested(void *v, uint32_t reason)
     struct du_context *c = v;
     c->calls++;
     if (reason != 7)
+    {
         return 0;
+    }
     (void)du_fault(c->r, 8, 11, nested, c);
     return 0;
 }
@@ -105,8 +109,12 @@ int main(void)
     CHECK(du_retry_state(&retry, 2, &attempt) == DU_OK && attempt == 0);
     unsigned retries = 0;
     for (unsigned f = 0; f < 5; f++)
+    {
         if (du_retry_take(&retry, 2, 24, &attempt) == DU_OK)
+        {
             retries++;
+        }
+    }
     CHECK(retries == 2 && du_retry_state(&retry, 2, &attempt) == DU_STOP &&
           attempt == 2);
     memset(&retry, 0, sizeof retry);

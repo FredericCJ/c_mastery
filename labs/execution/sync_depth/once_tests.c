@@ -31,13 +31,17 @@ static struct cdo_cell *allocate(void *ctx)
     struct cmx_pool *p = ctx;
     p->calls++;
     if (p->calls == p->fail)
+    {
         return 0;
+    }
     for (unsigned i = 0; i < 3; i++)
+    {
         if (!p->used[i])
         {
             p->used[i] = 1;
             return &p->cells[i];
         }
+    }
     return 0;
 }
 
@@ -45,14 +49,18 @@ static void drop(void *ctx, struct cdo_cell *cell)
 {
     struct cmx_pool *p = ctx;
     for (unsigned i = 0; i < 3; i++)
+    {
         if (cell == &p->cells[i])
         {
             if (!p->used[i])
+            {
                 p->invalid++;
+            }
             p->used[i] = 0;
             p->drops++;
             return;
         }
+    }
     p->invalid++;
 }
 
@@ -67,23 +75,39 @@ static int setup(cmx_kernel *k, struct cd_once *o, struct cmx_pool *p,
     *p = (struct cmx_pool){0};
     cmx_init(k, CMX_FIXED);
     for (unsigned i = 0; i < 3; i++)
+    {
         if (cmx_task_add(k, 5 + i, 0, 0x1000 + 256 * i, 256) != (int)i)
+        {
             return 0;
+        }
+    }
     if (cdo_init(o, k, allocate, drop, p) != CMX_OK)
+    {
         return 0;
+    }
     for (unsigned i = 0; i < 3; i++)
+    {
         if (cdo_register(o, i, &h[i]) != CMX_OK)
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
 static int build(struct cdo_handle owner)
 {
     if (cdo_allocate(owner) != CMX_OK)
+    {
         return 0;
+    }
     for (unsigned i = 0; i < 8; i++)
+    {
         if (cdo_write(owner, i, 17 * i + 1) != CMX_OK)
+        {
             return 0;
+        }
+    }
     return cdo_seal(owner) == CMX_OK && cdo_seal(owner) == CMX_OK;
 }
 
@@ -101,8 +125,12 @@ static int publication(void)
         CHECK(cdo_enter(h[owner], cmx_forever(), &t[owner]) == CDO_INIT);
         CHECK(cdo_enter(h[owner], cmx_forever(), &copy) == CMX_DEADLOCK);
         for (unsigned i = 0; i < 3; i++)
+        {
             if (i != owner)
+            {
                 CHECK(cdo_enter(h[i], cmx_forever(), &t[i]) == CMX_BLOCKED);
+            }
+        }
         CHECK(cdo_allocate(h[owner]) == CMX_OK);
         for (unsigned i = 0; i < 8; i++)
         {
@@ -120,7 +148,9 @@ static int publication(void)
             CHECK(cdo_result(t[i], &out) == CMX_OK && out.count == 8 &&
                   out.checksum == 484);
             for (unsigned j = 0; j < 8; j++)
+            {
                 CHECK(out.entries[j] == 17 * j + 1);
+            }
         }
         CHECK(o.attempts == 1 && k.task[owner].owned_sync == 0);
         CHECK(cdo_enter(h[owner], cmx_forever(), &copy) == CMX_OK);
@@ -128,7 +158,9 @@ static int publication(void)
               cdo_result(copy, &out) == CMX_OK);
         CHECK(cdo_close(&o) == CMX_OK);
         for (unsigned i = 0; i < 3; i++)
+        {
             CHECK(cdo_release(&h[i]) == CMX_OK);
+        }
         CHECK(cdo_destroy(&o) == CMX_OK && clean(&p) && p.drops == 3);
     }
     puts(
@@ -153,17 +185,25 @@ static int failure(void)
               cdo_enter(h[2], cmx_forever(), &t[2]) == CMX_BLOCKED);
         CHECK(cdo_allocate(h[0]) == CMX_OK);
         for (unsigned i = 0; i < cut && i < 8; i++)
+        {
             CHECK(cdo_write(h[0], i, 17 * i + 1) == CMX_OK);
+        }
         for (unsigned i = 8; i < cut; i++)
+        {
             CHECK(cdo_seal(h[0]) == CMX_OK);
+        }
         CHECK(cdo_cancel(t[0]) == CMX_OK && clean(&p) && p.drops == 3);
         for (unsigned i = 0; i < 3; i++)
+        {
             CHECK(cdo_result(t[i], &out) == CDO_FAILED && out.count == 999);
+        }
         CHECK(cdo_enter(h[2], cmx_forever(), &t[2]) == CDO_FAILED &&
               o.attempts == 1 && o.resources == 0);
         CHECK(cdo_close(&o) == CMX_OK);
         for (unsigned i = 0; i < 3; i++)
+        {
             CHECK(cdo_release(&h[i]) == CMX_OK);
+        }
         CHECK(cdo_destroy(&o) == CMX_OK && clean(&p));
         cases++;
     }
@@ -194,11 +234,15 @@ static int retry(void)
         CHECK(cdo_reset(&o) == CMX_BLOCKED);
         struct cdo_handle stale = h[0];
         for (unsigned i = 0; i < 3; i++)
+        {
             CHECK(cdo_release(&h[i]) == CMX_OK);
+        }
         CHECK(cdo_reset(&o) == CMX_OK && o.epoch == 2 && clean(&p));
         p.fail = 0;
         for (unsigned i = 0; i < 3; i++)
+        {
             CHECK(cdo_register(&o, i, &h[i]) == CMX_OK);
+        }
         CHECK(cdo_enter(stale, cmx_forever(), &newticket) == CDO_STALE);
         CHECK(cdo_enter(h[1], cmx_forever(), &newticket) == CDO_INIT &&
               build(h[1]) && cdo_finish(h[1], 1) == CMX_OK);
@@ -207,7 +251,9 @@ static int retry(void)
               o.attempts == 2);
         CHECK(cdo_close(&o) == CMX_OK);
         for (unsigned i = 0; i < 3; i++)
+        {
             CHECK(cdo_release(&h[i]) == CMX_OK);
+        }
         CHECK(cdo_destroy(&o) == CMX_OK && clean(&p) &&
               p.drops == fail - 1 + 3);
     }
@@ -237,7 +283,9 @@ static int waiting(void)
           o.attempts == 1 && k.task[0].owned_sync == 0);
     CHECK(cdo_close(&o) == CMX_OK);
     for (unsigned i = 0; i < 3; i++)
+    {
         CHECK(cdo_release(&h[i]) == CMX_OK);
+    }
     CHECK(cdo_destroy(&o) == CMX_OK && clean(&p));
     puts(
         "CDO_WAITING:timeout+cancel-selected-before-publication;owner-unaffected;completion-collection");
@@ -250,7 +298,9 @@ static int policies(void)
     cmx_once raw;
     cmx_init(&k, CMX_FIXED);
     for (unsigned i = 0; i < 3; i++)
+    {
         CHECK(cmx_task_add(&k, 5 + i, 0, 0x1000 + 256 * i, 256) == (int)i);
+    }
     cmx_once_init(&raw);
     CHECK(cmx_once_enter(&k, &raw, 0, cmx_forever()) == CMX_RETRY);
     CHECK(cmx_once_enter(&k, &raw, 1, cmx_forever()) == CMX_BLOCKED);
@@ -270,8 +320,10 @@ static int policies(void)
         CHECK(mb_once_enter(&bridge, 2, out) == (retry ? MB_INIT : MB_FAILED) &&
               out[0] == 999);
         if (retry)
+        {
             CHECK(mb_once_finish(&bridge, 2, true, 41, 42) == MB_OK &&
                   mb_once_enter(&bridge, 1, out) == MB_OK && out[1] == 42);
+        }
     }
     puts(
         "CDO_POLICIES:CMX-failure-retry-role;MB-permanent-vs-retry-policy;MB-contention-status-distinct");
@@ -292,7 +344,9 @@ static int limits(void)
           atomic_load(&o.publication.state) == 0);
     CHECK(cdo_close(&o) == CMX_OK);
     for (unsigned i = 0; i < 3; i++)
+    {
         CHECK(cdo_release(&h[i]) == CMX_OK);
+    }
     CHECK(cdo_destroy(&o) == CMX_OK && clean(&p));
     CHECK(setup(&k, &o, &p, h));
     o.slot[0].serial = UINT32_MAX;
@@ -301,10 +355,14 @@ static int limits(void)
           cdo_finish(h[1], 0) == CMX_OK && cdo_result(t, &out) == CDO_FAILED);
     o.epoch = UINT32_MAX;
     for (unsigned i = 0; i < 3; i++)
+    {
         h[i].epoch = UINT32_MAX;
+    }
     CHECK(cdo_prepare_reset(&o) == CMX_OK);
     for (unsigned i = 0; i < 3; i++)
+    {
         CHECK(cdo_release(&h[i]) == CMX_OK);
+    }
     CHECK(cdo_reset(&o) == CDO_RETIRED && cdo_close(&o) == CMX_OK &&
           cdo_destroy(&o) == CMX_OK && clean(&p));
     puts(
@@ -315,19 +373,33 @@ static int limits(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "publication"))
+    {
         return publication();
+    }
     if (!strcmp(argv[1], "failure"))
+    {
         return failure();
+    }
     if (!strcmp(argv[1], "retry"))
+    {
         return retry();
+    }
     if (!strcmp(argv[1], "waiting"))
+    {
         return waiting();
+    }
     if (!strcmp(argv[1], "policies"))
+    {
         return policies();
+    }
     if (!strcmp(argv[1], "limits"))
+    {
         return limits();
+    }
     return 2;
 }
 #endif

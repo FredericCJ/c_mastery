@@ -73,7 +73,9 @@ int main(void)
     {
         CHECK(cpo_begin(&c.op, in, sizeof in, &g) == CPO_OK && g == n);
         if (n == 1)
+        {
             CHECK(cpo_cancel(&c.op, g) == CPO_PENDING);
+        }
         CHECK(cpo_complete(&c.op, g, 1) == CPO_OK && c.op.report_failed == 17 &&
               !c.live && cpo_complete(&c.op, g, 1) == CPO_STALE);
     }

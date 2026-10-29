@@ -8,17 +8,23 @@ void *__wrap_malloc(size_t n)
 {
     calls++;
     if (calls == fail)
+    {
         return NULL;
+    }
     void *p = __real_malloc(n);
     if (p)
+    {
         live++;
+    }
     return p;
 }
 
 void __wrap_free(void *p)
 {
     if (p)
+    {
         live--;
+    }
     __real_free(p);
 }
 

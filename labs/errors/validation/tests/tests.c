@@ -19,14 +19,18 @@ static struct evv_input canary(void)
     v.count = 99;
     v.limit = 98;
     for (unsigned i = 0; i < 3; ++i)
+    {
         v.item[i] = (er_config){91, 92, 93};
+    }
     return v;
 }
 
 static void fill(struct evv_diagnostic *d)
 {
     for (unsigned i = 0; i < 10; ++i)
+    {
         d[i] = (struct evv_diagnostic){91, 92, {93, 94, 95}};
+    }
 }
 
 static int untouched(struct evv_input v)
@@ -110,9 +114,11 @@ static int nested(void)
               r.truncated == (cap < 6) && r.ratio_checks == 2 &&
               untouched(out));
         for (size_t k = 0; k < r.stored; ++k)
+        {
             CHECK(d[k].code == ids[k] && d[k].depth == 3 &&
                   d[k].path[0] == 42 && d[k].path[1] == items[k] &&
                   d[k].path[2] == ids[k]);
+        }
         CHECK(d[r.stored].code == 91 && d[r.stored].path[2] == 95);
     }
     puts(
@@ -178,9 +184,13 @@ static int oracle(void)
         i.count = n;
         i.limit = limit;
         for (unsigned k = 0; k < 3; ++k)
+        {
             if (scanf("%d %d %d", &i.item[k].age, &i.item[k].quota,
                       &i.item[k].denominator) != 3)
+            {
                 return 2;
+            }
+        }
         if (kind == 'B')
         {
             unsigned e[4] = {91, 91, 91, 91};
@@ -199,15 +209,21 @@ static int oracle(void)
             printf("%zu %zu %u %u %zu %u", r.total, r.stored, r.truncated,
                    r.ratio_checks, out.count, out.limit);
             for (unsigned k = 0; k < 3; ++k)
+            {
                 printf(" %d %d %d", out.item[k].age, out.item[k].quota,
                        out.item[k].denominator);
+            }
             for (unsigned k = 0; k < 10; ++k)
+            {
                 printf(" %u %u %u %u %u", e[k].code, e[k].depth, e[k].path[0],
                        e[k].path[1], e[k].path[2]);
+            }
             putchar('\n');
         }
         else
+        {
             return 2;
+        }
     }
     return ferror(stdin) ? 2 : 0;
 }
@@ -239,7 +255,9 @@ static int metrics(void)
         checksum, sizeof(struct evv_input), sizeof(struct evv_diagnostic),
         sizeof(struct evv_summary));
     for (unsigned i = 0; i < 7; ++i)
+    {
         printf("%s%.9f", i ? "," : "", times[i]);
+    }
     puts("]}");
     return 0;
 }
@@ -247,20 +265,36 @@ static int metrics(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "validate_base"))
+    {
         return base();
+    }
     if (!strcmp(argv[1], "validate_ratio"))
+    {
         return ratio();
+    }
     if (!strcmp(argv[1], "validate_nested"))
+    {
         return nested();
+    }
     if (!strcmp(argv[1], "validate_admission"))
+    {
         return admission();
+    }
     if (!strcmp(argv[1], "validate_security"))
+    {
         return security();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

@@ -36,7 +36,9 @@ int main(void)
     long double complex l = lm_long_complex(-1.0L + 0.0L * I);
     if (lm_integer(4) != 2 || creal(z) != 0 || cimag(z) != 1 ||
         creall(l) != 0 || cimagl(l) != 1)
+    {
         return 1;
+    }
     puts(
         "MATHLAB-PASS:type-generic real,integer,complex,long-complex contracts");
     return 0;

@@ -9,5 +9,7 @@ void mw_dependency(unsigned char *p, size_t i)
 void mw_missing_field(unsigned *p, unsigned fixed)
 {
     if (fixed)
+    {
         *p = 1;
+    }
 }

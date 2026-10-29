@@ -11,7 +11,9 @@ static int *take(void *p, size_t n)
     struct ai_allocation *a = p;
     int *v = malloc(n * sizeof *v);
     if (v)
+    {
         ++a->acquisitions;
+    }
     return v;
 }
 
@@ -25,13 +27,17 @@ enum ai_status ai_growth(unsigned count, unsigned additive,
                          struct ai_growth *out)
 {
     if (!out || count > 32 || additive > 1)
+    {
         return AI_INVALID;
+    }
     struct ai_allocation allocation = {0};
     struct cd_vector v;
     size_t worst = 0;
     if (cd_vector_init(&v, (struct cd_allocator){&allocation, take, release}) !=
         CD_OK)
+    {
         return AI_INVALID;
+    }
     for (unsigned i = 0; i < count; ++i)
     {
         size_t old = v.copies;
@@ -47,7 +53,9 @@ enum ai_status ai_growth(unsigned count, unsigned additive,
         }
         size_t cost = v.copies - old + 1;
         if (cost > worst)
+        {
             worst = cost;
+        }
     }
     struct ai_growth result = {v.copies,   v.copies + count,        worst,
                                v.capacity, allocation.acquisitions, 0};
@@ -70,7 +78,9 @@ enum cd_status ai_queue_event(struct ai_queues *q, unsigned put, int value,
                               int *out)
 {
     if (!q || !out || put > 1)
+    {
         return CD_INVALID;
+    }
     int a = 0, b = 0;
     enum cd_status ring, linked;
     size_t written = 0;
@@ -85,8 +95,12 @@ enum cd_status ai_queue_event(struct ai_queues *q, unsigned put, int value,
         linked = cd_queue_pop(&q->queue, &b);
     }
     if (ring != linked || (!put && ring == CD_OK && a != b))
+    {
         return CD_FAILED;
+    }
     if (!put && ring == CD_OK)
+    {
         *out = a;
+    }
     return ring;
 }

@@ -25,7 +25,9 @@ static int feed(const uint8_t *p, size_t n)
         CHECK(used <= n - off);
         off += used;
         if (r == HTTP_DONE || r == HTTP_ERROR)
+        {
             break;
+        }
         CHECK(used > 0);
     }
     http_eof(&h);
@@ -40,12 +42,14 @@ int main(void)
         "chunked\r\n\r\n3;x=y\r\nabc\r\n0\r\nX-End: yes\r\n\r\n";
     uint8_t changed[sizeof seed];
     for (size_t i = 0; i < sizeof seed - 1; i++)
+    {
         for (unsigned bit = 0; bit < 8; bit++)
         {
             memcpy(changed, seed, sizeof seed);
             changed[i] ^= (uint8_t)(1u << bit);
             CHECK(!feed(changed, sizeof seed - 1));
         }
+    }
     uint32_t rng = 0x5eed1234;
     uint8_t bytes[512];
     for (unsigned trial = 0; trial < 4000; trial++)

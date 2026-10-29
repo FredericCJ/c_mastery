@@ -119,14 +119,18 @@ static int concurrent(void)
     {
         work[made] = (struct er_worker){&s, 1000, 0};
         if (pthread_create(&thread[made], NULL, posix_worker, &work[made]) != 0)
+        {
             break;
+        }
     }
     for (unsigned i = 0; i < made; ++i)
     {
         void *result;
         if (pthread_join(thread[i], &result) != 0 || result != NULL ||
             !work[i].ok)
+        {
             joined = 0;
+        }
     }
 #else
     thrd_t thread[4];
@@ -134,14 +138,18 @@ static int concurrent(void)
     {
         work[made] = (struct er_worker){&s, 1000, 0};
         if (thrd_create(&thread[made], worker, &work[made]) != thrd_success)
+        {
             break;
+        }
     }
     for (unsigned i = 0; i < made; ++i)
     {
         int result;
         if (thrd_join(thread[i], &result) != thrd_success || result != 0 ||
             !work[i].ok)
+        {
             joined = 0;
+        }
     }
 #endif
     CHECK(made == 4 && joined);
@@ -181,7 +189,9 @@ static int oracle(void)
             er_code r = ecm_write(&b, (er_mode)mode, index, 17);
             printf("%d %zu", r, b.reports);
             for (unsigned i = 0; i < 8; ++i)
+            {
                 printf(" %u", bytes[i]);
+            }
             putchar('\n');
         }
     }
@@ -210,7 +220,9 @@ static int metrics(void)
         "{\"iterations\":10000,\"checksum\":%lu,\"allocation_calls\":0,\"buffer_size\":%zu,\"shared_size\":%zu,\"seconds\":[",
         sum, sizeof(struct ecm_buffer), sizeof(struct ecm_shared));
     for (unsigned i = 0; i < 7; ++i)
+    {
         printf("%s%.9f", i ? "," : "", samples[i]);
+    }
     puts("]}");
     return 0;
 }
@@ -218,20 +230,36 @@ static int metrics(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "modes_base"))
+    {
         return base();
+    }
     if (!strcmp(argv[1], "modes_bounds"))
+    {
         return bounds();
+    }
     if (!strcmp(argv[1], "modes_exhaustion"))
+    {
         return exhaustion();
+    }
     if (!strcmp(argv[1], "modes_admission"))
+    {
         return admission();
+    }
     if (!strcmp(argv[1], "modes_concurrent"))
+    {
         return concurrent();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

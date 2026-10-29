@@ -27,6 +27,7 @@ int main(void)
     CHECK(ac_timeout(60001, &w) == AC_INVALID && w.milliseconds == 60000);
     unsigned histories = 0;
     for (unsigned start = 0; start < 256; ++start)
+    {
         for (unsigned elapsed = 0; elapsed < 256; ++elapsed)
         {
             struct ac_deadline d;
@@ -38,6 +39,7 @@ int main(void)
                   (elapsed <= 127 && r == AC_OK && expired == (elapsed >= 17)));
             ++histories;
         }
+    }
     struct ac_deadline d;
     CHECK(ac_deadline(255, (struct ac_wait){AC_FINITE, 128}, &d) == AC_INVALID);
     uint_least16_t words[2] = {0x1234, 0xabcd};
@@ -64,7 +66,9 @@ int main(void)
     CHECK(api_append(&b, b.data, 1) == API_OVERLAP && !b.length);
     unsigned append_cases = 0;
     for (size_t cap = 0; cap <= 32; ++cap)
+    {
         for (size_t len = 0; len <= cap; ++len)
+        {
             for (size_t n = 0; n <= 32; ++n)
             {
                 struct api_buffer ordinary = {{0}, len, cap},
@@ -94,6 +98,8 @@ int main(void)
                 }
                 ++append_cases;
             }
+        }
+    }
     struct f_buffer f = {{1, 2, 8, 9}, 2, 1};
     CHECK(ac_append_allow(&f, 2, 2) == F_OK && f.length == 4 &&
           f.data[2] == 8 && f.data[3] == 9);

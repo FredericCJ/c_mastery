@@ -21,8 +21,12 @@ static unsigned n;
 volatile uint32_t *pi_test_register(uint32_t a)
 {
     for (unsigned i = 0; i < n; i++)
+    {
         if (regs[i].address == a)
+        {
             return &regs[i].value;
+        }
+    }
     regs[n].address = a;
     return &regs[n++].value;
 }

@@ -45,7 +45,9 @@ static void shutdown_case(void)
     CHECK(tp_queue_push(&q, -1) == EINVAL &&
           tp_queue_push(&q, 1000001) == EINVAL);
     for (int i = 1; i <= 3; i++)
+    {
         CHECK(tp_queue_push(&q, i) == 0);
+    }
     struct tw_call c = {.q = &q, .value = 4};
     pthread_t t;
     CHECK(pthread_create(&t, NULL, push, &c) == 0);
@@ -71,7 +73,9 @@ static void shutdown_case(void)
     tp_queue_destroy(&q);
     CHECK(tp_queue_init(&q) == 0);
     for (int i = 1; i <= 3; i++)
+    {
         CHECK(tp_queue_push(&q, i) == 0);
+    }
     c = (struct tw_call){.q = &q, .value = 4, .result = 99};
     CHECK(pthread_create(&t, NULL, push, &c) == 0);
     CHECK(tw_wait_entries(&q.queue, 1) == 0);
@@ -143,12 +147,16 @@ static void actual_histories(void)
             calls[i] =
                 (struct history_call){&q, &clock_lock, &clock, &records[i]};
             if (i == 2)
+            {
                 CHECK(tw_wait_entries(&q, 2) == 0);
+            }
             CHECK(pthread_create(&threads[i], NULL, history_call, &calls[i]) ==
                   0);
         }
         for (unsigned i = 0; i < 4; i++)
+        {
             CHECK(pthread_join(threads[i], NULL) == 0);
+        }
         struct tp_witness witness;
         CHECK(clock == 8 &&
               tp_history(records, 4, TP_REQUIRE_COMPLETE, &witness) == TP_OK);
@@ -166,7 +174,9 @@ static void *producer(void *arg)
     {
         seed = seed * 1664525u + 1013904223u;
         if (seed & 1u)
+        {
             sched_yield();
+        }
         CHECK(tw_push(s->q, (int)(s->id * 1000 + i), NULL) == 0);
     }
     return NULL;
@@ -180,7 +190,9 @@ static void *consumer(void *arg)
         int value = 0;
         int e = tw_pop(s->q, &value, NULL, NULL, NULL);
         if (e == EPIPE)
+        {
             break;
+        }
         CHECK(e == 0 && value >= 0 && value < 2000);
         s->seen[(unsigned)value / 1000][(unsigned)value % 1000]++;
     }
@@ -199,18 +211,30 @@ static void stress(void)
                      c[2] = {{.q = &q}, {.q = &q}};
     pthread_t pt[2], ct[2];
     for (unsigned i = 0; i < 2; i++)
+    {
         CHECK(pthread_create(&ct[i], NULL, consumer, &c[i]) == 0);
+    }
     CHECK(tw_wait_entries(&q, 2) == 0);
     for (unsigned i = 0; i < 2; i++)
+    {
         CHECK(pthread_create(&pt[i], NULL, producer, &p[i]) == 0);
+    }
     for (unsigned i = 0; i < 2; i++)
+    {
         CHECK(pthread_join(pt[i], NULL) == 0);
+    }
     CHECK(tw_close(&q) == 0);
     for (unsigned i = 0; i < 2; i++)
+    {
         CHECK(pthread_join(ct[i], NULL) == 0);
+    }
     for (unsigned producer_id = 0; producer_id < 2; producer_id++)
+    {
         for (unsigned i = 0; i < 1000; i++)
+        {
             CHECK(c[0].seen[producer_id][i] + c[1].seen[producer_id][i] == 1);
+        }
+    }
     CHECK(tw_unref(&q) == 0);
     CHECK(tw_retire(&q) == 0);
     tw_root_destroy(&q);
@@ -224,10 +248,16 @@ int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (!strcmp(argv[1], "shutdown"))
+    {
         shutdown_case();
+    }
     else if (!strcmp(argv[1], "stress"))
+    {
         stress();
+    }
     else
+    {
         return 2;
+    }
     return 0;
 }

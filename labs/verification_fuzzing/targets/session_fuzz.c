@@ -22,21 +22,31 @@ int LLVMFuzzerTestOneInput(const unsigned char *p, size_t n)
         else if (op == 1)
         {
             if (at == n)
+            {
                 break;
+            }
             size_t len = p[at++] % 20;
             if (len > n - at)
+            {
                 len = n - at;
+            }
             for (size_t i = 0; i < len; i++)
             {
                 if (used >= 18 || (used && used >= (size_t)raw[0] + 2) ||
                     (!used && p[at + i] > 16))
+                {
                     bad = 1;
+                }
                 if (!bad)
+                {
                     raw[used++] = p[at + i];
+                }
             }
             int accepted = vt_feed(&s, p + at, len);
             if (accepted == bad)
+            {
                 abort();
+            }
             at += len;
         }
         else
@@ -55,7 +65,9 @@ int LLVMFuzzerTestOneInput(const unsigned char *p, size_t n)
             }
             int ok = vt_finish(&s, &out);
             if (ok != good || (ok ? out != want : out != 91))
+            {
                 abort();
+            }
         }
     }
     return 0;

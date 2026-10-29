@@ -6,14 +6,26 @@ static int valid(const struct mm_dfa *d)
 {
     if (!d || !d->count || d->count > 16 || d->start >= d->count ||
         d->accept[d->start])
+    {
         return 0;
+    }
     for (unsigned i = 0; i < 256; ++i)
+    {
         if (d->map[i] > 4)
+        {
             return 0;
+        }
+    }
     for (unsigned q = 0; q < d->count; ++q)
+    {
         for (unsigned c = 0; c < 4; ++c)
+        {
             if (d->next[q][c] != MM_DEAD && d->next[q][c] >= d->count)
+            {
                 return 0;
+            }
+        }
+    }
     return 1;
 }
 
@@ -42,21 +54,29 @@ int mm_from_rx(const struct rx_dfa *source, struct mm_dfa *out)
     struct mm_dfa d = {0};
     if (!source || !out || !source->count || source->count > 16 ||
         source->accept[0])
+    {
         return PD_INVALID;
+    }
     d.count = source->count;
     for (unsigned i = 0; i < 256; ++i)
+    {
         d.map[i] = 4;
+    }
     d.map['a'] = 0;
     d.map['b'] = 1;
     for (unsigned q = 0; q < d.count; ++q)
     {
         if (source->accept[q] > 1)
+        {
             return PD_INVALID;
+        }
         d.accept[q] = (unsigned char)source->accept[q];
         for (unsigned c = 0; c < 4; ++c)
         {
             if (c < 2 && source->next[q][c] >= source->count)
+            {
                 return PD_INVALID;
+            }
             d.next[q][c] = c < 2 ? (unsigned char)source->next[q][c] : MM_DEAD;
         }
     }
@@ -73,11 +93,19 @@ int mm_scan(const struct mm_dfa *d, const unsigned char *input, unsigned length,
     unsigned begin = 0;
     if (!valid(d) || (!input && length) || !out || !cost || length > 256 ||
         mode > 1 || capacity > 256 || (mode && !w))
+    {
         return PD_INVALID;
+    }
     if (mode && MM_MUTANT != 5)
+    {
         for (unsigned i = 0; i <= length; ++i)
+        {
             for (unsigned q = 0; q < d->count; ++q)
+            {
                 w->failed[i][q] = 0;
+            }
+        }
+    }
     while (begin < length)
     {
         unsigned q = d->start, pos = begin, last = begin, mask = 0, top = 0;
@@ -89,10 +117,14 @@ int mm_scan(const struct mm_dfa *d, const unsigned char *input, unsigned length,
                 mask = d->accept[q];
                 top = 0;
                 if (MM_MUTANT == 1)
+                {
                     break;
+                }
             }
             if (pos == length)
+            {
                 break;
+            }
             if (mode && w->failed[pos][q] && MM_MUTANT != 6)
             {
                 ++counts.memo_stops;
@@ -102,7 +134,9 @@ int mm_scan(const struct mm_dfa *d, const unsigned char *input, unsigned length,
                 unsigned cls = d->map[input[pos]],
                          next = cls < 4 ? d->next[q][cls] : MM_DEAD;
                 if (next == MM_DEAD)
+                {
                     break;
+                }
                 if (mode)
                 {
                     w->stack_state[top] = (unsigned char)q;
@@ -124,30 +158,40 @@ int mm_scan(const struct mm_dfa *d, const unsigned char *input, unsigned length,
                     ++counts.marked_pairs;
                 }
                 if (!top)
+                {
                     break;
+                }
                 --top;
                 q = w->stack_state[top];
                 pos = w->stack_position[top];
                 if (d->accept[q])
+                {
                     break;
+                }
             }
         }
         if (!mask || last == begin)
         {
             if (error_offset)
+            {
                 *error_offset = begin;
+            }
             return PD_NO_MATCH;
         }
         if (result.count == capacity)
         {
             if (error_offset)
+            {
                 *error_offset = begin;
+            }
             return PD_RANGE;
         }
         result.token[result.count++] =
             (struct mm_token){begin, last, rule(mask)};
         if (MM_MUTANT == 3)
+        {
             *out = result;
+        }
         begin = MM_MUTANT == 4 ? length : last;
     }
     *out = result;

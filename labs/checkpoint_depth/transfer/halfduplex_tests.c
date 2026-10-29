@@ -42,9 +42,11 @@ int main(void)
     CHECK(cpx_halfduplex_begin(&h, &m, 3, direction, &p) == CPF_OK &&
           p.enabled && p.changes == 1);
     for (size_t i = 0; i < h.tx.length; ++i)
+    {
         CHECK(cpx_halfduplex_step(&h, 65530, 1, 1, write_byte, &p) ==
                   CPF_PENDING &&
               p.enabled);
+    }
     CHECK(cpx_halfduplex_step(&h, 65534, 1, 0, write_byte, &p) == CPF_PENDING &&
           p.enabled);
     CHECK(cpx_halfduplex_step(&h, 65535, 1, 1, write_byte, &p) == CPF_PENDING &&

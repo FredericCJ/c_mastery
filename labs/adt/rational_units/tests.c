@@ -66,13 +66,21 @@ static int base(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "rational_fraction"))
+    {
         return fractional();
+    }
     if (!strcmp(argv[1], "rational_boundary"))
+    {
         return boundary();
+    }
     if (!strcmp(argv[1], "rational_base"))
+    {
         return base();
+    }
     if (!strcmp(argv[1], "oracle"))
     {
         int64_t v;
@@ -84,13 +92,19 @@ int main(int argc, char **argv)
             struct adq_result r = {99, 77};
             enum adq_status s;
             if (direction == 0)
+            {
                 s = adq_scale(v, n, d, &r);
+            }
             else if (direction == 1)
+            {
                 s = adq_to_ticks((struct adq_microseconds){v},
                                  (struct adq_period){n, d}, &r);
+            }
             else
+            {
                 s = adq_to_microseconds((struct adq_ticks){v},
                                         (struct adq_period){n, d}, &r);
+            }
             printf("%u %" PRId64 " %u\n", (unsigned)s, r.value, r.inexact);
         }
         return 0;
@@ -100,6 +114,7 @@ int main(int argc, char **argv)
         double raw[7], wrapped[7];
         uint64_t checksum = 0;
         for (unsigned k = 0; k < 7; ++k)
+        {
             for (unsigned mode = 0; mode < 2; ++mode)
             {
                 clock_t begin = clock();
@@ -117,25 +132,38 @@ int main(int argc, char **argv)
                     current += (uint64_t)r.value + r.inexact;
                 }
                 if (k || mode)
+                {
                     CHECK(checksum == current);
+                }
                 else
+                {
                     checksum = current;
+                }
                 double seconds = (double)(clock() - begin) / CLOCKS_PER_SEC;
                 if (mode)
+                {
                     wrapped[k] = seconds;
+                }
                 else
+                {
                     raw[k] = seconds;
+                }
             }
+        }
         printf(
             "{\"microseconds_size\":%zu,\"ticks_size\":%zu,\"result_size\":%zu,"
             "\"iterations\":100000,\"checksum\":%" PRIu64 ",\"raw\":[",
             sizeof(struct adq_microseconds), sizeof(struct adq_ticks),
             sizeof(struct adq_result), checksum);
         for (unsigned k = 0; k < 7; ++k)
+        {
             printf("%s%.9f", k ? "," : "", raw[k]);
+        }
         printf("],\"wrapped\":[");
         for (unsigned k = 0; k < 7; ++k)
+        {
             printf("%s%.9f", k ? "," : "", wrapped[k]);
+        }
         puts("]}");
         return 0;
     }

@@ -37,8 +37,10 @@ int main(void)
                                  {t, 0, 0, 1, 32, 33},
                                  {t, 0, 0, 1, 31, 32}};
     for (unsigned i = 0; i < sizeof invalid / sizeof invalid[0]; ++i)
+    {
         CHECK(xd_observe(&s, t, XD_COMPLETE, &invalid[i]) == XD_INVALID &&
               equal(&s, &unchanged));
+    }
     struct xd_proof unavailable = {t, 1, 0, 1, 32, 32};
     CHECK(xd_observe(&s, t, XD_COMPLETE, &unavailable) == XD_BUSY &&
           equal(&s, &unchanged));

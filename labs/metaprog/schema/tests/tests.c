@@ -156,14 +156,18 @@ static int oracle(void)
             int status;
             if (scanf("%u %u %u %" SCNu32 " %" SCNd32 " %zu", &version,
                       &present, &code, &value, &note, &cap) != 6)
+            {
                 return 2;
+            }
             memset(bytes, 0xa5, 64);
             struct mps_record r = {(uint32_t)present, (uint16_t)code, value,
                                    note};
             status = mps_encode(version, &r, bytes, cap, &n);
             printf("%d %zu ", status, n);
             for (i = 0; i < 64; ++i)
+            {
                 printf("%02x", bytes[i]);
+            }
             puts("");
         }
         else if (op == 'D')
@@ -174,13 +178,17 @@ static int oracle(void)
             struct mps_record r = {3, 99, 88, 77};
             int status;
             if (scanf("%130s", hex) != 1)
+            {
                 return 2;
+            }
             n = !strcmp(hex, "-") ? 0 : strlen(hex) / 2;
             for (i = 0; i < n; ++i)
             {
                 unsigned u;
                 if (sscanf(hex + 2 * i, "%2x", &u) != 1)
+                {
                     return 2;
+                }
                 bytes[i] = (unsigned char)u;
             }
             status = mps_decode(bytes, n, &r);
@@ -196,7 +204,9 @@ static int oracle(void)
             struct mp_visits v = {0, 0, 0, 0};
             if (scanf("%u %u %" SCNu32 " %" SCNd32 " %u", &present, &code,
                       &value, &note, &stop) != 5)
+            {
                 return 2;
+            }
             struct mps_record r = {(uint32_t)present, (uint16_t)code, value,
                                    note};
             v.stop = stop;
@@ -205,7 +215,9 @@ static int oracle(void)
                    v.sum);
         }
         else
+        {
             return 2;
+        }
     }
     return 0;
 }
@@ -233,7 +245,9 @@ static int metrics(void)
         ",\"record_size\":%zu,\"descriptor_size\":%zu,\"wire_bytes\":%zu,\"seconds\":[",
         checksum, sizeof r, sizeof(struct mps_field), n);
     for (i = 0; i < 7; ++i)
+    {
         printf("%s%.9f", i ? "," : "", seconds[i]);
+    }
     puts("]}");
     return 0;
 }
@@ -241,18 +255,32 @@ static int metrics(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "schema_wire"))
+    {
         return wire();
+    }
     if (!strcmp(argv[1], "schema_semantics"))
+    {
         return semantics();
+    }
     if (!strcmp(argv[1], "schema_visit"))
+    {
         return visits();
+    }
     if (!strcmp(argv[1], "schema_base"))
+    {
         return base();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

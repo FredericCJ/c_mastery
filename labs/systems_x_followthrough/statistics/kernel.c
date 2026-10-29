@@ -5,7 +5,9 @@ uint64_t sx_sum_a(const uint32_t *p, size_t n)
 {
     uint64_t sum = 0;
     for (size_t i = 0; i < n; i++)
+    {
         sum += p[i];
+    }
     return sum;
 }
 
@@ -19,6 +21,8 @@ uint64_t sx_sum_b(const uint32_t *p, size_t n)
         y += p[i + 1];
     }
     if (i < n)
+    {
         x += p[i];
+    }
     return x + y;
 }

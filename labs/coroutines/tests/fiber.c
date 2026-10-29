@@ -27,21 +27,33 @@ static void work(struct co_fiber *f, void *ctx)
      * for the actual stack-switch claim, retain local for lifetime checks. */
     __asm__ volatile("movq %%rsp,%0" : "=r"(p->local_address));
     if (fegetround() != FE_TONEAREST)
+    {
         p->fail++;
+    }
     if (fesetround(FE_DOWNWARD))
+    {
         p->fail++;
+    }
     p->rounding = fegetround();
     p->calls++;
     if (co_fiber_yield(f))
+    {
         p->fail++;
+    }
     if (local != 17 || fegetround() != FE_DOWNWARD)
+    {
         p->fail++;
+    }
     local = 29;
     p->calls++;
     if (co_fiber_yield(f))
+    {
         p->fail++;
+    }
     if (local != 29 || fegetround() != FE_DOWNWARD)
+    {
         p->fail++;
+    }
     p->calls++;
 }
 

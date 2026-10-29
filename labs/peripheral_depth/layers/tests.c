@@ -32,9 +32,13 @@ static int send(void *c, const uint8_t *p, unsigned n, uint32_t t, uint32_t now,
     (void)now;
     (void)budget;
     if (m->borrow || n != 8)
+    {
         return PL_BUSY;
+    }
     if (m->fail)
+    {
         return PL_IO;
+    }
     m->borrow = p;
     m->token = t;
     m->accepted++;
@@ -46,9 +50,13 @@ static int poll(void *c, uint32_t t, uint32_t now)
     struct dg_script *m = c;
     (void)now;
     if (t != m->token)
+    {
         return PL_STALE;
+    }
     if (!m->done)
+    {
         return PL_BUSY;
+    }
     m->borrow = 0;
     return m->cancelled ? PL_CANCELLED : PL_OK;
 }
@@ -57,7 +65,9 @@ static int cancel(void *c, uint32_t t)
 {
     struct dg_script *m = c;
     if (t != m->token)
+    {
         return PL_STALE;
+    }
     m->cancelled++;
     return PL_OK;
 }
@@ -67,30 +77,40 @@ int main(void)
     uint8_t bytes[8];
     CHECK(pl_encode(0, 0, bytes) == PL_OK);
     for (unsigned i = 1; i < 7; i++)
+    {
         CHECK(bytes[i] == 0x10);
+    }
     CHECK(bytes[0] == 0xf0 && bytes[7] == 0xf1);
     for (unsigned seq = 0; seq < 256; seq++)
+    {
         for (unsigned value = 0; value < 256; value++)
         {
             struct pl_parser p = {0};
             struct pl_command out = {99, 99};
             CHECK(pl_encode((uint8_t)seq, (uint8_t)value, bytes) == PL_OK);
             for (unsigned k = 0; k < 8; k++)
+            {
                 CHECK(pl_feed(&p, bytes[k], &out) ==
                       (k == 7 ? PL_OK : PL_BUSY));
+            }
             CHECK(out.sequence == seq && out.value == value);
         }
+    }
     for (unsigned cut = 0; cut < 8; cut++)
     {
         struct pl_parser p = {0};
         struct pl_command out = {99, 99};
         CHECK(pl_encode(0xf0, 0xf1, bytes) == PL_OK);
         for (unsigned k = 0; k < cut; k++)
+        {
             CHECK(pl_feed(&p, bytes[k], &out) == PL_BUSY);
+        }
         CHECK(out.value == 99);
         CHECK(pl_encode(4, 5, bytes) == PL_OK);
         for (unsigned k = 0; k < 8; k++)
+        {
             CHECK(pl_feed(&p, bytes[k], &out) == (k == 7 ? PL_OK : PL_BUSY));
+        }
         CHECK(out.value == 5);
     }
     struct pl_parser p = {0};
@@ -98,7 +118,9 @@ int main(void)
     CHECK(pl_encode(4, 5, bytes) == PL_OK);
     bytes[6] ^= 1;
     for (unsigned k = 0; k < 8; k++)
+    {
         CHECK(pl_feed(&p, bytes[k], &out) == (k == 7 ? PL_FRAME : PL_BUSY));
+    }
     CHECK(out.value == 99);
     struct dg_script m = {0};
     struct pl_transport t = {&m, send, poll, cancel};
@@ -131,7 +153,9 @@ int main(void)
         struct pl_command synthetic = {0};
         CHECK(pl_encode(4, 222, bytes) == PL_OK);
         for (unsigned k = 0; k < 8; k++)
+        {
             effects += pl_feed(&attacker_parser, bytes[k], &synthetic) == PL_OK;
+        }
         CHECK(synthetic.value == 222);
     }
     CHECK(effects == 2);
@@ -141,7 +165,9 @@ int main(void)
         struct pl_command sentinel = {99, 99};
         CHECK(pl_feed(&short_frame, 0xf0, &sentinel) == PL_BUSY);
         for (unsigned k = 0; k < n; k++)
+        {
             CHECK(pl_feed(&short_frame, 0x10, &sentinel) == PL_BUSY);
+        }
         CHECK(pl_feed(&short_frame, 0xf1, &sentinel) ==
               (n == 6 ? PL_OK : PL_FRAME));
         CHECK(sentinel.value == (n == 6 ? 0u : 99u));
@@ -151,7 +177,9 @@ int main(void)
         struct pl_command sentinel = {99, 99};
         CHECK(pl_feed(&overflow, 0xf0, &sentinel) == PL_BUSY);
         for (unsigned k = 0; k < 6; k++)
+        {
             CHECK(pl_feed(&overflow, 0x10, &sentinel) == PL_BUSY);
+        }
         CHECK(pl_feed(&overflow, 0x10, &sentinel) == PL_FRAME &&
               sentinel.value == 99);
         CHECK(pl_feed(&overflow, 0xf1, &sentinel) == PL_BUSY &&

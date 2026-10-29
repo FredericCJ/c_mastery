@@ -58,13 +58,17 @@ static void *worker(void *arg)
             return 0;
         }
         for (unsigned j = 0; j < 4; j++)
+        {
             if (w->values[j] != 100 * r + j + 1)
             {
                 p->failed = 2;
                 return 0;
             }
             else
+            {
                 p->reads++;
+            }
+        }
         /* Prevent next-round writes from racing with the preceding reads. */
         if (wait_round(w, p->id) != CMX_OK)
         {
@@ -106,8 +110,10 @@ int main(int argc, char **argv)
         CHECK(!pthread_create(&threads[i], 0, worker, &workers[i]));
     }
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(!pthread_join(threads[i], 0) && !workers[i].failed &&
               workers[i].reads == 128);
+    }
     if (w.tree_mode)
     {
         CHECK(w.tree.leaf[0].arrivals == 256 &&

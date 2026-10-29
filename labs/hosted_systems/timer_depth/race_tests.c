@@ -38,7 +38,9 @@ static void *callback(void *arg)
     {
         /* The callback retains its context while parked. It does not hold lock. */
         while (!s->release)
+        {
             CHECK(!pthread_cond_wait(&s->changed, &s->lock));
+        }
         ++s->calls;
         CHECK(td_finish(&s->timer, s->token) == 1);
     }
@@ -57,14 +59,20 @@ static int one(int force)
     CHECK(td_init(&s.timer, 4) == 0 &&
           td_arm(&s.timer, 1, 1, 0, &s.token) == 1);
     if (force == 2)
+    {
         CHECK(td_cancel(&s.timer) == 1);
+    }
     CHECK(!pthread_create(&thread, NULL, callback, &s));
     int b = pthread_barrier_wait(&s.start);
     CHECK(b == 0 || b == PTHREAD_BARRIER_SERIAL_THREAD);
     CHECK(!pthread_mutex_lock(&s.lock));
     if (force == 1)
+    {
         while (!s.entered)
+        {
             CHECK(!pthread_cond_wait(&s.changed, &s.lock));
+        }
+    }
     int result = td_cancel(&s.timer);
     CHECK(result == (s.started ? 2 : force == 2 ? 0 : 1));
     if (s.started)
@@ -91,7 +99,9 @@ int main(void)
     CHECK(one(1) == 1 && one(2) == 0);
     unsigned started = 0;
     for (unsigned i = 0; i < 200; ++i)
+    {
         started += (unsigned)one(0);
+    }
     printf(
         "TIMER-RACE:forced_running=1;forced_cancelled=1;races=200;started=%u;"
         "prevented=%u;\n",

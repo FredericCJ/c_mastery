@@ -9,17 +9,23 @@ static bool blob_valid(const struct rzh_blob *b)
 static void dispose(struct rzh_blob *b)
 {
     if (b->data)
+    {
         b->dispose(b->context, b->data);
+    }
     *b = (struct rzh_blob){0};
 }
 
 static bool live(const struct rzh_arbiter *a, struct rzh_ticket t)
 {
     if (t.owner != a || !a->active || t.attempt > 1)
+    {
         return false;
+    }
 #if RZF_MUTANT != 73
     if (t.generation != a->generation)
+    {
         return false;
+    }
 #endif
     return (a->core.started & (1u << t.attempt)) &&
            !(a->finalized & (1u << t.attempt));
@@ -35,7 +41,9 @@ static uint64_t now(struct rzh_arbiter *a)
 static bool quiet(const struct rzh_arbiter *a)
 {
     if (!a->active)
+    {
         return true;
+    }
 #if RZF_MUTANT == 72
     return rz_hedge_quiescent(&a->core);
 #else
@@ -49,20 +57,28 @@ static void request_cancel(struct rzh_arbiter *a)
     unsigned outstanding = a->core.started & ~a->core.completed;
     a->core.cancel_requested |= outstanding;
     for (unsigned i = 0; i < 2; ++i)
+    {
         if (outstanding & (1u << i))
+        {
             (void)rzb_cancel(&a->gate, a->permits[i]);
+        }
+    }
 }
 
 int rzh_init(struct rzh_arbiter *a, void *context, uint64_t (*clock)(void *),
              int (*decode)(void *, const unsigned char *, size_t, unsigned *))
 {
     if (!a || !clock || !decode)
+    {
         return RZ_INVALID;
+    }
     *a = (struct rzh_arbiter){
         .context = context, .clock = clock, .decode = decode};
     a->last = clock(context);
     if (pthread_mutex_init(&a->mutex, NULL))
+    {
         return RZ_FULL;
+    }
     (void)rzb_init(&a->gate, 2, 2, (struct rzb_policy){8, 8, 1, 1}, a->last);
     (void)rz_receiver_init(&a->receiver, a->last, 16);
     return RZ_OK;
@@ -73,11 +89,15 @@ int rzh_begin(struct rzh_arbiter *a, struct rzf_scope *scope, uint64_t delay,
               struct rzh_ticket *out)
 {
     if (!a || !scope || !out || client > 1 || !id || id > 15 || !fence)
+    {
         return RZ_INVALID;
+    }
     (void)pthread_mutex_lock(&a->mutex);
     int status = RZ_BUSY;
     if (!quiet(a) || (a->result_ready && !a->taken))
+    {
         goto done;
+    }
     if (a->generation == UINT64_MAX)
     {
         status = RZ_FULL;
@@ -87,11 +107,15 @@ int rzh_begin(struct rzh_arbiter *a, struct rzf_scope *scope, uint64_t delay,
     uint64_t time = now(a);
     status = rz_hedge_init(&staged, &scope->core, time, delay);
     if (status != RZ_OK)
+    {
         goto done;
+    }
     struct rzf_borrow borrow = {0};
     status = rzf_borrow_begin(&borrow, scope);
     if (status != RZ_OK)
+    {
         goto done;
+    }
     struct rzb_permit permit;
     status = rzb_admit(&a->gate, 0, 1, scope, time, &permit);
     if (status != RZ_OK)
@@ -100,7 +124,9 @@ int rzh_begin(struct rzh_arbiter *a, struct rzf_scope *scope, uint64_t delay,
         goto done;
     }
     if (a->request.scope)
+    {
         (void)rzf_borrow_ack(&a->request);
+    }
     a->request = borrow;
     a->core = staged;
     a->permits[0] = permit;
@@ -120,11 +146,15 @@ done:
 int rzh_start(struct rzh_arbiter *a, struct rzh_ticket *out)
 {
     if (!a || !out)
+    {
         return RZ_INVALID;
+    }
     (void)pthread_mutex_lock(&a->mutex);
     int status = RZ_STALE;
     if (!a->active)
+    {
         goto done;
+    }
     if (a->abandoned)
     {
         status = RZ_CANCELLED;
@@ -134,7 +164,9 @@ int rzh_start(struct rzh_arbiter *a, struct rzh_ticket *out)
     struct rz_hedge staged = a->core;
     status = rz_hedge_start(&staged, time);
     if (status != RZ_OK)
+    {
         goto done;
+    }
     struct rzb_permit permit;
     status = rzb_admit(&a->gate, 0, 1, a->request.scope, time, &permit);
     if (status == RZ_OK)
@@ -152,21 +184,29 @@ int rzh_effect(struct rzh_arbiter *a, struct rzh_ticket t, int delta, int *out,
                bool *duplicate)
 {
     if (!a || !out || !duplicate || delta < -8 || delta > 8)
+    {
         return RZ_INVALID;
+    }
     (void)pthread_mutex_lock(&a->mutex);
     int status = RZ_STALE;
     if (!live(a, t) || (a->claimed & (1u << t.attempt)))
+    {
         goto done;
+    }
     uint64_t time = now(a);
     bool cancelled;
     status = rzb_cancelled(&a->gate, a->permits[t.attempt], time, &cancelled);
     if (status == RZ_OK)
     {
         if (cancelled || a->abandoned)
+        {
             status = RZ_CANCELLED;
+        }
         else
+        {
             status = rz_receive(&a->receiver, time, a->client, a->id, a->fence,
                                 delta, out, duplicate);
+        }
     }
 done:
     (void)pthread_mutex_unlock(&a->mutex);
@@ -177,7 +217,9 @@ int rzh_complete(struct rzh_arbiter *a, struct rzh_ticket t,
                  struct rzh_blob *input)
 {
     if (!a || !blob_valid(input))
+    {
         return RZ_INVALID;
+    }
     (void)pthread_mutex_lock(&a->mutex);
     if (!live(a, t))
     {
@@ -213,7 +255,9 @@ int rzh_complete(struct rzh_arbiter *a, struct rzh_ticket t,
     }
     if (a->core.winner >= 0 || status == RZ_CANCELLED || status == RZ_EXPIRED ||
         a->abandoned)
+    {
         request_cancel(a);
+    }
     int outcome =
         rz_check(&a->request.scope->core, time) != RZ_OK || a->abandoned
             ? -1
@@ -231,11 +275,15 @@ int rzh_complete(struct rzh_arbiter *a, struct rzh_ticket t,
 int rzh_cancelled(struct rzh_arbiter *a, struct rzh_ticket t, bool *out)
 {
     if (!a || !out)
+    {
         return RZ_INVALID;
+    }
     (void)pthread_mutex_lock(&a->mutex);
     int status = RZ_STALE;
     if (live(a, t))
+    {
         status = rzb_cancelled(&a->gate, a->permits[t.attempt], now(a), out);
+    }
     (void)pthread_mutex_unlock(&a->mutex);
     return status;
 }
@@ -243,11 +291,15 @@ int rzh_cancelled(struct rzh_arbiter *a, struct rzh_ticket t, bool *out)
 int rzh_take(struct rzh_arbiter *a, struct rzh_result *out)
 {
     if (!a || !out)
+    {
         return RZ_INVALID;
+    }
     (void)pthread_mutex_lock(&a->mutex);
     int status = RZ_PENDING;
     if (a->taken)
+    {
         status = RZ_DONE;
+    }
     else if (a->result_ready)
     {
         *out = (struct rzh_result){a->winner_blob, a->core.value,
@@ -257,7 +309,9 @@ int rzh_take(struct rzh_arbiter *a, struct rzh_result *out)
         status = RZ_OK;
     }
     else if (a->abandoned)
+    {
         status = RZ_CANCELLED;
+    }
     (void)pthread_mutex_unlock(&a->mutex);
     return status;
 }
@@ -265,7 +319,9 @@ int rzh_take(struct rzh_arbiter *a, struct rzh_result *out)
 int rzh_abandon(struct rzh_arbiter *a)
 {
     if (!a)
+    {
         return RZ_INVALID;
+    }
     (void)pthread_mutex_lock(&a->mutex);
     if (!a->active)
     {
@@ -282,7 +338,9 @@ int rzh_abandon(struct rzh_arbiter *a)
     struct rzh_blob local = a->winner_blob;
     a->winner_blob = (struct rzh_blob){0};
     if (a->result_ready)
+    {
         a->taken = true;
+    }
     ++a->callbacks;
     (void)pthread_mutex_unlock(&a->mutex);
     dispose(&local);
@@ -295,7 +353,9 @@ int rzh_abandon(struct rzh_arbiter *a)
 int rzh_snapshot(struct rzh_arbiter *a, struct rzh_snapshot *out)
 {
     if (!a || !out)
+    {
         return RZ_INVALID;
+    }
     (void)pthread_mutex_lock(&a->mutex);
     *out = (struct rzh_snapshot){
         a->generation,     a->core.started, a->core.completed,
@@ -310,7 +370,9 @@ int rzh_snapshot(struct rzh_arbiter *a, struct rzh_snapshot *out)
 int rzh_quiescent(struct rzh_arbiter *a)
 {
     if (!a)
+    {
         return RZ_INVALID;
+    }
     (void)pthread_mutex_lock(&a->mutex);
     int status = quiet(a) ? RZ_OK : RZ_BUSY;
     (void)pthread_mutex_unlock(&a->mutex);
@@ -320,7 +382,9 @@ int rzh_quiescent(struct rzh_arbiter *a)
 int rzh_destroy(struct rzh_arbiter *a)
 {
     if (!a)
+    {
         return RZ_INVALID;
+    }
     (void)pthread_mutex_lock(&a->mutex);
     if (!quiet(a) || (a->result_ready && !a->taken))
     {
@@ -328,7 +392,9 @@ int rzh_destroy(struct rzh_arbiter *a)
         return RZ_BUSY;
     }
     if (a->request.scope)
+    {
         (void)rzf_borrow_ack(&a->request);
+    }
     (void)pthread_mutex_unlock(&a->mutex);
     (void)pthread_mutex_destroy(&a->mutex);
     return RZ_OK;

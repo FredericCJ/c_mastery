@@ -13,8 +13,12 @@ int main(void)
 {
     struct pt_thread p = {0};
     if (run(&p, 0) != PT_PENDING || p.sum != 17)
+    {
         return 1;
+    }
     if (run(&p, 1) != PT_DONE || p.sum != 29)
+    {
         return 1;
+    }
     return 0;
 }

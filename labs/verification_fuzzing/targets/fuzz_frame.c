@@ -11,14 +11,20 @@ int LLVMFuzzerTestOneInput(const unsigned char *data, size_t n)
     if (n >= 2 && data[0] <= 16 && n == (size_t)data[0] + 2)
     {
         for (i = 1; i + 1 < n; ++i)
+        {
             x ^= data[i];
+        }
         expected = x == data[n - 1];
     }
     ok = vf_frame(data, n, &payload);
     assert(ok == expected);
     if (ok)
+    {
         assert(payload == data[0]);
+    }
     else
+    {
         assert(payload == 99);
+    }
     return 0;
 }

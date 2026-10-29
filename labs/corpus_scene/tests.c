@@ -28,9 +28,15 @@ static struct cs_matrix unit(void)
 static int same(const struct cs_matrix *a, const struct cs_matrix *b)
 {
     for (unsigned i = 0; i < 3; i++)
+    {
         for (unsigned j = 0; j < 4; j++)
+        {
             if (a->m[i][j] != b->m[i][j])
+            {
                 return 0;
+            }
+        }
+    }
     return 1;
 }
 
@@ -107,8 +113,10 @@ static int scene(int dump)
     m = unit();
     m.m[0][0] = 16;
     for (unsigned i = 0; i < 6; i++)
+    {
         CHECK(cs_add(&overflow, i ? &chain[i - 1] : NULL, &m, &chain[i]) ==
               CS_OK);
+    }
     memcpy(&before, &overflow, sizeof before);
     w = unit();
     old = w;
@@ -150,8 +158,12 @@ static int scene(int dump)
             {
                 printf("L %u %u", i, many.node[i].parent);
                 for (unsigned a = 0; a < 3; a++)
+                {
                     for (unsigned b = 0; b < 4; b++)
+                    {
                         printf(" %d", many.node[i].local.m[a][b]);
+                    }
+                }
                 puts("");
             }
         }
@@ -163,8 +175,12 @@ static int scene(int dump)
             {
                 printf("W %u", i);
                 for (unsigned a = 0; a < 3; a++)
+                {
                     for (unsigned b = 0; b < 4; b++)
+                    {
                         printf(" %d", w.m[a][b]);
+                    }
+                }
                 printf(" %u\n", work);
             }
             CHECK(cs_world(&many, handles[i], &old, &work) == CS_OK &&
@@ -192,7 +208,9 @@ static struct nv_point transform(struct nv_point p, unsigned t)
         p.y = x;
     }
     if (t == 2)
+    {
         p.x = -p.x;
+    }
     if (t == 3)
     {
         p.x *= 2;
@@ -263,12 +281,16 @@ static int nav(int dump)
         unsigned n = 1 + rnd() % 8;
         int center[9];
         for (unsigned i = 0; i <= n; i++)
+        {
             center[i] = (int)(rnd() % 17) - 8;
+        }
         struct nv_polygon original[8];
         for (unsigned i = 0; i < n; i++)
+        {
             original[i] =
                 box((int)i * 3, center[i] - 1, center[i] + 1, (int)(i + 1) * 3,
                     center[i + 1] - 1, center[i + 1] + 1);
+        }
         struct nv_point first = {0, center[0]},
                         last = {(int32_t)n * 3, center[n]};
         for (unsigned variant = 0; variant < 8; variant++)
@@ -278,8 +300,10 @@ static int nav(int dump)
             {
                 c[i] = original[i];
                 for (unsigned j = 0; j < 4; j++)
+                {
                     c[i].p[j] =
                         transform(original[i].p[shape == 2 ? 3 - j : j], shape);
+                }
             }
             a = transform(first, shape);
             b = transform(last, shape);
@@ -305,12 +329,16 @@ static int nav(int dump)
                 {
                     printf("P %u", c[i].n);
                     for (unsigned j = 0; j < c[i].n; j++)
+                    {
                         printf(" %d %d", c[i].p[j].x, c[i].p[j].y);
+                    }
                     puts("");
                 }
                 printf("R %u", out.n);
                 for (unsigned i = 0; i < out.n; i++)
+                {
                     printf(" %d %d", out.p[i].x, out.p[i].y);
+                }
                 puts("");
             }
             memcpy(&saved, &out, sizeof out);
@@ -326,7 +354,9 @@ static int nav(int dump)
 int main(int argc, char **argv)
 {
     if (argc < 2)
+    {
         return 2;
+    }
     unsigned mode = (unsigned)strtoul(argv[1], NULL, 10);
     return mode == 1 ? scene(argc > 2) : mode == 2 ? nav(argc > 2) : 2;
 }

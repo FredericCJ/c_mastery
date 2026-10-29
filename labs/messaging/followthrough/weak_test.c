@@ -24,7 +24,9 @@ static void sequential(void)
     for (unsigned round = 0; round < 128; round++)
     {
         for (unsigned i = 0; i < 8; i++)
+        {
             CHECK(mfw_push(&q, round * 8 + i) == MFW_OK);
+        }
         size_t b = atomic_load(&q.bottom);
         CHECK(mfw_push(&q, 99) == MFW_FULL);
         CHECK(atomic_load(&q.bottom) == b);
@@ -69,11 +71,17 @@ static void *stealer(void *arg)
         unsigned v;
         enum mfw_status s = mfw_steal(&w->q, &v);
         if (s == MFW_OK)
+        {
             record(w, v);
+        }
         else
+        {
             CHECK(s == MFW_EMPTY || s == MFW_CONFLICT);
+        }
         if (s == MFW_EMPTY && atomic_load(&w->done))
+        {
             break;
+        }
         sched_yield();
     }
     return NULL;
@@ -86,32 +94,48 @@ static void workload(void)
     mfw_deque_init(&w->q);
     atomic_init(&w->done, false);
     for (unsigned i = 0; i < 4000; i++)
+    {
         atomic_init(&w->seen[i], 0);
+    }
     pthread_t threads[2];
     for (unsigned i = 0; i < 2; i++)
+    {
         CHECK(!pthread_create(&threads[i], NULL, stealer, w));
+    }
     for (unsigned i = 0; i < 4000; i++)
     {
         while (mfw_push(&w->q, i) == MFW_FULL)
+        {
             sched_yield();
+        }
         if (i % 3 == 0)
         {
             unsigned v;
             enum mfw_status s = mfw_pop(&w->q, &v);
             if (s == MFW_OK)
+            {
                 record(w, v);
+            }
             else
+            {
                 CHECK(s == MFW_EMPTY || s == MFW_CONFLICT);
+            }
         }
     }
     atomic_store(&w->done, true);
     for (unsigned i = 0; i < 2; i++)
+    {
         CHECK(!pthread_join(threads[i], NULL));
+    }
     unsigned v;
     while (mfw_pop(&w->q, &v) == MFW_OK)
+    {
         record(w, v);
+    }
     for (unsigned i = 0; i < 4000; i++)
+    {
         CHECK(atomic_load(&w->seen[i]) == 1);
+    }
     free(w);
 }
 
@@ -151,29 +175,43 @@ static bool legal(struct msg_history *h, unsigned a, unsigned b, unsigned c)
     unsigned p[3] = {a, b, c};
     unsigned values[2] = {41, 42}, first = 0, last = 2;
     for (unsigned i = 0; i < 3; i++)
+    {
         for (unsigned j = i + 1; j < 3; j++)
+        {
             if (h->events[p[j]].end < h->events[p[i]].begin)
+            {
                 return false;
+            }
+        }
+    }
     for (unsigned i = 0; i < 3; i++)
     {
         struct msg_event *e = &h->events[p[i]];
         if (e->status == MFW_CONFLICT)
         {
             if (e->value != 99)
+            {
                 return false;
+            }
             continue;
         }
         if (e->status == MFW_EMPTY)
         {
             if (first != last || e->value != 99)
+            {
                 return false;
+            }
             continue;
         }
         if (e->status != MFW_OK || first == last)
+        {
             return false;
+        }
         unsigned wanted = p[i] ? values[first++] : values[--last];
         if (e->value != wanted)
+        {
             return false;
+        }
     }
     return true;
 }
@@ -195,13 +233,23 @@ static void histories(void)
             CHECK(!pthread_create(&threads[i], NULL, call, &args[i]));
         }
         for (unsigned i = 0; i < 3; i++)
+        {
             CHECK(!pthread_join(threads[i], NULL));
+        }
         bool found = false;
         for (unsigned a = 0; a < 3; a++)
+        {
             for (unsigned b = 0; b < 3; b++)
+            {
                 for (unsigned c = 0; c < 3; c++)
+                {
                     if (a != b && b != c && a != c)
+                    {
                         found |= legal(&h, a, b, c);
+                    }
+                }
+            }
+        }
         CHECK(found);
     }
 }
@@ -216,7 +264,9 @@ static void *write_values(void *arg)
 {
     struct sequence_work *w = arg;
     for (unsigned i = 1; i <= 10000; i++)
+    {
         CHECK(mfw_write(&w->s, i, 2 * i) == MFW_OK);
+    }
     atomic_store(&w->done, true);
     return NULL;
 }
@@ -247,9 +297,13 @@ static void sequences(void)
         out[0] = out[1] = 99;
         enum mfw_status result = mfw_read(&work.s, 3, out);
         if (result == MFW_OK)
+        {
             CHECK(out[1] == 2 * out[0]);
+        }
         else
+        {
             CHECK(result == MFW_BUSY && out[0] == 99 && out[1] == 99);
+        }
     } while (!atomic_load(&work.done));
     CHECK(!pthread_join(thread, NULL));
     CHECK(mfw_read(&work.s, 1, out) == MFW_OK && out[0] == 10000 &&
@@ -268,9 +322,13 @@ int main(int argc, char **argv)
         workload();
     }
     else if (!strcmp(argv[1], "sequence"))
+    {
         sequences();
+    }
     else
+    {
         CHECK(false);
+    }
     puts("weak native passed");
     return 0;
 }

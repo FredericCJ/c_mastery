@@ -60,7 +60,9 @@ int main(void)
         CHECK(fw_i2c_recover(fw, 9) == 0);
         CHECK(!pi_recover_begin(&p, io, 1, 0, 0, 200, 2));
         for (unsigned t = 0; t <= 200 && rc == PI_BUSY; t++)
+        {
             rc = pi_recover_step(&p, io, t);
+        }
         CHECK(rc == PI_OK && p.pulses == old);
     }
     /* Old primitives assume exclusive access; explicit second-master policy is

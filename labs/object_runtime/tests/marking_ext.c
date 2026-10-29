@@ -59,13 +59,17 @@ static int allocation(void)
     orcm_init(&h, ORC_GRAY);
     CHECK(orcm_allocate(&h, nil, nil, &a) == OR_OK);
     for (i = 1; i < 255; i++)
+    {
         CHECK(orcm_retain(&h, a) == OR_OK);
+    }
     memcpy(&before, &h, sizeof h);
     CHECK(orcm_retain(&h, a) == OR_FULL && !memcmp(&before, &h, sizeof h));
     CHECK(orcm_store(&h, a, 2, nil) == OR_INVALID &&
           !memcmp(&before, &h, sizeof h));
     for (i = 0; i < 255; i++)
+    {
         CHECK(orcm_release(&h, a) == OR_OK);
+    }
     memcpy(&before, &h, sizeof h);
     CHECK(orcm_release(&h, a) == OR_STATE && !memcmp(&before, &h, sizeof h));
     CHECK(orcm_begin(&h) == OR_OK && drain(&h, &dead) == 0 && dead == 1);
@@ -84,7 +88,9 @@ static int allocation(void)
     orcm_init(&h, ORC_BLACK);
     CHECK(orcm_allocate(&h, nil, nil, &a) == OR_OK);
     while (h.revision < ORC_REV_LIMIT)
+    {
         CHECK(orcm_store(&h, a, 0, nil) == OR_OK);
+    }
     memcpy(&before, &h, sizeof h);
     CHECK(orcm_store(&h, a, 0, nil) == OR_FULL &&
           !memcmp(&before, &h, sizeof h));
@@ -170,7 +176,9 @@ static int race_case(int root)
           r.invariant && r.live == 3);
     CHECK(call(&c, ORC_RELEASE, a, nil, 0, empty, &r) == OR_OK);
     if (root)
+    {
         CHECK(call(&c, ORC_RELEASE, b, nil, 0, empty, &r) == OR_OK);
+    }
     CHECK(call(&c, ORC_BEGIN, nil, nil, 0, empty, &r) == OR_OK &&
           finish_concurrent(&c, &dead) == 0 && dead == 3);
     CHECK(orcm_concurrent_close(&c) == OR_OK);
@@ -227,7 +235,9 @@ static int concurrent(void)
     {
         status = call(&c, ORC_BEGIN, nil, nil, 0, empty, &r);
         if (status != OR_OK)
+        {
             break;
+        }
         do
         {
             do
@@ -235,10 +245,14 @@ static int concurrent(void)
                 status = call(&c, ORC_STEP, nil, nil, 1, empty, &r);
             } while (status == OR_OK);
             if (status != OR_DONE)
+            {
                 break;
+            }
             status = call(&c, ORC_PREPARE, nil, nil, 0, empty, &r);
             if (status != OR_OK)
+            {
                 break;
+            }
             status = call(&c, ORC_COMMIT, nil, nil, 0, r.finish, &r);
         } while (status == OR_STATE);
     }
@@ -258,7 +272,9 @@ static int concurrent(void)
     CHECK(call(&c, ORC_ALLOCATE, nil, nil, 0, empty, &r) == OR_OK);
     a = r.object;
     for (i = 2; i < ORC_REV_LIMIT; i++)
+    {
         CHECK(call(&c, ORC_STORE, a, nil, 0, empty, &r) == OR_OK);
+    }
     CHECK(call(&c, ORC_INSPECT, nil, nil, 0, empty, &r) == OR_OK &&
           r.revision == ORC_REV_LIMIT && r.invariant && r.live == 1);
     {
@@ -277,7 +293,9 @@ static int oracle(void)
 {
     unsigned graph, mask, policy, i, scanned;
     for (graph = 0; graph < 64; graph++)
+    {
         for (mask = 0; mask < 8; mask++)
+        {
             for (policy = 0; policy < 3; policy++)
             {
                 struct orc_heap h;
@@ -286,7 +304,9 @@ static int oracle(void)
                 uint16_t dead;
                 orcm_init(&h, (enum orc_policy)policy);
                 for (i = 0; i < 3; i++)
+                {
                     CHECK(orcm_allocate(&h, nil, nil, &object[i]) == OR_OK);
+                }
                 for (i = 0; i < 3; i++)
                 {
                     unsigned t = code % 4;
@@ -294,7 +314,9 @@ static int oracle(void)
                     CHECK(orcm_store(&h, object[i], 0,
                                      t ? object[t - 1] : nil) == OR_OK);
                     if (!(mask & (1u << i)))
+                    {
                         CHECK(orcm_release(&h, object[i]) == OR_OK);
+                    }
                 }
                 CHECK(orcm_begin(&h) == OR_OK);
                 {
@@ -306,18 +328,28 @@ static int oracle(void)
                 printf("M %u %u %u %u %u\n", graph, mask, policy, h.graph.live,
                        dead);
             }
+        }
+    }
     return 0;
 }
 
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "allocation"))
+    {
         return allocation();
+    }
     if (!strcmp(argv[1], "concurrent"))
+    {
         return concurrent();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     return 2;
 }

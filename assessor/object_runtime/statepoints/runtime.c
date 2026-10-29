@@ -10,7 +10,9 @@ static uint32_t u32(const unsigned char *p)
     uint32_t v = 0;
     unsigned i;
     for (i = 0; i < 4; i++)
+    {
         v |= (uint32_t)p[i] << (8 * i);
+    }
     return v;
 }
 
@@ -19,7 +21,9 @@ static uint64_t u64(const unsigned char *p)
     uint64_t v = 0;
     unsigned i;
     for (i = 0; i < 8; i++)
+    {
         v |= (uint64_t)p[i] << (8 * i);
+    }
     return v;
 }
 
@@ -52,7 +56,9 @@ void relocate_roots(uintptr_t sp, uintptr_t ret)
           (uintptr_t)__sp_maps_end);
     loc = r + 16;
     for (i = 0; i < 3; i++)
+    {
         CHECK(loc[12 * i] == 4 && u32(loc + 12 * i + 8) == 0);
+    }
     for (i = 3; i < count; i += 2)
     {
         uintptr_t base, derived, a = location(loc + 12 * i, sp, stack),
@@ -63,8 +69,12 @@ void relocate_roots(uintptr_t sp, uintptr_t ret)
         CHECK(base == (uintptr_t)old_space && derived >= base &&
               derived - base < 8);
         for (j = 0; j < n; j++)
+        {
             if (dst[j] == b)
+            {
                 break;
+            }
+        }
         if (j == n)
         {
             dst[n] = b;
@@ -76,11 +86,13 @@ void relocate_roots(uintptr_t sp, uintptr_t ret)
     memset(old_space, 0, 8);
     new_space[8] = 99;
     if (mutant != 1)
+    {
         for (i = 0; i < n; i++)
         {
             uintptr_t updated = value[i] + (mutant == 2 ? 1u : 0u);
             memcpy((void *)dst[i], &updated, 8);
         }
+    }
     polls++;
     slots = n;
 }

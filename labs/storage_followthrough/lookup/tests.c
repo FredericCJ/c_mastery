@@ -18,7 +18,9 @@ static int rd(void *c, uint32_t p, void *b)
 {
     (void)c;
     if (p >= 67)
+    {
         return 1;
+    }
     reads++;
     memcpy(b, disk[p], 4096);
     return 0;
@@ -28,7 +30,9 @@ static int wr(void *c, uint32_t p, const void *b)
 {
     (void)c;
     if (p >= 67)
+    {
         return 1;
+    }
     memcpy(disk[p], b, 4096);
     return 0;
 }
@@ -65,14 +69,18 @@ static size_t key(unsigned i, uint8_t out[4])
 static int setup(store *s)
 {
     if (open_empty(s))
+    {
         return 1;
+    }
     for (unsigned j = 0; j < 92; j++)
     {
         unsigned i = (j * 37) % 92;
         uint8_t k[4], v = (uint8_t)i;
         size_t n = key(i, k);
         if (store_put(s, k, n, &v, 1) || store_check(s))
+        {
             return 1;
+        }
     }
     return 0;
 }
@@ -89,7 +97,9 @@ static int collect(void *p, const uint8_t *k, size_t n, const uint8_t *v,
     struct store_collected *c = p;
     c->calls++;
     if (c->count == c->limit)
+    {
         return 1;
+    }
     struct sl_record *r = &c->records[c->count++];
     r->klen = (uint8_t)n;
     r->vlen = (uint8_t)z;
@@ -134,10 +144,16 @@ static int binary(void)
           length == 777);
     /* Every internal separator must retrieve its equal right-subtree minimum. */
     for (unsigned id = 1; id < 32; id++)
+    {
         if ((s.used & (UINT32_C(1) << id)) && !s.scratch[id].leaf)
+        {
             for (unsigned i = 0; i < s.scratch[id].n; i++)
+            {
                 CHECK(store_get(&s, s.scratch[id].key[i], s.scratch[id].klen[i],
                                 out, sizeof out, &length) == STORE_OK);
+            }
+        }
+    }
     struct sl_snapshot snap;
     CHECK(sl_snapshot_capture(&s, &snap) == STORE_OK && snap.count == 92);
     puts("SL binary validated");
@@ -197,12 +213,14 @@ static int scans(void)
     size_t lens[] = {0, 2, 3, 4, 2};
     unsigned limits[] = {0, 1, 3, 1000};
     for (unsigned j = 0; j < 5; j++)
+    {
         for (unsigned l = 0; l < 4; l++)
         {
             struct store_collected c = {.limit = limits[l]};
             CHECK(store_scan(&s, low[j], lens[j], collect, &c) == STORE_OK);
             size_t expected = 0;
             for (size_t i = 0; i < full.count; i++)
+            {
                 if (compare(full.records[i].key, full.records[i].klen, low[j],
                             lens[j]) >= 0 &&
                     expected < limits[l])
@@ -212,9 +230,11 @@ static int scans(void)
                                  full.records[i].klen) == 0);
                     expected++;
                 }
+            }
             CHECK(c.count == expected);
             CHECK(c.calls == c.count || (limits[l] == 0 && c.calls == 1));
         }
+    }
     struct sl_snapshot snap;
     CHECK(sl_snapshot_capture(&s, &snap) == STORE_OK);
     puts("SL scans validated");
@@ -238,14 +258,22 @@ static int reenter(void *p, const struct sl_record *record)
     if (store_get(r->source, record->key, record->klen, value, sizeof value,
                   &n) != STORE_OK ||
         n != record->vlen || memcmp(value, record->value, n))
+    {
         r->bad = 1;
+    }
     if (store_delete(r->source, record->key, record->klen) != STORE_OK ||
         store_check(r->source))
+    {
         r->bad = 1;
+    }
     if (!r->calls && sl_snapshot_capture(r->source, &r->nested) != STORE_OK)
+    {
         r->bad = 1;
+    }
     if (memcmp(&saved, record, sizeof saved))
+    {
         r->bad = 1;
+    }
     r->calls++;
     return 0;
 }
@@ -305,16 +333,22 @@ static int structural(void)
         store bad = s;
         unsigned first = 0;
         for (unsigned i = 1; i < 32; i++)
+        {
             if ((bad.used & (UINT32_C(1) << i)) && bad.scratch[i].leaf)
             {
                 first = i;
                 break;
             }
+        }
         CHECK(first != 0 && !bad.scratch[bad.root].leaf);
         if (mode == 0)
+        {
             bad.scratch[bad.root].child[0] = 32;
+        }
         if (mode == 1)
+        {
             bad.scratch[first].next = first;
+        }
         if (mode == 2)
         {
             CHECK(!(bad.used & (UINT32_C(1) << 31)));
@@ -322,7 +356,9 @@ static int structural(void)
             bad.scratch[31].leaf = 1;
         }
         if (mode == 3)
+        {
             bad.scratch[bad.root].child[1] = bad.scratch[bad.root].child[0];
+        }
         reads = 0;
         CHECK(store_check(&bad) == STORE_CORRUPT);
         CHECK(sl_snapshot_capture(&bad, &out) == STORE_CORRUPT &&
@@ -363,7 +399,9 @@ static int records(void)
         struct sl_record *r = &snap.records[i];
         printf("%u ", r->klen);
         for (unsigned j = 0; j < r->klen; j++)
+        {
             printf("%02x", r->key[j]);
+        }
         printf(" %u\n", r->value[0]);
     }
     return 0;
@@ -372,22 +410,40 @@ static int records(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "binary"))
+    {
         return binary();
+    }
     if (!strcmp(argv[1], "normalize"))
+    {
         return normalize();
+    }
     if (!strcmp(argv[1], "scans"))
+    {
         return scans();
+    }
     if (!strcmp(argv[1], "snapshot"))
+    {
         return snapshot();
+    }
     if (!strcmp(argv[1], "lower"))
+    {
         return lower();
+    }
     if (!strcmp(argv[1], "structural"))
+    {
         return structural();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return normalize_oracle();
+    }
     if (!strcmp(argv[1], "records"))
+    {
         return records();
+    }
     return 2;
 }

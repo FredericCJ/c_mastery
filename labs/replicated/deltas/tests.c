@@ -28,19 +28,25 @@ static void persist(struct rp_disk *d)
 {
     unsigned i;
     for (i = 0; i < STORE_IMAGE_PAGES; ++i)
+    {
         if (d->dirty[i])
         {
             memcpy(d->stable[i], d->pending[i], STORE_PAGE_SIZE);
             d->dirty[i] = 0;
         }
+    }
 }
 
 static int fault(struct rp_disk *d)
 {
     if (++d->event != d->cut || !d->cut)
+    {
         return 0;
+    }
     if (d->mode)
+    {
         persist(d);
+    }
     d->dead = 1;
     return 1;
 }
@@ -49,7 +55,9 @@ static int rd(void *c, uint32_t p, void *out)
 {
     struct rp_disk *d = c;
     if (d->dead || p >= STORE_IMAGE_PAGES)
+    {
         return -1;
+    }
     memcpy(out, d->dirty[p] ? d->pending[p] : d->stable[p], STORE_PAGE_SIZE);
     return 0;
 }
@@ -58,7 +66,9 @@ static int wr(void *c, uint32_t p, const void *in)
 {
     struct rp_disk *d = c;
     if (d->dead || p >= STORE_IMAGE_PAGES)
+    {
         return -1;
+    }
     memcpy(d->pending[p], in, STORE_PAGE_SIZE);
     d->dirty[p] = 1;
     return fault(d) ? -1 : 0;
@@ -68,7 +78,9 @@ static int fl(void *c)
 {
     struct rp_disk *d = c;
     if (d->dead || fault(d))
+    {
         return -1;
+    }
     persist(d);
     return 0;
 }
@@ -197,7 +209,9 @@ static int protocol(void)
     oldack = ack;
     /* Lost acknowledgments and bounded history eviction select a full state. */
     for (i = 0; i < 5; ++i)
+    {
         CHECK(rpd_local(&nodes[0], 0, 3) == RPD_OK);
+    }
     CHECK(rpd_send(&nodes[0], 1, 1, &p) == RPD_OK && p.full && p.start == 0);
     CHECK(rpd_receive(&nodes[1], &p, &ack) == RPD_OK);
     old = p;
@@ -242,6 +256,7 @@ static int durable(void)
         source = nodes[1];
         memcpy(baseline, disks[1].stable, sizeof baseline);
         for (cut = 1; cut <= 37; ++cut)
+        {
             for (mode = 0; mode < 2; ++mode)
             {
                 memset(&disks[1], 0, sizeof disks[1]);
@@ -256,11 +271,17 @@ static int durable(void)
                 disks[1].cut = cut;
                 disks[1].mode = mode;
                 if (operation == 0)
+                {
                     status = rpd_local(&nodes[1], 1, 3);
+                }
                 else if (operation == 1)
+                {
                     status = rpd_receive(&nodes[1], &packet, &ack);
+                }
                 else
+                {
                     status = rpd_open(&pages[1], 9, 1, &reopened);
+                }
                 CHECK(status != RPD_OK);
                 CHECK(equal(&nodes[1].state, &saved.state));
                 CHECK(!memcmp(&ack, &ack_before, sizeof ack));
@@ -276,11 +297,14 @@ static int durable(void)
                 CHECK(reopened.state.epoch ==
                       (operation == 2 ? 2 + sequence : 2));
                 if (operation < 2)
+                {
                     CHECK(rpd_contains(&reopened.state.set,
                                        operation == 0 ? 3 : 2) ==
                           (int)sequence);
+                }
                 ++cases;
             }
+        }
     }
     CHECK(setup() == 0);
     saved = nodes[0];
@@ -346,7 +370,9 @@ static int oracle(void)
     {
         CHECK(a < 3);
         for (i = 0; i < 5; ++i)
+        {
             x[i] = 0;
+        }
         if (op == 'I')
         {
             CHECK(setup() == 0);
@@ -355,9 +381,13 @@ static int oracle(void)
             status = RPD_OK;
         }
         else if (op == 'L')
+        {
             status = rpd_local(&nodes[a], b, c);
+        }
         else if (op == 'O')
+        {
             status = rpd_open(&pages[a], 9, a, &nodes[a]);
+        }
         else if (op == 'S')
         {
             CHECK(b < 3 && c < 12);
@@ -394,16 +424,22 @@ static int oracle(void)
                         &acknowledgments[b]);
         }
         else
+        {
             return 2;
+        }
         printf("%d", status);
         for (i = 0; i < 5; ++i)
+        {
             printf(" %" PRIu64, x[i]);
+        }
         for (a = 0; a < 3; ++a)
         {
             CHECK(rpd_encode(&nodes[a].state, wire) == RPD_OK);
             putchar(' ');
             for (i = 0; i < 128; ++i)
+            {
                 printf("%02x", wire[i]);
+            }
         }
         putchar('\n');
     }
@@ -425,18 +461,32 @@ static int metrics(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "delta_sets"))
+    {
         return sets();
+    }
     if (!strcmp(argv[1], "delta_wire"))
+    {
         return wire();
+    }
     if (!strcmp(argv[1], "delta_protocol"))
+    {
         return protocol();
+    }
     if (!strcmp(argv[1], "delta_durable"))
+    {
         return durable();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

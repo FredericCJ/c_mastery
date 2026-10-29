@@ -9,7 +9,9 @@ int main(int argc, char **argv)
     const char *error;
     int n;
     if (argc != 2)
+    {
         return 2;
+    }
     h = dlopen(argv[1], RTLD_NOW | RTLD_LOCAL);
     if (!h)
     {
@@ -38,7 +40,9 @@ int main(int argc, char **argv)
     }
     api = NULL;
     if (dlclose(h))
+    {
         return 1;
+    }
     puts("M2 dispatch spike: object-symbol ABI, callback result42, quiescent "
          "close");
     return 0;

@@ -26,7 +26,9 @@ static unsigned count_live(const struct cpm_pool *p)
 {
     unsigned count = 0;
     for (unsigned i = 0; i < CPM_SLOTS; ++i)
+    {
         count += p->state[i] == 1;
+    }
     return count;
 }
 
@@ -46,8 +48,11 @@ int main(void)
         sizeof(struct cpm_record) * CPM_SLOTS, arena.capacity, arena.used,
         payload, arena.used - payload - 6, arena.capacity - arena.used);
     for (unsigned heap = 0; heap < 2; ++heap)
+    {
         for (unsigned fail = 0; fail < 2; ++fail)
+        {
             for (unsigned instrument = 0; instrument < 2; ++instrument)
+            {
                 for (int sample = -5; sample < 31; ++sample)
                 {
                     struct cpm_pool local,
@@ -62,7 +67,9 @@ int main(void)
                         cpm_pool_init(pool);
                         cpm_ring_init(&ring);
                         if (fail)
+                        {
                             cpm_fail_at(pool, 3);
+                        }
                         int values[] = {11, 22, 33, 44};
                         size_t accepted;
                         enum cpm_status status =
@@ -73,7 +80,9 @@ int main(void)
                         {
                             unsigned live = count_live(pool);
                             if (live > peak)
+                            {
                                 peak = live;
+                            }
                             REQUIRE(live == accepted);
                         }
                         for (size_t i = 0; i < accepted; ++i)
@@ -86,19 +95,28 @@ int main(void)
                             REQUIRE(cpm_release(pool, h) == CPM_OK);
                         }
                         if (instrument)
+                        {
                             REQUIRE(count_live(pool) == 0);
+                        }
                     }
                     uint64_t end = now();
                     REQUIRE(total == (fail ? 66000u : 220000u));
                     sink = total;
                     if (sample >= 0)
+                    {
                         printf(
                             "{\"kind\":\"sample\",\"heap_backing\":%u,\"failure_ordinal\":%u,\"instrumented\":%u,\"sample\":%d,\"rounds\":2000,\"ns\":%llu,\"peak_live\":%u,\"sink\":%llu}\n",
                             heap, fail ? 3 : 0, instrument, sample,
                             (unsigned long long)(end - begin), peak,
                             (unsigned long long)sink);
+                    }
                     if (heap)
+                    {
                         free(pool);
+                    }
                 }
+            }
+        }
+    }
     return 0;
 }

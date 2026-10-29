@@ -12,15 +12,27 @@ int main(void)
             b[i] = (unsigned char)i;
         }
         if (memset(a, 0x1a5, n) != a)
+        {
             return 1;
+        }
         for (size_t i = 0; i < sizeof a; ++i)
+        {
             if (a[i] != (i < n ? 0xa5 : 0x91))
+            {
                 return 2;
+            }
+        }
         if (memcpy(a, b, n) != a)
+        {
             return 3;
+        }
         for (size_t i = 0; i < sizeof a; ++i)
+        {
             if (a[i] != (i < n ? i : 0x91))
+            {
                 return 4;
+            }
+        }
     }
     return 0;
 }

@@ -50,7 +50,9 @@ static int inputs(void)
     changed[2] = n[1];
     CHECK(mpb_plan(changed, 3, 0, &q) == MPB_OK);
     for (unsigned i = 0; i < 3; ++i)
+    {
         CHECK(mpb_match(&p.entries[i], &q.entries[i]));
+    }
     CHECK(mpb_plan(n, 3, 1, &p) == MPB_OK);
     ++n[0].revision;
     CHECK(mpb_plan(n, 3, 1, &q) == MPB_OK &&
@@ -149,9 +151,13 @@ static int base(void)
 static void printhex(const unsigned char *b, size_t n)
 {
     for (size_t i = 0; i < n; ++i)
+    {
         printf("%02x", b[i]);
+    }
     if (!n)
+    {
         putchar('-');
+    }
 }
 
 static int oracle(void)
@@ -164,23 +170,31 @@ static int oracle(void)
         struct mpb_plan p = {0};
         p.count = 777;
         if (count > 8)
+        {
             return 2;
+        }
         for (size_t i = 0; i < count; ++i)
         {
             if (scanf("%u %u %" SCNd32, &n[i].id, &n[i].dependencies,
                       &n[i].revision) != 3)
+            {
                 return 2;
+            }
             for (unsigned j = 0; j < 6; ++j)
             {
                 char h[19];
                 if (scanf("%18s", h) != 1)
+                {
                     return 2;
+                }
                 n[i].inputs[j].length = !strcmp(h, "-") ? 0 : strlen(h) / 2;
                 for (size_t k = 0; k < n[i].inputs[j].length && k < 8; ++k)
                 {
                     unsigned b;
                     if (sscanf(h + 2 * k, "%2x", &b) != 1)
+                    {
                         return 2;
+                    }
                     n[i].inputs[j].bytes[k] = (unsigned char)b;
                 }
             }
@@ -190,7 +204,9 @@ static int oracle(void)
         if (status == MPB_OK)
         {
             for (size_t i = 0; i < count; ++i)
+            {
                 printf(" %u", p.order[i]);
+            }
             for (size_t i = 0; i < count; ++i)
             {
                 printf(" %" PRIu64 " ", p.entries[i].key);
@@ -226,7 +242,9 @@ static int metrics(void)
            ",\"plan_size\":%zu,\"entry_size\":%zu,\"seconds\":[",
            sum, sizeof p, sizeof(struct mpb_entry));
     for (unsigned i = 0; i < 7; ++i)
+    {
         printf("%s%.9f", i ? "," : "", sec[i]);
+    }
     puts("]}");
     return 0;
 }
@@ -234,18 +252,32 @@ static int metrics(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "cache_inputs"))
+    {
         return inputs();
+    }
     if (!strcmp(argv[1], "cache_schedule"))
+    {
         return schedule();
+    }
     if (!strcmp(argv[1], "cache_publication"))
+    {
         return publication();
+    }
     if (!strcmp(argv[1], "cache_base"))
+    {
         return base();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

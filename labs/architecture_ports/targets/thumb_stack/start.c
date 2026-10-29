@@ -29,28 +29,40 @@ void reset(void)
     __asm__ volatile("cpsid i" ::: "memory");
     volatile unsigned char *guard = (volatile unsigned char *)&test_guard;
     for (po_u i = 0; i < 16; i++)
+    {
         guard[i] = 0xa5;
+    }
     for (po_u n = 0; n <= 128; n++)
     {
         po_u result = 99, old_sp, new_sp;
         __asm__ volatile("mov %0,sp" : "=r"(old_sp));
         if (ts_probe(n, &result) != 1)
+        {
             stop(1);
+        }
         __asm__ volatile("mov %0,sp" : "=r"(new_sp));
         po_u want = ((po_u)&test_top - n) & ~7u;
         if (result != want || result < (po_u)&test_low || (result & 7) ||
             old_sp != new_sp)
+        {
             stop(1);
+        }
         for (po_u i = 0; i < 16; i++)
+        {
             if (guard[i] != 0xa5)
+            {
                 stop(1);
+            }
+        }
     }
     po_u invalid[3] = {129, 136, ~0u};
     for (po_u i = 0; i < 3; i++)
     {
         po_u result = 99;
         if (ts_probe(invalid[i], &result) != 0 || result != 99)
+        {
             stop(1);
+        }
     }
     stop(0);
 }

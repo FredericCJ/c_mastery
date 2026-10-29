@@ -21,7 +21,9 @@ static __attribute__((noinline)) uint32_t nested(unsigned depth)
 {
     volatile unsigned char a[256];
     for (unsigned i = 0; i < 256; ++i)
+    {
         a[i] = (unsigned char)(depth + i);
+    }
     return a[0] + (depth ? nested(depth - 1) : 0);
 }
 
@@ -51,7 +53,9 @@ int main(void)
           pthread_join(thread, NULL) == 0 && result == 6);
     size_t first = 0;
     while (first < n && stack[first] == 0xa5)
+    {
         ++first;
+    }
     CHECK(first < n);
     printf(
         "{\"stack_bytes\":%zu,\"changed_suffix_bytes\":%zu,\"pattern\":165,\"includes_pthread_startup\":true,\"architecture\":\"x86_64-downward\"}\n",

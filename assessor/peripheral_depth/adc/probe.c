@@ -5,7 +5,9 @@
 int main(void)
 {
     for (unsigned hz = 1000000; hz <= 180000000; hz += 1000000)
+    {
         for (unsigned sample = 0; sample < 8; sample++)
+        {
             for (unsigned n = 1; n <= 2; n++)
             {
                 struct pu_clock c = {hz, 1, 1, 2, 2, 0};
@@ -15,11 +17,14 @@ int main(void)
                 printf("T %u %u %u %d %u %u %u %u\n", hz, sample, n, r, t.hz,
                        t.total_cycles, t.conversion_us, t.prescaler);
             }
+        }
+    }
     const unsigned points[4][4] = {{0, 4095, 0, 3300},
                                    {64, 4032, 50, 3250},
                                    {1000, 3000, 500, 2500},
                                    {1, 3, 0, 3}};
     for (unsigned k = 0; k < 4; k++)
+    {
         for (unsigned code = 0; code < 4096; code++)
         {
             int32_t mv = 99;
@@ -27,13 +32,16 @@ int main(void)
                                  points[k][3], &mv);
             printf("C %u %u %d %d\n", k, code, r, (int)mv);
         }
+    }
     for (unsigned steps = 2; steps <= 128; steps++)
+    {
         for (unsigned i = 0; i < steps; i++)
         {
             unsigned v = 99;
             int r = pa_ramp(i, steps, 512, 3584, &v);
             printf("R %u %u %d %u\n", steps, i, r, v);
         }
+    }
     for (unsigned history = 0; history < 3125; history++)
     {
         unsigned digits = history, state = 0;
@@ -47,8 +55,11 @@ int main(void)
         }
     }
     for (unsigned n = 1; n <= 2; n++)
+    {
         for (unsigned flag = 0; flag < 64; flag++)
+        {
             for (unsigned late = 0; late < 2; late++)
+            {
                 for (unsigned timeout = 0; timeout < 2; timeout++)
                 {
                     struct pa_model m = {0};
@@ -68,6 +79,9 @@ int main(void)
                            late, timeout, a, b, z, d, r, out[0], out[1],
                            m.reads);
                 }
+            }
+        }
+    }
     const unsigned schedules[8][3] = {{2, 4, 1},   {2, 20, 1},  {2, 4, 30},
                                       {1, 4, 13},  {2, 20, 30}, {2, 4, 13},
                                       {2, 20, 13}, {1, 20, 30}};
@@ -84,7 +98,9 @@ int main(void)
         if (pa_open(&s, io, &c, &cfg, 0) != PA_OK ||
             pa_ready(&s, 0) != PA_BUSY || pa_ready(&s, 4) != PA_OK ||
             pa_begin(&s, io, 1, 1, out, 4, 100) != PA_OK)
+        {
             return 2;
+        }
         unsigned active = 0, accepted = 0, attempted = 0, ignored = 0, next = 0,
                  index = 0, t;
         int result = PA_BUSY;
@@ -97,7 +113,9 @@ int main(void)
             {
                 attempted++;
                 if (active)
+                {
                     ignored++;
+                }
                 else
                 {
                     accepted++;
@@ -110,15 +128,21 @@ int main(void)
             {
                 complete(&m, 100 + index);
                 if (++index == n)
+                {
                     active = 0;
+                }
                 else
+                {
                     next += 6;
+                }
             }
             if (t % service == 0)
             {
                 result = pa_step(&s, io, 1, t);
                 if (result != PA_BUSY)
+                {
                     break;
+                }
             }
         }
         printf("U %u %u %u %u %d %u %u %u %u\n", k, attempted, accepted,

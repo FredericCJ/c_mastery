@@ -14,6 +14,7 @@
 static int boundaries(void)
 {
     for (size_t n = 0; n <= 260; n++)
+    {
         for (unsigned workers = 1; workers <= 4; workers++)
         {
             struct sr_range range;
@@ -29,6 +30,7 @@ static int boundaries(void)
             }
             CHECK(previous == n);
         }
+    }
     struct sr_range r = {17, 19};
     CHECK(sr_partition(SIZE_MAX, 4, 3, &r) == SR_OK && r.end == SIZE_MAX);
     r = (struct sr_range){17, 19};
@@ -43,11 +45,15 @@ static int integers(void)
     uint64_t values[257];
     atomic_uint visits[257];
     for (unsigned i = 0; i < 257; i++)
+    {
         values[i] = (uint64_t)(i + 1) * (i + 1);
+    }
     {
         uint64_t original[10], partials[3] = {10, 18, 27};
         for (unsigned i = 0; i < 10; i++)
+        {
             original[i] = i + 1;
+        }
         struct sr_world w;
         struct sr_result r;
         CHECK(sr_init(&w, original, visits, 10, 3, SR_UNSIGNED) == SR_OK);
@@ -59,6 +65,7 @@ static int integers(void)
         CHECK(sr_finish(&w, &r) == SR_OK && r.unsigned_sum == 55);
     }
     for (unsigned workers = 1; workers <= 4; workers++)
+    {
         for (unsigned repeat = 0; repeat < 3; repeat++)
         {
             struct sr_world w;
@@ -76,21 +83,27 @@ static int integers(void)
             CHECK(sr_finish(&w, &result) == SR_OK &&
                   result.unsigned_sum == 5691265 && result.count == 257);
             for (unsigned i = 0; i < 257; i++)
+            {
                 CHECK(atomic_load(visits + i) == 1);
+            }
         }
+    }
     for (unsigned workers = 1; workers <= 4; workers++)
     {
         struct sr_world w;
         struct sr_result r;
         CHECK(sr_init(&w, NULL, NULL, 0, workers, SR_UNSIGNED) == SR_OK);
         for (unsigned i = 0; i < workers; i++)
+        {
             CHECK(sr_work(&w, i, SIZE_MAX) == SR_OK);
+        }
         CHECK(sr_finish(&w, &r) == SR_OK && r.count == 0 &&
               r.unsigned_sum == 0);
     }
     uint64_t u[] = {UINT64_MAX, 1};
     int64_t a[] = {INT64_MAX, 1}, b[] = {INT64_MIN, -1};
     for (unsigned workers = 1; workers <= 2; workers++)
+    {
         for (unsigned kind = 0; kind < 3; kind++)
         {
             struct sr_world w;
@@ -109,13 +122,16 @@ static int integers(void)
             }
             CHECK(sr_finish(&w, &r) == SR_OVERFLOW && r.unsigned_sum == 71);
         }
+    }
     struct sr_world w;
     struct sr_result r = {0};
     r.unsigned_sum = 83;
     CHECK(sr_init(&w, values, visits, 257, 4, SR_UNSIGNED) == SR_OK);
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(sr_work(&w, i, i == 2 ? 3 : SIZE_MAX) ==
               (i == 2 ? SR_FAILED : SR_OK));
+    }
     CHECK(sr_finish(&w, &r) == SR_FAILED && r.unsigned_sum == 83);
     int64_t good[] = {INT64_MAX, -INT64_MAX, -7, 2, 5};
     CHECK(sr_init(&w, good, visits, 5, 1, SR_SIGNED) == SR_OK);
@@ -142,7 +158,9 @@ static int ordered(void)
         struct sr_result r;
         CHECK(sr_init(&w, bytes, visits, 257, workers, SR_BYTES) == SR_OK);
         for (unsigned i = workers; i; i--)
+        {
             CHECK(sr_work(&w, i - 1, SIZE_MAX) == SR_OK);
+        }
         CHECK(sr_finish(&w, &r) == SR_OK && r.hash == expected &&
               r.power == power && r.count == 257);
         CHECK(memcmp(r.bins, bins, sizeof bins) == 0);
@@ -155,7 +173,9 @@ static int ordered(void)
 int main(void)
 {
     if (boundaries() || integers() || ordered())
+    {
         return 1;
+    }
     puts("SR_PASS:partition-overflow-ownership-failure-order");
     return 0;
 }

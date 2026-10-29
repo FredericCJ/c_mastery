@@ -29,7 +29,9 @@ static void *admit_paused(void *p)
     struct rz_paused *a = p;
     CHECK(!pthread_mutex_lock(&a->mutex));
     for (unsigned i = 0; i < 8; ++i)
+    {
         CHECK(rzt_schedule(&a->timers, 100, i + 1, &a->ids[i]) == RZ_OK);
+    }
     CHECK(!pthread_mutex_unlock(&a->mutex));
     return NULL;
 }
@@ -54,20 +56,28 @@ static void structures(void)
         CHECK(rzt_cancel(&t, ids[1]) == RZ_STALE && rzt_invariant(&t));
         CHECK(rzt_init(&t, (enum rzt_kind)kind, 0) == RZ_OK);
         for (unsigned i = 0; i < 16; ++i)
+        {
             CHECK(rzt_schedule(&t, 0, 63, &ids[i]) == RZ_OK &&
                   rzt_invariant(&t));
+        }
         struct rzt_id refused = {NULL, 77, 77};
         CHECK(rzt_schedule(&t, 0, 1, &refused) == RZ_FULL &&
               refused.slot == 77);
         for (unsigned i = 1; i < 16; i += 2)
+        {
             CHECK(rzt_cancel(&t, ids[i]) == RZ_OK && rzt_invariant(&t));
+        }
         for (unsigned i = 1; i < 16; i += 2)
+        {
             CHECK(rzt_schedule(&t, 0, 63, &ids[i]) == RZ_OK &&
                   rzt_invariant(&t));
+        }
         CHECK(rzt_advance(&t, 63, &events) == RZ_OK && events.count == 16 &&
               rzt_invariant(&t));
         for (unsigned i = 1; i < 16; ++i)
+        {
             CHECK(events.events[i - 1].sequence < events.events[i].sequence);
+        }
         CHECK(t.work.largest_expiry == 16);
         CHECK(rzt_init(&t, (enum rzt_kind)kind, UINT64_MAX - 1) == RZ_OK);
         CHECK(rzt_schedule(&t, UINT64_MAX - 1, 2, &refused) == RZ_RANGE &&
@@ -95,7 +105,9 @@ static void structures(void)
         struct rz_paused paused = {PTHREAD_MUTEX_INITIALIZER, {0}, {{0}}};
         CHECK(rzt_init(&paused.timers, (enum rzt_kind)kind, 0) == RZ_OK);
         for (unsigned i = 0; i < 8; ++i)
+        {
             CHECK(rzt_schedule(&paused.timers, 0, i + 1, &ids[i]) == RZ_OK);
+        }
         pthread_t producer;
         CHECK(!pthread_create(&producer, NULL, admit_paused, &paused));
         CHECK(!pthread_join(producer, NULL));
@@ -103,12 +115,16 @@ static void structures(void)
         CHECK(rzt_advance(&paused.timers, 100, &events) == RZ_OK &&
               events.count == 8);
         for (unsigned i = 0; i < 8; ++i)
+        {
             CHECK(events.events[i].due == i + 1 &&
                   events.events[i].lateness == 99 - i);
+        }
         CHECK(rzt_advance(&paused.timers, 108, &events) == RZ_OK &&
               events.count == 8);
         for (unsigned i = 0; i < 8; ++i)
+        {
             CHECK(events.events[i].due == 101 + i);
+        }
         CHECK(rzt_invariant(&paused.timers));
         CHECK(!pthread_mutex_unlock(&paused.mutex));
         CHECK(!pthread_mutex_destroy(&paused.mutex));
@@ -140,10 +156,14 @@ static void structures(void)
             cmx_tick(&kernel, origin + tick);
             CHECK(rzt_advance(&t, (uint64_t)origin + tick, &events) == RZ_OK);
             for (unsigned i = 0; i < events.count; ++i)
+            {
                 fired |= 1u << events.events[i].id.slot;
+            }
             for (unsigned i = 0; i < 16; ++i)
+            {
                 CHECK((kernel.task[i].state == CMX_READY) ==
                       ((fired & (1u << i)) != 0 || i == 7));
+            }
             CHECK(cmx_invariant(&kernel));
         }
     }
@@ -165,15 +185,21 @@ static void oracle(void)
             struct rzt_events events = {0};
             char op = word[i];
             if (op == 'a' || op == 'b' || op == 'c')
+            {
                 status = rzt_schedule(&t, wall,
                                       op == 'a'   ? 1
                                       : op == 'b' ? 9
                                                   : 63,
                                       &id);
+            }
             else if (op == 'x')
+            {
                 status = rzt_cancel(&t, id);
+            }
             else if (op == 'p')
+            {
                 wall += 100;
+            }
             else
             {
                 CHECK(op == 't' || op == 'j');
@@ -212,14 +238,20 @@ static void pair_oracle(void)
         for (unsigned tick = 0; tick <= 16; ++tick)
         {
             if (tick == cancel)
+            {
                 cancelled = rzt_cancel(&t, ids[0]);
+            }
             CHECK(rzt_advance(&t, tick, &events) == RZ_OK && rzt_invariant(&t));
             for (unsigned i = 0; i < events.count; ++i)
+            {
                 all.events[all.count++] = events.events[i];
+            }
         }
         printf("%d|", cancelled);
         for (unsigned i = 0; i < all.count; ++i)
+        {
             printf("%" PRIu64 ":%u,", all.events[i].due, all.events[i].id.slot);
+        }
         puts("");
     }
 }
@@ -243,6 +275,7 @@ static void benchmark(int kind, int workload, unsigned rounds, bool latency)
         struct rzt_events events;
         CHECK(rzt_init(&t, (enum rzt_kind)kind, 0) == RZ_OK);
         if (workload != 0)
+        {
             for (unsigned i = 0; i < 16; ++i)
             {
                 uint64_t delay = workload == 1   ? 63
@@ -250,9 +283,14 @@ static void benchmark(int kind, int workload, unsigned rounds, bool latency)
                                                  : (i * 17) % 63 + 1;
                 CHECK(rzt_schedule(&t, 0, delay, &ids[i]) == RZ_OK);
             }
+        }
         if (workload == 3)
+        {
             for (unsigned i = 0; i < 16; i += 2)
+            {
                 CHECK(rzt_cancel(&t, ids[i]) == RZ_OK);
+            }
+        }
         for (unsigned tick = 1; tick <= 64; ++tick)
         {
             uint64_t start = latency ? nanos() : 0;
@@ -264,15 +302,19 @@ static void benchmark(int kind, int workload, unsigned rounds, bool latency)
                        tick, events.count, duration);
             }
             for (unsigned i = 0; i < events.count; ++i)
+            {
                 checksum += events.events[i].due + events.events[i].sequence +
                             events.events[i].id.slot;
+            }
         }
         sum.comparisons += t.work.comparisons;
         sum.link_writes += t.work.link_writes;
         sum.ticks += t.work.ticks;
         sum.cascade_visits += t.work.cascade_visits;
         if (t.work.largest_expiry > sum.largest_expiry)
+        {
             sum.largest_expiry = t.work.largest_expiry;
+        }
     }
     uint64_t elapsed = nanos() - begin;
     printf("{\"kind\":%d,\"workload\":%d,\"rounds\":%u,\"nanoseconds\":%" PRIu64
@@ -289,11 +331,17 @@ int main(int argc, char **argv)
 {
     CHECK(argc >= 2);
     if (!strcmp(argv[1], "test"))
+    {
         structures();
+    }
     else if (!strcmp(argv[1], "oracle"))
+    {
         oracle();
+    }
     else if (!strcmp(argv[1], "pairs"))
+    {
         pair_oracle();
+    }
     else if (!strcmp(argv[1], "benchmark") || !strcmp(argv[1], "latency"))
     {
         CHECK(argc == 5);
@@ -305,6 +353,8 @@ int main(int argc, char **argv)
                   !strcmp(argv[1], "latency"));
     }
     else
+    {
         return 2;
+    }
     return 0;
 }

@@ -40,11 +40,15 @@ static int decode(void *p, const unsigned char *bytes, size_t n, unsigned *out)
 {
     (void)p;
     if (n != RZV_FRAME_BYTES || !bytes)
+    {
         return RZ_INVALID;
+    }
     struct rzv_reply reply;
     int status = rzv_reply_decode(bytes, &reply);
     if (status != RZ_OK || reply.status || reply.result < 0)
+    {
         return RZ_INVALID;
+    }
     *out = (unsigned)reply.result;
     return RZ_OK;
 }
@@ -71,9 +75,13 @@ static void put32(unsigned char *p, uint32_t v)
 static unsigned checksum(const unsigned char *p, size_t n, uint32_t sum)
 {
     for (size_t i = 0; i < n; ++i)
+    {
         sum += (uint32_t)p[i] << (i % 2 ? 0 : 8);
+    }
     while (sum > 65535)
+    {
         sum = (sum & 65535) + (sum >> 16);
+    }
     return 65535 - sum;
 }
 
@@ -120,14 +128,18 @@ static int sink(void *p, const struct net_packet *packet)
     struct rzc_state *s = a->state;
     unsigned call = a->calls++;
     if (s->config.drops[a->index] & (1u << call))
+    {
         return 1;
+    }
     struct rzv_frame frame = {0};
     struct rzj_request request;
     size_t used = 0;
     if (rzv_frame_feed(&frame, packet->bytes, packet->length, &used,
                        &request) != RZ_OK ||
         used != packet->length)
+    {
         return 1;
+    }
     int value = 0;
     bool duplicate = false;
     int status =
@@ -164,16 +176,22 @@ static int schedule(struct rz_attempt *a)
     int status = rzr_plan(&a->retry, s->now, s->config.retry_after,
                           RZR_FULL_JITTER, &due);
     if (status != RZ_OK)
+    {
         return status;
+    }
     uint64_t tick = due / 1000 + (due % 1000 != 0), current = s->now / 1000;
 #if RZF_MUTANT == 111
     tick = due / 1000;
 #endif
     if (tick <= current)
+    {
         tick = current + 1;
+    }
     status = rzt_schedule(&s->timers, current, tick - current, &a->timer);
     if (status == RZ_OK)
+    {
         a->scheduled = true;
+    }
     return status;
 }
 
@@ -186,9 +204,13 @@ static int begin_attempt(struct rzc_state *s, unsigned index)
     {
         int check = rz_check(&s->scope->core, s->now);
         if (check != RZ_OK)
+        {
             return check;
+        }
         if (s->hedge.core.winner >= 0)
+        {
             return RZ_DONE;
+        }
     }
     struct rzf_bucket proposed = s->bucket;
     int status = rzf_bucket_consume(&proposed, s->now, 1);
@@ -201,7 +223,9 @@ static int begin_attempt(struct rzc_state *s, unsigned index)
     {
         status = rzh_start(&s->hedge, &a->ticket);
         if (status != RZ_OK)
+        {
             return status;
+        }
     }
     net_init(&a->transport, 100);
     struct net_stack *net = &a->transport;
@@ -221,16 +245,22 @@ static int begin_attempt(struct rzc_state *s, unsigned index)
     status = rzv_request_encode((struct rzj_request){0, 1, 1, 3},
                                 net->retained.bytes);
     if (status != RZ_OK)
+    {
         return status;
+    }
     status = rzr_init(&a->retry, s->scope, &s->bucket, net, 3, 2, 8, true,
                       75009 + index);
     if (status != RZ_OK)
+    {
         return status;
+    }
     a->active = true;
     ++s->result.started;
     status = rzr_original(&a->retry, s->now, sink, a);
     if (status != RZ_OK && status != RZ_PENDING)
+    {
         return status;
+    }
     (void)schedule(a);
     return RZ_OK;
 }
@@ -245,7 +275,9 @@ static int complete(struct rz_attempt *a, bool aborting)
         a->scheduled = false;
     }
     if (aborting)
+    {
         status = rzr_abort(&a->retry);
+    }
     else
     {
         struct net_packet packet, out;
@@ -253,10 +285,14 @@ static int complete(struct rz_attempt *a, bool aborting)
         status = rzr_ack_packet(&a->retry, packet.bytes, packet.length, s->now,
                                 &out);
         if (status == RZ_OK)
+        {
             status = rzr_finish(&a->retry);
+        }
     }
     if (status != RZ_OK)
+    {
         return status;
+    }
     status = rzh_complete(&s->hedge, a->ticket, &a->response);
     a->finished = true;
     return status == RZ_OK || status == RZ_DONE || status == RZ_EXPIRED ||
@@ -275,13 +311,17 @@ int rzc_run(struct rzc_config config, struct rzj_io journal_io,
         config.retry_after > 1501 || config.drops[0] > 15 ||
         config.drops[1] > 15 || !config.delay[0] || config.delay[0] > 24 ||
         !config.delay[1] || config.delay[1] > 24)
+    {
         return RZ_INVALID;
+    }
     struct rzc_state s = {
         .config = config, .allocator = allocator, .result = {.winner = -1}};
     int status = rzf_scope_create(NULL, 0, (uint64_t)config.deadline * 1000,
                                   allocator, &s.scope);
     if (status != RZ_OK)
+    {
         return status;
+    }
     status = rzj_open(journal_io, 16, &s.journal);
     if (status != RZ_OK || s.journal.records)
     {
@@ -326,36 +366,50 @@ int rzc_run(struct rzc_config config, struct rzj_io journal_io,
     }
     status = begin_attempt(&s, 0);
     if (status != RZ_OK)
+    {
         goto cleanup;
+    }
     struct rzt_id deadline_timer = {0}, hedge_timer = {0};
     status = rzt_schedule(&s.timers, 0, config.deadline, &deadline_timer);
     if (status != RZ_OK)
+    {
         goto cleanup;
+    }
     if (config.hedge)
+    {
         (void)rzt_schedule(&s.timers, 0, 2, &hedge_timer);
+    }
     bool took = false, quiet = false, delivered_waiting = false,
          hedge_considered = !config.hedge, deadline_seen = false;
     for (unsigned tick = 0; tick <= 64; ++tick)
     {
         s.now = (uint64_t)tick * 1000;
         if (config.cancel_at && tick == config.cancel_at)
+        {
             rz_cancel(&s.scope->core);
+        }
         for (unsigned i = 0; i < 2; ++i)
         {
             struct rz_attempt *a = &s.attempts[i];
             if (!a->active || a->finished)
+            {
                 continue;
+            }
             if (a->pending && a->due == tick)
             {
                 status = complete(a, false);
                 if (status != RZ_OK)
+                {
                     goto cleanup;
+                }
             }
             else if (!a->pending && deadline_seen)
             {
                 status = complete(a, true);
                 if (status != RZ_OK)
+                {
                     goto cleanup;
+                }
             }
         }
         struct rzh_result result = {0};
@@ -365,7 +419,9 @@ int rzc_run(struct rzc_config config, struct rzj_io journal_io,
             s.result.winner = (int)result.attempt;
             s.result.reply_at = tick;
             if (result.blob.data)
+            {
                 result.blob.dispose(result.blob.context, result.blob.data);
+            }
             if (!hedge_considered)
             {
                 (void)rzt_cancel(&s.timers, hedge_timer);
@@ -375,7 +431,9 @@ int rzc_run(struct rzc_config config, struct rzj_io journal_io,
         struct rzt_events events;
         status = rzt_advance(&s.timers, tick, &events);
         if (status != RZ_OK)
+        {
             goto cleanup;
+        }
         for (unsigned k = 0; k < events.count; ++k)
         {
             struct rzt_id id = events.events[k].id;
@@ -397,12 +455,16 @@ int rzc_run(struct rzc_config config, struct rzj_io journal_io,
                 struct rz_attempt *a = &s.attempts[i];
                 if (!a->scheduled || a->timer.slot != id.slot ||
                     a->timer.generation != id.generation)
+                {
                     continue;
+                }
                 a->scheduled = false;
                 bool cancelled = false;
                 (void)rzh_cancelled(&s.hedge, a->ticket, &cancelled);
                 if (cancelled)
+                {
                     continue;
+                }
                 status = rzr_dispatch(&a->retry, s.now, sink, a);
                 if (status == RZ_DENIED)
                 {
@@ -410,7 +472,9 @@ int rzc_run(struct rzc_config config, struct rzj_io journal_io,
                     continue;
                 }
                 if (status == RZ_OK || status == RZ_PENDING)
+                {
                     (void)schedule(a);
+                }
             }
         }
         if (!quiet && hedge_considered && rzh_quiescent(&s.hedge) == RZ_OK)
@@ -420,7 +484,9 @@ int rzc_run(struct rzc_config config, struct rzj_io journal_io,
             (void)rzt_cancel(&s.timers, deadline_timer);
         }
         if (s.outbox.pending.count)
+        {
             (void)rzs_forward(&s.outbox);
+        }
         if (tick >= config.notify_at && !delivered_waiting)
         {
             struct rzs_event event;
@@ -435,7 +501,9 @@ int rzc_run(struct rzc_config config, struct rzj_io journal_io,
         {
             status = rzs_ack(&s.outbox, s.outbox.events[0].sequence);
             if (status != RZ_OK)
+            {
                 goto cleanup;
+            }
             ++s.result.acknowledged;
             delivered_waiting = false;
         }
@@ -446,10 +514,14 @@ int rzc_run(struct rzc_config config, struct rzj_io journal_io,
                quiescent service state; no pthread object is byte-copied/reset. */
             status = rzj_open(journal_io, 16, &s.journal);
             if (status != RZ_OK)
+            {
                 goto cleanup;
+            }
             status = rzs_open(&s.journal, ack_io, &s.hub, &s.outbox);
             if (status != RZ_OK)
+            {
                 goto cleanup;
+            }
 #if RZF_MUTANT == 112
             s.outbox.pending.count = 0;
 #endif
@@ -458,7 +530,9 @@ int rzc_run(struct rzc_config config, struct rzj_io journal_io,
             delivered_waiting = false;
         }
         if (quiet && !s.outbox.count && tick >= config.notify_at)
+        {
             break;
+        }
     }
     if (s.journal.poisoned || s.outbox.poisoned)
     {
@@ -471,12 +545,14 @@ int rzc_run(struct rzc_config config, struct rzj_io journal_io,
         goto cleanup;
     }
     for (unsigned i = 0; i < 2; ++i)
+    {
         if (s.attempts[i].active)
         {
             s.result.dispatched += s.attempts[i].retry.dispatched;
             s.result.retries += s.attempts[i].retry.dispatched - 1;
             s.result.dropped += s.attempts[i].retry.dropped;
         }
+    }
     s.result.total = s.journal.receiver.total;
     s.result.tokens = s.bucket.tokens;
     s.result.journal_records = s.journal.records;
@@ -489,19 +565,27 @@ cleanup:
     {
         struct rz_attempt *a = &s.attempts[i];
         if (a->active && !a->retry.closed)
+        {
             (void)rzr_abort(&a->retry);
+        }
         if ((s.hedge.core.started & (1u << i)) &&
             !(s.hedge.finalized & (1u << i)))
+        {
             (void)rzh_complete(&s.hedge, a->ticket, &a->response);
+        }
     }
     {
         int cleaned = rzh_destroy(&s.hedge);
         if (status == RZ_OK)
+        {
             status = cleaned;
+        }
     }
     msg_hub_destroy(&s.hub);
     rzf_scope_release(&s.scope);
     if (status == RZ_OK)
+    {
         *out = s.result;
+    }
     return status;
 }

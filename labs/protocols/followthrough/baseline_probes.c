@@ -15,6 +15,7 @@
 static int lifecycle(void)
 {
     for (unsigned fail = 0; fail < 3; ++fail)
+    {
         for (unsigned quiet = 0; quiet < 2; ++quiet)
         {
             struct pt_device d;
@@ -34,8 +35,10 @@ static int lifecycle(void)
                 C(pt_recover(&d, quiet, &recovered) ==
                   (quiet ? PT_OK : PT_PENDING));
                 if (!quiet)
+                {
                     C(!memcmp(&d, &before, sizeof d) && !recovered.device &&
                       recovered.generation == 77);
+                }
                 else
                 {
                     C(d.cleanup == 1 && d.control == 0 &&
@@ -50,6 +53,7 @@ static int lifecycle(void)
                 C(pt_close(&copied, &c) == PT_STATE);
             }
         }
+    }
     struct pt_device d;
     struct pt_closed c;
     struct pt_ready out = {NULL, 9};
@@ -102,13 +106,17 @@ static int stateful(void)
     {
         const unsigned ev[] = {PT_CONNECT, PT_START, PT_FINISH, PT_FAIL};
         for (unsigned j = 0; j < 4; j++)
+        {
             C(pt_post(&q, ev[j]) == PT_OK);
+        }
         struct pt_active before = q;
         C(pt_post(&q, PT_RESET) == PT_RANGE && !memcmp(&q, &before, sizeof q));
         C(pt_active_step(&q, trace, 0, &used) == PT_RANGE &&
           !memcmp(&q, &before, sizeof q));
         for (unsigned j = 0; j < 4; j++)
+        {
             C(pt_active_step(&q, trace, 6, &used) == PT_OK);
+        }
         C(pt_post(&q, PT_RESET) == PT_OK &&
           pt_active_step(&q, trace, 6, &used) == PT_OK &&
           q.machine.active == PT_OFFLINE);
@@ -145,7 +153,9 @@ static unsigned nested(void *v, unsigned n)
     unsigned sentinel = 91;
     if (pt_behavior_tick(s->b, s->nodes, 5, nested, s, &sentinel) != PT_STATE ||
         sentinel != 91)
+    {
         s->bad = 1;
+    }
     return n == 2 ? PT_BT_RUNNING : n == 3 ? PT_BT_FAILURE : PT_BT_SUCCESS;
 }
 

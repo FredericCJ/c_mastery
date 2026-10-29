@@ -28,11 +28,17 @@ static void *mutate(void *unused)
     for (unsigned i = 0; i < 1000; ++i)
     {
         if (pthread_mutex_lock(&environment))
+        {
             abort();
+        }
         if (setenv("CM_LIBRARY_MUTABLE", i % 2 ? "alpha" : "beta", 1))
+        {
             ++env_errors;
+        }
         if (pthread_mutex_unlock(&environment))
+        {
             abort();
+        }
     }
     return NULL;
 }
@@ -44,12 +50,18 @@ static void *snapshot(void *unused)
     {
         char out[64];
         if (pthread_mutex_lock(&environment))
+        {
             abort();
+        }
         if (lt_environment("CM_LIBRARY_MUTABLE", out) != LT_OK ||
             (strcmp(out, "alpha") && strcmp(out, "beta")))
+        {
             ++env_errors;
+        }
         if (pthread_mutex_unlock(&environment))
+        {
             abort();
+        }
     }
     return NULL;
 }
@@ -65,7 +77,9 @@ static void *busy(void *ptr)
     struct worker *w = ptr;
     volatile uint32_t value = 17;
     for (unsigned i = 0; i < w->iterations; ++i)
+    {
         value = value * 1664525u + 1013904223u;
+    }
     w->checksum = value;
     return NULL;
 }
@@ -80,7 +94,9 @@ static int measure(const char *label, int mode)
     struct timespec a, b;
     clock_t ca = clock();
     if (clock_gettime(CLOCK_MONOTONIC, &a))
+    {
         return 1;
+    }
     struct worker workers[4] = {
         {0, 20000000}, {0, 20000000}, {0, 20000000}, {0, 20000000}};
     pthread_t threads[4];
@@ -90,32 +106,52 @@ static int measure(const char *label, int mode)
         busy(workers);
     }
     else if (mode == 0)
+    {
         busy(workers);
+    }
     else if (mode == 1)
     {
         struct timespec wait = {0, 30000000};
         while (nanosleep(&wait, &wait))
+        {
             if (errno != EINTR)
+            {
                 return 1;
+            }
+        }
     }
     else
     {
         for (unsigned i = 0; i < 4; ++i)
+        {
             if (pthread_create(threads + i, NULL, busy, workers + i))
+            {
                 abort();
+            }
+        }
         for (unsigned i = 0; i < 4; ++i)
+        {
             if (pthread_join(threads[i], NULL))
+            {
                 abort();
+            }
+        }
     }
     if (clock_gettime(CLOCK_MONOTONIC, &b))
+    {
         return 1;
+    }
     clock_t cb = clock();
     long double cpu;
     if (lt_cpu_interval(ca, cb, &cpu) != LT_OK)
+    {
         return 1;
+    }
     long double elapsed = seconds(b) - seconds(a);
     if (elapsed < 0)
+    {
         return 1;
+    }
     printf("sample=%s cpu_seconds=%.9Lf elapsed_seconds=%.9Lf checksum=%u;no "
            "ratio guarantee\n",
            label, cpu, elapsed, workers[0].checksum);
@@ -155,11 +191,13 @@ int main(int argc, char **argv)
     CHECK(sched_getaffinity(0, sizeof allowed, &allowed) == 0);
     int cpu = -1;
     for (int i = 0; i < CPU_SETSIZE; ++i)
+    {
         if (CPU_ISSET(i, &allowed))
         {
             cpu = i;
             break;
         }
+    }
     CHECK(cpu >= 0);
     CPU_ZERO(&one);
     CPU_SET(cpu, &one);
@@ -178,7 +216,9 @@ int main(int argc, char **argv)
         {
             close(ready[0]);
             if (write(ready[1], "R", 1) != 1)
+            {
                 _Exit(2);
+            }
             close(ready[1]);
             struct worker own = {0, 500000000};
             busy(&own);

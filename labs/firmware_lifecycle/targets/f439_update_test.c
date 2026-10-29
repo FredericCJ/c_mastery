@@ -33,20 +33,28 @@ static uint32_t get(const unsigned char *p)
 static void put(unsigned char *p, uint32_t n)
 {
     for (unsigned i = 0; i < 4; ++i)
+    {
         p[i] = (unsigned char)(n >> (8 * i));
+    }
 }
 
 static uint32_t rd(void *c, uint32_t a)
 {
     struct f4_model *s = c;
     if (a == 0x40023C10)
+    {
         return s->cr;
+    }
     if (a == 0x40023C0C)
+    {
         return s->sr;
+    }
     if (a >= 0x08000000 && a < 0x08100000)
     {
         if (s->busy)
+        {
             ++s->violations;
+        }
         return s->mem[(a - 0x08000000) / 4];
     }
     ++s->violations;
@@ -57,7 +65,9 @@ static int read_slot(void *c, uint32_t a, uint32_t *out)
 {
     struct f4_model *s = c;
     if (a == s->failure || (a & 3) || a < 0x08000000 || a >= 0x08100000)
+    {
         return 0;
+    }
     *out = rd(c, a);
     return 1;
 }
@@ -66,18 +76,24 @@ static void wr(void *c, uint32_t a, uint32_t n)
 {
     struct f4_model *s = c;
     if (s->dead)
+    {
         return;
+    }
     if (a == 0x40023C04)
     {
         if (!s->key && n == 0x45670123)
+        {
             s->key = 1;
+        }
         else if (s->key == 1 && n == 0xCDEF89AB)
         {
             s->cr &= ~0x80000000u;
             s->key = 0;
         }
         else
+        {
             ++s->violations;
+        }
         return;
     }
     if (a == 0x40023C0C)
@@ -132,7 +148,9 @@ static void fresh(void *c, uint32_t a, uint32_t n)
 {
     struct f4_model *s = c;
     if (s->busy || a < 0x08060000 || a + n > 0x08100000)
+    {
         ++s->violations;
+    }
     if (s->corrupt && s->step && a <= s->address && s->address < a + n)
     {
         s->mem[(s->address - 0x08000000) / 4] ^= 1;
@@ -148,7 +166,9 @@ static struct fm_io io(void)
 static void finish(void)
 {
     if (!m.busy || m.dead)
+    {
         return;
+    }
     if (!m.error)
     {
         if (m.erase)
@@ -207,13 +227,17 @@ static void make(struct rt_frame *f, unsigned slot, unsigned generation)
     crypto_ed25519_sign(e + 608, secret, e, 608);
     rt_reset(f);
     for (unsigned i = 0; i < 684; ++i)
+    {
         (void)rt_byte(f, packet[i]);
+    }
 }
 
 static void store(uint32_t a, const unsigned char *p, unsigned n)
 {
     for (unsigned i = 0; i < n; i += 4)
+    {
         m.mem[(a - 0x08000000 + i) / 4] = get(p + i);
+    }
 }
 
 static void image_store(const struct rt_frame *f, unsigned slot)
@@ -228,7 +252,9 @@ static void init(const struct rt_frame *old, const unsigned char record[80])
     memset(&m, 0, sizeof m);
     m.cr = 0x80000100u;
     for (unsigned i = 0; i < 262144; ++i)
+    {
         m.mem[i] = UINT32_MAX;
+    }
     image_store(old, 0);
     store(0x080C0000, record, 80);
 }
@@ -240,7 +266,9 @@ static enum fh_result drain(struct f4_writer *w)
     {
         finish();
         if (!m.dead)
+        {
             r = f4_poll(w);
+        }
     }
     return r;
 }
@@ -278,12 +306,16 @@ int main(void)
         C(f4_select(read_slot, &m, &policy, choices, &got) == 1 &&
           got.sequence == 1);
         if (cut)
+        {
             C(m.dead);
+        }
         else
+        {
             C(z == FH_DONE &&
               f4_install_result(&w, read_slot, &m, &policy, choices,
                                 &installed) &&
               installed.generation == 2 && m.step == 536);
+        }
     }
     for (unsigned cut = 0; cut <= 21; ++cut)
     {
@@ -299,11 +331,14 @@ int main(void)
         C(f4_select(read_slot, &m, &policy, choices, &got) == 1 &&
           got.sequence == 1);
         if (!cut)
+        {
             C(z == FH_DONE &&
               f4_trial_probe(read_slot, &m, &policy, choices, &old, &got) &&
               got.sequence == 2);
+        }
     }
     for (unsigned cut = 1; cut <= 20; ++cut)
+    {
         for (unsigned bits = 16; bits <= 32; bits += 16)
         {
             init(&before_frame, record);
@@ -321,6 +356,7 @@ int main(void)
             C(f4_select(read_slot, &m, &policy, choices, &got) == 1 &&
               got.sequence == (newvalid ? 2u : 1u));
         }
+    }
     for (unsigned bits = 0; bits <= 32; ++bits)
     {
         init(&before_frame, record);

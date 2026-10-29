@@ -44,7 +44,9 @@ static enum fi_status builtin(struct fi_range r, enum fi_operation op, int a,
     *out = temporary;
 #endif
     if (overflow || temporary < r.low || temporary > r.high)
+    {
         return FI_RANGE;
+    }
     *out = temporary;
     return FI_OK;
 }
@@ -57,7 +59,9 @@ static enum fi_status narrow(enum fi_operation op, int a, int b,
                    : op == FI_SUBTRACT ? SUB(&temporary, a, b)
                                        : MUL(&temporary, a, b);
     if (overflow)
+    {
         return FI_RANGE;
+    }
     *out = temporary;
     return FI_OK;
 }
@@ -68,7 +72,9 @@ int main(void)
                    "recorded narrow-destination experiment");
     unsigned long operations = 0, extents = 0;
     for (int a = -128; a <= 127; ++a)
+    {
         for (int b = -128; b <= 127; ++b)
+        {
             for (unsigned op = 0; op < 3; ++op)
             {
                 int exact = op == FI_ADD        ? a + b
@@ -90,6 +96,8 @@ int main(void)
                       small == (expected == FI_OK ? exact : 91));
                 ++operations;
             }
+        }
+    }
     /* Primitive overflow stores a result; public failure-atomic wrappers must stage. */
     unsigned int wrapped = 91;
     CHECK(ADD(&wrapped, UINT_MAX, 1u) && wrapped == 0);
@@ -110,8 +118,11 @@ int main(void)
           edge == 917);
     /* Composition uses actual existing fd_extent/fd_from_signed, not renamed local substitutes. */
     for (size_t p = 0; p < 9; ++p)
+    {
         for (size_t n = 0; n < 9; ++n)
+        {
             for (size_t width = 0; width < 9; ++width)
+            {
                 for (size_t limit = 0; limit < 9; ++limit)
                 {
                     size_t a = 917, b = 917, exact = p + n * width;
@@ -122,6 +133,9 @@ int main(void)
                     CHECK(a == b && a == (exact <= limit ? exact : 917));
                     ++extents;
                 }
+            }
+        }
+    }
     for (intmax_t v = -9; v <= 9; ++v)
     {
         size_t a = 917, b = 917;

@@ -27,7 +27,9 @@ static int init(void *v, unsigned char *p, size_t n)
         return 1;
     }
     for (size_t i = 0; i < n; ++i)
+    {
         p[i] = (unsigned char)(i + 1);
+    }
     return 0;
 }
 
@@ -47,7 +49,9 @@ int main(void)
     al_pool_init(&q);
     CHECK(al_pool_take(&q, 88, &foreign) == AL_OK);
     for (unsigned i = 0; i < 3; ++i)
+    {
         CHECK(al_pool_take(&p, (int32_t)i, &h[i]) == AL_OK);
+    }
     CHECK(al_pool_take(&p, 9, &reused) == AL_FULL);
     {
         unsigned live = 0, free = 0;
@@ -89,12 +93,16 @@ int main(void)
     CHECK(al_classes_init(&classes) == AL_OK);
     unsigned sizes[] = {1, 8, 9, 17};
     for (unsigned i = 0; i < 4; ++i)
+    {
         CHECK(al_classes_take(&classes, sizes[i], init, destroy, &r,
                               &handles[i]) == AL_OK);
+    }
     CHECK(al_classes_stats(&classes, &payload, &charged, &retained) == AL_OK &&
           payload == 35 && charged == 64 && retained == 224);
     for (unsigned i = 0; i < 4; ++i)
+    {
         CHECK(al_classes_release(&classes, handles[i]) == AL_OK);
+    }
     CHECK(r.acquired == 4 && r.destroyed == 4);
     CHECK(al_classes_stats(&classes, &payload, &charged, &retained) == AL_OK &&
           !payload && !charged && retained == 224);

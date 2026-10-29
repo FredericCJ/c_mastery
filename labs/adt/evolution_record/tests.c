@@ -29,15 +29,23 @@ static struct ade_record sentinel(void)
 static int same(struct ade_record a, struct ade_record b)
 {
     if (a.count != b.count)
+    {
         return 0;
+    }
     for (unsigned i = 0; i < ADE_FIELDS; i++)
     {
         if (a.fields[i].tag != b.fields[i].tag ||
             a.fields[i].length != b.fields[i].length)
+        {
             return 0;
+        }
         for (unsigned j = 0; j < ADE_PAYLOAD; j++)
+        {
             if (a.fields[i].bytes[j] != b.fields[i].bytes[j])
+            {
                 return 0;
+            }
+        }
     }
     return 1;
 }
@@ -82,7 +90,9 @@ static int records(void)
         n = 99;
         CHECK(ade_write(&record, 1, raw, cap, &n) == ADE_CAPACITY && n == 99);
         for (size_t j = 0; j < sizeof raw; j++)
+        {
             CHECK(raw[j] == 0xa5);
+        }
     }
     /* Actual codec.records producer inside opaque fields, two independent editions. */
     for (unsigned version = 1; version <= 2; version++)
@@ -167,7 +177,9 @@ static int baseline(void)
 {
     unsigned char input[257], output[257];
     for (size_t i = 0; i < 255; i++)
+    {
         input[i + 2] = (unsigned char)i;
+    }
     input[0] = 9;
     input[1] = 255;
     struct ad_evolving value;
@@ -182,7 +194,9 @@ static int baseline(void)
     borrowed[2] = 8;
     CHECK(value.payload[0] == 8);
     for (size_t cut = 0; cut < sizeof input; cut++)
+    {
         CHECK(!ad_evolve_read(input, cut, &value));
+    }
     unsigned char critical[] = {128, 0};
     CHECK(!ad_evolve_read(critical, sizeof critical, &value));
     unsigned char empty[] = {9, 0};
@@ -212,7 +226,9 @@ static int oracle(void)
         {
             int a = digit(hex[2 * i]), b = digit(hex[2 * i + 1]);
             if (a < 0 || b < 0)
+            {
                 return 2;
+            }
             input[i] = (unsigned char)(a * 16 + b);
         }
         struct ade_record record = sentinel(), saved = record;
@@ -229,7 +245,9 @@ static int oracle(void)
             if (auth == ADE_OK)
             {
                 if (tamper)
+                {
                     tag[31] ^= 1;
+                }
                 apply = ade_apply(&record, key, tag, &service);
             }
         }
@@ -259,7 +277,9 @@ static int metrics(void)
         r.fields[i].tag = 3 + 7 - i;
         r.fields[i].length = 16;
         for (unsigned j = 0; j < 16; j++)
+        {
             r.fields[i].bytes[j] = (unsigned char)(i + j);
+        }
     }
     double relay[7], auth[7];
     unsigned char out[ADE_BYTES], tag[32];
@@ -305,20 +325,36 @@ static int metrics(void)
 int main(int argc, char **argv)
 {
     for (unsigned i = 0; i < 32; i++)
+    {
         key[i] = (unsigned char)i;
+    }
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "evolution_records"))
+    {
         return records();
+    }
     if (!strcmp(argv[1], "evolution_auth"))
+    {
         return authentication();
+    }
     if (!strcmp(argv[1], "evolution_policy"))
+    {
         return policy();
+    }
     if (!strcmp(argv[1], "evolution_base"))
+    {
         return baseline();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

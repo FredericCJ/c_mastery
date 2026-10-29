@@ -25,23 +25,39 @@ static int pf_setup(cmx_kernel *k, struct cmx_cpf *o, struct cpf_handle h[6])
 {
     cmx_init(k, CMX_FIXED);
     for (unsigned i = 0; i < 6; i++)
+    {
         if (cmx_task_add(k, 5 + i, 0, 0x1000 + 256 * i, 256) != (int)i)
+        {
             return 0;
+        }
+    }
     if (cpf_init(o, k) != CMX_OK)
+    {
         return 0;
+    }
     for (unsigned i = 0; i < 6; i++)
+    {
         if (cpf_register(o, i, &h[i]) != CMX_OK)
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
 static int pf_close_all(struct cmx_cpf *o, struct cpf_handle h[6])
 {
     if (cpf_close(o) != CMX_OK)
+    {
         return 0;
+    }
     for (unsigned i = 0; i < 6; i++)
+    {
         if (cpf_release(&h[i]) != CMX_OK)
+        {
             return 0;
+        }
+    }
     return cpf_destroy(o) == CMX_OK;
 }
 
@@ -133,14 +149,20 @@ static int pf_cancelled(void)
               CMX_BLOCKED);
         CHECK(cpf_begin(h[2], CPF_READ, cmx_forever(), &r) == CMX_BLOCKED);
         if (timeout)
+        {
             cmx_tick(&k, 5);
+        }
         else
+        {
             CHECK(cpf_cancel(u) == CMX_CLOSED);
+        }
         CHECK(cpf_result(u) == (timeout ? CMX_TIMEOUT : CMX_CLOSED) &&
               o.upgrader == CMX_NONE && o.readers == 7);
         CHECK(cpf_result(r) == CMX_OK && k.task[0].owned_sync == 1);
         for (unsigned i = 0; i < 3; i++)
+        {
             CHECK(cpf_unlock(h[i]) == CMX_OK);
+        }
         CHECK(pf_close_all(&o, h));
     }
     puts(
@@ -184,15 +206,25 @@ static int pf_boundaries(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "phases"))
+    {
         return pf_phases();
+    }
     if (!strcmp(argv[1], "upgrade"))
+    {
         return pf_upgrade();
+    }
     if (!strcmp(argv[1], "cancel"))
+    {
         return pf_cancelled();
+    }
     if (!strcmp(argv[1], "boundaries"))
+    {
         return pf_boundaries();
+    }
     return 2;
 }
 

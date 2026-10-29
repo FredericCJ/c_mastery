@@ -25,7 +25,9 @@ static int base(void)
           busy.count == 3);
     CHECK(ow_move(&dst, &src) == OW_OK && dst.count == 3 && !src.count);
     for (unsigned i = 0; i < 3; ++i)
+    {
         CHECK(src.block[i] == NULL);
+    }
     CHECK(ow_consume(&src) == OW_DEAD && ow_consume(&dst) == OW_OK &&
           ow_consume(&dst) == OW_DEAD);
     CHECK(ow_destroy(&busy) == OW_OK && a.live == 0 && a.releases == 6);
@@ -49,7 +51,9 @@ static int inline_value(void)
               src.self == NULL && dst.self == &dst);
         CHECK(dst.data == (n <= 4 ? dst.small : old_data));
         for (size_t i = 0; i < n; ++i)
+        {
             CHECK(omm_read(&dst, i, &value) == OW_OK && value == data[i]);
+        }
         CHECK(omm_consume(&src) == OW_DEAD && omm_consume(&dst) == OW_OK &&
               omm_consume(&dst) == OW_DEAD);
     }
@@ -96,16 +100,22 @@ static void *take(void *p, size_t n)
     ++h->calls;
     h->bytes = n;
     if (h->fail)
+    {
         return NULL;
+    }
     void *value = malloc(n);
     if (!value)
+    {
         return NULL;
+    }
     for (unsigned i = 0; i < 16; ++i)
+    {
         if (!harness_allocations[i])
         {
             harness_allocations[i] = value;
             return value;
         }
+    }
     free(value);
     return NULL;
 }
@@ -116,8 +126,12 @@ static void release(void *p, void *value)
     ++h->releases;
     h->empty = h->owner && *h->owner == NULL;
     for (unsigned i = 0; i < 16; ++i)
+    {
         if (harness_allocations[i] == value)
+        {
             harness_allocations[i] = NULL;
+        }
+    }
     free(value);
 }
 
@@ -226,7 +240,9 @@ static int oracle(void)
         h.owner = &r;
         if (omm_registry_create((struct omm_memory){&h, take, release},
                                 ow_allocator(&a), seed, &r) != OW_OK)
+        {
             return 1;
+        }
         int32_t data[8] = {1, 2, 3, 4, 5, 6, 7, 8};
         struct omm_token live = {0}, copy = {0};
         enum ow_status s = omm_token_open(r, data, n, &live);
@@ -238,7 +254,9 @@ static int oracle(void)
             s = omm_token_move(r, &dst, &live);
             printf(" %d", s);
             if (s == OW_OK)
+            {
                 live = dst;
+            }
         }
         int32_t v = 91;
         enum ow_status read = omm_token_read(r, copy, 0, &v);
@@ -246,11 +264,15 @@ static int oracle(void)
         if (live.owner)
         {
             if (omm_token_consume(r, &live) != OW_OK)
+            {
                 return 1;
+            }
         }
         printf(" %zu %zu\n", a.attempts, a.releases);
         if (omm_registry_destroy(&r) != OW_OK)
+        {
             return 1;
+        }
     }
     return ferror(stdin) ? 2 : 0;
 }
@@ -287,7 +309,9 @@ static int metrics(void)
         sum, a.attempts, sizeof(struct omm_value), sizeof(struct omm_token),
         h.bytes, h.calls, h.releases);
     for (unsigned i = 0; i < 7; ++i)
+    {
         printf("%s%.9f", i ? "," : "", times[i]);
+    }
     puts("]}");
     return 0;
 }
@@ -295,23 +319,41 @@ static int metrics(void)
 static int run(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "move_base"))
+    {
         return base();
+    }
     if (!strcmp(argv[1], "move_inline"))
+    {
         return inline_value();
+    }
     if (!strcmp(argv[1], "move_admission"))
+    {
         return admission();
+    }
     if (!strcmp(argv[1], "move_registry"))
+    {
         return registry();
+    }
     if (!strcmp(argv[1], "move_theft"))
+    {
         return theft();
+    }
     if (!strcmp(argv[1], "move_retirement"))
+    {
         return retirement();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }
 
@@ -319,6 +361,8 @@ int main(int argc, char **argv)
 {
     int result = run(argc, argv);
     for (unsigned i = 0; i < 16; ++i)
+    {
         free(harness_allocations[i]);
+    }
     return result;
 }

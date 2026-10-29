@@ -6,8 +6,12 @@ static int sc_target_compare(const void *a, const void *b, size_t n)
 {
     const unsigned char *x = a, *y = b;
     for (size_t i = 0; i < n; i++)
+    {
         if (x[i] != y[i])
+        {
             return 1;
+        }
+    }
     return 0;
 }
 
@@ -155,18 +159,28 @@ static int workloads(void)
             {
                 unsigned ready = 0;
                 for (unsigned t = 0; t < 3; t++)
+                {
                     if (release[t] <= now && remaining[t] &&
                         !(suspended & (1u << t)))
+                    {
                         ready |= 1u << t;
+                    }
+                }
                 if (mode)
+                {
                     chosen = sc_choose(&w, ready, current);
+                }
                 else
                 {
                     chosen = CMX_NONE;
                     for (unsigned t = 0; t < 3; t++)
+                    {
                         if ((ready & (1u << t)) &&
                             (chosen < 0 || c.priority[t] < c.priority[chosen]))
+                        {
                             chosen = (int)t;
+                        }
+                    }
                 }
                 CHECK(chosen >= 0);
                 if (chosen != 1)
@@ -174,14 +188,18 @@ static int workloads(void)
                     if (mode)
                     {
                         if (w.pending[chosen])
+                        {
                             CHECK(sc_poll(&w, (unsigned)chosen) == CMX_OK);
+                        }
                         if (!(w.held[chosen] & 1u))
                         {
                             enum cmx_result r =
                                 sc_lock(&w, (unsigned)chosen, 0, cmx_forever(),
                                         SC_TASK_CONTEXT);
                             if (r == CMX_BLOCKED)
+                            {
                                 continue;
+                            }
                             CHECK(r == CMX_OK);
                         }
                     }
@@ -191,7 +209,9 @@ static int workloads(void)
                         continue;
                     }
                     else
+                    {
                         owner = chosen;
+                    }
                 }
                 break;
             }
@@ -199,12 +219,18 @@ static int workloads(void)
             trace[now] = (unsigned)chosen;
             if (mode ? w.kernel.task[0].state == CMX_WAITING
                      : (suspended & 1u) != 0)
+            {
                 blocked++;
+            }
             if (mode && chosen == 2 &&
                 w.kernel.task[2].priority < c.priority[2])
+            {
                 boosted++;
+            }
             if (first[chosen] == 99)
+            {
                 first[chosen] = now;
+            }
             remaining[chosen]--;
             current = chosen;
             if (!remaining[chosen])
@@ -214,8 +240,10 @@ static int workloads(void)
                 if (chosen != 1)
                 {
                     if (mode)
+                    {
                         CHECK(sc_unlock(&w, (unsigned)chosen, 0,
                                         SC_TASK_CONTEXT) == CMX_OK);
+                    }
                     else
                     {
                         owner = CMX_NONE;
@@ -250,36 +278,58 @@ static int stream(void)
     while (scanf("%u%u%u", &mode, &strict, &length) == 3)
     {
         if (length > 64)
+        {
             return 2;
+        }
         struct sc_config c = config(strict);
         struct sc_world w;
         enum cmx_result init = sc_init(&w, &c, (enum sc_mode)mode);
         if (init != CMX_OK)
+        {
             return 2;
+        }
         for (unsigned at = 0; at < length; at++)
         {
             unsigned op, t, arg;
             if (scanf("%u%u%u", &op, &t, &arg) != 3)
+            {
                 return 2;
+            }
             enum cmx_result r;
             if (op == 0)
+            {
                 r = sc_lock(&w, t, arg, cmx_forever(), SC_TASK_CONTEXT);
+            }
             else if (op == 1)
+            {
                 r = sc_unlock(&w, t, arg, SC_TASK_CONTEXT);
+            }
             else if (op == 2)
+            {
                 r = sc_cancel(&w, t);
+            }
             else if (op == 3)
+            {
                 r = sc_poll(&w, t);
+            }
             else if (op == 4)
+            {
                 r = sc_set_base(&w, t, arg);
+            }
             else
+            {
                 return 2;
+            }
             printf("%u %d", r, sc_invariant(&w));
             for (unsigned i = 0; i < 4; i++)
+            {
                 printf(" %u %u %u %u", w.kernel.task[i].priority, w.held[i],
                        w.pending[i], w.kernel.task[i].state == CMX_WAITING);
+            }
             for (unsigned i = 0; i < 2; i++)
+            {
                 printf(" %d", w.mutex[i].owner);
+            }
             putchar('\n');
         }
     }
@@ -289,17 +339,29 @@ static int stream(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "table"))
+    {
         return table();
+    }
     if (!strcmp(argv[1], "nested"))
+    {
         return nested();
+    }
     if (!strcmp(argv[1], "admission"))
+    {
         return admission();
+    }
     if (!strcmp(argv[1], "workloads"))
+    {
         return workloads();
+    }
     if (!strcmp(argv[1], "stream"))
+    {
         return stream();
+    }
     return 2;
 }
 #endif

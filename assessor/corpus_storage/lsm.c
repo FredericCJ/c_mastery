@@ -11,18 +11,28 @@ int ss_lsm_write(struct ss_lsm *s, uint32_t key, int32_t value,
                  unsigned tombstone)
 {
     if (!s || key >= 32 || tombstone > 1)
+    {
         return SS_INVALID;
+    }
     if (s->sequence == UINT32_MAX)
+    {
         return SS_EXHAUSTED;
+    }
     unsigned at = 0;
     while (at < s->count && s->memory[at].key < key)
+    {
         ++at;
+    }
     if (at == s->count || s->memory[at].key != key)
     {
         if (s->count == 4)
+        {
             return SS_FULL;
+        }
         for (unsigned i = s->count; i > at; --i)
+        {
             s->memory[i] = s->memory[i - 1];
+        }
         ++s->count;
     }
     s->memory[at] = (struct ss_record){key, ++s->sequence, value, tombstone};
@@ -33,7 +43,9 @@ int ss_lsm_get(const struct ss_lsm *s, uint32_t key, int32_t *out,
                unsigned *cost)
 {
     if (!s || !out || !cost || key >= 32)
+    {
         return SS_INVALID;
+    }
     struct ss_record best = {0};
     unsigned seen = 0, probes = 0;
     for (unsigned r = 0; r < 4; ++r)
@@ -50,16 +62,22 @@ int ss_lsm_get(const struct ss_lsm *s, uint32_t key, int32_t *out,
                 best = items[i];
                 seen = 1;
                 if (SS_MUTANT == 5)
+                {
                     goto done;
+                }
             }
             if (items[i].key >= key)
+            {
                 break;
+            }
         }
     }
 done:
     *cost = probes;
     if (!seen || best.tombstone)
+    {
         return SS_MISSING;
+    }
     *out = best.value;
     return SS_OK;
 }
@@ -67,25 +85,39 @@ done:
 int ss_lsm_flush(struct ss_lsm *s, unsigned fail)
 {
     if (!s)
+    {
         return SS_INVALID;
+    }
     if (!s->count)
+    {
         return SS_OK;
+    }
     unsigned at = 0;
     while (at < 3 && s->runs[at].live)
+    {
         ++at;
+    }
     if (at == 3)
+    {
         return SS_FULL;
+    }
     struct ss_run run = {.count = s->count, .live = 1};
     if (s->written > UINT32_MAX - s->count)
+    {
         return SS_EXHAUSTED;
+    }
     for (unsigned i = 0; i < s->count; ++i)
     {
         if (fail == i + 1)
+        {
             return SS_FAILED;
+        }
         run.values[i] = s->memory[i];
     }
     if (fail == s->count + 1)
+    {
         return SS_FAILED;
+    }
     s->runs[at] = run;
     s->written += s->count;
     s->count = 0;
@@ -96,23 +128,33 @@ int ss_lsm_compact(struct ss_lsm *s, unsigned mask, unsigned drop,
                    unsigned fail)
 {
     if (!s || mask > 7 || !mask || drop > 1)
+    {
         return SS_INVALID;
+    }
     unsigned active = 0, selected = 0, target = 0;
     for (unsigned i = 0; i < 3; ++i)
+    {
         if (s->runs[i].live)
         {
             active |= 1u << i;
             if (mask & (1u << i))
             {
                 if (!selected)
+                {
                     target = i;
+                }
                 ++selected;
             }
         }
+    }
     if ((mask & ~active) || selected < 2)
+    {
         return SS_INVALID;
+    }
     if (drop && (mask != active || s->count))
+    {
         return SS_INVALID;
+    }
     struct ss_run result = {.live = 1};
     unsigned positions[3] = {0}, writes = 0;
     for (;;)
@@ -120,6 +162,7 @@ int ss_lsm_compact(struct ss_lsm *s, unsigned mask, unsigned drop,
         unsigned found = 0;
         uint32_t key = 0;
         for (unsigned i = 0; i < 3; ++i)
+        {
             if ((mask & (1u << i)) && positions[i] < s->runs[i].count)
             {
                 uint32_t candidate = s->runs[i].values[positions[i]].key;
@@ -129,30 +172,49 @@ int ss_lsm_compact(struct ss_lsm *s, unsigned mask, unsigned drop,
                     found = 1;
                 }
             }
+        }
         if (!found)
+        {
             break;
+        }
         struct ss_record best = {0};
         for (unsigned i = 0; i < 3; ++i)
+        {
             if ((mask & (1u << i)) && positions[i] < s->runs[i].count &&
                 s->runs[i].values[positions[i]].key == key)
             {
                 struct ss_record record = s->runs[i].values[positions[i]++];
                 if (record.sequence > best.sequence)
+                {
                     best = record;
+                }
             }
+        }
         if (best.tombstone && (drop || SS_MUTANT == 6))
+        {
             continue;
+        }
         if (fail == ++writes)
+        {
             return SS_FAILED;
+        }
         result.values[result.count++] = best;
     }
     if (fail == writes + 1)
+    {
         return SS_FAILED;
+    }
     if (s->written > UINT32_MAX - result.count)
+    {
         return SS_EXHAUSTED;
+    }
     for (unsigned i = 0; i < 3; ++i)
+    {
         if (mask & (1u << i))
+        {
             s->runs[i] = (struct ss_run){0};
+        }
+    }
     s->runs[target] = result;
     s->written += result.count;
     return SS_OK;

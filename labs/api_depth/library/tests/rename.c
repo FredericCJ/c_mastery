@@ -39,7 +39,9 @@ int main(void)
                         *bv = lc_view(b.owned_buffer, &bn);
     CHECK(an == bn);
     for (size_t i = 0; i < an; i++)
+    {
         CHECK(av[i] == bv[i]);
+    }
     lc_release_buffer(a.p);
     lc_release_buffer(b.owned_buffer);
     puts("LC_RENAME unchanged byte units and ownership");

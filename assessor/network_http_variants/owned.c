@@ -27,7 +27,9 @@ static void finish(struct nv_owned *p, struct hf_handle h)
 int nv_owned_init(struct nv_owned *p)
 {
     if (!p)
+    {
         return NV_INVALID;
+    }
     memset(&p->core, 0, sizeof p->core);
     memset(p->closing, 0, sizeof p->closing);
     return pthread_mutex_init(&p->mutex, 0) ? NV_INVALID : NV_OK;
@@ -36,15 +38,21 @@ int nv_owned_init(struct nv_owned *p)
 int nv_owned_admit(struct nv_owned *p, int fd, struct hf_handle *out)
 {
     if (!p || !out || fd < 0)
+    {
         return NV_INVALID;
+    }
     int fl = fcntl(fd, F_GETFL), df = fcntl(fd, F_GETFD);
     if (fl < 0 || df < 0 || !(fl & O_NONBLOCK) || !(df & FD_CLOEXEC))
+    {
         return NV_INVALID;
+    }
     pthread_mutex_lock(&p->mutex);
     struct hf_handle h;
     int r = hf_admit(&p->core, fd, 3, &h);
     if (!r)
+    {
         *out = h;
+    }
     pthread_mutex_unlock(&p->mutex);
     return r == 0 ? NV_OK : r == 1 ? NV_FULL : NV_INVALID;
 }
@@ -53,7 +61,9 @@ int nv_owned_borrow(struct nv_owned *p, struct hf_handle h,
                     struct nv_lease *out)
 {
     if (!p || !out)
+    {
         return NV_INVALID;
+    }
     pthread_mutex_lock(&p->mutex);
     int r = NV_STALE;
     if (valid(p, h) && (!p->closing[h.index] || NV_MUTATION == 8))
@@ -64,7 +74,9 @@ int nv_owned_borrow(struct nv_owned *p, struct hf_handle h,
             r = NV_OK;
         }
         else
+        {
             r = NV_FULL;
+        }
     }
     pthread_mutex_unlock(&p->mutex);
     return r;
@@ -73,7 +85,9 @@ int nv_owned_borrow(struct nv_owned *p, struct hf_handle h,
 int nv_owned_close(struct nv_owned *p, struct hf_handle h)
 {
     if (!p)
+    {
         return NV_INVALID;
+    }
     pthread_mutex_lock(&p->mutex);
     int r = NV_STALE;
     if (valid(p, h) && !p->closing[h.index])
@@ -81,7 +95,9 @@ int nv_owned_close(struct nv_owned *p, struct hf_handle h)
         p->closing[h.index] = 1;
         r = NV_OK;
         if (!p->core.slot[h.index].pending || NV_MUTATION == 7)
+        {
             finish(p, h);
+        }
     }
     pthread_mutex_unlock(&p->mutex);
     return r;
@@ -90,7 +106,9 @@ int nv_owned_close(struct nv_owned *p, struct hf_handle h)
 int nv_owned_release(struct nv_lease *l)
 {
     if (!l || !l->active || !l->owner)
+    {
         return NV_STALE;
+    }
     struct nv_owned *p = l->owner;
     pthread_mutex_lock(&p->mutex);
     int r = NV_STALE;
@@ -102,7 +120,9 @@ int nv_owned_release(struct nv_lease *l)
         r = NV_OK;
         if (p->closing[l->handle.index] &&
             !p->core.slot[l->handle.index].pending)
+        {
             finish(p, l->handle);
+        }
     }
     pthread_mutex_unlock(&p->mutex);
     return r;
@@ -111,14 +131,18 @@ int nv_owned_release(struct nv_lease *l)
 int nv_owned_destroy(struct nv_owned *p)
 {
     if (!p)
+    {
         return NV_INVALID;
+    }
     pthread_mutex_lock(&p->mutex);
     for (unsigned i = 0; i < 4; i++)
+    {
         if (p->core.slot[i].live || p->core.slot[i].pending)
         {
             pthread_mutex_unlock(&p->mutex);
             return NV_BUSY;
         }
+    }
     pthread_mutex_unlock(&p->mutex);
     return pthread_mutex_destroy(&p->mutex) ? NV_BUSY : NV_OK;
 }

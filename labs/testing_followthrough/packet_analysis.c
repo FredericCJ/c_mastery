@@ -12,17 +12,23 @@ static unsigned unchecked(const unsigned char *p, unsigned count)
 {
     unsigned sum = 0;
     for (unsigned i = 0; i < count; i++)
+    {
         sum += ((unsigned)p[2 + 2 * i] << 8) | p[3 + 2 * i];
+    }
     return sum;
 }
 
 int packet_public(const unsigned char *p, size_t n, unsigned *out)
 {
     if (n < 2 || n > 10 || !p || !out)
+    {
         return 0;
+    }
     unsigned count = p[1];
     if (p[0] != 1 || count > 4 || n != 2 + 2 * (size_t)count)
+    {
         return 0;
+    }
     *out = unchecked(p, count);
     return 1;
 }
@@ -43,8 +49,10 @@ int main(void)
     n = 10;
 #endif
     if (ANALYSIS_CASE == 1)
+    {
         analysis_sink =
             unchecked(packet, 5); /* Unchecked caller violates count<=4. */
+    }
     else if (ANALYSIS_CASE == 2)
     {
         if (n <= 10)
@@ -59,7 +67,9 @@ int main(void)
         {
             change_length(&n);
             if (n < 10)
+            {
                 analysis_sink = packet[n];
+            }
         }
     }
     else

@@ -28,23 +28,33 @@ int main(int argc, char **argv)
                      &budget) == 6)
         {
             if (n > 10)
+            {
                 return 2;
+            }
             struct ch_op o[10];
             for (unsigned i = 0; i < n; i++)
+            {
                 if (scanf("%u%u%u%u%u%u%u%u%u", &o[i].invoke, &o[i].respond,
                           &o[i].invoke_event, &o[i].respond_event,
                           &o[i].participant, &o[i].operation, &o[i].value,
                           &o[i].result, &o[i].pending) != 9)
+                {
                     return 2;
+                }
+            }
             struct ch_witness w = {0};
             uint32_t visited = 0;
             int r =
                 ch_check(o, n, cap, spec, extend, events, budget, &w, &visited);
             printf("%d %u %u %u", r, visited, w.count, w.selected_pending);
             if (r == CH_VALID)
+            {
                 for (unsigned i = 0; i < w.count; i++)
+                {
                     printf(" %u,%u,%u", w.order[i], w.result[w.order[i]],
                            w.value[w.order[i]]);
+                }
+            }
             puts("");
         }
         return 0;
@@ -86,8 +96,10 @@ int main(int argc, char **argv)
     CK(ch_check(h, 2, 4, CH_FIFO, 1, 1, 10000, &w, &visited) == CH_VALID);
     /* Nine complete calls: actual extension beyond original CMX's eight. */
     for (unsigned i = 0; i < 9; i++)
+    {
         h[i] =
             op(i, i % 2 ? CH_REMOVE : CH_INSERT, 7, CH_VALUE, 2 * i, 2 * i + 1);
+    }
     CK(ch_check(h, 9, 4, CH_FIFO, 0, 1, 10000, &w, &visited) == CH_VALID &&
        w.count == 9);
     saved = w;

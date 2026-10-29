@@ -25,8 +25,11 @@ int main(void)
 {
     unsigned observations = 0;
     for (unsigned phase = 0; phase < 7; phase++)
+    {
         for (unsigned op = 0; op < 7; op++)
+        {
             for (unsigned old = 0; old < 2; old++)
+            {
                 for (unsigned edge = 0; edge < 2; edge++)
                 {
                     struct b5_rq r = {edge ? UINT32_MAX : 19, phase, 71,
@@ -44,7 +47,9 @@ int main(void)
                     {
                         CHECK(status == RQ_OK, "admit transition");
                         if (op == RQ_REAP && edge)
+                        {
                             expect = RQ_RETIRED;
+                        }
                         CHECK(r.phase == (unsigned)expect, "transition table");
                         CHECK(r.terminals == (op == RQ_SUBMIT
                                                   ? 0
@@ -68,6 +73,9 @@ int main(void)
                           "ownership states");
                     observations++;
                 }
+            }
+        }
+    }
     struct b5_rq r = {0};
     CHECK(rq_apply(&r, RQ_SUBMIT, 0, 0) == RQ_OK, "submit");
     CHECK(rq_apply(&r, RQ_CANCEL, 0, 0) == RQ_OK && rq_owned(&r),

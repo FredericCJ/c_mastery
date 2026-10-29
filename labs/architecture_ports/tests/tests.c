@@ -103,22 +103,40 @@ static int test_closure(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (strcmp(argv[1], "stack") == 0)
+    {
         return test_stack();
+    }
     if (strcmp(argv[1], "saved") == 0)
+    {
         return test_saved();
+    }
     if (strcmp(argv[1], "args") == 0)
+    {
         return test_args();
+    }
     if (strcmp(argv[1], "context") == 0)
+    {
         return test_context();
+    }
     if (strcmp(argv[1], "immediate") == 0)
+    {
         return test_immediate();
+    }
     if (strcmp(argv[1], "trap") == 0)
+    {
         return test_trap();
+    }
     if (strcmp(argv[1], "privilege") == 0)
+    {
         return test_privilege();
+    }
     if (strcmp(argv[1], "closure") == 0)
+    {
         return test_closure();
+    }
     return 2;
 }

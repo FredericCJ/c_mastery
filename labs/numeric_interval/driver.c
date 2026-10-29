@@ -13,13 +13,21 @@ int main(void)
                            out = {123, 456, 7};
         int rc;
         if (op <= 5)
+        {
             rc = ni_binary(op, a, b, &out);
+        }
         else if (op == 6)
+        {
             rc = ni_square(a, &out);
+        }
         else if (op == 7)
+        {
             rc = ni_rescale(a, other, &out);
+        }
         else
+        {
             rc = ni_ratio(al, ah, bits, &out);
+        }
         printf("%d %" PRId32 " %" PRId32 " %u\n", rc, out.lo, out.hi, out.bits);
     }
     return 0;

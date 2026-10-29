@@ -10,8 +10,12 @@ static int sj_target_compare(const void *a, const void *b, size_t count)
 {
     const unsigned char *x = a, *y = b;
     for (size_t i = 0; i < count; i++)
+    {
         if (x[i] != y[i])
+        {
             return 1;
+        }
+    }
     return 0;
 }
 
@@ -101,7 +105,9 @@ static int edf_case(void)
               SJ_OK &&
           r.misses == 0 && r.completed == 3 && r.preemptions == 1);
     for (unsigned i = 0; i < 6; i++)
+    {
         CHECK(r.ticks[i].job == expected[i]);
+    }
     cmx_job finite[] = {{2, 5, 2, 0, 0}, {2, 5, 3, 0, 0}};
     CHECK(cmx_edf_admit(finite, 2, 2) == CMX_OK &&
           cmx_edf_admit(finite, 2, 3) == CMX_TIMEOUT);
@@ -221,16 +227,26 @@ static int stream(void)
         struct sj_job j[SJ_JOBS];
         struct sj_result r;
         if (n > SJ_TASKS || k > SJ_JOBS)
+        {
             return 2;
+        }
         for (unsigned i = 0; i < n; i++)
+        {
             if (scanf("%u%u%u%u", &t[i].cost, &t[i].period, &t[i].deadline,
                       &t[i].jitter) != 4)
+            {
                 return 2;
+            }
+        }
         for (unsigned i = 0; i < k; i++)
+        {
             if (scanf("%u%u%u%u%u%u", &j[i].task, &j[i].sequence, &j[i].release,
                       &j[i].cost, &j[i].nonpreempt_start,
                       &j[i].nonpreempt_length) != 6)
+            {
                 return 2;
+            }
+        }
         enum sj_status status = sj_simulate(t, n, j, k, (enum sj_policy)p,
                                             (enum sj_overload)v, c, h, x, &r);
         printf("%u", status);
@@ -240,11 +256,15 @@ static int stream(void)
                    r.overhead, r.idle, r.preemptions, r.misses, r.rejected,
                    r.dropped, r.completed, r.peak_active);
             for (unsigned i = 0; i < k; i++)
+            {
                 printf(" %u %u %u %u %u %u", r.jobs[i].state,
                        r.jobs[i].remaining, r.jobs[i].executed, r.jobs[i].start,
                        r.jobs[i].finish, r.jobs[i].missed);
+            }
             for (unsigned i = 0; i < h; i++)
+            {
                 printf(" %u %u", r.ticks[i].job, r.ticks[i].kind);
+            }
         }
         putchar('\n');
     }
@@ -254,19 +274,33 @@ static int stream(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "order"))
+    {
         return order_case();
+    }
     if (!strcmp(argv[1], "edf"))
+    {
         return edf_case();
+    }
     if (!strcmp(argv[1], "backlog"))
+    {
         return backlog_case();
+    }
     if (!strcmp(argv[1], "assumptions"))
+    {
         return assumptions_case();
+    }
     if (!strcmp(argv[1], "refusal"))
+    {
         return refusal_case();
+    }
     if (!strcmp(argv[1], "stream"))
+    {
         return stream();
+    }
     return 2;
 }
 #endif

@@ -22,13 +22,19 @@ static uint32_t read_io(void *p, unsigned k)
 {
     struct mc_model *m = p;
     if (k == PU_SOURCE)
+    {
         return 1;
+    }
     if (k == PU_SR)
+    {
         m->sr_read = 1;
+    }
     if (k == PU_DR)
     {
         if (!m->sr_read)
+        {
             m->sequence_error = 1;
+        }
         m->sr_read = 0;
         m->dr_reads++;
         m->r[PU_SR] &= ~47u;
@@ -67,10 +73,14 @@ static int opened(struct mc_su *s, struct mc_model *m)
 static int configured(struct mc_su *s, struct mc_model *m)
 {
     if (opened(s, m))
+    {
         return 1;
+    }
     m->r[PU_CR1] &= ~12u;
     if (su_configure(s, io(m), 1, 0, 1))
+    {
         return 1;
+    }
     return su_enable(s, io(m), 1, 1);
 }
 
@@ -79,8 +89,11 @@ static int edges(void)
     struct sd_sync t;
     unsigned bad = 99, total = 0;
     for (unsigned p = 0; p < 2; p++)
+    {
         for (unsigned h = 0; h < 2; h++)
+        {
             for (unsigned l = 0; l < 2; l++)
+            {
                 for (unsigned v = 0; v < 256; v++)
                 {
                     CHECK(sd_sync(p, h, l, 1, 1, 0, (uint8_t)v, &t) == SD_OK);
@@ -94,10 +107,15 @@ static int edges(void)
                         captures += t.sample[i];
                     }
                     for (unsigned i = 0; i < 8; i++)
+                    {
                         CHECK(t.data[i] == ((v >> i) & 1));
+                    }
                     CHECK(captures == (l ? 8 : 7));
                     total++;
                 }
+            }
+        }
+    }
     CHECK(sd_sync(1, 0, 0, 1, 1, 0, 0xa5, &t) == SD_OK);
     CHECK(su_trace(1, 0, 1, &t, &bad) == PU_IO && bad == 15);
     CHECK(sd_sync(1, 1, 1, 1, 1, 0, 0xa5, &t) == SD_OK);
@@ -106,8 +124,12 @@ static int edges(void)
     /* Externally clocked SPI slave: sample existing input edges, no USART TX. */
     unsigned value = 0;
     for (unsigned edge = 1; edge <= 16; edge++)
+    {
         if (edge & 1)
+        {
             value |= ((0x96u >> ((edge - 1) / 2)) & 1u) << ((edge - 1) / 2);
+        }
+    }
     CHECK(value == 0x96);
     su_values("edges", total, 14, 16, value);
     return 0;
@@ -125,13 +147,17 @@ static int config(void)
     m.r[PU_CR1] &= ~4u;
     CHECK(su_configure(&s, io(&m), 2, 0, 1) == PU_INVALID && m.log_count == n);
     for (unsigned p = 0; p < 2; p++)
+    {
         for (unsigned h = 0; h < 2; h++)
+        {
             for (unsigned l = 0; l < 2; l++)
             {
                 CHECK(su_configure(&s, io(&m), p, h, l) == PU_OK);
                 CHECK(m.r[PU_CR2] == (0x800u | p << 10 | h << 9 | l << 8) &&
                       m.r[PU_CR3] == 0);
             }
+        }
+    }
     n = m.log_count;
     CHECK(su_enable(&s, io(&m), 1, 1) == PU_OK);
     CHECK(m.log_count == n + 1 && (m.r[PU_CR1] & 12) == 12);
@@ -228,12 +254,20 @@ static int failures(void)
 int su_cases(unsigned c)
 {
     if (c == 0)
+    {
         return edges();
+    }
     if (c == 1)
+    {
         return config();
+    }
     if (c == 2)
+    {
         return transfer();
+    }
     if (c == 3)
+    {
         return failures();
+    }
     return 42;
 }

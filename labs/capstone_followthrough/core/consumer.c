@@ -15,32 +15,52 @@ int main(void)
         unsigned char encoded[42];
         size_t n;
         if (cp_encode(&m, encoded, 42, &n) != CP_OK)
+        {
             return 1;
+        }
         if (length == 3)
+        {
             for (size_t i = 0; i < n; ++i)
+            {
                 if (encoded[i] != wire[i])
+                {
                     return 2;
+                }
+            }
+        }
         for (size_t split = 0; split <= n; ++split)
         {
             struct cs_service s;
             size_t used;
             if (cs_init(&s, 3, 100) != CS_OK)
+            {
                 return 3;
+            }
             enum cs_status a = cs_feed(&s, 0, encoded, split, &used, 1, 0);
             if (used != split || a != (split == n ? CS_FRAME : CS_MORE))
+            {
                 return 4;
+            }
             if (split < n)
             {
                 a = cs_feed(&s, 0, encoded + split, n - split, &used, 1, 0);
                 if (a != CS_FRAME || used != n - split)
+                {
                     return 5;
+                }
             }
             if (s.accepted != 1 || cs_begin(&s) != CS_OK ||
                 s.active.sequence != 258 || s.active.length != n)
+            {
                 return 6;
+            }
             for (size_t i = 0; i < n; ++i)
+            {
                 if (s.active.bytes[i] != encoded[i])
+                {
                     return 7;
+                }
+            }
             ++cases;
         }
     }

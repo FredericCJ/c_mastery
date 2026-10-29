@@ -25,7 +25,9 @@ void ds_async_pause(void)
     entered = 1;
     (void)pthread_cond_broadcast(&pause_condition);
     while (!released)
+    {
         (void)pthread_cond_wait(&pause_condition, &pause_mutex);
+    }
     (void)pthread_mutex_unlock(&pause_mutex);
 }
 
@@ -33,7 +35,9 @@ static void wait_entered(void)
 {
     (void)pthread_mutex_lock(&pause_mutex);
     while (!entered)
+    {
         (void)pthread_cond_wait(&pause_condition, &pause_mutex);
+    }
     (void)pthread_mutex_unlock(&pause_mutex);
 }
 
@@ -50,7 +54,9 @@ static void wait_done(struct ds_async_token token)
     struct ds_async_registry *r = token.registry;
     (void)pthread_mutex_lock(&r->mutex);
     while (!r->entries[token.slot].done)
+    {
         (void)pthread_cond_wait(&r->condition, &r->mutex);
+    }
     (void)pthread_mutex_unlock(&r->mutex);
 }
 
@@ -133,13 +139,19 @@ static int transition(const char *one, const char *two, const char *bad,
     ds_reload_init(&h, &registry, ds_counted_bytes(&allocator));
     int32_t values[8] = {1, 2, 3, 4, 5, 6, 7, 8};
     if (failure == 2 && n)
+    {
         values[n - 1] = 600;
+    }
     CHECK(ds_reload_change(&h, one, n ? values : NULL, n) == DS_OK &&
           h.current == 0 && h.generation == 1 && registry.registrations == 2);
     if (failure == 1)
+    {
         allocator.fail_at = allocator.attempts + 1;
+    }
     if (failure == 3 || failure == 4)
+    {
         registry.fail_at = registry.attempts + failure - 2;
+    }
     const char *path = failure == 5   ? "./missing-original-cmastery-plugin.so"
                        : failure == 6 ? bad
                                       : two;
@@ -159,8 +171,10 @@ static int transition(const char *one, const char *two, const char *bad,
     CHECK(registry.registrations == 2 + (success ? 2 : failure == 4 ? 1 : 0));
     CHECK(registry.acknowledgements == (success ? 2 : failure == 4 ? 1 : 0));
     if (!success)
+    {
         CHECK(!h.modules[1].handle && h.modules[0].borrows == 2 &&
               h.states[1].length == 0);
+    }
     int32_t first = 91;
     int state_status = ds_reload_get(&h, 0, &first);
     CHECK(state_status == (n ? DS_OK : DS_RANGE) &&
@@ -168,9 +182,11 @@ static int transition(const char *one, const char *two, const char *bad,
     int32_t sentinel = 91;
     CHECK(ds_reload_get(&h, n, &sentinel) == DS_RANGE && sentinel == 91);
     if (print)
+    {
         printf("R %u %u %d %u %u %zu %u %u %d\n", n, failure, rc, h.generation,
                h.retired, allocator.live, registry.registrations,
                registry.acknowledgements, first);
+    }
     gate_calls = 0;
     gate_fail = 0;
     CHECK(ds_reload_collect(&h, gate, &gate_calls) == DS_OK);
@@ -185,11 +201,19 @@ static int retirement(const char *one, const char *two, const char *bad,
                       int oracle)
 {
     for (unsigned n = 0; n <= 8; ++n)
+    {
         for (unsigned failure = 0; failure < 7; ++failure)
+        {
             if (transition(one, two, bad, n, failure, oracle))
+            {
                 return 1;
+            }
+        }
+    }
     if (oracle)
+    {
         return 0;
+    }
     struct ds_async_registry registry;
     CHECK(ds_async_init(&registry) == DS_OK);
     struct ow_allocator allocator = {0};
@@ -232,7 +256,9 @@ static int retirement(const char *one, const char *two, const char *bad,
     CHECK(ds_async_queue(running, 17, 3) == DS_STALE);
     int32_t value = 0;
     for (size_t i = 0; i < 8; ++i)
+    {
         CHECK(ds_reload_get(&h, i, &value) == DS_OK && value == 2 * values[i]);
+    }
     CHECK(ds_reload_change(&h, one, NULL, 0) == DS_OK && h.generation == 3);
     CHECK(ds_reload_collect(&h, gate, &gate_calls) == DS_OK);
     CHECK(ds_reload_change(&h, two, NULL, 0) == DS_FULL && h.generation == 3);
@@ -247,6 +273,7 @@ static int measurements(const char *one, const char *two)
 {
     const unsigned counts[4] = {0, 4, 5, 8};
     for (unsigned c = 0; c < 4; ++c)
+    {
         for (unsigned sample = 0; sample < 21; ++sample)
         {
             unsigned n = counts[c];
@@ -277,22 +304,33 @@ static int measurements(const char *one, const char *two)
                   !allocator.live);
             CHECK(ds_async_destroy(&registry) == DS_OK);
         }
+    }
     return 0;
 }
 
 int main(int argc, char **argv)
 {
     if (argc != 5)
+    {
         return 2;
+    }
     case_name = argv[1];
     if (!strcmp(case_name, "async_registry"))
+    {
         return registration(argv[2]);
+    }
     if (!strcmp(case_name, "reload_owned"))
+    {
         return retirement(argv[2], argv[3], argv[4], 0);
+    }
     if (!strcmp(case_name, "oracle"))
+    {
         return retirement(argv[2], argv[3], argv[4], 1);
+    }
     if (!strcmp(case_name, "measure"))
+    {
         return measurements(argv[2], argv[3]);
+    }
     if (!strcmp(case_name, "layout"))
     {
         printf("%zu %zu %zu %zu %zu\n", sizeof(struct ds_reload),

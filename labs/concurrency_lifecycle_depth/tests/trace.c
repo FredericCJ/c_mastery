@@ -9,7 +9,9 @@ int main(void)
     while ((op = getchar()) != EOF)
     {
         if (op == '\n')
+        {
             continue;
+        }
         if (op == 'Z')
         {
             cl_queue_init(&q, slots);

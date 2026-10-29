@@ -55,9 +55,13 @@ static ssize_t write_owner(struct file *f, const char __user *p, size_t n,
     unsigned char tmp[32];
     (void)off;
     if (n > sizeof tmp)
+    {
         return -EMSGSIZE;
+    }
     if (copy_from_user(tmp, p, n))
+    {
         return -EFAULT; /* all-or-reject record */
+    }
     mutex_lock(&o->lock);
     memcpy(o->data, tmp, n);
     o->size = n;
@@ -89,7 +93,9 @@ static int __init owner_start(void)
     int rc;
     root = kzalloc(sizeof *root, GFP_KERNEL);
     if (!root)
+    {
         return -ENOMEM;
+    }
     kref_init(&root->refs);
     mutex_init(&root->lock);
     INIT_WORK(&root->work, work);

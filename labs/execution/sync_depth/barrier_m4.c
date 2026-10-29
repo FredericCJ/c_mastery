@@ -37,13 +37,19 @@ static void exercise(void)
     unsigned out = 999;
     cmx_init(&k, CMX_FIXED);
     for (unsigned i = 0; i < 3; i++)
+    {
         CHECK(cmx_task_add(&k, 5 + i, 0, 0x20006000 + 256 * i, 256) == (int)i);
+    }
     CHECK(cdb_init(&b, &k, 7, 8) == CMX_OK);
     for (unsigned i = 0; i < 3; i++)
+    {
         CHECK(cdb_register(&b, i, &h[i]) == CMX_OK);
+    }
     for (unsigned i = 0; i < 3; i++)
+    {
         CHECK(cdb_arrive(h[i], cmx_forever(), &old[i]) ==
               (i == 2 ? CMX_OK : CMX_BLOCKED));
+    }
     CHECK(cdb_stage(&b, 5) == CMX_BLOCKED);
     CHECK(cdb_result(old[2], &out) == CMX_OK && out == 0);
     CHECK(cdb_arrive(h[2], cmx_forever(), &next[2]) == CMX_BLOCKED);
@@ -55,7 +61,9 @@ static void exercise(void)
               (i == 1 ? CMX_OK : CMX_BLOCKED));
     }
     for (unsigned i = 0; i < 3; i++)
+    {
         CHECK(cdb_result(next[i], &out) == CMX_OK && out == 1);
+    }
     CHECK(cdb_arrive(h[0], cmx_at(5), &next[0]) == CMX_BLOCKED &&
           cdb_arrive(h[1], cmx_forever(), &next[1]) == CMX_BLOCKED);
     cmx_tick(&k, 5);
@@ -65,7 +73,9 @@ static void exercise(void)
     CHECK(cdb_stage(&b, 5) == CMX_OK && cdb_apply(&b) == CMX_BLOCKED);
     struct cdb_member stale = h[1];
     for (unsigned i = 0; i < 3; i++)
+    {
         CHECK(cdb_release(&h[i]) == CMX_OK);
+    }
     CHECK(cdb_apply(&b) == CMX_OK && cdb_register(&b, 0, &h[0]) == CMX_OK &&
           cdb_register(&b, 2, &h[2]) == CMX_OK);
     CHECK(cdb_arrive(stale, cmx_forever(), &next[1]) == CDB_STALE);
@@ -77,8 +87,10 @@ static void exercise(void)
     CHECK(cdb_init(&b, &k, 1, 3) == CMX_OK &&
           cdb_register(&b, 0, &h[0]) == CMX_OK);
     for (unsigned i = 0; i < 3; i++)
+    {
         CHECK(cdb_arrive(h[0], cmx_forever(), &next[0]) == CMX_OK &&
               cdb_result(next[0], &out) == CMX_OK && out == i);
+    }
     CHECK(cdb_arrive(h[0], cmx_forever(), &next[0]) == CDB_RETIRED);
     CHECK(cdb_close(&b) == CMX_OK && cdb_release(&h[0]) == CMX_OK &&
           cdb_destroy(&b) == CMX_OK);
@@ -92,10 +104,14 @@ void cl_reset(void)
     uintptr_t source = (uintptr_t)&cl_data_load;
     for (uintptr_t p = (uintptr_t)&cl_data_start; p < (uintptr_t)&cl_data_end;
          p += 4, source += 4)
+    {
         *(uint32_t *)p = *(const uint32_t *)source;
+    }
     for (uintptr_t p = (uintptr_t)&cl_bss_start; p < (uintptr_t)&cl_bss_end;
          p += 4)
+    {
         *(uint32_t *)p = 0;
+    }
     exercise();
     stop(0);
 }

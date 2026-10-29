@@ -35,7 +35,9 @@ enum cs_status cs_f439_stop(struct cs_stop *s, unsigned premises)
     __asm__ volatile("mrs %0,basepri" : "=r"(base));
     __asm__ volatile("mrs %0,faultmask" : "=r"(fault));
     if (ipsr || base || fault)
+    {
         return CS_INVALID;
+    }
     __asm__ volatile("mrs %0,primask\ncpsid i" : "=r"(saved)::"memory");
     struct cs_bus b = cs_f439_bus();
     enum cs_status result = cs_stop_enter(s, &b, premises);

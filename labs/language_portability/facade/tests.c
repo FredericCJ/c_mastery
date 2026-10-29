@@ -38,7 +38,9 @@ static int get(void *p)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "borrow"))
     {
         struct bf_record r = {7};
@@ -88,15 +90,23 @@ int main(int argc, char **argv)
     else if (!strcmp(argv[1], "oracle"))
     {
         for (int a = 0; a < 100; ++a)
+        {
             for (int b = 0; b < 100; ++b)
+            {
                 printf("%d %d %d %u\n", a, b, BF_BINARY(a, b),
                        BF_BINARY((unsigned)a, (unsigned)b));
+            }
+        }
     }
     else if (!strcmp(argv[1], "metrics"))
+    {
         printf(
             "{\"record_bytes\":%zu,\"callback_pointer_bytes\":%zu,\"allocations\":0}\n",
             sizeof(struct bf_record), sizeof(bf_get_fn));
+    }
     else
+    {
         return 2;
+    }
     return 0;
 }

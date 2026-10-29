@@ -35,13 +35,17 @@ struct of_reader
 static int step(struct of_reader *r, int fd)
 {
     if (r->complete || r->rejected)
+    {
         return -2;
+    }
     ssize_t n = read(fd, r->bytes + r->used, sizeof r->bytes - r->used);
     if (n > 0)
     {
         r->used += (size_t)n;
         if (r->used == sizeof r->bytes)
+        {
             r->complete = 1;
+        }
         return 1;
     }
     if (n == 0)
@@ -50,7 +54,9 @@ static int step(struct of_reader *r, int fd)
         return 0;
     }
     if (errno == EAGAIN || errno == EINTR)
+    {
         return 2;
+    }
     return -1;
 }
 

@@ -28,14 +28,18 @@ static uint32_t read_reg(void *p, unsigned r)
 {
     struct pa_model *m = p;
     if (r >= 10)
+    {
         return 0;
+    }
     unsigned v = m->r[r];
     if (r == PA_DR)
     {
         m->reads++;
         m->r[PA_SR] &= ~PA_EOC;
         if (m->late_overrun)
+        {
             m->r[PA_SR] |= PA_OVR;
+        }
     }
     return v;
 }
@@ -44,12 +48,18 @@ static void write_reg(void *p, unsigned r, uint32_t v)
 {
     struct pa_model *m = p;
     if (r >= 10)
+    {
         return;
+    }
     m->writes++;
     if (r == PA_SR)
+    {
         m->r[r] &= v;
+    }
     else
+    {
         m->r[r] = v;
+    }
 }
 
 static struct pa_io io_for(struct pa_model *m)
@@ -61,7 +71,9 @@ static struct pa_io io_for(struct pa_model *m)
 static void complete(struct pa_model *m, unsigned v)
 {
     if (m->r[PA_SR] & PA_EOC)
+    {
         m->r[PA_SR] |= PA_OVR;
+    }
     m->r[PA_SR] |= PA_EOC;
     m->r[PA_DR] = v;
 }
@@ -83,7 +95,9 @@ int main(void)
     CHECK(pa_timing(&clock, &cfg, &t) == PA_INVALID);
     cfg.sample = 4;
     for (unsigned wrap = 0; wrap < 2; wrap++)
+    {
         for (unsigned n = 1; n <= 2; n++)
+        {
             for (unsigned timer = 0; timer < 2; timer++)
             {
                 struct pa_model m = {0};
@@ -111,7 +125,9 @@ int main(void)
                     CHECK(pa_step(&s, io, 1, start + 5 + i) ==
                           (i + 1 == n ? PA_OK : PA_BUSY));
                     if (i + 1 < n)
+                    {
                         CHECK(out[0] == 77 && out[1] == 88);
+                    }
                 }
                 CHECK(out[0] == 100 && out[1] == (n == 2 ? 101 : 88) &&
                       m.reads == n && !m.r[PA_CR2]);
@@ -130,6 +146,8 @@ int main(void)
                 CHECK(pa_step(&s, io, 2, start + 34) == PA_TIMEOUT &&
                       out[0] == 77 && out[1] == 88 && !m.r[PA_CR2]);
             }
+        }
+    }
     for (unsigned late = 0; late < 2; late++)
     {
         struct pa_model m = {0};
@@ -143,9 +161,13 @@ int main(void)
               pa_begin(&s, io, 1, 1, out, 4, 20) == PA_OK);
         complete(&m, 42);
         if (late)
+        {
             m.late_overrun = 1;
+        }
         else
+        {
             complete(&m, 43);
+        }
         CHECK(pa_step(&s, io, 1, 5) == PA_OVERRUN && out[0] == 77 &&
               !m.r[PA_CR2]);
     }

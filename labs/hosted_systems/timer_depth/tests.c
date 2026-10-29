@@ -69,7 +69,9 @@ static void earliest(void)
     size_t at = 99;
     uint64_t d = 99;
     for (size_t i = 0; i < 4; ++i)
+    {
         CHECK(td_init(&t[i], 4) == 0);
+    }
     CHECK(td_earliest(t, 4, &at, &d) == 0 && at == 99 && d == 99);
     CHECK(td_arm(&t[2], 30, 0, 0, &g) == 1);
     CHECK(td_arm(&t[1], 20, 0, 0, &g) == 1);

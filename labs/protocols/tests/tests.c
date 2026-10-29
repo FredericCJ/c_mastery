@@ -53,6 +53,7 @@ static int builder(void)
 static int session(void)
 {
     for (unsigned role = 0; role < 2; role++)
+    {
         for (unsigned n = 0; n <= 8; n++)
         {
             struct pt_session s = {role, 0, n};
@@ -70,6 +71,7 @@ static int session(void)
                   s.phase == 5);
             CHECK(pt_session_step(&s, !role, PT_BYE) == PT_STATE);
         }
+    }
     return 0;
 }
 
@@ -108,7 +110,9 @@ static int active(void)
     CHECK(pt_active_step(&a, t, 1, &n) == PT_RANGE && a.count == 4 &&
           a.head == 0 && a.machine.active == PT_OFFLINE);
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(pt_active_step(&a, t, 6, &n) == 0);
+    }
     CHECK(a.count == 0 && a.machine.active == PT_FAULT);
     return 0;
 }
@@ -187,7 +191,9 @@ static int stop(void *ctx)
     struct pf_device *d = ctx;
     d->stop++;
     if (d->quiet)
+    {
         d->borrow = NULL;
+    }
     return !d->quiet;
 }
 
@@ -223,7 +229,9 @@ static int driver(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
 #define RUN(name)                \
     if (!strcmp(argv[1], #name)) \
     return name()

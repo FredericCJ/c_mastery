@@ -133,7 +133,9 @@ static void send_request(int fd, struct rzj_request request)
     unsigned char b[RZV_FRAME_BYTES];
     CHECK(rzv_request_encode(request, b) == RZ_OK);
     for (size_t i = 0; i < sizeof b; ++i)
+    {
         CHECK(send(fd, b + i, 1, MSG_NOSIGNAL) == 1);
+    }
 }
 
 static struct rzv_reply response(int fd)
@@ -159,7 +161,9 @@ static void parser(void)
     CHECK(rzv_request_encode((struct rzj_request){1, 15, UINT64_MAX, -8},
                              bytes) == RZ_OK);
     for (unsigned i = 0; i < RZV_FRAME_BYTES; ++i)
+    {
         bytes[i + RZV_FRAME_BYTES] = bytes[i];
+    }
     for (size_t split = 0; split <= RZV_FRAME_BYTES; ++split)
     {
         struct rzv_frame frame = {0};
@@ -183,7 +187,9 @@ static void parser(void)
     for (unsigned at = 0; at < RZV_FRAME_BYTES; ++at)
     {
         if (at >= 6 && at < 14)
+        {
             continue;
+        }
         unsigned char old = bytes[at];
         bytes[at] = 255;
         struct rzv_frame frame = {0};
@@ -248,7 +254,9 @@ static void native_partial_and_duplicate(void)
     }
     struct rzv_reply replies[2];
     for (unsigned i = 0; i < 2; ++i)
+    {
         replies[i] = response(sockets[i][0]);
+    }
     int descriptors[2] = {done[0][0], done[1][0]};
     unsigned completed = 99;
     CHECK(hs_reactor_sum(descriptors, 2, &completed) == 0 &&
@@ -315,7 +323,9 @@ static void failures(void)
                 p[0] = -1;
             }
             if (mode == 4)
+            {
                 rz_cancel(&s->core);
+            }
         }
         struct rzv_observation observation = {0};
         int status = rzv_serve(&f.service, s, p[1], c[0], 1, &observation);
@@ -328,7 +338,9 @@ static void failures(void)
         CHECK(f.journal.receiver.total == (mode == 3 ? 3 : 0) &&
               observation.committed == (mode == 3));
         if (p[0] >= 0)
+        {
             CHECK(!close(p[0]));
+        }
         CHECK(!close(p[1]) && !close(c[0]) && !close(c[1]));
         rzf_scope_release(&s);
         CHECK(atomic_load(&f.released) == 1);
@@ -421,7 +433,9 @@ static void queued_burst(void)
                       (int)(order < 4 ? order + 1 : 4) &&
                   f.outbox.count == (order < 4 ? order + 1 : 4));
             if (order < 4)
+            {
                 admitted_mask |= 1u << i;
+            }
         }
         /* Reply completion neither forwards nor acknowledges the slow consumer. */
         CHECK(f.outbox.count == 4 && f.outbox.pending.count == 4 &&
@@ -443,7 +457,9 @@ static void queued_burst(void)
         CHECK(delivered_mask == admitted_mask && f.outbox.ack_records == 4 &&
               f.journal.receiver.total == 4);
         for (unsigned i = 0; i < 6; ++i)
+        {
             close_pair(sockets[i], cancel[i]);
+        }
         rzf_scope_release(&s);
         CHECK(atomic_load(&f.released) == 1);
         destroy(&f);
@@ -474,7 +490,9 @@ static void oracle(void)
         {
             size_t size = n - offset;
             if (size > chunk)
+            {
                 size = chunk;
+            }
             size_t used = 99;
             status =
                 rzv_frame_feed(&frame, bytes + offset, size, &used, &request);
@@ -490,7 +508,9 @@ static void oracle(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "test"))
     {
         parser();

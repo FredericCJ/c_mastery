@@ -12,9 +12,13 @@ int ta_snapshot_write(struct ta_snapshot *s, int a)
 {
     unsigned n = atomic_load(&s->sequence);
     if (a < 0 || a > 100)
+    {
         return TA_INVALID;
+    }
     if (n > UINT_MAX - 2u)
+    {
         return TA_LIMIT;
+    }
     atomic_store(&s->sequence, n + 1);
     atomic_store(&s->a, a);
     atomic_store(&s->b, 100 - a);
@@ -25,7 +29,9 @@ int ta_snapshot_write(struct ta_snapshot *s, int a)
 int ta_snapshot_try(struct ta_snapshot *s, unsigned attempts, int *out)
 {
     if (!attempts || attempts > 16 || !out)
+    {
         return TA_INVALID;
+    }
     for (unsigned i = 0; i < attempts; i++)
     {
         unsigned before = atomic_load(&s->sequence);
@@ -49,7 +55,9 @@ int ta_snapshot_try(struct ta_snapshot *s, unsigned attempts, int *out)
 int ta_slot_init(struct ta_slot *s, unsigned readers)
 {
     if (readers < 1 || readers > 2)
+    {
         return TA_INVALID;
+    }
     atomic_init(&s->pending, 0);
     s->readers = readers;
     s->payload = 0;
@@ -73,10 +81,14 @@ int ta_slot_publish(struct ta_slot *s, int value)
 int ta_slot_read(struct ta_slot *s, unsigned reader, int *out)
 {
     if (reader >= s->readers || !out)
+    {
         return TA_INVALID;
+    }
     unsigned mask = 1u << reader;
     if (!(atomic_load_explicit(&s->pending, memory_order_acquire) & mask))
+    {
         return TA_LIMIT;
+    }
     int value = s->payload;
     atomic_fetch_and_explicit(&s->pending, ~mask, memory_order_acq_rel);
     *out = value;
@@ -87,7 +99,9 @@ int ta_data_race(unsigned same, unsigned a, unsigned b, unsigned atomic,
                  unsigned ordered)
 {
     if (same > 1 || a > 1 || b > 1 || atomic > 1 || ordered > 1)
+    {
         return -1;
+    }
     return same && (a || b) && !atomic && !ordered
 #ifdef TA_MUTANT_CONFLICT
            && 0
@@ -98,11 +112,17 @@ int ta_data_race(unsigned same, unsigned a, unsigned b, unsigned atomic,
 int ta_closure(unsigned *edges, size_t n)
 {
     if (!edges || !n || n > 8)
+    {
         return TA_INVALID;
+    }
     unsigned allowed = (1u << n) - 1u;
     for (size_t i = 0; i < n; i++)
+    {
         if (edges[i] & ~allowed)
+        {
             return TA_INVALID;
+        }
+    }
     for (size_t k = 0; k < n
 #ifdef TA_MUTANT_GRAPH
                        && k == 0
@@ -110,7 +130,11 @@ int ta_closure(unsigned *edges, size_t n)
          ;
          k++)
         for (size_t i = 0; i < n; i++)
+        {
             if (edges[i] & (1u << k))
+            {
                 edges[i] |= edges[k];
+            }
+        }
     return TA_SUCCESS;
 }

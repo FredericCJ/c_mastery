@@ -88,7 +88,9 @@ void _start(void)
         extern void *malloc(size_t);
         void *p = malloc(4);
         if (p)
+        {
             result++;
+        }
     }
 #endif
     os_target_result = result;

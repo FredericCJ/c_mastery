@@ -48,7 +48,9 @@ static int ledger(void)
     {
         uint8_t c = wire[i];
         if (c == 0x7d)
+        {
             c = wire[++i] ^ 0x20;
+        }
         body[z++] = c;
     }
     CHECK(z == 9 &&
@@ -61,7 +63,9 @@ static int ledger(void)
     {
         int r = ef_frame_byte(&state, 1, wire[i], 0, &g);
         if (r == 1)
+        {
             deliveries++;
+        }
     }
     unsigned deliver = 99;
     CHECK(deliveries == 1 &&
@@ -79,7 +83,9 @@ static int framing(void)
     uint8_t wire[96], v2[96], stream[240];
     size_t n, m;
     for (unsigned i = 0; i < 40; i++)
+    {
         f.payload[i] = (uint8_t)(i % 2 ? 0x7d : 0x7e);
+    }
     CHECK(edu_crc("123456789", 9) == 0x29b1);
     CHECK(ef_frame_encode(&f, 1, wire, sizeof wire, &n) == EF_OK && n <= 96);
     CHECK(ef_frame_encode(&f, 2, v2, sizeof v2, &m) == EF_OK && m <= 96);
@@ -91,7 +97,9 @@ static int framing(void)
         size_t count = version == 1 ? n : m, z = 0;
         stream[z++] = 0x7e;
         for (unsigned i = 0; i < 48; i++)
+        {
             stream[z++] = 0x55;
+        }
         stream[z++] = 0x7e;
         stream[z++] = 0x7d;
         stream[z++] = 0x7e;
@@ -102,6 +110,7 @@ static int framing(void)
             struct ef_framer s = {0};
             unsigned delivered = 0;
             for (unsigned chunk = 0; chunk < 2; chunk++)
+            {
                 for (size_t i = chunk ? split : 0; i < (chunk ? z : split); i++)
                 {
                     int r = ef_frame_byte(&s, version, stream[i], 0, &g);
@@ -112,21 +121,34 @@ static int framing(void)
                               !memcmp(g.payload, f.payload, 40));
                     }
                 }
+            }
             CHECK(delivered == 1);
         }
         struct ef_framer s = {0};
         unsigned delivered = 0;
         for (size_t i = 0; i < count; i++)
+        {
             if (ef_frame_byte(&s, version, p[i], 0, &g) == 1)
+            {
                 delivered++;
+            }
+        }
         CHECK(delivered == 1);
         for (size_t i = 0; i < count; i++)
+        {
             if (ef_frame_byte(&s, version, p[i], i == 5, &g) == 1)
+            {
                 delivered++;
+            }
+        }
         CHECK(delivered == 1);
         for (size_t i = 0; i < count; i++)
+        {
             if (ef_frame_byte(&s, version, p[i], 0, &g) == 1)
+            {
                 delivered++;
+            }
+        }
         CHECK(delivered == 2);
         /* Escape an ordinary version byte while retaining its decoded value and
          * valid CRC. The raw legacy decoder permits this; the strict adapter must
@@ -139,15 +161,23 @@ static int framing(void)
                             (uint8_t)(version ^ (version == 1 ? 0x20 : 0x40)),
                             0, &g);
         for (size_t i = 2; i < count; i++)
+        {
             if (ef_frame_byte(&bad, version, p[i], 0, &g) == 1)
+            {
                 bad_deliveries++;
+            }
+        }
         CHECK(bad_deliveries == 0);
     }
     struct ef_framer mismatch = {0};
     unsigned count = 0;
     for (size_t i = 0; i < m; i++)
+    {
         if (ef_frame_byte(&mismatch, 1, v2[i], 0, &g) == 1)
+        {
             count++;
+        }
+    }
     CHECK(!count);
     /* Original local attacker knows the public CRC; this changes the protected
      * payload while preserving a valid frame, without external targets. */
@@ -156,8 +186,12 @@ static int framing(void)
     struct ef_framer altered = {0};
     count = 0;
     for (size_t i = 0; i < n; i++)
+    {
         if (ef_frame_byte(&altered, 1, wire[i], 0, &g) == 1)
+        {
             count++;
+        }
+    }
     CHECK(count == 1 && g.payload[0] == 1);
     unsigned deliver = 99;
     CHECK(e7_link_admit(0, 1, 2, 1, 0, 0, &deliver) == E7_REJECTED &&

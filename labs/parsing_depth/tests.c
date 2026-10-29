@@ -168,7 +168,9 @@ static int scannerless_test(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     int c = atoi(argv[1]);
     int rc = c == 1   ? regex_test()
              : c == 2 ? lr_test()
@@ -176,6 +178,8 @@ int main(int argc, char **argv)
              : c == 4 ? scannerless_test()
                       : 2;
     if (!rc)
+    {
         puts("PASS parser mechanism assertions");
+    }
     return rc;
 }

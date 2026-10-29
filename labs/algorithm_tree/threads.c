@@ -26,7 +26,9 @@ static void barrier(void)
 {
     int e = pthread_barrier_wait(&rendezvous);
     if (e != 0 && e != PTHREAD_BARRIER_SERIAL_THREAD)
+    {
         must(e);
+    }
 }
 
 static void *worker(void *arg)

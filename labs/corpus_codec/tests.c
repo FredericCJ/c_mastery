@@ -18,42 +18,60 @@ int main(void)
     struct cc_book book;
     CHECK(cc_lengths(freq, length) == CC_OK);
     for (unsigned i = 0; i < 16; i++)
+    {
         CHECK(length[i] == 0);
+    }
     freq[5] = 65535;
     CHECK(cc_lengths(freq, length) == CC_OK && length[5] == 1);
     for (unsigned i = 0; i < 16; i++)
+    {
         freq[i] = 65535;
+    }
     CHECK(cc_lengths(freq, length) == CC_OK);
     for (unsigned i = 0; i < 16; i++)
+    {
         CHECK(length[i] == 4);
+    }
     length[0] = length[1] = length[2] = 1;
     CHECK(cc_book(length, &book) == CC_INVALID);
     for (unsigned i = 0; i < 128; i++)
+    {
         in[i] = (uint8_t)(i % 3);
+    }
     CHECK(cc_compress(in, 128, out, sizeof out, &used) == CC_OK);
     CHECK(cc_expand(out, used, decoded, sizeof decoded, &n) == CC_OK &&
           n == 128);
     for (unsigned i = 0; i < 128; i++)
+    {
         CHECK(decoded[i] == in[i]);
+    }
     for (size_t cap = 0; cap < used; cap++)
     {
         uint8_t scratch[CC_FRAME_LIMIT];
         size_t sentinel = 777;
         for (size_t i = 0; i < sizeof scratch; i++)
+        {
             scratch[i] = 0xa5;
+        }
         CHECK(cc_compress(in, 128, scratch, cap, &sentinel) == CC_SPACE &&
               sentinel == 777);
         for (size_t i = 0; i < sizeof scratch; i++)
+        {
             CHECK(scratch[i] == 0xa5);
+        }
     }
     for (size_t cap = 0; cap < 128; cap++)
     {
         for (size_t i = 0; i < sizeof decoded; i++)
+        {
             decoded[i] = 0xa5;
+        }
         n = 777;
         CHECK(cc_expand(out, used, decoded, cap, &n) == CC_SPACE && n == 777);
         for (size_t i = 0; i < sizeof decoded; i++)
+        {
             CHECK(decoded[i] == 0xa5);
+        }
     }
     {
         uint8_t one = 3;
@@ -75,7 +93,9 @@ int main(void)
                           &n) == CC_OK &&
               n == 7);
         for (unsigned i = 0; i < 7; i++)
+        {
             CHECK(decoded[i] == (i % 2 ? 'y' : 'x'));
+        }
     }
     {
         uint8_t repeated[] = {'a', 'a', 'a', 'a'};

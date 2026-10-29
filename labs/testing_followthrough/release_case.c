@@ -16,7 +16,9 @@ int main(void)
 #if RELEASE_REPAIRED
     int ok = acquire();
     if (!ok)
+    {
         return 2;
+    }
 #else
     assert(acquire());
 #endif

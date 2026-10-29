@@ -6,7 +6,9 @@ static void record(void *context, const unsigned char *data, size_t size)
     (void)context;
     unsigned value = 0;
     for (size_t i = 0; i < size; ++i)
+    {
         value += data[i];
+    }
     observed = value;
 }
 

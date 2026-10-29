@@ -40,13 +40,17 @@ static void interface(void)
         enum cmx_result r = as_init(&q, n);
         CHECK(r == (valid ? CMX_OK : CMX_INVALID));
         if (!valid)
+        {
             continue;
+        }
         CHECK(q.capacity == n);
         struct as_value out = value(77);
         CHECK(as_pop(&q, &out, NULL, NULL) == CMX_RETRY);
         matches(out, 77);
         for (unsigned i = 0; i < n; i++)
+        {
             CHECK(as_push(&q, value(i), NULL, NULL) == CMX_OK);
+        }
         CHECK(as_push(&q, value(90), NULL, NULL) == CMX_FULL);
         for (unsigned i = 0; i < n; i++)
         {
@@ -85,7 +89,9 @@ static void pause_at(void *p)
     g->reached = 1;
     CHECK(pthread_cond_broadcast(&g->cond) == 0);
     while (!g->release)
+    {
         CHECK(pthread_cond_wait(&g->cond, &g->lock) == 0);
+    }
     CHECK(pthread_mutex_unlock(&g->lock) == 0);
 }
 
@@ -101,7 +107,9 @@ static void gate_wait(struct ag_gate *g)
 {
     CHECK(pthread_mutex_lock(&g->lock) == 0);
     while (!g->reached)
+    {
         CHECK(pthread_cond_wait(&g->cond, &g->lock) == 0);
+    }
     CHECK(pthread_mutex_unlock(&g->lock) == 0);
 }
 
@@ -127,7 +135,9 @@ static void reenter(void *p)
     r->result = r->producer ? as_push(r->q, value(99), NULL, NULL)
                             : as_pop(r->q, &out, NULL, NULL);
     if (!r->producer)
+    {
         matches(out, 77);
+    }
 }
 
 struct ag_worker
@@ -148,11 +158,15 @@ static void *transfer(void *p)
             r = w->producer ? as_push(w->q, value(i), NULL, NULL)
                             : as_pop(w->q, &out, NULL, NULL);
             if (r == CMX_FULL || r == CMX_RETRY)
+            {
                 sched_yield();
+            }
         } while (r == CMX_FULL || r == CMX_RETRY);
         CHECK(r == CMX_OK);
         if (!w->producer)
+        {
             matches(out, i);
+        }
     }
     return NULL;
 }
@@ -214,6 +228,7 @@ static void wrap(void)
     {
         unsigned cap = capacities[k];
         for (unsigned tail = 0; tail < 64; tail++)
+        {
             for (unsigned used = 0; used <= cap; used++)
             {
                 unsigned absolute = UINT_MAX - 31u + tail;
@@ -221,7 +236,9 @@ static void wrap(void)
                 atomic_store(&q.tail, absolute);
                 atomic_store(&q.head, absolute + used);
                 for (unsigned i = 0; i < used; i++)
+                {
                     q.data[(absolute + i) & (cap - 1)] = value(i);
+                }
                 struct as_value out = value(77);
                 CHECK(as_pop(&q, &out, NULL, NULL) ==
                       (used ? CMX_OK : CMX_RETRY));
@@ -231,16 +248,21 @@ static void wrap(void)
                     edges++;
                 }
                 else
+                {
                     matches(out, 77);
+                }
                 CHECK(as_init(&q, cap) == CMX_OK);
                 atomic_store(&q.tail, absolute);
                 atomic_store(&q.head, absolute + used);
                 CHECK(as_push(&q, value(99), NULL, NULL) ==
                       (used < cap ? CMX_OK : CMX_FULL));
                 if (used < cap)
+                {
                     edges++;
+                }
                 states++;
             }
+        }
     }
     CHECK(states == 1728 && edges == 2944);
     printf("OBS wrap states=%u edges=%u six-bit projected distance "
@@ -258,7 +280,9 @@ static void circular(void)
         for (unsigned cycle = 0; cycle < 100; cycle++)
         {
             for (unsigned i = 0; i < n - 1; i++)
+            {
                 CHECK(as_circular_push(&q, value(i)) == CMX_OK);
+            }
             CHECK(as_circular_push(&q, value(99)) == CMX_FULL);
             for (unsigned i = 0; i < n - 1; i++)
             {
@@ -288,7 +312,9 @@ static void retained(void)
         atomic_store(&q.head, UINT_MAX - 2);
         atomic_store(&q.tail, UINT_MAX - 2);
         for (unsigned i = 0; i < n; i++)
+        {
             CHECK(cmx_spsc_push(&q, i) == CMX_OK);
+        }
         CHECK(cmx_spsc_push(&q, 99) == CMX_FULL);
         uint32_t v;
         for (unsigned i = 0; i < n; i++)
@@ -306,16 +332,28 @@ int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (!strcmp(argv[1], "interface"))
+    {
         interface();
+    }
     else if (!strcmp(argv[1], "edges"))
+    {
         edges();
+    }
     else if (!strcmp(argv[1], "wrap"))
+    {
         wrap();
+    }
     else if (!strcmp(argv[1], "circular"))
+    {
         circular();
+    }
     else if (!strcmp(argv[1], "retained"))
+    {
         retained();
+    }
     else
+    {
         return 2;
+    }
     return 0;
 }

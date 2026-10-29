@@ -7,7 +7,9 @@ static void admitted(uintptr_t unused)
 {
     (void)unused;
     while (!__atomic_load_n(&admission_release, __ATOMIC_ACQUIRE))
+    {
         cmk_call(CMK_YIELD, 0, 0, 0);
+    }
     cmk2_thread_exit(0);
 }
 
@@ -17,7 +19,9 @@ static void message(const char *s)
 {
     size_t n = 0;
     while (s[n])
+    {
         n++;
+    }
     cmk_write(s, n);
 }
 
@@ -28,7 +32,9 @@ static void measure(unsigned mode, const struct cmk2_parallel_result *r)
     line[13] = (char)(48 + mode);
     line[20] = (char)(48 + ((uint64_t)cmk_call(CMK2_CPU_INFO, 0, 0, 0) >> 32));
     for (unsigned i = 0; i < 16; i++)
+    {
         line[26 + i] = "0123456789abcdef"[(r->cycles >> ((15 - i) * 4)) & 15];
+    }
     unsigned n = r->jobs;
     for (unsigned i = 0; i < 4; i++)
     {
@@ -51,7 +57,9 @@ static void die(unsigned status)
             v /= 10;
         } while (v);
         while (n)
+        {
             cmk_write(buf + --n, 1);
+        }
         cmk_write("\n", 1);
     }
     cmk_call(CMK_EXIT, status, 0, 0);
@@ -73,8 +81,12 @@ static void die(unsigned status)
 static void producer(uintptr_t index)
 {
     for (unsigned i = 0; i < 32; i++)
+    {
         if (cmk_call(CMK2_CHANNEL_SEND, channel, (unsigned)index * 32 + i, 0))
+        {
             cmk2_thread_exit(99);
+        }
+    }
     __atomic_fetch_add(&shared_count, 1, __ATOMIC_RELAXED);
     cmk2_thread_exit((unsigned)index + 10);
 }
@@ -99,7 +111,9 @@ static void exit_writer(uintptr_t unused)
     (void)unused;
     __atomic_store_n(exit_shared + 1, 1, __ATOMIC_RELEASE);
     for (;;)
+    {
         __atomic_fetch_add(exit_shared, 1, __ATOMIC_RELAXED);
+    }
 }
 
 static void fault_racer(uintptr_t index)
@@ -108,7 +122,9 @@ static void fault_racer(uintptr_t index)
     cmk_call(CMK2_SET_AFFINITY, 1u << ((unsigned)index % n), 0, 0);
     __atomic_fetch_add(&race_ready, 1, __ATOMIC_RELEASE);
     while (!__atomic_load_n(&race_go, __ATOMIC_ACQUIRE))
+    {
         cmk_call(CMK_YIELD, 0, 0, 0);
+    }
     race_page[index] = (unsigned)index + 51;
     cmk2_thread_exit(0);
 }
@@ -120,7 +136,9 @@ static void race_faults(void *a, void *b)
             y = cmk2_thread_create(fault_racer, (unsigned char *)b + 16384, 1);
     CHECK(x > 0 && y > 0);
     while (__atomic_load_n(&race_ready, __ATOMIC_ACQUIRE) != 2)
+    {
         cmk_call(CMK_YIELD, 0, 0, 0);
+    }
     __atomic_store_n(&race_go, 1, __ATOMIC_RELEASE);
     CHECK(!cmk2_thread_join((uint32_t)x));
     CHECK(!cmk2_thread_join((uint32_t)y));
@@ -150,7 +168,9 @@ void _start(void)
           CMK2_EAGAIN);
     __atomic_store_n(&admission_release, 1, __ATOMIC_RELEASE);
     for (unsigned i = 0; i < 3; i++)
+    {
         CHECK(!cmk2_thread_join(admitted_handles[i]));
+    }
     message("PASS v2-four-thread-admission\nPASS v2-process-thread-split\n");
     unsigned cpus =
         (unsigned)((uint64_t)cmk_call(CMK2_CPU_INFO, 0, 0, 0) >> 32);
@@ -167,7 +187,9 @@ void _start(void)
     struct cmk2_parallel_result pr;
     uint64_t sum = 0;
     for (unsigned i = 1; i <= 257; i++)
+    {
         sum += (uint64_t)i * i;
+    }
     CHECK(!cmk2_parallel_run(&pr, 1));
     CHECK(pr.sum == sum && pr.jobs == 257 && pr.mask == (1u << cpus) - 1 &&
           !pr.errors && pr.cycles > 0);
@@ -239,16 +261,22 @@ void _start(void)
     q = cmk_call(CMK2_CHANNEL_CREATE, 0, 0, 0);
     CHECK(q > 0);
     for (unsigned i = 0; i < 8; i++)
+    {
         CHECK(!cmk_call(CMK2_CHANNEL_SEND, (uint64_t)q, i, 0));
+    }
     first = cmk2_thread_create(closing_sender, (unsigned char *)a + 16384,
                                (uintptr_t)q);
     CHECK(first > 0);
     for (unsigned i = 0; i < 10; i++)
+    {
         cmk_call(CMK_YIELD, 0, 0, 0);
+    }
     CHECK(!cmk_call(CMK2_CHANNEL_CLOSE, (uint64_t)q, 0, 0));
     CHECK(!cmk2_thread_join((uint32_t)first));
     for (unsigned i = 0; i < 8; i++)
+    {
         CHECK(cmk_call(CMK2_CHANNEL_RECV, (uint64_t)q, 0, 0) == i);
+    }
     CHECK(cmk_call(CMK2_CHANNEL_RECV, (uint64_t)q, 0, 0) == CMK2_ECLOSED);
     CHECK(!cmk_call(CMK2_CHANNEL_DESTROY, (uint64_t)q, 0, 0));
     message("PASS v2-thread-join-blocking-channel\n");
@@ -259,7 +287,9 @@ void _start(void)
     int64_t raced = cmk2_fork();
     CHECK(raced >= 0);
     if (!raced)
+    {
         die(0);
+    }
     race_faults(a, b);
     CHECK(!cmk_call(CMK2_WAIT_PROCESS, (uint64_t)raced, 0, 0));
     message("PASS v2-concurrent-zero-cow-faults\n");
@@ -294,14 +324,18 @@ void _start(void)
             cmk2_thread_create(exit_writer, (unsigned char *)a + 16384, 0);
         CHECK(h > 0);
         while (!__atomic_load_n(exit_shared + 1, __ATOMIC_ACQUIRE))
+        {
             cmk_call(CMK_YIELD, 0, 0, 0);
+        }
         die(0);
     }
     CHECK(!cmk_call(CMK2_WAIT_PROCESS, (uint64_t)child, 0, 0));
     unsigned stable = __atomic_load_n(exit_shared, __ATOMIC_RELAXED);
     uint64_t until = (uint64_t)cmk_call(CMK_TICKS, 0, 0, 0) + 3;
     while ((uint64_t)cmk_call(CMK_TICKS, 0, 0, 0) < until)
+    {
         cmk_call(CMK_YIELD, 0, 0, 0);
+    }
     CHECK(stable == __atomic_load_n(exit_shared, __ATOMIC_RELAXED));
     CHECK(!cmk_call(CMK2_SHM_CLOSE, (uint64_t)alive_object, 0, 0));
     message("PASS v2-exit-quiescent-wait\n");
@@ -311,7 +345,9 @@ void _start(void)
     {
         unsigned made = 0;
         while (cmk_call(CMK2_CHANNEL_CREATE, 0, 0, 0) > 0)
+        {
             made++;
+        }
         CHECK(made >= 4);
         die(0);
     }
@@ -322,7 +358,9 @@ void _start(void)
     {
         int64_t h = cmk_call(CMK2_CHANNEL_CREATE, 0, 0, 0);
         if (h < 0)
+        {
             break;
+        }
         CHECK(made < 8);
         handles[made++] = (uint32_t)h;
     }
@@ -335,15 +373,21 @@ void _start(void)
     message("PASS v2-orphan-channel-reuse\n");
     message("PASS v2-shared-object-lifetime\n");
     for (unsigned i = 0; i < 4096; i++)
+    {
         io_data[i] = (unsigned char)(i * 7 + 31);
+    }
     void *disk = (void *)(uintptr_t)CMK_DISK_HANDLE;
     CHECK(!cmk2_block(disk, 1, 7, io_data));
     CHECK(!cmk2_block(disk, 4, 0, 0));
     for (unsigned i = 0; i < 4096; i++)
+    {
         io_data[i] = 0;
+    }
     CHECK(!cmk2_block(disk, 0, 7, io_data));
     for (unsigned i = 0; i < 4096; i++)
+    {
         CHECK(io_data[i] == (unsigned char)(i * 7 + 31));
+    }
     CHECK(cmk_call(CMK2_BLOCK_WAIT, UINT32_MAX, 0, 0) == CMK2_EINVAL);
     spawned = cmk_call(CMK2_SPAWN, (uintptr_t)child_name, 5, 1);
     CHECK(spawned > 0);

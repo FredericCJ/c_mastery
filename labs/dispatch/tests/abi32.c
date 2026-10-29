@@ -35,22 +35,32 @@ int abi_main(void)
         struct ds_box box = {&good, i};
         int out = 91;
         if (ds_measure((struct ds_view){&i, &good}, &out) != DS_OK || out != i)
+        {
             return 2;
+        }
         if (ds_embedded(&box, &out) != DS_OK || out != i)
+        {
             return 3;
+        }
         checksum += out;
         box.ops = &bad;
         out = 91;
         if (ds_embedded(&box, &out) != DS_FAILED || out != 91)
+        {
             return 4;
+        }
         if (ds_measure((struct ds_view){&i, &bad}, &out) != DS_FAILED ||
             out != 91)
+        {
             return 5;
+        }
         ++words[9];
     }
     int input[3] = {1, 2, 3}, out = 91;
     if (ds_sum(input, 3, 0, &out) != DS_OK || out != 6)
+    {
         return 6;
+    }
     words[8] = (uint32_t)(checksum + out);
     return abi_write(words, sizeof words) == (int)sizeof words ? 0 : 7;
 }

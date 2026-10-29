@@ -19,7 +19,9 @@ static int wide_read(struct af_boot *b, const struct af_wide *payload,
 {
     int r = af_boot_ack(b, 2, WIDE_LAYOUT, 1);
     if (r != AF_OK)
+    {
         return r;
+    }
     (*reads)++;
     *out = payload->sequence;
     return AF_OK;
@@ -36,13 +38,19 @@ int main(void)
     if (offsetof(struct af_wide, sequence) ==
             offsetof(struct af_message, sequence) ||
         sizeof(struct af_wide) == sizeof(struct af_message))
+    {
         return 2;
+    }
     if (wide_read(&b, &changed, &out, &reads) != AF_STALE || reads || out != 99)
+    {
         return 1;
+    }
     atomic_store(&b.layout, WIDE_LAYOUT);
     if (wide_read(&b, &changed, &out, &reads) != AF_OK || reads != 1 ||
         out != UINT64_C(0x100000001))
+    {
         return 1;
+    }
     printf(
         "AF_PASS:layout old-size%zu wide-size%zu old-sequence-offset%zu wide-offset%zu rejected-before-payload-read\n",
         sizeof(struct af_message), sizeof(struct af_wide),

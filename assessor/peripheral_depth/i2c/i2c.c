@@ -23,7 +23,9 @@ static int finish(struct pi_i2c *s)
     if (r == PI_BUSY)
     {
         for (unsigned i = 0; i < s->count; i++)
+        {
             s->output[i] = s->partial[i];
+        }
         r = PI_OK;
     }
     s->phase = 0;
@@ -38,13 +40,19 @@ int pi_open(struct pi_i2c *s, struct pi_io io, const struct pu_clock *c)
     if (!s || !valid(io) || !c || pu_rates(c, &rates) != PU_OK ||
         rates.apb1 < 2000000u || rates.apb1 > 42000000u ||
         rates.apb1 % 1000000u)
+    {
         return PI_INVALID;
+    }
     if (s->phase)
+    {
         return PI_BUSY;
+    }
     /* Read SR2 before SR1; no address transaction is pending at open. */
     if ((io.read(io.context, PI_SR2) & 3u) ||
         pending(io.read(io.context, PI_CR1)))
+    {
         return PI_BUSY;
+    }
     io.write(io.context, PI_CR1, 0);
     io.write(io.context, PI_CR2, rates.apb1 / 1000000u);
     io.write(io.context, PI_OAR1, 1u << 14);
@@ -66,12 +74,18 @@ int pi_begin(struct pi_i2c *s, struct pi_io io, uint32_t generation,
     if (!s || !valid(io) || !out || !token || address < 8 || address > 119 ||
         command > 255 || count < 1 || count > 2 || !budget ||
         budget >= UINT32_C(0x80000000))
+    {
         return PI_INVALID;
+    }
     if (!s->ready || generation != s->generation || token <= s->last_token)
+    {
         return PI_STALE;
+    }
     if (s->phase || (io.read(io.context, PI_SR2) & 2u) ||
         pending(io.read(io.context, PI_CR1)))
+    {
         return PI_BUSY;
+    }
     s->token = s->last_token = token;
     s->last = now;
     s->deadline = now + budget;
@@ -90,11 +104,17 @@ int pi_begin(struct pi_i2c *s, struct pi_io io, uint32_t generation,
 int pi_cancel(struct pi_i2c *s, struct pi_io io, uint32_t token)
 {
     if (!s || !valid(io))
+    {
         return PI_INVALID;
+    }
     if (!s->phase || token != s->token)
+    {
         return PI_STALE;
+    }
     if (s->result == PI_BUSY)
+    {
         s->result = PI_TIMEOUT;
+    }
     s->phase = 10;
     return PI_BUSY;
 }
@@ -103,11 +123,17 @@ int pi_step(struct pi_i2c *s, struct pi_io io, uint32_t token, uint32_t now)
 {
     uint32_t sr, cr;
     if (!s || !valid(io))
+    {
         return PI_INVALID;
+    }
     if (!s->phase || token != s->token)
+    {
         return PI_STALE;
+    }
     if ((uint32_t)(now - s->last) >= UINT32_C(0x80000000))
+    {
         return PI_INVALID;
+    }
     s->last = now;
     sr = io.read(io.context, PI_SR1);
     cr = io.read(io.context, PI_CR1);
@@ -116,7 +142,9 @@ int pi_step(struct pi_i2c *s, struct pi_io io, uint32_t token, uint32_t now)
     {
         io.write(io.context, PI_SR1, 0xdf00u & ~(PI_ARLO | PI_AF | PI_BERR));
         if (PI_MUTANT == 3)
+        {
             io.write(io.context, PI_CR1, PI_PE | PI_STOP);
+        }
         s->master = 0;
         s->result = PI_ARBITRATION;
         return finish(s);
@@ -126,7 +154,9 @@ int pi_step(struct pi_i2c *s, struct pi_io io, uint32_t token, uint32_t now)
     {
         io.write(io.context, PI_SR1, 0xdf00u & ~PI_BERR);
         if (s->berr != UINT32_MAX)
+        {
             ++s->berr;
+        }
     }
     if (sr & PI_AF)
     {
@@ -186,10 +216,14 @@ int pi_step(struct pi_i2c *s, struct pi_io io, uint32_t token, uint32_t now)
                 unsigned config =
                     (cr & ~(PI_ACK | PI_POS)) | (s->count == 2 ? PI_POS : 0);
                 if (PI_MUTANT == 1)
+                {
                     (void)io.read(io.context, PI_SR2);
+                }
                 io.write(io.context, PI_CR1, config);
                 if (PI_MUTANT != 1)
+                {
                     (void)io.read(io.context, PI_SR2);
+                }
                 if (s->count == 1)
                 {
                     io.write(io.context, PI_CR1, config | PI_STOP);
@@ -197,7 +231,9 @@ int pi_step(struct pi_i2c *s, struct pi_io io, uint32_t token, uint32_t now)
                     s->phase = 7;
                 }
                 else
+                {
                     s->phase = 8;
+                }
             }
             break;
         case 7:
@@ -224,23 +260,31 @@ int pi_step(struct pi_i2c *s, struct pi_io io, uint32_t token, uint32_t now)
             {
                 /* STOP has completed; own address0/general-call disabled cannot match. */
                 if (!(io.read(io.context, PI_SR2) & 1u))
+                {
                     return finish(s);
+                }
             }
             break;
         case 10:
             /* START may complete after timeout before the normal SB branch runs. */
             if (sr & PI_SB)
+            {
                 s->master = 1;
+            }
             /* Do not write CR1 while a prior command is still pending. */
             if (pending(cr) && PI_MUTANT != 6)
+            {
                 break;
+            }
             if (sr & PI_ADDR)
             {
                 io.write(io.context, PI_CR1, PI_PE);
                 (void)io.read(io.context, PI_SR2);
             }
             if (!s->master || s->stop_requested)
+            {
                 return finish(s);
+            }
             io.write(io.context, PI_CR1, PI_PE | PI_STOP);
             s->stop_requested = 1;
             break;
@@ -262,11 +306,17 @@ int pi_recover_begin(struct pi_recovery *s, struct pi_lines io,
     if (!s || !io.read || !io.release || exclusive > 1 || peers > 1 || !half ||
         half >= UINT32_C(0x40000000) || budget <= half ||
         budget >= UINT32_C(0x80000000))
+    {
         return PI_INVALID;
+    }
     if ((!exclusive || peers) && PI_MUTANT != 4)
+    {
         return PI_FORBIDDEN;
+    }
     if (s->active)
+    {
         return PI_BUSY;
+    }
     s->active = 1;
     s->phase = 1;
     s->pulses = 0;
@@ -293,25 +343,37 @@ static int recover_end(struct pi_recovery *s, struct pi_lines io,
 int pi_recover_step(struct pi_recovery *s, struct pi_lines io, uint32_t now)
 {
     if (!s || !io.read || !io.release)
+    {
         return PI_INVALID;
+    }
     if (!s->active)
+    {
         return PI_STALE;
+    }
     if ((uint32_t)(now - s->last) >= UINT32_C(0x80000000))
+    {
         return PI_INVALID;
+    }
     s->last = now;
     if (due(now, s->deadline))
+    {
         return recover_end(s, io, PI_TIMEOUT);
+    }
     switch (s->phase)
     {
         case 1: /* Released high may still be held low by another device. */
             if (!io.read(io.context, PI_SCL))
+            {
                 break;
+            }
             s->due = now + s->half;
             s->phase = 2;
             break;
         case 2:
             if (!due(now, s->due))
+            {
                 break;
+            }
             if (!io.read(io.context, PI_SCL))
             {
                 s->phase = 1;
@@ -325,7 +387,9 @@ int pi_recover_step(struct pi_recovery *s, struct pi_lines io, uint32_t now)
                 s->phase = 4;
             }
             else if (s->pulses == 9)
+            {
                 return recover_end(s, io, PI_IO);
+            }
             else
             {
                 io.release(io.context, PI_SCL, 0);
@@ -370,10 +434,14 @@ int pi_recover_step(struct pi_recovery *s, struct pi_lines io, uint32_t now)
             break;
         case 7:
             if (!io.read(io.context, PI_SCL))
+            {
                 return recover_end(s, io, PI_IO);
+            }
             if (due(now, s->due))
+            {
                 return recover_end(s, io,
                                    io.read(io.context, PI_SDA) ? PI_OK : PI_IO);
+            }
             break;
         default:
             return PI_INVALID;
@@ -384,15 +452,21 @@ int pi_recover_step(struct pi_recovery *s, struct pi_lines io, uint32_t now)
 int pi_device(unsigned command, unsigned lose, uint8_t *device, uint8_t *reply)
 {
     if (!device || !reply || lose > 1 || (command != 0x10 && command != 0x11))
+    {
         return PI_INVALID;
+    }
     if (command == 0x11)
     {
         if (*device == 255)
+        {
             return PI_IO;
+        }
         ++*device;
     }
     if (lose)
+    {
         return PI_TIMEOUT;
+    }
     *reply = *device;
     return PI_OK;
 }
@@ -402,10 +476,16 @@ int pi_retry_policy(unsigned command, unsigned applied, unsigned status)
     if ((command != 0x10 && command != 0x11) || applied > 1 ||
         (status != PI_OK && status != PI_TIMEOUT && status != PI_ADDRESS_NACK &&
          status != PI_DATA_NACK && status != PI_ARBITRATION && status != PI_IO))
+    {
         return PI_INVALID;
+    }
     if (status == PI_OK)
+    {
         return PI_OK;
+    }
     if (command == 0x11 && applied && PI_MUTANT != 5)
+    {
         return PI_UNCERTAIN;
+    }
     return PI_BUSY; /* Eligible to retry after separate bus admission/backoff. */
 }

@@ -104,7 +104,9 @@ int __wrap_clock_gettime(clockid_t c, struct timespec *t)
 {
     int result = __real_clock_gettime(c, t);
     if (result == 0 && jump_clock && ++clock_calls > 1)
+    {
         t->tv_sec += 20;
+    }
     return result;
 }
 
@@ -127,11 +129,15 @@ static bool equal(const struct termios *a, const struct termios *b)
     if (a->c_iflag != b->c_iflag || a->c_oflag != b->c_oflag ||
         a->c_cflag != b->c_cflag || a->c_lflag != b->c_lflag ||
         cfgetispeed(a) != cfgetispeed(b) || cfgetospeed(a) != cfgetospeed(b))
+    {
         return false;
+    }
     for (size_t i = 0; i < NCCS; ++i)
     {
         if (a->c_cc[i] != b->c_cc[i])
+        {
             return false;
+        }
     }
     return true;
 }
@@ -143,8 +149,12 @@ static int descriptors(void)
     struct dirent *e;
     CHECK(d);
     while ((e = readdir(d)))
+    {
         if (strcmp(e->d_name, ".") && strcmp(e->d_name, ".."))
+        {
             ++count;
+        }
+    }
     CHECK(closedir(d) == 0);
     return count;
 }
@@ -280,7 +290,9 @@ static void await_read(pid_t child, int fd)
         int n = fscanf(f, "%ld %lx", &number, &first);
         CHECK(fclose(f) == 0);
         if (n == 2 && number == SYS_read && first == (unsigned long)fd)
+        {
             return;
+        }
         CHECK(millis() < end);
         (void)poll(NULL, 0, 1);
     }
@@ -371,15 +383,21 @@ static unsigned unreaped(struct pt_pipeline *r)
 {
     unsigned unexpected = 0;
     for (unsigned i = 0; i < 3; ++i)
+    {
         if (r->children[i] > 0)
         {
             int status;
             pid_t p = waitpid(r->children[i], &status, WNOHANG);
             if (p == r->children[i])
+            {
                 ++unexpected;
+            }
             else
+            {
                 CHECK(p < 0 && errno == ECHILD);
+            }
         }
+    }
     return unexpected;
 }
 
@@ -387,7 +405,9 @@ static uint32_t sum(size_t bytes)
 {
     uint32_t value = 0;
     for (size_t i = 0; i < bytes; ++i)
+    {
         value += (uint32_t)(i % 251);
+    }
     return value;
 }
 
@@ -405,14 +425,18 @@ static void pipeline(void)
     CHECK(!zombies && r.reaped_mask == 7 && r.bytes == bytes &&
           r.sum == sum(bytes));
     for (unsigned i = 0; i < 3; ++i)
+    {
         CHECK(WIFEXITED(r.status[i]) && WEXITSTATUS(r.status[i]) == 0);
+    }
     CHECK(pt_pipeline(bytes, true, 2000, &r) == 0);
     zombies = unreaped(&r);
     CHECK(!zombies && r.reaped_mask == 7 && r.bytes > 0 && r.bytes <= 512 &&
           r.sum == sum(r.bytes));
     for (unsigned i = 0; i < 3; ++i)
+    {
         CHECK(WIFEXITED(r.status[i]) && (WEXITSTATUS(r.status[i]) == 0 ||
                                          WEXITSTATUS(r.status[i]) == 20));
+    }
     CHECK(pt_pipeline(0, false, 2000, &r) == 0 && !unreaped(&r) &&
           r.bytes == 0 && r.sum == 0);
     for (unsigned i = 1; i <= 3; ++i)
@@ -497,17 +521,29 @@ int main(int argc, char **argv)
     CHECK(argc == 2);
     reset();
     if (!strcmp(argv[1], "guard"))
+    {
         guard();
+    }
     else if (!strcmp(argv[1], "bytes"))
+    {
         bytes();
+    }
     else if (!strcmp(argv[1], "timers"))
+    {
         timers();
+    }
     else if (!strcmp(argv[1], "pipeline"))
+    {
         pipeline();
+    }
     else if (!strcmp(argv[1], "disconnect"))
+    {
         disconnect();
+    }
     else
+    {
         CHECK(0);
+    }
     CHECK(descriptors() == before);
     puts("PT_PASS");
     return 0;

@@ -19,21 +19,29 @@ static int arithmetic(void)
     for (size_t n = 1; n <= 64; n++)
     {
         for (size_t i = 0; i < n; i++)
+        {
             a[i] = (uint16_t)BL_MASK;
+        }
         b[0] = 1;
         CHECK(bl_add((struct bl_view){a, n}, (struct bl_view){b, 1}, &o, s,
                      132) == BL_OK);
         CHECK(o.used == n + 1 && v[n] == 1);
         for (size_t i = 0; i < n; i++)
+        {
             CHECK(v[i] == 0);
+        }
         for (size_t i = 0; i <= n; i++)
+        {
             a[i] = 0;
+        }
         a[n] = 1;
         CHECK(bl_sub((struct bl_view){a, n + 1}, (struct bl_view){b, 1}, &o, s,
                      132) == BL_OK);
         CHECK(o.used == n);
         for (size_t i = 0; i < n; i++)
+        {
             CHECK(v[i] == BL_MASK);
+        }
     }
     a[0] = (uint16_t)BL_MASK;
     b[0] = (uint16_t)BL_MASK;
@@ -104,16 +112,22 @@ static uint16_t *allocate(void *arg, size_t n)
     struct bl_alloc *a = arg;
     a->attempt++;
     if (a->fail)
+    {
         return NULL;
+    }
     for (size_t i = 0; i < 4; i++)
+    {
         if (!a->p[i])
         {
             a->p[i] = malloc(n * sizeof(uint16_t));
             a->n[i] = n;
             if (a->p[i])
+            {
                 a->live++;
+            }
             return a->p[i];
         }
+    }
     return NULL;
 }
 
@@ -121,6 +135,7 @@ static void release(void *arg, uint16_t *p, size_t n)
 {
     struct bl_alloc *a = arg;
     for (size_t i = 0; i < 4; i++)
+    {
         if (a->p[i] == p && a->n[i] == n)
         {
             free(p);
@@ -128,6 +143,7 @@ static void release(void *arg, uint16_t *p, size_t n)
             a->live--;
             return;
         }
+    }
     abort();
 }
 
@@ -179,8 +195,12 @@ static int ownership(void)
     /* Test teardown releases a deliberately leaked mutant allocation, so an
        intended semantic rejection cannot be confused with a sanitizer finding. */
     for (size_t i = 0; i < 4; i++)
+    {
         if (allocator.p[i])
+        {
             free(allocator.p[i]);
+        }
+    }
     CHECK(correct);
     return 0;
 }
@@ -194,13 +214,19 @@ static size_t parse(const char *text, uint16_t *a)
     {
         unsigned long x = strtoul(p, &end, 16);
         if (end == p || x > BL_MASK || n == 256)
+        {
             exit(42);
+        }
         a[n++] = (uint16_t)x;
         p = end;
         if (*p == ',')
+        {
             p++;
+        }
         else if (*p)
+        {
             exit(42);
+        }
     }
     return n;
 }
@@ -209,7 +235,9 @@ static void print(const struct bl_output *o)
 {
     printf("%zu", o->used);
     for (size_t i = 0; i < o->used; i++)
+    {
         printf(" %u", (unsigned)o->digits[i]);
+    }
 }
 
 static int driver(void)
@@ -219,21 +247,33 @@ static int driver(void)
     while (fgets(line, sizeof line, stdin))
     {
         if (sscanf(line, "%c %2499s %2499s", &op, left, right) != 3)
+        {
             return 42;
+        }
         struct bl_view x = {a, strcmp(left, "-") ? parse(left, a) : 0},
                        y = {b, strcmp(right, "-") ? parse(right, b) : 0};
         struct bl_output qo = {q, 512, 0}, ro = {r, 512, 0};
         enum bl_status status;
         if (op == '+')
+        {
             status = bl_add(x, y, &qo, s, 514);
+        }
         else if (op == '-')
+        {
             status = bl_sub(x, y, &qo, s, 514);
+        }
         else if (op == '*')
+        {
             status = bl_mul(x, y, &qo, s, 514);
+        }
         else if (op == '/')
+        {
             status = bl_div(x, y, &qo, &ro, s, 514);
+        }
         else
+        {
             return 42;
+        }
         printf("%u ", (unsigned)status);
         print(&qo);
         printf(" | ");
@@ -246,12 +286,20 @@ static int driver(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 42;
+    }
     if (!strcmp(argv[1], "arithmetic"))
+    {
         return arithmetic();
+    }
     if (!strcmp(argv[1], "ownership"))
+    {
         return ownership();
+    }
     if (!strcmp(argv[1], "driver"))
+    {
         return driver();
+    }
     return 42;
 }

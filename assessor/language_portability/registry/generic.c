@@ -19,7 +19,9 @@ int lr_generic(unsigned scenario, struct lr_generic *out)
     int array[3] = {2, 4, 6};
     const int ca[3] = {1, 3, 5};
     if (!out || scenario > 8)
+    {
         return -1;
+    }
     r.selection = 0;
     r.value = 0;
     r.real = 0.0;
@@ -54,7 +56,9 @@ int lr_generic(unsigned scenario, struct lr_generic *out)
             r.selection = 1;
             r.value = LG_VALUE(next(&r.evaluated));
             if (LR_MUTANT == 3)
+            {
                 (void)next(&r.evaluated);
+            }
             break;
         case 7:
             r.selection = 1;

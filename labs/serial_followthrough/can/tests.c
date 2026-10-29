@@ -43,10 +43,16 @@ static int equal(const struct sd_can *a, const struct sd_can *b)
 {
     if (a->identifier != b->identifier || a->extended != b->extended ||
         a->remote != b->remote || a->length != b->length)
+    {
         return 0;
+    }
     for (unsigned i = 0; i < a->length; ++i)
+    {
         if (a->data[i] != b->data[i])
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
@@ -88,7 +94,9 @@ static size_t crc_corrupt(const uint8_t *wire, size_t n, uint8_t *bad)
         }
     }
     for (unsigned i = 0; i < 10; ++i)
+    {
         bad[count++] = wire[n - 10 + i];
+    }
     return count;
 }
 
@@ -96,16 +104,19 @@ static int codec(void)
 {
     unsigned frames = 0, rejections = 0;
     for (unsigned len = 0; len <= 8; ++len)
+    {
         for (unsigned pattern = 0; pattern < 4; ++pattern)
         {
             struct sd_can f = {0x123, 0, 0, (uint8_t)len, {0}};
             uint8_t bits[160], bad[160];
             size_t n = 0, consumed = 99;
             for (unsigned i = 0; i < len; ++i)
+            {
                 f.data[i] = (uint8_t)(pattern == 0   ? 0
                                       : pattern == 1 ? 255
                                       : pattern == 2 ? 0xa5
                                                      : i * 37 + 3);
+            }
             CHECK(sd_can_encode(&f, bits, sizeof bits, &n) == SD_OK);
             struct cn_stream s = {0};
             struct cn_decoded out = {0};
@@ -129,6 +140,7 @@ static int codec(void)
                   out.frame.identifier == 0x555);
             ++rejections;
         }
+    }
     struct cn_stream s = {0};
     struct cn_decoded out = {0};
     uint8_t invalid[] = {0, 0, 2};
@@ -148,6 +160,7 @@ static int stream(void)
     CHECK(sd_can_encode(&f, bits, sizeof bits, &n) == SD_OK);
     unsigned packets = 0, stuff_boundary = 0;
     for (size_t first = 0; first <= n; ++first)
+    {
         for (size_t second = first; second <= n; ++second)
         {
             struct cn_stream s = {0};
@@ -157,7 +170,9 @@ static int stream(void)
             result = cn_feed(&s, bits, first, &consumed, &out);
             CHECK(consumed == first);
             if (s.expect)
+            {
                 ++stuff_boundary;
+            }
             if (result == CN_MORE)
             {
                 result =
@@ -173,6 +188,7 @@ static int stream(void)
             CHECK(result == CN_FRAME && equal(&out.frame, &f));
             ++packets;
         }
+    }
     CHECK(stuff_boundary > 0);
     struct cn_stream s = {0};
     struct cn_decoded out = {0};
@@ -212,7 +228,9 @@ static int fault(void)
     e.kind = CN_TRANSMITTER_FLAG;
     e.transmitter = 1;
     for (unsigned i = 0; i < 16; ++i)
+    {
         CHECK(cn_fault(&s, &e, &out) == CN_OK);
+    }
     CHECK(s.tec == 128 && s.state == CN_PASSIVE);
     e.ack_missing = e.passive_flag_all_recessive = 1;
     CHECK(cn_fault(&s, &e, &out) == CN_OK && s.tec == 128 && !out.rules);
@@ -249,7 +267,9 @@ static int fault(void)
     e.kind = CN_TRANSMITTER_FLAG;
     e.transmitter = 1;
     for (unsigned i = 0; i < 32; ++i)
+    {
         CHECK(cn_fault(&s, &e, &out) == CN_OK);
+    }
     CHECK(s.tec == 256 && s.state == CN_OFF);
     CHECK(cn_fault(&s, &e, &out) == CN_BUSY && s.tec == 256);
     e = (struct cn_event){0};
@@ -258,7 +278,9 @@ static int fault(void)
     e.kind = CN_RECOVERY_BIT;
     e.value = 1;
     for (unsigned i = 0; i < 1407; ++i)
+    {
         CHECK(cn_fault(&s, &e, &out) == CN_OK && s.state == CN_OFF);
+    }
     CHECK(cn_fault(&s, &e, &out) == CN_OK && s.state == CN_ACTIVE &&
           s.tec == 0 && s.rec == 0);
     e = (struct cn_event){0};
@@ -276,12 +298,15 @@ static int fault(void)
     e.transmitter = 1;
     e.ack_missing = e.passive_flag_all_recessive = 1;
     for (unsigned i = 0; i < 40; ++i)
+    {
         CHECK(cn_fault(&s, &e, &out) == CN_OK);
+    }
     CHECK(s.tec == 128 && s.state == CN_PASSIVE);
     static const unsigned lengths[] = {7, 8, 13, 14, 21, 22};
     static const unsigned active_delta[] = {0, 0, 0, 8, 8, 16},
                           passive_delta[] = {0, 8, 8, 8, 16, 16};
     for (unsigned i = 0; i < 6; ++i)
+    {
         for (unsigned active = 0; active < 2; ++active)
         {
             s = (struct cn_fault){0};
@@ -294,6 +319,7 @@ static int fault(void)
             CHECK(cn_fault(&s, &e, &out) == CN_OK &&
                   s.tec == (active ? active_delta[i] : passive_delta[i]));
         }
+    }
     s = (struct cn_fault){0};
     s.enabled = 1;
     s.tec = 1;
@@ -312,12 +338,16 @@ static int fault(void)
     e.kind = CN_RECOVERY_BIT;
     e.value = 1;
     for (unsigned i = 0; i < 10; ++i)
+    {
         CHECK(cn_fault(&s, &e, &out) == CN_OK);
+    }
     e.value = 0;
     CHECK(cn_fault(&s, &e, &out) == CN_OK && s.recessive == 0 && s.idles == 0);
     e.value = 1;
     for (unsigned i = 0; i < 11; ++i)
+    {
         CHECK(cn_fault(&s, &e, &out) == CN_OK);
+    }
     CHECK(s.idles == 1 && s.state == CN_OFF);
     e.kind = CN_RESTART;
     e.value = 0;

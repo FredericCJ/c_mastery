@@ -23,15 +23,21 @@
 static void put(unsigned char *p, uint32_t n)
 {
     for (unsigned i = 0; i < 4; ++i)
+    {
         p[i] = (unsigned char)(n >> (8 * i));
+    }
 }
 
 static int same(const void *a, const void *b, size_t n)
 {
     const unsigned char *x = a, *y = b;
     for (size_t i = 0; i < n; ++i)
+    {
         if (x[i] != y[i])
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
@@ -39,7 +45,9 @@ static void fill(void *a, unsigned char b, size_t n)
 {
     unsigned char *p = a;
     for (size_t i = 0; i < n; ++i)
+    {
         p[i] = b;
+    }
 }
 
 static unsigned nibble(char c)
@@ -50,7 +58,9 @@ static unsigned nibble(char c)
 static void hex(unsigned char *out, const char *s, size_t n)
 {
     for (size_t i = 0; i < n; ++i)
+    {
         out[i] = (unsigned char)(16 * nibble(s[2 * i]) + nibble(s[2 * i + 1]));
+    }
 }
 
 int fb_selftest(void)
@@ -77,7 +87,9 @@ int fb_selftest(void)
     {
         unsigned char seed[32];
         for (unsigned i = 0; i < 32; ++i)
+        {
             seed[i] = (unsigned char)(17 * c + i);
+        }
         crypto_ed25519_key_pair(secret[c], p.keys[c], seed);
         p.floor[c] = 3;
     }
@@ -162,8 +174,10 @@ int main(void)
 {
     int r = fb_selftest();
     if (!r)
+    {
         puts(
             "FB_PASS:actual Ed25519,608authenticated-byte mutations,paired health failure preserves publication");
+    }
     return r;
 }
 #endif

@@ -83,7 +83,9 @@ static int oracle(void)
             printf("%d %" PRIu32 "\n", s, out);
         }
         else
+        {
             CHECK(0);
+        }
     }
     return 0;
 }
@@ -92,15 +94,25 @@ int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (!strcmp(argv[1], "canonical"))
+    {
         return canonical();
+    }
     if (!strcmp(argv[1], "sign"))
+    {
         return sign();
+    }
     if (!strcmp(argv[1], "table"))
+    {
         return table();
+    }
     if (!strcmp(argv[1], "wire"))
+    {
         return wire();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
     {
         printf(

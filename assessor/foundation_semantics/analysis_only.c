@@ -5,7 +5,9 @@ int fs_off_by_one(const int *p, size_t n)
 {
     int sum = 0;
     for (size_t i = 0; i <= n; i++)
+    {
         sum += p[i];
+    }
     return sum;
 }
 
@@ -19,7 +21,9 @@ int fs_partial_init(int branch)
 {
     int value;
     if (branch)
+    {
         value = 7;
+    }
     return value;
 }
 

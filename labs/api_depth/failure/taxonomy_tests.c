@@ -43,7 +43,9 @@ int main(void)
     CHECK(ae_first(&error, AE_EXHAUSTED, 9, 2, 0, 11) == AE_OK);
     CHECK(ae_first(&error, AE_DEVICE, 9, 1, 0, 77) == AE_CONFLICT);
     for (unsigned i = 0; i < 40; ++i)
+    {
         CHECK(ae_secondary(&error, i % 4, 77 + (int)i) == AE_OK);
+    }
     CHECK(error.result.code == AE_EXHAUSTED && error.first == 11 &&
           error.stage == 2 && error.stored == 2 &&
           error.secondary[0].cause == 77 && error.secondary[1].cause == 78 &&
@@ -89,7 +91,9 @@ int main(void)
     CHECK(ae_decode(bytes, 8, &b, &cause, &op, &stage) == AE_OK && b == 1 &&
           cause == 104 && op == 9 && stage == 2);
     for (size_t n = 0; n < 8; ++n)
+    {
         CHECK(ae_decode(bytes, n, &b, &cause, &op, &stage) == AE_INVALID);
+    }
     bytes[0] = 2;
     CHECK(ae_decode(bytes, 8, &b, &cause, &op, &stage) == AE_INVALID);
     puts("TAXONOMY-PASS:categories=4;namespaces=2;secondary_attempts=40;expiry_"

@@ -22,24 +22,36 @@ int main(void)
 {
     size_t cases = 0;
     for (size_t z = 0; z <= 16; ++z)
+    {
         for (size_t src = 0; src <= z; ++src)
+        {
             for (size_t dst = 0; dst <= z; ++dst)
+            {
                 for (size_t n = 0; n <= z; ++n)
                 {
                     unsigned char b[18], old[18], expected[18];
                     for (unsigned i = 0; i < 18; ++i)
+                    {
                         b[i] = old[i] = expected[i] = (unsigned char)i;
+                    }
                     enum lb_status st = lb_move(b, z, dst, src, n);
                     if (n > z - src || n > z - dst)
+                    {
                         CHECK(st == LB_RANGE && !memcmp(b, old, 18));
+                    }
                     else
                     {
                         for (size_t i = 0; i < n; ++i)
+                        {
                             expected[dst + i] = old[src + i];
+                        }
                         CHECK(st == LB_OK && !memcmp(b, expected, 18));
                     }
                     ++cases;
                 }
+            }
+        }
+    }
     CHECK(lb_move(NULL, 0, 0, 0, 0) == LB_OK &&
           lb_move(NULL, 1, 0, 0, 1) == LB_ARGUMENT);
     unsigned char a[5] = {0, 1, 2, 3, 4}, b[5] = {9, 9, 9, 9, 9};
@@ -67,11 +79,15 @@ int main(void)
         {
             CHECK(st == LB_FULL && n == 99);
             for (unsigned i = 0; i < 16; ++i)
+            {
                 CHECK(shown[i] == '#');
+            }
         }
         else
+        {
             CHECK(st == LB_OK && n == 6 && !strcmp(shown, "A\\x00B") &&
                   shown[7] == '#');
+        }
     }
     const uint8_t field[] = {0, 3, 65, 0, 66, 99};
     for (size_t cap = 0; cap <= 10; ++cap)
@@ -81,11 +97,15 @@ int main(void)
         n = 99;
         enum lb_status st = lb_field_display(&c, cap ? shown : NULL, cap, &n);
         if (cap <= 6)
+        {
             CHECK(st == LB_FULL && c.position == 0 && n == 99 &&
                   shown[0] == '#');
+        }
         else
+        {
             CHECK(st == LB_OK && c.position == 5 && n == 6 &&
                   !strcmp(shown, "A\\x00B"));
+        }
     }
     struct f_cursor shortc = {field, 4, 0};
     CHECK(lb_field_display(&shortc, shown, 16, &n) == LB_RANGE &&
@@ -106,9 +126,12 @@ int main(void)
         st = lf_transaction(render, NULL, caps[i] ? shown : NULL, caps[i], &r);
         CHECK(st == (i == 3 ? LF_OK : LF_CAPACITY));
         if (i < 3)
+        {
             CHECK(shown[0] == '#' && r.required == 99);
+        }
     }
     for (size_t width = 0; width <= 8; ++width)
+    {
         for (size_t length = 0; length <= 6; ++length)
         {
             unsigned char record[10];
@@ -119,19 +142,28 @@ int main(void)
             {
                 CHECK(st == LB_FULL);
                 for (unsigned j = 0; j < 10; ++j)
+                {
                     CHECK(record[j] == 99);
+                }
             }
             else
             {
                 CHECK(st == LB_OK);
                 for (size_t j = 0; j < length; ++j)
+                {
                     CHECK(record[j] == "abcdef"[j]);
+                }
                 for (size_t j = length; j < width; ++j)
+                {
                     CHECK(record[j] == 0);
+                }
                 for (size_t j = width; j < 10; ++j)
+                {
                     CHECK(record[j] == 99);
+                }
             }
         }
+    }
     printf(
         "BYTES-PASS:cases=%zu:move:spans:display:actual-cursor:actual-format:"
         "record\n",

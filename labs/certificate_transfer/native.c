@@ -16,6 +16,8 @@ void ct_observation(const char *s, unsigned n, unsigned size)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     return ct_tests((unsigned)strtoul(argv[1], NULL, 10));
 }

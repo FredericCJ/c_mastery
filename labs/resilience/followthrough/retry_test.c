@@ -23,7 +23,9 @@ static void *allocate(void *p, size_t n)
 {
     void *v = malloc(n);
     if (v)
+    {
         ++((struct rz_allocations *)p)->made;
+    }
     return v;
 }
 
@@ -49,9 +51,13 @@ static void w32(unsigned char *p, uint32_t v)
 static unsigned checksum(const unsigned char *p, size_t n, uint32_t sum)
 {
     for (size_t i = 0; i < n; ++i)
+    {
         sum += (uint32_t)p[i] << (i % 2 ? 0 : 8);
+    }
     while (sum > 65535)
+    {
         sum = (sum & 65535) + (sum >> 16);
+    }
     return 65535 - sum;
 }
 
@@ -127,7 +133,9 @@ static int sink(void *context, const struct net_packet *p)
     CHECK(p->length == 3 && p->bytes[0] == 0 && p->bytes[1] == 1 &&
           p->bytes[2] == 3);
     if (s->drop_mask & (1u << call))
+    {
         return 1;
+    }
     int result = 99;
     bool replay = false;
     /* Receiver clock unit is1000 sender milliseconds, retention16 units. */
@@ -162,7 +170,9 @@ static void tests(void)
             uint32_t value = 99;
             int status = rzr_reduce(sample, 8, span, &value);
             if (sample < 256 % span)
+            {
                 CHECK(status == RZ_PENDING && value == 99);
+            }
             else
             {
                 CHECK(status == RZ_OK && value < span);
@@ -171,7 +181,9 @@ static void tests(void)
             }
         }
         for (uint32_t i = 0; i < span; ++i)
+        {
             CHECK(bins[i] == accepted / span);
+        }
     }
     uint32_t value = 99;
     CHECK(rzr_reduce(256, 8, 3, &value) == RZ_INVALID && value == 99);
@@ -199,7 +211,9 @@ static void tests(void)
             CHECK(rzr_plan(&retry, s.now, 0, RZR_FULL_JITTER, &due) == RZ_OK);
             CHECK(due >= s.now && due - s.now <= (UINT64_C(2) << i));
             if (due > s.now)
+            {
                 CHECK(rzr_dispatch(&retry, due - 1, sink, &s) == RZ_PENDING);
+            }
             s.now = due;
             int status = rzr_dispatch(&retry, due, sink, &s);
             CHECK(status == ((mask & (1u << (i + 1))) ? RZ_PENDING : RZ_OK));
@@ -332,7 +346,9 @@ static void history_oracle(void)
         {
             int status = rz_retry_next(&retry, now, draws[i], &out);
             if (status == RZ_OK)
+            {
                 now = out;
+            }
             printf("%d:%u:%" PRIu64 ":%" PRIu64 ",", status, retry.attempts,
                    out, now);
         }
@@ -352,7 +368,9 @@ static int population_sink(void *context, const struct net_packet *packet)
     CHECK(packet->length == 3);
     ++s->sent;
     if (s->now < s->cutoff)
+    {
         return 1;
+    }
     ++s->delivered;
     return 0;
 }
@@ -398,11 +416,13 @@ static void population_oracle(void)
             unsigned i = CLIENTS;
             uint64_t now = UINT64_MAX;
             for (unsigned k = 0; k < CLIENTS; ++k)
+            {
                 if (stage[k] && (next[k] < now || i == CLIENTS))
                 {
                     i = k;
                     now = next[k];
                 }
+            }
             CHECK(i < CLIENTS);
             sink_state.now = now;
             if (stage[i] == 1)
@@ -452,16 +472,28 @@ int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (!strcmp(argv[1], "test"))
+    {
         tests();
+    }
     else if (!strcmp(argv[1], "random"))
+    {
         random_oracle();
+    }
     else if (!strcmp(argv[1], "plan"))
+    {
         plan_oracle();
+    }
     else if (!strcmp(argv[1], "history"))
+    {
         history_oracle();
+    }
     else if (!strcmp(argv[1], "population"))
+    {
         population_oracle();
+    }
     else
+    {
         return 2;
+    }
     return 0;
 }

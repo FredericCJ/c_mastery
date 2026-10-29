@@ -27,10 +27,14 @@ static void escape(void *p)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     unsigned char *p = malloc(8);
     if (!p)
+    {
         return 3;
+    }
     memset(p, 1, 8);
     printf("SETUP:allocation8:mode=%s:fixed=%d\nENTRY\n", argv[1], MW_FIXED);
     fflush(stdout);
@@ -49,14 +53,18 @@ int main(int argc, char **argv)
     else if (!strcmp(argv[1], "nul"))
     {
         if (MW_FIXED)
+        {
             p[7] = 0;
+        }
         sink = (unsigned)strlen((char *)p);
     }
     else if (!strcmp(argv[1], "pool"))
     {
         size_t logical = 4, index = 6;
         if (MW_FIXED && index >= logical)
+        {
             puts("DENIED:logical-extent");
+        }
         else
         {
             p[index] = 9;
@@ -67,7 +75,9 @@ int main(int argc, char **argv)
     {
         p[4] = 0xaa;
         if (MW_FIXED)
+        {
             puts("DENIED:before-canary");
+        }
         else
         {
             p[4] = 7;
@@ -83,12 +93,16 @@ int main(int argc, char **argv)
         } *r = malloc(sizeof *r);
 
         if (!r)
+        {
             return 3;
+        }
         r->length = 3;
         mw_missing_field(&r->mode, MW_FIXED);
         struct fb_record copy = *r;
         if (copy.mode)
+        {
             sink = copy.length;
+        }
         free(r);
     }
     else if (!strcmp(argv[1], "lifetime"))
@@ -100,7 +114,9 @@ int main(int argc, char **argv)
             p = NULL;
         }
         else
+        {
             sink = p[0];
+        }
     }
     else if (!strcmp(argv[1], "signed"))
     {
@@ -128,7 +144,9 @@ int main(int argc, char **argv)
         root = malloc(24);
         unsigned char *q = malloc(8);
         if (!lost || !a || !b || !root || !q)
+        {
             return 3;
+        }
         a->next = b;
         b->next = a;
         interior = q + 1;
@@ -145,10 +163,14 @@ int main(int argc, char **argv)
             interior = NULL;
         }
         else
+        {
             puts("SEMANTIC:reachable-cache24-budget16:excess8");
+        }
     }
     else
+    {
         return 2;
+    }
     free(p);
     puts("EXIT:bounded-trial");
     return 0;

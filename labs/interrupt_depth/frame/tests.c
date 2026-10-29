@@ -26,8 +26,10 @@ int main(void)
     CHECK(f.pc == 0x08000120u && f.stacked_lr == 0x08000201u && f.psp &&
           f.thread && !f.extended && f.original_sp == 0x20000020u);
     for (unsigned n = 0; n < 8; ++n)
+    {
         CHECK(xf_frame(words, n, 0x20000000u, 0xfffffffdu, 1, 0, 1, 0, &f) ==
               XF_SHORT);
+    }
     CHECK(f.pc == 0x08000120u && f.original_sp == 0x20000020u);
     for (unsigned low = 0; low < 32; ++low)
     {
@@ -45,7 +47,9 @@ int main(void)
               XF_OK &&
           f.alignment_word && f.original_sp == 0x20000024u);
     for (unsigned i = 0; i < 16; ++i)
+    {
         words[8 + i] = 0x3f800000u + i;
+    }
     words[24] = 0x01000000u;
     words[25] = 0xdeadbeefu;
     CHECK(xf_frame(words, 26, 0x20000000u, 0xffffffedu, 1, 1, 1, 0, &f) ==
@@ -103,7 +107,9 @@ int main(void)
     CHECK(xf_api_allowed(cfg, 4, 5, &allowed) == XF_INVALID);
     CHECK(xf_api_allowed(cfg, 4, 4, &allowed) == XF_OK && allowed);
     for (unsigned bits = 3; bits <= 8; ++bits)
+    {
         for (unsigned grouping = 0; grouping <= 7; ++grouping)
+        {
             for (unsigned raw = 0; raw < 256; ++raw)
             {
                 cfg = (struct xf_priority_config){bits, grouping};
@@ -119,6 +125,8 @@ int main(void)
                       xf_urgency(cfg, logical, 1, &opposite) == XF_OK &&
                       (unsigned)normal + opposite == 256 - unit);
             }
+        }
+    }
     puts("XF_PASS priority_cells=12288");
     return 0;
 }

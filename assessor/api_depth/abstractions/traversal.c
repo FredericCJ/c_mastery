@@ -6,10 +6,14 @@ enum at_result at_begin(const struct ac_epoch_owner *owner, unsigned limit,
 {
     if (!owner || !owner->live || !out || limit > 255 ||
         !owner->bytes.generation)
+    {
         return AT_INVALID;
+    }
     struct f_view view;
     if (f_view(&owner->bytes, 0, owner->bytes.length, &view) != F_OK)
+    {
         return AT_INVALID;
+    }
     *out = (struct at_cursor){view, owner, 0, limit, AT_ITEM};
     return AT_ITEM;
 }
@@ -17,9 +21,13 @@ enum at_result at_begin(const struct ac_epoch_owner *owner, unsigned limit,
 enum at_result at_next(struct at_cursor *cursor, unsigned char *out)
 {
     if (!cursor || !out)
+    {
         return AT_INVALID;
+    }
     if (cursor->terminal != AT_ITEM)
+    {
         return cursor->terminal;
+    }
     /* Owner control remains live while the cursor is active. */
     int dead = !cursor->owner->live;
 #ifdef AT_MUTANT_LIFETIME
@@ -63,9 +71,13 @@ enum at_result at_push(struct at_push *host, const struct ac_epoch_owner *owner,
                        unsigned limit, at_visitor_fn visitor, void *context)
 {
     if (!host || !visitor)
+    {
         return AT_INVALID;
+    }
     if (host->depth >= 3)
+    {
         return AT_FULL;
+    }
     if (!host->depth)
     {
         host->visits = 0;
@@ -74,10 +86,14 @@ enum at_result at_push(struct at_push *host, const struct ac_epoch_owner *owner,
     struct at_cursor cursor;
     enum at_result result = at_begin(owner, limit, &cursor);
     if (result != AT_ITEM)
+    {
         return result;
+    }
     ++host->depth;
     if (host->depth > host->max_depth)
+    {
         host->max_depth = host->depth;
+    }
     unsigned char value;
     while ((result = at_next(&cursor, &value)) == AT_ITEM)
     {
@@ -105,11 +121,15 @@ enum at_result at_defer(struct at_deferred *d,
                         at_visitor_fn visitor, void *ctx)
 {
     if (!d || !visitor || d->active || d->running)
+    {
         return AT_INVALID;
+    }
     struct at_cursor cursor;
     enum at_result result = at_begin(owner, limit, &cursor);
     if (result != AT_ITEM)
+    {
         return result;
+    }
     *d = (struct at_deferred){cursor, visitor, ctx, 1, 0, AT_ITEM};
     return AT_ITEM;
 }
@@ -126,9 +146,13 @@ static enum at_result finish(struct at_deferred *d, enum at_result result)
 enum at_result at_pump(struct at_deferred *d, unsigned budget)
 {
     if (!d || d->running)
+    {
         return AT_INVALID;
+    }
     if (!d->active)
+    {
         return d->terminal == AT_ITEM ? AT_INVALID : d->terminal;
+    }
     d->running = 1;
     enum at_result result = AT_ITEM;
     while (budget--)
@@ -136,7 +160,9 @@ enum at_result at_pump(struct at_deferred *d, unsigned budget)
         unsigned char value;
         result = at_next(&d->cursor, &value);
         if (result != AT_ITEM)
+        {
             break;
+        }
         enum at_action action = d->visitor(d->context, value);
         if (action != AT_CONTINUE)
         {
@@ -153,9 +179,13 @@ enum at_result at_pump(struct at_deferred *d, unsigned budget)
 enum at_result at_cancel(struct at_deferred *d)
 {
     if (!d || d->running)
+    {
         return AT_INVALID;
+    }
     if (!d->active)
+    {
         return d->terminal == AT_ITEM ? AT_INVALID : d->terminal;
+    }
 #ifdef AT_MUTANT_CANCEL
     return AT_CANCELLED;
 #else
@@ -168,17 +198,25 @@ static enum at_result walk(const struct at_node *nodes, size_t count,
                            unsigned char *out, size_t capacity, size_t *n)
 {
     if (node == 0)
+    {
         return AT_END;
+    }
     if (node > count)
+    {
         return AT_INVALID;
+    }
     if (depth == limit || *n == capacity)
+    {
         return AT_FULL;
+    }
     const struct at_node *p = nodes + node - 1;
     out[(*n)++] = p->value;
     enum at_result result =
         walk(nodes, count, p->left, depth + 1, limit, out, capacity, n);
     if (result != AT_END)
+    {
         return result;
+    }
     return walk(nodes, count, p->right, depth + 1, limit, out, capacity, n);
 }
 
@@ -188,7 +226,9 @@ enum at_result at_recursive(const struct at_node *nodes, size_t count,
 {
     if ((count && !nodes) || count > 7 || limit > 3 || (capacity && !out) ||
         !written)
+    {
         return AT_INVALID;
+    }
     *written = 0;
     return walk(nodes, count, root, 0, limit, out, capacity, written);
 }
@@ -206,14 +246,22 @@ enum at_result at_continuations(const struct at_node *nodes, size_t count,
     unsigned top = 0;
     if ((count && !nodes) || count > 7 || limit > 3 || (capacity && !out) ||
         !written)
+    {
         return AT_INVALID;
+    }
     *written = 0;
     if (!root)
+    {
         return AT_END;
+    }
     if (root > count)
+    {
         return AT_INVALID;
+    }
     if (!limit)
+    {
         return AT_FULL;
+    }
     stack[top++] = (struct ac_frame){root, 0};
     while (top)
     {
@@ -222,21 +270,31 @@ enum at_result at_continuations(const struct at_node *nodes, size_t count,
         if (!frame->stage)
         {
             if (*written == capacity)
+            {
                 return AT_FULL;
+            }
             out[(*written)++] = node->value;
             frame->stage = 1;
         }
         else if (frame->stage == 3)
+        {
             --top;
+        }
         else
         {
             unsigned child = frame->stage++ == 1 ? node->left : node->right;
             if (!child)
+            {
                 continue;
+            }
             if (child > count)
+            {
                 return AT_INVALID;
+            }
             if (top == limit)
+            {
                 return AT_FULL;
+            }
             stack[top++] = (struct ac_frame){child, 0};
         }
     }

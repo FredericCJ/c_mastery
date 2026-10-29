@@ -58,7 +58,9 @@ static void next(struct cvm_scan *s)
     int neg = 0, number = 1;
     s->t.kind = END;
     while (s->pos < s->n && space(s->s[s->pos]))
+    {
         s->pos++;
+    }
     s->t.begin = s->pos;
     if (s->pos == s->n)
     {
@@ -74,7 +76,9 @@ static void next(struct cvm_scan *s)
     b = s->pos;
     while (s->pos < s->n && !space(s->s[s->pos]) && s->s[s->pos] != '(' &&
            s->s[s->pos] != ')')
+    {
         s->pos++;
+    }
     k = s->pos - b;
     s->t.end = s->pos;
     if (!k || k >= sizeof s->t.word)
@@ -96,10 +100,16 @@ static void next(struct cvm_scan *s)
     memcpy(s->t.word, s->s + b, k);
     s->t.word[k] = 0;
     if (s->t.word[0] == '-' && k > 1)
+    {
         neg = 1;
+    }
     for (size_t i = (size_t)neg; i < k; i++)
+    {
         if (s->t.word[i] < '0' || s->t.word[i] > '9')
+        {
             number = 0;
+        }
+    }
     if (!number)
     {
         s->t.kind = WORD;
@@ -129,11 +139,17 @@ static int ident(const char *s)
 {
     size_t i;
     if (!((*s >= 'a' && *s <= 'z') || (*s >= 'A' && *s <= 'Z') || *s == '_'))
+    {
         return 0;
+    }
     for (i = 1; s[i]; i++)
+    {
         if (!((s[i] >= 'a' && s[i] <= 'z') || (s[i] >= 'A' && s[i] <= 'Z') ||
               (s[i] >= '0' && s[i] <= '9') || s[i] == '_'))
+        {
             return 0;
+        }
+    }
     return strcmp(s, "true") && strcmp(s, "false") && strcmp(s, "nil");
 }
 
@@ -194,8 +210,12 @@ static int local(struct cvm_compiler *c, const char *name)
 {
     unsigned i = c->used;
     while (i)
+    {
         if (!strcmp(c->names[--i], name))
+        {
             return (int)i;
+        }
+    }
     return -1;
 }
 
@@ -205,7 +225,9 @@ static void expression(struct cvm_compiler *c)
     unsigned a, b, slot, argc;
     int index;
     if (c->failed)
+    {
         return;
+    }
     if (++c->depth > 64)
     {
         c->failed = 1;
@@ -221,16 +243,24 @@ static void expression(struct cvm_compiler *c)
     if (c->scan.t.kind == WORD)
     {
         if (named(&c->scan.t, "true"))
+        {
             emit(c, OP_TRUE);
+        }
         else if (named(&c->scan.t, "false"))
+        {
             emit(c, OP_FALSE);
+        }
         else if (named(&c->scan.t, "nil"))
+        {
             emit(c, OP_NIL);
+        }
         else
         {
             index = local(c, c->scan.t.word);
             if (index < 0)
+            {
                 c->failed = 1;
+            }
             else
             {
                 emit(c, OP_LOAD);
@@ -262,7 +292,9 @@ static void expression(struct cvm_compiler *c)
         slot = c->used++;
         strcpy(c->names[slot], name);
         if (c->used > c->peak)
+        {
             c->peak = c->used;
+        }
         emit(c, OP_STORE);
         emit(c, slot);
         expression(c);
@@ -322,18 +354,26 @@ static void expression(struct cvm_compiler *c)
         }
         index = -1;
         for (a = 0; a < c->p.count; a++)
+        {
             if (!strcmp(c->defs[a].name, c->scan.t.word))
+            {
                 index = (int)a;
+            }
+        }
         next(&c->scan);
         argc = 0;
         while (c->scan.t.kind != RIGHT && !c->failed)
         {
             expression(c);
             if (++argc > CVM_LOCALS)
+            {
                 c->failed = 1;
+            }
         }
         if (index < 0 || argc != c->defs[index].arity)
+        {
             c->failed = 1;
+        }
         else
         {
             emit(c, OP_CALL);
@@ -369,19 +409,33 @@ static void expression(struct cvm_compiler *c)
     {
         unsigned code = 0;
         if (!strcmp(op, "+"))
+        {
             code = OP_ADD;
+        }
         else if (!strcmp(op, "-"))
+        {
             code = OP_SUB;
+        }
         else if (!strcmp(op, "*"))
+        {
             code = OP_MUL;
+        }
         else if (!strcmp(op, "/"))
+        {
             code = OP_DIV;
+        }
         else if (!strcmp(op, "=="))
+        {
             code = OP_EQ;
+        }
         else if (!strcmp(op, "<"))
+        {
             code = OP_LT;
+        }
         else if (!strcmp(op, "pair"))
+        {
             code = OP_PAIR;
+        }
         if (!code)
         {
             c->failed = 1;
@@ -402,7 +456,9 @@ enum cvm_status cvm_compile(const char *source, size_t length,
     struct cvm_compiler c = {0};
     unsigned f;
     if (!source || !out || length > 4096)
+    {
         return CVM_SYNTAX;
+    }
     c.scan.s = source;
     c.scan.n = length;
     next(&c.scan);
@@ -411,28 +467,46 @@ enum cvm_status cvm_compile(const char *source, size_t length,
         struct cvm_definition *d;
         unsigned nesting = 0;
         if (c.p.count >= CVM_FUNCTIONS)
+        {
             return CVM_SYNTAX;
+        }
         d = &c.defs[c.p.count];
         if (!take(&c, LEFT) || !named(&c.scan.t, "fn"))
+        {
             return CVM_SYNTAX;
+        }
         next(&c.scan);
         if (c.scan.t.kind != WORD || !ident(c.scan.t.word))
+        {
             return CVM_SYNTAX;
+        }
         strcpy(d->name, c.scan.t.word);
         for (f = 0; f < c.p.count; f++)
+        {
             if (!strcmp(c.defs[f].name, d->name))
+            {
                 return CVM_SYNTAX;
+            }
+        }
         next(&c.scan);
         if (!take(&c, LEFT))
+        {
             return CVM_SYNTAX;
+        }
         while (c.scan.t.kind != RIGHT)
         {
             if (c.scan.t.kind != WORD || !ident(c.scan.t.word) ||
                 d->arity >= CVM_LOCALS)
+            {
                 return CVM_SYNTAX;
+            }
             for (f = 0; f < d->arity; f++)
+            {
                 if (!strcmp(d->params[f], c.scan.t.word))
+                {
                     return CVM_SYNTAX;
+                }
+            }
             strcpy(d->params[d->arity++], c.scan.t.word);
             next(&c.scan);
         }
@@ -445,12 +519,18 @@ enum cvm_status cvm_compile(const char *source, size_t length,
                 if (c.scan.t.kind == LEFT)
                 {
                     if (++nesting > 64)
+                    {
                         return CVM_SYNTAX;
+                    }
                 }
                 else if (c.scan.t.kind == RIGHT)
+                {
                     nesting--;
+                }
                 else if (c.scan.t.kind == END || c.scan.t.kind == BAD)
+                {
                     return CVM_SYNTAX;
+                }
                 d->end = c.scan.t.end;
                 next(&c.scan);
             } while (nesting);
@@ -461,14 +541,20 @@ enum cvm_status cvm_compile(const char *source, size_t length,
             next(&c.scan);
         }
         else
+        {
             return CVM_SYNTAX;
+        }
         if (!take(&c, RIGHT))
+        {
             return CVM_SYNTAX;
+        }
         c.p.count++;
     }
     if (c.failed || !c.p.count || strcmp(c.defs[0].name, "main") ||
         c.defs[0].arity)
+    {
         return CVM_SYNTAX;
+    }
     for (f = 0; f < c.p.count; f++)
     {
         struct cvm_function *fn = &c.p.functions[f];
@@ -479,19 +565,25 @@ enum cvm_status cvm_compile(const char *source, size_t length,
         c.peak = c.used;
         c.depth = 0;
         for (unsigned i = 0; i < c.used; i++)
+        {
             strcpy(c.names[i], d->params[i]);
+        }
         c.scan.pos = d->start;
         c.scan.n = d->end;
         next(&c.scan);
         expression(&c);
         if (c.failed || c.scan.t.kind != END)
+        {
             return CVM_SYNTAX;
+        }
         emit(&c, OP_RET);
         fn->length = (uint16_t)(c.p.length - fn->entry);
         fn->locals = (uint8_t)c.peak;
     }
     if (c.failed || cvm_verify(&c.p) != CVM_OK)
+    {
         return CVM_SYNTAX;
+    }
     *out = c.p;
     return CVM_OK;
 }

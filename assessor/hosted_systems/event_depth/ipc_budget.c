@@ -21,7 +21,9 @@ int ei_exchange(struct ei_io o, const unsigned char request[8],
     {
         struct timespec now, left;
         if (o.now(o.context, &now))
+        {
             return -1;
+        }
 #ifdef EI_MUTANT_RESET_BUDGET
         deadline.tv_sec = now.tv_sec + 1;
         deadline.tv_nsec = now.tv_nsec;
@@ -50,9 +52,13 @@ int ei_exchange(struct ei_io o, const unsigned char request[8],
                 return -1;
             }
             if (sending)
+            {
                 p->sent += (size_t)n;
+            }
             else
+            {
                 p->received += (size_t)n;
+            }
             continue;
         }
         if (n == 0)
@@ -61,12 +67,18 @@ int ei_exchange(struct ei_io o, const unsigned char request[8],
             return -1;
         }
         if (errno == EINTR)
+        {
             continue;
+        }
         if (errno != EAGAIN && errno != EWOULDBLOCK)
+        {
             return -1;
+        }
         /* Recompute AFTER the failed I/O: the callback may have consumed time. */
         if (o.now(o.context, &now))
+        {
             return -1;
+        }
         available = es_remaining(now, deadline, &left);
         if (available <= 0)
         {
@@ -74,6 +86,8 @@ int ei_exchange(struct ei_io o, const unsigned char request[8],
             return -1;
         }
         if (o.wait(o.context, sending, left) < 0 && errno != EINTR)
+        {
             return -1;
+        }
     }
 }

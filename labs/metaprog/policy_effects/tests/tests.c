@@ -47,10 +47,14 @@ static int acquire(void *context, size_t index, struct mpp_item *out)
     c->current = index;
     event(c, 1, (unsigned)index);
     if (c->acquisition_failure == 2 * index + 1)
+    {
         return 1;
+    }
     live_owner = malloc(1);
     if (!live_owner)
+    {
         return 1;
+    }
     c->live++;
     *out = (struct mpp_item){live_owner, c->values[index]};
     return c->acquisition_failure == 2 * index + 2;
@@ -62,7 +66,9 @@ static int project(void *context, const struct mpp_item *item, uint32_t *out)
     c->projects++;
     event(c, 2, (unsigned)c->current);
     if (c->project_failure == c->current + 1)
+    {
         return 1;
+    }
     *out = c->multiply ? item->raw * UINT32_C(3) : item->raw;
     return 0;
 }
@@ -105,8 +111,12 @@ static int order(void)
               c.live == 0);
         uint64_t trace = 0;
         for (unsigned i = 0; i < 3; i++)
+        {
             for (unsigned k = 1; k <= 3; k++)
+            {
                 trace = trace * 257 + k * 32 + i;
+            }
+        }
         CHECK(c.trace == trace);
     }
     struct mp_context c = {0};
@@ -202,13 +212,17 @@ static int driver(void)
         c.project_failure = pf;
         c.multiply = multiply;
         for (unsigned i = 0; i < n; i++)
+        {
             CHECK(scanf("%" SCNu32, &c.values[i]) == 1);
+        }
         uint32_t out = 99;
         int status = apply(variant, policy, &c, limit, &out);
         CHECK(c.live == 0);
         uint32_t projected[32], base_out = 99;
         for (unsigned i = 0; i < n; i++)
+        {
             projected[i] = multiply ? c.values[i] * UINT32_C(3) : c.values[i];
+        }
         int base_ok = mp_reduce(projected, n, (struct mp_policy){limit, policy},
                                 &base_out);
         printf("%d %u %u %u %u %" PRIu64 " %d %u\n", status, out, c.acquires,
@@ -221,7 +235,9 @@ static int metrics(void)
 {
     double times[2][2][7];
     for (unsigned policy = 0; policy < 2; policy++)
+    {
         for (unsigned variant = 0; variant < 2; variant++)
+        {
             for (unsigned sample = 0; sample < 7; sample++)
             {
                 struct mp_context c = {
@@ -241,18 +257,24 @@ static int metrics(void)
                       c.projects == 40000 && c.releases == 40000 &&
                       c.live == 0);
             }
+        }
+    }
     printf(
         "{\"iterations\":10000,\"reject_checksum\":100000,\"saturate_checksum\":50000,\"callback_calls_each\":40000,\"item_size\":%zu,\"ops_size\":%zu",
         sizeof(struct mpp_item), sizeof(struct mpp_ops));
     for (unsigned p = 0; p < 2; p++)
+    {
         for (unsigned v = 0; v < 2; v++)
         {
             printf(",\"%s_%s_seconds\":[", p ? "saturate" : "reject",
                    v ? "specialized" : "dynamic");
             for (unsigned s = 0; s < 7; s++)
+            {
                 printf("%s%.9f", s ? "," : "", times[p][v][s]);
+            }
             printf("]");
         }
+    }
     puts("}");
     return 0;
 }
@@ -260,18 +282,32 @@ static int metrics(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "policy_order"))
+    {
         return order();
+    }
     if (!strcmp(argv[1], "policy_failure"))
+    {
         return failure();
+    }
     if (!strcmp(argv[1], "policy_saturation"))
+    {
         return saturated();
+    }
     if (!strcmp(argv[1], "policy_base"))
+    {
         return base();
+    }
     if (!strcmp(argv[1], "driver"))
+    {
         return driver();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

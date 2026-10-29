@@ -8,7 +8,9 @@
 static void p32(unsigned char *p, uint32_t n)
 {
     for (unsigned i = 0; i < 4; ++i)
+    {
         p[i] = (unsigned char)(n >> (8 * i));
+    }
 }
 
 int main(void)
@@ -22,6 +24,7 @@ int main(void)
     policy.floor[0] = policy.floor[1] = 3;
     struct fb_image pair[2][2];
     for (unsigned generation = 0; generation < 2; ++generation)
+    {
         for (unsigned core = 0; core < 2; ++core)
         {
             unsigned char image[608] = {0}, signature[64];
@@ -42,6 +45,7 @@ int main(void)
                                           0x20020000u},
                        core, image, 608, signature, &pair[generation][core]));
         }
+    }
     struct fw_peer old_peer = {.generation = 5, .health = 3, .confirmed = 1},
                    new_peer = {.generation = 6};
     unsigned char old_record[128], new_record[128];
@@ -65,7 +69,9 @@ int main(void)
     unsigned cuts[40] = {1, 2, 2048, 4096};
     unsigned nc = 4;
     for (unsigned i = 1; i <= 32; ++i)
+    {
         cuts[nc++] = 4096 + i;
+    }
     cuts[nc++] = 4129;
     cuts[nc++] = 6176;
     cuts[nc++] = 8224;
@@ -83,7 +89,9 @@ int main(void)
         {
             finish();
             if (!m.dead)
+            {
                 result = fm_recycle_poll(&transaction);
+            }
         }
         C(m.dead || result == FH_DONE);
         unsigned char a[128], b[128];

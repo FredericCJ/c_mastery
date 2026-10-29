@@ -71,7 +71,9 @@ int main(int argc, char **argv)
                   accepted == n + 2 && sink->length == n + 2);
             CHECK(sink->bytes[0] == n && sink->bytes[n + 1] == sum);
             for (unsigned i = 0; i < n; ++i)
+            {
                 CHECK(sink->bytes[i + 1] == data[i]);
+            }
             calls += sink->calls;
             offered += sink->offered;
             bytes += sink->length;

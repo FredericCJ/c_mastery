@@ -102,12 +102,15 @@ static int views(void)
 static int codec(void)
 {
     for (unsigned endian = 1; endian <= 2; ++endian)
+    {
         for (unsigned n = 0; n <= 64; ++n)
         {
             struct pm_record input = {UINT64_C(0x0102030405060708), n, {0}},
                              out = {0};
             for (unsigned i = 0; i < n; ++i)
+            {
                 input.payload[i] = (unsigned char)(i * 7);
+            }
             unsigned char a[128], b[128];
             CHECK(pm_encode(a, &input, endian) == 0);
             memcpy(b, a, 128);
@@ -116,7 +119,9 @@ static int codec(void)
                   memcmp(out.payload, input.payload, n) == 0);
             /* Independent expected byte order, no native scalar alias. */
             for (unsigned i = 0; i < 8; ++i)
+            {
                 CHECK(a[8 + i] == (endian == 1 ? 8 - i : i + 1));
+            }
             a[4] = 0;
             out.session = 99;
             CHECK(pm_decode(a, 128, &out) == EAGAIN && out.session == 99);
@@ -142,6 +147,7 @@ static int codec(void)
                 CHECK(pm_decode(b, 128, &out) == EPROTO);
             }
         }
+    }
     return 0;
 }
 
@@ -158,9 +164,13 @@ static void stop_at(unsigned stage, void *context)
     {
         char byte = (char)stage;
         if (write(cut->ready, &byte, 1) != 1)
+        {
             _exit(120);
+        }
         if (read(cut->release, &byte, 1) != 1)
+        {
             _exit(121);
+        }
     }
 }
 
@@ -207,7 +217,9 @@ static int publication(const char *self)
             CHECK(pm_replace(fd, 42, 43, "xyz", 3) == 0);
         }
         else
+        {
             CHECK(pm_publish(fd, 43, "xyz", 3, NULL, NULL) == 0);
+        }
         CHECK(pm_read_record(fd, 42, &record) == ESTALE);
         CHECK(pm_read_record(fd, 43, &record) == 0 && record.session == 43 &&
               memcmp(record.payload, "xyz", 3) == 0);
@@ -240,7 +252,9 @@ static int publication(const char *self)
             close(gate[1]);
             char token;
             if (read(gate[0], &token, 1) != 1)
+            {
                 _exit(125);
+            }
             close(gate[0]);
             int e = pm_publish(fd, 100, i ? "red" : "blu", 3, NULL, NULL);
             _exit(e == 0 ? 0 : e == EEXIST ? 3 : 124);
@@ -301,7 +315,9 @@ static int sharing(void)
     {
         int flag = shared ? MAP_SHARED : MAP_PRIVATE;
         if (PM_MUTANT == 7 && !shared)
+        {
             flag = MAP_SHARED;
+        }
         unsigned char *p = mmap(NULL, (size_t)page, PROT_READ | PROT_WRITE,
                                 flag | MAP_ANONYMOUS, -1, 0);
         CHECK(p != MAP_FAILED);
@@ -311,7 +327,9 @@ static int sharing(void)
         if (child == 0)
         {
             if (PM_MUTANT != 8)
+            {
                 p[0] = 22;
+            }
             _exit(0);
         }
         int status = wait_child(child);
@@ -368,7 +386,9 @@ static int faults(const char *helper)
         ssize_t observed = read(ready[0], &byte, 1);
         int trimmed = 0;
         if (mode == 2)
+        {
             trimmed = ftruncate(fd, page);
+        }
         ssize_t sent = write(release[1], "G", 1);
         close(release[1]);
         close(ready[0]);
@@ -385,7 +405,9 @@ static int faults(const char *helper)
 int main(int argc, char **argv)
 {
     if (argc != 3)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "--reader"))
     {
         int f = open(argv[2], O_RDWR | O_CLOEXEC);
@@ -399,20 +421,36 @@ int main(int argc, char **argv)
     }
     int e;
     if (!strcmp(argv[1], "views"))
+    {
         e = views();
+    }
     else if (!strcmp(argv[1], "codec"))
+    {
         e = codec();
+    }
     else if (!strcmp(argv[1], "publication"))
+    {
         e = publication(argv[0]);
+    }
     else if (!strcmp(argv[1], "residency"))
+    {
         e = residency();
+    }
     else if (!strcmp(argv[1], "sharing"))
+    {
         e = sharing();
+    }
     else if (!strcmp(argv[1], "faults"))
+    {
         e = faults(argv[2]);
+    }
     else
+    {
         return 2;
+    }
     if (!e)
+    {
         printf("PLM_PASS %s\n", argv[1]);
+    }
     return e;
 }

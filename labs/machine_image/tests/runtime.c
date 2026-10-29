@@ -44,11 +44,17 @@ int main(int argc, char **argv)
         assert(mi_divide(99, 0) == 0);
         assert(mi_divide(17, 19) == 0);
         for (unsigned n = 0; n < 1000; n += 7)
+        {
             for (unsigned d = 1; d < 71; d += 3)
+            {
                 assert(mi_divide(n, d) == n / d);
+            }
+        }
     }
     else
+    {
         return 2;
+    }
     puts("mechanism gate passed; full project evidence remains");
     return 0;
 }

@@ -23,12 +23,18 @@ static int fd_count(void)
 {
     DIR *dir = opendir("/proc/self/fd");
     if (!dir)
+    {
         return -1;
+    }
     int n = 0;
     struct dirent *entry;
     while ((entry = readdir(dir)))
+    {
         if (strcmp(entry->d_name, ".") && strcmp(entry->d_name, ".."))
+        {
             n++;
+        }
+    }
     closedir(dir);
     return n;
 }
@@ -111,9 +117,13 @@ static int eof(void)
         close(ready[0]);
         char value = '!';
         if (write(ready[1], &value, 1) != 1)
+        {
             _exit(2);
+        }
         if (read(release[0], &value, 1) != 1)
+        {
             _exit(3);
+        }
         close(data[1]);
         close(release[0]);
         close(ready[1]);
@@ -139,24 +149,34 @@ static int acquisition(unsigned fail)
 {
     int before = fd_count(), fds[7];
     for (unsigned i = 0; i < 7; i++)
+    {
         fds[i] = -1;
+    }
     unsigned stage = 0;
     pid_t child = -1;
     char path[] = "/tmp/of-acquire-XXXXXX";
     fds[0] = mkstemp(path);
     CHECK(fds[0] >= 0 && unlink(path) == 0);
     if (++stage == fail)
+    {
         goto cleanup;
+    }
     CHECK(pipe2(&fds[1], O_CLOEXEC) == 0);
     if (++stage == fail)
+    {
         goto cleanup;
+    }
     fds[3] = dup(fds[0]);
     CHECK(fds[3] >= 0);
     if (++stage == fail)
+    {
         goto cleanup;
+    }
     CHECK(pipe2(&fds[4], O_CLOEXEC) == 0);
     if (++stage == fail)
+    {
         goto cleanup;
+    }
     child = fork();
     CHECK(child >= 0);
     if (!child)
@@ -174,8 +194,12 @@ static int acquisition(unsigned fail)
     ++stage;
 cleanup:
     for (unsigned i = 0; i < 7; i++)
+    {
         if (fds[i] >= 0)
+        {
             CHECK(close(fds[i]) == 0);
+        }
+    }
     if (child > 0)
     {
         int status;
@@ -219,14 +243,22 @@ int main(int argc, char **argv)
         return fcntl(fd, F_GETFD) == -1 && errno == EBADF ? 0 : 1;
     }
     if (argc != 1)
+    {
         return 2;
+    }
     int before = fd_count();
     if (offsets() || eof() || exec_private(argv[0], 0) ||
         exec_private(argv[0], 1))
+    {
         return 1;
+    }
     for (unsigned fail = 1; fail <= 6; fail++)
+    {
         if (acquisition(fail))
+        {
             return 1;
+        }
+    }
     CHECK(fd_count() == before);
     puts("OF_PASS:descriptors");
     return 0;

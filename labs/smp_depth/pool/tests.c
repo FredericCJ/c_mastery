@@ -92,7 +92,9 @@ static int finite(void)
     CHECK(sp_init(&p, 4, 1, 0) == SP_OK);
     /* White-box finite-limit setup under exclusive ownership, never an API operation. */
     for (unsigned i = 0; i < SP_JOBS; i++)
+    {
         p.jobs[i].generation = UINT64_MAX;
+    }
     p.jobs[0].generation = UINT64_MAX - 1;
     p.accepted = UINT64_MAX - 1;
     p.completed = UINT64_MAX - 1;
@@ -118,7 +120,9 @@ static int nesting(void)
           sp_submit(&p, 0, 7, 1, &parent) == SP_OK &&
           sp_claim(&p, 0, &root) == SP_OK);
     for (unsigned i = 0; i < 3; i++)
+    {
         CHECK(sp_submit(&p, 0, 10 + i, 1, &children[i]) == SP_OK);
+    }
     CHECK(sp_submit(&p, 0, 13, 1, &out) == SP_FULL && out.world == 99);
     /* A bounded helper executes outside the lock while its parent remains RUNNING. */
     CHECK(sp_claim(&p, 0, &child) == SP_OK && child.payload == 10 &&
@@ -127,12 +131,16 @@ static int nesting(void)
           sp_complete(&p, root, 7) == SP_OK);
     CHECK(sp_close(&p, 0) == SP_OK);
     while (sp_claim(&p, 0, &child) == SP_OK)
+    {
         CHECK(sp_complete(&p, child, child.payload) == SP_OK);
+    }
     CHECK(sp_snapshot(&p, &s) == SP_OK && s.accepted == 5 && s.completed == 5 &&
           s.running == 0 && s.queued == 0);
     CHECK(sp_init(&p, 6, 3, 1) == SP_OK);
     for (unsigned i = 0; i < 3; i++)
+    {
         CHECK(sp_submit(&p, 0, 10 + i, 1, &children[i]) == SP_OK);
+    }
     CHECK(sp_claim(&p, 1, &child) == SP_OK && child.payload == 10 &&
           sp_complete(&p, child, 10) == SP_OK);
     CHECK(sp_claim(&p, 0, &child) == SP_OK && child.payload == 12 &&
@@ -155,7 +163,9 @@ static void *allocate(void *context, unsigned index)
 {
     struct sa_mock *m = context;
     if (index == m->alloc_fail)
+    {
         return NULL;
+    }
     m->allocated |= 1u << index;
     return &m->stacks[index];
 }
@@ -164,9 +174,13 @@ static int create(void *context, unsigned index, void *stack, uintptr_t *handle)
 {
     struct sa_mock *m = context;
     if (stack != &m->stacks[index])
+    {
         m->bad = 1;
+    }
     if (index == m->create_fail)
+    {
         return 1;
+    }
     m->alive |= 1u << index;
     *handle = index + 1;
     return 0;
@@ -182,9 +196,13 @@ static int join(void *context, uintptr_t handle)
         return 1;
     }
     if (atomic_load_explicit(&m->launch.gate, memory_order_acquire) != 2)
+    {
         m->bad = 1;
+    }
     if (i == m->join_fail)
+    {
         return 1;
+    }
     m->alive &= ~(1u << i);
     return 0;
 }
@@ -194,7 +212,9 @@ static void release(void *context, unsigned index, void *stack)
     struct sa_mock *m = context;
     if (stack != &m->stacks[index] || (m->alive & (1u << index)) ||
         !(m->allocated & (1u << index)))
+    {
         m->bad = 1;
+    }
     m->allocated &= ~(1u << index);
     m->released++;
 }
@@ -218,18 +238,24 @@ static int launching(void)
               m.alive == 0 && m.allocated == 0 && !m.bad && m.released == n);
         CHECK(sp_shutdown(&m.launch) == SP_OK && m.released == n);
         for (unsigned cut = 0; cut < n; cut++)
+        {
             for (unsigned kind = 0; kind < 2; kind++)
             {
                 CHECK(reset(&m) == SP_OK);
                 if (kind)
+                {
                     m.create_fail = cut;
+                }
                 else
+                {
                     m.alloc_fail = cut;
+                }
                 CHECK(sp_launch(&m.launch, n) == SP_FAILED &&
                       m.launch.phase == 3 && m.alive == 0 && m.allocated == 0 &&
                       !m.bad);
                 CHECK(m.released == cut + kind);
             }
+        }
     }
     CHECK(reset(&m) == SP_OK && sp_launch(&m.launch, 4) == SP_OK);
     m.join_fail = 1;
@@ -253,7 +279,9 @@ static int launching(void)
 int main(void)
 {
     if (trace() || cancellation() || finite() || nesting() || launching())
+    {
         return 1;
+    }
     puts(
         "SP_PASS:states-generation-nesting-deques-partial-launch-and-degraded-retention");
     return 0;

@@ -4,13 +4,17 @@
 int main(void)
 {
     for (unsigned n = 0; n < 4; ++n)
+    {
         for (unsigned limit = 1; limit <= 3; ++limit)
+        {
             for (unsigned sequence = 0; sequence < 243; ++sequence)
             {
                 unsigned x = sequence;
                 struct bu_drain d;
                 if (bu_drain_begin(&d, n, limit) != BU_OK)
+                {
                     return 1;
+                }
                 for (unsigned i = 0; i < 5; ++i)
                 {
                     unsigned event = x % 3;
@@ -23,5 +27,7 @@ int main(void)
                            d.transferred);
                 }
             }
+        }
+    }
     return 0;
 }

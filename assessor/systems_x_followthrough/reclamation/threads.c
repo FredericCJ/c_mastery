@@ -28,7 +28,9 @@ static int enter(struct sx_case *c, unsigned p)
     {
         rc = sx_enter(&c->list, c->p[p]);
         if (rc == MB_BUSY)
+        {
             sched_yield();
+        }
     } while (rc == MB_BUSY);
     return rc;
 }
@@ -40,7 +42,9 @@ static int leave(struct sx_case *c, unsigned p)
     {
         rc = sx_leave(&c->list, c->p[p]);
         if (rc == MB_BUSY)
+        {
             sched_yield();
+        }
     } while (rc == MB_BUSY);
     return rc;
 }
@@ -56,7 +60,9 @@ static void *paused(void *arg)
     CHECK(sx_protect(&c->list, c->p[0], 0, o, &p) == MB_OK);
     atomic_store_explicit(&c->ready, 1, memory_order_release);
     while (!atomic_load_explicit(&c->release, memory_order_acquire))
+    {
         sched_yield();
+    }
     CHECK(sx_read(&c->list, c->p[0], p, &v) == MB_OK && v == 11);
     CHECK(leave(c, 0) == MB_OK);
     return NULL;
@@ -66,7 +72,9 @@ static void *reader(void *arg)
 {
     struct sx_case *c = arg;
     while (!atomic_load_explicit(&c->start, memory_order_acquire))
+    {
         sched_yield();
+    }
     for (unsigned i = 0; i < 200; i++)
     {
         struct sx_observed o;
@@ -104,6 +112,7 @@ int main(void)
 {
     unsigned retained[2] = {0, 0};
     for (unsigned mode = 0; mode < 2; mode++)
+    {
         for (unsigned round = 0; round < 30; round++)
         {
             struct sx_case c;
@@ -116,12 +125,18 @@ int main(void)
             atomic_init(&c.release, 0);
             atomic_init(&c.start, 0);
             for (unsigned p = 0; p < 2; p++)
+            {
                 CHECK(sx_register(&c.list, &c.p[p]) == MB_OK);
+            }
             for (unsigned i = 1; i <= 3; i++)
+            {
                 CHECK(sx_append(&c.list, 11 * i) == MB_OK);
+            }
             CHECK(pthread_create(&a, NULL, paused, &c) == 0);
             while (!atomic_load_explicit(&c.ready, memory_order_acquire))
+            {
                 sched_yield();
+            }
             CHECK(pthread_create(&b, NULL, reader, &c) == 0);
             atomic_store_explicit(&c.start, 1, memory_order_release);
             for (unsigned i = 1; i <= 3; i++)
@@ -134,8 +149,10 @@ int main(void)
             }
             CHECK(pthread_join(b, NULL) == 0);
             if (mode == SX_EPOCH)
+            {
                 CHECK(sx_advance(&c.list) == MB_OK &&
                       sx_advance(&c.list) == MB_BUSY);
+            }
             CHECK(sx_collect(&c.list, &count) == MB_OK &&
                   count == (mode == SX_HAZARD ? 2u : 0u));
             retained[mode] += 3 - count;
@@ -143,12 +160,17 @@ int main(void)
             atomic_store_explicit(&c.release, 1, memory_order_release);
             CHECK(pthread_join(a, NULL) == 0);
             if (mode == SX_EPOCH)
+            {
                 CHECK(sx_advance(&c.list) == MB_OK);
+            }
             CHECK(sx_collect(&c.list, &count) == MB_OK &&
                   count == (mode == SX_HAZARD ? 1u : 3u));
             for (unsigned p = 0; p < 2; p++)
+            {
                 CHECK(sx_depart(&c.list, c.p[p]) == MB_OK);
+            }
         }
+    }
     CHECK(retained[0] == 30 && retained[1] == 90);
     puts(
         "LIST_THREAD_PASS rounds=60 pool=3 paused_hazard=1 paused_epoch=3 joined_before_depart=1");

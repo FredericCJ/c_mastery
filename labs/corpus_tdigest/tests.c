@@ -55,7 +55,9 @@ int main(void)
     }
     CHECK(td_merge(&a, &b) == TD_OK && td_valid(&a) && a.count == 1024);
     for (i = 0; i < a.used; i++)
+    {
         weighted += a.centroids[i].mean * (double)a.centroids[i].weight;
+    }
     CHECK(absolute(weighted - total) < 1e-5);
     CHECK(a.used < 128 && a.centroids[0].weight == 1 &&
           a.centroids[a.used - 1].weight == 1);
@@ -69,12 +71,16 @@ int main(void)
     CHECK(td_merge(&b, &a) == TD_INVALID && memcmp(&b, &old, sizeof b) == 0);
     CHECK(td_merge(&a, &a) == TD_OK && a.count == 2048 && td_valid(&a));
     while (a.count < 65536)
+    {
         CHECK(td_merge(&a, &a) == TD_OK);
+    }
     old = a;
     CHECK(td_merge(&a, &a) == TD_CAPACITY && memcmp(&a, &old, sizeof a) == 0);
     CHECK(td_init(&a, 8) == TD_OK);
     for (i = 0; i < 64; i++)
+    {
         values[i] = 7;
+    }
     CHECK(td_add(&a, values, 64) == TD_OK);
     CHECK(td_quantile(&a, .25, &q) == TD_OK && q == 7);
     CHECK(td_cdf(&a, 7, &cdf) == TD_OK && cdf == 1);

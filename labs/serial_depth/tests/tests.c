@@ -21,7 +21,9 @@ static int uart(void)
     CHECK(sd_uart(42000000, 115200, 0, 8, 0, 1, 0xa5, &r) == 0);
     CHECK(r.brr == 0x16d && r.divisor == 365 && r.length == 10);
     for (i = 0; i < 10; i++)
+    {
         CHECK(r.bits[i] == expected[i]);
+    }
     CHECK(sd_uart(42000000, 115200, 1, 8, 0, 1, 0xa5, &r) == 0 &&
           r.brr == 0x2d5);
     CHECK(sd_uart(42000000, 115200, 1, 8, 1, 2, 1, &r) == 0 && r.bits[9] == 1 &&
@@ -189,13 +191,17 @@ static int can(void)
     CHECK(sd_can_decode(bits, n, &b) == 0 && b.identifier == a.identifier &&
           b.length == 1 && b.data[0] == 0xa5);
     for (k = 0; k < n; k++)
+    {
         bad[k] =
             bits[k]; /* Last CRC sequence bit is immediately before ten fixed
                         trailer bits, or before its mandatory stuff bit. */
+    }
     bad[n - 11] ^= 1;
     CHECK(sd_can_decode(bad, n, &b) != 0);
     for (k = 0; k < n; k++)
+    {
         bad[k] = bits[k];
+    }
     bad[n - 2] = 0;
     CHECK(sd_can_decode(bad, n, &b) != 0);
     CHECK(sd_can_encode(&a, bits, 1, &n) == SD_FULL);
@@ -261,24 +267,44 @@ static int fd(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "uart"))
+    {
         return uart();
+    }
     if (!strcmp(argv[1], "sync"))
+    {
         return sync_test();
+    }
     if (!strcmp(argv[1], "i2c"))
+    {
         return i2c();
+    }
     if (!strcmp(argv[1], "spi"))
+    {
         return spi();
+    }
     if (!strcmp(argv[1], "electrical"))
+    {
         return electrical();
+    }
     if (!strcmp(argv[1], "rs485"))
+    {
         return rs485();
+    }
     if (!strcmp(argv[1], "can"))
+    {
         return can();
+    }
     if (!strcmp(argv[1], "bxcan"))
+    {
         return bxcan();
+    }
     if (!strcmp(argv[1], "fd"))
+    {
         return fd();
+    }
     return 2;
 }

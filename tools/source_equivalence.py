@@ -267,6 +267,28 @@ def token_keys(text):
     return [(t.kind, t.text) for t in significant(tokenize(text))]
 
 
+BRACES = (("punct", "{"), ("punct", "}"))
+
+
+def only_braces_inserted(old, new):
+    """True when `old` is `new` with some brace tokens deleted.
+
+    A subsequence test: every token of the old file appears in the new file in
+    order, and every extra token is `{` or `}`. Moving or removing a brace is
+    therefore rejected, unlike a diff alignment, which can pair braces
+    arbitrarily in repetitive code. Inserted braces must also balance.
+    """
+    position, inserted = 0, []
+    for token in new:
+        if position < len(old) and token == old[position]:
+            position += 1
+        elif token in BRACES:
+            inserted.append(token)
+        else:
+            return False
+    return position == len(old) and inserted.count(BRACES[0]) == inserted.count(BRACES[1])
+
+
 def prove_tokens(args, braces=False):
     results = {}
     for relative in changed_files(args.base):
@@ -280,16 +302,9 @@ def prove_tokens(args, braces=False):
         if a == b:
             results[relative] = "token-equivalent" if comments_equal else "comment-changed"
             continue
-        if braces:
-            ops = difflib.SequenceMatcher(None, a, b, autojunk=False).get_opcodes()
-            inserted = [b[j1:j2] for tag, i1, i2, j1, j2 in ops if tag != "equal" and tag == "insert"]
-            only = all(tag in ("equal", "insert") for tag, *_ in ops) and \
-                all(tok in (("punct", "{"), ("punct", "}")) for group in inserted for tok in group)
-            balanced = sum(t == ("punct", "{") for g in inserted for t in g) == \
-                sum(t == ("punct", "}") for g in inserted for t in g)
-            if only and balanced:
-                results[relative] = "brace-only" if comments_equal else "brace-only-comment-changed"
-                continue
+        if braces and only_braces_inserted(a, b):
+            results[relative] = "brace-only" if comments_equal else "brace-only-comment-changed"
+            continue
         results[relative] = "different"
     failed = sorted(f for f, r in results.items() if r in ("different", "comment-changed",
                                                             "brace-only-comment-changed"))

@@ -80,13 +80,17 @@ static int equal(void)
     for (uint32_t n = 0; n <= 1024; ++n)
     {
         for (uint32_t i = 0; i < n; ++i)
+        {
             a[i] = (i / 2) * 8388608u;
+        }
         uint32_t keys[] = {0, 7, 0x80000000u, 0xfffffffdu, UINT32_MAX};
         for (unsigned j = 0; j < 5; ++j)
         {
             expected = 0;
             while (expected < n && a[expected] < keys[j])
+            {
                 ++expected;
+            }
             c = m = UINT32_MAX;
             CHECK(pe_c(a, n, keys[j], &c) == ALGO_OK &&
                   pe_asm(a, n, keys[j], &m) == ALGO_OK && c == expected &&
@@ -108,17 +112,29 @@ static int equal(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     int r;
     if (!strcmp(argv[1], "equation"))
+    {
         r = equation();
+    }
     else if (!strcmp(argv[1], "stats"))
+    {
         r = stats();
+    }
     else if (!strcmp(argv[1], "equal"))
+    {
         r = equal();
+    }
     else
+    {
         return 2;
+    }
     if (!r)
+    {
         printf("OBS %s\n", argv[1]);
+    }
     return r;
 }

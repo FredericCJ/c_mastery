@@ -72,7 +72,9 @@ static void *work(void *arg)
             w->work[w->samples++] = observation.protected_work_ns;
         }
         if (status == CMX_OK)
+        {
             w->accepted += observation.count;
+        }
         else if (w->producer)
         {
             if (observation.refused != 1 || !observation.fault_sequence)
@@ -83,10 +85,14 @@ static void *work(void *arg)
             w->refusals++;
         }
         if (status != CMX_OK)
+        {
             sched_yield();
+        }
     }
     if (w->accepted != limit)
+    {
         w->failed = 5;
+    }
     return 0;
 }
 
@@ -106,23 +112,35 @@ static void *counter_worker(void *arg)
 {
     struct cmx_counter *c = arg;
     if (pthread_mutex_lock(&c->mutex))
+    {
         return c;
+    }
     unsigned old = atomic_load_explicit(&c->count, memory_order_relaxed);
     c->loaded++;
     if (pthread_cond_broadcast(&c->condition))
+    {
         c->failed = 1;
+    }
     while (c->loaded < 2)
+    {
         if (pthread_cond_wait(&c->condition, &c->mutex))
         {
             c->failed = 1;
             break;
         }
+    }
     if (pthread_mutex_unlock(&c->mutex))
+    {
         return c;
+    }
     if (c->repair)
+    {
         (void)atomic_fetch_add_explicit(&c->count, 1, memory_order_relaxed);
+    }
     else
+    {
         atomic_store_explicit(&c->count, old + 1, memory_order_relaxed);
+    }
     return 0;
 }
 
@@ -135,7 +153,9 @@ static int counter(unsigned repair)
     CHECK(!pthread_mutex_init(&c.mutex, 0) &&
           !pthread_cond_init(&c.condition, 0));
     for (unsigned i = 0; i < 2; i++)
+    {
         CHECK(!pthread_create(&threads[i], 0, counter_worker, &c));
+    }
     for (unsigned i = 0; i < 2; i++)
     {
         void *result;
@@ -152,26 +172,36 @@ static int counter(unsigned repair)
 int main(int argc, char **argv)
 {
     if (argc == 2 && !strcmp(argv[1], "lost-update"))
+    {
         return counter(0);
+    }
     if (argc == 2 && !strcmp(argv[1], "atomic-repair"))
+    {
         return counter(1);
+    }
     if (argc != 1)
+    {
         return 2;
+    }
     cpu_set_t available;
     int cpus[2] = {-1, -1};
     CHECK(
         !pthread_getaffinity_np(pthread_self(), sizeof available, &available));
     for (int i = 0; i < CPU_SETSIZE; i++)
+    {
         if (CPU_ISSET(i, &available))
         {
             if (cpus[0] < 0)
+            {
                 cpus[0] = i;
+            }
             else
             {
                 cpus[1] = i;
                 break;
             }
         }
+    }
     CHECK(cpus[1] >=
           0); /* Missing two allowed CPUs is not a passing variant. */
     cmx_kernel k;
@@ -202,9 +232,13 @@ int main(int argc, char **argv)
         {.port = &port, .cpu = cpus[0], .producer = 0}};
     pthread_t threads[3];
     for (unsigned i = 0; i < 3; i++)
+    {
         CHECK(!pthread_create(&threads[i], 0, work, &workers[i]));
+    }
     for (unsigned i = 0; i < 3; i++)
+    {
         CHECK(!pthread_join(threads[i], 0) && !workers[i].failed);
+    }
     CHECK(cdnn_snapshot(&port, &state) == CMX_OK && state.invariant &&
           state.accepted == 4000 && state.consumed == 4000 &&
           state.pending == 0 && state.cancelled == 0);
@@ -212,10 +246,14 @@ int main(int argc, char **argv)
     CHECK(cdnn_destroy(&port) == CMX_OK && cdn_post(h, 1, &post) == CMX_OK &&
           cdn_close(h) == CMX_OK && cdn_detach(h) == CMX_OK);
     for (unsigned i = 0; i < 3; i++)
+    {
         for (unsigned j = 0; j < workers[i].samples; j++)
+        {
             printf("CDNN_SAMPLE:worker=%u;cpu=%d;lock_wait_ns=%" PRIu64
                    ";protected_work_ns=%" PRIu64 "\n",
                    i, workers[i].cpu, workers[i].wait[j], workers[i].work[j]);
+        }
+    }
     printf(
         "CDNN_NATIVE:producer_cpu=%d;consumer_cpu=%d;accepted=4000;consumed=4000;refused_attempts=%" PRIu64
         ";pending=0\n",

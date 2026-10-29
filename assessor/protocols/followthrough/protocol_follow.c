@@ -15,9 +15,13 @@ static int stop(void *ctx)
 {
     struct pf_driver *d = ctx;
     if (!d->old_epoch_idle && PF_MUTANT != 1)
+    {
         return 1;
+    }
     if (d->dma.state && fw_dma(&d->dma, d->io, 2, d->dma.generation))
+    {
         return 1;
+    }
     return 0;
 }
 
@@ -47,7 +51,9 @@ int pf_driver_init(struct pf_driver *d, struct fw_io io, uint32_t epoch,
                    pf_free_fn free_fn, void *ctx)
 {
     if (!d || !io.read || !io.write || !epoch || !free_fn)
+    {
         return PT_INVALID;
+    }
     *d = (struct pf_driver){0};
     d->io = io;
     d->epoch = epoch;
@@ -65,12 +71,18 @@ int pf_driver_start(struct pf_driver *d, unsigned char **owned, size_t n,
                     unsigned fail_after_start, struct pf_recovery *out)
 {
     if (!d || !owned || !*owned || !out || !n || n > 64 || fail_after_start > 1)
+    {
         return PT_INVALID;
+    }
     if (d->owned || d->reset_pending || d->protocol.device.state != PT_READY)
+    {
         return PT_STATE;
+    }
     if (d->dma.generation == UINT32_MAX ||
         d->protocol.device.generation == UINT32_MAX)
+    {
         return PT_RANGE;
+    }
     d->owned = *owned;
     d->length = n;
     d->loan_epoch = d->epoch;
@@ -89,7 +101,9 @@ int pf_driver_start(struct pf_driver *d, unsigned char **owned, size_t n,
 int pf_driver_ready(struct pf_driver *d)
 {
     if (!d || d->owned || d->reset_pending)
+    {
         return PT_STATE;
+    }
     struct pt_closed closed = {&d->protocol.device,
                                d->protocol.device.generation};
     struct pt_ready ready;
@@ -99,32 +113,46 @@ int pf_driver_ready(struct pf_driver *d)
 int pf_driver_reset(struct pf_recovery *r)
 {
     if (!token(r))
+    {
         return PT_STATE;
+    }
     struct pf_driver *d = r->owner;
     d->reset_pending = 1;
     d->protocol.device.state = PT_RECOVERY_REQUIRED;
     if (d->dma.state)
+    {
         (void)fw_dma(&d->dma, d->io, 1, d->dma.generation);
+    }
     return PT_PENDING;
 }
 
 int pf_driver_recover(struct pf_recovery *r, uint32_t epoch, unsigned idle)
 {
     if (!token(r) || idle > 1)
+    {
         return PT_STATE;
+    }
     struct pf_driver *d = r->owner;
     if (epoch != d->loan_epoch)
+    {
         return PT_STATE;
+    }
     if (d->protocol.device.state != PT_RECOVERY_REQUIRED)
+    {
         return PT_STATE;
+    }
     d->old_epoch_idle = idle;
     int result = pt_driver_recover(&d->protocol);
     if (result)
+    {
         return result;
+    }
     if (d->reset_pending)
     {
         if (d->epoch == UINT32_MAX)
+        {
             d->reset_pending = 2;
+        }
         else
         {
             ++d->epoch;
@@ -138,17 +166,27 @@ int pf_driver_recover(struct pf_recovery *r, uint32_t epoch, unsigned idle)
 int pf_driver_complete(struct pf_recovery *r, uint32_t epoch, unsigned idle)
 {
     if (!token(r) || idle > 1)
+    {
         return PT_STATE;
+    }
     struct pf_driver *d = r->owner;
     if (epoch != d->loan_epoch)
+    {
         return PT_STATE;
+    }
     if (!idle)
+    {
         return PT_PENDING;
+    }
     if (fw_dma(&d->dma, d->io, 2, d->dma.generation))
+    {
         return PT_PENDING;
+    }
     int result = pt_driver_complete(&d->protocol, 0, 1);
     if (result != PT_OK)
+    {
         return result;
+    }
     release(d, r);
     return PT_OK;
 }
@@ -156,11 +194,17 @@ int pf_driver_complete(struct pf_recovery *r, uint32_t epoch, unsigned idle)
 int pf_builder_mode(struct pf_builder *b, unsigned mode, unsigned callback)
 {
     if (!b || mode > PF_DMA || callback > 1)
+    {
         return PT_INVALID;
+    }
     if (b->mode_set)
+    {
         return PT_STATE;
+    }
     if ((mode == PF_DMA && !callback) || (mode == PF_POLL && callback))
+    {
         return PT_RANGE;
+    }
     b->mode = mode;
     b->callback = callback;
     b->mode_set = 1;
@@ -170,20 +214,28 @@ int pf_builder_mode(struct pf_builder *b, unsigned mode, unsigned callback)
 int pf_builder_replace(struct pf_builder *b, unsigned field, unsigned value)
 {
     if (!b || field > 2 || !(b->base.mask & (1u << field)))
+    {
         return PT_STATE;
+    }
     struct pf_builder copy = *b;
     copy.base.mask &= ~(1u << field);
     int r = pt_builder_set(&copy.base, field, value);
     if (r)
+    {
         return r;
+    }
     if (PF_MUTANT == 6)
+    {
         *b = copy;
+    }
     if (copy.base.mask == 7u && copy.mode_set)
     {
         struct pf_config out;
         r = pf_builder_finish(&copy, &out);
         if (r)
+        {
             return r;
+        }
     }
     *b = copy;
     return PT_OK;
@@ -192,18 +244,26 @@ int pf_builder_replace(struct pf_builder *b, unsigned field, unsigned value)
 int pf_builder_finish(const struct pf_builder *b, struct pf_config *out)
 {
     if (!b || !out)
+    {
         return PT_INVALID;
+    }
     if (!b->mode_set)
+    {
         return PT_STATE;
+    }
     struct pt_config c;
     int r = pt_builder_finish(&b->base, &c);
     if (r)
+    {
         return r;
+    }
     if (PF_MUTANT != 2 &&
         ((b->mode == PF_DMA &&
           ((c.address & 15u) || (c.length & 15u) || !b->callback)) ||
          (b->mode == PF_POLL && b->callback)))
+    {
         return PT_RANGE;
+    }
     *out = (struct pf_config){c, b->mode, b->callback};
     return PT_OK;
 }
@@ -213,13 +273,19 @@ int pf_session(struct pf_session *s, unsigned event, uint32_t sequence,
 {
     if (!s || event > PF_RECONNECT || s->phase > 2 || s->closed > 1 ||
         s->crashed > 1)
+    {
         return PT_INVALID;
+    }
     if (s->closed)
+    {
         return PT_STATE;
+    }
     if (event == PF_CANCEL)
     {
         if (PF_MUTANT != 7)
+        {
             s->closed = 1;
+        }
         return PT_OK;
     }
     if (event == PF_CRASH)
@@ -230,26 +296,36 @@ int pf_session(struct pf_session *s, unsigned event, uint32_t sequence,
     if (event == PF_RECONNECT)
     {
         if (!s->crashed)
+        {
             return PT_STATE;
+        }
         s->crashed = 0;
         if (s->phase)
+        {
             s->phase = 1;
+        }
         return PT_OK;
     }
     if (s->crashed)
+    {
         return PT_PENDING;
+    }
     if (event == PF_SEND)
     {
         if (s->phase || !s->next || s->next == UINT32_MAX ||
             sequence != s->next)
+        {
             return PT_STATE;
+        }
         s->pending = sequence;
         s->pending_value = value;
         s->phase = 1;
         return PT_OK;
     }
     if (!s->phase || sequence != s->pending)
+    {
         return PT_STATE;
+    }
     if (event == PF_RETRY)
     {
         s->phase = 1;
@@ -258,17 +334,23 @@ int pf_session(struct pf_session *s, unsigned event, uint32_t sequence,
     if (event == PF_APPLY)
     {
         if (s->phase != 1 || value != s->pending_value)
+        {
             return PT_STATE;
+        }
         if (PF_MUTANT != 3 && s->last == sequence)
         {
             if (s->last_value != value)
+            {
                 return PT_STATE;
+            }
         }
         else
         {
             int64_t sum = (int64_t)s->total + value;
             if (sum < INT32_MIN || sum > INT32_MAX)
+            {
                 return PT_RANGE;
+            }
             s->total = (int32_t)sum;
             s->last = sequence;
             s->last_value = value;
@@ -279,7 +361,9 @@ int pf_session(struct pf_session *s, unsigned event, uint32_t sequence,
     if (event == PF_ACK)
     {
         if (s->phase != 2)
+        {
             return PT_STATE;
+        }
         ++s->next;
         s->phase = 0;
         return PT_OK;
@@ -291,7 +375,9 @@ int pf_decoder_init(struct pf_decoder *d, uint64_t deadline,
                     pf_alloc_fn allocate, pf_free_fn free_fn, void *ctx)
 {
     if (!d || !allocate || !free_fn || !deadline)
+    {
         return PT_INVALID;
+    }
     *d = (struct pf_decoder){.deadline = deadline,
                              .allocate = allocate,
                              .release = free_fn,
@@ -306,16 +392,22 @@ static void drop(struct pf_decoder *d)
         unsigned char *p = d->buffer;
         d->buffer = 0;
         if (PF_MUTANT != 8)
+        {
             d->release(d->context, p);
+        }
     }
 }
 
 int pf_decoder_cancel(struct pf_decoder *d)
 {
     if (!d)
+    {
         return PT_INVALID;
+    }
     if (d->pc == 2 || d->pc == 3)
+    {
         return PT_DONE;
+    }
     drop(d);
     d->pc = 3;
     return PT_DONE;
@@ -325,10 +417,14 @@ int pf_decoder_cancel(struct pf_decoder *d)
 static int header(struct pf_decoder *d, unsigned char byte)
 {
     if (byte > 8)
+    {
         return PT_RANGE;
+    }
     unsigned char *p = d->allocate(d->context, byte ? byte : 1);
     if (!p)
+    {
         return PT_RANGE;
+    }
     d->buffer = p;
     d->length = byte;
     d->header_pc = 1;
@@ -345,7 +441,9 @@ static int body(struct pf_decoder *d, unsigned char byte)
         return PT_PENDING;
     }
     if (byte != d->checksum)
+    {
         return PT_IO;
+    }
     d->body_pc = 2;
     return PT_DONE;
 }
@@ -355,11 +453,17 @@ int pf_decoder_step(struct pf_decoder *d, unsigned available,
                     size_t *length)
 {
     if (!d || !out || !length || available > 1 || now < d->last_time)
+    {
         return PT_INVALID;
+    }
     if (d->pc == 2)
+    {
         return PT_DONE;
+    }
     if (d->pc == 3)
+    {
         return PT_STATE;
+    }
     if (PF_MUTANT != 4 && now >= d->deadline)
     {
         drop(d);
@@ -377,7 +481,9 @@ int pf_decoder_step(struct pf_decoder *d, unsigned available,
     {
         r = header(d, byte);
         if (r != PT_DONE)
+        {
             return r;
+        }
         d->pc = 1;
         d->last_time = now;
         return PT_PENDING;

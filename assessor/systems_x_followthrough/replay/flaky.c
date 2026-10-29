@@ -7,7 +7,9 @@ int main(int argc, char **argv)
     unsigned n = 0;
     FILE *f;
     if (argc != 3 || !path)
+    {
         return 2;
+    }
     (void)argv;
     f = fopen(path, "r");
     if (f)
@@ -21,9 +23,13 @@ int main(int argc, char **argv)
     }
     f = fopen(path, "w");
     if (!f)
+    {
         return 2;
+    }
     if (fprintf(f, "%u\n", n + 1) < 0 || fclose(f))
+    {
         return 2;
+    }
     if (n % 2 == 0)
     {
         puts("TRANSITION:admission:seed=17:violations=1");

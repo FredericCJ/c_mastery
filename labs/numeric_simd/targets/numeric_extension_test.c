@@ -49,7 +49,9 @@ int main(void)
     for (size_t n = 0; n <= 4096; n++)
     {
         if (n)
+        {
             expected += (int32_t)a[n - 1] * b[n - 1];
+        }
         C(nd_dot(a, b, n, &one, 1) && one == expected);
         C(nd_dot(a, b, n, &four, 4) && four == expected);
     }
@@ -62,13 +64,19 @@ int main(void)
     C(!nd_accumulate(&state, -1) && state == INT64_MIN);
     double aa[128], bb[160], out[128], saved[128];
     for (size_t m = 1; m <= 9; m++)
+    {
         for (size_t n = 1; n <= 11; n++)
+        {
             for (size_t k = 1; k <= 13; k++)
             {
                 for (size_t i = 0; i < m * k; i++)
+                {
                     aa[i] = (double)((int)(i % 15) - 7);
+                }
                 for (size_t i = 0; i < k * n; i++)
+                {
                     bb[i] = (double)((int)((i * 3) % 15) - 7);
+                }
                 C(nd_matrix(aa, bb, m, n, k, saved, 128, 0));
                 for (unsigned mode = 1; mode <= 2; mode++)
                 {
@@ -76,6 +84,8 @@ int main(void)
                     C(!memcmp(saved, out, m * n * sizeof *out));
                 }
             }
+        }
+    }
     out[0] = 91;
     C(!nd_matrix(aa, bb, 1, 1, 1, out, 0, 0) && out[0] == 91);
     aa[0] = NAN;

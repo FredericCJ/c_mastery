@@ -62,7 +62,9 @@ static int values(void)
     {
         unsigned char invalid[6] = {(unsigned char)i, 0, 0, 0, 0, 0};
         if (i == 1 || i == 2)
+        {
             continue;
+        }
         memcpy(&before, &value, sizeof value);
         CHECK(orx_value_decode(invalid, &value) == OR_INVALID &&
               !memcmp(&before, &value, sizeof value));
@@ -223,7 +225,9 @@ static int intern(void)
           out.slot == 99 && t.bucket == NULL && t.used == 0);
     CHECK(orx_intern_close(&t) == OR_OK);
     for (i = 0; i < 8; i++)
+    {
         CHECK(orx_release(&h, (struct orx_handle){(uint8_t)i, 1}) == OR_OK);
+    }
     CHECK(orx_collect(&h, &dead) == OR_OK && dead == 8);
     return 0;
 }
@@ -265,7 +269,9 @@ static int foreign(void)
     CHECK(pthread_create(&thread, NULL, orx_backend_worker, &backend) == 0);
     CHECK(pthread_mutex_lock(&backend.lock) == 0);
     while (!backend.ready)
+    {
         CHECK(pthread_cond_wait(&backend.changed, &backend.lock) == 0);
+    }
     CHECK(pthread_mutex_unlock(&backend.lock) == 0);
     /* Worker has borrowed bytes but cannot return until released below. */
     CHECK(orx_release(&h, filler) == OR_OK);
@@ -294,6 +300,7 @@ static int oracle(void)
     static const unsigned length[5] = {0, 1, 1, 2, 2};
     unsigned sequence, fail, k, mask, i;
     for (sequence = 0; sequence < 625; sequence++)
+    {
         for (fail = 0; fail < 4; fail++)
         {
             struct orx_heap h;
@@ -317,6 +324,7 @@ static int oracle(void)
             }
             CHECK(orx_intern_close(&t) == OR_OK && allocator.live == 0);
         }
+    }
     for (mask = 0; mask < 256; mask++)
     {
         struct orx_heap h;
@@ -328,41 +336,61 @@ static int oracle(void)
             unsigned char b = (unsigned char)(i + 11);
             CHECK(orx_new(&h, &b, 1, &handles[i]) == OR_OK);
             if (!(mask & (1u << i)))
+            {
                 CHECK(orx_release(&h, handles[i]) == OR_OK);
+            }
         }
         CHECK(orx_collect(&h, &dead) == OR_OK);
         CHECK(orx_pack(&h, &moved) == OR_OK);
         printf("P %u %u %u", mask, dead, moved);
         for (i = 0; i < 8; i++)
+        {
             printf(" %u %u %u", h.entry[i].live, h.entry[i].generation,
                    h.entry[i].live ? h.cell[h.entry[i].position].bytes[0] : 0);
+        }
         puts("");
     }
     for (i = 0; i < 2; i++)
+    {
         for (k = 0; k < 256; k++)
         {
             uint32_t b =
                 (i ? UINT32_C(0x80000000) : 0) | UINT32_C(0x7f800000) | k;
             printf("V %u %u\n", b, orx_binary32(b));
         }
+    }
     return 0;
 }
 
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "values"))
+    {
         return values();
+    }
     if (!strcmp(argv[1], "authority"))
+    {
         return authority();
+    }
     if (!strcmp(argv[1], "pool"))
+    {
         return pool();
+    }
     if (!strcmp(argv[1], "intern"))
+    {
         return intern();
+    }
     if (!strcmp(argv[1], "foreign"))
+    {
         return foreign();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     return 2;
 }

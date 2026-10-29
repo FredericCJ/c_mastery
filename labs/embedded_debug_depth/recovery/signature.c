@@ -22,7 +22,9 @@ int main(void)
 {
     unsigned char seed[32];
     for (unsigned i = 0; i < 32; i++)
+    {
         seed[i] = (unsigned char)(i + 1);
+    }
     EVP_PKEY *key =
         EVP_PKEY_new_raw_private_key(EVP_PKEY_ED25519, NULL, seed, 32);
     CHECK(key);

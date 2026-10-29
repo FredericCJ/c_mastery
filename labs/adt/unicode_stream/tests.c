@@ -67,7 +67,9 @@ static int finalization(void)
     adu_init(&s);
     unsigned char ascii[65535];
     for (size_t i = 0; i < sizeof ascii; ++i)
+    {
         ascii[i] = 'a';
+    }
     CHECK(adu_feed(&s, ascii, sizeof ascii) == ADU_OK && s.bytes == 65535 &&
           s.scalars == 65535);
     old = s;
@@ -86,7 +88,9 @@ static int finalization(void)
         adu_init(&s);
         unsigned char euro[] = {0xe2, 0x82, 0xac};
         for (unsigned i = 0; i < 3; ++i)
+        {
             CHECK(adu_feed(&s, euro + i, 1) == ADU_OK);
+        }
         CHECK(adu_finish(&s, &out) == ADU_OK && out.bytes == 3 &&
               out.scalars == 1);
         CHECK(adu_cancel(&s) == ADU_OK && s.used == 0 && s.bytes == 0);
@@ -196,7 +200,9 @@ static int oracle(void)
         {
             unsigned v;
             if (sscanf(hex + 2 * i, "%2x", &v) != 1)
+            {
                 return 2;
+            }
             bytes[i] = (unsigned char)v;
         }
         struct ad_text borrowed = {NULL, 77, 78};
@@ -206,20 +212,28 @@ static int oracle(void)
         adu_init(&s);
         size_t last = 0;
         for (size_t i = 0; i <= n; ++i)
+        {
             if (mask & (1u << i))
             {
                 printf("%u", (unsigned)adu_feed(&s, bytes + last, i - last));
                 last = i;
             }
+        }
         printf("%u ", (unsigned)adu_feed(&s, bytes + last, n - last));
         struct adu_summary out = {77, 78};
         enum adu_status result = adu_finish(&s, &out);
         printf("%u %zu %zu %u ", (unsigned)s.phase, s.bytes, s.scalars, s.used);
         if (!s.used)
+        {
             printf("-");
+        }
         else
+        {
             for (unsigned i = 0; i < s.used; ++i)
+            {
                 printf("%02x", s.pending[i]);
+            }
+        }
         printf(" %u %zu %zu\n", (unsigned)result, out.bytes, out.scalars);
     }
     return 0;
@@ -228,18 +242,30 @@ static int oracle(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     atexit(cleanup_allocations);
     if (!strcmp(argv[1], "utf8_chunks"))
+    {
         return chunks();
+    }
     if (!strcmp(argv[1], "utf8_finalization"))
+    {
         return finalization();
+    }
     if (!strcmp(argv[1], "utf8_owner"))
+    {
         return owner();
+    }
     if (!strcmp(argv[1], "utf8_base"))
+    {
         return original();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
     {
         unsigned char input[] = {0x41, 0xe2, 0x82, 0xac,
@@ -255,7 +281,9 @@ int main(int argc, char **argv)
                 adu_init(&s);
                 struct adu_summary r;
                 for (unsigned j = 0; j < 8; ++j)
+                {
                     CHECK(adu_feed(&s, input + j, 1) == ADU_OK);
+                }
                 CHECK(adu_finish(&s, &r) == ADU_OK);
                 sum += r.scalars;
             }
@@ -267,7 +295,9 @@ int main(int argc, char **argv)
                sizeof(struct adu_stream), sizeof(struct adu_owner),
                sizeof(((struct adu_stream *)0)->pending));
         for (unsigned i = 0; i < 7; ++i)
+        {
             printf("%s%.9f", i ? "," : "", seconds[i]);
+        }
         puts("]}");
         return 0;
     }

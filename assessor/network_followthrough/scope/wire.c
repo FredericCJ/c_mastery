@@ -16,8 +16,12 @@ static uint32_t dword(const unsigned char *p)
 static int equal(const unsigned char *a, const unsigned char *b, unsigned n)
 {
     for (unsigned i = 0; i < n; ++i)
+    {
         if (a[i] != b[i])
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
@@ -28,7 +32,9 @@ int nw_ingress(struct nw_rx *q, uint32_t *next, uint16_t port,
     static const unsigned char addresses[8] = {192, 0, 2, 1, 192, 0, 2, 2};
     if (!q || !next || !port || !p || n < 60 || n > 1514 ||
         !equal(p, mac, 12) || word(p + 12) != 0x800)
+    {
         return NW_INVALID;
+    }
     const unsigned char *ip = p + 14, *tcp = p + 34;
     unsigned total = word(ip + 2);
     if (ip[0] != 0x45 || total < 40 || total > 1500 || total > n - 14 ||
@@ -36,17 +42,25 @@ int nw_ingress(struct nw_rx *q, uint32_t *next, uint16_t port,
         !equal(ip + 12, addresses, 8) || net_checksum(ip, 20, 0) ||
         word(tcp) != port || word(tcp + 2) != 8080 || tcp[12] != 0x50 ||
         (tcp[13] != 0x10 && tcp[13] != 0x18))
+    {
         return NW_INVALID;
+    }
     uint32_t pseudo = word(addresses) + word(addresses + 2) +
                       word(addresses + 4) + word(addresses + 6) + 6 + total -
                       20;
     if (net_checksum(tcp, total - 20, pseudo))
+    {
         return NW_INVALID;
+    }
     if (dword(tcp + 4) != *next)
+    {
         return NW_STALE;
+    }
     size_t payload = NW_WIRE_MUTANT == 1 ? n - 54 : total - 40;
     int rc = nw_rx_offer(q, tcp + 20, payload);
     if (rc == NW_OK || NW_WIRE_MUTANT == 2)
+    {
         *next += (uint32_t)payload;
+    }
     return rc;
 }

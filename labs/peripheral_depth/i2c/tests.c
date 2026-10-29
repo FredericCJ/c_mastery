@@ -32,7 +32,9 @@ static uint32_t rd(void *v, unsigned r)
         if (m->receiver &&
             ((m->r[PI_CR1] & PI_ACK) ||
              ((m->r[PI_CR1] & PI_POS) != (m->count == 2 ? PI_POS : 0))))
+        {
             m->violation = 1;
+        }
         m->r[PI_SR1] &= ~PI_ADDR;
     }
     if (r == PI_DR)
@@ -54,9 +56,13 @@ static void wr(void *v, unsigned r, uint32_t x)
     {
         ++m->cr_writes;
         if (m->r[r] & (PI_START | PI_STOP | PI_PEC))
+        {
             m->violation = 1;
+        }
         if (x & PI_STOP)
+        {
             ++m->stop;
+        }
     }
     if (r == PI_SR1)
     {
@@ -66,7 +72,9 @@ static void wr(void *v, unsigned r, uint32_t x)
     if (r == PI_DR)
     {
         if (m->ntx < 8)
+        {
             m->tx[m->ntx++] = x;
+        }
         m->r[PI_SR1] = 0;
         return;
     }
@@ -103,7 +111,9 @@ static void line_release(void *v, unsigned line, unsigned high)
     struct dg_lines *l = v;
     ++l->writes;
     if (line == PI_SCL && high && !l->released[line])
+    {
         ++l->rises;
+    }
     l->released[line] = high;
 }
 
@@ -139,7 +149,9 @@ int main(void)
             CHECK(event(&s, &m, PI_BTF | PI_RXNE, 4) == PI_BUSY);
         }
         else
+        {
             CHECK(event(&s, &m, PI_RXNE, 4) == PI_BUSY);
+        }
         CHECK(m.reads == count && m.stop == 1 && out[0] == 0xcc &&
               !m.violation);
         m.r[PI_CR1] &= ~PI_STOP;
@@ -195,7 +207,9 @@ int main(void)
         int rc = PI_BUSY;
         CHECK(pi_recover_begin(&r, io, 1, 0, UINT32_MAX - 3u, 200, 2) == PI_OK);
         for (unsigned t = 0; t < 200 && rc == PI_BUSY; t++)
+        {
             rc = pi_recover_step(&r, io, UINT32_MAX - 3u + t);
+        }
         CHECK(rc == (pulses == 10 ? PI_IO : PI_OK) &&
               r.pulses == (pulses == 10 ? 9 : pulses) && l.released[0] &&
               l.released[1]);

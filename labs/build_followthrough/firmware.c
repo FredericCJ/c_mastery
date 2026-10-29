@@ -7,7 +7,9 @@ volatile uint32_t bf_board_result;
 void reset(void)
 {
     for (unsigned char *p = &__bss_start__; p < &__bss_end__; ++p)
+    {
         *p = 0;
+    }
     const uint32_t initial_a[5] = {0, UINT32_MAX, 4, 6, 8},
                    initial_b[5] = {1, 1, 5, 4, 2};
     uint32_t a[5], b[5];
@@ -27,5 +29,7 @@ void reset(void)
                           ? 0x50415353u
                           : 0x4641494cu;
     for (;;)
+    {
         __asm__ volatile("wfi");
+    }
 }

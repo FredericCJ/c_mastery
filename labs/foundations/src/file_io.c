@@ -35,11 +35,15 @@ int main(void)
     struct f_file f;
     enum f_status status;
     for (size_t i = 0; i < sizeof source; i++)
+    {
         source[i] = (uint8_t)i;
+    }
     f.fd = mkstemp(path);
     f.calls = 0;
     if (f.fd < 0)
+    {
         return 2;
+    }
     if (unlink(path))
     {
         close(f.fd);
@@ -69,7 +73,9 @@ int main(void)
         ssize_t got =
             read(f.fd, observed + read_bytes, sizeof observed - read_bytes);
         if (got < 0 && errno == EINTR)
+        {
             continue;
+        }
         if (got <= 0)
         {
             close(f.fd);
@@ -78,13 +84,17 @@ int main(void)
         read_bytes += (size_t)got;
     }
     for (size_t i = 0; i < sizeof source; i++)
+    {
         if (source[i] != observed[i])
         {
             close(f.fd);
             return 1;
         }
+    }
     if (close(f.fd))
+    {
         return 2;
+    }
     printf("{\"requested\":4096,\"accepted\":%zu,\"read_back\":%zu,\"write_"
            "calls\":%u,\"write_ns\":%llu,\"requested_fsync_ns\":%llu,\"claim\":"
            "\"same-file byte equality and successful fsync request; no "

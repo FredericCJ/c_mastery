@@ -24,7 +24,9 @@ static void *worker(void *context)
         int status;
         pthread_mutex_lock(&w->mutex);
         while ((status = mpb_claim(&w->schedule, &ticket)) == MPB_BUSY)
+        {
             pthread_cond_wait(&w->changed, &w->mutex);
+        }
         if (status != MPB_OK)
         {
             pthread_mutex_unlock(&w->mutex);
@@ -33,7 +35,9 @@ static void *worker(void *context)
         ++w->active;
         ++w->calls;
         if (w->active > w->peak)
+        {
             w->peak = w->active;
+        }
         pthread_mutex_unlock(&w->mutex);
         if (first)
         {
@@ -48,12 +52,16 @@ static void *worker(void *context)
         pthread_mutex_lock(&w->mutex);
         --w->active;
         if (!okay)
+        {
             w->error = 1;
+        }
         status =
             mpb_finish(&w->schedule, ticket,
                        (!okay || (w->fail && ticket.id == 2)) ? NULL : &result);
         if (status != MPB_OK && status != MPB_FAILED)
+        {
             w->error = 1;
+        }
         pthread_cond_broadcast(&w->changed);
         pthread_mutex_unlock(&w->mutex);
     }
@@ -75,36 +83,60 @@ static int run(void)
         w.fail = failure;
         if (mpb_plan(n, 3, 0, &w.plan) != MPB_OK ||
             mpb_begin(&w.schedule, &w.plan) != MPB_OK)
+        {
             return 1;
+        }
         if (pthread_mutex_init(&w.mutex, NULL) ||
             pthread_cond_init(&w.changed, NULL) ||
             pthread_barrier_init(&w.first, NULL, 2))
+        {
             return 1;
+        }
         for (unsigned i = 0; i < 2; ++i)
+        {
             if (pthread_create(&threads[i], NULL, worker, &w))
+            {
                 return 1;
+            }
+        }
         for (unsigned i = 0; i < 2; ++i)
+        {
             if (pthread_join(threads[i], NULL))
+            {
                 return 1;
+            }
+        }
         if (w.error || w.active || w.peak != 2 || w.schedule.running)
+        {
             return 1;
+        }
         int status = mpb_publish(&w.schedule, &w.output);
         if (failure)
         {
             if (status != MPB_FAILED || w.output.count)
+            {
                 return 1;
+            }
         }
         else
         {
             if (status != MPB_OK || w.output.count != 3 || w.calls != 3)
+            {
                 return 1;
+            }
             for (unsigned i = 0; i < 3; ++i)
+            {
                 if (!mpb_match(&w.output.entries[i], &w.plan.entries[i]))
+                {
                     return 1;
+                }
+            }
         }
         if (pthread_barrier_destroy(&w.first) ||
             pthread_cond_destroy(&w.changed) || pthread_mutex_destroy(&w.mutex))
+        {
             return 1;
+        }
     }
     puts(
         "MPB_PARALLEL actual-two-workers exclusive-outputs dependency-wake failure-drain joined-publication");
@@ -115,6 +147,8 @@ int main(void)
 {
     int status = run();
     if (status)
+    {
         fputs("MPO_CHECK MPB_PARALLEL contract failed\n", stderr);
+    }
     return status;
 }

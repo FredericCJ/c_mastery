@@ -37,7 +37,9 @@ void d_histories(const char *);
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "columns"))
     {
         struct d_columns c = {{1, 2, 3, 4}, {2, -1, 1, 0}, {7, 8, 9, 10}, 4};
@@ -55,7 +57,9 @@ int main(int argc, char **argv)
         unsigned char bytes[17];
         size_t i;
         for (i = 0; i < 17; i++)
+        {
             bytes[i] = (unsigned char)i;
+        }
         d_small_init(&s, (struct d_allocator){&a, allocate, release});
         d_small_init(&d, (struct d_allocator){&a, allocate, release});
         CHECK(d_small_append(&s, NULL, 0) == D_OK && s.length == 0 &&
@@ -73,7 +77,9 @@ int main(int argc, char **argv)
         CHECK(d_small_truncate(&d, 8) == D_OK && d_small_compact(&d) == D_OK &&
               d.heap == NULL && a.releases == 1);
         for (i = 0; i < 8; i++)
+        {
             CHECK(d_small_data(&d)[i] == i);
+        }
         d_small_reset(&s);
         d_small_reset(&d);
         CHECK(a.releases == 1);
@@ -84,6 +90,7 @@ int main(int argc, char **argv)
         CHECK(d_swar_add(UINT32_C(0xff00ff00), UINT32_C(0x01010101)) ==
               UINT32_C(0xff01ff01));
         for (a = 0; a < 256; a++)
+        {
             for (b = 0; b < 256; b++)
             {
                 uint32_t x = (uint32_t)a * UINT32_C(0x01010101),
@@ -92,11 +99,14 @@ int main(int argc, char **argv)
                                 UINT32_C(0x01010101);
                 CHECK(d_swar_add(x, y) == want);
                 for (lane = 0; lane < 4; lane++)
+                {
                     CHECK(
                         d_swar_add((uint32_t)a << (8 * lane),
                                    (uint32_t)b << (8 * lane)) ==
                         ((uint32_t)(a + b > 255 ? 255 : a + b) << (8 * lane)));
+                }
             }
+        }
     }
     else if (!strcmp(argv[1], "sparse"))
     {
@@ -204,7 +214,9 @@ int main(int argc, char **argv)
               !memcmp(out, "ab", 2));
     }
     else if (strcmp(argv[1], "oracle"))
+    {
         return 2;
+    }
     d_histories(argv[1]);
     return 0;
 }

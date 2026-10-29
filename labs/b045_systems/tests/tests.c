@@ -66,6 +66,7 @@ static int checksum(void)
 {
     unsigned char bytes[] = {1, 2, 3, 4, 5};
     for (size_t a = 0; a <= 5; a++)
+    {
         for (size_t b = a; b <= 5; b++)
         {
             struct s_checksum s = {0};
@@ -77,6 +78,7 @@ static int checksum(void)
             uint16_t again = 0;
             CHECK(!s_checksum_finish(&s, &again) && again == out);
         }
+    }
     struct s_checksum s = {0};
     uint16_t out = 0;
     CHECK(!s_checksum_finish(&s, &out) && out == 65535);
@@ -103,14 +105,20 @@ static int paired(void)
 static int failure(void *ctx, const unsigned char *p, size_t n)
 {
     if (ctx && n == 1)
+    {
         return S_UNRESOLVED;
+    }
     unsigned seen = 0;
     for (size_t i = 0; i < n; i++)
     {
         if (p[i] == 4)
+        {
             seen = 1;
+        }
         if (seen && p[i] == 2)
+        {
             return S_FAIL;
+        }
     }
     return S_PASS;
 }
@@ -190,7 +198,9 @@ static int shoot(void)
     unsigned frame_label = 1; /* 1=OLD synthetic owner,2=NEW synthetic owner. */
     int reclaimed = s_shoot_reclaim(&s);
     if (s.reclaimed)
+    {
         frame_label = 2;
+    }
     /* CPU1's deliberately retained synthetic translation observes this frame. */
     printf("shootdown observation: delayed CPU sees synthetic label %u\n",
            frame_label);
@@ -228,7 +238,9 @@ static int peer(void)
 int main(int n, char **a)
 {
     if (n != 2)
+    {
         return 2;
+    }
 
     const struct
     {
@@ -242,7 +254,9 @@ int main(int n, char **a)
     for (size_t i = 0; i < sizeof cases / sizeof *cases; i++)
     {
         if (!strcmp(a[1], cases[i].name))
+        {
             return cases[i].test();
+        }
     }
     return 2;
 }

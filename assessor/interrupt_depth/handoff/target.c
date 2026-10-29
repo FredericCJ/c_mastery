@@ -16,7 +16,9 @@ static void hex(uint32_t x)
 {
     char b[10];
     for (unsigned i = 0; i < 8; ++i)
+    {
         b[i] = "0123456789abcdef"[(x >> (28 - 4 * i)) & 15];
+    }
     b[8] = ' ';
     b[9] = 0;
     output(b);
@@ -96,7 +98,9 @@ void xi_high(void)
 {
     ++high_seen;
     if (mode == 1 && pair_second != (~pair_first))
+    {
         ++mixed_seen;
+    }
     if (mode == 2)
     {
         uint32_t p = xi_primask_enter();
@@ -132,10 +136,14 @@ void xi_timer(void)
             CHECK(high_seen == 1 && service.reentrant == 1);
         }
         if (XI_INSTRUMENT)
+        {
             r->publish_before = now();
+        }
         CHECK(xi_capture_end(&service) == XI_OK);
         if (XI_INSTRUMENT)
+        {
             r->publish_after = now();
+        }
     }
     r->exit = now();
     event_done = id + 1;
@@ -161,7 +169,9 @@ static void mask_checks(void)
     }
     __asm__ volatile("cpsid i" ::: "memory");
     for (unsigned prior = 0; prior < 256; prior += 16)
+    {
         for (unsigned a = 0; a < 256; a += 16)
+        {
             for (unsigned b = 0; b < 256; b += 16)
             {
                 xi_basepri_leave(prior);
@@ -175,6 +185,8 @@ static void mask_checks(void)
                 xi_basepri_leave(x);
                 CHECK(basepri() == prior);
             }
+        }
+    }
     xi_basepri_leave(0);
     BYTE(0xe000e400) = 0x60;
     BYTE(0xe000e401) = 0x20;
@@ -210,7 +222,9 @@ static void arm_event(unsigned id)
     REG(0x40000000) = 9;
     uint32_t start = now();
     while (event_done != id + 1)
+    {
         CHECK((uint32_t)(now() - start) < 25000);
+    }
 }
 
 static void drain(unsigned *count)
@@ -232,7 +246,9 @@ static void drain(unsigned *count)
 static void wait_until(uint32_t origin, uint32_t deadline)
 {
     while ((uint32_t)(now() - origin) < deadline)
+    {
         __asm__ volatile("nop");
+    }
 }
 
 void xf_target_main(void)
@@ -279,7 +295,9 @@ void xf_target_main(void)
         CHECK(xi_init(&queue, 4) == XI_OK &&
               xi_service_init(&service, &queue) == XI_OK);
         for (unsigned i = 0; i < 40; ++i)
+        {
             samples[workload][i] = (struct xi_sample){0};
+        }
         event_done = 0;
         unsigned consumed = 0;
         uint32_t origin = now();
@@ -294,11 +312,15 @@ void xf_target_main(void)
                 CHECK((uint32_t)(now() - origin) < scheduled + 1000);
                 arm_event(id);
                 if (!workload)
+                {
                     drain(&consumed);
+                }
             }
             wait_until(origin, 100000u * (group + 1));
             if (workload)
+            {
                 drain(&consumed);
+            }
         }
         CHECK(service.acknowledged == 40 &&
               service.dropped == (workload ? 16 : 0) &&
@@ -313,6 +335,7 @@ void xf_target_main(void)
         output("\n");
     }
     for (unsigned w = 0; w < 2; ++w)
+    {
         for (unsigned i = 0; i < 40; ++i)
         {
             struct xi_sample *s = &samples[w][i];
@@ -327,6 +350,7 @@ void xf_target_main(void)
             hex(s->consumed);
             output("\n");
         }
+    }
     output("XI_MASK_CASES 4096\n");
     finish(0);
 }

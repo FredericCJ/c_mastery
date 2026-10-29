@@ -14,7 +14,9 @@
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "prescan"))
     {
         CHECK(lm_forward() == 7);
@@ -46,6 +48,8 @@ int main(int argc, char **argv)
             "{\"allocations\":0,\"macro_operations\":6,\"evaluated_forward_inputs\":1}");
     }
     else
+    {
         return 2;
+    }
     return 0;
 }

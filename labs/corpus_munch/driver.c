@@ -18,9 +18,13 @@ int main(void)
                          &c, &err);
         printf("%d %u", rc, rc ? err : out.count);
         if (!rc)
+        {
             for (unsigned i = 0; i < out.count; ++i)
+            {
                 printf(" %u:%u:%u", out.token[i].begin, out.token[i].end,
                        out.token[i].rule);
+            }
+        }
         putchar('\n');
     }
     return ferror(stdin) ? 1 : 0;

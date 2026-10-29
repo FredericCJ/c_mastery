@@ -23,8 +23,12 @@ _Noreturn void fb_handoff(uint32_t vector, uint32_t stack, uint32_t entry)
     unsigned regions =
         (*(volatile uint32_t *)(uintptr_t)0xE000ED90u >> 8) & 255u;
     if (regions < 2 || regions > 16)
+    {
         for (;;)
+        {
             __asm__ volatile("wfi");
+        }
+    }
     for (unsigned i = 0; i < regions; ++i)
     {
         wr(0xE000ED98u, i);

@@ -76,7 +76,9 @@ void xf_target_main(void)
     {
         int r = i < 5 ? cn_test(i) : cn_controller_test(i);
         if (r)
+        {
             stop((unsigned)r);
+        }
     }
     text("CN_GUEST_PASS actual-Thumb RAM-register-effects no-physical-CAN\n");
     stop(0);

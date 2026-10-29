@@ -29,12 +29,15 @@ int main(void)
     b[4] = 16;
     unsigned cuts = 0;
     for (unsigned history = 0; history < 3; ++history)
+    {
         for (unsigned cut = 0; cut <= 10; ++cut)
         {
             struct ae_crash_slots slots = {0};
             for (unsigned g = 1; g <= history; ++g)
+            {
                 CHECK(ae_fault_save(&slots, (struct ae_fault){4, g, 2}, 0) ==
                       AE_OK);
+            }
             CHECK(ae_fault_save(&slots, f, cut) ==
                   (cut ? AE_AMBIGUOUS : AE_OK));
             unsigned generation = 99;
@@ -42,15 +45,22 @@ int main(void)
             enum ae_code result = ae_fault_select(&slots, &out, &generation);
             unsigned committed = cut == 0 || cut == 10;
             if (!history && !committed)
+            {
                 CHECK(result == AE_UNKNOWN && generation == 99);
+            }
             else
+            {
                 CHECK(result == AE_OK && generation == history + committed &&
                       out.address == (committed ? 9 : history));
+            }
             ++cuts;
         }
+    }
     struct ae_crash_slots slots = {0};
     for (unsigned i = 0; i < 3; ++i)
+    {
         CHECK(ae_fault_save(&slots, f, 0) == AE_OK);
+    }
     struct ae_crash_slots before = slots;
     CHECK(ae_fault_save(&slots, f, 0) == AE_FULL &&
           !memcmp(&slots, &before, sizeof slots));
@@ -76,9 +86,11 @@ int main(void)
               recovery.effects.effects == 1 && recovery.effects.value == 1 &&
               recovery.owner.mask == 7);
         for (unsigned i = 0; i < 3; ++i)
+        {
             CHECK(recovery.ledger.held[i] &&
                   recovery.ledger.acquisitions[i] ==
                       recovery.ledger.releases[i] + 1);
+        }
         unsigned events = recovery.ledger.count;
         CHECK(ae_recover(&recovery, b, 5, 4, 0) == AE_OK &&
               recovery.ledger.count == events && recovery.effects.effects == 1);

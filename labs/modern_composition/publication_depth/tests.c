@@ -23,14 +23,18 @@ static void seed(struct ow_owner *o, struct ow_allocator *p)
     size_t n[3] = {1, 1, 1};
     CHECK(ow_construct(o, ow_allocator(p), n) == OW_OK);
     for (unsigned i = 0; i < 3; i++)
+    {
         o->block[i][0] = (int32_t)(90 + i);
+    }
 }
 
 static void unchanged(struct ow_owner *o, struct ow_owner old)
 {
     for (unsigned i = 0; i < 3; i++)
+    {
         CHECK(o->block[i] == old.block[i] &&
               o->block[i][0] == (int32_t)(90 + i));
+    }
 }
 
 static void admission(void)
@@ -105,7 +109,9 @@ static int open_resource(void *ctx, unsigned ordinal, int *out)
     CHECK(ordinal < 2);
     ++p->opens;
     if (p->opens == p->fail_open)
+    {
         return 0;
+    }
     CHECK(p->next < 8);
     int fd = open("/dev/null", O_RDONLY);
     CHECK(fd >= 0);
@@ -134,7 +140,9 @@ static unsigned live(const struct mc_port *p)
 {
     unsigned n = 0;
     for (unsigned i = 0; i < p->next; i++)
+    {
         n += p->live[i];
+    }
     return n;
 }
 
@@ -144,7 +152,9 @@ static void finish(struct mc_recovery *s, struct ow_allocator *a,
     p->used = 4;
     unsigned errors = 99;
     if (s->recovering)
+    {
         CHECK(mc_recover(s, s->generation, &errors));
+    }
     uint32_t token = 0;
     CHECK(mc_retire_current(s, &token));
     CHECK(mc_recover(s, token, &errors) && errors == 0);
@@ -180,17 +190,21 @@ static void close_case(unsigned code, int output)
     CHECK(s.pending.mask == (p.live[0] | p.live[1] << 1));
     CHECK((a.live == 6) == (s.pending.mask != 0));
     if (output)
+    {
         printf("%u,%u,%u,%u,%u,%u,%d,%u,%u,%u,%zu,%u,%u\n", code, first_mask,
                first_errors, first_pending, first_cells, first_resources, done,
                second_errors, s.pending.mask, s.recovering, a.live, live(&p),
                p.closes);
+    }
     finish(&s, &a, &p);
 }
 
 static void close_order(void)
 {
     for (unsigned i = 0; i < 81; i++)
+    {
         close_case(i, 0);
+    }
     puts("MCP_CLOSE 81-outcome-words retained-versus-released-error real-fds");
 }
 
@@ -209,13 +223,17 @@ static void recovery(void)
         struct mc_five old = s.current;
         p.fail_open = p.opens + f;
         for (unsigned i = 0; i < 4; i++)
+        {
             p.plan[i] = 1;
+        }
         struct mc_recovered r = mc_publish_recoverable(
             &s, (const unsigned char *)"7:9", 3, ow_allocator(&a));
         CHECK(!r.publication.committed && r.publication.parse.tag == ER_OK &&
               r.publication.storage == OW_NOMEM);
         for (unsigned i = 0; i < 3; i++)
+        {
             CHECK(s.current.cells.block[i] == old.cells.block[i]);
+        }
         CHECK(s.current.cells.block[0][0] == 5);
         CHECK((s.recovering != 0) == (f == 2));
         CHECK(a.live == (f == 2 ? 6u : 3u));
@@ -294,7 +312,9 @@ static void metrics(void)
         ",\"attempts_per_sample\":30000,\"releases_per_sample\":30000,\"recovery_size\":%zu,\"seconds\":[",
         checksum, sizeof(struct mc_recovery));
     for (unsigned i = 0; i < 7; i++)
+    {
         printf("%s%.9f", i ? "," : "", times[i]);
+    }
     puts("]}");
 }
 
@@ -302,23 +322,39 @@ int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (!strcmp(argv[1], "publication_admission"))
+    {
         admission();
+    }
     else if (!strcmp(argv[1], "publication_prefix"))
+    {
         prefixes();
+    }
     else if (!strcmp(argv[1], "publication_close"))
+    {
         close_order();
+    }
     else if (!strcmp(argv[1], "publication_recovery"))
+    {
         recovery();
+    }
     else if (!strcmp(argv[1], "publication_limits"))
+    {
         limits();
+    }
     else if (!strcmp(argv[1], "oracle"))
     {
         for (unsigned i = 0; i < 81; i++)
+        {
             close_case(i, 1);
+        }
     }
     else if (!strcmp(argv[1], "metrics"))
+    {
         metrics();
+    }
     else
+    {
         CHECK(0);
+    }
     return 0;
 }

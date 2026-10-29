@@ -23,9 +23,13 @@ static void soft(void)
         CHECK(cb_charge(&s, i, 1) == CMX_OK);
         CHECK(!s.throttled);
         if (i == 2)
+        {
             CHECK(s.core.remaining == 3 && s.core.deadline == 20);
+        }
         if (i == 5)
+        {
             CHECK(s.core.remaining == 3 && s.core.deadline == 30);
+        }
     }
     CHECK(s.core.remaining == 1 && s.core.deadline == 30);
     puts("CB_SOFT:immediate-refill-and-deadline-postponement");
@@ -126,12 +130,16 @@ static void workload(void)
           trace.missed[0]);
     w = plan();
     for (unsigned i = 0; i < 6; i++)
+    {
         w.request[w.count++] = (struct cb_request){1, i * 5, 2, i * 5 + 5};
+    }
     CHECK(cb_workload(&w, &trace) == CMX_OK && trace.finish[0] == 14);
     CHECK(trace.selected[4] == 0 && trace.deadline[4][0] == 20 &&
           trace.selected[5] == 1);
     for (unsigned i = 1; i < w.count; i++)
+    {
         CHECK(trace.finish[i] == w.request[i].release + 2 && !trace.missed[i]);
+    }
     puts("CB_WORKLOAD:soft8-throttle22-competitor14-and-application-deadlines");
 }
 
@@ -142,8 +150,10 @@ static void mutex_case(void)
           !t.waiter_missed);
     CHECK(cb_mutex(7, &t) == CMX_OK && t.waiter_finish == 8 && t.waiter_missed);
     for (unsigned i = 1; i < 7; i++)
+    {
         CHECK(t.waiter_blocked[i] && t.owner[i] == 0 && t.charged[i] == 0 &&
               t.budget[i][1] == 2);
+    }
     CHECK(t.owner[7] == 1 && t.charged[7] == 1 && t.budget[7][1] == 1);
     puts("CB_MUTEX:actual-CMX-blocking-breaks-independent-reservation-premise");
 }
@@ -163,9 +173,11 @@ static void stream(void)
         w.policy[0] = (enum cb_policy)kind0;
         w.policy[1] = (enum cb_policy)kind1;
         for (unsigned i = 0; i < w.count; i++)
+        {
             CHECK(scanf("%u %u %u %u", &w.request[i].client,
                         &w.request[i].release, &w.request[i].cost,
                         &w.request[i].application_deadline) == 4);
+        }
         struct cb_trace t, before;
         memset(&t, 0xa5, sizeof t);
         before = t;
@@ -177,12 +189,16 @@ static void stream(void)
             continue;
         }
         for (unsigned i = 0; i < w.horizon; i++)
+        {
             printf("T %u %d %u %u %u %u %u %u\n", i, t.selected[i],
                    t.budget[i][0], t.budget[i][1], t.deadline[i][0],
                    t.deadline[i][1], t.pending[i][0], t.pending[i][1]);
+        }
         for (unsigned i = 0; i < w.count; i++)
+        {
             printf("R %u %u %u %u %u %u %u\n", i, t.admitted[i], t.rejected[i],
                    t.missed[i], t.finish[i], t.executed[i], t.remaining[i]);
+        }
     }
 }
 
@@ -190,20 +206,36 @@ int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (!strcmp(argv[1], "soft"))
+    {
         soft();
+    }
     else if (!strcmp(argv[1], "equality"))
+    {
         equality();
+    }
     else if (!strcmp(argv[1], "constrained"))
+    {
         constrained();
+    }
     else if (!strcmp(argv[1], "guards"))
+    {
         guards();
+    }
     else if (!strcmp(argv[1], "workload"))
+    {
         workload();
+    }
     else if (!strcmp(argv[1], "mutex"))
+    {
         mutex_case();
+    }
     else if (!strcmp(argv[1], "stream"))
+    {
         stream();
+    }
     else
+    {
         CHECK(0);
+    }
     return 0;
 }

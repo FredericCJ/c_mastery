@@ -99,20 +99,28 @@ int main(void)
     int (*fn)(int) = same;
     if (B2_IDENTITY(i++) != 7 || i != 8 || B2_IDENTITY(u++) != 9 || u != 10 ||
         fn(3) != 3 || same(3) != 4 || (same)(3) != 3)
+    {
         return 1;
+    }
     if (strcmp(B2_STRING_RAW(A), "A") || strcmp(B2_STRING(A), "73") ||
         BF_CAT(b2_identity_, KIND)(73) != 73)
+    {
         return 1;
+    }
     if (BF_BINARY(left(0), right(0)) != 709 || n != 2 || counts[0] != 1 ||
         counts[1] != 1)
+    {
         return 1;
+    }
     printf("direct=%c%c counts=%u,%u\n", order[0], order[1], counts[0],
            counts[1]);
     n = 0;
     counts[0] = counts[1] = 0;
     if (bf_sequence(left, 0, right, 0, &out) || out != 709 || n != 2 ||
         order[0] != 'L' || order[1] != 'R' || counts[0] != 1 || counts[1] != 1)
+    {
         return 1;
+    }
     printf("sequenced=%c%c counts=%u,%u raw=%s expanded=%s\n", order[0],
            order[1], counts[0], counts[1], B2_STRING_RAW(A), B2_STRING(A));
     return 0;

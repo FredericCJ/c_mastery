@@ -22,16 +22,22 @@ static void watch(void *v, const struct ae_config *c)
     struct ac_watch *w = v;
     ++w->calls;
     if (c->version == w->old.version && memcmp(c, &w->old, sizeof *c))
+    {
         ++w->bad;
+    }
 }
 
 int main(void)
 {
     unsigned cases = 0, new_values[3] = {3, 4, 5};
     for (unsigned n = 0; n <= 3; ++n)
+    {
         for (unsigned cap = 0; cap <= 3; ++cap)
+        {
             for (unsigned mode = 0; mode < 3; ++mode)
+            {
                 for (unsigned fail = 0; fail <= n + 3; ++fail)
+                {
                     for (unsigned notify = 0; notify < 2; ++notify)
                     {
                         struct ae_config c = {{1, 2, 0}, 2, 1}, old = c;
@@ -62,29 +68,43 @@ int main(void)
                             code = AE_DEVICE;
                         }
                         else if (n > cap)
+                        {
                             code = AE_FULL;
+                        }
                         else if (fail == n + 3)
+                        {
                             code = AE_DEVICE;
+                        }
                         unsigned publish =
                             fail != 1 && !(code != AE_OK && mode == AE_STRONG);
                         CHECK(!w.bad && w.calls && r.committed == publish);
                         CHECK(r.code ==
                               (code == AE_OK && notify ? AE_AMBIGUOUS : code));
                         if (!publish)
+                        {
                             CHECK(!memcmp(&c, &old, sizeof c) &&
                                   r.accepted == 0);
+                        }
                         else
                         {
                             if (code != AE_OK && mode == AE_BASIC)
+                            {
                                 copies = 0;
+                            }
                             CHECK(c.count == copies && c.version == 2 &&
                                   r.accepted == copies);
                             for (unsigned i = 0; i < 3; ++i)
+                            {
                                 CHECK(c.values[i] ==
                                       (i < copies ? new_values[i] : 0));
+                            }
                         }
                         ++cases;
                     }
+                }
+            }
+        }
+    }
     struct ae_config c = {{1, 2, 0}, 2, 1};
     CHECK(ae_replace(&c, c.values, 2, 2, AE_STRONG, 0, 0, 0, 0).code == AE_OK &&
           c.values[1] == 2);

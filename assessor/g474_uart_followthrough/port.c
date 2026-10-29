@@ -15,7 +15,9 @@ static int wait_flag(struct g4_io io, enum g4_reg reg, uint32_t mask,
     {
         ++out->polls;
         if (io.read(io.context, reg) & mask)
+        {
             return 1;
+        }
     }
     return 0;
 }
@@ -25,14 +27,20 @@ int g4_initialize(struct g4_io io, uint32_t baud, unsigned limit,
 {
     if (!io.read || !io.write || !out || !baud || baud > 1000000u || !limit ||
         limit > 1000000u)
+    {
         return G4_INVALID;
+    }
     uint32_t brr = (16000000u + baud / 2u) / baud;
     if (brr < 16 || brr > 65535)
+    {
         return G4_INVALID;
+    }
     *out = (struct g4_init){1, 0, brr};
     field(io, G4_RCC_CR, 0, 1u << 8);
     if (!wait_flag(io, G4_RCC_CR, 1u << 10, limit, out))
+    {
         return G4_CLOCK_TIMEOUT;
+    }
     out->stage = 2;
     field(io, G4_RCC_AHB2ENR, 0, 1);
     (void)io.read(io.context, G4_RCC_AHB2ENR);

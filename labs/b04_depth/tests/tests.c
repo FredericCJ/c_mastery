@@ -15,6 +15,7 @@
 static int serial(void)
 {
     for (unsigned a = 0; a < 16; a++)
+    {
         for (unsigned b = 0; b < 16; b++)
         {
             int out = 77;
@@ -32,6 +33,7 @@ static int serial(void)
                 CHECK(hit == (forward < n));
             }
         }
+    }
     int out = 77;
     CHECK(!b4_serial(UINT32_MAX, 0, 32, &out) && out == -1);
     CHECK(b4_serial(0, UINT32_C(0x80000000), 32, &out) == B4_CONFLICT &&
@@ -45,8 +47,12 @@ static int certificate(void)
     struct b4_graph g;
     g.vertices = 3;
     for (unsigned i = 0; i < 6; i++)
+    {
         for (unsigned j = 0; j < 6; j++)
+        {
             g.cost[i][j] = UINT32_MAX;
+        }
+    }
     g.cost[0][1] = 8;
     g.cost[0][2] = 1;
     g.cost[2][1] = 1;
@@ -82,7 +88,9 @@ static int framing(void)
     size_t cl_first_boundary = 6, te_first_boundary = 0;
     if (body[0] == '0' && body[1] == '\r' && body[2] == '\n' &&
         body[3] == '\r' && body[4] == '\n')
+    {
         te_first_boundary = 5;
+    }
     CHECK(cl_first_boundary != te_first_boundary &&
           body[cl_first_boundary - 1] == 'S');
     const unsigned char conflict[] =
@@ -119,9 +127,13 @@ static int framing(void)
         CHECK(b4_framing((const unsigned char *)v[i].s, strlen(v[i].s), 16,
                          &r) == v[i].status);
         if (v[i].status)
+        {
             CHECK(r.chunked == 9 && r.body == 99);
+        }
         else
+        {
             CHECK(r.chunked == v[i].chunked && r.body == v[i].body);
+        }
     }
     const unsigned char s[] = "Content-Length: 3\r\n\r\n";
     for (size_t n = 0; n < sizeof s - 1; n++)
@@ -147,6 +159,7 @@ static int dma(void)
     CHECK(!b4_dma(&d, B4_RELEASE, 1));
     CHECK(d.generation == 2);
     for (size_t off = 0; off <= 64; off++)
+    {
         for (size_t n = 0; n <= 64 - off; n++)
         {
             size_t begin = 99, end = 99;
@@ -154,6 +167,7 @@ static int dma(void)
             CHECK(begin == (n ? off / 16 * 16 : off));
             CHECK(end == (n ? (off + n + 15) / 16 * 16 : off));
         }
+    }
     size_t b = 99, e = 99;
     CHECK(b4_cache_extent(SIZE_MAX, 1, 16, SIZE_MAX, &b, &e) == B4_RANGE &&
           b == 99 && e == 99);
@@ -178,7 +192,9 @@ static int memory(void)
     CHECK(!b4_memory(&l, B4_FREE, 1, 0, 1) && l.live == 0 && l.peak == 15);
     CHECK(!b4_memory(&l, B4_ALLOC, 1, 1, 0) && l.live == 0);
     for (unsigned i = 1; i <= 4; i++)
+    {
         CHECK(!b4_memory(&l, B4_ALLOC, i, 0, 1));
+    }
     CHECK(b4_memory(&l, B4_ALLOC, 5, 0, 1) == B4_RANGE && l.live == 0);
     CHECK(b4_memory(&l, B4_ALLOC, 1, 1, 1) == B4_STATE && l.live == 0);
     CHECK(b4_memory(&l, B4_RESIZE, 9, 2, 1) == B4_STATE && l.live == 0);
@@ -188,7 +204,9 @@ static int memory(void)
 int main(int n, char **a)
 {
     if (n != 2)
+    {
         return 2;
+    }
 
     const struct
     {
@@ -203,7 +221,9 @@ int main(int n, char **a)
     for (size_t i = 0; i < sizeof c / sizeof *c; i++)
     {
         if (!strcmp(a[1], c[i].n))
+        {
             return c[i].f();
+        }
     }
     return 2;
 }

@@ -72,7 +72,9 @@ static void raw(const char *dir, const char *name)
     printf("PC_RAW_BEGIN %s\n", p);
     ssize_t n;
     while ((n = read(fd, buf, sizeof buf)) > 0)
+    {
         CHECK(fwrite(buf, 1, (size_t)n, stdout) == (size_t)n);
+    }
     CHECK(!n);
     CHECK(!close(fd));
     printf("PC_RAW_END %s\n", p);
@@ -96,7 +98,9 @@ static void snapshot(const char *dir)
                            "memory.pressure",
                            "io.pressure"};
     for (size_t i = 0; i < sizeof names / sizeof *names; i++)
+    {
         raw(dir, names[i]);
+    }
 }
 
 static void own(const char *dir, const char *name)
@@ -136,22 +140,32 @@ static int observe_until_exit(pid_t child)
         {
             strcpy(oldp, procs);
             for (char *p = procs; *p; p++)
+            {
                 if (*p == '\n')
+                {
                     *p = ' ';
+                }
+            }
             printf("PC_LIVE kind=processes ids=%s\n", procs);
         }
         if (strcmp(threads, oldt))
         {
             strcpy(oldt, threads);
             for (char *p = threads; *p; p++)
+            {
                 if (*p == '\n')
+                {
                     *p = ' ';
+                }
+            }
             printf("PC_LIVE kind=threads ids=%s\n", threads);
         }
         pid_t done = waitpid(child, &status, WNOHANG);
         CHECK(done >= 0);
         if (done == child)
+        {
             return status;
+        }
         CHECK(!clock_gettime(CLOCK_MONOTONIC, &now));
         CHECK(now.tv_sec - start.tv_sec < 60);
         CHECK(!nanosleep(&nap, NULL));
@@ -172,7 +186,9 @@ static void trial(const char *name, const char *quota)
         CHECK(!close(ready[0]));
         CHECK(!close(go[1]));
         if (!PF_SKIP_MOVE)
+        {
             move(work, getpid());
+        }
         member("0::/t43/work\n");
         CHECK(write(ready[1], "R", 1) == 1);
         CHECK(!close(ready[1]));

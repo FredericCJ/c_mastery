@@ -29,7 +29,9 @@ static struct timespec deadline(int seconds)
 {
     struct timespec t;
     if (clock_gettime(CLOCK_MONOTONIC, &t))
+    {
         return (struct timespec){0};
+    }
     t.tv_sec += seconds;
     return t;
 }
@@ -38,7 +40,9 @@ static void *waiter(void *ctx)
 {
     struct rd_attempt *a = ctx;
     if (a->gate)
+    {
         pthread_barrier_wait(a->gate);
+    }
     a->result = rd_port_wait(a->port, a->producer, &a->outcome, &a->end);
     return 0;
 }
@@ -74,7 +78,9 @@ static int blocked(unsigned producer, unsigned peer)
               !rd_port_peer_gone(&p));
     }
     else
+    {
         CHECK(!rd_port_stop(&p) && !rd_port_stop(&p));
+    }
     CHECK(!pthread_join(t, 0) && !a.result &&
           a.outcome.result == (peer ? RD_WAIT_PEER : RD_WAIT_STOP) &&
           p.queued == producer && p.value == 7 && p.waiters == 0);
@@ -126,9 +132,13 @@ static int races(unsigned *stops, unsigned *timeouts)
         CHECK(a.outcome.result == RD_WAIT_STOP ||
               a.outcome.result == RD_WAIT_TIMEOUT);
         if (a.outcome.result == RD_WAIT_STOP)
+        {
             ++*stops;
+        }
         else
+        {
             ++*timeouts;
+        }
         enum rd_wait_result winner = a.outcome.result;
         CHECK(!rd_port_stop(&p) && a.outcome.result == winner &&
               p.waiters == 0 && !p.queued && !pthread_barrier_destroy(&gate) &&

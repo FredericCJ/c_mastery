@@ -144,7 +144,9 @@ static void receive(void *arg, int32_t value)
     r->entered = 1;
     pthread_cond_broadcast(&r->condition);
     while (!r->release)
+    {
         pthread_cond_wait(&r->condition, &r->mutex);
+    }
     pthread_mutex_unlock(&r->mutex);
 }
 
@@ -156,7 +158,9 @@ static int hosted(void)
             *b = allocator.take(allocator.context, 2);
     CHECK(a && b);
     for (unsigned i = 0; i < 3; ++i)
+    {
         a[i] = -1;
+    }
     struct opa_port port = {0};
     CHECK(opa_port_init(&port, a, 3) == OW_OK);
     struct ow_receiver r = {.mutex = PTHREAD_MUTEX_INITIALIZER,
@@ -173,7 +177,9 @@ static int hosted(void)
     CHECK(opa_port_allow_backend(&port, ticket) == OW_OK);
     pthread_mutex_lock(&r.mutex);
     while (!r.entered)
+    {
         pthread_cond_wait(&r.condition, &r.mutex);
+    }
     CHECK(r.calls == 1 && r.foreign && r.invalid && r.value == 123);
     pthread_mutex_unlock(&r.mutex);
     struct opa_observation observed;
@@ -218,7 +224,9 @@ static int oracle(void)
         struct opa_machine m;
         uint32_t ticket = 92;
         if (opa_init(&m, &a, 7, 9) != OW_OK)
+        {
             return 2;
+        }
         for (unsigned i = 0; word[i] && word[i] != '-'; ++i)
         {
             enum ow_status q;
@@ -286,7 +294,9 @@ static int metrics(void)
         sum, m.async.releases, sizeof(struct opa_machine),
         sizeof(struct opa_port));
     for (unsigned i = 0; i < 7; ++i)
+    {
         printf("%s%.9f", i ? "," : "", times[i]);
+    }
     puts("]}");
     return 0;
 }
@@ -296,24 +306,44 @@ int pin_dma_test(void);
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "pin_async_base"))
+    {
         return baseline();
+    }
     if (!strcmp(argv[1], "pin_async_timeout"))
+    {
         return timeout_case();
+    }
     if (!strcmp(argv[1], "pin_async_notification"))
+    {
         return notification();
+    }
     if (!strcmp(argv[1], "pin_async_identity"))
+    {
         return identities();
+    }
     if (!strcmp(argv[1], "pin_async_counters"))
+    {
         return counters();
+    }
     if (!strcmp(argv[1], "pin_async_host"))
+    {
         return hosted();
+    }
     if (!strcmp(argv[1], "pin_async_dma"))
+    {
         return pin_dma_test();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

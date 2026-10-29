@@ -24,7 +24,9 @@ static int keyed(void *v, const unsigned char *m, size_t n,
     struct sx_key *k = v;
     k->calls++;
     if (k->fail)
+    {
         return B5_CONFLICT;
+    }
     return rph_hmac(k->key, 32, m, n, tag) == RPH_OK ? B5_OK : B5_CONFLICT;
 }
 
@@ -32,7 +34,9 @@ static int seal(struct sx_key *k, uint64_t id, struct sx_authenticated *r)
 {
     unsigned char m[32];
     if (sx_auth_encode(id, &r->record, m) != B5_OK)
+    {
         return 0;
+    }
     return keyed(k, m, 32, r->tag) == B5_OK;
 }
 
@@ -59,7 +63,9 @@ int main(void)
             bad[0].record.checksum ^= 1;
         }
         else
+        {
             bad[0].tag[(field - 1) * 15] ^= 1;
+        }
         out = 999;
         CHECK(sx_auth_recover(7, 0, 0, bad, 3, keyed, &key, &out) ==
                   B5_CONFLICT &&
@@ -87,11 +93,15 @@ int main(void)
     r[0].record = (struct b5_redo){1, 10, b5_checksum(1, 10), 1};
     CHECK(sx_auth_encode(7, &r[0].record, m) == B5_OK);
     for (unsigned i = 0; i < 32; i++)
+    {
         printf("%02x", m[i]);
+    }
     puts("");
     CHECK(keyed(&key, m, 32, r[0].tag) == B5_OK);
     for (unsigned i = 0; i < 32; i++)
+    {
         printf("%02x", r[0].tag[i]);
+    }
     puts("");
     rph_clear(&key, sizeof key);
     puts("AUTH_X_PASS tamper_key_domain_generation_tail unchanged_output");

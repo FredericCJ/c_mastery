@@ -22,14 +22,18 @@ struct cm_sink
 static int equal(const struct cm_model *a, const struct cm_model *b)
 {
     if (a->revision != b->revision)
+    {
         return 0;
+    }
     for (unsigned i = 0; i < CM_NODES; ++i)
     {
         const struct cm_node *x = &a->nodes[i], *y = &b->nodes[i];
         if (x->kind != y->kind || x->a != y->a || x->b != y->b ||
             x->w0 != y->w0 || x->w1 != y->w1 || x->bias != y->bias ||
             x->value != y->value)
+        {
             return 0;
+        }
     }
     return 1;
 }
@@ -50,9 +54,13 @@ static size_t write_part(void *context, const char *s, size_t n)
         return 0;
     }
     if (n > b->limit)
+    {
         n = b->limit;
+    }
     if (n > sizeof b->text - b->used)
+    {
         return 0;
+    }
     memcpy(b->text + b->used, s, n);
     b->used += n;
     return n;
@@ -64,9 +72,13 @@ static int drain(struct cm_session *s, struct cm_sink *sink)
     {
         int rc = cm_drain(s, write_part, sink);
         if (rc == CM_OK)
+        {
             return 0;
+        }
         if (rc != CM_PENDING && rc != CM_IO)
+        {
             return 1;
+        }
     }
     return 1;
 }

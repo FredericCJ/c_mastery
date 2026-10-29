@@ -25,9 +25,13 @@ void xf_target_main(void)
 {
     unsigned result = 0;
     for (unsigned i = 0; i < 6 && !result; i++)
+    {
         result = (unsigned)lt_tests(i);
+    }
     if (!result)
+    {
         lt_note("LT_GUEST_PASS actual_Thumb_no_physical_link\n");
+    }
     uintptr_t args[2] = {0x20026, result};
     register unsigned r0 __asm__("r0") = 0x20;
     register uintptr_t *r1 __asm__("r1") = args;

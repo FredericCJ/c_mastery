@@ -31,8 +31,12 @@ static int equal(const void *a, const void *b, size_t n)
 {
     const unsigned char *x = a, *y = b;
     for (size_t i = 0; i < n; ++i)
+    {
         if (x[i] != y[i])
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
@@ -85,7 +89,9 @@ static int placement(void)
             uint32_t addresses[] = {r.base, r.base + 1, r.base + r.bytes - 1,
                                     r.base + r.bytes, UINT32_MAX};
             for (unsigned master = 0; master < 6; ++master)
+            {
                 for (unsigned a = 0; a < 5; ++a)
+                {
                     for (unsigned n = 0; n < 4; ++n)
                     {
                         offset = 0xfeed;
@@ -98,6 +104,8 @@ static int placement(void)
                                           offset};
                         mb_emit("extent", row, 7);
                     }
+                }
+            }
         }
     }
     CHECK(mb_place(0, 21, MB_SRAM1, MB_DMA2_P, MB_LINK_SOURCE, 16, 4,
@@ -158,9 +166,13 @@ static void visibility(void *p, unsigned action, uint32_t address,
     (void)address;
     (void)bytes;
     if (action == PD_RELEASE)
+    {
         ++m->release;
+    }
     if (action == PD_ACQUIRE)
+    {
         ++m->acquire;
+    }
 }
 
 static void emit_lease(unsigned event, const struct mb_lease *s,
@@ -217,7 +229,9 @@ static int lease(void)
     emit_lease(3, &s, &m);
     m.snapshot.token = 1;
     for (unsigned i = 0; i < 16; ++i)
+    {
         destination[i] = mb_dma_source[i];
+    }
     CHECK(mb_poll(&s, io, 1) == PD_OK && s.transfer.phase == 3);
     CHECK(mb_cpu_write(&s, 0, 99) == PD_BUSY && mb_dma_source[0] == 42);
     CHECK(mb_cpu_read(&s, 0, &value) == PD_BUSY && value == 99);
@@ -242,16 +256,23 @@ static int arbitration(void)
     struct mb_bus_config c = {7, {1, 1, 1}, {0, 0, 0}, 2, 1, 0};
     CHECK(mb_arbitrate(c, &r) == MB_OK && r.count == 6);
     for (unsigned i = 0; i < 6; ++i)
+    {
         CHECK(r.master[i] == i % 3 && r.start[i] == i && r.finish[i] == i + 1);
+    }
     for (unsigned mask = 1; mask <= 7; ++mask)
+    {
         for (unsigned mode = 0; mode < 2; ++mode)
         {
             c = (struct mb_bus_config){mask, {2, 4, 1}, {0, 1, 2}, 3, 4, 2};
             if (!mode)
+            {
                 c = (struct mb_bus_config){mask, {1, 1, 1}, {0, 0, 0}, 3, 1, 0};
+            }
             CHECK(mb_arbitrate(c, &r) == MB_OK);
             if (mode && mask == 7)
+            {
                 CHECK(r.finish[2] == 13 && r.wait[3] == 11);
+            }
             for (unsigned i = 0; i < r.count; ++i)
             {
                 CHECK(r.wait[i] <= r.bound);
@@ -261,6 +282,7 @@ static int arbitration(void)
                 mb_emit("grant", row, 8);
             }
         }
+    }
     old = r;
     c.max_beats = 0;
     CHECK(mb_arbitrate(c, &r) == MB_INVALID && equal(&r, &old, sizeof(r)));
@@ -296,14 +318,24 @@ static int bridge(void)
 int mb_test(const char *s)
 {
     if (name(s, "topology"))
+    {
         return topology();
+    }
     if (name(s, "placement"))
+    {
         return placement();
+    }
     if (name(s, "lease"))
+    {
         return lease();
+    }
     if (name(s, "arbitration"))
+    {
         return arbitration();
+    }
     if (name(s, "bridge"))
+    {
         return bridge();
+    }
     return 42;
 }

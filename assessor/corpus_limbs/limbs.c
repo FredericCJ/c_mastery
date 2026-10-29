@@ -5,11 +5,17 @@
 static int view(struct bl_view a)
 {
     if (a.used && (!a.digits || a.digits[a.used - 1] == 0))
+    {
         return 0;
+    }
 #if BL_BITS == 8
     for (size_t i = 0; i < a.used; i++)
+    {
         if (a.digits[i] > BL_MASK)
+        {
             return 0;
+        }
+    }
 #endif
     return 1;
 }
@@ -22,19 +28,25 @@ static int output(const struct bl_output *o)
 static size_t trim(const uint16_t *a, size_t n)
 {
     while (n && !a[n - 1])
+    {
         n--;
+    }
     return n;
 }
 
 static int compare(const uint16_t *a, size_t an, const uint16_t *b, size_t bn)
 {
     if (an != bn)
+    {
         return an > bn ? 1 : -1;
+    }
     while (an)
     {
         an--;
         if (a[an] != b[an])
+        {
             return a[an] > b[an] ? 1 : -1;
+        }
     }
     return 0;
 }
@@ -42,7 +54,9 @@ static int compare(const uint16_t *a, size_t an, const uint16_t *b, size_t bn)
 static void publish(struct bl_output *o, const uint16_t *s, size_t n)
 {
     for (size_t i = 0; i < n; i++)
+    {
         o->digits[i] = s[i];
+    }
     o->used = n;
 }
 
@@ -51,11 +65,17 @@ static enum bl_status stage(struct bl_view a, struct bl_view b,
                             size_t need)
 {
     if (!view(a) || !view(b) || !output(o))
+    {
         return BL_INVALID;
+    }
     if (sn < need)
+    {
         return BL_FULL;
+    }
     if (need && !s)
+    {
         return BL_INVALID;
+    }
     return BL_OK;
 }
 
@@ -64,10 +84,14 @@ enum bl_status bl_add(struct bl_view a, struct bl_view b, struct bl_output *o,
 {
     size_t n = a.used > b.used ? a.used : b.used;
     if (n == SIZE_MAX)
+    {
         return BL_FULL;
+    }
     enum bl_status r = stage(a, b, o, s, sn, n + 1);
     if (r != BL_OK)
+    {
         return r;
+    }
     uint32_t carry = 0;
     for (size_t i = 0; i < n; i++)
     {
@@ -79,7 +103,9 @@ enum bl_status bl_add(struct bl_view a, struct bl_view b, struct bl_output *o,
     s[n] = (uint16_t)carry;
     n = trim(s, n + 1);
     if (n > o->capacity)
+    {
         return BL_FULL;
+    }
     publish(o, s, n);
     return BL_OK;
 }
@@ -101,13 +127,19 @@ enum bl_status bl_sub(struct bl_view a, struct bl_view b, struct bl_output *o,
 {
     enum bl_status r = stage(a, b, o, s, sn, a.used);
     if (r != BL_OK)
+    {
         return r;
+    }
     if (compare(a.digits, a.used, b.digits, b.used) < 0)
+    {
         return BL_NEGATIVE;
+    }
     subtract(s, a.digits, a.used, b.digits, b.used);
     size_t n = trim(s, a.used);
     if (n > o->capacity)
+    {
         return BL_FULL;
+    }
     publish(o, s, n);
     return BL_OK;
 }
@@ -116,13 +148,19 @@ enum bl_status bl_mul(struct bl_view a, struct bl_view b, struct bl_output *o,
                       uint16_t *s, size_t sn)
 {
     if (a.used > SIZE_MAX - b.used)
+    {
         return BL_FULL;
+    }
     size_t n = a.used + b.used;
     enum bl_status r = stage(a, b, o, s, sn, n);
     if (r != BL_OK)
+    {
         return r;
+    }
     for (size_t i = 0; i < n; i++)
+    {
         s[i] = 0;
+    }
     for (size_t i = 0; i < a.used; i++)
     {
         uint32_t carry = 0;
@@ -133,11 +171,15 @@ enum bl_status bl_mul(struct bl_view a, struct bl_view b, struct bl_output *o,
             carry = t >> BL_BITS;
         }
         if (BL_MUTANT != 3)
+        {
             s[i + b.used] = (uint16_t)carry;
+        }
     }
     n = trim(s, n);
     if (n > o->capacity)
+    {
         return BL_FULL;
+    }
     publish(o, s, n);
     return BL_OK;
 }
@@ -146,20 +188,32 @@ enum bl_status bl_div(struct bl_view a, struct bl_view b, struct bl_output *q,
                       struct bl_output *r, uint16_t *s, size_t sn)
 {
     if (!view(a) || !view(b) || !output(q) || !output(r) || q == r)
+    {
         return BL_INVALID;
+    }
     if (!b.used)
+    {
         return BL_ZERO_DIVISOR;
+    }
     if (a.used > SIZE_MAX - b.used || a.used + b.used == SIZE_MAX)
+    {
         return BL_FULL;
+    }
     size_t need = a.used + b.used + 1;
     if (sn < need)
+    {
         return BL_FULL;
+    }
     if (!s)
+    {
         return BL_INVALID;
+    }
     uint16_t *rem = s + a.used;
     size_t rn = 0;
     for (size_t i = 0; i < need; i++)
+    {
         s[i] = 0;
+    }
     size_t limb = a.used;
     while (limb)
     {
@@ -176,7 +230,9 @@ enum bl_status bl_div(struct bl_view a, struct bl_view b, struct bl_output *q,
                 carry = t >> BL_BITS;
             }
             if (carry)
+            {
                 rem[rn++] = (uint16_t)carry;
+            }
             if (compare(rem, rn, b.digits, b.used) >= (BL_MUTANT == 4 ? 1 : 0))
             {
                 subtract(rem, rem, rn, b.digits, b.used);
@@ -187,7 +243,9 @@ enum bl_status bl_div(struct bl_view a, struct bl_view b, struct bl_output *q,
     }
     size_t qn = trim(s, a.used);
     if (qn > q->capacity || rn > r->capacity)
+    {
         return BL_FULL;
+    }
     publish(q, s, qn);
     publish(r, rem, rn);
     return BL_OK;
@@ -203,7 +261,9 @@ enum bl_status bl_signed_add(struct bl_signed a, struct bl_signed b,
                              struct bl_signed_output *o, uint16_t *s, size_t sn)
 {
     if (!o || !signed_view(a) || !signed_view(b))
+    {
         return BL_INVALID;
+    }
     int sign;
     enum bl_status status;
     if (a.sign == b.sign || !a.sign || !b.sign)
@@ -223,7 +283,9 @@ enum bl_status bl_signed_add(struct bl_signed a, struct bl_signed b,
         status = bl_sub(b.magnitude, a.magnitude, &o->magnitude, s, sn);
     }
     if (status == BL_OK)
+    {
         o->sign = o->magnitude.used ? sign : 0;
+    }
     return status;
 }
 
@@ -232,7 +294,9 @@ enum bl_status bl_signed_div(struct bl_signed a, struct bl_signed b,
                              struct bl_signed_output *r, uint16_t *s, size_t sn)
 {
     if (!q || !r || q == r || !signed_view(a) || !signed_view(b))
+    {
         return BL_INVALID;
+    }
     enum bl_status status =
         bl_div(a.magnitude, b.magnitude, &q->magnitude, &r->magnitude, s, sn);
     if (status == BL_OK)
@@ -247,7 +311,9 @@ enum bl_status bl_owner_init(struct bl_owner *o, void *ctx, bl_allocate_fn a,
                              bl_free_fn f)
 {
     if (!o || !a || !f)
+    {
         return BL_INVALID;
+    }
     o->digits = NULL;
     o->used = 0;
     o->capacity = 0;
@@ -261,37 +327,51 @@ enum bl_status bl_owner_set(struct bl_owner *o, struct bl_view v,
                             size_t reserve)
 {
     if (!o || !o->allocate || !o->release || !view(v) || reserve < v.used)
+    {
         return BL_INVALID;
+    }
     if (reserve > SIZE_MAX / sizeof(uint16_t))
+    {
         return BL_FULL;
+    }
     uint16_t *next = NULL;
     if (reserve)
     {
         next = o->allocate(o->context, reserve);
         if (!next)
+        {
             return BL_ALLOCATION;
+        }
     }
     for (size_t i = 0; i < v.used; i++)
+    {
         next[i] = v.digits[i];
+    }
     uint16_t *old = o->digits;
     size_t capacity = o->capacity;
     o->digits = next;
     o->used = v.used;
     o->capacity = reserve;
     if (old && BL_MUTANT != 6)
+    {
         o->release(o->context, old, capacity);
+    }
     return BL_OK;
 }
 
 void bl_owner_drop(struct bl_owner *o)
 {
     if (!o)
+    {
         return;
+    }
     uint16_t *old = o->digits;
     size_t capacity = o->capacity;
     o->digits = NULL;
     o->used = 0;
     o->capacity = 0;
     if (old)
+    {
         o->release(o->context, old, capacity);
+    }
 }

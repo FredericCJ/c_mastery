@@ -65,9 +65,13 @@ static size_t find(uint32_t id, size_t *probes)
         size_t mid = lo + (hi - lo) / 2;
         ++*probes;
         if (names[mid].id < id)
+        {
             lo = mid + 1;
+        }
         else
+        {
             hi = mid;
+        }
     }
     return lo < LR_COMMAND_COUNT && names[lo].id == id ? lo : LR_COMMAND_COUNT;
 }
@@ -98,12 +102,16 @@ int lr_dispatch(uint32_t id, int x, int *out)
 {
     size_t n, i;
     if (!out || x < 0 || x > 100)
+    {
         return -1;
+    }
     i = find(id, &n);
     if (i == LR_COMMAND_COUNT)
     {
         if (LR_MUTANT == 1)
+        {
             *out = 0;
+        }
         return -1;
     }
     *out = dispatch[i].handler(x);
@@ -114,10 +122,14 @@ int lr_name(uint32_t id, const char **out)
 {
     size_t n, i;
     if (!out)
+    {
         return -1;
+    }
     i = find(id, &n);
     if (i == LR_COMMAND_COUNT)
+    {
         return -1;
+    }
     *out = names[LR_MUTANT == 2 ? 0 : i].name;
     return 0;
 }
@@ -125,26 +137,34 @@ int lr_name(uint32_t id, const char **out)
 int lr_id(const char *name, uint32_t *out)
 {
     if (!name || !out)
+    {
         return -1;
+    }
     for (size_t i = 0; i < LR_COMMAND_COUNT; ++i)
+    {
         if (equal(name, names[i].name))
         {
             *out = names[i].id;
             return 0;
         }
+    }
     for (size_t i = 0; i < sizeof aliases / sizeof *aliases; ++i)
+    {
         if (aliases[i].name && equal(name, aliases[i].name))
         {
             *out = aliases[i].id;
             return 0;
         }
+    }
     return -1;
 }
 
 int lr_at(size_t i, uint32_t *id, const char **name)
 {
     if (!id || !name || i >= LR_COMMAND_COUNT)
+    {
         return -1;
+    }
     *id = names[i].id;
     *name = names[i].name;
     return 0;

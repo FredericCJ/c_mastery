@@ -8,19 +8,29 @@ static int stream(void)
     while (scanf("%u%u%u%u", &n, &cpus, &h, &demand_flag) == 4)
     {
         if (!n || n > RP_TASKS || !cpus || cpus > RP_CPUS)
+        {
             return 2;
+        }
         struct rp_task t[RP_TASKS];
         for (unsigned i = 0; i < n; i++)
         {
             unsigned period, deadline, affinity, cost[RP_CPUS] = {0};
             if (scanf("%u%u%u", &period, &deadline, &affinity) != 3)
+            {
                 return 2;
+            }
             for (unsigned c = 0; c < cpus; c++)
+            {
                 if (scanf("%u", &cost[c]) != 1)
+                {
                     return 2;
+                }
+            }
             t[i] = job(cost[0], period, deadline, affinity);
             for (unsigned c = 0; c < cpus; c++)
+            {
                 t[i].cost[c] = cost[c];
+            }
         }
         struct rp_plan p = {0}, e = {0};
         enum rp_status a = rp_fit(t, n, cpus, h, demand_flag, &p),
@@ -29,21 +39,29 @@ static int stream(void)
         if (a == RP_OK)
         {
             for (unsigned i = 0; i < n; i++)
+            {
                 printf(" %u", p.cpu[i]);
+            }
             for (unsigned c = 0; c < cpus; c++)
+            {
                 printf(" %u", p.used[c]);
+            }
             cmx_sim_result r;
             enum rp_status s = rp_simulate(t, n, &p, &r);
             printf(" S %u", s);
             if (s == RP_OK)
+            {
                 printf(" %u %u %u %u", r.work, r.completed, r.misses,
                        r.migrations);
+            }
         }
         if (b == RP_OK)
         {
             printf(" E");
             for (unsigned i = 0; i < n; i++)
+            {
                 printf(" %u", e.cpu[i]);
+            }
         }
         puts("");
     }
@@ -53,22 +71,38 @@ static int stream(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "stream"))
+    {
         return stream();
+    }
     int result;
     if (!strcmp(argv[1], "packing"))
+    {
         result = packing();
+    }
     else if (!strcmp(argv[1], "transaction"))
+    {
         result = transaction();
+    }
     else if (!strcmp(argv[1], "demand"))
+    {
         result = demand();
+    }
     else if (!strcmp(argv[1], "affinity"))
+    {
         result = affinity();
+    }
     else if (!strcmp(argv[1], "handoff"))
+    {
         result = handoff();
+    }
     else
+    {
         return 2;
+    }
     if (result)
     {
         printf("RP_CHECK:%d\n", result);

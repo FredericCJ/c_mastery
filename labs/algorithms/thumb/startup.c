@@ -68,12 +68,16 @@ static void exercise(void)
         const uint32_t ancestor_before[] = {10, 1, 9, 20, 0};
         REQUIRE(algo_checked_sift(ancestor_bad, 5, 5, 1) == ALGO_BAD);
         for (unsigned i = 0; i < 5; ++i)
+        {
             REQUIRE(ancestor_bad[i] == ancestor_before[i]);
+        }
         uint32_t internal[] = {30, 1, 9, 20, 0};
         const uint32_t internal_expected[] = {30, 20, 9, 1, 0};
         REQUIRE(algo_checked_sift(internal, 5, 5, 1) == ALGO_OK);
         for (unsigned i = 0; i < 5; ++i)
+        {
             REQUIRE(internal[i] == internal_expected[i]);
+        }
     }
     REQUIRE(algo_abi_probe(0, 0, 3, &out) == 1 && out == 0);
     for (unsigned trial = 0; trial < 500; ++trial)
@@ -100,9 +104,13 @@ static void exercise(void)
             {
                 unsigned least = i;
                 for (unsigned j = i + 1; j < n; ++j)
+                {
                     if (a[j].key < a[least].key ||
                         (a[j].key == a[least].key && a[j].tag < a[least].tag))
+                    {
                         least = j;
+                    }
+                }
                 algo_pair saved = a[i];
                 a[i] = a[least];
                 a[least] = saved;
@@ -115,15 +123,19 @@ static void exercise(void)
             seen |= 1u << a[i].tag;
             REQUIRE(before[a[i].tag].key == a[i].key);
             if (i)
+            {
                 REQUIRE(a[i - 1].key < a[i].key ||
                         (a[i - 1].key == a[i].key && a[i - 1].tag < a[i].tag));
+            }
             words[i] = a[i].key;
         }
         for (unsigned q = 0; q < 12; ++q)
         {
             uint32_t key = q == 0 ? UINT32_MAX : random_word(), expected = 0;
             while (expected < n && words[expected] < key)
+            {
                 ++expected;
+            }
             REQUIRE(algo_abi_probe(words, n, key, &out) == 1 &&
                     out == expected);
         }
@@ -131,13 +143,19 @@ static void exercise(void)
         {
             uint32_t heap[33], original[33];
             for (unsigned i = 0; i < 33; ++i)
+            {
                 heap[i] = 1000 - i;
+            }
             heap[0] = random_word() % 900;
             for (unsigned i = 0; i < 33; ++i)
+            {
                 original[i] = heap[i];
+            }
             REQUIRE(algo_abi_sift_probe(heap, 33, 0, &out) == 1);
             for (unsigned i = 1; i < 33; ++i)
+            {
                 REQUIRE(heap[(i - 1) / 2] >= heap[i]);
+            }
             /* Independent multiset count, deliberately quadratic and bounded. */
             for (unsigned i = 0; i < 33; ++i)
             {
@@ -153,7 +171,9 @@ static void exercise(void)
     }
     static uint32_t repeated[1024];
     for (unsigned i = 0; i < 1024; ++i)
+    {
         repeated[i] = 0x80000000u;
+    }
     REQUIRE(algo_abi_probe(repeated, 1024, UINT32_MAX, &out) == 1 &&
             out == 1024);
     REQUIRE(algo_asm_lower(repeated, 1024, 0x80000000u) == 0);
@@ -167,10 +187,14 @@ void reset(void)
     uintptr_t src = (uintptr_t)&__data_load;
     for (uintptr_t p = (uintptr_t)&__data_start; p < (uintptr_t)&__data_end;
          p += sizeof(uint32_t), src += sizeof(uint32_t))
+    {
         *(uint32_t *)p = *(const uint32_t *)src;
+    }
     for (uintptr_t p = (uintptr_t)&__bss_start; p < (uintptr_t)&__bss_end;
          p += sizeof(uint32_t))
+    {
         *(uint32_t *)p = 0;
+    }
     exercise();
     stop(0);
 }

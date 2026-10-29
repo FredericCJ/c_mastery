@@ -5,7 +5,9 @@
 static int add(uint64_t a, uint64_t b, uint64_t *out)
 {
     if (b > UINT64_MAX - a)
+    {
         return 0;
+    }
     *out = a + b;
     return 1;
 }
@@ -16,12 +18,16 @@ static int multiply(uint64_t a, uint64_t b, uint64_t *out)
     while (b)
     {
         if ((b & 1) && !add(result, a, &result))
+        {
             return 0;
+        }
         b >>= 1;
         if (b)
         {
             if (a > UINT64_MAX / 2)
+            {
                 return 0;
+            }
             a <<= 1;
         }
     }
@@ -54,21 +60,31 @@ enum rta_status rta_ceil_sum(uint64_t a, uint64_t b, uint64_t divisor,
                              uint64_t *out)
 {
     if (!divisor || !out)
+    {
         return RTA_INVALID;
+    }
     uint64_t ar, br, aq = divide(a, divisor, &ar), bq = divide(b, divisor, &br),
                      whole, rem;
     if (!add(aq, bq, &whole))
+    {
         return RTA_OVERFLOW;
+    }
     if (ar >= divisor - br)
     {
         if (!add(whole, 1, &whole))
+        {
             return RTA_OVERFLOW;
+        }
         rem = ar - (divisor - br);
     }
     else
+    {
         rem = ar + br;
+    }
     if (rem && RTA_MUTANT != 1 && !add(whole, 1, &whole))
+    {
         return RTA_OVERFLOW;
+    }
     *out = whole;
     return RTA_CONVERGED;
 }
@@ -78,17 +94,27 @@ enum rta_status rta_response(const struct rta_task *tasks, unsigned count,
                              struct rta_result *out)
 {
     if (RTA_MUTANT == 6 && out)
+    {
         out->trace[0] = 0;
+    }
     if (!tasks || !out || !count || count > RTA_TASKS || target >= count ||
         !limit || limit > RTA_STEPS)
+    {
         return RTA_INVALID;
+    }
     for (unsigned i = 0; i < count; i++)
+    {
         if (!tasks[i].period || !tasks[i].deadline)
+        {
             return RTA_INVALID;
+        }
+    }
     uint64_t base;
     if (!add(tasks[target].cost, tasks[target].overhead, &base) ||
         !add(base, RTA_MUTANT == 2 ? 0 : tasks[target].blocking, &base))
+    {
         return RTA_OVERFLOW;
+    }
     struct rta_result result = {.estimate = base};
     result.trace[0] = base;
     if (!base)
@@ -111,11 +137,15 @@ enum rta_status rta_response(const struct rta_task *tasks, unsigned count,
                 result.estimate, RTA_MUTANT == 4 ? 0 : tasks[h].jitter,
                 tasks[h].period, &arrivals);
             if (status != RTA_CONVERGED)
+            {
                 return status;
+            }
             if (!add(tasks[h].cost, RTA_MUTANT == 5 ? 0 : tasks[h].overhead,
                      &cost) ||
                 !multiply(arrivals, cost, &work) || !add(next, work, &next))
+            {
                 return RTA_OVERFLOW;
+            }
         }
         result.iterations = iteration + 1;
         result.trace[result.iterations] = next;

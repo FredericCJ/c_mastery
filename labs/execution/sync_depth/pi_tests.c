@@ -21,7 +21,9 @@ static unsigned add(cmx_kernel *k, unsigned priority)
 {
     unsigned n = 0;
     while (n < CMX_TASKS && k->task[n].state != CMX_UNUSED)
+    {
         ++n;
+    }
     int t = cmx_task_add(k, priority, 0, (uintptr_t)(4096u + n * 512u), 256);
     CHECK(t >= 0);
     return (unsigned)t;
@@ -127,16 +129,22 @@ static void limits(void)
         mutex(&k, &mutexes[t], t);
     }
     for (unsigned t = 0; t + 1 < CMX_TASKS; ++t)
+    {
         CHECK(cmx_mutex_lock(&k, &mutexes[t + 1], t, cmx_forever()) ==
               CMX_BLOCKED);
+    }
     CHECK(cdpi_reprioritize(&k, 0, 1, &stats) == CMX_OK &&
           stats.vertices == 16 && stats.edges == 15 &&
           stats.donated_pairs == 120);
     for (unsigned t = 0; t < CMX_TASKS; ++t)
+    {
         CHECK(k.task[t].priority == 1);
+    }
     CHECK(cdpi_reprioritize(&k, 0, 255, &stats) == CMX_OK);
     for (unsigned t = 0; t < CMX_TASKS; ++t)
+    {
         CHECK(k.task[t].priority == 255);
+    }
     cmx_init(&k, CMX_FIXED);
     unsigned t = add(&k, 9);
     CHECK(cmx_mutex_init(&k, &mutexes[0], 5, 1) == CMX_OK);
@@ -166,8 +174,12 @@ static void schedule_trace(unsigned inherited, char *trace)
     {
         /* Explicit experiment policy projection; original CMX stays unchanged. */
         if (!inherited || CDPI_TRACE_MUTANT)
+        {
             for (unsigned t = 0; t < CMX_TASKS; ++t)
+            {
                 k.task[t].priority = k.task[t].base_priority;
+            }
+        }
         int selected = cmx_schedule(&k);
         CHECK(selected >= 0 && n < 20);
         if ((unsigned)selected == l)
@@ -176,7 +188,9 @@ static void schedule_trace(unsigned inherited, char *trace)
             CHECK(low > 0);
             --low;
             if (low == 2)
+            {
                 CHECK(cmx_mutex_unlock(&k, &b, l) == CMX_OK);
+            }
             if (!low)
             {
                 CHECK(cmx_mutex_unlock(&k, &a, l) == CMX_OK);
@@ -188,7 +202,9 @@ static void schedule_trace(unsigned inherited, char *trace)
             trace[n++] = 'M';
             CHECK(medium > 0);
             if (!--medium)
+            {
                 CHECK(cmx_sleep(&k, m, cmx_forever()) == CMX_BLOCKED);
+            }
         }
         else
         {
@@ -226,13 +242,19 @@ static void costs(void)
     {
         uint64_t start = now();
         for (unsigned i = 0; i < 1000; ++i)
+        {
             CHECK(cdpi_reprioritize(&k, l, 9 + (i & 1u), &stats) == CMX_OK);
+        }
         uint64_t elapsed = now() - start;
         CHECK(elapsed > 0);
         if (elapsed < smallest)
+        {
             smallest = elapsed;
+        }
         if (elapsed > largest)
+        {
             largest = elapsed;
+        }
         total += elapsed;
     }
     CHECK(k.task[l].base_priority == 10 && k.task[l].priority == 3);
@@ -256,9 +278,13 @@ static void costs(void)
         uint64_t elapsed = now() - start;
         CHECK(elapsed > 0);
         if (elapsed < critical_min)
+        {
             critical_min = elapsed;
+        }
         if (elapsed > critical_max)
+        {
             critical_max = elapsed;
+        }
     }
     CHECK(balance == 31000 && checksum == ~balance);
     printf(
@@ -271,16 +297,28 @@ static void costs(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "chain"))
+    {
         chain();
+    }
     else if (!strcmp(argv[1], "nested"))
+    {
         nested();
+    }
     else if (!strcmp(argv[1], "limits"))
+    {
         limits();
+    }
     else if (!strcmp(argv[1], "costs"))
+    {
         costs();
+    }
     else
+    {
         return 2;
+    }
     return 0;
 }

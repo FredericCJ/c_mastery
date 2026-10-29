@@ -72,7 +72,9 @@ int main(void)
           duration.lower_ns == 333333333);
     struct dt_interval overflow[8];
     for (unsigned i = 0; i < 8; i++)
+    {
         overflow[i] = (struct dt_interval){0, UINT32_MAX, 1, 32};
+    }
     CHECK(dt_duration(overflow, 8, &duration) == DT_RANGE);
     struct dt_image image = {9, 9};
     CHECK(dt_image(0x08000000, 1024, 256, &image) == DT_OK &&
@@ -85,7 +87,9 @@ int main(void)
     const unsigned char init[8] = {1, 2, 3, 4, 5, 6, 7, 8};
     CHECK(dt_startup(&ram, init, 0, 17) == DT_OK && !ram.crash.valid);
     for (unsigned i = 0; i < 8; i++)
+    {
         CHECK(ram.data[i] == init[i] && ram.bss[i] == 0);
+    }
     CHECK(dt_record(&ram.crash, 17, 42) == DT_OK);
     CHECK(dt_startup(&ram, init, 1, 17) == DT_OK && ram.crash.code == 42);
     ram.crash.version = 2;

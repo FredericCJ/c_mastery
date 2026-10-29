@@ -8,18 +8,24 @@
 static void put(unsigned char *p, uint32_t v)
 {
     for (unsigned i = 0; i < 4; ++i)
+    {
         p[i] = (unsigned char)(v >> (8 * i));
+    }
 }
 
 int main(int argc, char **argv)
 {
     if (argc != 7)
+    {
         return 2;
+    }
     unsigned core = (unsigned)strtoul(argv[1], 0, 0),
              slot = (unsigned)strtoul(argv[2], 0, 0),
              gen = (unsigned)strtoul(argv[3], 0, 0);
     if (core > 1 || slot > 1 || !gen)
+    {
         return 2;
+    }
     unsigned char image[2144], payload[2049],
         seed[32] = {0x9d, 0x61, 0xb1, 0x9d, 0xef, 0xfd, 0x5a, 0x60,
                     0xba, 0x84, 0x4a, 0xf4, 0x92, 0xec, 0x2c, 0xc4,
@@ -28,11 +34,15 @@ int main(int argc, char **argv)
         secret[64];
     FILE *f = fopen(argv[4], "rb");
     if (!f)
+    {
         return 3;
+    }
     size_t n = fread(payload, 1, sizeof payload, f);
     int err = ferror(f);
     if (fclose(f) || err || n > 2048 || n < 514)
+    {
         return 3;
+    }
     memset(image, 255, sizeof image);
     memset(image, 0, 32);
     uint32_t base = 0x08020200u + core * 0x40000u + slot * 0x20000u;
@@ -54,13 +64,19 @@ int main(int argc, char **argv)
     struct fb_image admitted;
     if (!fb_admit(&policy, layout, core, image, n + 32, image + 2080,
                   &admitted))
+    {
         return 4;
+    }
     f = fopen(argv[5], "wb");
     if (!f)
+    {
         return 3;
+    }
     size_t w = fwrite(image, 1, sizeof image, f);
     if (fclose(f) || w != sizeof image)
+    {
         return 3;
+    }
     unsigned char frame[2156] = {0};
     memcpy(frame, "B6UP", 4);
     frame[4] = 1;
@@ -72,10 +88,14 @@ int main(int argc, char **argv)
     memcpy(frame + 44 + n, image + 2080, 64);
     f = fopen(argv[6], "wb");
     if (!f)
+    {
         return 3;
+    }
     w = fwrite(frame, 1, n + 108, f);
     if (fclose(f) || w != n + 108)
+    {
         return 3;
+    }
     printf("TH_PACK_PASS:core%u slot%u gen%u payload%zu vector%08x entry%08x\n",
            core, slot, gen, n, admitted.base, admitted.entry);
     return 0;

@@ -11,7 +11,9 @@ static void *allocate(void *c, size_t n)
 {
     (void)c;
     if (fail_allocation)
+    {
         return NULL;
+    }
     allocation = malloc(n);
     return allocation;
 }
@@ -55,17 +57,29 @@ static void *worker(void *arg)
     if (c->late)
     {
         if (pthread_mutex_lock(&c->gate))
+        {
             return c;
+        }
         c->ready = 1;
         if (pthread_cond_signal(&c->condition))
+        {
             return c;
+        }
         while (!c->go)
+        {
             if (pthread_cond_wait(&c->condition, &c->gate))
+            {
                 return c;
+            }
+        }
         if (pthread_mutex_unlock(&c->gate))
+        {
             return c;
+        }
         if (mc_shared_add(c->owner, 7) || mc_shared_read(c->owner, &c->out))
+        {
             return c;
+        }
     }
     else
     {
@@ -73,14 +87,22 @@ static void *worker(void *arg)
         {
             int status = pthread_barrier_wait(c->barrier);
             if (status && status != PTHREAD_BARRIER_SERIAL_THREAD)
+            {
                 return c;
+            }
         }
         for (unsigned i = 0; i < 10000; ++i)
+        {
             if (mc_shared_add(c->owner, 1))
+            {
                 return c;
+            }
+        }
     }
     if (mc_shared_drop(&c->owner))
+    {
         return c;
+    }
     return NULL;
 }
 
@@ -124,7 +146,9 @@ int main(int argc, char **argv)
     {
         REQUIRE(pthread_mutex_lock(&context.gate) == 0);
         while (!context.ready)
+        {
             REQUIRE(pthread_cond_wait(&context.condition, &context.gate) == 0);
+        }
         REQUIRE(mc_shared_drop(&main_owner) == 0 && !main_owner && !frees);
         REQUIRE(mc_shared_finish(&state) == -1);
         context.go = 1;
@@ -149,7 +173,9 @@ int main(int argc, char **argv)
             REQUIRE(status == 0 || status == PTHREAD_BARRIER_SERIAL_THREAD);
         }
         for (unsigned i = 0; i < 10000; ++i)
+        {
             REQUIRE(mc_shared_add(main_owner, 1) == 0);
+        }
         if (!serial)
         {
             REQUIRE(pthread_join(thread, &result) == 0 && !result);

@@ -34,7 +34,7 @@ CANONICAL_MARKDOWN = ("curriculum/projects/", "curriculum/modules/", "curriculum
                       "curriculum/v5/expansion/legacy_assessments/", "labs/", "assessor/")
 CANONICAL_JSON = ("curriculum/v5/expansion/legacy_assessments/", "curriculum/v5/routes/contextual-v1.source.json",
                   "fixtures/", "labs/", "assessor/")
-PYTHON = ("tools/", "labs/", "assessor/", "research/v5/expansion/b06/", "research/v5/modern/")
+PYTHON = ("tools/", "labs/", "assessor/")  # research/ recipes are historical inputs: never edited
 GENERATED = {"curriculum/v5/exercises.json", "curriculum/v5/routes/contextual-v1.json",
              "curriculum/v5/routes/coverage.json", "curriculum/v5/routes/criterion_resolutions.json",
              "curriculum/v5/routes/migration.json"}

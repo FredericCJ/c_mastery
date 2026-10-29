@@ -28,7 +28,9 @@ int pl_cost_generated(volatile uint32_t *regs, uint8_t b, uint32_t timeout)
 int pl_cost_vendor(volatile uint32_t *regs, uint8_t b, uint32_t timeout)
 {
     if (!regs || timeout >= 0x80000000u)
+    {
         return PL_INVALID;
+    }
     UART_HandleTypeDef u = {0};
     u.Instance = (USART_TypeDef *)regs;
     u.Init.WordLength = UART_WORDLENGTH_8B;

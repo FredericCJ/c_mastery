@@ -5,10 +5,14 @@ int mc_shared_init(struct mc_shared *s, struct mc_allocator a)
 {
     unsigned *p;
     if (!s || s->initialized || !a.allocate || !a.release)
+    {
         return -1;
+    }
     p = a.allocate(a.context, sizeof *p);
     if (!p)
+    {
         return -1;
+    }
     *p = 0;
     if (pthread_mutex_init(&s->mutex, NULL))
     {
@@ -27,7 +31,9 @@ int mc_shared_retain(struct mc_shared *s, struct mc_shared **out)
 {
     int status = -1;
     if (!s || !out || !s->initialized || pthread_mutex_lock(&s->mutex))
+    {
         return -1;
+    }
     if (s->value && s->references < 3)
     {
 #ifndef MC_MUTANT_RETAIN
@@ -37,7 +43,9 @@ int mc_shared_retain(struct mc_shared *s, struct mc_shared **out)
         status = 0;
     }
     if (pthread_mutex_unlock(&s->mutex))
+    {
         return -1;
+    }
     return status;
 }
 
@@ -45,10 +53,14 @@ int mc_shared_add(struct mc_shared *s, unsigned amount)
 {
     int status = -1;
     if (!s || !s->initialized)
+    {
         return -1;
+    }
 #ifndef MC_MUTANT_RACE
     if (pthread_mutex_lock(&s->mutex))
+    {
         return -1;
+    }
 #endif
     if (s->value && amount <= UINT_MAX - *s->value)
     {
@@ -57,7 +69,9 @@ int mc_shared_add(struct mc_shared *s, unsigned amount)
     }
 #ifndef MC_MUTANT_RACE
     if (pthread_mutex_unlock(&s->mutex))
+    {
         return -1;
+    }
 #endif
     return status;
 }
@@ -66,14 +80,18 @@ int mc_shared_read(struct mc_shared *s, unsigned *out)
 {
     int status = -1;
     if (!s || !out || !s->initialized || pthread_mutex_lock(&s->mutex))
+    {
         return -1;
+    }
     if (s->value)
     {
         *out = *s->value;
         status = 0;
     }
     if (pthread_mutex_unlock(&s->mutex))
+    {
         return -1;
+    }
     return status;
 }
 
@@ -82,7 +100,9 @@ int mc_shared_drop(struct mc_shared **owner)
     struct mc_shared *s;
     if (!owner || !(s = *owner) || !s->initialized ||
         pthread_mutex_lock(&s->mutex))
+    {
         return -1;
+    }
     if (!s->references)
     {
         (void)pthread_mutex_unlock(&s->mutex);
@@ -102,14 +122,18 @@ int mc_shared_drop(struct mc_shared **owner)
 int mc_shared_finish(struct mc_shared *s)
 {
     if (!s || !s->initialized || pthread_mutex_lock(&s->mutex))
+    {
         return -1;
+    }
     if (s->references)
     {
         (void)pthread_mutex_unlock(&s->mutex);
         return -1;
     }
     if (pthread_mutex_unlock(&s->mutex) || pthread_mutex_destroy(&s->mutex))
+    {
         return -1;
+    }
     s->initialized = 0;
     return 0;
 }

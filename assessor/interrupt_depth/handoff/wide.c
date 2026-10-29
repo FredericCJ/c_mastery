@@ -3,7 +3,9 @@
 int xi_wide_add(struct xi_wide *p, uint32_t n)
 {
     if (!p)
+    {
         return XI_INVALID;
+    }
     uint32_t mask = xi_primask_enter(), low = p->low + n;
     unsigned carry = low < p->low;
     int rc = carry && p->high == UINT32_MAX ? XI_EXHAUSTED : XI_OK;

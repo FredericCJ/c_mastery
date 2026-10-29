@@ -24,7 +24,9 @@ static struct cvm_program program(uint8_t service, int32_t n, int boolean)
     unsigned i = 0;
     uint32_t u = (uint32_t)n;
     if (boolean)
+    {
         p.code[i++] = OP_TRUE;
+    }
     else
     {
         p.code[i++] = OP_INT;
@@ -205,7 +207,9 @@ static int uncertain_assignment(void)
         CHECK(call(&host, 2, 0, 1, 0, &out) == CVM_OK &&
               out.integer == (persist ? 20 : 10));
         if (out.integer != 20)
+        {
             CHECK(call(&host, 1, 20, 1, 0, &out) == CVM_OK);
+        }
         CHECK(out.integer == 20);
     }
     puts("VH_UNCERTAIN_PASS same_HOST_ERROR_old10_or_committed20");
@@ -245,7 +249,9 @@ static int receipts(void)
     CHECK(call(&host, 1, 15, 1, 0, &out) == CVM_OK);
     uint8_t last[17] = {1};
     for (unsigned i = 1; i < 9; i++)
+    {
         last[i] = 255;
+    }
     last[9] = 1;
     last[13] = 15;
     CHECK(store_begin(&database) == STORE_OK);
@@ -273,6 +279,7 @@ static int crash_increment(void)
     host.operation_id = 1;
     unsigned old = 0, newer = 0;
     for (unsigned mode = 0; mode < 2; mode++)
+    {
         for (unsigned cut = 1; cut <= 37; cut++)
         {
             disk = snapshot;
@@ -292,13 +299,18 @@ static int crash_increment(void)
             CHECK(out.integer == (committed ? 15 : 10));
             CHECK((r == STORE_OK && n == 17) == committed);
             if (committed)
+            {
                 newer++;
+            }
             else
+            {
                 old++;
+            }
             CHECK(call(&host, 3, 5, 1, 0, &out) == CVM_OK && out.integer == 15);
             CHECK(recover() == 0);
             CHECK(call(&host, 2, 0, 1, 0, &out) == CVM_OK && out.integer == 15);
         }
+    }
     CHECK(old == 72 && newer == 2);
     puts(
         "VH_CRASH_PASS cuts=74 old=72 new=2 replay_exactly_once_within_protocol");
@@ -309,7 +321,9 @@ int main(void)
 {
     if (policies() || codecs() || uncertain_assignment() || receipts() ||
         crash_increment())
+    {
         return 1;
+    }
     puts("VH_PASS actual_VM_store_capabilities_versioned_receipts");
     return 0;
 }

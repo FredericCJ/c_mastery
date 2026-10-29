@@ -52,7 +52,9 @@ static bool handle(void *p, const struct mfo_value *owner)
     struct msg_payload *v = owner->data;
     ++s->depth;
     if (s->depth > s->peak)
+    {
         s->peak = s->depth;
+    }
     ++s->calls;
     if (s->self && v->id == 1)
     {
@@ -64,7 +66,9 @@ static bool handle(void *p, const struct mfo_value *owner)
     }
     bool ok = v->id != 9999;
     if (!ok)
+    {
         s->failed = true; /* Observable synthetic effect survives failure. */
+    }
     if (v->id < 2000)
     {
         CHECK(s->seen[v->id]++ == 0);
@@ -152,7 +156,9 @@ static void wait_offer(struct mfe_executor *x)
         offered = x->input.hub.channel[0].offered;
         pthread_mutex_unlock(&x->input.hub.mutex);
         if (!offered)
+        {
             sched_yield();
+        }
     } while (!offered);
 }
 
@@ -162,7 +168,9 @@ static bool oracle_handle(void *p, const struct mfo_value *owner)
     struct msg_payload *v = owner->data;
     ++s->calls;
     if (v->id == 9999)
+    {
         s->failed = true;
+    }
     return v->id != 9999;
 }
 
@@ -224,7 +232,9 @@ static int oracle(void)
 int main(int argc, char **argv)
 {
     if (argc == 2 && !strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     struct mfe_executor x;
     struct msg_state state;
     struct mfe_event event;
@@ -273,7 +283,9 @@ int main(int argc, char **argv)
     CHECK(mfe_destroy(&x) == MSG_OK && atomic_load(&state.drops) == 2);
     init(&x, &state);
     for (unsigned i = 0; i < 8; i++)
+    {
         deliver(&x, &state, i / 4, i, 1);
+    }
     denied = make(&state, 9);
     CHECK(mfe_send(&x, 0, 1, &denied, false) == MSG_FULL && denied.data);
     mfo_drop(&denied);
@@ -321,7 +333,9 @@ int main(int argc, char **argv)
     {
         enum msg_status status = mfe_pump(&x, true, &event);
         if (status == MSG_CLOSED)
+        {
             break;
+        }
         CHECK(status == MSG_OK && event.delivery == MSG_OK);
         unsigned k = event.destination;
         /* Same per-channel FIFO order; compare a mutex-protected shared state

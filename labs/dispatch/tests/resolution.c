@@ -71,7 +71,9 @@ static void resolution(void)
     ds_resolution_cache_init(&c);
     CHECK(ds_resolution_set(&other, 0, 0, add, NULL) == DS_OK);
     for (unsigned i = 0; i < 2; ++i)
+    {
         CHECK(ds_resolution_call(&other, &c, i, i, 10, 2, &out) == DS_OK);
+    }
     CHECK(c.hits == 0 && c.misses == 2 && c.next == 0);
     CHECK(ds_resolution_call(&other, &c, 0, 0, 10, 2, &out) == DS_OK &&
           c.hits == 1 && c.next == 0);
@@ -158,10 +160,15 @@ static void oracle(void)
         ds_resolution_init(&m);
         ds_resolution_cache_init(&c);
         for (unsigned i = 0; i < 4; ++i)
+        {
             if (bits & (1u << i))
+            {
                 CHECK(ds_resolution_set(&m, keys[i][0], keys[i][1],
                                         i % 2 ? subtract : add, NULL) == DS_OK);
+            }
+        }
         for (unsigned l = 0; l < 4; ++l)
+        {
             for (unsigned r = 0; r < 4; ++r)
             {
                 int value = 91, direct = 91;
@@ -171,6 +178,7 @@ static void oracle(void)
                       value == direct);
                 printf("R %u %u %u %d %d\n", bits, l, r, status, value);
             }
+        }
         ds_resolution_cache_clear(&c);
         ds_resolution_clear(&m);
     }
@@ -181,15 +189,21 @@ int main(int argc, char **argv)
     CHECK(argc >= 2);
     test_name = argv[1];
     if (!strcmp(argv[1], "resolution"))
+    {
         resolution();
+    }
     else if (!strcmp(argv[1], "plugin_cache"))
     {
         CHECK(argc == 3);
         plugin_cache(argv[2]);
     }
     else if (!strcmp(argv[1], "oracle"))
+    {
         oracle();
+    }
     else
+    {
         CHECK(0);
+    }
     return 0;
 }

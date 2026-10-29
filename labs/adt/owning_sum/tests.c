@@ -174,17 +174,29 @@ static int trace(const char *word)
 int main(int argc, char **argv)
 {
     if (atexit(cleanup_allocations))
+    {
         return 2;
+    }
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "sum_value"))
+    {
         return values();
+    }
     if (!strcmp(argv[1], "sum_owner"))
+    {
         return owner();
+    }
     if (!strcmp(argv[1], "sum_rollback"))
+    {
         return rollback();
+    }
     if (!strcmp(argv[1], "sum_base"))
+    {
         return base();
+    }
     if (!strcmp(argv[1], "oracle"))
     {
         char line[80];
@@ -192,7 +204,9 @@ int main(int argc, char **argv)
         {
             line[strcspn(line, "\r\n")] = 0;
             if (trace(line))
+            {
                 return 1;
+            }
         }
         return 0;
     }
@@ -221,7 +235,9 @@ int main(int argc, char **argv)
             "{\"value_size\":%zu,\"tag_size\":%zu,\"iterations\":10000,\"samples\":[",
             sizeof(struct ado_value), sizeof(enum ado_tag));
         for (unsigned k = 0; k < 7; ++k)
+        {
             printf("%s%.9f", k ? "," : "", samples[k]);
+        }
         puts("]}");
         return 0;
     }

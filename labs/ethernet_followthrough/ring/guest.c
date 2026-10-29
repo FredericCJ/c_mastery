@@ -61,7 +61,9 @@ void xf_target_main(void)
     {
         int r = tests[i]();
         if (r)
+        {
             stop((unsigned)r);
+        }
     }
     en_note(
         "EN_GUEST_PASS actual-Thumb original-RAM-device-effects no-physical-Ethernet");

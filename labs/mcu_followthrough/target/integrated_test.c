@@ -27,9 +27,13 @@ static volatile uint32_t hog_iterations;
 static void log_event(unsigned value)
 {
     if (log_count < 2)
+    {
         logs[log_count++] = value;
+    }
     else
+    {
         log_drop++;
+    }
 }
 
 static void publish(unsigned value)
@@ -46,7 +50,9 @@ static void publish(unsigned value)
     }
     unsigned slot = 0;
     while (slot < 4 && owner[slot])
+    {
         slot++;
+    }
     if (slot == 4)
     {
         state[id] = 2;
@@ -76,9 +82,13 @@ void mf_tick_hook(void)
     {
         unsigned n = mf_ticks == 6 ? 12 : 1;
         if (n > max_isr_batch)
+        {
             max_isr_batch = n;
+        }
         for (unsigned i = 0; i < n; i++)
+        {
             publish(mf_ticks * 10u + i);
+        }
     }
 #endif
 }
@@ -93,7 +103,9 @@ void UART0_Handler(void)
         n++;
     }
     if (n > max_isr_batch)
+    {
         max_isr_batch = n;
+    }
     mf_unlock(p);
 }
 
@@ -122,7 +134,9 @@ static void processor(void)
         mf_unlock(p);
         volatile unsigned work = value;
         for (unsigned i = 0; i < 8; i++)
+        {
             work = work * 33u + 17u;
+        }
         p = mf_lock();
         mf_require(owner[slot] && pool[slot] == value, 234);
         owner[slot] = 0;
@@ -152,7 +166,9 @@ static void sink(void)
     for (;;)
     {
         if (mf_ticks < 18)
+        {
             continue;
+        }
         unsigned p = mf_lock();
         if (output.count)
         {
@@ -177,7 +193,9 @@ static void sink(void)
 static void failed_worker(void)
 {
     while (mf_ticks < 7)
+    {
         __asm__ volatile("nop");
+    }
     __asm__ volatile("udf #91");
     mf_require(0, 236);
 }
@@ -231,13 +249,17 @@ static void supervisor(void)
                 mf_require(state[i] == 2 || state[i] == 4 || state[i] == 5,
                            243);
                 if (state[i] != 2)
+                {
                     expected_checksum += values[i];
+                }
             }
             mf_require(received_checksum == expected_checksum &&
                            computed == consumed + dropped_sum,
                        246);
             for (unsigned i = 0; i < 4; i++)
+            {
                 mf_require(!owner[i], 244);
+            }
             mf_text(
                 "MF attempted/accepted/rejected/processed/delivered/output-drop/log-drop/max-ISR-batch\n");
             mf_number(attempted);
@@ -282,7 +304,9 @@ static void supervisor(void)
 static void hog(void)
 {
     for (;;)
+    {
         hog_iterations++;
+    }
 }
 
 void mf_main(void)
@@ -290,7 +314,9 @@ void mf_main(void)
     mf_port_init();
     void (*entry[5])(void) = {processor, sink, failed_worker, supervisor, hog};
     for (unsigned i = 0; i < 5; i++)
+    {
         handles[i] = mf_port_add(entry[i], stacks[i], 768);
+    }
 #ifdef MF_UART
     MF_REG(0x40004010) = 217;
     MF_REG(0x40004008) = 10;

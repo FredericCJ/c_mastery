@@ -46,7 +46,9 @@ int main(void)
                                   {-1, -1, 1, 2, 3, 3},
                                   {-1, -1, 1, 2, -1, -1}};
     for (unsigned s = 0; s < 4; ++s)
+    {
         for (unsigned seq = 0; seq < 8; ++seq)
+        {
             for (int e = -1; e <= 6; ++e)
             {
                 struct am_machine machine = {(enum am_state)s, seq};
@@ -69,7 +71,9 @@ int main(void)
                           expected);
                 CHECK(same(a, b) && same(b, d) && same(d, f));
                 if (expected != AS_OK)
+                {
                     CHECK(same(a, sentinel));
+                }
                 else
                 {
                     unsigned key = (e == AM_SEND) ? seq + 1 : seq;
@@ -81,6 +85,8 @@ int main(void)
                 }
                 ++cells;
             }
+        }
+    }
     struct am_transition out;
     CHECK(am_sparse(70, 1, AM_ACK, &out) == AS_INVALID);
     CHECK(am_table((struct am_machine){(enum am_state)99, 0}, AM_SEND, &out) ==
@@ -108,7 +114,9 @@ int main(void)
             CHECK(am_execute(&backend, out.effect) == AS_OK);
         }
         else
+        {
             CHECK(effect == AS_OK);
+        }
         CHECK(am_switch(state, AM_ACK, &out) == AS_OK &&
               out.next.state == AM_READY);
         CHECK(backend.value == 1 && backend.committed_key == 1 &&
@@ -116,7 +124,9 @@ int main(void)
     }
     struct ac_backend backends[3] = {0};
     for (unsigned i = 0; i < 3; ++i)
+    {
         backends[i].id = i;
+    }
     struct am_hot hot = {{execute, release, backends, 1}, {0}, 0, 0};
     struct am_lease old, now;
     CHECK(am_hot_acquire(&hot, &old) == AS_OK);
@@ -149,11 +159,15 @@ int main(void)
     struct am_hot limited = {{execute, release, backends, 4}, {0}, 0, 0};
     struct am_lease leases[4] = {0};
     for (unsigned i = 0; i < 3; ++i)
+    {
         CHECK(am_hot_acquire(&limited, leases + i) == AS_OK);
+    }
     CHECK(am_hot_acquire(&limited, leases + 3) == AS_INVALID &&
           !leases[3].live);
     for (unsigned i = 0; i < 3; ++i)
+    {
         CHECK(am_hot_release(&limited, leases + i) == AS_OK);
+    }
     CHECK(am_hot_close(&limited) == AS_OK && released[0] == 2);
     printf(
         "REDUCER-PASS:cells=%u;effect_histories=3;hot_backends=3;machine=%zu;transition=%zu;hot=%zu;lease=%zu\n",

@@ -21,7 +21,9 @@ struct pd_parse
 static struct pd_match match(struct pd_parse *p, unsigned index, size_t pos)
 {
     if (!p->budget)
+    {
         return (struct pd_match){PD_FUEL, pos};
+    }
     --p->budget;
     ++p->d->steps;
     const struct ps_node *n = &p->nodes[index];
@@ -41,7 +43,9 @@ static struct pd_match match(struct pd_parse *p, unsigned index, size_t pos)
         unsigned c = p->input[pos];
         if (n->kind == PS_ANY || (n->kind == PS_BYTE && c == n->low) ||
             (n->kind == PS_RANGE && c >= n->low && c <= n->high))
+        {
             return (struct pd_match){PD_OK, pos + 1};
+        }
         if (pos >= p->d->offset)
         {
             p->d->offset = pos;
@@ -50,7 +54,9 @@ static struct pd_match match(struct pd_parse *p, unsigned index, size_t pos)
         return (struct pd_match){PD_NO_MATCH, pos};
     }
     if (n->kind == PS_EMPTY)
+    {
         return (struct pd_match){PD_OK, pos};
+    }
     if (n->kind == PS_STAR)
     {
         size_t end = pos;
@@ -81,9 +87,13 @@ static struct pd_match match(struct pd_parse *p, unsigned index, size_t pos)
     {
         p->result.count = saved;
         if (a.status == PD_OK)
+        {
             return (struct pd_match){PD_NO_MATCH, pos};
+        }
         if (a.status == PD_NO_MATCH)
+        {
             return (struct pd_match){PD_OK, pos};
+        }
         return a;
     }
     if (n->kind == PS_CAPTURE)
@@ -105,20 +115,28 @@ static struct pd_match match(struct pd_parse *p, unsigned index, size_t pos)
     if (n->kind == PS_CHOICE)
     {
         if (a.status != PD_NO_MATCH)
+        {
             return a;
+        }
         if (PD_MUTANT != 8)
+        {
             p->result.count = saved;
+        }
         return match(p, n->right, pos);
     }
     if (a.status)
     {
         if (PD_MUTANT != 8)
+        {
             p->result.count = saved;
+        }
         return a;
     }
     struct pd_match b = match(p, n->right, a.end);
     if (b.status && PD_MUTANT != 8)
+    {
         p->result.count = saved;
+    }
     return b;
 }
 
@@ -127,24 +145,38 @@ int ps_parse(const struct ps_node *n, size_t count, const unsigned char *input,
              struct ps_result *out, struct pd_diagnostic *d)
 {
     if (!n || (!input && length) || !out || !d || eof > 1)
+    {
         return PD_INVALID;
+    }
     *d = (struct pd_diagnostic){0};
     if (!count || count > 64 || length > 256)
+    {
         return PD_RANGE;
+    }
     for (size_t i = 0; i < count; ++i)
     {
         unsigned k = n[i].kind;
         if (k > PS_CAPTURE)
+        {
             return PD_INVALID;
+        }
         if (k == PS_BYTE && n[i].low > 255)
+        {
             return PD_INVALID;
+        }
         if (k == PS_RANGE && (n[i].low > n[i].high || n[i].high > 255))
+        {
             return PD_INVALID;
+        }
         if (k >= PS_SEQ && (n[i].left <= i || n[i].left >= count))
+        {
             return PD_INVALID;
+        }
         if ((k == PS_SEQ || k == PS_CHOICE) &&
             (n[i].right <= i || n[i].right >= count))
+        {
             return PD_INVALID;
+        }
     }
     struct pd_parse p = {.nodes = n,
                          .input = input,

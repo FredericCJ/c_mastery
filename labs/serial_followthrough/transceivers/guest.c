@@ -76,7 +76,9 @@ void xf_target_main(void)
     {
         int r = tr_test(i);
         if (r)
+        {
             stop((unsigned)r);
+        }
     }
     text(
         "TR_GUEST_PASS actual-Thumb synthetic-line-samples no-physical-transceiver\n");

@@ -35,12 +35,18 @@ int main(void)
 {
     pthread_t a, b;
     if (pthread_create(&a, 0, writer, 0) || pthread_create(&b, 0, reader, 0))
+    {
         return 2;
+    }
     if (pthread_join(a, 0) || pthread_join(b, 0) ||
         pthread_mutex_destroy(&lock))
+    {
         return 2;
+    }
     if (failed || observed != 5000)
+    {
         return 1;
+    }
     puts("XI_LOCK_PASS observed=5000 cooperating_host_threads_only");
     return 0;
 }

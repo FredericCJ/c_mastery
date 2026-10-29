@@ -32,9 +32,13 @@ static void one(int copy)
     CHECK(fd >= 0 && unlink(path) == 0);
     unsigned char b[4096];
     for (unsigned i = 0; i < sizeof b; ++i)
+    {
         b[i] = (unsigned char)(i % 251);
+    }
     for (unsigned i = 0; i < 256; ++i)
+    {
         CHECK(write(fd, b, sizeof b) == sizeof b);
+    }
     int s[2], size = 1024;
     CHECK(socketpair(AF_UNIX, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0,
                      s) == 0 &&
@@ -55,12 +59,16 @@ static void one(int copy)
             off_t off = (off_t)sent;
             n = sendfile(s[0], fd, &off, want);
             if (n >= 0)
+            {
                 CHECK(off == (off_t)(sent + (size_t)n));
+            }
         }
         if (n > 0)
         {
             if ((size_t)n < want)
+            {
                 ++partial;
+            }
             sent += (size_t)n;
         }
         else
@@ -85,11 +93,15 @@ static void one(int copy)
 #endif
         ssize_t n = read(s[1], b, sizeof b);
         if (n == 0)
+        {
             break;
+        }
         CHECK(n > 0);
         for (ssize_t i = 0; i < n; ++i)
+        {
             CHECK(b[i] ==
                   (unsigned char)(((received + (size_t)i) % 4096) % 251));
+        }
         received += (size_t)n;
     }
     CHECK(received == sent && close(s[0]) == 0 && close(s[1]) == 0 &&

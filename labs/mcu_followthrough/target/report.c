@@ -27,7 +27,9 @@ void mf_finish(unsigned code)
     register const uint32_t *r1 __asm__("r1") = data;
     __asm__ volatile("bkpt 0xab" : "+r"(r0) : "r"(r1) : "memory");
     for (;;)
+    {
         __asm__ volatile("wfi");
+    }
 }
 
 void mf_require(int condition, unsigned tag)

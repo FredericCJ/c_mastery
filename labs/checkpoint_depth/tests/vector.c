@@ -38,6 +38,7 @@ void cp_test_dispatch(void)
 {
     const uint32_t avx = UINT32_C(1) << 28, os = UINT32_C(1) << 27;
     for (unsigned flags = 0; flags < 4; ++flags)
+    {
         for (unsigned state = 0; state < 8; ++state)
         {
             struct cpx_fake f = {(flags & 1 ? avx : 0) | (flags & 2 ? os : 0),
@@ -46,6 +47,7 @@ void cp_test_dispatch(void)
             CHECK(cpv_detect(p) == (flags == 3 && (state & 6) == 6));
             CHECK(f.calls == (flags == 3));
         }
+    }
     struct cpx_fake f = {avx | os, 6, 0, 0};
     struct cpv_probe p = {&f, fake_leaf, fake_state};
     CHECK(!cpv_detect(p) && !f.calls);
@@ -57,8 +59,10 @@ void cp_test_dispatch(void)
     CHECK(cpv_plan(&plan, (enum cpv_backend)99) == CPN_INVALID &&
           plan.backend == before.backend);
     if (!cpv_available())
+    {
         CHECK(cpv_plan(&plan, CPV_AVX) == CPN_UNSUPPORTED &&
               plan.backend == before.backend);
+    }
     printf("CP_CAPS: avx_usable=%d\n", cpv_available());
 }
 
@@ -69,16 +73,21 @@ void cp_test_vector(void)
         struct cpv_plan plan;
         enum cpn_status made = cpv_plan(&plan, (enum cpv_backend)backend);
         if (made == CPN_UNSUPPORTED)
+        {
             continue;
+        }
         CHECK(made == CPN_OK);
         for (size_t n = 0; n <= CPN_BLOCK; ++n)
+        {
             for (size_t offset = 0; offset < 4; ++offset)
             {
                 double storage[CPN_BLOCK + 8], expected[CPN_BLOCK],
                     out[CPN_BLOCK + 2];
                 double *input = storage + offset;
                 for (size_t i = 0; i < n; ++i)
+                {
                     input[i] = (double)((int)(i % 19) - 9) / 8.0;
+                }
                 struct cpn_double reference = {4, -8}, actual = reference;
                 CHECK(cpn_double(&reference, input, n, expected, n) == CPN_OK);
                 out[0] = 71;
@@ -94,12 +103,15 @@ void cp_test_vector(void)
                           CPN_OK &&
                       !memcmp(expected, input + 1, n * sizeof(double)));
                 for (size_t i = 0; i < n; ++i)
+                {
                     input[i + 1] = (double)((int)(i % 19) - 9) / 8.0;
+                }
                 actual = (struct cpn_double){4, -8};
                 CHECK(cpv_run(&plan, &actual, input + 1, n, input, n) ==
                           CPN_OK &&
                       !memcmp(expected, input, n * sizeof(double)));
             }
+        }
         double input[] = {-4.0 * 9007199254740992.0, 2.0 * 9007199254740992.0,
                           4, 8, 16},
                out[5];

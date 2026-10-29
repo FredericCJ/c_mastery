@@ -38,15 +38,21 @@ static void sp_fail(const char *s)
     unsigned v = 17;
     __asm__ volatile("outl %0,$0xf4" ::"a"(v));
     for (;;)
+    {
         __asm__ volatile("cli;hlt");
+    }
 }
 
 static unsigned sp_peer_progress(unsigned c)
 {
     unsigned n = 0;
     for (unsigned i = 0; i < topology.count; ++i)
+    {
         if (i != c)
+        {
             n += __atomic_load_n(&sp_local[i].progress, __ATOMIC_ACQUIRE);
+        }
+    }
     return n;
 }
 
@@ -64,7 +70,9 @@ static void sp_inside(uintptr_t p, size_t bytes, const unsigned char *begin,
 {
     uintptr_t low = (uintptr_t)begin, high = low + size;
     if (p < low + 32 || p > high || bytes > high - p)
+    {
         sp_fail("stack-owner-or-extent");
+    }
 }
 
 static void sp_local_init(unsigned c)
@@ -74,7 +82,9 @@ static void sp_local_init(unsigned c)
     cpus[c].tss.ist[2] =
         (uintptr_t)(sp_local[c].emergency + sizeof sp_local[c].emergency);
     if (SP_GUEST_MUTANT == 1 && c == 1)
+    {
         cpus[c].tss.ist[0] = (uintptr_t)(cpus[0].irq + sizeof cpus[0].irq);
+    }
     sp_gate(c, 244, sp_probe_irq, 1);
     sp_gate(c, 6, sp_ud_irq, 2);
     sp_gate(c, 13, sp_gp_irq, 3);
@@ -84,7 +94,9 @@ static void sp_local_init(unsigned c)
         cpus[c].tlb_stack[i] = 0xa2;
         sp_local[c].emergency[i] = 0xb3;
         for (unsigned t = 0; t < 2; ++t)
+        {
             sp_local[c].task_stack[t][i] = (unsigned char)(0xc0 + c * 2 + t);
+        }
     }
     struct dt actual_gd, actual_id;
     unsigned short tr;
@@ -93,12 +105,16 @@ static void sp_local_init(unsigned c)
     __asm__ volatile("str %0" : "=r"(tr));
     if (actual_gd.base != (uintptr_t)cpus[c].gdt ||
         actual_id.base != (uintptr_t)cpus[c].idt || tr != 40)
+    {
         sp_fail("descriptor-identity");
+    }
 #if SP_SIMD
     unsigned a = 1, b, d, e;
     __asm__ volatile("cpuid" : "+a"(a), "=b"(b), "=c"(e), "=d"(d));
     if ((d & 0x07000000) != 0x07000000)
+    {
         sp_fail("fxsr-sse2-unavailable");
+    }
     uint64_t cr0, cr4;
     __asm__ volatile("mov %%cr0,%0" : "=r"(cr0));
     cr0 = (cr0 & ~UINT64_C(12)) | 2;
@@ -125,11 +141,15 @@ void sp_interrupt(uint64_t *f)
         sp_inside((uintptr_t)f, 22 * 8, cpus[c].irq, sizeof cpus[c].irq);
         sp_inside(f[20], 1, sp_local[c].task_stack[sp_local[c].current], 8192);
         if (sp_local[c].nesting != 1)
+        {
             sp_fail("irq-nesting");
+        }
         sp_local[c].irq++;
         sp_local[c].irq_frame = (uintptr_t)f;
         if (c == sp_fault_cpu() && !sp_local[c].ud)
+        {
             sp_raise_ud();
+        }
     }
     else if (vector == 6)
     {
@@ -138,7 +158,9 @@ void sp_interrupt(uint64_t *f)
         sp_inside(f[20], 1, cpus[c].irq, sizeof cpus[c].irq);
         if (sp_local[c].nesting != 2 || f[17] != (uintptr_t)sp_ud_site ||
             f[16] != 0)
+        {
             sp_fail("unrecognized-ud");
+        }
         sp_local[c].ud++;
         sp_local[c].ud_frame = (uintptr_t)f;
         unsigned before = sp_peer_progress(c);
@@ -149,7 +171,9 @@ void sp_interrupt(uint64_t *f)
             while (sp_peer_progress(c) < before + 4)
             {
                 if (++spin == 100000000)
+                {
                     sp_fail("peer-progress-missing");
+                }
                 pause_cpu();
             }
         }
@@ -165,14 +189,20 @@ void sp_interrupt(uint64_t *f)
         sp_inside(f[20], 1, cpus[c].tlb_stack, sizeof cpus[c].tlb_stack);
         if (sp_local[c].nesting != 3 || f[17] != (uintptr_t)sp_gp_site ||
             !f[16])
+        {
             sp_fail("unrecognized-gp");
+        }
         if (SP_GUEST_MUTANT != 3)
+        {
             sp_local[c].gp++;
+        }
         sp_local[c].gp_frame = (uintptr_t)f;
         f[17] = (uintptr_t)sp_gp_return;
     }
     else
+    {
         sp_fail("unknown-vector");
+    }
     sp_local[c].nesting--;
 }
 
@@ -187,14 +217,24 @@ static __attribute__((noinline)) void sp_nested(unsigned depth, uint64_t seed)
 {
     volatile uint64_t mark[8];
     for (unsigned i = 0; i < 8; ++i)
+    {
         mark[i] = seed + i + depth;
+    }
     if (depth)
+    {
         sp_nested(depth - 1, seed + 17);
+    }
     else if (sp_register_probe(seed))
+    {
         sp_fail("register-or-SIMD-preservation");
+    }
     for (unsigned i = 0; i < 8; ++i)
+    {
         if (mark[i] != seed + i + depth)
+        {
             sp_fail("nested-frame-corruption");
+        }
+    }
 }
 
 static void sp_task(void)
@@ -204,7 +244,9 @@ static void sp_task(void)
          i < 64 || !__atomic_load_n(&sp_fault_done, __ATOMIC_ACQUIRE); ++i)
     {
         if (i > 100000)
+        {
             sp_fail("controlled-fault-not-completed");
+        }
         sp_nested(4, UINT64_C(0x12340000) + c * 0x1000 + t * 0x100 + (i & 63));
         __atomic_fetch_add(&sp_local[c].progress, 1, __ATOMIC_RELEASE);
     }
@@ -225,37 +267,55 @@ static void sp_worker(unsigned c)
         *--sp = 0;
         *--sp = (uintptr_t)sp_task;
         for (unsigned k = 0; k < 6; ++k)
+        {
             *--sp = 0;
+        }
         sp_local[c].task_sp[t] = sp;
     }
     __atomic_store_n(&sp_local[c].ready, 1, __ATOMIC_RELEASE);
     while (!__atomic_load_n(&sp_go, __ATOMIC_ACQUIRE))
+    {
         pause_cpu();
+    }
     /* Check before any interrupt can use the pointer, after BSP startup output
        has finished. The intended refusal has one intact diagnostic publisher. */
     if (cpus[c].tss.ist[0] != (uintptr_t)(cpus[c].irq + sizeof cpus[c].irq))
+    {
         sp_fail("tss-alias");
+    }
     while (!sp_local[c].task_done[0] || !sp_local[c].task_done[1])
+    {
         for (unsigned t = 0; t < 2; ++t)
+        {
             if (!sp_local[c].task_done[t])
             {
                 sp_local[c].current = t;
                 sp_switch(&sp_local[c].idle, sp_local[c].task_sp[t],
                           sp_local[c].idle_fx, sp_local[c].task_fx[t]);
             }
+        }
+    }
     for (unsigned i = 0; i < 32; ++i)
     {
         if (cpus[c].irq[i] != 0x91 || cpus[c].tlb_stack[i] != 0xa2 ||
             sp_local[c].emergency[i] != 0xb3)
+        {
             sp_fail("interrupt-canary");
+        }
         for (unsigned t = 0; t < 2; ++t)
+        {
             if (sp_local[c].task_stack[t][i] !=
                 (unsigned char)(0xc0 + c * 2 + t))
+            {
                 sp_fail("task-canary");
+            }
+        }
     }
     if (sp_local[c].nesting || sp_local[c].irq < 128 ||
         (c == sp_fault_cpu() && (sp_local[c].ud != 1 || sp_local[c].gp != 1)))
+    {
         sp_fail("fault-accounting");
+    }
     __atomic_store_n(&sp_local[c].done, 1, __ATOMIC_RELEASE);
 }
 
@@ -268,7 +328,9 @@ void sp_bsp(void)
         while (!__atomic_load_n(&sp_local[i].ready, __ATOMIC_ACQUIRE))
         {
             if (++spin == 100000000)
+            {
                 sp_fail("worker-not-ready");
+            }
             pause_cpu();
         }
     }
@@ -294,11 +356,15 @@ void sp_bsp(void)
                           8192,
                           sizeof cpus[c].tlb_stack};
         for (unsigned k = 0; k < SP_PARTS; ++k)
+        {
             spans[c * SP_PARTS + k] =
                 (struct sp_span){lows[k], lows[k] + sizes[k], c, k};
+        }
     }
     if (sp_validate(spans, topology.count * SP_PARTS) != SP_OK)
+    {
         sp_fail("actual-storage-alias");
+    }
     __atomic_store_n(&sp_go, 1, __ATOMIC_RELEASE);
     sp_worker(0);
     for (unsigned c = 1; c < topology.count; ++c)
@@ -307,7 +373,9 @@ void sp_bsp(void)
         while (!__atomic_load_n(&sp_local[c].done, __ATOMIC_ACQUIRE))
         {
             if (++spin == 100000000)
+            {
                 sp_fail("worker-not-done");
+            }
             pause_cpu();
         }
     }
@@ -355,5 +423,7 @@ void sp_bsp(void)
     unsigned v = 16;
     __asm__ volatile("outl %0,$0xf4" ::"a"(v));
     for (;;)
+    {
         __asm__ volatile("cli;hlt");
+    }
 }

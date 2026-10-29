@@ -71,7 +71,9 @@ void cmx_port_tick_hook(void)
     unsigned ran = (unsigned)cmx_machine.current;
     CHECK(ran < 3);
     if (cmx_machine.task[ran].state != CMX_RUNNING)
+    {
         ran = 3;
+    }
     CHECK(sr_tick(&port, cmx_port_ticks + 1) == CMX_OK);
     trace[count].tick = cmx_port_ticks + 1;
     trace[count].ran = ran;
@@ -108,7 +110,9 @@ static void server(void)
         {
             uint32_t now = *(volatile uint32_t *)(uintptr_t)0xe000e018;
             if (now > previous)
+            {
                 wraps++;
+            }
             previous = now;
             work[1]++;
         }
@@ -172,7 +176,9 @@ static void supervisor(void)
     CHECK(sr_detach(&port) == CMX_INVALID);
     unsigned closing_sleep = cmx_machine.task[1].state == CMX_WAITING;
     if (SR_SCENARIO == 2)
+    {
         CHECK(closing_sleep);
+    }
     CHECK(sr_close(&port) == CMX_OK);
     CHECK(sr_close(&port) == CMX_OK);
     CHECK(cmx_machine.task[1].state == CMX_READY);
@@ -192,18 +198,26 @@ static void supervisor(void)
     CHECK(sr_close(&old) == CMX_INVALID);
     CHECK(cmx_port_switches > 10 && activations == stop / 5);
     for (unsigned i = 0; i < 3; i++)
+    {
         CHECK(sampled[i] && work[i]);
+    }
     unsigned charged = 0;
     for (unsigned i = 0; i < count; i++)
     {
         if (!trace[i].closed && trace[i].ran == 1)
+        {
             charged++;
+        }
         CHECK(trace[i].charged == charged);
         unsigned window = 0;
         for (unsigned j = 0; j <= i; j++)
+        {
             if (!trace[j].closed && trace[j].ran == 1 &&
                 trace[i].tick - trace[j].tick < 10)
+            {
                 window++;
+            }
+        }
         CHECK(window <= 3);
     }
     /* Stop the timer before emitting observations; logging is not payload. */

@@ -17,11 +17,19 @@
 static void oracle(const unsigned *base, const unsigned *owner, unsigned *out)
 {
     for (unsigned i = 0; i < N; ++i)
+    {
         out[i] = base[i];
+    }
     for (unsigned i = 0; i < N; ++i)
+    {
         for (unsigned j = owner[i]; j < N; j = owner[j])
+        {
             if (out[j] > base[i])
+            {
                 out[j] = base[i];
+            }
+        }
+    }
 }
 
 int main(void)
@@ -54,9 +62,13 @@ int main(void)
                       CMX_OK);
             }
             for (unsigned i = 0; i < N; ++i)
+            {
                 if (owner[i] < N)
+                {
                     CHECK(cmx_mutex_lock(&k, &mutexes[owner[i]], i,
                                          cmx_forever()) == CMX_BLOCKED);
+                }
+            }
             oracle(base, owner, expected);
             for (unsigned i = 0; i < N; ++i)
             {

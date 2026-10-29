@@ -70,20 +70,30 @@ int main(void)
                     _Alignof(struct over_aligned)) == LA_OK);
     struct over_aligned *p = owner.data;
     for (unsigned i = 0; i < 2; ++i)
+    {
         for (unsigned j = 0; j < 64; ++j)
+        {
             p[i].payload[j] = (unsigned char)(i * 64 + j);
+        }
+    }
     CHECK((uintptr_t)p % 64 == 0 && owner.capacity == 128);
     CHECK(la_resize_copy(ops, &owner, 3, sizeof(struct over_aligned)) == LA_OK);
     p = owner.data;
     for (unsigned i = 0; i < 2; ++i)
+    {
         for (unsigned j = 0; j < 64; ++j)
+        {
             CHECK(p[i].payload[j] == i * 64 + j);
+        }
+    }
     CHECK((uintptr_t)p % 64 == 0 && owner.capacity == 192);
     CHECK(la_release(ops, &owner) == LA_OK);
     unsigned char *zero = calloc(7, 3);
     CHECK(zero);
     for (unsigned i = 0; i < 21; ++i)
+    {
         CHECK(zero[i] == 0);
+    }
     free(zero);
 
     struct values

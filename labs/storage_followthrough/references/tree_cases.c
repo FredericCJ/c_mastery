@@ -25,14 +25,18 @@ int tree_page_admit(uint32_t id, int leaf)
 void tree_event(unsigned event, uint32_t id)
 {
     if (event < TREE_EVENTS && id < 32)
+    {
         events[event][observed && observed->scratch[id].leaf ? 1 : 0]++;
+    }
 }
 
 static int rd(void *p, uint32_t id, void *out)
 {
     (void)p;
     if (id >= 67)
+    {
         return 1;
+    }
     memcpy(out, disk[id], 4096);
     return 0;
 }
@@ -41,7 +45,9 @@ static int wr(void *p, uint32_t id, const void *in)
 {
     (void)p;
     if (id >= 67)
+    {
         return 1;
+    }
     memcpy(disk[id], in, 4096);
     return 0;
 }
@@ -74,10 +80,14 @@ static int visit(void *ctx, const uint8_t *key, size_t n, const uint8_t *value,
 {
     struct store_scan *v = ctx;
     while (v->next < 128 && model[v->next] < 0)
+    {
         v->next++;
+    }
     if (n != 1 || z != 1 || v->next >= 128 || key[0] != v->next ||
         value[0] != model[v->next])
+    {
         v->bad = 1;
+    }
     v->next++;
     v->count++;
     return 0;
@@ -86,7 +96,9 @@ static int visit(void *ctx, const uint8_t *key, size_t n, const uint8_t *value,
 static int verify(store *s)
 {
     if (store_check(s))
+    {
         return 1;
+    }
     unsigned count = 0;
     for (unsigned i = 0; i < 128; i++)
     {
@@ -96,13 +108,17 @@ static int verify(store *s)
         if (model[i] < 0)
         {
             if (r != STORE_NOT_FOUND || v != 0xa5 || n != 777)
+            {
                 return 1;
+            }
         }
         else
         {
             count++;
             if (r || n != 1 || v != model[i])
+            {
                 return 1;
+            }
         }
     }
     struct store_scan q = {0};
@@ -119,7 +135,9 @@ static int update(store *s, unsigned k, int value)
     uint8_t key = (uint8_t)k, v = (uint8_t)value;
     int r = value < 0 ? store_delete(s, &key, 1) : store_put(s, &key, 1, &v, 1);
     if (r == STORE_OK)
+    {
         model[k] = value;
+    }
     return r;
 }
 
@@ -133,7 +151,9 @@ static int exercise(int metrics)
         store s;
         CHECK(empty(&s) == 0);
         for (unsigned i = 0; i < 128; i++)
+        {
             model[i] = -1;
+        }
         for (unsigned i = 0; i < count; i++)
         {
             unsigned k = pattern % 3 == 0 ? i
@@ -145,8 +165,11 @@ static int exercise(int metrics)
         CHECK(total(TREE_INTERNAL_SPLIT) > 0 && total(TREE_ROOT_GROW) > 1);
         unsigned order[92];
         for (unsigned i = 0; i < count; i++)
+        {
             order[i] = (37 * i) % count;
+        }
         if (pattern >= 3)
+        {
             for (unsigned i = count - 1; i > 0; i--)
             {
                 state = state * 1664525u + 1013904223u;
@@ -155,22 +178,28 @@ static int exercise(int metrics)
                 order[i] = order[j];
                 order[j] = temp;
             }
+        }
         for (unsigned i = 0; i < count; i++)
         {
             CHECK(update(&s, order[i], -1) == STORE_OK && verify(&s) == 0);
         }
         CHECK(s.used == 3 && s.root == 1);
         for (unsigned i = 0; i < count; i++)
+        {
             CHECK(update(&s, i, (int)(127 - i)) == STORE_OK && verify(&s) == 0);
+        }
     }
     CHECK(total(TREE_BORROW_LEFT) > 0 && total(TREE_BORROW_RIGHT) > 0 &&
           total(TREE_MERGE_LEFT) > 0 && total(TREE_MERGE_RIGHT) > 0 &&
           total(TREE_ROOT_SHRINK) > 0);
     for (unsigned kind = 0; kind < 2; kind++)
+    {
         CHECK(events[TREE_BORROW_LEFT][kind] &&
               events[TREE_BORROW_RIGHT][kind] &&
               events[TREE_MERGE_LEFT][kind] && events[TREE_MERGE_RIGHT][kind]);
+    }
     if (metrics)
+    {
         printf(
             "{\"capacity\":%u,\"leaf_splits\":%u,\"internal_splits\":%u,\"left\":%u,\"right\":%u,\"merge_left\":%u,\"merge_right\":%u,\"shrink\":%u,\"minimum_visits\":%u,\"full_visits\":%u,\"repair_nodes\":%u,\"store_bytes\":%zu}\n",
             TREE_CAPACITY, total(TREE_LEAF_SPLIT), total(TREE_INTERNAL_SPLIT),
@@ -178,6 +207,7 @@ static int exercise(int metrics)
             total(TREE_MERGE_LEFT), total(TREE_MERGE_RIGHT),
             total(TREE_ROOT_SHRINK), total(TREE_MIN_VISIT),
             total(TREE_FULL_VISIT), total(TREE_REPAIR_NODE), sizeof(store));
+    }
     else
     {
         printf(
@@ -192,10 +222,14 @@ static int minimum_change(void)
     store s;
     CHECK(empty(&s) == 0);
     for (unsigned i = 0; i < 128; i++)
+    {
         model[i] = -1;
+    }
     unsigned count = TREE_CAPACITY == 7 ? 27 : 11;
     for (unsigned i = 0; i < count; i++)
+    {
         CHECK(update(&s, i, (int)i) == STORE_OK);
+    }
     CHECK(verify(&s) == 0);
     unsigned target = TREE_CAPACITY == 7 ? 20 : 8;
     CHECK(update(&s, target, -1) == STORE_OK && verify(&s) == 0);
@@ -208,12 +242,18 @@ static int binary_separator(void)
     store s;
     CHECK(empty(&s) == 0);
     for (unsigned i = 0; i < 128; i++)
+    {
         model[i] = -1;
+    }
     unsigned count = TREE_CAPACITY == 7 ? 40 : 20;
     for (unsigned i = 0; i < count; i++)
+    {
         CHECK(update(&s, i, (int)i) == STORE_OK);
+    }
     for (unsigned id = 1; id < 32; id++)
+    {
         if ((s.used & (UINT32_C(1) << id)) && !s.scratch[id].leaf)
+        {
             for (unsigned i = 0; i < s.scratch[id].n; i++)
             {
                 uint8_t out;
@@ -222,6 +262,8 @@ static int binary_separator(void)
                                 &out, 1, &n) == STORE_OK &&
                       n == 1 && out == s.scratch[id].key[i][0]);
             }
+        }
+    }
     puts("TREE separator validated");
     return 0;
 }
@@ -234,7 +276,9 @@ static int oracle(void)
     while (scanf("%u %u %u %u", &reset, &op, &k, &value) == 4)
     {
         if (reset)
+        {
             s = seed;
+        }
         observed = &s;
         uint8_t key = (uint8_t)k, v = (uint8_t)value;
         int r = op ? store_put(&s, &key, 1, &v, 1) : store_delete(&s, &key, 1);
@@ -258,10 +302,14 @@ static int shape(void)
     store s;
     CHECK(empty(&s) == 0);
     for (unsigned i = 0; i < 128; i++)
+    {
         model[i] = -1;
+    }
     unsigned half = (TREE_CAPACITY + 1) / 2;
     for (unsigned i = 0; i <= TREE_CAPACITY; i++)
+    {
         CHECK(update(&s, i, (int)i) == STORE_OK);
+    }
     store_node *root = &s.scratch[s.root], *left = &s.scratch[root->child[0]],
                *right = &s.scratch[root->child[1]];
     CHECK(!root->leaf && root->n == 1 && root->key[0][0] == half &&
@@ -278,7 +326,9 @@ static int mixed(void)
     store s;
     CHECK(empty(&s) == 0);
     for (unsigned i = 0; i < 128; i++)
+    {
         model[i] = -1;
+    }
     unsigned rng = 0x713a, put = 0, replace = 0, missing = 0, removed = 0;
     for (unsigned i = 0; i < 4096; i++)
     {
@@ -292,14 +342,22 @@ static int mixed(void)
         if (value < 0)
         {
             if (existed)
+            {
                 removed++;
+            }
             else
+            {
                 missing++;
+            }
         }
         else if (existed)
+        {
             replace++;
+        }
         else
+        {
             put++;
+        }
         CHECK(verify(&s) == 0);
     }
     CHECK(put && replace && missing && removed);
@@ -312,20 +370,28 @@ static int persistence(void)
     store s, r;
     CHECK(empty(&s) == 0);
     for (unsigned i = 0; i < 128; i++)
+    {
         model[i] = -1;
+    }
     unsigned count = TREE_CAPACITY == 7 ? 92 : 32;
     for (unsigned i = 0; i < count; i++)
+    {
         CHECK(update(&s, i, (int)i) == STORE_OK);
+    }
     CHECK(store_commit(&s) == STORE_OK && store_open(&r, s.io) == STORE_OK);
     observed = &r;
     CHECK(verify(&r) == 0 && store_begin(&r) == STORE_OK);
     for (unsigned i = 0; i < count; i++)
+    {
         CHECK(update(&r, (37 * i) % count, -1) == STORE_OK);
+    }
     CHECK(store_commit(&r) == STORE_OK && store_open(&s, r.io) == STORE_OK);
     observed = &s;
     CHECK(verify(&s) == 0 && store_begin(&s) == STORE_OK);
     for (unsigned i = 0; i < count; i++)
+    {
         CHECK(update(&s, i, 127 - (int)i) == STORE_OK);
+    }
     CHECK(store_commit(&s) == STORE_OK && store_open(&r, s.io) == STORE_OK);
     observed = &r;
     CHECK(verify(&r) == 0);
@@ -345,7 +411,9 @@ static int page(void)
     uint8_t bytes[4096];
     CHECK(store_page_encode(1, 7, &n, bytes) == STORE_OK);
     for (unsigned i = 0; i < 4096; i++)
+    {
         printf("%02x", bytes[i]);
+    }
     putchar('\n');
     return 0;
 }
@@ -371,26 +439,48 @@ static int foreign(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "exercise"))
+    {
         return exercise(0);
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return exercise(1);
+    }
     if (!strcmp(argv[1], "minimum"))
+    {
         return minimum_change();
+    }
     if (!strcmp(argv[1], "separator"))
+    {
         return binary_separator();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "shape"))
+    {
         return shape();
+    }
     if (!strcmp(argv[1], "mixed"))
+    {
         return mixed();
+    }
     if (!strcmp(argv[1], "persistence"))
+    {
         return persistence();
+    }
     if (!strcmp(argv[1], "page"))
+    {
         return page();
+    }
     if (!strcmp(argv[1], "foreign"))
+    {
         return foreign();
+    }
     return 2;
 }

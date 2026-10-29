@@ -93,8 +93,10 @@ int main(void)
     CHECK(fegetround() == FE_DOWNWARD && fetestexcept(FE_ALL_EXCEPT) == flags &&
           errno == EDOM);
     for (size_t i = 0; i < round.count; i++)
+    {
         CHECK(round.values[i] ==
               (round.modes[i] == FE_UPWARD ? 0x1.0000000000001p0 : 1));
+    }
     for (int failure = 0; failure < 7; failure++)
     {
         struct ff_env_ops ops = {fegetenv, feholdexcept, fail_mode,
@@ -106,20 +108,30 @@ int main(void)
         restore_calls = 0;
         fail_at = failure;
         if (failure == 0)
+        {
             ops.save = fail_save;
+        }
         if (failure == 5)
+        {
             ops.hold = fail_hold;
+        }
         if (failure == 6)
+        {
             ops.restore = fail_restore;
+        }
         CHECK(ff_probe_ops(1, 0x1p-53, &sentinel, &ops) ==
               (failure == 6 ? FF_RESTORE : FF_ENV));
         CHECK(memcmp(&sentinel, before, sizeof sentinel) == 0 && errno == EDOM);
         CHECK(restore_calls == (failure == 0 ? 0 : 1));
         if (failure != 6)
+        {
             CHECK(fegetround() == FE_DOWNWARD &&
                   fetestexcept(FE_ALL_EXCEPT) == flags);
+        }
         else
+        {
             CHECK(fesetenv(&original) == 0);
+        }
     }
     CHECK(fesetenv(&original) == 0);
     puts(

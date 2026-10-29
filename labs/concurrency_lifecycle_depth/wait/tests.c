@@ -15,8 +15,10 @@ static int setup(cmx_kernel *kernel, struct cw_world *world)
 {
     cmx_init(kernel, CMX_FIXED);
     for (unsigned i = 0; i < 3; ++i)
+    {
         CHECK(cmx_task_add(kernel, i == 0 ? 9 : (i == 1 ? 3 : 5), 100,
                            (uintptr_t)(0x1000 + i * 0x100), 256) == (int)i);
+    }
     cw_init(world, kernel);
     return 0;
 }
@@ -87,13 +89,18 @@ static int terminal(void)
 {
     unsigned schedules = 0;
     for (unsigned a = 0; a < 4; ++a)
+    {
         for (unsigned b = 0; b < 4; ++b)
+        {
             for (unsigned c = 0; c < 4; ++c)
+            {
                 for (unsigned d = 0; d < 4; ++d)
                 {
                     if (a == b || a == c || a == d || b == c || b == d ||
                         c == d)
+                    {
                         continue;
+                    }
                     cmx_kernel kernel;
                     struct cw_world world = {0};
                     struct cw_token token = {0};
@@ -111,13 +118,21 @@ static int terminal(void)
                     {
                         unsigned event = order[step];
                         if (event == 0)
+                        {
                             (void)cw_ready_callback(token);
+                        }
                         else if (event == 1)
+                        {
                             (void)cw_timeout(token, 1);
+                        }
                         else if (event == 2)
+                        {
                             (void)cw_cancel(token);
+                        }
                         else
+                        {
                             (void)cw_close(&world, 0);
+                        }
                         CHECK(world.nodes[1].terminals == 1 &&
                               !world.nodes[1].linked);
                         CHECK(world.nodes[1].result == expected[a] &&
@@ -128,6 +143,9 @@ static int terminal(void)
                     }
                     ++schedules;
                 }
+            }
+        }
+    }
     /* Two consumers share one credit; a callback tagged to one enrollment
        publishes to the FIFO object, not a private entitlement to that credit. */
     cmx_kernel kernel;
@@ -214,12 +232,20 @@ static int donation(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "enrollment"))
+    {
         return enrollment();
+    }
     if (!strcmp(argv[1], "terminal"))
+    {
         return terminal();
+    }
     if (!strcmp(argv[1], "donation"))
+    {
         return donation();
+    }
     return 2;
 }

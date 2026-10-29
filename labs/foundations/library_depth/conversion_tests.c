@@ -65,6 +65,7 @@ int main(void)
     const uintmax_t decimal[] = {0, 1, 10, 0, 0, 0, 8},
                     prefixed[] = {0, 1, 8, 16, 0, 0, 0, 0, 15};
     for (unsigned i = 0; i < 11; ++i)
+    {
         for (int mode = 0; mode < 2; ++mode)
         {
             uintmax_t value = 77;
@@ -74,10 +75,15 @@ int main(void)
                             strlen(unsigneds[i]), mode, UINTMAX_MAX, &value);
             CHECK(status == (mode ? base[i] : dec[i]));
             if (status == LC_OK)
+            {
                 CHECK(value == (mode ? prefixed[i] : decimal[i]));
+            }
             else
+            {
                 CHECK(value == 77);
+            }
         }
+    }
     char maximum[128], overflow[129];
     int count = snprintf(maximum, sizeof maximum, "%" PRIuMAX, UINTMAX_MAX);
     CHECK(count > 0 && count < 126);

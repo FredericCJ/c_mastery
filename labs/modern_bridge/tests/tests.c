@@ -90,7 +90,9 @@ static void *once_worker(void *v)
         {
             atomic_fetch_add(t->attempts, 1);
             if (mb_once_finish(t->once, t->id, true, 17, 34) != MB_OK)
+            {
                 return NULL;
+            }
         }
         else if (rc == MB_OK)
         {
@@ -98,7 +100,9 @@ static void *once_worker(void *v)
             return NULL;
         }
         else if (rc != MB_BUSY && rc != MB_RETRY)
+        {
             return NULL;
+        }
         sched_yield();
     }
     return NULL;
@@ -222,14 +226,24 @@ static int epoch(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "region"))
+    {
         return region();
+    }
     if (!strcmp(argv[1], "once"))
+    {
         return once();
+    }
     if (!strcmp(argv[1], "hazard"))
+    {
         return hazard();
+    }
     if (!strcmp(argv[1], "epoch"))
+    {
         return epoch();
+    }
     return 2;
 }

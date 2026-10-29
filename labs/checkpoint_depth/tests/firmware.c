@@ -20,9 +20,11 @@ void cp_test_firmware_ring(void)
         struct cpf_ring r;
         CHECK(cpf_ring_init(&r, capacity));
         for (unsigned i = 0; i < 5; ++i)
+        {
             CHECK(
                 cpf_irq_push(&r, (struct cpf_sample){i, 100 + i, 65530 + i}) ==
                 (i < capacity - 1));
+        }
         CHECK(r.dropped == 6 - capacity);
         for (unsigned i = 0; i < capacity - 1; ++i)
         {
@@ -52,7 +54,9 @@ void cp_test_firmware_ring(void)
         }
         r.dropped = UINT_MAX;
         for (unsigned i = 0; i < capacity - 1; ++i)
+        {
             CHECK(cpf_irq_push(&r, (struct cpf_sample){0, 0, 0}));
+        }
         CHECK(!cpf_irq_push(&r, (struct cpf_sample){0, 0, 0}) &&
               r.dropped == UINT_MAX);
     }
@@ -81,8 +85,10 @@ void cp_test_firmware_tx(void)
     CHECK(cpf_tx_poll(&t, 1, 0, 0, write_byte, &sink) == CPF_PENDING &&
           !sink.count && t.retained);
     for (size_t i = 0; i < t.length; ++i)
+    {
         CHECK(cpf_tx_poll(&t, 1, 1, 1, write_byte, &sink) == CPF_PENDING &&
               t.retained);
+    }
     CHECK(t.state == CPF_WIRE && !memcmp(sink.bytes, t.wire, t.length));
     CHECK(cpf_tx_poll(&t, 1, 1, 0, write_byte, &sink) == CPF_PENDING);
     CHECK(cpf_tx_poll(&t, 1, 1, 1, write_byte, &sink) == CPF_OK &&

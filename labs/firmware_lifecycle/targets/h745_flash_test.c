@@ -22,14 +22,18 @@ static uint32_t read32(void *p, uint32_t a)
 {
     struct f4_bus *b = p;
     if (a == 0x5200200Cu)
+    {
         return b->cr;
+    }
     if (a == 0x52002010u)
     {
         if (b->writes == 8 && b->mode != 1 && ++b->polls == 3)
+        {
             b->sr =
                 (b->mode == 2 || (b->mode >= 3 && b->programs == b->mode - 2))
                     ? 0x20000u
                     : 0x10000u;
+        }
         return b->sr;
     }
     C(a >= 0x08020000u && a < 0x08020080u);
@@ -99,6 +103,7 @@ int main(int argc, char **argv)
 {
     const uint32_t words[8] = {1, 2, 3, 4, 5, 6, 7, 8};
     for (unsigned locked = 0; locked < 2; ++locked)
+    {
         for (unsigned mode = 0; mode < 3; ++mode)
         {
             struct f4_bus b = {.cr = 0x30u | locked, .mode = mode};
@@ -112,7 +117,9 @@ int main(int argc, char **argv)
             if (mode == 1)
             {
                 for (unsigned i = 0; i < 1000; ++i)
+                {
                     C(fh_poll(&s) == FH_PENDING);
+                }
                 C((b.cr & 2u) && s.active);
             }
             else
@@ -123,6 +130,7 @@ int main(int argc, char **argv)
                 C(fh_poll(&s) == FH_REJECT);
             }
         }
+    }
     struct f4_bus b = {.cr = 0x31, .sr = 1};
     struct fh_io io = {&b, read32, write32, sync32};
     struct fh_session s = {0};
@@ -134,13 +142,17 @@ int main(int argc, char **argv)
     unsigned char hashes[64], record[128], cut[128];
     uint32_t vectors[2] = {0x08040000u, 0x08140000u}, versions[2] = {9, 12};
     for (unsigned i = 0; i < 64; ++i)
+    {
         hashes[i] = (unsigned char)(i * 13);
+    }
     C(fh_record(&peer, 19, hashes, vectors, versions, record));
     C(fh_record_valid(record));
     if (argc == 2 && !strcmp(argv[1], "--dump"))
     {
         for (unsigned i = 0; i < 128; ++i)
+        {
             printf("%02x", record[i]);
+        }
         puts("");
         return 0;
     }
@@ -149,8 +161,12 @@ int main(int argc, char **argv)
     {
         memset(cut, 255, sizeof cut);
         for (unsigned bit = 0; bit < prefix; ++bit)
+        {
             if (!(record[bit / 8] & (1u << (bit % 8))))
+            {
                 cut[bit / 8] &= (unsigned char)~(1u << (bit % 8));
+            }
+        }
         C(fh_record_valid(cut) == (prefix == 1024));
         ++checked;
     }
@@ -180,13 +196,17 @@ int main(int argc, char **argv)
         C(bus.programs == (fail ? fail : 4));
         C(fh_append_poll(&append) == FH_REJECT);
         if (!fail)
+        {
             C(!memcmp(bus.words, record, 128));
+        }
     }
     peer.outstanding[1] = 1;
     memset(cut, 0xA7, 128);
     C(!fh_record(&peer, 19, hashes, vectors, versions, cut));
     for (unsigned i = 0; i < 128; ++i)
+    {
         C(cut[i] == 0xA7);
+    }
     printf(
         "B06_FLASH_PASS:%u commit prefixes,128 corruptions, locked/unlocked/busy/error controls\n",
         checked);

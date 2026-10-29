@@ -69,12 +69,20 @@ int main(void)
            sizeof(size_t), sizeof(ptrdiff_t), sizeof(uintmax_t), CHAR_BIT,
            SIZE_MAX, (ptrdiff_t)PTRDIFF_MAX);
     for (int h = 0; h < 2; ++h)
+    {
         for (int old = 0; old < 2; ++old)
+        {
             for (int no = 0; no < 2; ++no)
+            {
                 for (int linked = 0; linked < 2; ++linked)
+                {
                     CHECK(lh_c11_threads(h, old ? 199901L : 201710L, no,
                                          linked) ==
                           (h && !old && !no && linked));
+                }
+            }
+        }
+    }
     puts("HEADERS-PASS: full decimal admission, matching PRI/SCN and all16 "
          "capability combinations");
     return 0;

@@ -46,7 +46,9 @@ static void receiver(void *p, enum msg_status status, struct mfo_value value)
     atomic_fetch_add(&c->calls, 1);
     mfo_drop(&value);
     if (ctx->free_context)
+    {
         free(ctx);
+    }
 }
 
 static void initialize(struct msg_counts *c)
@@ -107,9 +109,13 @@ static void *race(void *p)
     struct msg_counts *c = a->counts;
     atomic_fetch_add(&c->ready, 1);
     while (!atomic_load(&c->go))
+    {
         sched_yield();
+    }
     if (a->role == 2)
+    {
         a->result = mfx_cancel(a->token);
+    }
     else
     {
         struct mfo_value owner = {c, payload_drop};
@@ -143,21 +149,31 @@ static void races(void)
         CHECK(atomic_load(&root->references) == 4);
         mfx_drop(&root);
         for (unsigned i = 0; i < 3; i++)
+        {
             CHECK(!pthread_create(&threads[i], NULL, race, &args[i]));
+        }
         while (atomic_load(&c.ready) != 3)
+        {
             sched_yield();
+        }
         atomic_store(&c.go, true);
         for (unsigned i = 0; i < 3; i++)
+        {
             CHECK(!pthread_join(threads[i], NULL));
+        }
         CHECK((args[0].result == MSG_OK && args[1].result == MSG_BUSY) ||
               (args[1].result == MSG_OK && args[0].result == MSG_BUSY));
         CHECK(args[2].result == MSG_OK || args[2].result == MSG_CLOSED);
         CHECK(atomic_load(&c.calls) == 1 && atomic_load(&c.drops) == 2 &&
               atomic_load(&c.releases) == 1);
         if (args[2].result == MSG_OK)
+        {
             CHECK(c.status == MSG_CANCELLED);
+        }
         else
+        {
             CHECK(c.status == MSG_OK || c.status == MSG_FAILED);
+        }
     }
 }
 
@@ -176,7 +192,9 @@ static void oracle(void)
         {
             enum msg_status s;
             if (word[i] == 'c')
+            {
                 s = mfx_cancel(root);
+            }
             else
             {
                 struct mfo_value owner = {&c, payload_drop};
@@ -200,7 +218,9 @@ int main(int argc, char **argv)
         return 0;
     }
     if (argc != 1)
+    {
         return 2;
+    }
     boundaries();
     races();
     puts("Retained completion winner and cancellation request checks passed");

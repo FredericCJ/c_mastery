@@ -47,13 +47,21 @@ static void *work(void *v)
         size_t n = mbrtowc(&value, "\xe2\x82\xac", 3, &state);
         if (w->utf8 ? (n != 3 || value != 0x20ac)
                     : (n != (size_t)-1 || errno != EILSEQ))
+        {
             w->failed = 1;
+        }
         for (unsigned i = 0; i <= UCHAR_MAX; ++i)
+        {
             if (!!isspace_l((int)i, w->locale) != ascii_space((unsigned char)i))
+            {
                 w->failed = 1;
+            }
+        }
     }
     if (!uselocale(previous))
+    {
         w->failed = 1;
+    }
     return NULL;
 }
 
@@ -69,7 +77,9 @@ int main(void)
     FILE *f = tmpfile();
     CHECK(f);
     for (unsigned i = 0; i <= UCHAR_MAX; ++i)
+    {
         CHECK(fputc((int)i, f) != EOF);
+    }
     rewind(f);
     for (unsigned i = 0; i <= UCHAR_MAX; ++i)
     {

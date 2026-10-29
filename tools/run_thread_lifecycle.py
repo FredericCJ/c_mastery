@@ -16,7 +16,11 @@ def run(ident,args,expected=0,marker=None):
  try:p=subprocess.run([str(x) for x in args],cwd=ROOT,env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=30);output=p.stdout;code=p.returncode
  except subprocess.TimeoutExpired as ex:output=str(ex);code=124
  path=BUILD/(ident+'.log');path.write_text(output,encoding='utf8');OUTPUTS.add(path)
- passed=code==expected and (marker is None or marker in output)
+ # Markers often quote a stringified C assertion (#x), whose spacing follows
+ # the source layout; compare without whitespace so reformatting cannot
+ # turn a correct rejection into a missing marker.
+ squash=lambda text:''.join(text.split())
+ passed=code==expected and (marker is None or squash(marker) in squash(output))
  COMMANDS.append(dict(id=ident,command=[str(x) for x in args],exit_code=code,expected_exit=expected,required_marker=marker,passed=passed,elapsed_seconds=time.monotonic()-start,output=path.relative_to(ROOT).as_posix(),output_sha256=sha(path)))
  print(ident,'PASS' if passed else 'FAIL',flush=True)
  if not passed:raise RuntimeError(ident+'\n'+output[-3000:])

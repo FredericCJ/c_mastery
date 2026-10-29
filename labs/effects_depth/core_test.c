@@ -26,7 +26,9 @@ static unsigned char *take(void *v, size_t n)
     struct ef_alloc *a = v;
     ++a->requests;
     if (n != 32 || a->fail || a->live)
+    {
         return NULL;
+    }
     ++a->acquisitions;
     a->live = 32;
     return a->storage;
@@ -36,7 +38,9 @@ static void release(void *v, unsigned char *p)
 {
     struct ef_alloc *a = v;
     if (p != a->storage || a->live != 32)
+    {
         abort();
+    }
     ++a->releases;
     a->live = 0;
 }
@@ -45,7 +49,9 @@ static int callback(void *v, unsigned char *p, size_t n)
 {
     unsigned *a = v;
     if (n != 16)
+    {
         abort();
+    }
     p[0] = 1;
     return ++*a == 3 ? 1 : 0;
 }
@@ -75,7 +81,9 @@ int main(void)
           value == 294);
     CHECK(a.requests == 1 && a.acquisitions == 1 && a.live == 32);
     for (unsigned i = 0; i < 10; ++i)
+    {
         CHECK(ef_cached(&c, (const unsigned char *)"abc", 3, &value) == EF_OK);
+    }
     CHECK(a.requests == 1);
     const unsigned char *borrow = NULL;
     CHECK(ef_cache_borrow(&c, &borrow) == EF_OK && borrow == a.storage);
@@ -102,7 +110,9 @@ int main(void)
     struct ef_pool pool = {0};
     unsigned char *p = NULL;
     for (unsigned i = 0; i < 16; ++i)
+    {
         CHECK(ef_pool_take(&pool, &p) == EF_OK && p == &pool.bytes[i]);
+    }
     CHECK(ef_pool_take(&pool, &p) == EF_FULL && pool.requests == 17);
     CHECK(ef_pool_return(&pool, 7) == EF_OK &&
           ef_pool_take(&pool, &p) == EF_OK && p == &pool.bytes[7]);
@@ -138,20 +148,24 @@ int main(void)
     CHECK(ef_attempt(never_ready, NULL, 1, 16, &used) == EF_INCOMPLETE &&
           used == 16);
     for (size_t n = 0; n <= 16; ++n)
+    {
         for (unsigned distribution = 0; distribution < 5; ++distribution)
         {
             int input[17], expected[17];
             for (size_t i = 0; i < 17; ++i)
+            {
                 input[i] = distribution == 0   ? (int)i
                            : distribution == 1 ? (int)(16 - i)
                            : distribution == 2 ? (int)(i % 3)
                            : distribution == 3 ? (i & 1 ? INT_MIN : INT_MAX)
                                                : (int)((i * 19 + 7) % 13);
+            }
             memcpy(expected, input, sizeof input);
             qsort(expected, n, sizeof *expected, compare);
             CHECK(ef_sort(input, n) == EF_OK &&
                   memcmp(input, expected, sizeof input) == 0);
         }
+    }
     int rejected[17] = {2, 1};
     CHECK(ef_sort(rejected, 17) == EF_INVALID && rejected[0] == 2 &&
           rejected[1] == 1);
@@ -161,16 +175,20 @@ int main(void)
         r[i].key = (int)(i % 3);
         r[i].identity = i;
         for (unsigned j = 0; j < 32; ++j)
+        {
             r[i].payload[j] = (unsigned char)i;
+        }
     }
     CHECK(ef_sort_records(r, 16) == EF_OK);
     for (unsigned i = 0; i < 16; ++i)
     {
         CHECK(r[i].payload[0] == r[i].identity);
         if (i)
+        {
             CHECK(r[i - 1].key < r[i].key ||
                   (r[i - 1].key == r[i].key &&
                    r[i - 1].identity < r[i].identity));
+        }
     }
     struct ef_log log = {ATOMIC_FLAG_INIT, {0}, 0};
     CHECK(ef_log(&log, (const unsigned char *)"event", 5) == 1 &&

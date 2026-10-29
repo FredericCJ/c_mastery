@@ -12,16 +12,22 @@ __attribute__((noinline)) void dc_checkpoint(void)
 static void failed(void)
 {
     for (;;)
+    {
         __asm__ volatile("wfi");
+    }
 }
 
 void cl_reset(void)
 {
     uint32_t *s = &cl_data_load;
     for (uint32_t *d = &cl_data_start; d < &cl_data_end; ++d)
+    {
         *d = *s++;
+    }
     for (uint32_t *d = &cl_bss_start; d < &cl_bss_end; ++d)
+    {
         *d = 0;
+    }
     dc_bytes[0] = 1;
     dc_bytes[1] = 2;
     dc_bytes[2] = 3;
@@ -42,7 +48,9 @@ void cl_reset(void)
     dc_done = 1;
     dc_checkpoint();
     for (;;)
+    {
         __asm__ volatile("wfi");
+    }
 }
 
 __attribute__((section(".vectors"), used))

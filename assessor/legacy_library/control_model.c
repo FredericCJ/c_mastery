@@ -26,7 +26,9 @@ static void *consumer(void *unused)
     int seen = atomic_load_explicit(&ready, memory_order_acquire);
 #endif
     if (seen)
+    {
         assert(atomic_load_explicit(&payload, memory_order_relaxed) == 37);
+    }
     return 0;
 }
 
@@ -35,7 +37,9 @@ int main(void)
     pthread_t a, b;
     if (pthread_create(&a, 0, producer, 0) ||
         pthread_create(&b, 0, consumer, 0))
+    {
         return 1;
+    }
     pthread_join(a, 0);
     pthread_join(b, 0);
     return 0;

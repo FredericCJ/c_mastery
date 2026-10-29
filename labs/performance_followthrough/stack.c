@@ -34,7 +34,9 @@ __attribute__((noinline)) unsigned pf_outgoing(unsigned n)
 __attribute__((noinline)) unsigned pf_dynamic(size_t n)
 {
     if (!n)
+    {
         return 0;
+    }
     volatile unsigned char a[n];
     a[n - 1] = 7;
     return a[n - 1];
@@ -49,7 +51,9 @@ __attribute__((noinline)) unsigned pf_indirect(unsigned (*f)(unsigned),
 __attribute__((noinline)) unsigned pf_work(unsigned n)
 {
     if (n & 1)
+    {
         return pf_static(n) + 1;
+    }
     return pf_bounded(n) + 2;
 }
 
@@ -57,9 +61,13 @@ __attribute__((noinline)) unsigned pf_sequential(unsigned n)
 {
     volatile unsigned work = 0;
     for (unsigned i = 0; i < n; ++i)
+    {
         ++work;
+    }
     for (unsigned j = 0; j < n; ++j)
+    {
         ++work;
+    }
     return work;
 }
 
@@ -67,8 +75,12 @@ __attribute__((noinline)) unsigned pf_nested(unsigned n)
 {
     volatile unsigned work = 0;
     for (unsigned i = 0; i < n; ++i)
+    {
         for (unsigned j = 0; j < n; ++j)
+        {
             ++work;
+        }
+    }
     return work;
 }
 

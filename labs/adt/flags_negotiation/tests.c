@@ -37,7 +37,9 @@ static int negotiate(void)
     enum adf_status status = adf_negotiate(a, b, (struct adf_offer){0, 0},
                                            (struct adf_offer){8, 0}, &r);
     if (status == ADF_OK && (r.enabled & UINT32_C(8)))
+    {
         ++counter;
+    }
     CHECK(counter == 0 && status == ADF_UNSUPPORTED && same(r, old));
     CHECK(adf_negotiate(a, b, (struct adf_offer){0, UINT32_MAX},
                         (struct adf_offer){0, 0}, &r) == ADF_OK);
@@ -88,6 +90,7 @@ static int negotiate(void)
 static int sets(void)
 {
     for (uint32_t a = 0; a < 8; ++a)
+    {
         for (uint32_t b = 0; b < 8; ++b)
         {
             struct ad_flags x = {a}, y = {b}, r = {99}, u, i;
@@ -112,6 +115,7 @@ static int sets(void)
                       left.bits == right.bits);
             }
         }
+    }
     struct ad_flags r = {99};
     CHECK(adf_union((struct ad_flags){8}, (struct ad_flags){1}, &r) ==
               ADF_INVALID &&
@@ -164,13 +168,21 @@ static int original(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "flags_negotiation"))
+    {
         return negotiate();
+    }
     if (!strcmp(argv[1], "flags_sets"))
+    {
         return sets();
+    }
     if (!strcmp(argv[1], "flags_base"))
+    {
         return original();
+    }
     if (!strcmp(argv[1], "oracle"))
     {
         unsigned lv, pv;
@@ -217,7 +229,9 @@ int main(int argc, char **argv)
             sizeof(struct adf_capabilities), sizeof(struct adf_offer),
             sizeof(struct adf_agreement), checksum);
         for (unsigned i = 0; i < 7; ++i)
+        {
             printf("%s%.9f", i ? "," : "", times[i]);
+        }
         puts("]}");
         return 0;
     }

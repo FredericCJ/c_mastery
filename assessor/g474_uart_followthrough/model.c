@@ -30,11 +30,17 @@ static uint32_t rd(void *v, enum g4_reg r)
 {
     struct g4_model *m = v;
     if (r == G4_RCC_CR && ++m->cr == m->ready_after)
+    {
         m->reg[r] |= 1u << 10;
+    }
     if (r == G4_USART_ISR && ++m->ack == m->ack_after)
+    {
         m->reg[r] |= 1u << 21;
+    }
     if (m->count < 100)
+    {
         m->events[m->count++] = (struct g4_event){r, m->reg[r], 'r'};
+    }
     return m->reg[r];
 }
 
@@ -43,7 +49,9 @@ static void wr(void *v, enum g4_reg r, uint32_t x)
     struct g4_model *m = v;
     m->reg[r] = x;
     if (m->count < 100)
+    {
         m->events[m->count++] = (struct g4_event){r, x, 'w'};
+    }
 }
 
 static uint32_t tick(void *v)
@@ -76,7 +84,9 @@ int main(void)
                                  139,   69,    35,    17,   16};
     unsigned cases = 0;
     for (unsigned n = 0; n < sizeof rates / sizeof rates[0]; n++)
+    {
         for (unsigned ready = 2; ready <= 5; ready++)
+        {
             for (unsigned ack = 1; ack <= 4; ack++)
             {
                 struct g4_model m;
@@ -112,39 +122,63 @@ int main(void)
                     if (e.reg == G4_RCC_AHB2ENR)
                     {
                         if (e.op == 'w')
+                        {
                             gpio_clock = (int)j;
+                        }
                         else if (gpio_clock >= 0)
+                        {
                             gpio_read = (int)j;
+                        }
                     }
                     if (e.reg == G4_RCC_APB1ENR1)
                     {
                         if (e.op == 'w')
+                        {
                             usart_clock = (int)j;
+                        }
                         else if (usart_clock >= 0)
+                        {
                             usart_read = (int)j;
+                        }
                     }
                     if (e.op == 'w' && e.reg == G4_RCC_APB1RSTR1)
                     {
                         if (e.value & (1u << 17))
+                        {
                             reset_high = (int)j;
+                        }
                         else
+                        {
                             reset_low = (int)j;
+                        }
                     }
                     if (e.op == 'w' && e.reg == G4_RCC_CCIPR)
+                    {
                         clock_select = (int)j;
+                    }
                     if (e.op == 'w' && e.reg == G4_GPIO_OTYPER)
+                    {
                         first_gpio = (int)j;
+                    }
                     if (e.op == 'w' && e.reg == G4_USART_CR1)
                     {
                         if (e.value == 0)
+                        {
                             disable = (int)j;
+                        }
                         else
+                        {
                             enable = (int)j;
+                        }
                     }
                     if (e.op == 'w' && e.reg == G4_USART_BRR)
+                    {
                         brr = (int)j;
+                    }
                     if (e.op == 'r' && e.reg == G4_USART_ISR)
+                    {
                         ack_read = (int)j;
+                    }
                 }
                 CHECK(gpio_clock >= 0 && gpio_read > gpio_clock &&
                       first_gpio > gpio_read);
@@ -154,7 +188,10 @@ int main(void)
                       brr > disable && enable > brr && ack_read > enable);
                 ++cases;
             }
+        }
+    }
     for (unsigned ready = 0; ready <= 6; ready++)
+    {
         for (unsigned ack = 0; ack <= 5; ack++)
         {
             struct g4_model m;
@@ -175,9 +212,12 @@ int main(void)
                       (m.reg[G4_RCC_APB1ENR1] & (1u << 17)));
             }
             else
+            {
                 CHECK(status == G4_OK);
+            }
             ++cases;
         }
+    }
     for (unsigned i = 0; i < 8; i++)
     {
         struct g4_model m;
@@ -189,21 +229,37 @@ int main(void)
         unsigned limit = 4;
         struct g4_init *dst = &out;
         if (i == 0)
+        {
             rate = 0;
+        }
         else if (i == 1)
+        {
             rate = 244;
+        }
         else if (i == 2)
+        {
             rate = 1000001;
+        }
         else if (i == 3)
+        {
             limit = 0;
+        }
         else if (i == 4)
+        {
             limit = 1000001;
+        }
         else if (i == 5)
+        {
             io.read = 0;
+        }
         else if (i == 6)
+        {
             io.write = 0;
+        }
         else
+        {
             dst = 0;
+        }
         CHECK(g4_initialize(io, rate, limit, dst) == G4_INVALID);
         CHECK(!memcmp(&m, &before, sizeof m) &&
               !memcmp(&out, &old, sizeof out));

@@ -92,13 +92,18 @@ static void cohort(void)
         CHECK(c.bytes.cursor == 13 && c.bytes.payload == 13 &&
               c.bytes.high == 13);
         for (unsigned i = 0; i < 4; ++i)
+        {
             CHECK(c.objects[i].live && c.objects[i].opens == batch + 1);
+        }
         CHECK(bf_cohort_reset(&c) == MB_OK);
         for (unsigned i = 0; i < 4; ++i)
+        {
             CHECK(!c.objects[i].live && c.objects[i].closes == batch + 1 &&
                   c.trace[batch * 4 + i] == batch * 4 + 4 - i);
+        }
     }
     for (unsigned kind = 0; kind < 2; ++kind)
+    {
         for (unsigned at = 1; at <= 4; ++at)
         {
             struct bf_cohort f;
@@ -117,6 +122,7 @@ static void cohort(void)
             }
             CHECK(opened == closed && opened == (kind ? at : at - 1));
         }
+    }
     struct bf_cohort empty;
     bf_cohort_init(&empty);
     unsigned char bad[] = {1, 0, 0, 1};
@@ -165,7 +171,9 @@ static struct bf_chunk *acquire(void *v)
           bf_growth_reset(h->g) == MB_BUSY);
     ++h->attempts;
     if (h->attempts == h->fail)
+    {
         return NULL;
+    }
     struct bf_chunk *c = malloc(sizeof *c);
     CHECK(c);
     h->live[h->count++] = c;
@@ -215,8 +223,10 @@ static void growth(void)
               g.occupied == g.payload && g.high == g.payload &&
               g.capacity_high == 32 * admitted);
         if (!fail)
+        {
             CHECK(bf_growth_alloc(&g, 20, 8, &span) == MB_FULL &&
                   h.attempts == 3);
+        }
         CHECK(bf_growth_reset(&g) == MB_OK && h.releases == admitted - 1 &&
               !h.count && g.count == 1 && !g.payload &&
               g.high == 20 * admitted);
@@ -307,7 +317,9 @@ static void retry(void)
     CHECK(bf_arena_get(&r.arena, old, 0, &out) == B2_STALE &&
           !r.arena.raw.cursor && r.active);
     for (unsigned i = 0; i < 14; ++i)
+    {
         CHECK(bf_retry_reset(&r) == B2_OK);
+    }
     CHECK(!r.active && bf_retry_reserve(&r, 1, 1, &b) == B2_FULL &&
           bf_retry_reset(&r) == B2_OK);
     puts(
@@ -323,7 +335,9 @@ static int extents(void)
         mb_region_init(&r);
         struct mb_span unused;
         if (cursor)
+        {
             CHECK(mb_region_alloc(&r, cursor, 1, &unused) == MB_OK);
+        }
         struct mb_span out = {NULL, 77, 77, 77};
         int rc = mb_region_alloc(&r, n, a, &out);
         printf("%d %zu %zu %zu %zu\n", rc, out.offset, r.cursor, r.payload,
@@ -342,7 +356,9 @@ static int slices(void)
         struct bf_slice_span out = {NULL, 77, 77, 77}, unused;
         CHECK(bf_slice_init(&s, storage, 64, begin, 64 - begin) == MB_OK);
         if (cursor)
+        {
             CHECK(bf_slice_alloc(&s, cursor, 1, &unused) == MB_OK);
+        }
         int rc = bf_slice_alloc(&s, n, a, &out);
         printf("%d %zu %zu %zu %zu\n", rc, out.offset, s.cursor, s.payload,
                s.high);
@@ -360,7 +376,9 @@ static struct bf_chunk *pool_get(void *v)
 {
     struct bf_pool *p = v;
     if (++p->attempts == p->fail)
+    {
         return NULL;
+    }
     return &p->cells[p->used++];
 }
 
@@ -404,33 +422,57 @@ int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (!strcmp(argv[1], "region"))
+    {
         region();
+    }
     else if (!strcmp(argv[1], "cohort"))
+    {
         cohort();
+    }
     else if (!strcmp(argv[1], "slice"))
+    {
         slice();
+    }
     else if (!strcmp(argv[1], "growth"))
+    {
         growth();
+    }
     else if (!strcmp(argv[1], "children"))
+    {
         children();
+    }
     else if (!strcmp(argv[1], "retry"))
+    {
         retry();
+    }
     else if (!strcmp(argv[1], "extents"))
+    {
         return extents();
+    }
     else if (!strcmp(argv[1], "slices"))
+    {
         return slices();
+    }
     else if (!strcmp(argv[1], "oracle"))
+    {
         return history();
+    }
     else if (!strcmp(argv[1], "limits"))
+    {
         printf("%zu %zu\n", SIZE_MAX, _Alignof(max_align_t));
+    }
     else if (!strcmp(argv[1], "metrics"))
+    {
         printf(
             "{\"region_bytes\":%zu,\"object_bytes\":%zu,\"object_align\":%zu,\"cohort_bytes\":%zu,\"slice_bytes\":%zu,\"growth_bytes\":%zu,\"chunk_bytes\":%zu,\"retry_bytes\":%zu}\n",
             sizeof(struct mb_region), sizeof(struct bf_object),
             _Alignof(struct bf_object), sizeof(struct bf_cohort),
             sizeof(struct bf_slice), sizeof(struct bf_growth),
             sizeof(struct bf_chunk), sizeof(struct bf_retry_region));
+    }
     else
+    {
         return 2;
+    }
     return 0;
 }

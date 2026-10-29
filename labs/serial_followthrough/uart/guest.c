@@ -80,11 +80,15 @@ void xf_target_main(void)
     {
         int r = ua_cases(i);
         if (r)
+        {
             stop((unsigned)r);
+        }
     }
     int r = ua_mapped();
     if (r)
+    {
         stop((unsigned)r);
+    }
     text("UA_GUEST_PASS model-in-RAM no-physical-USART\n");
     stop(0);
 }

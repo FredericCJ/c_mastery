@@ -12,7 +12,9 @@ int main(void)
         {
             size_t o, c, w, l, result = 917;
             if (scanf("%zu %zu %zu %zu", &o, &c, &w, &l) != 4)
+            {
                 return 2;
+            }
             enum fd_status s = fd_extent(o, c, w, l, &result);
             printf("E %d %zu\n", s, result);
         }
@@ -23,7 +25,9 @@ int main(void)
             {
                 unsigned x;
                 if (scanf("%x", &x) != 1 || x > 255)
+                {
                     return 2;
+                }
                 bytes[i] = (unsigned char)x;
             }
             struct fd_record r = {3, 999, 42};
@@ -32,7 +36,9 @@ int main(void)
                    (unsigned)r.count, r.value);
         }
         else
+        {
             return 2;
+        }
     }
     return 0;
 }

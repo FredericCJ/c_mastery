@@ -24,7 +24,9 @@ static int scripted(void *arg, unsigned *expected, unsigned desired, int weak)
     CHECK(s->call < 16);
     s->desired[s->call++] = desired;
     if (!weak)
+    {
         s->strong++;
+    }
     if (weak && s->spurious)
     {
         s->spurious--;
@@ -62,14 +64,20 @@ static void orders(void)
                                  {2, 2}, {3, 0}, {4, 0}, {4, 1}, {4, 2},
                                  {5, 0}, {5, 1}, {5, 2}, {5, 5}};
     for (unsigned s = 0; s < 6; s++)
+    {
         for (unsigned f = 0; f < 6; f++)
         {
             int expected = 0;
             for (size_t i = 0; i < sizeof pairs / sizeof pairs[0]; i++)
+            {
                 if (pairs[i][0] == s && pairs[i][1] == f)
+                {
                     expected = 1;
+                }
+            }
             CHECK(ta_order_pair(s, f) == expected);
         }
+    }
     CHECK(!ta_order_pair(6, 0) && !ta_order_pair(0, 6));
     atomic_uint p;
     atomic_init(&p, 0);
@@ -164,7 +172,9 @@ static int native_node_cas(void *arg, struct ta_node **expected,
     if (!atomic_compare_exchange_strong_explicit(&n->head, expected, desired,
                                                  memory_order_acq_rel,
                                                  memory_order_acquire))
+    {
         return 0;
+    }
     struct ta_node *receiver =
         atomic_exchange_explicit(&n->head, NULL, memory_order_acq_rel);
     CHECK(receiver == desired);
@@ -246,12 +256,20 @@ int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (!strcmp(argv[1], "orders"))
+    {
         orders();
+    }
     else if (!strcmp(argv[1], "retry"))
+    {
         retry();
+    }
     else if (!strcmp(argv[1], "ownership"))
+    {
         ownership();
+    }
     else
+    {
         return 2;
+    }
     return 0;
 }

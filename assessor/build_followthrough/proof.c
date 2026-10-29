@@ -38,15 +38,21 @@ unsigned proved_sum(const unsigned *a, unsigned n)
 int checked_sum(const unsigned *a, unsigned extent, unsigned n, unsigned *out)
 {
     if (n > 4 || n > extent)
+    {
         return 1;
+    }
     /*@ loop invariant 0 <= j <= n;
         loop invariant \forall integer k; 0 <= k < j ==> a[k] <= 10;
         loop assigns j;
         loop variant n-j;
     */
     for (unsigned j = 0; j < n; ++j)
+    {
         if (a[j] > 10)
+        {
             return 2;
+        }
+    }
     *out = proved_sum(a, n);
     return 0;
 }

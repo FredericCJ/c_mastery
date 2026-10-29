@@ -38,7 +38,9 @@ static int print_body(void *opaque, struct hp_int input, struct hp_int *output)
     }
     struct hp_int result = {{0}, 127};
     for (unsigned i = 0; i < 127; ++i)
+    {
         result.data[i] = 'q';
+    }
     *output = result;
     return HO_OK;
 }
@@ -46,8 +48,12 @@ static int print_body(void *opaque, struct hp_int input, struct hp_int *output)
 static int same(const char *left, const char *right)
 {
     for (unsigned i = 0; i < 128; ++i)
+    {
         if (left[i] != right[i])
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
@@ -68,7 +74,9 @@ int main(void)
         struct mf_context p = {0, full};
         struct hp_fun sentinel = {{0}, 6};
         for (unsigned i = 0; i < 128; ++i)
+        {
             sentinel.data[i] = 's';
+        }
         sentinel.data[6] = 0;
         struct hp_fun value = sentinel;
         status = render.lam(print_body, &p, &value);
@@ -79,7 +87,9 @@ int main(void)
     }
     struct hp_fun full = {{0}, 127};
     for (unsigned i = 0; i < 127; ++i)
+    {
         full.data[i] = 'q';
+    }
     struct hp_int argument = {{'1', 0}, 1};
     struct hp_int sentinel = {{'9', 0}, 1}, rendered = sentinel;
     status = render.app(full, argument, &rendered);

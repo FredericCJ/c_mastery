@@ -8,10 +8,15 @@ int main(void)
                               0x30040040u, 0x30047ff0u, 0xfffffff0u};
     unsigned serial = 0;
     for (unsigned board = 0; board < 2; board++)
+    {
         for (unsigned cached = 0; cached < 2; cached++)
+        {
             for (unsigned b = 0; b < 6; b++)
+            {
                 for (unsigned offset = 0; offset < 36; offset++)
+                {
                     for (unsigned len = 0; len < 68; len++)
+                    {
                         for (unsigned width = 1; width < 5; width++)
                         {
                             uint32_t total = 777;
@@ -27,10 +32,19 @@ int main(void)
                                    board, cached, b, offset, len, width, r,
                                    total);
                         }
+                    }
+                }
+            }
+        }
+    }
     for (unsigned cancel = 0; cancel < 2; cancel++)
+    {
         for (unsigned en = 0; en < 2; en++)
+        {
             for (unsigned empty = 0; empty < 2; empty++)
+            {
                 for (unsigned flags = 0; flags < 64; flags++)
+                {
                     for (unsigned remaining = 0; remaining <= 18; remaining++)
                     {
                         struct dg_model m = {0};
@@ -40,7 +54,9 @@ int main(void)
                         struct pd_result out = {99, 99, 99, 99};
                         int start = pd_submit(&s, io, PD_F439, 0, &e, 1, 1);
                         if (cancel)
+                        {
                             (void)pd_cancel(&s, io, 1);
+                        }
                         m.snap = (struct pd_snapshot){1, en, remaining, flags,
                                                       empty};
                         int r = pd_poll(&s, io, 1);
@@ -50,7 +66,12 @@ int main(void)
                                out.status, out.complete_bytes,
                                out.possibly_written_bytes);
                     }
+                }
+            }
+        }
+    }
     for (unsigned width = 1; width <= 4; width *= 2)
+    {
         for (unsigned cut = 0; cut <= 49; cut++)
         {
             struct pd_extent v[3], out[4];
@@ -65,10 +86,15 @@ int main(void)
             int r = pd_suffix(v, 3, cut, out, &n);
             printf("R %u %u %d %u", width, cut, r, n);
             if (r == PD_OK)
+            {
                 for (unsigned k = 0; k < n; k++)
+                {
                     printf(" %u %u %u", out[k].source, out[k].destination,
                            out[k].bytes);
+                }
+            }
             puts("");
         }
+    }
     return 0;
 }

@@ -60,7 +60,9 @@ static enum ow_status create(struct ow_world *w, unsigned i)
 {
     struct ow_node *n = w->memory.take(w->memory.context, sizeof(*n));
     if (!n)
+    {
         return OW_NOMEM;
+    }
     int32_t *payload = w->cells.take(w->cells.context, 1);
     if (!payload)
     {
@@ -83,9 +85,13 @@ static void drain(struct ow_world *w)
     {
         struct ow_edge e = w->pending[--w->pending_count];
         if (e.weak)
+        {
             (void)ow_shared_weak_drop(&e.node->refs);
+        }
         else
+        {
             (void)ow_shared_drop(&e.node->refs);
+        }
     }
 }
 
@@ -94,7 +100,9 @@ enum ow_status orc_cycle(struct orc_memory m, struct v4_allocator a, int weak,
 {
     if (!out || !m.take || !m.release || !a.take || !a.release ||
         (weak != 0 && weak != 1))
+    {
         return OW_INVALID;
+    }
     struct ow_world w = {0};
     w.memory = m;
     w.cells = a;
@@ -104,7 +112,9 @@ enum ow_status orc_cycle(struct orc_memory m, struct v4_allocator a, int weak,
         if (s != OW_OK)
         {
             for (unsigned j = 0; j < i; ++j)
+            {
                 (void)ow_shared_drop(&w.node[j]->refs);
+            }
             return s;
         }
     }

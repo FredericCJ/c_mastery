@@ -50,7 +50,9 @@ static void exercise(void)
     cl_pool_init(&pool);
     cl_owned_init(&owned);
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(cl_alloc(&pool, 4, &h[i]) == CL_OK);
+    }
     CHECK(cl_release(&pool, h[0]) == CL_OK && cl_release(&pool, h[2]) == CL_OK);
     CHECK(cl_alloc(&pool, 6, &large) == CL_FRAGMENTED &&
           cl_release(&pool, h[1]) == CL_OK &&
@@ -96,10 +98,14 @@ void cl_reset(void)
     uintptr_t source = (uintptr_t)&cl_data_load;
     for (uintptr_t p = (uintptr_t)&cl_data_start; p < (uintptr_t)&cl_data_end;
          p += 4, source += 4)
+    {
         *(uint32_t *)p = *(const uint32_t *)source;
+    }
     for (uintptr_t p = (uintptr_t)&cl_bss_start; p < (uintptr_t)&cl_bss_end;
          p += 4)
+    {
         *(uint32_t *)p = 0;
+    }
     exercise();
     stop(0);
 }

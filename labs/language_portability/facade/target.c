@@ -21,7 +21,9 @@ int bf_target_main(void)
     if (B2_IDENTITY(i++) != 7 || i != 8 || B2_IDENTITY(u++) != 9 || u != 10 ||
         BF_BORROW(c) != &r || bf_sequence(get, 0, get, 0, &out) || out != 102 ||
         calls != 2)
+    {
         return 1;
+    }
     bf_observed = out;
     return 0;
 }

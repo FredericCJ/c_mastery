@@ -92,7 +92,9 @@ int main(void)
         2, 2, 0, 0, 0, 0,  2, 192, 0, 2, 2, 2, 0, 0, 0, 0, 37, 192, 0, 2, 1};
     CHECK(!memcmp(frame.bytes, expected_reply, 42) && frame.length == 60);
     for (unsigned i = 42; i < 60; ++i)
+    {
         CHECK(frame.bytes[i] == 0);
+    }
     CHECK(na_submit(&s, ticket, 0) == NA_OK && s.reply_pending && s.pending);
     CHECK(na_prepare(&s, 0, &frame, &ticket) == NA_OK &&
           ticket.kind == NA_REPLY);

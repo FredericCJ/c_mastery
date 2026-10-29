@@ -22,7 +22,9 @@ enum sd_status sd_transfer_init(struct sd_transfer *x, unsigned char *buffer,
                                 size_t length, int reading)
 {
     if (!x || (!buffer && length) || (reading != 0 && reading != 1))
+    {
         return SD_ARGUMENT;
+    }
     x->buffer = buffer;
     x->length = length;
     x->offset = 0;
@@ -37,10 +39,14 @@ enum sd_transfer_status sd_transfer_step(struct sd_transfer *x,
                                          size_t budget, int cancel)
 {
     if (!x || !backend || x->offset > x->length || (!x->buffer && x->length))
+    {
         return SD_BACKEND_BROKEN;
+    }
     if (x->status != SD_READY && x->status != SD_BLOCKED &&
         x->status != SD_YIELD)
+    {
         return x->status;
+    }
     if (cancel)
     {
         x->status = SD_CANCELLED;
@@ -68,7 +74,9 @@ enum sd_transfer_status sd_transfer_step(struct sd_transfer *x,
         if (result.failed)
         {
             if (result.error == 4)
+            {
                 continue;
+            }
             x->error = result.error;
             x->status = result.error == 11 ? SD_BLOCKED : SD_IO_ERROR;
             return x->status;

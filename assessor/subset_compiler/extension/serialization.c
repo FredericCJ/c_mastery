@@ -21,14 +21,18 @@ static void wr16(unsigned char *p, unsigned x)
 static void wr32(unsigned char *p, uint32_t x)
 {
     for (unsigned i = 0; i < 4; i++)
+    {
         p[i] = (unsigned char)(x >> (8 * i));
+    }
 }
 
 static int canonical(const struct ce_program *p)
 {
     unsigned h[CE_CODE];
     if (!ce_verify(p, h))
+    {
         return 0;
+    }
     for (unsigned f = 0; f < p->functions; f++)
     {
         const struct ce_func *g = &p->fn[f];
@@ -38,30 +42,50 @@ static int canonical(const struct ce_program *p)
             unsigned c = (unsigned char)g->name[z];
             if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
                   c == '_' || (z && c >= '0' && c <= '9')))
+            {
                 return 0;
+            }
             z++;
         }
         if (!z || z == 16)
+        {
             return 0;
+        }
         for (size_t j = z; j < 16; j++)
+        {
             if (g->name[j])
+            {
                 return 0;
+            }
+        }
         for (unsigned j = g->locals; j < CE_LOCALS; j++)
+        {
             if (g->types[j])
+            {
                 return 0;
+            }
+        }
         for (unsigned j = 0; j < f; j++)
+        {
             if (!strcmp(g->name, p->fn[j].name))
+            {
                 return 0;
+            }
+        }
     }
     if (strcmp(p->fn[p->functions - 1].name, "main"))
+    {
         return 0;
+    }
     for (unsigned i = 0; i < p->count; i++)
     {
         struct ce_ins a = p->code[i];
         if (a.op != CE_CONST && a.op != CE_LOAD && a.op != CE_STORE &&
             a.op != CE_JZ && a.op != CE_JMP && a.op != CE_CALL &&
             a.op != CE_TO_U32 && a.arg)
+        {
             return 0;
+        }
     }
     return 1;
 }
@@ -71,10 +95,14 @@ int ce_pack(const struct ce_program *p, unsigned char *out, size_t cap,
 {
     unsigned char b[4252] = {0};
     if (!out || !written || !canonical(p))
+    {
         return 0;
+    }
     size_t n = 8 + 37 * p->functions + 8 * p->count;
     if (cap < n)
+    {
         return 0;
+    }
     memcpy(b, "CEIR", 4);
     b[4] = 1;
     b[5] = (unsigned char)p->functions;
@@ -87,7 +115,9 @@ int ce_pack(const struct ce_program *p, unsigned char *out, size_t cap,
         wr16(b + at + 2, g->end);
         b[at + 4] = (unsigned char)g->locals;
         for (unsigned j = 0; j < 16; j++)
+        {
             b[at + 5 + j] = (unsigned char)g->types[j];
+        }
         memcpy(b + at + 21, g->name, 16);
         at += 37;
     }
@@ -106,12 +136,16 @@ int ce_unpack(const unsigned char *b, size_t n, struct ce_program *out)
 {
     struct ce_program p = {0};
     if (!b || !out || n < 8 || memcmp(b, "CEIR", 4) || b[4] != 1)
+    {
         return 0;
+    }
     p.functions = b[5];
     p.count = rd16(b + 6);
     if (!p.functions || p.functions > 4 || !p.count || p.count > 512 ||
         n != 8 + 37 * p.functions + 8 * p.count)
+    {
         return 0;
+    }
     size_t at = 8;
     for (unsigned f = 0; f < p.functions; f++)
     {
@@ -120,19 +154,25 @@ int ce_unpack(const unsigned char *b, size_t n, struct ce_program *out)
         g->end = rd16(b + at + 2);
         g->locals = b[at + 4];
         for (unsigned j = 0; j < 16; j++)
+        {
             g->types[j] = b[at + 5 + j];
+        }
         memcpy(g->name, b + at + 21, 16);
         at += 37;
     }
     for (unsigned i = 0; i < p.count; i++)
     {
         if (b[at + 1] || b[at + 2] || b[at + 3])
+        {
             return 0;
+        }
         p.code[i] = (struct ce_ins){b[at], rd32(b + at + 4)};
         at += 8;
     }
     if (!canonical(&p))
+    {
         return 0;
+    }
     *out = p;
     return 1;
 }

@@ -11,7 +11,9 @@ static void *work(void *result)
 {
     volatile uint32_t sum = 0;
     for (uint32_t i = 0; i < 20000000; ++i)
+    {
         sum += i;
+    }
     *(uint32_t *)result = sum;
     return NULL;
 }
@@ -24,7 +26,9 @@ static double sec(struct timespec t)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     struct timespec a, b, c, d, res;
     struct rusage ra, rb;
     uint32_t sums[2] = {0};
@@ -33,7 +37,9 @@ int main(int argc, char **argv)
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &c);
     getrusage(RUSAGE_SELF, &ra);
     if (!strcmp(argv[1], "cpu"))
+    {
         work(sums);
+    }
     else if (!strcmp(argv[1], "wait"))
     {
         struct timespec delay = {0, 20000000};
@@ -46,12 +52,18 @@ int main(int argc, char **argv)
         pthread_t x, y;
         if (pthread_create(&x, NULL, work, &sums[0]) ||
             pthread_create(&y, NULL, work, &sums[1]))
+        {
             return 3;
+        }
         if (pthread_join(x, NULL) || pthread_join(y, NULL))
+        {
             return 4;
+        }
     }
     else if (strcmp(argv[1], "observer"))
+    {
         return 2;
+    }
     getrusage(RUSAGE_SELF, &rb);
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &d);
     clock_gettime(CLOCK_MONOTONIC, &b);

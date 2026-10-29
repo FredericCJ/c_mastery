@@ -11,7 +11,9 @@ int cvm_store_host(void *ctx, uint8_t service, int32_t input, int32_t *output)
     uint32_t u;
     int status;
     if (!s || !output)
+    {
         return STORE_INVALID;
+    }
     if (service == 1)
     {
         u = (uint32_t)input;
@@ -22,7 +24,9 @@ int cvm_store_host(void *ctx, uint8_t service, int32_t input, int32_t *output)
         }
         status = store_begin(s);
         if (status != STORE_OK)
+        {
             return status;
+        }
         status = store_put(s, key, sizeof key - 1, bytes, sizeof bytes);
         if (status != STORE_OK)
         {
@@ -31,7 +35,9 @@ int cvm_store_host(void *ctx, uint8_t service, int32_t input, int32_t *output)
         }
         status = store_commit(s);
         if (status != STORE_OK)
+        {
             return status;
+        }
         *output = input;
         return 0;
     }
@@ -39,9 +45,13 @@ int cvm_store_host(void *ctx, uint8_t service, int32_t input, int32_t *output)
     {
         status = store_get(s, key, sizeof key - 1, bytes, sizeof bytes, &n);
         if (status != STORE_OK)
+        {
             return status;
+        }
         if (n != 4)
+        {
             return STORE_CORRUPT;
+        }
         u = (uint32_t)bytes[0] | ((uint32_t)bytes[1] << 8) |
             ((uint32_t)bytes[2] << 16) | ((uint32_t)bytes[3] << 24);
         *output = u <= INT32_MAX ? (int32_t)u

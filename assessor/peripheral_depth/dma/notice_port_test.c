@@ -37,9 +37,13 @@ void pd_port_barrier(void)
 uint32_t pd_port_read(uint32_t a)
 {
     if (a != 0x58026484u || !mask || locked)
+    {
         bad++;
+    }
     if (force_busy)
+    {
         return 0x80000100u + ((PD_PEER_M7 ? 3u : 1u) == 1 ? 512 : 0);
+    }
     locked = 1;
     return 0x80000000u | ((PD_PEER_M7 ? 3u : 1u) << 8);
 }
@@ -48,14 +52,18 @@ void pd_port_write(uint32_t a, uint32_t v)
 {
     if (a != 0x58026404u || v != ((PD_PEER_M7 ? 3u : 1u) << 8) || !locked ||
         !mask)
+    {
         bad++;
+    }
     locked = 0;
 }
 
 struct pd_notice *pd_port_memory(void)
 {
     if (!locked || !mask)
+    {
         bad++;
+    }
     return &local;
 }
 
@@ -63,7 +71,9 @@ int fw_h745_cache(uint32_t a, uint32_t n, enum fw_cache_op op)
 {
     cache_calls++;
     if (!locked || !mask)
+    {
         bad++;
+    }
     if (a == 0x30040020u && n == 32)
     {
         if (op == H7_INVALIDATE)
@@ -77,12 +87,18 @@ int fw_h745_cache(uint32_t a, uint32_t n, enum fw_cache_op op)
             cleans++;
         }
         else
+        {
             bad++;
+        }
     }
     else if (a == 0x30040100u && n == 32 && op == H7_INVALIDATE)
+    {
         payload++;
+    }
     else
+    {
         bad++;
+    }
     return 0;
 }
 

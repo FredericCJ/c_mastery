@@ -26,7 +26,9 @@ uint64_t cpl_token(const struct cpl_reader *r)
 int cpl_open(struct cpl_reader *r, int epfd, int fd, int edge)
 {
     if (!r || r->live || r->retired)
+    {
         return -1;
+    }
     int flags = fcntl(fd, F_GETFL);
     if (flags < 0 || !(flags & O_NONBLOCK))
     {
@@ -55,10 +57,14 @@ enum cpl_status cpl_pump(struct cpl_reader *r, uint64_t token,
                          struct cpa_queue *q)
 {
     if (!r || !q)
+    {
         return CPL_ERROR;
+    }
     /* A saved fd integer never substitutes for this lifetime check. */
     if (!r->live || (CP_MUTANT != 29 && token != cpl_token(r)))
+    {
         return CPL_STALE;
+    }
     for (unsigned work = 0; work < 32; ++work)
     {
         struct cp_message message;
@@ -76,11 +82,15 @@ enum cpl_status cpl_pump(struct cpl_reader *r, uint64_t token,
                 return CPL_BLOCKED;
             }
             if (offered != CPA_OK)
+            {
                 return CPL_ERROR;
+            }
             struct cp_queue committed;
             cp_queue_init(&committed);
             if (cp_deliver(&r->parser, &committed) != CP_OK)
+            {
                 return CPL_ERROR;
+            }
             continue;
         }
         /* An empty feed also processes nested candidates already buffered by the parser. */
@@ -89,13 +99,21 @@ enum cpl_status cpl_pump(struct cpl_reader *r, uint64_t token,
                                         r->end - r->cursor, &used);
         r->cursor += used;
         if (status == CP_FRAME || status == CP_REJECT)
+        {
             continue;
+        }
         if (status != CP_NEED_MORE)
+        {
             return CPL_ERROR;
+        }
         if (r->cursor != r->end)
+        {
             return CPL_ERROR;
+        }
         if (r->eof)
+        {
             return r->parser.used ? CPL_TRUNCATED : CPL_EOF;
+        }
         ssize_t count = read(r->fd, r->bytes, sizeof r->bytes);
         if (count > 0)
         {
@@ -109,9 +127,13 @@ enum cpl_status cpl_pump(struct cpl_reader *r, uint64_t token,
             continue;
         }
         if (errno == EINTR)
+        {
             continue;
+        }
         if (errno == EAGAIN || errno == EWOULDBLOCK)
+        {
             return CPL_DRAINED;
+        }
         r->last_errno = errno;
         return CPL_ERROR;
     }
@@ -121,13 +143,19 @@ enum cpl_status cpl_pump(struct cpl_reader *r, uint64_t token,
 int cpl_close(struct cpl_reader *r)
 {
     if (!r || !r->live)
+    {
         return -1;
+    }
     /* Invalidate before disposal; external owner serializes reader operations. */
     r->live = 0;
     if (r->generation == r->generation_limit)
+    {
         r->retired = 1;
+    }
     else
+    {
         ++r->generation;
+    }
     int result = 0;
     if (epoll_ctl(r->epfd, EPOLL_CTL_DEL, r->fd, 0))
     {

@@ -8,14 +8,20 @@ static enum fd_status vulnerable(const unsigned char *wire, size_t n,
     struct fd_record r;
     enum fd_status status = fd_decode(wire, n, &r);
     if (status != FD_OK)
+    {
         return status;
+    }
     int64_t next = (int64_t)*counter + (int64_t)r.count * r.value;
     if (next < INT32_MIN || next > INT32_MAX)
+    {
         return FD_RANGE;
+    }
     *counter =
         (int32_t)next; /* defect: publication before trusted authorization */
     if (!allowed)
+    {
         return FD_DENIED;
+    }
     return FD_OK;
 }
 

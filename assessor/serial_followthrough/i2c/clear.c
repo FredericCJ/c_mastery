@@ -9,11 +9,17 @@ int ia_clear_begin(struct pi_recovery *s, struct pi_lines io,
     if (!s || !io.read || !io.release || exclusive > 1 || others > 1 || !half ||
         half >= UINT32_C(0x40000000) || budget <= half ||
         budget >= UINT32_C(0x80000000))
+    {
         return PI_INVALID;
+    }
     if (!exclusive || others)
+    {
         return PI_FORBIDDEN;
+    }
     if (s->active)
+    {
         return PI_BUSY;
+    }
     if (IA_MUTANT != 5 && io.read(io.context, PI_SCL) &&
         io.read(io.context, PI_SDA))
     {

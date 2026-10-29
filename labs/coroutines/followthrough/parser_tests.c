@@ -24,8 +24,10 @@ static int cut(void)
     C(cp_parse(n, 8, input, 2, 1, 100, &end, &d) == CP_COMMITTED && end == 91 &&
       d.offset == 1 && d.count == 1 && d.expected[0] == 'b' && d.committed);
     for (size_t available = 0; available < 2; available++)
+    {
         C(cp_parse(n, 8, input, available, 0, 100, &end, &d) == CO_PENDING &&
           end == 91 && d.offset == available);
+    }
     C(cp_parse(n, 8, (const unsigned char *)"ab", 2, 1, 100, &end, &d) ==
           CO_OK &&
       end == 2);
@@ -81,6 +83,7 @@ static int memo(void)
     const unsigned char alphabet[] = "01+x";
     unsigned power = 1, total = 0;
     for (size_t n = 0; n <= 7; n++, power *= 4)
+    {
         for (unsigned code = 0; code < power; code++)
         {
             unsigned char text[8];
@@ -92,12 +95,16 @@ static int memo(void)
                 text[i] = alphabet[v % 4];
                 v /= 4;
                 if (i % 2)
+                {
                     expected &= text[i] == '+';
+                }
                 else
                 {
                     expected &= text[i] == '0' || text[i] == '1';
                     if (text[i] == '1')
+                    {
                         sum++;
+                    }
                 }
             }
             m = (struct ce_memo){0};
@@ -107,12 +114,17 @@ static int memo(void)
                                        &value, &calls);
             C(r == (expected ? CO_OK : CO_NO_MATCH));
             if (expected)
+            {
                 C(end == n && value == sum);
+            }
             else
+            {
                 C(end == 91 && value == 92);
+            }
             C(calls <= n / 2 + 2);
             total++;
         }
+    }
     printf("CP_MEMO_CASES:%u\n", total);
     return 0;
 }
@@ -120,10 +132,16 @@ static int memo(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "cut"))
+    {
         return cut();
+    }
     if (!strcmp(argv[1], "memo"))
+    {
         return memo();
+    }
     return 2;
 }

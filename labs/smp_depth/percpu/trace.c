@@ -15,9 +15,13 @@ int main(void)
             int r = sp_layout(a, b, cpu, c, align, &l);
             printf("SP %d %" PRIu64, r, l.end);
             if (r == SP_OK)
+            {
                 for (unsigned i = 0; i < cpu * SP_PARTS; ++i)
+                {
                     printf(" %" PRIu64 ":%" PRIu64, l.spans[i].low,
                            l.spans[i].high);
+                }
+            }
             puts("");
         }
         else

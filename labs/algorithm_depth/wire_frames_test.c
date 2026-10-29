@@ -22,7 +22,9 @@ static unsigned char polynomial(const unsigned char *p, size_t n)
         {
             rem = (rem << 1) | ((byte >> (7 - b)) & 1u);
             if (rem & 256u)
+            {
                 rem ^= 0x107u;
+            }
         }
     }
     return (unsigned char)rem;
@@ -31,6 +33,7 @@ static unsigned char polynomial(const unsigned char *p, size_t n)
 static int frames(unsigned mode, const unsigned char *input, size_t n)
 {
     for (size_t first = 0; first <= n; ++first)
+    {
         for (size_t second = first; second <= n; ++second)
         {
             struct ad_framer f;
@@ -51,12 +54,18 @@ static int frames(unsigned mode, const unsigned char *input, size_t n)
                         size_t length;
                         CHECK(ad_frame_peek(&f, &p, &length) == AD_OK);
                         if (frames_seen == 0)
+                        {
                             CHECK(length == 3 && !memcmp(p, "ABC", 3));
+                        }
                         else if (frames_seen == 1)
+                        {
                             CHECK(length == 0);
+                        }
                         else
+                        {
                             CHECK(frames_seen == 2 && length == 2 &&
                                   !memcmp(p, "XY", 2));
+                        }
                         struct ad_framer saved = f;
                         size_t stalled = 99;
                         CHECK(ad_frame_feed(&f, input + at, n - at, &stalled) ==
@@ -66,11 +75,14 @@ static int frames(unsigned mode, const unsigned char *input, size_t n)
                         CHECK(ad_frame_ack(&f) == AD_OK);
                     }
                     else
+                    {
                         CHECK(status == AD_INCOMPLETE);
+                    }
                 }
             }
             CHECK(frames_seen == 3 && ad_frame_end(&f) == AD_OK);
         }
+    }
     return 0;
 }
 
@@ -94,6 +106,7 @@ int main(void)
     bytes[1] = 1;
     int32_t values[] = {INT32_MIN, INT32_MAX, -1, 0, 1};
     for (unsigned v = 0; v < 5; ++v)
+    {
         for (unsigned flags = 0; flags < 4; ++flags)
         {
             record = (struct ad_wire_record){(unsigned char)flags, UINT16_MAX,
@@ -103,6 +116,7 @@ int main(void)
                   decoded.value == values[v] && decoded.count == UINT16_MAX &&
                   decoded.flags == flags);
         }
+    }
     memcpy(bytes, expected, 8);
     unsigned char suffix[] = {2, 2, 99, 98, 1, 1, 42};
     memcpy(bytes + 8, suffix, 7);
@@ -153,8 +167,10 @@ int main(void)
     CHECK(ad_frame_init(&f, 1) == AD_OK);
     unsigned char escaped[] = {0x7d, 0x5e, 0x7d, 0x5d, 0x7e};
     for (unsigned i = 0; i < 5; ++i)
+    {
         CHECK(ad_frame_feed(&f, escaped + i, 1, &consumed) ==
               (i == 4 ? AD_READY : AD_INCOMPLETE));
+    }
     CHECK(ad_frame_peek(&f, &borrow, &length) == AD_OK && length == 2 &&
           borrow[0] == 0x7e && borrow[1] == 0x7d);
     ad_frame_cancel(&f);

@@ -20,7 +20,9 @@ int main(void)
     unsigned char message[65], out[32];
     struct ss_ledger ledger;
     for (unsigned i = 0; i < 65; ++i)
+    {
         message[i] = (unsigned char)i;
+    }
     for (size_t n = 0; n <= 64; ++n)
     {
         CHECK(ss_mac(key, message, n, 0, out, &ledger) == 0);
@@ -35,7 +37,9 @@ int main(void)
 #endif
         printf("TAG %zu ", n);
         for (unsigned i = 0; i < 32; ++i)
+        {
             printf("%02x", out[i]);
+        }
         putchar('\n');
     }
     for (unsigned f = 1; f <= 7; ++f)
@@ -43,7 +47,9 @@ int main(void)
         memset(out, 77, sizeof out);
         CHECK(ss_mac(key, message, 4, f, out, &ledger) == -1);
         for (unsigned i = 0; i < 32; ++i)
+        {
             CHECK(out[i] == 77);
+        }
         CHECK(ledger.fetched == ledger.freed_fetches &&
               ledger.contexts == ledger.freed_contexts &&
               ledger.key_cleared == 1);
@@ -58,9 +64,13 @@ int main(void)
           ledger.freed_contexts == old.freed_contexts &&
           ledger.key_cleared == old.key_cleared);
     for (unsigned i = 0; i < 32; ++i)
+    {
         CHECK(out[i] == 77);
+    }
     for (unsigned i = 0; i < 4; ++i)
+    {
         CHECK(key[i] == i + 1);
+    }
     puts(
         "OBS provider seven-failures output-preserved key-copy-cleared owner-input-retained");
     return 0;

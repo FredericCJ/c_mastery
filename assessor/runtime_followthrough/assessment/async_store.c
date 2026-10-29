@@ -23,10 +23,14 @@ static void *worker(void *context)
 int va_init(struct vg_va *a)
 {
     if (!a)
+    {
         return VA_STATE;
+    }
     *a = (struct vg_va){0};
     if (pthread_mutex_init(&a->mutex, 0))
+    {
         return VA_STATE;
+    }
     a->initialized = 1;
     return VA_READY;
 }
@@ -34,10 +38,14 @@ int va_init(struct vg_va *a)
 int va_submit(struct vg_va *a, struct vg_vs *s, const struct vg_vh *h)
 {
     if (!a || !a->initialized || a->active || !s || !h || !h->database)
+    {
         return VA_STATE;
+    }
     struct vs_request request;
     if (vs_take(s, &request) != VS_PENDING)
+    {
         return VA_STATE;
+    }
     a->session = s;
     a->request = request;
     a->host = *h;
@@ -55,7 +63,9 @@ int va_submit(struct vg_va *a, struct vg_vs *s, const struct vg_vh *h)
 int va_cancel(struct vg_va *a)
 {
     if (!a || !a->initialized || !a->active)
+    {
         return VA_STATE;
+    }
     pthread_mutex_lock(&a->mutex);
     a->cancelled = 1;
     pthread_mutex_unlock(&a->mutex);
@@ -65,16 +75,22 @@ int va_cancel(struct vg_va *a)
 int va_poll(struct vg_va *a)
 {
     if (!a || !a->initialized || !a->active)
+    {
         return VA_STATE;
+    }
     pthread_mutex_lock(&a->mutex);
     unsigned done = a->done, cancelled = a->cancelled;
     int status = a->status;
     int32_t value = a->result;
     pthread_mutex_unlock(&a->mutex);
     if (!done)
+    {
         return VA_MUTANT == 1 ? VS_RUNNING : VA_BUSY;
+    }
     if (pthread_join(a->worker, 0))
+    {
         return VA_STATE;
+    }
     ++a->joined;
     struct vg_vs *s = a->session;
     a->session = 0;
@@ -87,9 +103,13 @@ int va_poll(struct vg_va *a)
 int va_destroy(struct vg_va *a)
 {
     if (!a || !a->initialized || a->active)
+    {
         return VA_STATE;
+    }
     if (pthread_mutex_destroy(&a->mutex))
+    {
         return VA_STATE;
+    }
     a->initialized = 0;
     return VA_READY;
 }

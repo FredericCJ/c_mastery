@@ -30,7 +30,9 @@ void d_ecs_init(struct d_ecs *e)
 {
     unsigned i;
     for (i = 0; i < 3; i++)
+    {
         e->tables[i].count = 0;
+    }
     for (i = 0; i < 4; i++)
     {
         e->mask[i] = 0;

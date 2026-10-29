@@ -35,7 +35,9 @@ int main(void)
             int r = http_feed(&p, wire, split, &a);
             CHECK(a <= split);
             if (r == HTTP_NEED)
+            {
                 r = http_feed(&p, wire + split, (size_t)n - split, &b);
+            }
             if (k == 0)
             {
                 CHECK(r == HTTP_DONE && p.request.status == 200 &&

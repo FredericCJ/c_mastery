@@ -24,5 +24,7 @@ _Noreturn void th_guest_report(uint32_t value, uint32_t generation)
     register unsigned *r1 __asm__("r1") = info;
     __asm__ volatile("bkpt 0xab" : "+r"(r0) : "r"(r1) : "memory");
     for (;;)
+    {
         __asm__ volatile("wfi");
+    }
 }

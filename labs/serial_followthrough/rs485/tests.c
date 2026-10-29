@@ -23,7 +23,9 @@ static uint32_t read_io(void *p, unsigned k)
 {
     struct mc_model *m = p;
     if (k == PU_SOURCE)
+    {
         return 1;
+    }
     if (k == PU_DR)
     {
         ++m->reads;
@@ -36,20 +38,30 @@ static void write_io(void *p, unsigned k, uintptr_t v)
 {
     struct mc_model *m = p;
     if (k == PU_DMA_ADDRESS)
+    {
         m->address = v;
+    }
     else if (k == PU_SR)
+    {
         m->r[k] &= (uint32_t)v;
+    }
     else if (k == PU_DMA_CLEAR)
+    {
         m->r[PU_DMA_FLAGS] = 0;
+    }
     else
+    {
         m->r[k] = (uint32_t)v;
+    }
     if (k == PU_DR)
     {
         ++m->writes;
         m->r[PU_SR] &= ~(PU_TXE | PU_TC);
     }
     if (k == PU_DMA_CONTROL && v)
+    {
         m->r[PU_DMA_BUSY] = 1;
+    }
 }
 
 static void drive(void *p, unsigned enabled)
@@ -167,7 +179,9 @@ static int events(void)
           e.value == 0x55 && e.error == PU_FE);
     CHECK(r5_take(&s, &e, &consumed) == R5_OK && e.kind == R5_FRAMING);
     for (unsigned i = 0; i < 8; ++i)
+    {
         CHECK(r5_loss(&s) == R5_OK);
+    }
     m.r[PU_SR] = PU_RXNE;
     m.r[PU_DR] = 0x66;
     CHECK(r5_receive_poll(&s) == R5_FULL && m.reads == 1 &&
@@ -182,7 +196,9 @@ static int cancellation(void)
     struct mc_model m = {0};
     uint8_t bytes[16];
     for (unsigned i = 0; i < 16; ++i)
+    {
         bytes[i] = (uint8_t)i;
+    }
     size_t count = 0;
     struct r5_event e = {0};
     CHECK(open_channel(&s, &m, 16, 8, 0) == R5_OK);

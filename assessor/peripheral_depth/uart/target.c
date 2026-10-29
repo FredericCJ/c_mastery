@@ -71,9 +71,13 @@ static void write_reg(void *context, unsigned r, uintptr_t v)
             break;
         case PU_RESET:
             if (v)
+            {
                 REG(0x40023820u) |= 1u << 18;
+            }
             else
+            {
                 REG(0x40023820u) &= ~(1u << 18);
+            }
             break;
         case PU_SR:
             USART->sr = (uint32_t)v;
@@ -107,7 +111,9 @@ static void write_reg(void *context, unsigned r, uintptr_t v)
             break;
         case PU_DMA_CONTROL:
             if (!v)
+            {
                 REG(STREAM) &= ~1u;
+            }
             else
             {
                 REG(STREAM + 8) = 0x40004804u;
@@ -158,7 +164,9 @@ int pu_f439_rts(const struct pu_rx *q)
     unsigned ready;
     int result = pu_peer_ready(q, &ready);
     if (result)
+    {
         return result;
+    }
     REG(0x40020c18u) = 1u << (ready ? 28 : 12);
     return PU_OK;
 }
@@ -170,7 +178,9 @@ int pu_f439_dma_submit(struct pu_driver *d, uint32_t gen, uint32_t token,
     uintptr_t p = (uintptr_t)data;
     if (!count || count > 8 || p < 0x20000000u || p >= 0x20030000u ||
         count > 0x20030000u - p)
+    {
         return PU_INVALID;
+    }
     return pu_submit(d, pu_f439_io(), gen, token, PU_DMA, data, count, now,
                      budget);
 }

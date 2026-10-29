@@ -17,15 +17,21 @@ static int expand(const unsigned char *p, size_t n, unsigned char *out,
 {
     *used = 0;
     if (n % 2)
+    {
         return 0;
+    }
     for (size_t pair = 0; pair < n / 2; ++pair)
     {
         if (!p[2 * pair])
+        {
             return 0;
+        }
         for (unsigned j = 0; j < p[2 * pair]; ++j)
         {
             if (*used == 1024)
+            {
                 return 0;
+            }
             out[(*used)++] = p[2 * pair + 1];
         }
     }
@@ -52,7 +58,9 @@ static int check_case(const unsigned char *p, size_t n)
                   AD_SPACE &&
               got == 77);
         for (unsigned i = 0; i < 1024; ++i)
+        {
             CHECK(decoded[i] == 99);
+        }
     }
     for (size_t split = 0; split <= length; ++split)
     {
@@ -74,9 +82,13 @@ static int check_case(const unsigned char *p, size_t n)
                 at += consumed;
                 total += written;
                 if (rc == AD_SPACE)
+                {
                     CHECK(written == room && room);
+                }
                 else if (at == end)
+                {
                     break;
+                }
             } while (1);
         }
         CHECK(ad_rle_stream_end(&state) == AD_OK && total == n &&
@@ -89,23 +101,31 @@ int main(void)
 {
     size_t cases = 0;
     for (size_t n = 0; n <= 8; ++n)
+    {
         for (unsigned mask = 0; mask < (1u << n); ++mask)
         {
             unsigned char p[8];
             for (size_t i = 0; i < n; ++i)
+            {
                 p[i] = (unsigned char)((mask >> i) & 1u);
+            }
             CHECK(!check_case(p, n));
             ++cases;
         }
+    }
     unsigned char p[1024], encoded[2048], decoded[1024];
     for (unsigned i = 0; i < 1024; ++i)
+    {
         p[i] = 42;
+    }
     CHECK(!check_case(p, 1024));
     size_t n, count;
     CHECK(ad_rle_encode(p, 256, encoded, 2048, &n) == AD_OK && n == 4 &&
           encoded[0] == 255 && encoded[2] == 1);
     for (unsigned i = 0; i < 1024; ++i)
+    {
         p[i] = (unsigned char)(i & 1u);
+    }
     CHECK(ad_rle_encode(p, 1024, encoded, 2048, &n) == AD_OK && n == 2048);
     CHECK(ad_tagged_encode(p, 1024, encoded, 2048, &n) == AD_OK && n == 1033);
     unsigned char zero[] = {0, 1}, odd[] = {1}, noncanonical[] = {1, 5, 1, 5},
@@ -120,7 +140,9 @@ int main(void)
           AD_OVERFLOW);
     CHECK(count == 77);
     for (unsigned i = 0; i < 1024; ++i)
+    {
         CHECK(decoded[i] == 99);
+    }
     CHECK(ad_rle_decode(noncanonical, 4, 0, decoded, 1024, &count) == AD_OK &&
           count == 2);
     unsigned char malformed_tags[][3] = {
@@ -167,8 +189,10 @@ int main(void)
                 ad_rle_decode(specimen, length, 0, decoded, 1024, &got);
             CHECK(rc == (valid ? AD_OK : AD_INVALID));
             if (valid)
+            {
                 CHECK(got == expected_count &&
                       !memcmp(decoded, reference, got));
+            }
             ++malformed;
         }
     }

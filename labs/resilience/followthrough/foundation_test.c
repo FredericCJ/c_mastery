@@ -27,10 +27,14 @@ static void *allocate(void *p, size_t n)
 {
     struct rz_allocation *a = p;
     if (a->attempts++ == a->fail)
+    {
         return NULL;
+    }
     void *result = malloc(n);
     if (result)
+    {
         ++a->allocations;
+    }
     return result;
 }
 
@@ -67,7 +71,9 @@ static void *borrower(void *p)
     ++w->pause->started;
     CHECK(!pthread_cond_broadcast(&w->pause->condition));
     while (!w->pause->run)
+    {
         CHECK(!pthread_cond_wait(&w->pause->condition, &w->pause->mutex));
+    }
     CHECK(!pthread_mutex_unlock(&w->pause->mutex));
     w->result = rz_check(&w->borrow.scope->core, 9);
     return NULL;
@@ -122,19 +128,29 @@ static void scope_test(void)
         struct rzf_scope *root = NULL;
         int status = rzf_scope_create(NULL, 0, 30, allocator(&cuts), &root);
         if (status == RZ_OK)
+        {
             for (unsigned i = 0; i < 3; ++i)
+            {
                 if (rzf_scope_create(root, i, 20, allocator(&cuts),
                                      &children[i]) != RZ_OK)
+                {
                     break;
+                }
+            }
+        }
         rzf_scope_release(&root);
         for (unsigned i = 0; i < 3; ++i)
+        {
             rzf_scope_release(&children[i]);
+        }
         CHECK(cuts.allocations == cuts.releases);
     }
     struct rzf_scope *chain[8] = {NULL};
     for (unsigned i = 0; i < 8; ++i)
+    {
         CHECK(rzf_scope_create(i ? chain[i - 1] : NULL, 0, 1, allocator(&a),
                                &chain[i]) == RZ_OK);
+    }
     CHECK(rzf_scope_create(chain[7], 0, 1, allocator(&a), &child) ==
               RZ_INVALID &&
           !child);
@@ -142,7 +158,9 @@ static void scope_test(void)
     CHECK(rzf_scope_retain(chain[7], &child) == RZ_FULL && !child);
     atomic_store(&chain[7]->references, 1);
     for (unsigned i = 0; i < 8; ++i)
+    {
         rzf_scope_release(&chain[i]);
+    }
     CHECK(a.allocations == a.releases);
 
     struct rz_pause pause = {PTHREAD_MUTEX_INITIALIZER,
@@ -151,14 +169,20 @@ static void scope_test(void)
     struct rz_worker workers[2] = {{&pause, {NULL}, 0}, {&pause, {NULL}, 0}};
     pthread_t threads[2];
     for (unsigned i = 0; i < 2; ++i)
+    {
         CHECK(rzf_borrow_begin(&workers[i].borrow, parent) == RZ_OK);
+    }
     CHECK(atomic_load(&parent->references) ==
           3); /* Reject omitted retain before freeing anything. */
     for (unsigned i = 0; i < 2; ++i)
+    {
         CHECK(!pthread_create(&threads[i], NULL, borrower, &workers[i]));
+    }
     CHECK(!pthread_mutex_lock(&pause.mutex));
     while (pause.started != 2)
+    {
         CHECK(!pthread_cond_wait(&pause.condition, &pause.mutex));
+    }
     rz_cancel(&parent->core);
     size_t before = a.releases;
     rzf_scope_release(&parent);
@@ -236,7 +260,9 @@ static void fractional_test(void)
               RZ_INVALID &&
           same_bucket(p, before_p));
     for (uint64_t capacity = 1; capacity <= 8; ++capacity)
+    {
         for (uint64_t rate = 1; rate <= 8; ++rate)
+        {
             for (uint64_t denominator = 1; denominator <= 8; ++denominator)
             {
                 CHECK(rzf_bucket_init(&a, capacity, rate, denominator, 0) ==
@@ -252,6 +278,8 @@ static void fractional_test(void)
                     CHECK(same_bucket(a, p));
                 }
             }
+        }
+    }
 }
 
 static void deadline_oracle(void)
@@ -265,8 +293,10 @@ static void deadline_oracle(void)
         int status = rzf_scope_create(NULL, parent_now, parent_budget,
                                       allocator(&a), &parent);
         if (status == RZ_OK)
+        {
             status = rzf_scope_create(parent, child_now, child_budget,
                                       allocator(&a), &child);
+        }
         printf("%d %" PRIu64 "\n", status, child ? child->core.deadline : 0);
         rzf_scope_release(&parent);
         rzf_scope_release(&child);
@@ -284,12 +314,16 @@ static void budget_oracle(void)
         struct rzf_scope *parent = NULL, *scope = NULL;
         int status = RZ_OK;
         if (parent_budget != UINT64_MAX)
+        {
             status = rzf_scope_create(NULL, now, parent_budget, allocator(&a),
                                       &parent);
+        }
         struct rzf_budget budget = {remaining, transit};
         if (status == RZ_OK)
+        {
             status = rzf_budget_import(&budget, parent, now, processing,
                                        allocator(&a), &scope);
+        }
         printf("%d %" PRIu64 "\n", status, scope ? scope->core.deadline : 0);
         rzf_scope_release(&scope);
         rzf_scope_release(&parent);
@@ -337,22 +371,34 @@ static void scope_oracle(void)
         {
             int status = RZ_OK;
             if (word[i] == 'c')
+            {
                 rz_cancel(&parent->core);
+            }
             else if (word[i] == 'e')
+            {
                 now = 10;
+            }
             else if (word[i] == 'a' || word[i] == 'b')
+            {
                 status = rzf_borrow_ack(&borrows[word[i] - 'a']);
+            }
             else
+            {
                 CHECK(false);
+            }
             struct rzf_scope *live =
                 borrows[0].scope ? borrows[0].scope : borrows[1].scope;
             printf("%d,%d,%zu;", status,
                    live ? rz_check(&live->core, now) : RZ_DONE, a.releases);
         }
         if (borrows[0].scope)
+        {
             CHECK(rzf_borrow_ack(&borrows[0]) == RZ_OK);
+        }
         if (borrows[1].scope)
+        {
             CHECK(rzf_borrow_ack(&borrows[1]) == RZ_OK);
+        }
         rzf_scope_release(&parent);
         CHECK(a.allocations == a.releases);
         printf("D%zu\n", a.releases);
@@ -409,22 +455,40 @@ int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (!strcmp(argv[1], "scope"))
+    {
         scope_test();
+    }
     else if (!strcmp(argv[1], "fractional"))
+    {
         fractional_test();
+    }
     else if (!strcmp(argv[1], "budget_oracle"))
+    {
         budget_oracle();
+    }
     else if (!strcmp(argv[1], "fractional_oracle"))
+    {
         fractional_oracle();
+    }
     else if (!strcmp(argv[1], "scope_oracle"))
+    {
         scope_oracle();
+    }
     else if (!strcmp(argv[1], "deadline_oracle"))
+    {
         deadline_oracle();
+    }
     else if (!strcmp(argv[1], "migration_oracle"))
+    {
         migration_oracle();
+    }
     else if (!strcmp(argv[1], "pair_oracle"))
+    {
         pair_oracle();
+    }
     else
+    {
         return 2;
+    }
     return 0;
 }

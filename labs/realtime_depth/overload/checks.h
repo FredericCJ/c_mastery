@@ -33,7 +33,9 @@ static int od_check_queue(void)
     struct od_request r[12];
     struct od_result o;
     for (unsigned i = 0; i < 12; i++)
+    {
         r[i] = (struct od_request){i, 0, i / 3, 1, 20, 0};
+    }
     OA(od_run(&s, r, 12, 2, 4, OD_REJECT_NEW, 0, OD_NONE, OD_NONE, &o) ==
        OD_OK);
     unsigned done = 0, reject = 0, live = 0;

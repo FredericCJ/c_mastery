@@ -56,11 +56,15 @@ static int configure(void *ctx, const struct pd_extent *e, uint32_t token)
     struct pd_port *p = ctx;
     uint32_t total;
     if (!p || !token || pd_validate(PD_BOARD, PD_BOARD, e, 1, &total) != PD_OK)
+    {
         return 0;
+    }
     WR(GATE, RD(GATE) | ENABLE);
     (void)RD(GATE);
     if (RD(DMA + 0x10) & 1)
+    {
         return 0;
+    }
     WR(DMA + 8, 0x3d); /* W1C stream0 only; never a read-modify-write. */
     WR(DMA + 0x18, PD_TARGET_MUTANT == 1 ? e->destination : e->source);
     WR(DMA + 0x1c, e->destination);

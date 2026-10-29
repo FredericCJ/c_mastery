@@ -42,10 +42,15 @@ static int layout(void)
     CHECK(fd_layout(12, 7, 9, 10, 11, 180, &out) == FD_RANGE);
     CHECK(out.first == 91 && out.second == 92 && out.end == 93);
     for (size_t h = 0; h < 5; ++h)
+    {
         for (int a = -1; a < 6; ++a)
+        {
             for (int b = -1; b < 6; ++b)
+            {
                 for (size_t aw = 0; aw < 5; ++aw)
+                {
                     for (size_t bw = 0; bw < 5; ++bw)
+                    {
                         for (size_t limit = 0; limit < 20; ++limit)
                         {
                             long exact = (long)h + (long)a * (long)aw +
@@ -56,14 +61,23 @@ static int layout(void)
                             CHECK(fd_layout(h, a, aw, b, bw, limit, &out) ==
                                   (valid ? FD_OK : FD_RANGE));
                             if (valid)
+                            {
                                 CHECK(out.first == h &&
                                       out.second == h + (size_t)a * aw &&
                                       out.end == (size_t)exact);
+                            }
                             else
+                            {
                                 CHECK(out.first == 91 && out.second == 92 &&
                                       out.end == 93);
+                            }
                             ++observations;
                         }
+                    }
+                }
+            }
+        }
+    }
     CHECK(fd_layout(SIZE_MAX, 1, 1, 0, 0, SIZE_MAX, &out) == FD_RANGE);
     CHECK(fd_layout(0, INTMAX_MIN, 0, 0, 0, SIZE_MAX, &out) == FD_RANGE);
     return 0;
@@ -74,7 +88,9 @@ static int cursor(void)
     const unsigned char a[] = {11, 22}, b[] = {33, 44, 55},
                         flat[] = {11, 22, 33, 44, 55};
     for (size_t pos = 0; pos <= 5; ++pos)
+    {
         for (size_t n = 0; n <= 6; ++n)
+        {
             for (size_t cap = 0; cap <= 6; ++cap)
             {
                 struct fd_segmented c = {{{a, 2}, {b, 3}}, pos};
@@ -85,16 +101,24 @@ static int cursor(void)
                       (valid ? FD_OK : FD_RANGE));
                 CHECK(c.position == (valid ? pos + n : pos));
                 for (size_t i = 0; i < 7; ++i)
+                {
                     CHECK(out[i] == (valid && i < n ? flat[pos + i] : 0xa7));
+                }
                 ++observations;
             }
+        }
+    }
     struct fd_segmented empty = {{{0, 0}, {0, 0}}, 0};
     CHECK(fd_copy_segments(&empty, 0, 0, 0) == FD_OK);
     const unsigned char data[] = {1, 2, 3, 4, 5, 6};
     for (size_t begin = 0; begin <= 6; ++begin)
+    {
         for (size_t end = begin; end <= 6; ++end)
+        {
             for (size_t pos = 0; pos <= end - begin; ++pos)
+            {
                 for (size_t off = 0; off <= 7; ++off)
+                {
                     for (size_t n = 0; n <= 7; ++n)
                     {
                         struct fd_owner_view source = {data, 6, begin, end,
@@ -111,6 +135,10 @@ static int cursor(void)
                               out.position == (valid ? 0 : pos));
                         ++observations;
                     }
+                }
+            }
+        }
+    }
     unsigned char tagged[] = {0xa5, 2, 0x34, 0x12};
     for (size_t length = 0; length <= 4; ++length)
     {
@@ -128,7 +156,9 @@ static int cursor(void)
           !malformed.position && saved == 71);
     /* Integer intervals oracle, independently derived before C pointer formation. */
     for (size_t p = 0; p <= 6; ++p)
+    {
         for (size_t off = 0; off <= 7; ++off)
+        {
             for (size_t n = 0; n <= 7; ++n)
             {
                 struct fd_cursor parent = {data, 6, p}, child = {data, 1, 1},
@@ -151,6 +181,7 @@ static int cursor(void)
                 CHECK(alias.base == child.base && alias.length == n &&
                       alias.position == 0);
                 for (size_t q = 0; q <= n; ++q)
+                {
                     for (size_t next = 0; next <= n + 1; ++next)
                     {
                         struct fd_cursor nested = child;
@@ -164,7 +195,10 @@ static int cursor(void)
                               (next <= n - q ? data + p + off + q : data));
                         ++observations;
                     }
+                }
             }
+        }
+    }
     return 0;
 }
 
@@ -187,6 +221,7 @@ static int codec(void)
     const intmax_t values[] = {INT32_MIN, -1, 0, 1, INT32_MAX};
     const uintmax_t counts[] = {0, 1, 255, 256, 65535, 65536};
     for (unsigned i = 0; i < 6; ++i)
+    {
         for (unsigned j = 0; j < 5; ++j)
         {
             memset(out, 0xa7, 8);
@@ -195,7 +230,9 @@ static int codec(void)
             {
                 CHECK(s == FD_RANGE);
                 for (unsigned k = 0; k < 8; ++k)
+                {
                     CHECK(out[k] == 0xa7);
+                }
             }
             else
             {
@@ -205,6 +242,7 @@ static int codec(void)
             }
             ++observations;
         }
+    }
     memcpy(out, gold, 8);
     out[1] = 1;
     count = 99;
@@ -212,12 +250,14 @@ static int codec(void)
     CHECK(fd_decode_v2(out, 8, &count, &value) == FD_INVALID && count == 99 &&
           value == 42);
     for (size_t n = 0; n <= 9; ++n)
+    {
         if (n != 8)
         {
             CHECK(fd_decode_v2(gold, n, &count, &value) == FD_RANGE &&
                   count == 99 && value == 42);
             ++observations;
         }
+    }
     return 0;
 }
 
@@ -231,7 +271,9 @@ struct fd_tokens
 static void event(struct fd_tokens *t, char ch)
 {
     if (t->used < sizeof t->events)
+    {
         t->events[t->used++] = ch;
+    }
 }
 
 static int initialize(void *context, struct fd_value *v)
@@ -326,7 +368,9 @@ static int lifecycle(void)
                     &s, (struct fd_allocator){&store, fd_typed_allocate,
                                               fd_typed_release});
                 if (want == FD_OK)
+                {
                     model = FD_ACQUIRED;
+                }
             }
             else if (op < 3)
             {
@@ -336,7 +380,9 @@ static int lifecycle(void)
                                             : FD_OK;
                 got = fd_slot_initialize(&s, initialize, destroy, &t);
                 if (model == FD_ACQUIRED)
+                {
                     model = t.fail ? FD_EMPTY : FD_INITIALIZED;
+                }
             }
             else if (op == 3)
             {
@@ -351,7 +397,9 @@ static int lifecycle(void)
                     CHECK(p->value == 37);
                 }
                 else
+                {
                     CHECK(p == &sentinel);
+                }
             }
             else
             {
@@ -374,36 +422,52 @@ static int movement(void)
 {
     unsigned char inplace[256];
     for (unsigned i = 0; i < 256; ++i)
+    {
         inplace[i] = (unsigned char)i;
+    }
     for (unsigned mask = 0; mask < 256; ++mask)
     {
         CHECK(fd_inplace_xor(inplace, 256, (unsigned char)mask) == FD_OK);
         for (unsigned i = 0; i < 256; ++i)
+        {
             CHECK(inplace[i] == (unsigned char)(i ^ mask));
+        }
         CHECK(fd_inplace_xor(inplace, 256, (unsigned char)mask) == FD_OK);
         ++observations;
     }
     CHECK(fd_inplace_xor(0, 0, 3) == FD_OK &&
           fd_inplace_xor(0, 1, 3) == FD_INVALID);
     for (size_t stride = 1; stride <= 3; ++stride)
+    {
         for (size_t dst = 0; dst <= 4; ++dst)
+        {
             for (size_t src = 0; src <= 4; ++src)
+            {
                 for (size_t n = 0; n <= 5; ++n)
                 {
                     unsigned char data[12], snapshot[12], want[12];
                     for (unsigned i = 0; i < 12; ++i)
+                    {
                         data[i] = snapshot[i] = want[i] =
                             (unsigned char)(i + 10);
+                    }
                     int valid = n <= 4 - dst && n <= 4 - src;
                     if (valid)
+                    {
                         for (size_t i = 0; i < n; ++i)
+                        {
                             want[(dst + i) * stride] =
                                 snapshot[(src + i) * stride];
+                        }
+                    }
                     CHECK(fd_stride_move(data, 12, 4, stride, dst, src, n) ==
                           (valid ? FD_OK : FD_RANGE));
                     CHECK(!memcmp(data, want, 12));
                     ++observations;
                 }
+            }
+        }
+    }
     unsigned char data[] = {10, 20, 30, 40, 50, 60, 70, 80};
     struct fd_stream_view stream = {data, 8, 3, 1};
     CHECK(fd_compact(&stream) == FD_OK && stream.length == 5 &&
@@ -459,12 +523,16 @@ static int registry(void)
                                   &h) == FD_OK);
         struct fd_value value = {99, 99};
         if (epoch > 1)
+        {
             CHECK(fd_registry_get(&registry, old, &value) == FD_STALE &&
                   value.value == 99);
+        }
         CHECK(fd_registry_get(&registry, h, &value) == FD_OK &&
               value.value == (int32_t)epoch);
         if (epoch == 1)
+        {
             old = h;
+        }
         CHECK(fd_registry_unbind(&registry, 0) == FD_OK);
         value.value = 99;
         CHECK(fd_registry_get(&registry, h, &value) == FD_STALE &&
@@ -479,6 +547,7 @@ static int registry(void)
 static int frame(void)
 {
     for (unsigned flag = 0; flag < 4; ++flag)
+    {
         for (int auth = 0; auth < 2; ++auth)
         {
             unsigned char request[] = {1, (unsigned char)flag, 0, 2, 0, 0, 0,
@@ -506,9 +575,12 @@ static int frame(void)
                       FD_RANGE &&
                   observed == 71);
         }
+    }
     const unsigned char wire[] = {1, 1, 0, 2, 0, 0, 0, 3};
     for (size_t cut = 0; cut < 8; ++cut)
+    {
         for (int first = 0; first < 2; ++first)
+        {
             for (int next = 0; next < 2; ++next)
             {
                 struct fd_frame cancelled = {{0}, 0, 0};
@@ -522,8 +594,11 @@ static int frame(void)
                 CHECK(state == (next ? 16 : 10) && done == next);
                 ++observations;
             }
+        }
+    }
     /* All 128 nonempty chunkings and both initial authority values. */
     for (unsigned cuts = 0; cuts < 128; ++cuts)
+    {
         for (int authority = 0; authority < 2; ++authority)
         {
             struct fd_frame f = {{0}, 0, 0};
@@ -531,6 +606,7 @@ static int frame(void)
             int committed = 77;
             size_t start = 0;
             for (size_t end = 1; end <= 8; ++end)
+            {
                 if (end == 8 || (cuts & (1u << (end - 1))))
                 {
                     int supplied = start == 0 ? authority : !authority;
@@ -543,8 +619,10 @@ static int frame(void)
                     start = end;
                     ++observations;
                 }
+            }
             CHECK(f.used == 0);
         }
+    }
     struct fd_frame f = {{0}, 0, 0};
     int32_t counter = 10;
     int committed = 77;
@@ -579,14 +657,20 @@ int main(int argc, char **argv)
                  {"registry", registry},   {"frame", frame}};
 
     if (argc != 2)
+    {
         return 2;
+    }
     for (unsigned i = 0; i < 8; ++i)
+    {
         if (!strcmp(argv[1], cases[i].name))
         {
             int result = cases[i].run();
             if (!result)
+            {
                 printf("FD_TRANSFER_OK:%s:%lu\n", cases[i].name, observations);
+            }
             return result;
         }
+    }
     return 2;
 }

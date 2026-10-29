@@ -6,5 +6,7 @@ void fd_plain_transform(unsigned char *destination, const unsigned char *source,
                         size_t count, unsigned char mask)
 {
     for (size_t i = 0; i < count; ++i)
+    {
         destination[i] = (unsigned char)(source[i] ^ mask);
+    }
 }

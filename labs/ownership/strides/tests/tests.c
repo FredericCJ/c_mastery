@@ -15,7 +15,9 @@
 static int same(const struct osv_book *a, const struct osv_book *b)
 {
     if (a->extent != b->extent)
+    {
         return 0;
+    }
     for (unsigned i = 0; i < 4; ++i)
     {
         struct osv_loan x = a->loan[i], y = b->loan[i];
@@ -25,7 +27,9 @@ static int same(const struct osv_book *a, const struct osv_book *b)
             x.shape.columns != y.shape.columns ||
             x.shape.row_stride != y.shape.row_stride ||
             x.shape.column_stride != y.shape.column_stride)
+        {
             return 0;
+        }
     }
     return 1;
 }
@@ -33,14 +37,18 @@ static int same(const struct osv_book *a, const struct osv_book *b)
 static int same_old(const struct ow_borrows *a, const struct ow_borrows *b)
 {
     if (a->extent != b->extent)
+    {
         return 0;
+    }
     for (unsigned i = 0; i < 4; ++i)
     {
         struct ow_loan x = a->loan[i], y = b->loan[i];
         if (x.offset != y.offset || x.length != y.length ||
             x.serial != y.serial || x.active != y.active ||
             x.writer != y.writer || x.retired != y.retired)
+        {
             return 0;
+        }
     }
     return 1;
 }
@@ -53,12 +61,16 @@ static int base(void)
     CHECK(ow_borrow(&b, 0, 8, 1, &t) == OW_OK);
     CHECK(ow_borrow(&b, 3, 1, 0, &out) == OW_BUSY && out.slot == 99);
     for (unsigned i = 0; i < 3; ++i)
+    {
         CHECK(ow_borrow(&b, 8, 0, 1, &out) == OW_OK);
+    }
     struct ow_borrows before = b;
     CHECK(ow_split(&b, t, 3, children) == OW_FULL && same_old(&b, &before) &&
           children[0].slot == 98 && children[1].serial == 89);
     for (unsigned i = 1; i < 4; ++i)
+    {
         CHECK(ow_release(&b, (struct ow_token){i, b.loan[i].serial}) == OW_OK);
+    }
     CHECK(ow_split(&b, t, 3, children) == OW_OK &&
           ow_release(&b, t) == OW_STALE);
     CHECK(b.loan[children[0].slot].length == 3 &&
@@ -112,14 +124,24 @@ static int tile(void)
           b.loan[columns[1].slot].shape.columns == 2);
     int32_t storage[18];
     for (unsigned i = 0; i < 18; ++i)
+    {
         storage[i] = -99;
+    }
     for (size_t r = 0; r < 2; ++r)
+    {
         for (size_t c = 0; c < 2; ++c)
+        {
             CHECK(osv_write(&b, columns[1], storage, 18, r, c,
                             (int32_t)(10 * r + c)) == OW_OK);
+        }
+    }
     for (unsigned i = 0; i < 18; ++i)
+    {
         if (i != 8 && i != 9 && i != 14 && i != 15)
+        {
             CHECK(storage[i] == -99);
+        }
+    }
     CHECK(storage[8] == 0 && storage[9] == 1 && storage[14] == 10 &&
           storage[15] == 11);
     puts("OSV_TILE actual-padded-array row-column-split preserves-padding");
@@ -133,8 +155,10 @@ static int transaction(void)
     struct osv_token t, empty, out[2] = {{NULL, 91, 92}, {NULL, 93, 94}};
     CHECK(osv_acquire(&b, (struct osv_shape){0, 2, 2, 5, 1}, 1, &t) == OW_OK);
     for (unsigned i = 0; i < 3; ++i)
+    {
         CHECK(osv_acquire(&b, (struct osv_shape){10, 0, 0, SIZE_MAX, SIZE_MAX},
                           1, &empty) == OW_OK);
+    }
     struct osv_book before = b;
     CHECK(osv_split(&b, t, 0, 1, out) == OW_FULL && same(&b, &before) &&
           out[0].slot == 91 && out[1].serial == 94);
@@ -183,7 +207,9 @@ static int bounds(void)
 {
     size_t indices[64], n = 91;
     for (unsigned i = 0; i < 64; ++i)
+    {
         indices[i] = 92;
+    }
     CHECK(osv_indices(9, (struct osv_shape){0, 2, 2, 1, 1}, indices, &n) ==
               OW_INVALID &&
           n == 91 && indices[0] == 92);
@@ -247,7 +273,9 @@ static int oracle(void)
             size_t off, len, off2, len2;
             if (scanf("%zu %zu %zu %d %zu %zu %d", &extent, &off, &len, &x,
                       &off2, &len2, &y) != 7)
+            {
                 return 2;
+            }
             struct ow_borrows old = {0};
             old.extent = extent;
             struct ow_token t;
@@ -259,7 +287,9 @@ static int oracle(void)
         {
             if (scanf("%zu %zu %zu %zu %zu %zu", &extent, &a.offset, &a.rows,
                       &a.columns, &a.row_stride, &a.column_stride) != 6)
+            {
                 return 2;
+            }
             size_t out[64], n = 91;
             enum ow_status s = osv_indices(extent, a, out, &n);
             printf("%d", s);
@@ -267,7 +297,9 @@ static int oracle(void)
             {
                 printf(" %zu", n);
                 for (size_t i = 0; i < n; ++i)
+                {
                     printf(" %zu", out[i]);
+                }
             }
             puts("");
         }
@@ -277,7 +309,9 @@ static int oracle(void)
                       &extent, &a.offset, &a.rows, &a.columns, &a.row_stride,
                       &a.column_stride, &x, &b.offset, &b.rows, &b.columns,
                       &b.row_stride, &b.column_stride, &y) != 13)
+            {
                 return 2;
+            }
             struct osv_book book = {0};
             book.extent = extent;
             struct osv_token t;
@@ -292,11 +326,15 @@ static int oracle(void)
             if (scanf("%zu %zu %zu %zu %zu %zu %u %zu %u %u", &extent,
                       &a.offset, &a.rows, &a.columns, &a.row_stride,
                       &a.column_stride, &axis, &cut, &occupied, &seed) != 10)
+            {
                 return 2;
+            }
             struct osv_book book = {0};
             book.extent = extent;
             for (unsigned i = 0; i < 4; ++i)
+            {
                 book.loan[i].serial = seed;
+            }
             struct osv_token t, e, out[2];
             enum ow_status p = osv_acquire(&book, a, 1, &t);
             if (p != OW_OK)
@@ -305,29 +343,41 @@ static int oracle(void)
                 continue;
             }
             for (unsigned i = 0; i < occupied; ++i)
+            {
                 if (osv_acquire(&book, (struct osv_shape){extent, 0, 0, 0, 0},
                                 1, &e) != OW_OK)
+                {
                     return 2;
+                }
+            }
             struct osv_book before = book;
             enum ow_status q = osv_split(&book, t, axis, cut, out);
             printf("%d %d %d", p, q,
                    q == OW_OK ? osv_release(&book, t) == OW_STALE
                               : same(&book, &before));
             if (q == OW_OK)
+            {
                 for (unsigned j = 0; j < 2; ++j)
                 {
                     size_t idx[64], n;
                     if (osv_indices(extent, book.loan[out[j].slot].shape, idx,
                                     &n) != OW_OK)
+                    {
                         return 2;
+                    }
                     printf(" %zu", n);
                     for (size_t k = 0; k < n; ++k)
+                    {
                         printf(" %zu", idx[k]);
+                    }
                 }
+            }
             puts("");
         }
         else
+        {
             return 2;
+        }
     }
     return ferror(stdin) ? 2 : 0;
 }
@@ -357,7 +407,9 @@ static int metrics(void)
         "{\"iterations\":1000,\"checksum\":%u,\"book_size\":%zu,\"token_size\":%zu,\"allocation_calls\":0,\"seconds\":[",
         sum, sizeof(b), sizeof(struct osv_token));
     for (unsigned i = 0; i < 7; ++i)
+    {
         printf("%s%.9f", i ? "," : "", times[i]);
+    }
     puts("]}");
     return 0;
 }
@@ -365,24 +417,44 @@ static int metrics(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "strides_base"))
+    {
         return base();
+    }
     if (!strcmp(argv[1], "strides_sets"))
+    {
         return strided();
+    }
     if (!strcmp(argv[1], "strides_tile"))
+    {
         return tile();
+    }
     if (!strcmp(argv[1], "strides_transaction"))
+    {
         return transaction();
+    }
     if (!strcmp(argv[1], "strides_identity"))
+    {
         return identity();
+    }
     if (!strcmp(argv[1], "strides_bounds"))
+    {
         return bounds();
+    }
     if (!strcmp(argv[1], "strides_access"))
+    {
         return access_case();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

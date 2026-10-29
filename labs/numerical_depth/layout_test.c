@@ -20,7 +20,9 @@ int main(void)
     CHECK(nd_reorder(&s, bad, 2) == ND_BAD && memcmp(&s, &old, sizeof s) == 0);
     CHECK(nd_record(&s, y, &r) == ND_BAD);
     for (unsigned i = 0; i < 14; i++)
+    {
         CHECK(nd_insert(&s, i, -(double)i, a, &y) == 0);
+    }
     old = s;
     CHECK(nd_insert(&s, 1, 2, b, &y) == ND_BAD &&
           memcmp(&s, &old, sizeof s) == 0);

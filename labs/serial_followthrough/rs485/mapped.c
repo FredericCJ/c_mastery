@@ -23,11 +23,17 @@ static unsigned barriers, bad;
 volatile uint32_t *pu_test_register(uint32_t a)
 {
     if (a >= 0x40023800u && a < 0x40023900u && !(a & 3))
+    {
         return &rcc[(a - 0x40023800u) / 4];
+    }
     if (a >= 0x40020c00u && a < 0x40020c40u && !(a & 3))
+    {
         return &gpio[(a - 0x40020c00u) / 4];
+    }
     if (a >= 0x40026000u && a < 0x40026100u && !(a & 3))
+    {
         return &dma[(a - 0x40026000u) / 4];
+    }
     ++bad;
     return &rcc[63];
 }
@@ -56,7 +62,9 @@ int r5_mapped(void)
         dma[i] = 0;
     }
     for (unsigned i = 0; i < 16; ++i)
+    {
         gpio[i] = 0xffffffffu;
+    }
     usart.sr = 0;
     usart.dr = 0;
     usart.brr = 0;

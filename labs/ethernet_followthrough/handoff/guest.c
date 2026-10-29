@@ -39,14 +39,20 @@ void xf_target_main(void)
     {
         int e = eh_tests(i);
         if (e)
+        {
             finish((unsigned)e);
+        }
     }
     int e = eh_stack();
     if (e)
+    {
         finish((unsigned)e);
+    }
     e = eh_reassembly();
     if (e)
+    {
         finish((unsigned)e);
+    }
     puts("EH_GUEST_PASS actual_original_stack_CPU_models_no_physical_Ethernet");
     finish(0);
 }

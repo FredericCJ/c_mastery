@@ -55,7 +55,9 @@ static int atomic_message(void)
     a = mfp_number(UINT32_MAX);
     CHECK(mfp_render(&p, &a, 1, &s) == MFP_FULL && s.used == 2);
     for (size_t i = 0; i < sizeof b; ++i)
+    {
         CHECK(b[i] == 0xa5);
+    }
     s.capacity = 12;
     CHECK(mfp_render(&p, &a, 1, &s) == MFP_OK && s.used == 12 &&
           !memcmp(b + 2, "4294967295", 10) && b[12] == 0xa5);
@@ -88,7 +90,9 @@ static struct mfp_write_result write_part(void *p, const unsigned char *b,
     size_t k = w->result.accepted < n ? w->result.accepted : n;
     ++w->calls;
     for (size_t i = 0; i < k && w->used < sizeof w->bytes; ++i)
+    {
         w->bytes[w->used++] = b[i];
+    }
     return w->result;
 }
 
@@ -141,9 +145,13 @@ static int base(void)
         int r = mp_format(&s, mp_arg_number(UINT32_MAX));
         CHECK(r == (cap >= 10) && s.used == (cap >= 10 ? 10 : 0));
         if (cap >= 10)
+        {
             CHECK(!memcmp(b, "4294967295", 10));
+        }
         for (size_t i = s.used; i < sizeof b; ++i)
+        {
             CHECK(b[i] == 0xa5);
+        }
     }
     struct mp_sink s = {b, 16, 0};
     CHECK(mp_format(&s, mp_arg_number(0)) && s.used == 1 && b[0] == '0');
@@ -168,9 +176,13 @@ static size_t unhex(const char *h, unsigned char *out)
 static void hex(const unsigned char *b, size_t n)
 {
     if (!n)
+    {
         putchar('-');
+    }
     for (size_t i = 0; i < n; ++i)
+    {
         printf("%02x", b[i]);
+    }
 }
 
 static int oracle(void)
@@ -188,14 +200,18 @@ static int oracle(void)
             size_t count, cap, used;
             if (scanf("%256s %zu %zu %zu", h, &count, &cap, &used) != 4 ||
                 count > 4 || cap > 160)
+            {
                 return 2;
+            }
             size_t n = unhex(h, source);
             for (size_t i = 0; i < count; ++i)
             {
                 unsigned kind;
                 uint32_t value;
                 if (scanf("%u %" SCNu32 " %256s", &kind, &value, h) != 3)
+                {
                     return 2;
+                }
                 args[i] =
                     (struct mfp_arg){kind, value, {text[i], unhex(h, text[i])}};
             }
@@ -220,18 +236,26 @@ static int oracle(void)
             struct mp_writer w = {{0, 0}, 0, {0}, 0};
             size_t n;
             if (scanf("%256s %zu", h, &n) != 2 || n > 32)
+            {
                 return 2;
+            }
             m.length = unhex(h, m.bytes);
             if (mfp_start(&s, &m) != MFP_OK)
+            {
                 return 2;
+            }
             for (size_t i = 0; i < n; ++i)
             {
                 unsigned cancel;
                 if (scanf("%zu %u %u", &w.result.accepted, &w.result.status,
                           &cancel) != 3)
+                {
                     return 2;
+                }
                 if (cancel)
+                {
                     (void)mfp_cancel(&s);
+                }
                 int r = mfp_step(&s, write_part, &w);
                 printf("%s%d", i ? "," : "", r);
             }
@@ -240,7 +264,9 @@ static int oracle(void)
             putchar('\n');
         }
         else
+        {
             return 2;
+        }
     }
     return 0;
 }
@@ -267,7 +293,9 @@ static int metrics(void)
            ",\"program_size\":%zu,\"stream_size\":%zu,\"seconds\":[",
            checksum, sizeof p, sizeof(struct mfp_stream));
     for (unsigned i = 0; i < 7; ++i)
+    {
         printf("%s%.9f", i ? "," : "", seconds[i]);
+    }
     puts("]}");
     return 0;
 }
@@ -275,18 +303,32 @@ static int metrics(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "format_parse"))
+    {
         return parsing();
+    }
     if (!strcmp(argv[1], "format_atomic"))
+    {
         return atomic_message();
+    }
     if (!strcmp(argv[1], "format_stream"))
+    {
         return streaming();
+    }
     if (!strcmp(argv[1], "format_base"))
+    {
         return base();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

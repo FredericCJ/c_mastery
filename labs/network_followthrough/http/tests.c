@@ -70,7 +70,9 @@ static int receive_output(void)
     {
         int e = en_model_tx(&model, 0);
         if (e == ED_BUSY)
+        {
             break;
+        }
         CHECK(e == ED_OK);
         const unsigned char *f = model.wire;
         CHECK(model.wire_length >= 60);
@@ -102,7 +104,9 @@ static int receive_output(void)
             captured += n;
             server_next += (uint32_t)n;
             if (flags & 2)
+            {
                 server_next++;
+            }
             if (flags & 1)
             {
                 server_next++;
@@ -137,9 +141,13 @@ static int exchange(unsigned chunk, unsigned end_fin)
             {
                 size_t n = request_length - sent;
                 if (n > chunk)
+                {
                     n = chunk;
+                }
                 if (n > server_window)
+                {
                     n = server_window;
+                }
                 unsigned char p[300];
                 size_t z = nc_wire(p, client_next, server_next, 16,
                                    client_window, request + sent, n, 0);
@@ -179,10 +187,14 @@ static void make_request(size_t n, unsigned expect, unsigned truncated,
     text_request("POST /echo HTTP/1.1\r\nHost: mcu.test\r\nTransfer-Encoding: "
                  "chunked\r\n");
     if (expect)
+    {
         text_request("Expect: 100-continue\r\n");
+    }
     text_request("\r\n");
     for (size_t i = 0; i < n; i++)
+    {
         body[i] = (unsigned char)((i * 73 + 17) & 255);
+    }
     body[0] = 0;
     body[1] = '\r';
     body[2] = '\n';
@@ -200,9 +212,13 @@ static void make_request(size_t n, unsigned expect, unsigned truncated,
     }
     text_request("\r\n0\r\nX-Synthetic: retained\r\n");
     if (!truncated)
+    {
         text_request("\r\n");
+    }
     if (pipeline)
+    {
         text_request("GET /health HTTP/1.1\r\nHost: mcu.test\r\n\r\n");
+    }
 }
 
 static int expected(size_t n, unsigned date, unsigned interim, unsigned error)
@@ -218,7 +234,9 @@ static int expected(size_t n, unsigned date, unsigned interim, unsigned error)
         z += k;                 \
     } while (0)
     if (interim)
+    {
         ADD("HTTP/1.1 100 Continue\r\n\r\n");
+    }
     ADD(error ? "HTTP/1.1 400 Bad Request\r\n" : "HTTP/1.1 200 OK\r\n");
     if (date)
     {
@@ -232,7 +250,9 @@ static int expected(size_t n, unsigned date, unsigned interim, unsigned error)
                          : "Content-Length: 1024\r\n");
     ADD("Connection: close\r\n\r\n");
     if (error)
+    {
         ADD("bad request\n");
+    }
     else
     {
         memcpy(want + z, body, n);
@@ -250,7 +270,9 @@ static int streams(void)
                    windows[] = {1, 9, 512};
     unsigned cases = 0;
     for (unsigned a = 0; a < 3; a++)
+    {
         for (unsigned b = 0; b < 3; b++)
+        {
             for (unsigned c = 0; c < 3; c++)
             {
                 unsigned date = (a + b + c) % 2;
@@ -260,6 +282,8 @@ static int streams(void)
                 CHECK(!expected(12, date, 0, 0));
                 cases++;
             }
+        }
+    }
     for (unsigned a = 0; a < 3; a++)
     {
         make_request(1024, a == 0, 0, 0);
@@ -299,9 +323,13 @@ static int failure(void)
         {
             size_t n = request_length - sent;
             if (n > 16)
+            {
                 n = 16;
+            }
             if (n > server_window)
+            {
                 n = server_window;
+            }
             unsigned char p[300];
             size_t z = nc_wire(p, client_next, server_next, 16, 0,
                                request + sent, n, 0);
@@ -342,9 +370,13 @@ static int link_recovery(void)
         {
             size_t n = request_length - sent;
             if (n > 16)
+            {
                 n = 16;
+            }
             if (n > server_window)
+            {
                 n = server_window;
+            }
             unsigned char p[300];
             size_t z = nc_wire(p, client_next, server_next, 16, client_window,
                                request + sent, n, 0);
@@ -367,7 +399,9 @@ static int link_recovery(void)
     CHECK(ep_begin(&phy, 16, 1000) == ED_BUSY);
     int e = ED_BUSY;
     for (unsigned i = 0; i < 16 && e == ED_BUSY; i++)
+    {
         e = ep_step(&phy);
+    }
     CHECK(e == ED_OK);
     CHECK(en_reset_begin(&ring, 0, 4, 100) == ED_BUSY &&
           en_reset_step(&ring, 1) == ED_BUSY &&
@@ -395,7 +429,9 @@ static int link_recovery(void)
     /* The challenged old ACK may emit a separate ACK descriptor; reap it first.
      */
     if (en_model_tx(&model, 0) == ED_OK)
+    {
         CHECK(nb_step(&net, time_ms++) == NB_OK);
+    }
     z = nc_wire(replay, 701, 5001, 16, 512, 0, 0, 0);
     CHECK(inject(replay, z) == ED_OK && nb_step(&net, time_ms++) == NB_OK &&
           net.tcp.state == NC_ESTABLISHED);

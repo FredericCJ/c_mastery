@@ -18,7 +18,9 @@ static void wr(void *c, uint32_t a, uint32_t n)
     {
         control = n;
         if (n & 0x10000u)
+        {
             ++starts;
+        }
     }
 }
 
@@ -69,5 +71,7 @@ _Noreturn void th_guest_report(uint32_t result, uint32_t generation)
     register uint32_t *r1 __asm__("r1") = code;
     __asm__ volatile("bkpt 0xab" : "+r"(r0) : "r"(r1) : "memory");
     for (;;)
+    {
         __asm__ volatile("wfi");
+    }
 }

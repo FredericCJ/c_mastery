@@ -40,7 +40,9 @@ static void print(const char *s)
 {
     size_t n = 0;
     while (s[n])
+    {
         n++;
+    }
     cmk_write(s, n);
 }
 
@@ -111,7 +113,9 @@ static struct sf_bootstrap bootstrap(void)
     {
         int64_t r = cmk_call(SF_BOOTSTRAP, (uintptr_t)&b, 0, 0);
         if (!r)
+        {
             return b;
+        }
         CHECK(r == SF_FULL, "bootstrap error");
         cmk_call(CMK_YIELD, 0, 0, 0);
     }
@@ -151,7 +155,9 @@ static void await_blocked(uint64_t thread_token)
         int64_t r = cmk_call(SF_BLOCKED, thread_token, 0, 0);
         CHECK(r == 0 || r == 1, "blocked identity");
         if (r)
+        {
             return;
+        }
         cmk_call(CMK_YIELD, 0, 0, 0);
     }
     fail("sender never blocked");
@@ -164,7 +170,9 @@ static void pipeline_producer(uintptr_t ignored)
     {
         uint32_t n = i;
         if (send(blocked_queue, &n, sizeof n, 0))
+        {
             cmk2_thread_exit(93);
+        }
     }
     cmk2_thread_exit(0);
 }
@@ -208,7 +216,9 @@ static void fault_racer(uintptr_t n)
           "fault worker fixed CPU");
     atomic_fetch_add_explicit(&fault_ready, 1, memory_order_release);
     while (!atomic_load_explicit(&fault_go, memory_order_acquire))
+    {
         cmk_call(CMK_YIELD, 0, 0, 0);
+    }
     CHECK(!fault_page[n], "same-page first touch zero");
     fault_page[n] = (unsigned char)(41 + n);
     fault_masks[n] = (uint64_t)cmk_call(SF_INFO, 2, 0, 0);
@@ -246,13 +256,17 @@ static void workload_producer(uintptr_t cpu)
     while (workload.offered < 128)
     {
         while (atomic_load_explicit(&workload.phase, memory_order_acquire) != 0)
+        {
             cmk_call(CMK_YIELD, 0, 0, 0);
+        }
         CHECK(!sfw_offer(&workload, workload_burst),
               "bounded acquisition offer");
         atomic_store_explicit(&workload.phase, 1, memory_order_release);
     }
     while (atomic_load_explicit(&workload.phase, memory_order_acquire) != 0)
+    {
         cmk_call(CMK_YIELD, 0, 0, 0);
+    }
     atomic_store_explicit(&workload.phase, 2, memory_order_release);
     cmk2_thread_exit(0);
 }
@@ -274,7 +288,9 @@ static void decimal(uint64_t n)
         n /= 10;
     } while (n);
     while (i)
+    {
         cmk_write(s + --i, 1);
+    }
 }
 #endif
 #if SF_CASE >= 21 && SF_CASE <= 23
@@ -365,7 +381,9 @@ void _start(void)
               !(cmk_call(SF_MAPPING, (uintptr_t)p + 4096, 0, 0) & 1),
           "reservation owns no frames");
     for (unsigned i = 0; i < 8192; i++)
+    {
         CHECK(p[i] == 0, "all zero bytes after actual first touch");
+    }
     p[4096] = 73;
     CHECK(p[0] == 0 && p[4096] == 73, "separate zero pages");
     CHECK(cmk_call(SF_FAULT_CAUSES, 0, 0, 0) == 256,
@@ -381,7 +399,9 @@ void _start(void)
     int64_t child = cmk_call(SDK_CLONE_PRIVATE, 0, 0, 0);
     CHECK(child >= 0, "private clone");
     if (!child)
+    {
         done(7);
+    }
     CHECK(cmk_call(CMK2_WAIT_PROCESS, (uint64_t)child, 0, 0) == 7,
           "child exits before write");
     CHECK(!cmk_call(SF_FAULT_CONTROL, 0, 0, 0), "deny copy allocation");
@@ -412,8 +432,10 @@ void _start(void)
           "copy failure does not consume");
     CHECK(!cmk_call(SF_CHANNEL_CLOSE, q, 0, 0), "close queued channel");
     for (unsigned i = 1; i < 8; i++)
+    {
         CHECK(receive(q, b, 1, 1) == 1 && b[0] == i,
               "closed queue retains accepted FIFO");
+    }
     CHECK(receive(q, b, 1, 1) == SF_CLOSED && send(q, b, 1, 1) == SF_CLOSED,
           "drained closed boundary");
     CHECK(!cmk_call(SF_CHANNEL_DESTROY, q, 0, 0) &&
@@ -477,8 +499,10 @@ void _start(void)
                   cmk_call(SF_CHANNEL_CLOSE, b.request, 0, 0) == SF_DENIED,
               "receive-only authority");
         for (unsigned i = 0; i < 8; i++)
+        {
             CHECK(receive(b.request, &out, 1, 0) == 1 && out == i,
                   "cross-process accepted FIFO");
+        }
         CHECK(receive(b.request, &out, 1, 0) == SF_CLOSED,
               "peer close after drain");
         done(0);
@@ -486,7 +510,9 @@ void _start(void)
     bind(SF_PROCESS_TAG | (uint64_t)child,
          grant(q, SF_PROCESS_TAG | (uint64_t)child, 2), 0);
     for (unsigned char i = 0; i < 8; i++)
+    {
         CHECK(!send(q, &i, 1, 1), "eight accepted before blocked sender");
+    }
     void *stack = cmk_alloc(4);
     CHECK(stack != 0, "blocked sender stack");
     blocked_queue = q;
@@ -524,7 +550,9 @@ void _start(void)
         CHECK(!send(b.request, &cap, sizeof cap, 0),
               "deliver protected grantee identity");
         for (unsigned char i = 0; i < 8; i++)
+        {
             CHECK(!send(q, &i, 1, 1), "owner accepted work");
+        }
         done(0);
     }
     bind(SF_PROCESS_TAG | (uint64_t)child,
@@ -572,7 +600,9 @@ void _start(void)
             uint32_t n = 99;
             int64_t r = receive(b.request, &n, sizeof n, 0);
             if (r == SF_CLOSED)
+            {
                 break;
+            }
             CHECK(r == sizeof n && n == count, "middle FIFO");
             CHECK(!send(b.reply, &n, sizeof n, 0),
                   "middle owns copy through backpressure");
@@ -700,7 +730,9 @@ void _start(void)
                 atomic_load_explicit(&ring->tail, memory_order_relaxed);
             while (tail ==
                    atomic_load_explicit(&ring->head, memory_order_acquire))
+            {
                 cmk_call(CMK_YIELD, 0, 0, 0);
+            }
             CHECK(ring->values[tail & 7][0] == i &&
                       ring->values[tail & 7][1] == ~i,
                   "shared SPSC ownership publication");
@@ -714,7 +746,9 @@ void _start(void)
             observations++;
             int64_t r = cmk_call(CMK2_CHANNEL_RECV, gate, 0, 1);
             if (r == 1)
+            {
                 break;
+            }
             CHECK(r == CMK2_EAGAIN, "unmap acknowledgment gate");
             cmk_call(CMK_YIELD, 0, 0, 0);
         }
@@ -730,14 +764,18 @@ void _start(void)
         uint32_t head = atomic_load_explicit(&ring->head, memory_order_relaxed);
         while ((uint32_t)(head - atomic_load_explicit(
                                      &ring->tail, memory_order_acquire)) == 8)
+        {
             cmk_call(CMK_YIELD, 0, 0, 0);
+        }
         ring->values[head & 7][0] = i;
         ring->values[head & 7][1] = ~i;
         atomic_store_explicit(&ring->head, head + 1, memory_order_release);
     }
     while (atomic_load_explicit(&ring->tail, memory_order_acquire) !=
            atomic_load_explicit(&ring->head, memory_order_relaxed))
+    {
         cmk_call(CMK_YIELD, 0, 0, 0);
+    }
     CHECK(!cmk_call(SF_SHM_UNMAP, (uintptr_t)ring, 4096, 0),
           "parent unmap acknowledges TLB before reference drop");
     CHECK(!cmk_call(CMK2_CHANNEL_SEND, gate, 1, 0) &&
@@ -832,10 +870,14 @@ void _start(void)
           "failed admission preserves all live ready wait ownership");
     CHECK(!cmk_call(SF_CHANNEL_CLOSE, q, 0, 0), "release31 waiters");
     for (unsigned i = 0; i < 3; i++)
+    {
         CHECK(!cmk_call(SF_TYPED_JOIN, threads[i], 0, 0), "pool parent joins");
+    }
     for (unsigned i = 0; i < 7; i++)
+    {
         CHECK(cmk_call(SF_TYPED_WAIT, children[i], 0, 0) == 7,
               "pool child reaping");
+    }
     CHECK(cmk_call(SF_TYPED_JOIN, threads[0], 0, 0) == SF_STALE,
           "pool repeated join stale");
     CHECK(!cmk_call(SF_CHANNEL_DESTROY, q, 0, 0), "pool wait queue cleanup");
@@ -854,7 +896,9 @@ void _start(void)
         state = cmk_call(SF_PROCESS_STATE, child, 0, 0);
         CHECK(state >= 0, "remote child identity");
         if (state & 32)
+        {
             break;
+        }
         cmk_call(CMK_YIELD, 0, 0, 0);
     }
     CHECK(state & 32, "child occupies a CPU before termination");
@@ -863,7 +907,9 @@ void _start(void)
     {
         killed = cmk_call(SF_PROCESS_KILL, child, 0, 1);
         if (killed == SF_RETRY)
+        {
             cmk_call(CMK_YIELD, 0, 0, 0);
+        }
     }
     CHECK(killed >= 0 && killed != SF_RETRY && (killed & 32) && !(killed & 6),
           "remote address space not reaped by kill");
@@ -895,7 +941,9 @@ void _start(void)
     {
         state = cmk_call(SF_PROCESS_STATE, child, 0, 0);
         if (state >= 0 && (state & 2))
+        {
             break;
+        }
         cmk_call(CMK_YIELD, 0, 0, 0);
     }
     CHECK(state >= 0 && (state & 2) && !(state & 1), "child exits before wait");
@@ -933,14 +981,18 @@ void _start(void)
         CHECK((int64_t)threads[i] > 0, "two fault racers");
     }
     while (atomic_load_explicit(&fault_ready, memory_order_acquire) != 2)
+    {
         cmk_call(CMK_YIELD, 0, 0, 0);
+    }
     CHECK(cmk_call(SDK_CLONE_PRIVATE, 0, 0, 0) == CMK2_EINVAL,
           "multi-thread private clone rejected");
     CHECK(!cmk_call(SF_FAULT_BARRIER, (uintptr_t)fault_page, 0, 0),
           "arm actual two-fault before-lock gate");
     atomic_store_explicit(&fault_go, 1, memory_order_release);
     for (unsigned i = 0; i < 2; i++)
+    {
         CHECK(!cmk_call(SF_TYPED_JOIN, threads[i], 0, 0), "fault racer join");
+    }
     CHECK(cmk_call(SF_FAULT_BARRIER, 0, 0, 0) == 2,
           "both saved page faults arrived before either lock acquisition");
     struct sf_ledger after = ledger();
@@ -1023,7 +1075,9 @@ void _start(void)
           "known full file and EOF");
     uint32_t hash = 2166136261u;
     for (unsigned i = 0; i < 10; i++)
+    {
         hash = (hash ^ bytes[i]) * 16777619u;
+    }
     CHECK(hash == UINT32_C(0xbce81ef2), "archive byte hash");
     CHECK(cmk_call(SF_ARCHIVE_PROBE, 0, 0, 0) == 6,
           "duplicate traversal malformed namespace admission");
@@ -1319,7 +1373,9 @@ void _start(void)
         print("PASS sf-fresh-zero-then-durable42\n");
     }
     else
+    {
         print("PASS sf-reboot-same-disk42\n");
+    }
     store_end(owner, inbox);
     CHECK(!cmk_call(SF_CHANNEL_CLOSE, reply, 0, 0) &&
               !cmk_call(SF_CHANNEL_DESTROY, reply, 0, 0),
@@ -1347,10 +1403,14 @@ void _start(void)
                 phase =
                     atomic_load_explicit(&workload.phase, memory_order_acquire);
                 if (!phase)
+                {
                     cmk_call(CMK_YIELD, 0, 0, 0);
+                }
             } while (!phase);
             if (phase == 2)
+            {
                 break;
+            }
             CHECK(phase == 1 && !sfw_work(&workload),
                   "one bounded compute quantum");
             atomic_store_explicit(&workload.phase, 0, memory_order_release);
@@ -1358,7 +1418,9 @@ void _start(void)
         CHECK(!cmk_call(SF_TYPED_JOIN, thread, 0, 0),
               "producer quiescence before queue classification");
         while (af_queued(&workload.ring) > 2)
+        {
             CHECK(!sfw_work(&workload), "bounded terminal drain");
+        }
         CHECK(sfw_quiescent(&workload, 0, 1) == AF_BUSY &&
                   !sfw_quiescent(&workload, 1, 1) && !sfw_check(&workload),
               "uncertain ownership requires actual join");

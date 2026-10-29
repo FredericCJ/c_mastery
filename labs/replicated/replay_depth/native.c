@@ -33,7 +33,9 @@ static ptrdiff_t file_read(void *c, size_t at, unsigned char *p, size_t n)
 {
     struct rp_file *f = c;
     if (n > 113)
+    {
         n = 113;
+    }
     ssize_t r = pread(f->fd, p, n, (off_t)at);
     return r < 0 && errno == EINTR ? -2 : r;
 }
@@ -43,7 +45,9 @@ static ptrdiff_t file_write(void *c, size_t at, const unsigned char *p,
 {
     struct rp_file *f = c;
     if (n > 257)
+    {
         n = 257;
+    }
     ssize_t r = pwrite(f->fd, p, n, (off_t)at);
     return r < 0 && errno == EINTR ? -2 : r;
 }
@@ -69,12 +73,16 @@ static int attach(unsigned index, int create)
     }
     CHECK(store_open(&f->pages, io) == 0);
     if (!index)
+    {
         CHECK((create ? rpr_create(&f->pages, 9, 4, initial, &session)
                       : rpr_open(&f->pages, 9, &session)) == 0);
+    }
     else
+    {
         CHECK((create
                    ? rpl_create(&f->pages, 9, RPR_EFFECT_SCHEMA, &inbox)
                    : rpl_open(&f->pages, 9, RPR_EFFECT_SCHEMA, &inbox)) == 0);
+    }
     return 0;
 }
 
@@ -87,18 +95,28 @@ static int transfer(int fd, unsigned char *p, size_t n, int sending)
         struct pollfd q = {fd, sending ? POLLOUT : POLLIN, 0};
         int r = poll(&q, 1, 1000);
         if (r < 0 && errno == EINTR)
+        {
             continue;
+        }
         if (r <= 0)
+        {
             return -1;
+        }
         size_t take = n - at;
         if (take > 3)
+        {
             take = 3;
+        }
         ssize_t z = sending ? send(fd, p + at, take, MSG_NOSIGNAL)
                             : recv(fd, p + at, take, 0);
         if (z < 0 && errno == EINTR)
+        {
             continue;
+        }
         if (z <= 0)
+        {
             return -1;
+        }
         at += (size_t)z;
     }
     return at == n ? 0 : -1;
@@ -142,7 +160,9 @@ static int process_case(void)
     CHECK(close(pair[1]) == 0);
     int local[] = {1, 0, -1, 1};
     for (unsigned i = 0; i < 4; ++i)
+    {
         CHECK(rpr_advance_durable(&session, local[i], &n) == 0);
+    }
     CHECK(rpr_prepare_durable(&session, &effect) == RPR_EMPTY);
     CHECK(transfer(pair[0], &b, 1, 1) == 0);
     for (unsigned i = 0; i < 5; ++i)
@@ -164,7 +184,9 @@ static int process_case(void)
     {
         if (attach(1, 0) || rpr_sink_apply(&inbox, effect, &applied) ||
             applied != 1)
+        {
             _exit(1);
+        }
         _exit(42);
     }
     CHECK(waitpid(child, &status, 0) == child && WIFEXITED(status) &&
@@ -184,10 +206,12 @@ static int process_case(void)
     CHECK(rpr_sink_apply(&inbox, changed, &applied) == RPR_STALE &&
           applied == 77);
     for (unsigned tick = 2; tick <= 4; ++tick)
+    {
         CHECK(rpr_prepare_durable(&session, &effect) == 0 &&
               effect.tick == tick &&
               rpr_sink_apply(&inbox, effect, &applied) == 0 && applied == 1 &&
               rpr_feedback_durable(&session, effect, AR_OK) == 0);
+    }
     CHECK(attach(0, 0) == 0 && attach(1, 0) == 0 && inbox.memory.count == 4 &&
           session.session.effects.next == 4 &&
           !session.session.effects.pending &&
@@ -207,6 +231,8 @@ int main(void)
     }
     CHECK(process_case() == 0);
     for (unsigned i = 0; i < 2; ++i)
+    {
         CHECK(close(files[i].fd) == 0);
+    }
     return 0;
 }

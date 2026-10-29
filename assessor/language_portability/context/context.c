@@ -12,12 +12,18 @@ void lc_utf_init(struct lc_utf *s)
 int lc_utf_feed(struct lc_utf *s, const unsigned char *p, size_t n)
 {
     if (!s || (n && !p))
+    {
         return LC_INVALID;
+    }
     if (n > 64 - s->bytes)
+    {
         return LC_RANGE;
+    }
     struct lc_utf next = *s;
     if (LC_MUTANT == 2)
+    {
         next.remaining = 0;
+    }
     for (size_t i = 0; i < n; ++i)
     {
         unsigned c = p[i];
@@ -48,12 +54,16 @@ int lc_utf_feed(struct lc_utf *s, const unsigned char *p, size_t n)
                 next.remaining = 3;
             }
             else
+            {
                 return LC_ENCODING;
+            }
         }
         else
         {
             if (c < 128 || c > 191)
+            {
                 return LC_ENCODING;
+            }
             next.scalar = next.scalar * 64 + (c & 63);
             --next.remaining;
             if (!next.remaining)
@@ -61,7 +71,9 @@ int lc_utf_feed(struct lc_utf *s, const unsigned char *p, size_t n)
                 if (LC_MUTANT != 1 &&
                     (next.scalar < next.minimum || next.scalar > 0x10ffff ||
                      (next.scalar >= 0xd800 && next.scalar <= 0xdfff)))
+                {
                     return LC_ENCODING;
+                }
                 ++next.scalars;
                 next.scalar = next.minimum = 0;
             }
@@ -73,12 +85,16 @@ int lc_utf_feed(struct lc_utf *s, const unsigned char *p, size_t n)
                      high = ((next.scalar + 1) << shift) - 1;
             if (high < next.minimum || low > 0x10ffff ||
                 (low >= 0xd800 && high <= 0xdfff))
+            {
                 return LC_ENCODING;
+            }
         }
         ++next.bytes;
     }
     if (LC_MUTANT == 4)
+    {
         next.scalars = next.bytes;
+    }
     *s = next;
     return LC_OK;
 }
@@ -86,9 +102,13 @@ int lc_utf_feed(struct lc_utf *s, const unsigned char *p, size_t n)
 int lc_utf_finish(const struct lc_utf *s, size_t *out)
 {
     if (!s || !out)
+    {
         return LC_INVALID;
+    }
     if (s->remaining)
+    {
         return LC_INCOMPLETE;
+    }
     *out = s->scalars;
     return LC_OK;
 }
@@ -102,11 +122,17 @@ int lc_locale_one(struct lc_locale *s, const char *p, size_t n, wchar_t *out,
                   size_t *used)
 {
     if (!s || !p || !out || !used)
+    {
         return LC_INVALID;
+    }
     if (s->poisoned)
+    {
         return LC_POISONED;
+    }
     if (LC_MUTANT == 3)
+    {
         s->state = (mbstate_t){0};
+    }
     wchar_t value = 0;
     size_t result = mbrtowc(&value, p, n, &s->state);
     if (result == (size_t)-1)
@@ -115,7 +141,9 @@ int lc_locale_one(struct lc_locale *s, const char *p, size_t n, wchar_t *out,
         return LC_ENCODING;
     }
     if (result == (size_t)-2)
+    {
         return LC_INCOMPLETE;
+    }
     *out = value;
     *used = result;
     return LC_OK;

@@ -35,7 +35,9 @@ int ia_electrical(void)
           x.minimum == 99 && x.maximum == 88);
     unsigned cases = 0;
     for (unsigned voltage = 1800; voltage <= 5000; voltage += 800)
+    {
         for (unsigned tolerance = 0; tolerance <= 250000; tolerance += 50000)
+        {
             for (unsigned leak = 0; leak <= 200; leak += 50)
             {
                 struct ia_envelope e = {voltage, voltage + 100, 400,
@@ -57,6 +59,8 @@ int ia_electrical(void)
                 ia_values("upper", voltage, tolerance, leak, x.maximum);
                 cases++;
             }
+        }
+    }
     struct ia_envelope e = {6000, 6000, 0, 20000, 1000000, 1, 0, 0, 0};
     CHECK(ia_guaranteed(&e, &x) == IA_OK && x.maximum == 750000000);
     e.source_leak_ua = 20000;
@@ -72,6 +76,7 @@ int ia_arbitration(void)
     struct ia_trace r;
     unsigned cases = 0;
     for (unsigned a = 0; a < 256; a++)
+    {
         for (unsigned c = 0; c < 256; c++)
         {
             for (unsigned k = 0; k < 8; k++)
@@ -87,13 +92,20 @@ int ia_arbitration(void)
                   r.low == 7 && r.high == 3);
             unsigned wire = 0;
             for (unsigned k = 0; k < 8; k++)
+            {
                 wire = (wire << 1) | r.bus[k];
+            }
             CHECK(wire == (a < c ? a : c));
             cases++;
         }
+    }
     for (unsigned j = 0; j < 3; j++)
+    {
         for (unsigned k = 0; k < 32; k++)
+        {
             b[j][k] = 1;
+        }
+    }
     b[1][31] = 0;
     CHECK(ia_arbitrate((const uint8_t (*)[32])b, 3, 32, low, high, &r) ==
               IA_OK &&

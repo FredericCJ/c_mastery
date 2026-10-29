@@ -12,7 +12,9 @@ int main(void)
 {
     unsigned *p = malloc(sizeof *p);
     if (!p)
+    {
         return 2;
+    }
     *p = 7;
     mw_marker(1);
     cells[1] = 99; /* Legal address, wrong logical field: no section growth. */

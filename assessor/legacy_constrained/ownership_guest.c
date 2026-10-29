@@ -61,7 +61,9 @@ static void receive(struct lc_message m)
     taskEXIT_CRITICAL();
     CR_CHECK(cr_read(&pool, m.token, bytes, sizeof bytes, &length) == CR_OK);
     for (size_t i = 0; i < length; i++)
+    {
         CR_CHECK(bytes[i] == (unsigned char)received);
+    }
     sum += (unsigned)length * (unsigned char)received;
     received++;
     release(m.token);
@@ -70,12 +72,18 @@ static void receive(struct lc_message m)
 static void suspend_complete(unsigned which)
 {
     if (which == 1)
+    {
         producer_done++;
+    }
     else
+    {
         consumer_done++;
+    }
     xTaskNotifyGive(tasks[0]);
     if (CR_TARGET_MUTANT != 2)
+    {
         vTaskSuspend(NULL);
+    }
 }
 
 static void raise_irq(void)
@@ -144,17 +152,21 @@ static void producer(void *unused)
             xTaskNotifyGive(tasks[0]);
             unsigned sent = 0;
             while (!atomic_load(&stop))
+            {
                 if (xQueueSend(queue, &m, 10) == pdPASS)
                 {
                     sent = 1;
                     break;
                 }
+            }
             CR_CHECK(!sent);
             taskENTER_CRITICAL();
             CR_CHECK(cr_abort_offer(&pool, token) == CR_OK);
             taskEXIT_CRITICAL();
             if (CR_TARGET_MUTANT != 1)
+            {
                 release(token);
+            }
             suspend_complete(1);
         }
         else if (mode == 2)
@@ -164,16 +176,22 @@ static void producer(void *unused)
                 unsigned char bytes[16];
                 size_t length = n % 16 + 1;
                 for (size_t i = 0; i < length; i++)
+                {
                     bytes[i] = (unsigned char)n;
+                }
                 struct cr_token token;
                 int status;
                 while ((status = allocate(0, bytes, length, &token)) == CR_FULL)
+                {
                     vTaskDelay(1);
+                }
                 CR_CHECK(status == CR_OK);
                 offer(token);
                 struct lc_message m = message(token);
                 while (xQueueSend(queue, &m, 1) != pdPASS)
+                {
                     CR_CHECK(!atomic_load(&stop));
+                }
 #if CR_FP
                 CR_CHECK(cr_fp_probe(0x3f800000u + n));
                 taskENTER_CRITICAL();
@@ -192,7 +210,9 @@ static void producer(void *unused)
             suspend_complete(1);
         }
         else
+        {
             cr_fail(__LINE__);
+        }
     }
 }
 
@@ -207,7 +227,9 @@ static void consumer(void *unused)
             struct lc_message m;
             CR_CHECK(xQueueReceive(queue, &m, portMAX_DELAY) == pdPASS);
             if (!m.payload)
+            {
                 break;
+            }
             receive(m);
 #if CR_FP
             CR_CHECK(cr_fp_probe(0x40400000u + received));
@@ -239,8 +261,10 @@ static void monitor_task(void *unused)
         taskENTER_CRITICAL();
         unsigned owned = 0;
         for (unsigned j = 0; j < 3; j++)
+        {
             owned += pool.slots[j].state != CR_FREE &&
                      pool.slots[j].state != CR_RETIRED;
+        }
         CR_CHECK(owned <= 3);
         monitor_checks++;
         taskEXIT_CRITICAL();
@@ -264,7 +288,9 @@ static void controller(void *unused)
     release(f);
     struct lc_message empty = {0};
     for (unsigned i = 0; i < 3; i++)
+    {
         CR_CHECK(xQueueSend(queue, &empty, 0) == pdPASS);
+    }
     atomic_store(&command, 1);
     xTaskNotifyGive(tasks[1]);
     CR_CHECK(ulTaskNotifyTake(pdTRUE, portMAX_DELAY) == 1);
@@ -275,7 +301,9 @@ static void controller(void *unused)
     quiescent(1);
     CR_CHECK(pool.slots[0].state == CR_FREE && pool.slots[1].state == CR_FREE);
     for (unsigned i = 0; i < 3; i++)
+    {
         CR_CHECK(xQueueReceive(queue, &empty, 0) == pdPASS);
+    }
     cr_text("CR_SHUTDOWN:blocked-offer-reclaimed-once quiescent=1\n");
     atomic_store(&stop, 0);
     atomic_store(&command, 2);
@@ -287,7 +315,9 @@ static void controller(void *unused)
 #endif
     unsigned done = 0;
     while (done < 2 + CR_EXTRA_TASK)
+    {
         done += (unsigned)ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+    }
     CR_CHECK(done == 2 + CR_EXTRA_TASK);
     quiescent(1);
     quiescent(2);

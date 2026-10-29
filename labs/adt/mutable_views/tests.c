@@ -108,7 +108,9 @@ static int reduction(void)
           out.vector_blocks == 0 && out.scalar_elements == 0);
     uint32_t padded[14];
     for (unsigned i = 0; i < 14; ++i)
+    {
         padded[i] = i + 1;
+    }
     struct adv_view whole, sub, t;
     CHECK(adv_view(padded, 12, 2, 5, 7, 1, &whole) == ADV_OK);
     CHECK(adv_reduce(adv_readonly(whole), ADV_VECTOR, &out) == ADV_OK &&
@@ -158,25 +160,33 @@ static int oracle(void)
                  &pattern) == 6)
     {
         if (cap > 64 || rows > 8 || cols > 8 || rs > 9 || cs > 9 || pattern > 2)
+        {
             return 2;
+        }
         uint32_t data[64];
         for (unsigned i = 0; i < 64; ++i)
+        {
             data[i] = pattern == 0   ? i + 1
                       : pattern == 1 ? (i % 5 == 0 ? UINT32_MAX : 1)
                                      : 0;
+        }
         struct adv_geometry g = {777, 888};
         enum adv_status gs = adv_geometry(cap, rows, cols, rs, cs, &g);
         struct ad_view read = {0};
         int admitted = ad_view(data, cap, rows, cols, rs, cs, &read);
         uint64_t total = 0;
         if (admitted)
+        {
             for (size_t r = 0; r < rows; ++r)
+            {
                 for (size_t c = 0; c < cols; ++c)
                 {
                     uint32_t x;
                     CHECK(ad_view_get(read, r, c, &x));
                     total += x;
                 }
+            }
+        }
         struct adv_view view = {0};
         enum adv_status vs = adv_view(data, cap, rows, cols, rs, cs, &view);
         printf("%u %zu %u %d %" PRIu64 " %u", (unsigned)gs, g.required,
@@ -188,7 +198,9 @@ static int oracle(void)
             result(read, ADV_AUTO);
         }
         else
+        {
             printf(" -");
+        }
         if (vs == ADV_OK && rows && cols)
         {
             struct adv_view t, sub;
@@ -199,12 +211,16 @@ static int oracle(void)
             CHECK(adv_set(sub, 0, 0, 222) == ADV_OK);
             uint64_t checksum = 0;
             for (size_t i = 0; i < cap; ++i)
+            {
                 checksum += (uint64_t)(i + 1) * data[i];
+            }
             printf(" %zu %zu %zu %" PRIu64, (size_t)(sub.data - data),
                    sub.capacity, t.row_stride, checksum);
         }
         else
+        {
             printf(" -");
+        }
         puts("");
     }
     return 0;
@@ -214,7 +230,9 @@ static double seconds(void)
 {
     struct timespec t;
     if (clock_gettime(CLOCK_MONOTONIC, &t))
+    {
         return 0;
+    }
     return (double)t.tv_sec + (double)t.tv_nsec / 1e9;
 }
 
@@ -222,7 +240,9 @@ static int metrics(void)
 {
     uint32_t data[2240];
     for (unsigned i = 0; i < 2240; ++i)
+    {
         data[i] = 1;
+    }
     struct ad_view v;
     CHECK(ad_view(data, 2240, 32, 64, 70, 1, &v));
     struct adv_reduction out;
@@ -253,10 +273,14 @@ static int metrics(void)
            ",\"view_size\":%zu,\"view_alignment\":%zu,\"scalar_seconds\":[",
            checksum, sizeof(struct adv_view), _Alignof(struct adv_view));
     for (unsigned i = 0; i < 7; ++i)
+    {
         printf("%s%.9f", i ? "," : "", scalar[i]);
+    }
     printf("],\"vector_seconds\":[");
     for (unsigned i = 0; i < 7; ++i)
+    {
         printf("%s%.9f", i ? "," : "", vector[i]);
+    }
     puts("]}");
     return 0;
 }
@@ -264,20 +288,36 @@ static int metrics(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (!strcmp(argv[1], "view_geometry"))
+    {
         return geometry();
+    }
     if (!strcmp(argv[1], "view_transform"))
+    {
         return transforms();
+    }
     if (!strcmp(argv[1], "view_vector"))
+    {
         return vector();
+    }
     if (!strcmp(argv[1], "view_reduction"))
+    {
         return reduction();
+    }
     if (!strcmp(argv[1], "view_base"))
+    {
         return baseline();
+    }
     if (!strcmp(argv[1], "oracle"))
+    {
         return oracle();
+    }
     if (!strcmp(argv[1], "metrics"))
+    {
         return metrics();
+    }
     return 2;
 }

@@ -28,12 +28,16 @@ send_prefix(void *context, const unsigned char *bytes, size_t count)
     ssize_t n;
     ++p->calls;
     if (count > 2)
+    {
         count = 2;
+    }
     n = write(p->fd, bytes, count);
     if (n < 0)
+    {
         return (struct mfp_write_result){0, (errno == EAGAIN || errno == EINTR)
                                                 ? MFP_WRITE_AGAIN
                                                 : MFP_WRITE_ERROR};
+    }
     return (struct mfp_write_result){(size_t)n, MFP_WRITE_OK};
 }
 

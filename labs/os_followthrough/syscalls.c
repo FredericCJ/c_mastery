@@ -85,7 +85,9 @@ int main(void)
     CHECK(close(p[0]) == 0 && close(p[1]) == 0);
     long a, b;
     if (short_write(0, &a) || short_write(1, &b))
+    {
         return 1;
+    }
     CHECK(a == b);
     puts("OF_PASS:syscalls");
     return 0;

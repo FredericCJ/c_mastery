@@ -11,7 +11,9 @@ static int callback(void *ctx, uint8_t service, int32_t input, int32_t *out)
     (void)ctx;
     ++callbacks;
     if (service != 1 || input != 41)
+    {
         return -1;
+    }
     volatile unsigned tally = 0;
     for (unsigned i = 0; i < loop_count; ++i)
     {
@@ -19,9 +21,13 @@ static int callback(void *ctx, uint8_t service, int32_t input, int32_t *out)
         ++iterations;
     }
     if (loop_count && tally != (loop_count * (loop_count - 1)) / 2)
+    {
         return -1;
+    }
     if (fail_callback)
+    {
         return -1;
+    }
     *out = input + 1;
     return 0;
 }
@@ -47,7 +53,9 @@ static enum cvm_status run(struct cvm_value *out)
 int kf_vm_probe(const uint8_t *p, size_t n, struct kf_vm_report *report)
 {
     if (!report)
+    {
         return 1;
+    }
     *report = (struct kf_vm_report){0};
     report->machine_bytes = sizeof machine;
     report->program_bytes = sizeof program;
@@ -87,22 +95,30 @@ int kf_vm_probe(const uint8_t *p, size_t n, struct kf_vm_report *report)
         if (status != expected || callbacks != calls ||
             (status == CVM_OK && out.integer != 42) ||
             iterations != (i == 5 ? 256u : 0u))
+        {
             return 3;
+        }
     }
     report->truncated = load(p, n - 1);
     if (report->truncated == CVM_OK)
+    {
         return 4;
+    }
     /* VM recursion consumes explicit CvmFrame slots; it is not C recursion. */
     static const uint8_t recursive[] = {
         'C', 'V', 'M', '1', 2,       0, 0, 4,      0,       0, 0, 4,     0,
         4,   0,   0,   0,   OP_CALL, 1, 0, OP_RET, OP_CALL, 1, 0, OP_RET};
     if (load(recursive, sizeof recursive) != CVM_OK)
+    {
         return 5;
+    }
     cvm_init(&machine, 128, 128, 0);
     struct cvm_value out = cvm_int(0);
     report->recursive = run(&out);
     ++report->run_calls;
     if (report->recursive != CVM_FRAME_LIMIT || machine.depth != 16)
+    {
         return 6;
+    }
     return 0;
 }

@@ -41,6 +41,7 @@ int main(void)
     const struct co_row alphabet[] = {{0, -1}, {0, 1}, {1, -1}, {1, 2}};
     size_t power = 1, total_cases = 0;
     for (size_t n = 0; n <= 6; n++, power *= 4)
+    {
         for (size_t code = 0; code < power; code++)
         {
             struct co_row rows[6];
@@ -66,9 +67,13 @@ int main(void)
                 C(r == r2 && k == k2 && s == s2 && q.scan.index == fused.index);
                 C(r == (i < expected ? CO_OK : CO_DONE));
                 if (i < expected)
+                {
                     C(k == keys[i] && s == sums[i]);
+                }
                 else
+                {
                     C(k == 91 && s == 92);
+                }
             }
             C(cf_volcano_close(&q) == 0 && cf_volcano_close(&q) == 0);
             unsigned k = 91;
@@ -89,7 +94,9 @@ int main(void)
                     C(k == 91 && s == 92);
                     int r = cf_batch_poll(&b, avail, avail == n, 1, &k, &s);
                     if (r == CO_DONE)
+                    {
                         break;
+                    }
                     if (r == CO_OK)
                     {
                         C(out < expected && k == keys[out] && s == sums[out]);
@@ -99,7 +106,9 @@ int main(void)
                     {
                         C(r == CO_PENDING && k == 91 && s == 92);
                         if (avail < n)
+                        {
                             avail++;
+                        }
                     }
                 }
                 C(out == expected && b.committed == n);
@@ -108,6 +117,7 @@ int main(void)
             }
             total_cases++;
         }
+    }
     struct co_row overflow[] = {
         {1, -1}, {2, INT32_MAX}, {2, INT32_MAX}, {2, 2}, {3, 1}};
     struct cf_volcano q;

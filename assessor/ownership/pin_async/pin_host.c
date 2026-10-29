@@ -10,7 +10,9 @@ static void *backend(void *arg)
     struct opa_port *p = arg;
     pthread_mutex_lock(&p->mutex);
     while (!p->gate)
+    {
         pthread_cond_wait(&p->condition, &p->mutex);
+    }
     int32_t *buffer = p->buffer, value = p->value;
     size_t count = p->count;
     opa_receiver_fn receiver = p->receiver;
@@ -37,9 +39,13 @@ static void *backend(void *arg)
 enum ow_status opa_port_init(struct opa_port *p, int32_t *buffer, size_t count)
 {
     if (!p || !buffer || !count || count > 16)
+    {
         return OW_INVALID;
+    }
     if (pthread_mutex_init(&p->mutex, NULL) != 0)
+    {
         return OW_INVALID;
+    }
     if (pthread_cond_init(&p->condition, NULL) != 0)
     {
         pthread_mutex_destroy(&p->mutex);
@@ -73,7 +79,9 @@ enum ow_status opa_port_start(struct opa_port *p, int32_t value,
                               uint32_t *out)
 {
     if (!owner(p) || !receiver || !out || value < -1000000 || value > 1000000)
+    {
         return OW_INVALID;
+    }
     pthread_mutex_lock(&p->mutex);
     if (p->started)
     {
@@ -114,7 +122,9 @@ enum ow_status opa_port_start(struct opa_port *p, int32_t value,
 enum ow_status opa_port_cancel(struct opa_port *p, uint32_t ticket, int timeout)
 {
     if (!owner(p) || (timeout != 0 && timeout != 1))
+    {
         return OW_INVALID;
+    }
     pthread_mutex_lock(&p->mutex);
     enum ow_status q = timeout ? opa_timeout(&p->core, ticket, 7)
                                : opa_cancel(&p->core, ticket, 7);
@@ -125,13 +135,19 @@ enum ow_status opa_port_cancel(struct opa_port *p, uint32_t ticket, int timeout)
 enum ow_status opa_port_allow_backend(struct opa_port *p, uint32_t ticket)
 {
     if (!owner(p))
+    {
         return OW_INVALID;
+    }
     pthread_mutex_lock(&p->mutex);
     enum ow_status q = OW_OK;
     if (ticket != p->ticket)
+    {
         q = OW_STALE;
+    }
     else if (!p->started)
+    {
         q = OW_INVALID;
+    }
     else
     {
         p->gate = 1;
@@ -144,7 +160,9 @@ enum ow_status opa_port_allow_backend(struct opa_port *p, uint32_t ticket)
 enum ow_status opa_port_observe(struct opa_port *p, struct opa_observation *out)
 {
     if (!owner(p) || !out)
+    {
         return OW_INVALID;
+    }
     pthread_mutex_lock(&p->mutex);
     *out = (struct opa_observation){
         p->core.pin.pending,      p->core.recovery,
@@ -158,7 +176,9 @@ enum ow_status opa_port_join(struct opa_port *p, uint32_t ticket, int wait,
                              int32_t *out)
 {
     if (!owner(p) || !out || (wait != 0 && wait != 1))
+    {
         return OW_INVALID;
+    }
     pthread_mutex_lock(&p->mutex);
     if (ticket != p->ticket)
     {
@@ -183,12 +203,16 @@ enum ow_status opa_port_join(struct opa_port *p, uint32_t ticket, int wait,
     pthread_t thread = p->worker;
     pthread_mutex_unlock(&p->mutex);
     if (!joined && pthread_join(thread, NULL) != 0)
+    {
         return OW_BUSY;
+    }
     pthread_mutex_lock(&p->mutex);
     p->joined = 1;
     enum ow_status q = p->worker_status;
     if (q == OW_OK)
+    {
         q = opa_finish(&p->core, ticket, 7, out);
+    }
     if (q == OW_OK)
     {
         p->started = 0;
@@ -203,7 +227,9 @@ enum ow_status opa_port_rebind(struct opa_port *p, int32_t *buffer,
                                size_t count)
 {
     if (!owner(p) || !buffer || !count || count > 16)
+    {
         return OW_INVALID;
+    }
     pthread_mutex_lock(&p->mutex);
     enum ow_status q = OW_BUSY;
     if (!p->started)
@@ -222,7 +248,9 @@ enum ow_status opa_port_rebind(struct opa_port *p, int32_t *buffer,
 enum ow_status opa_port_destroy(struct opa_port *p)
 {
     if (!owner(p))
+    {
         return OW_INVALID;
+    }
     pthread_mutex_lock(&p->mutex);
     if (p->started)
     {
@@ -231,9 +259,13 @@ enum ow_status opa_port_destroy(struct opa_port *p)
     }
     pthread_mutex_unlock(&p->mutex);
     if (pthread_cond_destroy(&p->condition) != 0)
+    {
         return OW_BUSY;
+    }
     if (pthread_mutex_destroy(&p->mutex) != 0)
+    {
         return OW_BUSY;
+    }
     p->ready = 0;
     return OW_OK;
 }

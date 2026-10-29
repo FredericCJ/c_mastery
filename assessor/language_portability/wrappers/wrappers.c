@@ -40,7 +40,9 @@ int lw_trace(unsigned n, struct lw_observation *out)
     struct lw_observation s = {0};
     int status = 0;
     if (!out || n > 5)
+    {
         return -1;
+    }
     switch (n)
     {
         case 0:
@@ -63,7 +65,9 @@ int lw_trace(unsigned n, struct lw_observation *out)
             break;
     }
     if (status)
+    {
         return -1;
+    }
     *out = s;
     return 0;
 }
@@ -105,7 +109,9 @@ int lw_min(unsigned n, struct lw_observation *out)
 {
     struct lw_observation s = {0};
     if (!out || n > 3)
+    {
         return -1;
+    }
     switch (n)
     {
         case 0:
@@ -159,20 +165,30 @@ int lw_statement(unsigned n, struct lw_observation *out)
 {
     struct lw_observation s = {0};
     if (!out || n > 5)
+    {
         return -1;
+    }
     switch (n)
     {
         case 0:
             if (1)
+            {
                 LW_TWO(&s);
+            }
             else
+            {
                 s.value = 7;
+            }
             break;
         case 1:
             if (0)
+            {
                 LW_TWO(&s);
+            }
             else
+            {
                 s.value = 7;
+            }
             break;
         case 2:
             for (unsigned i = 0; i < 3; ++i)

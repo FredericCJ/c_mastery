@@ -40,7 +40,9 @@ ssize_t __wrap_pwrite(int fd, const void *data, size_t count, off_t offset)
         return -1;
     }
     if (write_limit && count > write_limit)
+    {
         count = write_limit;
+    }
     return __real_pwrite(fd, data, count, offset);
 }
 
@@ -182,7 +184,9 @@ static void stream(void)
           c.end == 7);
     size_t drained = 0;
     while ((n = read(sink[0], scratch, sizeof scratch)) > 0)
+    {
         drained += (size_t)n;
+    }
     CHECK(drained == filled && n < 0 &&
           (errno == EAGAIN || errno == EWOULDBLOCK));
     CHECK(pc_resume(&c, ops, 10) == PC_DONE && c.committed == 7);
@@ -265,7 +269,9 @@ static void sparse(void)
     CHECK(lseek(alias, 0, SEEK_CUR) == 2);
     CHECK(fstat(fd, &hole) == 0);
     for (off_t o = 4096; o < end; o += (off_t)sizeof block)
+    {
         CHECK(pwrite(fd, block, sizeof block, o) == sizeof block);
+    }
     CHECK(fstat(fd, &zeros) == 0);
     CHECK(pread(fd, readback, sizeof readback, 4096) == sizeof readback &&
           memcmp(block, readback, sizeof block) == 0);
@@ -418,17 +424,29 @@ int main(int argc, char **argv)
     char directory[] = "./pc-owned-XXXXXX";
     CHECK(argc == 2 && mkdtemp(directory) && chdir(directory) == 0);
     if (!strcmp(argv[1], "stream"))
+    {
         stream();
+    }
     else if (!strcmp(argv[1], "extent"))
+    {
         extent();
+    }
     else if (!strcmp(argv[1], "position"))
+    {
         position();
+    }
     else if (!strcmp(argv[1], "close_policy"))
+    {
         close_policy();
+    }
     else if (!strcmp(argv[1], "sparse"))
+    {
         sparse();
+    }
     else
+    {
         CHECK(0);
+    }
     puts("PC_PASS");
     return 0;
 }

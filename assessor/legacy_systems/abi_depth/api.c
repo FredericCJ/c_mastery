@@ -4,7 +4,9 @@ uint64_t ad_sum64(const uint32_t *p, size_t n)
 {
     uint64_t result = 0;
     for (size_t i = 0; i < n; i++)
+    {
         result += p[i];
+    }
     return result;
 }
 
@@ -12,7 +14,9 @@ uint32_t ad_sum32(const uint32_t *p, size_t n)
 {
     uint32_t result = 0;
     for (size_t i = 0; i < n; i++)
+    {
         result += p[i];
+    }
     return result;
 }
 

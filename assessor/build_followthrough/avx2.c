@@ -12,5 +12,7 @@ void bf_avx2(const uint32_t *a, const uint32_t *b, uint32_t *out, size_t n)
                             _mm256_add_epi32(x, y));
     }
     for (; i < n; ++i)
+    {
         out[i] = a[i] + b[i];
+    }
 }

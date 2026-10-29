@@ -10,7 +10,9 @@ static int transfer(store_file *f, uint32_t page, void *buf, int writing)
     size_t done = 0;
     off_t off;
     if (page >= f->pages)
+    {
         return -1;
+    }
     off = (off_t)page * (off_t)STORE_PAGE_SIZE;
     while (done < STORE_PAGE_SIZE)
     {
@@ -19,9 +21,13 @@ static int transfer(store_file *f, uint32_t page, void *buf, int writing)
                             : pread(f->fd, (unsigned char *)buf + done,
                                     STORE_PAGE_SIZE - done, off + (off_t)done);
         if (n < 0 && errno == EINTR)
+        {
             continue;
+        }
         if (n <= 0)
+        {
             return -1;
+        }
         done += (size_t)n;
     }
     return 0;
@@ -52,11 +58,15 @@ int store_file_open(store_file *f, const char *path, uint32_t pages)
 {
     struct stat st;
     if (!f || !path || pages < STORE_IMAGE_PAGES)
+    {
         return STORE_INVALID;
+    }
     f->fd = open(path, O_RDWR);
     f->pages = pages;
     if (f->fd < 0)
+    {
         return STORE_IO;
+    }
     if (fstat(f->fd, &st) || !S_ISREG(st.st_mode) ||
         st.st_size < (off_t)pages * (off_t)STORE_PAGE_SIZE)
     {

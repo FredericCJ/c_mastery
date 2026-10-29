@@ -10,17 +10,23 @@ void *__wrap_malloc(size_t n)
     void *p;
     ++calls;
     if (calls == refuse)
+    {
         return NULL;
+    }
     p = __real_malloc(n);
     if (p)
+    {
         ++live;
+    }
     return p;
 }
 
 void __wrap_free(void *p)
 {
     if (p)
+    {
         --live;
+    }
     __real_free(p);
 }
 
@@ -57,18 +63,24 @@ int main(void)
     result.first_step = 99;
     if (mpt_replay(&in, laws, &result) != MPT_NOMEM ||
         result.first_step != 99 || live)
+    {
         return 1;
+    }
     calls = 0;
     refuse = 5;
     out.count = 11;
     if (mpt_shrink(&in, laws, &out, &attempts) != MPT_NOMEM ||
         out.count != 11 || attempts != 99 || live)
+    {
         return 2;
+    }
     calls = 0;
     refuse = 0;
     if (mpt_shrink(&in, laws, &out, &attempts) != MPT_OK || out.count != 3 ||
         live)
+    {
         return 3;
+    }
     puts(
         "MPT_ENV actual-malloc-refusal initial-and-candidate no-false-minimum no-retained-owner");
     return 0;

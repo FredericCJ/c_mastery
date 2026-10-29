@@ -10,10 +10,16 @@ int main(void)
     {
         ssize_t n = read(0, &c, 1);
         if (n > 0)
+        {
             return 4;
+        }
         if (n == 0)
+        {
             return 5;
+        }
         if (errno != EINTR)
+        {
             return 6;
+        }
     }
 }

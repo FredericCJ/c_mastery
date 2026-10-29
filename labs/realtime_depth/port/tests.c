@@ -38,7 +38,9 @@ static void basic(void)
     tick(2);
     CHECK(k.current == 1 && s.sleeping && s.wake == 6 && s.throttles == 1);
     for (unsigned i = 3; i <= 6; i++)
+    {
         tick(i);
+    }
     CHECK(k.current == 0 && s.charged == 2 && s.budget.core.remaining == 1);
     tick(7);
     CHECK(s.charged == 3 && s.budget.core.remaining == 1);
@@ -136,14 +138,24 @@ int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (!strcmp(argv[1], "basic"))
+    {
         basic();
+    }
     else if (!strcmp(argv[1], "guards"))
+    {
         guards();
+    }
     else if (!strcmp(argv[1], "generation"))
+    {
         generation();
+    }
     else if (!strcmp(argv[1], "stream"))
+    {
         stream();
+    }
     else
+    {
         CHECK(0);
+    }
     return 0;
 }

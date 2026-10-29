@@ -34,6 +34,7 @@ static void closes(void)
                 {PE_2024, PE_PC_INVALID, 1, "CXCCBCX"}};
 
     for (unsigned i = 0; i < sizeof rows / sizeof *rows; ++i)
+    {
         for (unsigned j = 0; j < 7; ++j)
         {
             struct pe_decision d = {PE_UNRESOLVED, 37};
@@ -41,8 +42,10 @@ static void closes(void)
             int result = pe_close(rows[i].v, rows[i].c, rows[i].r,
                                   (enum pe_outcome)j, &d);
             if (e == 'X')
+            {
                 CHECK(result == 1 && d.action == PE_UNRESOLVED &&
                       d.diagnostic == 37);
+            }
             else
             {
                 enum pe_action a = e == 'C'   ? PE_RETIRED
@@ -52,6 +55,7 @@ static void closes(void)
                 CHECK(result == 0 && d.action == a && d.diagnostic == (j != 0));
             }
         }
+    }
     struct pe_decision d = {PE_UNRESOLVED, 37};
     CHECK(pe_close(PE_2017, PE_PC_ZERO, 0, PE_OK, &d) == 1 &&
           d.diagnostic == 37);
@@ -100,10 +104,16 @@ int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     if (!strcmp(argv[1], "close"))
+    {
         closes();
+    }
     else if (!strcmp(argv[1], "read"))
+    {
         reads();
+    }
     else
+    {
         return 2;
+    }
     return 0;
 }

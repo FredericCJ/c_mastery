@@ -17,10 +17,12 @@ static int test_add(void)
     unsigned a, b;
     CHECK(!vf_add(UINT32_MAX, 1, &o) && o == 17);
     for (a = 0; a < 256; ++a)
+    {
         for (b = 0; b < 256; ++b)
         {
             CHECK(vf_add(a, b, &o) && o == a + b);
         }
+    }
     CHECK(vf_add(UINT32_MAX, 0, &o) && o == UINT32_MAX);
     return 0;
 }
@@ -107,22 +109,40 @@ static int test_claims(void)
 int main(int argc, char **argv)
 {
     if (argc != 2)
+    {
         return 2;
+    }
     if (strcmp(argv[1], "add") == 0)
+    {
         return test_add();
+    }
     if (strcmp(argv[1], "search") == 0)
+    {
         return test_search();
+    }
     if (strcmp(argv[1], "ring") == 0)
+    {
         return test_ring();
+    }
     if (strcmp(argv[1], "frame") == 0)
+    {
         return test_frame();
+    }
     if (strcmp(argv[1], "shrink") == 0)
+    {
         return test_shrink();
+    }
     if (strcmp(argv[1], "schedule") == 0)
+    {
         return test_schedule();
+    }
     if (strcmp(argv[1], "reset") == 0)
+    {
         return test_reset();
+    }
     if (strcmp(argv[1], "claims") == 0)
+    {
         return test_claims();
+    }
     return 2;
 }

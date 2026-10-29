@@ -31,10 +31,14 @@ void reset(void)
                              0,   0,   OP_INT, 42,  0, 0, 0, OP_RET};
     for (dst = (uintptr_t)&__data_start; dst < (uintptr_t)&__data_end;
          dst += sizeof(uint32_t), src += sizeof(uint32_t))
+    {
         *(volatile uint32_t *)dst = *(const uint32_t *)src;
+    }
     for (dst = (uintptr_t)&__bss_start; dst < (uintptr_t)&__bss_end;
          dst += sizeof(uint32_t))
+    {
         *(volatile uint32_t *)dst = 0;
+    }
     cvm_init(&vm, 100, 1000, 0);
     if (cvm_load(image, sizeof image, &program) != CVM_OK ||
         cvm_run(&vm, &program, &result) != CVM_OK || result.tag != CVM_INT ||
@@ -86,7 +90,9 @@ void *memcpy(void *d, const void *s, size_t n)
     unsigned char *a = d;
     const unsigned char *b = s;
     for (size_t i = 0; i < n; i++)
+    {
         a[i] = b[i];
+    }
     return d;
 }
 
@@ -94,6 +100,8 @@ void *memset(void *d, int c, size_t n)
 {
     unsigned char *a = d;
     for (size_t i = 0; i < n; i++)
+    {
         a[i] = (unsigned char)c;
+    }
     return d;
 }

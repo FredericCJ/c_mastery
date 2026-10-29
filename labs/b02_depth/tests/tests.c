@@ -74,10 +74,14 @@ int main(int argc, char **argv)
         assert(b2_map_get(&m, 7, &v) == B2_OK && v == 3);
         b2_map_init(&m);
         for (i = 0; i < 7; i++)
+        {
             assert(b2_map_put(&m, (uint16_t)i, (int)i) == B2_OK);
+        }
         assert(b2_map_put(&m, 70, 2) == B2_FULL);
         for (i = 0; i < 7; i++)
+        {
             assert(b2_map_remove(&m, (uint16_t)i) == B2_OK);
+        }
         assert(b2_map_get(&m, 77, &v) == B2_ABSENT);
         assert(b2_map_put(&m, 77, 4) == B2_OK);
     }
@@ -133,13 +137,17 @@ int main(int argc, char **argv)
             unsigned p = 99;
             int r = b2_transaction(b, &p);
             if (f == 3)
+            {
                 assert(r == B2_OK && p == 3 && t.n == 3);
+            }
             else
             {
                 unsigned j;
                 assert(r == B2_FAILED && p == 99 && t.n == 2 * f + 1);
                 for (j = 0; j < f; j++)
+                {
                     assert(t.trace[f + 1 + j] == 20 + f - 1 - j);
+                }
             }
         }
     }
@@ -159,6 +167,8 @@ int main(int argc, char **argv)
         assert(b2_render(&r, out, 8, &w) == B2_OK && w == 3 && out[1] == 0);
     }
     else
+    {
         return 2;
+    }
     return 0;
 }

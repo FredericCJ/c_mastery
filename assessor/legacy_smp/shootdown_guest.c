@@ -35,7 +35,9 @@ static void stg_fail(const char *reason)
     unsigned code = 17;
     __asm__ volatile("outl %0,$0xf4" ::"a"(code));
     for (;;)
+    {
         __asm__ volatile("cli;hlt");
+    }
 }
 
 static uint64_t stg_ticks(void)
@@ -59,9 +61,13 @@ static int stg_publish(void *unused, struct st_request r)
     (void)unused;
     unsigned first = (unsigned)((r.first - stg_va(0)) / 4096);
     if (r.first < stg_va(0) || first + r.pages > 4)
+    {
         stg_fail("publication-range");
+    }
     for (unsigned space = 0; space < 2; space++)
+    {
         if (space == r.space || r.scope == ST_GLOBAL)
+        {
             for (unsigned i = first; i < first + r.pages; i++)
             {
                 uint64_t value =
@@ -70,6 +76,8 @@ static int stg_publish(void *unused, struct st_request r)
                         : ((uintptr_t)stg_new[i] | 3 | (STG_GLOBAL ? 256 : 0));
                 __atomic_store_n(&stg_pt[space][i], value, __ATOMIC_RELEASE);
             }
+        }
+    }
     __asm__ volatile("mfence" ::: "memory");
     return 1;
 }
@@ -78,7 +86,9 @@ static int stg_invalidate(void *unused, unsigned cpu, struct st_request r)
 {
     (void)unused;
     if (cpu != cmk2_cpu_index())
+    {
         stg_fail("nonlocal-invalidation");
+    }
     if (r.scope == ST_CONTEXT)
     {
         stg_flush_all();
@@ -87,12 +97,14 @@ static int stg_invalidate(void *unused, unsigned cpu, struct st_request r)
         stg_current_space[cpu] = r.space;
     }
     else
+    {
         for (unsigned i = 0; i < r.pages; i++)
         {
             uintptr_t page = r.first + (uintptr_t)i * 4096;
             __asm__ volatile("invlpg (%0)" ::"r"(page) : "memory");
             stg_local[cpu]++;
         }
+    }
     return 1;
 }
 
@@ -102,16 +114,22 @@ static int stg_notify(void *unused, struct st_request r, unsigned targets)
     unsigned me = cmk2_cpu_index();
     stg_notify_count++;
     for (unsigned cpu = 0; cpu < topology.count; cpu++)
+    {
         if (targets & (1u << cpu))
         {
             if (cpu == me)
             {
                 if (st_handle(&stg_world, cpu, r) != ST_OK)
+                {
                     stg_fail("local-handler-under-membership-lock");
+                }
             }
             else
+            {
                 ipi(topology.ids[cpu], 246);
+            }
         }
+    }
     return 1;
 }
 
@@ -124,7 +142,9 @@ void stg_interrupt(uint64_t *frame)
         __asm__ volatile("mov %%cr2,%0" : "=r"(address));
         if (!stg_probing[cpu] || frame[17] != (uintptr_t)stg_write_site ||
             address != stg_va(0) || (frame[16] & 3) != 3)
+        {
             stg_fail("unexpected-page-fault");
+        }
         stg_faulted[cpu]++;
         stg_error[cpu] = frame[16];
         stg_fault_address[cpu] = address;
@@ -132,7 +152,9 @@ void stg_interrupt(uint64_t *frame)
         return;
     }
     if (frame[15] != 246)
+    {
         stg_fail("unexpected-interrupt");
+    }
     for (unsigned space = 0; space < 2; space++)
     {
         struct st_request r;
@@ -142,7 +164,9 @@ void stg_interrupt(uint64_t *frame)
             result = st_handle(&stg_world, cpu, r);
             if (result != ST_OK && result != ST_STALE &&
                 result != ST_INCOMPLETE)
+            {
                 stg_fail("remote-handler");
+            }
         }
     }
     stg_interrupts[cpu]++;
@@ -163,19 +187,29 @@ static void stg_install(unsigned cpu)
     __asm__ volatile("mov %0,%%cr0" ::"r"(cr0) : "memory");
     __asm__ volatile("mov %%cr4,%0" : "=r"(cr4));
     if (cr4 & (UINT64_C(1) << 17))
+    {
         stg_fail("unexpected-PCID");
+    }
     if (STG_GLOBAL)
+    {
         cr4 |= 128;
+    }
     else
+    {
         cr4 &= ~UINT64_C(128);
+    }
     __asm__ volatile("mov %0,%%cr4" ::"r"(cr4) : "memory");
 }
 
 static void stg_cache(void)
 {
     for (unsigned i = 0; i < 4; i++)
+    {
         if (*(volatile uint64_t *)stg_va(i) != 100 + i)
+        {
             stg_fail("initial-cache-value");
+        }
+    }
 }
 
 static unsigned stg_write(unsigned cpu)
@@ -189,13 +223,19 @@ static unsigned stg_write(unsigned cpu)
 static void stg_worker(unsigned cpu)
 {
     while (!__atomic_load_n(&stg_go, __ATOMIC_ACQUIRE))
+    {
         pause_cpu();
+    }
     stg_install(cpu);
     if (st_enter(&stg_world, cpu, 0, NULL) != ST_OK)
+    {
         stg_fail("initial-space-entry");
+    }
     stg_cache();
     if (cpu != 1)
+    {
         __asm__ volatile("sti" ::: "memory");
+    }
     __atomic_store_n(&stg_ready[cpu], 1, __ATOMIC_RELEASE);
     unsigned previous = 0;
     for (;;)
@@ -219,9 +259,13 @@ static void stg_worker(unsigned cpu)
         else if (action == 3)
         {
             for (unsigned i = 0; i < 4; i++)
+            {
                 if (*(volatile uint64_t *)stg_va(i) !=
                     (i == 0 ? 200u : 100u + i))
+                {
                     stg_fail("post-reclaim-translation");
+                }
+            }
         }
         else if (action == 4)
         {
@@ -234,7 +278,9 @@ static void stg_worker(unsigned cpu)
         {
             if (st_leave(&stg_world, cpu, NULL) != ST_OK ||
                 st_enter(&stg_world, cpu, cpu % 2, NULL) != ST_OK)
+            {
                 stg_fail("changed-space-membership");
+            }
         }
         else if (action == 6)
         {
@@ -244,10 +290,14 @@ static void stg_worker(unsigned cpu)
         {
             __atomic_store_n(&stg_done[cpu], command, __ATOMIC_RELEASE);
             for (;;)
+            {
                 __asm__ volatile("cli;hlt");
+            }
         }
         else
+        {
             stg_fail("command");
+        }
         __atomic_store_n(&stg_done[cpu], command, __ATOMIC_RELEASE);
     }
 }
@@ -255,15 +305,21 @@ static void stg_worker(unsigned cpu)
 static void stg_command_all(unsigned command)
 {
     for (unsigned cpu = 1; cpu < topology.count; cpu++)
+    {
         __atomic_store_n(&stg_command[cpu], command, __ATOMIC_RELEASE);
+    }
     for (unsigned cpu = 1; cpu < topology.count; cpu++)
+    {
         for (unsigned n = 0;
              __atomic_load_n(&stg_done[cpu], __ATOMIC_ACQUIRE) != command; n++)
         {
             if (n == 100000000)
+            {
                 stg_fail("command-deadline");
+            }
             pause_cpu();
         }
+    }
 }
 
 static void stg_complete(struct st_request r)
@@ -273,9 +329,13 @@ static void stg_complete(struct st_request r)
     {
         int result = st_finish(&stg_world, r, 0, &permit, NULL);
         if (result == ST_OK)
+        {
             return;
+        }
         if (result != ST_INCOMPLETE || n == 100000000)
+        {
             stg_fail("completion-deadline");
+        }
         pause_cpu();
     }
 }
@@ -283,12 +343,14 @@ static void stg_complete(struct st_request r)
 static void stg_reset(unsigned command)
 {
     for (unsigned space = 0; space < 2; space++)
+    {
         for (unsigned i = 0; i < 4; i++)
         {
             *(uint64_t *)stg_old[i] = 100 + i;
             stg_pt[space][i] =
                 (uintptr_t)stg_old[i] | 3 | (STG_GLOBAL ? 256 : 0);
         }
+    }
     __asm__ volatile("mfence" ::: "memory");
     stg_command_all(command);
     stg_flush_all();
@@ -300,17 +362,23 @@ static void stg_reset(unsigned command)
 void stg_bsp(void)
 {
     if (topology.count < 2)
+    {
         stg_fail("two-CPUs-required");
+    }
     for (unsigned space = 0; space < 2; space++)
     {
         stg_pml4[space][0] = (uintptr_t)stg_pdpt[space] | 3;
         for (unsigned i = 0; i < 4; i++)
+        {
             stg_pdpt[space][i] = boot_pdpt[i];
+        }
         stg_pdpt[space][1] = (uintptr_t)stg_pd[space] | 3;
         stg_pd[space][0] = (uintptr_t)stg_pt[space] | 3;
         for (unsigned i = 0; i < 4; i++)
+        {
             stg_pt[space][i] =
                 (uintptr_t)stg_old[i] | 3 | (STG_GLOBAL ? 256 : 0);
+        }
     }
     for (unsigned i = 0; i < 4; i++)
     {
@@ -320,32 +388,48 @@ void stg_bsp(void)
     if (st_init(&stg_world, topology.count, 101, 202,
                 (struct st_port){stg_publish, stg_invalidate, stg_notify,
                                  NULL}) != ST_OK)
+    {
         stg_fail("world-init");
+    }
     stg_install(0);
     if (st_enter(&stg_world, 0, 0, NULL) != ST_OK)
+    {
         stg_fail("BSP-entry");
+    }
     stg_cache();
     __atomic_store_n(&stg_go, 1, __ATOMIC_RELEASE);
     for (unsigned cpu = 1; cpu < topology.count; cpu++)
+    {
         while (!__atomic_load_n(&stg_ready[cpu], __ATOMIC_ACQUIRE))
+        {
             pause_cpu();
+        }
+    }
     struct st_request r;
     struct st_permit permit;
     if (st_begin(&stg_world, 0, 0, stg_va(0), 1,
                  STG_GLOBAL ? ST_GLOBAL : ST_PAGE, &r, NULL) != ST_OK)
+    {
         stg_fail("first-request");
+    }
     if (st_finish(&stg_world, r, 1, &permit, NULL) != ST_TIMEOUT)
+    {
         stg_fail("timeout-must-retain-frame");
+    }
     if (STG_MUTANT == 1)
     {
         *(volatile uint64_t *)stg_old[0] = 999;
         stg_command_all(1);
         if (stg_observed[1] != 999)
+        {
             stg_fail("early-reuse-control-not-observed");
+        }
         stg_fail("early-reuse-stale-read-999");
     }
     if (*(uint64_t *)stg_old[0] != 100)
+    {
         stg_fail("retained-frame-changed");
+    }
     stg_command_all(2);
     stg_complete(r);
     *(volatile uint64_t *)stg_old[0] = 999;
@@ -362,18 +446,24 @@ void stg_bsp(void)
         {
             if (st_begin(&stg_world, 0, 0, stg_va(0), 4,
                          STG_GLOBAL ? ST_GLOBAL : ST_PAGE, &r, NULL) != ST_OK)
+            {
                 stg_fail("batch-request");
+            }
             stg_complete(r);
         }
         else
+        {
             for (unsigned page = 0; page < 4; page++)
             {
                 if (st_begin(&stg_world, 0, 0, stg_va(page), 1,
                              STG_GLOBAL ? ST_GLOBAL : ST_PAGE, &r,
                              NULL) != ST_OK)
+                {
                     stg_fail("single-request");
+                }
                 stg_complete(r);
             }
+        }
         text("ST_BATCH condition=");
         number(condition);
         text(" pages=4 requests=");
@@ -385,30 +475,46 @@ void stg_bsp(void)
     /* Two actual CR3 roots share frames but have independent non-global R/W. */
     stg_permission = 1;
     for (unsigned space = 0; space < 2; space++)
+    {
         for (unsigned i = 0; i < 4; i++)
+        {
             stg_pt[space][i] = (uintptr_t)stg_old[i] | 3;
+        }
+    }
     __asm__ volatile("mfence" ::: "memory");
     stg_command_all(5);
     stg_flush_all();
     if (st_begin(&stg_world, 0, 0, stg_va(0), 1, ST_PAGE, &r, NULL) != ST_OK)
+    {
         stg_fail("permission-A");
+    }
     unsigned target_a = r.targets;
     stg_complete(r);
     stg_observed[0] = stg_write(0);
     stg_command_all(6);
     for (unsigned cpu = 0; cpu < topology.count; cpu++)
+    {
         if (stg_observed[cpu] != (cpu % 2))
+        {
             stg_fail("wrong-space-permission-boundary");
+        }
+    }
     if (st_begin(&stg_world, 0, 1, stg_va(0), 1, ST_PAGE, &r, NULL) != ST_OK)
+    {
         stg_fail("permission-B");
+    }
     unsigned target_b = r.targets;
     stg_complete(r);
     stg_observed[0] = stg_write(0);
     stg_command_all(262);
     for (unsigned cpu = 0; cpu < topology.count; cpu++)
+    {
         if (stg_observed[cpu] || !stg_faulted[cpu] ||
             stg_fault_address[cpu] != stg_va(0))
+        {
             stg_fail("permission-revocation-not-enforced");
+        }
+    }
     stg_command_all(99);
     text("ST_PERMISSION targets_a=");
     number(target_a);
@@ -437,5 +543,7 @@ void stg_bsp(void)
     unsigned code = 16;
     __asm__ volatile("outl %0,$0xf4" ::"a"(code));
     for (;;)
+    {
         __asm__ volatile("cli;hlt");
+    }
 }

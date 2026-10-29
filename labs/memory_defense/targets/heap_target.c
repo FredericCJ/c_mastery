@@ -7,13 +7,19 @@ int main(int argc, char **argv)
     volatile unsigned char *p;
     volatile unsigned char observed;
     if (argc != 2)
+    {
         return 2;
+    }
     p = malloc(8);
     if (!p)
+    {
         return 3;
+    }
     p[0] = 65;
     if (strcmp(argv[1], "bounds") == 0)
+    {
         p[8] = 66;
+    }
     else if (strcmp(argv[1], "lifetime") == 0)
     {
         free((void *)p);

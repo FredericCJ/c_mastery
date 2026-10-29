@@ -24,7 +24,9 @@ static int persist(void *ctx, const struct fi_rotation *s)
     struct f4_storage *p = ctx;
     p->calls++;
     if (p->boundary < 6)
+    {
         return 0;
+    }
     p->durable = *s;
     return 1;
 }
@@ -43,15 +45,20 @@ int main(void)
         struct fi_image state;
         C(fi_init(&state, unit));
         for (unsigned i = 0; i < 32 / unit; i++)
+        {
             C(fi_program(&state, old, i, unit * 8, 1));
+        }
         C(fi_commit(&state, old, 1, oldrec));
         C(fi_record_matches(old, oldrec));
         for (unsigned next = 0; next < 32 / unit; next++)
+        {
             for (unsigned bits = 0; bits <= unit * 8; bits++)
             {
                 C(fi_init(&state, unit));
                 for (unsigned i = 0; i < next; i++)
+                {
                     C(fi_program(&state, target, i, unit * 8, 1));
+                }
                 C(fi_program(&state, target, next, bits, 0));
                 memset(record, 0xAA, 24);
                 memcpy(sentinel, record, 24);
@@ -60,9 +67,12 @@ int main(void)
                 C(fi_record_matches(old, oldrec));
                 cuts++;
             }
+        }
         C(fi_init(&state, unit));
         for (unsigned i = 0; i < 32 / unit; i++)
+        {
             C(fi_program(&state, target, i, unit * 8, 1));
+        }
         C(fi_commit(&state, target, 2, record) &&
           fi_record_matches(target, record));
         target[17] ^= 1;

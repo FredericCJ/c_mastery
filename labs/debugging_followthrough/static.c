@@ -8,7 +8,9 @@ int dx_static(unsigned n)
 {
     int a[4] = {1, 2, 3, 4};
     if (DX_WEAK || n < 4)
+    {
         return a[n];
+    }
     return 0;
 }
 

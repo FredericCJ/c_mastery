@@ -21,10 +21,14 @@ static void stack(void)
     CHECK(ts_init(&s, 8) == TS_OK);
     CHECK(ts_pop(&s, 0, &out) == TS_EMPTY && out == 77);
     for (unsigned i = 0; i < 8; i++)
+    {
         CHECK(ts_push(&s, i + 20) == TS_OK);
+    }
     CHECK(ts_push(&s, 99) == TS_FULL);
     for (unsigned i = 8; i; i--)
+    {
         CHECK(ts_pop(&s, 0, &out) == TS_OK && out == i + 19);
+    }
     CHECK(ts_push(&s, 99) == TS_FULL);
     CHECK(ts_collect(&s) == 8);
     CHECK(ts_push(&s, 99) == TS_OK);
@@ -113,7 +117,9 @@ static void *worker(void *arg)
         {
             r = ts_push(&shared, p * ITEMS + i);
             if (r == TS_FULL)
+            {
                 (void)ts_collect(&shared);
+            }
             CHECK(++tries < 10000000u);
         } while (r == TS_FULL);
         CHECK(r == TS_OK);
@@ -137,16 +143,22 @@ static void native(void)
     unsigned ids[TS_THREADS];
     CHECK(ts_init(&shared, 8) == TS_OK);
     for (unsigned i = 0; i < TS_THREADS * ITEMS; i++)
+    {
         atomic_init(&seen[i], 0);
+    }
     for (unsigned i = 0; i < TS_THREADS; i++)
     {
         ids[i] = i;
         CHECK(!pthread_create(&threads[i], 0, worker, &ids[i]));
     }
     for (unsigned i = 0; i < TS_THREADS; i++)
+    {
         CHECK(!pthread_join(threads[i], 0));
+    }
     for (unsigned i = 0; i < TS_THREADS * ITEMS; i++)
+    {
         CHECK(atomic_load(&seen[i]) == 1);
+    }
     uint32_t v;
     CHECK(ts_pop(&shared, 0, &v) == TS_EMPTY);
     (void)ts_collect(&shared);
@@ -185,13 +197,19 @@ static void history(void)
         CHECK(ts_init(&shared, 4) == TS_OK);
         atomic_init(&clock_tick, 0);
         for (unsigned p = 0; p < 2; p++)
+        {
             CHECK(!pthread_create(&threads[p], 0, history_worker, &ids[p]));
+        }
         for (unsigned p = 0; p < 2; p++)
+        {
             CHECK(!pthread_join(threads[p], 0));
+        }
         for (unsigned i = 0; i < 4; i++)
+        {
             printf("%u %u %u %u%c", records[i].start, records[i].end,
                    (unsigned)records[i].result, records[i].value,
                    i == 3 ? '\n' : ' ');
+        }
     }
 }
 
@@ -209,9 +227,13 @@ static void driver(void)
         uint32_t out = 999;
         enum ts_status r;
         if (op == 'P')
+        {
             r = ts_push(&s, v);
+        }
         else if (op == 'O')
+        {
             r = ts_pop(&s, 0, &out);
+        }
         else
         {
             out = ts_collect(&s);

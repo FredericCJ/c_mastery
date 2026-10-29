@@ -6,6 +6,7 @@
 int main(void)
 {
     for (unsigned layout = 0; layout < 4; layout++)
+    {
         for (unsigned n = 4; n <= 32; n *= 2)
         {
             uint32_t state = 760010;
@@ -22,7 +23,9 @@ int main(void)
             }
             struct cr_ring r;
             if (cr_build(t, n, 1, &r) != CR_OK)
+            {
                 return 2;
+            }
             uint64_t compares = 0, checksum = 0;
             unsigned loads[16] = {0};
             clock_t start = clock();
@@ -31,7 +34,9 @@ int main(void)
                 unsigned owner;
                 struct cr_cost c;
                 if (cr_owner(&r, (uint16_t)key, 1, &owner, &c) != CR_OK)
+                {
                     return 3;
+                }
                 compares += c.comparisons;
                 checksum += owner;
                 loads[owner - 1]++;
@@ -40,9 +45,13 @@ int main(void)
             for (unsigned i = 0; i < (n < 16 ? n : 16); i++)
             {
                 if (loads[i] < min)
+                {
                     min = loads[i];
+                }
                 if (loads[i] > max)
+                {
                     max = loads[i];
+                }
             }
             printf("layout=%u tokens=%u keys=65536 comparisons=%" PRIu64
                    " checksum=%" PRIu64
@@ -51,5 +60,6 @@ int main(void)
                    layout, n, compares, checksum, min, max,
                    (intmax_t)(clock() - start), sizeof r);
         }
+    }
     return 0;
 }

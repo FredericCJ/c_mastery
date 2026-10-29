@@ -40,13 +40,17 @@ static int values(void)
     struct rv_value v[4], sentinel = {RV_INT, 91, 0}, out = sentinel;
     int eq = 93;
     for (unsigned i = 0; i < 4; i++)
+    {
         CHECK(rv_import(old[i], &v[i]) == RV_OK);
+    }
     for (unsigned i = 0; i < 4; i++)
+    {
         for (unsigned j = 0; j < 4; j++)
         {
             CHECK(rv_equal(v[i], v[j], &eq) == RV_OK);
             CHECK(eq == (i == j));
         }
+    }
     CHECK(rv_arithmetic(RV_ADD, v[1], v[0], &out) == RV_TYPE &&
           out.payload == 91);
     CHECK(rv_equal(v[3], (struct rv_value){RV_REF, 0, 2}, &eq) == RV_OK && !eq);
@@ -160,7 +164,9 @@ static int envelope(void)
     memcpy(in.name, "abc", 3);
     in.has_digest = 1;
     for (unsigned i = 0; i < 32; i++)
+    {
         in.digest[i] = (uint8_t)i;
+    }
     CHECK(rv_encode(&in, b, sizeof b, &n) == RV_OK && n == 69);
     static const uint8_t prefix[] = {82, 86, 69, 50, 1, 0, 17, 0, 2};
     CHECK(!memcmp(b, prefix, 9) && !memcmp(b + 9, literal, 17));

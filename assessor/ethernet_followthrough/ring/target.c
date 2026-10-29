@@ -35,9 +35,13 @@ static void update(uint32_t a, uint32_t mask, uint32_t value)
 int en_target_open(struct en_target *t)
 {
     if (!t)
+    {
         return ED_INVALID;
+    }
     if (t->opened)
+    {
         return ED_BUSY;
+    }
     t->old_demcr = en_port_load(DEMCR);
     en_port_store(DEMCR, t->old_demcr | 0x1000000u);
     en_port_barrier();
@@ -70,16 +74,22 @@ static int settle(void *p)
     struct en_target *t = p;
     if (!t || !t->opened || !(en_port_load(DEMCR) & 0x1000000u) ||
         !(en_port_load(CTRL) & 1u))
+    {
         return 1;
+    }
     en_port_barrier(); /* Complete the preceding peripheral write before timing. */
     uint32_t start = en_port_load(COUNT);
     /* 720 active cycles / maximum180MHz =4us, exceeding4/2.5MHz=1.6us
      * even at the slow10Mb/s selected RMII MAC clock. Reference clock must run.
      * A frozen/absent counter fails after a finite independent read budget. */
     for (unsigned i = 0; i < 2048; i++)
+    {
         if ((uint32_t)(en_port_load(COUNT) - start) >=
             (EN_TARGET_MUTANT == 1 ? 1u : 720u))
+        {
             return 0;
+        }
+    }
     return 1;
 }
 
@@ -87,7 +97,9 @@ static int read_register(void *p, unsigned offset, uint32_t *v)
 {
     struct en_target *t = p;
     if (!t || !t->opened || !v || (offset & 3u) || offset > 0x101cu)
+    {
         return 1;
+    }
     *v = en_port_load(ETH + offset);
     return 0;
 }
@@ -96,7 +108,9 @@ static int write_register(void *p, unsigned offset, uint32_t v)
 {
     struct en_target *t = p;
     if (!t || !t->opened || (offset & 3u) || offset > 0x101cu)
+    {
         return 1;
+    }
     en_port_store(ETH + offset, v);
     return 0;
 }
@@ -116,10 +130,14 @@ struct en_bus en_target_bus(struct en_target *t)
 int en_target_cold(struct en_target *t)
 {
     if (!t || !t->opened)
+    {
         return ED_INVALID;
+    }
     /* A cold preparation operation, never a live-driver recovery shortcut. */
     if (en_port_load(RCC + 0x30) & 0x0e000000u)
+    {
         return ED_BUSY;
+    }
     update(RCC + 0x30, 0, 0x47u);
     (void)en_port_load(RCC + 0x30);
     en_port_barrier();
@@ -153,7 +171,9 @@ int en_target_cold(struct en_target *t)
 int en_target_close(struct en_target *t)
 {
     if (!t || !t->opened)
+    {
         return ED_INVALID;
+    }
     en_port_store(CTRL, t->old_dwt);
     en_port_barrier();
     en_port_store(DEMCR, t->old_demcr);

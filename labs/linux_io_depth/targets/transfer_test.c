@@ -79,7 +79,9 @@ static void *produce(void *arg)
 {
     struct it_producer *p = arg;
     for (unsigned i = 0; i < 100; i++)
+    {
         C(it_push(p->q, 1000 + p->id * 100 + i));
+    }
     return NULL;
 }
 
@@ -116,7 +118,9 @@ static void queue(void)
           cm_ring_wait(&r, &c) == 0 && c.user_data == v && c.res == 0);
     }
     for (unsigned i = 0; i < 4; i++)
+    {
         C(pthread_join(th[i], NULL) == 0);
+    }
     cm_ring_close(&r);
     C(it_push(&q, 31));
     it_queue_close(&q);
@@ -207,7 +211,9 @@ static void reactor(void)
         {
             unsigned id = events[j].data.u32;
             if (id < 2)
+            {
                 s.ready |= 1u << id;
+            }
             else if (id == 2)
             {
                 uint64_t x;
@@ -243,7 +249,9 @@ static void reactor(void)
             {
                 C(r > 0);
                 for (ssize_t j = 0; j < r; j++)
+                {
                     C(bytes[j] == (peer ? 'B' : 'A'));
+                }
                 got[peer] += (unsigned)r;
                 C(it_time(&s, ns(), 1) == 1);
                 if (peer)

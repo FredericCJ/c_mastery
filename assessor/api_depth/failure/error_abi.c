@@ -24,7 +24,9 @@ enum ae_code ae_capture(unsigned backend, int cause, unsigned op,
 {
     if (!out || !snapshot || backend > 1 || cause < 0 || cause > 65535 || !op ||
         op > 31 || stage > 3)
+    {
         return AE_INVALID;
+    }
     unsigned char bytes[8] = {1,
                               (unsigned char)backend,
                               (unsigned char)op,
@@ -40,7 +42,9 @@ enum ae_code ae_capture(unsigned backend, int cause, unsigned op,
 #else
     struct ac_detail detail = {0};
     for (unsigned i = 0; i < 8; ++i)
+    {
         detail.bytes[i] = bytes[i];
+    }
     detail.noise[4] = 99;
     struct ae_public result = {
         (uint32_t)ae_map(detail.bytes[1], (int)((unsigned)detail.bytes[4] +
@@ -48,7 +52,9 @@ enum ae_code ae_capture(unsigned backend, int cause, unsigned op,
         detail.bytes[2]};
 #endif
     for (unsigned i = 0; i < 8; ++i)
+    {
         snapshot[i] = bytes[i];
+    }
     *out = result;
     return AE_OK;
 }
@@ -58,10 +64,14 @@ enum ae_code ae_decode(const unsigned char *b, size_t n, unsigned *backend,
 {
     if (!b || n != 8 || !backend || !cause || !op || !stage || b[0] != 1 ||
         b[1] > 1 || !b[2] || b[2] > 31 || b[3] > 3 || b[6] || b[7])
+    {
         return AE_INVALID;
+    }
     unsigned value = (unsigned)b[4] + 256u * b[5];
     if (value > (unsigned)INT_MAX)
+    {
         return AE_FULL;
+    }
     *backend = b[1];
     *cause = (int)value;
     *op = b[2];

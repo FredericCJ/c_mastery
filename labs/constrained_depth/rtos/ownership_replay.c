@@ -11,7 +11,9 @@ int main(void)
         unsigned code = word;
         int results[4];
         if (cr_pool_init(&pool, 1) != CR_OK)
+        {
             return 2;
+        }
         for (unsigned i = 0; i < 4; i++)
         {
             unsigned op = code % 9;

@@ -32,9 +32,13 @@ int main(void)
             CHECK(eop_read(&first, &id, &value) == EOP_OK && id == 0 &&
                   value == 42);
             if (q == EOP_NOMEM)
+            {
                 CHECK(second.tag == EOP_NONE);
+            }
             else
+            {
                 CHECK(second.as.some.cell != first.as.some.cell);
+            }
         }
         CHECK(eop_drop(&second) == EOP_OK && eop_drop(&first) == EOP_OK &&
               !audit.live && !upstream.live);

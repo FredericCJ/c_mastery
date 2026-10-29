@@ -27,11 +27,15 @@ static void sa_guest(void)
 {
     void *h = (void *)(uintptr_t)CMK_DISK_HANDLE;
     for (unsigned i = 0; i < 4096; i++)
+    {
         sa_bytes[i] = (uint8_t)(i * 13 + 7);
+    }
     SA_CHECK(!cmk2_block(h, 1, 8, sa_bytes));
     SA_CHECK(!cmk2_block(h, 4, 0, 0));
     for (unsigned i = 0; i < 4096; i++)
+    {
         sa_bytes[i] = 0;
+    }
     struct sa_read operation = {0};
     struct sa_port port = {h, sa_submit_guest, sa_wait_guest};
     void *out = h;
@@ -41,14 +45,20 @@ static void sa_guest(void)
     message("SA_GUEST retained-after-abandon-before-positive-wait\n");
     SA_CHECK(sa_finish(&operation) == SA_DRAINED);
     for (unsigned i = 0; i < 4096; i++)
+    {
         SA_CHECK(sa_bytes[i] == (uint8_t)(i * 13 + 7));
+    }
     SA_CHECK(sa_release(&operation, &out) == SA_OK && out == sa_bytes);
     for (unsigned i = 0; i < 4096; i++)
+    {
         sa_bytes[i] = 0xdd;
+    }
     SA_CHECK(sa_start(&operation, port, 8, sa_bytes) == SA_OK);
     SA_CHECK(sa_finish(&operation) == SA_READY);
     for (unsigned i = 0; i < 4096; i++)
+    {
         SA_CHECK(sa_bytes[i] == (uint8_t)(i * 13 + 7));
+    }
     SA_CHECK(sa_release(&operation, &out) == SA_OK);
     message("SA_GUEST_PASS actual-CMK2-read-borrow-completion-before-reuse "
             "bytes4096\n");

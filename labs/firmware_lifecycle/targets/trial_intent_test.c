@@ -30,13 +30,19 @@ static uint32_t rd(void *c, uint32_t a)
 {
     struct f4_model *s = c;
     if (a == 0x5200200C)
+    {
         return s->cr;
+    }
     if (a == 0x52002010)
+    {
         return s->sr;
+    }
     if (a >= 0x08000000 && a < 0x08100000)
     {
         if (s->busy)
+        {
             ++s->violations;
+        }
         return s->mem[(a - 0x08000000) / 4];
     }
     ++s->violations;
@@ -46,7 +52,9 @@ static uint32_t rd(void *c, uint32_t a)
 static int read_slot(void *c, uint32_t a, uint32_t *out)
 {
     if ((a & 3) || a < 0x08000000 || a >= 0x08100000)
+    {
         return 0;
+    }
     *out = rd(c, a);
     return 1;
 }
@@ -55,18 +63,24 @@ static void wr(void *c, uint32_t a, uint32_t n)
 {
     struct f4_model *s = c;
     if (s->dead)
+    {
         return;
+    }
     if (a == 0x52002004)
     {
         if (!s->key && n == 0x45670123)
+        {
             s->key = 1;
+        }
         else if (s->key == 1 && n == 0xCDEF89AB)
         {
             s->cr &= ~1u;
             s->key = 0;
         }
         else
+        {
             ++s->violations;
+        }
         return;
     }
     if (a == 0x52002014)
@@ -86,7 +100,9 @@ static void wr(void *c, uint32_t a, uint32_t n)
         {
             s->base = 0x08000000 + ((n >> 8) & 7) * 0x20000;
             if (s->base != 0x080A0000)
+            {
                 ++s->violations;
+            }
             s->erase = 1;
             s->busy = 1;
             s->sr = 5;
@@ -96,7 +112,9 @@ static void wr(void *c, uint32_t a, uint32_t n)
     if (a >= 0x080A0000 && a < 0x080C0000)
     {
         if (!(s->cr & 2) || s->count >= 8)
+        {
             ++s->violations;
+        }
         else
         {
             s->address[s->count] = a;
@@ -118,10 +136,14 @@ static void fresh(void *c, uint32_t a, uint32_t n)
 {
     struct f4_model *s = c;
     if (s->busy || a < 0x080A0000 || a + n > 0x080C0000)
+    {
         ++s->violations;
+    }
     ++s->fresh;
     if (s->corrupt && s->fresh == 2)
+    {
         s->mem[0xA0000 / 4 + 39] ^= 1;
+    }
 }
 
 static struct fm_io io(void)
@@ -132,7 +154,9 @@ static struct fm_io io(void)
 static void finish(void)
 {
     if (!m.busy || m.dead)
+    {
         return;
+    }
     if (!m.error)
     {
         if (m.erase)
@@ -141,7 +165,9 @@ static void finish(void)
             for (unsigned i = 0; i < 32768; i += 8)
             {
                 for (unsigned j = 0; j < 8; ++j)
+                {
                     m.mem[start + i + j] = UINT32_MAX;
+                }
                 if (m.erasecut == i / 8 + 1)
                 {
                     m.dead = 1;
@@ -150,6 +176,7 @@ static void finish(void)
             }
         }
         else
+        {
             for (unsigned i = 0; i < m.count; ++i)
             {
                 m.mem[(m.address[i] - 0x08000000) / 4] &= m.words[i];
@@ -159,6 +186,7 @@ static void finish(void)
                     return;
                 }
             }
+        }
     }
     m.busy = m.erase = m.count = 0;
     m.cr &= ~0x80u;
@@ -168,7 +196,9 @@ static void finish(void)
 static void put(unsigned char *p, uint32_t n)
 {
     for (unsigned i = 0; i < 4; ++i)
+    {
         p[i] = (unsigned char)(n >> (8 * i));
+    }
 }
 
 static uint32_t get(const unsigned char *p)
@@ -205,13 +235,17 @@ static void make(struct rt_frame *f, unsigned core, unsigned slot,
     crypto_ed25519_sign(e + 608, secret, e, 608);
     rt_reset(f);
     for (unsigned i = 0; i < 684; ++i)
+    {
         (void)rt_byte(f, packet[i]);
+    }
 }
 
 static void store(uint32_t a, const unsigned char *p, unsigned n)
 {
     for (unsigned i = 0; i < n; i += 4)
+    {
         m.mem[(a - 0x08000000 + i) / 4] = get(p + i);
+    }
 }
 
 static void init(const unsigned char *record, const struct rt_frame old[2])
@@ -219,9 +253,13 @@ static void init(const unsigned char *record, const struct rt_frame old[2])
     memset(&m, 0, sizeof m);
     m.cr = 0x31;
     for (unsigned i = 0; i < 262144; ++i)
+    {
         m.mem[i] = UINT32_MAX;
+    }
     for (unsigned i = 0; i < 32768; ++i)
+    {
         m.mem[0xA0000 / 4 + i] = 0;
+    }
     for (unsigned c = 0; c < 2; ++c)
     {
         uint32_t base = layout.core[c][0].base;
@@ -238,7 +276,9 @@ static enum fh_result drain(struct ft_writer *w)
     {
         finish();
         if (!m.dead)
+        {
             r = ft_poll(w);
+        }
     }
     return r;
 }
@@ -258,7 +298,9 @@ static uint32_t fail_address;
 static int guarded(void *c, uint32_t a, uint32_t *out)
 {
     if (a == fail_address)
+    {
         return 0;
+    }
     return read_slot(c, a, out);
 }
 
@@ -303,7 +345,9 @@ int main(void)
           selected.sequence == 1 &&
           selected.image[0].base == old.image[0].base);
         if (cut)
+        {
             C(m.dead);
+        }
         else
         {
             C(z == FH_DONE && w.state == 4 && m.step == 40 && m.fresh == 2);
@@ -347,6 +391,7 @@ int main(void)
         m.mem[0xA0000 / 4 + word] ^= 1;
     }
     for (unsigned c = 0; c < 2; ++c)
+    {
         for (unsigned word = 0; word < 168; ++word)
         {
             fail_address = layout.core[c][1].base - 32 +
@@ -355,6 +400,7 @@ int main(void)
             C(!ft_probe(guarded, &m, &policy, &layout, &old, &out) &&
               !memcmp(&out, &before, sizeof out));
         }
+    }
     fail_address = 0;
     struct bs_selection moved = old;
     moved.sequence = 2;

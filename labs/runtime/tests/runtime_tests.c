@@ -337,7 +337,9 @@ static int arena(void)
     cvm_init(&v, 100, 1000, 0);
     v.arena = 1;
     for (unsigned i = 0; i < CVM_HEAP; i++)
+    {
         STATUS(cvm_pair(&v, cvm_int((int32_t)i), cvm_int(0), &r), CVM_OK);
+    }
     STATUS(cvm_pair(&v, cvm_int(0), cvm_int(0), &r), CVM_HEAP_LIMIT);
     CHECK(v.allocations == CVM_HEAP);
     cvm_init(&v, 100, 1000, 0);
@@ -374,7 +376,9 @@ static int gc(void)
      */
     STATUS(cvm_pair(&v, cvm_int(77), nil, &child), CVM_OK);
     for (unsigned i = 1; i < CVM_HEAP; i++)
+    {
         STATUS(cvm_pair(&v, cvm_int((int32_t)i), nil, &garbage), CVM_OK);
+    }
     STATUS(cvm_pair(&v, child, nil, &root), CVM_OK);
     STATUS(cvm_field(&v, root, 0, &r), CVM_OK);
     STATUS(cvm_field(&v, r, 0, &r), CVM_OK);
@@ -427,7 +431,9 @@ static int callback(void *ctx, uint8_t service, int32_t arg, int32_t *out)
     unsigned *count = ctx;
     (*count)++;
     if (service != 1)
+    {
         return -1;
+    }
     *out = arg;
     return 0;
 }
@@ -516,9 +522,15 @@ int main(int argc, char **argv)
                  {"portability", portability}};
 
     if (argc != 2)
+    {
         return 2;
+    }
     for (unsigned i = 0; i < sizeof cases / sizeof cases[0]; i++)
+    {
         if (!strcmp(argv[1], cases[i].name))
+        {
             return cases[i].fn();
+        }
+    }
     return 2;
 }

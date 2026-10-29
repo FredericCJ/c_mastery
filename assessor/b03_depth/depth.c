@@ -5,9 +5,13 @@ int b3_pump(struct b3_writer *w, b3_write_fn f, void *c, unsigned budget)
     unsigned calls = 0;
     if (!w || !f || (!w->bytes && w->length) || w->position > w->length ||
         budget > 64)
+    {
         return B3_INVALID;
+    }
     if (w->terminal)
+    {
         return w->terminal == 1 ? B3_OK : B3_FAILED;
+    }
     if (w->position == w->length)
     {
         w->terminal = 1;
@@ -55,9 +59,13 @@ int b3_pump(struct b3_writer *w, b3_write_fn f, void *c, unsigned budget)
 int b3_start(struct b3_operation *o)
 {
     if (!o)
+    {
         return B3_INVALID;
+    }
     if (o->owned || o->generation >= 3)
+    {
         return B3_FAILED;
+    }
     o->generation++;
     o->phase = B3_ACTIVE;
     o->owned = 1;
@@ -67,9 +75,13 @@ int b3_start(struct b3_operation *o)
 int b3_event(struct b3_operation *o, unsigned g, enum b3_event e)
 {
     if (!o || e > B3_CANCEL_ACK || e < B3_TIMEOUT)
+    {
         return B3_INVALID;
+    }
     if (g != o->generation || !o->owned)
+    {
         return B3_STALE;
+    }
     if (e == B3_TIMEOUT)
     {
         o->phase = B3_CANCELLING;
@@ -81,7 +93,9 @@ int b3_event(struct b3_operation *o, unsigned g, enum b3_event e)
         return B3_WAIT;
     }
     if (e == B3_CANCEL_ACK && o->phase != B3_CANCELLING)
+    {
         return B3_STALE;
+    }
     o->phase = e == B3_COMPLETE ? B3_COMPLETED : B3_CANCELLED;
     o->owned = 0;
     o->reports++;
@@ -91,7 +105,9 @@ int b3_event(struct b3_operation *o, unsigned g, enum b3_event e)
 int b3_ack(struct b3_device *d, unsigned m)
 {
     if (!d || m > 15)
+    {
         return B3_INVALID;
+    }
 #ifdef B3_MUTATE_MMIO
     m |= d->status;
 #endif
@@ -103,9 +119,13 @@ int b3_ack(struct b3_device *d, unsigned m)
 int b3_read_data(struct b3_device *d, unsigned *o)
 {
     if (!d || !o)
+    {
         return B3_INVALID;
+    }
     if (!(d->status & 1u))
+    {
         return B3_WAIT;
+    }
     *o = d->data;
     d->status &= ~1u;
     d->reads++;
@@ -116,9 +136,13 @@ int b3_due(uint8_t now, uint8_t start, uint8_t delay, int *out)
 {
     unsigned elapsed = (uint8_t)(now - start);
     if (!out || delay >= 128)
+    {
         return B3_INVALID;
+    }
     if (elapsed >= 128)
+    {
         return B3_AMBIGUOUS;
+    }
 #ifdef B3_MUTATE_DEADLINE
     *out = now >= (unsigned)start + delay;
 #else
@@ -150,9 +174,13 @@ void b3_mailbox_init(struct b3_mailbox *m)
 int b3_publish(struct b3_mailbox *m, int value)
 {
     if (!m)
+    {
         return B3_INVALID;
+    }
     if (atomic_load_explicit(&m->ready, b3_load_order()))
+    {
         return B3_WAIT;
+    }
     m->payload = value;
     atomic_store_explicit(&m->ready, 1, b3_store_order());
     return B3_OK;
@@ -161,9 +189,13 @@ int b3_publish(struct b3_mailbox *m, int value)
 int b3_take(struct b3_mailbox *m, int *out)
 {
     if (!m || !out)
+    {
         return B3_INVALID;
+    }
     if (!atomic_load_explicit(&m->ready, b3_load_order()))
+    {
         return B3_WAIT;
+    }
     *out = m->payload;
     atomic_store_explicit(&m->ready, 0, b3_store_order());
     return B3_OK;

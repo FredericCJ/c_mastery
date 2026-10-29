@@ -21,11 +21,13 @@ static void *get_memory(size_t size, size_t alignment)
     if (p)
     {
         for (size_t i = 0; i < 16; ++i)
+        {
             if (!allocations[i])
             {
                 allocations[i] = p;
                 return p;
             }
+        }
         free(p);
     }
     return NULL;
@@ -34,12 +36,14 @@ static void *get_memory(size_t size, size_t alignment)
 static void release_memory(void *p)
 {
     for (size_t i = 0; i < 16; ++i)
+    {
         if (allocations[i] == p)
         {
             free(p);
             allocations[i] = NULL;
             return;
         }
+    }
 }
 
 #define REQUIRE(x)                                 \
@@ -67,10 +71,14 @@ static void *allocate(void *context, size_t size, size_t alignment)
     t->requested_size = size;
     t->requested_alignment = alignment;
     if (t->fail_alloc)
+    {
         return NULL;
+    }
     void *p = get_memory(size, alignment);
     if (p)
+    {
         ++t->allocations;
+    }
     return p;
 }
 
@@ -87,7 +95,9 @@ static int initialize(void *context, struct fd_value *p)
     ++t->initializations;
     t->child = get_memory(8, 1);
     if (!t->child)
+    {
         return -1;
+    }
     t->child[0] = 19;
     if (t->fail_init)
     {
@@ -217,7 +227,9 @@ static int representations(void)
     struct fd_value *copy = raw;
     REQUIRE(copy->value == 7 && copy->serial == 11);
     for (size_t i = 0; i < sizeof source; ++i)
+    {
         declared[i] = ((unsigned char *)&source)[i];
+    }
     REQUIRE(
         !memcmp(declared, &source,
                 sizeof source)); /* Declared bytes never accessed as FDValue. */
@@ -237,7 +249,9 @@ static int representations(void)
         unsigned char independent[4];
         uint32_t copied = 0;
         for (size_t i = 0; i < 4; ++i)
+        {
             independent[i] = u.bytes[i];
+        }
         for (size_t i = 0; i < 4; ++i)
         {
             ((unsigned char *)&copied)[i] = independent[i];
@@ -268,14 +282,18 @@ static int restricted(void)
 {
     unsigned char source[16], a[16], b[16], c[16], inplace[16], snapshot[16];
     for (size_t i = 0; i < 16; ++i)
+    {
         source[i] = (unsigned char)i;
+    }
     os_transform(a, source, 16, 0x55);
     os_ordinary(b, source, 16, 0x55);
     os_nested(c, source, 16, 0x55);
     REQUIRE(!memcmp(a, b, 16) && !memcmp(b, c, 16) && a[7] == (7 ^ 0x55));
     os_shared(c, source, source, 16);
     for (size_t i = 0; i < 16; ++i)
+    {
         REQUIRE(c[i] == 0);
+    }
     memcpy(inplace, source, 16);
     memcpy(snapshot, inplace, 16);
     REQUIRE(os_partition(inplace, 16, 2, 0, 4, 0x55, 1) == -1 &&
@@ -290,11 +308,15 @@ static int restricted(void)
     memcpy(inplace, source, 16);
     REQUIRE(os_move(inplace, 16, 2, 0, 8) == FD_OK);
     for (size_t i = 0; i < 8; ++i)
+    {
         REQUIRE(inplace[2 + i] == i);
+    }
     memcpy(inplace, source, 16);
     REQUIRE(os_move(inplace, 16, 0, 2, 8) == FD_OK);
     for (size_t i = 0; i < 8; ++i)
+    {
         REQUIRE(inplace[i] == 2 + i);
+    }
     puts("OS_RESTRICTED_PASS");
     return 0;
 }

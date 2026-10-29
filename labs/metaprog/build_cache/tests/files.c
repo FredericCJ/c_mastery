@@ -37,7 +37,9 @@ static void cleanup(void)
         owned_fd = -1;
     }
     if (owned_directory[0])
+    {
         (void)rmdir(owned_directory);
+    }
 }
 
 static int boundary(void *p, unsigned stage, size_t transferred)
@@ -46,11 +48,15 @@ static int boundary(void *p, unsigned stage, size_t transferred)
     (void)transferred;
     ++c->calls;
     if (stage == MPB_RENAME)
+    {
         c->rename_at = c->calls;
+    }
     if (c->calls == c->stop)
     {
         if (c->exit_process)
+        {
             _exit(70);
+        }
         return 1;
     }
     return 0;
@@ -63,7 +69,9 @@ int main(void)
     int fd, status;
     struct mp_cuts observation = {0};
     for (unsigned i = 0; i < 80; ++i)
+    {
         old[i] = next[i] = (unsigned char)i;
+    }
     next[24] ^= 1;
     memcpy(bad, next, 80);
     bad[79] ^= 1;

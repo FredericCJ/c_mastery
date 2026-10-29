@@ -41,7 +41,9 @@ int main(int argc, char **argv)
     cp_test_dispatch();
     cp_test_vector();
     if (argc == 2 && !strcmp(argv[1], "check"))
+    {
         return 0;
+    }
     CHECK(argc == 1);
     const size_t sizes[] = {1, 5, 256, 256, 256, 256},
                  blocks[] = {1, 1, 1, 64, 1024, 16384};
@@ -55,22 +57,30 @@ int main(int argc, char **argv)
         size_t n = sizes[workload], count = blocks[workload],
                elements = n * count, repeats = 16384 / elements;
         if (!repeats)
+        {
             repeats = 1;
+        }
         double *in = malloc(elements * sizeof *in),
                *out = malloc(elements * sizeof *out),
                *expected = malloc(elements * sizeof *expected);
         CHECK(in && out && expected);
         for (size_t i = 0; i < elements; ++i)
+        {
             in[i] = (double)((int)(i % 31) - 15) / 8.0;
+        }
         for (size_t b = 0; b < count; ++b)
+        {
             for (size_t i = 0; i < n; ++i)
             {
                 size_t at = b * n + i;
                 expected[at] = (0.25 * in[at] + (i ? 0.5 * in[at - 1] : 0)) +
                                (i > 1 ? 0.25 * in[at - 2] : 0);
             }
+        }
         for (unsigned sample = 0; sample < 13; ++sample)
+        {
             for (unsigned mode = 0; mode < 2; ++mode)
+            {
                 for (unsigned order = 0; order < 3; ++order)
                 {
                     /* Rotate paired backend order; no cherry-picked best sample. */
@@ -80,11 +90,15 @@ int main(int argc, char **argv)
                                                               : CPV_AVX;
                     struct cpv_plan plan;
                     if (cpv_plan(&plan, requested) == CPN_UNSUPPORTED)
+                    {
                         continue;
+                    }
                     if (mode)
                     {
                         for (size_t i = 0; i < evict_size; i += 64)
+                        {
                             evict[i] = (unsigned char)(evict[i] + 1);
+                        }
                         barrier(evict);
                     }
                     else
@@ -94,11 +108,16 @@ int main(int argc, char **argv)
                     }
                     unsigned long long a = now();
                     for (size_t r = 0; r < repeats; ++r)
+                    {
                         for (size_t b = 0; b < count; ++b)
+                        {
                             barrier(in + b * n);
+                        }
+                    }
                     unsigned long long overhead = now() - a;
                     a = now();
                     for (size_t r = 0; r < repeats; ++r)
+                    {
                         for (size_t b = 0; b < count; ++b)
                         {
                             struct cpn_double s = {0, 0};
@@ -106,11 +125,14 @@ int main(int argc, char **argv)
                             CHECK(cpv_run(&plan, &s, in + b * n, n, out + b * n,
                                           n) == CPN_OK);
                         }
+                    }
                     unsigned long long elapsed = now() - a;
                     CHECK(!memcmp(out, expected, elements * sizeof(double)));
                     double sum = 0;
                     for (size_t i = 0; i < elements; ++i)
+                    {
                         sum += out[i];
+                    }
                     sink = sum;
                     printf(
                         "{\"n\":%zu,\"blocks\":%zu,\"repeats\":%zu,\"working_bytes\":%zu,\"sample\":%u,\"cache\":\"%s\",\"backend\":%u,\"elapsed_ns\":%llu,\"empty_ns\":%llu,\"checksum\":%.17g}\n",
@@ -119,6 +141,8 @@ int main(int argc, char **argv)
                         mode ? "128MiB-perturbed" : "first-block-warmed", which,
                         elapsed, overhead, (double)sink);
                 }
+            }
+        }
         free(expected);
         free(out);
         free(in);

@@ -8,7 +8,9 @@ static void print(const char *p)
 {
     size_t n = 0;
     while (p[n])
+    {
         ++n;
+    }
     cmk_write(p, n);
 }
 
@@ -41,7 +43,9 @@ __attribute__((section(".text.start"), noreturn)) void _start(void)
     int64_t n = cmk_call(CMK_BOOT_FILE, (uintptr_t)name, (uintptr_t)image,
                          sizeof image);
     if (n < 0)
+    {
         end(30);
+    }
     int code = kf_vm_probe(image, (size_t)n, &report);
     if (code)
     {
@@ -53,7 +57,9 @@ __attribute__((section(".text.start"), noreturn)) void _start(void)
     if (n < 19)
     {
         if (report.run_calls || report.truncated == CVM_OK)
+        {
             end(32);
+        }
         print("KF:PASS:ARCHIVE_TRUNCATION_BEFORE_VM_RUN\n");
         end(0);
     }
@@ -71,7 +77,9 @@ __attribute__((section(".text.start"), noreturn)) void _start(void)
             number((uint64_t)-(int64_t)r->value);
         }
         else
+        {
             number((uint64_t)r->value);
+        }
         print(":");
         number(r->calls);
         print(":");

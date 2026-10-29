@@ -23,7 +23,9 @@ void cp_test_numeric(void)
     int64_t numerator[5];
     CHECK(cpn_exact(&e, x, 5, numerator, 5) == CPN_OK);
     for (size_t i = 0; i < 5; ++i)
+    {
         CHECK(numerator[i] == expected[i]);
+    }
     const int32_t extrema[] = {INT32_MAX, INT32_MAX, INT32_MIN, INT32_MIN};
     cpn_exact_init(&e);
     CHECK(cpn_exact(&e, extrema, 4, numerator, 5) == CPN_OK);
@@ -31,14 +33,20 @@ void cp_test_numeric(void)
     {
         int64_t reference = extrema[i];
         if (i)
+        {
             reference += 2 * (int64_t)extrema[i - 1];
+        }
         if (i > 1)
+        {
             reference += extrema[i - 2];
+        }
         CHECK(numerator[i] == reference);
     }
     /* Independent convolution over the whole input, compared with recurrence and every split. */
     for (int a = -2; a <= 2; ++a)
+    {
         for (int b = -2; b <= 2; ++b)
+        {
             for (int c = -2; c <= 2; ++c)
             {
                 double input[] = {a, b, c, 0, 0}, out[5];
@@ -48,9 +56,13 @@ void cp_test_numeric(void)
                 {
                     ref[i] = ints[i];
                     if (i)
+                    {
                         ref[i] += 2 * (int64_t)ints[i - 1];
+                    }
                     if (i > 1)
+                    {
                         ref[i] += ints[i - 2];
+                    }
                 }
                 for (size_t split = 0; split <= 5; ++split)
                 {
@@ -60,10 +72,14 @@ void cp_test_numeric(void)
                     CHECK(cpn_double(&s, input + split, 5 - split, out + split,
                                      5 - split) == CPN_OK);
                     for (size_t i = 0; i < 5; ++i)
+                    {
                         CHECK(out[i] == (double)ref[i] / 4.0);
+                    }
                     CHECK(s.previous == 0 && s.older == 0);
                 }
             }
+        }
+    }
     volatile double big = 9007199254740992.0, one = 1.0;
     volatile double first = big + one;
     volatile double second = big - big;
@@ -103,7 +119,9 @@ void cp_test_numeric_policy(void)
     CHECK(cpn_double(&s, overlap, 4, overlap, 4) == CPN_OK);
     const double expected[] = {1, 4, 6, 4};
     for (size_t i = 0; i < 4; ++i)
+    {
         CHECK(overlap[i] == expected[i]);
+    }
     CHECK(s.previous == 0 && s.older == 4);
     CHECK(cpn_double(&s, NULL, 0, NULL, 0) == CPN_OK && s.older == 4);
     CHECK(cpn_double(&s, input, CPN_BLOCK + 1, out, CPN_BLOCK + 1) ==
@@ -120,6 +138,7 @@ void cp_test_numeric_transaction(void)
 {
     double input[] = {0, 4, 8, 4, 0}, expected[] = {0, 1, 4, 6, 4};
     for (int atomic = 0; atomic <= 1; ++atomic)
+    {
         for (size_t fail = 1; fail <= 6; ++fail)
         {
             struct cpn_double state = {0, 0};
@@ -133,13 +152,18 @@ void cp_test_numeric_transaction(void)
             CHECK(state.previous == (count ? input[count - 1] : 0) &&
                   state.older == (count > 1 ? input[count - 2] : 0));
             for (size_t i = 0; i < 5; ++i)
+            {
                 CHECK(out[i] == (i < count ? expected[i] : 99));
+            }
             CHECK(cpn_transaction(&state, input + count, 5 - count, out + count,
                                   5 - count, 0, atomic, &committed) == CPN_OK &&
                   committed == 5 - count);
             for (size_t i = 0; i < 5; ++i)
+            {
                 CHECK(out[i] == expected[i]);
+            }
         }
+    }
     for (int numerator = -19; numerator <= 19; ++numerator)
     {
         int32_t actual = 99;
@@ -171,7 +195,9 @@ void cp_test_numeric_transaction(void)
     CHECK(cpn_iir_half(&state, impulse, 4, out, 4) == CPN_OK);
     const double want[] = {1, .5, .25, .125};
     for (size_t i = 0; i < 4; ++i)
+    {
         CHECK(out[i] == want[i]);
+    }
     for (size_t split = 0; split <= 4; ++split)
     {
         state = 0;
@@ -179,7 +205,9 @@ void cp_test_numeric_transaction(void)
         CHECK(cpn_iir_half(&state, impulse + split, 4 - split, out + split,
                            4 - split) == CPN_OK);
         for (size_t i = 0; i < 4; ++i)
+        {
             CHECK(out[i] == want[i]);
+        }
     }
     double bad[] = {1, NAN};
     state = .25;
