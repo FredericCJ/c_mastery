@@ -10,6 +10,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'labs/kernel_smp/tools'))
 import guest
+from c_source import find_unique,replace_unique
 
 ACK='__atomic_store_n(&shoot_ack[c],__atomic_load_n(&shoot_generation,__ATOMIC_ACQUIRE),__ATOMIC_RELEASE);'
 WAIT='for(unsigned c=0;c<topology.count;c++)if(c!=me&&(mask&(1u<<c)))for(unsigned n=0;__atomic_load_n(&shoot_ack[c],__ATOMIC_ACQUIRE)!=gen;n++){if(n==100000000)fail("TLB shootdown deadline");pause_cpu();}'
@@ -19,13 +20,13 @@ def main(build):
  build=build.resolve();build.mkdir(parents=True,exist_ok=False);lab=ROOT/'labs/kernel_smp';provider=ROOT/'assessor/kernel_smp';os.environ['CMASTERY_CPUS']='4';records=[]
  def one(name,stage,mutation):
   folder=build/name;source=folder/'source';shutil.copytree(provider,source)
-  smp=source/'smp.c';original=smp.read_text();assert original.count(WAIT)==1 and original.count(ACK)==1
+  smp=source/'smp.c';original=smp.read_text();find_unique(original,WAIT);find_unique(original,ACK)
   # Identical instrumentation in the positive control and ack mutant.
-  if name in ('tlb_control','tlb_ack'):original=original.replace(WAIT,INSTRUMENT)
-  if mutation=='tlb_ack':original=original.replace(ACK,'/* mutation: omit remote acknowledgement */')
+  if name in ('tlb_control','tlb_ack'):original=replace_unique(original,WAIT,INSTRUMENT)
+  if mutation=='tlb_ack':original=replace_unique(original,ACK,'/* mutation: omit remote acknowledgement */')
   smp.write_text(original)
   if mutation=='msix_mask':
-   kernel=source/'kernel.c';text=kernel.read_text();anchor='entry[2]=43;barrier();entry[3]=0;';assert text.count(anchor)==1;kernel.write_text(text.replace(anchor,'entry[2]=43;barrier();entry[3]=1;'))
+   kernel=source/'kernel.c';text=kernel.read_text();anchor='entry[2]=43;barrier();entry[3]=0;';kernel.write_text(replace_unique(text,anchor,'entry[2]=43;barrier();entry[3]=1;'))
   output=folder/'guest';guest.build(lab,source,output)
   command=[sys.executable,str(lab/'tools/guest.py'),'stage','--stage',stage,'--lab',str(lab),'--source',str(source),'--build',str(output)]
   result=subprocess.run(command,capture_output=True,text=True,timeout=30)

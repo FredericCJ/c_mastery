@@ -2,6 +2,7 @@
 import copy,json
 from pathlib import Path
 from check_replicated_replay_depth import ROOT,sha
+from c_source import replace_unique
 REPORT='research/v5/expansion/legacy_storage_followthrough/async_guest_validation.json'
 def check(d,files=True):
  assert d['passed'] and d['status']=='passed' and d['source_stable'] and d['external_inputs_stable']
@@ -36,7 +37,7 @@ def check(d,files=True):
    for p,h in b['copied_inputs'].items():assert sha(home/p)==h
    for p,h in b['compiler_dependencies'].items():assert sha(Path(p))==h
    for p,h in b['artifacts'].items():assert sha(ROOT/p)==h
-   original=(ROOT/'labs/kernel_smp/tests/user_v2.c').read_text();changed=(home/'tests/user_v2.c').read_text();expected=original.replace('static void producer(uintptr_t index){','#include "sa_impl.c"\n#include "sa_guest.c"\nstatic void producer(uintptr_t index){').replace('message("PASS v2-process-slot-generation-reuse\\n");die(0);','sa_guest();message("PASS v2-process-slot-generation-reuse\\n");die(0);');assert changed==expected
+   original=(ROOT/'labs/kernel_smp/tests/user_v2.c').read_text();changed=(home/'tests/user_v2.c').read_text();expected=replace_unique(original,'static void producer(uintptr_t index){','#include "sa_impl.c"\n#include "sa_guest.c"\nstatic void producer(uintptr_t index){');expected=replace_unique(expected,'message("PASS v2-process-slot-generation-reuse\\n");die(0);','sa_guest();message("PASS v2-process-slot-generation-reuse\\n");die(0);');assert changed==expected
    for elf in ['kernel','init','worker','fault','shell','spawn','v2']:
     rows=[x for x in d['executions'] if x['command'][:2]==['nm','-u'] and x['command'][-1]==str((ROOT/b['build_report']).parent/(elf+'.elf'))];assert rows and all(not (ROOT/x['log']).read_text().strip() for x in rows)
     rows=[x for x in d['executions'] if x['command'][:2]==['readelf','-d'] and x['command'][-1]==str((ROOT/b['build_report']).parent/(elf+'.elf'))];assert rows and all('NEEDED' not in (ROOT/x['log']).read_text() for x in rows)

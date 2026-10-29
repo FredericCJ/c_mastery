@@ -1,7 +1,19 @@
 """Derive the explicit CST5 teaching fork; fail if the reviewed parent changes."""
 from pathlib import Path
-import hashlib
+import hashlib,re
+from c_source import AnchorError,find_all,significant,tokenize
 ROOT=Path(__file__).resolve().parents[1]
+def edit(text,old,new,count=1):
+ # Locate by C token sequence; the anchor's own leading/trailing layout stays
+ # in the source, so strip the same layout from the replacement.
+ core=old.strip();lead=old[:len(old)-len(old.lstrip())];trail=old[len(old.rstrip()):]
+ if lead and new.startswith(lead):new=new[len(lead):]
+ if trail and new.endswith(trail):new=new[:-len(trail)]
+ # A comment-only anchor has no C tokens; it stays an exact-text anchor.
+ found=find_all(text,core) if significant(tokenize(core)) else [(m.start(),m.end()) for m in re.finditer(re.escape(core),text)]
+ if len(found)!=count:raise AnchorError((old,len(found),count))
+ for lo,hi in reversed(found):text=text[:lo]+new+text[hi:]
+ return text
 def main(check=False):
  source=ROOT/'assessor/storage_followthrough/tree/tree.c'
  assert hashlib.sha256(source.read_bytes()).hexdigest()=='9e91c830850cc96d5d2198ebce8260d302ccb4dbe0de768c53a32b0e3d614fc6'
@@ -11,8 +23,7 @@ def main(check=False):
  # preserve an auditable derivation instead of modifying the frozen provider.
  def change(old,new,count=1):
   nonlocal s
-  assert s.count(old)==count,(old,s.count(old),count)
-  s=s.replace(old,new)
+  s=edit(s,old,new,count)
  change('#include "tree.h"','#include "refs.h"')
  change('#define MAGIC (TREE_CAPACITY==7u ? UINT32_C(0x43535432) : UINT32_C(0x43535434))','#define MAGIC UINT32_C(0x43535435)\n#ifndef REF_MUTANT\n#define REF_MUTANT 0\n#endif')
  change('/* Additive capacity/path-repair teaching fork; original provider unchanged. */','/* Separate CST5 incarnation-tagged page-reference teaching fork. */')
@@ -87,8 +98,11 @@ int store_ref_read(StoreRef ref,store_node *out){
 '''
  public=ROOT/'labs/storage_followthrough/references';private=ROOT/'assessor/storage_followthrough/references'
  if not check:(public/'include').mkdir(parents=True,exist_ok=True);private.mkdir(parents=True,exist_ok=True)
- h=(ROOT/'labs/storage_followthrough/tree/include/store.h').read_text(encoding='utf8').replace('STORE_UNIMPLEMENTED = 8','STORE_UNIMPLEMENTED = 8, STORE_STALE = 9').replace('TREE_CAPACITY==3u || TREE_CAPACITY==7u','TREE_CAPACITY==7u').replace('two derived odd capacities','CST5 capacity7 only')
- h=h.replace('  uint32_t next, child[9];','  uint32_t next, child[9];\n  uint64_t incarnation,next_incarnation,child_incarnation[9];').replace('  uint8_t touched_ids[31], touched_count;','  uint8_t touched_ids[31], touched_count;\n  uint64_t root_incarnation,saved_root_incarnation,incarnations[32],saved_incarnations[32];')
+ h=(ROOT/'labs/storage_followthrough/tree/include/store.h').read_text(encoding='utf8')
+ h=edit(h,'STORE_UNIMPLEMENTED = 8','STORE_UNIMPLEMENTED = 8, STORE_STALE = 9')
+ h=edit(h,'TREE_CAPACITY==3u || TREE_CAPACITY==7u,"two derived odd capacities"','TREE_CAPACITY==7u,"CST5 capacity7 only"')
+ h=edit(h,'  uint32_t next, child[9];','  uint32_t next, child[9];\n  uint64_t incarnation,next_incarnation,child_incarnation[9];')
+ h=edit(h,'  uint8_t touched_ids[31], touched_count;','  uint8_t touched_ids[31], touched_count;\n  uint64_t root_incarnation,saved_root_incarnation,incarnations[32],saved_incarnations[32];')
  def emit(path,text):
   data=text.encode('utf8')
   if check:assert path.read_bytes()==data,str(path)
@@ -96,7 +110,7 @@ int store_ref_read(StoreRef ref,store_node *out){
  emit(public/'include/store.h',h);emit(private/'refs.c',s)
  emit(public/'include/tree.h',(ROOT/'labs/storage_followthrough/tree/include/tree.h').read_text(encoding='utf8'))
  emit(public/'tree_cases.c',(ROOT/'labs/storage_followthrough/tree/tests.c').read_text(encoding='utf8'))
- stub=(ROOT/'labs/storage_followthrough/tree/tree.c').read_text(encoding='utf8').replace('#include "store.h"','#include "refs.h"')
+ stub=edit((ROOT/'labs/storage_followthrough/tree/tree.c').read_text(encoding='utf8'),'#include "store.h"','#include "refs.h"')
  stub+='\nint store_ref_make(store *s,uint32_t id,StoreRef *out){(void)s;(void)id;(void)out;return STORE_UNIMPLEMENTED;}\nint store_ref_read(StoreRef ref,store_node *out){(void)ref;(void)out;return STORE_UNIMPLEMENTED;}\n'
  emit(public/'refs.c',stub)
  print(dict(parent_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),output_sha256=hashlib.sha256((private/'refs.c').read_bytes()).hexdigest()))

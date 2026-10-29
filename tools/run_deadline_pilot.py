@@ -7,6 +7,8 @@ from pathlib import Path
 import statistics
 import subprocess
 
+from c_source import replace_unique
+
 ROOT=Path(__file__).resolve().parents[1]
 LAB=ROOT/'labs/hosted_systems/timer_depth'
 REF=ROOT/'assessor/hosted_systems/timer_depth'
@@ -89,8 +91,7 @@ def main():
             'periodic-reinsert':('if (result == 1 && q->timers[token.slot].state == TD_ARMED) insert(q, token.slot);','/* wrong: lost periodic registration */')}
         for name,pair in mutations.items():
             old,new=pair
-            if source.count(old)!=1: raise RuntimeError('Mutation anchor changed: '+name)
-            mutant=work/(name+'.c'); mutant.write_text(source.replace(old,new))
+            mutant=work/(name+'.c'); mutant.write_text(replace_unique(source,old,new))
             binary=work/name
             run(name+'-build',['gcc',*common,'-O2',LAB/'collection_tests.c',mutant,REF/'timer.c','-o',binary])
             text=run(name,[binary],expected=1)

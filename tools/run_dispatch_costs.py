@@ -2,6 +2,7 @@
 from pathlib import Path
 from datetime import datetime, timezone
 import argparse, hashlib, json, statistics, struct, subprocess, time
+from c_source import find_unique
 ROOT=Path(__file__).resolve().parents[1]
 PATHS=['labs/dispatch/tests/cost_measure.c','labs/dispatch/tests/cost_methods.c','labs/dispatch/tests/abi32.c','labs/dispatch/tests/abi32.S','labs/dispatch/include/dispatch.h','labs/dispatch/include/dispatch_resolution.h','labs/dod/include/dod.h','assessor/dispatch/dispatch.c','assessor/dispatch/dispatch_resolution.c','assessor/dod/dod.c','tools/run_dispatch_costs.py']
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
@@ -46,7 +47,7 @@ def main():
    execute([compiler,*flags,'-c',sources[1],'-o',objects[1]],profile+'-incremental-methods');execute([compiler,*flags,*objects,'-Wl,--gc-sections','-ldl','-o',executable],profile+'-incremental-link')
  # This exact extraction is a build adapter, not a rewritten mechanism. Its
  # source bytes include the actual checked direct/erased/embedded/fold functions.
- text=(ROOT/'assessor/dispatch/dispatch.c').read_text();body=text[text.index('static int sum('):text.index('int ds_closure_init(')];core=build/'abi-core.c';core.write_text('#include "dispatch.h"\n#include <limits.h>\n'+body)
+ text=(ROOT/'assessor/dispatch/dispatch.c').read_text();body=text[find_unique(text,'static int sum(')[0]:find_unique(text,'int ds_closure_init(')[0]];core=build/'abi-core.c';core.write_text('#include "dispatch.h"\n#include <limits.h>\n'+body)
  system_header=Path('/usr/include/x86_64-linux-gnu/asm/unistd_32.h');header=system_header.read_text();assert '#define __NR_exit 1\n' in header and '#define __NR_write 4\n' in header
  limits_dir=build/'abi-limits';limits_dir.mkdir();limits_header=limits_dir/'limits.h';limits_header.write_text('#ifndef CMASTERY_PROBE_LIMITS_H\n#define CMASTERY_PROBE_LIMITS_H\n#ifndef __INT_MAX__\n#error target compiler INT_MAX required\n#endif\n#define INT_MAX __INT_MAX__\n#define INT_MIN (-INT_MAX - 1)\n#endif\n')
  for compiler in ['gcc','clang']:

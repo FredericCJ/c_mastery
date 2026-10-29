@@ -1,6 +1,7 @@
 """Source-bound history/progress, imported queue and dependency experiments."""
 import datetime,hashlib,json,pathlib,sys
 import run_thread_lifecycle as harness
+from c_source import replace_unique
 ROOT=pathlib.Path(__file__).resolve().parents[1];HERE=ROOT/'research/v5/expansion/legacy_advanced_history';PUBLIC=ROOT/'labs/advanced_concurrency_depth/history';PRIVATE=ROOT/'assessor/advanced_concurrency_depth/history';BUILD=ROOT/'build'/('advanced-history-'+datetime.datetime.now().strftime('%Y%m%d%H%M%S'))
 CASES=['history','separation','points','pressure','retry']
 PROFILES=[('debug',['-O0','-g']),('optimized',['-O3','-DNDEBUG']),('sanitized',['-O1','-g','-fsanitize=address,undefined','-fno-omit-frame-pointer']),('tsan',['-O1','-g','-fsanitize=thread','-fno-omit-frame-pointer'])]
@@ -32,7 +33,7 @@ def main():
  try:
   source=provider.read_text(encoding='utf8')
   for name,(old,new) in PROVIDER_MUTATIONS.items():
-   assert source.count(old)==1,(name,'mutation must match exactly once');p=BUILD/('provider_'+name+'.c');p.write_text(source.replace(old,new),encoding='utf8');copies[name]=p;harness.OUTPUTS.add(p)
+   p=BUILD/('provider_'+name+'.c');p.write_text(replace_unique(source,old,new),encoding='utf8');copies[name]=p;harness.OUTPUTS.add(p)
   run('environment.kernel',['uname','-a'])
   for cc in ['gcc','clang']:
    run(cc+'.version',[cc,'--version'])

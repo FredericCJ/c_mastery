@@ -18,6 +18,8 @@ import statistics
 from fractions import Fraction
 from datetime import datetime, timezone
 
+from c_source import find_all, replace_unique
+
 ROOT = Path(__file__).resolve().parents[1]
 LAB = ROOT / "labs/performance_followthrough"
 REF = ROOT / "assessor/performance_followthrough"
@@ -136,9 +138,9 @@ def main():
                 "duplicate-id": ("j == p->count || (seen & (1u << j))", "j == p->count"),
             }
             for name, (old, new) in mutations.items():
-                check(name + "-anchor", reference.count(old) == 1)
+                check(name + "-anchor", len(find_all(reference, old)) == 1)
                 mutated = out / (name + ".c")
-                mutated.write_text(reference.replace(old, new))
+                mutated.write_text(replace_unique(reference, old, new))
                 exe = out / name
                 run(name + "-build", ["gcc", *common, "-O0", LAB / "pmu_tests.c", mutated, LAB / "publication.c", "-o", exe])
                 stdout, stderr = run(name, [exe], expected=1)

@@ -3,6 +3,7 @@ from pathlib import Path
 from datetime import datetime,timezone
 import importlib.util,json,os,shutil,subprocess,time
 from common import ROOT,dump,read_json,sha
+from c_source import replace_unique
 
 REPORT='research/v5/expansion/legacy_storage_followthrough/async_guest_validation.json'
 def main():
@@ -33,8 +34,8 @@ def main():
    impl=public/'async.c' if mode=='learner' else ROOT/'assessor/storage_followthrough/async/async.c'
    body=impl.read_text(encoding='utf8');body=('#define SA_MUTANT '+mode[-1]+'\n' if mode.startswith('mutant') else '')+body
    (lab/'tests/sa_impl.c').write_text(body,encoding='utf8');shutil.copyfile(public/'guest.c',lab/'tests/sa_guest.c')
-   p=lab/'tests/user_v2.c';text=p.read_text(encoding='utf8');a='static void producer(uintptr_t index){';assert text.count(a)==1;text=text.replace(a,'#include "sa_impl.c"\n#include "sa_guest.c"\n'+a)
-   a='message("PASS v2-process-slot-generation-reuse\\n");die(0);';assert text.count(a)==1;text=text.replace(a,'sa_guest();'+a);p.write_text(text,encoding='utf8')
+   p=lab/'tests/user_v2.c';text=p.read_text(encoding='utf8');a='static void producer(uintptr_t index){';text=replace_unique(text,a,'#include "sa_impl.c"\n#include "sa_guest.c"\n'+a)
+   a='message("PASS v2-process-slot-generation-reuse\\n");die(0);';text=replace_unique(text,a,'sa_guest();'+a);p.write_text(text,encoding='utf8')
    copied={p.relative_to(lab).as_posix():sha(p) for p in lab.rglob('*') if p.is_file()}
    def record_run(cmd,**kw):
     cmd=list(map(str,cmd))

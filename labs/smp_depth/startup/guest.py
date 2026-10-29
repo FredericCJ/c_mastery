@@ -1,5 +1,5 @@
 """Build an explicit completed startup adapter in a private owned CMK image."""
-import argparse,hashlib,importlib.util,json,os,shutil,subprocess
+import argparse,hashlib,importlib.util,json,os,re,shutil,subprocess
 from pathlib import Path
 PUBLIC=Path(__file__).resolve().parent
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
@@ -16,8 +16,9 @@ def prepare(lab,source,implementation,work,base=0x8000,mode=0,mutant=0,compiler=
  if base not in (0x8000,0x9000) or mode not in (0,1,2) or mutant not in (0,1,2):raise ValueError('Unsupported startup experiment')
  work.mkdir(parents=True,exist_ok=False);copied=work/'source';shutil.copytree(source,copied)
  old=copied/'smp.c';text=old.read_text(encoding='utf-8');anchor='void cmk2_smp_run(unsigned info){'
- if text.count(anchor)!=1:raise ValueError('Retained completed entry changed; inspect before adapting')
- text=text.replace(anchor,'void cmk2_retained_smp_run(unsigned info){')+'\n'+(implementation/'startup_guest.c').read_text(encoding='utf-8');old.write_text(text,encoding='utf-8',newline='\n')
+ pattern=r'\s*'.join(re.escape(t) for t in re.findall(r'[A-Za-z_]\w*|\d+|[^\s]',anchor));found=[m.span() for m in re.finditer(pattern,text)]
+ if len(found)!=1:raise ValueError('Retained completed entry changed; inspect before adapting')
+ text=text[:found[0][0]]+'void cmk2_retained_smp_run(unsigned info){'+text[found[0][1]:]+'\n'+(implementation/'startup_guest.c').read_text(encoding='utf-8');old.write_text(text,encoding='utf-8',newline='\n')
  assembly=copied/'ap.S';assembly.write_text(assembly.read_text(encoding='utf-8')+'\n'+(implementation/'startup_trampoline.S').read_text(encoding='utf-8'),encoding='utf-8',newline='\n')
  shutil.copyfile(implementation/'startup.c',copied/'startup.c')
  spec=importlib.util.spec_from_file_location('ss_cmk_guest',lab/'tools/guest.py');guest=importlib.util.module_from_spec(spec);spec.loader.exec_module(guest)

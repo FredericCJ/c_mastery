@@ -2,15 +2,19 @@
 from datetime import datetime,timezone
 from pathlib import Path
 import copy
+from c_source import find_all
 from common import ROOT,sha,read_json,dump
 import run_b02_followthrough as campaign
 original_dependency_paths=campaign.dependency_paths
 instrumented=[]
+def probed(text,spans):
+ for _,end in reversed(spans):text=text[:end]+'bf_probe();'+text[end:]
+ return text
 directory=ROOT/'reviews/v5/expansion/b02_followthrough'/('instrumented-'+datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ'))
 def dependencies(root,build,commands,ninja):
  source=ROOT/'assessor/b02_depth/depth.c';generated=Path(build)/'b02_instrumented.c'
- needle='for(j=0;j<7;j++,i=(i+1)%7){';text=source.read_text(encoding='utf8');assert text.count(needle)==3
- expected='extern void bf_probe(void);\n'+text.replace(needle,needle+'bf_probe();')
+ needle='for(j=0;j<7;j++,i=(i+1)%7){';text=source.read_text(encoding='utf8');spans=find_all(text,needle);assert len(spans)==3
+ expected='extern void bf_probe(void);\n'+probed(text,spans)
  assert generated.read_text(encoding='utf8')==expected
  directory.mkdir(parents=True,exist_ok=True);saved=directory/(Path(build).name+'.c');saved.write_bytes(generated.read_bytes())
  record=dict(profile=Path(build).name,path=saved.relative_to(ROOT).as_posix(),sha256=sha(saved),source='assessor/b02_depth/depth.c',source_sha256=sha(source),recipe='labs/b02_followthrough/map/instrument.py',recipe_sha256=sha(ROOT/'labs/b02_followthrough/map/instrument.py'),insertions=3)

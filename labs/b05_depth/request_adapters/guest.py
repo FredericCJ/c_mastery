@@ -1,12 +1,29 @@
 """Explicit imported original guest + learner request adapter, no fallback."""
-import argparse,hashlib,importlib.util,json,shutil,subprocess,tempfile
+import argparse,hashlib,importlib.util,json,re,shutil,subprocess,tempfile
 from datetime import datetime,timezone
 from pathlib import Path
 PUBLIC=Path(__file__).resolve().parent
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+def spans(text,anchor,start=0):
+    tokens=re.findall(r'[A-Za-z_]\w*|\d+|[^\s]',anchor);pattern=r'\s*'.join(re.escape(x) for x in tokens);found=[]
+    if tokens[0][0].isalnum() or tokens[0][0]=='_':pattern=r'(?<!\w)'+pattern
+    if tokens[-1][-1].isalnum() or tokens[-1][-1]=='_':pattern+=r'(?!\w)'
+    for m in re.finditer(pattern,text):
+        if m.start()<start:continue
+        lo,hi=m.span()
+        while anchor[:1] in (' ','\t') and text[lo-1:lo] in (' ','\t'):lo-=1
+        if anchor.endswith('\n'):
+            n=re.compile(r'[ \t]*\r?\n').match(text,hi);hi=n.end() if n else hi
+        found.append((lo,hi))
+    return found
 def replace(text,old,new):
-    if text.count(old)!=1:raise ValueError('Import anchor drift: '+old[:80])
-    return text.replace(old,new)
+    found=spans(text,old)
+    if len(found)!=1:raise ValueError('Import anchor drift: '+old[:80])
+    return text[:found[0][0]]+new+text[found[0][1]:]
+def slice_start(text,anchor,after=None):
+    found=spans(text,anchor,after or 0)
+    if not found or (after is None and len(found)!=1):raise ValueError('Import boundary drift: '+anchor[:80])
+    return found[0][0]
 def main(argv=None):
     p=argparse.ArgumentParser()
     for field in ['kernel-source','kernel-lab','adapter-source','build-root']:p.add_argument('--'+field,type=Path,required=True)
@@ -39,12 +56,14 @@ def main(argv=None):
         boot=replace((stage/'boot.S').read_text(),'-(0xe85250d6+24)','(-(0xe85250d6+24)) & 0xffffffff');(stage/'boot.S').write_text(boot)
         kernel=(stage/'kernel.c').read_text()
         old='__atomic_fetch_add(&ticks,1,__ATOMIC_RELAXED)'
-        if kernel.count(old)!=2:raise ValueError('Tick anchor drift')
-        kernel='#include <stdatomic.h>\n'+kernel.replace(old,'atomic_fetch_add_explicit(&ticks,1,memory_order_relaxed)')
+        ticks=spans(kernel,old)
+        if len(ticks)!=2:raise ValueError('Tick anchor drift')
+        for lo,hi in reversed(ticks):kernel=kernel[:lo]+'atomic_fetch_add_explicit(&ticks,1,memory_order_relaxed)'+kernel[hi:]
+        kernel='#include <stdatomic.h>\n'+kernel
         kernel=replace(kernel,'return syscall_v2(f);','return f->rax>=RQA_CANCEL?rqa_syscall(f):syscall_v2(f);')
-        lo=kernel.index('static void complete(void)');hi=kernel.index('static struct frame *schedule(void)',lo)
+        lo=slice_start(kernel,'static void complete(void)');hi=slice_start(kernel,'static struct frame *schedule(void)',lo)
         kernel=kernel[:lo]+'static void complete(void){if(primary_failure)panic("rqa user failure");say("PASS rqa-guest-complete\\n");stop(1);}\n'+kernel[hi:]
-        lo=kernel.index('  if (load_task(boot_mode == 2');hi=kernel.index('  say("PASS elf-load',lo)
+        lo=slice_start(kernel,'  if (load_task(boot_mode == 2');hi=slice_start(kernel,'  say("PASS elf-load',lo)
         kernel=kernel[:lo]+'  if(load_task("init",1))panic("rqa init ELF");\n'+kernel[hi:]
         (stage/'kernel.c').write_text(kernel)
         os_text=(stage/'os.inc').read_text()

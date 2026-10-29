@@ -9,6 +9,19 @@ import subprocess
 import tempfile
 import time
 from common import ROOT,dump,sha
+from c_source import significant,tokenize
+def function_names(text,pattern,types):
+    # Definitions "TYPE NAME(...) {" found by token sequence, so wrapped parameter lists match.
+    tokens=significant(tokenize(text));names=[]
+    for i,t in enumerate(tokens[:-1]):
+        if t.kind!='ident' or not re.fullmatch(pattern,t.text) or i==0 or tokens[i-1].text not in types or tokens[i+1].text!='(' or (i>1 and tokens[i-2].text not in (';','}')):continue
+        depth=0;j=i+1
+        while j<len(tokens):
+            depth+=(tokens[j].text=='(')-(tokens[j].text==')')
+            if depth==0:break
+            j+=1
+        if j+1<len(tokens) and tokens[j+1].text=='{':names.append(t.text)
+    return names
 def run():
     paths=['tools/run_metaprog_policy_cost.py','tools/common.py','labs/metaprog/policy_effects/include/policy_effects.h','assessor/metaprog/policy_effects/policy_effects.c','assessor/metaprog/policy_effects/policy_template.inc','labs/metaprog/policy_effects/CMakeLists.txt','labs/metaprog/policy_effects/tests/tests.c','labs/metaprog/policy_effects/expect_failure.py','labs/metaprog/include/metaprog.h','assessor/metaprog/metaprog.c','assessor/metaprog/ring_template.inc'];inputs={p:sha(ROOT/p) for p in paths};external={};records=[];observations=[];artifacts=[]
     folder=ROOT/'reviews/v5/expansion/modern_completion/runs'/('metaprog-policy-cost-'+datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ'));folder.mkdir(parents=True)
@@ -25,7 +38,7 @@ def run():
     with tempfile.TemporaryDirectory(prefix='cmastery-policy-cost-') as name:
         tmp=Path(name);inc=['-I',ROOT/'labs/metaprog/policy_effects/include'];core=ROOT/'assessor/metaprog/policy_effects/policy_effects.c'
         for cc in ['gcc','clang']:
-            text=execute([cc,'-std=c17','-pedantic-errors','-Wall','-Wextra','-Werror',*inc,'-E','-P',core],cc+'-preprocess');definitions=re.findall(r'^int (mpp_\w+)\([^;\n]*\)\s*\{',text,re.MULTILINE);assert definitions==['mpp_dynamic','mpp_reject','mpp_saturate'];observations.append(dict(kind='preprocess',compiler=cc,definitions=definitions,bytes=len(text.encode()),tokens=len(re.findall(r'\w+|[^\w\s]',text))))
+            text=execute([cc,'-std=c17','-pedantic-errors','-Wall','-Wextra','-Werror',*inc,'-E','-P',core],cc+'-preprocess');definitions=function_names(text,r'mpp_\w+',('int',));assert definitions==['mpp_dynamic','mpp_reject','mpp_saturate'];observations.append(dict(kind='preprocess',compiler=cc,definitions=definitions,bytes=len(text.encode()),tokens=len(re.findall(r'\w+|[^\w\s]',text))))
             for opt in ['0','3']:
                 obj=tmp/(cc+opt+'.o');execute([cc,'-std=c17','-pedantic-errors','-Wall','-Wextra','-Werror','-O'+opt,*inc,'-c',core,'-o',obj],cc+opt+'-compile');text=execute(['nm','-u',obj],cc+opt+'-helpers');helpers=[s.split()[-1] for s in text.splitlines() if s.strip()];assert set(helpers)<={'memcpy','memset','__stack_chk_fail'};symboltext=execute(['nm','-S','--defined-only',obj],cc+opt+'-symbols');sizes={line.split()[-1]:int(line.split()[1],16) for line in symboltext.splitlines() if re.search(r'\sT\s',line)};assert set(sizes)==set(definitions)
                 assembly=execute(['objdump','-dr',obj],cc+opt+'-disassembly');assert all(name in assembly for name in definitions);execute(['size',obj],cc+opt+'-size');observations.append(dict(kind='object',compiler=cc,optimization=opt,functions=sizes,helpers=helpers,limits='Function sizes and raw callback/policy branches are measured; no presumed speed ranking.'))

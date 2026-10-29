@@ -1,6 +1,7 @@
 """Fresh C17 hosted tag/reservation/frame/rollback/teardown mechanism campaign."""
 import argparse,hashlib,json,os,subprocess,sys
 from pathlib import Path
+from c_source import find_all
 ROOT=Path(__file__).resolve().parents[1];LAB=ROOT/'labs/kernel_followthrough/contracts';REF=ROOT/'assessor/kernel_followthrough/contracts'
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def main(work):
@@ -28,7 +29,7 @@ def main(work):
    closed=work/(cc+'-closed.o');run(cc+'-close',['ld','-r',*objects,'-o',closed]);check(cc+'-no-runtime-imports',not run(cc+'-undefined',['nm','-u',closed]).strip())
    original=(REF/'contracts.c').read_text();mutations=[('optional','tags','if (type == 1) {','if (0) {'),('reserved','reservations','if (type != 1 && base < hi && lo < end)','if (0 && base < hi && lo < end)'),('rollback','allocation','(void)cmk_frame_put(&p->frames, s->pages[first + i].frame);','/* leak allocated frame */'),('handoff','lifecycle','slot == c->cr3_owner ||','')]
    for name,group,old,new in mutations:
-    assert original.count(old)==(2 if name=='handoff' else 1),(name,original.count(old));source=work/(cc+'-'+name+'.c');source.write_text(original.replace(old,new,1));exe=work/(cc+'-'+name);run(cc+'-'+name+'-build',[cc,'-std=c17','-O2','-Wall','-Wextra',*includes,LAB/'tests.c',source,files[2],'-o',exe]);check(cc+'-'+name+'-killed','KF_CHECK:' in run(cc+'-'+name,[exe,group],1))
+    spans=find_all(original,old);assert len(spans)==(2 if name=='handoff' else 1),(name,len(spans));source=work/(cc+'-'+name+'.c');source.write_text(original[:spans[0][0]]+new+original[spans[0][1]:]);exe=work/(cc+'-'+name);run(cc+'-'+name+'-build',[cc,'-std=c17','-O2','-Wall','-Wextra',*includes,LAB/'tests.c',source,files[2],'-o',exe]);check(cc+'-'+name+'-killed','KF_CHECK:' in run(cc+'-'+name,[exe,group],1))
   exe=work/'stub';run('stub-build',['gcc','-std=c17','-O2',*includes,LAB/'tests.c',LAB/'contracts.c',ROOT/'assessor/kernel/model.c','-o',exe]);check('stub-incomplete','KF_CHECK:' in run('stub',[exe,'tags'],1));check('source-stable',all(sha(ROOT/p)==h for p,h in before.items()))
  except Exception as e:passed=False;error=repr(e)
  else:passed=True;error=None

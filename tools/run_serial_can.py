@@ -1,6 +1,7 @@
 """Source-bound Classic CAN codec/FCE/selected bxCAN campaign; no hardware claim."""
 import datetime,hashlib,json,pathlib,shutil,sys
 import run_thread_lifecycle as harness
+from c_source import replace_unique
 ROOT=pathlib.Path(__file__).resolve().parents[1];HERE=ROOT/'research/v5/expansion/legacy_serial_can';PUBLIC=ROOT/'labs/serial_followthrough/can';PRIVATE=ROOT/'assessor/serial_followthrough/can';BUILD=ROOT/'build'/('serial-can-'+datetime.datetime.now().strftime('%Y%m%d%H%M%S'))
 PROFILES=[('debug',['-O0','-g']),('optimized',['-O3']),('sanitized',['-O1','-g','-fsanitize=address,undefined','-fno-omit-frame-pointer'])]
 CASES=['arbitration','codec','stream','fault','timing','fifo','mailbox','recovery','port']
@@ -27,8 +28,8 @@ def main():
  def compile(tag,cc,opt,stub=False,numeric=False):
   b=BUILD/tag;serial=ROOT/('labs/serial_depth/src/serial_depth.c' if stub else 'assessor/serial_depth/serial_depth.c')
   if numeric:
-   old=serial.read_text();needle='  n = arb(a, x);';assert old.count(needle)==1
-   serial=BUILD/'numeric-mutant.c';serial.write_text(old.replace(needle,'  *winner=a->identifier < b->identifier ? -1 : a->identifier > b->identifier ? 1 : 0; return SD_OK;\n'+needle))
+   old=serial.read_text()
+   serial=BUILD/'numeric-mutant.c';serial.write_text(replace_unique(old,'n = arb(a, x);','*winner=a->identifier < b->identifier ? -1 : a->identifier > b->identifier ? 1 : 0; return SD_OK;\n  n = arb(a, x);'))
   s=[PUBLIC/'learner.c'] if stub else [PRIVATE/n for n in SOURCES]
   run(tag+'.compile',[cc,*flags,*opt,*s,serial,PUBLIC/'tests.c',PUBLIC/'controller_tests.c',PUBLIC/'native.c','-o',b]);return b
  def target(tag,cc='arm-none-eabi-gcc',opt='0',definition=None,stub=False):

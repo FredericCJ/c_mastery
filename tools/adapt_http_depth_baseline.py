@@ -1,6 +1,7 @@
 """Auditable copied-source adapter; never edits accepted baseline files."""
 import argparse,hashlib,json
 from pathlib import Path
+from c_source import replace_unique
 ROOT=Path(__file__).resolve().parents[1]
 OLD="""    size_t len = 0;
     for (size_t i = 0; i < z; i++) {
@@ -18,6 +19,6 @@ NEW="""    uint32_t len = 0;
        This preserves its TE+CL-before-body-cap precedence. */
     p->remaining = decision == 413 ? 1025 : len;"""
 def main():
- p=argparse.ArgumentParser();p.add_argument('--output',type=Path,required=True);a=p.parse_args();source=ROOT/'assessor/communications/http.c';text=source.read_text(encoding='utf8');assert text.count(OLD)==1,'Retained source anchor changed; review adaptation, never silently bypass.'
- a.output.parent.mkdir(parents=True,exist_ok=True);a.output.write_text('#include "http_depth.h"\n'+text.replace(OLD,NEW),encoding='utf8');print(json.dumps(dict(source='assessor/communications/http.c',source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),output=str(a.output),changed_branch='Content-Length decimal parser only',scope='Explicit derived test copy; no accepted source mutation.')))
+ p=argparse.ArgumentParser();p.add_argument('--output',type=Path,required=True);a=p.parse_args();source=ROOT/'assessor/communications/http.c';text=source.read_text(encoding='utf8');adapted=replace_unique(text,OLD,NEW.lstrip())
+ a.output.parent.mkdir(parents=True,exist_ok=True);a.output.write_text('#include "http_depth.h"\n'+adapted,encoding='utf8');print(json.dumps(dict(source='assessor/communications/http.c',source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),output=str(a.output),changed_branch='Content-Length decimal parser only',scope='Explicit derived test copy; no accepted source mutation.')))
 if __name__=='__main__':main()

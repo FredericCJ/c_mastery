@@ -1,6 +1,7 @@
 """Reject missing, stale, or overstated reference-counting evidence."""
 import argparse,copy,json
 from check_replicated_replay_depth import ROOT,base,bindings,sha
+from c_source import find_unique
 REPORT='research/v5/modern/ownership_references_validation.json'
 COST='research/v5/modern/ownership_references_investigation_validation.json'
 PROFILES={a+'-'+b for a in ['gcc','clang'] for b in ['debug','release','asan']}
@@ -56,7 +57,7 @@ def check(d,q,files=True):
             text=(ROOT/r['log']).read_text(encoding='utf8');assert all(s in text for s in ['ORC_BASE actual-nonatomic','ORC_OVERFLOW actual-maximum-refusal','ORC_CYCLE actual-allocated-two-nodes','ORC_FAILURE raw-versus-typed-acquisition','ORC_THREADS actual-four-owned-workers','ORC_RACE synchronized-start rounds256','100% tests passed'])
         for r in d['generated_artifacts']:
             if r['path'].endswith('compile_commands.json'):assert all('-std=c17' in c['command'] for c in json.loads((ROOT/r['path']).read_text()))
-        provider=(ROOT/'assessor/ownership/ownership.c').read_text(encoding='utf8');slice_record=next(r for r in q['generated_artifacts'] if r['path'].endswith('atomic_provider.c'));assert (ROOT/slice_record['path']).read_text(encoding='utf8')=='#include "ownership.h"\n#include <limits.h>\n'+provider[provider.index('static OwStatus atomic_increment('):provider.index('OwStatus ow_cow_clone(')]
+        provider=(ROOT/'assessor/ownership/ownership.c').read_text(encoding='utf8');slice_record=next(r for r in q['generated_artifacts'] if r['path'].endswith('atomic_provider.c'));assert (ROOT/slice_record['path']).read_text(encoding='utf8')=='#include "ownership.h"\n#include <limits.h>\n'+provider[find_unique(provider,'static OwStatus atomic_increment(')[0]:find_unique(provider,'OwStatus ow_cow_clone(')[0]]
         m=json.loads((ROOT/'curriculum/v5/exercises/X-T66-006.md').read_text(encoding='utf8').split('```json\n',1)[1].split('\n```',1)[0]);assert {'ownership.'+a for a in ANCHORS}<=set(m['lab']['tests']) and 'labs/ownership/references/REFERENCES.md' in m['shared_contracts']
     return True
 def selftest(d,q):

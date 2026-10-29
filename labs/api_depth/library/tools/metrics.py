@@ -2,8 +2,15 @@
 import json,pathlib,re,sys
 text=pathlib.Path(sys.argv[1]).read_text();results={}
 for name in ['lc_construct','lc_construct_nested','lc_construct_helpers','acquire_step','lc_destroy']:
- match=re.search(r'\b'+name+r'\([^;]+?\)\s*\{',text);assert match,name
- depth=1;i=match.end();start=i
+ # The definition is the one "name(...)" whose balanced parentheses are followed by "{", whatever the line breaks.
+ definitions=[]
+ for call in re.finditer(r'\b'+name+r'\s*\(',text):
+  depth=1;i=call.end()
+  while depth and i<len(text):depth+=(text[i]=='(')-(text[i]==')');i+=1
+  brace=re.compile(r'\s*\{').match(text,i)
+  if brace:definitions.append(brace.end())
+ assert len(definitions)==1,(name,len(definitions))
+ depth=1;i=definitions[0];start=i
  while depth:
   depth+=(text[i]=='{')-(text[i]=='}');i+=1
  body=text[start:i-1];tokens=re.findall(r'\b(?:if|for|while|case)\b|&&|\|\||\?',body)

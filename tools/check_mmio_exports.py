@@ -1,6 +1,7 @@
 """Initialize the actual project; reject stubs and target width faults."""
 from pathlib import Path
 import datetime,hashlib,json,subprocess,sys
+from c_source import replace_unique
 ROOT=Path(__file__).resolve().parents[1]
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def main():
@@ -22,7 +23,7 @@ def main():
   flags=['--target','--type-headers','/home/frede/cmastery-freestanding-tools/root/usr/include/newlib']
   run('compiled target learner rejected',[sys.executable,runner,*flags,'--build',dest/'target-stub'],1,'PM_TARGET_REJECT')
   run('external target reference',[sys.executable,runner,*flags,'--source',ROOT/'assessor/peripheral_depth/mmio/target.c','--build',dest/'target-ref'],0,'PM_TARGET_PASS')
-  bad=dest.parent/(dest.name+'-wrong_width.c');bad.write_text((ROOT/'assessor/peripheral_depth/mmio/target.c').read_text().replace('return p->idr;','uint32_t v; __asm__ volatile ("ldrh %0,[%1,#16]" : "=r"(v) : "r"(p) : "memory"); return v;'))
+  bad=dest.parent/(dest.name+'-wrong_width.c');bad.write_text(replace_unique((ROOT/'assessor/peripheral_depth/mmio/target.c').read_text(),'return p->idr;','uint32_t v; __asm__ volatile ("ldrh %0,[%1,#16]" : "=r"(v) : "r"(p) : "memory"); return v;'))
   run('compiled wrong-width rejected',[sys.executable,runner,*flags,'--source',bad,'--build',dest/'target-width'],1,'PM_TARGET_REJECT')
   # The temporary negative is assessor evaluation input after leakage checking,
   # never an exported learner artifact or a reference moved into the public tree.

@@ -3,6 +3,7 @@ import argparse,copy,functools,hashlib,json,pathlib,sys
 ROOT=pathlib.Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT));HERE=ROOT/'research/v5/expansion/legacy_algorithm_heap'
 from research.v5.expansion.legacy_algorithm_heap.author_support import attach
 import run_algorithm_heap as runner
+from c_source import find_unique,function_span
 from close_algorithm_heap import ARTIFACTS,REMAINING,RATIONALES,evidence,dimensions,canon
 @functools.lru_cache(None)
 def contents(p,size,mtime):return p.read_bytes()
@@ -51,7 +52,7 @@ def validate(d,r):
  for o in obs:need(o==dict(profile=o.get('profile'),cases=runner.CASES,fixture_comparisons=[3,4,2],complete_swap_snapshots=3,prior_build_cells=136,prior_updates_per_nonempty_cell=3,retirement_rounds_per_mode=3,exhaustive_alphabet=3,exhaustive_max_length=6,maximum_scalar_length=1024,metric_is_machine_instructions=False,physical=False),'exact bounded observations')
  generated=[ROOT/n for n in r.get('outputs_sha256',{}) if n.endswith('/heap_adapter.c')];need(len(generated)==1,'one actual adapter source')
  if generated:
-  original=data(ROOT/'assessor/containers_depth/ordered.c').decode('utf8').replace('\r\n','\n');body=original[original.index('static int before('):original.index('void cd_tree_init(')];start=body.index('static void sink(');end=body.index('\nvoid cd_heap_init',start);body=body[:start]+'static void sink(CDHeap*h,unsigned at){ah_cd_sink(h,at);}\n'+body[end:];body=body.replace('cd_heap_','ah_heap_');need(data(generated[0]).decode('utf8')=='#include "heap.h"\n#define CD_MUTANT 0\n'+body,'only prior sink changed apart from public namespace')
+  original=data(ROOT/'assessor/containers_depth/ordered.c').decode('utf8').replace('\r\n','\n');body=original[find_unique(original,'static int before(')[0]:find_unique(original,'void cd_tree_init(')[0]];start,end=function_span(body,'sink');body=body[:start]+'static void sink(CDHeap*h,unsigned at){ah_cd_sink(h,at);}\n'+body[end:];body=body.replace('cd_heap_','ah_heap_');need(data(generated[0]).decode('utf8')=='#include "heap.h"\n#define CD_MUTANT 0\n'+body,'only prior sink changed apart from public namespace')
  exports=read(HERE/'exports.json');need(exports.get('status')=='pass' and len(exports.get('commands',[]))==11 and all(x.get('passed') is True for x in exports['commands']),'actual learner export')
  for key in ['source_sha256','outputs_sha256']:
   for name,h in exports.get(key,{}).items():need((ROOT/name).is_file() and sha(ROOT/name)==h,'stale export '+name)

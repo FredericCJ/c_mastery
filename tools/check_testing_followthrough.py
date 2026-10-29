@@ -4,6 +4,7 @@ from datetime import datetime,timezone
 from functools import lru_cache
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
+from c_source import find_unique
 from run_testing_followthrough import LAB,REF,BASE,PROFILES,sources,sha
 @lru_cache(maxsize=None)
 def read(path):
@@ -66,7 +67,8 @@ def validate_campaign(v):
  need('NON TERMINATING FUNCTION' in text('eva-1'),'Invalid execution pruning must remain visible')
  need('-fanalyzer' in rows['warnings-packet']['command'],'Missing compiler analyzer probe')
  suppression=json.loads((REF/'suppression.json').read_text());need(suppression['source_sha256']==sha(ROOT/suppression['source']) and suppression['disposition'].startswith('Reject global suppression') and suppression['owner']=='T32 packet component maintainer','Invalid warning disposition')
- need('packet_analysis.c:10: Warning:' in text('eva-1') and suppression['mechanism_key']=='unchecked/payload-read/count-extent','Suppression warning not matched by mechanism')
+ asource=(ROOT/suppression['source']).read_text();alarm_line=asource.count('\n',0,find_unique(asource,suppression['alarm_anchor'])[0])+1
+ need('packet_analysis.c:%d: Warning:'%alarm_line in text('eva-1') and suppression['mechanism_key']=='unchecked/payload-read/count-extent','Suppression warning not matched by mechanism')
  # Same weak branch coverage, different state effects; full decision condition outcome counts.
  coverage=v['coverage'];need([r['mutant'] for r in coverage]==[0,4],'Missing coverage counterexample')
  weak=[read(r['weak']).decode() for r in coverage];branch=lambda s:re.findall(r'^branch.*$',s,re.M)

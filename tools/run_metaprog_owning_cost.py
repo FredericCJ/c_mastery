@@ -10,6 +10,19 @@ import subprocess
 import tempfile
 import time
 from common import ROOT,dump,sha
+from c_source import significant,tokenize
+def function_names(text,pattern,types):
+    # Definitions "TYPE NAME(...) {" found by token sequence, so wrapped parameter lists match.
+    tokens=significant(tokenize(text));names=[]
+    for i,t in enumerate(tokens[:-1]):
+        if t.kind!='ident' or not re.fullmatch(pattern,t.text) or i==0 or tokens[i-1].text not in types or tokens[i+1].text!='(' or (i>1 and tokens[i-2].text not in (';','}')):continue
+        depth=0;j=i+1
+        while j<len(tokens):
+            depth+=(tokens[j].text=='(')-(tokens[j].text==')')
+            if depth==0:break
+            j+=1
+        if j+1<len(tokens) and tokens[j+1].text=='{':names.append(t.text)
+    return names
 def run():
     paths=['tools/run_metaprog_owning_cost.py','tools/common.py','labs/metaprog/owning_ring/include/owning_ring.h','assessor/metaprog/owning_ring/owning_ring.c','assessor/metaprog/owning_ring/ring_template.inc','assessor/metaprog/owning_ring/manual.c','assessor/metaprog/owning_ring/erased.c','labs/metaprog/owning_ring/CMakeLists.txt','labs/metaprog/owning_ring/tests/tests.c','labs/metaprog/owning_ring/expect_failure.py','labs/metaprog/include/metaprog.h','assessor/metaprog/metaprog.c','assessor/metaprog/ring_template.inc']
     inputs={p:sha(ROOT/p) for p in paths};external={};records=[];observations=[];artifacts=[]
@@ -53,7 +66,7 @@ def run():
             exe=tmp/(cc+'-two-clients');execute([cc,*flags,a,b,core,'-o',exe],cc+'-two-clients');execute([exe],cc+'-two-clients-run');observations.append(dict(kind='link',compiler=cc,case='two-declaration-clients',passed=True))
             execute([cc,*flags,a,b,guarded,'-o',exe],cc+'-guard-suppression',1,'mpo_words_init');observations.append(dict(kind='diagnostic',compiler=cc,case='guard-suppression',passed=True))
             execute([cc,*flags,a,b,core,core,'-o',exe],cc+'-duplicate-definition',1,'multiple definition');observations.append(dict(kind='diagnostic',compiler=cc,case='duplicate-definition',passed=True))
-            text=execute([cc,*flags,'-E','-P',core],cc+'-preprocess');symbols=re.findall(r'^(?:int|void) (mpo_(?:blob|words)_\w+)\([^;\n]*\)\s*\{',text,re.MULTILINE)
+            text=execute([cc,*flags,'-E','-P',core],cc+'-preprocess');symbols=function_names(text,r'mpo_(?:blob|words)_\w+',('int','void'))
             assert len(symbols)==8 and len(set(symbols))==8;observations.append(dict(kind='preprocess',compiler=cc,bytes=len(text.encode()),tokens=len(re.findall(r'\w+|[^\w\s]',text)),definitions=symbols))
             for opt in ['0','3']:
                 for kind,path in [('one-generated',one),('two-generated',core),('manual',ROOT/'assessor/metaprog/owning_ring/manual.c'),('erased',ROOT/'assessor/metaprog/owning_ring/erased.c')]:

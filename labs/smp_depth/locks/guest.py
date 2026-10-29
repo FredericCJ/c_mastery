@@ -1,15 +1,21 @@
 """Explicit composition of completed startup and lock learner adapters."""
-import argparse,hashlib,importlib.util,json,shutil,subprocess
+import argparse,hashlib,importlib.util,json,re,shutil,subprocess
 from pathlib import Path
 PUBLIC=Path(__file__).resolve().parent
+def spans(text,anchor):
+ pattern=r'\s*'.join(re.escape(t) for t in re.findall(r'[A-Za-z_]\w*|\d+|[^\s]',anchor));return [m.span() for m in re.finditer(pattern,text)]
+def swap(text,anchor,replacement):
+ found=spans(text,anchor)
+ if len(found)!=1:raise ValueError('Startup prerequisite changed; inspect hook before composing')
+ return text[:found[0][0]]+replacement+text[found[0][1]:]
 def prepare(lab,kernel,startup_public,startup_completed,implementation,work,kind=0,mutant=0,compiler='gcc',optimization='-O2',observer=None):
  if kind not in (0,1,2) or mutant not in (0,1,2):raise ValueError('Unknown experiment')
  work.mkdir(parents=True,exist_ok=False);adapter=work/'composed';adapter.mkdir()
  old=(startup_completed/'startup_guest.c').read_text(encoding='utf-8')
  parked='void ss_parked(unsigned index){\n __atomic_store_n(&ss_observed[index].quiescent,1,__ATOMIC_RELEASE);\n for(;;)__asm__ volatile("cli;hlt");\n}'
- if old.count(parked)!=1 or old.count('text("SS_GUEST_PASS:verified-generation-startup-and-quiescence\\n");')!=1:raise ValueError('Startup prerequisite changed; inspect hook before composing')
- old=old.replace(parked,'void ss_parked(unsigned index){\n __atomic_store_n(&ss_observed[index].quiescent,1,__ATOMIC_RELEASE);\n sl_worker(index);for(;;)__asm__ volatile("cli;hlt");\n}')
- old=old.replace('text("SS_GUEST_PASS:verified-generation-startup-and-quiescence\\n");','sl_bsp_enter((uintptr_t)(cpus[0].boot+sizeof cpus[0].boot));text("SL_GUEST_CHECK:unexpected-return\\n");')
+ if len(spans(old,parked))!=1 or len(spans(old,'text("SS_GUEST_PASS:verified-generation-startup-and-quiescence\\n");'))!=1:raise ValueError('Startup prerequisite changed; inspect hook before composing')
+ old=swap(old,parked,'void ss_parked(unsigned index){\n __atomic_store_n(&ss_observed[index].quiescent,1,__ATOMIC_RELEASE);\n sl_worker(index);for(;;)__asm__ volatile("cli;hlt");\n}')
+ old=swap(old,'text("SS_GUEST_PASS:verified-generation-startup-and-quiescence\\n");','sl_bsp_enter((uintptr_t)(cpus[0].boot+sizeof cpus[0].boot));text("SL_GUEST_CHECK:unexpected-return\\n");')
  (adapter/'startup_guest.c').write_text('static void sl_worker(unsigned);void sl_bsp(void);void sl_bsp_enter(uintptr_t);\n'+old+'\n'+(implementation/'locks_guest.c').read_text(encoding='utf-8'),encoding='utf-8',newline='\n')
  (adapter/'startup_trampoline.S').write_text((startup_completed/'startup_trampoline.S').read_text(encoding='utf-8')+'\n'+(implementation/'locks_frames.S').read_text(encoding='utf-8'),encoding='utf-8',newline='\n');shutil.copyfile(startup_completed/'startup.c',adapter/'startup.c');shutil.copyfile(implementation/'locks.c',adapter/'locks.c')
  spec=importlib.util.spec_from_file_location('locks_startup',startup_public/'guest.py');startup=importlib.util.module_from_spec(spec);spec.loader.exec_module(startup)

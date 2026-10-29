@@ -3,6 +3,19 @@ import argparse,hashlib,importlib.util,json,os,re,shutil,subprocess,sys,tempfile
 from datetime import datetime,timezone
 from pathlib import Path
 from statistics import median
+from c_source import replace_unique,tokenize
+def replace_in_comments(text,pattern,replacement,expected):
+ # ACSL annotations live in comments, which are not tokens for c_source matching;
+ # match layout-insensitively inside each comment and require the exact count.
+ out=[];pos=0;count=0;rx=re.compile(r'\s*'.join(re.escape(t) for t in pattern.split()))
+ for t in tokenize(text):
+  if t.kind=='comment':
+   hits=rx.findall(t.text)
+   if hits:
+    if len(hits)!=1:raise ValueError('ACSL anchor matched %d times in one comment: %s'%(len(hits),pattern))
+    out+=[text[pos:t.start],rx.sub(lambda _:replacement,t.text)];pos=t.end;count+=1
+ if count!=expected:raise ValueError('ACSL anchor matched %d comments, expected %d: %s'%(count,expected,pattern))
+ return ''.join(out)+text[pos:]
 ROOT=Path(__file__).resolve().parents[1];LAB=ROOT/'labs/build_followthrough';REF=ROOT/'assessor/build_followthrough';BASE=ROOT/'reviews/v5/expansion/legacy_build_followthrough'
 PROFILES=[('gcc-debug','gcc',['-O0']),('gcc-release','gcc',['-O3']),('gcc-sanitize','gcc',['-O1','-g','-fsanitize=address,undefined','-fno-omit-frame-pointer']),('clang-debug','clang',['-O0']),('clang-release','clang',['-O3']),('clang-sanitize','clang',['-O1','-g','-fsanitize=address,undefined','-fno-omit-frame-pointer'])]
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
@@ -96,7 +109,7 @@ def main(report):
    for p in measure:q=changed/p.name;shutil.copyfile(p,q);copies.append(q)
    mismatch=work/'mismatch';mp=work/'mismatch-profile';mp.mkdir()
    run(['gcc',*common,'-O3','-fprofile-generate='+str(mp),*copies,'-o',mismatch],'mismatch-train-build');run([mismatch,8,10,0],'mismatch-train')
-   text=copies[0].read_text();copies[0].write_text(text.replace('if(x<0)return 0;','if(x < -10)return 1;if(x<0)return 0;'))
+   text=copies[0].read_text();copies[0].write_text(replace_unique(text,'if(x<0)return 0;','if(x < -10)return 1;if(x<0)return 0;'))
    out,row=run(['gcc',*common,'-O3','-fprofile-use='+str(mp),'-Werror=coverage-mismatch',*copies,'-o',mismatch],'mismatch-diagnostic',expect=None)
    if row['exit_code']==0 or 'coverage-mismatch' not in out:raise ValueError('Missing intended PGO mismatch')
    # Archive plugin participation is retained through compile/archive/final-link commands.
@@ -122,7 +135,7 @@ def main(report):
     run([frama,'-version'],'framac-version');run([frama,'-wp-list-provers'],'wp-provers')
     wp=work/'wp.json';out,_=run([frama,'-wp','-wp-rte','-wp-prover','qed,z3','-wp-cache','none','-wp-print','-wp-deprecated-report-json='+str(wp),'-machdep','x86_64',REF/'proof.c'],'wp-goals',timeout=60);save(wp,'wp-goals.json')
     if '43 / 44' not in out or 'typed_false_bound_ensures' not in out:raise ValueError('WP goal inventory changed; inspect before acceptance')
-    widened=work/'widened.c';widened.write_text((REF/'proof.c').read_text().replace('a[k] <= 10','a[k] <= 4294967295'))
+    widened=work/'widened.c';widened.write_text(replace_in_comments((REF/'proof.c').read_text(),'a[k] <= 10','a[k] <= 4294967295',2))
     run([frama,'-wp','-wp-rte','-wp-prover','qed,z3','-wp-cache','none','-wp-fct','proved_sum','-machdep','x86_64',widened],'wp-widened-range',timeout=60);save(widened,'widened.c')
     for lower in ('-1','0'):run([frama,'-eva','-machdep','x86_64','-cpp-extra-args=-DEVA_MIN='+lower,LAB/'eva.c'],'eva-'+lower)
    else:v['open_gates'].append({'gate':'Frama-C WP/Eva actual execution','state':'unavailable','commands':[['frama-c','-wp','-wp-rte','-machdep','x86_64',str(LAB/'sum_wp.c')],['frama-c','-eva',str(LAB/'eva.c')]]})

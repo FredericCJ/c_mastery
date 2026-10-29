@@ -1,6 +1,7 @@
 """Reject unsupported map enumeration, adapter, export and target claims."""
 import argparse,copy,json
 from check_replicated_replay_depth import ROOT,base,bindings,sha
+from c_source import find_all
 BASE='research/v5/expansion/b02_followthrough'
 REPORT=BASE+'/map_validation.json';TARGET=BASE+'/map_target_validation.json';EXPORT=BASE+'/map_export_validation.json'
 PROFILES={a+'-'+b for a in ['gcc','clang'] for b in ['debug','release','asan']}
@@ -46,8 +47,9 @@ def check(d,t,e,files=True):
   bindings(d);bindings(t)
   for r in d['instrumented_sources']:
    assert sha(ROOT/r['source'])==r['source_sha256'] and sha(ROOT/r['recipe'])==r['recipe_sha256'] and sha(ROOT/r['path'])==r['sha256']
-   source=(ROOT/r['source']).read_text(encoding='utf8');needle='for(j=0;j<7;j++,i=(i+1)%7){';assert source.count(needle)==3
-   assert (ROOT/r['path']).read_text(encoding='utf8')=='extern void bf_probe(void);\n'+source.replace(needle,needle+'bf_probe();')
+   source=(ROOT/r['source']).read_text(encoding='utf8');needle='for(j=0;j<7;j++,i=(i+1)%7){';spans=find_all(source,needle);assert len(spans)==3
+   for _,end in reversed(spans):source=source[:end]+'bf_probe();'+source[end:]
+   assert (ROOT/r['path']).read_text(encoding='utf8')=='extern void bf_probe(void);\n'+source
   for r in mutants+learners:
    text=(ROOT/r['log']).read_text(encoding='utf8');assert 'BF_CHECK' in text and not any(s in text for s in ['AddressSanitizer','ThreadSanitizer','runtime error:'])
   for r in ctests:

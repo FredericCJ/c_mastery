@@ -1,6 +1,7 @@
 """Device ownership, capability, geometry and explicit VM workspace campaign."""
 import argparse,hashlib,importlib.util,json,os,subprocess
 from pathlib import Path
+from c_source import replace_unique
 ROOT=Path(__file__).resolve().parents[1]
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def main(work):
@@ -25,9 +26,9 @@ def main(work):
      run(name+'-build',[cc,'-std=c17','-Wall','-Wextra','-Werror',*flags,*includes,*(['-DKF_SCRATCH'] if scratch else []),runtime/'hosted.c',runtime/'probe.c',core,'-o',exe]);outputs.append(run(name,[exe]));check(name+'-six-distinct-outcomes',outputs[-1].count('KF_VM:')==6 and ('KF_VM_TAIL:1:6:7:3216:1076:'+('5120' if scratch else '0')) in outputs[-1])
     check(label+'-baseline-scratch-semantic-rows-identical',outputs[0].splitlines()[:6]==outputs[1].splitlines()[:6]);exe=work/(label+'-reentry');run(label+'-reentry-build',[cc,'-std=c17','-Wall','-Wextra','-Werror',*flags,*includes,runtime/'reentry.c',port/'cvm_scratch.c','-o',exe]);check(label+'-reentry-atomic','SCRATCH_REENTRY_REFUSED_UNCHANGED_RELEASED' in run(label+'-reentry',[exe]))
    for group in ('pci','queue','geometry','ordering','durability'):check(cc+'-memcheck-'+group,'ERROR SUMMARY: 0 errors' in run(cc+'-memcheck-'+group,['valgrind','--leak-check=full','--error-exitcode=89',work/(cc+'-O0'),group]))
-   original=ref.read_text();mutations=[('duplicate-cap','pci','(kinds & (1u << kind)) || ','0 || '),('aperture','pci','size > extent - off ||','0 ||'),('timeout-recycle','queue','r->state = KF_UNKNOWN;','r->state = KF_SUCCESS;'),('write-stable-too-early','queue','++q->completed_writes;','q->stable_writes = ++q->completed_writes;'),('slice-widen','geometry','logical >= count ||','0 ||'),('changed-sector','geometry','bytes != 512 ||','bytes == 0 ||')]
+   original=ref.read_text();mutations=[('duplicate-cap','pci','(kinds & (1u << kind)) ||','0 ||'),('aperture','pci','size > extent - off ||','0 ||'),('timeout-recycle','queue','r->state = KF_UNKNOWN;','r->state = KF_SUCCESS;'),('write-stable-too-early','queue','++q->completed_writes;','q->stable_writes = ++q->completed_writes;'),('slice-widen','geometry','logical >= count ||','0 ||'),('changed-sector','geometry','bytes != 512 ||','bytes == 0 ||')]
    for name,group,old,new in mutations:
-    assert original.count(old)==1,(name,original.count(old));source=work/(cc+'-'+name+'.c');source.write_text(original.replace(old,new));exe=work/(cc+'-'+name);run(cc+'-'+name+'-build',[cc,'-std=c17','-O2','-I'+str(lab),lab/'tests.c',source,'-o',exe]);check(cc+'-'+name+'-killed','KF_DEVICE_CHECK:' in run(cc+'-'+name,[exe,group],1))
+    source=work/(cc+'-'+name+'.c');source.write_text(replace_unique(original,old,new));exe=work/(cc+'-'+name);run(cc+'-'+name+'-build',[cc,'-std=c17','-O2','-I'+str(lab),lab/'tests.c',source,'-o',exe]);check(cc+'-'+name+'-killed','KF_DEVICE_CHECK:' in run(cc+'-'+name,[exe,group],1))
   exe=work/'stub';run('stub-build',['gcc','-std=c17','-I'+str(lab),lab/'tests.c',lab/'device.c','-o',exe]);check('stub-incomplete','KF_DEVICE_CHECK:' in run('stub',[exe,'pci'],1));check('source-stable',all(sha(ROOT/p)==h for p,h in before.items()))
  except Exception as e:passed=False;error=repr(e)
  else:passed=True;error=None

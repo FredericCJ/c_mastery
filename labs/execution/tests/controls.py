@@ -1,14 +1,18 @@
 """Known-bad controls: require an actual named assertion/guest failure."""
 from __future__ import annotations
-import argparse,json,pathlib,shutil,subprocess,sys
+import argparse,json,pathlib,re,shutil,subprocess,sys
 P=pathlib.Path
+def replace_tokens(text,anchor,replacement,name):
+ pattern=r'\s*'.join(re.escape(t) for t in re.findall(r'[A-Za-z_]\w*|\d+|[^\s]',anchor))
+ found=list(re.finditer(pattern,text))
+ if len(found)!=1:raise RuntimeError('Mutation token drift: '+name)
+ return text[:found[0].start()]+replacement+text[found[0].end():]
 def main():
  p=argparse.ArgumentParser();p.add_argument('--source',type=P,required=True);p.add_argument('--lab',type=P,required=True);p.add_argument('--build',type=P,required=True);p.add_argument('--cc',default='cc');a=p.parse_args();a.build.mkdir(parents=True,exist_ok=True);results=[]
  mutations=[('inheritance','cmx.c','pass < CMX_TASKS','pass < 0','inheritance'),('capacity','concurrent.c','(unsigned)(h - t) >= q->capacity','(unsigned)(h - t) > q->capacity','spsc'),('condition','cmx.c','relock(k, t, result);','ready(k, t, result);','condition')]
  for name,file,old,new,test in mutations:
   b=a.build/name;b.mkdir(exist_ok=True);source=(a.source/file).read_text()
-  if source.count(old)!=1:raise RuntimeError('Mutation token drift: '+name)
-  altered=b/file;altered.write_text(source.replace(old,new,1));files=[altered if f==file else a.source/f for f in ('cmx.c','concurrent.c','advanced.c')];exe=b/'control'
+  altered=b/file;altered.write_text(replace_tokens(source,old,new,name));files=[altered if f==file else a.source/f for f in ('cmx.c','concurrent.c','advanced.c')];exe=b/'control'
   c=subprocess.run([a.cc,'-std=c17','-O1','-I'+str(a.lab/'include'),*map(str,files),str(a.lab/'tests/contracts.c'),'-o',str(exe)],text=True,capture_output=True)
   if c.returncode:raise RuntimeError('Control build failed: '+c.stdout+c.stderr)
   r=subprocess.run([str(exe),test],text=True,capture_output=True,timeout=10);rejected=r.returncode==1 and 'FAIL ' in r.stderr

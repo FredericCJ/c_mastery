@@ -18,12 +18,29 @@ import tempfile
 PUBLIC=Path(__file__).resolve().parent
 
 def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
+def spans(text,anchor,start=0):
+    tokens=re.findall(r'[A-Za-z_]\w*|\d+|[^\s]',anchor);pattern=r'\s*'.join(re.escape(x) for x in tokens);found=[]
+    if tokens[0][0].isalnum() or tokens[0][0]=='_':pattern=r'(?<!\w)'+pattern
+    if tokens[-1][-1].isalnum() or tokens[-1][-1]=='_':pattern+=r'(?!\w)'
+    for m in re.finditer(pattern,text):
+        if m.start()<start:continue
+        lo,hi=m.span()
+        while anchor[:1] in (' ','\t') and text[lo-1:lo] in (' ','\t'):lo-=1
+        if anchor.endswith('\n'):
+            n=re.compile(r'[ \t]*\r?\n').match(text,hi);hi=n.end() if n else hi
+        found.append((lo,hi))
+    return found
 def patch_once(text,old,new):
-    if text.count(old)!=1:raise ValueError('Adapter import anchor drift: '+old[:70])
-    return text.replace(old,new)
+    found=spans(text,old)
+    if len(found)!=1:raise ValueError('Adapter import anchor drift: '+old[:70])
+    return text[:found[0][0]]+new+text[found[0][1]:]
+def boundary(text,anchor,after=None):
+    found=spans(text,anchor,after or 0)
+    if not found or (after is None and len(found)!=1):raise ValueError('Function boundary drift: '+anchor[:70])
+    return found[0][0]
 def replace_function(text,start,end,body):
-    if text.count(start)!=1 or text.count(end)!=1:raise ValueError('Function boundary drift')
-    lo=text.index(start);hi=text.index(end,lo)
+    if len(spans(text,start))!=1 or len(spans(text,end))!=1:raise ValueError('Function boundary drift')
+    lo=boundary(text,start);hi=boundary(text,end,lo)
     return text[:lo]+body+'\n'+text[hi:]
 def main(argv=None, provenance="explicit-user-supplied-imports", extra_inputs=()):
     p=argparse.ArgumentParser();p.add_argument('--report',type=Path);p.add_argument('--only',default='positive');p.add_argument('--cpus',default='2');p.add_argument('--suite',choices=['services','receipts'],default='services');p.add_argument('--cut',type=int,default=-1);p.add_argument('--compiler',default='gcc');p.add_argument('--optimization',choices=['-O0','-O2'],default='-O2')
@@ -78,15 +95,16 @@ def main(argv=None, provenance="explicit-user-supplied-imports", extra_inputs=()
         # ISO C atomic operation on the retained _Atomic object; GNU __atomic
         # accepts this extension but Clang correctly rejects that operand form.
         kernel='#include <stdatomic.h>\n'+kernel
-        if kernel.count('__atomic_fetch_add(&ticks,1,__ATOMIC_RELAXED)')!=2:raise ValueError('Atomic tick import drift')
-        kernel=kernel.replace('__atomic_fetch_add(&ticks,1,__ATOMIC_RELAXED)','atomic_fetch_add_explicit(&ticks,1,memory_order_relaxed)')
+        ticks=spans(kernel,'__atomic_fetch_add(&ticks,1,__ATOMIC_RELAXED)')
+        if len(ticks)!=2:raise ValueError('Atomic tick import drift')
+        for lo,hi in reversed(ticks):kernel=kernel[:lo]+'atomic_fetch_add_explicit(&ticks,1,memory_order_relaxed)'+kernel[hi:]
         kernel=patch_once(kernel,'UT_IO, UT_DEAD','UT_IO, UT_SD_WAIT, UT_DEAD')
         kernel=replace_function(kernel,'static int load_task(', 'static void activate(', '#include "load.inc"')
         kernel=patch_once(kernel,'#include "os.inc"','static void sd_process_cleanup(unsigned);\nstatic void sd_fork_files(unsigned,unsigned);\nstatic void sd_thread_cleanup(unsigned);\n#include "os.inc"\n#include "services.inc"')
         kernel=patch_once(kernel,'return syscall_v2(f);','return f->rax>=SDK_LOAD_PROBE?sd_syscall(f):syscall_v2(f);')
         kernel=replace_function(kernel,'static void complete(void)', 'static struct frame *schedule(void)',
           'static void complete(void){if(primary_failure)panic("sd user failure");say("PASS sd-guest-complete\\n");stop(1);}')
-        lo=kernel.index('  if (load_task(boot_mode == 2');hi=kernel.index('  say("PASS elf-load',lo)
+        lo=boundary(kernel,'  if (load_task(boot_mode == 2');hi=boundary(kernel,'  say("PASS elf-load',lo)
         kernel=kernel[:lo]+'  if(load_task("init",1))panic("sd init ELF");\n'+kernel[hi:]
         (staged/'kernel.c').write_text(kernel)
         os_text=(SOURCE/'os.inc').read_text();os_text=patch_once(os_text,'struct task *p=&tasks[id];p->status=status;', 'sd_process_cleanup(id);struct task *p=&tasks[id];p->status=status;')

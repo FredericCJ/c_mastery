@@ -1,14 +1,31 @@
 """Explicit source composition for the original disposable SMP teaching guest."""
-import argparse,hashlib,importlib.util,json,os,shutil,subprocess,tempfile
+import argparse,hashlib,importlib.util,json,os,re,shutil,subprocess,tempfile
 from pathlib import Path
 PUBLIC=Path(__file__).resolve().parent
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+def spans(text,anchor,start=0):
+ tokens=re.findall(r'[A-Za-z_]\w*|\d+|[^\s]',anchor);pattern=r'\s*'.join(re.escape(x) for x in tokens);found=[]
+ if tokens[0][0].isalnum() or tokens[0][0]=='_':pattern=r'(?<!\w)'+pattern
+ if tokens[-1][-1].isalnum() or tokens[-1][-1]=='_':pattern+=r'(?!\w)'
+ for m in re.finditer(pattern,text):
+  if m.start()<start:continue
+  lo,hi=m.span()
+  while anchor[:1] in (' ','\t') and text[lo-1:lo] in (' ','\t'):lo-=1
+  if anchor.endswith('\n'):
+   n=re.compile(r'[ \t]*\r?\n').match(text,hi);hi=n.end() if n else hi
+  found.append((lo,hi))
+ return found
 def once(text,old,new):
- if text.count(old)!=1:raise ValueError('Versioned import anchor drift: '+old[:90])
- return text.replace(old,new)
+ found=spans(text,old)
+ if len(found)!=1:raise ValueError('Versioned import anchor drift: '+old[:90])
+ return text[:found[0][0]]+new+text[found[0][1]:]
+def boundary(text,anchor,after=None):
+ found=spans(text,anchor,after or 0)
+ if not found or (after is None and len(found)!=1):raise ValueError('Versioned import section drift: '+anchor[:90])
+ return found[0][0]
 def section(text,start,end,new):
- if text.count(start)!=1 or text.count(end)!=1:raise ValueError('Versioned import section drift')
- lo=text.index(start);hi=text.index(end,lo);return text[:lo]+new+'\n'+text[hi:]
+ if len(spans(text,start))!=1 or len(spans(text,end))!=1:raise ValueError('Versioned import section drift')
+ lo=boundary(text,start);hi=boundary(text,end,lo);return text[:lo]+new+'\n'+text[hi:]
 def main():
  p=argparse.ArgumentParser();p.add_argument('--kernel-source',type=Path,required=True);p.add_argument('--kernel-lab',type=Path,required=True);p.add_argument('--sdk-source',type=Path,required=True);p.add_argument('--sdk-public',type=Path,required=True);p.add_argument('--source',type=Path,required=True);p.add_argument('--work',type=Path,required=True);p.add_argument('--cc',choices=['gcc','clang'],default='gcc');p.add_argument('--opt',choices=['O0','O2'],default='O2');p.add_argument('--cpus',type=int,choices=[1,2,4],default=2);p.add_argument('--case',type=int,default=1);p.add_argument('--define',default='');p.add_argument('--expected',type=int,default=33);p.add_argument('--marker',default='PASS sf-complete');a=p.parse_args();root=Path.cwd().resolve();work=a.work.resolve();work.mkdir(parents=True,exist_ok=False)
  source=a.source.resolve();kernel=a.kernel_source.resolve();lab=a.kernel_lab.resolve();sdk=a.sdk_source.resolve();sdkpublic=a.sdk_public.resolve();rows=[]
@@ -39,24 +56,27 @@ def main():
   shutil.copyfile(PUBLIC/'kernel/abi.h',staged/'abi.h');shutil.copyfile(sdkpublic/'kernel_abi.h',staged/'kernel_abi.h')
   boot=(staged/'boot.S').read_text();(staged/'boot.S').write_text(once(boot,'-(0xe85250d6+24)','(-(0xe85250d6+24)) & 0xffffffff'))
   text=(kernel/'kernel.c').read_text();text='#include <stdatomic.h>\n#include "abi.h"\n'+text
-  assert text.count('__atomic_fetch_add(&ticks,1,__ATOMIC_RELAXED)')==2;text=text.replace('__atomic_fetch_add(&ticks,1,__ATOMIC_RELAXED)','atomic_fetch_add_explicit(&ticks,1,memory_order_relaxed)')
+  ticks=spans(text,'__atomic_fetch_add(&ticks,1,__ATOMIC_RELAXED)');assert len(ticks)==2
+  for lo,hi in reversed(ticks):text=text[:lo]+'atomic_fetch_add_explicit(&ticks,1,memory_order_relaxed)'+text[hi:]
   text=once(text,'UT_IO, UT_DEAD','UT_IO, UT_SD_WAIT, UT_SF_WAIT, UT_DEAD')
   text=once(text,'#include "async.inc"','static unsigned sf_io_hold;\n#include "async.inc"')
   text=once(text,'static int materialize(', '#include "faults.inc"\nstatic int materialize(')
-  lo=text.index('static int materialize(');hi=text.index('static int user_ok(',lo);piece=text[lo:hi];assert piece.count('cmk_frame_take(&frames)')==2;text=text[:lo]+piece.replace('cmk_frame_take(&frames)','sf_fault_take()')+text[hi:]
+  lo=boundary(text,'static int materialize(');hi=boundary(text,'static int user_ok(',lo);piece=text[lo:hi];takes=spans(piece,'cmk_frame_take(&frames)');assert len(takes)==2
+  for a_,b_ in reversed(takes):piece=piece[:a_]+'sf_fault_take()'+piece[b_:]
+  text=text[:lo]+piece+text[hi:]
   text=section(text,'static int load_task(', 'static void activate(', '#include "load.inc"')
   text=once(text,'#include "os.inc"','static void sd_process_cleanup(unsigned);\nstatic void sd_fork_files(unsigned,unsigned);\nstatic void sd_thread_cleanup(unsigned);\nstatic void sf_process_cleanup(unsigned);\nstatic void sf_thread_cleanup(unsigned);\nstatic void sf_fork_maps(unsigned,unsigned);\n#include "os.inc"\n#include "services.inc"\n#include "extra.inc"')
   text=once(text,'return syscall_v2(f);','return f->rax>=SF_INFO?sf_syscall(f):(f->rax>=SDK_LOAD_PROBE?sd_syscall(f):syscall_v2(f));')
   text=section(text,'static void complete(void)', 'static struct frame *schedule(void)', 'static void complete(void){if(primary_failure)panic("sf user failure");say("PASS sf-complete\\n");stop(1);}')
-  lo=text.index('  if (load_task(boot_mode == 2');hi=text.index('  say("PASS elf-load',lo);text=text[:lo]+'  if(load_task("init",1))panic("sf init ELF");\n'+text[hi:]
+  lo=boundary(text,'  if (load_task(boot_mode == 2');hi=boundary(text,'  say("PASS elf-load',lo);text=text[:lo]+'  if(load_task("init",1))panic("sf init ELF");\n'+text[hi:]
   text=section(text,'  if (f->vector == 14 && uthreads[current].process == 3', '  say("user fault ");','')
   text=once(text,'static unsigned faults,primary_failure;','static unsigned primary_failure;')
-  text=once(text,'  kernel_lock();\n','  sf_fault_before_lock(f);\n  kernel_lock();\n')
+  text=once(text,'  else if(f->vector==241)cmk2_eoi();\n  kernel_lock();\n','  else if(f->vector==241)cmk2_eoi();\n  sf_fault_before_lock(f);\n  kernel_lock();\n')
   (staged/'kernel.c').write_text(text)
   text=(kernel/'async.inc').read_text();text=once(text,'if(!async_pending)return;','if(!async_pending||sf_io_hold)return;');(staged/'async.inc').write_text(text)
   text=(kernel/'os.inc').read_text();text=once(text,'struct task *p=&tasks[id];p->status=status;','sf_process_cleanup(id);sd_process_cleanup(id);struct task *p=&tasks[id];p->status=status;');text=once(text,'uthreads[tid].frame->rax=0;if(child==task_count)','sf_fork_maps(pid,child);sd_fork_files(pid,child);uthreads[tid].frame->rax=0;if(child==task_count)');text=once(text,'struct uthread *u=&uthreads[current];u->status=(int)a;','sf_thread_cleanup(current);sd_thread_cleanup(current);struct uthread *u=&uthreads[current];u->status=(int)a;')
   # The final function consumes the remainder of this frozen os.inc version.
-  anchor='static int page_fault_v2(';assert text.count(anchor)==1;text=text[:text.index(anchor)]+'''static int page_fault_v2(struct frame *f){
+  anchor='static int page_fault_v2(';text=text[:boundary(text,anchor)]+'''static int page_fault_v2(struct frame *f){
  uint64_t a;__asm__ volatile("mov %%cr2,%0":"=r"(a));
  if(a<CMK_USER_BASE||a>=CMK_USER_LIMIT)return 0;
  struct task *p=&tasks[uthreads[current].process];unsigned i=(unsigned)((a-CMK_USER_BASE)/4096);

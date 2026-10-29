@@ -3,6 +3,7 @@ import argparse,copy,functools,hashlib,json,pathlib,sys
 ROOT=pathlib.Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT));HERE=ROOT/'research/v5/expansion/legacy_algorithm_tree'
 from research.v5.expansion.legacy_algorithm_tree.author_support import attach
 import run_algorithm_tree as runner
+from c_source import find_unique
 from close_algorithm_tree import ARTIFACTS,REMAINING,RATIONALES,evidence,dimensions,canon
 @functools.lru_cache(None)
 def contents(p,size,mtime):return p.read_bytes()
@@ -50,7 +51,7 @@ def validate(d,r):
  for o in obs:need(o==dict(profile=o.get('profile'),cases=runner.CASES,actual_certificates=15,deletion_distinct_repairs=2,scan_slot_checks=2080,free_slot_checks=64,reuse_pairs=32,search_nodes=[2,3],key_predicates=[3,5],serialized_admissions=1,split_admissions=2,physical=False),'exact bounded observations')
  generated=[ROOT/n for n in r.get('outputs_sha256',{}) if n.endswith('/baseline.c')];need(len(generated)==1,'one actual baseline source')
  if generated:
-  original=data(ROOT/'assessor/algorithms/algo.c').decode('utf8').replace('\r\n','\n');body=original[original.index('void algo_avl_init('):original.index('int algo_sets_init(')];need(data(generated[0]).decode('utf8')=='#include "tree.h"\nvoid *memset(void*,int,size_t);\n'+body,'exact original AVL function bodies')
+  original=data(ROOT/'assessor/algorithms/algo.c').decode('utf8').replace('\r\n','\n');body=original[find_unique(original,'void algo_avl_init(')[0]:find_unique(original,'int algo_sets_init(')[0]];need(data(generated[0]).decode('utf8')=='#include "tree.h"\nvoid *memset(void*,int,size_t);\n'+body,'exact original AVL function bodies')
  exports=read(HERE/'exports.json');need(exports.get('status')=='pass' and len(exports.get('commands',[]))==11 and all(x.get('passed') is True for x in exports['commands']),'actual learner export')
  for key in ['source_sha256','outputs_sha256']:
   for name,h in exports.get(key,{}).items():need((ROOT/name).is_file() and sha(ROOT/name)==h,'stale export '+name)

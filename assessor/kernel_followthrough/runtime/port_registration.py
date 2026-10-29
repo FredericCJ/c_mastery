@@ -6,9 +6,15 @@ The borrowed workspace and machine are non-reentrant; a callback cannot reacquir
 the port. VM recursion still uses the original explicit CvmFrame array.
 """
 import hashlib
+import sys
 from pathlib import Path
 
-SOURCE_SHA256 = '20d44fa29d06e816497ac97c143f8d6ca86f73c691533d5ec6e104792c8f9c63'
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / 'tools'))
+from c_source import replace_unique, significant, tokenize  # noqa: E402
+
+# Digest of the comment-free C token sequence, so reformatting the frozen source
+# does not invalidate the registration while any token change still does.
+TOKEN_SHA256 = 'ace1b90129f6df6313402e45208136ab9eb501a9787e0c2d05bedb3248ba740a'
 OLD = '''  uint8_t boundary[CVM_CODE];
   int16_t height[CVM_CODE];
   uint16_t queue[CVM_CODE];'''
@@ -40,11 +46,14 @@ CvmStatus kf_run_scratch(KfVerifierWorkspace *workspace, Cvm *machine,
 }
 '''
 
+def token_sha256(text):
+    stream = '\n'.join(t.kind + ' ' + t.text for t in significant(tokenize(text)))
+    return hashlib.sha256(stream.encode()).hexdigest()
+
 def render(source):
-    assert hashlib.sha256(source).hexdigest() == SOURCE_SHA256
     text = source.decode().replace('\r\n', '\n')
-    assert text.count(OLD) == 1
-    return PREFIX + text.replace(OLD, NEW) + SUFFIX
+    assert token_sha256(text) == TOKEN_SHA256
+    return PREFIX + replace_unique(text, OLD.strip(), NEW.lstrip()) + SUFFIX
 
 if __name__ == '__main__':
     root = Path(__file__).resolve().parents[3]

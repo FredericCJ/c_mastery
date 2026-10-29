@@ -7,9 +7,12 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'tools'))
+from c_source import AnchorError, replace_unique  # noqa: E402
 SOURCES = ['tools/run_final_effect_followthrough.py',
            'labs/modern_followthrough/final/probe.c',
            'labs/modern_followthrough/final/CONTRACTS.md',
@@ -85,10 +88,11 @@ def main():
                 ('lambda-partial-publication', 'if(!s){HPFun f=', 'if(1){HPFun f='),
                 ('application-partial-publication', 'if(!s)*out=r;return s;\n}\nHPOps', '*out=r;return s;\n}\nHPOps')]
             for name, old, new in changes:
-                if source.count(old) != 1:
-                    raise ValueError('Provider changed: '+name)
                 staged = build / f'{cc}-{name}.c'
-                staged.write_text(source.replace(old, new), encoding='utf8')
+                try:
+                    staged.write_text(replace_unique(source, old, new), encoding='utf8')
+                except AnchorError as error:
+                    raise ValueError('Provider changed: '+name) from error
                 exe = build / f'{cc}-{name}'
                 run([cc, *common, '-O2', '-I'+str(include), probe, staged, '-o', exe])
                 run([exe], expected=1, marker='MFT_CHECK:')

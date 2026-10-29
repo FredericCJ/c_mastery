@@ -3,6 +3,7 @@ import argparse,hashlib,importlib.util,json,os,re,subprocess,tempfile
 from datetime import datetime,timezone
 from pathlib import Path
 from run_smp_startup_depth import PROFILES,GUEST_PROFILES
+from c_source import find_unique
 ROOT=Path(__file__).resolve().parents[1];PUBLIC=ROOT/'labs/smp_depth/locks';BASE=ROOT/'reviews/v5/expansion/legacy_smp_locks'
 GENMC=Path('/home/frede/cmastery-modern-tools/genmc/build/bin/genmc')
 KERNEL=Path('/home/frede/cmastery-b06-tools/debug-kernel/linux-source-7.0.0')
@@ -18,10 +19,12 @@ def sources():
   paths.extend(p for p in folder.rglob('*') if p.is_file() and '__pycache__' not in p.parts)
  return sorted(set(paths))
 def external_sources():return [GENMC,KERNEL/'arch/x86/boot/bzImage',KERNEL/'.config',KERNEL/'include/generated/utsrelease.h',BUSYBOX]
+def counter_line():
+ text=(PUBLIC/'publication_model.c').read_text();return text.count('\n',0,find_unique(text,'counter++;')[0])+1
 def model_result(text,mutant,wrap=False):
  if '*** Compilation complete.' not in text or '*** Transformation complete.' not in text or 'GenMC v0.19.0 (LLVM 21.1.8)' not in text:raise ValueError('Missing actual model frontend/version')
  if mutant:
-  if 'Error: Non-atomic race!' not in text or not re.search(r'Rna \(counter,',text) or not re.search(r'Wna \(counter,',text) or ('wrap_model.c:' if wrap else 'publication_model.c:13') not in text:raise ValueError('Missing intended ordinary protected-counter race')
+  if 'Error: Non-atomic race!' not in text or not re.search(r'Rna \(counter,',text) or not re.search(r'Wna \(counter,',text) or ('wrap_model.c:' if wrap else 'publication_model.c:%d'%counter_line()) not in text:raise ValueError('Missing intended ordinary protected-counter race')
  else:
   if 'No errors were detected.' not in text or 'Error:' in text:raise ValueError('Failed reference model')
  match=re.search(r'Number of complete executions explored: (\d+)',text)

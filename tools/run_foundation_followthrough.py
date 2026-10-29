@@ -3,6 +3,7 @@ from datetime import datetime,timezone
 from pathlib import Path
 import json,os,re,shlex,shutil,subprocess,sys
 from common import ROOT,dump,sha
+from c_source import replace_unique
 BASE='research/v5/expansion/b01_followthrough'
 REPORT=BASE+'/validation.json'
 PUBLIC=ROOT/'labs/foundation_followthrough'
@@ -76,7 +77,7 @@ def main():
                 original=PROVIDER.read_text(encoding='utf8')
                 patches=[('premature','if (s->state != FD_INITIALIZED && s->state != FD_PUBLISHED) return FD_STATE;','if (s->state == FD_EMPTY) return FD_STATE;'),('failed-destructor','if (initialize(context,s->storage)) {','if (initialize(context,s->storage)) {\n        if (destroy) destroy(context,s->storage);')]
                 for name,old,new in patches:
-                    assert original.count(old)==1;source=home/(label+'-'+name+'.c');source.write_text(original.replace(old,new),encoding='utf8')
+                    source=home/(label+'-'+name+'.c');source.write_text(replace_unique(original,old,new),encoding='utf8')
                     mutant,_=build(cc,flags,label+'-'+name,[PUBLIC/'tests.c',PRIVATE/'follow.c',source]);runtime.append(mutant)
                     execute([mutant,'lifecycle'],label+'-'+name+'-reject',1,'FF_CHECK:');controls.append(dict(mutation=name,case='lifecycle',semantic_rejection=True,generated_provider=source.relative_to(ROOT).as_posix()))
                 wrong,_=build(cc,flags,label+'-wrap',[PUBLIC/'history_driver.c',PROVIDER],['-DFD_MUTATE_HANDLES']);runtime.append(wrong)
