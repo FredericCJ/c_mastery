@@ -70,6 +70,12 @@ def python_packages():
     installed = json.loads(result.stdout)
     if any(installed.get(name.lower().replace("_", "-")) != version for name, version in expected.items()):
         run([python, "-m", "pip", "install", "--disable-pip-version-check", "-r", requirements])
+    # C formatting/analysis tools are hash-pinned separately: their wheels have
+    # no dependencies, so --require-hashes covers the complete installation.
+    c_tools = ROOT / LOCK["tools"]["c-tools"]["requirements"]
+    wanted = LOCK["tools"]["c-tools"]["versions"]
+    if any(installed.get(name) != version for name, version in wanted.items()):
+        run([python, "-m", "pip", "install", "--disable-pip-version-check", "--require-hashes", "-r", c_tools])
 
 
 def binaries():
@@ -158,6 +164,62 @@ def integrations():
                 shutil.copy2(source / "LICENSE", license_path)
 
 
+def lsp_tools():
+    """Pinned Pyright (with bundled Node) and clangd for the Claude LSP plugins."""
+    python = BASE / "python/bin/python"
+    pins = ROOT / LOCK["tools"]["lsp-tools"]["requirements"]
+    run([python, "-m", "pip", "install", "--disable-pip-version-check", "--require-hashes", "-r", pins])
+
+
+def user_lsp_shims():
+    """Opt-in: expose the pinned language servers on the user's PATH.
+
+    The Claude clangd-lsp and pyright-lsp plugins launch `clangd` and
+    `pyright-langserver` by name. Existing non-shim files are never replaced.
+    """
+    bindir = Path.home() / ".local/bin"
+    bindir.mkdir(parents=True, exist_ok=True)
+    shims = {
+        "clangd": f'exec "{BASE}/python/bin/clangd" "$@"\n',
+        "pyright-langserver": ('export PYRIGHT_PYTHON_IGNORE_WARNINGS=1\n'
+                               f'exec "{BASE}/python/bin/pyright-langserver" "$@"\n'),
+    }
+    marker = "# c_mastery author-tool shim\n"
+    for name, body in shims.items():
+        target = bindir / name
+        if target.exists() and marker not in target.read_text(errors="replace"):
+            raise RuntimeError(f"Refusing to replace existing {target}")
+        target.write_text("#!/bin/sh\n" + marker + body)
+        target.chmod(0o755)
+
+
+def pinned_source(name, upstream, commit):
+    source = BASE / "sources" / name
+    if not source.exists():
+        source.parent.mkdir(parents=True, exist_ok=True)
+        run(["git", "clone", "--quiet", "--filter=blob:none", "--no-checkout", upstream, source])
+    run(["git", "-C", source, "checkout", "--quiet", "--detach", commit])
+    actual = subprocess.check_output(["git", "-C", str(source), "rev-parse", "HEAD"], text=True).strip()
+    if actual != commit:
+        raise RuntimeError(f"{name} source identity mismatch")
+    return source
+
+
+def claude_sources():
+    """Local plugin marketplaces and the beads-mcp server, from inspected commits."""
+    beads = pinned_source("beads", "https://github.com/gastownhall/beads",
+                          LOCK["inspected_source_commits"]["beads"])
+    pin = LOCK["tools"]["superpowers"]
+    pinned_source("superpowers", pin["upstream"], pin["commit"])
+    venv = BASE / "beads-mcp"
+    if not (venv / "bin/python").exists():
+        run([sys.executable, "-m", "venv", venv])
+    run([venv / "bin/python", "-m", "pip", "install", "--disable-pip-version-check", "--quiet",
+         "-r", ROOT / LOCK["tools"]["beads-mcp"]["requirements"]])
+    run([venv / "bin/python", "-m", "pip", "install", "--disable-pip-version-check", "--quiet",
+         "--no-deps", beads / "integrations/beads-mcp"])
+
+
 def initialize_beads(destination=None):
     target = Path(destination) if destination else ROOT / ".beads"
     if any((target / name).exists() for name in ("dolt", "embeddeddolt", "proxieddb")):
@@ -197,9 +259,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--install", action="store_true", help="restore binaries, Python packages and project skills")
     parser.add_argument("--initialize-beads", action="store_true", help="initialize missing local DB outside Git; preserve existing storage")
+    parser.add_argument("--user-lsp-shims", action="store_true",
+                        help="opt-in: write clangd/pyright-langserver shims to ~/.local/bin for the Claude LSP plugins")
     args = parser.parse_args()
-    if not args.install and not args.initialize_beads:
-        parser.error("select --install and/or --initialize-beads")
+    if not (args.install or args.initialize_beads or args.user_lsp_shims):
+        parser.error("select --install, --initialize-beads and/or --user-lsp-shims")
     if platform.system() != "Linux" or platform.machine() not in ("x86_64", "AMD64"):
         parser.error("the pinned native binary distribution supports Linux x86-64")
     BASE.mkdir(parents=True, exist_ok=True)
@@ -207,8 +271,12 @@ def main():
         python_packages()
         binaries()
         integrations()
+        lsp_tools()
+        claude_sources()
     if args.initialize_beads:
         initialize_beads()
+    if args.user_lsp_shims:
+        user_lsp_shims()
     print("Optional author-tool restoration completed; curriculum evidence unchanged.")
 
 

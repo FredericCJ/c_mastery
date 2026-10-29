@@ -58,3 +58,40 @@ entries should reference canonical obligation IDs, and closure proves no curricu
 gate. Full developer checkouts retain the project integrations. Public curriculum
 source archives can restore optional author integrations with the pinned installer;
 these tools are not dependencies of public curriculum validation.
+
+## Claude Code integration (polish revision)
+
+`CLAUDE.md` imports `AGENTS.md` and records the orchestration model, role tiers
+(`.claude/agents/`), commit and hardware rules. Project-scoped plugins are
+declared in `.claude/settings.json`: Beads and Superpowers from local directory
+marketplaces at their inspected commits (`build/author-tools/sources/`), and the
+official `clangd-lsp` and `pyright-lsp`. OpenSpec (`.claude/commands/opsx/`,
+`openspec-*` skills), Spec Kit (`speckit-*` skills) and the Graphify skill were
+copied from staging initializers; Graphify's PreToolUse hook-guard and git hooks
+were deliberately not installed. `.mcp.json` declares one local stdio server,
+`beads` (`tools/mcp_beads.py`, which always runs `bd --sandbox`).
+
+Pins: C tools in `tools/c_tools_requirements.lock` (clang-format 21.1.8,
+clang-tidy 21.1.6, clangd 21.1.8) and language servers in
+`tools/lsp_tools_requirements.lock` (Pyright 1.1.410 with Node wheel 24.16.0),
+both hash-checked; beads-mcp dependencies in `tools/beads_mcp_requirements.lock`.
+`--user-lsp-shims` writes marked `clangd` and `pyright-langserver` shims to
+`~/.local/bin` and never replaces other files. Directory marketplace paths in
+the project settings are absolute to this checkout.
+
+The following settings additions were prepared but not applied, because the
+session's auto-mode classifier treats an agent editing its own permissions and
+hooks as self-modification. Apply them yourself if wanted:
+
+```json
+{
+  "enabledMcpjsonServers": ["beads"],
+  "hooks": {"PostToolUse": [{"matcher": "Edit|Write|MultiEdit", "hooks": [
+    {"type": "command", "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/c_format_check.py\"", "timeout": 60}]}]},
+  "permissions": {"deny": ["Bash(git push:*)", "Bash(git tag:*)", "Bash(bd dolt push:*)",
+                           "Bash(graphify hook install:*)", "Read(./private/**)"]}
+}
+```
+
+The hook only reports clang-format violations (exit 2 shows them to the agent);
+it never rewrites a file and is inert until `.clang-format` exists.

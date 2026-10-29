@@ -1,0 +1,544 @@
+{
+  "schema_version": 1,
+  "source_prompt": "/home/fred/dev/c_mastery_claude_opus_polishing_prompt.md",
+  "additional_user_mandates": [
+    "House C style blending BARR-C:2018, SEI CERT C, MISRA C and Linux kernel style enforced with clang-format (Allman, 4 spaces, 80 columns; public rename to lowercase module-prefixed struct/enum tags; Linux kernel modules keep kernel style)",
+    "contextual-v2 route with frozen v1 and explicit migration",
+    "Use Graphify, OpenSpec, Spec Kit, Superpowers and Beads",
+    "Central orchestrator dispatching the cheapest capable model",
+    "Use the connected NUCLEO-F439ZI",
+    "Local commits per verified batch; no push"
+  ],
+  "base_commit": "29b0d41088430980fd7a629c89cbc92ed50fb090",
+  "required_work": [
+    {
+      "id": "POLISH-TOOLING",
+      "description": "Claude Code orchestration, pinned C tooling and repo author-tool integrations",
+      "rationale": "The revision runs as an orchestrated multi-agent campaign; formatting/analysis tools must be pinned and restorable.",
+      "classification": "revision-addition",
+      "source": [
+        "planning/author_tools.md",
+        "tools/author_tools.lock.json"
+      ],
+      "prerequisites": [],
+      "affected_artifacts": [
+        "CLAUDE.md",
+        ".claude/settings.json",
+        ".claude/agents/",
+        ".mcp.json",
+        "tools/author_tools.lock.json",
+        "tools/install_author_tools.py",
+        "tools/check_author_tools.py"
+      ],
+      "completion_criteria": [
+        "Pinned clang-format/clang-tidy/clangd versions are recorded and verified; Claude integrations of Beads, Superpowers, OpenSpec, Spec Kit, Graphify, clangd-lsp and pyright-lsp are project-scoped, local and verified; no git or commit hooks."
+      ],
+      "verification_criteria": "Pinned clang-format/clang-tidy/clangd versions are recorded and verified; Claude integrations of Beads, Superpowers, OpenSpec, Spec Kit, Graphify, clangd-lsp and pyright-lsp are project-scoped, local and verified; no git or commit hooks.",
+      "tests": [
+        "tools/check_author_tools.py"
+      ],
+      "status": "implementation-in-progress",
+      "initial_status": "confirmed-open",
+      "defect_origin": "revision-addition",
+      "required_environment": "Native Ubuntu 26.04 x86-64 (Ryzen 3 7330U), kernel 7.0.0-42; NUCLEO-F439ZI where stated",
+      "limits": [
+        "No independent human, external review or delayed retention is inferred from author execution.",
+        "Historical receipts and IDs are preserved; new evidence is generated under reviews/v5/expansion/polish_revision/."
+      ],
+      "evidence_references": []
+    },
+    {
+      "id": "POLISH-STYLE",
+      "description": "House C style blending BARR-C:2018, SEI CERT C, MISRA C:2023 and the Linux kernel style, enforced with clang-format",
+      "rationale": "No coding standard, format or lint configuration existed; much lab C is dense one-liners.",
+      "classification": "pedagogical-weakness",
+      "source": [
+        "labs/performance_followthrough/pmu_native.c",
+        "labs/hosted_systems/timer_depth/collection_bench.c"
+      ],
+      "prerequisites": [
+        "POLISH-TOOLING"
+      ],
+      "affected_artifacts": [
+        "curriculum/guides/c-style.md",
+        ".clang-format",
+        ".clang-tidy",
+        "tools/c_style_manifest.json",
+        "tools/check_c_style.py",
+        "research/v5/expansion/polish_revision/style_sources.json"
+      ],
+      "completion_criteria": [
+        "Every rule cites an inspected source locator; conflicts are resolved and taught; all in-scope C passes the pinned clang-format check; naming/structure checks pass or carry a recorded deviation; specimens and vendored code have explicit manifest entries."
+      ],
+      "verification_criteria": "Every rule cites an inspected source locator; conflicts are resolved and taught; all in-scope C passes the pinned clang-format check; naming/structure checks pass or carry a recorded deviation; specimens and vendored code have explicit manifest entries.",
+      "tests": [
+        "tools/check_c_style.py"
+      ],
+      "status": "implementation-in-progress",
+      "initial_status": "confirmed-open",
+      "defect_origin": "pre-existing",
+      "required_environment": "Native Ubuntu 26.04 x86-64 (Ryzen 3 7330U), kernel 7.0.0-42; NUCLEO-F439ZI where stated",
+      "limits": [
+        "No independent human, external review or delayed retention is inferred from author execution.",
+        "Historical receipts and IDs are preserved; new evidence is generated under reviews/v5/expansion/polish_revision/."
+      ],
+      "evidence_references": []
+    },
+    {
+      "id": "POLISH-MECHANICAL",
+      "description": "Equivalence-proven rename, reformat and brace insertion of all active C",
+      "rationale": "The house style requires renaming ~2,405 public typedef names and reformatting 3,913 files without changing behaviour or silently invalidating evidence.",
+      "classification": "revision-addition",
+      "source": [
+        "curriculum/v5/exercises.json",
+        "curriculum/v5/routes/contextual-v1.json"
+      ],
+      "prerequisites": [
+        "POLISH-STYLE"
+      ],
+      "affected_artifacts": [
+        "tools/c_source.py",
+        "tools/source_equivalence.py",
+        "curriculum/v5/style_migration.json",
+        "labs/",
+        "assessor/"
+      ],
+      "completion_criteria": [
+        "Rename proven by -g0 section identity over every translation unit and target; formatting proven by token identity; brace insertion proven by a brace-only token diff; every mutation anchor matches exactly once before and after; derived pins regenerated; runnable campaigns re-run; non-runnable evidence carried forward only through recorded equivalence."
+      ],
+      "verification_criteria": "Rename proven by -g0 section identity over every translation unit and target; formatting proven by token identity; brace insertion proven by a brace-only token diff; every mutation anchor matches exactly once before and after; derived pins regenerated; runnable campaigns re-run; non-runnable evidence carried forward only through recorded equivalence.",
+      "tests": [
+        "tools/source_equivalence.py",
+        "anchor census"
+      ],
+      "status": "implementation-in-progress",
+      "initial_status": "confirmed-open",
+      "defect_origin": "revision-addition",
+      "required_environment": "Native Ubuntu 26.04 x86-64 (Ryzen 3 7330U), kernel 7.0.0-42; NUCLEO-F439ZI where stated",
+      "limits": [
+        "No independent human, external review or delayed retention is inferred from author execution.",
+        "Historical receipts and IDs are preserved; new evidence is generated under reviews/v5/expansion/polish_revision/."
+      ],
+      "evidence_references": []
+    },
+    {
+      "id": "POLISH-PARSE",
+      "description": "Checked numeric parsing for command-line and environment inputs",
+      "rationale": "pmu_native.c narrows strtoul results to unsigned before range validation ('4294967297' becomes 1), accepts empty strings as 0 and never checks errno; about 69 argv sites are unchecked.",
+      "classification": "confirmed-defect",
+      "source": [
+        "labs/performance_followthrough/pmu_native.c:155-177",
+        "labs/performance_followthrough/trace_main.c:5"
+      ],
+      "prerequisites": [],
+      "affected_artifacts": [
+        "labs/support/cm_parse.h",
+        "labs/support/cm_parse.c",
+        "labs/performance_followthrough/pmu_native.c"
+      ],
+      "completion_criteria": [
+        "A shared parser with a specified grammar validates conversion status and range in the wide type before narrowing; tests cover maximum, maximum+1, conversion overflow, empty, trailing text and narrowing wrap with bounds derived from the actual type widths; every non-specimen site uses it."
+      ],
+      "verification_criteria": "A shared parser with a specified grammar validates conversion status and range in the wide type before narrowing; tests cover maximum, maximum+1, conversion overflow, empty, trailing text and narrowing wrap with bounds derived from the actual type widths; every non-specimen site uses it.",
+      "tests": [
+        "labs/support/cm_parse_tests.c"
+      ],
+      "status": "implementation-in-progress",
+      "initial_status": "confirmed-open",
+      "defect_origin": "pre-existing",
+      "required_environment": "Native Ubuntu 26.04 x86-64 (Ryzen 3 7330U), kernel 7.0.0-42; NUCLEO-F439ZI where stated",
+      "limits": [
+        "No independent human, external review or delayed retention is inferred from author execution.",
+        "Historical receipts and IDs are preserved; new evidence is generated under reviews/v5/expansion/polish_revision/."
+      ],
+      "evidence_references": []
+    },
+    {
+      "id": "POLISH-LOSS",
+      "description": "Complete sampling loss accounting with kernel loss counts and concurrent draining",
+      "rationale": "The sampler drains once after disable and counts only in-band PERF_RECORD_LOST, which the kernel publishes only when a later record fits; trailing losses are invisible and PERF_FORMAT_LOST is never read.",
+      "classification": "confirmed-defect",
+      "source": [
+        "labs/performance_followthrough/pmu_native.c:110-150"
+      ],
+      "prerequisites": [
+        "POLISH-PARSE"
+      ],
+      "affected_artifacts": [
+        "labs/performance_followthrough/pmu_sampling.c",
+        "labs/performance_followthrough/pmu_native.c",
+        "labs/performance_followthrough/PMU_PROTOCOL.md"
+      ],
+      "completion_criteria": [
+        "In-band, hardware LOST_SAMPLES, kernel lost count, unavailable information and accounting completeness are separate fields; an unsupported kernel count is unknown, not zero; no double counting; deterministic model tests under sanitizers; a bounded native saturation run compares final and concurrent drains."
+      ],
+      "verification_criteria": "In-band, hardware LOST_SAMPLES, kernel lost count, unavailable information and accounting completeness are separate fields; an unsupported kernel count is unknown, not zero; no double counting; deterministic model tests under sanitizers; a bounded native saturation run compares final and concurrent drains.",
+      "tests": [
+        "pmu loss model tests",
+        "native saturation receipt"
+      ],
+      "status": "implementation-in-progress",
+      "initial_status": "confirmed-open",
+      "defect_origin": "pre-existing",
+      "required_environment": "Native Ubuntu 26.04 x86-64 (Ryzen 3 7330U), kernel 7.0.0-42; NUCLEO-F439ZI where stated",
+      "limits": [
+        "No independent human, external review or delayed retention is inferred from author execution.",
+        "Historical receipts and IDs are preserved; new evidence is generated under reviews/v5/expansion/polish_revision/."
+      ],
+      "evidence_references": []
+    },
+    {
+      "id": "POLISH-CALIB",
+      "description": "Calibration and interpretation gates for timing comparisons",
+      "rationale": "Exhausted calibration (1024 repetitions without reaching the timing target) still yields paired rankings for five regimes; the deadline bench has no timing adequacy gate.",
+      "classification": "confirmed-defect",
+      "source": [
+        "tools/run_native_pmu.py:203",
+        "tools/analyze_native_pmu.py:119-122",
+        "tools/run_deadline_pilot.py"
+      ],
+      "prerequisites": [],
+      "affected_artifacts": [
+        "tools/run_native_pmu.py",
+        "tools/analyze_native_pmu.py",
+        "tools/run_deadline_pilot.py"
+      ],
+      "completion_criteria": [
+        "Acquisition validity, scheduling, timing adequacy, comparability and interpretation are separate states; inadequately timed regimes keep raw data but are excluded from rankings and competence claims with an explicit inconclusive state."
+      ],
+      "verification_criteria": "Acquisition validity, scheduling, timing adequacy, comparability and interpretation are separate states; inadequately timed regimes keep raw data but are excluded from rankings and competence claims with an explicit inconclusive state.",
+      "tests": [
+        "gate unit tests"
+      ],
+      "status": "implementation-in-progress",
+      "initial_status": "confirmed-open",
+      "defect_origin": "pre-existing",
+      "required_environment": "Native Ubuntu 26.04 x86-64 (Ryzen 3 7330U), kernel 7.0.0-42; NUCLEO-F439ZI where stated",
+      "limits": [
+        "No independent human, external review or delayed retention is inferred from author execution.",
+        "Historical receipts and IDs are preserved; new evidence is generated under reviews/v5/expansion/polish_revision/."
+      ],
+      "evidence_references": []
+    },
+    {
+      "id": "POLISH-REGRESS",
+      "description": "Protect earlier PMU, synchronization, sanitizer and card repairs",
+      "rationale": "Publication sync fault injection never ran under sanitizers although the public guide claims it did; the TSan profile is never built.",
+      "classification": "confirmed-defect",
+      "source": [
+        "tools/public_validation.py:271-273",
+        "tools/check_native_build_profiles.py:50-52",
+        "curriculum/guides/public-reproduction.md:23"
+      ],
+      "prerequisites": [],
+      "affected_artifacts": [
+        "tools/public_validation.py",
+        "tools/check_native_build_profiles.py"
+      ],
+      "completion_criteria": [
+        "Strict group, partial cleanup, zero running time, sync fault injection and card checks re-run; sanitizer and thread profiles are executed where claimed."
+      ],
+      "verification_criteria": "Strict group, partial cleanup, zero running time, sync fault injection and card checks re-run; sanitizer and thread profiles are executed where claimed.",
+      "tests": [
+        "tools/run_native_pmu.py --sanitizers",
+        "tools/check_native_build_profiles.py"
+      ],
+      "status": "implementation-in-progress",
+      "initial_status": "confirmed-open",
+      "defect_origin": "pre-existing",
+      "required_environment": "Native Ubuntu 26.04 x86-64 (Ryzen 3 7330U), kernel 7.0.0-42; NUCLEO-F439ZI where stated",
+      "limits": [
+        "No independent human, external review or delayed retention is inferred from author execution.",
+        "Historical receipts and IDs are preserved; new evidence is generated under reviews/v5/expansion/polish_revision/."
+      ],
+      "evidence_references": []
+    },
+    {
+      "id": "POLISH-LEARNER-PMU",
+      "description": "Public learner-native PMU workflow from an extracted learner archive",
+      "rationale": "No learner-runnable collector exists: the only builder links assessor sources, init omits the adapters, PMU units have no checks and the extracted-archive test stops at init.",
+      "classification": "confirmed-defect",
+      "source": [
+        "tools/run_native_pmu.py:82-154",
+        "tools/generate_native_route.py:79-81",
+        "tools/public_exports.py:121-134"
+      ],
+      "prerequisites": [
+        "POLISH-LOSS",
+        "POLISH-CALIB"
+      ],
+      "affected_artifacts": [
+        "labs/performance_followthrough/native.py",
+        "cmastery/",
+        "tools/public_exports.py",
+        "tools/package_v5.py"
+      ],
+      "completion_criteria": [
+        "From an extracted learner archive with the checkout hidden: init, scaffold rejection, labelled test implementation, export/import, native build, capability report and a supported hardware experiment succeed; diagnostics name the exact missing capability."
+      ],
+      "verification_criteria": "From an extracted learner archive with the checkout hidden: init, scaffold rejection, labelled test implementation, export/import, native build, capability report and a supported hardware experiment succeed; diagnostics name the exact missing capability.",
+      "tests": [
+        "extracted learner archive test"
+      ],
+      "status": "implementation-in-progress",
+      "initial_status": "confirmed-open",
+      "defect_origin": "pre-existing",
+      "required_environment": "Native Ubuntu 26.04 x86-64 (Ryzen 3 7330U), kernel 7.0.0-42; NUCLEO-F439ZI where stated",
+      "limits": [
+        "No independent human, external review or delayed retention is inferred from author execution.",
+        "Historical receipts and IDs are preserved; new evidence is generated under reviews/v5/expansion/polish_revision/."
+      ],
+      "evidence_references": []
+    },
+    {
+      "id": "POLISH-ROUTE-V2",
+      "description": "contextual-v2 route with authored episodes and explicit encounter bindings",
+      "rationale": "Encounter roles are slices of list positions and order is a least-recently-used context rotation (1,957 switches in 1,982 transitions); no checker reads roles.",
+      "classification": "confirmed-defect",
+      "source": [
+        "tools/generate_native_route.py:127-174"
+      ],
+      "prerequisites": [],
+      "affected_artifacts": [
+        "curriculum/v5/routes/contextual-v2.source.json",
+        "tools/generate_native_route.py",
+        "tools/check_native_route.py",
+        "cmastery/route.py"
+      ],
+      "completion_criteria": [
+        "Episodes have entering state, motivating limitation, construction, exiting artifact and transition reason; every encounter binds role, node, objective, deliverable, criterion, assumption change, prerequisites and components; a validator rejects inconsistent bindings; v1 stays frozen with an explicit migration."
+      ],
+      "verification_criteria": "Episodes have entering state, motivating limitation, construction, exiting artifact and transition reason; every encounter binds role, node, objective, deliverable, criterion, assumption change, prerequisites and components; a validator rejects inconsistent bindings; v1 stays frozen with an explicit migration.",
+      "tests": [
+        "tools/check_native_route.py"
+      ],
+      "status": "implementation-in-progress",
+      "initial_status": "confirmed-open",
+      "defect_origin": "pre-existing",
+      "required_environment": "Native Ubuntu 26.04 x86-64 (Ryzen 3 7330U), kernel 7.0.0-42; NUCLEO-F439ZI where stated",
+      "limits": [
+        "No independent human, external review or delayed retention is inferred from author execution.",
+        "Historical receipts and IDs are preserved; new evidence is generated under reviews/v5/expansion/polish_revision/."
+      ],
+      "evidence_references": []
+    },
+    {
+      "id": "POLISH-THEORY",
+      "description": "Theory strand bound to rejecting rubric criteria",
+      "rationale": "Loop invariants, amortized analysis, dynamic programming and exchange arguments have no exercise rubric criteria; the strand is prose only.",
+      "classification": "pedagogical-weakness",
+      "source": [
+        "curriculum/v5/routes/integration.md:14-21"
+      ],
+      "prerequisites": [
+        "POLISH-ROUTE-V2"
+      ],
+      "affected_artifacts": [
+        "curriculum/v5/exercises/",
+        "curriculum/v5/expansion/legacy_assessments/"
+      ],
+      "completion_criteria": [
+        "Each theory topic maps to actual reasoning and a criterion naming the plausible incorrect answer it rejects."
+      ],
+      "verification_criteria": "Each theory topic maps to actual reasoning and a criterion naming the plausible incorrect answer it rejects.",
+      "tests": [
+        "tools/check_native_route.py"
+      ],
+      "status": "implementation-in-progress",
+      "initial_status": "confirmed-open",
+      "defect_origin": "pre-existing",
+      "required_environment": "Native Ubuntu 26.04 x86-64 (Ryzen 3 7330U), kernel 7.0.0-42; NUCLEO-F439ZI where stated",
+      "limits": [
+        "No independent human, external review or delayed retention is inferred from author execution.",
+        "Historical receipts and IDs are preserved; new evidence is generated under reviews/v5/expansion/polish_revision/."
+      ],
+      "evidence_references": []
+    },
+    {
+      "id": "POLISH-SECURITY",
+      "description": "Explicit security laboratory contracts",
+      "rationale": "78 family-E exercises carry templated security sections without structured target, adversary, violated property, boundary, evidence, impact class, remediation and limits.",
+      "classification": "pedagogical-weakness",
+      "source": [
+        "curriculum/v5/exercises/"
+      ],
+      "prerequisites": [],
+      "affected_artifacts": [
+        "curriculum/v5/exercises/",
+        "tools/check_security_labs.py"
+      ],
+      "completion_criteria": [
+        "Every family-E exercise and T35/T27 project states the structured fields and distinguishes crash, sanitizer finding or UB from demonstrated invariant violation and proved impact; specimens run only after inspection under containment."
+      ],
+      "verification_criteria": "Every family-E exercise and T35/T27 project states the structured fields and distinguishes crash, sanitizer finding or UB from demonstrated invariant violation and proved impact; specimens run only after inspection under containment.",
+      "tests": [
+        "tools/check_security_labs.py"
+      ],
+      "status": "implementation-in-progress",
+      "initial_status": "confirmed-open",
+      "defect_origin": "pre-existing",
+      "required_environment": "Native Ubuntu 26.04 x86-64 (Ryzen 3 7330U), kernel 7.0.0-42; NUCLEO-F439ZI where stated",
+      "limits": [
+        "No independent human, external review or delayed retention is inferred from author execution.",
+        "Historical receipts and IDs are preserved; new evidence is generated under reviews/v5/expansion/polish_revision/."
+      ],
+      "evidence_references": []
+    },
+    {
+      "id": "POLISH-CARDS",
+      "description": "One effective, consistent specification per exercise",
+      "rationale": "Examples, hints, acceptance criteria and solutions must describe the same problem without leaking withheld answers.",
+      "classification": "pedagogical-weakness",
+      "source": [
+        "curriculum/v5/exercises/",
+        "curriculum/v5/routes/teaching_revisions.json"
+      ],
+      "prerequisites": [],
+      "affected_artifacts": [
+        "curriculum/v5/exercises/",
+        "curriculum/v5/routes/"
+      ],
+      "completion_criteria": [
+        "Scripted consistency and leak checks pass; generic advice is replaced by worked derivations, traces or counterexamples in the priority paths."
+      ],
+      "verification_criteria": "Scripted consistency and leak checks pass; generic advice is replaced by worked derivations, traces or counterexamples in the priority paths.",
+      "tests": [
+        "card consistency check"
+      ],
+      "status": "implementation-in-progress",
+      "initial_status": "confirmed-open",
+      "defect_origin": "pre-existing",
+      "required_environment": "Native Ubuntu 26.04 x86-64 (Ryzen 3 7330U), kernel 7.0.0-42; NUCLEO-F439ZI where stated",
+      "limits": [
+        "No independent human, external review or delayed retention is inferred from author execution.",
+        "Historical receipts and IDs are preserved; new evidence is generated under reviews/v5/expansion/polish_revision/."
+      ],
+      "evidence_references": []
+    },
+    {
+      "id": "POLISH-DOSSIERS",
+      "description": "Three diagnostic dossiers on native hardware",
+      "rationale": "Counter tables alone do not teach diagnosis; placement, setup/steady-state separation and generated-code inspection were missing.",
+      "classification": "pedagogical-weakness",
+      "source": [
+        "reviews/v5/expansion/native_revision/pmu_hardware_v3/interpretation.md"
+      ],
+      "prerequisites": [
+        "POLISH-LOSS",
+        "POLISH-CALIB"
+      ],
+      "affected_artifacts": [
+        "reviews/v5/expansion/polish_revision/dossiers/"
+      ],
+      "completion_criteria": [
+        "Representation/locality, dispatch and concurrent-state dossiers contain hypotheses, equivalent contracts, controlled distributions, disassembly, event justification, placement and scope, raw evidence, alternatives and uncertainty bound to exact source, binary, toolchain and machine."
+      ],
+      "verification_criteria": "Representation/locality, dispatch and concurrent-state dossiers contain hypotheses, equivalent contracts, controlled distributions, disassembly, event justification, placement and scope, raw evidence, alternatives and uncertainty bound to exact source, binary, toolchain and machine.",
+      "tests": [
+        "dossier receipts"
+      ],
+      "status": "implementation-in-progress",
+      "initial_status": "confirmed-open",
+      "defect_origin": "revision-addition",
+      "required_environment": "Native Ubuntu 26.04 x86-64 (Ryzen 3 7330U), kernel 7.0.0-42; NUCLEO-F439ZI where stated",
+      "limits": [
+        "No independent human, external review or delayed retention is inferred from author execution.",
+        "Historical receipts and IDs are preserved; new evidence is generated under reviews/v5/expansion/polish_revision/."
+      ],
+      "evidence_references": []
+    },
+    {
+      "id": "POLISH-PHYS",
+      "description": "NUCLEO-F439ZI physical observations feasible with the board alone",
+      "rationale": "Physical observation is not-run for 1,847 obligations; the F439 board is now connected.",
+      "classification": "external-evidence-requirement",
+      "source": [
+        "curriculum/v5/expansion/work_inventory.json",
+        "curriculum/guides/physical-evidence.md"
+      ],
+      "prerequisites": [
+        "POLISH-TOOLING"
+      ],
+      "affected_artifacts": [
+        "reviews/v5/expansion/polish_revision/physical/"
+      ],
+      "completion_criteria": [
+        "Board identity recorded; feasible bring-up, UART-over-VCP, trace, cycle-timing, fault and crypto-peripheral observations captured as source-bound dossiers; instrument- and peer-dependent interfaces and H745 work remain open with exact reasons; no option-byte or probe-firmware writes."
+      ],
+      "verification_criteria": "Board identity recorded; feasible bring-up, UART-over-VCP, trace, cycle-timing, fault and crypto-peripheral observations captured as source-bound dossiers; instrument- and peer-dependent interfaces and H745 work remain open with exact reasons; no option-byte or probe-firmware writes.",
+      "tests": [
+        "physical dossiers"
+      ],
+      "status": "implementation-in-progress",
+      "initial_status": "confirmed-open",
+      "defect_origin": "revision-addition",
+      "required_environment": "Native Ubuntu 26.04 x86-64 (Ryzen 3 7330U), kernel 7.0.0-42; NUCLEO-F439ZI where stated",
+      "limits": [
+        "No independent human, external review or delayed retention is inferred from author execution.",
+        "Historical receipts and IDs are preserved; new evidence is generated under reviews/v5/expansion/polish_revision/."
+      ],
+      "evidence_references": []
+    },
+    {
+      "id": "POLISH-ASSESS",
+      "description": "Independent-learner assessment packages for three representative paths",
+      "rationale": "Packets are not bound to route nodes and lack prerequisite and imitation checks per path.",
+      "classification": "pedagogical-weakness",
+      "source": [
+        "assessor/native_ubuntu_assessment/"
+      ],
+      "prerequisites": [
+        "POLISH-ROUTE-V2"
+      ],
+      "affected_artifacts": [
+        "assessor/native_ubuntu_assessment/"
+      ],
+      "completion_criteria": [
+        "Withheld transfer tasks, discriminating rubrics, observation forms and unstated-prerequisite/imitation checks are bound to route nodes; no participants or delays are fabricated."
+      ],
+      "verification_criteria": "Withheld transfer tasks, discriminating rubrics, observation forms and unstated-prerequisite/imitation checks are bound to route nodes; no participants or delays are fabricated.",
+      "tests": [
+        "route binding check"
+      ],
+      "status": "implementation-in-progress",
+      "initial_status": "confirmed-open",
+      "defect_origin": "pre-existing",
+      "required_environment": "Native Ubuntu 26.04 x86-64 (Ryzen 3 7330U), kernel 7.0.0-42; NUCLEO-F439ZI where stated",
+      "limits": [
+        "No independent human, external review or delayed retention is inferred from author execution.",
+        "Historical receipts and IDs are preserved; new evidence is generated under reviews/v5/expansion/polish_revision/."
+      ],
+      "evidence_references": []
+    },
+    {
+      "id": "POLISH-PROFILES",
+      "description": "Separate semantic, instrumented, thread, optimized-native and target/ABI profiles with effective-flag verification",
+      "rationale": "Instrumented timing is not native performance evidence; the thread profile was never built.",
+      "classification": "confirmed-defect",
+      "source": [
+        "tools/check_native_build_profiles.py"
+      ],
+      "prerequisites": [],
+      "affected_artifacts": [
+        "tools/check_native_build_profiles.py",
+        "labs/algorithms/cmake/Profiles.cmake"
+      ],
+      "completion_criteria": [
+        "Each profile is built and its effective compile and link flags and runtime symbols are verified; performance runs reject instrumented binaries."
+      ],
+      "verification_criteria": "Each profile is built and its effective compile and link flags and runtime symbols are verified; performance runs reject instrumented binaries.",
+      "tests": [
+        "tools/check_native_build_profiles.py"
+      ],
+      "status": "implementation-in-progress",
+      "initial_status": "confirmed-open",
+      "defect_origin": "pre-existing",
+      "required_environment": "Native Ubuntu 26.04 x86-64 (Ryzen 3 7330U), kernel 7.0.0-42; NUCLEO-F439ZI where stated",
+      "limits": [
+        "No independent human, external review or delayed retention is inferred from author execution.",
+        "Historical receipts and IDs are preserved; new evidence is generated under reviews/v5/expansion/polish_revision/."
+      ],
+      "evidence_references": []
+    }
+  ]
+}

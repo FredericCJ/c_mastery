@@ -31,6 +31,44 @@
       "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b",
       "installation": ".agents/skills",
       "mode": "Codex skills; no hooks or plugin activation"
+    },
+    "c-tools": {
+      "versions": {
+        "clang-format": "21.1.8",
+        "clang-tidy": "21.1.6",
+        "clangd": "21.1.8"
+      },
+      "requirements": "tools/c_tools_requirements.lock",
+      "hash_pinned": true,
+      "reason": "House C style enforcement and C language-server support. clang-format matches system Clang 21.1.8 exactly; 21.1.6 is the newest 21.x clang-tidy wheel published on PyPI.",
+      "upstream": "https://pypi.org/project/clang-format/ https://pypi.org/project/clang-tidy/ https://pypi.org/project/clangd/"
+    },
+    "lsp-tools": {
+      "versions": {
+        "pyright": "1.1.410",
+        "nodejs-wheel-binaries": "24.16.0",
+        "clangd": "21.1.8"
+      },
+      "requirements": "tools/lsp_tools_requirements.lock",
+      "hash_pinned": true,
+      "reason": "Language servers for the official clangd-lsp and pyright-lsp Claude Code plugins; Pyright's wheel bundles its JavaScript and runs on the pinned Node wheel without runtime downloads."
+    },
+    "beads-mcp": {
+      "version": "1.3.2",
+      "source": "build/author-tools/sources/beads/integrations/beads-mcp",
+      "requirements": "tools/beads_mcp_requirements.lock",
+      "transport": "stdio, local only",
+      "launcher": "tools/mcp_beads.py"
+    },
+    "claude-code": {
+      "plugins": {
+        "beads@beads-marketplace": "local directory marketplace build/author-tools/sources/beads at the inspected commit",
+        "superpowers@superpowers-dev": "local directory marketplace build/author-tools/sources/superpowers at the pinned commit",
+        "clangd-lsp@claude-plugins-official": "official marketplace; needs clangd on PATH (--user-lsp-shims)",
+        "pyright-lsp@claude-plugins-official": "official marketplace; needs pyright-langserver on PATH (--user-lsp-shims)"
+      },
+      "scope": "project (.claude/settings.json); .mcp.json declares only local stdio servers",
+      "policy": "No git, commit or push hooks; no remote MCP servers or code upload."
     }
   },
   "inspected_source_commits": {

@@ -65,6 +65,8 @@ def main():
                               ("Beads", BASE / "bin/bd", "binary_sha256")):
         key = "openspec" if name == "OpenSpec" else "beads"
         record(f"{name} executable checksum", digest(path) == lock["tools"][key][field], sha256=digest(path))
+    for name, version in lock["tools"]["c-tools"]["versions"].items():
+        command(f"{name} pinned version", [BASE / "python/bin" / name, "--version"], contains=f"version {version}")
     expected_skills = set(installer.SUPERPOWERS) | {"graphify"} | {
         f"openspec-{name}" for name in ("apply-change", "archive-change", "explore", "propose", "sync-specs", "update-change")
     } | {f"speckit-{name}" for name in ("analyze", "checklist", "clarify", "constitution", "converge",
@@ -98,7 +100,7 @@ def main():
     record("Git HEAD and staged content unchanged", head_before == head_after and index_before == index_after,
            head_before=head_before, head_after=head_after)
     source_paths = ["tools/author_tools.lock.json", "tools/author_tools_requirements.lock", "tools/install_author_tools.py",
-                    "tools/check_author_tools.py", "tools/author-tool", "AGENTS.md", ".graphifyignore",
+                    "tools/check_author_tools.py", "tools/author-tool", "tools/c_tools_requirements.lock", "AGENTS.md", ".graphifyignore",
                     "openspec/config.yaml", ".specify/memory/constitution.md", "planning/author_tools.md"]
     receipt = {"schema_version": 1, "generated_at": datetime.now(timezone.utc).isoformat(),
                "scope": "optional local author tools; not curriculum acceptance or learner assessment",
@@ -109,7 +111,7 @@ def main():
                                 "Code-only extraction; no LLM calls, source uploads or community clustering",
                                 "Initial extraction reported 33 files with syntax errors and 941 files yielding no symbols",
                                 "Regenerate after source changes; graph includes assessor code and must remain local/author-only"],
-               "installation_limits": ["Python dependencies are version-pinned; their wheel hashes are not locked",
+               "installation_limits": ["Python dependencies are version-pinned; their wheel hashes are not locked, except the hash-pinned C tools",
                                        "Linux x86-64 native binary pins; Python dependencies verified here on Python 3.14",
                                        "No Git hooks or automatic remote publication configured"]}
     if args.report:
