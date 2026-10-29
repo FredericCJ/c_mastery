@@ -87,3 +87,50 @@ a generic choose-one advanced-structure heading. ACTIVE.md's exercise prerequisi
 summary uses these route gates; it no longer repeats empty historical metadata as
 the current readiness rule. These checks test readiness and source consistency,
 not independent learner mastery of the prerequisites.
+
+## contextual-v2: authored episodes and explicit encounter bindings
+
+The v1 generator assigned encounter roles by slicing node order per project (the
+first node was the introduction, the last node of each project a changed
+assumption, the last two overall the transfer) and ignored the authored
+encounter list, which was the same six labels for all thirteen mechanisms. It
+ordered ready nodes by least-recently-used context, producing 1,957 context
+switches in 1,982 transitions, and 1,976 of 1,983 `why_now` strings were generic.
+Those defects made several roles false: the deadline scan preceded its own
+"introduction", the ring transfer pointed at SPSC units and the dynamic-
+programming transfer pointed at framing units. contextual-v1 is now frozen and
+contextual-v2 replaces the inference with canonical source data.
+
+The v2 source authors episodes for the compact foundation and the three
+representative paths, plus graphs, hashing, allocation, balanced trees,
+summaries, numerical kernels, callbacks, greedy/dynamic programming and
+reclamation. Every encounter names node, objective, deliverable and a criterion
+whose objective matches, and the validator rejects bindings that cannot be true.
+The remaining nodes are unauthored project blocks; `contextual-v2.json`
+`statistics` reports their count and the count of generic `why_now` texts.
+
+Authoring against the actual criteria exposed defects that remain visible as
+`missing` bindings rather than invented coverage:
+
+- No criterion assesses `pf_ring_drain` (kernel-ABI ordering, wrapped records,
+  loss accounting); the rings transfer at U-T43-09-03 is bound with that gap.
+- LAB-EX-05 is catalogued under T15.09.a (greedy exchange) but implements 0/1
+  knapsack, and it is a typed prerequisite of both units that derive the DP
+  recurrence, so no DP implementation encounter follows the derivation.
+- No node consumes an assessed summary, pool, tree/page index, reclamation or
+  numerical component while asking for an unnamed selection under changed
+  requirements; those independent transfers are missing.
+- The ordered-search, stable-ordering, deadline and dispatch transfers are bound,
+  but their exercises name the candidate structure; selection without a named
+  structure exists only in the withheld assessor packets.
+
+This review checked bindings against criterion text and lab contracts. It is an
+author review, not an independent pedagogical review, and no learner has
+attempted any episode.
+
+The independent review of this batch found that editing the shared strand pages
+would have changed every contextual-v1 card, because each card inlines its
+context page. contextual-v2 therefore teaches from v2-only pages under
+`routes/v2/`, and the frozen-predecessor list pins the v1 strand pages with the
+v1 route, source and maps. The generator, the checker and the rename tool honour
+that one list.

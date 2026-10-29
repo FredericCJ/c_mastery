@@ -91,15 +91,44 @@ def read(root, name):
     return _READ_CACHE[key]
 
 
-def load(root=None):
+ROUTE_SCHEMAS = {1, 2}
+# Workspaces and acceptances recorded an active_specification before the route
+# identifier was stored with it; those predate contextual-v2.
+LEGACY_RECORDED_ROUTE = 'contextual-v1'
+
+
+def recorded_route(specification):
+    """Route under which a recorded active_specification was rendered."""
+    return specification.get('route') or LEGACY_RECORDED_ROUTE
+
+
+def load(root=None, route_id=None):
+    """Return the active route, or a pinned historical route by identifier.
+
+    Historical routes are frozen files beside the active route and named by
+    their identifier (for example `contextual-v1.json`). They remain loadable
+    so that profiles pinned to them keep working until explicit adoption.
+    """
     root = root_path(root)
     manifest = read(root, 'curriculum/edition.json') if (root/'curriculum/edition.json').exists() else {}
     name = manifest.get('active_route')
     if not name:
         return None
+    if not public_path(root, name).is_file():
+        raise ValueError('Active route file is missing: ' + name + '; regenerate it with tools/generate_native_route.py before selecting it in curriculum/edition.json')
     value = read(root, name)
-    if value.get('schema_version') != 1 or not value.get('id'):
+    if value.get('schema_version') not in ROUTE_SCHEMAS or not value.get('id'):
         raise ValueError('Unsupported active route')
+    if route_id is None or route_id == value['id']:
+        return value
+    if not isinstance(route_id, str) or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]*', route_id):
+        raise ValueError('Invalid route identifier')
+    historical = posixpath.join(posixpath.dirname(name), route_id + '.json')
+    if not public_path(root, historical).is_file():
+        return None
+    value = read(root, historical)
+    if value.get('schema_version') not in ROUTE_SCHEMAS or value.get('id') != route_id:
+        raise ValueError('Historical route identity mismatch: ' + route_id)
     return value
 
 
@@ -108,34 +137,39 @@ def digest(value):
 
 
 def selected(profile):
-    """Legacy profiles stay on their historical route until explicit migration."""
+    """Profiles stay on their pinned route (active or frozen historical) until explicit adoption."""
     from . import learning
     cfg = learning.settings(profile)
-    active = load()
     if not cfg.get('route'):
         return None
-    if active is None or cfg['route'] != active['id']:
+    pinned = load(route_id=cfg['route'])
+    if pinned is None:
         raise ValueError('Pinned study route unavailable; restore it or explicitly migrate')
-    return active
+    return pinned
 
 
 def migrate(profile):
+    """Adopt the active route: append one route-migrated event; grant no acceptance."""
     from . import learning, cli
     active = load()
     if active is None:
         raise ValueError('No active successor route')
     cfg = learning.settings(profile)
     old = cfg.get('route', 'historical-catalog')
+    if old == active['id']:
+        return {'route': active['id'], 'previous_route': old, 'new_acceptances': 0, 'changed': False}
+    predecessor = active.get('predecessor', {})
+    migration = active['migration'] if old in {predecessor.get('id'), 'historical-catalog'} else None
     # Keep every historical acceptance; the route does not mint new ones.
     cfg['route'] = active['id']
     cli.save(learning.area(profile)/'profile.json', cfg)
     learning.append(profile, 'route-migrated', previous_route=old, route=active['id'],
-                    migration=active['migration'], limits='Historical evidence retained; no new acceptance inferred.')
-    return {'route': active['id'], 'previous_route': old, 'new_acceptances': 0}
+                    migration=migration, limits='Historical evidence retained; no new acceptance inferred.')
+    return {'route': active['id'], 'previous_route': old, 'migration': migration, 'new_acceptances': 0, 'changed': True}
 
 
-def node(identifier, root=None):
-    active = load(root)
+def node(identifier, root=None, route_id=None):
+    active = load(root, route_id)
     if active:
         direct = next((n for n in active['nodes'] if n['id'] == identifier), None)
         if direct is not None:
@@ -149,6 +183,8 @@ def node(identifier, root=None):
                 for key in ('objectives', 'contracts', 'sources', 'supplied_artifacts'):
                     result[key] = list(dict.fromkeys(value for part in parts for value in part.get(key, [])))
                 result['criterion_resolutions'] = list({r['criterion']:r for part in parts for r in part.get('criterion_resolutions', [])}.values())
+                if any('encounters' in part for part in parts):
+                    result['encounters'] = [e for part in parts for e in part.get('encounters', [])]
                 internal = {part['id'] for part in parts}
                 result['prerequisites'] = list({digest(edge):edge for part in parts for edge in part['prerequisites'] if edge['target'] not in internal}.values())
                 result['increments'] = [{'id':part['id'], **part['active_increment']} for part in parts if part.get('active_increment')]
@@ -224,11 +260,12 @@ def available(profile):
 def require_ready(profile, identifier, workspace=None):
     """Apply typed route gates at acceptance, leaving practice always available."""
     from . import learning, exercises
-    if selected(profile) is None:
+    pinned = selected(profile)
+    if pinned is None:
         return
     if workspace is not None:
         verify_workspace_specification(workspace)
-    entry = node(identifier)
+    entry = node(identifier, route_id=pinned['id'])
     if not entry:
         raise ValueError('Assessment missing from active route: ' + identifier)
     accepted = {key for key, row in learning.accepted(profile).items() if row['historical_valid']}
@@ -255,19 +292,59 @@ def project_brief(project, root=None):
     return '# ' + project + ': effective project contract\n\n' + inline_markdown(text, 'curriculum/projects/' + project + '.md', root)
 
 
-def render_node(identifier, root=None):
+def render_episode(entry, active):
+    """Learner-facing episode and encounter context; empty for unauthored nodes."""
+    # Schema-1 routes (the frozen contextual-v1) carry no episode or encounter
+    # metadata; their cards must render byte-for-byte as before.
+    if active.get('schema_version') != 2 or 'placement' not in entry:
+        return []
+    where = entry['placement']
+    lines = []
+    if where.get('kind') == 'episode':
+        episode = next(e for e in active.get('episodes', []) if e['id'] == where['episode'])
+        lines += ['## Episode: ' + episode['title'], '',
+                  'Step ' + str(where['step']) + ' of ' + str(where['steps']) + ': ' + ', '.join(episode['construction']) + '.', '',
+                  'Entering state: ' + episode['entering_state']['summary'], '',
+                  'Motivating limitation: ' + episode['motivating_limitation'], '',
+                  'Exiting artifact: ' + episode['exiting_artifact']['description'], '',
+                  'Why the context changes afterwards: ' + episode['transition_reason'], '']
+    elif where.get('kind') == 'unauthored':
+        lines += ['## Episode', '', 'Unauthored project block ' + entry['project'] +
+                  ': no authored episode places this increment yet; the route orders it by prerequisite readiness.', '']
+    mechanisms = {m['id']: m for m in active.get('mechanisms', []) if 'id' in m}
+    rows = []
+    for encounter in entry.get('encounters', []):
+        bound = next((e for e in mechanisms.get(encounter['mechanism'], {}).get('encounters', [])
+                      if e.get('node') == entry['id'] and e['role'] == encounter['role']), None)
+        if bound is None:
+            continue
+        text = '- ' + mechanisms[encounter['mechanism']]['mechanism'] + ', ' + bound['role'] + ' (' + str(bound.get('objective')) + '): ' + bound['deliverable']
+        if bound.get('criterion') in (None, 'missing'):
+            text += ' Assessment gap: ' + bound.get('gap', 'no criterion bound').rstrip('.') + '.'
+        else:
+            text += ' Criterion: ' + bound['criterion'] + '.'
+        if bound.get('assumption_change'):
+            text += ' Changed assumption: ' + bound['assumption_change']
+        rows.append(text)
+    if rows:
+        lines += ['## Mechanism encounters', ''] + rows + ['']
+    return lines
+
+
+def render_node(identifier, root=None, route_id=None):
     root = root_path(root)
-    entry = node(identifier, root)
+    entry = node(identifier, root, route_id)
     if not entry:
         raise ValueError('Unknown active route entry: ' + identifier)
-    active = load(root)
+    active = load(root, route_id)
     context = next(c for c in active['contexts'] if c['id'] == entry['context'])
     lines = ['# ' + identifier + ': ' + entry['title'], '', 'Active route: ' + active['id'] + '.', '',
              '## Purpose and next consumer', '', entry['why_now'], '',
-             'Context: ' + context['problem'], '', 'Next consumer: ' + entry['next_consumer'], '',
-             '## Why this mechanism is needed', '',
-             inline_markdown(public_path(root, context['teaching']).read_text(encoding='utf-8-sig'), context['teaching'], root), '',
-             '## Prerequisites', '']
+             'Context: ' + context['problem'], '', 'Next consumer: ' + entry['next_consumer'], '']
+    lines += render_episode(entry, active)
+    lines += ['## Why this mechanism is needed', '',
+              inline_markdown(public_path(root, context['teaching']).read_text(encoding='utf-8-sig'), context['teaching'], root), '',
+              '## Prerequisites', '']
     for edge in entry['prerequisites']:
         lines += ['- ' + edge['kind'] + ': ' + edge['target'] +
                   ('; ' + edge['artifact'] + '@' + str(edge['contract_version']) if edge['kind'] == 'component' else '') +
@@ -381,16 +458,34 @@ def render_node(identifier, root=None):
 def render_guide(root=None):
     root = root_path(root)
     active = load(root)
+    entries = {n['id']: n for n in active['nodes']}
+    if active.get('schema_version') != 2:
+        # The frozen schema-1 guide keeps its original wording and columns.
+        lines = ['# Contextual learning route: ' + active['id'], '',
+                 'Use `python3 -m cmastery study next PROFILE` for assessed prerequisites and the next ready increment. '
+                 'Domain numbers identify subjects; the route interleaves systems, mechanisms and changed assumptions.', '',
+                 'Existing profiles retain their recorded route. Adopt this route explicitly with '
+                 '`python3 -m cmastery study route PROFILE --adopt`; no acceptance is added.', '',
+                 '| Step | Increment | System context |', '|---|---|---|']
+        for number, key in enumerate(active['order'], 1):
+            n = entries[key]
+            lines.append(f"| {number} | [{key}: {n['title']}](effective/{key}.md) | {n['context']} |")
+        return '\n'.join(lines) + '\n'
+    stats = active.get('statistics', {})
     lines = ['# Contextual learning route: ' + active['id'], '',
              'Use `python3 -m cmastery study next PROFILE` for assessed prerequisites and the next ready increment. '
-             'Domain numbers identify subjects; the route interleaves systems, mechanisms and changed assumptions.', '',
+             'Domain numbers identify subjects. Authored episodes order this route: each runs contiguously and states '
+             'why the learner enters it and leaves it. Increments that no episode places yet are listed as unauthored '
+             'project blocks in prerequisite-readiness order (' + str(stats.get('nodes_in_episodes', '?')) + ' of ' +
+             str(stats.get('nodes', len(active['order']))) + ' increments are in authored episodes).', '',
              'Existing profiles retain their recorded route. Adopt this route explicitly with '
              '`python3 -m cmastery study route PROFILE --adopt`; no acceptance is added.', '',
-             '| Step | Increment | System context |', '|---|---|---|']
-    entries = {n['id']: n for n in active['nodes']}
+             '| Step | Increment | Episode or block | System context |', '|---|---|---|---|']
     for number, key in enumerate(active['order'], 1):
         n = entries[key]
-        lines.append(f"| {number} | [{key}: {n['title']}](effective/{key}.md) | {n['context']} |")
+        where = n.get('placement', {})
+        label = where.get('episode') if where.get('kind') == 'episode' else where.get('block', 'unplaced')
+        lines.append(f"| {number} | [{key}: {n['title']}](effective/{key}.md) | {label} | {n['context']} |")
     return '\n'.join(lines) + '\n'
 
 
@@ -429,8 +524,9 @@ def export_assets(identifier, destination, root=None):
     return sorted(names)
 
 
-def specification_identity(identifier):
-    return hashlib.sha256(render_node(identifier).encode('utf-8')).hexdigest()
+def specification_identity(identifier, route_id=None):
+    """Hash of the rendered card under the recorded route (active route by default)."""
+    return hashlib.sha256(render_node(identifier, route_id=route_id).encode('utf-8')).hexdigest()
 
 def verify_workspace_specification(workspace):
     from . import cli
@@ -439,7 +535,7 @@ def verify_workspace_specification(workspace):
     selected = metadata.get('active_specification')
     if not selected:
         return
-    if selected.get('sha256') != specification_identity(selected['id']):
+    if selected.get('sha256') != specification_identity(selected['id'], recorded_route(selected)):
         raise ValueError('Active specification changed; preserve the workspace and refresh its selected contract before acceptance')
     actual = workspace/selected['path']
     if not actual.is_file() or hashlib.sha256(actual.read_bytes()).hexdigest() != selected['sha256']:

@@ -41,6 +41,15 @@ GENERATED = {"curriculum/v5/exercises.json", "curriculum/v5/routes/contextual-v1
 SKIP_PYTHON = {"tools/c_rename.py", "tools/rename_text.py", "tools/source_equivalence.py"}
 
 
+def frozen_route_files():
+    """Paths a later route pins byte-for-byte (predecessor.frozen_sha256)."""
+    frozen = set()
+    for source in sorted((ROOT / "curriculum/v5/routes").glob("*.source.json")):
+        predecessor = json.loads(source.read_text()).get("predecessor") or {}
+        frozen.update(predecessor.get("frozen_sha256", {}))
+    return frozen
+
+
 def distinctive(name):
     return re.fullmatch(r"[A-Z][a-z0-9]+", name) is None and re.search(r"[A-Z]", name) is not None
 
@@ -116,8 +125,9 @@ def main():
     files = subprocess.run(["git", "ls-files"], cwd=ROOT, capture_output=True, text=True,
                            check=True).stdout.split()
     changed = []
+    frozen = frozen_route_files()
     for name in files:
-        if name in GENERATED or name.startswith(("reviews/", "build/")):
+        if name in GENERATED or name in frozen or name.startswith(("reviews/", "build/")):
             continue
         if name.endswith(".py") and name.startswith(PYTHON) and name not in SKIP_PYTHON:
             transform = python_strings

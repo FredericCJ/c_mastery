@@ -507,7 +507,7 @@ def acceptance_valid(entry):
         selected = entry.get("active_specification")
         if selected:
             from . import route
-            if selected["sha256"] != route.specification_identity(selected["id"]):
+            if selected["sha256"] != route.specification_identity(selected["id"], route.recorded_route(selected)):
                 return False, "effective learner contract changed"
         if not verify_files(workspace, entry.get("source_files", {})):
             return False, "claimed component source changed"
@@ -910,8 +910,10 @@ def study_sheet(profile, output, identifier=None, assessment_template=None):
                   "Architecture choice, alternatives and reversal condition: __________________", ""]
     if chosen:
         from . import route
-        if route.node(chosen["id"]):
-            lines += ["", route.render_node(chosen["id"])]
+        pinned = route.selected(profile)
+        route_id = pinned["id"] if pinned else None
+        if route.node(chosen["id"], route_id=route_id):
+            lines += ["", route.render_node(chosen["id"], route_id=route_id)]
     lines += ["## Enter this record", "", "Use study next --studied UNIT after study, then recall start / submit / grade.",
               "Paper dates may be described in the answer; CLI records entry time and never backdates mastery.", ""]
     Path(output).write_text("\n".join(lines), encoding="utf-8")
@@ -1057,7 +1059,7 @@ def artifact_link(profile, workspace, bundle, profile_name, target):
     from . import route
     active_imports=set()
     if meta.get('active_specification'):
-        entry=route.node(meta['active_specification']['id'])
+        entry=route.node(meta['active_specification']['id'],route_id=route.recorded_route(meta['active_specification']))
         if entry is None:raise ValueError('Active consumer specification is unavailable')
         active_imports={edge['artifact'] for edge in entry['prerequisites'] if edge['kind']=='component'}
     if meta.get("unit"):

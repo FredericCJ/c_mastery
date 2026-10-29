@@ -1,199 +1,479 @@
-"""Generate the active contextual route and lossless objective/migration maps.
+"""Generate the active contextual route and its lossless objective/migration maps.
 
-This producer reads public canonical sources only. Historical catalog records
-are never edited. --check compares expected output without modifying any file.
+The producer reads public canonical sources only. The canonical route source is
+`curriculum/v5/routes/contextual-v2.source.json`; its authored episodes are
+scheduled contiguously in authored order under the typed prerequisites, and
+nodes that no episode places remain visible as `unauthored` project blocks
+ordered by readiness. Encounter maps come only from authored encounters.
+
+The predecessor `contextual-v1.json` and its `coverage.json`/`migration.json`
+are frozen: this producer never writes them and `--check` verifies their pinned
+SHA-256 identities. Historical catalog records are never edited. `--check`
+compares expected output without modifying any file.
 """
 from __future__ import annotations
+
 import argparse
 from collections import defaultdict
+from copy import deepcopy
 import hashlib
 import json
-from pathlib import Path
-import sys
-from common import ROOT, load_taxonomy, parse
+
+from common import ROOT, load_taxonomy
 
 BASE = 'curriculum/v5/routes/'
+SOURCE = BASE + 'contextual-v2.source.json'
+ROLES = ('introduction', 'derivation', 'implementation', 'integrated-reuse',
+         'changed-assumption', 'independent-transfer')
+HARD = {'concept', 'component'}
 
 
 def read(name):
     return json.loads((ROOT/name).read_text(encoding='utf-8-sig'))
 
 
-def generate():
-    source = read(BASE+'contextual-v1.source.json')
+def sha256(name):
+    return hashlib.sha256((ROOT/name).read_bytes()).hexdigest()
+
+
+def output_names(route_id):
+    """Successor outputs are named for their route; criterion resolutions are shared."""
+    return {'route': route_id + '.json', 'coverage': route_id + '.coverage.json',
+            'migration': route_id + '.migration.json', 'resolutions': 'criterion_resolutions.json'}
+
+
+def project_files(area, suffixes):
+    folder = ROOT/area
+    return [p.relative_to(ROOT).as_posix() for p in sorted(folder.glob('*'))
+            if p.is_file() and p.suffix in suffixes]
+
+
+def prepare(source):
+    """Build route nodes and typed prerequisites; this part has no ordering policy."""
+    from native_successors import resolve
     units = read('curriculum/v5/units.json')['units']
     exercises = read('curriculum/v5/exercises.json')['exercises']
-    project_entries={}
-    for unit in units:project_entries.setdefault(unit['project'],unit)
-    artifacts = {r['id']:r for r in read('curriculum/v5/artifacts.json')['artifacts']}
-    for artifact in source.get('component_contracts', []):
+    project_entries = {}
+    for unit in units:
+        project_entries.setdefault(unit['project'], unit)
+    artifacts = {r['id']: r for r in read('curriculum/v5/artifacts.json')['artifacts']}
+    components = deepcopy(source.get('component_contracts', []))
+    for artifact in components:
         if artifact['id'] in artifacts:
             raise ValueError('Active component must not replace historical identity')
+        artifact['required_header_sha256'] = sha256(artifact['required_header'])
         artifacts[artifact['id']] = artifact
-        artifact['required_header_sha256'] = hashlib.sha256((ROOT/artifact['required_header']).read_bytes()).hexdigest()
-    domains = {d:c['id'] for c in source['contexts'] for d in c['domains']}
-    contexts = {c['id']:c for c in source['contexts']}
-    from native_successors import resolve
-    resolutions=[]
+    domains = {d: c['id'] for c in source['contexts'] for d in c['domains']}
+    resolutions = []
     for path in sorted((ROOT/'curriculum/v5/expansion/legacy_assessments').glob('PR-*.json')):
-        resolutions+=resolve(json.loads(path.read_text(encoding='utf-8-sig')),ROOT,source.get('successor_dispositions'))
-    resolution_by_project=defaultdict(list)
-    for row in resolutions:resolution_by_project[row['project']].append(row)
-    nodes=[]
-    for kind, rows in [('unit',units),('exercise',exercises)]:
+        resolutions += resolve(json.loads(path.read_text(encoding='utf-8-sig')), ROOT, source.get('successor_dispositions'))
+    resolution_by_project = defaultdict(list)
+    for row in resolutions:
+        resolution_by_project[row['project']].append(row)
+    supplied_policy = source['supplied_artifacts']
+    suffixes = set(supplied_policy['suffixes'])
+    nodes = []
+    for kind, rows in [('unit', units), ('exercise', exercises)]:
         for value in rows:
-            key=value['id'];project=value['project']
-            domain=value.get('domain') or (project.split('-')[1] if project.startswith('PR-T') else 'INTEGRATION')
-            context=source['project_context'].get(project,domains.get(domain,'integration'))
-            required=value.get('requires',[]) if kind=='unit' else value.get('prerequisite_exercises',[])+value.get('prerequisite_units',[])
-            edges=[dict(kind='concept',target=k,reason=value.get('requires_reasons',{}).get(k,'Pass the referenced mechanism assessment before independent reuse.')) for k in required]
-            if kind=='exercise' and source.get('exercise_prerequisite_policy',{}).get('inherit_parent_entry_upstream'):
-                policy=source['exercise_prerequisite_policy']
-                if key not in policy.get('portable_core_exceptions',{}):
-                    parent=project_entries[project]
-                    for prior in parent.get('requires',[]):
-                        if prior not in required:
-                            edges.append(dict(kind='concept',target=prior,derived_from=parent['id'],
-                                              reason='Reuse the parent entry prerequisite: '+parent.get('requires_reasons',{}).get(prior,'assessed prior mechanism')+'. This is conceptual preparation for the extension; it does not import a hidden implementation.'))
-            imports=value.get('imports',[]) if kind=='unit' else value.get('prerequisite_artifacts',[])
+            key = value['id']
+            project = value['project']
+            domain = value.get('domain') or (project.split('-')[1] if project.startswith('PR-T') else 'INTEGRATION')
+            context = source['project_context'].get(project, domains.get(domain, 'integration'))
+            required = value.get('requires', []) if kind == 'unit' else value.get('prerequisite_exercises', []) + value.get('prerequisite_units', [])
+            edges = [dict(kind='concept', target=k, reason=value.get('requires_reasons', {}).get(k, 'Pass the referenced mechanism assessment before independent reuse.')) for k in required]
+            policy = source.get('exercise_prerequisite_policy', {})
+            if kind == 'exercise' and policy.get('inherit_parent_entry_upstream') and key not in policy.get('portable_core_exceptions', {}):
+                parent = project_entries[project]
+                for prior in parent.get('requires', []):
+                    if prior not in required:
+                        edges.append(dict(kind='concept', target=prior, derived_from=parent['id'],
+                                          reason='Reuse the parent entry prerequisite: ' + parent.get('requires_reasons', {}).get(prior, 'assessed prior mechanism') + '. This is conceptual preparation for the extension; it does not import a hidden implementation.'))
+            imports = value.get('imports', []) if kind == 'unit' else value.get('prerequisite_artifacts', [])
             for aid in imports:
-                a=artifacts[aid]
+                artifact = artifacts[aid]
                 # Preserve inherited import gating: a later unit still carries its actual import.
-                edges=[e for e in edges if e['target']!=a['producer_unit']]
-                edges.append(dict(kind='component',target=a['producer_unit'],artifact=aid,contract_version=a['contract_version'],reason=a['public_contract']))
-            family=value.get('family') if kind=='unit' else value['lab']['family']
+                edges = [e for e in edges if e['target'] != artifact['producer_unit']]
+                edges.append(dict(kind='component', target=artifact['producer_unit'], artifact=aid,
+                                  contract_version=artifact['contract_version'], reason=artifact['public_contract']))
+            family = value.get('family') if kind == 'unit' else value['lab']['family']
             if family:
-                edges.append(dict(kind='environment',target='cc',reason='Build the component with an identified C17 compiler.'))
-            supplied=[]
-            contracts=[];sources=['curriculum/v5/units.json' if kind=='unit' else value['brief'],'curriculum/projects/'+project+'.md']
-            assessment=ROOT/'curriculum/v5/expansion/legacy_assessments'/(project+'.json')
+                edges.append(dict(kind='environment', target='cc', reason='Build the component with an identified C17 compiler.'))
+            contracts = []
+            sources = ['curriculum/v5/units.json' if kind == 'unit' else value['brief'], 'curriculum/projects/' + project + '.md']
+            assessment = ROOT/'curriculum/v5/expansion/legacy_assessments'/(project + '.json')
             if assessment.exists():
-                data=json.loads(assessment.read_text(encoding='utf-8-sig'));contracts+=data['shared_contracts'];sources.append(assessment.relative_to(ROOT).as_posix())
-            if kind=='exercise':contracts+=value['shared_contracts']
-            if project=='PR-T24-05':
-                contracts += ['labs/hosted_systems/timer_depth/CONTRACTS.md']
-                optional=ROOT/'labs/hosted_systems/timer_depth/COLLECTION.md'
-                if optional.exists():contracts.append(optional.relative_to(ROOT).as_posix())
-                supplied += [p.relative_to(ROOT).as_posix() for p in (ROOT/'labs/hosted_systems/timer_depth').glob('*') if p.is_file() and p.suffix in {'.c','.h','.md','.py'}]
-            if project=='PR-T24-03':contracts+=['labs/hosted_systems/stream_depth/CONTRACTS.md']
-            if project=='PR-T43-09':
-                contracts += ['labs/performance_followthrough/PMU_PROTOCOL.md']
-                supplied += ['labs/performance_followthrough/'+name for name in ['pmu.h','pmu.c','pmu_linux.c','pmu_tests.c','publication.c','publication.h','build.py','PMU_PROTOCOL.md']]
-            public_areas=[]
-            if project in {'PR-T14-01','PR-T14-05','PR-T14-08'}:public_areas=['labs/containers_depth']
-            if project=='PR-T15-05':public_areas=['labs/algorithm_depth']
-            if project=='PR-T36-07':public_areas=['labs/algorithm_frontier']
-            if project=='PR-T03-02' and kind=='unit':public_areas=['labs/object_followthrough/cursor']
-            for area in public_areas:
-                supplied += [p.relative_to(ROOT).as_posix() for p in (ROOT/area).glob('*') if p.is_file() and p.suffix in {'.c','.h','.md','.py'}]
-            supplied += [a['required_header'] for a in source.get('component_contracts', []) if a['producer_unit']==key]
-            supplied=list(dict.fromkeys(supplied))
-            selected_resolutions=[r for r in resolution_by_project[project] if r['objective'] in value['objectives']]
-            for resolution in selected_resolutions:contracts+=resolution['public_contracts']
-            contracts=list(dict.fromkeys(contracts))
-            nodes.append(dict(id=key,kind=kind,project=project,title=value['title'],context=context,
-                              objectives=value['objectives'],prerequisites=edges,contracts=contracts,sources=sources,supplied_artifacts=supplied,criterion_resolutions=selected_resolutions,
-                              why_now=contexts[context]['problem']+' This increment: '+value['title']+'.',
-                              next_consumer='Selected after prerequisite ordering.',required=value.get('required',value.get('status')!='elective'),
-                              assessment=dict(kind='existing-scoped-assessment',tests=value.get('tests',[]) if kind=='unit' else value['lab']['tests'],
-                                              limits=value.get('remaining_evidence', 'Reasoning, independence and changed conditions require explicit evidence.'))))
-            if project=='PR-T15-05':
-                nodes[-1]['contract_scope']='Implement the selected graph objectives using the imported struct cd_csr and local traversal/worklist storage. The shared T15 document also covers byte and sorting producers: its fr_* and heap-sort imports apply to those operations, not to ad_bfs/ad_dijkstra. The later frontier refinement separately imports the assessed struct cd_ring/struct cd_heap producers.'
-    byid={n['id']:n for n in nodes}
-    # Place the compact vocabulary after actual C setup and bounds work.
-    first='U-T01-01-01'
-    for prior in ['U-T01-03-03','U-T03-02-03','U-T04-01-04']:
-        if prior in byid and first in byid:
-            byid[first]['prerequisites'].append(dict(kind='concept',target=prior,reason='Use defined indexing and checked arithmetic when proving the first algorithms.'))
-    byid['U-T43-09-03']['prerequisites'].append(dict(kind='concept',target='U-T55-01-03',reason='Sampled-ring consumption requires the acquired publication-order argument; earlier counting work does not require it.'))
+                data = json.loads(assessment.read_text(encoding='utf-8-sig'))
+                contracts += data['shared_contracts']
+                sources.append(assessment.relative_to(ROOT).as_posix())
+            if kind == 'exercise':
+                contracts += value['shared_contracts']
+            supply = supplied_policy['projects'].get(project, {})
+            contracts += supply.get('contracts', [])
+            contracts += [name for name in supply.get('optional_contracts', []) if (ROOT/name).is_file()]
+            supplied = []
+            for area in supply.get('directories', []) + (supply.get('unit_directories', []) if kind == 'unit' else []):
+                supplied += project_files(area, suffixes)
+            supplied += supply.get('files', [])
+            supplied += [a['required_header'] for a in components if a['producer_unit'] == key]
+            supplied = list(dict.fromkeys(supplied))
+            selected_resolutions = [r for r in resolution_by_project[project] if r['objective'] in value['objectives']]
+            for resolution in selected_resolutions:
+                contracts += resolution['public_contracts']
+            contracts = list(dict.fromkeys(contracts))
+            node = dict(id=key, kind=kind, project=project, title=value['title'], context=context,
+                        objectives=value['objectives'], prerequisites=edges, contracts=contracts, sources=sources,
+                        supplied_artifacts=supplied, criterion_resolutions=selected_resolutions,
+                        required=value.get('required', value.get('status') != 'elective'),
+                        assessment=dict(kind='existing-scoped-assessment',
+                                        tests=value.get('tests', []) if kind == 'unit' else value['lab']['tests'],
+                                        limits=value.get('remaining_evidence', 'Reasoning, independence and changed conditions require explicit evidence.')))
+            if project in source.get('contract_scopes', {}):
+                node['contract_scope'] = source['contract_scopes'][project]
+            nodes.append(node)
+    byid = {n['id']: n for n in nodes}
     for identifier, edges in source.get('additional_prerequisites', {}).items():
-        byid[identifier]['prerequisites'] += edges
+        if identifier not in byid:
+            raise ValueError('Additional prerequisite names an unknown node: ' + identifier)
+        byid[identifier]['prerequisites'] += deepcopy(edges)
     for group in source.get('exercise_concept_groups', []):
         for identifier in group['exercises']:
-            if byid[identifier]['kind']!='exercise':raise ValueError('Exercise concept group names a baseline unit')
+            if byid[identifier]['kind'] != 'exercise':
+                raise ValueError('Exercise concept group names a baseline unit')
             for prior in group['requires']:
-                if not any(edge['target']==prior and edge['kind'] in {'concept','component'} for edge in byid[identifier]['prerequisites']):
-                    byid[identifier]['prerequisites'].append(dict(kind='concept',target=prior,reason=group['reason'],
-                                                               derived_from=group['source']))
+                if not any(edge['target'] == prior and edge['kind'] in HARD for edge in byid[identifier]['prerequisites']):
+                    byid[identifier]['prerequisites'].append(dict(kind='concept', target=prior, reason=group['reason'], derived_from=group['source']))
     for entry in nodes:
-        gates={}
+        gates = {}
         for edge in entry['prerequisites']:
-            signature=(edge['kind'],edge['target'],edge.get('artifact'),edge.get('contract_version'))
-            gates.setdefault(signature,edge)
-        entry['prerequisites']=list(gates.values())
+            gates.setdefault((edge['kind'], edge['target'], edge.get('artifact'), edge.get('contract_version')), edge)
+        entry['prerequisites'] = list(gates.values())
+        for edge in entry['prerequisites']:
+            if edge['kind'] in HARD and edge['target'] not in byid:
+                raise ValueError('Dangling prerequisite: ' + entry['id'] + ' -> ' + edge['target'])
     for identifier, increment in source.get('increments', {}).items():
         byid[identifier]['active_increment'] = increment
-        byid[identifier]['why_now'] = increment['task']
-    hard={n['id']:{e['target'] for e in n['prerequisites'] if e['kind'] in {'concept','component'}} for n in nodes}
-    original={n['id']:i for i,n in enumerate(nodes)}
-    preferred={k:i for i,k in enumerate(source['foundation_order'])}
-    # Promote real ancestors, never future artifacts. Round-robin contexts among
-    # ready work means the subject catalog cannot dictate the encounter order.
-    ranks=dict(preferred)
-    def promote(key,rank,seen):
-        if key in seen:return
-        seen.add(key);ranks[key]=min(ranks.get(key,1e9),rank)
-        for p in sorted(hard[key]):promote(p,rank-.01,seen)
-    for key,rank in preferred.items():
-        if key in hard:promote(key,rank,set())
-    pending=set(byid);order=[];done=set();last=defaultdict(lambda:-1)
-    while pending:
-        ready=[k for k in pending if hard[k]<=done]
-        if not ready:raise ValueError('Route cycle/dangling prerequisites: '+str({k:sorted(hard[k]-done) for k in sorted(pending)[:8]}))
-        ready.sort(key=lambda k:(ranks.get(k,1e9),last[byid[k]['context']],original[k]))
-        key=ready[0];pending.remove(key);done.add(key);order.append(key);last[byid[key]['context']]=len(order)
+    return dict(nodes=nodes, artifacts=artifacts, components=components, resolutions=resolutions)
+
+
+def hard_prerequisites(nodes):
+    return {n['id']: {e['target'] for e in n['prerequisites'] if e['kind'] in HARD} for n in nodes}
+
+
+def catalog_key(node):
+    return (node['project'], 0 if node['kind'] == 'unit' else 1, node['id'])
+
+
+def schedule(episodes, nodes):
+    """Place episodes contiguously in authored order; unauthored blocks follow readiness.
+
+    An unauthored ancestor that an episode needs is placed, as a project block,
+    immediately before that episode. After the last episode the remaining
+    unauthored nodes are placed in the order they became ready; ties use the
+    subject catalog, and a project block continues while its next node is ready.
+    Nothing balances or rotates context labels.
+    """
+    byid = {n['id']: n for n in nodes}
+    hard = hard_prerequisites(nodes)
+    owner = {}
+    for episode in episodes:
+        if not episode.get('construction'):
+            raise ValueError('Episode has no construction: ' + episode['id'])
+        for key in episode['construction']:
+            if key not in byid:
+                raise ValueError('Episode ' + episode['id'] + ' names an unknown node: ' + key)
+            if key in owner:
+                raise ValueError('Node ' + key + ' is constructed by two episodes: ' + owner[key] + ', ' + episode['id'])
+            owner[key] = episode['id']
+    order, done, placement = [], set(), {}
+    dependents = defaultdict(list)
+    for key, priors in hard.items():
+        for prior in priors:
+            dependents[prior].append(key)
+    # Readiness time: the route position at which a node's last hard prerequisite was placed.
+    ready_since = {key: 0 for key, priors in hard.items() if not priors}
+
+    def place(key, where):
+        order.append(key)
+        done.add(key)
+        placement[key] = where
+        for later in dependents[key]:
+            if later not in ready_since and hard[later] <= done:
+                ready_since[later] = len(order)
+
+    def closure(keys):
+        result, stack = set(), list(keys)
+        while stack:
+            for prior in hard[stack.pop()]:
+                if prior not in result:
+                    result.add(prior)
+                    stack.append(prior)
+        return result
+
+    def place_unauthored(required, needed_by):
+        pending = set(required)
+        current = None
+        while pending:
+            ready = [k for k in pending if k in ready_since]
+            if not ready:
+                raise ValueError('Route cycle/dangling prerequisites: ' + str({k: sorted(hard[k]-done) for k in sorted(pending)[:8]}))
+            same = [k for k in ready if current is not None and byid[k]['project'] == current]
+            choice = min(same or ready, key=lambda k: (0 if same else ready_since[k], catalog_key(byid[k])))
+            current = byid[choice]['project']
+            pending.remove(choice)
+            place(choice, dict(kind='unauthored', block='unauthored:' + current, needed_by=needed_by))
+
+    for episode in episodes:
+        construction = episode['construction']
+        missing = closure(construction) - done - set(construction)
+        foreign = sorted(k for k in missing if k in owner)
+        if foreign:
+            raise ValueError('Episode ' + episode['id'] + ' requires ' + foreign[0] + ' from later episode ' + owner[foreign[0]])
+        for key in sorted(missing):
+            inside = sorted(hard[key] & set(construction))
+            if inside:
+                raise ValueError('Episode ' + episode['id'] + ' needs unauthored ' + key + ', which itself requires ' + inside[0] +
+                                 ' from the same episode; author it into the construction or split the episode')
+        place_unauthored(missing, episode['id'])
+        for step, key in enumerate(construction, 1):
+            unmet = sorted(hard[key] - done)
+            if unmet:
+                raise ValueError('Episode ' + episode['id'] + ' construction violates prerequisites: ' + key + ' requires ' + unmet[0])
+            place(key, dict(kind='episode', episode=episode['id'], step=step, steps=len(construction)))
+    place_unauthored(set(byid) - done, None)
+    return order, placement
+
+
+def criterion_universe(exercises):
+    """Every assessable criterion with its objective, owning node scope and text."""
+    universe = {}
+    for path in sorted((ROOT/'curriculum/v5/expansion/legacy_assessments').glob('PR-*.json')):
+        data = json.loads(path.read_text(encoding='utf-8-sig'))
+        for c in data['criteria']:
+            text = [c.get('title', ''), c.get('task', ''), c.get('purpose', '')] + list(c.get('reasoning', []))
+            text += [str(v) for v in c.get('rubric', {}).values()] + list(c.get('hints', []))
+            text += [v.get('task', '') for v in c.get('variants', [])]
+            universe[c['id']] = dict(objective=c['objective'], project=data['project'], kind='legacy',
+                                     source=path.relative_to(ROOT).as_posix(), text=' '.join(text))
+    for x in exercises:
+        for row in x['rubric']:
+            universe[row['id']] = dict(objective=row['objective'], exercise=x['id'], project=x['project'], kind='exercise',
+                                       source=x['brief'], text=' '.join([row['criterion']] + list(row['levels'].values())))
+    return universe
+
+
+def assemble(source, prepared):
+    """Order nodes from authored episodes and bind authored encounters."""
+    nodes = deepcopy(prepared['nodes'])
+    byid = {n['id']: n for n in nodes}
+    contexts = {c['id']: c for c in source['contexts']}
+    episodes = source.get('episodes', [])
+    episode_by_id = {e['id']: e for e in episodes}
+    if len(episode_by_id) != len(episodes):
+        raise ValueError('Duplicate episode identifier')
+    order, placement = schedule(episodes, nodes)
+    position = {k: i for i, k in enumerate(order)}
+    hard = hard_prerequisites(nodes)
+    consumers = defaultdict(list)
     for key in order:
-        consumers=[k for k in order if key in hard[k]]
-        byid[key]['next_consumer']=', '.join(consumers[:4]) or 'Independent integrated defense in the '+byid[key]['context']+' context.'
-    coverage=[]
+        for prior in hard[key]:
+            consumers[prior].append(key)
+    encounters_by_node = defaultdict(list)
+    for mechanism in source.get('mechanisms', []):
+        for encounter in mechanism.get('encounters', []):
+            if isinstance(encounter, dict) and encounter.get('node') in byid:
+                encounters_by_node[encounter['node']].append((mechanism, encounter))
+    for key in order:
+        node = byid[key]
+        where = placement[key]
+        node['placement'] = where
+        node['encounters'] = [dict(mechanism=m.get('id'), role=e.get('role'), objective=e.get('objective'), criterion=e.get('criterion'))
+                              for m, e in encounters_by_node[key]]
+        increment = node.get('active_increment')
+        if where['kind'] == 'episode':
+            episode = episode_by_id[where['episode']]
+            note = episode.get('notes', {}).get(key)
+            parts = [episode['title'] + ' (step ' + str(where['step']) + ' of ' + str(where['steps']) + ').']
+            if where['step'] == 1:
+                parts.append(episode['motivating_limitation'])
+            if note:
+                parts.append(note)
+            elif where['step'] > 1:
+                parts.append('This step continues the construction toward: ' + episode['exiting_artifact']['description'])
+            for mechanism, encounter in encounters_by_node[key]:
+                if encounter.get('criterion') in (None, 'missing') or encounter.get('role') not in ROLES or not encounter.get('deliverable'):
+                    continue  # malformed or unbound encounters are reported by the validator, never narrated
+                parts.append('As the ' + encounter['role'] + ' encounter for ' + str(mechanism.get('mechanism')) + ': ' + encounter['deliverable'])
+            if increment:
+                parts.append('This increment: ' + increment['task'])
+            node['why_now'] = ' '.join(parts)
+            node['why_now_kind'] = 'episode'
+            construction = episode['construction']
+            if where['step'] < where['steps']:
+                following = construction[where['step']]
+                node['next_consumer'] = following + ' continues this episode (' + byid[following]['title'] + ').'
+                node['next_consumer_kind'] = 'episode'
+            else:
+                later = [e['id'] for e in episodes[episodes.index(episode)+1:]
+                         if any(set(construction) & hard[k] for k in e['construction'])]
+                exit_text = 'Exiting artifact: ' + episode['exiting_artifact']['description']
+                if later:
+                    node['next_consumer'] = exit_text + ' Consumed next by episode ' + ', '.join(later[:3]) + '.'
+                    node['next_consumer_kind'] = 'episode'
+                else:
+                    node['next_consumer'] = exit_text + ' No later authored episode consumes it yet.'
+                    node['next_consumer_kind'] = 'unauthored'
+        else:
+            if increment:
+                node['why_now'] = increment['task']
+                node['why_now_kind'] = 'increment'
+            else:
+                need = (' It is placed here because episode ' + where['needed_by'] + ' requires it.') if where['needed_by'] else ''
+                node['why_now'] = ('Unauthored project block ' + node['project'] + ': no authored episode places this increment yet.' + need +
+                                   ' Context: ' + contexts[node['context']]['problem'] + ' This increment: ' + node['title'] + '.')
+                node['why_now_kind'] = 'generic'
+            direct = consumers[key]
+            node['next_consumer'] = (', '.join(direct[:4]) + ' (derived from prerequisite edges).') if direct else 'No later node depends on it; independent integrated defense in the ' + node['context'] + ' context.'
+            node['next_consumer_kind'] = 'derived'
+    universe = criterion_universe(read('curriculum/v5/exercises.json')['exercises'])
+    mechanisms = []
+    for mechanism in source.get('mechanisms', []):
+        bound = deepcopy(mechanism)
+        roles = {role: [] for role in ROLES}
+        bound.setdefault('encounters', [])
+        for encounter in bound['encounters']:
+            if encounter.get('node') and encounter.get('role') in roles:
+                roles[encounter['role']].append(encounter['node'])
+            criterion = universe.get(encounter.get('criterion'))
+            if criterion:
+                encounter['criterion_source'] = criterion['source']
+        bound['encounter_map'] = roles
+        bound['bound_roles'] = sorted({e['role'] for e in bound['encounters'] if e.get('role') in ROLES and e.get('node') and e.get('criterion') not in (None, 'missing')}, key=ROLES.index)
+        bound['missing'] = [dict(role=e.get('role'), node=e.get('node'), gap=e.get('gap', '')) for e in bound['encounters'] if e.get('criterion') in (None, 'missing')]
+        mechanisms.append(bound)
+    theory = deepcopy(source.get('theory', []))
+    for topic in theory:
+        for binding in topic.get('bindings', []):
+            criterion = universe.get(binding.get('criterion'))
+            if criterion:
+                binding['criterion_source'] = criterion['source']
+    episodes_out = []
+    for episode in episodes:
+        value = deepcopy(episode)
+        span = [position[k] for k in episode['construction']]
+        value['span'] = dict(first=min(span), last=max(span))
+        episodes_out.append(value)
+    blocks = []
+    for key in order:
+        where = placement[key]
+        if where['kind'] != 'unauthored':
+            continue
+        if blocks and blocks[-1]['id'] == where['block'] and blocks[-1]['last'] == position[key]-1:
+            blocks[-1]['nodes'].append(key)
+            blocks[-1]['last'] = position[key]
+        else:
+            blocks.append(dict(id=where['block'], project=byid[key]['project'], status='unauthored', needed_by=where['needed_by'],
+                               first=position[key], last=position[key], nodes=[key]))
+    paths = []
+    for path in source.get('paths', []):
+        members = [k for e in path['episodes'] for k in episode_by_id[e]['construction']]
+        paths.append(dict(path, units=members))
+    stats = dict(episodes=len(episodes), nodes=len(order),
+                 nodes_in_episodes=sum(1 for k in order if placement[k]['kind'] == 'episode'),
+                 unauthored_nodes=sum(1 for k in order if placement[k]['kind'] == 'unauthored'),
+                 unauthored_blocks=len(blocks),
+                 why_now=dict((kind, sum(1 for n in nodes if n['why_now_kind'] == kind)) for kind in ('episode', 'increment', 'generic')),
+                 encounters=sum(1 for m in mechanisms for e in m['encounters'] if e.get('role') in ROLES and e.get('node') and e.get('criterion') not in (None, 'missing')),
+                 missing_bindings=sum(len(m['missing']) for m in mechanisms),
+                 mechanisms_fully_bound=sum(1 for m in mechanisms if len(m['bound_roles']) == len(ROLES) and not m['missing']),
+                 theory_topics_bound=sum(1 for t in theory if t.get('bindings')))
+    names = output_names(source['id'])
+    predecessor = source['predecessor']
+    coverage = []
+    entries_by_objective = defaultdict(list)
+    for key in order:
+        for objective in byid[key]['objectives']:
+            entries_by_objective[objective].append(key)
+    legacy_by_objective = defaultdict(list)
+    for identifier, value in sorted(universe.items()):
+        if value['kind'] == 'legacy':
+            legacy_by_objective[value['objective']].append((identifier, value))
+    bindings_by_objective = defaultdict(list)
+    for m in mechanisms:
+        for e in m['encounters']:
+            if e.get('node'):
+                bindings_by_objective[e.get('objective')].append(dict(mechanism=m.get('id'), role=e.get('role'), node=e['node'], criterion=e.get('criterion')))
     for domain in load_taxonomy():
         for topic in domain['subtopics']:
             for objective in topic['objectives']:
-                entries=[k for k in order if objective['id'] in byid[k]['objectives']]
-                if not entries:raise ValueError('Lost objective: '+objective['id'])
-                criteria=[]
-                for project in sorted({byid[k]['project'] for k in entries}):
-                    path=ROOT/'curriculum/v5/expansion/legacy_assessments'/(project+'.json')
-                    if path.exists():
-                        criteria += [dict(id=c['id'],source=path.relative_to(ROOT).as_posix()) for c in json.loads(path.read_text(encoding='utf-8-sig'))['criteria'] if c['objective']==objective['id']]
-                coverage.append(dict(objective=objective['id'],text=objective['text'],encounters=entries,criteria=criteria,
-                                     contexts=sorted({byid[k]['context'] for k in entries}),disposition='retained',
-                                     limits='Coverage links identify authored obligations, not completed assessments.'))
-    mechanisms=[]
-    for mechanism in source['mechanisms']:
-        bound=dict(mechanism)
-        project_nodes=[[k for k in order if byid[k]['project']==project] for project in mechanism['projects']]
-        project_nodes=[values for values in project_nodes if values]
-        flat=[key for values in project_nodes for key in values]
-        bound['encounter_map']={
-            'motivated_introduction':project_nodes[0][:1],
-            'derivation':project_nodes[0][:2],
-            'implementation':project_nodes[0],
-            'reuse':[values[0] for values in project_nodes[1:]],
-            'changed_assumption':[values[-1] for values in project_nodes],
-            'independent_transfer':{'contract':mechanism['independent_transfer'], 'assessment_contexts':flat[-2:], 'status':'authored requirement; no independent result inferred'}}
-        mechanisms.append(bound)
-    migration=dict(schema_version=1,from_route='v5-catalog-order',to_route=source['id'],
-                   records=[dict(id=n['id'],successor=n['id'],disposition='reordered-context',acceptance='Retain the original contract and receipt; added route prerequisites do not grant new acceptance.') for n in nodes],
-                   objective_ids=[c['objective'] for c in coverage],ledger_policy='Do not rewrite old ledger entries. Explicit adoption records a route-migrated event; new profiles select contextual-v1.')
-    route=dict(schema_version=1,id=source['id'],catalog='curriculum/v5',contexts=source['contexts'],nodes=nodes,order=order,
-               coverage=BASE+'coverage.json',migration=BASE+'migration.json',mechanisms=mechanisms,
-               component_contracts=source.get('component_contracts', []),
-               pilots=[dict(id='streaming-to-perf',teaching=BASE+'streaming.md',units=[k for k in order if byid[k]['project'] in {'PR-T14-01','PR-T24-03','PR-T55-01','PR-T43-09'}]),
-                       dict(id='deadline-structures',teaching=BASE+'deadlines.md',units=[k for k in order if byid[k]['project'] in {'PR-T14-05','PR-T24-05','PR-T75-03'}])],
-               policy=source['policy'],semantic_review=dict(record=BASE+'semantic-review.md',status='authored-review-with-explicit-remaining-work'))
-    return {'criterion_resolutions.json':dict(schema_version=1,criteria=resolutions,limits='Exact explicit successor links resolved to public teaching; unresolved metadata bindings remain visible.'),'contextual-v1.json':route,'coverage.json':dict(schema_version=1,objectives=coverage), 'migration.json':migration}
+                entries = entries_by_objective[objective['id']]
+                if not entries:
+                    raise ValueError('Lost objective: ' + objective['id'])
+                projects = {byid[k]['project'] for k in entries}
+                criteria = [dict(id=c, source=v['source']) for c, v in legacy_by_objective[objective['id']] if v['project'] in projects]
+                bindings = bindings_by_objective[objective['id']]
+                coverage.append(dict(objective=objective['id'], text=objective['text'], encounters=entries, criteria=criteria,
+                                     authored_bindings=bindings, contexts=sorted({byid[k]['context'] for k in entries}),
+                                     disposition='retained', limits='Coverage links identify authored obligations, not completed assessments.'))
+    old = read(predecessor['route'])
+    old_position = {k: i for i, k in enumerate(old['order'])}
+    old_nodes = {n['id']: n for n in old['nodes']}
+    records = []
+    for key in order:
+        previous = old_nodes.get(key)
+        before = {(e['kind'], e['target'], e.get('artifact')) for e in previous['prerequisites'] if e['kind'] in HARD} if previous else set()
+        after = {(e['kind'], e['target'], e.get('artifact')) for e in byid[key]['prerequisites'] if e['kind'] in HARD}
+        records.append(dict(id=key, successor=key, disposition='retained' if previous else 'added',
+                            prerequisites='unchanged' if before == after else 'changed',
+                            previous_position=old_position.get(key), position=position[key], placement=placement[key],
+                            acceptance='Retain the original contract and receipt; adoption records a route-migrated event and grants no acceptance.'))
+    migration = dict(schema_version=1, from_route=predecessor['id'], to_route=source['id'], records=records,
+                     removed=sorted(set(old_nodes) - set(byid)), objective_ids=[c['objective'] for c in coverage],
+                     ledger_policy='Do not rewrite old ledger entries. Profiles pinned to ' + predecessor['id'] + ' keep that frozen route until `study route PROFILE --adopt` appends a route-migrated event. New profiles select ' + source['id'] + '.')
+    pilots = [dict(id=p['id'], teaching=p['teaching'], units=p['units']) for p in paths]
+    route = dict(schema_version=2, id=source['id'], catalog='curriculum/v5', contexts=source['contexts'], nodes=nodes, order=order,
+                 coverage=BASE + names['coverage'], migration=BASE + names['migration'],
+                 predecessor=dict(id=predecessor['id'], route=predecessor['route']),
+                 episodes=episodes_out, blocks=blocks, mechanisms=mechanisms, theory=theory, paths=paths, pilots=pilots,
+                 component_contracts=prepared['components'], statistics=stats, policy=source['policy'],
+                 semantic_review=dict(record=BASE + 'semantic-review.md', status='authored-review-with-explicit-remaining-work'))
+    return {names['resolutions']: dict(schema_version=1, criteria=prepared['resolutions'],
+                                       limits='Exact explicit successor links resolved to public teaching; unresolved metadata bindings remain visible.'),
+            names['route']: route, names['coverage']: dict(schema_version=1, route=source['id'], objectives=coverage),
+            names['migration']: migration}
+
+
+def generate(source=None):
+    source = read(SOURCE) if source is None else source
+    return assemble(source, prepare(source))
+
+
+def frozen_errors(source=None):
+    """The predecessor route and its maps must remain byte-for-byte unchanged."""
+    source = read(SOURCE) if source is None else source
+    errors = []
+    for name, expected in source['predecessor']['frozen_sha256'].items():
+        if not (ROOT/name).is_file() or sha256(name) != expected:
+            errors.append('Frozen predecessor changed: ' + name)
+    return errors
 
 
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('--check',action='store_true');args=parser.parse_args()
-    errors=[]
-    for name,value in generate().items():
-        text=json.dumps(value,ensure_ascii=False,indent=2)+'\n';path=ROOT/BASE/name
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--check', action='store_true')
+    args = parser.parse_args()
+    errors = frozen_errors()
+    for name, value in generate().items():
+        text = json.dumps(value, ensure_ascii=False, indent=2) + '\n'
+        path = ROOT/BASE/name
         if args.check:
-            if not path.exists() or path.read_text(encoding='utf-8')!=text:errors.append('Stale generated route: '+name)
-        else:path.write_text(text,encoding='utf-8')
-    if errors:raise SystemExit('\n'.join(errors))
-    print('Active route generation '+('verified' if args.check else 'complete'))
+            if not path.exists() or path.read_text(encoding='utf-8') != text:
+                errors.append('Stale generated route: ' + name)
+        else:
+            path.write_text(text, encoding='utf-8')
+    if errors:
+        raise SystemExit('\n'.join(errors))
+    print('Active route generation ' + ('verified' if args.check else 'complete'))
 
-if __name__=='__main__':main()
+
+if __name__ == '__main__':
+    main()

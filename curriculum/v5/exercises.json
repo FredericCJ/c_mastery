@@ -6435,7 +6435,8 @@
             ]
           },
           "independent_assessment": [
-            "X-T15-002-R2"
+            "X-T15-002-R2",
+            "X-T15-002-R3"
           ],
           "assessed_claim": "Distinguish sortedness/permutation/stability and compare comparisons/writes under equivalent contracts.",
           "scope": "bounded extension; not all obligations of the parent leaf"
@@ -6463,10 +6464,21 @@
             "2": "Distinguish sortedness/permutation/stability and compare comparisons/writes under equivalent contracts. Independently designed tests agree with the contract.",
             "3": "Derives the changed-condition contract without copying; identifies proof, enforcement and resource assumptions that change."
           }
+        },
+        {
+          "id": "X-T15-002-R3",
+          "objective": "T15.02.c",
+          "criterion": "Recurrence design: derive the worst-case comparison recurrence of the implemented top-down stable merge from its actual split, W(1)=0 and W(n)=W(ceil(n/2))+W(floor(n/2))+n-1, solve it for n=7 (14 comparisons, recursion depth 3) and for powers of two (n lg n - n + 1), and check it against independently enumerated comparison counts for every admitted length 0..7.",
+          "levels": {
+            "0": "No recurrence, or a recurrence that does not follow the implemented split, base case or merge comparison rule.",
+            "1": "States T(n)=2T(n/2)+n or only the O(n log n) class but treats odd n as equal halves (for example reports n log2 n, about 19.65 comparisons, as the exact worst case for n=7) or omits the base case and depth.",
+            "2": "Derives W(n)=W(ceil(n/2))+W(floor(n/2))+n-1 with W(1)=0 from the implemented split, obtains W(7)=14 and depth 3, verifies the closed form n*ceil(lg n)-2^ceil(lg n)+1 against the maximum instrumented count for each length 0..7, and keeps the comparison bound separate from writes and scratch.",
+            "3": "Re-derives the recurrence for the bottom-up width progression, including the odd tail, and states which terms change and which comparison bound survives; distinguishes the derived count from cache or timing observations."
+          }
         }
       ],
       "brief": "curriculum/v5/exercises/X-T15-002.md",
-      "brief_sha256": "3673c159c00795d1e1579e20d77c444e33456b4c84cda0742223be81f2a77da9",
+      "brief_sha256": "e08b1ca63d1f14aa2c9fc1cba2d6b2dd17792a00b4879cc404fa3e3b4dbf54dc",
       "bound_files": {
         "fixtures/b02_depth/cases.json": "59bf2134829f49a477c51873f97aae3095a6fe3445cf4e0f63b895c74ecabd1b",
         "labs/b02_depth/CONTRACTS.md": "d8696bb5634874d677f7a8a563a977f4310321a17f498d826c14ee76b9aaeda3",

@@ -502,7 +502,7 @@ def accepted(profile):
                 selected = entry.get("active_specification")
                 if selected:
                     from . import route
-                    current = current and selected["sha256"] == route.specification_identity(selected["id"])
+                    current = current and selected["sha256"] == route.specification_identity(selected["id"], route.recorded_route(selected))
                 links = learning.linked_state(entry["workspace"])
                 current = current and all(links.get(key, {}).get("sha256") == identity for key, identity in entry.get("imports", {}).items())
             except (OSError, ValueError):
