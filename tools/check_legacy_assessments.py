@@ -79,6 +79,9 @@ def baseline_inspection_matches(binding, path):
     current = path.read_bytes()
     if hashlib.sha256(current).hexdigest() == binding['sha256']:
         return True
+    from native_teaching_revision import qualifies
+    if qualifies(binding['path'], binding['sha256'], root=ROOT):
+        return True
     if binding['path'] in {'tools/verify_embedded_fixtures.py', 'tools/verify_networking_fixtures.py'}:
         from fixture_inspection_successor import qualifies
         # Original model branches and their dependencies must remain byte-exact;

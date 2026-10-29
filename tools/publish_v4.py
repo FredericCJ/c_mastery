@@ -210,6 +210,10 @@ def prepare(edition=4):
         extra_docs, extra_sections, merged = legacy_assessment_pages(source, merged)
         docs += extra_docs
         supplements += extra_sections
+    if edition == 5:
+        from publish_native_route import prepare as native_route
+        extra_docs, supplements = native_route(source, supplements)
+        docs += extra_docs
     intro=f'({tag}-index)=\n# C Mastery {edition}\n\n'+f'{summary["domains"]} domains · {summary["projects"]} projects · {summary["units"]} working units · {summary["new_executable_units"]} new executable units · {summary["recall_sets"]} recall sets.\n\n'
     intro+='Start with {ref}`'+tag+'-guide`, use {ref}`'+tag+'-workflow`, and follow {ref}`'+tag+'-route`. Grow a shared toolbox, Linux telemetry/service, firmware gateway and VM/store kernel appliance.\n\n'
     intro+='```{toctree}\n:maxdepth: 1\n\n'+'\n'.join(d.removeprefix('learning/') for d in docs)+'\n```\n'

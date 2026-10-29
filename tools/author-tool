@@ -1,0 +1,32 @@
+#!/usr/bin/env python3
+"""Run local author tools with explicit nonpublishing defaults."""
+import os
+from pathlib import Path
+import subprocess
+import sys
+ROOT = Path(__file__).resolve().parents[1]
+BASE = ROOT/'build/author-tools'
+TOOLS = {'graphify': BASE/'python/bin/graphify', 'specify': BASE/'python/bin/specify',
+         'openspec': BASE/'bin/openspec', 'bd': BASE/'bin/bd'}
+def environment():
+    env = dict(os.environ)
+    env.update(DO_NOT_TRACK='1', OPENSPEC_TELEMETRY='0', BD_DISABLE_METRICS='1',
+               DOLT_ROOT_PATH=str(BASE/'dolt-config'), GRAPHIFY_NO_AUTO_REFRESH='1',
+               GRAPHIFY_OUT=str(BASE/'graphify-out'), PYTHONHASHSEED='0')
+    env['PATH'] = str(BASE/'python/bin')+os.pathsep+str(BASE/'bin')+os.pathsep+env.get('PATH', '')
+    return env
+def main():
+    if len(sys.argv) < 2 or sys.argv[1] not in TOOLS:
+        print('Usage: python3 tools/author-tool {graphify|specify|openspec|bd} ARGS...', file=sys.stderr)
+        return 2
+    name, args = sys.argv[1], sys.argv[2:]
+    path = TOOLS[name]
+    if not path.is_file():
+        print('Missing author tool; run python3 tools/install_author_tools.py --install', file=sys.stderr)
+        return 2
+    if name == 'bd' and 'init' in args:
+        print('Use tools/install_author_tools.py --initialize-beads: upstream init attempts a Git commit.', file=sys.stderr)
+        return 2
+    if name == 'bd': args = ['--sandbox', *args]
+    return subprocess.run([str(path), *args], cwd=ROOT, env=environment()).returncode
+if __name__ == '__main__': raise SystemExit(main())

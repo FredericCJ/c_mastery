@@ -1,5 +1,5 @@
 """T43 immutable author execution producer. No host policy changes."""
-import argparse,hashlib,json,os,re,subprocess,sys,time
+import argparse,hashlib,json,os,re,shutil,subprocess,sys,time
 from datetime import datetime,timezone
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1];LAB=ROOT/'labs/performance_followthrough';REF=ROOT/'assessor/performance_followthrough';BASE=ROOT/'reviews/v5/expansion/legacy_performance_followthrough';sys.path.insert(0,str(LAB))
@@ -23,16 +23,16 @@ def main(report):
    for profile,flags in [('debug',['-O0','-g']),('release',['-O2','-DNDEBUG'])]:
     prefix=cc+'-'+profile;exe=artifact(out/(prefix+'-core'));run(prefix+'-core-build',[cc,*common,*flags,*core,'-o',exe]);text=run(prefix+'-core',[exe]);check(prefix+'-mechanisms','PF_PASS:all' in text and '9331' in text and '1093' in text)
    exe=artifact(out/(cc+'-graph'));run(cc+'-graph-build',[cc,*common,'-O2',LAB/'graph.c',ROOT/'assessor/algorithms/algo.c',ROOT/'assessor/containers_depth/indexed.c',ROOT/'assessor/containers_depth/graph_consumer.c','-o',exe]);check(cc+'-graph','stream-attempt5-accepted4-prefix' in run(cc+'-graph',[exe]))
-   host=artifact(out/(cc+'-host'));run(cc+'-host-build',[cc,*common,'-O2','-g',LAB/'observations.c',ROOT/'assessor/algorithms/x86_64.S','-pthread','-o',host]);actual=[json.loads(s) for s in run(cc+'-host',[host]).splitlines()];check(cc+'-actual-host',len(actual)==10 and next(r for r in actual if r['case']=='child-clock-scope')['waited_child_cpu_us']>0);observations[cc+'-host']=actual
+   host=artifact(out/(cc+'-host'));run(cc+'-host-build',[cc,*common,'-O2','-g',LAB/'observations.c',LAB/'pmu_linux.c',LAB/'publication.c',REF/'pmu.c',ROOT/'assessor/algorithms/x86_64.S','-pthread','-o',host]);actual=[json.loads(s) for s in run(cc+'-host',[host]).splitlines()];check(cc+'-actual-host',len(actual)==10 and next(r for r in actual if r['case']=='child-clock-scope')['waited_child_cpu_us']>0);observations[cc+'-host']=actual
    pairtext=run(cc+'-pairs',[host,'pairs']);observations[cc+'-pairs']=analyze.pairs(pairtext);check(cc+'-31-pairs-three-sizes',len(observations[cc+'-pairs'])==7)
-   pmu=[json.loads(s) for s in run(cc+'-pmu',[host,'pmu']).splitlines()];check(cc+'-pmu-status',len(pmu)==4 and all(r['status'] in ('measured','denied','unavailable') for r in pmu));observations[cc+'-pmu']=pmu
+   pmu=[json.loads(s) for s in run(cc+'-pmu',[host,'pmu']).splitlines()];check(cc+'-pmu-status',len(pmu)==4 and all(r['status'] in ('measured','denied','unavailable','never-scheduled','io-error','malformed') for r in pmu));observations[cc+'-pmu']=pmu
    cgroup=json.loads(run(cc+'-cgroup',[sys.executable,LAB/'cgroup_observe.py','--binary',host]));check(cc+'-readonly-cgroup',cgroup['passed'] and cgroup['policy_writes']==cgroup['membership_writes']==0 and not cgroup['same_descriptor_peak_reset']);observations[cc+'-cgroup']=cgroup
    run(cc+'-host-disassembly',['objdump','-d',host]);run(cc+'-host-symbols',['nm','-S',host])
-   inline=artifact(out/(cc+'-inline'));run(cc+'-inline-build',[cc,*common,'-O3','-DPF_ALLOW_INLINE',LAB/'observations.c',ROOT/'assessor/algorithms/x86_64.S','-pthread','-o',inline]);observations[cc+'-inline-pairs']=analyze.pairs(run(cc+'-inline-pairs',[inline,'pairs']));run(cc+'-inline-disassembly',['objdump','-d',inline]);run(cc+'-inline-symbols',['nm','-S',inline])
+   inline=artifact(out/(cc+'-inline'));run(cc+'-inline-build',[cc,*common,'-O3','-DPF_ALLOW_INLINE',LAB/'observations.c',LAB/'pmu_linux.c',LAB/'publication.c',REF/'pmu.c',ROOT/'assessor/algorithms/x86_64.S','-pthread','-o',inline]);observations[cc+'-inline-pairs']=analyze.pairs(run(cc+'-inline-pairs',[inline,'pairs']));run(cc+'-inline-disassembly',['objdump','-d',inline]);run(cc+'-inline-symbols',['nm','-S',inline])
    obj=artifact(out/(cc+'-cost.o'));run(cc+'-cost-object',[cc,*common,'-O2','-ffreestanding','-fno-builtin','-U_FORTIFY_SOURCE','-fstack-usage','-c',REF/'cost.c','-o',obj]);run(cc+'-cost-undefined',['nm','-u',obj])
    helper=artifact(out/(cc+'-helper.o'));run(cc+'-helper-object',[cc,*common,'-O2','-ffreestanding','-fno-builtin','-c',REF/'byte_helpers.c','-o',helper]);closed=artifact(out/(cc+'-closed.o'));run(cc+'-closed-object',[cc,'-r','-nostdlib',obj,helper,'-o',closed]);check(cc+'-closed-dependencies',not run(cc+'-closed-undefined',['nm','-u',closed]).strip())
    for lto in (False,True):
-    prefix=cc+('-lto' if lto else '-stack');exe=artifact(out/prefix);flags=['-flto'] if lto else ['-fstack-usage'];flags+=(['-fuse-ld=/home/frede/cmastery-b06-tools/usr/bin/ld.lld-21'] if lto and cc=='clang' else []);flags+=(['-fno-ipa-cp'] if cc=='gcc' else [])
+    prefix=cc+('-lto' if lto else '-stack');exe=artifact(out/prefix);flags=['-flto'] if lto else ['-fstack-usage'];flags+=(['-fuse-ld=lld'] if lto and cc=='clang' else []);flags+=(['-fno-ipa-cp'] if cc=='gcc' else [])
     run(prefix+'-build',[cc,'-std=c17','-O2','-g',*flags,LAB/'stack.c','-o',exe]);run(prefix,[exe]);dis=run(prefix+'-disassembly',['objdump','-d',exe]);observations[prefix+'-callgraph']=analyze.callgraph(dis);run(prefix+'-symbols',['nm','-S',exe])
    for mode in ('base','hook','drop','pg'):
     prefix=cc+'-'+mode;folder=out/prefix;folder.mkdir();exe=artifact(folder/'profile');flags=['-O2','-g','-fno-pie','-fno-omit-frame-pointer','-fstack-usage']+(['-finstrument-functions','-DPF_HOOKS'] if mode in ('hook','drop') else ['-pg'] if mode=='pg' else []);objects=[]

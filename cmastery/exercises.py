@@ -499,6 +499,10 @@ def accepted(profile):
         if valid:
             try:
                 current = cli.snapshot(entry["workspace"])["files"] == entry["revision"]["source"] and learning.verify_files(entry["workspace"], entry["revision"]["evidence"])
+                selected = entry.get("active_specification")
+                if selected:
+                    from . import route
+                    current = current and selected["sha256"] == route.specification_identity(selected["id"])
                 links = learning.linked_state(entry["workspace"])
                 current = current and all(links.get(key, {}).get("sha256") == identity for key, identity in entry.get("imports", {}).items())
             except (OSError, ValueError):
@@ -528,6 +532,8 @@ def acceptance(profile, workspace, identifier, assessment_file):
     missing = [key for key in value["prerequisite_exercises"] if not previous.get(key, {}).get("historical_valid")]
     if missing:
         raise ValueError("Missing accepted exercise prerequisites: " + ", ".join(missing))
+    from . import route
+    route.require_ready(profile, identifier, workspace)
     baseline = learning.accepted(profile) if value.get("prerequisite_units") else {}
     missing = [key for key in value.get("prerequisite_units", []) if not baseline.get(key, {}).get("historical_valid")]
     if missing:
@@ -552,6 +558,7 @@ def acceptance(profile, workspace, identifier, assessment_file):
     revision = learning.retain_revision(profile, workspace, files)
     record = learning.append(profile, "exercise-accepted", exercise=identifier, exercise_contract=contract,
         workspace=str(workspace), revision=revision, assessment=assessment, executable_receipt=receipt,
+        active_specification=cli.read(workspace/".cmastery/project.json").get("active_specification"),
         study_event=study["id"], independent_assessment="self-reported unaided transfer; reviewer independence not established",
         prerequisites={key: previous[key]["record"]["id"] for key in value["prerequisite_exercises"]},
         unit_prerequisites={key: baseline[key]["record"]["id"] for key in value.get("prerequisite_units", [])},

@@ -17,5 +17,5 @@ with tempfile.TemporaryDirectory(prefix='cmastery-mutant-') as d:
  build=subprocess.run(command,capture_output=True,text=True)
  if build.returncode:raise SystemExit('Mutation did not compile:\n'+build.stdout+build.stderr)
  result=subprocess.run([str(exe),a.case],capture_output=True,text=True,timeout=10)
- if result.returncode!=1:raise SystemExit(f'Mutation must fail by a contract assertion, got {result.returncode}:\n'+result.stdout+result.stderr)
+ if result.returncode!=1 or not re.search(r'line \d+: .+', result.stderr):raise SystemExit(f'Mutation must fail by a contract assertion, got {result.returncode}:\n'+result.stdout+result.stderr)
  print('Semantic rejection confirmed:',a.case)

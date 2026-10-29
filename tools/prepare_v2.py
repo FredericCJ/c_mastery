@@ -68,11 +68,16 @@ THREADS = {
  "T45": ("A memory defect with a paired repaired control", "Distinguish extent, initialization, lifetime, placement and capacity failures. Compare native, diagnostic and abstract histories without promising deterministic undefined-behavior symptoms.", "A global-object overwrite mislabeled as a dynamically growing .bss, or clearing one pointer presented as repair of every stale alias."),
 }
 
+PROJECT_CHALLENGES = {'PR-T15-04': 'A byte pattern split across input spans, including an embedded zero and a repeated prefix; preserve offsets while changing the matching mechanism.', 'PR-T15-05': 'A disconnected dependency graph gains a cycle, then a weighted edge becomes negative. Produce the cycle witness, reject unsupported Dijkstra input, and choose a valid replacement under the new contract.', 'PR-T15-06': 'A new resource dimension makes the old dynamic-programming state insufficient; give a counterexample to the tempting greedy choice and derive the revised recurrence.', 'PR-T15-07': 'Source and destination spans begin to overlap, then a parsed integer reaches the overflow boundary. Specify which overlap is admitted and reject arithmetic failure before publishing a result.', 'PR-T15-08': 'A length-delimited record is split at every byte boundary and the output queue becomes full; preserve the committed prefix and distinguish incomplete from malformed input.', 'PR-T15-09': 'Add a right-associative operator and change one precedence relation. Derive the new parse of an ambiguous-looking expression and preserve token lifetimes across segmented input.', 'PR-T15-10': 'The workload changes its key distribution and storage bound. Select a specialized algorithm, reject a plausible alternative, and validate both correctness and the revised cost model against an independent reference.'}
+
+
 def decode(text):
     match = re.match(r'\A```json\s*\n(.*?)\n```\s*\n', text, re.S)
     return json.loads(match[1]), text[match.end():]
 
 def encode(meta, body):
+    if meta.get("id") in PROJECT_CHALLENGES:
+        body = body.replace('A duplicate-heavy input exposing a partition or stability assumption absent from random distinct keys.', PROJECT_CHALLENGES[meta["id"]])
     return "```json\n" + json.dumps(meta, indent=2, ensure_ascii=False) + "\n```\n\n" + body
 
 def main():

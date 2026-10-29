@@ -180,12 +180,19 @@ def main():
     parser.add_argument('--work-directory',type=Path,default=ROOT/'build/candidate_checks')
     parser.add_argument('--report',type=Path,required=True)
     parser.add_argument('--author-environment-manifest',type=Path,help='Explicit exact active-pin environment manifest; supplied bytes stay outside every archive')
+    parser.add_argument('--profile', choices=('public', 'author-evidence'), default='author-evidence')
     args = parser.parse_args()
     report = (ROOT/args.report).resolve()
     if not report.is_relative_to((ROOT/'reviews').resolve()) or report.exists():
         raise ValueError('Report must be a fresh path inside reviews')
     try:
-        result = run(args.work_directory,report,args.author_environment_manifest)
+        if args.profile == 'public':
+            if args.author_environment_manifest is not None:
+                raise ValueError('Public reproduction cannot provision private author inputs')
+            from public_exports import reproduce
+            result = reproduce(args.work_directory, report)
+        else:
+            result = run(args.work_directory,report,args.author_environment_manifest)
     except Exception as error:
         dump(report,dict(passed=False,accepted=False,promoted=False,error=type(error).__name__+': '+str(error)))
         raise

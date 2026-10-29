@@ -52,6 +52,9 @@ def publication_successor_covers(path, expected_sha):
     document proof does not reclassify the attachment as terminology, rewrite
     the accepted hash, or establish fresh source inspection or execution.
     """
+    from native_teaching_revision import qualifies
+    if qualifies(path, expected_sha, root=ROOT):
+        return True
     if path not in {'curriculum/projects/PR-T28-06.md',
                     'curriculum/projects/PR-T29-04.md'}:
         return False
@@ -59,7 +62,10 @@ def publication_successor_covers(path, expected_sha):
     return baseline_inspection_matches({'path': path, 'sha256': expected_sha}, ROOT / path)
 
 
-def check_preserved(base, data, artifacts, recall, projects, resources, taxonomy):
+def check_preserved(base, data, artifacts, recall, projects, resources, taxonomy, *, publication_proof=None):
+    # Public reproduction supplies a bounded document-only proof. The default
+    # retains the complete historical author-evidence successor requirements.
+    successor_covers = publication_proof if publication_proof is not None else publication_successor_covers
     errors = []
     for path, expected_sha in base['files'].items():
         file = ROOT / path
@@ -70,7 +76,7 @@ def check_preserved(base, data, artifacts, recall, projects, resources, taxonomy
         if not file.is_file():
             errors.append('Accepted teaching file missing: ' + path)
         elif (sha(file) != expected_sha and not ledger_covers(path, expected_sha)
-              and not publication_successor_covers(path, expected_sha)):
+              and not successor_covers(path, expected_sha)):
             errors.append('Accepted teaching prose changed without a terminology or exact publication-successor proof: ' + path)
     program = read_json(ROOT / 'curriculum/program.json')['order']
     if program[:len(base['program_order'])] != base['program_order']:

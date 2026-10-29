@@ -1,5 +1,33 @@
 # C Mastery 5
 
+The [active contextual route](curriculum/v5/routes/README.md) brings retained
+units and expansion exercises into one prerequisite-aware study sequence.
+Read the generated `ACTIVE.md` in each initialized workspace for its operative
+contract. Existing study profiles adopt the successor explicitly with
+`python3 -m cmastery study route PROFILE --adopt`; historical evidence is retained.
+
+For a fresh native Ubuntu checkout, follow
+[public reproduction](curriculum/guides/public-reproduction.md). The public
+validation profile checks shipped sources without private author captures:
+
+```sh
+bash tools/bootstrap_ubuntu.sh --install
+.venv/bin/python tools/build_v5.py --profile public
+```
+
+The [native PMU strand](labs/performance_followthrough/PMU_PROTOCOL.md) separates
+deterministic acquisition tests, actual hardware measurements and diagnosis.
+The [deadline progression](labs/hosted_systems/timer_depth/COLLECTION.md) connects
+the existing timer lifecycle to representation choice, native event handling and
+measured workloads. New evidence is recorded under
+`reviews/v5/expansion/native_revision/`; independent learner assessment and
+physical-board obligations remain separate.
+
+Repository author assistance is configured with Graphify, OpenSpec, Spec Kit,
+Beads and Superpowers. See [author-tool commands and restoration](planning/author_tools.md)
+and [the repository working agreement](AGENTS.md). These tools support the
+canonical curriculum and evidence records; their task status does not replace them.
+
 Learn C by growing a shared component toolbox and three recurring systems: a Linux
 telemetry/HTTP service, a firmware acquisition gateway, and a VM/store kernel
 appliance. Representation, algorithms, assembly, architecture, debugging,
@@ -42,7 +70,7 @@ Current integrated receipts live under `reviews/v5/expansion/integrated/`; earli
 reviews are retained byte-for-byte. Author test results are distinct from
 independent learner assessment and physical validation.
 
-Start with [the learning guide](curriculum/v4/guide.md), then
+Start with [the active route](curriculum/v5/routes/README.md), then
 [the offline workflow](curriculum/v4/workflow.md). The
 [complete Markdown curriculum](c_programming_mastery_curriculum.md) and generated
 HTML handbook combine teaching, source passages, project contracts and objective maps.

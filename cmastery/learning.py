@@ -58,7 +58,11 @@ def catalog_dir():
 
 def catalog():
     base = catalog_dir()
+    from . import route
+    active = route.load()
+    additions = active.get('component_contracts', []) if active else []
     signature = (str(base),) + tuple((base / name).stat().st_mtime_ns for name in ("units.json", "recall.json", "artifacts.json"))
+    signature += (digest(additions),)
     if signature in _CATALOG_CACHE:
         return _CATALOG_CACHE[signature]
     units = cli.read(base / "units.json")
@@ -67,6 +71,10 @@ def catalog():
     result = {"units": {u["id"]: u for u in units["units"]}, "order": units["order"],
             "sets": {s["id"]: s for s in recall["sets"]}, "policy": recall["policy"],
             "artifacts": {a["id"]: a for a in artifacts["artifacts"]}}
+    for specification in additions:
+        if specification['id'] in result['artifacts']:
+            raise ValueError('Active component conflicts with historical artifact')
+        result['artifacts'][specification['id']] = specification
     _CATALOG_CACHE.clear()
     _CATALOG_CACHE[signature] = result
     return result
@@ -162,6 +170,10 @@ def study_init(profile):
              "freshness_days": policy.get("freshness_days", 14),
              "session_minutes": policy.get("session_minutes", 15), "sets_per_session": 2,
              "limits": "Local self-assessment; clock and authorship are not independently verified."}
+    from . import route
+    active_route = route.load()
+    if active_route:
+        value["route"] = active_route["id"]
     cli.save(base / "profile.json", value)
     append(profile, "profile-created")
     return {"profile": str(Path(profile).resolve()), "status": "initialized", "policy": value,
@@ -473,13 +485,30 @@ def linked_state(workspace):
         manifest = verify_bundle(bundle)
         if manifest["id"] != identifier or manifest["sha256"] != link["sha256"]:
             raise ValueError("Artifact link identity differs")
+        verify_component_api(manifest)
         result[identifier] = manifest
     return result
+
+
+def verify_component_api(manifest):
+    """Bind a successor's actual verified header bytes, not its claimed label."""
+    specification=catalog()['artifacts'].get(manifest['id'], {})
+    expected=specification.get('required_header_sha256')
+    if not expected:return
+    if manifest.get('required_header_sha256') != expected:
+        raise ValueError('Successor artifact public API identity changed')
+    if not any(manifest['files'].get(name) == expected for name in manifest.get('headers', [])):
+        raise ValueError('Successor artifact header content differs from its public API')
 
 
 def acceptance_valid(entry):
     try:
         workspace = Path(entry["workspace"])
+        selected = entry.get("active_specification")
+        if selected:
+            from . import route
+            if selected["sha256"] != route.specification_identity(selected["id"]):
+                return False, "effective learner contract changed"
         if not verify_files(workspace, entry.get("source_files", {})):
             return False, "claimed component source changed"
         if digest(unit(entry["unit"])) != entry["unit_contract"]:
@@ -686,6 +715,8 @@ def acceptance(profile, workspace, identifier, assessment_file):
     history = events(profile)
     if not any(e["kind"] == "unit-studied" and e["unit"] == identifier for e in history):
         raise ValueError("Record the unit as studied before requesting acceptance")
+    from . import route
+    route.require_ready(profile, identifier, workspace)
     prerequisites = accepted(profile)
     missing = [r for r in value.get("requires", []) if not prerequisites.get(r, {}).get("historical_valid")]
     if missing:
@@ -794,6 +825,7 @@ def acceptance(profile, workspace, identifier, assessment_file):
     revision = retain_revision(profile, workspace, files)
     entry = append(profile, "unit-accepted", unit=identifier, workspace=str(workspace),
         source=cli.snapshot(workspace), unit_contract=digest(value), evidence_files=files,
+        active_specification=meta.get("active_specification"),
         source_files=evidence_files(workspace, source_scope) if source_scope else {},
         revision=revision, verified_claims=verified_claims, portfolio_refs=list(portfolio_refs.values()),
         executable_receipt=receipt if value.get("tests") else None,
@@ -844,7 +876,14 @@ def study_next(profile, studied=None, studied_exercise=None):
     available = [data["units"][key] for key in data["order"]
                  if key not in accepted_ids and set(data["units"][key].get("requires", [])) <= accepted_ids]
     cfg = settings(profile)
-    return {"review_minutes": cfg["session_minutes"], "recall": due(profile)[:cfg.get("sets_per_session", 2)],
+    from . import route
+    active = route.available(profile)
+    if active is not None:
+        ready = {row["id"] for row in active["available"]}
+        available = [data["units"][key] for key in ready if key in data["units"]]
+        available.sort(key=lambda u: next(i for i, row in enumerate(active["available"]) if row["id"] == u["id"]))
+        state["expansion_completion"]["available_exercises"] = [row for row in active["available"] if row["kind"] == "exercise"]
+    return {"route": active, "review_minutes": cfg["session_minutes"], "recall": due(profile)[:cfg.get("sets_per_session", 2)],
             "available_units": [{"id": u["id"], "title": u["title"], "hours": u["hours"], "project": u["project"],
                                   "decision_required": u.get("decision_required", False)} for u in available[:8]],
             "available_exercises": state["expansion_completion"]["available_exercises"],
@@ -869,6 +908,10 @@ def study_sheet(profile, output, identifier=None, assessment_template=None):
         lines += ["- [ ] " + normalize_prose(strip_bullet(step)) for step in chosen.get("steps", [])]
         lines += ["", "Evidence / changed-condition transfer: __________________", "",
                   "Architecture choice, alternatives and reversal condition: __________________", ""]
+    if chosen:
+        from . import route
+        if route.node(chosen["id"]):
+            lines += ["", route.render_node(chosen["id"])]
     lines += ["## Enter this record", "", "Use study next --studied UNIT after study, then recall start / submit / grade.",
               "Paper dates may be described in the answer; CLI records entry time and never backdates mastery.", ""]
     Path(output).write_text("\n".join(lines), encoding="utf-8")
@@ -897,18 +940,29 @@ def artifact_export(profile, workspace, identifier, destination, declaration_fil
     specification = catalog()["artifacts"].get(identifier)
     if specification is None:
         raise ValueError("Unknown artifact: " + identifier)
-    source_acceptance = accepted(profile).get(specification["producer_unit"])
+    from . import route, exercises
+    exercise_producer = specification.get('producer_kind') == 'exercise'
+    producer = (exercises.exercise(specification['producer_unit']) if exercise_producer
+                else unit(specification['producer_unit']))
+    source_acceptance = (exercises.accepted(profile) if exercise_producer else accepted(profile)).get(specification["producer_unit"])
     if not source_acceptance or not source_acceptance["valid"] or source_acceptance["record"]["workspace"] != str(workspace):
         raise ValueError("Export requires current learner acceptance of the producer unit in this workspace")
-    if source_acceptance["record"]["source"]["sha256"] != cli.snapshot(workspace)["sha256"]:
+    unchanged = (source_acceptance['record']['revision']['source'] == cli.snapshot(workspace)['files'] if exercise_producer
+                 else source_acceptance["record"]["source"]["sha256"] == cli.snapshot(workspace)["sha256"])
+    if not unchanged:
         raise ValueError("Producer source changed after acceptance; revalidate before exporting")
+    if specification.get('required_header'):
+        selected_spec = source_acceptance['record'].get('active_specification')
+        if not selected_spec or selected_spec.get('id') != specification['producer_unit']:
+            raise ValueError('Successor component requires acceptance of its active producer specification')
+        route.verify_workspace_specification(workspace)
     if str(declaration.get("contract_version")) != str(specification["contract_version"]):
         raise ValueError("Artifact contract version differs")
     target = declaration.get("cmake_target", "")
     if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", target):
         raise ValueError("Declare a portable CMake target name")
-    producer_family = unit(specification["producer_unit"]).get("family")
-    roles = declaration.get("adapter_roles", [producer_family] if producer_family else [])
+    producer_family = producer['lab']['family'] if exercise_producer else producer.get('family')
+    roles = declaration.get("adapter_roles", specification.get('adapter_roles', [producer_family] if producer_family else []))
     if not isinstance(roles, list) or any(not isinstance(role, str) or not re.fullmatch(r"[a-z][a-z0-9_]*", role) for role in roles):
         raise ValueError("Adapter roles must be explicit lowercase family identifiers")
     profiles = declaration.get("profiles", [])
@@ -921,6 +975,12 @@ def artifact_export(profile, workspace, identifier, destination, declaration_fil
     if not sources or not headers or any(not re.fullmatch(r"[A-Za-z0-9_./-]+", p) for p in sources + headers + assets):
         raise ValueError("Declare sources and public headers using portable file names")
     selected = {name: local_file(workspace, name) for name in sources + headers + assets}
+    if specification.get('required_header'):
+        expected_header = route.public_path(cli.ROOT,specification['required_header']).read_bytes()
+        if hashlib.sha256(expected_header).hexdigest() != specification['required_header_sha256']:
+            raise ValueError('Successor API changed; regenerate the active contract')
+        if not any(selected[name].read_bytes() == expected_header for name in headers):
+            raise ValueError('Successor component must export its unchanged public header')
     includes = declaration.get("include_dirs", [])
     if not includes:
         raise ValueError("Declare public include directories")
@@ -930,7 +990,8 @@ def artifact_export(profile, workspace, identifier, destination, declaration_fil
             raise ValueError("Include directory must contain a declared public header")
     deps = linked_state(workspace)
     dependency_ids = declaration.get("dependencies", [])
-    if not isinstance(dependency_ids, list) or set(dependency_ids) != set(unit(specification["producer_unit"]).get("imports", [])):
+    expected_imports = specification.get('imports', producer.get('prerequisite_artifacts', []) if exercise_producer else producer.get('imports', []))
+    if not isinstance(dependency_ids, list) or set(dependency_ids) != set(expected_imports):
         raise ValueError("Export must declare the producer's complete imported artifact closure")
     if not set(dependency_ids) <= set(deps):
         raise ValueError("Export dependency is not linked")
@@ -968,6 +1029,8 @@ def artifact_export(profile, workspace, identifier, destination, declaration_fil
                 "source_identity": cli.snapshot(workspace)["sha256"], "producer_acceptance": source_acceptance["record"]["id"],
                 "claims": source_acceptance["record"]["assessment"].get("claims", []),
                 "files": {name: hashlib.sha256((destination / name).read_bytes()).hexdigest() for name in own}}
+    if specification.get('required_header_sha256'):
+        manifest['required_header_sha256'] = specification['required_header_sha256']
     manifest["sha256"] = digest(manifest)
     cli.save(destination / "artifact.json", manifest)
     verify_bundle(destination)
@@ -987,12 +1050,19 @@ def artifact_link(profile, workspace, bundle, profile_name, target):
     specification = catalog()["artifacts"].get(identifier)
     if specification is None or str(manifest["contract_version"]) != str(specification["contract_version"]):
         raise ValueError("Artifact does not match the current catalog contract")
+    verify_component_api(manifest)
     if profile_name not in manifest["profiles"] or target not in manifest["targets"]:
         raise ValueError("Artifact does not support requested dependency profile/target")
     meta = cli.read(workspace / ".cmastery/project.json")
+    from . import route
+    active_imports=set()
+    if meta.get('active_specification'):
+        entry=route.node(meta['active_specification']['id'])
+        if entry is None:raise ValueError('Active consumer specification is unavailable')
+        active_imports={edge['artifact'] for edge in entry['prerequisites'] if edge['kind']=='component'}
     if meta.get("unit"):
         consumer = unit(meta["unit"])
-        if identifier not in consumer.get("imports", []):
+        if identifier not in set(consumer.get("imports", [])) | active_imports:
             raise ValueError("Current unit does not declare this artifact import")
     destination = workspace / "components" / (identifier + "-" + manifest["sha256"][:16])
     if destination.exists():
@@ -1024,9 +1094,11 @@ def artifact_link(profile, workspace, bundle, profile_name, target):
 def register(sub):
     study = sub.add_parser("study", help="Offline learning sessions and printable packets")
     study_sub = study.add_subparsers(dest="action", required=True)
-    for action in ("init", "next", "status", "sheet"):
+    for action in ("init", "next", "status", "sheet", "route"):
         parser = study_sub.add_parser(action)
         parser.add_argument("profile")
+        if action == "route":
+            parser.add_argument("--adopt", action="store_true", help="Explicitly adopt the active successor route without changing historical acceptances")
         if action == "next":
             selection = parser.add_mutually_exclusive_group()
             selection.add_argument("--studied", help="Record completed study and activate linked recall")
@@ -1075,6 +1147,9 @@ def dispatch(args):
         if args.action == "init": return study_init(args.profile)
         if args.action == "next": return study_next(args.profile, args.studied, args.studied_exercise)
         if args.action == "status": return study_status(args.profile)
+        if args.action == "route":
+            from . import route
+            return route.migrate(args.profile) if args.adopt else {"pinned": settings(args.profile).get("route", "historical-catalog"), "active": (route.load() or {}).get("id")}
         if args.exercise:
             from . import exercises
             return exercises.sheet(args.profile, args.output, args.exercise, args.assessment_template)

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "C Mastery contextual learning route",
+  "type": "object",
+  "required": ["schema_version", "id", "catalog", "contexts", "nodes", "order", "coverage", "migration", "mechanisms", "pilots"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "id": {"type": "string", "minLength": 1},
+    "nodes": {"type": "array", "items": {"type": "object", "required": ["id", "kind", "project", "context", "objectives", "prerequisites", "sources", "contracts", "why_now", "next_consumer", "assessment"], "properties": {
+      "kind": {"enum": ["unit", "exercise"]},
+      "prerequisites": {"type": "array", "items": {"type": "object", "required": ["kind", "target", "reason"], "properties": {"kind": {"enum": ["concept", "component", "environment", "preparation"]}}, "allOf": [{"if": {"properties": {"kind": {"const": "component"}}}, "then": {"required": ["artifact", "contract_version"]}}]}}
+    }}},
+    "order": {"type": "array", "uniqueItems": true, "items": {"type": "string"}}
+  }
+}

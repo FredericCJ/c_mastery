@@ -80,7 +80,7 @@ def assert_fixture_types(value, path=()):
     elif isinstance(value,list):
         for index,item in enumerate(value): assert_fixture_types(item,path+(index,))
 
-def main():
+def main(report_path=None):
     assert_fixture_integrity(ROOT)
     cases=0
     def get(name):
@@ -273,8 +273,12 @@ def main():
     report={'passed':True,'fixtures':cases,'type_confusion_controls_rejected':len(controls),
             'integrity_controls_rejected':integrity_controls(),
             'scope':'Independent static byte/count/capacity/deadline and finite policy oracles only; original learner C, sockets and client interoperability not executed.'}
-    dump(ROOT/'reviews/http_fixture_checks.json',report)
+    dump(report_path or ROOT/'reviews/http_fixture_checks.json',report)
     print(report)
 
 if __name__=='__main__':
-    main()
+    import argparse
+    from pathlib import Path
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--report', type=Path, help='Scoped output instead of the historical default receipt')
+    main(parser.parse_args().report)

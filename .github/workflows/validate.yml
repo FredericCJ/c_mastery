@@ -18,9 +18,10 @@ jobs:
       - run: python -m pip install -r requirements-lock.txt
       - run: sudo apt-get update
       - run: sudo apt-get install -y cmake ninja-build gcc clang libclang-rt-dev
-      - run: python tools/build_v5.py
-      - run: python tools/check_cli.py
-      - run: python tools/run_lab_matrix.py --native --family runtime --family storage --family os_observatory
-      - run: python tools/check_handoff_v4.py
+      - run: python tools/check_public_profiles.py
+      - run: python tools/build_v5.py --profile public
+      - run: python tools/check_candidate_exports_v5.py --profile public --report reviews/public-ci-candidate.json
+      # Full author-evidence/release checks require separately provisioned
+      # restricted captures and retained observations; public success is scoped.
       # Target suites require the pinned QEMU 10.2 machine and ARM toolchain.
       # This job does not certify those suites or any physical measurement.

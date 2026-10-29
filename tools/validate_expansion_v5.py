@@ -314,4 +314,14 @@ def main():
 
 
 if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--profile', choices=('public', 'author-evidence'), default='author-evidence')
+    parser.add_argument('--output', type=Path, help='Public validation output')
+    args = parser.parse_args()
+    if args.profile == 'public':
+        from public_validation import run
+        raise SystemExit(0 if run(args.output)['passed'] else 1)
+    if args.output is not None:
+        parser.error('--output is only supported by the public profile')
     raise SystemExit(main())

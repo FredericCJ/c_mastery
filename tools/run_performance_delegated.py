@@ -11,7 +11,7 @@ KERNEL=Path('/home/frede/cmastery-os-follow-tools/linux-source-7.0.0/arch/x86/bo
 BUSYBOX=Path('/home/frede/cmastery-b06-tools/usr/bin/busybox')
 PROVIDER=ROOT/'labs/performance_followthrough/observations.c'
 ASSM=ROOT/'assessor/algorithms/x86_64.S'
-INPUTS=[REF/'delegated.c',Path(__file__),PROVIDER,ASSM,ROOT/'labs/algorithms/src/x86_64.S',ROOT/'labs/performance_followthrough/cost.h',ROOT/'labs/algorithms/include/algo.h',ROOT/'labs/realtime_depth/linux/guest.py',ROOT/'labs/performance_followthrough/CONTRACTS.md',LAB/'CONTRACTS.md',LAB/'learner.c',LAB/'guest.py',LAB/'build.py',LAB/'fixtures.json']
+INPUTS=[REF/'delegated.c',Path(__file__),PROVIDER,ROOT/'labs/performance_followthrough/pmu.h',ROOT/'labs/performance_followthrough/pmu_linux.c',ROOT/'labs/performance_followthrough/publication.h',ROOT/'labs/performance_followthrough/publication.c',ROOT/'assessor/performance_followthrough/pmu.c',ASSM,ROOT/'labs/algorithms/src/x86_64.S',ROOT/'labs/performance_followthrough/cost.h',ROOT/'labs/algorithms/include/algo.h',ROOT/'labs/realtime_depth/linux/guest.py',ROOT/'labs/performance_followthrough/CONTRACTS.md',LAB/'CONTRACTS.md',LAB/'learner.c',LAB/'guest.py',LAB/'build.py',LAB/'fixtures.json']
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def keyed(text):return {k:int(v) for k,v in re.findall(r'^(\w+) (\d+)$',text,re.M)}
 def records(text):return [(p,b.strip()) for p,b in re.findall(r'PC_RAW_BEGIN ([^\r\n]+)\r?\n(.*?)PC_RAW_END [^\r\n]+',text,re.S)]
@@ -113,7 +113,7 @@ def main():
         run('host-policy-readonly',[sys.executable,'-B','-c','from pathlib import Path; import json; print(json.dumps({p:Path(p).read_text() for p in ["/proc/self/cgroup","/proc/sys/kernel/perf_event_paranoid","/sys/fs/cgroup/cgroup.subtree_control"]}))'])
         for cc in ('gcc','clang'):
             run(cc+'-version',[cc,'--version'])
-            workload=out/(cc+'-workload');run(cc+'-workload-build',[cc,'-std=c17','-Wall','-Wextra','-Werror','-pedantic','-O2','-g','-static','-I'+str(ROOT/'labs/performance_followthrough'),'-I'+str(ROOT/'labs/algorithms/include'),PROVIDER,ASSM,'-pthread','-o',workload])
+            workload=out/(cc+'-workload');run(cc+'-workload-build',[cc,'-std=c17','-Wall','-Wextra','-Werror','-pedantic','-O2','-g','-static','-I'+str(ROOT/'labs/performance_followthrough'),'-I'+str(ROOT/'labs/algorithms/include'),PROVIDER,ROOT/'labs/performance_followthrough/pmu_linux.c',ROOT/'labs/performance_followthrough/publication.c',ROOT/'assessor/performance_followthrough/pmu.c',ASSM,'-pthread','-o',workload])
             for name,macro in [('normal',None)]+([('no-placement','PF_SKIP_MOVE'),('no-restoration','PF_SKIP_RESTORE')] if cc=='gcc' else []):
                 label=cc+'-'+name;probe=out/(label+'-probe');run(label+'-build',[cc,'-std=c17','-Wall','-Wextra','-Werror','-pedantic','-O2','-static',*(['-D'+macro+'=1'] if macro else []),REF/'delegated.c','-o',probe])
                 init=('\n'.join(['#!/bin/busybox sh','export PATH=/bin','/bin/busybox --install -s /bin','mkdir -p /proc /sys /dev /tmp /run','mount -t proc none /proc','mount -t sysfs none /sys','mount -t devtmpfs none /dev','mount -t tmpfs -o size=134217728,mode=1777 none /tmp','mount -t cgroup2 none /sys/fs/cgroup',"printf 'CM-T43-DISPOSABLE-GUEST-1\\n' > /run/t43-owned",'echo PC_GUEST_KERNEL; uname -a','/probe','echo PC_PROBE_EXIT=$?','echo PC_GUEST_DONE','poweroff -f'])+'\n').encode()

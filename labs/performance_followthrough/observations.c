@@ -1,5 +1,7 @@
 #define _GNU_SOURCE
 #include "cost.h"
+#include "pmu.h"
+#include "publication.h"
 #include "algo.h"
 #include <errno.h>
 #include <fcntl.h>
@@ -41,16 +43,33 @@ static void pairs(void){uint32_t data[65536];for(unsigned i=0;i<65536;++i)data[i
  for(unsigned pattern=0;pattern<2;++pattern){volatile uint64_t total=0;uint32_t rng=1;uint64_t start=stamp(CLOCK_MONOTONIC);for(unsigned i=0;i<1000000;++i){rng=rng*1664525u+1013904223u;unsigned take=pattern?rng>>31:i&1u;if(take)total+=3;else total+=1;}printf("{\"case\":\"branch-pattern\",\"pattern\":%u,\"comparisons\":1000000,\"elapsed_ns\":%"PRIu64",\"checksum\":%"PRIu64",\"branch_misses\":null}\n",pattern,stamp(CLOCK_MONOTONIC)-start,total);}
 }
 static unsigned read_file(int fd,unsigned char*b,size_t n){C(lseek(fd,0,SEEK_SET)==0);size_t done=0;unsigned calls=0;while(done<n){ssize_t r=read(fd,b+done,n-done);++calls;if(r<0&&errno==EINTR)continue;C(r>0);done+=(size_t)r;}return calls;}
+static int injected_sync(void *context,int fd){unsigned *calls=context;++*calls;(void)fd;errno=EIO;return -1;}
 static void files(void){char dir[]="/tmp/cmastery-performance-XXXXXX";C(mkdtemp(dir));char path[256],tmp[256];C(snprintf(path,sizeof path,"%s/data",dir)>0);C(snprintf(tmp,sizeof tmp,"%s/stage",dir)>0);int dfd=open(dir,O_RDONLY|O_DIRECTORY|O_CLOEXEC);C(dfd>=0);int fd=open(path,O_CREAT|O_EXCL|O_RDWR|O_CLOEXEC,0600);C(fd>=0);unsigned char bytes[8192],readback[8192];for(unsigned i=0;i<sizeof bytes;++i)bytes[i]=(unsigned char)i;
  uint64_t start=stamp(CLOCK_MONOTONIC);size_t done=0;unsigned calls=0;while(done<sizeof bytes){ssize_t r=write(fd,bytes+done,sizeof bytes-done);++calls;if(r<0&&errno==EINTR)continue;C(r>0);done+=(size_t)r;}uint64_t accepted=stamp(CLOCK_MONOTONIC);int synced=fsync(fd);int syncerrno=errno;uint64_t completed=stamp(CLOCK_MONOTONIC);C(!synced);printf("{\"case\":\"write-sync\",\"accepted\":%zu,\"calls\":%u,\"write_ns\":%"PRIu64",\"sync_ns\":%"PRIu64",\"fsync_status\":%d,\"errno_if_failure\":%d}\n",done,calls,accepted-start,completed-accepted,synced,synced?syncerrno:0);
  for(unsigned pass=0;pass<3;++pass){if(pass==2){pid_t child=fork();C(child>=0);if(!child){int other=open(path,O_RDONLY|O_CLOEXEC);if(other<0)_exit(1);unsigned char copy[8192];unsigned k=read_file(other,copy,sizeof copy);close(other);_exit(!k||memcmp(copy,bytes,sizeof copy));}int status;C(waitpid(child,&status,0)==child&&WIFEXITED(status)&&!WEXITSTATUS(status));}start=stamp(CLOCK_MONOTONIC);unsigned reads=read_file(fd,readback,sizeof readback);completed=stamp(CLOCK_MONOTONIC);C(!memcmp(bytes,readback,sizeof bytes));printf("{\"case\":\"read-pass\",\"pass\":%u,\"accepted_bytes\":8192,\"syscalls\":%u,\"elapsed_ns\":%"PRIu64",\"device_bytes\":null,\"after_owned_other_process\":%s}\n",pass,reads,completed-start,pass==2?"true":"false");}
- /* Inject failure at the synchronizer seam, never mislabel it a kernel fault. */
- int injected=-1;int injected_errno=EIO;C(injected<0&&injected_errno==EIO&&!memcmp(bytes,readback,sizeof bytes));puts("{\"case\":\"injected-fsync-error\",\"source\":\"local-adapter\",\"status\":\"failed\",\"readable_bytes\":8192}");
- int stage=open(tmp,O_CREAT|O_EXCL|O_RDWR|O_CLOEXEC,0600);C(stage>=0);C(write(stage,"abcdefgh",8)==8);C(!fsync(stage));C(!close(stage));C(!rename(tmp,path));C(!fsync(dfd));puts("{\"case\":\"publish\",\"boundaries\":[\"write8\",\"file-fsync\",\"rename\",\"directory-fsync\"],\"power_loss\":\"unobserved\"}");C(!close(fd));fd=open(path,O_RDWR|O_CLOEXEC);C(fd>=0);C(!ftruncate(fd,1048576));C(pwrite(fd,"abcdefgh",8,1048568)==8);C(!fsync(fd));struct stat sparse,pre;C(!fstat(fd,&sparse));int prestatus=posix_fallocate(fd,0,1048576);C(!fstat(fd,&pre));C(pread(fd,readback,8,1048568)==8&&!memcmp(readback,"abcdefgh",8));printf("{\"case\":\"sparse-preallocated\",\"logical_length\":1048576,\"payload\":8,\"sparse_512_blocks\":%jd,\"after_512_blocks\":%jd,\"preallocate_status\":%d,\"physical_device_traffic\":null}\n",(intmax_t)sparse.st_blocks,(intmax_t)pre.st_blocks,prestatus);C(!close(fd));C(!unlink(path));C(!close(dfd));C(!rmdir(dir));
+ /* Exercise the same publication path with a failing synchronizer. */
+ int stage=open(tmp,O_CREAT|O_EXCL|O_RDWR|O_CLOEXEC,0600);C(stage>=0);C(write(stage,"abcdefgh",8)==8);
+ unsigned sync_calls=0;PFPublication failed=pf_publish(stage,dfd,tmp,path,(PFSynchronizer){&sync_calls,injected_sync});
+ C(failed.state==PF_STAGE_RETAINED&&failed.error==EIO&&sync_calls==1&&access(tmp,F_OK)==0);
+ C(read_file(fd,readback,sizeof readback)>0&&!memcmp(bytes,readback,sizeof bytes));
+ puts("{\"case\":\"injected-fsync-error\",\"source\":\"local-adapter\",\"status\":\"failed\",\"readable_bytes\":8192,\"synchronizer_calls\":1,\"publication\":\"stage-retained\",\"destination_unchanged\":true}");
+ PFPublication published=pf_publish(stage,dfd,tmp,path,(PFSynchronizer){NULL,pf_sync_system});
+ C(published.state==PF_SYNCED&&!published.error&&published.calls==2);C(!close(stage));
+ puts("{\"case\":\"publish\",\"boundaries\":[\"write8\",\"file-fsync\",\"rename\",\"directory-fsync\"],\"power_loss\":\"unobserved\"}");C(!close(fd));fd=open(path,O_RDWR|O_CLOEXEC);C(fd>=0);C(!ftruncate(fd,1048576));C(pwrite(fd,"abcdefgh",8,1048568)==8);C(!fsync(fd));struct stat sparse,pre;C(!fstat(fd,&sparse));int prestatus=posix_fallocate(fd,0,1048576);C(!fstat(fd,&pre));C(pread(fd,readback,8,1048568)==8&&!memcmp(readback,"abcdefgh",8));printf("{\"case\":\"sparse-preallocated\",\"logical_length\":1048576,\"payload\":8,\"sparse_512_blocks\":%jd,\"after_512_blocks\":%jd,\"preallocate_status\":%d,\"physical_device_traffic\":null}\n",(intmax_t)sparse.st_blocks,(intmax_t)pre.st_blocks,prestatus);C(!close(fd));C(!unlink(path));C(!close(dfd));C(!rmdir(dir));
 }
-static void pmu(void){unsigned configs[]={PERF_COUNT_HW_INSTRUCTIONS,PERF_COUNT_HW_CPU_CYCLES,PERF_COUNT_HW_BRANCH_MISSES,PERF_COUNT_HW_CACHE_MISSES};const char*names[]={"instructions","cycles","branch-misses","cache-misses"};int fds[4]={-1,-1,-1,-1};unsigned made=0;
- for(unsigned i=0;i<4;++i){struct perf_event_attr a={0};a.type=PERF_TYPE_HARDWARE;a.size=sizeof a;a.config=configs[i];a.disabled=1;a.exclude_kernel=1;a.exclude_hv=1;a.read_format=PERF_FORMAT_TOTAL_TIME_ENABLED|PERF_FORMAT_TOTAL_TIME_RUNNING|PERF_FORMAT_ID;errno=0;fds[i]=(int)syscall(SYS_perf_event_open,&a,0,-1,i?fds[0]:-1,PERF_FLAG_FD_CLOEXEC);int e=errno;if(fds[i]<0){printf("{\"case\":\"pmu\",\"event\":\"%s\",\"status\":\"%s\",\"errno\":%d,\"raw\":null,\"pid\":0,\"cpu\":-1,\"exclude_kernel\":true}\n",names[i],e==EACCES||e==EPERM?"denied":"unavailable",e);continue;}++made;}
- if(made){C(fds[0]>=0);C(!ioctl(fds[0],PERF_EVENT_IOC_RESET,PERF_IOC_FLAG_GROUP));C(!ioctl(fds[0],PERF_EVENT_IOC_ENABLE,PERF_IOC_FLAG_GROUP));(void)burn(1000000);C(!ioctl(fds[0],PERF_EVENT_IOC_DISABLE,PERF_IOC_FLAG_GROUP));for(unsigned i=0;i<4;++i)if(fds[i]>=0){uint64_t r[4];C(read(fds[i],r,sizeof r)==(ssize_t)sizeof r);printf("{\"case\":\"pmu\",\"event\":\"%s\",\"status\":\"measured\",\"raw\":%"PRIu64",\"enabled\":%"PRIu64",\"running\":%"PRIu64",\"id\":%"PRIu64",\"group\":0}\n",names[i],r[0],r[1],r[2],r[3]);C(!close(fds[i]));}}
+static void pmu(void) {
+ const PFPmuEvent events[]={{PERF_TYPE_HARDWARE,PERF_COUNT_HW_INSTRUCTIONS},{PERF_TYPE_HARDWARE,PERF_COUNT_HW_CPU_CYCLES},{PERF_TYPE_HARDWARE,PERF_COUNT_HW_BRANCH_MISSES},{PERF_TYPE_HARDWARE,PERF_COUNT_HW_CACHE_MISSES}};
+ const char *names[]={"instructions","cycles","branch-misses","cache-misses"};
+ PFPmu group;
+ PFPmuState state=pf_pmu_open(&group,pf_pmu_linux(),events,4);
+ if(state==PF_PMU_READY)state=pf_pmu_start(&group);
+ if(state==PF_PMU_ACTIVE){(void)burn(1000000);state=pf_pmu_stop(&group);}
+ for(unsigned i=0;i<4;++i){
+  printf("{\"case\":\"pmu\",\"event\":\"%s\",\"status\":\"%s\",\"errno\":%d,\"cleanup_errno\":%d,\"pid\":0,\"cpu\":-1,\"exclude_kernel\":true,\"group_policy\":\"strict\",\"group\":0,\"id\":%"PRIu64",\"enabled\":%"PRIu64",\"running\":%"PRIu64",\"raw\":",names[i],pf_pmu_state_name(state),group.error,group.cleanup_error,group.ids[i],group.enabled,group.running);
+  if(state==PF_PMU_MEASURED)printf("%"PRIu64,group.raw[i]);else fputs("null",stdout);
+  puts("}");
+ }
+ pf_pmu_close(&group);
 }
 static size_t resident(void){FILE*f=fopen("/proc/self/statm","r");C(f);size_t a,b;C(fscanf(f,"%zu %zu",&a,&b)==2);C(!fclose(f));return b;}
 static void memory(void){size_t before=resident();unsigned char*p=malloc(1048576);C(p);for(unsigned i=0;i<1048576;i+=4096)p[i]=(unsigned char)i;size_t during=resident();volatile unsigned checksum=p[0];free(p);size_t after=resident();printf("{\"case\":\"memory\",\"payload_live\":[0,1048576,0],\"rss_pages\":[%zu,%zu,%zu],\"page_bytes\":%ld,\"allocator_metadata\":null,\"checksum\":%u,\"leak_conclusion\":\"not-established\"}\n",before,during,after,sysconf(_SC_PAGESIZE),checksum);}

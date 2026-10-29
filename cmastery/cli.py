@@ -191,6 +191,18 @@ def instantiate(project, destination, family_name=None, unit_id=None, exercise_i
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source, target)
         exercises.harness(learning_exercise, destination)
+    from . import route
+    active_id = unit_id or exercise_id or project
+    if active_id and route.node(active_id):
+        route.export_assets(active_id, destination)
+        (destination / "ACTIVE.md").write_text(route.render_node(active_id), encoding="utf-8")
+        record["active_specification"] = {"path": "ACTIVE.md", "route": route.load()["id"], "id": active_id, "sha256": route.specification_identity(active_id)}
+        # The entry point points to one resolved card; retained per-unit files
+        # remain machine inputs and provenance rather than competing directions.
+        (destination / "PROJECT.md").write_text("# Active learner specification\n\nRead [ACTIVE.md](ACTIVE.md) for the operative instructions and assessment.\n", encoding="utf-8")
+        for alias in ("UNIT.md", "EXERCISE.md", "ASSESSMENT.md"):
+            if (destination/alias).exists():
+                (destination/alias).write_text("# " + active_id + "\n\nRead [ACTIVE.md](ACTIVE.md) for the selected operative contract and rubric.\n", encoding="utf-8")
     save(destination / ".cmastery/project.json", record)
     save(destination / ".cmastery/prediction.json", {
         "project": project, "predictions": [], "invariant": "",
@@ -287,6 +299,16 @@ def advance(workspace, project, unit_id=None):
         meta.pop('unit',None); meta.pop('unit_contract',None)
         (workspace/'.cmastery/unit.json').unlink(missing_ok=True)
         (workspace/'UNIT.md').unlink(missing_ok=True)
+    from . import route
+    active_id = unit_id or project
+    if route.node(active_id):
+        route.export_assets(active_id, workspace)
+        (workspace/"ACTIVE.md").write_text(route.render_node(active_id), encoding="utf-8")
+        meta["active_specification"] = {"path": "ACTIVE.md", "route": route.load()["id"], "id": active_id, "sha256": route.specification_identity(active_id)}
+        (workspace/"PROJECT.md").write_text("# Active learner specification\n\nRead [ACTIVE.md](ACTIVE.md) for the operative instructions and assessment.\n", encoding="utf-8")
+        for alias in ("UNIT.md", "ASSESSMENT.md"):
+            if (workspace/alias).exists():
+                (workspace/alias).write_text("# " + active_id + "\n\nRead [ACTIVE.md](ACTIVE.md) for the selected operative contract and rubric.\n", encoding="utf-8")
     save(workspace/'.cmastery/project.json',meta)
     save(workspace/'.cmastery/prediction.json',{'project':project,'predictions':[],
          'invariant':'','competing_causes':[],'assistance':[],'sealed_at':None})
@@ -299,6 +321,8 @@ def run_checks(workspace, compiler, profile, assessor=False, timeout=180, all_te
                target=None, cpus=None, external=None, unit_id=None, exercise_id=None):
     workspace = Path(workspace).resolve()
     meta = read(workspace / ".cmastery/project.json")
+    from . import route
+    route.verify_workspace_specification(workspace)
     if (unit_id and exercise_id) or (unit_id and meta.get('exercise')) or (exercise_id and meta.get('unit')):
         raise ValueError('Select either a unit or an exercise workspace')
     learning_exercise = None
@@ -400,6 +424,9 @@ def run_checks(workspace, compiler, profile, assessor=False, timeout=180, all_te
         configure = ["cmake", "-S", str(workspace), "-B", str(output), "-G", "Ninja",
                      "-DCMAKE_C_COMPILER=" + compiler, "-DCMAKE_C_STANDARD=17",
                      "-DCMAKE_C_FLAGS=" + flags]
+        if meta["family"] == "algorithms":
+            configure[-1] = "-DCMAKE_C_FLAGS="
+            configure.append("-DCMASTERY_PROFILE=" + {"debug": "semantic", "asan": "instrumented", "tsan": "thread", "release": "performance"}[profile])
         if record.get('component_links'):
             from . import learning
             component_build = learning.prepare_component_build(workspace, output)
