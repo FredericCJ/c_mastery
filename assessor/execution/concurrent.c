@@ -96,11 +96,10 @@ unsigned cmx_hp_collect(cmx_hp_queue *q)
             {
                 if (atomic_load(&q->hazard[p][h]) == n)
                 {
-                  protected
+                    protected = 1;
                 }
             }
         }
-        = 1;
         if (!protected && atomic_compare_exchange_strong(
                               &q->node[n].state, &old, (old & ~3u) + 4u))
         {

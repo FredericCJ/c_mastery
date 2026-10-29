@@ -1,0 +1,66 @@
+{
+ "schema_version": 1,
+ "proof": "language-c-repair",
+ "generated_at": "2026-10-29T16:19:30.057780+00:00",
+ "amends": "reviews/v5/expansion/polish_revision/mechanical/brace_insertion.json",
+ "finding": "clang-format 21.1.8 detects .c files as Cpp when the configuration has only a Language: Cpp section, so the C identifiers 'protected' and 'private' were parsed as C++ access specifiers. In 2e InsertBraces then wrapped them ('{ protected } = 1;'), breaking three assessor files while keeping the token subsequence; in 2d one enumerator in labs/os_followthrough/lifecycle.c was laid out as an access specifier.",
+ "configuration": ".clang-format and tools/clang-format/linux-kernel.clang-format now hold the options in a language-neutral section followed by Language: C and Language: Cpp sections; .c files are parsed as C. All 778 house-style headers format identically when parsed as C.",
+ "detection": "tools/source_equivalence.py braces now also requires every inserted '{' to follow ')', 'else' or 'do' and every inserted '}' to follow ';' or '}'. Applied to all 2,194 brace-inserted files (7004a7e3b..e70609563), only the three files below fail.",
+ "files": [
+  {
+   "file": "assessor/advanced_concurrency_depth/reclamation/reclamation.c",
+   "base_sha256": "c289d2300ac462a65baa19d84b8fbfa447d4a84db78077c27a382290a26c4039",
+   "committed_sha256": "089dcecb36786357c76ebc654c84acaf16d38179f176785522ed3084edd55ea9",
+   "repaired_sha256": "58a716505c5fb630f31c1374d94b027b926ab38316feb29c7b36f891ecaebb3f",
+   "committed_braces_at_statement_boundaries": false,
+   "repaired_brace_only": true,
+   "repaired_braces_at_statement_boundaries": true,
+   "repaired_branch_balanced": true
+  },
+  {
+   "file": "assessor/execution/concurrent.c",
+   "base_sha256": "1033a12c0b13dd6a2a7783f3458c066f69f9c8c25fcb194c0b5d562c3b3333a3",
+   "committed_sha256": "10e0c53c97a44c84782718c9c058ccae23fb5c32ba5a6dda62da85f451b8f326",
+   "repaired_sha256": "7c381de50556e2cb58d7b67144d6343946f5458b518ee866af7e4d87126c470e",
+   "committed_braces_at_statement_boundaries": false,
+   "repaired_brace_only": true,
+   "repaired_braces_at_statement_boundaries": true,
+   "repaired_branch_balanced": true
+  },
+  {
+   "file": "assessor/thread_depth/atomics/cas.c",
+   "base_sha256": "71d70828dfd6490f691245987e90e8a97713f365c7d87d61311d53af16e9ba44",
+   "committed_sha256": "0d2a9d86dd6a2a627a6e0966060b5f1f988966c7e952894b2af7fb6357c5a251",
+   "repaired_sha256": "36b7bc3f85612f4cba8fc8c12bec9a3608a6a82e8c2b73e0da9ddcc6db290d9c",
+   "committed_braces_at_statement_boundaries": false,
+   "repaired_brace_only": true,
+   "repaired_braces_at_statement_boundaries": true,
+   "repaired_branch_balanced": true
+  }
+ ],
+ "relayout": {
+  "file": "labs/os_followthrough/lifecycle.c",
+  "token_equivalent": true,
+  "old_sha256": "e70cb7766767e7838458b81f8c995144fd90674ee25383e0f682f3dddda6e602",
+  "new_sha256": "e0ad34cd708c1b452534c103d759c8b3eb2ea1ae5c502dcbc19e3251ae543644"
+ },
+ "bridge": {
+  "file": "curriculum/v5/style_migration.json",
+  "amended_2e_entries": [
+   "assessor/advanced_concurrency_depth/reclamation/reclamation.c",
+   "assessor/execution/concurrent.c",
+   "assessor/thread_depth/atomics/cas.c",
+   "assessor/corpus_ecc/ecc.c"
+  ],
+  "added_step": "2f-language-c",
+  "note": "The 2e-braces entries now end at the repaired bytes; the ecc.c entry had kept the pre-repair hash after 6c5fc73ee."
+ },
+ "verification": [
+  "gcc -std=gnu17 -fsyntax-only on the four files: no errors",
+  "reclamation tests (9 modes) and CAS tests (3 modes): gcc and clang, -O1 -Werror, ASan+UBSan and TSan: 48/48 runs pass",
+  "run_unit_campaigns_v5.py family corpus_ecc: passed, 6 profiles, 59 commands (receipt in campaigns/2f_language_c_repair)"
+ ],
+ "not_run": [
+  "tools/run_os_followthrough.py: requires the private toolchain /home/frede/cmastery-os-follow-tools (strace, qemu-aarch64, provision.json) absent on this host; lifecycle.c relies on token equivalence."
+ ]
+}

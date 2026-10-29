@@ -10,9 +10,10 @@ token stream:
 - a `clang-format off` region carries a `CM-STYLE:` justification;
 - every `CM-SPECIMEN:` file is declared in the manifest and vice versa.
 
-A family is enforced once its manifest state is `formatted` or later; pending
-families are reported but do not fail the check. Use --all to enforce every
-family regardless of state.
+Enforcement follows each family's manifest state, a one-way ratchet: layout
+is enforced from `formatted` on, the naming rules from `renamed` on. Findings
+in families below those states are reported but do not fail the check. Use
+--all to enforce every rule for every family regardless of state.
 """
 from __future__ import annotations
 
@@ -33,7 +34,8 @@ sys.path.insert(0, str(ROOT / "tools"))
 from c_source import significant, tokenize  # noqa: E402
 
 MANIFEST = ROOT / "tools/c_style_manifest.json"
-ENFORCED_STATES = {"formatted", "renamed", "rewritten", "reviewed"}
+LAYOUT_STATES = {"formatted", "renamed", "rewritten", "reviewed"}
+NAMING_STATES = {"renamed", "rewritten", "reviewed"}
 DIAGNOSTIC = re.compile(r"^(?P<path>[^:]+):\d+:\d+: (?:error|warning): code should be clang-formatted")
 
 
@@ -83,6 +85,24 @@ def layout_failures(binary, style, files):
     return failing
 
 
+def declared_names(declaration):
+    """Identifiers a typedef declares, skipping names inside parameter lists.
+
+    A `(` followed by `*` groups a declarator (`(*handler_fn)`); any other
+    `(` opens a parameter list, whose names (`void *context`) are not
+    declared by the typedef.
+    """
+    groups = []
+    for k, token in enumerate(declaration):
+        following = declaration[k + 1].text if k + 1 < len(declaration) else None
+        if token.text == "(":
+            groups.append(following == "*")
+        elif token.text == ")" and groups:
+            groups.pop()
+        elif token.kind == "ident" and all(groups) and following in (None, ",", ")", "["):
+            yield token.text
+
+
 def typedef_findings(text):
     """Yield (rule, detail) for typedef declarations that break the naming rules."""
     tokens = significant(tokenize(text))
@@ -103,8 +123,7 @@ def typedef_findings(text):
         if not declaration:
             continue
         head = declaration[0].text
-        names = [t.text for k, t in enumerate(declaration) if t.kind == "ident" and
-                 (k + 1 == len(declaration) or declaration[k + 1].text in (",", ")", "["))]
+        names = list(declared_names(declaration))
         if head in ("struct", "union", "enum") and any(t.text == "{" for t in declaration):
             yield "aggregate-typedef", " ".join(t.text for t in declaration[:2])
             continue
@@ -207,9 +226,10 @@ def main():
             row["naming_findings"][finding["rule"]] += 1
     enforced_failures = []
     for name in files:
-        family = family_of(name)
-        enforced = args.all or states.get(family, {}).get("state") in ENFORCED_STATES
-        if enforced and (name in failing or findings.get(name)):
+        state = states.get(family_of(name), {}).get("state")
+        layout = args.all or state in LAYOUT_STATES
+        naming = args.all or state in NAMING_STATES
+        if (layout and name in failing) or (naming and findings.get(name)):
             enforced_failures.append(name)
     summary = {
         "schema_version": 1,

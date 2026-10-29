@@ -3,7 +3,8 @@
 # Pinned tool: clang-format 21.1.8 (tools/c_tools_requirements.lock).
 # Genuine Linux kernel modules use their own .clang-format (kernel style).
 ---
-Language: Cpp
+# Options shared by every language section below (clang-format applies a
+# section without Language to all languages).
 BasedOnStyle: LLVM
 
 # BARR-C:2018 layout: 80 columns, 4-space indentation, no tabs.
@@ -73,4 +74,12 @@ BreakStringLiterals: false
 ReflowComments: IndentOnly
 CommentPragmas: '^@'
 IndentPPDirectives: None
+---
+# .c files are parsed as C, so C++ keywords such as `protected` or `new`
+# are ordinary identifiers. Headers (.h, .inc) are detected as C++ and use
+# the same options; every house-style header formats identically when parsed
+# as C, and tools/source_equivalence.py checks inserted brace positions.
+Language: C
+---
+Language: Cpp
 ...

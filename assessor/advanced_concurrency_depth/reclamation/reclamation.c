@@ -134,14 +134,12 @@ unsigned ap_collect(struct ap_queue *q)
             {
                 if (atomic_load(&q->hazard[p][h]) == n)
                 {
-                  protected
+                    protected = 1;
                 }
             }
         }
-        = 1;
 #ifdef AP_MUTANT_PROTECTION
-      protected
-        = 0;
+        protected = 0;
 #endif
         if (!protected)
         {

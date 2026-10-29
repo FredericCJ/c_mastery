@@ -62,10 +62,9 @@ int ta_publish(ta_node_cas_fn operation, void *context, struct ta_node *owned,
             {
                 if (leases[j] == expected)
                 {
-                  protected
+                    protected = 1;
                 }
             }
-            = 1;
             if (!protected || !expected)
             {
                 *out = report;

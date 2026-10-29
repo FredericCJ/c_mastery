@@ -92,8 +92,7 @@ static int process(unsigned fail, unsigned shared_result)
     if (!child)
     {
         close(pipefd[0]);
-      private
-        = 9;
+        private = 9;
         if (fail)
         {
             close(pipefd[1]);

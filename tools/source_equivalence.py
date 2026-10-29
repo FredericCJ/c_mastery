@@ -270,6 +270,27 @@ def token_keys(text):
 BRACES = (("punct", "{"), ("punct", "}"))
 
 
+def braces_wrap_statements(old, new):
+    """Every inserted brace sits at a statement boundary.
+
+    An inserted `{` must follow `)`, `else` or `do`, and an inserted `}` must
+    follow `;` or `}`. A formatter that misparses C (for example treating
+    `protected` as a C++ access specifier) can insert braces that keep the
+    token subsequence but split a statement (`{ protected } = 1;`).
+    """
+    position = 0
+    for k, token in enumerate(new):
+        if position < len(old) and token == old[position]:
+            position += 1
+            continue
+        previous = new[k - 1][1] if k else ""
+        if token == BRACES[0] and previous not in (")", "else", "do"):
+            return False
+        if token == BRACES[1] and previous not in (";", "}"):
+            return False
+    return True
+
+
 def only_braces_inserted(old, new):
     """True when `old` is `new` with some brace tokens deleted.
 
@@ -326,7 +347,8 @@ def prove_tokens(args, braces=False):
         if a == b:
             results[relative] = "token-equivalent" if comments_equal else "comment-changed"
             continue
-        if braces and only_braces_inserted(a, b) and branch_brace_deltas(old) == branch_brace_deltas(new):
+        if braces and only_braces_inserted(a, b) and braces_wrap_statements(a, b) and \
+                branch_brace_deltas(old) == branch_brace_deltas(new):
             results[relative] = "brace-only" if comments_equal else "brace-only-comment-changed"
             continue
         results[relative] = "different"
