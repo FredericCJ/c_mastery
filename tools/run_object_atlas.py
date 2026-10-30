@@ -7,7 +7,7 @@ CASES=['lifetime','escape','representation','equality','alignment']
 MUTANTS={'FAIL':(0,'oa_resize(&o,8,&a)==-1 && o.data==still_live && o.length==4 && o.generation==1 && o.data[3]==11'),'BORROW':(1,'oa_deep_copy(v,copy,sizeof copy,&deep)==0 && deep.data==copy && deep.length==3'),'BYTES':(2,'oa_equal(&a,&b)'),'ZERO':(3,'oa_encode(&a,x,13)==0 && oa_encode(&b,y,13)==0 && !memcmp(x,y,13)'),'SLICE':(4,'oa_place(32,offsets[i],16,8,8,&at)==0 && at==answers[i]'),'WIDE':(4,'!oa_wide_admit(_Alignof(max_align_t))')}
 SYSROOT=ROOT/'build/posix-io-toolchain/sysroot';LIBS=SYSROOT/'usr/lib32';GCCDIR=SYSROOT/'usr/lib/gcc/x86_64-linux-gnu/15/32';LOADER=LIBS/'ld-linux.so.2'
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
-def pins():return {p.relative_to(ROOT).as_posix():sha(p) for p in sorted([p for tree in [PUBLIC,PRIVATE] for p in tree.rglob('*') if p.is_file() and '__pycache__' not in p.parts]+[pathlib.Path(__file__),ROOT/'tools/run_thread_lifecycle.py'])}
+def pins():return {p.relative_to(ROOT).as_posix():sha(p) for p in sorted([p for tree in [PUBLIC,PRIVATE] for p in tree.rglob('*') if p.is_file() and '__pycache__' not in p.parts]+[pathlib.Path(__file__),ROOT/'tools/run_thread_lifecycle.py',ROOT/'labs/support/cm_parse.c',ROOT/'labs/support/cm_parse.h'])}
 def external():return {str(p):sha(p) for p in sorted({pathlib.Path(shutil.which(n)).resolve() for n in ['gcc','clang','nm','objdump']}|{pathlib.Path('/usr/lib/x86_64-linux-gnu/libc.so.6'),LOADER,LIBS/'libc.so.6',GCCDIR/'libgcc.a'})}
 def expected_commands():
     s={'kernel','libc','i386.compile','i386.oracle','i386.elf','i386.dependencies','gcc.lto.compile','gcc.lto.oracle','decode.assembly'}|{'i386.'+c for c in CASES}
@@ -22,9 +22,9 @@ def expected_commands():
     return s
 def main():
     HERE.mkdir(parents=True,exist_ok=True);BUILD.mkdir(parents=True);before=pins();ext=external();harness.BUILD=BUILD;harness.COMMANDS.clear();harness.OUTPUTS.clear();run=harness.run;failure=None;dependencies={}
-    flags=['-std=c17','-Wall','-Wextra','-Werror','-Wpedantic','-I'+str(PUBLIC)]
+    flags=['-std=c17','-Wall','-Wextra','-Werror','-Wpedantic','-I'+str(PUBLIC),'-I'+str(ROOT/'labs/support')]
     def compile(tag,cc,opt,stub=False):
-        binary=BUILD/tag;run(tag+'.compile',[cc,*flags,*opt,PUBLIC/'learner.c' if stub else PRIVATE/'atlas.c',PUBLIC/'tests.c','-o',binary]);return binary
+        binary=BUILD/tag;run(tag+'.compile',[cc,*flags,*opt,PUBLIC/'learner.c' if stub else PRIVATE/'atlas.c',PUBLIC/'tests.c',ROOT/'labs/support/cm_parse.c','-o',binary]);return binary
     try:
         run('kernel',['uname','-a']);run('libc',['ldd','--version'])
         for cc in ['gcc','clang']:
@@ -38,7 +38,7 @@ def main():
                 for m,(i,marker) in MUTANTS.items():b=compile(t+'.mutant.'+m,cc,[*opt,'-DOA_MUTANT_'+m]);run(t+'.mutant.'+m,[b,i],41,'OA_ASSERT:'+marker)
         b=compile('gcc.lto','gcc',['-O3','-flto','-DNDEBUG']);run('gcc.lto.oracle',[sys.executable,PRIVATE/'oracle.py',b,BUILD/'gcc.lto.packets.json'],marker='"placement_cases": 3690')
         narrow=['-m32','--sysroot='+str(SYSROOT),'-isystem',str(SYSROOT/'usr/include/x86_64-linux-gnu'),'-B'+str(GCCDIR)+'/','-L'+str(LIBS),'-Wl,--dynamic-linker='+str(LOADER)]
-        text=run('i386.dependencies',['gcc',*flags,*narrow,'-M',PRIVATE/'atlas.c',PUBLIC/'tests.c'])
+        text=run('i386.dependencies',['gcc',*flags,*narrow,'-M',PRIVATE/'atlas.c',PUBLIC/'tests.c',ROOT/'labs/support/cm_parse.c'])
         for token in text.replace('\\\n',' ').split():
             p=pathlib.Path(token)
             if p.is_absolute() and p.is_file():dependencies[str(p)]=sha(p)

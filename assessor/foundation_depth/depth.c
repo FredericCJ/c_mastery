@@ -1,6 +1,21 @@
 #include "depth.h"
 
-enum fd_class fd_verdict(enum fd_case q)
+/* Assessor reference implementation of the foundation_depth contracts in
+ * labs/foundation_depth/include/depth.h. FD_MUTATE_* macros select compiled
+ * defects for the mutation controls; none is defined in a normal build. */
+
+/* Octet positions inside a wire record. The payload follows the header. */
+enum wire_offset
+{
+    WIRE_VERSION = 0,
+    WIRE_FLAGS = 1,
+    WIRE_COUNT_HIGH = 2,
+    WIRE_COUNT_LOW = 3,
+    WIRE_PAYLOAD = FD_WIRE_HEADER_BYTES
+};
+
+/* Answers are indexed by enum fd_case. */
+enum fd_class fd_verdict(enum fd_case question)
 {
     static const enum fd_class answers[FD_CASE_COUNT] = {
         FD_DEFINED,
@@ -14,12 +29,13 @@ enum fd_class fd_verdict(enum fd_case q)
         FD_UNDEFINED,
         FD_DEFINED};
 #ifdef FD_MUTATE_SEMANTIC
-    if (q == FD_UNSEQUENCED)
+    if (question == FD_UNSEQUENCED)
     {
         return FD_UNSPECIFIED;
     }
 #endif
-    return (unsigned)q < FD_CASE_COUNT ? answers[q] : FD_UNKNOWN;
+    /* The unsigned cast also rejects negative identifiers. */
+    return (unsigned)question < FD_CASE_COUNT ? answers[question] : FD_UNKNOWN;
 }
 
 enum fd_status fd_repair_step(int *value, int *previous)
@@ -62,7 +78,10 @@ enum fd_status fd_extent(size_t offset, size_t count, size_t width,
     }
     *out = wrapped;
 #else
-    if (offset > limit || (width && count > (limit - offset) / width))
+    /* offset <= limit makes (limit - offset) exact; dividing by width instead
+     * of multiplying count * width cannot wrap. A zero width consumes nothing
+     * but still needs offset <= limit. */
+    if (offset > limit || (width != 0 && count > (limit - offset) / width))
     {
         return FD_RANGE;
     }
@@ -77,6 +96,8 @@ enum fd_status fd_from_signed(intmax_t value, size_t *out)
     {
         return FD_INVALID;
     }
+    /* Negative values are rejected first, so the cast to the unsigned wide
+     * type preserves the value being compared. */
     if (value < 0 || (uintmax_t)value > SIZE_MAX)
     {
         return FD_RANGE;
@@ -85,70 +106,92 @@ enum fd_status fd_from_signed(intmax_t value, size_t *out)
     return FD_OK;
 }
 
-static int cursor_valid(const struct fd_cursor *c)
+/* A cursor is usable when position <= length and a positive length has a
+ * base. The all-zero cursor is valid. */
+static int cursor_valid(const struct fd_cursor *cursor)
 {
-    return c && c->position <= c->length && (c->base || c->length == 0);
+    return cursor && cursor->position <= cursor->length &&
+           (cursor->base || cursor->length == 0);
 }
 
-enum fd_status fd_take(struct fd_cursor *c, size_t n, const unsigned char **out)
+enum fd_status fd_take(struct fd_cursor *cursor, size_t count,
+                       const unsigned char **out)
 {
-    if (!out || !cursor_valid(c))
+    if (!out || !cursor_valid(cursor))
     {
         return FD_INVALID;
     }
-    if (n > c->length - c->position)
+    if (count > cursor->length - cursor->position)
     {
 #ifdef FD_MUTATE_CURSOR
-        c->position = c->length;
+        cursor->position = cursor->length;
 #endif
         return FD_RANGE;
     }
-    const unsigned char *p = c->base ? c->base + c->position : 0;
-    c->position += n;
-    *out = p;
+    /* A null base is only valid for length zero; do not form base + 0. */
+    const unsigned char *taken =
+        cursor->base ? cursor->base + cursor->position : 0;
+    cursor->position += count;
+    *out = taken;
     return FD_OK;
 }
 
-enum fd_status fd_subview(const struct fd_cursor *c, size_t offset, size_t n,
-                          struct fd_cursor *out)
+enum fd_status fd_subview(const struct fd_cursor *parent, size_t offset,
+                          size_t count, struct fd_cursor *out)
 {
-    if (!out || !cursor_valid(c))
+    if (!out || !cursor_valid(parent))
     {
         return FD_INVALID;
     }
-    size_t remaining = c->length - c->position;
-    if (offset > remaining || n > remaining - offset)
+    const size_t remaining = parent->length - parent->position;
+    if (offset > remaining || count > remaining - offset)
     {
         return FD_RANGE;
     }
-    const unsigned char *p = c->base ? c->base + c->position + offset : 0;
-    out->base = p;
-    out->length = n;
+    /* Read everything from the parent before writing: out may alias it. */
+    const unsigned char *window_base =
+        parent->base ? parent->base + parent->position + offset : 0;
+    out->base = window_base;
+    out->length = count;
     out->position = 0;
     return FD_OK;
 }
 
-enum fd_status fd_encode(struct fd_record r, unsigned char *out,
+enum fd_status fd_encode(struct fd_record record, unsigned char *out,
                          size_t capacity)
 {
-    if (!out || (r.flags & ~3u))
+    if (!out || (record.flags & ~FD_FLAGS_MASK))
     {
         return FD_INVALID;
     }
-    if (capacity != 8)
+    if (capacity != FD_WIRE_BYTES)
     {
         return FD_RANGE;
     }
-    uint32_t bits = (uint32_t)r.value;
-    out[0] = 1;
-    out[1] = r.flags;
-    out[2] = (unsigned char)(r.count >> 8);
-    out[3] = (unsigned char)r.count;
-    for (unsigned i = 0; i < 4; i++)
+    const uint32_t bits = (uint32_t)record.value;
+    out[WIRE_VERSION] = FD_WIRE_VERSION;
+    out[WIRE_FLAGS] = record.flags;
+    out[WIRE_COUNT_HIGH] = (unsigned char)(record.count >> CHAR_BIT);
+    out[WIRE_COUNT_LOW] = (unsigned char)record.count;
+    /* Big-endian: the most significant octet is stored first. */
+    for (unsigned i = 0; i < FD_WIRE_PAYLOAD_BYTES; i++)
     {
-        out[4 + i] = (unsigned char)(bits >> (24 - 8 * i));
+        const unsigned shift = CHAR_BIT * (FD_WIRE_PAYLOAD_BYTES - 1 - i);
+        out[WIRE_PAYLOAD + i] = (unsigned char)(bits >> shift);
     }
     return FD_OK;
+}
+
+/* Maps a 32-bit two's-complement pattern to its signed value arithmetically,
+ * without an implementation-defined unsigned-to-signed conversion. Patterns
+ * above INT32_MAX denote bits - 2^32 = -1 - (UINT32_MAX - bits). */
+static int32_t value_from_bits(uint32_t bits)
+{
+    if (bits <= INT32_MAX)
+    {
+        return (int32_t)bits;
+    }
+    return -1 - (int32_t)(UINT32_MAX - bits);
 }
 
 enum fd_status fd_decode(const unsigned char *wire, size_t length,
@@ -158,148 +201,170 @@ enum fd_status fd_decode(const unsigned char *wire, size_t length,
     {
         return FD_INVALID;
     }
+    /* Exactly one header plus one payload; compose the checked extent rather
+     * than comparing lengths ad hoc. */
     size_t extent;
-    if (fd_extent(4, 1, 4, length, &extent) != FD_OK || extent != length)
+    if (fd_extent(FD_WIRE_HEADER_BYTES, 1, FD_WIRE_PAYLOAD_BYTES, length,
+                  &extent) != FD_OK ||
+        extent != length)
     {
         return FD_RANGE;
     }
-    struct fd_cursor c = {wire, length, 0};
-    const unsigned char *header, *payload;
-    if (fd_take(&c, 4, &header) != FD_OK || fd_take(&c, 4, &payload) != FD_OK)
+    struct fd_cursor cursor = {wire, length, 0};
+    const unsigned char *header;
+    const unsigned char *payload;
+    if (fd_take(&cursor, FD_WIRE_HEADER_BYTES, &header) != FD_OK ||
+        fd_take(&cursor, FD_WIRE_PAYLOAD_BYTES, &payload) != FD_OK)
     {
         return FD_RANGE;
     }
-    if (header[0] != 1 || (header[1] & ~3u))
+    if (header[WIRE_VERSION] != FD_WIRE_VERSION ||
+        (header[WIRE_FLAGS] & ~FD_FLAGS_MASK))
     {
         return FD_INVALID;
     }
     uint32_t bits = 0;
-    for (unsigned i = 0; i < 4; i++)
+    for (unsigned i = 0; i < FD_WIRE_PAYLOAD_BYTES; i++)
     {
-        bits = (bits << 8) | payload[i];
+        bits = (bits << CHAR_BIT) | payload[i];
     }
 #ifdef FD_MUTATE_CODEC
     bits &= UINT32_C(0x7fffffff);
 #endif
-    int32_t value =
-        bits <= INT32_MAX ? (int32_t)bits : -1 - (int32_t)(UINT32_MAX - bits);
-    out->flags = header[1];
-    out->count = (uint16_t)(((uint16_t)header[2] << 8) | header[3]);
-    out->value = value;
+    /* Commit only after every check passed. */
+    out->flags = header[WIRE_FLAGS];
+    out->count = (uint16_t)(((uint16_t)header[WIRE_COUNT_HIGH] << CHAR_BIT) |
+                            header[WIRE_COUNT_LOW]);
+    out->value = value_from_bits(bits);
     return FD_OK;
 }
 
-enum fd_status fd_slot_acquire(struct fd_slot *s, struct fd_allocator a)
+enum fd_status fd_slot_acquire(struct fd_slot *slot,
+                               struct fd_allocator allocator)
 {
-    if (!s || !a.allocate || !a.deallocate)
+    if (!slot || !allocator.allocate || !allocator.deallocate)
     {
         return FD_INVALID;
     }
-    if (s->state != FD_EMPTY)
+    if (slot->state != FD_EMPTY)
     {
         return FD_STATE;
     }
-    void *p = a.allocate(a.context, sizeof(struct fd_value),
-                         _Alignof(struct fd_value));
-    if (!p)
+    void *storage = allocator.allocate(
+        allocator.context, sizeof(struct fd_value), _Alignof(struct fd_value));
+    if (!storage)
     {
         return FD_NOMEM;
     }
-    s->storage = p;
-    s->allocator = a;
-    s->state = FD_ACQUIRED;
-    s->destroy = 0;
-    s->callback_context = 0;
+    slot->storage = storage;
+    slot->allocator = allocator;
+    slot->state = FD_ACQUIRED;
+    slot->destroy = 0;
+    slot->callback_context = 0;
     return FD_OK;
 }
 
-void fd_slot_reset(struct fd_slot *s)
+/* Ownership: a slot in any state but FD_EMPTY owns slot->storage. The
+ * destructor runs only for values that finished initialization, and only once
+ * because the state returns to FD_EMPTY below. */
+void fd_slot_reset(struct fd_slot *slot)
 {
-    if (!s || s->state == FD_EMPTY)
+    if (!slot || slot->state == FD_EMPTY)
     {
         return;
     }
-    if ((s->state == FD_INITIALIZED || s->state == FD_PUBLISHED) && s->destroy)
+    const int value_constructed =
+        slot->state == FD_INITIALIZED || slot->state == FD_PUBLISHED;
+    if (value_constructed && slot->destroy)
     {
-        s->destroy(s->callback_context, s->storage);
+        slot->destroy(slot->callback_context, slot->storage);
     }
-    s->allocator.deallocate(s->allocator.context, s->storage);
-    s->storage = 0;
-    s->state = FD_EMPTY;
-    s->allocator.context = 0;
-    s->allocator.allocate = 0;
-    s->allocator.deallocate = 0;
-    s->destroy = 0;
-    s->callback_context = 0;
+    slot->allocator.deallocate(slot->allocator.context, slot->storage);
+    slot->storage = 0;
+    slot->state = FD_EMPTY;
+    slot->allocator.context = 0;
+    slot->allocator.allocate = 0;
+    slot->allocator.deallocate = 0;
+    slot->destroy = 0;
+    slot->callback_context = 0;
 }
 
-enum fd_status fd_slot_initialize(struct fd_slot *s,
+enum fd_status fd_slot_initialize(struct fd_slot *slot,
                                   fd_initialize_fn initialize,
                                   fd_destroy_fn destroy, void *context)
 {
-    if (!s || !initialize)
+    if (!slot || !initialize)
     {
         return FD_INVALID;
     }
-    if (s->state != FD_ACQUIRED)
+    if (slot->state != FD_ACQUIRED)
     {
         return FD_STATE;
     }
-    if (initialize(context, s->storage))
+    if (initialize(context, slot->storage))
     {
+        /* The failed value was never constructed, so no destructor runs:
+         * the state is still FD_ACQUIRED and the reset only frees storage. */
 #ifndef FD_MUTATE_LIFECYCLE
-        fd_slot_reset(s);
+        fd_slot_reset(slot);
 #endif
         return FD_INIT_FAILED;
     }
-    s->destroy = destroy;
-    s->callback_context = context;
-    s->state = FD_INITIALIZED;
+    slot->destroy = destroy;
+    slot->callback_context = context;
+    slot->state = FD_INITIALIZED;
     return FD_OK;
 }
 
-enum fd_status fd_slot_publish(struct fd_slot *s, const struct fd_value **out)
+enum fd_status fd_slot_publish(struct fd_slot *slot,
+                               const struct fd_value **out)
 {
-    if (!s || !out)
+    if (!slot || !out)
     {
         return FD_INVALID;
     }
-    if (s->state != FD_INITIALIZED && s->state != FD_PUBLISHED)
+    if (slot->state != FD_INITIALIZED && slot->state != FD_PUBLISHED)
     {
         return FD_STATE;
     }
-    *out = s->storage;
-    s->state = FD_PUBLISHED;
+    *out = slot->storage;
+    slot->state = FD_PUBLISHED;
     return FD_OK;
 }
 
-void fd_transform(unsigned char *restrict d, const unsigned char *restrict s,
-                  size_t n, unsigned char mask)
+void fd_transform(unsigned char *restrict destination,
+                  const unsigned char *restrict source, size_t count,
+                  unsigned char mask)
 {
-    for (size_t i = 0; i < n; i++)
+    for (size_t i = 0; i < count; i++)
     {
-        d[i] = (unsigned char)(s[i] ^ mask);
+        destination[i] = (unsigned char)(source[i] ^ mask);
     }
 }
 
-enum fd_status fd_move(unsigned char *base, size_t length, size_t dst,
-                       size_t src, size_t count)
+enum fd_status fd_move(unsigned char *base, size_t length, size_t destination,
+                       size_t source, size_t count)
 {
     if (!base && length)
     {
         return FD_INVALID;
     }
-    if (dst > length || src > length || count > length - dst ||
-        count > length - src)
+    /* Validate offsets before forming any pointer; the subtractions cannot
+     * wrap because both offsets are already <= length. */
+    if (destination > length || source > length ||
+        count > length - destination || count > length - source)
     {
         return FD_RANGE;
     }
+    /* Snapshot semantics without a buffer: when the destination window starts
+     * after the source, a forward copy would overwrite unread source bytes,
+     * so copy from the end. */
 #ifndef FD_MUTATE_OVERLAP
-    if (dst > src)
+    if (destination > source)
     {
         for (size_t i = count; i > 0; i--)
         {
-            base[dst + i - 1] = base[src + i - 1];
+            base[destination + i - 1] = base[source + i - 1];
         }
     }
     else
@@ -307,117 +372,127 @@ enum fd_status fd_move(unsigned char *base, size_t length, size_t dst,
     {
         for (size_t i = 0; i < count; i++)
         {
-            base[dst + i] = base[src + i];
+            base[destination + i] = base[source + i];
         }
     }
     return FD_OK;
 }
 
-void fd_pool_init(struct fd_pool *p)
+void fd_pool_init(struct fd_pool *pool)
 {
     for (size_t i = 0; i < FD_POOL_CAPACITY; i++)
     {
-        p->entries[i].generation = 1;
-        p->entries[i].live = 0;
-        p->entries[i].retired = 0;
+        pool->entries[i].generation = 1;
+        pool->entries[i].live = 0;
+        pool->entries[i].retired = 0;
     }
 }
 
-enum fd_status fd_pool_acquire(struct fd_pool *p, struct fd_value value,
+enum fd_status fd_pool_acquire(struct fd_pool *pool, struct fd_value value,
                                struct fd_handle *out)
 {
-    if (!p || !out)
+    if (!pool || !out)
     {
         return FD_INVALID;
     }
     for (size_t i = 0; i < FD_POOL_CAPACITY; i++)
     {
-        struct fd_entry *e = &p->entries[i];
-        if (!e->live && !e->retired)
+        struct fd_entry *entry = &pool->entries[i];
+        if (!entry->live && !entry->retired)
         {
-            e->value = value;
-            e->live = 1;
-            out->owner = p;
+            entry->value = value;
+            entry->live = 1;
+            out->owner = pool;
             out->index = i;
-            out->generation = e->generation;
+            out->generation = entry->generation;
             return FD_OK;
         }
     }
     return FD_FULL;
 }
 
-static int handle_valid(const struct fd_pool *p, struct fd_handle h)
+/* A handle names a live entry of this very pool at its current generation. The
+ * index is checked before it is used to subscript. */
+static int handle_valid(const struct fd_pool *pool, struct fd_handle handle)
 {
-    return p && h.owner == p && h.index < FD_POOL_CAPACITY &&
-           p->entries[h.index].live &&
-           p->entries[h.index].generation == h.generation;
+    return pool && handle.owner == pool && handle.index < FD_POOL_CAPACITY &&
+           pool->entries[handle.index].live &&
+           pool->entries[handle.index].generation == handle.generation;
 }
 
-enum fd_status fd_pool_get(const struct fd_pool *p, struct fd_handle h,
+enum fd_status fd_pool_get(const struct fd_pool *pool, struct fd_handle handle,
                            struct fd_value *out)
 {
-    if (!p || !out)
+    if (!pool || !out)
     {
         return FD_INVALID;
     }
-    if (!handle_valid(p, h))
+    if (!handle_valid(pool, handle))
     {
         return FD_STALE;
     }
-    *out = p->entries[h.index].value;
+    *out = pool->entries[handle.index].value;
     return FD_OK;
 }
 
-enum fd_status fd_pool_release(struct fd_pool *p, struct fd_handle h)
+enum fd_status fd_pool_release(struct fd_pool *pool, struct fd_handle handle)
 {
-    if (!p)
+    if (!pool)
     {
         return FD_INVALID;
     }
-    if (!handle_valid(p, h))
+    if (!handle_valid(pool, handle))
     {
         return FD_STALE;
     }
-    struct fd_entry *e = &p->entries[h.index];
-    e->live = 0;
+    struct fd_entry *entry = &pool->entries[handle.index];
+    entry->live = 0;
+    /* Advancing the generation invalidates every outstanding handle to this
+     * slot. At FD_GENERATION_MAX the slot is retired for good: wrapping would
+     * let an ancient handle become valid again. */
 #ifdef FD_MUTATE_HANDLES
-    e->generation = e->generation == FD_GENERATION_MAX ? 1 : e->generation + 1;
+    entry->generation =
+        entry->generation == FD_GENERATION_MAX ? 1 : entry->generation + 1;
 #else
-    if (e->generation == FD_GENERATION_MAX)
+    if (entry->generation == FD_GENERATION_MAX)
     {
-        e->retired = 1;
+        entry->retired = 1;
     }
     else
     {
-        e->generation++;
+        entry->generation++;
     }
 #endif
     return FD_OK;
 }
 
 enum fd_status fd_apply(const unsigned char *wire, size_t length,
-                        int authorized, int32_t *counter)
+                        int authorized, int32_t *synthetic_counter)
 {
-    if (!counter)
+    if (!synthetic_counter)
     {
         return FD_INVALID;
     }
-    struct fd_record r;
-    enum fd_status status = fd_decode(wire, length, &r);
+    struct fd_record record;
+    const enum fd_status status = fd_decode(wire, length, &record);
     if (status != FD_OK)
     {
         return status;
     }
-    int64_t result = (int64_t)*counter + (int64_t)r.count * r.value;
+    /* count <= UINT16_MAX and |value| <= 2^31, so the product fits int64_t,
+     * and so does its sum with any int32_t counter. */
+    const int64_t result =
+        (int64_t)*synthetic_counter + (int64_t)record.count * record.value;
     if (result < INT32_MIN || result > INT32_MAX)
     {
         return FD_RANGE;
     }
 #ifdef FD_MUTATE_DEFENSE
-    *counter = (int32_t)result;
+    *synthetic_counter = (int32_t)result;
 #endif
+    /* Authority is the caller's argument, never a wire flag. */
 #ifdef FD_MUTATE_FLAG_AUTHORITY
-    if (!authorized && !(r.flags & 1u))
+    if (!authorized && !(record.flags & 1u))
     {
         return FD_DENIED;
     }
@@ -427,6 +502,6 @@ enum fd_status fd_apply(const unsigned char *wire, size_t length,
         return FD_DENIED;
     }
 #endif
-    *counter = (int32_t)result;
+    *synthetic_counter = (int32_t)result;
     return FD_OK;
 }

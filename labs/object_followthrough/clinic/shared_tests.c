@@ -1,11 +1,33 @@
+/*
+ * Test driver for the shared-payload part of the clinic laboratory.
+ *
+ * Usage: shared_tests [serial|late]; no argument (or any other) runs the
+ * parallel case. Markers on success: MC_SHARED_PARALLEL_PASS,
+ * MC_SHARED_SERIAL_PASS, MC_SHARED_LATE_PASS.
+ *   parallel  two threads add to the payload at once (barrier-aligned start)
+ *   serial    the worker finishes before the creator starts adding
+ *   late      the creator drops its reference while the worker still holds
+ *             the last one and then uses it
+ * Exit status: 0 pass; 41 a REQUIRE failed (text on stderr after the marker
+ * MC_SHARED_ASSERT:).
+ */
 #define _POSIX_C_SOURCE 200809L
 #include "shared.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-static void *allocation;
-static unsigned frees;
-static int fail_allocation, launched;
+
+enum
+{
+    ADDS_PER_THREAD = 10000, /* mc_shared_add(1) calls made by each thread */
+    LATE_WORKER_AMOUNT = 7,
+    THREADS_AT_BARRIER = 2
+};
+
+static void *allocation; /* last block handed out, freed on early exit */
+static unsigned frees; /* release callbacks seen */
+static int fail_allocation;
+static int launched; /* nonzero while the worker may still own the payload */
 
 static void *allocate(void *c, size_t n)
 {
@@ -41,7 +63,9 @@ static void release(void *c, void *p)
         }                                                 \
     } while (0)
 
-struct ob_context
+/* Worker arguments and results. gate/condition/ready/go order the "late"
+ * case; barrier aligns the start of the "parallel" case. */
+struct mc_context
 {
     struct mc_shared *owner;
     pthread_barrier_t *barrier;
@@ -53,7 +77,7 @@ struct ob_context
 
 static void *worker(void *arg)
 {
-    struct ob_context *c = arg;
+    struct mc_context *c = arg;
     if (c->late)
     {
         if (pthread_mutex_lock(&c->gate))
@@ -76,7 +100,8 @@ static void *worker(void *arg)
         {
             return c;
         }
-        if (mc_shared_add(c->owner, 7) || mc_shared_read(c->owner, &c->out))
+        if (mc_shared_add(c->owner, LATE_WORKER_AMOUNT) ||
+            mc_shared_read(c->owner, &c->out))
         {
             return c;
         }
@@ -91,7 +116,7 @@ static void *worker(void *arg)
                 return c;
             }
         }
-        for (unsigned i = 0; i < 10000; ++i)
+        for (unsigned i = 0; i < ADDS_PER_THREAD; ++i)
         {
             if (mc_shared_add(c->owner, 1))
             {
@@ -108,12 +133,15 @@ static void *worker(void *arg)
 
 int main(int argc, char **argv)
 {
-    int late = argc == 2 && !strcmp(argv[1], "late"),
-        serial = argc == 2 && !strcmp(argv[1], "serial");
-    struct mc_shared state = {0}, *main_owner = &state, *extra = NULL,
-                     *third = NULL, *excess = NULL;
+    int late = argc == 2 && !strcmp(argv[1], "late");
+    int serial = argc == 2 && !strcmp(argv[1], "serial");
+    struct mc_shared state = {0};
+    struct mc_shared *main_owner = &state;
+    struct mc_shared *extra = NULL;
+    struct mc_shared *third = NULL;
+    struct mc_shared *excess = NULL;
     struct mc_allocator a = {NULL, allocate, release};
-    struct ob_context context = {0};
+    struct mc_context context = {0};
     pthread_t thread;
     pthread_barrier_t barrier;
     void *result;
@@ -137,7 +165,7 @@ int main(int argc, char **argv)
     }
     else if (!serial)
     {
-        REQUIRE(pthread_barrier_init(&barrier, NULL, 2) == 0);
+        REQUIRE(pthread_barrier_init(&barrier, NULL, THREADS_AT_BARRIER) == 0);
         context.barrier = &barrier;
     }
     REQUIRE(pthread_create(&thread, NULL, worker, &context) == 0);
@@ -155,7 +183,8 @@ int main(int argc, char **argv)
         REQUIRE(pthread_cond_signal(&context.condition) == 0 &&
                 pthread_mutex_unlock(&context.gate) == 0);
         REQUIRE(pthread_join(thread, &result) == 0 && !result &&
-                !context.owner && context.out == 7 && frees == 1);
+                !context.owner && context.out == LATE_WORKER_AMOUNT &&
+                frees == 1);
         launched = 0;
         REQUIRE(pthread_cond_destroy(&context.condition) == 0 &&
                 pthread_mutex_destroy(&context.gate) == 0);
@@ -172,7 +201,7 @@ int main(int argc, char **argv)
             int status = pthread_barrier_wait(&barrier);
             REQUIRE(status == 0 || status == PTHREAD_BARRIER_SERIAL_THREAD);
         }
-        for (unsigned i = 0; i < 10000; ++i)
+        for (unsigned i = 0; i < ADDS_PER_THREAD; ++i)
         {
             REQUIRE(mc_shared_add(main_owner, 1) == 0);
         }
@@ -182,8 +211,8 @@ int main(int argc, char **argv)
             launched = 0;
             REQUIRE(pthread_barrier_destroy(&barrier) == 0);
         }
-        REQUIRE(mc_shared_read(main_owner, &value) == 0 && value == 20000 &&
-                !context.owner && !frees);
+        REQUIRE(mc_shared_read(main_owner, &value) == 0 &&
+                value == 2 * ADDS_PER_THREAD && !context.owner && !frees);
         REQUIRE(mc_shared_drop(&main_owner) == 0 && !main_owner && frees == 1);
     }
     REQUIRE(mc_shared_finish(&state) == 0 && !state.initialized);

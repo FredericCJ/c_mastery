@@ -2,154 +2,165 @@
 
 /* These compiling stubs deliberately fail every exercise semantic gate.
  * Implement only the selected exercise, preserving the shared interface.
- * Full contracts are in CONTRACTS.md; no supplied stub is a worked solution. */
-enum fd_class fd_verdict(enum fd_case q)
+ * Contracts are in depth.h and CONTRACTS.md; no supplied stub is a worked
+ * solution. Each stub returns its "not done" sentinel and touches nothing. */
+enum fd_class fd_verdict(enum fd_case question)
 {
-    (void)q;
+    (void)question;
     return FD_UNKNOWN;
 }
 
-enum fd_status fd_repair_step(int *v, int *p)
+enum fd_status fd_repair_step(int *value, int *previous)
 {
-    (void)v;
-    (void)p;
+    (void)value;
+    (void)previous;
     return FD_NOT_IMPLEMENTED;
 }
 
-enum fd_status fd_extent(size_t o, size_t c, size_t w, size_t l, size_t *r)
+enum fd_status fd_extent(size_t offset, size_t count, size_t width,
+                         size_t limit, size_t *out)
 {
-    (void)o;
-    (void)c;
-    (void)w;
-    (void)l;
-    (void)r;
+    (void)offset;
+    (void)count;
+    (void)width;
+    (void)limit;
+    (void)out;
     return FD_NOT_IMPLEMENTED;
 }
 
-enum fd_status fd_from_signed(intmax_t v, size_t *r)
+enum fd_status fd_from_signed(intmax_t value, size_t *out)
 {
-    (void)v;
-    (void)r;
+    (void)value;
+    (void)out;
     return FD_NOT_IMPLEMENTED;
 }
 
-enum fd_status fd_take(struct fd_cursor *c, size_t n, const unsigned char **p)
+enum fd_status fd_take(struct fd_cursor *cursor, size_t count,
+                       const unsigned char **out)
 {
-    (void)c;
-    (void)n;
-    (void)p;
+    (void)cursor;
+    (void)count;
+    (void)out;
     return FD_NOT_IMPLEMENTED;
 }
 
-enum fd_status fd_subview(const struct fd_cursor *c, size_t o, size_t n,
-                          struct fd_cursor *r)
+enum fd_status fd_subview(const struct fd_cursor *parent, size_t offset,
+                          size_t count, struct fd_cursor *out)
 {
-    (void)c;
-    (void)o;
-    (void)n;
-    (void)r;
+    (void)parent;
+    (void)offset;
+    (void)count;
+    (void)out;
     return FD_NOT_IMPLEMENTED;
 }
 
-enum fd_status fd_encode(struct fd_record r, unsigned char *p, size_t n)
+enum fd_status fd_encode(struct fd_record record, unsigned char *out,
+                         size_t capacity)
 {
-    (void)r;
-    (void)p;
-    (void)n;
+    (void)record;
+    (void)out;
+    (void)capacity;
     return FD_NOT_IMPLEMENTED;
 }
 
-enum fd_status fd_decode(const unsigned char *p, size_t n, struct fd_record *r)
+enum fd_status fd_decode(const unsigned char *wire, size_t length,
+                         struct fd_record *out)
 {
-    (void)p;
-    (void)n;
-    (void)r;
+    (void)wire;
+    (void)length;
+    (void)out;
     return FD_NOT_IMPLEMENTED;
 }
 
-enum fd_status fd_slot_acquire(struct fd_slot *s, struct fd_allocator a)
+enum fd_status fd_slot_acquire(struct fd_slot *slot,
+                               struct fd_allocator allocator)
 {
-    (void)s;
-    (void)a;
+    (void)slot;
+    (void)allocator;
     return FD_NOT_IMPLEMENTED;
 }
 
-enum fd_status fd_slot_initialize(struct fd_slot *s, fd_initialize_fn i,
-                                  fd_destroy_fn d, void *c)
+enum fd_status fd_slot_initialize(struct fd_slot *slot,
+                                  fd_initialize_fn initialize,
+                                  fd_destroy_fn destroy, void *context)
 {
-    (void)s;
-    (void)i;
-    (void)d;
-    (void)c;
+    (void)slot;
+    (void)initialize;
+    (void)destroy;
+    (void)context;
     return FD_NOT_IMPLEMENTED;
 }
 
-enum fd_status fd_slot_publish(struct fd_slot *s, const struct fd_value **r)
+enum fd_status fd_slot_publish(struct fd_slot *slot,
+                               const struct fd_value **out)
 {
-    (void)s;
-    (void)r;
+    (void)slot;
+    (void)out;
     return FD_NOT_IMPLEMENTED;
 }
 
-void fd_slot_reset(struct fd_slot *s)
+void fd_slot_reset(struct fd_slot *slot)
 {
-    (void)s;
+    (void)slot;
 }
 
-void fd_transform(unsigned char *restrict d, const unsigned char *restrict s,
-                  size_t n, unsigned char m)
+void fd_transform(unsigned char *restrict destination,
+                  const unsigned char *restrict source, size_t count,
+                  unsigned char mask)
 {
-    (void)d;
-    (void)s;
-    (void)n;
-    (void)m;
+    (void)destination;
+    (void)source;
+    (void)count;
+    (void)mask;
 }
 
-enum fd_status fd_move(unsigned char *b, size_t l, size_t d, size_t s, size_t n)
+enum fd_status fd_move(unsigned char *base, size_t length, size_t destination,
+                       size_t source, size_t count)
 {
-    (void)b;
-    (void)l;
-    (void)d;
-    (void)s;
-    (void)n;
+    (void)base;
+    (void)length;
+    (void)destination;
+    (void)source;
+    (void)count;
     return FD_NOT_IMPLEMENTED;
 }
 
-void fd_pool_init(struct fd_pool *p)
+void fd_pool_init(struct fd_pool *pool)
 {
-    (void)p;
+    (void)pool;
 }
 
-enum fd_status fd_pool_acquire(struct fd_pool *p, struct fd_value v,
-                               struct fd_handle *r)
+enum fd_status fd_pool_acquire(struct fd_pool *pool, struct fd_value value,
+                               struct fd_handle *out)
 {
-    (void)p;
-    (void)v;
-    (void)r;
+    (void)pool;
+    (void)value;
+    (void)out;
     return FD_NOT_IMPLEMENTED;
 }
 
-enum fd_status fd_pool_get(const struct fd_pool *p, struct fd_handle h,
-                           struct fd_value *r)
+enum fd_status fd_pool_get(const struct fd_pool *pool, struct fd_handle handle,
+                           struct fd_value *out)
 {
-    (void)p;
-    (void)h;
-    (void)r;
+    (void)pool;
+    (void)handle;
+    (void)out;
     return FD_NOT_IMPLEMENTED;
 }
 
-enum fd_status fd_pool_release(struct fd_pool *p, struct fd_handle h)
+enum fd_status fd_pool_release(struct fd_pool *pool, struct fd_handle handle)
 {
-    (void)p;
-    (void)h;
+    (void)pool;
+    (void)handle;
     return FD_NOT_IMPLEMENTED;
 }
 
-enum fd_status fd_apply(const unsigned char *p, size_t n, int a, int32_t *r)
+enum fd_status fd_apply(const unsigned char *wire, size_t length,
+                        int authorized, int32_t *synthetic_counter)
 {
-    (void)p;
-    (void)n;
-    (void)a;
-    (void)r;
+    (void)wire;
+    (void)length;
+    (void)authorized;
+    (void)synthetic_counter;
     return FD_NOT_IMPLEMENTED;
 }

@@ -1,4 +1,9 @@
-/* Original intentionally invalid local teaching programs. Run only under the named diagnostic harness. */
+/*
+ * CM-SPECIMEN: defective by design; classify each defect before running
+ * (see CONTRACTS.md).
+ * Original local teaching programs, one defect per selector; run only
+ * under the named diagnostic harness, one selector per process.
+ */
 #include <stdlib.h>
 #include <string.h>
 static volatile int *escaped;

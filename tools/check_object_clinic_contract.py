@@ -32,7 +32,7 @@ def validate(d):
     r=read(OLD/'validation.json');need(r['source_sha256']==campaign.pins() and r['status']=='pass' and len(r['commands'])==192 and all(q['passed'] for q in r['commands']),'unchanged actually executed C campaign')
     for n,h in read(HERE/'source_access.json')['source_sha256'].items():need(sha(ROOT/n)==h,'actual inspected premises '+n)
     text=' '.join((ROOT/CONTRACT).read_text(encoding='utf8').split());need(all(s in text for s in ['initialized to `NULL`','hold its own live counted','overwrites the only slot','externally established quiescence','retained without claiming a new run','ISO C does not']),'explicit actual caller premises')
-    test=(ROOT/'labs/object_followthrough/clinic/shared_tests.c').read_text();need(all(s in test for s in ['*extra=NULL,*third=NULL,*excess=NULL','context.owner=extra;extra=NULL','pthread_join(thread,&result)','mc_shared_drop(&main_owner)']),'existing tested caller sequence complies')
+    test=''.join((ROOT/'labs/object_followthrough/clinic/shared_tests.c').read_text().split());need(all(s in test for s in ['structmc_shared*extra=NULL;','structmc_shared*third=NULL;','structmc_shared*excess=NULL;','context.owner=extra;extra=NULL','pthread_join(thread,&result)','mc_shared_drop(&main_owner)']),'existing tested caller sequence complies')
     e=read(HERE/'exports.json');need(e['status']=='pass' and len(e['commands'])==8 and all(q['passed'] for q in e['commands']),'fresh actual export checks')
     for key in ['source_sha256','outputs_sha256']:
         for n,h in e[key].items():need((ROOT/n).is_file() and sha(ROOT/n)==h,'current export '+n)

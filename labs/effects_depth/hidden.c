@@ -1,13 +1,16 @@
-/* Original intentionally unwrapped DSO: --wrap rewrites the executable's
- * unresolved references, not an already-linked shared object's relocations. */
+/*
+ * Allocation helper built as a separate shared object (libeffects_hidden.so)
+ * and linked into process_test. The campaign compiles it without any
+ * `--wrap` option.
+ */
 #include <stdlib.h>
 
-void *ef_hidden_take(size_t n)
+void *ef_hidden_take(size_t bytes)
 {
-    return malloc(n);
+    return malloc(bytes);
 }
 
-void ef_hidden_release(void *p)
+void ef_hidden_release(void *storage)
 {
-    free(p);
+    free(storage);
 }

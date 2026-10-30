@@ -1,12 +1,32 @@
+/*
+ * Test driver for the buffer laboratory.
+ *
+ * Usage: tests CASE, with CASE a decimal selector 0..5 (see main).
+ * Exit status: 0 the case passed; 41 a REQUIRE failed (its text goes to
+ * stderr after the marker OB_ASSERT:); 2 usage error.
+ *
+ * The injected allocator tracks every block it hands out in owned[], so a
+ * case that stops early can free them all (cleanup), and a release of an
+ * untracked pointer is ignored instead of reaching free().
+ */
 #include "buffer.h"
+#include "cm_parse.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-static void *owned[16];
 
+enum
+{
+    MAX_TRACKED_ALLOCATIONS = 16,
+    CASE_COUNT = 6
+};
+
+static void *owned[MAX_TRACKED_ALLOCATIONS];
+
+/* Frees every block still tracked; safe to call more than once. */
 static void cleanup(void)
 {
-    for (size_t i = 0; i < 16; ++i)
+    for (size_t i = 0; i < MAX_TRACKED_ALLOCATIONS; ++i)
     {
         free(owned[i]);
         owned[i] = NULL;
@@ -24,40 +44,51 @@ static void cleanup(void)
         }                                          \
     } while (0)
 
+/*
+ * Event counters and fault injection shared with the callbacks.
+ * calls counts allocate and resize requests together; the request whose
+ * number equals fail_call (when nonzero) fails. move selects a resize that
+ * always relocates (allocate, copy, free) instead of realloc. same_bits
+ * records whether the last realloc kept the numerical address.
+ */
 struct ob_trace
 {
     unsigned calls, releases, fail_call, move, resize_calls, same_bits;
 };
 
+/* Allocates and tracks a block; NULL on injected failure, malloc failure or a
+ * full tracking table. */
 static void *allocate(void *context, size_t bytes)
 {
     struct ob_trace *t = context;
-    void *p;
     if (++t->calls == t->fail_call)
     {
         return NULL;
     }
-    p = malloc(bytes);
-    if (p)
+    void *p = malloc(bytes);
+    if (p == NULL)
     {
-        for (size_t i = 0; i < 16; ++i)
-        {
-            if (!owned[i])
-            {
-                owned[i] = p;
-                return p;
-            }
-        }
-        free(p);
+        return NULL;
     }
+    for (size_t i = 0; i < MAX_TRACKED_ALLOCATIONS; ++i)
+    {
+        if (owned[i] == NULL)
+        {
+            owned[i] = p;
+            return p;
+        }
+    }
+    free(p);
     return NULL;
 }
 
+/* Frees a tracked block; a pointer that is not tracked is ignored (the call
+ * is still counted). */
 static void release(void *context, void *p)
 {
     struct ob_trace *t = context;
     ++t->releases;
-    for (size_t i = 0; i < 16; ++i)
+    for (size_t i = 0; i < MAX_TRACKED_ALLOCATIONS; ++i)
     {
         if (owned[i] == p)
         {
@@ -68,20 +99,27 @@ static void release(void *context, void *p)
     }
 }
 
+/* Index of block in owned[], or MAX_TRACKED_ALLOCATIONS if it is not
+ * tracked. */
+static size_t tracked_slot(const void *block)
+{
+    for (size_t i = 0; i < MAX_TRACKED_ALLOCATIONS; ++i)
+    {
+        if (owned[i] == block)
+        {
+            return i;
+        }
+    }
+    return MAX_TRACKED_ALLOCATIONS;
+}
+
+/* Resizes a tracked block; on failure the old block stays valid. */
 static void *resize(void *context, void *old, size_t oldbytes, size_t newbytes)
 {
     struct ob_trace *t = context;
-    size_t slot = 16;
     void *p;
-    for (size_t i = 0; i < 16; ++i)
-    {
-        if (owned[i] == old)
-        {
-            slot = i;
-            break;
-        }
-    }
-    if (slot == 16)
+    const size_t slot = tracked_slot(old);
+    if (slot == MAX_TRACKED_ALLOCATIONS)
     {
         return NULL;
     }
@@ -201,7 +239,8 @@ static int sizing(void)
 
 static int workspace(void)
 {
-    int storage[16], sum = 77;
+    int storage[16];
+    int sum = 77;
     unsigned evaluations = 99;
     REQUIRE(ob_workspace(0, storage, 16, &sum, &evaluations) == -1 &&
             sum == 77 && evaluations == 99);
@@ -230,8 +269,10 @@ static int representations(void)
     struct ob_allocator a = allocator(&t);
     struct ob_table flex = {0};
     struct ob_split *split = NULL;
-    struct ob_shared *first = NULL, *second = NULL, *third = NULL,
-                     *fourth = NULL;
+    struct ob_shared *first = NULL;
+    struct ob_shared *second = NULL;
+    struct ob_shared *third = NULL;
+    struct ob_shared *fourth = NULL;
     unsigned char source[3] = {3, 5, 7};
     t.fail_call = 1;
     REQUIRE(ob_create(&flex, a, 11, 3) == -1 && !flex.value);
@@ -322,8 +363,10 @@ static int relocation(void)
 static int handles(void)
 {
     struct ob_trace t = {0};
-    struct ob_table a = {0}, b = {0};
-    struct ob_handle first = {0}, second = {0};
+    struct ob_table a = {0};
+    struct ob_table b = {0};
+    struct ob_handle first = {0};
+    struct ob_handle second = {0};
     unsigned char out = 99;
     REQUIRE(ob_create(&a, allocator(&t), 17, 4) == 0);
     for (unsigned char i = 1; i <= 3; ++i)
@@ -353,7 +396,13 @@ static int handles(void)
 
 int main(int argc, char **argv)
 {
-    switch (argc == 2 ? atoi(argv[1]) : -1)
+    unsigned selected = 0;
+    if (argc != 2 ||
+        cm_parse_unsigned(argv[1], 0, CASE_COUNT - 1, &selected) != CM_PARSE_OK)
+    {
+        return 2;
+    }
+    switch (selected)
     {
         case 0:
             return initialization();

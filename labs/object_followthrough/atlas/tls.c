@@ -1,16 +1,36 @@
+/*
+ * Thread-local storage experiment (GCC __thread extension, GNU17 + POSIX).
+ *
+ * The worker publishes the address of its own `owned` record to the main
+ * thread, then waits until the main thread sets `finish`. `lock` protects
+ * published, ready, finish and observed; all waiting is on the condition
+ * variable `changed`.
+ *
+ * Exit status: 0 success (marker OA_TLS_PASS:); 41 an identity or value
+ * check failed (marker OA_TLS_ASSERT:); 2 thread creation failed; 3 join
+ * failed.
+ */
 #include <pthread.h>
 #include <stdio.h>
 #include "atlas.h"
-/* The indirect cross-thread access experiment uses the documented GCC extension. */
+
+enum
+{
+    INITIAL_NUMBER = 31,
+    WRITTEN_NUMBER = 73
+};
+
 #ifdef OA_TLS_GLOBAL
-static struct oa_record owned = {'t', 31, 1.0};
+static struct oa_record owned = {'t', INITIAL_NUMBER, 1.0};
 #else
-static __thread struct oa_record owned = {'t', 31, 1.0};
+static __thread struct oa_record owned = {'t', INITIAL_NUMBER, 1.0};
 #endif
 static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t changed = PTHREAD_COND_INITIALIZER;
-static struct oa_record *published;
-static int ready, finish, observed;
+static struct oa_record *published; /* the worker's `owned`, while alive */
+static int ready; /* set by the worker once published */
+static int finish; /* set by main when the worker may exit */
+static int observed; /* worker's own view of owned.number */
 
 static void *worker(void *unused)
 {
@@ -41,14 +61,15 @@ int main(void)
     {
         pthread_cond_wait(&changed, &lock);
     }
-    if (owned.number != 31 || !published || published->number != 31 ||
-        published == &owned)
+    if (owned.number != INITIAL_NUMBER || !published ||
+        published->number != INITIAL_NUMBER || published == &owned)
     {
         result = 41;
     }
 #ifndef OA_TLS_NOWRITE
-    published->number = 73;
+    published->number = WRITTEN_NUMBER;
 #endif
+    /* Withdraw the pointer before the worker is allowed to finish. */
     published = NULL;
     finish = 1;
     pthread_cond_signal(&changed);
@@ -57,7 +78,7 @@ int main(void)
     {
         return 3;
     }
-    if (observed != 73 || owned.number != 31)
+    if (observed != WRITTEN_NUMBER || owned.number != INITIAL_NUMBER)
     {
         result = 41;
     }

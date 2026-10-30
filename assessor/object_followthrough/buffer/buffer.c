@@ -1,341 +1,417 @@
+/*
+ * Reference implementation of the buffer laboratory (private assessor copy).
+ * Contracts are stated in labs/object_followthrough/buffer/buffer.h and
+ * CONTRACTS.md; this file adds implementation notes only.
+ *
+ * Test hooks: each OB_MUTANT_* macro breaks exactly one contract so the
+ * campaign can prove that the tests reject the breakage.
+ */
 #include "buffer.h"
 
-static int allocator_valid(struct ob_allocator a)
+/* Bits of struct ob_construction.initialized: one per member, set only after
+ * that member's store completed. */
+enum
 {
-    return a.allocate && a.resize && a.release;
+    OB_HAS_NUMBER = 1u,
+    OB_HAS_POINTER = 2u,
+    OB_HAS_TAG = 4u
+};
+
+/* ob_construct() failure injection points (its fail_after argument). */
+enum
+{
+    OB_FAIL_AFTER_NUMBER = 1,
+    OB_FAIL_AFTER_POINTER = 2
+};
+
+/* Four-byte record encoding: number (big-endian, 16 bits), tag, pointer
+ * flag. */
+enum
+{
+    OB_ENCODED_BYTES = 4,
+    OB_ENCODED_NUMBER_MAX = 65535,
+    OB_OCTET_BITS = 8
+};
+
+/* A table's generation starts at 1 and saturates at OB_MAX_GENERATION, so at
+ * most OB_MAX_GENERATION - 1 invalidating operations (resize or erase)
+ * succeed. A shared block can have OB_MAX_REFERENCES references. Both limits
+ * are finite on purpose so that exhaustion can be tested, and neither wraps. */
+enum
+{
+    OB_MAX_GENERATION = 3,
+    OB_MAX_REFERENCES = 3
+};
+
+static int allocator_valid(struct ob_allocator allocator)
+{
+    return allocator.allocate != NULL && allocator.resize != NULL &&
+           allocator.release != NULL;
 }
 
-int ob_construct(struct ob_construction *c, int number, void *pointer, char tag,
-                 unsigned fail_after)
+/* A table that currently owns a block and has not been retired. */
+static int table_is_live(const struct ob_table *table)
 {
-    if (!c)
+    return table != NULL && table->value != NULL && !table->retired;
+}
+
+static void zero_fill(unsigned char *bytes, size_t from, size_t to)
+{
+    for (size_t i = from; i < to; ++i)
+    {
+        bytes[i] = 0;
+    }
+}
+
+int ob_construct(struct ob_construction *construction, int number,
+                 void *pointer, char tag, unsigned fail_after)
+{
+    if (construction == NULL)
     {
         return -1;
     }
-    c->initialized = 0;
-    c->value.number = number;
-    c->initialized = 1;
-    if (fail_after == 1)
+    /* The mask is cleared before the first store and extended after each
+     * one, so every failure edge leaves it describing exactly what is set. */
+    construction->initialized = 0;
+    construction->value.number = number;
+    construction->initialized = OB_HAS_NUMBER;
+    if (fail_after == OB_FAIL_AFTER_NUMBER)
     {
         return -1;
     }
-    c->value.pointer = pointer;
-    c->initialized |= 2;
-    if (fail_after == 2)
+    construction->value.pointer = pointer;
+    construction->initialized |= OB_HAS_POINTER;
+    if (fail_after == OB_FAIL_AFTER_POINTER)
     {
         return -1;
     }
-    c->value.tag = tag;
-    c->initialized |= 4;
+    construction->value.tag = tag;
+    construction->initialized |= OB_HAS_TAG;
     return 0;
 }
 
-int ob_record_equal(const struct ob_record *a, const struct ob_record *b)
+int ob_record_equal(const struct ob_record *left, const struct ob_record *right)
 {
-    return a && b && a->number == b->number && a->pointer == b->pointer &&
-           a->tag == b->tag;
+    return left != NULL && right != NULL && left->number == right->number &&
+           left->pointer == right->pointer && left->tag == right->tag;
 }
 
-int ob_record_encode(const struct ob_record *r, unsigned char *bytes, size_t n)
+int ob_record_encode(const struct ob_record *record, unsigned char *out,
+                     size_t capacity_bytes)
 {
-    if (!r || !bytes || n < 4 || r->number < 0 || r->number > 65535)
+    if (record == NULL || out == NULL || capacity_bytes < OB_ENCODED_BYTES ||
+        record->number < 0 || record->number > OB_ENCODED_NUMBER_MAX)
     {
         return -1;
     }
-    bytes[0] = (unsigned char)((unsigned)r->number >> 8);
-    bytes[1] = (unsigned char)r->number;
-    bytes[2] = (unsigned char)r->tag;
-    bytes[3] = (unsigned char)(r->pointer != NULL);
+    out[0] = (unsigned char)((unsigned)record->number >> OB_OCTET_BITS);
+    out[1] = (unsigned char)record->number;
+    out[2] = (unsigned char)record->tag;
+    out[3] = (unsigned char)(record->pointer != NULL);
     return 0;
 }
 
-int ob_cleanup(struct ob_construction *c, struct ob_allocator a)
+int ob_cleanup(struct ob_construction *construction,
+               struct ob_allocator allocator)
 {
-    if (!c || !a.release)
+    if (construction == NULL || allocator.release == NULL)
     {
         return -1;
     }
 #ifdef OB_MUTANT_CLEANUP
-    if (c->initialized & 1u)
+    if (construction->initialized & OB_HAS_NUMBER)
     {
-        a.release(
-            a.context,
-            NULL); /* False release event, without reading uninitialized pointer. */
+        /* False release event, without reading an uninitialized pointer. */
+        allocator.release(allocator.context, NULL);
     }
 #else
-    if ((c->initialized & 2u) && c->value.pointer)
+    /* The pointer is read only when its own bit says it was stored. */
+    if ((construction->initialized & OB_HAS_POINTER) != 0 &&
+        construction->value.pointer != NULL)
     {
-        a.release(a.context, c->value.pointer);
+        allocator.release(allocator.context, construction->value.pointer);
     }
 #endif
-    c->initialized = 0;
+    construction->initialized = 0;
     return 0;
 }
 
-int ob_size(size_t prefix, size_t width, size_t count, size_t limit,
-            size_t *out)
+/*
+ * The product is tested as count > (limit - prefix) / width, which cannot
+ * overflow, before prefix + count * width is formed.
+ */
+int ob_size(size_t prefix_bytes, size_t width_bytes, size_t count,
+            size_t limit_bytes, size_t *out)
 {
-    if (!out || !width || prefix > limit || count > (limit - prefix) / width)
+    if (out == NULL || width_bytes == 0 || prefix_bytes > limit_bytes ||
+        count > (limit_bytes - prefix_bytes) / width_bytes)
     {
         return -1;
     }
 #ifdef OB_MUTANT_SIZE
-    *out = prefix;
+    *out = prefix_bytes;
 #else
-    *out = prefix + count * width;
+    *out = prefix_bytes + count * width_bytes;
 #endif
     return 0;
 }
 
-int ob_create(struct ob_table *t, struct ob_allocator a, uint32_t identity,
-              size_t capacity)
+int ob_create(struct ob_table *table, struct ob_allocator allocator,
+              uint32_t identity, size_t capacity)
 {
-    size_t bytes;
-    struct ob_flex *p;
-    if (!t || t->value || t->retired || !identity || !allocator_valid(a) ||
-        ob_size(sizeof(struct ob_flex), 1, capacity, SIZE_MAX, &bytes))
+    size_t bytes = 0;
+    if (table == NULL || table->value != NULL || table->retired ||
+        identity == 0 || !allocator_valid(allocator) ||
+        ob_size(sizeof(struct ob_flex), 1, capacity, SIZE_MAX, &bytes) != 0)
     {
         return -1;
     }
-    p = a.allocate(a.context, bytes);
-    if (!p)
+    struct ob_flex *block = allocator.allocate(allocator.context, bytes);
+    if (block == NULL)
     {
         return -1;
     }
-    p->length = 0;
-    p->capacity = capacity;
-    for (size_t i = 0; i < capacity; ++i)
-    {
-        p->payload[i] = 0;
-    }
-    t->value = p;
-    t->allocation = a;
-    t->identity = identity;
-    t->generation = 1;
+    block->length = 0;
+    block->capacity = capacity;
+    zero_fill(block->payload, 0, capacity);
+    table->value = block;
+    table->allocation = allocator;
+    table->identity = identity;
+    table->generation = 1;
     return 0;
 }
 
-int ob_resize(struct ob_table *t, size_t capacity)
+int ob_resize(struct ob_table *table, size_t capacity)
 {
-    size_t bytes, oldbytes, oldcapacity;
-    struct ob_flex *p;
-    if (!t || !t->value || !capacity || t->retired || t->generation >= 3 ||
-        ob_size(sizeof(struct ob_flex), 1, capacity, SIZE_MAX, &bytes))
+    size_t bytes = 0;
+    if (!table_is_live(table) || capacity == 0 ||
+        table->generation >= OB_MAX_GENERATION ||
+        ob_size(sizeof(struct ob_flex), 1, capacity, SIZE_MAX, &bytes) != 0)
     {
         return -1;
     }
-    oldcapacity = t->value->capacity;
-    oldbytes = sizeof(struct ob_flex) + oldcapacity;
-    p = t->allocation.resize(t->allocation.context, t->value, oldbytes, bytes);
+    const size_t old_capacity = table->value->capacity;
+    const size_t old_bytes = sizeof(struct ob_flex) + old_capacity;
+    struct ob_flex *moved = table->allocation.resize(
+        table->allocation.context, table->value, old_bytes, bytes);
 #ifdef OB_MUTANT_RESIZE
-    if (!p)
+    if (moved == NULL)
     {
-        ++t->generation;
+        ++table->generation;
         return -1;
     }
 #else
-    if (!p)
+    if (moved == NULL)
     {
         return -1;
     }
 #endif
-    /* Never evaluate the old pointer after successful resize. */
-    t->value = p;
-    ++t->generation;
-    if (p->length > capacity)
+    /* After a successful resize the old pointer must not be evaluated, even
+     * for comparison: only `moved` is used from here on. */
+    table->value = moved;
+    ++table->generation;
+    if (moved->length > capacity)
     {
-        p->length = capacity;
+        moved->length = capacity;
     }
-    p->capacity = capacity;
-    for (size_t i = oldcapacity; i < capacity; ++i)
-    {
-        p->payload[i] = 0;
-    }
+    moved->capacity = capacity;
+    zero_fill(moved->payload, old_capacity, capacity);
     return 0;
 }
 
-int ob_append(struct ob_table *t, unsigned char byte)
+int ob_append(struct ob_table *table, unsigned char byte)
 {
-    if (!t || !t->value || t->retired || t->value->length == t->value->capacity)
+    if (!table_is_live(table) || table->value->length == table->value->capacity)
     {
         return -1;
     }
-    t->value->payload[t->value->length++] = byte;
+    table->value->payload[table->value->length] = byte;
+    ++table->value->length;
     return 0;
 }
 
-int ob_erase(struct ob_table *t, size_t index)
+int ob_erase(struct ob_table *table, size_t index)
 {
-    if (!t || !t->value || t->retired || index >= t->value->length ||
-        t->generation >= 3)
+    if (!table_is_live(table) || index >= table->value->length ||
+        table->generation >= OB_MAX_GENERATION)
     {
         return -1;
     }
-    for (size_t i = index; i + 1 < t->value->length; ++i)
+    struct ob_flex *flex = table->value;
+    for (size_t i = index; i + 1 < flex->length; ++i)
     {
-        t->value->payload[i] = t->value->payload[i + 1];
+        flex->payload[i] = flex->payload[i + 1];
     }
-    --t->value->length;
+    --flex->length;
 #ifndef OB_MUTANT_ERASE
-    ++t->generation;
+    ++table->generation;
 #endif
     return 0;
 }
 
-void ob_reset(struct ob_table *t)
+void ob_reset(struct ob_table *table)
 {
-    if (!t)
+    if (table == NULL)
     {
         return;
     }
-    if (t->value)
+    if (table->value != NULL)
     {
-        t->allocation.release(t->allocation.context, t->value);
+        table->allocation.release(table->allocation.context, table->value);
     }
-    t->value = NULL;
-    t->retired =
-        1; /* Identity is permanently retired, even with generation headroom. */
+    table->value = NULL;
+    /* Retired for good, even if generations remain: a new owner needs a new
+     * identity. */
+    table->retired = 1;
 }
 
-int ob_handle(const struct ob_table *t, size_t index, struct ob_handle *out)
+int ob_handle(const struct ob_table *table, size_t index, struct ob_handle *out)
 {
-    if (!t || !out || !t->value || t->retired || index >= t->value->length)
+    if (out == NULL || !table_is_live(table) || index >= table->value->length)
     {
         return -1;
     }
-    *out = (struct ob_handle){t->identity, t->generation, index};
+    *out = (struct ob_handle){table->identity, table->generation, index};
     return 0;
 }
 
-int ob_resolve(const struct ob_table *t, struct ob_handle h, unsigned char *out)
+int ob_resolve(const struct ob_table *table, struct ob_handle handle,
+               unsigned char *out)
 {
-    if (!t || !out || !t->value || t->retired || h.identity != t->identity ||
-        h.index >= t->value->length)
+    if (out == NULL || !table_is_live(table) ||
+        handle.identity != table->identity ||
+        handle.index >= table->value->length)
     {
         return -1;
     }
 #ifndef OB_MUTANT_GENERATION
-    if (h.generation != t->generation)
+    if (handle.generation != table->generation)
     {
         return -1;
     }
 #endif
-    *out = t->value->payload[h.index];
+    *out = table->value->payload[handle.index];
     return 0;
 }
 
 int ob_table_move(struct ob_table *to, struct ob_table *from)
 {
-    if (!to || !from || to == from || to->value || to->retired ||
-        !from->value || from->retired)
+    if (to == NULL || from == NULL || to == from || to->value != NULL ||
+        to->retired || from->value == NULL || from->retired)
     {
         return -1;
     }
     *to = *from;
+    /* Ownership moved: the source must never release or resolve again. */
     from->value = NULL;
     from->identity = 0;
     from->retired = 1;
     return 0;
 }
 
-int ob_split_create(struct ob_allocator a, size_t capacity,
+int ob_split_create(struct ob_allocator allocator, size_t capacity,
                     struct ob_split **out)
 {
-    struct ob_split *p;
-    if (!out || !allocator_valid(a))
+    if (out == NULL || !allocator_valid(allocator))
     {
         return -1;
     }
-    p = a.allocate(a.context, sizeof *p);
-    if (!p)
+    struct ob_split *split =
+        allocator.allocate(allocator.context, sizeof *split);
+    if (split == NULL)
     {
         return -1;
     }
-    p->length = 0;
-    p->capacity = capacity;
-    p->payload = NULL;
-    p->allocation = a;
-    if (capacity)
+    split->length = 0;
+    split->capacity = capacity;
+    split->payload = NULL;
+    split->allocation = allocator;
+    if (capacity != 0)
     {
-        p->payload = a.allocate(a.context, capacity);
-        if (!p->payload)
+        split->payload = allocator.allocate(allocator.context, capacity);
+        if (split->payload == NULL)
         {
-            a.release(a.context, p);
+            /* Roll back the header: nothing is published. */
+            allocator.release(allocator.context, split);
             return -1;
         }
-        for (size_t i = 0; i < capacity; ++i)
-        {
-            p->payload[i] = 0;
-        }
+        zero_fill(split->payload, 0, capacity);
     }
-    *out = p;
+    *out = split;
     return 0;
 }
 
 void ob_split_drop(struct ob_split **owner)
 {
-    if (owner && *owner)
+    if (owner == NULL || *owner == NULL)
     {
-        struct ob_split *p = *owner;
-        struct ob_allocator a = p->allocation;
-        if (p->payload)
-        {
-            a.release(a.context, p->payload);
-        }
-        a.release(a.context, p);
-        *owner = NULL;
+        return;
     }
+    struct ob_split *split = *owner;
+    /* Copy the allocator first: it lives inside the block being released. */
+    struct ob_allocator allocator = split->allocation;
+    if (split->payload != NULL)
+    {
+        allocator.release(allocator.context, split->payload);
+    }
+    allocator.release(allocator.context, split);
+    *owner = NULL;
 }
 
-int ob_shared_create(struct ob_allocator a, const unsigned char *bytes,
+int ob_shared_create(struct ob_allocator allocator, const unsigned char *bytes,
                      size_t n, struct ob_shared **out)
 {
-    size_t size;
-    struct ob_shared *p;
-    if (!out || (!bytes && n) || !allocator_valid(a) ||
-        ob_size(sizeof(struct ob_shared), 1, n, SIZE_MAX, &size))
+    size_t total_bytes = 0;
+    if (out == NULL || (bytes == NULL && n != 0) ||
+        !allocator_valid(allocator) ||
+        ob_size(sizeof(struct ob_shared), 1, n, SIZE_MAX, &total_bytes) != 0)
     {
         return -1;
     }
-    p = a.allocate(a.context, size);
-    if (!p)
+    struct ob_shared *shared =
+        allocator.allocate(allocator.context, total_bytes);
+    if (shared == NULL)
     {
         return -1;
     }
-    p->references = 1;
-    p->length = n;
-    p->allocation = a;
+    shared->references = 1;
+    shared->length = n;
+    shared->allocation = allocator;
     for (size_t i = 0; i < n; ++i)
     {
-        p->payload[i] = bytes[i];
+        shared->payload[i] = bytes[i];
     }
-    *out = p;
+    *out = shared;
     return 0;
 }
 
-int ob_shared_retain(struct ob_shared *p, struct ob_shared **out)
+int ob_shared_retain(struct ob_shared *shared, struct ob_shared **out)
 {
-    if (!p || !out || !p->references || p->references >= 3)
+    if (shared == NULL || out == NULL || shared->references == 0 ||
+        shared->references >= OB_MAX_REFERENCES)
     {
         return -1;
     }
 #ifndef OB_MUTANT_SHARED
-    ++p->references;
+    ++shared->references;
 #endif
-    *out = p;
+    *out = shared;
     return 0;
 }
 
 void ob_shared_drop(struct ob_shared **owner)
 {
-    if (owner && *owner)
+    if (owner == NULL || *owner == NULL)
     {
-        struct ob_shared *p = *owner;
-        *owner = NULL;
-        if (--p->references == 0)
-        {
-            struct ob_allocator a = p->allocation;
-            a.release(a.context, p);
-        }
+        return;
+    }
+    struct ob_shared *shared = *owner;
+    *owner = NULL;
+    --shared->references;
+    if (shared->references == 0)
+    {
+        /* Copy the allocator first: it lives inside the block. */
+        struct ob_allocator allocator = shared->allocation;
+        allocator.release(allocator.context, shared);
     }
 }

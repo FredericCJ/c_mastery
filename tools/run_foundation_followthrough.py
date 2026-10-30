@@ -75,7 +75,7 @@ def main():
                 # Exact generated source substitutions are retained and pinned;
                 # canonical provider bytes are never edited.
                 original=PROVIDER.read_text(encoding='utf8')
-                patches=[('premature','if (s->state != FD_INITIALIZED && s->state != FD_PUBLISHED) return FD_STATE;','if (s->state == FD_EMPTY) return FD_STATE;'),('failed-destructor','if (initialize(context,s->storage)) {','if (initialize(context,s->storage)) {\n        if (destroy) destroy(context,s->storage);')]
+                patches=[('premature','if (slot->state != FD_INITIALIZED && slot->state != FD_PUBLISHED) return FD_STATE;','if (slot->state == FD_EMPTY) return FD_STATE;'),('failed-destructor','if (initialize(context,slot->storage)) {','if (initialize(context,slot->storage)) {\n        if (destroy) destroy(context,slot->storage);')]
                 for name,old,new in patches:
                     source=home/(label+'-'+name+'.c');source.write_text(replace_unique(original,old,new),encoding='utf8')
                     mutant,_=build(cc,flags,label+'-'+name,[PUBLIC/'tests.c',PRIVATE/'follow.c',source]);runtime.append(mutant)

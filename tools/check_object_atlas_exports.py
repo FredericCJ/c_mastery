@@ -10,7 +10,7 @@ def main():
     for n in d['supplied_artifacts']:
         p=ROOT/n;q=workspace/n;assert q.is_file() and sha(q)==sha(p),n;pins[n]=sha(p);outputs[rel(q)]=sha(q)
     assert not any('assessor' in p.relative_to(workspace).parts for p in workspace.rglob('*') if p.is_file());assert json.loads((workspace/'ASSESSMENT.json').read_text())['criteria']==d['criteria']
-    lab='labs/object_followthrough/atlas/';run('public.compile',['gcc','-std=c17','-Wall','-Wextra','-Werror','-Wpedantic','-I'+lab,lab+'learner.c',lab+'tests.c','-o','atlas-tests'],cwd=workspace)
+    lab='labs/object_followthrough/atlas/';run('public.compile',['gcc','-std=c17','-Wall','-Wextra','-Werror','-Wpedantic','-I'+lab,'-Ilabs/support',lab+'learner.c',lab+'tests.c','labs/support/cm_parse.c','-o','atlas-tests'],cwd=workspace)
     for i in range(5):run('public.rejection.'+str(i),['./atlas-tests',i],41,'OA_ASSERT:',workspace)
     run('public.tls.compile',['gcc','-std=gnu17','-Wall','-Wextra','-Werror','-pthread',lab+'tls.c','-o','tls-tests'],cwd=workspace);run('public.tls',['./tls-tests'],0,'OA_TLS_PASS:',workspace)
     for name in ['atlas-tests','tls-tests']:outputs[rel(workspace/name)]=sha(workspace/name)

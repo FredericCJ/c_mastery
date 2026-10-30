@@ -1,4 +1,8 @@
-/* SOURCE ANALYSIS ONLY. Never link or execute these original defective examples. */
+/*
+ * CM-SPECIMEN: defective by design; classify each defect from the source
+ * (see CONTRACTS.md).
+ * SOURCE ANALYSIS ONLY: never link, call or execute these original examples.
+ */
 int *oa_expired_block(void)
 {
     int values[2] = {7, 8};

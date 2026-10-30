@@ -1,4 +1,19 @@
+/*
+ * Test driver for the atlas laboratory.
+ *
+ * Usage:
+ *   tests CASE        CASE is a decimal selector 0..4, see main
+ *   tests --table     print the oa_place enumeration (see
+ *                     print_placement_table)
+ *   tests --place N   print the oa_place result for start offset N
+ * Exit status: 0 success; 41 a REQUIRE failed (its text goes to stderr after
+ * the marker OA_ASSERT:); 2 usage error.
+ *
+ * The test allocator tracks every block so that a case that stops early can
+ * free them all (cleanup).
+ */
 #include "atlas.h"
+#include "cm_parse.h"
 #include <float.h>
 #include <inttypes.h>
 #include <limits.h>
@@ -6,17 +21,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-static void *allocations[8];
 
+enum
+{
+    MAX_TRACKED_ALLOCATIONS = 8,
+    CASE_COUNT = 5,
+    MAX_TABLE_START = 40, /* bytes; deliberately beyond the 32-byte region */
+    NO_OFFSET = 99 /* sentinel: output not written */
+};
+
+#define COUNT_OF(array) (sizeof(array) / sizeof((array)[0]))
+
+static void *allocations[MAX_TRACKED_ALLOCATIONS];
+
+/* Frees every block still tracked; safe to call more than once. */
 static void cleanup(void)
 {
-    for (size_t i = 0; i < 8; ++i)
+    for (size_t i = 0; i < MAX_TRACKED_ALLOCATIONS; ++i)
     {
-        if (allocations[i])
-        {
-            free(allocations[i]);
-            allocations[i] = NULL;
-        }
+        free(allocations[i]);
+        allocations[i] = NULL;
     }
 }
 
@@ -31,60 +55,63 @@ static void cleanup(void)
         }                                          \
     } while (0)
 
-struct ob_heap
+/* Allocation counters for one test; fail makes get() return NULL. */
+struct oa_heap
 {
     size_t gets, puts, live;
     int fail;
 };
 
-static void *get(void *context, size_t n)
+/* Counts the request, then allocates and tracks a block of bytes bytes.
+ * Returns NULL when fail is set, malloc fails or tracking is full. */
+static void *get(void *context, size_t bytes)
 {
-    struct ob_heap *h = context;
-    void *p;
-    ++h->gets;
-    if (h->fail)
+    struct oa_heap *heap = context;
+    ++heap->gets;
+    if (heap->fail)
     {
         return NULL;
     }
-    p = malloc(n);
-    if (p)
+    void *block = malloc(bytes);
+    if (block == NULL)
     {
-        for (size_t i = 0; i < 8; ++i)
+        return NULL;
+    }
+    for (size_t i = 0; i < MAX_TRACKED_ALLOCATIONS; ++i)
+    {
+        if (allocations[i] == NULL)
         {
-            if (!allocations[i])
-            {
-                allocations[i] = p;
-                ++h->live;
-                return p;
-            }
+            allocations[i] = block;
+            ++heap->live;
+            return block;
         }
-        free(p);
-        return NULL;
     }
-    return p;
+    free(block);
+    return NULL;
 }
 
-static void put(void *context, void *p)
+/* Releases a block obtained from get(). */
+static void put(void *context, void *block)
 {
-    struct ob_heap *h = context;
-    ++h->puts;
-    --h->live;
-    for (size_t i = 0; i < 8; ++i)
+    struct oa_heap *heap = context;
+    ++heap->puts;
+    --heap->live;
+    for (size_t i = 0; i < MAX_TRACKED_ALLOCATIONS; ++i)
     {
-        if (allocations[i] == p)
+        if (allocations[i] == block)
         {
             allocations[i] = NULL;
             break;
         }
     }
-    free(p);
+    free(block);
 }
 
 static int lifetime(void)
 {
     static struct oa_record fixed = {'s', 17, 2.0};
     struct oa_record automatic = {'a', 23, 3.0};
-    struct ob_heap h = {0};
+    struct oa_heap h = {0};
     struct oa_allocator a = {&h, get, put};
     struct oa_owner o = {0};
     REQUIRE(fixed.number == 17 && automatic.number == 23);
@@ -125,8 +152,10 @@ static int lifetime(void)
 
 static int escape(void)
 {
-    char dest[8] = "zzzzzzz", copy[8] = "xxxxxxx";
-    struct oa_view v = {dest, 7}, deep = {copy, 7};
+    char dest[8] = "zzzzzzz";
+    char copy[8] = "xxxxxxx";
+    struct oa_view v = {dest, 7};
+    struct oa_view deep = {copy, 7};
     REQUIRE(oa_label(dest, 3, &v) == -1 && dest[0] == 'z' && v.length == 7);
     REQUIRE(oa_label(dest, sizeof dest, &v) == 0 && v.data == dest &&
             v.length == 3 && !strcmp(dest, "cat"));
@@ -142,7 +171,8 @@ static int escape(void)
 
 static int representation(void)
 {
-    struct oa_record a = {'x', -2, 1.5}, b = {'x', -2, 1.5};
+    struct oa_record a = {'x', -2, 1.5};
+    struct oa_record b = {'x', -2, 1.5};
 
     struct fb_reordered
     {
@@ -151,7 +181,8 @@ static int representation(void)
         char marker;
     } reordered = {1.5, -2, 'x'};
 
-    unsigned char *ap = (unsigned char *)&a, *bp = (unsigned char *)&b;
+    unsigned char *ap = (unsigned char *)&a;
+    unsigned char *bp = (unsigned char *)&b;
     size_t padding = 0;
     for (size_t i = 0; i < sizeof a; ++i)
     {
@@ -196,8 +227,11 @@ static int representation(void)
 
 static int equality(void)
 {
-    struct oa_record a = {'z', -2, 0.0}, b = {'z', -2, -0.0};
-    unsigned char x[13], y[13], prior[13];
+    struct oa_record a = {'z', -2, 0.0};
+    struct oa_record b = {'z', -2, -0.0};
+    unsigned char x[13];
+    unsigned char y[13];
+    unsigned char prior[13];
     REQUIRE(a.measure == b.measure && signbit(b.measure));
     REQUIRE(oa_equal(&a, &b));
     REQUIRE(oa_encode(&a, x, 13) == 0 && oa_encode(&b, y, 13) == 0 &&
@@ -234,7 +268,8 @@ static int equality(void)
 
 static int alignment(void)
 {
-    const size_t offsets[4] = {0, 1, 7, 8}, answers[4] = {0, 8, 8, 8};
+    const size_t offsets[4] = {0, 1, 7, 8};
+    const size_t answers[4] = {0, 8, 8, 8};
     size_t at = 99;
     struct oa_storage storage = {0};
     struct oa_record *slot = &storage.records[0];
@@ -278,39 +313,71 @@ static int alignment(void)
     return 0;
 }
 
+/*
+ * Prints one CSV line per combination of start offset, slice length, width
+ * and alignment (alignments 0 and 3 are invalid on purpose; starts beyond
+ * the 32-byte region are included). Format:
+ *   start,length,width,alignment,status,offset
+ * where offset is 99 whenever the call was rejected.
+ */
+static void print_placement_table(void)
+{
+    const size_t region_bytes = 32;
+    const size_t lengths[] = {0, 1, 7, 8, 16, 33};
+    const size_t widths[] = {0, 1, 8};
+    const size_t alignments[] = {0, 1, 3, 8, 64};
+    for (size_t start = 0; start <= MAX_TABLE_START; ++start)
+    {
+        for (size_t l = 0; l < COUNT_OF(lengths); ++l)
+        {
+            for (size_t w = 0; w < COUNT_OF(widths); ++w)
+            {
+                for (size_t a = 0; a < COUNT_OF(alignments); ++a)
+                {
+                    size_t out = NO_OFFSET;
+                    int rc = oa_place(region_bytes, start, lengths[l],
+                                      widths[w], alignments[a], &out);
+                    printf("%zu,%zu,%zu,%zu,%d,%zu\n", start, lengths[l],
+                           widths[w], alignments[a], rc, out);
+                }
+            }
+        }
+    }
+}
+
+/* Prints OA_PLACE:status,offset for a one-byte object in an 8-byte slice. */
+static int print_single_placement(const char *start_text)
+{
+    const size_t region_bytes = 32;
+    size_t start = 0;
+    size_t out = NO_OFFSET;
+    if (cm_parse_size(start_text, 0, SIZE_MAX, &start) != CM_PARSE_OK)
+    {
+        return 2;
+    }
+    int rc = oa_place(region_bytes, start, 8, 1, 8, &out);
+    printf("OA_PLACE:%d,%zu\n", rc, out);
+    return 0;
+}
+
 int main(int argc, char **argv)
 {
     if (argc == 2 && !strcmp(argv[1], "--table"))
     {
-        const size_t lengths[] = {0, 1, 7, 8, 16, 33}, widths[] = {0, 1, 8},
-                     aligns[] = {0, 1, 3, 8, 64};
-        for (size_t start = 0; start <= 40; ++start)
-        {
-            for (size_t l = 0; l < 6; ++l)
-            {
-                for (size_t w = 0; w < 3; ++w)
-                {
-                    for (size_t a = 0; a < 5; ++a)
-                    {
-                        size_t out = 99;
-                        int rc = oa_place(32, start, lengths[l], widths[w],
-                                          aligns[a], &out);
-                        printf("%zu,%zu,%zu,%zu,%d,%zu\n", start, lengths[l],
-                               widths[w], aligns[a], rc, out);
-                    }
-                }
-            }
-        }
+        print_placement_table();
         return 0;
     }
     if (argc == 3 && !strcmp(argv[1], "--place"))
     {
-        size_t start = (size_t)strtoull(argv[2], NULL, 10), out = 99;
-        int rc = oa_place(32, start, 8, 1, 8, &out);
-        printf("OA_PLACE:%d,%zu\n", rc, out);
-        return 0;
+        return print_single_placement(argv[2]);
     }
-    switch (argc == 2 ? atoi(argv[1]) : -1)
+    unsigned selected = 0;
+    if (argc != 2 ||
+        cm_parse_unsigned(argv[1], 0, CASE_COUNT - 1, &selected) != CM_PARSE_OK)
+    {
+        return 2;
+    }
+    switch (selected)
     {
         case 0:
             return lifetime();

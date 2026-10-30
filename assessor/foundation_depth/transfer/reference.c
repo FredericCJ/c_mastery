@@ -1,4 +1,28 @@
+/* Assessor reference implementations of the withheld changed-condition
+ * interfaces declared in transfer.h. FD_TRANSFER_* macros select compiled
+ * defects for the transfer mutation controls; none is defined in a normal
+ * build. */
 #include "transfer.h"
+
+/* Version-2 wire record: little-endian, unlike the version-1 record in
+ * depth.c. Octet 0 is the version, octet 1 is reserved zero, octets 2-3 the
+ * 16-bit count and octets 4-7 the 32-bit signed value. */
+enum wire_v2_offset
+{
+    V2_VERSION = 0,
+    V2_RESERVED = 1,
+    V2_COUNT_LOW = 2,
+    V2_COUNT_HIGH = 3,
+    V2_VALUE = 4
+};
+
+#define V2_VERSION_TAG 2u
+
+/* Tagged read: marker octet, then tag version octet. */
+#define TAG_MARKER 0xa5u
+#define TAG_VERSION 2u
+#define TAG_BYTES 2u
+#define TAG_VALUE_BYTES 2u
 
 enum fd_status fd_owner_subview(const struct fd_owner_view *source,
                                 size_t offset, size_t count,
@@ -11,11 +35,12 @@ enum fd_status fd_owner_subview(const struct fd_owner_view *source,
     {
         return FD_INVALID;
     }
-    size_t remaining = source->end - source->begin - source->position;
+    const size_t remaining = source->end - source->begin - source->position;
     if (offset > remaining || count > remaining - offset)
     {
         return FD_RANGE;
     }
+    /* Build the result aside: out may alias source. */
     struct fd_owner_view next = *source;
     next.begin += next.position + offset;
     next.end = next.begin + count;
@@ -30,26 +55,27 @@ enum fd_status fd_read_tagged(struct fd_cursor *source, uint16_t *out)
     {
         return FD_INVALID;
     }
+    /* Work on a copy so that any failure leaves the caller's cursor alone. */
     struct fd_cursor trial = *source;
     const unsigned char *part;
-    enum fd_status status = fd_take(&trial, 2, &part);
+    enum fd_status status = fd_take(&trial, TAG_BYTES, &part);
     if (status != FD_OK)
     {
         return status;
     }
-    if (part[0] != 0xa5 || part[1] != 2)
+    if (part[0] != TAG_MARKER || part[1] != TAG_VERSION)
     {
         return FD_INVALID;
     }
 #ifdef FD_TRANSFER_TAG_COMMIT
     *source = trial;
 #endif
-    status = fd_take(&trial, 2, &part);
+    status = fd_take(&trial, TAG_VALUE_BYTES, &part);
     if (status != FD_OK)
     {
         return status;
     }
-    uint16_t value =
+    const uint16_t value =
         (uint16_t)((uint16_t)part[0] | (uint16_t)((uint16_t)part[1] << 8));
     *source = trial;
     *out = value;
@@ -71,7 +97,7 @@ enum fd_status fd_least_decode(const unsigned char *wire, size_t length,
     }
     uintmax_t count;
     intmax_t value;
-    enum fd_status status = fd_decode_v2(wire, length, &count, &value);
+    const enum fd_status status = fd_decode_v2(wire, length, &count, &value);
     if (status != FD_OK)
     {
         return status;
@@ -104,8 +130,10 @@ enum fd_status fd_pool_borrow(const struct fd_pool *pool,
     {
         return FD_INVALID;
     }
-    struct fd_value copy;
-    enum fd_status status = fd_pool_get(pool, handle, &copy);
+    /* fd_pool_get validates owner, index and generation; its copy is only
+     * used to reuse that check without repeating it here. */
+    struct fd_value validated_copy;
+    const enum fd_status status = fd_pool_get(pool, handle, &validated_copy);
     if (status != FD_OK)
     {
         return status;
@@ -117,7 +145,7 @@ enum fd_status fd_pool_borrow(const struct fd_pool *pool,
 enum fd_status fd_registry_relocate(struct fd_registry *registry, size_t slot,
                                     struct fd_pool *destination)
 {
-    if (!registry || slot >= 2 || !destination)
+    if (!registry || slot >= FD_REGISTRY_SLOTS || !destination)
     {
         return FD_INVALID;
     }
@@ -126,20 +154,22 @@ enum fd_status fd_registry_relocate(struct fd_registry *registry, size_t slot,
     {
         return FD_STATE;
     }
-    for (size_t i = 0; i < 2; ++i)
+    for (size_t i = 0; i < FD_REGISTRY_SLOTS; ++i)
     {
         if (registry->entries[i].owner == destination)
         {
             return FD_STATE;
         }
     }
-    struct fd_pool *old = entry->owner;
-    *destination = *old;
+    struct fd_pool *old_owner = entry->owner;
+    *destination = *old_owner;
+    /* Single ownership: the copied entries stay live only in the destination,
+     * so the old pool is emptied and retired. */
 #ifndef FD_TRANSFER_OWNER_DUPLICATE
     for (size_t i = 0; i < FD_POOL_CAPACITY; ++i)
     {
-        old->entries[i].live = 0;
-        old->entries[i].retired = 1;
+        old_owner->entries[i].live = 0;
+        old_owner->entries[i].retired = 1;
     }
 #endif
     entry->owner = destination;
@@ -160,6 +190,7 @@ enum fd_status fd_effect(enum fd_effect effect, const unsigned char *wire,
     {
         return status;
     }
+    /* A query only reads, so by default it needs no authority. */
 #ifdef FD_TRANSFER_QUERY_AUTH
     if (!authority)
     {
@@ -189,141 +220,153 @@ struct fd_step fd_step_value(int value)
     return result;
 }
 
-enum fd_status fd_layout(size_t h, intmax_t ac, size_t aw, intmax_t bc,
-                         size_t bw, size_t limit, struct fd_layout *out)
+enum fd_status fd_layout(size_t header, intmax_t first_count,
+                         size_t first_width, intmax_t second_count,
+                         size_t second_width, size_t limit,
+                         struct fd_layout *out)
 {
     if (!out)
     {
         return FD_INVALID;
     }
-    size_t a, b, second, end;
-    if (fd_from_signed(ac, &a) != FD_OK || fd_from_signed(bc, &b) != FD_OK)
+    size_t first_n;
+    size_t second_n;
+    if (fd_from_signed(first_count, &first_n) != FD_OK ||
+        fd_from_signed(second_count, &second_n) != FD_OK)
     {
         return FD_RANGE;
     }
-    if (fd_extent(h, a, aw, limit, &second) != FD_OK)
+    size_t second_start;
+    if (fd_extent(header, first_n, first_width, limit, &second_start) != FD_OK)
     {
         return FD_RANGE;
     }
+    /* The second array begins where the first ends, not at the header. */
+    size_t end;
 #ifdef FD_TRANSFER_LAYOUT
-    if (fd_extent(h, b, bw, limit, &end) != FD_OK)
+    if (fd_extent(header, second_n, second_width, limit, &end) != FD_OK)
     {
         return FD_RANGE;
     }
 #else
-    if (fd_extent(second, b, bw, limit, &end) != FD_OK)
+    if (fd_extent(second_start, second_n, second_width, limit, &end) != FD_OK)
     {
         return FD_RANGE;
     }
 #endif
-    *out = (struct fd_layout){h, second, end};
+    *out = (struct fd_layout){header, second_start, end};
     return FD_OK;
 }
 
-enum fd_status fd_copy_segments(struct fd_segmented *c, size_t n,
-                                unsigned char *out, size_t cap)
+enum fd_status fd_copy_segments(struct fd_segmented *cursor, size_t count,
+                                unsigned char *destination, size_t capacity)
 {
-    if (!c || (!out && n))
+    if (!cursor || (!destination && count))
     {
         return FD_INVALID;
     }
-    size_t total;
     for (unsigned i = 0; i < 2; ++i)
     {
-        if (!c->segments[i].base && c->segments[i].length)
+        if (!cursor->segments[i].base && cursor->segments[i].length)
         {
             return FD_INVALID;
         }
     }
-    if (fd_extent(c->segments[0].length, 1, c->segments[1].length, SIZE_MAX,
-                  &total) != FD_OK ||
-        c->position > total)
+    /* total = first length + 1 * second length, without wrapping. */
+    size_t total;
+    if (fd_extent(cursor->segments[0].length, 1, cursor->segments[1].length,
+                  SIZE_MAX, &total) != FD_OK ||
+        cursor->position > total)
     {
         return FD_INVALID;
     }
-    if (n > total - c->position || n > cap)
+    if (count > total - cursor->position || count > capacity)
     {
         return FD_RANGE;
     }
-    size_t first = c->segments[0].length;
-    for (size_t i = 0; i < n; ++i)
+    const size_t first_length = cursor->segments[0].length;
+    for (size_t i = 0; i < count; ++i)
     {
-        size_t index = c->position + i;
-        out[i] = index < first ? c->segments[0].base[index]
-                               : c->segments[1].base[index - first];
+        const size_t index = cursor->position + i;
+        destination[i] = index < first_length
+                             ? cursor->segments[0].base[index]
+                             : cursor->segments[1].base[index - first_length];
     }
-    c->position += n;
+    cursor->position += count;
     return FD_OK;
 }
 
 enum fd_status fd_encode_v2(uintmax_t count, intmax_t value, unsigned char *out,
-                            size_t cap)
+                            size_t capacity)
 {
     if (!out)
     {
         return FD_INVALID;
     }
-    if (cap != 8 || count > UINT16_MAX || value < INT32_MIN ||
+    if (capacity != FD_WIRE_BYTES || count > UINT16_MAX || value < INT32_MIN ||
         value > INT32_MAX)
     {
         return FD_RANGE;
     }
-    uint32_t u = (uint32_t)value;
-    out[0] = 2;
-    out[1] = 0;
-    out[2] = (unsigned char)count;
-    out[3] = (unsigned char)(count >> 8);
-    for (unsigned i = 0; i < 4; ++i)
+    const uint32_t bits = (uint32_t)value;
+    out[V2_VERSION] = V2_VERSION_TAG;
+    out[V2_RESERVED] = 0;
+    out[V2_COUNT_LOW] = (unsigned char)count;
+    out[V2_COUNT_HIGH] = (unsigned char)(count >> CHAR_BIT);
+    for (unsigned i = 0; i < FD_WIRE_PAYLOAD_BYTES; ++i)
     {
-        out[4 + i] = (unsigned char)(u >> (8 * i));
+        out[V2_VALUE + i] = (unsigned char)(bits >> (CHAR_BIT * i));
     }
     return FD_OK;
 }
 
-enum fd_status fd_decode_v2(const unsigned char *wire, size_t n,
+enum fd_status fd_decode_v2(const unsigned char *wire, size_t length,
                             uintmax_t *count, intmax_t *value)
 {
     if (!wire || !count || !value)
     {
         return FD_INVALID;
     }
-    if (n != 8)
+    if (length != FD_WIRE_BYTES)
     {
         return FD_RANGE;
     }
-    if (wire[0] != 2 || wire[1] != 0)
+    if (wire[V2_VERSION] != V2_VERSION_TAG || wire[V2_RESERVED] != 0)
     {
         return FD_INVALID;
     }
-    uint32_t u = 0;
-    for (unsigned i = 0; i < 4; ++i)
+    uint32_t bits = 0;
+    for (unsigned i = 0; i < FD_WIRE_PAYLOAD_BYTES; ++i)
     {
-        u |= (uint32_t)wire[4 + i] << (8 * i);
+        bits |= (uint32_t)wire[V2_VALUE + i] << (CHAR_BIT * i);
     }
-    *count = (uintmax_t)wire[2] + ((uintmax_t)wire[3] << 8);
-    *value = u <= INT32_MAX ? (intmax_t)u : -1 - (intmax_t)(UINT32_MAX - u);
+    *count = (uintmax_t)wire[V2_COUNT_LOW] +
+             ((uintmax_t)wire[V2_COUNT_HIGH] << CHAR_BIT);
+    /* Two's complement by arithmetic, as in the version-1 decoder. */
+    *value =
+        bits <= INT32_MAX ? (intmax_t)bits : -1 - (intmax_t)(UINT32_MAX - bits);
     return FD_OK;
 }
 
-void *fd_typed_allocate(void *context, size_t n, size_t alignment)
+void *fd_typed_allocate(void *context, size_t size_bytes, size_t alignment)
 {
-    struct fd_typed_storage *s = context;
-    if (!s || s->reserved || n != sizeof s->value ||
+    struct fd_typed_storage *storage = context;
+    if (!storage || storage->reserved || size_bytes != sizeof storage->value ||
         alignment != _Alignof(struct fd_value))
     {
         return 0;
     }
-    s->reserved = 1;
-    return &s->value;
+    storage->reserved = 1;
+    return &storage->value;
 }
 
 void fd_typed_release(void *context, void *value)
 {
-    struct fd_typed_storage *s = context;
+    struct fd_typed_storage *storage = context;
     /* Only the exact outstanding element is admitted by this adapter. */
-    if (s && value == &s->value)
+    if (storage && value == &storage->value)
     {
-        s->reserved = 0;
+        storage->reserved = 0;
     }
 }
 
@@ -338,233 +381,247 @@ enum fd_status fd_slot_transfer(struct fd_slot *destination,
     {
         return FD_STATE;
     }
+    /* Ownership moves: afterwards only the destination may reset or free. */
     *destination = *source;
     *source = (struct fd_slot)FD_SLOT_INITIALIZER;
     return FD_OK;
 }
 
-enum fd_status fd_stride_move(unsigned char *base, size_t physical,
-                              size_t logical, size_t stride, size_t dst,
-                              size_t src, size_t n)
+enum fd_status fd_stride_move(unsigned char *base, size_t physical_length,
+                              size_t logical_length, size_t stride,
+                              size_t destination, size_t source, size_t count)
 {
-    size_t extent = 0;
-    if ((!base && physical) || !stride)
+    if ((!base && physical_length) || !stride)
     {
         return FD_INVALID;
     }
-    if (logical &&
-        (fd_extent(1, logical - 1, stride, physical, &extent) != FD_OK))
+    /* The last logical element starts at (logical_length - 1) * stride and
+     * needs one byte, so the extent is 1 + (logical_length - 1) * stride. */
+    size_t extent = 0;
+    if (logical_length && fd_extent(1, logical_length - 1, stride,
+                                    physical_length, &extent) != FD_OK)
     {
         return FD_RANGE;
     }
-    if (dst > logical || src > logical || n > logical - dst ||
-        n > logical - src)
+    if (destination > logical_length || source > logical_length ||
+        count > logical_length - destination || count > logical_length - source)
     {
         return FD_RANGE;
     }
-    if (dst > src)
+    if (destination > source)
     {
-        for (size_t i = n; i > 0; --i)
+        for (size_t i = count; i > 0; --i)
         {
-            base[(dst + i - 1) * stride] = base[(src + i - 1) * stride];
+            base[(destination + i - 1) * stride] =
+                base[(source + i - 1) * stride];
         }
     }
     else
     {
-        for (size_t i = 0; i < n; ++i)
+        for (size_t i = 0; i < count; ++i)
         {
-            base[(dst + i) * stride] = base[(src + i) * stride];
+            base[(destination + i) * stride] = base[(source + i) * stride];
         }
     }
     return FD_OK;
 }
 
-enum fd_status fd_compact(struct fd_stream_view *s)
+enum fd_status fd_compact(struct fd_stream_view *stream)
 {
-    if (!s || s->position > s->length || (!s->base && s->length))
+    if (!stream || stream->position > stream->length ||
+        (!stream->base && stream->length))
     {
         return FD_INVALID;
     }
-    if (s->epoch == SIZE_MAX)
+    /* Refuse before moving anything: the epoch could not advance. */
+    if (stream->epoch == SIZE_MAX)
     {
         return FD_FULL;
     }
-    size_t length = s->length - s->position;
-    enum fd_status status = fd_move(s->base, s->length, 0, s->position, length);
+    const size_t unread = stream->length - stream->position;
+    const enum fd_status status =
+        fd_move(stream->base, stream->length, 0, stream->position, unread);
     if (status != FD_OK)
     {
         return status;
     }
-    s->length = length;
-    s->position = 0;
-    ++s->epoch;
+    stream->length = unread;
+    stream->position = 0;
+    ++stream->epoch;
     return FD_OK;
 }
 
-void fd_registry_init(struct fd_registry *r)
+void fd_registry_init(struct fd_registry *registry)
 {
-    for (unsigned i = 0; i < 2; ++i)
+    for (unsigned i = 0; i < FD_REGISTRY_SLOTS; ++i)
     {
-        r->entries[i] = (struct fd_registry_entry){0, 1, 0};
+        registry->entries[i] = (struct fd_registry_entry){0, 1, 0};
     }
 }
 
-enum fd_status fd_registry_bind(struct fd_registry *r, size_t slot,
-                                struct fd_pool *p)
+enum fd_status fd_registry_bind(struct fd_registry *registry, size_t slot,
+                                struct fd_pool *pool)
 {
-    if (!r || !p || slot >= 2)
+    if (!registry || !pool || slot >= FD_REGISTRY_SLOTS)
     {
         return FD_INVALID;
     }
-    struct fd_registry_entry *e = &r->entries[slot];
-    if (e->retired)
+    struct fd_registry_entry *entry = &registry->entries[slot];
+    if (entry->retired)
     {
         return FD_FULL;
     }
-    if (e->owner)
+    if (entry->owner)
     {
         return FD_STATE;
     }
     /* One current registry binding per owner. */
-    for (unsigned i = 0; i < 2; ++i)
+    for (unsigned i = 0; i < FD_REGISTRY_SLOTS; ++i)
     {
-        if (r->entries[i].owner == p)
+        if (registry->entries[i].owner == pool)
         {
             return FD_STATE;
         }
     }
-    e->owner = p;
+    entry->owner = pool;
     return FD_OK;
 }
 
-enum fd_status fd_registry_unbind(struct fd_registry *r, size_t slot)
+enum fd_status fd_registry_unbind(struct fd_registry *registry, size_t slot)
 {
-    if (!r || slot >= 2)
+    if (!registry || slot >= FD_REGISTRY_SLOTS)
     {
         return FD_INVALID;
     }
-    struct fd_registry_entry *e = &r->entries[slot];
-    if (!e->owner)
+    struct fd_registry_entry *entry = &registry->entries[slot];
+    if (!entry->owner)
     {
         return FD_STATE;
     }
-    e->owner = 0;
+    entry->owner = 0;
+    /* Each binding gets a new epoch so older handles go stale. After the
+     * last epoch the slot retires: wrapping would revive old handles. */
 #ifdef FD_TRANSFER_EPOCH
-    e->epoch = e->epoch == 3 ? 1 : e->epoch + 1;
+    entry->epoch = entry->epoch == FD_EPOCH_MAX ? 1 : entry->epoch + 1;
 #else
-    if (e->epoch == 3)
+    if (entry->epoch == FD_EPOCH_MAX)
     {
-        e->retired = 1;
+        entry->retired = 1;
     }
     else
     {
-        ++e->epoch;
+        ++entry->epoch;
     }
 #endif
     return FD_OK;
 }
 
-enum fd_status fd_registry_acquire(struct fd_registry *r, size_t slot,
+enum fd_status fd_registry_acquire(struct fd_registry *registry, size_t slot,
                                    struct fd_value value,
                                    struct fd_registry_handle *out)
 {
-    if (!r || !out || slot >= 2)
+    if (!registry || !out || slot >= FD_REGISTRY_SLOTS)
     {
         return FD_INVALID;
     }
-    struct fd_registry_entry *e = &r->entries[slot];
-    if (!e->owner)
+    const struct fd_registry_entry *entry = &registry->entries[slot];
+    if (!entry->owner)
     {
         return FD_STATE;
     }
     struct fd_handle local;
-    enum fd_status status = fd_pool_acquire(e->owner, value, &local);
+    const enum fd_status status = fd_pool_acquire(entry->owner, value, &local);
     if (status != FD_OK)
     {
         return status;
     }
-    *out = (struct fd_registry_handle){slot, local.index, e->epoch,
+    *out = (struct fd_registry_handle){slot, local.index, entry->epoch,
                                        local.generation};
     return FD_OK;
 }
 
-enum fd_status fd_registry_get(const struct fd_registry *r,
-                               struct fd_registry_handle h,
+enum fd_status fd_registry_get(const struct fd_registry *registry,
+                               struct fd_registry_handle handle,
                                struct fd_value *out)
 {
-    if (!r || !out)
+    if (!registry || !out)
     {
         return FD_INVALID;
     }
-    if (h.registry_slot >= 2)
+    if (handle.registry_slot >= FD_REGISTRY_SLOTS)
     {
         return FD_STALE;
     }
-    const struct fd_registry_entry *e = &r->entries[h.registry_slot];
-    if (!e->owner || e->retired || e->epoch != h.epoch)
+    const struct fd_registry_entry *entry =
+        &registry->entries[handle.registry_slot];
+    if (!entry->owner || entry->retired || entry->epoch != handle.epoch)
     {
         return FD_STALE;
     }
-    return fd_pool_get(e->owner,
-                       (struct fd_handle){e->owner, h.local_slot, h.generation},
-                       out);
+    const struct fd_handle local = {entry->owner, handle.local_slot,
+                                    handle.generation};
+    return fd_pool_get(entry->owner, local, out);
 }
 
-void fd_frame_cancel(struct fd_frame *f)
+void fd_frame_cancel(struct fd_frame *frame)
 {
-    if (!f)
+    if (!frame)
     {
         return;
     }
-    f->used = 0;
+    frame->used = 0;
 #ifndef FD_TRANSFER_AUTHORITY
-    f->authority = 0;
+    frame->authority = 0;
 #endif
-    for (unsigned i = 0; i < 8; ++i)
+    for (unsigned i = 0; i < FD_WIRE_BYTES; ++i)
     {
-        f->bytes[i] = 0;
+        frame->bytes[i] = 0;
     }
 }
 
-enum fd_status fd_frame_feed(struct fd_frame *f, const unsigned char *bytes,
-                             size_t n, int authority, int32_t *counter,
+enum fd_status fd_frame_feed(struct fd_frame *frame, const unsigned char *bytes,
+                             size_t count, int authority, int32_t *counter,
                              int *committed)
 {
-    if (!f || !counter || !committed || (!bytes && n) || f->used > 8)
+    if (!frame || !counter || !committed || (!bytes && count) ||
+        frame->used > FD_WIRE_BYTES)
     {
         return FD_INVALID;
     }
-    if (n > 8 - f->used)
+    if (count > FD_WIRE_BYTES - frame->used)
     {
         return FD_RANGE;
     }
     *committed = 0;
-    if (!n)
+    if (!count)
     {
         return FD_OK;
     }
+    /* Authority is latched from the first chunk of a record and ignored in
+     * later chunks, so a late caller-supplied value cannot upgrade it. */
 #ifdef FD_TRANSFER_AUTHORITY
-    if (!f->used)
+    if (!frame->used)
     {
-        f->authority = f->authority || authority;
+        frame->authority = frame->authority || authority;
     }
 #else
-    if (!f->used)
+    if (!frame->used)
     {
-        f->authority = authority != 0;
+        frame->authority = authority != 0;
     }
 #endif
-    for (size_t i = 0; i < n; ++i)
+    for (size_t i = 0; i < count; ++i)
     {
-        f->bytes[f->used + i] = bytes[i];
+        frame->bytes[frame->used + i] = bytes[i];
     }
-    f->used += n;
-    if (f->used < 8)
+    frame->used += count;
+    if (frame->used < FD_WIRE_BYTES)
     {
         return FD_OK;
     }
-    enum fd_status status = fd_apply(f->bytes, 8, f->authority, counter);
-    fd_frame_cancel(f);
+    const enum fd_status status =
+        fd_apply(frame->bytes, FD_WIRE_BYTES, frame->authority, counter);
+    fd_frame_cancel(frame);
     if (status == FD_OK)
     {
         *committed = 1;

@@ -1,7 +1,24 @@
+/*
+ * Freestanding link-audit target: the entry point calls the alias API (all
+ * of it except the optional os_tag_roundtrip experiment) so that the final
+ * link must contain and resolve those functions. The image is inspected,
+ * never executed. No library function may be needed.
+ */
 #include "alias.h"
+
+enum
+{
+    SCRATCH_BYTES = 32,
+    TRANSFORM_BYTES = 4,
+    DESTINATION_OFFSET = 16,
+    XOR_MASK = 0x55,
+    WIDE_ALIGNMENT_BYTES = 64
+};
+
 static struct fd_slot slot = FD_SLOT_INITIALIZER;
 static struct os_wide_slot wide;
-static unsigned char bytes[32], wire[8] = {0, 0, 0, 7, 0, 0, 0, 11};
+static unsigned char bytes[SCRATCH_BYTES];
+static unsigned char wire[8] = {0, 0, 0, 7, 0, 0, 0, 11};
 static struct fd_value value;
 static struct fd_pool pool;
 static struct fd_handle handle;
@@ -48,7 +65,8 @@ volatile int os_target_result;
 
 void _start(void)
 {
-    struct os_allocator a = {{NULL, none, release}, sizeof(struct os_wide), 64};
+    struct os_allocator a = {
+        {NULL, none, release}, sizeof(struct os_wide), WIDE_ALIGNMENT_BYTES};
     const struct fd_value *view = NULL;
     const struct os_wide *borrow = NULL;
     int result = os_acquire(&slot, a);
@@ -61,18 +79,21 @@ void _start(void)
     result += os_wide_reset(&wide);
     result += os_wire(wire, 8, &value);
     result += (int)os_host_representation(7);
-    os_transform(bytes + 16, bytes, 4, 0x55);
-    os_ordinary(bytes + 16, bytes, 4, 0x55);
-    os_nested(bytes + 16, bytes, 4, 0x55);
-    os_shared(bytes + 16, bytes, bytes, 4);
-    result += os_partition(bytes, 32, 16, 0, 4, 0x55, 0);
-    result += (int)os_move(bytes, 32, 2, 0, 4);
+    os_transform(bytes + DESTINATION_OFFSET, bytes, TRANSFORM_BYTES, XOR_MASK);
+    os_ordinary(bytes + DESTINATION_OFFSET, bytes, TRANSFORM_BYTES, XOR_MASK);
+    os_nested(bytes + DESTINATION_OFFSET, bytes, TRANSFORM_BYTES, XOR_MASK);
+    os_shared(bytes + DESTINATION_OFFSET, bytes, bytes, TRANSFORM_BYTES);
+    result += os_partition(bytes, SCRATCH_BYTES, DESTINATION_OFFSET, 0,
+                           TRANSFORM_BYTES, XOR_MASK, 0);
+    result += (int)os_move(bytes, SCRATCH_BYTES, 2, 0, TRANSFORM_BYTES);
     fd_pool_init(&pool);
     result += (int)fd_pool_acquire(&pool, value, &handle);
     result += (int)fd_pool_get(&pool, handle, &value);
     result += (int)fd_pool_release(&pool, handle);
     result += os_member(&owner, &owner.member, &output);
-    /* Clone is rooted but only invoked if the callback returns actual allocated storage. */
+    /* os_clone must stay linked, but is called only if the allocation
+     * callback (reached through a volatile pointer, so the compiler cannot
+     * prove it returns NULL) produced storage. */
     {
         void *allocated =
             allocation_call(a.allocator.context, sizeof(struct fd_value),

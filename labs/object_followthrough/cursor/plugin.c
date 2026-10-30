@@ -1,8 +1,16 @@
+/*
+ * Teaching plugin built as a shared object. The default build exports a
+ * valid descriptor `oc_plugin` and the function `oc_function`. The macros
+ * OC_PLUGIN_BAD_ABI, OC_PLUGIN_BAD_SIZE and OC_PLUGIN_MISSING build the three
+ * malformed variants used to exercise the loader's admission checks.
+ */
 #include "loader.h"
+
+#define OC_PLUGIN_OFFSET 3
 
 int oc_function(int value)
 {
-    return value + 3;
+    return value + OC_PLUGIN_OFFSET;
 }
 #ifdef OC_PLUGIN_BAD_ABI
 #define ABI 2

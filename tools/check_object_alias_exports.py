@@ -10,7 +10,7 @@ def main():
     for n in d['supplied_artifacts']:
         p=ROOT/n;q=workspace/n;assert q.is_file() and sha(q)==sha(p),n;pins[n]=sha(p);outputs[rel(q)]=sha(q)
     assert not any('assessor' in p.relative_to(workspace).parts for p in workspace.rglob('*') if p.is_file());assert json.loads((workspace/'ASSESSMENT.json').read_text())['criteria']==d['criteria']
-    lab='labs/object_followthrough/alias/';flags=['gcc','-std=c17','-Wall','-Wextra','-Werror','-Wpedantic','-I'+lab,'-Ilabs/foundation_depth/include'];run('public.compile',[*flags,lab+'learner.c','labs/foundation_depth/src/depth.c',lab+'tests.c','-o','alias-tests'],cwd=workspace)
+    lab='labs/object_followthrough/alias/';flags=['gcc','-std=c17','-Wall','-Wextra','-Werror','-Wpedantic','-I'+lab,'-Ilabs/foundation_depth/include','-Ilabs/support'];run('public.compile',[*flags,lab+'learner.c','labs/foundation_depth/src/depth.c',lab+'tests.c','labs/support/cm_parse.c','-o','alias-tests'],cwd=workspace)
     for i in range(5):run('public.rejection.'+str(i),['./alias-tests',i],41,'OS_ASSERT:',workspace)
     run('public.extension.compile',[*flags,lab+'extension.c','-o','extension'],cwd=workspace);run('public.extension',['./extension'],0,'OS_EXTENSION_PASS',workspace)
     for name in ['alias-tests','extension']:outputs[rel(workspace/name)]=sha(workspace/name)

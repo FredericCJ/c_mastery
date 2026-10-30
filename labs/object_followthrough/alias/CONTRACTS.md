@@ -135,6 +135,8 @@ hypothetical switches.
 
 ## Verification
 
+`tests.c` reads its selector with the course parser, so compile it together with `labs/support/cm_parse.c` and add `-I labs/support` to the include path.
+
 `tests.c` selectors0..4 exercise lifecycle, wide cleanup, representations,
 restricted ranges and identity. Independent assessor set-intersection compares
 all6048 small range inputs, including invalid offsets and empty endpoints;

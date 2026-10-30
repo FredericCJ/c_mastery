@@ -10,7 +10,7 @@ def main():
     for n in d['supplied_artifacts']:
         p=ROOT/n;q=workspace/n;assert q.is_file() and sha(q)==sha(p),n;pins[n]=sha(p);outputs[rel(q)]=sha(q)
     assert not any('assessor' in p.relative_to(workspace).parts for p in workspace.rglob('*') if p.is_file());assert json.loads((workspace/'ASSESSMENT.json').read_text())['criteria']==d['criteria']
-    lab='labs/object_followthrough/buffer/';run('public.compile',['gcc','-std=c17','-Wall','-Wextra','-Werror','-Wpedantic','-I'+lab,lab+'learner.c',lab+'tests.c','-o','buffer-tests'],cwd=workspace)
+    lab='labs/object_followthrough/buffer/';run('public.compile',['gcc','-std=c17','-Wall','-Wextra','-Werror','-Wpedantic','-I'+lab,'-Ilabs/support',lab+'learner.c',lab+'tests.c','labs/support/cm_parse.c','-o','buffer-tests'],cwd=workspace)
     for i in range(6):run('public.rejection.'+str(i),['./buffer-tests',i],41,'OB_ASSERT:',workspace)
     outputs[rel(workspace/'buffer-tests')]=sha(workspace/'buffer-tests')
     for p in [pathlib.Path(__file__),ROOT/'tools/close_object_buffer.py',ROOT/'cmastery/cli.py',ROOT/'cmastery/assessments.py']:pins[rel(p)]=sha(p)

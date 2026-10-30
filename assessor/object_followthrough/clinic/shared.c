@@ -1,74 +1,97 @@
+/*
+ * Reference implementation of the shared-payload part of the clinic
+ * laboratory (private assessor copy; POSIX threads, hosted only). Contracts
+ * are stated in labs/object_followthrough/clinic/shared.h and CONTRACTS.md.
+ *
+ * Locking rule: once mc_shared_init() has succeeded, every access to value,
+ * references and releases happens with the mutex held (the initialized flag
+ * is read before locking). A function that locks unlocks on every path that
+ * follows a successful lock; a failed lock or unlock is reported as -1 (the
+ * contract treats it as a terminal protocol failure, not as a rollback
+ * case). MC_MUTANT_RACE removes the lock from mc_shared_add() on purpose.
+ *
+ * Test hooks: MC_MUTANT_RETAIN and MC_MUTANT_RACE each break exactly one
+ * contract so the campaign can prove that the tests reject the breakage.
+ */
 #include "shared.h"
 #include <limits.h>
 
-int mc_shared_init(struct mc_shared *s, struct mc_allocator a)
+enum
 {
-    unsigned *p;
-    if (!s || s->initialized || !a.allocate || !a.release)
+    MC_MAX_REFERENCES = 3
+};
+
+int mc_shared_init(struct mc_shared *shared, struct mc_allocator allocator)
+{
+    if (shared == NULL || shared->initialized || allocator.allocate == NULL ||
+        allocator.release == NULL)
     {
         return -1;
     }
-    p = a.allocate(a.context, sizeof *p);
-    if (!p)
+    unsigned *payload = allocator.allocate(allocator.context, sizeof *payload);
+    if (payload == NULL)
     {
         return -1;
     }
-    *p = 0;
-    if (pthread_mutex_init(&s->mutex, NULL))
+    *payload = 0;
+    if (pthread_mutex_init(&shared->mutex, NULL) != 0)
     {
-        a.release(a.context, p);
+        /* Roll back the only resource acquired so far. */
+        allocator.release(allocator.context, payload);
         return -1;
     }
-    s->value = p;
-    s->allocation = a;
-    s->references = 1;
-    s->releases = 0;
-    s->initialized = 1;
+    shared->value = payload;
+    shared->allocation = allocator;
+    shared->references = 1;
+    shared->releases = 0;
+    shared->initialized = 1;
     return 0;
 }
 
-int mc_shared_retain(struct mc_shared *s, struct mc_shared **out)
+int mc_shared_retain(struct mc_shared *shared, struct mc_shared **out)
 {
-    int status = -1;
-    if (!s || !out || !s->initialized || pthread_mutex_lock(&s->mutex))
+    if (shared == NULL || out == NULL || !shared->initialized ||
+        pthread_mutex_lock(&shared->mutex) != 0)
     {
         return -1;
     }
-    if (s->value && s->references < 3)
+    int status = -1;
+    if (shared->value != NULL && shared->references < MC_MAX_REFERENCES)
     {
 #ifndef MC_MUTANT_RETAIN
-        ++s->references;
+        ++shared->references;
 #endif
-        *out = s;
+        *out = shared;
         status = 0;
     }
-    if (pthread_mutex_unlock(&s->mutex))
+    if (pthread_mutex_unlock(&shared->mutex) != 0)
     {
         return -1;
     }
     return status;
 }
 
-int mc_shared_add(struct mc_shared *s, unsigned amount)
+int mc_shared_add(struct mc_shared *shared, unsigned amount)
 {
-    int status = -1;
-    if (!s || !s->initialized)
+    if (shared == NULL || !shared->initialized)
     {
         return -1;
     }
 #ifndef MC_MUTANT_RACE
-    if (pthread_mutex_lock(&s->mutex))
+    if (pthread_mutex_lock(&shared->mutex) != 0)
     {
         return -1;
     }
 #endif
-    if (s->value && amount <= UINT_MAX - *s->value)
+    int status = -1;
+    /* Overflow is rejected before the payload is changed. */
+    if (shared->value != NULL && amount <= UINT_MAX - *shared->value)
     {
-        *s->value += amount;
+        *shared->value += amount;
         status = 0;
     }
 #ifndef MC_MUTANT_RACE
-    if (pthread_mutex_unlock(&s->mutex))
+    if (pthread_mutex_unlock(&shared->mutex) != 0)
     {
         return -1;
     }
@@ -76,64 +99,77 @@ int mc_shared_add(struct mc_shared *s, unsigned amount)
     return status;
 }
 
-int mc_shared_read(struct mc_shared *s, unsigned *out)
+int mc_shared_read(struct mc_shared *shared, unsigned *out)
 {
-    int status = -1;
-    if (!s || !out || !s->initialized || pthread_mutex_lock(&s->mutex))
+    if (shared == NULL || out == NULL || !shared->initialized ||
+        pthread_mutex_lock(&shared->mutex) != 0)
     {
         return -1;
     }
-    if (s->value)
+    int status = -1;
+    if (shared->value != NULL)
     {
-        *out = *s->value;
+        *out = *shared->value;
         status = 0;
     }
-    if (pthread_mutex_unlock(&s->mutex))
+    if (pthread_mutex_unlock(&shared->mutex) != 0)
     {
         return -1;
     }
     return status;
 }
 
+/*
+ * The caller's handle is cleared while the lock is held, and the payload is
+ * released under the same lock by whichever drop brings the count to zero.
+ */
 int mc_shared_drop(struct mc_shared **owner)
 {
-    struct mc_shared *s;
-    if (!owner || !(s = *owner) || !s->initialized ||
-        pthread_mutex_lock(&s->mutex))
+    if (owner == NULL || *owner == NULL)
     {
         return -1;
     }
-    if (!s->references)
+    struct mc_shared *shared = *owner;
+    if (!shared->initialized || pthread_mutex_lock(&shared->mutex) != 0)
     {
-        (void)pthread_mutex_unlock(&s->mutex);
+        return -1;
+    }
+    if (shared->references == 0)
+    {
+        (void)pthread_mutex_unlock(&shared->mutex);
         return -1;
     }
     *owner = NULL;
-    if (--s->references == 0)
+    --shared->references;
+    if (shared->references == 0)
     {
-        void *p = s->value;
-        s->value = NULL;
-        ++s->releases;
-        s->allocation.release(s->allocation.context, p);
+        void *payload = shared->value;
+        shared->value = NULL;
+        ++shared->releases;
+        shared->allocation.release(shared->allocation.context, payload);
     }
-    return pthread_mutex_unlock(&s->mutex) ? -1 : 0;
+    return pthread_mutex_unlock(&shared->mutex) != 0 ? -1 : 0;
 }
 
-int mc_shared_finish(struct mc_shared *s)
+/* Valid only after external quiescence: the lock cannot protect its own
+ * destruction. */
+int mc_shared_finish(struct mc_shared *shared)
 {
-    if (!s || !s->initialized || pthread_mutex_lock(&s->mutex))
+    if (shared == NULL || !shared->initialized ||
+        pthread_mutex_lock(&shared->mutex) != 0)
     {
         return -1;
     }
-    if (s->references)
+    if (shared->references != 0)
     {
-        (void)pthread_mutex_unlock(&s->mutex);
+        (void)pthread_mutex_unlock(&shared->mutex);
         return -1;
     }
-    if (pthread_mutex_unlock(&s->mutex) || pthread_mutex_destroy(&s->mutex))
+    if (pthread_mutex_unlock(&shared->mutex) != 0 ||
+        pthread_mutex_destroy(&shared->mutex) != 0)
     {
         return -1;
     }
-    s->initialized = 0;
+    shared->initialized = 0;
     return 0;
 }

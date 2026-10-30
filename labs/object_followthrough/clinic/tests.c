@@ -1,16 +1,30 @@
+/*
+ * Test driver for the clinic laboratory.
+ *
+ * Usage: tests [containers]   (no argument, or any other one, runs "unique")
+ * Exit status: 0 the case passed; 41 a REQUIRE failed (its text goes to
+ * stderr after the marker MC_ASSERT:).
+ *
+ * The allocator below keeps its last block in trace.allocation so that a
+ * failing case can free it (clean). With trace.quarantine set, release()
+ * only counts the call and keeps the C allocation alive until clean(), which
+ * lets a case look at a block whose logical owner has already let go.
+ */
 #include "clinic.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-struct ob_trace
+/* Allocator state and fault injection (fail: allocate returns NULL). */
+struct mc_trace
 {
     void *allocation;
     unsigned calls, releases;
     int fail, quarantine;
 };
-static struct ob_trace trace;
+static struct mc_trace trace;
 
+/* Frees the block kept in trace.allocation, if any. */
 static void clean(void)
 {
     free(trace.allocation);
@@ -30,7 +44,7 @@ static void clean(void)
 
 static void *allocate(void *c, size_t size)
 {
-    struct ob_trace *t = c;
+    struct mc_trace *t = c;
     ++t->calls;
     if (t->fail)
     {
@@ -42,7 +56,7 @@ static void *allocate(void *c, size_t size)
 
 static void release(void *c, void *p)
 {
-    struct ob_trace *t = c;
+    struct mc_trace *t = c;
     ++t->releases;
     if (!t->quarantine)
     {
@@ -54,9 +68,11 @@ static void release(void *c, void *p)
 static int unique(void)
 {
     struct mc_owner owner = {0};
-    int copy = 99, out = 88;
+    int copy = 99;
+    int out = 88;
     struct mc_allocator a = {&trace, allocate, release};
-    unsigned char bytes[12], expected[12];
+    unsigned char bytes[12];
+    unsigned char expected[12];
     trace.fail = 1;
     REQUIRE(mc_acquire(&owner, a, 7) == -1 && !owner.value &&
             !trace.allocation);
@@ -99,8 +115,10 @@ static int unique(void)
 
 static int containers(void)
 {
-    const struct mc_container owner = {1, 17}, other = {2, 99};
-    const struct mc_first first = {23, 7}, foreign = {31, 8};
+    const struct mc_container owner = {1, 17};
+    const struct mc_container other = {2, 99};
+    const struct mc_first first = {23, 7};
+    const struct mc_first foreign = {31, 8};
     int out = 77;
     _Static_assert(offsetof(struct mc_first, first) == 0,
                    "initial member has no preceding padding");

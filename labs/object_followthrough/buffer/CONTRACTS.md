@@ -124,6 +124,8 @@ No finite test establishes the arbitrary-size overflow argument.
 
 ## Verification and acceptance
 
+`tests.c` reads its selector with the course parser, so compile it together with `labs/support/cm_parse.c` and add `-I labs/support` to the include path.
+
 `tests.c` selectors0..5 cover construction, sizes, workspace, representations,
 relocation and handles. Run six GCC/Clang debug/O3/ASanUBSan profiles plus actual
 i386. For each, compare320 selected arithmetic boundaries against unbounded

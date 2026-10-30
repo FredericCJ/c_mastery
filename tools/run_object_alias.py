@@ -9,7 +9,7 @@ MUTANTS={'LIFECYCLE':(0,'FD_MUTATE_LIFECYCLE','fd_slot_initialize(&s,initialize,
 SYSROOT=ROOT/'build/posix-io-toolchain/sysroot';LIBS=SYSROOT/'usr/lib32';GCCDIR=SYSROOT/'usr/lib/gcc/x86_64-linux-gnu/15/32';LOADER=LIBS/'ld-linux.so.2';LLD=ROOT/'build/b06-tools/root/usr/bin/ld.lld-21'
 IMPORTS=['assessor/foundation_depth/depth.c','labs/foundation_depth/include/depth.h','labs/foundation_depth/src/depth.c','labs/foundation_depth/CONTRACTS.md']
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
-def pins():return {p.relative_to(ROOT).as_posix():sha(p) for p in sorted([p for tree in [PUBLIC,PRIVATE] for p in tree.rglob('*') if p.is_file() and '__pycache__' not in p.parts]+[pathlib.Path(__file__),ROOT/'tools/run_thread_lifecycle.py',*[ROOT/n for n in IMPORTS]])}
+def pins():return {p.relative_to(ROOT).as_posix():sha(p) for p in sorted([p for tree in [PUBLIC,PRIVATE] for p in tree.rglob('*') if p.is_file() and '__pycache__' not in p.parts]+[pathlib.Path(__file__),ROOT/'tools/run_thread_lifecycle.py',ROOT/'labs/support/cm_parse.c',ROOT/'labs/support/cm_parse.h',*[ROOT/n for n in IMPORTS]])}
 def external():return {str(p):sha(p) for p in sorted({pathlib.Path(shutil.which(n)).resolve() for n in ['gcc','clang','nm','objdump','arm-none-eabi-gcc','arm-none-eabi-nm','arm-none-eabi-objdump']}|{pathlib.Path('/usr/lib/x86_64-linux-gnu/libc.so.6'),LOADER,LIBS/'libc.so.6',LLD.resolve()})}
 def expected_commands():
     s={'kernel','libc','i386.compile','i386.probe.compile','i386.oracle','i386.elf','i386.dependencies'}|{'i386.'+c for c in CASES}
@@ -23,9 +23,9 @@ def expected_commands():
     return s
 def main():
     HERE.mkdir(parents=True,exist_ok=True);BUILD.mkdir(parents=True);before=pins();ext=external();h.BUILD=BUILD;h.COMMANDS.clear();h.OUTPUTS.clear();run=h.run;failure=None;deps={}
-    flags=['-std=c17','-Wall','-Wextra','-Werror','-Wpedantic','-I'+str(PUBLIC),'-I'+str(FDINC)]
+    flags=['-std=c17','-Wall','-Wextra','-Werror','-Wpedantic','-I'+str(PUBLIC),'-I'+str(ROOT/'labs/support'),'-I'+str(FDINC)]
     def compile(tag,cc,opt,source=None,test='tests.c',foundation=FD):
-        b=BUILD/tag;run(tag+'.compile',[cc,*flags,*opt,source or PRIVATE/'alias.c',foundation,PUBLIC/test,'-o',b]);return b
+        b=BUILD/tag;run(tag+'.compile',[cc,*flags,*opt,source or PRIVATE/'alias.c',foundation,PUBLIC/test,ROOT/'labs/support/cm_parse.c','-o',b]);return b
     try:
         run('kernel',['uname','-a']);run('libc',['ldd','--version'])
         for cc in ['gcc','clang']:
@@ -54,7 +54,7 @@ def main():
                 symbols=run(t+'.symbols',['arm-none-eabi-nm',image]);assert all(n in symbols for n in ['fd_slot_initialize','fd_move','fd_pool_release','os_wide_reset','os_clone','os_transform','os_target_result']);assert not any(n in symbols for n in ['__aeabi_','malloc','memcpy','memmove','memset','__atomic_'])
                 run(t+'.assembly',['arm-none-eabi-objdump','-dr',image],marker='<os_clone>');bad=BUILD/(t+'.bad.o');run(t+'.bad.entry',[compiler,*flags,*opts,'-DOS_TARGET_HELPER','-c',PUBLIC/'target.c','-o',bad]);run(t+'.bad.link',[*link,*objects[:2],bad,'-o',BUILD/(t+'.bad.elf')],1,'malloc')
         narrow=['-m32','--sysroot='+str(SYSROOT),'-isystem',str(SYSROOT/'usr/include/x86_64-linux-gnu'),'-B'+str(GCCDIR)+'/','-L'+str(LIBS),'-Wl,--dynamic-linker='+str(LOADER)]
-        output=run('i386.dependencies',['gcc',*flags,*narrow,'-M',PRIVATE/'alias.c',FD,PUBLIC/'tests.c'])
+        output=run('i386.dependencies',['gcc',*flags,*narrow,'-M',PRIVATE/'alias.c',FD,PUBLIC/'tests.c',ROOT/'labs/support/cm_parse.c'])
         for token in output.replace('\\\n',' ').split():
             p=pathlib.Path(token)
             if p.is_absolute() and p.is_file():deps[str(p)]=sha(p)

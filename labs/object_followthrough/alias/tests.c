@@ -1,41 +1,69 @@
+/*
+ * Test driver for the alias laboratory.
+ *
+ * Usage: tests CASE, with CASE a decimal selector 0..4 (see main).
+ * Exit status: 0 the case passed; 41 a REQUIRE failed (its text is printed
+ * to stderr after the marker OS_ASSERT:); 2 usage error.
+ *
+ * The injected allocator below records every block it hands out, so a case
+ * that stops early can still free everything (cleanup) and a double release
+ * of the same block is ignored instead of reaching free().
+ */
 #include "alias.h"
+#include "cm_parse.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
-static void *allocations[16];
 
+enum
+{
+    MAX_TRACKED_ALLOCATIONS = 16,
+    CASE_COUNT = 5
+};
+
+static void *allocations[MAX_TRACKED_ALLOCATIONS];
+
+/* Frees every block still tracked; safe to call more than once. */
 static void cleanup(void)
 {
-    for (size_t i = 0; i < 16; ++i)
+    for (size_t i = 0; i < MAX_TRACKED_ALLOCATIONS; ++i)
     {
         free(allocations[i]);
         allocations[i] = NULL;
     }
 }
 
+/*
+ * Allocates size bytes aligned to alignment bytes and records the block.
+ * Alignments above max_align_t need aligned_alloc(); size is then a multiple
+ * of alignment in every call made here. Returns NULL when the allocation or
+ * the tracking table is exhausted.
+ */
 static void *get_memory(size_t size, size_t alignment)
 {
     void *p = alignment > _Alignof(max_align_t) ? aligned_alloc(alignment, size)
                                                 : malloc(size);
-    if (p)
+    if (p == NULL)
     {
-        for (size_t i = 0; i < 16; ++i)
-        {
-            if (!allocations[i])
-            {
-                allocations[i] = p;
-                return p;
-            }
-        }
-        free(p);
+        return NULL;
     }
+    for (size_t i = 0; i < MAX_TRACKED_ALLOCATIONS; ++i)
+    {
+        if (allocations[i] == NULL)
+        {
+            allocations[i] = p;
+            return p;
+        }
+    }
+    free(p);
     return NULL;
 }
 
+/* Frees a tracked block; a pointer that is not tracked is ignored. */
 static void release_memory(void *p)
 {
-    for (size_t i = 0; i < 16; ++i)
+    for (size_t i = 0; i < MAX_TRACKED_ALLOCATIONS; ++i)
     {
         if (allocations[i] == p)
         {
@@ -57,17 +85,18 @@ static void release_memory(void *p)
         }                                          \
     } while (0)
 
-struct ob_trace
+/* Fault-injection switches and event counters shared with the callbacks. */
+struct os_trace
 {
-    int fail_alloc, fail_init, fail_drop;
+    int fail_alloc, fail_init, fail_drop; /* nonzero: make that step fail */
     unsigned allocations, releases, initializations, destructions, rollbacks;
-    unsigned char *child;
-    size_t requested_size, requested_alignment;
+    unsigned char *child; /* resource owned by the initializer, if any */
+    size_t requested_size, requested_alignment; /* bytes seen by allocate() */
 };
 
 static void *allocate(void *context, size_t size, size_t alignment)
 {
-    struct ob_trace *t = context;
+    struct os_trace *t = context;
     t->requested_size = size;
     t->requested_alignment = alignment;
     if (t->fail_alloc)
@@ -84,14 +113,14 @@ static void *allocate(void *context, size_t size, size_t alignment)
 
 static void deallocate(void *context, void *p)
 {
-    struct ob_trace *t = context;
+    struct os_trace *t = context;
     ++t->releases;
     release_memory(p);
 }
 
 static int initialize(void *context, struct fd_value *p)
 {
-    struct ob_trace *t = context;
+    struct os_trace *t = context;
     ++t->initializations;
     t->child = get_memory(8, 1);
     if (!t->child)
@@ -113,20 +142,21 @@ static int initialize(void *context, struct fd_value *p)
 
 static void destroy(void *context, struct fd_value *p)
 {
-    struct ob_trace *t = context;
+    struct os_trace *t = context;
     (void)p;
     ++t->destructions;
     release_memory(t->child);
     t->child = NULL;
 }
 
-static struct os_allocator allocator(struct ob_trace *t, size_t capacity,
+static struct os_allocator allocator(struct os_trace *t, size_t capacity,
                                      size_t alignment)
 {
     struct os_allocator a = {{t, allocate, deallocate}, capacity, alignment};
     return a;
 }
 
+/* member and owner may designate the same int: it is read after the write. */
 static int aggregate_touch(int *member, struct os_container *owner)
 {
     owner->member = 23;
@@ -135,7 +165,7 @@ static int aggregate_touch(int *member, struct os_container *owner)
 
 static int lifecycle(void)
 {
-    struct ob_trace t = {0};
+    struct os_trace t = {0};
     struct fd_slot s = FD_SLOT_INITIALIZER;
     const struct fd_value *view = NULL;
     struct os_allocator a =
@@ -171,7 +201,7 @@ static int lifecycle(void)
 
 static int wide_drop(void *context, struct os_wide *p)
 {
-    struct ob_trace *t = context;
+    struct os_trace *t = context;
     ++t->destructions;
     if (t->fail_drop)
     {
@@ -185,7 +215,7 @@ static int wide_drop(void *context, struct os_wide *p)
 
 static int wide(void)
 {
-    struct ob_trace t = {0};
+    struct os_trace t = {0};
     struct os_wide_slot s = {0};
     const struct os_wide *view = NULL;
     struct os_allocator a =
@@ -218,10 +248,11 @@ static int wide(void)
 
 static int representations(void)
 {
-    struct fd_value source = {7, 11}, out = {99, 88};
+    struct fd_value source = {7, 11};
+    struct fd_value out = {99, 88};
     void *raw = get_memory(sizeof source, _Alignof(struct fd_value));
-    unsigned char declared[sizeof source],
-        wire[8] = {1, 2, 3, 4, 0x89, 0xab, 0xcd, 0xef};
+    unsigned char declared[sizeof source];
+    unsigned char wire[8] = {1, 2, 3, 4, 0x89, 0xab, 0xcd, 0xef};
     REQUIRE(raw != NULL);
     REQUIRE(os_clone(raw, &source) == 0);
     struct fd_value *copy = raw;
@@ -240,11 +271,13 @@ static int representations(void)
     REQUIRE(os_host_representation(UINT32_C(0x89abcdef)) ==
             UINT32_C(0x89abcdef));
     {
-        union
+        union os_word
         {
             uint32_t value;
             unsigned char bytes[4];
-        } u = {UINT32_C(0x01020304)}, other;
+        };
+        union os_word u = {UINT32_C(0x01020304)};
+        union os_word other;
 
         unsigned char independent[4];
         uint32_t copied = 0;
@@ -280,7 +313,12 @@ static int representations(void)
 
 static int restricted(void)
 {
-    unsigned char source[16], a[16], b[16], c[16], inplace[16], snapshot[16];
+    unsigned char source[16];
+    unsigned char a[16];
+    unsigned char b[16];
+    unsigned char c[16];
+    unsigned char inplace[16];
+    unsigned char snapshot[16];
     for (size_t i = 0; i < 16; ++i)
     {
         source[i] = (unsigned char)i;
@@ -324,7 +362,8 @@ static int restricted(void)
 static int identity(void)
 {
     struct fd_pool p;
-    struct fd_handle first = {0}, h = {0};
+    struct fd_handle first = {0};
+    struct fd_handle h = {0};
     struct fd_value out = {77, 88};
     fd_pool_init(&p);
     REQUIRE(fd_pool_acquire(&p, (struct fd_value){1, 11}, &first) == FD_OK);
@@ -340,7 +379,8 @@ static int identity(void)
             h.index == 1 && p.entries[0].retired);
     REQUIRE(fd_pool_get(&p, first, &out) == FD_STALE);
     {
-        struct os_container owner = {9, 17}, foreign = {8, 22};
+        struct os_container owner = {9, 17};
+        struct os_container foreign = {8, 22};
         int value = 77;
         REQUIRE(os_member(&owner, &owner.member, &value) == 0 && value == 17);
         REQUIRE(os_member(&owner, &foreign.member, &value) == -1 &&
@@ -360,7 +400,13 @@ static int identity(void)
 
 int main(int argc, char **argv)
 {
-    switch (argc == 2 ? atoi(argv[1]) : -1)
+    unsigned selected = 0;
+    if (argc != 2 ||
+        cm_parse_unsigned(argv[1], 0, CASE_COUNT - 1, &selected) != CM_PARSE_OK)
+    {
+        return 2;
+    }
+    switch (selected)
     {
         case 0:
             return lifecycle();

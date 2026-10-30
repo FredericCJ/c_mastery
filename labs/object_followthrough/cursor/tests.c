@@ -1,8 +1,23 @@
+/*
+ * Test driver for the cursor laboratory.
+ *
+ * Usage: tests CASE, with CASE a decimal selector 0..4 (see main).
+ * Exit status: 0 the case passed; 41 a check failed (a REQUIRE prints its
+ * text to stderr after the marker OC_ASSERT:; the allocated-rows case prints
+ * OC_ALLOCATED_ASSERT: on stdout); 2 usage error or allocation failure.
+ */
 #include "cursor.h"
+#include "cm_parse.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
+
+enum
+{
+    CASE_COUNT = 5
+};
+
 #define REQUIRE(x)                                 \
     do                                             \
     {                                              \
@@ -15,7 +30,8 @@
 
 static int matrix(void)
 {
-    int a[2][3] = {{1, 2, 3}, {4, 5, 6}}, out = 77;
+    int a[2][3] = {{1, 2, 3}, {4, 5, 6}};
+    int out = 77;
     struct oc_rows rows = {a, 2};
     struct oc_matrix m = {&rows, 2, 3, oc_rows_read};
     unsigned char bytes[sizeof a];
@@ -27,7 +43,8 @@ static int matrix(void)
             !memcmp(bytes, &a, sizeof a));
     REQUIRE(oc_representation(&a, bytes, sizeof bytes - 1) == -1);
     {
-        int first[3] = {7, 8, 9}, second[3] = {10, 11, 12};
+        int first[3] = {7, 8, 9};
+        int second[3] = {10, 11, 12};
         int *table[2] = {first, second};
         size_t lengths[2] = {3, 3};
         struct oc_table t = {table, lengths, 2};
@@ -45,7 +62,8 @@ static int allocated_rows(void)
     size_t lengths[2] = {3, 3};
     struct oc_table table = {rows, lengths, 2};
     struct oc_matrix m = {&table, 2, 3, oc_table_read};
-    int result = 0, out = 77;
+    int result = 0;
+    int out = 77;
     rows[1] = malloc(3 * sizeof(int));
     rows[0] = malloc(3 * sizeof(int));
     if (!rows[0] || !rows[1])
@@ -86,7 +104,9 @@ done:
 static int cursors(void)
 {
     const unsigned char a[4] = {10, 20, 30, 40};
-    struct fd_cursor c = {a, 4, 0}, empty = {0}, sub;
+    struct fd_cursor c = {a, 4, 0};
+    struct fd_cursor empty = {0};
+    struct fd_cursor sub;
     const unsigned char *p = a;
     REQUIRE(oc_take(&c, 1, &p) == FD_OK && p == a && c.position == 1);
     REQUIRE(oc_take(&c, 4, &p) == FD_RANGE && p == a && c.position == 1);
@@ -114,7 +134,8 @@ static int order(void)
     unsigned char a[4] = {0};
     ptrdiff_t d = 77;
     int order = 9;
-    size_t lengths[3] = {2, 0, 3}, overflow[2] = {SIZE_MAX, 1};
+    size_t lengths[3] = {2, 0, 3};
+    size_t overflow[2] = {SIZE_MAX, 1};
     REQUIRE(oc_difference(a, 4, 4, 0, &d) == 0 && d == 4);
     REQUIRE(oc_difference(a, 4, 0, 4, &d) == 0 && d == -4);
     REQUIRE(oc_difference(a, 4, 5, 0, &d) == -1 && d == -4);
@@ -136,9 +157,13 @@ static int order(void)
 
 static int conversions(void)
 {
-    int values[3] = {11, 22, 33}, other = 77;
-    int *p = 0, *q = (void *)0, *out = &other;
-    unsigned char wire[4] = {0}, bad[4] = {0, 0, 0, 3};
+    int values[3] = {11, 22, 33};
+    int other = 77;
+    int *p = 0;
+    int *q = (void *)0;
+    int *out = &other;
+    unsigned char wire[4] = {0};
+    unsigned char bad[4] = {0, 0, 0, 3};
     REQUIRE(p == q && !p);
     REQUIRE(oc_roundtrip(&other) == 0);
     REQUIRE(oc_roundtrip(NULL) == 0);
@@ -159,7 +184,8 @@ static int conversions(void)
     }
 #endif
     {
-        int *first = malloc(sizeof(int)), *next = malloc(sizeof(int));
+        int *first = malloc(sizeof(int));
+        int *next = malloc(sizeof(int));
         if (!first || !next)
         {
             free(first);
@@ -188,7 +214,13 @@ static int conversions(void)
 
 int main(int argc, char **argv)
 {
-    switch (argc == 2 ? atoi(argv[1]) : -1)
+    unsigned selected = 0;
+    if (argc != 2 ||
+        cm_parse_unsigned(argv[1], 0, CASE_COUNT - 1, &selected) != CM_PARSE_OK)
+    {
+        return 2;
+    }
+    switch (selected)
     {
         case 0:
             return matrix();

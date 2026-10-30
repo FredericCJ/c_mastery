@@ -1,4 +1,8 @@
-/* Compile only: this function is never called in the laboratory. */
+/*
+ * CM-SPECIMEN: defective by design; classify the defect before compiling
+ * (see CONTRACTS.md).
+ * Compile only: this function is never called in the laboratory.
+ */
 int ob_warning(int initialized)
 {
     int value;

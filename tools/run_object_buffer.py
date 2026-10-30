@@ -7,7 +7,7 @@ CASES=['initialization','sizing','workspace','representations','relocation','han
 MUTANTS={'CLEANUP':(0,'ob_cleanup(&c,a)==0 && !c.initialized && !t.releases'),'SIZE':(1,'ob_size(16,4,3,255,&out)==0 && out==28'),'SHARED':(3,'ob_shared_retain(first,&second)==0 && first->references==2'),'RESIZE':(4,'ob_resize(&table,8)==-1 && table.value==owner'),'GENERATION':(4,'ob_resolve(&table,h,&out)==-1 && out==3'),'ERASE':(5,'ob_erase(&a,0)==0 && a.generation==2')}
 SYSROOT=ROOT/'build/posix-io-toolchain/sysroot';LIBS=SYSROOT/'usr/lib32';GCCDIR=SYSROOT/'usr/lib/gcc/x86_64-linux-gnu/15/32';LOADER=LIBS/'ld-linux.so.2'
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
-def pins():return {p.relative_to(ROOT).as_posix():sha(p) for p in sorted([p for tree in [PUBLIC,PRIVATE] for p in tree.rglob('*') if p.is_file() and '__pycache__' not in p.parts]+[pathlib.Path(__file__),ROOT/'tools/run_thread_lifecycle.py'])}
+def pins():return {p.relative_to(ROOT).as_posix():sha(p) for p in sorted([p for tree in [PUBLIC,PRIVATE] for p in tree.rglob('*') if p.is_file() and '__pycache__' not in p.parts]+[pathlib.Path(__file__),ROOT/'tools/run_thread_lifecycle.py',ROOT/'labs/support/cm_parse.c',ROOT/'labs/support/cm_parse.h'])}
 def external():return {str(p):sha(p) for p in sorted({pathlib.Path(shutil.which(n)).resolve() for n in ['gcc','clang','valgrind','objdump']}|{pathlib.Path('/usr/lib/x86_64-linux-gnu/libc.so.6'),LOADER,LIBS/'libc.so.6',*[pathlib.Path('/usr/libexec/valgrind')/n for n in ['memcheck-amd64-linux','vgpreload_core-amd64-linux.so','vgpreload_memcheck-amd64-linux.so']]})}
 def expected_commands():
     s={'kernel','libc','valgrind.version','i386.dependencies','i386.compile','i386.elf'}|{'i386.'+c for c in CASES}|{'i386.'+k+q for k in ['size','history'] for q in ['.compile','.oracle']}
@@ -21,9 +21,9 @@ def expected_commands():
     return s
 def main():
     HERE.mkdir(parents=True,exist_ok=True);BUILD.mkdir(parents=True);before=pins();ext=external();h.BUILD=BUILD;h.COMMANDS.clear();h.OUTPUTS.clear();run=h.run;failure=None;deps={}
-    flags=['-std=c17','-Wall','-Wextra','-Werror','-Wpedantic','-I'+str(PUBLIC)]
+    flags=['-std=c17','-Wall','-Wextra','-Werror','-Wpedantic','-I'+str(PUBLIC),'-I'+str(ROOT/'labs/support')]
     def compile(tag,cc,opt,stub=False,test='tests.c'):
-        b=BUILD/tag;sources=[PUBLIC/'learner.c'] if stub else [PRIVATE/'buffer.c',PRIVATE/'workspace.c'];run(tag+'.compile',[cc,*flags,*opt,*sources,PUBLIC/test,'-o',b]);return b
+        b=BUILD/tag;sources=[PUBLIC/'learner.c'] if stub else [PRIVATE/'buffer.c',PRIVATE/'workspace.c'];run(tag+'.compile',[cc,*flags,*opt,*sources,PUBLIC/test,ROOT/'labs/support/cm_parse.c','-o',b]);return b
     try:
         run('kernel',['uname','-a']);run('libc',['ldd','--version']);run('valgrind.version',['valgrind','--version'])
         for cc in ['gcc','clang']:
@@ -49,7 +49,7 @@ def main():
             for opt in ['O0','O3']:run(cc+'.warning.'+opt,[cc,'-std=c17','-Wall','-Wextra','-Wuninitialized',*(['-Wmaybe-uninitialized'] if cc=='gcc' else []),'-'+opt,'-c',PUBLIC/'warning.c','-o',BUILD/(cc+'.warning.'+opt+'.o')])
             run(cc+'.diagnostics.observe',[sys.executable,PRIVATE/'diagnostics.py',*binaries,BUILD/(cc+'.diagnostics.json')],marker='"observations": 6')
         narrow=['-m32','--sysroot='+str(SYSROOT),'-isystem',str(SYSROOT/'usr/include/x86_64-linux-gnu'),'-B'+str(GCCDIR)+'/','-L'+str(LIBS),'-Wl,--dynamic-linker='+str(LOADER)]
-        output=run('i386.dependencies',['gcc',*flags,*narrow,'-M',PRIVATE/'buffer.c',PRIVATE/'workspace.c',PUBLIC/'tests.c'])
+        output=run('i386.dependencies',['gcc',*flags,*narrow,'-M',PRIVATE/'buffer.c',PRIVATE/'workspace.c',PUBLIC/'tests.c',ROOT/'labs/support/cm_parse.c'])
         for token in output.replace('\\\n',' ').split():
             p=pathlib.Path(token)
             if p.is_absolute() and p.is_file():deps[str(p)]=sha(p)

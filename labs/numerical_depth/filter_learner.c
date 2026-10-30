@@ -1,70 +1,75 @@
 #include "checkpoint_numeric.h"
 
-/* Implement this compatible producer as a T17 artifact. No later checkpoint
- * acceptance is a prerequisite. These stubs deliberately fail the tests. */
-void cpn_exact_init(struct cpn_exact *s)
+/*
+ * Learner scaffold for the streaming FIR/IIR producer. Implement this
+ * compatible producer as your T17 artifact (no later checkpoint acceptance is
+ * a prerequisite). Only the two init functions work; every other entry point
+ * ignores its arguments and returns CPN_INVALID, so filter_test rejects this
+ * file until the producer is written.
+ */
+void cpn_exact_init(struct cpn_exact *state)
 {
-    s->previous = 0;
-    s->older = 0;
+    state->previous = 0;
+    state->older = 0;
 }
 
-void cpn_double_init(struct cpn_double *s)
+void cpn_double_init(struct cpn_double *state)
 {
-    s->previous = 0;
-    s->older = 0;
+    state->previous = 0;
+    state->older = 0;
 }
 
-enum cpn_status cpn_exact(struct cpn_exact *s, const int32_t *x, size_t n,
-                          int64_t *y, size_t cap)
+enum cpn_status cpn_exact(struct cpn_exact *state, const int32_t *input,
+                          size_t count, int64_t *output, size_t capacity)
 {
-    (void)s;
-    (void)x;
-    (void)n;
-    (void)y;
-    (void)cap;
+    (void)state;
+    (void)input;
+    (void)count;
+    (void)output;
+    (void)capacity;
     return CPN_INVALID;
 }
 
-enum cpn_status cpn_double(struct cpn_double *s, const double *x, size_t n,
-                           double *y, size_t cap)
+enum cpn_status cpn_double(struct cpn_double *state, const double *input,
+                           size_t count, double *output, size_t capacity)
 {
-    (void)s;
-    (void)x;
-    (void)n;
-    (void)y;
-    (void)cap;
+    (void)state;
+    (void)input;
+    (void)count;
+    (void)output;
+    (void)capacity;
     return CPN_INVALID;
 }
 
-enum cpn_status cpn_transaction(struct cpn_double *s, const double *x, size_t n,
-                                double *y, size_t cap, size_t fail, int atomic,
-                                size_t *done)
+enum cpn_status cpn_transaction(struct cpn_double *state, const double *input,
+                                size_t count, double *output, size_t capacity,
+                                size_t fail_at, int atomic, size_t *done)
 {
-    (void)s;
-    (void)x;
-    (void)n;
-    (void)y;
-    (void)cap;
-    (void)fail;
+    (void)state;
+    (void)input;
+    (void)count;
+    (void)output;
+    (void)capacity;
+    (void)fail_at;
     (void)atomic;
     (void)done;
     return CPN_INVALID;
 }
 
-enum cpn_status cpn_round_even(int64_t n, int32_t *out)
+enum cpn_status cpn_round_even(int64_t numerator, int32_t *out)
 {
-    (void)n;
+    (void)numerator;
     (void)out;
     return CPN_INVALID;
 }
 
-enum cpn_status cpn_iir_half(double *s, const double *x, size_t n, double *y,
-                             size_t cap)
+enum cpn_status cpn_iir_half(double *state, const double *input, size_t count,
+                             double *output, size_t capacity)
 {
-    (void)s;
-    (void)x;
-    (void)n;
-    (void)y;
-    (void)cap;
+    (void)state;
+    (void)input;
+    (void)count;
+    (void)output;
+    (void)capacity;
     return CPN_INVALID;
 }

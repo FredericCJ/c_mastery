@@ -1,5 +1,20 @@
+/*
+ * Loader test driver.
+ * Usage: loader_tests VALID BAD_ABI BAD_SIZE MISSING
+ * where the four arguments are the paths of the plugin variants built from
+ * plugin.c (the valid one first, then the three malformed ones in the order
+ * the checks below use them: argv[2], argv[3], argv[4]).
+ * Exit status: 0 pass; 41 a CHECK failed (text on stderr after the marker
+ * OC_LOADER_ASSERT:); 2 wrong argument count.
+ */
 #include "loader.h"
 #include <stdio.h>
+
+enum
+{
+    EXPECTED_ARGC = 5
+};
+
 #define CHECK(x)                                          \
     do                                                    \
     {                                                     \
@@ -26,9 +41,10 @@ int __wrap_dlclose(void *handle)
 int main(int argc, char **argv)
 {
     struct oc_module m = {0};
-    const struct oc_plugin *a = NULL, *b = NULL;
+    const struct oc_plugin *a = NULL;
+    const struct oc_plugin *b = NULL;
     int result = 77;
-    if (argc != 5)
+    if (argc != EXPECTED_ARGC)
     {
         return 2;
     }

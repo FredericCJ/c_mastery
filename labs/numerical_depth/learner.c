@@ -1,167 +1,171 @@
 #include "numeric.h"
 
-/* Deliberately unsolved learner entry points. */
-int nd_sum(const double *arg0, size_t arg1, unsigned arg2, double *arg3)
+/*
+ * Learner scaffold: deliberately unsolved. Each entry point ignores its
+ * arguments and returns ND_BAD, so the public tests reject it until you
+ * implement the contract in numeric.h and CONTRACTS.md.
+ */
+
+int nd_sum(const double *values, size_t count, unsigned method, double *out)
 {
-    (void)arg0;
-    (void)arg1;
-    (void)arg2;
-    (void)arg3;
+    (void)values;
+    (void)count;
+    (void)method;
+    (void)out;
     return ND_BAD;
 }
 
-int nd_qmul(int16_t arg0, int16_t arg1, unsigned arg2, int16_t *arg3)
+int nd_qmul(int16_t a, int16_t b, unsigned q, int16_t *out)
 {
-    (void)arg0;
-    (void)arg1;
-    (void)arg2;
-    (void)arg3;
+    (void)a;
+    (void)b;
+    (void)q;
+    (void)out;
     return ND_BAD;
 }
 
-int nd_qmac(const int16_t *arg0, const int16_t *arg1, size_t arg2,
-            unsigned arg3, int16_t *arg4)
+int nd_qmac(const int16_t *a, const int16_t *b, size_t count, unsigned q,
+            int16_t *out)
 {
-    (void)arg0;
-    (void)arg1;
-    (void)arg2;
-    (void)arg3;
-    (void)arg4;
+    (void)a;
+    (void)b;
+    (void)count;
+    (void)q;
+    (void)out;
     return ND_BAD;
 }
 
-int nd_quantize(double arg0, unsigned arg1, int16_t *arg2)
+int nd_quantize(double value, unsigned q, int16_t *out)
 {
-    (void)arg0;
-    (void)arg1;
-    (void)arg2;
+    (void)value;
+    (void)q;
+    (void)out;
     return ND_BAD;
 }
 
-int nd_view(struct nd_view arg0)
+int nd_view(struct nd_view view)
 {
-    (void)arg0;
+    (void)view;
     return ND_BAD;
 }
 
-int nd_matrix(struct nd_view arg0, struct nd_view arg1, struct nd_view arg2,
-              unsigned arg3)
+int nd_matrix(struct nd_view a, struct nd_view b, struct nd_view c,
+              unsigned method)
 {
-    (void)arg0;
-    (void)arg1;
-    (void)arg2;
-    (void)arg3;
+    (void)a;
+    (void)b;
+    (void)c;
+    (void)method;
     return ND_BAD;
 }
 
-int nd_scale(struct nd_view arg0, double arg1)
+int nd_scale(struct nd_view view, double factor)
 {
-    (void)arg0;
-    (void)arg1;
+    (void)view;
+    (void)factor;
     return ND_BAD;
 }
 
-int nd_dot(struct nd_view arg0, struct nd_view arg1, double *arg2)
+int nd_dot(struct nd_view a, struct nd_view b, double *out)
 {
-    (void)arg0;
-    (void)arg1;
-    (void)arg2;
+    (void)a;
+    (void)b;
+    (void)out;
     return ND_BAD;
 }
 
-int nd_interp(const double *arg0, const double *arg1, size_t arg2, double arg3,
-              int arg4, double *arg5)
+int nd_interp(const double *knots, const double *ordinates, size_t count,
+              double query, int clamp, double *out)
 {
-    (void)arg0;
-    (void)arg1;
-    (void)arg2;
-    (void)arg3;
-    (void)arg4;
-    (void)arg5;
+    (void)knots;
+    (void)ordinates;
+    (void)count;
+    (void)query;
+    (void)clamp;
+    (void)out;
     return ND_BAD;
 }
 
-int nd_solve(struct nd_view arg0, const double *arg1, size_t arg2, double arg3,
-             double *arg4, struct nd_cost *arg5)
+int nd_solve(struct nd_view a, const double *rhs, size_t n, double tolerance,
+             double *out, struct nd_cost *cost)
 {
-    (void)arg0;
-    (void)arg1;
-    (void)arg2;
-    (void)arg3;
-    (void)arg4;
-    (void)arg5;
+    (void)a;
+    (void)rhs;
+    (void)n;
+    (void)tolerance;
+    (void)out;
+    (void)cost;
     return ND_BAD;
 }
 
-int nd_jacobi(struct nd_view arg0, const double *arg1, size_t arg2, double arg3,
-              unsigned arg4, double *arg5, unsigned *arg6)
+int nd_jacobi(struct nd_view a, const double *rhs, size_t n, double tolerance,
+              unsigned limit, double *out, unsigned *steps)
 {
-    (void)arg0;
-    (void)arg1;
-    (void)arg2;
-    (void)arg3;
-    (void)arg4;
-    (void)arg5;
-    (void)arg6;
+    (void)a;
+    (void)rhs;
+    (void)n;
+    (void)tolerance;
+    (void)limit;
+    (void)out;
+    (void)steps;
     return ND_BAD;
 }
 
-int nd_euler(double arg0, double arg1, double arg2, size_t arg3, double *arg4,
-             size_t arg5)
+int nd_euler(double y0, double h, double rate, size_t count, double *out,
+             size_t capacity)
 {
-    (void)arg0;
-    (void)arg1;
-    (void)arg2;
-    (void)arg3;
-    (void)arg4;
-    (void)arg5;
+    (void)y0;
+    (void)h;
+    (void)rate;
+    (void)count;
+    (void)out;
+    (void)capacity;
     return ND_BAD;
 }
 
-int nd_iir(double *arg0, const double *arg1, size_t arg2, double arg3,
-           double arg4, double *arg5, size_t arg6)
+int nd_iir(double *state, const double *in, size_t count, double feed,
+           double feedback, double *out, size_t capacity)
 {
-    (void)arg0;
-    (void)arg1;
-    (void)arg2;
-    (void)arg3;
-    (void)arg4;
-    (void)arg5;
-    (void)arg6;
+    (void)state;
+    (void)in;
+    (void)count;
+    (void)feed;
+    (void)feedback;
+    (void)out;
+    (void)capacity;
     return ND_BAD;
 }
 
-int nd_insert(struct nd_store *arg0, double arg1, double arg2,
-              const char arg3[24], unsigned *arg4)
+int nd_insert(struct nd_store *store, double x, double y,
+              const char label[ND_LABEL_BYTES], unsigned *id)
 {
-    (void)arg0;
-    (void)arg1;
-    (void)arg2;
-    (void)arg3;
-    (void)arg4;
+    (void)store;
+    (void)x;
+    (void)y;
+    (void)label;
+    (void)id;
     return ND_BAD;
 }
 
-int nd_remove(struct nd_store *arg0, unsigned arg1)
+int nd_remove(struct nd_store *store, unsigned id)
 {
-    (void)arg0;
-    (void)arg1;
+    (void)store;
+    (void)id;
     return ND_BAD;
 }
 
-int nd_reorder(struct nd_store *arg0, const unsigned *arg1, size_t arg2)
+int nd_reorder(struct nd_store *store, const unsigned *order, size_t count)
 {
-    (void)arg0;
-    (void)arg1;
-    (void)arg2;
+    (void)store;
+    (void)order;
+    (void)count;
     return ND_BAD;
 }
 
-int nd_record(const struct nd_store *arg0, unsigned arg1,
-              struct nd_record *arg2)
+int nd_record(const struct nd_store *store, unsigned id, struct nd_record *out)
 {
-    (void)arg0;
-    (void)arg1;
-    (void)arg2;
+    (void)store;
+    (void)id;
+    (void)out;
     return ND_BAD;
 }

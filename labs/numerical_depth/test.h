@@ -5,6 +5,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+/*
+ * Prints "ND_ASSERT file:line expression" to stderr and exits with status 1.
+ * The campaign accepts a rejection only when this marker appears.
+ */
 #define CHECK(x)                                                             \
     do                                                                       \
     {                                                                        \

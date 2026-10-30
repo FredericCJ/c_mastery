@@ -1,12 +1,21 @@
+/*
+ * picolibc with a user-supplied console: the three standard streams are one
+ * FDEV stream whose put callback appends to an in-memory buffer. Exit status
+ * 1 when the printf check fails, 2 when the fseek check fails.
+ */
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
-static char output[64];
+
+#define CONSOLE_BYTES 64u
+
+static char output[CONSOLE_BYTES];
 static unsigned used;
 
-static int put(char c, FILE *f)
+/* Appends one character; EOF once the buffer is full. */
+static int put(char c, FILE *stream)
 {
-    (void)f;
+    (void)stream;
     if (used >= sizeof output)
     {
         return EOF;
@@ -15,9 +24,10 @@ static int put(char c, FILE *f)
     return (unsigned char)c;
 }
 
-static int get(FILE *f)
+/* The console has no input. */
+static int get(FILE *stream)
 {
-    (void)f;
+    (void)stream;
     return EOF;
 }
 
@@ -28,8 +38,11 @@ FILE *const stderr = &console;
 
 int main(void)
 {
-    if (printf("value=%d", 17) != 8 || used != 8 ||
-        memcmp(output, "value=17", 8))
+    static const char expected[] = "value=17";
+    const int expected_length = (int)(sizeof expected - 1);
+    if (printf("value=%d", 17) != expected_length ||
+        used != (unsigned)expected_length ||
+        memcmp(output, expected, sizeof expected - 1))
     {
         return 1;
     }

@@ -1,28 +1,40 @@
+/*
+ * Link-time interposition probe. The campaign links this file with
+ * `--wrap=ef_local_alloc` (a GNU linker option) and compares the two counters.
+ * Exit status: 1 when the allocation fails, 2 when a counter is unexpected.
+ */
 #include <stddef.h>
 #include <stdio.h>
-static unsigned requests, hooks;
-static unsigned char storage[16];
 
-__attribute__((visibility("hidden"))) void *ef_local_alloc(size_t n)
+#define STORAGE_BYTES 16u
+#define REQUEST_BYTES 8u
+
+static unsigned requests;
+static unsigned hooks;
+static unsigned char storage[STORAGE_BYTES];
+
+/* Counts direct calls; storage is static, so nothing is ever freed. */
+__attribute__((visibility("hidden"))) void *ef_local_alloc(size_t bytes)
 {
     ++requests;
-    return n <= sizeof storage ? storage : NULL;
+    return bytes <= sizeof storage ? storage : NULL;
 }
 
-void *__wrap_ef_local_alloc(size_t n)
+/* The linker's wrapper symbol: counts calls that were redirected to it. */
+void *__wrap_ef_local_alloc(size_t bytes)
 {
     ++hooks;
-    return n <= sizeof storage ? storage : NULL;
+    return bytes <= sizeof storage ? storage : NULL;
 }
 
 int main(void)
 {
-    unsigned char *p = ef_local_alloc(8);
-    if (!p)
+    unsigned char *block = ef_local_alloc(REQUEST_BYTES);
+    if (!block)
     {
         return 1;
     }
-    *p = 7;
+    *block = 7;
     if (requests != 1 || hooks != 0)
     {
         return 2;
