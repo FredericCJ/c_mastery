@@ -1,39 +1,43 @@
 #include "list.h"
 
-enum ft_status ft_tokens(const char *const *p, size_t n, int c,
-                         struct ft_result *o, struct ft_errors *e)
+/* Learner scaffold: every function is deliberately unfinished. It compiles
+ * and returns FT_NOT_IMPLEMENTED so the public tests fail until you
+ * implement the contract in list.h. */
+
+enum ft_status ft_tokens(const char *const *tokens, size_t count, int collect,
+                         struct ft_result *out, struct ft_errors *errors)
 {
-    (void)p;
-    (void)n;
-    (void)c;
-    (void)o;
-    (void)e;
+    (void)tokens;
+    (void)count;
+    (void)collect;
+    (void)out;
+    (void)errors;
     return FT_NOT_IMPLEMENTED;
 }
 
-void ft_stream_init(struct ft_stream *s)
+void ft_stream_init(struct ft_stream *stream)
 {
-    (void)s;
+    (void)stream;
 }
 
-enum ft_status ft_stream_feed(struct ft_stream *s, const unsigned char *p,
-                              size_t n)
+enum ft_status ft_stream_feed(struct ft_stream *stream,
+                              const unsigned char *bytes, size_t count)
 {
-    (void)s;
-    (void)p;
-    (void)n;
+    (void)stream;
+    (void)bytes;
+    (void)count;
     return FT_NOT_IMPLEMENTED;
 }
 
-enum ft_status ft_stream_finish(struct ft_stream *s, struct ft_result *o)
+enum ft_status ft_stream_finish(struct ft_stream *stream, struct ft_result *out)
 {
-    (void)s;
-    (void)o;
+    (void)stream;
+    (void)out;
     return FT_NOT_IMPLEMENTED;
 }
 
-const char *ft_name(enum ft_status s)
+const char *ft_name(enum ft_status status)
 {
-    (void)s;
+    (void)status;
     return "not-implemented";
 }

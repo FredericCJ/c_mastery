@@ -22,7 +22,7 @@ def run(c,root):
  case('callback-sign','int step(unsigned x){return x==1;}int (*callback)(int)=step;','T02.02.b',1,'incompatible')
  case('signed-wrapper','static unsigned calls;static int step(unsigned x){++calls;return (int)x+1;}static int bridge(int x){if(x<0||x>1000)return -1;return step((unsigned)x);}int main(void){int (*cb)(int)=bridge;return cb(-1)!=-1||calls!=0||cb(7)!=8||calls!=1;}','T02.02.b',run=True)
  case('units-alias','typedef int Meters;typedef int Seconds;int speed(Meters d,Seconds t){return d/t;}int main(void){Meters d=12;Seconds t=3;return speed(t,d)!=0;}','T02.02.c',run=True)
- case('units-swapped','#include "types.h"\nTdStatus f(void){struct td_speed out;return td_speed((struct td_seconds){3},(struct td_meters){12},&out);}','T02.02.c',1,'incompatible')
+ case('units-swapped','#include "types.h"\nenum td_status f(void){struct td_speed out;return td_speed((struct td_seconds){3},(struct td_meters){12},&out);}','T02.02.c',1,'incompatible')
  case('prototype-name','int f(int prototype_only);int g(void){return prototype_only;}','T02.03.a',1,'prototype_only')
  case('scope-map','static int value=4;int f(int prototype_only);int main(void){int before=value;{int value=5;before+=value;}goto done;done:return before!=9||value!=4;}','T02.03.a',run=True)
  case('prototype-tag','int f(struct Private *p);struct Private{int n;};int f(struct Private *p){return p->n;}','T02.03.a',1,'conflicting')
@@ -100,9 +100,9 @@ def units(c,root):
  c.run(['gcc','-std=c17','-flto','-Werror=lto-type-mismatch',fixed,caller,'-o',d/'lto-good']);c.run([d/'lto-good'])
  c.group='T02.02.a'
  lab=root/'labs/type_interfaces';ref=root/'assessor/type_interfaces/types.c'
- left=c.write('units/opaque-left.c','#include "types.h"\nTdStatus left(void){return td_add(td_owner(0),7);}\n')
- right=c.write('units/opaque-right.c','#include "types.h"\nTdStatus right(int *out){return td_get(td_owner(0),out);}\n')
- main=c.write('units/opaque-main.c','#include "types.h"\nTdStatus left(void);enum td_status right(int*);int main(void){int n=91;return left()!=TD_OK||right(&n)!=TD_OK||n!=7;}\n')
+ left=c.write('units/opaque-left.c','#include "types.h"\nenum td_status left(void){return td_add(td_owner(0),7);}\n')
+ right=c.write('units/opaque-right.c','#include "types.h"\nenum td_status right(int *out){return td_get(td_owner(0),out);}\n')
+ main=c.write('units/opaque-main.c','#include "types.h"\nenum td_status left(void);enum td_status right(int*);int main(void){int n=91;return left()!=TD_OK||right(&n)!=TD_OK||n!=7;}\n')
  for cc in ['gcc','clang']:
   objects=[]
   for i,source in enumerate([left,right,main,ref]):

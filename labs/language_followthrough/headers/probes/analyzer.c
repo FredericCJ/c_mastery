@@ -1,3 +1,4 @@
+/* CM-SPECIMEN: negative probe; classify before running (see CONTRACTS.md). */
 #include <stddef.h>
 #if HH_MODEL == 0
 int hh_analysis(size_t i)

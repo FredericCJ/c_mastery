@@ -1,3 +1,4 @@
+/* Header independence: the header is the first include of this unit. */
 #include <headers.h>
 #include <limits.h>
 

@@ -1,3 +1,8 @@
+/*
+ * Learner scaffold: every function is an unfinished stub that returns its
+ * sentinel (NULL, 0 or TD_UNFINISHED). Replace each body with the behaviour
+ * documented in types.h and CONTRACTS.md; the tests reject the stubs.
+ */
 #include "types.h"
 
 int (*td_row_factory(void))[4]
@@ -15,93 +20,94 @@ struct td_callable td_wrapped_factory(void)
     return (struct td_callable){NULL};
 }
 
-struct td_opaque *td_owner(unsigned i)
+struct td_opaque *td_owner(unsigned index)
 {
-    (void)i;
+    (void)index;
     return NULL;
 }
 
-enum td_status td_get(const struct td_opaque *p, int *o)
+enum td_status td_get(const struct td_opaque *owner, int *out)
 {
-    (void)p;
-    (void)o;
+    (void)owner;
+    (void)out;
     return TD_UNFINISHED;
 }
 
-enum td_status td_add(struct td_opaque *p, int v)
+enum td_status td_add(struct td_opaque *owner, int delta)
 {
-    (void)p;
-    (void)v;
+    (void)owner;
+    (void)delta;
     return TD_UNFINISHED;
 }
 
-enum td_status td_speed(struct td_meters d, struct td_seconds t,
-                        struct td_speed *o)
+enum td_status td_speed(struct td_meters distance, struct td_seconds duration,
+                        struct td_speed *out)
 {
-    (void)d;
-    (void)t;
-    (void)o;
+    (void)distance;
+    (void)duration;
+    (void)out;
     return TD_UNFINISHED;
 }
 
-enum td_status td_distance(struct td_speed v, struct td_seconds t,
-                           struct td_meters *o)
+enum td_status td_distance(struct td_speed speed, struct td_seconds duration,
+                           struct td_meters *out)
 {
-    (void)v;
-    (void)t;
-    (void)o;
+    (void)speed;
+    (void)duration;
+    (void)out;
     return TD_UNFINISHED;
 }
 
-int td_step(int v, void *c)
+int td_step(int value, void *context)
 {
-    (void)v;
-    (void)c;
+    (void)value;
+    (void)context;
     return 0;
 }
 
-int td_adapter(void *c, int v)
+int td_adapter(void *context, int value)
 {
-    (void)v;
-    (void)c;
+    (void)context;
+    (void)value;
     return 0;
 }
 
-enum td_status td_rows(const int (*a)[4], size_t n, td_dispatch_fn f, void *c,
-                       int *o)
+enum td_status td_rows(const int (*rows)[4], size_t count,
+                       td_dispatch_fn callback, void *context, int *out)
 {
-    (void)a;
-    (void)n;
-    (void)f;
-    (void)c;
-    (void)o;
+    (void)rows;
+    (void)count;
+    (void)callback;
+    (void)context;
+    (void)out;
     return TD_UNFINISHED;
 }
 
-enum td_status td_submit(struct td_job *j, td_dispatch_fn f, void *c, int v)
+enum td_status td_submit(struct td_job *job, td_dispatch_fn callback,
+                         void *context, int argument)
 {
-    (void)j;
-    (void)f;
-    (void)c;
-    (void)v;
+    (void)job;
+    (void)callback;
+    (void)context;
+    (void)argument;
     return TD_UNFINISHED;
 }
 
-enum td_status td_run(struct td_job *j, int *o)
+enum td_status td_run(struct td_job *job, int *out)
 {
-    (void)j;
-    (void)o;
+    (void)job;
+    (void)out;
     return TD_UNFINISHED;
 }
 
-enum td_status td_cancel(struct td_job *j)
+enum td_status td_cancel(struct td_job *job)
 {
-    (void)j;
+    (void)job;
     return TD_UNFINISHED;
 }
 
-enum td_status td_reset(struct td_job *j)
+enum td_status td_reset(struct td_job *job)
 {
-    (void)j;
+    (void)job;
     return TD_UNFINISHED;
 }

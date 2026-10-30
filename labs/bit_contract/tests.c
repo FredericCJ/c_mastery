@@ -10,6 +10,8 @@
         }                                                     \
     } while (0)
 
+/* Shifts, rotations, fields, edits and statistics. Sentinels: outputs preset
+ * to 917 (or 91..93 for stats) prove that a rejected call writes nothing. */
 static int bitops(void)
 {
     fb_word out = 917;
@@ -53,6 +55,8 @@ static int bitops(void)
     return 0;
 }
 
+/* Big- and little-endian codecs at several buffer offsets, a value split across
+ * two spans, and records with known and unknown versions. */
 static int codecs(void)
 {
     unsigned char wire[12] = {0};
@@ -81,7 +85,8 @@ static int codecs(void)
         T(fb_decode((struct fb_span){wire + off, 4}, FB_BIG, &out) == FB_OK &&
           out == UINT32_C(0x12345678));
     }
-    unsigned char a[] = {18, 52}, b[] = {86, 120};
+    unsigned char a[] = {18, 52};
+    unsigned char b[] = {86, 120};
     T(fb_decode_two((struct fb_span){a, 2}, (struct fb_span){b, 2}, FB_BIG,
                     &out) == FB_OK &&
       out == UINT32_C(0x12345678));
@@ -123,6 +128,8 @@ static int codecs(void)
     return 0;
 }
 
+/* The teaching register (write-1-to-clear, read-to-clear) and the bounded
+ * plugin descriptor negotiation. */
 static int protocols(void)
 {
     struct fb_register r;

@@ -31,5 +31,5 @@ def run(c,root):
    c.run([provider,*common,'-O2','-fPIC','-shared','-fpack-struct=1','-DFB_PLUGIN_VERSION='+str(version),ref/'plugin.c','-Wl,-soname,'+soname,'-o',lib]);c.run(['readelf','-d',lib],contains=soname);symbols=c.run(['nm','-D','--defined-only',lib],contains='fb_plugin_copy');c.require(sum(' T ' in x for x in symbols.splitlines())==1,'single typed plugin entry')
    for consumer in ['gcc','clang']:
     c.group=provider+':plugin:'+str(version)+':'+consumer;exe=c.root/(provider+'-'+str(version)+'-'+consumer+'-client')
-    c.run([consumer,*common,'-O1','-g','-fno-pie','-no-pie','-fsanitize=address,undefined',*sources,ref/'plugin_client.c','-L'+str(c.root),'-l:'+soname,'-Wl,-rpath,'+str(c.root),'-o',exe])
+    c.run([consumer,*common,'-O1','-g','-fno-pie','-no-pie','-fsanitize=address,undefined','-I'+str(root/'labs/support'),*sources,ref/'plugin_client.c',root/'labs/support/cm_parse.c','-L'+str(c.root),'-l:'+soname,'-Wl,-rpath,'+str(c.root),'-o',exe])
     c.run([exe,str(version)],contains='FB_PLUGIN_PASS variant='+str(version)+' exact_available='+str(8 if version in [1,4] else 12 if version==2 else 4)+' negotiated_without_tail_read',env={'ASAN_OPTIONS':'detect_leaks=1:abort_on_error=1','UBSAN_OPTIONS':'halt_on_error=1'})

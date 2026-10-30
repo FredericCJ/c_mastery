@@ -1,3 +1,4 @@
+/* CM-SPECIMEN: negative probe; classify before running (see CONTRACTS.md). */
 #ifndef HH_EXPERIMENT_H
 #define HH_EXPERIMENT_H
 #if HH_EXTERN

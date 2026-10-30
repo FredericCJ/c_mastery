@@ -1,3 +1,4 @@
+/* Header independence: <limits.h> first, then the header included twice. */
 #include <limits.h>
 #include <headers.h>
 #include <headers.h>

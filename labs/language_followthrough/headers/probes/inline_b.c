@@ -1,3 +1,5 @@
+/* Consumer B of the inline experiment; takes the helper address unless
+ * HH_CALL_ONLY. */
 #include "experiment.h"
 
 unsigned hh_experiment_b(unsigned x)

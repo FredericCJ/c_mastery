@@ -1,4 +1,10 @@
-/* Compile only. No portable golden result and no execution requirement. */
+/* CM-SPECIMEN: signed overflow, division by zero, unrepresentable quotient
+ * (INT_MIN / -1) and normalization overflow, each in an unguarded function.
+ *
+ * Compile only. No portable golden result and no execution requirement: the
+ * functions are never linked into a program or called, because calling them
+ * with the dossier's arguments is undefined behaviour (SEI CERT INT32-C,
+ * INT33-C). Their guarded counterparts are in integer.c. */
 #include <limits.h>
 
 int fi_bad_add(int a, int b)

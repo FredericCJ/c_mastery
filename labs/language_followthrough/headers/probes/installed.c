@@ -1,3 +1,4 @@
+/* Client of the installed header and static library only. */
 #include <headers.h>
 
 int main(void)

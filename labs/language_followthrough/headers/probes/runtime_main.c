@@ -1,3 +1,4 @@
+/* CM-SPECIMEN: negative probe; classify before running (see CONTRACTS.md). */
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>

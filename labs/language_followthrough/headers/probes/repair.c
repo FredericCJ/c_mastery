@@ -1,3 +1,4 @@
+/* Positive control: repairs every translation defect in the negative probes. */
 int hh_syntax(void)
 {
     return 0;

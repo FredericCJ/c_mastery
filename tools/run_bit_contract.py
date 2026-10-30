@@ -9,7 +9,7 @@ MUTANTS={1:'fb_shift(8,0x1234,4,FB_RIGHT,&out)==FB_OK&&out==3',2:'FB_CONFLICT&&o
 def module(name,p):
  s=importlib.util.spec_from_file_location(name,p);m=importlib.util.module_from_spec(s);s.loader.exec_module(m);return m
 common=module('fi_common',ROOT/'assessor/legacy_systems/toolchain/common.py');sha=common.sha
-def inputs():return sorted({Path(__file__),RUNTIME,ROOT/'assessor/legacy_systems/toolchain/common.py',INTEGER,INTEGER_INCLUDE/'integer.h',*[p for base in [LAB,REF] for p in base.rglob('*') if p.is_file() and '__pycache__' not in p.parts]})
+def inputs():return sorted({Path(__file__),RUNTIME,ROOT/'assessor/legacy_systems/toolchain/common.py',INTEGER,INTEGER_INCLUDE/'integer.h',ROOT/'labs/support/cm_parse.c',ROOT/'labs/support/cm_parse.h',*[p for base in [LAB,REF] for p in base.rglob('*') if p.is_file() and '__pycache__' not in p.parts]})
 def emulator(elf):return ['qemu-system-arm','-M','mps2-an386','-cpu','cortex-m4','-display','none','-monitor','none','-serial','none','-semihosting-config','enable=on,target=native','-kernel',elf]
 def main():
  p=argparse.ArgumentParser();p.add_argument('--report',default=REPORT);a=p.parse_args();w=ROOT/'build/bit-contract'/datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S%fZ');c=common.Campaign(w,ROOT/a.report);pins={p.relative_to(ROOT).as_posix():sha(p) for p in inputs()};error=None

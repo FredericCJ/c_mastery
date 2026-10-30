@@ -1,3 +1,5 @@
+/* Driver: exit 41/42/43 name the failed expectation. Never run if the link
+ * is unsatisfied. */
 typedef unsigned (*hh_experiment_fn)(unsigned);
 unsigned hh_experiment_a(unsigned);
 unsigned hh_experiment_b(unsigned);

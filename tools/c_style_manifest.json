@@ -56,7 +56,80 @@
       "reason": "Freestanding declarations of the standard library names a hosted header would provide."
     }
   ],
-  "specimens": [],
+  "specimens": [
+    {
+      "path": "assessor/bit_contract/analysis_only.c",
+      "defect": "forged struct overlay on a byte buffer, clz(0), and a rotate by the full word width, each in an unguarded function. Compile only; never linked or called. Packing a struct removes padding but does not establish effective type, lifetime, wire version or length, or alignment legality for an overlay forged onto bytes (SEI CERT EXP36-C, EXP39-C); __builtin_clz(0) and a shift by the operand width are undefined (CERT INT34-C). The guarded versions are in bits.c and intrinsics.c"
+    },
+    {
+      "path": "assessor/bit_contract/plugin.c",
+      "defect": "plugin descriptor whose declared size exceeds the octets it provides (FB_PLUGIN_VERSION 4). Independent producer of the plugin descriptor, built as a shared object by a separate compiler invocation so the consumer sees only the wire format and the fb_plugin_copy entry point. FB_PLUGIN_VERSION selects the teaching variant; each descriptor is big-endian: octets 0..1 version, 2..3 total size, 4..7 feature bits, and for version 2 octets 8..11 maximum items"
+    },
+    {
+      "path": "assessor/foundation_list/analysis_only.c",
+      "defect": "signed overflow checked after the addition has executed. Compile-only: no entry point, no executable golden output"
+    },
+    {
+      "path": "assessor/foundation_semantics/analysis_only.c",
+      "defect": "undefined behaviour (out-of-bounds read, uninitialized read, partially initialized read, unsequenced modification, unspecified argument evaluation order). NEVER LINK OR EXECUTE. These functions are translated with -c only. Compiler warnings are observations, not a semantic oracle"
+    },
+    {
+      "path": "assessor/foundation_semantics/wrong_matrix.c",
+      "defect": "constraint violation (table of int pointers passed where an array of three-int rows is required). Compile-only negative translation: the build must be rejected with an \"incompatible\" diagnostic, never linked"
+    },
+    {
+      "path": "assessor/foundation_semantics/wrong_row.c",
+      "defect": "constraint violation (const int * passed where a pointer to a three-int row is required). Compile-only negative translation: the build must be rejected with an \"incompatible\" diagnostic, never linked"
+    },
+    {
+      "path": "assessor/integer_kernel/analysis_only.c",
+      "defect": "signed overflow, division by zero, unrepresentable quotient (INT_MIN / -1) and normalization overflow, each in an unguarded function. Compile only. No portable golden result and no execution requirement: the functions are never linked into a program or called, because calling them with the dossier's arguments is undefined behaviour (SEI CERT INT32-C, INT33-C). Their guarded counterparts are in integer.c"
+    },
+    {
+      "path": "assessor/qualified_views/analysis_only.c",
+      "defect": "returns pointers to expired block-scope objects, and reads an indeterminate value. Analysis only: the campaign compiles this file to an object (-c) and never links or calls it. Do not \"fix\" the defects; the lab teaches how to classify them (see ANALYSIS.md) and how to repair the pattern with caller-owned storage (fv_initialize in views.c)"
+    },
+    {
+      "path": "labs/language_followthrough/headers/probes/analyzer.c",
+      "defect": "out-of-bounds reads on purpose for models 0 and 1. HH_MODEL 0: unchecked index; 1: index 4 reachable; 2: checked repair. Analyzed, never run. Do not repair this file; the lab teaches the defect"
+    },
+    {
+      "path": "labs/language_followthrough/headers/probes/arity.c",
+      "defect": "call with too few arguments to a prototyped function. Translation must be rejected; repair.c is the corrected control. Do not repair this file; the lab teaches the defect"
+    },
+    {
+      "path": "labs/language_followthrough/headers/probes/experiment.h",
+      "defect": "inline function with no external definition (HH_EXTERN=0). Linking fails or succeeds by dialect and optimization; the campaign records which. Do not repair this file; the lab teaches the defect"
+    },
+    {
+      "path": "labs/language_followthrough/headers/probes/extension.c",
+      "defect": "GNU statement expression (not ISO C). Accepted under -std=gnu17, rejected under strict -std=c17 -Wpedantic. Do not repair this file; the lab teaches the defect"
+    },
+    {
+      "path": "labs/language_followthrough/headers/probes/missing_include.h",
+      "defect": "header uses size_t without including <stddef.h>. Works only after a transitive declaration of size_t; see missing_masked.c. Do not repair this file; the lab teaches the defect"
+    },
+    {
+      "path": "labs/language_followthrough/headers/probes/redeclaration.c",
+      "defect": "conflicting redeclaration (same name, different return type). Translation must be rejected as a constraint violation. Do not repair this file; the lab teaches the defect"
+    },
+    {
+      "path": "labs/language_followthrough/headers/probes/runtime.c",
+      "defect": "unchecked array index (out-of-bounds read for index >= 4). Valid for index 3; index 4 is executed only under AddressSanitizer. Do not repair this file; the lab teaches the defect"
+    },
+    {
+      "path": "labs/language_followthrough/headers/probes/runtime_main.c",
+      "defect": "unchecked command-line index passed to an unchecked reader. Driver for runtime.c: index 4 is run only in a separate sanitized process. Do not repair this file; the lab teaches the defect"
+    },
+    {
+      "path": "labs/language_followthrough/headers/probes/syntax.c",
+      "defect": "syntax error (unbalanced declarator). Translation must be rejected; the campaign checks the diagnostic. Do not repair this file; the lab teaches the defect"
+    },
+    {
+      "path": "labs/language_followthrough/headers/probes/type.c",
+      "defect": "integer converted to pointer without a cast. A constraint violation: strict C17 rejects it, permissive modes only warn. Do not repair this file; the lab teaches the defect"
+    }
+  ],
   "typedef_lessons": [],
   "families": {
     "adt": {
