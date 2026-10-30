@@ -4,28 +4,41 @@
 #ifndef LW_MUTANT
 #define LW_MUTANT 0
 #endif
+/* Operands with a visible side effect: each call is counted in the
+   observation, so the tests can tell how many times a macro evaluated its
+   argument. The returned values are fixed so results are predictable. */
+enum
+{
+    LEFT_VALUE = 3,
+    RIGHT_VALUE = 7
+};
+
 static int left(struct lw_observation *s)
 {
     ++s->left;
-    return 3;
+    return LEFT_VALUE;
 }
 
 static int right(struct lw_observation *s)
 {
     ++s->right;
-    return 7;
+    return RIGHT_VALUE;
 }
 
+/* Format into the observation's fixed text buffer and count the call.
+   Returns 0, or -1 if formatting failed or the text was truncated. */
 static int emit(struct lw_observation *s, const char *format, ...)
 {
-    int n;
     va_list args;
     ++s->calls;
     va_start(args, format);
-    n = vsnprintf(s->text, sizeof s->text, format, args);
+    int n = vsnprintf(s->text, sizeof s->text, format, args);
     va_end(args);
     return n < 0 || (unsigned)n >= sizeof s->text ? -1 : 0;
 }
+
+/* Logging wrappers under study. Mutant 1 expands LW_TRACE twice, which makes
+   the wrapper evaluate its variadic arguments twice. */
 #if LW_MUTANT == 1
 #define LW_TRACE(s, ...) (emit((s), __VA_ARGS__), emit((s), __VA_ARGS__))
 #else
@@ -35,11 +48,20 @@ static int emit(struct lw_observation *s, const char *format, ...)
 #define LW_ZERO(s, message) emit((s), "%s", (message))
 #define LW_DISABLED(...) ((void)0)
 
+enum
+{
+    TRACE_SCENARIOS = 6,
+    MIN_SCENARIOS = 4,
+    STATEMENT_SCENARIOS = 6
+};
+
+/* Run trace scenario n (0..5) and store the observation. Returns 0, or -1 for
+   a null out or unknown n, leaving *out unchanged. */
 int lw_trace(unsigned n, struct lw_observation *out)
 {
     struct lw_observation s = {0};
     int status = 0;
-    if (!out || n > 5)
+    if (!out || n >= TRACE_SCENARIOS)
     {
         return -1;
     }
@@ -72,6 +94,9 @@ int lw_trace(unsigned n, struct lw_observation *out)
     return 0;
 }
 
+/* Deliberately weak macros: MIN_BAD lacks parentheses (precedence bug) and
+   MIN_REPEAT evaluates the chosen operand twice (double side effect). The
+   tests observe both defects. */
 #define MIN_BAD(x, y) x < y ? x : y
 #define MIN_REPEAT(x, y) ((x) < (y) ? (x) : (y))
 
@@ -105,10 +130,11 @@ static inline struct lp_box box_min(struct lp_box x, struct lp_box y)
 #define LW_MIN(x, y) \
     _Generic((x), int: typed_min, struct lp_box: box_min)((x), (y))
 
+/* Run minimum scenario n (0..3). Same contract as lw_trace. */
 int lw_min(unsigned n, struct lw_observation *out)
 {
     struct lw_observation s = {0};
-    if (!out || n > 3)
+    if (!out || n >= MIN_SCENARIOS)
     {
         return -1;
     }
@@ -161,10 +187,11 @@ static inline void set_value(struct lw_observation *s, int v)
     ++s->calls;
 }
 
+/* Run statement-macro scenario n (0..5). Same contract as lw_trace. */
 int lw_statement(unsigned n, struct lw_observation *out)
 {
     struct lw_observation s = {0};
-    if (!out || n > 5)
+    if (!out || n >= STATEMENT_SCENARIOS)
     {
         return -1;
     }

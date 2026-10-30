@@ -56,6 +56,7 @@ static int wire(void)
     return 0;
 }
 
+/* Oracle records: "e|d|t value". Outputs start at sentinels. */
 static int oracle(void)
 {
     char op;
@@ -90,34 +91,34 @@ static int oracle(void)
     return 0;
 }
 
+static int metrics(void)
+{
+    puts(
+        "{\"wire_bytes\":2,\"value_bits\":13,\"table_entries\":32,\"triangle_max\":65535}");
+    return 0;
+}
+
+struct lp_case
+{
+    const char *name;
+    int (*run)(void);
+};
+
+static const struct lp_case cases[] = {
+    {"canonical", canonical}, {"sign", sign},     {"table", table},
+    {"wire", wire},           {"oracle", oracle}, {"metrics", metrics},
+};
+
+/* Exit status: 0 pass, 1 failed check, 2 unknown case name. */
 int main(int argc, char **argv)
 {
     CHECK(argc == 2);
-    if (!strcmp(argv[1], "canonical"))
+    for (size_t i = 0; i < sizeof cases / sizeof cases[0]; i++)
     {
-        return canonical();
-    }
-    if (!strcmp(argv[1], "sign"))
-    {
-        return sign();
-    }
-    if (!strcmp(argv[1], "table"))
-    {
-        return table();
-    }
-    if (!strcmp(argv[1], "wire"))
-    {
-        return wire();
-    }
-    if (!strcmp(argv[1], "oracle"))
-    {
-        return oracle();
-    }
-    if (!strcmp(argv[1], "metrics"))
-    {
-        printf(
-            "{\"wire_bytes\":2,\"value_bits\":13,\"table_entries\":32,\"triangle_max\":65535}\n");
-        return 0;
+        if (!strcmp(argv[1], cases[i].name))
+        {
+            return cases[i].run();
+        }
     }
     return 2;
 }

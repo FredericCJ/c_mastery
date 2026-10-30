@@ -56,9 +56,14 @@ _Static_assert(sizeof aliases / sizeof *aliases ==
                    (LR_ALIAS_COUNT ? LR_ALIAS_COUNT : 1u),
                "alias count");
 
+/* Binary search of names[], which the generator sorts by ascending id.
+   Returns the index of id, or LR_COMMAND_COUNT when absent. *probes receives
+   the number of comparisons made, which lr_probes() exposes so a test can
+   bound the search cost. */
 static size_t find(uint32_t id, size_t *probes)
 {
-    size_t lo = 0, hi = LR_COMMAND_COUNT;
+    size_t lo = 0;
+    size_t hi = LR_COMMAND_COUNT;
     *probes = 0;
     while (lo < hi)
     {
@@ -76,6 +81,7 @@ static size_t find(uint32_t id, size_t *probes)
     return lo < LR_COMMAND_COUNT && names[lo].id == id ? lo : LR_COMMAND_COUNT;
 }
 
+/* Strict string equality without libc: both arguments are non-null. */
 static int equal(const char *a, const char *b)
 {
     while (*a && *a == *b)
@@ -91,21 +97,24 @@ size_t lr_count(void)
     return LR_COMMAND_COUNT;
 }
 
+/* Comparisons a lookup of id performs (also for absent ids). */
 size_t lr_probes(uint32_t id)
 {
-    size_t n;
-    (void)find(id, &n);
-    return n;
+    size_t probes;
+    (void)find(id, &probes);
+    return probes;
 }
 
+/* Run the handler for id on x in [0, 100]. Returns 0 and stores *out, or -1
+   (null out, x out of range, unknown id) leaving *out unchanged. */
 int lr_dispatch(uint32_t id, int x, int *out)
 {
-    size_t n, i;
+    size_t probes;
     if (!out || x < 0 || x > 100)
     {
         return -1;
     }
-    i = find(id, &n);
+    size_t i = find(id, &probes);
     if (i == LR_COMMAND_COUNT)
     {
         if (LR_MUTANT == 1)
@@ -118,14 +127,16 @@ int lr_dispatch(uint32_t id, int x, int *out)
     return 0;
 }
 
+/* Canonical name for id; *out borrows static storage. Returns -1 for a null
+   out or unknown id, leaving *out unchanged. */
 int lr_name(uint32_t id, const char **out)
 {
-    size_t n, i;
+    size_t probes;
     if (!out)
     {
         return -1;
     }
-    i = find(id, &n);
+    size_t i = find(id, &probes);
     if (i == LR_COMMAND_COUNT)
     {
         return -1;
@@ -134,6 +145,8 @@ int lr_name(uint32_t id, const char **out)
     return 0;
 }
 
+/* Id for a canonical name, else for an alias; linear scan. Returns -1 for a
+   null argument or unknown name, leaving *out unchanged. */
 int lr_id(const char *name, uint32_t *out)
 {
     if (!name || !out)
@@ -159,6 +172,8 @@ int lr_id(const char *name, uint32_t *out)
     return -1;
 }
 
+/* i-th entry in ascending id order; *name borrows static storage. Returns -1
+   for a null output or i >= lr_count(). */
 int lr_at(size_t i, uint32_t *id, const char **name)
 {
     if (!id || !name || i >= LR_COMMAND_COUNT)

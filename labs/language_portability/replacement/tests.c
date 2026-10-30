@@ -12,12 +12,18 @@
         }                                                                   \
     } while (0)
 
+/* Ledger of the callbacks. live[id - 1] is the block acquire() handed out for
+   resource id and not yet released. */
 struct lp_track
 {
     void *live[2];
-    unsigned fail, calls, releases, order, fault;
-    struct le_owner *observed;
-    unsigned empty;
+    unsigned fail; /* id whose acquisition is refused; 0 for none */
+    unsigned calls;
+    unsigned releases;
+    unsigned order; /* released ids as decimal digits: 21 is 2 then 1 */
+    unsigned fault; /* releases of an unknown id or block */
+    struct le_owner *observed; /* owner inspected at each release */
+    unsigned empty; /* releases that saw the observed owner already empty */
 };
 static struct lp_track t;
 
@@ -96,9 +102,9 @@ static int transfer(void)
     for (unsigned id = 1; id <= 2; id++)
     {
         struct le_owner out = {0};
-        CHECK(
-            le_run(ops(), id, &out) ==
-            LE_OK); /* Observe independent release ledger before using transferred pointer. */
+        /* Observe the independent release ledger before using the
+           transferred pointer. */
+        CHECK(le_run(ops(), id, &out) == LE_OK);
         CHECK(t.releases == 1 && t.order == 3 - id);
         CHECK(out.data && out.id == id && out.data[0] == (id == 1 ? 1 : 17));
         t.observed = &out;
@@ -113,9 +119,12 @@ static int transfer(void)
     return 0;
 }
 
+/* Read "fail transfer" records and print the ledger before and after the
+   returned owner is dropped. */
 static int oracle(void)
 {
-    unsigned fail, tr;
+    unsigned fail;
+    unsigned tr;
     while (scanf("%u %u", &fail, &tr) == 2)
     {
         struct le_owner out = {0};
@@ -130,32 +139,37 @@ static int oracle(void)
     return 0;
 }
 
+static int metrics(void)
+{
+    printf(
+        "{\"owner_bytes\":%zu,\"resource_bytes\":24,\"maximum_acquisitions\":2}\n",
+        sizeof(struct le_owner));
+    return 0;
+}
+
+struct lp_case
+{
+    const char *name;
+    int (*run)(void);
+};
+
+static const struct lp_case cases[] = {{"failure", failure},
+                                       {"order", order},
+                                       {"transfer", transfer},
+                                       {"oracle", oracle},
+                                       {"metrics", metrics}};
+
+/* Exit status: 0 pass, 1 failed check, 2 unknown case name. */
 int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     atexit(cleanup);
-    if (!strcmp(argv[1], "failure"))
+    for (size_t i = 0; i < sizeof cases / sizeof cases[0]; i++)
     {
-        return failure();
-    }
-    if (!strcmp(argv[1], "order"))
-    {
-        return order();
-    }
-    if (!strcmp(argv[1], "transfer"))
-    {
-        return transfer();
-    }
-    if (!strcmp(argv[1], "oracle"))
-    {
-        return oracle();
-    }
-    if (!strcmp(argv[1], "metrics"))
-    {
-        printf(
-            "{\"owner_bytes\":%zu,\"resource_bytes\":24,\"maximum_acquisitions\":2}\n",
-            sizeof(struct le_owner));
-        return 0;
+        if (!strcmp(argv[1], cases[i].name))
+        {
+            return cases[i].run();
+        }
     }
     return 2;
 }

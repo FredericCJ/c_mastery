@@ -64,86 +64,97 @@ static int select_case(void)
     return 0;
 }
 
+static int oracle_divide(void)
+{
+    uint64_t x;
+    uint64_t y;
+    CHECK(scanf("%" SCNu64 " %" SCNu64, &x, &y) == 2);
+    uint64_t out = 77;
+    enum lf_status s = lf_div(x, y, &out);
+    printf("%d %" PRIu64 "\n", s, out);
+    return 0;
+}
+
+static int oracle_signed_op(char op)
+{
+    int64_t a;
+    int64_t b;
+    CHECK(scanf("%" SCNd64 " %" SCNd64, &a, &b) == 2);
+    if (op == 'a')
+    {
+        int32_t out = 77;
+        enum lf_status s = lf_add((int32_t)a, (int32_t)b, &out);
+        printf("%d %" PRId32 "\n", s, out);
+    }
+    else if (op == 'm')
+    {
+        uint16_t out = 77;
+        enum lf_status s = lf_mixed((int32_t)a, (uint32_t)b, &out);
+        printf("%d %u\n", s, out);
+    }
+    else if (op == 'b')
+    {
+        struct lf_bits out = {9, 9, 9};
+        enum lf_status s = lf_bits((uint32_t)a, &out);
+        printf("%d %u %u %u\n", s, out.leading, out.trailing, out.width);
+    }
+    else if (op == 's')
+    {
+        unsigned out = 77;
+        enum lf_status s = lf_select((unsigned)a, (unsigned)b, &out);
+        printf("%d %u\n", s, out);
+    }
+    else
+    {
+        CHECK(0);
+    }
+    return 0;
+}
+
+/* Read "op operand operand" records and print status plus outputs. The
+   output variables start at a sentinel so an untouched output is visible. */
 static int oracle(void)
 {
     char op;
-    int64_t a, b;
-    uint64_t x, y;
     while (scanf(" %c", &op) == 1)
     {
-        if (op == 'd')
+        int failed = op == 'd' ? oracle_divide() : oracle_signed_op(op);
+        if (failed)
         {
-            CHECK(scanf("%" SCNu64 " %" SCNu64, &x, &y) == 2);
-            uint64_t out = 77;
-            enum lf_status s = lf_div(x, y, &out);
-            printf("%d %" PRIu64 "\n", s, out);
-            continue;
-        }
-        CHECK(scanf("%" SCNd64 " %" SCNd64, &a, &b) == 2);
-        if (op == 'a')
-        {
-            int32_t out = 77;
-            enum lf_status s = lf_add((int32_t)a, (int32_t)b, &out);
-            printf("%d %" PRId32 "\n", s, out);
-        }
-        else if (op == 'm')
-        {
-            uint16_t out = 77;
-            enum lf_status s = lf_mixed((int32_t)a, (uint32_t)b, &out);
-            printf("%d %u\n", s, out);
-        }
-        else if (op == 'b')
-        {
-            struct lf_bits out = {9, 9, 9};
-            enum lf_status s = lf_bits((uint32_t)a, &out);
-            printf("%d %u %u %u\n", s, out.leading, out.trailing, out.width);
-        }
-        else if (op == 's')
-        {
-            unsigned out = 77;
-            enum lf_status s = lf_select((unsigned)a, (unsigned)b, &out);
-            printf("%d %u\n", s, out);
-        }
-        else
-        {
-            CHECK(0);
+            return 1;
         }
     }
     return 0;
 }
 
+static int metrics(void)
+{
+    puts("{\"division_steps\":64,\"bit_width\":32,\"observation_bits\":5}");
+    return 0;
+}
+
+struct lp_case
+{
+    const char *name;
+    int (*run)(void);
+};
+
+static const struct lp_case cases[] = {
+    {"add", add},         {"mixed", mixed},        {"bits", bits},
+    {"divide", divide},   {"select", select_case}, {"oracle", oracle},
+    {"metrics", metrics},
+};
+
+/* Exit status: 0 pass, 1 failed check, 2 unknown case name. */
 int main(int argc, char **argv)
 {
     CHECK(argc == 2);
-    if (!strcmp(argv[1], "add"))
+    for (size_t i = 0; i < sizeof cases / sizeof cases[0]; i++)
     {
-        return add();
-    }
-    if (!strcmp(argv[1], "mixed"))
-    {
-        return mixed();
-    }
-    if (!strcmp(argv[1], "bits"))
-    {
-        return bits();
-    }
-    if (!strcmp(argv[1], "divide"))
-    {
-        return divide();
-    }
-    if (!strcmp(argv[1], "select"))
-    {
-        return select_case();
-    }
-    if (!strcmp(argv[1], "oracle"))
-    {
-        return oracle();
-    }
-    if (!strcmp(argv[1], "metrics"))
-    {
-        printf(
-            "{\"division_steps\":64,\"bit_width\":32,\"observation_bits\":5}\n");
-        return 0;
+        if (!strcmp(argv[1], cases[i].name))
+        {
+            return cases[i].run();
+        }
     }
     return 2;
 }

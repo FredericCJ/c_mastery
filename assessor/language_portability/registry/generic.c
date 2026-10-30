@@ -9,23 +9,27 @@ static int next(unsigned *n)
     return 3;
 }
 
+enum
+{
+    SCENARIO_LAST = 8
+};
+
+/* Evaluate one _Generic scenario. r.selection records which association was
+   chosen and r.evaluated counts how often the operand's side effect ran.
+   Returns 0, or -1 (null out, scenario above 8) leaving *out unchanged. */
 int lr_generic(unsigned scenario, struct lr_generic *out)
 {
-    struct lr_generic r;
     typedef int lp_alias;
     lp_alias a = 3;
     const int c = 4;
     volatile int v = 5;
     int array[3] = {2, 4, 6};
     const int ca[3] = {1, 3, 5};
-    if (!out || scenario > 8)
+    if (!out || scenario > SCENARIO_LAST)
     {
         return -1;
     }
-    r.selection = 0;
-    r.value = 0;
-    r.real = 0.0;
-    r.evaluated = 0;
+    struct lr_generic r = {0};
     switch (scenario)
     {
         case 0:

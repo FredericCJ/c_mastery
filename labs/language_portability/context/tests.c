@@ -17,6 +17,8 @@
         }                                                      \
     } while (0)
 
+/* Field-wise equality: the decoder state must be bytewise unchanged after a
+   refused feed, and struct padding is not compared. */
 static int same(const struct lc_utf *a, const struct lc_utf *b)
 {
     return a->scalar == b->scalar && a->minimum == b->minimum &&
@@ -116,66 +118,80 @@ static void combining(void)
           x == 1 && y == 2);
 }
 
+enum
+{
+    ORACLE_MAX_BYTES = 8,
+    NOT_SET = 77
+};
+
+/* Read "n split byte..." records (bytes in hex) and print the status and the
+   scalar count after feeding the bytes in two pieces at offset split. */
+static void oracle(void)
+{
+    size_t n;
+    size_t split;
+    while (scanf("%zu %zu", &n, &split) == 2)
+    {
+        CHECK(n <= ORACLE_MAX_BYTES && split <= n);
+        unsigned char bytes[ORACLE_MAX_BYTES];
+        for (size_t i = 0; i < n; ++i)
+        {
+            unsigned v;
+            CHECK(scanf("%x", &v) == 1 && v <= 255);
+            bytes[i] = (unsigned char)v;
+        }
+        struct lc_utf s;
+        lc_utf_init(&s);
+        int status = lc_utf_feed(&s, bytes, split);
+        if (status == LC_OK)
+        {
+            status = lc_utf_feed(&s, bytes + split, n - split);
+        }
+        size_t out = NOT_SET;
+        if (status == LC_OK)
+        {
+            status = lc_utf_finish(&s, &out);
+        }
+        printf("%d %zu\n", status, out);
+    }
+}
+
+static void metrics(void)
+{
+    printf(
+        "{\"utf_bytes\":%zu,\"locale_bytes\":%zu,\"byte_limit\":64,\"wchar_bits\":%zu}\n",
+        sizeof(struct lc_utf), sizeof(struct lc_locale),
+        sizeof(wchar_t) * CHAR_BIT);
+}
+
+struct lp_case
+{
+    const char *name;
+    void (*run)(void);
+    int prints_verdict; /* 1: print "LP <name> validated" after success */
+};
+
+static const struct lp_case cases[] = {
+    {"oracle", oracle, 0},      {"metrics", metrics, 0},
+    {"strict", strict, 1},      {"partial", partial, 1},
+    {"locale", locale_case, 1}, {"combining", combining, 1}};
+
+/* Exit status: 0 pass, 1 failed check (CHECK exits). */
 int main(int argc, char **argv)
 {
     CHECK(argc == 2);
-    if (!strcmp(argv[1], "oracle"))
+    for (size_t i = 0; i < sizeof cases / sizeof cases[0]; i++)
     {
-        size_t n, split;
-        while (scanf("%zu %zu", &n, &split) == 2)
+        if (!strcmp(argv[1], cases[i].name))
         {
-            CHECK(n <= 8 && split <= n);
-            unsigned char bytes[8];
-            for (size_t i = 0; i < n; ++i)
+            cases[i].run();
+            if (cases[i].prints_verdict)
             {
-                unsigned v;
-                CHECK(scanf("%x", &v) == 1 && v <= 255);
-                bytes[i] = (unsigned char)v;
+                printf("LP %s validated\n", argv[1]);
             }
-            struct lc_utf s;
-            lc_utf_init(&s);
-            int status = lc_utf_feed(&s, bytes, split);
-            if (status == LC_OK)
-            {
-                status = lc_utf_feed(&s, bytes + split, n - split);
-            }
-            size_t out = 77;
-            if (status == LC_OK)
-            {
-                status = lc_utf_finish(&s, &out);
-            }
-            printf("%d %zu\n", status, out);
+            return 0;
         }
-        return 0;
     }
-    if (!strcmp(argv[1], "metrics"))
-    {
-        printf(
-            "{\"utf_bytes\":%zu,\"locale_bytes\":%zu,\"byte_limit\":64,\"wchar_bits\":%zu}\n",
-            sizeof(struct lc_utf), sizeof(struct lc_locale),
-            sizeof(wchar_t) * CHAR_BIT);
-        return 0;
-    }
-    if (!strcmp(argv[1], "strict"))
-    {
-        strict();
-    }
-    else if (!strcmp(argv[1], "partial"))
-    {
-        partial();
-    }
-    else if (!strcmp(argv[1], "locale"))
-    {
-        locale_case();
-    }
-    else if (!strcmp(argv[1], "combining"))
-    {
-        combining();
-    }
-    else
-    {
-        CHECK(0);
-    }
-    printf("LP %s validated\n", argv[1]);
-    return 0;
+    CHECK(0);
+    return 1;
 }

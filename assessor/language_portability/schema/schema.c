@@ -4,6 +4,7 @@
 #ifndef LS_MUTANT
 #define LS_MUTANT 0
 #endif
+/* String equality without libc; a null argument never matches. */
 static int equal(const char *a, const char *b)
 {
     if (!a || !b)
@@ -50,6 +51,7 @@ int ls_unpack(uint16_t w, struct ls_fields *out)
     return lsg_unpack(w, out);
 }
 
+/* Returns 0 only when both identities equal the generated build's. */
 int ls_require(const char *wire, const char *abi)
 {
 #if LS_MUTANT == 2

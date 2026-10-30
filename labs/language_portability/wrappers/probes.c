@@ -52,21 +52,17 @@ int main(void)
     return FORM(0);
 }
 #elif CASE == 6
-#define TWO()  \
-    value = 1; \
-    value = 2
+// clang-format off: CM-STYLE: probe layout is part of the experiment
+#define TWO() value = 1; value = 2
 
 int main(void)
 {
     int value = 0;
     if (1)
-    {
         TWO();
-    }
     else
-    {
         value = 3;
-    }
+    // clang-format on
     return value;
 }
 #elif CASE == 7
@@ -76,8 +72,9 @@ int main(void)
 
 int main(void)
 {
-    DECL();
-    DECL();
+    // clang-format off: CM-STYLE: probe layout is part of the experiment
+    DECL(); DECL();
+    // clang-format on
     return 0;
 }
 #elif CASE == 8

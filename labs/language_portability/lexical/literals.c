@@ -2,7 +2,9 @@
 #define B separated
 #define VALUE 7
 #define PREFIX "north:"
-A /**/ B = 7;
+// clang-format off: CM-STYLE: exact token spelling is under study
+A/**/B=7;
+// clang-format on
 static const char raw[] = "VALUE";
 static const char joined[] = PREFIX "gate";
 

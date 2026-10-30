@@ -12,12 +12,20 @@
         }                                                                   \
     } while (0)
 
+/* Test double standing behind the allocator interface. Exactly one block is
+   live at a time (active, size in bytes). A non-zero resize or a release that
+   names a different block aborts, which catches a stale or double use; a
+   zero-size request is handled by the zero policy without that check. */
 struct lp_track
 {
     unsigned char *active;
     size_t size;
-    unsigned calls, zero, releases, fail, policy;
-    struct lr_buffer *owner;
+    unsigned calls;
+    unsigned zero;
+    unsigned releases;
+    unsigned fail; /* 1: refuse the next non-zero request */
+    unsigned policy; /* 0: zero request keeps the block; 1: frees it */
+    struct lr_buffer *owner; /* buffer observed during release */
     unsigned empty_at_release;
 };
 static struct lp_track state;
@@ -93,42 +101,58 @@ static struct lr_allocator adapter(void)
         .context = &state, .resize = allocate, .release = release};
 }
 
+/* The buffer refuses zero and oversize requests without calling the
+   allocator, whatever the adapter's zero policy. */
+static int zero_through_buffer(unsigned policy)
+{
+    struct lr_buffer b;
+    state.policy = policy;
+    state.owner = &b;
+    CHECK(lr_init(&b, adapter()) == LR_OK);
+    CHECK(lr_resize(&b, 0) == LR_INVALID && state.calls == 0 && !b.data &&
+          b.size == 0);
+    CHECK(lr_resize(&b, 3) == LR_OK);
+    unsigned char *old = b.data;
+    b.data[0] = 17;
+    CHECK(lr_resize(&b, 0) == LR_INVALID && b.data == old && b.size == 3 &&
+          b.data[0] == 17 && state.zero == 0 && state.calls == 1);
+    CHECK(lr_resize(&b, 65) == LR_INVALID &&
+          lr_resize(&b, (size_t)-1) == LR_INVALID && state.calls == 1);
+    lr_release(&b);
+    CHECK(state.releases == 1 && state.empty_at_release == 1);
+    cleanup();
+    return 0;
+}
+
+/* Establish the different original adapter policies independently. Never
+   call libc realloc with zero or inspect a freed pointer. */
+static int zero_through_adapter(unsigned policy)
+{
+    state.policy = policy;
+    unsigned char *raw = allocate(&state, NULL, 0, 1);
+    CHECK(raw != NULL);
+    raw[0] = 19;
+    CHECK(allocate(&state, raw, 1, 0) == NULL && state.zero == 1);
+    if (policy)
+    {
+        CHECK(state.active == NULL);
+    }
+    else
+    {
+        CHECK(state.active == raw && raw[0] == 19);
+    }
+    cleanup();
+    return 0;
+}
+
 static int zero(void)
 {
     for (unsigned policy = 0; policy < 2; policy++)
     {
-        struct lr_buffer b;
-        state.policy = policy;
-        state.owner = &b;
-        CHECK(lr_init(&b, adapter()) == LR_OK);
-        CHECK(lr_resize(&b, 0) == LR_INVALID && state.calls == 0 && !b.data &&
-              b.size == 0);
-        CHECK(lr_resize(&b, 3) == LR_OK);
-        unsigned char *old = b.data;
-        b.data[0] = 17;
-        CHECK(lr_resize(&b, 0) == LR_INVALID && b.data == old && b.size == 3 &&
-              b.data[0] == 17 && state.zero == 0 && state.calls == 1);
-        CHECK(lr_resize(&b, 65) == LR_INVALID &&
-              lr_resize(&b, (size_t)-1) == LR_INVALID && state.calls == 1);
-        lr_release(&b);
-        CHECK(state.releases == 1 && state.empty_at_release == 1);
-        cleanup();
-        /* Establish the different original adapter policies independently.
-           Never call libc realloc with zero or inspect a freed pointer. */
-        state.policy = policy;
-        unsigned char *raw = allocate(&state, NULL, 0, 1);
-        CHECK(raw != NULL);
-        raw[0] = 19;
-        CHECK(allocate(&state, raw, 1, 0) == NULL && state.zero == 1);
-        if (policy)
+        if (zero_through_buffer(policy) || zero_through_adapter(policy))
         {
-            CHECK(state.active == NULL);
+            return 1;
         }
-        else
-        {
-            CHECK(state.active == raw && raw[0] == 19);
-        }
-        cleanup();
     }
     puts("LP zero validated");
     return 0;
@@ -191,6 +215,41 @@ static int growth(void)
     return 0;
 }
 
+/* Apply one history letter to b and return the status it produced, or -1 for
+   an unknown letter. a/b/c grow or shrink to 1/2/4 bytes, f resizes to 3
+   after scheduling an allocator refusal, z asks for zero bytes, d releases,
+   w writes a marker into the first byte. */
+static int apply_history_op(struct lr_buffer *b, char op)
+{
+    switch (op)
+    {
+        case 'a':
+            return lr_resize(b, 1);
+        case 'b':
+            return lr_resize(b, 2);
+        case 'c':
+            return lr_resize(b, 4);
+        case 'f':
+            state.fail = 1;
+            return lr_resize(b, 3);
+        case 'z':
+            return lr_resize(b, 0);
+        case 'd':
+            lr_release(b);
+            return LR_OK;
+        case 'w':
+            if (b->size)
+            {
+                b->data[0] = 23;
+            }
+            return LR_OK;
+        default:
+            return -1;
+    }
+}
+
+/* Read "policy history" lines and print one result line per history. The
+   history is at most 7 letters; '-' is a no-op separator. */
 static int oracle(void)
 {
     unsigned policy;
@@ -204,49 +263,13 @@ static int oracle(void)
         enum lr_status status = LR_OK;
         for (size_t i = 0; history[i]; i++)
         {
-            char op = history[i];
-            if (op == '-')
+            if (history[i] == '-')
             {
                 continue;
             }
-            if (op == 'a')
-            {
-                status = lr_resize(&b, 1);
-            }
-            else if (op == 'b')
-            {
-                status = lr_resize(&b, 2);
-            }
-            else if (op == 'c')
-            {
-                status = lr_resize(&b, 4);
-            }
-            else if (op == 'f')
-            {
-                state.fail = 1;
-                status = lr_resize(&b, 3);
-            }
-            else if (op == 'z')
-            {
-                status = lr_resize(&b, 0);
-            }
-            else if (op == 'd')
-            {
-                lr_release(&b);
-                status = LR_OK;
-            }
-            else if (op == 'w')
-            {
-                if (b.size)
-                {
-                    b.data[0] = 23;
-                }
-                status = LR_OK;
-            }
-            else
-            {
-                CHECK(0);
-            }
+            int step = apply_history_op(&b, history[i]);
+            CHECK(step >= 0);
+            status = (enum lr_status)step;
         }
         unsigned sum = 0;
         for (size_t i = 0; i < b.size; i++)
@@ -261,36 +284,34 @@ static int oracle(void)
     return 0;
 }
 
+static int metrics(void)
+{
+    printf("{\"control_bytes\":%zu,\"size_limit\":64,\"zero_policies\":2}\n",
+           sizeof(struct lr_buffer));
+    return 0;
+}
+
+struct lp_case
+{
+    const char *name;
+    int (*run)(void);
+};
+
+static const struct lp_case cases[] = {
+    {"zero", zero},     {"failure", failure}, {"drop", drop},
+    {"growth", growth}, {"oracle", oracle},   {"metrics", metrics}};
+
+/* Exit status: 0 pass, 1 failed check, 2 unknown case name. */
 int main(int argc, char **argv)
 {
     CHECK(argc == 2);
     int result = 2;
-    if (!strcmp(argv[1], "zero"))
+    for (size_t i = 0; i < sizeof cases / sizeof cases[0]; i++)
     {
-        result = zero();
-    }
-    if (!strcmp(argv[1], "failure"))
-    {
-        result = failure();
-    }
-    if (!strcmp(argv[1], "drop"))
-    {
-        result = drop();
-    }
-    if (!strcmp(argv[1], "growth"))
-    {
-        result = growth();
-    }
-    if (!strcmp(argv[1], "oracle"))
-    {
-        result = oracle();
-    }
-    if (!strcmp(argv[1], "metrics"))
-    {
-        printf(
-            "{\"control_bytes\":%zu,\"size_limit\":64,\"zero_policies\":2}\n",
-            sizeof(struct lr_buffer));
-        result = 0;
+        if (!strcmp(argv[1], cases[i].name))
+        {
+            result = cases[i].run();
+        }
     }
     cleanup();
     return result;

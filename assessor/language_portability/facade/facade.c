@@ -31,9 +31,20 @@ unsigned bf_binary_unsigned(unsigned a, unsigned b)
     return a * 100u + b;
 }
 
+enum
+{
+    FIELD_MAX = 99
+};
+
+/* Call left, then right (this order is the contract: argument evaluation
+   order in a C call is unspecified, so the sequence is made explicit), and
+   combine the two values in [0, 99] as a * 100 + b. Returns -1 for a null
+   argument or a value out of range, leaving *out unchanged; right is not
+   called after left fails. */
 int bf_sequence(bf_get_fn left, void *lc, bf_get_fn right, void *rc, int *out)
 {
-    int a, b;
+    int a;
+    int b;
     if (!left || !right || !out)
     {
         return -1;
@@ -41,18 +52,18 @@ int bf_sequence(bf_get_fn left, void *lc, bf_get_fn right, void *rc, int *out)
 #if BF_MUTANT == 3
     b = right(rc);
     a = left(lc);
-    if (a < 0 || a > 99 || b < 0 || b > 99)
+    if (a < 0 || a > FIELD_MAX || b < 0 || b > FIELD_MAX)
     {
         return -1;
     }
 #else
     a = left(lc);
-    if (a < 0 || a > 99)
+    if (a < 0 || a > FIELD_MAX)
     {
         return -1;
     }
     b = right(rc);
-    if (b < 0 || b > 99)
+    if (b < 0 || b > FIELD_MAX)
     {
         return -1;
     }

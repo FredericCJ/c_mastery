@@ -2,6 +2,9 @@
 #ifndef LE_MUTANT
 #define LE_MUTANT 0
 #endif
+/* Release the owned resource and leave *owner empty. The slot is cleared
+   before the callback runs, so a callback that observes it sees no owner and
+   a repeated drop is a no-op. */
 void le_drop(struct le_owner *owner)
 {
     if (!owner || !owner->data)
@@ -13,6 +16,10 @@ void le_drop(struct le_owner *owner)
     old.ops.release(old.ops.context, old.id, old.data, old.size);
 }
 
+/* Acquire resources 1 (8 bytes) then 2 (16 bytes), fill them, and release in
+   reverse order. transfer 1 or 2 moves that resource into *out instead of
+   releasing it. Returns LE_INVALID (bad arguments, no callback run), LE_NOMEM
+   (an acquire failed; earlier resources are released) or LE_OK. */
 enum le_status le_run(struct le_ops ops, unsigned transfer,
                       struct le_owner *out)
 {
@@ -20,7 +27,8 @@ enum le_status le_run(struct le_ops ops, unsigned transfer,
     {
         return LE_INVALID;
     }
-    struct le_owner a = {0}, b = {0};
+    struct le_owner a = {0};
+    struct le_owner b = {0};
     enum le_status result = LE_NOMEM;
     a = (struct le_owner){
         .data = ops.acquire(ops.context, 1, 8), .size = 8, .id = 1, .ops = ops};

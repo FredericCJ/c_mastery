@@ -1,1 +1,1 @@
-{(const char *)0, 0u},
+{(const char *)0,0u},

@@ -1,9 +1,7 @@
 #define LR_COMMAND_COUNT 3u
 #define LR_ALIAS_COUNT 0u
-
-enum lr_command
-{
-    LR_CMD_START = 1,
-    LR_CMD_STOP = 4,
-    LR_CMD_STATUS = 7,
+enum lr_command {
+ LR_CMD_START=1,
+ LR_CMD_STOP=4,
+ LR_CMD_STATUS=7,
 };

@@ -1,5 +1,7 @@
 #include "replacement.h"
 
+/* Release the owned resource and leave *owner empty before the callback runs,
+   so a repeated drop is a no-op. */
 void le_drop(struct le_owner *owner)
 {
     if (!owner || !owner->data)
@@ -11,6 +13,10 @@ void le_drop(struct le_owner *owner)
     old.ops.release(old.ops.context, old.id, old.data, old.size);
 }
 
+/* Reference version: scoped cleanup (the GNU cleanup attribute, not ISO C)
+   releases both locals in reverse declaration order on every return. A
+   transferred owner is cleared first, so cleanup sees it empty. Contract as
+   in replacement.c. */
 enum le_status le_run(struct le_ops ops, unsigned transfer,
                       struct le_owner *out)
 {

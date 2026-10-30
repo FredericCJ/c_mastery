@@ -25,7 +25,9 @@ static void sum(void)
 
 static void adapter(void)
 {
-    struct lp_record a = {INT_MIN, 0}, b = {INT_MAX, 1}, z = {0, 2};
+    struct lp_record a = {INT_MIN, 0};
+    struct lp_record b = {INT_MAX, 1};
+    struct lp_record z = {0, 2};
     CHECK(lp_compare(&a, &b) == -1 && lp_adapter(&a, &b) == -1);
     CHECK(lp_adapter(&b, &a) == 1 && lp_adapter(&z, &z) == 0);
     struct lp_record values[3] = {b, z, a};
@@ -37,7 +39,8 @@ static void adapter(void)
 static void reverse(void)
 {
     struct lp_order order = {1};
-    struct lp_record a = {INT_MIN, 0}, b = {INT_MAX, 1};
+    struct lp_record a = {INT_MIN, 0};
+    struct lp_record b = {INT_MAX, 1};
     CHECK(lp_context_adapter(&a, &b, &order) == 1);
     struct lp_record values[3] = {a, {0, 2}, b};
     CHECK(lp_sort(values, 3, &order) == LP_OK && values[0].key == INT_MAX &&
@@ -57,68 +60,84 @@ static void stable(void)
     CHECK(lp_sort(values, 17, &order) == LP_RANGE);
 }
 
+enum
+{
+    ORACLE_MAX_RECORDS = 16,
+    NOT_SET = 77
+};
+
+/* Read "reverse n key..." records, sort with lp_sort and print each key with
+   its original position, so stability is visible. */
+static void sort_oracle(void)
+{
+    unsigned reverse_order;
+    size_t n;
+    while (scanf("%u %zu", &reverse_order, &n) == 2)
+    {
+        CHECK(n <= ORACLE_MAX_RECORDS);
+        struct lp_record values[ORACLE_MAX_RECORDS];
+        for (size_t i = 0; i < n; ++i)
+        {
+            CHECK(scanf("%d", &values[i].key) == 1);
+            values[i].serial = (unsigned)i;
+        }
+        struct lp_order order = {reverse_order};
+        CHECK(lp_sort(values, n, &order) == LP_OK);
+        for (size_t i = 0; i < n; ++i)
+        {
+            printf("%d:%u ", values[i].key, values[i].serial);
+        }
+        puts("");
+    }
+}
+
+static void sum_oracle(void)
+{
+    int a;
+    int b;
+    while (scanf("%d %d", &a, &b) == 2)
+    {
+        int out = NOT_SET;
+        int status = lp_sum(a, b, &out);
+        printf("%d %d\n", status, out);
+    }
+}
+
+static void metrics(void)
+{
+    printf("{\"record_bytes\":%zu,\"int_bits\":%zu,\"capacity\":16}\n",
+           sizeof(struct lp_record), sizeof(int) * CHAR_BIT);
+}
+
+struct lp_case
+{
+    const char *name;
+    void (*run)(void);
+    int prints_verdict; /* 1: print "LP <name> validated" after success */
+};
+
+static const struct lp_case cases[] = {
+    {"oracle", sort_oracle, 0}, {"sum_oracle", sum_oracle, 0},
+    {"metrics", metrics, 0},    {"sum", sum, 1},
+    {"adapter", adapter, 1},    {"reverse", reverse, 1},
+    {"stable", stable, 1}};
+
+/* Exit status: 0 pass, 1 failed check (CHECK exits). */
 int main(int argc, char **argv)
 {
     CHECK(argc == 2);
-    if (!strcmp(argv[1], "oracle"))
+    for (size_t i = 0; i < sizeof cases / sizeof cases[0]; i++)
     {
-        unsigned reverse_order;
-        size_t n;
-        while (scanf("%u %zu", &reverse_order, &n) == 2)
+        if (!strcmp(argv[1], cases[i].name))
         {
-            CHECK(n <= 16);
-            struct lp_record values[16];
-            for (size_t i = 0; i < n; ++i)
+            cases[i].run();
+            if (cases[i].prints_verdict)
             {
-                CHECK(scanf("%d", &values[i].key) == 1);
-                values[i].serial = (unsigned)i;
+                printf("LP %s validated\n", argv[1]);
             }
-            struct lp_order order = {reverse_order};
-            CHECK(lp_sort(values, n, &order) == LP_OK);
-            for (size_t i = 0; i < n; ++i)
-            {
-                printf("%d:%u ", values[i].key, values[i].serial);
-            }
-            puts("");
+            return 0;
         }
-        return 0;
     }
-    if (!strcmp(argv[1], "sum_oracle"))
-    {
-        int a, b;
-        while (scanf("%d %d", &a, &b) == 2)
-        {
-            int out = 77, status = lp_sum(a, b, &out);
-            printf("%d %d\n", status, out);
-        }
-        return 0;
-    }
-    if (!strcmp(argv[1], "metrics"))
-    {
-        printf("{\"record_bytes\":%zu,\"int_bits\":%zu,\"capacity\":16}\n",
-               sizeof(struct lp_record), sizeof(int) * CHAR_BIT);
-        return 0;
-    }
-    if (!strcmp(argv[1], "sum"))
-    {
-        sum();
-    }
-    else if (!strcmp(argv[1], "adapter"))
-    {
-        adapter();
-    }
-    else if (!strcmp(argv[1], "reverse"))
-    {
-        reverse();
-    }
-    else if (!strcmp(argv[1], "stable"))
-    {
-        stable();
-    }
-    else
-    {
-        CHECK(0);
-    }
-    printf("LP %s validated\n", argv[1]);
-    return 0;
+    CHECK(0);
+    return 1;
 }

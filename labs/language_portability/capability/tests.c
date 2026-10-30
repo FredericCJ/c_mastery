@@ -83,62 +83,84 @@ static int trace(void)
     return 0;
 }
 
+/* Oracle records: "m required observed" or "t x0 x1 x2". The outputs start
+   at sentinels (9, 91..93) so a refusal that wrote them would be visible. */
+static int oracle_matrix(void)
+{
+    unsigned required;
+    unsigned observed;
+    unsigned usable = 9;
+    CHECK(scanf("%u%u", &required, &observed) == 2);
+    int ok = lp_capability(required, observed, &usable);
+    printf("%d %u\n", ok, usable);
+    return 0;
+}
+
+static int oracle_transform(void)
+{
+    int source[3];
+    int destination[3] = {91, 92, 93};
+    CHECK(scanf("%d%d%d", &source[0], &source[1], &source[2]) == 3);
+    int ok = lp_transform(source, destination, 3);
+    printf("%d %d %d %d\n", ok, destination[0], destination[1], destination[2]);
+    return 0;
+}
+
 static int oracle(void)
 {
     char kind;
     while (scanf(" %c", &kind) == 1)
     {
+        int failed = 0;
         if (kind == 'm')
         {
-            unsigned r, o, u = 9;
-            CHECK(scanf("%u%u", &r, &o) == 2);
-            int ok = lp_capability(r, o, &u);
-            printf("%d %u\n", ok, u);
+            failed = oracle_matrix();
         }
         else if (kind == 't')
         {
-            int a[3], b[3] = {91, 92, 93};
-            CHECK(scanf("%d%d%d", &a[0], &a[1], &a[2]) == 3);
-            int ok = lp_transform(a, b, 3);
-            printf("%d %d %d %d\n", ok, b[0], b[1], b[2]);
+            failed = oracle_transform();
         }
         else
         {
             CHECK(0);
         }
+        if (failed)
+        {
+            return 1;
+        }
     }
     return 0;
 }
 
+static int metrics(void)
+{
+    printf(
+        "{\"record_bytes\":%zu,\"int_min\":%d,\"int_max\":%d,\"array_limit\":16}\n",
+        sizeof(struct lp_value), INT_MIN, INT_MAX);
+    return 0;
+}
+
+struct lp_case
+{
+    const char *name;
+    int (*run)(void);
+};
+
+static const struct lp_case cases[] = {
+    {"record", record}, {"transform", transform}, {"matrix", matrix},
+    {"trace", trace},   {"oracle", oracle},       {"metrics", metrics},
+};
+
+/* Exit status: 0 pass, 1 failed check, 2 unknown case name. */
 int main(int argc, char **argv)
 {
     CHECK(argc == 2);
-    if (!strcmp(argv[1], "record"))
+    for (size_t i = 0; i < sizeof cases / sizeof cases[0]; i++)
     {
-        return record();
-    }
-    if (!strcmp(argv[1], "transform"))
-    {
-        return transform();
-    }
-    if (!strcmp(argv[1], "matrix"))
-    {
-        return matrix();
-    }
-    if (!strcmp(argv[1], "trace"))
-    {
-        return trace();
-    }
-    if (!strcmp(argv[1], "oracle"))
-    {
-        return oracle();
-    }
-    if (!strcmp(argv[1], "metrics"))
-    {
-        printf(
-            "{\"record_bytes\":%zu,\"int_min\":%d,\"int_max\":%d,\"array_limit\":16}\n",
-            sizeof(struct lp_value), INT_MIN, INT_MAX);
-        return 0;
+        if (!strcmp(argv[1], cases[i].name))
+        {
+            return cases[i].run();
+        }
     }
     return 2;
 }
