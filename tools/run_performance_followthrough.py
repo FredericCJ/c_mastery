@@ -4,6 +4,7 @@ from datetime import datetime,timezone
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1];LAB=ROOT/'labs/performance_followthrough';REF=ROOT/'assessor/performance_followthrough';BASE=ROOT/'reviews/v5/expansion/legacy_performance_followthrough';sys.path.insert(0,str(LAB))
 import analyze
+from c_source import replace_unique
 RETAINED=['labs/support/cm_parse.c','labs/support/cm_parse.h','assessor/foundations/foundation.c','labs/foundations/include/foundation.h','labs/foundations/src/foundation.c','assessor/containers_depth/sequence.c','assessor/containers_depth/indexed.c','assessor/containers_depth/graph_consumer.c','labs/containers_depth/containers.h','labs/containers_depth/learner.c','assessor/algorithms/algo.c','assessor/algorithms/x86_64.S','labs/algorithms/include/algo.h','labs/algorithms/src/algo.c','labs/algorithms/src/x86_64.S']
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def sources():return sorted({p for p in [*LAB.rglob('*'),*REF.rglob('*'),*[ROOT/p for p in RETAINED],*(ROOT/'fixtures/performance').glob('*.json'),Path(__file__)] if p.is_file() and '__pycache__' not in p.parts})
@@ -49,7 +50,7 @@ def main(report):
    text=run('trace-'+name,['gdb','-q','-batch','-x',LAB/'trace_gdb.py','--args',trace,str(n),str(key)],timeout=60);observations['trace-'+name]=analyze.trace(text)
   check('actual-changed-path',observations['trace-index4a']['result']==observations['trace-index4b']['result']==4 and observations['trace-index4a']['relative_pc_path']!=observations['trace-index4b']['relative_pc_path']);check('same-static-kernel-different-work',observations['trace-empty']['instructions']<observations['trace-duplicate']['instructions'])
   for name,old,new in [('stability','compare(a[j-1],x,w)>0','compare(a[j-1],x,w)>=0'),('flush','v.slots[i].dirty=0','v.slots[i].dirty=1'),('borrow','--sec;ns=1000000000u-n+m','ns=1000000000u-n+m'),('wrap','c.bound>=UINT64_C(4294967296)','c.bound>UINT64_C(4294967296)')]:
-   source=(REF/'cost.c').read_text();assert source.count(old)==1;mutant=artifact(out/(name+'-mutant.c'));mutant.write_text(source.replace(old,new));exe=artifact(out/(name+'-mutant'));run(name+'-mutant-build',['gcc',*common,'-O2',LAB/'tests.c',mutant,ROOT/'assessor/foundations/foundation.c',ROOT/'assessor/containers_depth/sequence.c','-o',exe]);check(name+'-mutant-killed','PF_CHECK:' in run(name+'-mutant',[exe],code=1))
+   source=(REF/'cost.c').read_text();mutant=artifact(out/(name+'-mutant.c'));mutant.write_text(replace_unique(source,old,new));exe=artifact(out/(name+'-mutant'));run(name+'-mutant-build',['gcc',*common,'-O2',LAB/'tests.c',mutant,ROOT/'assessor/foundations/foundation.c',ROOT/'assessor/containers_depth/sequence.c','-o',exe]);check(name+'-mutant-killed','PF_CHECK:' in run(name+'-mutant',[exe],code=1))
   stub=artifact(out/'stub');run('stub-build',['gcc',*common,'-O2',LAB/'tests.c',LAB/'cost.c',ROOT/'assessor/foundations/foundation.c',ROOT/'assessor/containers_depth/sequence.c','-o',stub]);check('stub-remains-incomplete','PF_CHECK:' in run('stub',[stub],code=1))
   for p in out.rglob('*.su'):artifacts.add(p)
   check('three-stack-qualifiers',any('dynamic,bounded' in p.read_text() for p in artifacts if p.suffix=='.su') and any('\tdynamic\n' in p.read_text() for p in artifacts if p.suffix=='.su'))

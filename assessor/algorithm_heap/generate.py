@@ -1,5 +1,5 @@
 """Source-bound namespace copy: only the actual prior heap sink is replaced."""
-import pathlib,sys
+import pathlib,re,sys
 ROOT=pathlib.Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT/'tools'))
 from c_source import find_unique,function_span
 def change(text,a,b):
@@ -8,7 +8,7 @@ def main():
  out=pathlib.Path(sys.argv[1]);out.mkdir(parents=True,exist_ok=True)
  source=(ROOT/'assessor/containers_depth/ordered.c').read_text(encoding='utf8');body=source[find_unique(source,'static int before(')[0]:find_unique(source,'void cd_tree_init(')[0]]
  start,end=function_span(body,'sink');body=body[:start]+'static void sink(struct cd_heap*h,unsigned at){ah_cd_sink(h,at);}\n'+body[end:]
- body=body.replace('cd_heap_','ah_heap_');(out/'heap_adapter.c').write_text('#include "heap.h"\n#define CD_MUTANT 0\n'+body,encoding='utf8')
+ body=re.sub(r'\bcd_heap_(init|insert|get|change|take|build)\b',r'ah_heap_\1',body);(out/'heap_adapter.c').write_text('#include "heap.h"\n#define CD_MUTANT 0\n'+body,encoding='utf8')
  for arch in ['x86_64','thumb']:
   source=(ROOT/('assessor/algorithms/'+arch+'.S')).read_text(encoding='utf8');start=source.index(('.globl' if arch=='x86_64' else '.global')+' algo_asm_sift');end=source.index('.size algo_asm_sift,.-algo_asm_sift',start)+len('.size algo_asm_sift,.-algo_asm_sift');body=source[start:end].replace('algo_asm_sift','ah_instrumented_sift')
   if arch=='x86_64':
