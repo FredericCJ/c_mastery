@@ -1,0 +1,40 @@
+{
+ "schema_version": 1,
+ "generated_at": "2026-10-30T13:08:35.637827+00:00",
+ "kind": "read-only board identity probe",
+ "board": "NUCLEO-F439ZI",
+ "commands": [
+  "st-info --probe",
+  "openocd -f board/st_nucleo_f4.cfg -c init -c \"mdw 0xE0042000\" -c \"mdw 0x1FFF7A10 3\" -c \"mdh 0x1FFF7A22\" -c \"mdw 0x40023C14\" -c shutdown"
+ ],
+ "outputs": {
+  "openocd-identity.txt": "c28e88d0bae872cad3ab451d61476cff49bef57ad4e937c99b6865180625ab8f",
+  "st-info-probe.txt": "9b1a8e28a5c71fd4a87c8ec4bec81eb050987ccc08d4563e6ca0aa0503599707"
+ },
+ "tools": {
+  "openocd": "Open On-Chip Debugger 0.12.0",
+  "st-info": "v1.8.0"
+ },
+ "observed": {
+  "stlink_firmware": "V2J39S27 (as printed by st-info)",
+  "stlink_serial": "0669FF485753667187124334",
+  "DBGMCU_IDCODE": "0x20036419 (DEV_ID 0x419 STM32F42x/43x, REV_ID 0x2003)",
+  "core": "Cortex-M4 r0p1, 6 breakpoints, 4 watchpoints",
+  "UID_96": "004c0025 3133510a 36393739",
+  "flash_size_kib": 2048,
+  "sram_bytes_reported_by_st_info": 262144,
+  "FLASH_OPTCR": "0x0FFFAAED: RDP=0xAA (level 0), nWRP=0xFFF (no write protection), WDG_SW=1, nRST_STOP=1, nRST_STDBY=1, OPTLOCK=1"
+ },
+ "writes": "No flash, option-byte or reset operation was issued. The openocd attach used the stock board/st_nucleo_f4.cfg, whose target/stm32f4x.cfg examine-end handler writes the volatile debug registers DBGMCU_CR (low-power debug enables) and DBGMCU_APB1_FZ (freeze IWDG/WWDG in debug); these are not flash or option bytes and reset at power-on. Corrected after review: the first version of this receipt said 'none'.",
+ "access": {
+  "udev": "/etc/udev/rules.d/70-cmastery-stlink.rules (uaccess)",
+  "note": "device nodes were also mode 0666 at probe time; not changed by this probe"
+ },
+ "limits": [
+  "Identity only; no firmware executed or observed."
+ ],
+ "correction": {
+  "reason": "examine-end handler writes found in B6 design review",
+  "original_claim": "writes: none"
+ }
+}
