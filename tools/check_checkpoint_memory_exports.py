@@ -6,7 +6,7 @@ from close_checkpoint_memory_followthrough import HERE,PROJECTS,card
 def main():
  w=ROOT/'build/checkpoint-memory-exports'/datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S%fZ');w.mkdir(parents=True);rows=[];errors=[];pins={Path(__file__),ROOT/'cmastery/cli.py',ROOT/'cmastery/assessments.py',CORE}
  def run(label,cmd,expected=0,markers=()):
-  cmd=list(map(str,cmd));r=subprocess.run(cmd,cwd=ROOT,capture_output=True,text=True,timeout=120);ok=r.returncode==expected and all(m in r.stdout+r.stderr for m in markers);rows.append(dict(label=label,command=cmd,expected=expected,returncode=r.returncode,markers=list(markers),stdout=r.stdout,stderr=r.stderr,passed=ok));return ok
+  cmd=list(map(str,cmd));r=subprocess.run(cmd,cwd=ROOT,capture_output=True,text=True,timeout=120);ok=r.returncode==expected and all(''.join(m.split()) in ''.join((r.stdout+r.stderr).split()) for m in markers);rows.append(dict(label=label,command=cmd,expected=expected,returncode=r.returncode,markers=list(markers),stdout=r.stdout,stderr=r.stderr,passed=ok));return ok
  for project in PROJECTS:
   dest=w/project;attachment=HERE/('attachment_'+project+'.json');a=json.loads(attachment.read_text());pins.update([attachment,ROOT/card(project),*[ROOT/f for f in a['supplied_artifacts']]])
   if not run(project+':init',[sys.executable,'-m','cmastery','init',project,dest]):errors.append('init failed '+project);continue

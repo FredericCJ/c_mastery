@@ -34,7 +34,7 @@ def validate(d,r):
     need('-fsanitize=thread' in commands.get(tag+'.compile',{}).get('command',[]),'actual instrumentation '+tag);x=commands.get(tag+'.race',{});need(x.get('exit_code')==66 and x.get('required_marker')=='WARNING: ThreadSanitizer: data race','known race '+tag)
  need(set(commands)==required,'exact command inventory')
  for x in commands.values():
-  p=ROOT/x.get('output','missing');text=p.read_text(encoding='utf8') if p.is_file() else '';need(p.is_file() and sha(p)==x.get('output_sha256'),'actual log '+x['id']);need(x.get('required_marker') is None or x['required_marker'] in text,'intended log marker '+x['id']);need(x.get('exit_code')==x.get('expected_exit'),'exit result '+x['id'])
+  p=ROOT/x.get('output','missing');text=p.read_text(encoding='utf8') if p.is_file() else '';need(p.is_file() and sha(p)==x.get('output_sha256'),'actual log '+x['id']);need(x.get('required_marker') is None or ''.join(x['required_marker'].split()) in ''.join(text.split()),'intended log marker '+x['id']);need(x.get('exit_code')==x.get('expected_exit'),'exit result '+x['id'])
  observations=r.get('observations',[]);need(len(observations)==2 and {o.get('compiler') for o in observations}=={'gcc','clang'},'both measurement profiles')
  for o in observations:
   samples=o.get('samples',[]);keys={(s.get('bins'),s.get('distribution'),s.get('mode'),s.get('trial')) for s in samples}

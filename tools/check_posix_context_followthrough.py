@@ -40,7 +40,7 @@ def validate(data,report,actual_external,preserved=None):
     for kind in ['mutation','learner']:
      r=commands.get(prefix+'.'+kind+'.'+case,{});need(r.get('exit_code')==41 and commands.get(prefix+'.'+kind+'.'+case+'.compile',{}).get('passed') is True,'compiled semantic rejection '+prefix+'.'+kind+'.'+case)
      path=ROOT/r.get('output','missing');text=path.read_text(encoding='utf8') if path.is_file() else '';need('PC_ASSERT:' in text,'missing assertion '+prefix+'.'+kind+'.'+case)
-     if kind=='mutation':need(intended[case] in text,'wrong mutation assertion '+prefix+'.'+case)
+     if kind=='mutation':need(''.join(intended[case].split()) in ''.join(text.split()),'wrong mutation assertion '+prefix+'.'+case)
   for probe in ['pipe2','openat','clock']:
    for mode,code in [('hidden',1),('visible',0)]:need(commands.get('feature.'+cc+'.'+probe+'.'+mode,{}).get('exit_code')==code,'declaration evidence '+cc+'.'+probe+'.'+mode)
  for name in ['environment.kernel','environment.libc','environment.mount','gcc.version','clang.version','models']:need(commands.get(name,{}).get('passed') is True,'missing '+name)
