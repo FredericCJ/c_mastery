@@ -4,7 +4,7 @@ This required successor implements the selected F439 deployment obligations of P
 
 ## Prerequisites
 
-Supply the authenticated header/parser, checked extent, two-record journal reasoning and reset/MPU/handoff artifacts from PR-T59-02/03/05 and PR-T27-01/03. Contrast the H745 dual-core state machine with this actual single-core owner. Prior selection and `struct fb_image` arguments must come from current successful admission; structs are not forge-proof capabilities. Caller owns exclusive flash, UART and RAM, with live nonreentrant callbacks and distinct buffers.
+Supply the authenticated header/parser, checked extent, two-record journal reasoning and reset/MPU/handoff artifacts from PR-T59-02/03/05 and PR-T27-01/03. Contrast the H745 dual-core state machine with this actual single-core owner. Prior selection and `FBImage` arguments must come from current successful admission; structs are not forge-proof capabilities. Caller owns exclusive flash, UART and RAM, with live nonreentrant callbacks and distinct buffers.
 
 ## Environment and limits
 

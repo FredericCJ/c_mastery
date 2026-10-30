@@ -54,11 +54,19 @@ SKIP_PYTHON = {"tools/c_rename.py", "tools/rename_text.py", "tools/source_equiva
 
 
 def frozen_route_files():
-    """Paths a later route pins byte-for-byte (predecessor.frozen_sha256)."""
+    """Paths pinned byte-for-byte elsewhere: a later route's predecessor files
+    (predecessor.frozen_sha256) and the documents of the B06 UTF-8 publication
+    proof, whose transform requires the original and current bytes exactly."""
     frozen = set()
     for source in sorted((ROOT / "curriculum/v5/routes").glob("*.source.json")):
         predecessor = json.loads(source.read_text()).get("predecessor") or {}
         frozen.update(predecessor.get("frozen_sha256", {}))
+    encoding_map = ROOT / "research/v5/expansion/b06_document_utf8/encoding_map.json"
+    if encoding_map.is_file():
+        for row in json.loads(encoding_map.read_text())["documents"]:
+            frozen.update((row["original"], row["current"]))
+    # The public F439 rendition, pinned by tools/public_teaching_preservation.py.
+    frozen.add("labs/firmware_lifecycle/targets/F439_UPDATE_UTF8.md")
     return frozen
 
 
