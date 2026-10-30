@@ -5,6 +5,15 @@ import hashlib, json, os, platform, subprocess
 def sha(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
+# A loaded host may need longer than the default per-command bound; scaling is
+# opt-in so a hung mutant still fails quickly by default.
+TIMEOUT_SCALE = float(os.environ.get('CMASTERY_TIMEOUT_SCALE', '1'))
+
+def squash(text):
+    """Text without whitespace. Check diagnostics stringify C expressions (#x),
+    and layout-only reformatting changes only their spacing."""
+    return ''.join(text.split())
+
 class Campaign:
     def __init__(self, root, output):
         self.root, self.output = Path(root), Path(output)
@@ -23,12 +32,12 @@ class Campaign:
         directory = Path(cwd or self.root)
         try:
             result = subprocess.run(argv, cwd=directory, capture_output=True,
-                text=True, timeout=timeout, env=dict(os.environ, LC_ALL='C', **(env or {})))
+                text=True, timeout=timeout * TIMEOUT_SCALE, env=dict(os.environ, LC_ALL='C', **(env or {})))
             rc, out, err = result.returncode, result.stdout, result.stderr
         except FileNotFoundError as error:
             rc, out, err = 'launch-unavailable', '', str(error)
         ok = (rc == expected if expected != 'nonzero' else isinstance(rc,int) and rc != 0)
-        ok = ok and (contains is None or contains in out + err)
+        ok = ok and (contains is None or squash(contains) in squash(out + err))
         row = dict(group=self.group, argv=argv, cwd=str(directory), exit=rc,
             expected=expected, diagnostic=contains, stdout=out, stderr=err,
             environment={'LC_ALL':'C', **(env or {})}, passed=ok)
