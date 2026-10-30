@@ -69,7 +69,7 @@ def check(text):
     for i,(line,(_,expected_row)) in enumerate(zip(rows,wanted)):
         actual=list(map(int,line.split()))
         if actual!=expected_row:raise ValueError(f'Oracle mismatch at {i}: actual={actual}, expected={expected_row}, input={wanted[i][0]}')
-    return {'passed':True,'cases':len(rows),'seed':520102,'scope':'All aggregate counters, per-job retained states/results and every tick; finite one-struct lr_cpu model only.'}
+    return {'passed':True,'cases':len(rows),'seed':520102,'scope':'All aggregate counters, per-job retained states/results and every tick; finite one-CPU model only.'}
 def demand_checks():
     # Enumerate synchronous releases independently of the floor expression.
     checks=0

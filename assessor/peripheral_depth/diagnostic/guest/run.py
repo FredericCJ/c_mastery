@@ -124,7 +124,7 @@ poweroff -f
                   output_sha256={str(p): sha(p) for p in w.rglob('*') if p.is_file() and p.name != 'report.json'},
                   limits=['Actual selected Linux host/gadget/dummy controller, no physical USB.',
                           'Kernel module depends on selected Linux API; portable core profile is audited separately.',
-                          'Bounded two-struct lr_cpu guest observations; no claim of all possible callback interleavings.',
+                          'Bounded two-CPU guest observations; no claim of all possible callback interleavings.',
                           'No external reviewer or learner attempt.'])
     (w / 'report.json').write_text(json.dumps(report, indent=2) + '\n')
     print('guest passed', passed)

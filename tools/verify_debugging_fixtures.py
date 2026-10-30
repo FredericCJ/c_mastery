@@ -201,13 +201,13 @@ def calculate(kind,i):
             shape(f,['cfsr','hfsr','bfar'])
             for key in ['cfsr','hfsr','bfar']:u32(f[key])
             faults.append({'precise_bus':bool(f['cfsr']&0x200),'bfar_valid':bool(f['cfsr']&0x8000),'forced_hardfault':bool(f['hfsr']&0x40000000),'usable_bfar':f['bfar'] if f['cfsr']&0x8000 else None})
-        owner='struct lr_cpu';owners=[];bad=None
+        owner='CPU';owners=[];bad=None
         for n,event in enumerate(i['dma_events'],1):
-            if event=='give': require(owner=='struct lr_cpu','give owner');owner='DMA'
+            if event=='give': require(owner=='CPU','give owner');owner='DMA'
             elif event=='cancel_request': require(owner=='DMA','request is not stopped')
             elif event=='cpu_write':
-                if owner!='struct lr_cpu' and bad is None: bad=n
-            elif event=='ack_stop': require(owner=='DMA','observed stop acknowledgment');owner='struct lr_cpu'
+                if owner!='CPU' and bad is None: bad=n
+            elif event=='ack_stop': require(owner=='DMA','observed stop acknowledgment');owner='CPU'
             else: raise ValueError('unsupported DMA event')
             owners.append(owner)
         clock=False;clock_bad=None

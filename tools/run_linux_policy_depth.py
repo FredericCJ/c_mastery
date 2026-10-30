@@ -25,7 +25,7 @@ def main(report,kernel_root,busybox):
  paths=[Path(__file__).resolve(),*[p for p in PUBLIC.rglob('*') if p.is_file() and '__pycache__' not in p.parts],*[ROOT/('assessor/legacy_realtime/linux_'+name) for name in ('policy.c','probe.c','policy.md')]]
  pins={p.relative_to(ROOT).as_posix():digest(p) for p in paths};ext_paths=[kernel,busybox,*[kernel_root/p for p in ('.config','include/generated/utsrelease.h','kernel/sched/fair.c','kernel/sched/deadline.c')]]
  value={'schema_version':1,'created_utc':datetime.now(timezone.utc).isoformat(),'inspected_paths':pins,'external_source_sha256':{str(p):digest(p) for p in ext_paths},'commands':[],'observations':[],
- 'scope':'Six-profile finite rule oracle; actual source/configuration-pinned Linux7.0.14 owned one/two-struct lr_cpu guest class/readback/affinity/interference/refusal/overrun and supervisor experiments.',
+ 'scope':'Six-profile finite rule oracle; actual source/configuration-pinned Linux7.0.14 owned one/two-CPU guest class/readback/affinity/interference/refusal/overrun and supervisor experiments.',
  'limits':['Pure selector omits buddy/slice protection, hierarchy, placement and weighted-accounting updates; it is not a Linux scheduler simulator.','Actual debug/KASAN guest under QEMU TCG is not PREEMPT_RT or physical WCET/latency evidence.','Refused classes remain unavailable under their exact affinity/privilege assumptions.','No host scheduler/security changes; no independent learner/human assessment.']}
  env=dict(os.environ,ASAN_OPTIONS='detect_leaks=1:abort_on_error=1',UBSAN_OPTIONS='halt_on_error=1')
  def run(command,label,expected=0,marker=None,input_text=None,timeout=180):

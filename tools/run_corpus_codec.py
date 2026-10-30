@@ -54,7 +54,7 @@ def run(report):
                 execute([cc,'-std=c17','-O2','-Wall','-Wextra','-Werror','-pedantic-errors','-I',ROOT/'labs/corpus_codec',ROOT/'labs/corpus_codec/measure.c',ROOT/'assessor/corpus_codec/codec.c','-o',binary],cc+'.measure-build')
                 raw=execute([binary],cc+'.measure')
                 if len(raw.splitlines())!=8 or 'optimal-token' not in raw:raise RuntimeError('Vacuous measurement')
-                d['measurements'].append(dict(compiler=cc,workloads=4,algorithms=2,trials_per_pair=1000,raw=raw,limits='Hosted process struct lr_cpu ticks include function calls and bounded scratch; no board latency, distribution inference or universal speed claim.'))
+                d['measurements'].append(dict(compiler=cc,workloads=4,algorithms=2,trials_per_pair=1000,raw=raw,limits='Hosted process CPU ticks include function calls and bounded scratch; no board latency, distribution inference or universal speed claim.'))
                 driver=Path(tmp)/(cc+'-driver')
                 execute([cc,'-std=c17','-O2','-Wall','-Wextra','-Werror','-pedantic-errors','-I',ROOT/'labs/corpus_codec',ROOT/'labs/corpus_codec/driver.c',ROOT/'assessor/corpus_codec/codec.c','-o',driver],cc+'.oracle-build')
                 oracle=json.loads(execute(['python3',ROOT/'assessor/corpus_codec/oracle.py',driver],cc+'.independent-oracle'))

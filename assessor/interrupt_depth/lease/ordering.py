@@ -34,6 +34,6 @@ rows=[dict(id='compiler-only',witness=bad[0],violated='descriptor visible before
 dict(id='DMB-with-dirty-line',observed=7,expected=42,violated='payload visibility'),
 dict(id='DSB-with-live-device',pending_write=pending_write,violated='exclusive ownership'),
 dict(id='IRQ-mask-with-DMA',witness=events[0],violated='exclusive ownership'),
-dict(id='post-publication-no-invalidate',observed=9,expected=42,violated='struct lr_cpu result visibility')]
+dict(id='post-publication-no-invalidate',observed=9,expected=42,violated='CPU result visibility')]
 print(json.dumps(dict(passed=True,descriptor_schedules=len(bus),ordered_schedules=len(ordered),counterexamples=rows,
  limits=['Abstract visibility schedules under explicit independent device/cache actors, not a simulator of all Arm memory-system rules.','Generated instructions and actual selected board port are checked separately.','No undefined C output or physical timing is a golden result.']),indent=2))

@@ -1,4 +1,4 @@
-"""Execute actual per-struct lr_cpu frames, nested faults, SIMD and changed-ABI evidence."""
+"""Execute actual per-CPU frames, nested faults, SIMD and changed-ABI evidence."""
 import argparse,hashlib,importlib.util,json,os,subprocess,tempfile
 from datetime import datetime,timezone
 from pathlib import Path
@@ -15,7 +15,7 @@ def sources():
  return sorted(set(paths))
 def main(report):
  destination=(ROOT/report).resolve()
- if not destination.is_relative_to(BASE.resolve()):raise ValueError('Use per-struct lr_cpu successor evidence directory')
+ if not destination.is_relative_to(BASE.resolve()):raise ValueError('Use per-CPU successor evidence directory')
  logs=BASE/'runs'/datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ');logs.mkdir(parents=True,exist_ok=False);pins={p.relative_to(ROOT).as_posix():sha(p) for p in sources()}
  value={'schema_version':1,'created_utc':datetime.now(timezone.utc).isoformat(),'inspected_paths':pins,'commands':[],'observations':[],'scope':'Actual private tables/stacks, normalized interrupt frames, known nested faults with peers, selected x87/SSE context preservation, checked numeric layouts, changed-ABI compilation and equivalent-contract host cost samples.','limits':['Known-site recovery is not arbitrary fault isolation or double-fault recovery.','Cooperative contexts and explicit software interrupts do not establish asynchronous SIMD preemption safety.','FXSAVE profile excludes AVX and other extended states; hardware support alone does not permit their use.','Frame calculation covers only the declared finite call/nesting tree, not arbitrary execution.','QEMU and host cost observations do not establish physical platform timing, independent review or learner mastery.']}
  env=dict(os.environ,ASAN_OPTIONS='detect_leaks=1:abort_on_error=1',UBSAN_OPTIONS='halt_on_error=1')

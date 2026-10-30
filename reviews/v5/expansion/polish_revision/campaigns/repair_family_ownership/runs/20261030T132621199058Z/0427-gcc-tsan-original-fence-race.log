@@ -1,0 +1,55 @@
+ORC_RACE synchronized-start rounds256 success59 dead197 actual-payload-control-reclamation
+
+==================
+WARNING: ThreadSanitizer: data race (pid=76386)
+  Write of size 4 at 0x7fffffffd5d0 by thread T19:
+    #0 release /home/fred/dev/c_mastery/build/frozen/repair/assessor/ownership/ownership.c:641 (ownership-references+0x97e9) (BuildId: e1d7a2f114af58ed773e682305d55decd27eaaf3)
+    #1 race_destroy /home/fred/dev/c_mastery/build/frozen/repair/labs/ownership/references/tests/tests.c:261 (ownership-references+0x4343) (BuildId: e1d7a2f114af58ed773e682305d55decd27eaaf3)
+    #2 ow_atomic_drop /home/fred/dev/c_mastery/build/frozen/repair/assessor/ownership/ownership.c:444 (ownership-references+0x8ad4) (BuildId: e1d7a2f114af58ed773e682305d55decd27eaaf3)
+    #3 dropper /home/fred/dev/c_mastery/build/frozen/repair/labs/ownership/references/tests/tests.c:285 (ownership-references+0x445e) (BuildId: e1d7a2f114af58ed773e682305d55decd27eaaf3)
+
+  Previous read of size 4 at 0x7fffffffd5d0 by thread T20:
+    #0 upgrader /home/fred/dev/c_mastery/build/frozen/repair/labs/ownership/references/tests/tests.c:297 (ownership-references+0x45b8) (BuildId: e1d7a2f114af58ed773e682305d55decd27eaaf3)
+
+  Location is stack of main thread.
+
+  Thread T19 (tid=76406, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 race /home/fred/dev/c_mastery/build/frozen/repair/labs/ownership/references/tests/tests.c:345 (ownership-references+0x4c4f) (BuildId: e1d7a2f114af58ed773e682305d55decd27eaaf3)
+    #2 main /home/fred/dev/c_mastery/build/frozen/repair/labs/ownership/references/tests/tests.c:520 (ownership-references+0x5e9a) (BuildId: e1d7a2f114af58ed773e682305d55decd27eaaf3)
+
+  Thread T20 (tid=76407, finished) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 race /home/fred/dev/c_mastery/build/frozen/repair/labs/ownership/references/tests/tests.c:345 (ownership-references+0x4c7b) (BuildId: e1d7a2f114af58ed773e682305d55decd27eaaf3)
+    #2 main /home/fred/dev/c_mastery/build/frozen/repair/labs/ownership/references/tests/tests.c:520 (ownership-references+0x5e9a) (BuildId: e1d7a2f114af58ed773e682305d55decd27eaaf3)
+
+SUMMARY: ThreadSanitizer: data race /home/fred/dev/c_mastery/build/frozen/repair/assessor/ownership/ownership.c:641 in release
+==================
+==================
+WARNING: ThreadSanitizer: data race (pid=76386)
+  Write of size 8 at 0x721400000038 by thread T19:
+    #0 race_destroy /home/fred/dev/c_mastery/build/frozen/repair/labs/ownership/references/tests/tests.c:262 (ownership-references+0x4353) (BuildId: e1d7a2f114af58ed773e682305d55decd27eaaf3)
+    #1 ow_atomic_drop /home/fred/dev/c_mastery/build/frozen/repair/assessor/ownership/ownership.c:444 (ownership-references+0x8ad4) (BuildId: e1d7a2f114af58ed773e682305d55decd27eaaf3)
+    #2 dropper /home/fred/dev/c_mastery/build/frozen/repair/labs/ownership/references/tests/tests.c:285 (ownership-references+0x445e) (BuildId: e1d7a2f114af58ed773e682305d55decd27eaaf3)
+
+  Previous read of size 8 at 0x721400000038 by thread T20:
+    #0 upgrader /home/fred/dev/c_mastery/build/frozen/repair/labs/ownership/references/tests/tests.c:297 (ownership-references+0x45ac) (BuildId: e1d7a2f114af58ed773e682305d55decd27eaaf3)
+
+  Location is heap block of size 72 at 0x721400000000 allocated by main thread:
+    #0 malloc ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:670 (libtsan.so.2+0x8d29c) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 race /home/fred/dev/c_mastery/build/frozen/repair/labs/ownership/references/tests/tests.c:326 (ownership-references+0x47d9) (BuildId: e1d7a2f114af58ed773e682305d55decd27eaaf3)
+    #2 main /home/fred/dev/c_mastery/build/frozen/repair/labs/ownership/references/tests/tests.c:520 (ownership-references+0x5e9a) (BuildId: e1d7a2f114af58ed773e682305d55decd27eaaf3)
+
+  Thread T19 (tid=76406, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 race /home/fred/dev/c_mastery/build/frozen/repair/labs/ownership/references/tests/tests.c:345 (ownership-references+0x4c4f) (BuildId: e1d7a2f114af58ed773e682305d55decd27eaaf3)
+    #2 main /home/fred/dev/c_mastery/build/frozen/repair/labs/ownership/references/tests/tests.c:520 (ownership-references+0x5e9a) (BuildId: e1d7a2f114af58ed773e682305d55decd27eaaf3)
+
+  Thread T20 (tid=76407, finished) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 race /home/fred/dev/c_mastery/build/frozen/repair/labs/ownership/references/tests/tests.c:345 (ownership-references+0x4c7b) (BuildId: e1d7a2f114af58ed773e682305d55decd27eaaf3)
+    #2 main /home/fred/dev/c_mastery/build/frozen/repair/labs/ownership/references/tests/tests.c:520 (ownership-references+0x5e9a) (BuildId: e1d7a2f114af58ed773e682305d55decd27eaaf3)
+
+SUMMARY: ThreadSanitizer: data race /home/fred/dev/c_mastery/build/frozen/repair/labs/ownership/references/tests/tests.c:262 in race_destroy
+==================
+ThreadSanitizer: reported 2 warnings

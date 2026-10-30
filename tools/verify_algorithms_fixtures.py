@@ -266,12 +266,12 @@ def verify(kind,i,e):
             elif not r['dma']: status='not_dma_reachable'
             else: status='ok'
             statuses.append(status)
-        owner='struct lr_cpu'; owners=[]
+        owner='CPU'; owners=[]
         for event in i['ownership_events']:
-            if event=='give_dma': require(owner=='struct lr_cpu','DMA give owner'); owner='DMA'
-            elif event=='dma_done': require(owner=='DMA','DMA completion owner'); owner='struct lr_cpu'
+            if event=='give_dma': require(owner=='CPU','DMA give owner'); owner='DMA'
+            elif event=='dma_done': require(owner=='DMA','DMA completion owner'); owner='CPU'
             elif event=='cpu_write_attempt': require(owner=='DMA','write rejection anchor')
-            else: require(owner=='struct lr_cpu','struct lr_cpu access owner')
+            else: require(owner=='CPU','CPU access owner')
             owners.append(owner)
         words=[]
         for width,value in i['bridge_writes']:

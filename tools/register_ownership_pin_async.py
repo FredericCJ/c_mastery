@@ -2,7 +2,7 @@
 import json
 from common import ROOT,dump,read_json,sha
 ANCHORS=['pin_async_base','pin_async_timeout','pin_async_notification','pin_async_identity','pin_async_counters','pin_async_host','pin_async_dma']
-MARKERS=['OPA_BASE actual-struct ow_pin','OPA_TIMEOUT recovery-required','OPA_NOTIFICATION different-executor','OPA_IDENTITY stale-ticket','OPA_COUNTERS reserve-terminal-capacity','OPA_HOST actual-foreign-callback','OPA_DMA actual-Pd-struct f_async-struct ow_pin']
+MARKERS=['OPA_BASE actual-OwPin','OPA_TIMEOUT recovery-required','OPA_NOTIFICATION different-executor','OPA_IDENTITY stale-ticket','OPA_COUNTERS reserve-terminal-capacity','OPA_HOST actual-foreign-callback','OPA_DMA actual-Pd-FAsync-OwPin']
 DEPENDENCY=dict(family='foundations',artifact='io.async',producer='PR-T21-02',learner_source='labs/foundations/src/foundation.c',assessor_source='assessor/foundations/foundation.c',include='labs/foundations/include',contract='labs/foundations/README.md')
 def register():
     public='labs/ownership/pin_async';contract=public+'/PIN.md';source='research/v5/modern/ownership_pin_async_resources.json';gate='research/v5/modern/ownership_pin_async_research_gate.json';tests=['ownership.'+a for a in ANCHORS]

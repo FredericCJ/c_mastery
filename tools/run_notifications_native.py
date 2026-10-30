@@ -35,7 +35,7 @@ def main(report):
         ROOT/'assessor/execution/cmx.c',ROOT/'labs/execution/include/cmx.h',ROOT/'labs/execution/src/cmx.c']
     pins={p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
     value={'schema_version':1,'created_utc':datetime.now(timezone.utc).isoformat(),'inspected_paths':pins,'profiles':[],
-        'scope':'Actual two-struct lr_cpu Linux pthread-excluded CMX notification workload;4000 accepted occurrences,93 raw samples/profile; race-free atomic lost-update contrast.',
+        'scope':'Actual two-CPU Linux pthread-excluded CMX notification workload;4000 accepted occurrences,93 raw samples/profile; race-free atomic lost-update contrast.',
         'limits':['Finite hosted observations and sanitizer runs do not prove all schedules, fairness, real-time bounds or weak-memory equivalence.',
                   'No physical board observation; pthread locking/affinity and timing calls are hosted dependencies only.']}
     with tempfile.TemporaryDirectory(prefix='notifications-native-campaign-') as directory:

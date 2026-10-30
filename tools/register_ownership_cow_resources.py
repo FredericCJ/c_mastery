@@ -2,7 +2,7 @@
 import json
 from common import ROOT,dump,read_json,sha
 ANCHORS=['cow_resources_base','cow_resources_snapshots','cow_resources_failures','cow_resources_identity','cow_resources_close','cow_resources_threads']
-MARKERS=['OCR_BASE actual-struct ow_cow','OCR_SNAPSHOTS actual-owned-resources','OCR_FAILURES raw typed post-acquisition-partial-clone','OCR_IDENTITY four-slot-capacity','OCR_CLOSE no-new-snapshot','OCR_THREADS actual-two-readers']
+MARKERS=['OCR_BASE actual-OwCow','OCR_SNAPSHOTS actual-owned-resources','OCR_FAILURES raw typed post-acquisition-partial-clone','OCR_IDENTITY four-slot-capacity','OCR_CLOSE no-new-snapshot','OCR_THREADS actual-two-readers']
 def register():
     public='labs/ownership/cow_resources';contract=public+'/COW.md';source='research/v5/modern/ownership_cow_resources_resources.json';gate='research/v5/modern/ownership_cow_resources_research_gate.json';tests=['ownership.'+a for a in ANCHORS]
     f=read_json(ROOT/'labs/ownership/family.json')

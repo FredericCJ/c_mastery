@@ -45,9 +45,9 @@ def cpu_features(model,props=None):
  command=['qemu-system-x86_64','-machine','pc-i440fx-10.2','-accel','tcg','-display','none','-nodefaults','-nic','none','-S','-qmp','stdio']
  messages=[{'execute':'qmp_capabilities','id':'caps'},{'execute':'query-cpu-model-expansion','arguments':{'type':'full','model':{'name':model,'props':props or {}}},'id':'model'},{'execute':'quit','id':'quit'}]
  result=subprocess.run(command,input='\n'.join(json.dumps(m) for m in messages)+'\n',capture_output=True,text=True,timeout=15)
- if result.returncode:raise ValueError('struct lr_cpu preflight command failed: '+result.stderr)
+ if result.returncode:raise ValueError('CPU preflight command failed: '+result.stderr)
  replies=[json.loads(line) for line in result.stdout.splitlines() if line.startswith('{')];reply=next((r for r in replies if r.get('id')=='model'),{})
- if 'return' not in reply:raise ValueError('struct lr_cpu model cannot be expanded: '+json.dumps(reply))
+ if 'return' not in reply:raise ValueError('CPU model cannot be expanded: '+json.dumps(reply))
  expanded=reply['return']['model'];features=expanded.get('props',{});missing=[name for name in ('apic','pae','lm','nx') if features.get(name) is not True]
  return {'model':model,'properties':props or {},'available':not missing,'missing':missing,'expanded':expanded,'command':command,'exit_code':result.returncode,'stdout':result.stdout,'stderr':result.stderr}
 def prepare(lab,source,implementation,work,base=0x8000,mode=0,mutant=0,compiler='gcc',optimization='-O2',observer=None):
@@ -78,9 +78,9 @@ def prepare(lab,source,implementation,work,base=0x8000,mode=0,mutant=0,compiler=
  for key in tuple(os.environ):
   if key.startswith(('CMASTERY_STORAGE_','CMASTERY_RUNTIME_')):os.environ.pop(key)
  guest.build(lab,copied,work/'guest')
- return guest,{'base':base,'mode':mode,'mutant':mutant,'compiler':compiler,'compiler_scope':'Selected compiler for adapted smp.c and ap.S; GCC for frozen boot/kernel/user prerequisite, GNU as for assembly.','optimization':optimization,'source_root':str(source),'implementation_root':str(implementation),'modified_copy_sha256':{p.name:sha(p) for p in (old,assembly,copied/'startup.c')},'scope':'Retained discovery/APIC/PIT/per-struct lr_cpu table routines imported unchanged; only old test entry renamed and explicit new original adapter/trampoline appended.'}
+ return guest,{'base':base,'mode':mode,'mutant':mutant,'compiler':compiler,'compiler_scope':'Selected compiler for adapted smp.c and ap.S; GCC for frozen boot/kernel/user prerequisite, GNU as for assembly.','optimization':optimization,'source_root':str(source),'implementation_root':str(implementation),'modified_copy_sha256':{p.name:sha(p) for p in (old,assembly,copied/'startup.c')},'scope':'Retained discovery/APIC/PIT/per-CPU table routines imported unchanged; only old test entry renamed and explicit new original adapter/trampoline appended.'}
 def command(guest,work,cpus,model):
- if cpus not in (1,2,4) or model not in ('qemu64','max'):raise ValueError('Use declared struct lr_cpu/model matrix')
+ if cpus not in (1,2,4) or model not in ('qemu64','max'):raise ValueError('Use declared CPU/model matrix')
  os.environ['CMASTERY_CPUS']=str(cpus);cmd=guest.command(work/'guest','write');cmd[cmd.index('-cpu')+1]=model
  if cpus==4:cmd[cmd.index('-smp')+1]='4,sockets=2,cores=3,threads=1,maxcpus=6'
  disk=work/'guest/disk.raw'

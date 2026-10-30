@@ -106,7 +106,7 @@ def header(path,rows=None):
 
 def capture_header(path,captures):
  lines=['/* Exact captured bytes; expected fields independently decoded in Python. */'];checks=[];observations=[]
- if len(captures)!=6 or {(r['machine'],r['cpus']) for r in captures}!={(m,c) for m in ('pc-i440fx-10.2','pc-q35-10.2') for c in (1,2,4)}:raise ValueError('Missing changed-machine/struct lr_cpu condition')
+ if len(captures)!=6 or {(r['machine'],r['cpus']) for r in captures}!={(m,c) for m in ('pc-i440fx-10.2','pc-q35-10.2') for c in (1,2,4)}:raise ValueError('Missing changed-machine/CPU condition')
  for i,capture in enumerate(captures):
   rsdp=bytes.fromhex(capture['rsdp']);regions={r['address']:bytes.fromhex(r['bytes']) for r in capture['regions']}
   if rsdp[:8]!=b'RSD PTR ' or sum(rsdp[:20])%256 or len(regions)!=len(capture['regions']):raise ValueError('Invalid captured RSDP/region uniqueness')

@@ -50,7 +50,7 @@ def check(d,q,files=True):
         for r in mutants+learners:
             text=(ROOT/r['log']).read_text(encoding='utf8');assert 'OW_CHECK' in text and not any(s in text for s in ['AddressSanitizer','ThreadSanitizer','runtime error:'])
         for r in ctests:
-            text=(ROOT/r['log']).read_text(encoding='utf8');assert all(s in text for s in ['OAA_BASE actual-struct ow_allocator','in-place-provider','OAA_ROLLBACK injection-and-upstream-failure','OAA_POISON observer-before-upstream-release','full-upstream-shrink-refusal','OAA_CONSUMERS actual-frontier-COW-failure-sweeps','OAA_RECURSIVE actual-T65-error-format','100% tests passed'])
+            text=(ROOT/r['log']).read_text(encoding='utf8');assert all(s in text for s in ['OAA_BASE actual-OwAllocator','in-place-provider','OAA_ROLLBACK injection-and-upstream-failure','OAA_POISON observer-before-upstream-release','full-upstream-shrink-refusal','OAA_CONSUMERS actual-frontier-COW-failure-sweeps','OAA_RECURSIVE actual-T65-error-format','100% tests passed'])
         for r in d['generated_artifacts']:
             if r['path'].endswith('compile_commands.json'):
                 commands=json.loads((ROOT/r['path']).read_text());assert commands and all('-std=c17' in c['command'] for c in commands)

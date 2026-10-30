@@ -138,7 +138,7 @@ def run(report):
     validate_host(host);validate_target(target);validate_native(native)
     checks=[{'name':'six-profiles-132-compiled-outcomes-and-count-handoff-lifetime-histories','passed':True},
             {'name':'39-actual-M4-guests-and-explicit-helper-audits','passed':True},
-            {'name':'64-native-outcomes-eight-profiles-distinct-struct lr_cpu-ledger-and-samples','passed':True}]
+            {'name':'64-native-outcomes-eight-profiles-distinct-CPU-ledger-and-samples','passed':True}]
     controls=[('missing-profile',host,validate_host,lambda d:d['profiles'].pop()),
         ('missing-mutant',host,validate_host,lambda d:d['profiles'][0]['outcomes'].pop()),
         ('compile-failure',host,validate_host,lambda d:d['profiles'][0]['outcomes'][1].update(build_exit=1)),
@@ -158,7 +158,7 @@ def run(report):
         ('native-build-failure',native,validate_native,lambda d:d['profiles'][0]['outcomes'][0].update(build_exit=1)),
         ('native-crash',native,validate_native,lambda d:d['profiles'][0]['outcomes'][1].update(execution_exit=139)),
         ('native-generic-marker',native,validate_native,lambda d:d['profiles'][0]['outcomes'][1].update(semantic_marker='failure')),
-        ('native-same-struct lr_cpu-summary',native,validate_native,lambda d:d['profiles'][0]['outcomes'][0]['observed'].update(consumer_cpu=d['profiles'][0]['outcomes'][0]['observed']['producer_cpu']))]
+        ('native-same-CPU-summary',native,validate_native,lambda d:d['profiles'][0]['outcomes'][0]['observed'].update(consumer_cpu=d['profiles'][0]['outcomes'][0]['observed']['producer_cpu']))]
     for name,source,validator,mutate in controls:
         altered=deepcopy(source);mutate(altered)
         try:validator(altered);rejected=False

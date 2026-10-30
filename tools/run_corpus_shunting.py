@@ -47,7 +47,7 @@ def run(report):
                     execute([cc,*flags,ROOT/'labs/corpus_shunting'/source,ROOT/'assessor/corpus_shunting/shunting.c',ROOT/'assessor/parsing_depth/pratt.c','-o',binary],cc+'.'+name+'-build')
                     if name=='measure':
                         raw=execute([binary],cc+'.measure');assert len(raw.splitlines())==14 and 'tokens=61 mode=stream' in raw
-                        d['measurements'].append(dict(compiler=cc,raw=raw,iterations_per_token_count=10000,limits='Bounded host struct lr_cpu ticks, stack actions and staged-state copies; not board latency or a universal speed claim.'))
+                        d['measurements'].append(dict(compiler=cc,raw=raw,iterations_per_token_count=10000,limits='Bounded host CPU ticks, stack actions and staged-state copies; not board latency or a universal speed claim.'))
                     else:
                         obs=json.loads(execute(['python3',ROOT/'assessor/corpus_shunting/oracle.py',binary],cc+'.oracle'));assert obs['passed'] and obs['observations']==4512
                         d['independent_oracles'].append(dict(compiler=cc,**obs))

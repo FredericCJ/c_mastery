@@ -2,7 +2,7 @@
   "schema_version": 1,
   "project": "PR-T53-03",
   "domain": "T53",
-  "title": "Per-struct lr_cpu execution state and stacks \u2014 explicit depth assessments",
+  "title": "Per-CPU execution state and stacks \u2014 explicit depth assessments",
   "required": true,
   "shared_contracts": [
     "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
@@ -110,7 +110,7 @@
   },
   "environment": {
     "language": "Active C17. C11 draft and edition comparisons are labeled; compiler atomics/assembly, ABI, ISA, OS and board contracts are distinct authorities.",
-    "target": "Original disposable x86-64 QEMU teaching guest, with separate host span/state models; exact machine/struct lr_cpu/version recorded. No host-disk/network passthrough.",
+    "target": "Original disposable x86-64 QEMU teaching guest, with separate host span/state models; exact machine/CPU/version recorded. No host-disk/network passthrough.",
     "profile": "F",
     "dependencies": "Retain strict parent E/F target restrictions: no linked libc, libgcc, compiler-rt, libatomic, HAL or preexisting kernel implements the taught mechanism. Host Python/verification and explicitly separate FreeRTOS/Linux comparisons are not target dependencies.",
     "toolchain": [
@@ -133,7 +133,7 @@
   "reference_gaps": [
     "Published exact C17/C23 comparisons and full platform standards beyond listed passages remain separately inspected obligations. N1570 is a C11 draft comparison.",
     "No fresh complete baseline target campaign or learner portfolio is asserted by this authoring wave.",
-    "Physical timing, cache effects, electrical behavior and current struct lr_cpu/board errata remain unvalidated.",
+    "Physical timing, cache effects, electrical behavior and current CPU/board errata remain unvalidated.",
     "ACPI6.6 retrieval returned403; current ACPI conformance is not newly established. Intel253668-060US is historical, not current errata.",
     "The existing fault path stops the image; local fault containment and all nested-context stack bounds remain separate obligations."
   ],
@@ -188,8 +188,8 @@
           ]
         }
       ],
-      "task": "Lay out per-struct lr_cpu records, kernel/idle/interrupt stacks, GDT/TSS and optional emergency stack for four CPUs. Prove half-open stack extents disjoint with checked arithmetic and alignment, then identify which fields may be shared read-only. Compare cache-line placement with correctness requirements.",
-      "purpose": "Per-struct lr_cpu labels ensure the backing memory is distinct and race-free.",
+      "task": "Lay out per-CPU records, kernel/idle/interrupt stacks, GDT/TSS and optional emergency stack for four CPUs. Prove half-open stack extents disjoint with checked arithmetic and alignment, then identify which fields may be shared read-only. Compare cache-line placement with correctness requirements.",
+      "purpose": "Per-CPU labels ensure the backing memory is distinct and race-free.",
       "prerequisites": {
         "knowledge": [
           "Retained T53.03 teaching and project prerequisite chain",
@@ -202,13 +202,13 @@
         ]
       },
       "reasoning": [
-        "Per-struct lr_cpu labels ensure the backing memory is distinct and race-free. Refute it using the smallest relevant state/trace.",
+        "Per-CPU labels ensure the backing memory is distinct and race-free. Refute it using the smallest relevant state/trace.",
         "State preconditions, postconditions, representation invariant, ownership/lifetime, publication and failure boundaries for this task.",
         "Derive bounded storage, work/progress and timing assumptions where applicable. Mark genuinely inapplicable quantities instead of inventing a timing guarantee."
       ],
       "deliverables": {
-        "D1": "Prediction and causal argument addressing: Per-struct lr_cpu labels ensure the backing memory is distinct and race-free.",
-        "D2": "Lay out per-struct lr_cpu records, kernel/idle/interrupt stacks, GDT/TSS and optional emergency stack for four CPUs. Prove half-open stack extents disjoint with checked arithmetic and alignment, then identify which fields may be shared read-only. Compare cache-line placement with correctness requirements.",
+        "D1": "Prediction and causal argument addressing: Per-CPU labels ensure the backing memory is distinct and race-free.",
+        "D2": "Lay out per-CPU records, kernel/idle/interrupt stacks, GDT/TSS and optional emergency stack for four CPUs. Prove half-open stack extents disjoint with checked arithmetic and alignment, then identify which fields may be shared read-only. Compare cache-line placement with correctness requirements.",
         "D3": "Exact source/model, commands or derivation, original inputs, raw observations, independently expected results and a criterion-specific falsification control. Separate missing tools/targets from observed outcomes.",
         "D4": "Change stack size and alignment under a different ABI and regenerate the extent and worst-case frame calculation."
       },
@@ -254,7 +254,7 @@
     },
     {
       "id": "AX-PR-T53-03-T53.03.b",
-      "title": "Allocate distinct struct lr_cpu-local records, GDT/TSS state and kernel/idle stacks. Exercise simultaneous nested calls and a controlled fault on one struct lr_cpu while peers report progress.",
+      "title": "Allocate distinct CPU-local records, GDT/TSS state and kernel/idle stacks. Exercise simultaneous nested calls and a controlled fault on one CPU while peers report progress.",
       "objective": "T53.03.b",
       "families": [
         "B",
@@ -276,7 +276,7 @@
           ]
         }
       ],
-      "task": "Implement private table/stack initialization and a controlled nested call/interrupt frame probe. Verify ABI alignment, saved registers, red-zone policy and TSS/IST selection from generated assembly. Place canaries at stated boundaries; analyze a fault on one struct lr_cpu without claiming the existing whole-image stop is task-local containment.",
+      "task": "Implement private table/stack initialization and a controlled nested call/interrupt frame probe. Verify ABI alignment, saved registers, red-zone policy and TSS/IST selection from generated assembly. Place canaries at stated boundaries; analyze a fault on one CPU without claiming the existing whole-image stop is task-local containment.",
       "purpose": "A surviving stack canary proves enough stack for every execution.",
       "prerequisites": {
         "knowledge": [
@@ -296,7 +296,7 @@
       ],
       "deliverables": {
         "D1": "Prediction and causal argument addressing: A surviving stack canary proves enough stack for every execution.",
-        "D2": "Implement private table/stack initialization and a controlled nested call/interrupt frame probe. Verify ABI alignment, saved registers, red-zone policy and TSS/IST selection from generated assembly. Place canaries at stated boundaries; analyze a fault on one struct lr_cpu without claiming the existing whole-image stop is task-local containment.",
+        "D2": "Implement private table/stack initialization and a controlled nested call/interrupt frame probe. Verify ABI alignment, saved registers, red-zone policy and TSS/IST selection from generated assembly. Place canaries at stated boundaries; analyze a fault on one CPU without claiming the existing whole-image stop is task-local containment.",
         "D3": "Exact source/model, commands or derivation, original inputs, raw observations, independently expected results and a criterion-specific falsification control. Separate missing tools/targets from observed outcomes.",
         "D4": "Permit SIMD in task code and derive the additional context state and preemption-save requirements."
       },
@@ -342,7 +342,7 @@
     },
     {
       "id": "AX-PR-T53-03-T53.03.c",
-      "title": "Demonstrate nonoverlapping live stack ranges and struct lr_cpu-local identities under parallel work. A fault record must identify its struct lr_cpu and retain peer progress evidence.",
+      "title": "Demonstrate nonoverlapping live stack ranges and CPU-local identities under parallel work. A fault record must identify its CPU and retain peer progress evidence.",
       "objective": "T53.03.c",
       "families": [
         "C",
@@ -364,8 +364,8 @@
           ]
         }
       ],
-      "task": "Run distinct per-struct lr_cpu synthetic patterns through context switches and interrupts, checking register and stack ownership before/after. Mutate one struct lr_cpu's TSS pointer to another's in an isolated emulator or model and require an explicit failure signal, not a silent reboot accepted as success.",
-      "purpose": "One-struct lr_cpu success validates SMP-local storage.",
+      "task": "Run distinct per-CPU synthetic patterns through context switches and interrupts, checking register and stack ownership before/after. Mutate one CPU's TSS pointer to another's in an isolated emulator or model and require an explicit failure signal, not a silent reboot accepted as success.",
+      "purpose": "One-CPU success validates SMP-local storage.",
       "prerequisites": {
         "knowledge": [
           "Retained T53.03 teaching and project prerequisite chain",
@@ -378,26 +378,26 @@
         ]
       },
       "reasoning": [
-        "One-struct lr_cpu success validates SMP-local storage. Refute it using the smallest relevant state/trace.",
+        "One-CPU success validates SMP-local storage. Refute it using the smallest relevant state/trace.",
         "State preconditions, postconditions, representation invariant, ownership/lifetime, publication and failure boundaries for this task.",
         "Derive bounded storage, work/progress and timing assumptions where applicable. Mark genuinely inapplicable quantities instead of inventing a timing guarantee."
       ],
       "deliverables": {
-        "D1": "Prediction and causal argument addressing: One-struct lr_cpu success validates SMP-local storage.",
-        "D2": "Run distinct per-struct lr_cpu synthetic patterns through context switches and interrupts, checking register and stack ownership before/after. Mutate one struct lr_cpu's TSS pointer to another's in an isolated emulator or model and require an explicit failure signal, not a silent reboot accepted as success.",
+        "D1": "Prediction and causal argument addressing: One-CPU success validates SMP-local storage.",
+        "D2": "Run distinct per-CPU synthetic patterns through context switches and interrupts, checking register and stack ownership before/after. Mutate one CPU's TSS pointer to another's in an isolated emulator or model and require an explicit failure signal, not a silent reboot accepted as success.",
         "D3": "Exact source/model, commands or derivation, original inputs, raw observations, independently expected results and a criterion-specific falsification control. Separate missing tools/targets from observed outcomes.",
         "D4": "Add nested faults using a separate emergency stack and specify which faults remain unrecoverable."
       },
       "verification": {
         "procedure": "Predict before observing. Implement or derive every concrete task clause under the parent/shared contract; retain normal, boundary/failure and falsification evidence. Compare the specified expected argument, including negative outcomes and limitations, rather than only a checksum or old fixture. Bind versions, source/image hashes and the observation environment.",
-        "expected": "Only multiple CPUs can expose cross-struct lr_cpu aliasing; a controlled alias must break the stated ownership check. Crash/reboot is a diagnostic outcome, not evidence of arbitrary execution or successful containment. Exact faulty target source and image remain isolated.",
+        "expected": "Only multiple CPUs can expose cross-CPU aliasing; a controlled alias must break the stated ownership check. Crash/reboot is a diagnostic outcome, not evidence of arbitrary execution or successful containment. Exact faulty target source and image remain isolated.",
         "pass": "Every task clause and expected causal distinction is supported by actual learner artifacts. Correct numbers with the stated misconception, missing ownership/failure behavior or unsupported target claims fail this objective.",
         "limits": "New full criteria are unattempted. Baseline test names identify bounded support only; model, host, emulator, physical and learner evidence are not interchangeable."
       },
       "rubric": {
         "0": "Missing/incorrect artifacts, violated containment/preconditions or a false semantic guarantee.",
         "1": "Reproduces an ordinary case but cannot reject this leaf-specific misconception or explain its boundary.",
-        "2": "Only multiple CPUs can expose cross-struct lr_cpu aliasing; a controlled alias must break the stated ownership check. Crash/reboot is a diagnostic outcome, not evidence of arbitrary execution or successful containment. Exact faulty target source and image remain isolated. Supplies a distinct falsification control and the concrete task artifacts.",
+        "2": "Only multiple CPUs can expose cross-CPU aliasing; a controlled alias must break the stated ownership check. Crash/reboot is a diagnostic outcome, not evidence of arbitrary execution or successful containment. Exact faulty target source and image remain isolated. Supplies a distinct falsification control and the concrete task artifacts.",
         "3": "Add nested faults using a separate emergency stack and specify which faults remain unrecoverable. Independently derives and verifies the changed obligations after the recorded delay."
       },
       "hints": [

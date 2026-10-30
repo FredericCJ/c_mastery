@@ -1,4 +1,4 @@
-"""Explicit composition of completed startup and per-struct lr_cpu learner adapters."""
+"""Explicit composition of completed startup and per-CPU learner adapters."""
 import argparse,hashlib,importlib.util,json,re,shutil,subprocess
 from pathlib import Path
 PUBLIC=Path(__file__).resolve().parent

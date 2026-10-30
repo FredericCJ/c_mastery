@@ -55,11 +55,11 @@ DECISIONS = {
     'PR-T03-02': ('How will a cursor expose failed reads?', ['transactional output parameters','tagged result with explicit consumed count'], 'Try short spans and a failure after a valid prefix.', 'A streaming caller needs partial progress.'),
     'PR-T16-03': ('How will released slot identities be protected?', ['generation handles','borrow-scoped direct pointers'], 'Retain an alias through release and immediate slot reuse.', 'A completion can arrive after the owner is destroyed.'),
     'PR-T20-01': ('Which parts of record processing belong in the portable core?', ['core owns framing state','adapter owns framing and feeds complete records'], 'Feed the same record using file, short-read and resettable adapters.', 'Transport segmentation and reset semantics change.'),
-    'PR-T24-04': ('How will the service schedule ready work?', ['single readiness loop','bounded worker pool'], 'Compare slow peers, fairness, memory ceilings and shutdown.', 'struct lr_cpu-heavy requests become common.'),
+    'PR-T24-04': ('How will the service schedule ready work?', ['single readiness loop','bounded worker pool'], 'Compare slow peers, fairness, memory ceilings and shutdown.', 'CPU-heavy requests become common.'),
     'PR-T50-05': ('Which timer representation fits this task bound?', ['sorted deadline list','binary min-heap'], 'Measure insertion/cancellation and worst traversal at the declared task count.', 'The task population or cancellation rate changes.'),
     'PR-T51-06': ('Who owns a message during delivery?', ['copy into queue-owned slots','transfer generation-checked ownership'], 'Inject timeout, cancellation and receiver destruction during handoff.', 'Payload size or DMA lifetime changes.'),
     'PR-T47-07': ('When can a commit report durability?', ['synchronous commit barrier','grouped barrier with explicit pending state'], 'Crash before and after every write/barrier boundary.', 'Latency requirements change without weakening durability.'),
-    'PR-T54-06': ('How will struct lr_cpu and DMA buffer ownership cross cores?', ['copied messages','exclusive cache-line buffer transfer'], 'Delay completion and reset a peer while it owns a buffer.', 'A peer reboots independently.'),
+    'PR-T54-06': ('How will CPU and DMA buffer ownership cross cores?', ['copied messages','exclusive cache-line buffer transfer'], 'Delay completion and reset a peer while it owns a buffer.', 'A peer reboots independently.'),
     'PR-T56-10': ('Who serializes the durable store?', ['single-owner service','shared access behind an explicit lock protocol'], 'Compare failure propagation, cancellation and recovery authority.', 'A client dies during a request.'),
 }
 for _stem, _question, _alternatives, _probe, _reversal in [

@@ -53,9 +53,9 @@ def check_case(text,case,cpus,negative=False):
  if len(jobs)!=count or end['jobs']!=count or end['status'] or end['supervisor_kill'] or 'LC_GUEST_PASS:actual-policy-readback-workload' not in lines:raise ValueError('Incomplete measured workload')
  if behavior=='overrun' and (end['overruns']<1 or mode!='deadline'):raise ValueError('No actual reservation-overrun observation')
  for i,j in enumerate(jobs):
-  if j['index']!=i or j['release']!=jobs[0]['release']+i*10000000 or not j['release']<=j['start']<=j['finish'] or j['cpu']<=0 or j['missed']!=int(j['finish']>j['release']+5000000):raise ValueError('Invalid original release/finish/struct lr_cpu/miss trace')
+  if j['index']!=i or j['release']!=jobs[0]['release']+i*10000000 or not j['release']<=j['start']<=j['finish'] or j['cpu']<=0 or j['missed']!=int(j['finish']>j['release']+5000000):raise ValueError('Invalid original release/finish/CPU/miss trace')
   if behavior!='overrun' and j['checksum']!=checksum():raise ValueError('Wrong equivalent-work checksum')
-  if behavior=='overrun' and j['cpu']<8000000:raise ValueError('Overrun stress did not consume declared struct lr_cpu work')
+  if behavior=='overrun' and j['cpu']<8000000:raise ValueError('Overrun stress did not consume declared CPU work')
  response=sorted(j['finish']-j['release'] for j in jobs)
  return {'available':True,'jobs':count,'application_misses':sum(j['missed'] for j in jobs),'overrun_signals':end['overruns'],'response_ns':{'minimum':response[0],'median':response[(count-1)//2],'p95':response[math.ceil(count*.95)-1],'maximum':response[-1]},'physical_deadline_guarantee':False}
 def check_guest(text,cases,cpus,negative=False):

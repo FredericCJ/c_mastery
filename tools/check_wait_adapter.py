@@ -71,7 +71,7 @@ def validate_host(report):
             if positive and row['case'] == 'native':
                 match = re.search(r'cpus=(\d+),(\d+);1000 publications;100 arbitration rounds;200 stale callbacks;', output)
                 if not match or match[1] == match[2]:
-                    errors.append('Missing actual two-struct lr_cpu publication/stale callback observation')
+                    errors.append('Missing actual two-CPU publication/stale callback observation')
             if positive and row['case'] == 'model' and '32768 histories;163840 observed transitions;' not in output:
                 errors.append('Missing independent finite trace comparison')
     if errors:

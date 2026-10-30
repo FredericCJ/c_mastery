@@ -17,7 +17,7 @@ PATTERNS={
 WHY={
  'T39.06.a':'Actual imported struct bu_range whole-interval admission, live typed section layout and deliberate invalid CCM link rejection before publication.',
  'T39.06.b':'Actual original ordered RCC/RMII/GPIO/MMIO port, separate SWR lifecycle, exact dependency-edge checker and27 callback cut points.',
- 'T39.06.c':'Actual reachability/barrier object audit and distinct two-line struct lr_cpu/device visibility experiment, including dirty-neighbor ownership and lost-write counterexample.',
+ 'T39.06.c':'Actual reachability/barrier object audit and distinct two-line CPU/device visibility experiment, including dirty-neighbor ownership and lost-write counterexample.',
  'T39.07.a':'Complete single-descriptor FL/FCS adapter and explicitly scoped changed CSTF capture normalization; no changed silicon FL guess.',
  'T39.07.b':'Actual retained two-descriptor validator, incomplete/late-LS/drop recovery and24 capacity splits with final-length authority.',
  'T39.07.c':'Actual held-token ring exhaustion/duplicate/stale release and synthetic upper rejection with exactly-once release and separate layer counters.',

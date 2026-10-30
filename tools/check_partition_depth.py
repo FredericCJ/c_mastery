@@ -100,7 +100,7 @@ def native_trace(output):
     expected=checksum(640000)
     if set(workers)!={0,1}:raise ValueError('Missing native worker')
     for requested,observed,work,samples,actual,wall,cpu in workers.values():
-        if requested<0 or requested!=observed or work!=640 or samples!=128 or actual!=expected or wall<=0 or cpu<=0:raise ValueError('Wrong struct lr_cpu/work/raw-time observation')
+        if requested<0 or requested!=observed or work!=640 or samples!=128 or actual!=expected or wall<=0 or cpu<=0:raise ValueError('Wrong CPU/work/raw-time observation')
     if workers[0][0]==workers[1][0] or transfer!=[1,2,400,checksum(400)]:raise ValueError('Wrong drained ownership transfer')
     return {'workers':workers,'transfer':transfer}
 

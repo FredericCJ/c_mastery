@@ -8,7 +8,7 @@ CASES={'T25.10.a':['donation','waiting.order'],'T25.10.b':['bound'],'T25.10.c':[
 EXTRA={'T25.10.a':['hazards.model'],'T25.10.b':['hazards.model'],'T25.10.c':['gcc.effect.imports','clang.effect.imports'],'T25.11.a':['gcc.metrics.disassembly','clang.metrics.disassembly'],'T25.11.b':[],'T25.11.c':['gcc.metrics.disassembly','clang.metrics.disassembly'],'T25.12.a':['gcc.tsan.race','clang.tsan.race','gcc.weak.model','clang.weak.model','handoff.model'],'T25.12.b':['gcc.history.oracle','clang.history.oracle'],'T25.12.c':['ordering.minimize','handoff.model']}
 RATIONALES={
  'T25.10.a':'Four distinct finite hazard schedules with repeating-state arguments, actual lock-order repair,160000 independent donation/reachability cases and withdrawal.',
- 'T25.10.b':'Counterexample to lock fairness from exclusion or struct lr_cpu fairness, plus checked conditional deadline admission and refusal of unproved bounds.',
+ 'T25.10.b':'Counterexample to lock fairness from exclusion or CPU fairness, plus checked conditional deadline admission and refusal of unproved bounds.',
  'T25.10.c':'Whole-path cost/effect analysis, each nonsleepable dependency rejected, actual object allocator/mutex/output imports audited without ISR execution.',
  'T25.11.a':'Actual adjacent/separated addresses, checked byte-extent/line arithmetic, changed line/alignment models and repeated equal-update measurements with no compulsory speedup.',
  'T25.11.b':'Three exact final aggregation schemes with independent sum/checksum/update counts, changed work intensity and actual mutex current-total reader/overflow protocol.',

@@ -18,7 +18,7 @@ def archive(args,cases):
  init=('\n'.join(lines)+'\n').encode();entries=[('bin',stat.S_IFDIR|0o755,b''),('bin/busybox',stat.S_IFREG|0o755,args.busybox.read_bytes()),('init',stat.S_IFREG|0o755,init),('probe',stat.S_IFREG|0o755,args.probe.read_bytes())]
  path=args.work/'scheduler.cpio';path.write_bytes(newc(entries));return path
 def command(args,archive):
- if args.cpus not in (1,2):raise ValueError('Only the declared one/two struct lr_cpu teaching guests are supported')
+ if args.cpus not in (1,2):raise ValueError('Only the declared one/two CPU teaching guests are supported')
  return ['qemu-system-x86_64','-accel','tcg','-machine','q35','-cpu','max','-smp',str(args.cpus),'-m','768M','-nodefaults','-display','none','-serial','stdio','-monitor','none','-nic','none','-snapshot','-no-reboot','-kernel',args.kernel,'-initrd',archive,'-append','console=ttyS0 rdinit=/init panic=-1 quiet']
 if __name__=='__main__':
  p=argparse.ArgumentParser(description=__doc__)

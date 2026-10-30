@@ -69,7 +69,7 @@ def main(report):
         'passed': stable and all(o['passed'] for p in profiles for o in p['outcomes']), 'source_stable': stable,
         'profiles': profiles, 'inspected_paths': pins,
         'log_sha256': {p.relative_to(ROOT).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest() for p in run.glob('*.log')},
-        'scope': 'Actual CMX import, bounded generation wrapper, independent credit ledger and two-struct lr_cpu pthread exclusion around logical CMX tasks.',
+        'scope': 'Actual CMX import, bounded generation wrapper, independent credit ledger and two-CPU pthread exclusion around logical CMX tasks.',
         'limits': ['Not MCU scheduler/IRQ execution, target weak-memory proof or physical observation.',
                    'Native timeout contenders use explicit logical CMX time, not measured real-time deadlines.',
                    'Finite author execution, not external review or a delayed learner attempt.']}

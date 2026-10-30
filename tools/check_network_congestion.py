@@ -54,7 +54,7 @@ def validate(d):
    tag=cc+'-O'+opt;args=check(tag+' build',marker='NR_TARGET_BUILD_PASS explicit_objects=5 original_runtime').get('command',[])
    for k,v in [('--cc',cc),('--opt',opt),('--mutant','0')]:need(k in args and args[args.index(k)+1]==v,'target profile')
    need('--runtime' in args and any(s.endswith(PROVIDERS['runtime']) for s in args),'original runtime')
-   cmd=check(tag+' execute',marker='NR_TARGET_PASS actual_Reno_core CPU_state_only').get('command',[]);need('shift=0,align=off,sleep=off' in cmd,'struct lr_cpu model');need(CORE in logs.get(tag+' execute',''),'actual core target');need(check(tag+' closure').get('empty') is True,'target closure');check(tag+' size');check(tag+' assembly');check(tag+' missing controller rejected',1,'nr_init');check(tag+' resources',marker='"passed": true')
+   cmd=check(tag+' execute',marker='NR_TARGET_PASS actual_Reno_core CPU_state_only').get('command',[]);need('shift=0,align=off,sleep=off' in cmd,'CPU model');need(CORE in logs.get(tag+' execute',''),'actual core target');need(check(tag+' closure').get('empty') is True,'target closure');check(tag+' size');check(tag+' assembly');check(tag+' missing controller rejected',1,'nr_init');check(tag+' resources',marker='"passed": true')
    q=json.loads(logs.get(tag+' resources','{}'));need(q.get('passed') is True and q.get('physical_claim') is False and 1024<q.get('conservative_stack_bytes',0)<=32768 and q.get('reserve')==32768 and bool(q.get('frames')) and bool(q.get('call_graph')),'actual stack bound')
    if '--build' in args:
     path=Path(args[args.index('--build')+1])/'external-inputs.json';need(path.is_file(),'dependency manifest')

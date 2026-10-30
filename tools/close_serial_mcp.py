@@ -25,7 +25,7 @@ def integrate():
  for project in PROJECTS:
   d=read(canon(project));old=HERE/(project+'.before-mcp.json')
   if not old.exists():old.write_bytes(canon(project).read_bytes())
-  write(HERE/('attachment_'+project+'.json'),dict(project=project,domain='T38',supplied_artifacts=public,shared_contracts=ARTIFACTS[:2],source_register='research/v5/expansion/legacy_serial_mcp/resources.json',support=SUPPORT,criterion_ids=[c['id'] for c in d['criteria']],scope='Original criterion/V1 pairs: current selected-controller/struct ps_spi implementation and synthetic/struct lr_cpu verification; required physical milestones remain not-run.'))
+  write(HERE/('attachment_'+project+'.json'),dict(project=project,domain='T38',supplied_artifacts=public,shared_contracts=ARTIFACTS[:2],source_register='research/v5/expansion/legacy_serial_mcp/resources.json',support=SUPPORT,criterion_ids=[c['id'] for c in d['criteria']],scope='Original criterion/V1 pairs: current selected-controller/struct ps_spi implementation and synthetic/CPU verification; required physical milestones remain not-run.'))
   after=attach(copy.deepcopy(d));assert after['criteria']==d['criteria'] and after['baseline_binding']==d['baseline_binding'] and attach(copy.deepcopy(after))==after;write(canon(project),after)
  print('PASS additive MCP attachments')
 def package():

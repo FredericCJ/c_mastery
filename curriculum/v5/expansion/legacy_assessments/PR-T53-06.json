@@ -2,7 +2,7 @@
   "schema_version": 1,
   "project": "PR-T53-06",
   "domain": "T53",
-  "title": "Per-struct lr_cpu ready queues \u2014 explicit depth assessments",
+  "title": "Per-CPU ready queues \u2014 explicit depth assessments",
   "required": true,
   "shared_contracts": [
     "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
@@ -110,7 +110,7 @@
   },
   "environment": {
     "language": "Active C17. C11 draft and edition comparisons are labeled; compiler atomics/assembly, ABI, ISA, OS and board contracts are distinct authorities.",
-    "target": "Original disposable x86-64 QEMU teaching guest, with separate host span/state models; exact machine/struct lr_cpu/version recorded. No host-disk/network passthrough.",
+    "target": "Original disposable x86-64 QEMU teaching guest, with separate host span/state models; exact machine/CPU/version recorded. No host-disk/network passthrough.",
     "profile": "F",
     "dependencies": "Retain strict parent E/F target restrictions: no linked libc, libgcc, compiler-rt, libatomic, HAL or preexisting kernel implements the taught mechanism. Host Python/verification and explicitly separate FreeRTOS/Linux comparisons are not target dependencies.",
     "toolchain": [
@@ -141,9 +141,9 @@
   "reference_gaps": [
     "Published exact C17/C23 comparisons and full platform standards beyond listed passages remain separately inspected obligations. N1570 is a C11 draft comparison.",
     "No fresh complete baseline target campaign or learner portfolio is asserted by this authoring wave.",
-    "Physical timing, cache effects, electrical behavior and current struct lr_cpu/board errata remain unvalidated.",
+    "Physical timing, cache effects, electrical behavior and current CPU/board errata remain unvalidated.",
     "ACPI6.6 retrieval returned403; current ACPI conformance is not newly established. Intel253668-060US is historical, not current errata.",
-    "Early cooperative per-struct lr_cpu and later global preemptive scheduler stages must not be conflated."
+    "Early cooperative per-CPU and later global preemptive scheduler stages must not be conflated."
   ],
   "supplied_artifacts": [
     "curriculum/projects/PR-T53-06.md",
@@ -164,7 +164,7 @@
   ],
   "execution_support": {
     "kind": "Retained concrete construction plus bounded model/host/guest anchors",
-    "scope": "Only each named test actual contract counts as existing executable support. Early cooperative per-struct lr_cpu and later global preemptive scheduler stages must not be conflated.",
+    "scope": "Only each named test actual contract counts as existing executable support. Early cooperative per-CPU and later global preemptive scheduler stages must not be conflated.",
     "tests": [
       "kernel_smp_guest_threads"
     ],
@@ -202,8 +202,8 @@
           ]
         }
       ],
-      "task": "Define READY/RUNNING/BLOCKED/EXITED with exactly one struct lr_cpu owner or one queue membership. Build a trace validator for task IDs plus generations and show two CPUs cannot dispatch the same task. Distinguish early per-struct lr_cpu cooperative queues from the later global user ready queue.",
-      "purpose": "Every scheduler in the retained SMP family implements per-struct lr_cpu queues.",
+      "task": "Define READY/RUNNING/BLOCKED/EXITED with exactly one CPU owner or one queue membership. Build a trace validator for task IDs plus generations and show two CPUs cannot dispatch the same task. Distinguish early per-CPU cooperative queues from the later global user ready queue.",
+      "purpose": "Every scheduler in the retained SMP family implements per-CPU queues.",
       "prerequisites": {
         "knowledge": [
           "Retained T53.06 teaching and project prerequisite chain",
@@ -218,26 +218,26 @@
         ]
       },
       "reasoning": [
-        "Every scheduler in the retained SMP family implements per-struct lr_cpu queues. Refute it using the smallest relevant state/trace.",
+        "Every scheduler in the retained SMP family implements per-CPU queues. Refute it using the smallest relevant state/trace.",
         "State preconditions, postconditions, representation invariant, ownership/lifetime, publication and failure boundaries for this task.",
         "Derive bounded storage, work/progress and timing assumptions where applicable. Mark genuinely inapplicable quantities instead of inventing a timing guarantee."
       ],
       "deliverables": {
-        "D1": "Prediction and causal argument addressing: Every scheduler in the retained SMP family implements per-struct lr_cpu queues.",
-        "D2": "Define READY/RUNNING/BLOCKED/EXITED with exactly one struct lr_cpu owner or one queue membership. Build a trace validator for task IDs plus generations and show two CPUs cannot dispatch the same task. Distinguish early per-struct lr_cpu cooperative queues from the later global user ready queue.",
+        "D1": "Prediction and causal argument addressing: Every scheduler in the retained SMP family implements per-CPU queues.",
+        "D2": "Define READY/RUNNING/BLOCKED/EXITED with exactly one CPU owner or one queue membership. Build a trace validator for task IDs plus generations and show two CPUs cannot dispatch the same task. Distinguish early per-CPU cooperative queues from the later global user ready queue.",
         "D3": "Exact source/model, commands or derivation, original inputs, raw observations, independently expected results and a criterion-specific falsification control. Separate missing tools/targets from observed outcomes.",
         "D4": "Add a task moving between queues and extend the state model with an explicit transfer state."
       },
       "verification": {
         "procedure": "Predict before observing. Implement or derive every concrete task clause under the parent/shared contract; retain normal, boundary/failure and falsification evidence. Compare the specified expected argument, including negative outcomes and limitations, rather than only a checksum or old fixture. Bind versions, source/image hashes and the observation environment.",
-        "expected": "The stages have different architectures; a later global-queue pass cannot evidence a per-struct lr_cpu design. For each transition, runnable ownership must be unique and simultaneous execution forbidden. Trace omission cannot be treated as proof of absence.",
+        "expected": "The stages have different architectures; a later global-queue pass cannot evidence a per-CPU design. For each transition, runnable ownership must be unique and simultaneous execution forbidden. Trace omission cannot be treated as proof of absence.",
         "pass": "Every task clause and expected causal distinction is supported by actual learner artifacts. Correct numbers with the stated misconception, missing ownership/failure behavior or unsupported target claims fail this objective.",
         "limits": "New full criteria are unattempted. Baseline test names identify bounded support only; model, host, emulator, physical and learner evidence are not interchangeable."
       },
       "rubric": {
         "0": "Missing/incorrect artifacts, violated containment/preconditions or a false semantic guarantee.",
         "1": "Reproduces an ordinary case but cannot reject this leaf-specific misconception or explain its boundary.",
-        "2": "The stages have different architectures; a later global-queue pass cannot evidence a per-struct lr_cpu design. For each transition, runnable ownership must be unique and simultaneous execution forbidden. Trace omission cannot be treated as proof of absence. Supplies a distinct falsification control and the concrete task artifacts.",
+        "2": "The stages have different architectures; a later global-queue pass cannot evidence a per-CPU design. For each transition, runnable ownership must be unique and simultaneous execution forbidden. Trace omission cannot be treated as proof of absence. Supplies a distinct falsification control and the concrete task artifacts.",
         "3": "Add a task moving between queues and extend the state model with an explicit transfer state. Independently derives and verifies the changed obligations after the recorded delay."
       },
       "hints": [
@@ -270,7 +270,7 @@
     },
     {
       "id": "AX-PR-T53-06-T53.06.b",
-      "title": "Implement per-struct lr_cpu ready queues and fixed-affinity dispatch. Record transitions with struct lr_cpu, task generation, old state and new state; validate the combined trace independently.",
+      "title": "Implement per-CPU ready queues and fixed-affinity dispatch. Record transitions with CPU, task generation, old state and new state; validate the combined trace independently.",
       "objective": "T53.06.b",
       "families": [
         "B",
@@ -300,7 +300,7 @@
           ]
         }
       ],
-      "task": "Implement fixed-affinity per-struct lr_cpu queues with bounded capacity and atomic enqueue/dispatch transitions under the declared locks. Test full destination, idle struct lr_cpu, last runnable task blocking and duplicate wake. Preserve the previous owner on failed enqueue; never publish a runnable task twice.",
+      "task": "Implement fixed-affinity per-CPU queues with bounded capacity and atomic enqueue/dispatch transitions under the declared locks. Test full destination, idle CPU, last runnable task blocking and duplicate wake. Preserve the previous owner on failed enqueue; never publish a runnable task twice.",
       "purpose": "Removing a task from one queue before checking another's capacity is harmless.",
       "prerequisites": {
         "knowledge": [
@@ -322,9 +322,9 @@
       ],
       "deliverables": {
         "D1": "Prediction and causal argument addressing: Removing a task from one queue before checking another's capacity is harmless.",
-        "D2": "Implement fixed-affinity per-struct lr_cpu queues with bounded capacity and atomic enqueue/dispatch transitions under the declared locks. Test full destination, idle struct lr_cpu, last runnable task blocking and duplicate wake. Preserve the previous owner on failed enqueue; never publish a runnable task twice.",
+        "D2": "Implement fixed-affinity per-CPU queues with bounded capacity and atomic enqueue/dispatch transitions under the declared locks. Test full destination, idle CPU, last runnable task blocking and duplicate wake. Preserve the previous owner on failed enqueue; never publish a runnable task twice.",
         "D3": "Exact source/model, commands or derivation, original inputs, raw observations, independently expected results and a criterion-specific falsification control. Separate missing tools/targets from observed outcomes.",
-        "D4": "Replace per-struct lr_cpu locks with one coarse lock and compare the changed proof and contention cost without relabeling the architecture."
+        "D4": "Replace per-CPU locks with one coarse lock and compare the changed proof and contention cost without relabeling the architecture."
       },
       "verification": {
         "procedure": "Predict before observing. Implement or derive every concrete task clause under the parent/shared contract; retain normal, boundary/failure and falsification evidence. Compare the specified expected argument, including negative outcomes and limitations, rather than only a checksum or old fixture. Bind versions, source/image hashes and the observation environment.",
@@ -336,7 +336,7 @@
         "0": "Missing/incorrect artifacts, violated containment/preconditions or a false semantic guarantee.",
         "1": "Reproduces an ordinary case but cannot reject this leaf-specific misconception or explain its boundary.",
         "2": "A failed transfer otherwise loses service. Queue reservation/publication and task-state ownership form one protocol. Bounded capacity errors must be explicit; a raw queue checksum cannot establish one-owner execution. Supplies a distinct falsification control and the concrete task artifacts.",
-        "3": "Replace per-struct lr_cpu locks with one coarse lock and compare the changed proof and contention cost without relabeling the architecture. Independently derives and verifies the changed obligations after the recorded delay."
+        "3": "Replace per-CPU locks with one coarse lock and compare the changed proof and contention cost without relabeling the architecture. Independently derives and verifies the changed obligations after the recorded delay."
       },
       "hints": [
         "At every state change identify exactly one owner or queue.",
@@ -346,7 +346,7 @@
         {
           "id": "AX-PR-T53-06-T53.06.b-DELAYED",
           "minimum_days": 7,
-          "task": "Replace per-struct lr_cpu locks with one coarse lock and compare the changed proof and contention cost without relabeling the architecture."
+          "task": "Replace per-CPU locks with one coarse lock and compare the changed proof and contention cost without relabeling the architecture."
         }
       ],
       "assessor_anchor": "#t5306b",
@@ -397,7 +397,7 @@
           ]
         }
       ],
-      "task": "Validate combined1/2/4-struct lr_cpu traces using per-struct lr_cpu sequence numbers and explicit synchronization edges, avoiding assumed total timestamp order. Include duplicate-dispatch and lost-enqueue model controls. Record context-switch counts and struct lr_cpu utilization with a declared clock source.",
+      "task": "Validate combined1/2/4-CPU traces using per-CPU sequence numbers and explicit synchronization edges, avoiding assumed total timestamp order. Include duplicate-dispatch and lost-enqueue model controls. Record context-switch counts and CPU utilization with a declared clock source.",
       "purpose": "Timestamps alone establish a globally ordered concurrent execution.",
       "prerequisites": {
         "knowledge": [
@@ -419,7 +419,7 @@
       ],
       "deliverables": {
         "D1": "Prediction and causal argument addressing: Timestamps alone establish a globally ordered concurrent execution.",
-        "D2": "Validate combined1/2/4-struct lr_cpu traces using per-struct lr_cpu sequence numbers and explicit synchronization edges, avoiding assumed total timestamp order. Include duplicate-dispatch and lost-enqueue model controls. Record context-switch counts and struct lr_cpu utilization with a declared clock source.",
+        "D2": "Validate combined1/2/4-CPU traces using per-CPU sequence numbers and explicit synchronization edges, avoiding assumed total timestamp order. Include duplicate-dispatch and lost-enqueue model controls. Record context-switch counts and CPU utilization with a declared clock source.",
         "D3": "Exact source/model, commands or derivation, original inputs, raw observations, independently expected results and a criterion-specific falsification control. Separate missing tools/targets from observed outcomes.",
         "D4": "Reduce logging to sampled events and state which invariants can no longer be established from the resulting evidence."
       },
@@ -484,7 +484,7 @@
         "AX-PR-T53-06-T53.06.b",
         "AX-PR-T53-06-T53.06.c"
       ],
-      "scope": "Actual per-struct lr_cpu queue ownership, saved-context transfer and complete/sampled observation contracts."
+      "scope": "Actual per-CPU queue ownership, saved-context transfer and complete/sampled observation contracts."
     }
   ]
 }

@@ -12,7 +12,7 @@ for key,folder,lab in [('wire','ethernet_wire','ethernet_followthrough/wire'),('
 MAP={
  '39-001':{
  'R1':('b4:dma ring:rx,recovery,visibility','Actual lease completion/invalidation, stale and duplicate release, exhaustion and late epoch refusal.'),
- 'R2':('ring:init,visibility,port','Whole-interval placement and object/link audit remain separate from the two-line struct lr_cpu/device visibility model.'),
+ 'R2':('ring:init,visibility,port','Whole-interval placement and object/link audit remain separate from the two-line CPU/device visibility model.'),
  'V1':('ring:visibility analysis:witness','Two live payload extents sharing a32-byte line; separate rounded reservations or whole-line ownership prevents collateral maintenance.'),
  'V2':('analysis:witness','Explicit hypothetical coherent-domain visibility plus device release/acquire order; early-doorbell and early-reuse counterexamples. Target execution remains separately gated.')},
  '39-002':{

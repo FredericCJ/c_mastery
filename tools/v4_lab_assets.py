@@ -19,7 +19,7 @@ specs={
  ('LAB-FW-06','PR-T38-04','i2c','Conditional I2C bus recovery','With exclusive bus authority, clock at most nine pulses, observe release and produce STOP; fail on stuck lines.'),
  ('LAB-FW-07','PR-T28-03','timer','Timer/PWM arithmetic and update order','Reject inexact or out-of-range divisors; configure disabled then publish period/duty atomically at the adapter boundary.'),
  ('LAB-FW-08','PR-T28-05','adc','ADC deadline and unchanged output','Start conversion, poll bounded completion, mask sample width and preserve output on timeout.'),
- ('LAB-FW-09','PR-T29-04','dma','DMA generation and cancellation','Model struct lr_cpu, device and cancelling ownership; require matching generation and observed quiescence before reuse.'),
+ ('LAB-FW-09','PR-T29-04','dma','DMA generation and cancellation','Model CPU, device and cancelling ownership; require matching generation and observed quiescence before reuse.'),
  ('LAB-FW-10','PR-T39-07','ethernet','MDIO readiness and TX descriptors','Wait bounded MDIO readiness and populate descriptor length/generation before publishing ownership; reject device-owned reuse.'),
  ('LAB-FW-11','PR-T38-08','rs485','RS-485 true-completion turnaround','Keep driver enable asserted until TC, not merely TXE. A timeout after publication remains uncertain and requires explicit recovery.'),
  ('LAB-FW-12','PR-T30-05','watchdog','Progress-qualified watchdog and fault trace','Feed only after all required progress bits; retain the first supplied fault observation without feeding.')],
@@ -37,7 +37,7 @@ specs={
  ('LAB-EX-10','PR-T38-11','canfd','CAN FD configuration and loopback','Respect INIT/CCE configuration order, bounded acknowledgement and supported FD lengths; keep H745 clock/cache/message-RAM/cable obligations open.')],
  'foundations':[
  ('LAB-EX-11','PR-T44-10','diagnosis','Sealed causal diagnosis and admission repair','Before inspecting the test source, seal predictions and the first invalid state. Repair failure-atomic admission and retain a delayed changed-capacity variant.'),
- ('LAB-EX-12','PR-T43-08','measurement','Reusable component measurement differences','Capture wall/struct lr_cpu time, one-wrap cycle difference, read bytes, accepted/completed writes and I/O counts separately. Reject clock or counter reset without changing output.')],
+ ('LAB-EX-12','PR-T43-08','measurement','Reusable component measurement differences','Capture wall/CPU time, one-wrap cycle difference, read bytes, accepted/completed writes and I/O counts separately. Reject clock or counter reset without changing output.')],
  'integration':[
  ('LAB-IN-01','PR-P1-02','p1','Byte cursor and queue boundary','Import the earlier cursor, decimal parser and ring. Publish complete records only; preserve prior commits and report the exact accepted prefix on exhaustion.'),
  ('LAB-IN-02','PR-P2-02','p2','Queue to short-transfer adapter','Import the ring and write-all component. Retain the active byte across retryable failure and resume without replaying an accepted prefix.'),

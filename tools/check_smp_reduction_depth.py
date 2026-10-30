@@ -11,7 +11,7 @@ from run_smp_reduction_depth import BASE,PUBLIC,PROFILES,GUEST_PROFILES,NATIVE_P
 @lru_cache(maxsize=None)
 def content(path):return local_file(path).read_bytes()
 def semantic(text,code,variant,guest=False,native=False):
- marker=('SR_GUEST_PASS:' if variant==0 else 'SR_GUEST_CHECK:'+{1:'all-workers-one-struct lr_cpu','stub':'unsolved-reduction-adapter'}[variant]) if guest else ('SR_NATIVE_PASS:' if variant==0 else 'SR_NATIVE_CHECK:') if native else ('SR_PASS:' if variant==0 else 'SR_CHECK:')
+ marker=('SR_GUEST_PASS:' if variant==0 else 'SR_GUEST_CHECK:'+{1:'all-workers-one-CPU','stub':'unsolved-reduction-adapter'}[variant]) if guest else ('SR_NATIVE_PASS:' if variant==0 else 'SR_NATIVE_CHECK:') if native else ('SR_PASS:' if variant==0 else 'SR_CHECK:')
  if code!=((33 if variant==0 else 35) if guest else (0 if variant==0 else 1)) or marker not in text or any(s in text for s in ('runtime error:','ERROR: AddressSanitizer','WARNING: ThreadSanitizer','Segmentation fault','FAIL SMP:','HARNESS_TIMEOUT')):raise ValueError('Wrong intended semantic result')
 def validate_campaign(value):
  errors=pin_errors(value);logs=value.get('log_sha256',{})
@@ -43,11 +43,11 @@ def validate_campaign(value):
   compiler,flags=next((p[1],p[2]) for p in NATIVE_PROFILES if p[0]==row['profile']);source='assessor/legacy_smp/reduction_float.c' if row['variant']==0 else 'labs/smp_depth/reduction/reduction_float.c';build(row,compiler,[*flags,'-pthread'],['assessor/legacy_smp/reduction.c',source,'labs/smp_depth/reduction/native.c']);out=text(row['execution']);semantic(out,row['execution']['exit_code'],row['variant'],native=True)
   if row['variant']==0 and oracle.check_native(out)!=row['expected']:errors.append('Wrong native workload/clock/order evidence')
  expected={(p[0],0,n,t) for p in GUEST_PROFILES for n in (1,2,4) for t in range(2)}|{(p[0],v,2,0) for p in GUEST_PROFILES for v in (1,'stub')}
- if len(groups['guest'])!=24 or {(r['profile'],r['variant'],r['cpus'],r['trial']) for r in groups['guest']}!=expected:errors.append('Missing actual struct lr_cpu/repeated/control condition')
+ if len(groups['guest'])!=24 or {(r['profile'],r['variant'],r['cpus'],r['trial']) for r in groups['guest']}!=expected:errors.append('Missing actual CPU/repeated/control condition')
  for row in groups['guest']:
   cmd=row['execution']['command'];out=text(row['execution']);semantic(out,row['execution']['exit_code'],row['variant'],True)
-  if cmd[0]!='qemu-system-x86_64' or cmd[cmd.index('-cpu')+1]!='qemu64' or cmd[cmd.index('-smp')+1]!=('4,sockets=2,cores=3,threads=1,maxcpus=6' if row['cpus']==4 else str(row['cpus'])) or 'tcg,thread=multi' not in cmd or cmd[cmd.index('-net')+1]!='none':errors.append('Wrong guest struct lr_cpu/isolation')
-  if row['variant']==0 and oracle.check_guest(out,row['cpus'])!=row['expected']:errors.append('Wrong actual ownership/struct lr_cpu result')
+  if cmd[0]!='qemu-system-x86_64' or cmd[cmd.index('-cpu')+1]!='qemu64' or cmd[cmd.index('-smp')+1]!=('4,sockets=2,cores=3,threads=1,maxcpus=6' if row['cpus']==4 else str(row['cpus'])) or 'tcg,thread=multi' not in cmd or cmd[cmd.index('-net')+1]!='none':errors.append('Wrong guest CPU/isolation')
+  if row['variant']==0 and oracle.check_guest(out,row['cpus'])!=row['expected']:errors.append('Wrong actual ownership/CPU result')
   compiler,opt=next((p[1],p[2]) for p in GUEST_PROFILES if p[0]==row['profile']);inst=row['instrumentation'];image=json.loads(content(row['guest_build']));label=row['profile']+'-'+str(row['variant'])+'-build';commands=[c for c in value['commands'] if label in Path(c['log']).name];mutant=row['variant'] if isinstance(row['variant'],int) else 0
   if row['guest_build'] not in logs or image.get('built') is not True or image.get('runtime_linked') or image.get('storage_linked') or 'zero undefined' not in image.get('strict_link',''):errors.append('Wrong freestanding image closure')
   if inst['mutant']!=mutant or inst['startup']['compiler']!=compiler or inst['startup']['optimization']!=opt:errors.append('Wrong composed configuration')
@@ -71,18 +71,18 @@ def main(report):
  if not destination.is_relative_to(BASE.resolve()):raise ValueError('Use reduction evidence directory')
  campaign=BASE/'campaign.json';value=json.loads(campaign.read_text(encoding='utf-8'));validate_campaign(value);checks=[{'name':'99-current-mechanism-observations','passed':True}]
  def pick(data,kind,**fields):return next(r for r in data['observations'] if r['target']==kind and all(r.get(k)==v for k,v in fields.items()))
- controls=[('missing-target',lambda d:d['observations'].pop()),('host-build-failure',lambda d:pick(d,'host')['build'].update(exit_code=1)),('guest-build-failure',lambda d:next(c for c in d['commands'] if c['command'][0]=='ld' and '-nostdlib' in c['command']).update(exit_code=1)),('crash-not-control',lambda d:pick(d,'guest',variant=1)['execution'].update(exit_code=139)),('wrong-struct lr_cpu',lambda d:pick(d,'guest',cpus=4).update(cpus=3)),('wrong-source',lambda d:d['inspected_paths'].update({'assessor/legacy_smp/reduction.c':'0'*64})),('wrong-log',lambda d:d['log_sha256'].update({next(iter(d['log_sha256'])):'0'*64})),('wrong-model',lambda d:pick(d,'model')['expected'].update(dynamic257_sum=0)),('missing-TSan',lambda d:pick(d,'native',profile='gcc-tsan')['build']['command'].remove('-fsanitize=thread')),('missing-sanitizer',lambda d:pick(d,'host',profile='gcc-asan')['build']['command'].remove('-fsanitize=address,undefined')),('wrong-native-binary',lambda d:pick(d,'native')['execution']['command'].__setitem__(0,'/wrong')),('missing-differential-result',lambda d:pick(d,'differential')['expected'].update(cases=1)),('wrong-retained-struct lr_cpu',lambda d:pick(d,'retained')['execution']['environment'].update(CMASTERY_CPUS='3')),('wrong-float-source',lambda d:pick(d,'native',variant='float-stub')['build']['command'].__setitem__(-4,'/wrong'))]
+ controls=[('missing-target',lambda d:d['observations'].pop()),('host-build-failure',lambda d:pick(d,'host')['build'].update(exit_code=1)),('guest-build-failure',lambda d:next(c for c in d['commands'] if c['command'][0]=='ld' and '-nostdlib' in c['command']).update(exit_code=1)),('crash-not-control',lambda d:pick(d,'guest',variant=1)['execution'].update(exit_code=139)),('wrong-CPU',lambda d:pick(d,'guest',cpus=4).update(cpus=3)),('wrong-source',lambda d:d['inspected_paths'].update({'assessor/legacy_smp/reduction.c':'0'*64})),('wrong-log',lambda d:d['log_sha256'].update({next(iter(d['log_sha256'])):'0'*64})),('wrong-model',lambda d:pick(d,'model')['expected'].update(dynamic257_sum=0)),('missing-TSan',lambda d:pick(d,'native',profile='gcc-tsan')['build']['command'].remove('-fsanitize=thread')),('missing-sanitizer',lambda d:pick(d,'host',profile='gcc-asan')['build']['command'].remove('-fsanitize=address,undefined')),('wrong-native-binary',lambda d:pick(d,'native')['execution']['command'].__setitem__(0,'/wrong')),('missing-differential-result',lambda d:pick(d,'differential')['expected'].update(cases=1)),('wrong-retained-CPU',lambda d:pick(d,'retained')['execution']['environment'].update(CMASTERY_CPUS='3')),('wrong-float-source',lambda d:pick(d,'native',variant='float-stub')['build']['command'].__setitem__(-4,'/wrong'))]
  for name,mutate in controls:
   changed=deepcopy(value);mutate(changed)
   try:validate_campaign(changed);rejected=False
   except (ValueError,KeyError,IndexError,StopIteration):rejected=True
   checks.append({'name':name,'passed':rejected})
- for name,call in [('generic-error',lambda:semantic('GENERIC_ERROR',35,1,True)),('timeout',lambda:semantic('SR_GUEST_CHECK:all-workers-one-struct lr_cpu',-9,1,True)),('unrelated-control',lambda:semantic('SR_GUEST_CHECK:worker-progress',35,1,True)),('false-success',lambda:semantic('SR_CHECK:7',0,1))]:
+ for name,call in [('generic-error',lambda:semantic('GENERIC_ERROR',35,1,True)),('timeout',lambda:semantic('SR_GUEST_CHECK:all-workers-one-CPU',-9,1,True)),('unrelated-control',lambda:semantic('SR_GUEST_CHECK:worker-progress',35,1,True)),('false-success',lambda:semantic('SR_CHECK:7',0,1))]:
   try:call();rejected=False
   except ValueError:rejected=True
   checks.append({'name':name,'passed':rejected})
  trace=content(pick(value,'guest',cpus=4,variant=0)['execution']['log']).decode()
- for name,changed in [('wrong-owned-range',trace.replace('begin=65 end=129','begin=64 end=129')),('all-work-one-struct lr_cpu',trace.replace('worker=1 cpu=1','worker=1 cpu=0')),('missing-tail-count',trace.replace('count=257','count=256')),('failed-total-published',trace.replace('failed=1 total=0:91','failed=1 total=0:0'))]:
+ for name,changed in [('wrong-owned-range',trace.replace('begin=65 end=129','begin=64 end=129')),('all-work-one-CPU',trace.replace('worker=1 cpu=1','worker=1 cpu=0')),('missing-tail-count',trace.replace('count=257','count=256')),('failed-total-published',trace.replace('failed=1 total=0:91','failed=1 total=0:0'))]:
   try:oracle.check_guest(changed,4);rejected=False
   except ValueError:rejected=True
   checks.append({'name':name,'passed':rejected})

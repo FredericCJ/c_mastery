@@ -20,7 +20,7 @@ ROWS={
  'Atomic cancel publication does not establish child completion. Creation-order error choice remains deterministic under reversed completion schedules; both failures survive the bounded aggregate.',
  'Admission failure triggers cancellation and retains prior admissions. Ninth/late admission refuses; empty join succeeds; attempt exhaustion refuses before thread creation.',
  'POSIX thread creation/join and GNU live-stack query are host contracts. Neither ISO C nor a stack size query supplies a real-time or maximum-used-stack guarantee.']),
-2:dict(types=['struct msg_hub','struct mfc_hub','struct mfr_hub'],modes=['select_shared','select_registered'],analysis=[
+2:dict(types=['MsgHub','struct mfc_hub','struct mfr_hub'],modes=['select_shared','select_registered'],analysis=[
  'Two queues of up to four copied values; owning successor adds eight stable message records. Registered select adds one caller-stack node per live select and two channel locks plus registry.',
  'Enqueued ownership survives sender return; rendezvous acceptance differs from an outstanding offer. Registration nodes remain linked through predicate wait and are removed before return.',
  'Common-hub mutex protects the original predicates; split design uses channel-before-registry order. Concurrent selectors may consume a wakeup candidate before another selector resumes.',

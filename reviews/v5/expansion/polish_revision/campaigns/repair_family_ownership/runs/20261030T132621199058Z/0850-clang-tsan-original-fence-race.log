@@ -1,0 +1,55 @@
+ORC_RACE synchronized-start rounds256 success49 dead207 actual-payload-control-reclamation
+
+==================
+WARNING: ThreadSanitizer: data race (pid=86994)
+  Write of size 4 at 0x7fffffffd590 by thread T5:
+    #0 release /home/fred/dev/c_mastery/build/frozen/repair/assessor/ownership/ownership.c:641 (ownership-references+0xf0a46) (BuildId: eca8bf4b28d810bd4250b3f1c663efbbe20c216a)
+    #1 race_destroy /home/fred/dev/c_mastery/build/frozen/repair/labs/ownership/references/tests/tests.c:261 (ownership-references+0xecc25) (BuildId: eca8bf4b28d810bd4250b3f1c663efbbe20c216a)
+    #2 ow_atomic_drop /home/fred/dev/c_mastery/build/frozen/repair/assessor/ownership/ownership.c:444 (ownership-references+0xef9f2) (BuildId: eca8bf4b28d810bd4250b3f1c663efbbe20c216a)
+    #3 dropper /home/fred/dev/c_mastery/build/frozen/repair/labs/ownership/references/tests/tests.c:285 (ownership-references+0xecd4b) (BuildId: eca8bf4b28d810bd4250b3f1c663efbbe20c216a)
+
+  Previous read of size 4 at 0x7fffffffd590 by thread T6:
+    #0 upgrader /home/fred/dev/c_mastery/build/frozen/repair/labs/ownership/references/tests/tests.c:297 (ownership-references+0xece89) (BuildId: eca8bf4b28d810bd4250b3f1c663efbbe20c216a)
+
+  Location is stack of main thread.
+
+  Thread T5 (tid=87000, running) created by main thread at:
+    #0 pthread_create ??:? (ownership-references+0x655fe) (BuildId: eca8bf4b28d810bd4250b3f1c663efbbe20c216a)
+    #1 race /home/fred/dev/c_mastery/build/frozen/repair/labs/ownership/references/tests/tests.c:345 (ownership-references+0xebb95) (BuildId: eca8bf4b28d810bd4250b3f1c663efbbe20c216a)
+    #2 main /home/fred/dev/c_mastery/build/frozen/repair/labs/ownership/references/tests/tests.c:520 (ownership-references+0xea510) (BuildId: eca8bf4b28d810bd4250b3f1c663efbbe20c216a)
+
+  Thread T6 (tid=87001, finished) created by main thread at:
+    #0 pthread_create ??:? (ownership-references+0x655fe) (BuildId: eca8bf4b28d810bd4250b3f1c663efbbe20c216a)
+    #1 race /home/fred/dev/c_mastery/build/frozen/repair/labs/ownership/references/tests/tests.c:345 (ownership-references+0xebbb8) (BuildId: eca8bf4b28d810bd4250b3f1c663efbbe20c216a)
+    #2 main /home/fred/dev/c_mastery/build/frozen/repair/labs/ownership/references/tests/tests.c:520 (ownership-references+0xea510) (BuildId: eca8bf4b28d810bd4250b3f1c663efbbe20c216a)
+
+SUMMARY: ThreadSanitizer: data race /home/fred/dev/c_mastery/build/frozen/repair/assessor/ownership/ownership.c:641 in release
+==================
+==================
+WARNING: ThreadSanitizer: data race (pid=86994)
+  Write of size 8 at 0x721400000038 by thread T5:
+    #0 race_destroy /home/fred/dev/c_mastery/build/frozen/repair/labs/ownership/references/tests/tests.c:262 (ownership-references+0xecc36) (BuildId: eca8bf4b28d810bd4250b3f1c663efbbe20c216a)
+    #1 ow_atomic_drop /home/fred/dev/c_mastery/build/frozen/repair/assessor/ownership/ownership.c:444 (ownership-references+0xef9f2) (BuildId: eca8bf4b28d810bd4250b3f1c663efbbe20c216a)
+    #2 dropper /home/fred/dev/c_mastery/build/frozen/repair/labs/ownership/references/tests/tests.c:285 (ownership-references+0xecd4b) (BuildId: eca8bf4b28d810bd4250b3f1c663efbbe20c216a)
+
+  Previous read of size 8 at 0x721400000038 by thread T6:
+    #0 upgrader /home/fred/dev/c_mastery/build/frozen/repair/labs/ownership/references/tests/tests.c:297 (ownership-references+0xece78) (BuildId: eca8bf4b28d810bd4250b3f1c663efbbe20c216a)
+
+  Location is heap block of size 72 at 0x721400000000 allocated by main thread:
+    #0 malloc ??:? (ownership-references+0x63274) (BuildId: eca8bf4b28d810bd4250b3f1c663efbbe20c216a)
+    #1 race /home/fred/dev/c_mastery/build/frozen/repair/labs/ownership/references/tests/tests.c:326 (ownership-references+0xeb762) (BuildId: eca8bf4b28d810bd4250b3f1c663efbbe20c216a)
+    #2 main /home/fred/dev/c_mastery/build/frozen/repair/labs/ownership/references/tests/tests.c:520 (ownership-references+0xea510) (BuildId: eca8bf4b28d810bd4250b3f1c663efbbe20c216a)
+
+  Thread T5 (tid=87000, running) created by main thread at:
+    #0 pthread_create ??:? (ownership-references+0x655fe) (BuildId: eca8bf4b28d810bd4250b3f1c663efbbe20c216a)
+    #1 race /home/fred/dev/c_mastery/build/frozen/repair/labs/ownership/references/tests/tests.c:345 (ownership-references+0xebb95) (BuildId: eca8bf4b28d810bd4250b3f1c663efbbe20c216a)
+    #2 main /home/fred/dev/c_mastery/build/frozen/repair/labs/ownership/references/tests/tests.c:520 (ownership-references+0xea510) (BuildId: eca8bf4b28d810bd4250b3f1c663efbbe20c216a)
+
+  Thread T6 (tid=87001, finished) created by main thread at:
+    #0 pthread_create ??:? (ownership-references+0x655fe) (BuildId: eca8bf4b28d810bd4250b3f1c663efbbe20c216a)
+    #1 race /home/fred/dev/c_mastery/build/frozen/repair/labs/ownership/references/tests/tests.c:345 (ownership-references+0xebbb8) (BuildId: eca8bf4b28d810bd4250b3f1c663efbbe20c216a)
+    #2 main /home/fred/dev/c_mastery/build/frozen/repair/labs/ownership/references/tests/tests.c:520 (ownership-references+0xea510) (BuildId: eca8bf4b28d810bd4250b3f1c663efbbe20c216a)
+
+SUMMARY: ThreadSanitizer: data race /home/fred/dev/c_mastery/build/frozen/repair/labs/ownership/references/tests/tests.c:262 in race_destroy
+==================
+ThreadSanitizer: reported 2 warnings

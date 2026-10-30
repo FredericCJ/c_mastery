@@ -36,6 +36,6 @@ def main(work):
   check('all-source-identities-stable',all(sha(ROOT/p)==h for p,h in before.items()))
  except Exception as e:passed=False;error=repr(e)
  else:passed=True;error=None
- result={'passed':passed,'error':error,'commands':commands,'checks':checks,'guests':guests,'inspected_paths':before,'scope':'Author execution on one-struct lr_cpu TCG using owned guest code and ordinary disk files; models, physical observations, external review and delayed learner evidence remain distinct.'};(work/'result.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({'passed':passed,'error':error,'guests':len(guests),'checks':len(checks)}));return int(not passed)
+ result={'passed':passed,'error':error,'commands':commands,'checks':checks,'guests':guests,'inspected_paths':before,'scope':'Author execution on one-CPU TCG using owned guest code and ordinary disk files; models, physical observations, external review and delayed learner evidence remain distinct.'};(work/'result.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({'passed':passed,'error':error,'guests':len(guests),'checks':len(checks)}));return int(not passed)
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--work',type=Path,required=True);raise SystemExit(main(p.parse_args().work))

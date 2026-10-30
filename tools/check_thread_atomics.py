@@ -54,7 +54,7 @@ def validate(d,r):
  models=r.get('finite_model',{}).get('models',[]);need(len(models)==4,'four finite models')
  for q,expected_model in zip(models,[(1,False,13,12),(1,True,24,30),(2,False,37,54),(2,True,134,256)]):
   need((q.get('readers'),q.get('early_clear'),q.get('states'),q.get('edges'))==expected_model and q.get('terminal_states')==1 and bool(q.get('bad_read_witness'))==q.get('early_clear'),'actual finite state counts/witness')
- targets=r.get('target_audits',[]);need(len(targets)==4 and {(q.get('compiler'),q.get('cpu')) for q in targets}=={(cc,cpu) for cc in ['clang','arm-none-eabi-gcc'] for cpu in ['cortex-m4','cortex-m0']},'four target compiler/struct lr_cpu audits')
+ targets=r.get('target_audits',[]);need(len(targets)==4 and {(q.get('compiler'),q.get('cpu')) for q in targets}=={(cc,cpu) for cc in ['clang','arm-none-eabi-gcc'] for cpu in ['cortex-m4','cortex-m0']},'four target compiler/CPU audits')
  for q in targets:
   need(q.get('execution')=='not-run' and q.get('isr_authorization') is False and q.get('native_closure')==(q.get('cpu')=='cortex-m4'),'no target/ISR overclaim');tag=q.get('compiler','')+'.'+q.get('cpu','')
   for entry,marker in [('target_wide','__atomic_fetch_add_8'),('target_pair','__atomic_load')]:

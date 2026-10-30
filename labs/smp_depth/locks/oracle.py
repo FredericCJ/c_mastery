@@ -46,7 +46,7 @@ def check_cost(text,numa=False):
  return {'records':records,'contract':'Equal protected16-addition workload; wait-clock intervals and selected algorithm counters, no physical cache-traffic or starvation claim.'}
 def check_guest(text,cpus,kind):
  rows=[{k:int(v) for k,v in re.findall(r'(\w+)=(\d+)',line)} for line in text.splitlines() if line.startswith('SL_CPU ')]
- if len(rows)!=cpus:raise ValueError('Wrong struct lr_cpu record count')
+ if len(rows)!=cpus:raise ValueError('Wrong CPU record count')
  for i,row in enumerate(rows):
   if row!={'index':i,'apic':[0,1,2,4][i],'kind':kind,'tasks':200,'irqs':200,'saved_off':1,'saved_on':1,'depth':0,'nodes':0}:raise ValueError('Wrong IRQ/ownership/identity result')
  if ('SL_REMOTE_PROGRESS masked_cpu=0 remote_cpu=1' in text)!=(cpus>1) or 'SL_GUEST_CHECK:' in text or 'SL_GUEST_PASS:IRQ-state-SMP-exclusion-node-lifetime work='+str(400*cpus) not in text:raise ValueError('Missing SMP/IRQ completion evidence')

@@ -2,7 +2,7 @@
 import json
 from common import ROOT,dump,read_json,sha
 ANCHORS=['allocator_audit_base','allocator_audit_resize','allocator_audit_rollback','allocator_audit_poison','allocator_audit_counters','allocator_audit_consumers','allocator_audit_recursive']
-MARKERS=['OAA_BASE actual-struct ow_allocator','OAA_RESIZE actual-upstream','OAA_ROLLBACK injection-and-upstream-failure','OAA_POISON observer-before-upstream-release','OAA_COUNTERS allocation-refuses','OAA_CONSUMERS actual-frontier-COW-failure-sweeps','OAA_RECURSIVE actual-T65-error-format']
+MARKERS=['OAA_BASE actual-OwAllocator','OAA_RESIZE actual-upstream','OAA_ROLLBACK injection-and-upstream-failure','OAA_POISON observer-before-upstream-release','OAA_COUNTERS allocation-refuses','OAA_CONSUMERS actual-frontier-COW-failure-sweeps','OAA_RECURSIVE actual-T65-error-format']
 DEPENDENCIES=[dict(family='algorithms',artifact='containers.array',producer='PR-T14-02',learner_source='labs/algorithms/src/v4_algo.c',assessor_source='assessor/algorithms/v4_algo.c',include='labs/algorithms/include',contract='labs/algorithms/include/v4_algo.h'),dict(family='errors',artifact='errors.result',producer='PR-T65-04',learner_source='labs/errors/src/errors.c',assessor_source='assessor/errors/errors.c',include='labs/errors/include',contract='labs/errors/CONTRACTS.md',scope='Actual same completed source also supplies PR-T65-02 er_parse_pair; no source-only allocation inference.')]
 def register():
     public='labs/ownership/allocator_audit';contract=public+'/ALLOCATOR.md';source='research/v5/modern/ownership_allocator_audit_resources.json';gate='research/v5/modern/ownership_allocator_audit_research_gate.json';tests=['ownership.'+a for a in ANCHORS]

@@ -33,7 +33,7 @@ def main(report):
      if kind=='core':check(prefix+'-core','HF_PASS:all' in text)
      else:
       actual=[json.loads(s) for s in text.splitlines()];groups=parser_cases.verify(expected,actual);observations.append({'profile':prefix,'cases':len(groups),'partitions':len(actual),'groups':groups});check(prefix+'-independent-parser-oracles',len(groups)==144 and len(actual)==len(expected))
-    ledger=json.loads(run(prefix+'-ledger',[out/(prefix+'-core'),'ledger']));check(prefix+'-memory-ledger',ledger['line']==8193 and ledger['body']==1024 and ledger['target']==1025 and ledger['four_flows']==4*ledger['struct hf_flow'])
+    ledger=json.loads(run(prefix+'-ledger',[out/(prefix+'-core'),'ledger']));check(prefix+'-memory-ledger',ledger['line']==8193 and ledger['body']==1024 and ledger['target']==1025 and ledger['four_flows']==4*ledger['HFFlow'])
    common=[cc,'-std=c17','-O2','-g','-Wall','-Wextra','-Werror','-pedantic','-I'+str(LAB),'-I'+str(REF),'-I'+str(ROOT/'labs/communications/include'),'-I'+str(ROOT/'labs/http_depth/include'),str(parser),str(ROOT/'assessor/http_depth/http_depth.c'),str(REF/'flow.c')]
    for kind,source in [('linux',LAB/'linux_tests.c'),('server',REF/'server.c'),('custom',LAB/'custom_tcp.c')]:
     exe=out/(cc+'-'+kind);run(cc+'-'+kind+'-build',common+([custom] if kind=='custom' else ['-DHF_SERVER_SOURCE="'+str(REF/'server.c')+'"'] if kind=='linux' else [])+[source,'-o',exe]);artifacts.add(exe)

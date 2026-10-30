@@ -21,7 +21,7 @@ def observations(text):
  ctrl,before,after=map(lambda s:int(s,16),found[0]);rows=[tuple(int(x,16) for x in r) for r in re.findall(r'DT_COST:([0-9a-f]{8}):([0-9a-f]{8}):([0-9a-f]{8}):([0-9a-f]{8})',text)]
  if len(rows)!=21 or {(r[0],r[1]) for r in rows}!={(s,m) for s in range(7) for m in range(3)} or any(r[2]<=0 or r[3]!=(297 if r[1]==1 else 0) for r in rows):raise ValueError('Wrong trace workload/cost observations')
  if 'DT_RESET:retained-v1-current-token data42 bss0' not in text:raise ValueError('Missing actual reset retention')
- return {'dwt_ctrl':ctrl,'dwt_before':before,'dwt_after':after,'dwt_classification':'unsupported-capability' if ctrl&(1<<25) else 'no-observed-movement' if before==after else 'observed-movement-frequency-unverified','timer':'CMSDK timer0 at selected AN38625MHz virtual clock, not struct lr_cpu CYCCNT','rows':[{'sample':s,'mode':m,'virtual_timer_ticks':ticks,'dropped':drop} for s,m,ticks,drop in rows],'physical_observation':False,'reset_scope':'Actual QEMU SYSRESETREQ with deliberately poisoned data/bss and retained noinit; not physical power cycle.'}
+ return {'dwt_ctrl':ctrl,'dwt_before':before,'dwt_after':after,'dwt_classification':'unsupported-capability' if ctrl&(1<<25) else 'no-observed-movement' if before==after else 'observed-movement-frequency-unverified','timer':'CMSDK timer0 at selected AN38625MHz virtual clock, not CPU CYCCNT','rows':[{'sample':s,'mode':m,'virtual_timer_ticks':ticks,'dropped':drop} for s,m,ticks,drop in rows],'physical_observation':False,'reset_scope':'Actual QEMU SYSRESETREQ with deliberately poisoned data/bss and retained noinit; not physical power cycle.'}
 if __name__=='__main__':
  import argparse,json
  p=argparse.ArgumentParser(description=__doc__)

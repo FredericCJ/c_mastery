@@ -37,7 +37,7 @@ def main():
         producer_invocations=records,reused_current_provider_observations=a.reuse_current,
         physical_validation='not-run',learner_mastery='not-assessed',independent_review='not-established',
         scope='Exact composition of actual IP230 and congestion220 checks; provider observations retain their identities and are not counted as new runs when reused.',
-        limitations=['Synthetic host and Cortex-M4 struct lr_cpu execution is not physical Ethernet, Internet fairness or hardware timing.',
+        limitations=['Synthetic host and Cortex-M4 CPU execution is not physical Ethernet, Internet fairness or hardware timing.',
           'Two current provider guards retain original native profiles, compiled mutants, actual oracle traces, target closures and learner rejections.',
           'No independent learner, external human or elapsed delayed assessment inferred.'])
     errors=validate(d);d['passed']=not errors;d['status']='passed' if not errors else 'failed';d['errors']=errors

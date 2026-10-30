@@ -107,6 +107,6 @@ def check_guest(text,cpus):
    if entry['id']!=i or entry['state']!=states[i] or entry['visits']!=int(visited) or entry['ready']!=int(visited):raise ValueError('Wrong target task lifetime/one-time release')
    if visited and (entry['cpu']!=entry['owner'] or not 0<=entry['owner']<cpus or entry['cycles']<=0):raise ValueError('Wrong actual worker/local-clock evidence')
    if not visited and (entry['owner']!=4 or entry['cpu']!=4 or entry['cycles']!=0):raise ValueError('Skipped task executed')
- return {'cpus':cpus,'cases':5,'nodes':21,'checksum':mix(0,8000),'runtime_final':12,'limits':'Per-task TSC duration on its pinned struct lr_cpu, not cross-struct lr_cpu calibrated physical timing.'}
+ return {'cpus':cpus,'cases':5,'nodes':21,'checksum':mix(0,8000),'runtime_final':12,'limits':'Per-task TSC duration on its pinned CPU, not cross-CPU calibrated physical timing.'}
 
 if __name__=='__main__':print(json.dumps(model()))
