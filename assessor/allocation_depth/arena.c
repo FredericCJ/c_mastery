@@ -1,5 +1,11 @@
 #include "allocation.h"
 
+/*
+ * Arithmetic for placing `n` bytes at alignment `a` (a power of two) after
+ * `c`. Padding is the least nonnegative amount that makes the offset a
+ * multiple of `a`: (0 - c) & (a - 1) in unsigned arithmetic. It is compared
+ * against the remaining capacity in two steps so that no sum can wrap.
+ */
 int al_extent(size_t c, size_t n, size_t a, size_t cap, size_t *at, size_t *end)
 {
     if (!at || !end || !n || !a || (a & (a - 1)) || c > cap)
@@ -10,7 +16,8 @@ int al_extent(size_t c, size_t n, size_t a, size_t cap, size_t *at, size_t *end)
 #if AL_MUTANT == 1
     padding = 0;
 #endif
-    if (padding > cap - c || n > cap - c - padding)
+    size_t remaining = cap - c;
+    if (padding > remaining || n > remaining - padding)
     {
         return AL_FULL;
     }
@@ -19,10 +26,15 @@ int al_extent(size_t c, size_t n, size_t a, size_t cap, size_t *at, size_t *end)
     return AL_OK;
 }
 
+static int is_power_of_two(size_t value)
+{
+    return value != 0 && (value & (value - 1)) == 0;
+}
+
 int al_arena_init(struct al_arena *a, unsigned char *p, size_t cap,
                   size_t align)
 {
-    if (!a || (!p && cap) || !align || (align & (align - 1)))
+    if (!a || (!p && cap) || !is_power_of_two(align))
     {
         return AL_BAD;
     }
@@ -33,6 +45,23 @@ int al_arena_init(struct al_arena *a, unsigned char *p, size_t cap,
     return AL_OK;
 }
 
+static void note_peak(struct al_arena *a, size_t cursor)
+{
+    if (cursor > a->peak)
+    {
+        a->peak = cursor;
+    }
+    if (cursor > a->epoch_peak)
+    {
+        a->epoch_peak = cursor;
+    }
+}
+
+/*
+ * Check order is part of the contract: argument errors, then space (AL_FULL
+ * from al_extent), then item-table capacity, then serial exhaustion. Nothing
+ * is modified before the last check passes.
+ */
 int al_arena_take(struct al_arena *a, size_t n, size_t align, al_cleanup_fn f,
                   void *ctx, struct al_handle *out)
 {
@@ -40,13 +69,14 @@ int al_arena_take(struct al_arena *a, size_t n, size_t align, al_cleanup_fn f,
     {
         return AL_BAD;
     }
-    size_t at, end;
+    size_t at;
+    size_t end;
     int status = al_extent(a->used, n, align, a->capacity, &at, &end);
     if (status)
     {
         return status;
     }
-    if (a->count == 16)
+    if (a->count == AL_ARENA_ITEMS)
     {
         return AL_FULL;
     }
@@ -58,18 +88,12 @@ int al_arena_take(struct al_arena *a, size_t n, size_t align, al_cleanup_fn f,
     a->items[a->count++] = item;
     a->used = end;
     a->payload += n;
-    if (end > a->peak)
-    {
-        a->peak = end;
-    }
-    if (end > a->epoch_peak)
-    {
-        a->epoch_peak = end;
-    }
+    note_peak(a, end);
     *out = (struct al_handle){a, item.id};
     return AL_OK;
 }
 
+/* Position of the live item named by `h`, or -1 for a foreign/stale handle. */
 static int index_of(const struct al_arena *a, struct al_handle h)
 {
     if (!a || h.owner != a || !h.id)
@@ -109,7 +133,7 @@ int al_arena_mark(struct al_arena *a, struct al_mark *out)
     {
         return AL_BAD;
     }
-    if (a->mark_count == 8)
+    if (a->mark_count == AL_ARENA_MARKS)
     {
         return AL_FULL;
     }
@@ -125,21 +149,28 @@ int al_arena_mark(struct al_arena *a, struct al_mark *out)
     return AL_OK;
 }
 
-static int mark_ok(struct al_arena *a, struct al_mark mark)
+/* Marks nest: only the newest mark of this arena may be used. */
+static int is_newest_mark(const struct al_arena *a, struct al_mark mark)
 {
     return a && a->mark_count && mark.owner == a &&
            mark.id == a->marks[a->mark_count - 1].id;
 }
 
-static int pop(struct al_arena *a, unsigned count)
+/*
+ * Pops items newest-first until `count` remain, restoring the cursor and
+ * payload for each. The item is reclaimed BEFORE its cleanup runs, and a
+ * failing cleanup does not stop the remaining ones (no destructor is skipped
+ * or repeated). Returns AL_CLEANUP if any cleanup failed.
+ */
+static int pop_items_to(struct al_arena *a, unsigned count)
 {
     int failed = 0;
     while (a->count > count)
     {
-        struct al_item x = a->items[--a->count];
-        a->used = x.before;
-        a->payload -= x.size;
-        if (x.cleanup && x.cleanup(x.context))
+        struct al_item item = a->items[--a->count];
+        a->used = item.before;
+        a->payload -= item.size;
+        if (item.cleanup && item.cleanup(item.context))
         {
             failed = 1;
         }
@@ -149,19 +180,20 @@ static int pop(struct al_arena *a, unsigned count)
 
 int al_arena_rollback(struct al_arena *a, struct al_mark mark)
 {
-    if (!mark_ok(a, mark))
+    if (!is_newest_mark(a, mark))
     {
         return AL_STALE;
     }
     unsigned i = --a->mark_count;
-    int status = pop(a, a->marks[i].count);
+    int status = pop_items_to(a, a->marks[i].count);
     a->used = a->marks[i].used;
     return status;
 }
 
+/* The items stay; their cleanup duty passes to the enclosing mark or reset. */
 int al_arena_commit(struct al_arena *a, struct al_mark mark)
 {
-    if (!mark_ok(a, mark))
+    if (!is_newest_mark(a, mark))
     {
         return AL_STALE;
     }
@@ -186,7 +218,7 @@ int al_arena_release(struct al_arena *a, struct al_handle h)
     {
         return AL_BAD;
     }
-    return pop(a, (unsigned)i);
+    return pop_items_to(a, (unsigned)i);
 }
 
 int al_arena_reset(struct al_arena *a)
@@ -195,7 +227,7 @@ int al_arena_reset(struct al_arena *a)
     {
         return AL_BAD;
     }
-    int status = pop(a, 0);
+    int status = pop_items_to(a, 0);
     a->mark_count = 0;
     a->epoch_peak = 0;
     return status;

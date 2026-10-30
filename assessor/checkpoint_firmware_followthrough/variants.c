@@ -12,19 +12,41 @@
         }                                                           \
     } while (0)
 
-/* Deliberate operational countermodel, not a racy C thread execution. Both
-   producers see the same empty slot, then individually publish the same head. */
-static void two_producers(void)
+enum
 {
-    unsigned head = 0, tail = 0, slot[4] = {0}, seen_a = head, seen_b = head;
+    HISTORY_STEPS = 8, /* offer/take/idle actions per history */
+    ACTION_KINDS = 3, /* offer, take, idle */
+    HISTORY_COUNT = 6561, /* ACTION_KINDS ** HISTORY_STEPS */
+    ABORT_ATTEMPTS = 100,
+    UNSET_SEQUENCE = 99 /* sentinel for outputs a failed take must not write */
+};
+
+/* Deliberate operational countermodel, not a racy C thread execution. Both
+   producers see the same empty slot, then individually publish the same head.
+   Do not fix: the CHECK asserts the loss. */
+static void lost_update_countermodel(void)
+{
+    unsigned head = 0;
+    unsigned tail = 0;
+    unsigned slot[4] = {0};
+    unsigned seen_a = head;
+    unsigned seen_b = head;
     slot[seen_a] = 11;
     slot[seen_b] = 22;
     head = (seen_a + 1) % 4;
     head = (seen_b + 1) % 4;
     CHECK(head == 1 && tail == 0 && slot[tail] == 22); /* 11 was lost. */
-    /* Real correction: separate single-producer rings, explicit source IDs.
-       Consumer round-robin defines service order, not physical arrival order. */
-    struct cpf_ring a, b;
+}
+
+/*
+ * Real correction: separate single-producer rings, explicit source IDs.
+ * Consumer round-robin defines service order, not physical arrival order.
+ * Capacity 4 holds three samples, so sequences 3 and 4 of five are dropped.
+ */
+static void separate_rings(void)
+{
+    struct cpf_ring a;
+    struct cpf_ring b;
     CHECK(cpf_ring_init(&a, 4) && cpf_ring_init(&b, 4));
     for (unsigned i = 0; i < 5; i++)
     {
@@ -35,7 +57,8 @@ static void two_producers(void)
     }
     for (unsigned i = 0; i < 3; i++)
     {
-        struct cpf_sample x, y;
+        struct cpf_sample x;
+        struct cpf_sample y;
         CHECK(cpf_take(&a, &x) && cpf_take(&b, &y));
         CHECK(x.sequence == i && y.sequence == i && x.value == 100 + i &&
               y.value == 200 + i);
@@ -45,66 +68,110 @@ static void two_producers(void)
           b.dropped == 2);
 }
 
+static void two_producers(void)
+{
+    lost_update_countermodel();
+    separate_rings();
+}
+
+/* Independent shifting-array model of the ring: values only, no indices. */
+struct ring_model
+{
+    unsigned values[3];
+    unsigned count;
+    unsigned drops;
+};
+
+static void model_pop_front(struct ring_model *m)
+{
+    for (unsigned i = 1; i < m->count; i++)
+    {
+        m->values[i - 1] = m->values[i];
+    }
+    m->count--;
+}
+
+/* An offer is accepted while fewer than capacity - 1 items are queued. */
+static void check_offer(struct cpf_ring *r, struct ring_model *m,
+                        unsigned capacity, unsigned step)
+{
+    int expected = m->count < capacity - 1;
+    CHECK(cpf_irq_push(r, (struct cpf_sample){step, (uint16_t)(100 + step),
+                                              0}) == expected);
+    if (expected)
+    {
+        m->values[m->count++] = step;
+    }
+    else
+    {
+        m->drops++;
+    }
+}
+
+static void check_take(struct cpf_ring *r, struct ring_model *m)
+{
+    struct cpf_sample out = {UNSET_SEQUENCE, UNSET_SEQUENCE, UNSET_SEQUENCE};
+    CHECK(cpf_take(r, &out) == (m->count != 0));
+    if (m->count)
+    {
+        CHECK(out.sequence == m->values[0]);
+        model_pop_front(m);
+    }
+    else
+    {
+        CHECK(out.sequence == UNSET_SEQUENCE);
+    }
+}
+
+/* Replays one history, then drains the ring and compares with the model. */
+static void check_history(unsigned capacity, unsigned code)
+{
+    struct cpf_ring r;
+    struct ring_model model = {{0}, 0, 0};
+    CHECK(cpf_ring_init(&r, capacity));
+    for (unsigned step = 0; step < HISTORY_STEPS; step++, code /= ACTION_KINDS)
+    {
+        unsigned action = code % ACTION_KINDS;
+        if (action == 0)
+        {
+            check_offer(&r, &model, capacity, step);
+        }
+        if (action == 1)
+        {
+            check_take(&r, &model);
+        }
+        CHECK(r.dropped == model.drops);
+    }
+    for (unsigned i = 0; i < model.count; i++)
+    {
+        struct cpf_sample out;
+        CHECK(cpf_take(&r, &out) && out.sequence == model.values[i]);
+    }
+    struct cpf_sample out;
+    CHECK(!cpf_take(&r, &out));
+}
+
+/*
+ * All 3^8 offer/take/idle histories under physical capacities 4 and 2 (so 2
+ * x 6561 = 13122 histories). No ISR data race is involved.
+ */
 static void histories(void)
 {
-    /* Independent shifting-array oracle: all 3^8 offer/take/idle histories,
-       identical workload under physical capacities4 and2. No ISR data race. */
     for (unsigned capacity = 2; capacity <= 4; capacity += 2)
     {
-        for (unsigned code = 0; code < 6561; code++)
+        for (unsigned code = 0; code < HISTORY_COUNT; code++)
         {
-            struct cpf_ring r;
-            CHECK(cpf_ring_init(&r, capacity));
-            unsigned model[3] = {0}, count = 0, drops = 0, n = code;
-            for (unsigned step = 0; step < 8; step++, n /= 3)
-            {
-                unsigned action = n % 3;
-                if (action == 0)
-                {
-                    int expected = count < capacity - 1;
-                    CHECK(cpf_irq_push(&r, (struct cpf_sample){
-                                               step, (uint16_t)(100 + step),
-                                               0}) == expected);
-                    if (expected)
-                    {
-                        model[count++] = step;
-                    }
-                    else
-                    {
-                        drops++;
-                    }
-                }
-                if (action == 1)
-                {
-                    struct cpf_sample out = {99, 99, 99};
-                    CHECK(cpf_take(&r, &out) == (count != 0));
-                    if (count)
-                    {
-                        CHECK(out.sequence == model[0]);
-                        for (unsigned i = 1; i < count; i++)
-                        {
-                            model[i - 1] = model[i];
-                        }
-                        count--;
-                    }
-                    else
-                    {
-                        CHECK(out.sequence == 99);
-                    }
-                }
-                CHECK(r.dropped == drops);
-            }
-            for (unsigned i = 0; i < count; i++)
-            {
-                struct cpf_sample out;
-                CHECK(cpf_take(&r, &out) && out.sequence == model[i]);
-            }
-            struct cpf_sample out;
-            CHECK(!cpf_take(&r, &out));
+            check_history(capacity, code);
         }
     }
 }
 
+/*
+ * A timed-out transmission stays retained (owned by DMA) through
+ * ABORT_ATTEMPTS refused recoveries; only a recovery that reports both DMA
+ * and UART quiescent releases it, and a late completion for the old
+ * generation can then no longer touch the next operation.
+ */
 static void failed_abort(void)
 {
     struct cpf_tx t;
@@ -113,7 +180,7 @@ static void failed_abort(void)
     CHECK(cpf_tx_begin(&t, &m, 1) == CPF_OK);
     unsigned g = t.generation;
     CHECK(cpf_tx_timeout(&t, g, 17) == CPF_PENDING);
-    for (unsigned i = 0; i < 100; i++)
+    for (unsigned i = 0; i < ABORT_ATTEMPTS; i++)
     {
         CHECK(cpf_tx_recover(&t, g, 1, 1) == CPF_PENDING && t.retained &&
               t.retries == 0 && t.generation == g);
@@ -132,6 +199,10 @@ static void failed_abort(void)
           t.state == CPF_RETIRED);
 }
 
+/*
+ * A 64-bit clock written as two 32-bit words under a sequence number: a
+ * reader must reject every torn state around the low-word rollover.
+ */
 static void split_clock(void)
 {
     struct cpf_clock c;
