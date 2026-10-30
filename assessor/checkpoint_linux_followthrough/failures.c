@@ -14,10 +14,24 @@
             exit(1);                                                        \
         }                                                                   \
     } while (0)
+
+enum failure_limit
+{
+    WAIT_LIMIT_SECONDS = 3
+};
+
+/*
+ * Fault seams built with the linker's --wrap: the next pthread_create can be
+ * made to fail with EAGAIN, and the close of one chosen descriptor can be made
+ * to report a late error after the descriptor was really released.
+ */
 int __real_pthread_create(pthread_t *, const pthread_attr_t *,
                           void *(*)(void *), void *);
 int __real_close(int);
-static int fail_create, fail_close = -1, close_error = EIO, replacement = -1;
+static int fail_create;
+static int fail_close = -1; /* Descriptor whose close reports an error. */
+static int close_error = EIO;
+static int replacement = -1; /* Descriptor that reused the closed number. */
 static unsigned targeted_calls;
 
 int __wrap_pthread_create(pthread_t *t, const pthread_attr_t *a,
@@ -47,7 +61,13 @@ int __wrap_close(int fd)
     return -1;
 }
 
-static void one(int error)
+/*
+ * A failed pthread_create must roll back to a state where begin can be
+ * repeated. A late close error on a descriptor number that another owner
+ * immediately reuses must be reported once, recorded, never retried, and must
+ * leave the reused descriptor open.
+ */
+static void check_creation_rollback_and_late_close(int error)
 {
     int p[2];
     CHECK(!pipe2(p, O_NONBLOCK | O_CLOEXEC));
@@ -61,10 +81,10 @@ static void one(int error)
           b.queue.count == 1);
     CHECK(!p5_bridge_begin(&b, &g) && g == 2);
     CHECK(p5_bridge_cancel(&b, g) == 1);
-    struct timespec t;
-    CHECK(!clock_gettime(CLOCK_MONOTONIC, &t));
-    t.tv_sec += 3;
-    CHECK(!p5_bridge_wait(&b, &t) && !p5_bridge_observe(&b, g) &&
+    struct timespec deadline;
+    CHECK(!clock_gettime(CLOCK_MONOTONIC, &deadline));
+    deadline.tv_sec += WAIT_LIMIT_SECONDS;
+    CHECK(!p5_bridge_wait(&b, &deadline) && !p5_bridge_observe(&b, g) &&
           !p5_bridge_reap(&b));
     CHECK(b.operation.releases == 2 && b.discarded == 1 && b.joins == 1);
     fail_close = b.fd;
@@ -77,10 +97,12 @@ static void one(int error)
     CHECK(!close(replacement) && !close(p[0]) && !close(p[1]));
 }
 
-int main(void)
+/*
+ * Destroying a bridge whose worker could not be created abandons the queued
+ * items without retrying, and closes the descriptors it owns.
+ */
+static void check_abandon_after_failed_create(void)
 {
-    one(EIO);
-    one(EINTR);
     int p[2];
     CHECK(!pipe2(p, O_NONBLOCK | O_CLOEXEC));
     struct p5_bridge b;
@@ -92,6 +114,14 @@ int main(void)
     CHECK(!p5_bridge_destroy(&b) && b.discarded == 2 &&
           b.operation.releases == 1 && !b.initialized && !close(p[0]) &&
           !close(p[1]));
+}
+
+int main(void)
+{
+    check_creation_rollback_and_late_close(EIO);
+    check_creation_rollback_and_late_close(EINTR);
+    check_abandon_after_failed_create();
     puts(
         "P5_FAILURE_PASS creation_rollback=3 late_close_errors=2 reused_fd_preserved=2 no_close_retry abandon_without_retry");
+    return 0;
 }

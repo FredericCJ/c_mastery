@@ -12,10 +12,21 @@
             exit(1);                                                     \
         }                                                                \
     } while (0)
+
+enum waiter_limit
+{
+    POLL_ATTEMPTS = 5000,
+    POLL_INTERVAL_NS = 1000000 /* 1 ms; 5000 attempts bound sleep at 5 s. */
+};
+
 int __real_pthread_cond_wait(pthread_cond_t *, pthread_mutex_t *);
 static struct cpa_queue q;
 static pthread_t victim;
-static atomic_int ready, armed, stolen;
+static atomic_int ready; /* Victim thread recorded and about to wait. */
+static atomic_int armed; /* The one-shot wrapper interleaving is still due. */
+static atomic_int stolen; /* The thief took the item inside the interval. */
+/* gate/changed/stage hand control between the wrapper and the thief thread:
+   stage 1 = the victim has reacquired and released; stage 2 = item stolen. */
 static pthread_mutex_t gate = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t changed = PTHREAD_COND_INITIALIZER;
 static int stage;
@@ -78,19 +89,24 @@ static void *thief(void *arg)
     return 0;
 }
 
+/*
+ * Polls (bounded) until exactly one consumer waits on the queue and at least
+ * `wakes` wakeups were delivered. Sleeping between polls is a bound, not a
+ * synchronization mechanism: the state is re-read under the queue mutex.
+ */
 static void wait_for(unsigned wakes)
 {
-    for (unsigned n = 0; n < 5000; n++)
+    for (unsigned n = 0; n < POLL_ATTEMPTS; n++)
     {
         CHECK(!pthread_mutex_lock(&q.mutex));
-        int ok = q.waiters == 1 && q.wakes >= wakes;
+        const int ok = q.waiters == 1 && q.wakes >= wakes;
         CHECK(!pthread_mutex_unlock(&q.mutex));
         if (ok)
         {
             return;
         }
-        struct timespec t = {0, 1000000};
-        nanosleep(&t, 0);
+        const struct timespec interval = {0, POLL_INTERVAL_NS};
+        nanosleep(&interval, 0);
     }
     CHECK(0);
 }
@@ -101,16 +117,17 @@ int main(void)
     atomic_init(&ready, 0);
     atomic_init(&armed, 1);
     atomic_init(&stolen, 0);
-    pthread_t a, b;
-    CHECK(!pthread_create(&a, 0, waiter, 0) &&
-          !pthread_create(&b, 0, thief, 0));
+    pthread_t waiter_thread;
+    pthread_t thief_thread;
+    CHECK(!pthread_create(&waiter_thread, 0, waiter, 0) &&
+          !pthread_create(&thief_thread, 0, thief, 0));
     wait_for(0);
     struct cp_message m = {.sequence = 7, .length = 1, .payload = {42}};
     CHECK(cpa_offer(&q, &m, 0) == CPA_OK);
     wait_for(1);
     CHECK(atomic_load(&stolen));
     CHECK(cpa_close(&q, 0) == CPA_CLOSED);
-    CHECK(!pthread_join(a, 0) && !pthread_join(b, 0));
+    CHECK(!pthread_join(waiter_thread, 0) && !pthread_join(thief_thread, 0));
     CHECK(q.completed == 1 && q.releases == 1 && cpa_destroy(&q) == CPA_OK);
     CHECK(!pthread_cond_destroy(&changed) && !pthread_mutex_destroy(&gate));
     puts("P5_WAIT_PASS real_unlocked_steal=1 predicate_rechecked=1");

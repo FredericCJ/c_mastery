@@ -1,4 +1,41 @@
+/*
+ * Reference integration of the foundations, algorithms, firmware and runtime
+ * components. See integration.h for each function's contract.
+ *
+ * The mutation catalog (v4_mutations.json) finds statements here by token
+ * sequence, comments included. Do not quote or paraphrase those statements in
+ * comments, and keep their tokens unchanged when editing.
+ */
 #include "integration.h"
+
+enum integration_limit
+{
+    STREAM_MAX_PAYLOAD_BYTES = 31,
+    DRAIN_BYTE_MAX = 255,
+    ADC_POLL_LIMIT = 4,
+    VM_FUEL = 1000, /* VM instructions */
+    VM_GC_BUDGET = 32, /* GC work units: 1 per mark visit, CVM_HEAP per sweep */
+    STORE_VALUE_BYTES = 4
+};
+
+/*
+ * Reads one record (length byte, then that many ASCII digits) at *cursor and
+ * parses it. Returns 0 and stores *value, or -1 for a truncated, empty or
+ * non-numeric record. The cursor may have advanced even on failure, so callers
+ * that need atomicity pass a copy.
+ */
+static int read_record(struct f_cursor *cursor, int32_t *value)
+{
+    const uint8_t *length;
+    const uint8_t *text;
+    if (f_take(cursor, 1, &length) != F_OK || !*length ||
+        f_take(cursor, *length, &text) != F_OK ||
+        f_parse_i32(text, *length, value) != F_OK)
+    {
+        return -1;
+    }
+    return 0;
+}
 
 int in_records(const uint8_t *p, size_t n, algo_ring *q, size_t *used)
 {
@@ -10,14 +47,11 @@ int in_records(const uint8_t *p, size_t n, algo_ring *q, size_t *used)
     *used = 0;
     while (c.position < n)
     {
-        size_t start = c.position;
-        const uint8_t *length, *text;
         int32_t value;
 #ifdef IN_LOOKAHEAD
+        /* Peek on a copy and commit the cursor only after the ring accepts. */
         struct f_cursor probe = c;
-        if (f_take(&probe, 1, &length) != F_OK || !*length ||
-            f_take(&probe, *length, &text) != F_OK ||
-            f_parse_i32(text, *length, &value) != F_OK)
+        if (read_record(&probe, &value) != 0)
         {
             return -1;
         }
@@ -27,9 +61,8 @@ int in_records(const uint8_t *p, size_t n, algo_ring *q, size_t *used)
         }
         c = probe;
 #else
-        if (f_take(&c, 1, &length) != F_OK || !*length ||
-            f_take(&c, *length, &text) != F_OK ||
-            f_parse_i32(text, *length, &value) != F_OK)
+        const size_t start = c.position;
+        if (read_record(&c, &value) != 0)
         {
             return -1;
         }
@@ -39,7 +72,7 @@ int in_records(const uint8_t *p, size_t n, algo_ring *q, size_t *used)
             return 1;
         }
 #endif
-        (void)start;
+        /* Only fully committed records count as consumed. */
         *used = c.position;
     }
     return 0;
@@ -52,7 +85,7 @@ int in_drain(algo_ring *q, struct in_transfer *t, f_writer_fn writer, void *ctx,
     {
         return -1;
     }
-    while (budget--)
+    for (unsigned turn = 0; turn < budget; ++turn)
     {
         if (!t->valid)
         {
@@ -61,13 +94,14 @@ int in_drain(algo_ring *q, struct in_transfer *t, f_writer_fn writer, void *ctx,
             {
                 return 0;
             }
-            if (x < 0 || x > 255)
+            if (x < 0 || x > DRAIN_BYTE_MAX)
             {
                 return -1;
             }
             t->pending = (uint8_t)x;
             t->valid = 1;
         }
+        /* The active byte stays owned by t until the writer accepts it. */
         size_t used = 0;
         enum f_status r = f_write_all(writer, ctx, &t->pending, 1, 1, &used);
         if (used == 1)
@@ -94,7 +128,7 @@ int in_stream(struct in_stream *s, uint8_t byte, algo_ring *q)
     }
     if (!s->length)
     {
-        if (!byte || byte > 31)
+        if (!byte || byte > STREAM_MAX_PAYLOAD_BYTES)
         {
             s->failed = 1;
             return -1;
@@ -131,6 +165,7 @@ int in_shutdown(algo_ring *q, struct f_async *op, unsigned completed,
     }
     if (op->state == F_CANCEL_REQUESTED)
     {
+        /* Only a trustworthy completion observation may retire the cancel. */
         if (!completed)
         {
             return 1;
@@ -156,9 +191,9 @@ int in_filter(struct v4_filter *f, const int32_t *input, size_t n, int32_t *out,
               size_t cap, const struct v4_sample *begin,
               const struct v4_sample *end, struct v4_measurement *m)
 {
-    size_t bytes;
+    size_t output_bytes; /* Only the overflow check of n * sizeof is needed. */
     if (!f || !m || (!input && n) || (!out && n) || n > cap ||
-        f_checked_size(n, sizeof *out, 0, &bytes) != F_OK)
+        f_checked_size(n, sizeof *out, 0, &output_bytes) != F_OK)
     {
         return -1;
     }
@@ -175,8 +210,7 @@ int in_filter(struct v4_filter *f, const int32_t *input, size_t n, int32_t *out,
             return -1;
         }
     }
-    *m = measured;
-    (void)bytes;
+    *m = measured; /* Published only after every sample succeeded. */
     return 0;
 }
 #ifdef IN_FIRMWARE
@@ -202,7 +236,7 @@ int in_gateway(struct fw_io io, algo_ring *q, struct v4_filter *f,
         return -1;
     }
     uint16_t sample;
-    if (fw_adc(io, &sample, 4))
+    if (fw_adc(io, &sample, ADC_POLL_LIMIT))
     {
         return -1;
     }
@@ -210,7 +244,8 @@ int in_gateway(struct fw_io io, algo_ring *q, struct v4_filter *f,
     {
         return -1;
     }
-    int32_t value, fir;
+    int32_t value;
+    int32_t fir;
     if (algo_ring_take(q, &value) != ALGO_OK ||
         v4_filter(f, value, &fir, output))
     {
@@ -236,19 +271,20 @@ int in_vm_store(const char *source, size_t n, uint8_t *page, size_t cap)
     {
         return -1;
     }
-    cvm_init(&vm, 1000, 32, 0);
+    cvm_init(&vm, VM_FUEL, VM_GC_BUDGET, 0);
     if (cvm_run(&vm, &p, &result) != CVM_OK || result.tag != CVM_INT)
     {
         return -1;
     }
+    /* One leaf record: key "v", value = the VM result as 4 little-endian bytes. */
     store_node node = {0};
     node.leaf = 1;
     node.n = 1;
     node.klen[0] = 1;
     node.key[0][0] = 'v';
-    node.vlen[0] = 4;
-    uint32_t bits = (uint32_t)result.integer;
-    for (unsigned i = 0; i < 4; i++)
+    node.vlen[0] = STORE_VALUE_BYTES;
+    const uint32_t bits = (uint32_t)result.integer;
+    for (unsigned i = 0; i < STORE_VALUE_BYTES; i++)
     {
         node.value[0][i] = (uint8_t)(bits >> (8 * i));
     }
