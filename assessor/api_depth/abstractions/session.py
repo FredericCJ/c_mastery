@@ -5,7 +5,7 @@ def run(c,root,args):
    exe=c.root/(cc+'-'+name+'-session');c.run([cc,*common,*flags,pub/'session_tests.c',source,*providers,'-o',exe]);c.run([exe],contains='SESSION-PASS:state_events=384;constructor_callbacks=2;')
  for name,flag,selected in [('session-overflow','AS_MUTANT_OVERFLOW',source),('session-publication','AS_MUTANT_EARLY_ACTIVE',source),('session-learner','UNSOLVED',pub/'session.c')]:
   exe=c.root/name;c.run(['gcc',*common,'-O2','-D'+flag,pub/'session_tests.c',selected,*providers,'-o',exe]);c.run([exe],expected=1,contains='SESSION-CHECK:')
- wrong=c.write('session-wrong-signature.c','#include "session.h"\nstatic long wrong(int *p,int e){return *p+e;}\nAsRun invalid=wrong;\n')
+ wrong=c.write('session-wrong-signature.c','#include "session.h"\nstatic long wrong(int *p,int e){return *p+e;}\nas_run_fn invalid=wrong;\n')
  opaque=c.write('session-private-access.c','#include "session.h"\nvoid invalid(struct as_opaque *s){s->session.count=99;}\n')
  for cc in ('gcc','clang'):
   c.run([cc,*common,'-c',wrong,'-o',c.root/(cc+'-wrong.o')],expected='nonzero',contains='incompatible')

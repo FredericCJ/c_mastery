@@ -80,7 +80,9 @@ COMMON_WORDS = {"CPU"}
 def build_pattern(mapping):
     names = sorted((n for n in mapping if distinctive(n) and len(n) >= 3 and n not in COMMON_WORDS),
                    key=len, reverse=True)
-    return re.compile(r"(?<![A-Za-z0-9_])(" + "|".join(map(re.escape, names)) + r")(?![A-Za-z0-9_])")
+    # A name may follow an escape sequence inside a source string ("\\nPFPmu").
+    return re.compile(r"(?:(?<=\\[nrt])|(?<![A-Za-z0-9_]))(" + "|".join(map(re.escape, names))
+                      + r")(?![A-Za-z0-9_])")
 
 
 _PRINTED = None
@@ -136,7 +138,9 @@ def python_strings(source, patterns):
     edits = []
     try:
         for token in pytokenize.generate_tokens(io.StringIO(source).readline):
-            if token.type == pytokenize.STRING:
+            # Python 3.12+ splits f-strings into FSTRING_* tokens; their literal
+            # parts carry C text too.
+            if token.type == pytokenize.STRING or pytokenize.tok_name[token.type] == "FSTRING_MIDDLE":
                 new = patterns.rename(token.string)
                 if new != token.string:
                     edits.append((token.start, token.end, new))
