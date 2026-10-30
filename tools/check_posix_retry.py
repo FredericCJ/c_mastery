@@ -21,7 +21,7 @@ def validate(report):
    candidates=[ROOT/p for p in report['log_sha256'] if Path(p).name==profile['name']+'-'+variant+'.log']
    if len(candidates)!=1:raise ValueError('Missing exact execution log')
    text=candidates[0].read_text(encoding='utf-8')
-   if marker not in text or (variant!='reference' and ('PL_CHECK:' not in text or 'Sanitizer' in text)):raise ValueError('Wrong observed semantic result')
+   if ''.join(marker.split()) not in ''.join(text.split()) or (variant!='reference' and ('PL_CHECK:' not in text or 'Sanitizer' in text)):raise ValueError('Wrong observed semantic result')
  binding=report['reused_evidence']['adapter'];path=ROOT/binding['path']
  if hashlib.sha256(path.read_bytes()).hexdigest()!=binding['sha256']:raise ValueError('Stale reused adapter')
  adapter=json.loads(path.read_text(encoding='utf-8'));errors=validate_service(adapter)

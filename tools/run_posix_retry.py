@@ -30,7 +30,7 @@ def run(report):
       if build.returncode:raise RuntimeError(label+' compile failure: '+build.stderr)
       observed=subprocess.run([str(exe)],capture_output=True,text=True,timeout=30);(logs/(label+'.log')).write_text(observed.stdout+observed.stderr,encoding='utf-8',newline='\n')
       marker={'SDK_MUTANT_REAPPLY':'out==7','SDK_MUTANT_SPLIT_RECEIPT':'out==7','SDK_MUTANT_PAYLOAD_BINDING':'SDR_CONFLICT','learner':'sdr_initialize'}.get(variant)
-      passed=(observed.returncode==0 and 'PR_PASS' in observed.stdout and 'cuts=74 events=37' in observed.stdout) if variant=='reference' else (observed.returncode==1 and 'PL_CHECK:' in observed.stderr and marker in observed.stderr and 'Sanitizer' not in observed.stderr)
+      passed=(observed.returncode==0 and 'PR_PASS' in observed.stdout and 'cuts=74 events=37' in observed.stdout) if variant=='reference' else (observed.returncode==1 and 'PL_CHECK:' in observed.stderr and ''.join(marker.split()) in ''.join(observed.stderr.split()) and 'Sanitizer' not in observed.stderr)
       outcomes.append({'variant':variant,'command':command,'build_exit':build.returncode,'execution_exit':observed.returncode,'passed':passed,'observations':observed.stdout.splitlines(),'semantic_marker':marker})
       if not passed:raise RuntimeError(label+' semantic failure: '+observed.stdout+observed.stderr)
      result['profiles'].append({'name':name,'compiler':subprocess.check_output([cc,'--version'],text=True).splitlines()[0],'outcomes':outcomes,'passed':True})

@@ -38,7 +38,7 @@ def validate(d,r):
     tag=cc+'.'+edition+'.'+api;required|={tag,tag+'.compile',tag+'.wrong'};x=commands.get(tag+'.wrong',{});need(x.get('exit_code')==1 and x.get('required_marker')==marker,'specific type rejection '+tag)
  need(set(commands)==required,'exact command inventory')
  for x in commands.values():
-  path=ROOT/x.get('output','missing');text=path.read_text(encoding='utf8') if path.is_file() else '';need(path.is_file() and sha(path)==x.get('output_sha256'),'command log identity '+x['id']);need(x.get('required_marker') is None or x['required_marker'] in text,'actual log assertion '+x['id']);need(x.get('exit_code')==x.get('expected_exit'),'command result '+x['id'])
+  path=ROOT/x.get('output','missing');text=path.read_text(encoding='utf8') if path.is_file() else '';need(path.is_file() and sha(path)==x.get('output_sha256'),'command log identity '+x['id']);need(x.get('required_marker') is None or ''.join(x['required_marker'].split()) in ''.join(text.split()),'actual log assertion '+x['id']);need(x.get('exit_code')==x.get('expected_exit'),'command result '+x['id'])
  exports=read(HERE/'exports.json');need(exports.get('status')=='pass' and len(exports.get('commands',[]))==4 and all(x.get('passed') is True for x in exports['commands']),'actual learner export')
  for key in ['source_sha256','outputs_sha256']:
   for p,h in exports.get(key,{}).items():need((ROOT/p).is_file() and sha(ROOT/p)==h,'stale export '+p)

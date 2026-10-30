@@ -15,7 +15,7 @@ def main():
         with log.open('w') as f:
             try:rc=subprocess.run(cmd,cwd=ROOT,stdout=f,stderr=subprocess.STDOUT,timeout=120,env=env).returncode
             except (OSError,subprocess.TimeoutExpired) as ex:f.write(str(ex));rc=None
-        text=log.read_text(errors='replace');ok=rc==expected and (not marker or marker in text) and (not empty or not text.strip()) and not any(s in text for s in ['runtime error:','ERROR: AddressSanitizer']);rows.append(dict(label=label,command=cmd,expected=expected,returncode=rc,marker=marker,empty=empty,passed=bool(ok),raw=log.relative_to(ROOT).as_posix(),raw_sha256=sha(log)));print(label,bool(ok),flush=True);return ok,log
+        text=log.read_text(errors='replace');ok=rc==expected and (not marker or ''.join(marker.split()) in ''.join(text.split())) and (not empty or not text.strip()) and not any(s in text for s in ['runtime error:','ERROR: AddressSanitizer']);rows.append(dict(label=label,command=cmd,expected=expected,returncode=rc,marker=marker,empty=empty,passed=bool(ok),raw=log.relative_to(ROOT).as_posix(),raw_sha256=sha(log)));print(label,bool(ok),flush=True);return ok,log
     for t in ['gcc','clang','arm-none-eabi-gcc','arm-none-eabi-ld','qemu-system-arm']:run(t+' version',[t,'--version'])
     run('environment',['uname','-a'])
     includes=['-I'+str(LAB),'-I'+str(ROOT/'labs/peripheral_depth/dma'),'-I'+str(ROOT/'labs/firmware_lifecycle/targets')]

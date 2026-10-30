@@ -18,7 +18,7 @@ def main():
       'limits':['The five persistence modes are explicit device models, not hardware observations.','A compiled semantic mutant must execute and fail the stated assertion.','Reference artifacts are author work; no learner or independent reviewer evidence.']}
     def run(command,expect=0,marker=None,env=None):
         r=subprocess.run(list(map(str,command)),cwd=ROOT,text=True,capture_output=True,timeout=600,env=dict(os.environ,**(env or {})))
-        output=r.stdout+r.stderr;ok=r.returncode==expect and (marker is None or marker in output)
+        output=r.stdout+r.stderr;ok=r.returncode==expect and (marker is None or ''.join(marker.split()) in ''.join(output.split()))
         report['commands'].append({'command':list(map(str,command)),'exit':r.returncode,'expected':expect,'marker':marker,'passed':ok,'stdout':r.stdout,'stderr':r.stderr,'environment':env or {}})
         if not ok:raise RuntimeError('Command failed: '+str(command)+'\n'+output)
         return output

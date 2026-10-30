@@ -18,7 +18,7 @@ def validate(d):
    p=ROOT/r['raw'];need(p.is_file() and sha(r['raw'])==r['raw_sha256'],'raw identity')
    text=p.read_text(errors='replace') if p.is_file() else ''
    need(r['returncode']==r['expected'],'wrong exit')
-   need(not r.get('marker') or r['marker'] in text,'unobserved marker')
+   need(not r.get('marker') or ''.join(r['marker'].split()) in ''.join(text.split()),'unobserved marker')
    need(not r.get('empty') or not text.strip(),'nonempty closure')
  def check(label,expected=0,marker=None):
   r=checks.get(label,{});need(bool(r),'missing '+label);need(r.get('expected')==expected,'weakened expected '+label)

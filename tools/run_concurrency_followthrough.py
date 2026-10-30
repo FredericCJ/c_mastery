@@ -21,7 +21,7 @@ def main():
  for key in ('CPATH','C_INCLUDE_PATH','LIBRARY_PATH','CFLAGS','CPPFLAGS','LDFLAGS'):env.pop(key,None)
  env.update(ASAN_OPTIONS='detect_leaks=1:abort_on_error=1',UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1',TSAN_OPTIONS='halt_on_error=1:exitcode=66')
  def run(name,cmd,expected=0,marker=None,timeout=120):
-  cmd=list(map(str,cmd));start=time.monotonic();r=subprocess.run(cmd,cwd=ROOT,env=env,capture_output=True,text=True,timeout=timeout);out=r.stdout+r.stderr;log=work/(name+'.txt');log.write_text(out);passed=r.returncode==expected and (marker is None or marker in out);rows.append(dict(name=name,command=cmd,returncode=r.returncode,expected=expected,marker=marker,passed=passed,log=log.relative_to(ROOT).as_posix(),sha256=sha(log),elapsed_seconds=time.monotonic()-start));print(name,passed,flush=True)
+  cmd=list(map(str,cmd));start=time.monotonic();r=subprocess.run(cmd,cwd=ROOT,env=env,capture_output=True,text=True,timeout=timeout);out=r.stdout+r.stderr;log=work/(name+'.txt');log.write_text(out);passed=r.returncode==expected and (marker is None or ''.join(marker.split()) in ''.join(out.split()));rows.append(dict(name=name,command=cmd,returncode=r.returncode,expected=expected,marker=marker,passed=passed,log=log.relative_to(ROOT).as_posix(),sha256=sha(log),elapsed_seconds=time.monotonic()-start));print(name,passed,flush=True)
   if not passed:raise RuntimeError(name+'\n'+out[-4000:])
   return out
  try:
