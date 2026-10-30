@@ -2,6 +2,7 @@
 #include "map.h"
 #include <errno.h>
 #include <fcntl.h>
+#include <stdatomic.h>
 #include <stdbool.h>
 #include <string.h>
 #include <sys/mman.h>
@@ -428,21 +429,50 @@ static int check_overwrite_allowed(const unsigned char *bytes, int replace,
    (1) mark the record busy so that a lock-free reader sees EAGAIN;
    (2) write everything except the state byte;
    (3) mark it stable last.
-   Intended property: a crash after (1) or (2) leaves a record that decodes
-   as busy. The C code below does not yet force this order on the compiler
-   or the CPU (no fence or volatile access), so an optimizing build may
-   store the stable byte before the body copy; see the follow-up on store
-   ordering. `cut`, when given, observes (and the tests may kill the process
-   at) each numbered point. */
+   Property: whenever the publisher is killed, the bytes left in the file
+   are either a stable record whose body is complete, or a record marked
+   busy (state byte 0); a stable state byte never covers a torn body.
+   `cut`, when given, observes (and the tests may kill the process at)
+   each numbered point.
+
+   How the code guarantees the order: the three steps are plain stores to
+   a shared mapping, and ISO C lets an optimizer move them relative to
+   each other (gcc 15 -O2 did store the stable byte before the body copy
+   when `cut` is NULL). Each step is therefore separated from the next by
+   atomic_signal_fence(memory_order_seq_cst), a compiler barrier that
+   forbids moving memory accesses across it.
+
+   Why a signal fence and not atomic_thread_fence(memory_order_release):
+   the property is about a single writer thread that is killed, and about
+   a successor that looks only after the kill. A process killed at an
+   instruction boundary leaves every store it executed before that point
+   in the page cache, so the file shows a prefix of the program order;
+   the only thing that can break the prefix is the compiler. No other
+   process reads the record while the writer is alive: pm_read_record
+   needs the shared record lock, which the writer holds exclusively, and
+   lock and unlock are system calls that already order memory between
+   processes (CONTRACTS.md claims no lock-free concurrent observer and no
+   portable interprocess atomics). A release fence would add a CPU
+   barrier for an observer that does not exist, and it would still be
+   incomplete: the reader would need a matching acquire and the state
+   byte would have to be an atomic object, or the unlocked access would
+   be a data race in ISO C. A lock-free reader would need exactly that
+   change (atomic state byte, release store, acquire load); this
+   reference does not provide it. Power loss or a machine crash is not
+   covered, since that would need msync and ordering of the writeback. */
 static void write_record_bytes(unsigned char *bytes,
                                const unsigned char fresh[PM_RECORD_BYTES],
                                pm_cut_fn cut, void *context)
 {
+    /* Invalidate: nothing read or written earlier may move below this. */
+    atomic_signal_fence(memory_order_seq_cst);
     bytes[PM_OFF_STATE] = PM_STATE_BUSY;
     if (cut)
     {
         cut(1, context);
     }
+    /* The busy mark must be stored before any body byte. */
+    atomic_signal_fence(memory_order_seq_cst);
     memcpy(bytes, fresh, PM_OFF_STATE);
     memcpy(bytes + PM_OFF_VERSION, fresh + PM_OFF_VERSION,
            PM_RECORD_BYTES - PM_OFF_VERSION);
@@ -450,7 +480,11 @@ static void write_record_bytes(unsigned char *bytes,
     {
         cut(2, context);
     }
+    /* Publish: every body byte must be stored before the stable byte. */
+    atomic_signal_fence(memory_order_seq_cst);
     bytes[PM_OFF_STATE] = PM_STATE_STABLE;
+    /* The stable mark must not sink below the cut-3 observation. */
+    atomic_signal_fence(memory_order_seq_cst);
     if (cut)
     {
         cut(3, context);
