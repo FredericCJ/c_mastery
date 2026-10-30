@@ -118,7 +118,7 @@ def firmware_integration(native):
 def family(name_of_family, native):
     """Assessor pass, learner rejection and mutation rejection for a fifth-edition family."""
     sys.path.insert(0, str(ROOT))
-    from cmastery.cli import instantiate, run_checks  # noqa: E402
+    from cmastery.cli import dependency_contracts, instantiate, run_checks  # noqa: E402
     import tempfile
     identity = source_identity(); name = 'new_family_acceptance.json'
     existing = read_json(receipt_path(name)) if receipt_path(name).is_file() else {'families': {}}
@@ -157,7 +157,12 @@ def family(name_of_family, native):
     with tempfile.TemporaryDirectory(prefix='c mastery ' + name_of_family + ' ') as directory:
         workspace = Path(directory) / 'learner'
         instantiate(project, workspace, family_name=name_of_family)
-        learner = run_checks(workspace, 'gcc', 'debug', False, 240, all_tests=True)
+        # The learner scaffold is judged with the family's declared dependency
+        # labs supplied, as a learner would; without them a family such as
+        # integration registers no tests and reports 'unavailable'.
+        dependencies = {name: ROOT / 'labs' / name for name in dependency_contracts(meta, {})}
+        learner = run_checks(workspace, 'gcc', 'debug', False, 240, all_tests=True,
+                             dependencies=dependencies or None)
         rejects = learner['status'] == 'failed' and len(learner['steps']) == 3 and learner['steps'][2]['exit_code'] not in (None, 0)
         checks = []
         for compiler, profile in [(c, p) for c, p in PROFILES]:
