@@ -1,16 +1,22 @@
 """Retained exact P3 evidence plus new minimized-capacity replay and policy correction."""
 import datetime,hashlib,json,pathlib,shutil,sys
 import run_thread_lifecycle as h
+from source_equivalence import carried_binding
+CARRIED=[]
 ROOT=pathlib.Path(__file__).resolve().parents[1];HERE=ROOT/'research/v5/expansion/legacy_checkpoint_protocol';PUBLIC=ROOT/'labs/checkpoint_followthrough/protocol';PRIVATE=ROOT/'assessor/checkpoint_followthrough/protocol';BUILD=ROOT/'build'/('checkpoint-protocol-followthrough-'+datetime.datetime.now().strftime('%Y%m%d%H%M%S'))
 RETAINED=['reviews/v5/expansion/legacy_completion/'+n for n in ['checkpoint_depth_campaign.json','checkpoint_transfer.json','p3_minimized.json']]
 PROFILES=[(cc,mode,flags) for cc in ['gcc','clang'] for mode,flags in [('O0',['-O0']),('O3',['-O3']),('asan',['-O1','-g','-fsanitize=address,undefined','-fno-pie','-no-pie'])]]
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def read(p):return json.loads(p.read_text(encoding='utf8'))
+def carried(n,v):
+    binding=carried_binding(n,v)
+    if binding:CARRIED.append(binding)
+    return binding
 def retained():
     reports=[read(ROOT/n) for n in RETAINED]
     for d in reports:
         assert d['passed'] is True and d.get('source_stable',d.get('scope_source_stable')) is True
-        for n,v in d['inspected_paths'].items():assert sha(ROOT/n)==v,('retained source changed',n)
+        for n,v in d['inspected_paths'].items():assert sha(ROOT/n)==v or carried(n,v),('retained source changed',n)
         for n,v in d.get('log_sha256',{}).items():assert sha(ROOT/n)==v,('retained log changed',n)
     core,transfer,mini=reports;assert len(core['profiles'])==8 and all(q['passed'] for q in core['profiles'])
     for q in core['profiles']:
@@ -53,5 +59,5 @@ def main():
     except Exception as e:failure=str(e)
     if pins()!=before or external()!=ext:failure='Scoped source/tool identity changed'
     limits=['New six-profile packet replays retained original/minimized streams through actual struct cp_parser with explicit capacity1/2 and changed chunking; physical queue storage remains two slots.','The three retained source-bound reports are checked, not re-described as newly executed; their independent oracle, mutation, protocol, authenticated-packet and durable-sink observations retain their original limits.','Configured64 acceptance of version1 length33 is a changed admission contract; original32 and compatibility-limit32 reject, as actually executed.','OpenSSL is the explicitly permitted hosted protocol primitive; CRC implementation remains first-principles, and volatile replay state is not durable authorization.','No external review, independent delayed learner result, physical power interruption or absolute mastery proof.']
-    d=dict(status='pass' if failure is None else 'fail',failure=failure,source_sha256=pins(),external_sha256=ext,retained_reports=bindings,outputs_sha256={p.relative_to(ROOT).as_posix():sha(p) for p in sorted(BUILD.rglob('*')) if p.is_file()},commands=h.COMMANDS,limits=limits);(HERE/'validation.json').write_text(json.dumps(d,indent=2)+'\n',encoding='utf8');print(json.dumps(dict(status=d['status'],commands=len(h.COMMANDS),failure=failure)));return int(failure is not None)
+    d=dict(status='pass' if failure is None else 'fail',failure=failure,source_sha256=pins(),external_sha256=ext,retained_reports=bindings,carried_forward=CARRIED,outputs_sha256={p.relative_to(ROOT).as_posix():sha(p) for p in sorted(BUILD.rglob('*')) if p.is_file()},commands=h.COMMANDS,limits=limits);(HERE/'validation.json').write_text(json.dumps(d,indent=2)+'\n',encoding='utf8');print(json.dumps(dict(status=d['status'],commands=len(h.COMMANDS),failure=failure)));return int(failure is not None)
 if __name__=='__main__':raise SystemExit(main())

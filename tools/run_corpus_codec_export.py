@@ -29,7 +29,7 @@ def main():
         for p in (ROOT/'labs/corpus_codec').rglob('*'):
             if p.is_file() and '__pycache__' not in p.parts:
                 rel=p.relative_to(ROOT/'labs/corpus_codec');assert sha(workspace/rel)==sha(p);exported[rel.as_posix()]=sha(p)
-        text=(workspace/'EXERCISE.md').read_text(encoding='utf8')
+        text=''.join((workspace/n).read_text(encoding='utf8') for n in ('EXERCISE.md','ACTIVE.md') if (workspace/n).is_file())
         assert all(row['criterion'] in text for row in meta['rubric'])
         for mode,provider in [('learner',None),('explicit-family',ROOT/'assessor/corpus_codec'),('explicit-parent',ROOT/'assessor')]:
             build=tmp/mode;args=['cmake','-S',workspace,'-B',build,'-G','Ninja','-DCMAKE_BUILD_TYPE=Debug']

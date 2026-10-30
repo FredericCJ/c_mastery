@@ -29,7 +29,7 @@ def run():
             binary=tmp/cc;execute([cc,*flags,*inc,*sources,'-o',binary],cc+'-build')
             for name,marker in [('move_inline','OMM_INLINE self-address'),('move_registry','OMM_REGISTRY opaque-representation'),('move_theft','OMM_THEFT identical-live-copy'),('move_retirement','OMM_RETIREMENT final-generation')]:execute([binary,name],cc+'-'+name,marker=marker)
             obs.append(dict(kind='optimized-boundaries',compiler=cc,inline_pointer_repaired=True,copied_tokens_stale=True,identical_holder_can_act_first=True,final_consumption_allowed=True,executed=True))
-            execute([cc,*flags,*inc,'-c',ROOT/public/'tests/opaque_bad.c','-o',tmp/(cc+'-bad.o')],cc+'-opaque-private-reject',marker='incomplete',negative=True)
+            execute([cc,*flags,*inc,'-c',ROOT/public/'tests/opaque_bad.c','-o',tmp/(cc+'-bad.o')],cc+'-opaque-private-reject',marker='incomplete' if cc=='clang' else 'undefined type',negative=True)
             execute([cc,*flags,*inc,'-c',ROOT/public/'tests/diagnostic.c','-o',tmp/(cc+'-plain.o')],cc+'-plain-copy-discard-accepted')
             execute([cc,*flags,*inc,'-DOMM_DIAGNOSTIC','-c',ROOT/public/'tests/diagnostic.c','-o',tmp/(cc+'-diagnostic.o')],cc+'-extension-discard-rejected',marker='unused-result',negative=True)
             c23=[x for x in flags if x!='-std=c17']+['-std=c23']

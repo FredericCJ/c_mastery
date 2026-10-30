@@ -20,7 +20,7 @@ def run():
         tmp=Path(tmp);includes=['-I',ROOT/'labs/adt/include','-I',ROOT/'labs/adt/packet_ring','-I',ROOT/'labs/foundations/include','-I',ROOT/'labs/hosted_systems/include','-I',ROOT/'labs/api_depth/architecture']
         probe=tmp/'representation.c';probe.write_text('#include "packet_ring.h"\n#include <stdio.h>\nint main(void){\n'+''.join('printf("'+t+' %zu %zu\\n",sizeof('+t+'),_Alignof('+t+'));\n' for t in ['struct ad_packet','struct adp_ring','struct adp_token','struct adp_part','struct adp_lease'])+'return 0;}\n',encoding='utf8')
         execute(['gcc','-std=c17','-pedantic-errors',*includes,probe,'-o',tmp/'representation'],'representation-compile')
-        output=execute([tmp/'representation'],'representation-run');layout={row.split()[0]:list(map(int,row.split()[1:])) for row in output.splitlines() if row.strip()};observations.append(dict(kind='representation',compiler='gcc',layout=layout,limits='Actual host ABI size/alignment pairs, not universal representation guarantees.'))
+        output=execute([tmp/'representation'],'representation-run');layout={row.rsplit(None,2)[0]:list(map(int,row.rsplit(None,2)[1:])) for row in output.splitlines() if row.strip()};observations.append(dict(kind='representation',compiler='gcc',layout=layout,limits='Actual host ABI size/alignment pairs, not universal representation guarantees.'))
         census=ROOT/'research/v5/modern/census/examples/packet_view.cpp';binary=tmp/'census'
         executable=Path(execute(['g++','-print-prog-name=cc1plus'],'cxx-front-end').strip()).resolve();external[str(executable)]=sha(executable)
         deps=execute(['g++','-std=c++23','-M',census],'census-headers').replace('\\\n',' ')

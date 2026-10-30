@@ -48,7 +48,7 @@ def main():
                 relative = path.relative_to(ROOT/'labs/corpus_tdigest')
                 assert sha(workspace/relative) == sha(path)
                 copied[relative.as_posix()] = sha(path)
-        body = (workspace/'EXERCISE.md').read_text()
+        body = ''.join((workspace/n).read_text() for n in ('EXERCISE.md','ACTIVE.md') if (workspace/n).is_file())
         assert all(row['criterion'] in body for row in meta['rubric'])
         for mode,provider in [('learner',None),('explicit-family',ROOT/'assessor/corpus_tdigest'),
                               ('explicit-parent',ROOT/'assessor')]:
