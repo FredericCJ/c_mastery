@@ -6,6 +6,7 @@ import subprocess
 import sys
 import time
 from common import ROOT,dump,read_json,sha
+from source_equivalence import carried_binding
 NAMES=['owning_ring','capacity','policy_effects','logging','receivers','schema','law_traces','format_stream','nested_hygiene','build_cache']
 FOLDERS=NAMES
 CONTRACTS=['OWNING.md','CAPACITY.md','POLICY.md','LOGGING.md','RECEIVERS.md','SCHEMA.md','LAWS.md','FORMAT.md','HYGIENE.md','CACHE.md']
@@ -27,11 +28,15 @@ def derived(result,series):
     n=result['iterations'];return {key:[dict(batch_cpu_seconds=t,mean_cpu_seconds_per_iteration=t/n,iterations_per_cpu_second=n/t if t>0 else None,resolution_limited=t==0) for t in result[key]] for key in series}
 
 def run():
-    inputs={p:sha(ROOT/p) for p in ['tools/run_metaprog_measurement_closure.py','tools/common.py','tools/check_replicated_replay_depth.py','curriculum/v5/exercises/modern-cost-contract.md']};reports={};packets=[];external={};records=[];observations=[]
+    inputs={p:sha(ROOT/p) for p in ['tools/run_metaprog_measurement_closure.py','tools/common.py','tools/check_replicated_replay_depth.py','curriculum/v5/exercises/modern-cost-contract.md']};reports={};carried=[];packets=[];external={};records=[];observations=[]
     folder=ROOT/'reviews/v5/expansion/modern_completion/runs'/('metaprog-measurement-closure-'+datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ'));folder.mkdir(parents=True)
     for i,(name,contract,work) in enumerate(zip(NAMES,CONTRACTS,WORK),1):
         path='research/v5/modern/metaprog_'+name+'_readiness.json';r=read_json(ROOT/path);assert [x['id'] for x in r['criteria']]==[f'X-T68-{i:03}-R{j}' for j in range(1,5)] and all(x['author_readiness']=='ready-bounded' for x in r['criteria'])
-        for p,h in r['input_sha256'].items():assert sha(ROOT/p)==h,p;inputs[p]=h
+        for p,h in r['input_sha256'].items():
+            binding=None if sha(ROOT/p)==h else carried_binding(p,h)
+            assert sha(ROOT/p)==h or binding,p
+            inputs[p]=sha(ROOT/p)
+            if binding:carried.append(binding)
         inputs[path]=sha(ROOT/path)
         for p,h in r['current_reports'].items():
             assert sha(ROOT/p)==h;reports[p]=h;external.update(read_json(ROOT/p).get('external_input_sha256',{}))
@@ -42,6 +47,6 @@ def run():
     for name in NAMES:
         command=[sys.executable,str(ROOT/('tools/check_metaprog_'+name+'.py')),'--self-test'];start=time.monotonic();p=subprocess.run(command,cwd=ROOT,text=True,capture_output=True,timeout=150);text=p.stdout+'\n'+p.stderr;log=folder/(name+'-guard.log');log.write_text(text,encoding='utf8');records.append(dict(command=command,exit_code=p.returncode,seconds=time.monotonic()-start,log=log.relative_to(ROOT).as_posix(),log_sha256=sha(log)));assert p.returncode==0,(name,text);r=json.loads(p.stdout);assert r['passed'];observations.append(dict(kind='current-guard',name=name,result=r))
     stable=all(sha(ROOT/p)==h for p,h in inputs.items());ext=all(Path(p).is_file() and sha(Path(p))==h for p,h in external.items())
-    result=dict(schema_version=1,passed=stable and ext,status='passed' if stable and ext else 'failed',input_sha256=inputs,current_reports=reports,external_input_sha256=external,source_stable=stable,external_inputs_stable=ext,packets=packets,executions=records,observations=observations,physical_validation='not-run',independent_review='not-run',learner_mastery='not-assessed',limits=['Original T68-MEASUREMENTS is bound to ten actual contracts and40rubrics, not headings. All original gaps remain as facet records.','Derived rates are arithmetic on retained CPU-time samples, not new executions; storage/process experiments do not establish physical power-cut or bus timing.','Only listed equivalent groups support relative comparisons. Policy changes, parse versus stream, and graph versus filesystem are different workloads.','All13cost dimensions include contract reasoning and source/object evidence; counts or quiet sanitizers do not prove universal bounds.','Published C17/C23 and attempted POSIX2024 pages remain access gaps; no independent reviewer or learner mastery is manufactured.'])
+    result=dict(schema_version=1,passed=stable and ext,status='passed' if stable and ext else 'failed',input_sha256=inputs,current_reports=reports,carried_forward=carried,external_input_sha256=external,source_stable=stable,external_inputs_stable=ext,packets=packets,executions=records,observations=observations,physical_validation='not-run',independent_review='not-run',learner_mastery='not-assessed',limits=['Original T68-MEASUREMENTS is bound to ten actual contracts and40rubrics, not headings. All original gaps remain as facet records.','Derived rates are arithmetic on retained CPU-time samples, not new executions; storage/process experiments do not establish physical power-cut or bus timing.','Only listed equivalent groups support relative comparisons. Policy changes, parse versus stream, and graph versus filesystem are different workloads.','All13cost dimensions include contract reasoning and source/object evidence; counts or quiet sanitizers do not prove universal bounds.','Published C17/C23 and attempted POSIX2024 pages remain access gaps; no independent reviewer or learner mastery is manufactured.'])
     dump(ROOT/REPORT,result);print(json.dumps(dict(passed=result['passed'],commands=len(records),current_packets=len(packets),rubrics=40)));return result['passed']
 if __name__=='__main__':raise SystemExit(0 if run() else 1)

@@ -22,7 +22,7 @@ PROFILES=[a+'-'+b for a in ['gcc','clang'] for b in ['debug','release','asan','t
 def run(path,deep=True):
     family=read_json(ROOT/'labs/replicated/family.json');anchors=family['tests']
     fixed={p.relative_to(ROOT).as_posix() for base in ['labs/replicated','assessor/replicated','fixtures/replicated'] for p in tree_files(base)}
-    fixed.update(['tools/run_replicated_followthrough.py','tools/run_resilience_scoped.py','tools/run_expansion_family.py',
+    fixed.update(['assessor/api_depth/architecture/effects.c','labs/api_depth/architecture/effects_learner.c','tools/run_replicated_followthrough.py','tools/run_resilience_scoped.py','tools/run_expansion_family.py',
                   'tools/common.py','tools/v5_common.py','tools/verify_replicated_fixtures.py','tools/verify_replicated_durable.py',
                   'tools/register_replicated_followthrough.py','research/v5/modern/author_replicated_support.py',
                   'research/v5/modern/replicated_resources.json','research/v5/modern/replicated_research_gate.json',

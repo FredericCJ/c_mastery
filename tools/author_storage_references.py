@@ -2,6 +2,7 @@
 from pathlib import Path
 import hashlib,re
 from c_source import AnchorError,find_all,significant,tokenize
+from source_equivalence import braces_wrap_statements,carried_forward,only_braces_inserted,token_keys
 ROOT=Path(__file__).resolve().parents[1]
 def edit(text,old,new,count=1):
  # Locate by C token sequence; the anchor's own leading/trailing layout stays
@@ -16,8 +17,9 @@ def edit(text,old,new,count=1):
  return text
 def main(check=False):
  source=ROOT/'assessor/storage_followthrough/tree/tree.c'
- assert hashlib.sha256(source.read_bytes()).hexdigest()=='9e91c830850cc96d5d2198ebce8260d302ccb4dbe0de768c53a32b0e3d614fc6'
- assert hashlib.sha256((ROOT/'labs/storage_followthrough/tree/include/store.h').read_bytes()).hexdigest()=='3aad559b49bf270c7cc3b16e0d0ab61224724efecb57c6e9cdca2e2c61149585'
+ # The reviewed parent may only have moved along proven layout/rename steps.
+ assert carried_forward('assessor/storage_followthrough/tree/tree.c','9e91c830850cc96d5d2198ebce8260d302ccb4dbe0de768c53a32b0e3d614fc6')
+ assert carried_forward('labs/storage_followthrough/tree/include/store.h','3aad559b49bf270c7cc3b16e0d0ab61224724efecb57c6e9cdca2e2c61149585')
  s=source.read_text(encoding='utf8')
  # Canonical output is compiled and reviewed separately; these exact edits
  # preserve an auditable derivation instead of modifying the frozen provider.
@@ -103,9 +105,15 @@ int store_ref_read(struct store_ref ref,store_node *out){
  h=edit(h,'TREE_CAPACITY==3u || TREE_CAPACITY==7u,"two derived odd capacities"','TREE_CAPACITY==7u,"CST5 capacity7 only"')
  h=edit(h,'  uint32_t next, child[9];','  uint32_t next, child[9];\n  uint64_t incarnation,next_incarnation,child_incarnation[9];')
  h=edit(h,'  uint8_t touched_ids[31], touched_count;','  uint8_t touched_ids[31], touched_count;\n  uint64_t root_incarnation,saved_root_incarnation,incarnations[32],saved_incarnations[32];')
+ # The checked-in outputs are the derived text after the house layout and
+ # brace steps: equal bytes, equal tokens, or the same tokens with only
+ # statement-wrapping braces added. Generation writes the raw derivation;
+ # run tools/check_c_style.py --fix on the outputs afterwards.
  def emit(path,text):
   data=text.encode('utf8')
-  if check:assert path.read_bytes()==data,str(path)
+  if check:
+   a,b=token_keys(text),token_keys(path.read_text(encoding='utf8'))
+   assert path.read_bytes()==data or a==b or (only_braces_inserted(a,b) and braces_wrap_statements(a,b)),str(path)
   else:path.write_bytes(data)
  emit(public/'include/store.h',h);emit(private/'refs.c',s)
  emit(public/'include/tree.h',(ROOT/'labs/storage_followthrough/tree/include/tree.h').read_text(encoding='utf8'))

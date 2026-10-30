@@ -44,7 +44,7 @@ def run():
         p=Path(shutil.which(tool)).resolve();external[str(p)]=sha(p);execute([tool,'--version'],tool+'-version')
     stamp=ROOT/'labs/metaprog/schema/schema_stamp.py';core=ROOT/'assessor/metaprog/schema/schema.c';codec=ROOT/'assessor/api_depth/architecture/core.c';flags=['-std=c17','-pedantic-errors','-Wall','-Wextra','-Werror'];public=ROOT/'labs/metaprog/schema/include';api=ROOT/'labs/api_depth/architecture'
     with tempfile.TemporaryDirectory(prefix='cmastery-schema-evolution-') as name:
-        tmp=Path(name);old=tmp/'old';new=tmp/'new';old.mkdir();new.mkdir();fields=(ROOT/'assessor/metaprog/schema/schema_fields.h').read_text(encoding='utf8');changed=fields.replace('#define MPS_VERSION 2','#define MPS_VERSION 3').replace('INT32_MAX,2)\n','INT32_MAX,2) \\\n X(3,quality,uint16_t,4,2,0,U16,0,15,3)\n');assert changed!=fields
+        tmp=Path(name);old=tmp/'old';new=tmp/'new';old.mkdir();new.mkdir();fields=(ROOT/'assessor/metaprog/schema/schema_fields.h').read_text(encoding='utf8');changed,added=re.subn(r'(INT32_MAX,\s*2\))\n',lambda m:m.group(1)+' \\\n    X(3, quality, uint16_t, 4, 2, 0, U16, 0, 15, 3)\n',fields.replace('#define MPS_VERSION 2','#define MPS_VERSION 3'));assert changed!=fields and added==1 and 'MPS_VERSION 3' in changed
         save(old/'schema_fields.h',fields);save(new/'schema_fields.h',changed)
         for directory in [old,new]:execute([sys.executable,stamp,directory/'schema_fields.h',directory/'schema_stamp.h'],directory.name+'-generate');preserve(directory/'schema_stamp.h',directory.name+'-schema_stamp.h')
         assert (old/'schema_stamp.h').read_bytes()!=(new/'schema_stamp.h').read_bytes()
