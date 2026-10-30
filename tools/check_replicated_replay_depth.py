@@ -11,9 +11,18 @@ PROFILES={a+'-'+b for a in ['gcc','clang'] for b in ['debug','release','asan','t
 CONTROL={1:'replay_prediction',5:'replay_prediction',3:'replay_snapshot',6:'replay_snapshot',4:'replay_durable',7:'replay_durable',2:'replay_effects',8:'replay_effects',9:'replay_transport',10:'replay_transport',12:'replay_native',13:'replay_native'}
 ANCHORS=set(CONTROL.values())
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+CARRIED=set()
+def _report_carried():
+    if CARRIED:print(f'carried forward, not re-executed: {len(CARRIED)} pinned sources descend along curriculum/v5/style_migration.json',file=__import__('sys').stderr)
+__import__('atexit').register(_report_carried)
 def bindings(d):
+    # A pin to pre-migration C is accepted only along the proven style bridge
+    # (curriculum/v5/style_migration.json); it is recorded in CARRIED and reported
+    # as carried forward, not re-executed.
+    from source_equivalence import carried_forward
     for p,h in d['input_sha256'].items():
-        path=(ROOT/p).resolve();assert path.is_relative_to(ROOT.resolve()) and path.is_file() and sha(path)==h,'stale source '+p
+        path=(ROOT/p).resolve();assert path.is_relative_to(ROOT.resolve()) and path.is_file(),'stale source '+p
+        if sha(path)!=h:assert carried_forward(p,h),'stale source '+p;CARRIED.add(p)
     for p,h in d['external_input_sha256'].items():assert Path(p).is_file() and sha(Path(p))==h,'changed external input '+p
     for row in d['generated_artifacts']:
         path=(ROOT/row['path']).resolve();assert path.is_relative_to(ROOT.resolve()) and sha(path)==row['sha256'],'changed build artifact'

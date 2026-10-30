@@ -48,6 +48,10 @@ def source_binding(report):
             current = sha(local_file(name))
             if not isinstance(digest, str) or current != digest:
                 binding = publication_pin(name,digest,current) if isinstance(digest,str) else None
+                if binding is None and isinstance(digest, str):
+                    # A pin to pre-migration C that the style bridge proves equivalent.
+                    from source_equivalence import carried_binding
+                    binding = carried_binding(name, digest)
                 if binding is None: errors.append('Stale source pin: ' + name)
                 else: publication.append(binding)
         except ValueError as error:

@@ -369,6 +369,41 @@ def prove_tokens(args, braces=False):
 # Migration record
 
 
+def prove_text(args):
+    """Non-C canonical sources changed only by the text rename.
+
+    A file qualifies when the corrected tools/rename_text.py transform, applied
+    to its bytes at `--base` with the rename map, reproduces its current bytes
+    exactly. Files with any other edit are reported as `different` and are not
+    bridged.
+    """
+    import rename_text
+    patterns = rename_text.Patterns(json.loads(Path(args.map).read_text()))
+    transforms = {".py": rename_text.python_strings, ".md": rename_text.markdown_code,
+                  ".json": rename_text.json_strings}
+    changed = subprocess.run(["git", "diff", "--name-only", args.base, "--"], cwd=ROOT, capture_output=True,
+                             text=True, check=True).stdout.split()
+    results = {}
+    for relative in changed:
+        suffix = Path(relative).suffix
+        if suffix not in transforms or relative.startswith(("reviews/", "research/", "build/")):
+            continue
+        old = base_text(args.base, relative)
+        if old is None or not (ROOT / relative).is_file():
+            continue
+        current = (ROOT / relative).read_bytes().decode("utf-8", "surrogateescape")
+        renamed = transforms[suffix](old, patterns)
+        results[relative] = "text-rename" if renamed == current != old else "different"
+    report = dict(proof="text", base=args.base, map=args.map, map_sha256=sha(Path(args.map).read_bytes()),
+                  passed=True, results={k: v for k, v in results.items() if v == "text-rename"},
+                  not_bridged=sorted(k for k, v in results.items() if v != "text-rename"),
+                  scope="Text renames of C identifiers in Python strings, Markdown code and JSON strings; "
+                        "reproduced exactly by tools/rename_text.py from the base bytes.")
+    Path(args.report).write_text(json.dumps(report, indent=1) + "\n")
+    print(json.dumps(dict(bridged=len(report["results"]), not_bridged=len(report["not_bridged"]))))
+    return 0
+
+
 def record(args):
     proof = json.loads(Path(args.proof).read_text())
     if not proof["passed"]:
@@ -383,8 +418,9 @@ def record(args):
     results = dict(proof["results"])
     # Headers and fragments are not translation units: they are covered only
     # through the units that include them, and are recorded as such.
-    for relative in changed_files(proof["base"]):
-        results.setdefault(relative, "not-directly-compiled")
+    if proof["proof"] != "text":
+        for relative in changed_files(proof["base"]):
+            results.setdefault(relative, "not-directly-compiled")
     for relative, outcome in results.items():
         old = base_text(proof["base"], relative)
         if old is None:
@@ -415,6 +451,29 @@ def carried_forward(relative, pinned_sha256):
     return digest == current
 
 
+def carried_binding(relative, pinned_sha256):
+    """Describe a historical pin that `carried_forward` accepts.
+
+    Returns None when the pin is current (nothing to qualify) or does not
+    descend from the current bytes. Otherwise the record names the proven
+    steps, so a checker can accept the old evidence while stating that it was
+    carried forward and not re-executed.
+    """
+    current = sha((ROOT / relative).read_bytes())
+    if current == pinned_sha256 or not carried_forward(relative, pinned_sha256):
+        return None
+    data = json.loads(MIGRATION.read_text())
+    digest, steps = pinned_sha256, []
+    for step in data["steps"]:
+        entry = step["files"].get(relative)
+        if entry and entry["old_sha256"] == digest:
+            steps.append(dict(step=step["step"], proof=entry["proof"], receipt=step.get("receipt")))
+            digest = entry["new_sha256"]
+    return dict(path=relative, execution_source_sha256=pinned_sha256, current_source_sha256=current,
+                state="carried-forward-not-re-executed", migration=MIGRATION.relative_to(ROOT).as_posix(),
+                steps=steps, new_c_execution=False)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -428,12 +487,18 @@ def main():
         t = sub.add_parser(name)
         t.add_argument("--base", required=True)
         t.add_argument("--report", required=True)
+    x = sub.add_parser("text")
+    x.add_argument("--base", required=True)
+    x.add_argument("--map", required=True, help="the rename map tools/rename_text.py was run with")
+    x.add_argument("--report", required=True)
     r = sub.add_parser("record")
     r.add_argument("--proof", required=True)
     r.add_argument("--step", required=True)
     args = parser.parse_args()
     if args.command == "objects":
         return prove_objects(args)
+    if args.command == "text":
+        return prove_text(args)
     if args.command == "record":
         return record(args)
     return prove_tokens(args, braces=args.command == "braces")
