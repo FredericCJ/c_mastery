@@ -99,7 +99,9 @@ static void blocked(uint64_t thread)
 }
 
 static volatile unsigned *race;
-static unsigned ready, go;
+/* Start gate for the racing threads: `ready` counts arrivals, `go` releases. */
+static unsigned ready;
+static unsigned go;
 
 static void racer(uintptr_t i)
 {

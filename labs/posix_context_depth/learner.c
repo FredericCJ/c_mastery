@@ -1,97 +1,105 @@
 #include "context.h"
 #include <errno.h>
 
-int pc_launch(const char *p, char *const a[], char *const e[], int d, int f,
-              struct pc_launch *o)
+/* Learner scaffold: every function compiles, ignores its inputs and returns a
+ * sentinel, so the supplied tests fail until you implement the contracts in
+ * context.h and CONTRACTS.md. */
+
+int pc_launch(const char *path, char *const argv[], char *const env[], int cwd,
+              int output, struct pc_launch *result)
 {
-    (void)p;
-    (void)a;
-    (void)e;
-    (void)d;
-    (void)f;
-    (void)o;
+    (void)path;
+    (void)argv;
+    (void)env;
+    (void)cwd;
+    (void)output;
+    (void)result;
     return ENOSYS;
 }
 
-int pc_spawn(const char *p, char *const a[], char *const e[], int d, int f,
-             struct pc_launch *o)
+int pc_spawn(const char *path, char *const argv[], char *const env[], int cwd,
+             int output, struct pc_launch *result)
 {
-    (void)p;
-    (void)a;
-    (void)e;
-    (void)d;
-    (void)f;
-    (void)o;
+    (void)path;
+    (void)argv;
+    (void)env;
+    (void)cwd;
+    (void)output;
+    (void)result;
     return ENOSYS;
 }
 
-int pc_reap(struct pc_ticket *t, pc_wait_fn f, void *c, struct pc_launch *o)
+int pc_reap(struct pc_ticket *ticket, pc_wait_fn wait_fn, void *context,
+            struct pc_launch *result)
 {
-    (void)t;
-    (void)f;
-    (void)c;
-    (void)o;
+    (void)ticket;
+    (void)wait_fn;
+    (void)context;
+    (void)result;
     return ENOSYS;
 }
 
-int pc_replace(int d, int l, const unsigned char *b, size_t n, unsigned f,
-               pc_step_fn s, void *c, struct pc_replace *o)
+int pc_replace(int directory, int lock, const unsigned char *data,
+               size_t length, unsigned fail_stage, pc_step_fn step,
+               void *context, struct pc_replace *result)
 {
-    (void)d;
-    (void)l;
-    (void)b;
-    (void)n;
-    (void)f;
-    (void)s;
-    (void)c;
-    (void)o;
+    (void)directory;
+    (void)lock;
+    (void)data;
+    (void)length;
+    (void)fail_stage;
+    (void)step;
+    (void)context;
+    (void)result;
     return ENOSYS;
 }
 
-int pc_deadline(uint64_t n, uint64_t b, uint64_t *d)
+int pc_deadline(uint64_t now_ns, uint64_t budget_ns, uint64_t *deadline_ns)
 {
-    (void)n;
-    (void)b;
-    (void)d;
+    (void)now_ns;
+    (void)budget_ns;
+    (void)deadline_ns;
     return ENOSYS;
 }
 
-uint64_t pc_remaining(uint64_t d, uint64_t n)
+uint64_t pc_remaining(uint64_t deadline_ns, uint64_t now_ns)
 {
-    (void)d;
-    (void)n;
+    (void)deadline_ns;
+    (void)now_ns;
     return 0;
 }
 
-int pc_choose(struct pc_capability *c, unsigned e, int p, int f, int i)
+int pc_choose(struct pc_capability *capability, unsigned epoch, int probe_error,
+              int equivalent_poll, int operation_in_progress)
 {
-    (void)c;
-    (void)e;
-    (void)p;
-    (void)f;
-    (void)i;
+    (void)capability;
+    (void)epoch;
+    (void)probe_error;
+    (void)equivalent_poll;
+    (void)operation_in_progress;
     return ENOSYS;
 }
 
-int pc_operation_status(int e, size_t n)
+int pc_operation_status(int error, size_t completed)
 {
-    (void)e;
-    (void)n;
+    (void)error;
+    (void)completed;
     return 0;
 }
 
-int pc_ready(int b, int f)
+int pc_ready(int backend, int fd)
 {
-    (void)b;
-    (void)f;
+    (void)backend;
+    (void)fd;
     return -1;
 }
 
-int pc_request(unsigned a, unsigned r, int e, unsigned *o)
+int pc_request(unsigned available, unsigned requested, int injected_error,
+               unsigned *accepted)
 {
-    (void)a;
-    (void)r;
-    (void)e;
-    (void)o;
+    (void)available;
+    (void)requested;
+    (void)injected_error;
+    (void)accepted;
     return ENOSYS;
 }

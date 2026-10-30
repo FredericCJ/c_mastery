@@ -7,57 +7,78 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+enum
+{
+    TICKET_OWNED = 1,
+    TICKET_COLLECTED = 2,
+    TICKET_AUTHORITY_LOST = 3,
+    KIND_EXITED = 1,
+    KIND_SIGNALED = 3,
+    /* child() result meaning "terminate yourself with SIGTERM". */
+    CHILD_SIGNAL_ITSELF = -1,
+    /* Exit statuses a child uses to report its own setup failure. */
+    CHILD_GATE_FAILED = 90,
+    CHILD_KILL_FAILED = 91,
+    CHILD_SURVIVED_KILL = 92
+};
+
+/* Fault-injecting wait hook: fails once with `error`, then forwards to the
+ * real waitpid(). `calls` proves how many waits a ticket really issued. */
 struct pc_fault
 {
     unsigned calls;
     int error;
 };
 
-static pid_t once(pid_t p, int *status, void *v)
+static pid_t once(pid_t pid, int *status, void *context)
 {
-    struct pc_fault *f = v;
-    ++f->calls;
-    if (f->error)
+    struct pc_fault *fault = context;
+    ++fault->calls;
+    if (fault->error)
     {
-        int e = f->error;
-        f->error = 0;
-        errno = e;
+        int error = fault->error;
+        fault->error = 0;
+        errno = error;
         return -1;
     }
-    return waitpid(p, status, 0);
+    return waitpid(pid, status, 0);
 }
 
+/* Forks a child that blocks reading `gate` until the parent releases it, so
+ * the parent decides when the child becomes collectable. The child exits with
+ * `result`, or terminates itself with SIGTERM for CHILD_SIGNAL_ITSELF. The
+ * parent keeps only gate[1]; release() closes it. */
 static pid_t child(int gate[2], int result)
 {
     CHECK(pipe(gate) == 0);
-    pid_t p = fork();
-    CHECK(p >= 0);
-    if (!p)
+    pid_t pid = fork();
+    CHECK(pid >= 0);
+    if (!pid)
     {
-        char c;
+        char token;
         close(gate[1]);
-        ssize_t n;
+        ssize_t got;
         do
         {
-            n = read(gate[0], &c, 1);
-        } while (n < 0 && errno == EINTR);
-        if (n != 1)
+            got = read(gate[0], &token, 1);
+        } while (got < 0 && errno == EINTR);
+        if (got != 1)
         {
-            _exit(90);
+            _exit(CHILD_GATE_FAILED);
         }
         close(gate[0]);
-        if (result < 0)
+        if (result == CHILD_SIGNAL_ITSELF)
         {
             if (kill(getpid(), SIGTERM))
             {
-                _exit(91);
+                _exit(CHILD_KILL_FAILED);
             }
-            _exit(92);
+            _exit(CHILD_SURVIVED_KILL);
         }
         _exit(result);
     }
     close(gate[0]);
-    return p;
+    return pid;
 }
 
 static void release(int gate[2])
@@ -65,54 +86,76 @@ static void release(int gate[2])
     CHECK(write(gate[1], "x", 1) == 1 && close(gate[1]) == 0);
 }
 
+/* A failed wait must leave the ticket owned and the result untouched; the
+ * retry then collects exactly once, and a collected ticket never waits again. */
+static void deferred_wait_error(int injected_error)
+{
+    int gate[2];
+    pid_t pid = child(gate, 127);
+    struct pc_ticket ticket = {pid, TICKET_OWNED};
+    struct pc_launch out = {99, 98, 97};
+    struct pc_launch untouched = out;
+    struct pc_fault fault = {0, injected_error};
+    CHECK(pc_reap(&ticket, once, &fault, &out) == injected_error);
+    CHECK(ticket.phase == TICKET_OWNED && ticket.pid == pid &&
+          !memcmp(&out, &untouched, sizeof out));
+    release(gate);
+    CHECK(pc_reap(&ticket, once, &fault, &out) == 0 &&
+          ticket.phase == TICKET_COLLECTED && ticket.pid == 0 &&
+          out.kind == KIND_EXITED && out.value == 127 && out.pid == pid);
+    unsigned calls = fault.calls;
+    CHECK(pc_reap(&ticket, once, &fault, &out) == EALREADY &&
+          fault.calls == calls);
+    printf(
+        "PC_REAP deferred_error=%d retained_then_collected=1 no_duplicate_wait=1\n",
+        injected_error);
+}
+
+/* EINTR on the first wait is retried inside pc_reap (two calls in total). */
+static void interrupted_wait(int child_result)
+{
+    int gate[2];
+    pid_t pid = child(gate, child_result);
+    struct pc_ticket ticket = {pid, TICKET_OWNED};
+    struct pc_launch out = {0};
+    struct pc_fault fault = {0, EINTR};
+    release(gate);
+    CHECK(pc_reap(&ticket, once, &fault, &out) == 0 && fault.calls == 2 &&
+          out.pid == pid);
+    CHECK(child_result == 0
+              ? (out.kind == KIND_EXITED && out.value == 0)
+              : (out.kind == KIND_SIGNALED && out.value == SIGTERM));
+    printf("PC_REAP interrupted_then_collected=1 kind=%d value=%d\n", out.kind,
+           out.value);
+}
+
+/* A competing reaper violates the exclusive-owner assumption: the ticket's
+ * wait fails with a real ECHILD and the authority is retired for good. */
+static void competing_reaper(void)
+{
+    int gate[2];
+    int status;
+    pid_t pid = child(gate, 0);
+    struct pc_ticket ticket = {pid, TICKET_OWNED};
+    release(gate);
+    CHECK(waitpid(pid, &status, 0) == pid);
+    struct pc_launch out = {99, 98, 97};
+    struct pc_launch untouched = out;
+    struct pc_fault fault = {0, 0};
+    CHECK(pc_reap(&ticket, once, &fault, &out) == ECHILD &&
+          ticket.phase == TICKET_AUTHORITY_LOST && ticket.pid == 0 &&
+          !memcmp(&out, &untouched, sizeof out));
+    CHECK(pc_reap(&ticket, once, &fault, &out) == EALREADY && fault.calls == 1);
+    puts("PC_REAP actual_ECHILD retired_authority no_signal_no_second_wait");
+}
+
 int main(void)
 {
-    for (int error_case = 0; error_case < 2; ++error_case)
-    {
-        int gate[2];
-        pid_t pid = child(gate, 127);
-        struct pc_ticket t = {pid, 1};
-        struct pc_launch out = {99, 98, 97}, old = out;
-        struct pc_fault f = {0, error_case ? EINVAL : EIO};
-        CHECK(pc_reap(&t, once, &f, &out) == (error_case ? EINVAL : EIO));
-        CHECK(t.phase == 1 && t.pid == pid && !memcmp(&out, &old, sizeof out));
-        release(gate);
-        CHECK(pc_reap(&t, once, &f, &out) == 0 && t.phase == 2 && t.pid == 0 &&
-              out.kind == 1 && out.value == 127 && out.pid == pid);
-        unsigned calls = f.calls;
-        CHECK(pc_reap(&t, once, &f, &out) == EALREADY && f.calls == calls);
-        printf(
-            "PC_REAP deferred_error=%d retained_then_collected=1 no_duplicate_wait=1\n",
-            error_case ? EINVAL : EIO);
-    }
-    for (int result = 0; result >= -1; --result)
-    {
-        int gate[2];
-        pid_t pid = child(gate, result);
-        struct pc_ticket t = {pid, 1};
-        struct pc_launch out = {0};
-        struct pc_fault f = {0, EINTR};
-        release(gate);
-        CHECK(pc_reap(&t, once, &f, &out) == 0 && f.calls == 2 &&
-              out.pid == pid);
-        CHECK(result == 0 ? (out.kind == 1 && out.value == 0)
-                          : (out.kind == 3 && out.value == SIGTERM));
-        printf("PC_REAP interrupted_then_collected=1 kind=%d value=%d\n",
-               out.kind, out.value);
-    }
-    int gate[2], status;
-    pid_t pid = child(gate, 0);
-    struct pc_ticket t = {pid, 1};
-    release(gate);
-    CHECK(
-        waitpid(pid, &status, 0) ==
-        pid); /* Controlled competing reaper violates exclusive-owner assumption. */
-    struct pc_launch out = {99, 98, 97}, old = out;
-    struct pc_fault f = {0, 0};
-    CHECK(pc_reap(&t, once, &f, &out) == ECHILD && t.phase == 3 && t.pid == 0 &&
-          !memcmp(&out, &old, sizeof out));
-    CHECK(pc_reap(&t, once, &f, &out) == EALREADY && f.calls == 1);
-    puts("PC_REAP actual_ECHILD retired_authority no_signal_no_second_wait");
+    deferred_wait_error(EIO);
+    deferred_wait_error(EINVAL);
+    interrupted_wait(0);
+    interrupted_wait(CHILD_SIGNAL_ITSELF);
+    competing_reaper();
     puts("PC_REAP_PASS");
     return 0;
 }

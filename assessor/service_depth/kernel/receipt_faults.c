@@ -3,14 +3,19 @@
 #include "../../../labs/storage/tests/test_store.c"
 #undef main
 #include "receipt.h"
-/* A second model has a different persistence granularity: each of eight512-byte
+/* A second model has a different persistence granularity: each of eight 512-byte
  * sectors may retain old bytes or take new bytes. At a failed flush, dirty pages
  * are visited in reverse order; a prefix may persist and the next page may tear.
  * Enumeration is all masks for the addressed write, plus all page-prefix lengths
  * at flush with all masks for its boundary page. It is NOT all joint masks across
  * all dirty pages, and never supplies a proof against adversarial checksum forgery. */
-static unsigned sector_mask, flush_prefix;
-static unsigned recording, event_prefixes[128];
+/* Enumeration state read by sector_boundary(): the sector mask for the torn
+ * page, how many dirty pages persist fully at a flush, whether the first run
+ * is recording per-event prefix counts, and those counts (below 128 events). */
+static unsigned sector_mask;
+static unsigned flush_prefix;
+static unsigned recording;
+static unsigned event_prefixes[128];
 
 static void tear(medium *m, unsigned page)
 {
@@ -104,7 +109,8 @@ static store_io sector_io(medium *m)
 static int sector_cases(void)
 {
     static store s;
-    int32_t out, value;
+    int32_t out;
+    int32_t value;
     memset(&disk, 0, sizeof disk);
     CHECK(!store_format(sector_io(&disk)));
     CHECK(!store_open(&s, sector_io(&disk)));
@@ -115,7 +121,8 @@ static int sector_cases(void)
     recording = 1;
     CHECK(!sdr_apply(&s, 1, 1, 5, 7, &out));
     recording = 0;
-    unsigned events = disk.event, cases = 0;
+    unsigned events = disk.event;
+    unsigned cases = 0;
     CHECK(events < 128);
     for (unsigned cut = 1; cut <= events; cut++)
     {
@@ -151,7 +158,8 @@ static int sector_cases(void)
 static int receipts(void)
 {
     static store s;
-    int32_t out = 99, value;
+    int32_t out = 99;
+    int32_t value;
     memset(&disk, 0, sizeof disk);
     CHECK(store_format(mio(&disk)) == STORE_OK);
     CHECK(store_open(&s, mio(&disk)) == STORE_OK);

@@ -47,7 +47,8 @@ void *memmove(void *p, const void *q, size_t n)
 
 int memcmp(const void *p, const void *q, size_t n)
 {
-    const unsigned char *a = p, *b = q;
+    const unsigned char *a = p;
+    const unsigned char *b = q;
     while (n--)
     {
         if (*a != *b)
@@ -61,7 +62,11 @@ int memcmp(const void *p, const void *q, size_t n)
 }
 
 static store database;
-static unsigned active, event, cut;
+/* Crash-cut state: `event` counts device boundaries once `active`, and the
+ * guest is stopped at boundary number `cut` (0 means never). */
+static unsigned active;
+static unsigned event;
+static unsigned cut;
 
 static void print(const char *s)
 {

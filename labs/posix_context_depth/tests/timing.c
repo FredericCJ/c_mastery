@@ -12,17 +12,34 @@
 #include <time.h>
 #include <unistd.h>
 
+enum
+{
+    NS_PER_SECOND = 1000000000,
+    SAMPLE_COUNT = 12,
+    SAMPLE_PERIOD_NS = 2000000,
+    BUSY_LOOP_ITERATIONS = 10000,
+    /* 0 + 1 + ... + 9999 */
+    BUSY_LOOP_SUM = 49995000,
+    LOWERED_NOFILE_SOFT_LIMIT = 32,
+    CHILD_LIMIT_FAILED_STATUS = 98,
+    TIMER_DELAY_US = 1000,
+    INTERRUPTED_SLEEP_NS = 10000000
+};
+
+/* Converts a monotonic timespec to nanoseconds, rejecting values that would
+ * not fit in uint64_t or are not normalized. */
 static uint64_t ns(struct timespec t)
 {
-    CHECK(t.tv_sec >= 0 && (uint64_t)t.tv_sec <= UINT64_MAX / 1000000000 &&
-          t.tv_nsec >= 0 && t.tv_nsec < 1000000000);
-    return (uint64_t)t.tv_sec * 1000000000 + (uint64_t)t.tv_nsec;
+    CHECK(t.tv_sec >= 0 && (uint64_t)t.tv_sec <= UINT64_MAX / NS_PER_SECOND &&
+          t.tv_nsec >= 0 && t.tv_nsec < NS_PER_SECOND);
+    return (uint64_t)t.tv_sec * NS_PER_SECOND + (uint64_t)t.tv_nsec;
 }
 
-static struct timespec ts(uint64_t n)
+static struct timespec ts(uint64_t nanoseconds)
 {
-    struct timespec t = {(time_t)(n / 1000000000), (long)(n % 1000000000)};
-    CHECK((uint64_t)t.tv_sec == n / 1000000000);
+    struct timespec t = {(time_t)(nanoseconds / NS_PER_SECOND),
+                         (long)(nanoseconds % NS_PER_SECOND)};
+    CHECK((uint64_t)t.tv_sec == nanoseconds / NS_PER_SECOND);
     return t;
 }
 
@@ -34,24 +51,29 @@ static void caught(int sig)
     ++signals;
 }
 
+/* Pure arithmetic over injected tick values: no host clock is read and no
+ * suspend or wall-clock jump is performed. */
 static void models(void)
 {
-    uint64_t d = 77;
-    CHECK(pc_deadline(100, 20, &d) == 0 && d == 120);
-    CHECK(pc_remaining(d, 105) == 15 && pc_remaining(d, 120) == 0 &&
-          pc_remaining(d, 121) == 0);
-    CHECK(pc_deadline(UINT64_MAX, 1, &d) == ERANGE && d == 120);
-    CHECK(pc_deadline(UINT64_MAX, 0, &d) == 0 && d == UINT64_MAX);
+    uint64_t deadline = 77;
+    CHECK(pc_deadline(100, 20, &deadline) == 0 && deadline == 120);
+    CHECK(pc_remaining(deadline, 105) == 15 &&
+          pc_remaining(deadline, 120) == 0 && pc_remaining(deadline, 121) == 0);
+    CHECK(pc_deadline(UINT64_MAX, 1, &deadline) == ERANGE && deadline == 120);
+    CHECK(pc_deadline(UINT64_MAX, 0, &deadline) == 0 && deadline == UINT64_MAX);
     CHECK(pc_deadline(0, 0, NULL) == EINVAL);
     /* Same 15 active ticks + 100 suspended ticks; no host clock or suspend changed. */
     CHECK(pc_remaining(120, 115) == 5 && pc_remaining(120, 215) == 0);
+    /* A wall clock that jumps (forward, backward) is irrelevant: remaining
+     * time depends only on the monotonic ticks passed to pc_remaining. */
     int64_t wall[] = {1000, 1005, 500, 9000};
     for (size_t i = 0; i < 4; ++i)
     {
         (void)wall[i];
         CHECK(pc_remaining(120, 100 + i * 5) == 20 - i * 5);
     }
-    uint64_t planned[] = {5, 10, 20}, dispatch[] = {7, 13, 19};
+    uint64_t planned[] = {5, 10, 20};
+    uint64_t dispatch[] = {7, 13, 19};
     uint64_t late[3];
     unsigned expired = 0;
     for (size_t i = 0; i < 3; ++i)
@@ -66,9 +88,35 @@ static void models(void)
         "PC_CLOCK_MODEL wall_jump_independent active_remaining=5 suspend_remaining=0 lateness=2,3,0 expired=2 interference_lateness=100");
 }
 
+/* Forked child: lowers its own soft RLIMIT_NOFILE and reports through `fd`
+ * whether the new value was observed. Never returns. */
+static void lower_limit_in_child(int fd, struct rlimit before)
+{
+    struct rlimit smaller = before;
+    if (smaller.rlim_cur > LOWERED_NOFILE_SOFT_LIMIT)
+    {
+        smaller.rlim_cur = LOWERED_NOFILE_SOFT_LIMIT;
+    }
+    int ok = setrlimit(RLIMIT_NOFILE, &smaller) == 0;
+    struct rlimit seen;
+    if (getrlimit(RLIMIT_NOFILE, &seen) || seen.rlim_cur != smaller.rlim_cur)
+    {
+        ok = 0;
+    }
+    ssize_t sent;
+    do
+    {
+        sent = write(fd, &ok, sizeof ok);
+    } while (sent < 0 && errno == EINTR);
+    _exit(ok && sent == (ssize_t)sizeof ok ? 0 : CHILD_LIMIT_FAILED_STATUS);
+}
+
+/* Resource limits are per process: a child lowering its limit leaves the
+ * parent's unchanged. Scheduling and affinity are only read, never changed. */
 static void limits(void)
 {
-    struct rlimit before, after;
+    struct rlimit before;
+    struct rlimit after;
     CHECK(getrlimit(RLIMIT_NOFILE, &before) == 0);
     cpu_set_t mask;
     CPU_ZERO(&mask);
@@ -82,33 +130,20 @@ static void limits(void)
            (unsigned long long)before.rlim_cur,
            (unsigned long long)before.rlim_max, count, policy,
            param.sched_priority);
-    int p[2], status;
-    CHECK(pipe(p) == 0);
+    int channel[2];
+    int status;
+    CHECK(pipe(channel) == 0);
     pid_t pid = fork();
     CHECK(pid >= 0);
     if (!pid)
     {
-        close(p[0]);
-        struct rlimit smaller = before;
-        smaller.rlim_cur = before.rlim_cur > 32 ? 32 : before.rlim_cur;
-        int ok = setrlimit(RLIMIT_NOFILE, &smaller) == 0;
-        struct rlimit seen;
-        if (getrlimit(RLIMIT_NOFILE, &seen) ||
-            seen.rlim_cur != smaller.rlim_cur)
-        {
-            ok = 0;
-        }
-        ssize_t sent;
-        do
-        {
-            sent = write(p[1], &ok, sizeof ok);
-        } while (sent < 0 && errno == EINTR);
-        _exit(ok && sent == (ssize_t)sizeof ok ? 0 : 98);
+        close(channel[0]);
+        lower_limit_in_child(channel[1], before);
     }
-    close(p[1]);
+    close(channel[1]);
     int ok = 0;
-    CHECK(read(p[0], &ok, sizeof ok) == sizeof ok && ok);
-    close(p[0]);
+    CHECK(read(channel[0], &ok, sizeof ok) == sizeof ok && ok);
+    close(channel[0]);
     CHECK(waitpid(pid, &status, 0) == pid && WIFEXITED(status) &&
           WEXITSTATUS(status) == 0);
     CHECK(getrlimit(RLIMIT_NOFILE, &after) == 0 &&
@@ -119,70 +154,98 @@ static void limits(void)
     CHECK(pc_request(7, 3, EPERM, &accepted) == EPERM && accepted == 4);
     CHECK(pc_request(7, 3, EINVAL, &accepted) == EINVAL && accepted == 4);
     CHECK(pc_request(7, 3, 0, &accepted) == 0 && accepted == 3);
-    unsigned inspected_cpu = 3, available_now = 1;
+    unsigned inspected_cpu = 3;
+    unsigned available_now = 1;
     CHECK(pc_request(available_now, inspected_cpu, 0, &accepted) == EINVAL &&
           accepted == 3);
     puts(
         "PC_LIMIT child_lowered parent_unchanged errors=EPERM,EINVAL cpu_snapshot_stale=model");
 }
 
-static void samples(void)
+/* Sleeps to an absolute CLOCK_MONOTONIC deadline, resuming after signals.
+ * Returns how many times the sleep was interrupted. */
+static int sleep_until(uint64_t deadline_ns)
 {
-    struct timespec start, cpu0, cpu1, res;
-    CHECK(clock_getres(CLOCK_MONOTONIC, &res) == 0 &&
+    struct timespec target = ts(deadline_ns);
+    int interrupted = 0;
+    int error;
+    do
+    {
+        error = clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &target, NULL);
+        if (error == EINTR)
+        {
+            ++interrupted;
+        }
+    } while (error == EINTR);
+    CHECK(error == 0);
+    return interrupted;
+}
+
+/* Twelve absolute-deadline wakeups; each row records planned, woken,
+ * dispatched and finished times so the campaign can bound ordering. The
+ * lateness is an observation on a shared host, not a bound. */
+static void monotonic_samples(void)
+{
+    struct timespec start;
+    struct timespec cpu_start;
+    struct timespec cpu_end;
+    struct timespec resolution;
+    CHECK(clock_getres(CLOCK_MONOTONIC, &resolution) == 0 &&
           clock_gettime(CLOCK_MONOTONIC, &start) == 0 &&
-          clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &cpu0) == 0);
+          clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &cpu_start) == 0);
     uint64_t origin = ns(start);
-    printf("PC_RESOLUTION ns=%" PRIu64 "\n", ns(res));
-    for (unsigned i = 1; i <= 12; ++i)
+    printf("PC_RESOLUTION ns=%" PRIu64 "\n", ns(resolution));
+    for (unsigned i = 1; i <= SAMPLE_COUNT; ++i)
     {
         uint64_t deadline;
-        CHECK(pc_deadline(origin, (uint64_t)i * 2000000, &deadline) == 0);
-        struct timespec t = ts(deadline), wake, dispatch, end;
-        int r;
-        do
-        {
-            r = clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &t, NULL);
-        } while (r == EINTR);
-        CHECK(r == 0 && clock_gettime(CLOCK_MONOTONIC, &wake) == 0);
+        CHECK(pc_deadline(origin, (uint64_t)i * SAMPLE_PERIOD_NS, &deadline) ==
+              0);
+        struct timespec wake;
+        struct timespec dispatch;
+        struct timespec end;
+        (void)sleep_until(deadline);
+        CHECK(clock_gettime(CLOCK_MONOTONIC, &wake) == 0);
         CHECK(clock_gettime(CLOCK_MONOTONIC, &dispatch) == 0);
         volatile unsigned sum = 0;
-        for (unsigned k = 0; k < 10000; ++k)
+        for (unsigned k = 0; k < BUSY_LOOP_ITERATIONS; ++k)
         {
             sum += k;
         }
-        CHECK(sum == 49995000 && clock_gettime(CLOCK_MONOTONIC, &end) == 0);
+        CHECK(sum == BUSY_LOOP_SUM &&
+              clock_gettime(CLOCK_MONOTONIC, &end) == 0);
         printf("PC_SAMPLE planned=%" PRIu64 " wake=%" PRIu64
                " dispatch=%" PRIu64 " done=%" PRIu64 " late=%" PRIu64 "\n",
                deadline, ns(wake), ns(dispatch), ns(end),
                ns(wake) > deadline ? ns(wake) - deadline : 0);
     }
-    CHECK(clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &cpu1) == 0);
+    CHECK(clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &cpu_end) == 0);
     printf("PC_CPU elapsed=%" PRIu64
            " bound_claim=none load=uncontrolled_shared_host\n",
-           ns(cpu1) - ns(cpu0));
-    struct sigaction action = {0}, old;
+           ns(cpu_end) - ns(cpu_start));
+}
+
+/* A SIGALRM interrupts the sleep; resuming against the same absolute
+ * deadline loses no time, whereas a relative restart extends the contract
+ * by the time already slept. The previous
+ * disposition is restored before returning. */
+static void interrupted_sleep(void)
+{
+    struct sigaction action = {0};
+    struct sigaction old;
     action.sa_handler = caught;
     CHECK(sigemptyset(&action.sa_mask) == 0 &&
           sigaction(SIGALRM, &action, &old) == 0);
-    struct itimerval timer = {{0, 0}, {0, 1000}}, off = {{0, 0}, {0, 0}};
-    CHECK(clock_gettime(CLOCK_MONOTONIC, &start) == 0);
+    struct itimerval timer = {{0, 0}, {0, TIMER_DELAY_US}};
+    struct itimerval off = {{0, 0}, {0, 0}};
+    struct timespec now;
+    CHECK(clock_gettime(CLOCK_MONOTONIC, &now) == 0);
     uint64_t deadline;
-    CHECK(pc_deadline(ns(start), 10000000, &deadline) == 0);
-    struct timespec t = ts(deadline);
+    CHECK(pc_deadline(ns(now), INTERRUPTED_SLEEP_NS, &deadline) == 0);
     CHECK(setitimer(ITIMER_REAL, &timer, NULL) == 0);
-    int interrupted = 0, r;
-    do
-    {
-        r = clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &t, NULL);
-        if (r == EINTR)
-        {
-            ++interrupted;
-        }
-    } while (r == EINTR);
-    CHECK(r == 0 && signals > 0 && setitimer(ITIMER_REAL, &off, NULL) == 0 &&
+    int interrupted = sleep_until(deadline);
+    CHECK(signals > 0 && setitimer(ITIMER_REAL, &off, NULL) == 0 &&
           sigaction(SIGALRM, &old, NULL) == 0);
-    CHECK(clock_gettime(CLOCK_MONOTONIC, &start) == 0 && ns(start) >= deadline);
+    CHECK(clock_gettime(CLOCK_MONOTONIC, &now) == 0 && ns(now) >= deadline);
     printf(
         "PC_INTERRUPT delivered=%d sleep_eintr=%d absolute_deadline_unchanged=%" PRIu64
         "\n",
@@ -193,7 +256,8 @@ int main(void)
 {
     models();
     limits();
-    samples();
+    monotonic_samples();
+    interrupted_sleep();
     puts("PC_TIMING_PASS");
     return 0;
 }

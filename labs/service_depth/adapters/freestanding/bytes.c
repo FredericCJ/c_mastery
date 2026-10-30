@@ -1,30 +1,34 @@
 #include <stddef.h>
 #include <stdint.h>
 
-void *memcpy(void *p, const void *q, size_t n)
+/* Original byte loops for the guest closure: the compiler may emit calls to
+ * these even with -ffreestanding. `volatile` stops it from recognizing the
+ * loop and turning it back into a call to the function being defined. */
+void *memcpy(void *to, const void *from, size_t n)
 {
-    volatile unsigned char *a = p;
-    const volatile unsigned char *b = q;
+    volatile unsigned char *dst = to;
+    const volatile unsigned char *src = from;
     for (size_t i = 0; i < n; i++)
     {
-        a[i] = b[i];
+        dst[i] = src[i];
     }
-    return p;
+    return to;
 }
 
-void *memset(void *p, int c, size_t n)
+void *memset(void *to, int value, size_t n)
 {
-    volatile unsigned char *a = p;
+    volatile unsigned char *dst = to;
     for (size_t i = 0; i < n; i++)
     {
-        a[i] = (unsigned char)c;
+        dst[i] = (unsigned char)value;
     }
-    return p;
+    return to;
 }
 
-int memcmp(const void *p, const void *q, size_t n)
+int memcmp(const void *left, const void *right, size_t n)
 {
-    const volatile unsigned char *a = p, *b = q;
+    const volatile unsigned char *a = left;
+    const volatile unsigned char *b = right;
     for (size_t i = 0; i < n; i++)
     {
         if (a[i] != b[i])
@@ -35,16 +39,19 @@ int memcmp(const void *p, const void *q, size_t n)
     return 0;
 }
 
-void *memmove(void *p, const void *q, size_t n)
+void *memmove(void *to, const void *from, size_t n)
 {
-    volatile unsigned char *a = p;
-    const volatile unsigned char *b = q;
-    /* Explicit flat-address target contract; not a portable ordering of objects. */
-    if ((uintptr_t)p < (uintptr_t)q)
+    volatile unsigned char *dst = to;
+    const volatile unsigned char *src = from;
+    /* Copy forward when the destination is below the source and backward
+     * otherwise, so overlapping ranges are not clobbered. Comparing the
+     * addresses is only meaningful on this flat-address target; it is not a
+     * portable ordering of unrelated objects. */
+    if ((uintptr_t)to < (uintptr_t)from)
     {
         for (size_t i = 0; i < n; i++)
         {
-            a[i] = b[i];
+            dst[i] = src[i];
         }
     }
     else
@@ -52,8 +59,8 @@ void *memmove(void *p, const void *q, size_t n)
         while (n)
         {
             n--;
-            a[n] = b[n];
+            dst[n] = src[n];
         }
     }
-    return p;
+    return to;
 }

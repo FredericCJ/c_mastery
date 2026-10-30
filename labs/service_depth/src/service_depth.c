@@ -1,164 +1,173 @@
 #include "service_depth.h"
 
-int sd_load(struct sd_memory *m, const unsigned char *d, size_t n, int f,
-            struct sd_image *o)
+/* Learner scaffold: every function compiles, ignores its inputs and returns
+ * SD_UNIMPLEMENTED, so the supplied tests fail until you implement the
+ * contracts in service_depth.h and CONTRACTS.md. */
+
+int sd_load(struct sd_memory *memory, const unsigned char *data, size_t length,
+            int fail_after, struct sd_image *out)
 {
-    (void)m;
-    (void)d;
-    (void)n;
-    (void)f;
-    (void)o;
+    (void)memory;
+    (void)data;
+    (void)length;
+    (void)fail_after;
+    (void)out;
     return SD_UNIMPLEMENTED;
 }
 
-int sd_clone(struct sd_memory *m, struct sd_image *p, unsigned n,
-             struct sd_image *o)
+int sd_clone(struct sd_memory *memory, struct sd_image *parent,
+             unsigned live_threads, struct sd_image *out)
 {
-    (void)m;
-    (void)p;
-    (void)n;
-    (void)o;
+    (void)memory;
+    (void)parent;
+    (void)live_threads;
+    (void)out;
     return SD_UNIMPLEMENTED;
 }
 
-int sd_write(struct sd_memory *m, struct sd_image *p, unsigned n,
-             unsigned char v, int a)
+int sd_write(struct sd_memory *memory, struct sd_image *image, unsigned offset,
+             unsigned char value, int allocation_allowed)
 {
-    (void)m;
-    (void)p;
-    (void)n;
-    (void)v;
-    (void)a;
+    (void)memory;
+    (void)image;
+    (void)offset;
+    (void)value;
+    (void)allocation_allowed;
     return SD_UNIMPLEMENTED;
 }
 
-int sd_release(struct sd_memory *m, struct sd_image *p)
+int sd_release(struct sd_memory *memory, struct sd_image *image)
 {
-    (void)m;
-    (void)p;
+    (void)memory;
+    (void)image;
     return SD_UNIMPLEMENTED;
 }
 
-int sd_channel_init(struct sd_channel *q)
+int sd_channel_init(struct sd_channel *channel)
 {
-    (void)q;
+    (void)channel;
     return SD_UNIMPLEMENTED;
 }
 
-int sd_grant(const struct sd_channel *q, struct sd_cap c, unsigned r,
-             struct sd_cap *o)
+int sd_grant(const struct sd_channel *channel, struct sd_cap cap,
+             unsigned rights, struct sd_cap *out)
 {
-    (void)q;
-    (void)c;
-    (void)r;
-    (void)o;
+    (void)channel;
+    (void)cap;
+    (void)rights;
+    (void)out;
     return SD_UNIMPLEMENTED;
 }
 
-int sd_send(struct sd_channel *q, struct sd_cap c, const unsigned char *p,
-            size_t n)
+int sd_send(struct sd_channel *channel, struct sd_cap cap,
+            const unsigned char *data, size_t length)
 {
-    (void)q;
-    (void)c;
-    (void)p;
-    (void)n;
+    (void)channel;
+    (void)cap;
+    (void)data;
+    (void)length;
     return SD_UNIMPLEMENTED;
 }
 
-int sd_receive(struct sd_channel *q, struct sd_cap c, void *o, size_t n,
-               size_t *r, sd_validate_fn v, void *x)
+int sd_receive(struct sd_channel *channel, struct sd_cap cap, void *out,
+               size_t capacity, size_t *received, sd_validate_fn check,
+               void *context)
 {
-    (void)q;
-    (void)c;
-    (void)o;
-    (void)n;
-    (void)r;
-    (void)v;
-    (void)x;
+    (void)channel;
+    (void)cap;
+    (void)out;
+    (void)capacity;
+    (void)received;
+    (void)check;
+    (void)context;
     return SD_UNIMPLEMENTED;
 }
 
-int sd_channel_close(struct sd_channel *q, struct sd_cap c)
+int sd_channel_close(struct sd_channel *channel, struct sd_cap cap)
 {
-    (void)q;
-    (void)c;
+    (void)channel;
+    (void)cap;
     return SD_UNIMPLEMENTED;
 }
 
-int sd_channel_reopen(struct sd_channel *q)
+int sd_channel_reopen(struct sd_channel *channel)
 {
-    (void)q;
+    (void)channel;
     return SD_UNIMPLEMENTED;
 }
 
-int sd_files_init(struct sd_files *f, const struct sd_entry *e, unsigned n)
+int sd_files_init(struct sd_files *files, const struct sd_entry *entries,
+                  unsigned count)
 {
-    (void)f;
-    (void)e;
-    (void)n;
+    (void)files;
+    (void)entries;
+    (void)count;
     return SD_UNIMPLEMENTED;
 }
 
-int sd_open(struct sd_files *f, const char *n, struct sd_handle *o)
+int sd_open(struct sd_files *files, const char *name, struct sd_handle *out)
 {
-    (void)f;
-    (void)n;
-    (void)o;
+    (void)files;
+    (void)name;
+    (void)out;
     return SD_UNIMPLEMENTED;
 }
 
-int sd_dup(struct sd_files *f, struct sd_handle h, struct sd_handle *o)
+int sd_dup(struct sd_files *files, struct sd_handle handle,
+           struct sd_handle *out)
 {
-    (void)f;
-    (void)h;
-    (void)o;
+    (void)files;
+    (void)handle;
+    (void)out;
     return SD_UNIMPLEMENTED;
 }
 
-int sd_seek(struct sd_files *f, struct sd_handle h, unsigned w, int32_t n)
+int sd_seek(struct sd_files *files, struct sd_handle handle, unsigned origin,
+            int32_t displacement)
 {
-    (void)f;
-    (void)h;
-    (void)w;
-    (void)n;
+    (void)files;
+    (void)handle;
+    (void)origin;
+    (void)displacement;
     return SD_UNIMPLEMENTED;
 }
 
-int sd_read(struct sd_files *f, struct sd_handle h, void *o, size_t c, size_t n,
-            size_t *r, sd_validate_fn v, void *x)
+int sd_read(struct sd_files *files, struct sd_handle handle, void *out,
+            size_t capacity, size_t requested, size_t *received,
+            sd_validate_fn check, void *context)
 {
-    (void)f;
-    (void)h;
-    (void)o;
-    (void)c;
-    (void)n;
-    (void)r;
-    (void)v;
-    (void)x;
+    (void)files;
+    (void)handle;
+    (void)out;
+    (void)capacity;
+    (void)requested;
+    (void)received;
+    (void)check;
+    (void)context;
     return SD_UNIMPLEMENTED;
 }
 
-int sd_close(struct sd_files *f, struct sd_handle h)
+int sd_close(struct sd_files *files, struct sd_handle handle)
 {
-    (void)f;
-    (void)h;
+    (void)files;
+    (void)handle;
     return SD_UNIMPLEMENTED;
 }
 
-int sd_recover(const struct sd_journal *j, struct sd_receipt *o)
+int sd_recover(const struct sd_journal *journal, struct sd_receipt *out)
 {
-    (void)j;
-    (void)o;
+    (void)journal;
+    (void)out;
     return SD_UNIMPLEMENTED;
 }
 
-int sd_apply(struct sd_journal *j, uint32_t n, int32_t d, unsigned f,
-             int32_t *o)
+int sd_apply(struct sd_journal *journal, uint32_t operation, int32_t delta,
+             unsigned fault_stage, int32_t *out)
 {
-    (void)j;
-    (void)n;
-    (void)d;
-    (void)f;
-    (void)o;
+    (void)journal;
+    (void)operation;
+    (void)delta;
+    (void)fault_stage;
+    (void)out;
     return SD_UNIMPLEMENTED;
 }
