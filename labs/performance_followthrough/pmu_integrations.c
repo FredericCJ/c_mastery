@@ -1,7 +1,9 @@
 #define _GNU_SOURCE
 #include "pmu_integrations.h"
+#if defined(PF_WITH_SERVICE)
 #include "events.h"
 #include "collection.h"
+#endif
 #include <pthread.h>
 #include <stdatomic.h>
 #include <string.h>
@@ -60,7 +62,8 @@ uint64_t pf_concurrency_work(size_t n, unsigned variant, unsigned repetitions)
         return UINT64_MAX;
     }
     struct pf_peer local = {mine, peer.iterations, &barrier};
-    void *mine_result = increment(&local), *peer_result = NULL;
+    void *mine_result = increment(&local);
+    void *peer_result = NULL;
     int joined = pthread_join(thread, &peer_result);
     int destroyed = pthread_barrier_destroy(&barrier);
     if (mine_result || peer_result || joined || destroyed)
@@ -71,6 +74,7 @@ uint64_t pf_concurrency_work(size_t n, unsigned variant, unsigned repetitions)
            atomic_load_explicit(theirs, memory_order_relaxed);
 }
 
+#if defined(PF_WITH_SERVICE)
 static int drain(struct ev_queue *queue, struct ev_sum *sum)
 {
     struct ev_event event;
@@ -143,7 +147,8 @@ uint64_t pf_service_work(size_t n, unsigned variant, unsigned repetitions)
         return UINT64_MAX;
     }
     struct td_timer timers[1024];
-    size_t index[1024], position[1024];
+    size_t index[1024];
+    size_t position[1024];
     struct tc_collection queue;
     uint64_t checksum = 0;
     for (unsigned repeat = 0; repeat < repetitions; ++repeat)
@@ -185,3 +190,4 @@ uint64_t pf_service_work(size_t n, unsigned variant, unsigned repetitions)
     }
     return checksum;
 }
+#endif /* PF_WITH_SERVICE */

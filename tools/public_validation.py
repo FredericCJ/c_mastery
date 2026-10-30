@@ -270,8 +270,12 @@ def run(output=None, *, build=False):
         report['checks'].append(run_command([sys.executable, ROOT/'tools/check_native_build_profiles.py',
                                              '--configure-only', '--report', raw/'build_profiles.json'],
                                             raw, 'build-profile-policy'))
+        # --sanitizers: ASan/UBSan for every protocol, loss, ring, parser and
+        # publication fault-injection test, plus ThreadSanitizer for the
+        # concurrent ring consumer (curriculum/guides/public-reproduction.md).
         report['checks'].append(run_command([sys.executable, ROOT/'tools/run_native_pmu.py',
-                                             '--protocol-only', '--report', raw/'pmu_protocol.json'],
+                                             '--protocol-only', '--sanitizers',
+                                             '--report', raw/'pmu_protocol.json'],
                                             raw, 'pmu-protocol'))
         report['checks'].append(run_command([sys.executable, ROOT/'tools/run_deadline_pilot.py',
                                              '--no-measure', '--report', raw/'deadline_protocol.json'],

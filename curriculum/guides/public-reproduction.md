@@ -21,8 +21,22 @@ the real exercise contracts and references, canonical JSON and Python syntax,
 the active contextual route, preserved historical identities, independent fixture
 oracles, and actual foundation and algorithm implementations under GCC and Clang.
 It executes the PMU protocol and deadline pilot, including sanitizer and mutation
-checks, without requiring PMU access. It also requires semantic rejection of
-unimplemented learner scaffolds. Its `build/public/validation.json` records exact
+checks, without requiring PMU access: the PMU protocol, loss-accounting, ring,
+parser, clock and publication fault-injection tests run in debug, optimized and
+ASan/UBSan builds; the ring consumer and its real drainer thread also run under
+ThreadSanitizer, which must catch two deliberately weakened memory orderings;
+and the native collector's argument checks run against an ASan/UBSan build.
+The deadline collection tests run in debug, optimized and ASan/UBSan builds.
+The PMU and deadline ASan/UBSan builds use `-fno-sanitize-recover=all`, so a
+sanitizer finding fails the run instead of only printing a report; the CMake
+`instrumented` profile (`labs/algorithms/cmake/Profiles.cmake`) does not set it,
+so there a UBSan finding is reported without necessarily failing the test. Public validation only
+configures the build profiles: it verifies the compile and link sanitizer
+policy of the semantic, instrumented (ASan/UBSan), thread (ThreadSanitizer) and
+performance CMake profiles but does not build or run them. Building every
+profile, including the ThreadSanitizer profile, and running its tests is done by
+`tools/check_native_build_profiles.py` without `--configure-only`. It also
+requires semantic rejection of unimplemented learner scaffolds. Its `build/public/validation.json` records exact
 commands, output hashes, tool identities and the unchanged source identity.
 Each invocation keeps immutable logs and campaign receipts in a fresh
 `build/public/runs/` directory, so build and validation can run consecutively.

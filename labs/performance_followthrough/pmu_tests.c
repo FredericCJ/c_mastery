@@ -302,6 +302,28 @@ static void ring(void)
     CHECK(pf_ring_drain(bytes, 64, 24, &tail, 1, &stats, NULL, NULL) ==
               PF_RING_OVERFLOW &&
           tail == 0);
+
+    /* PERF_RECORD_LOST_SAMPLES (hardware drops) is counted separately and
+     * never added to the in-band ring loss. */
+    struct
+    {
+        uint32_t type;
+        uint16_t misc, size;
+        uint64_t lost;
+    } hardware = {13, 0, 16, 5};
+
+    write_ring(bytes, 64, 0, &hardware, sizeof hardware);
+    tail = 0;
+    stats = (struct pf_ring_stats){0};
+    CHECK(pf_ring_drain(bytes, 64, 16, &tail, 1, &stats, NULL, NULL) ==
+              PF_RING_OK &&
+          stats.hardware_lost == 5 && stats.lost == 0 && tail == 16);
+    tail = 0;
+    stats = (struct pf_ring_stats){.hardware_lost = UINT64_MAX};
+    CHECK(pf_ring_drain(bytes, 64, 16, &tail, 1, &stats, NULL, NULL) ==
+              PF_RING_OVERFLOW &&
+          tail == 0);
+    tail = 0;
     lost.type = 99;
     lost.size = 8;
     write_ring(bytes, 64, 0, &lost, 8);

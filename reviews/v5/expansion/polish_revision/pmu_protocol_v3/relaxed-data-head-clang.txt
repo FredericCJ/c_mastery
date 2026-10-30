@@ -1,0 +1,108 @@
+PF_SAMPLING_PASS
+==================
+WARNING: ThreadSanitizer: data race (pid=62514)
+  Read of size 1 at 0x5555569f1763 by main thread:
+    #0 copy_ring /home/fred/dev/c_mastery/assessor/performance_followthrough/pmu.c:176:20 (relaxed-data-head-clang+0xef40f) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+    #1 pf_ring_drain /home/fred/dev/c_mastery/assessor/performance_followthrough/pmu.c:230:13 (relaxed-data-head-clang+0xef40f)
+    #2 pf_ring_view_drain /home/fred/dev/c_mastery/reviews/v5/expansion/polish_revision/pmu_protocol_v3/relaxed-data-head-pmu_sampling.c:85:18 (relaxed-data-head-clang+0xec92a) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+    #3 test_view_drain_concurrent /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:194:13 (relaxed-data-head-clang+0xeb1f8) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+    #4 main /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:481:5 (relaxed-data-head-clang+0xeb1f8)
+
+  Previous write of size 1 at 0x5555569f1763 by thread T1:
+    #0 ring_write /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:80:50 (relaxed-data-head-clang+0xec38a) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+    #1 producer_put /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:124:5 (relaxed-data-head-clang+0xec38a)
+    #2 produce /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:134:14 (relaxed-data-head-clang+0xec38a)
+    #3 producer_main /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:145:5 (relaxed-data-head-clang+0xec17a) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+
+  Location is global 'test_view_drain_concurrent.ring' of size 544 at 0x5555569f1720 (relaxed-data-head-clang+0x149d763)
+
+  Thread T1 (tid=62516, running) created by main thread at:
+    #0 pthread_create <null> (relaxed-data-head-clang+0x655de) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+    #1 test_view_drain_concurrent /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:187:9 (relaxed-data-head-clang+0xeb1a8) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+    #2 main /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:481:5 (relaxed-data-head-clang+0xeb1a8)
+
+SUMMARY: ThreadSanitizer: data race /home/fred/dev/c_mastery/assessor/performance_followthrough/pmu.c:176:20 in copy_ring
+==================
+==================
+WARNING: ThreadSanitizer: data race (pid=62514)
+  Read of size 1 at 0x5555569f191a by main thread:
+    #0 copy_ring /home/fred/dev/c_mastery/assessor/performance_followthrough/pmu.c:176:20 (relaxed-data-head-clang+0xef33f) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+    #1 pf_ring_drain /home/fred/dev/c_mastery/assessor/performance_followthrough/pmu.c:203:9 (relaxed-data-head-clang+0xef33f)
+    #2 pf_ring_view_drain /home/fred/dev/c_mastery/reviews/v5/expansion/polish_revision/pmu_protocol_v3/relaxed-data-head-pmu_sampling.c:85:18 (relaxed-data-head-clang+0xec92a) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+    #3 test_view_drain_concurrent /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:194:13 (relaxed-data-head-clang+0xeb1f8) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+    #4 main /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:481:5 (relaxed-data-head-clang+0xeb1f8)
+
+  Previous write of size 1 at 0x5555569f191a by thread T1:
+    #0 ring_write /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:80:50 (relaxed-data-head-clang+0xec38a) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+    #1 producer_put /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:124:5 (relaxed-data-head-clang+0xec38a)
+    #2 produce /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:134:14 (relaxed-data-head-clang+0xec38a)
+    #3 producer_main /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:145:5 (relaxed-data-head-clang+0xec17a) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+
+  Location is global 'test_view_drain_concurrent.ring' of size 544 at 0x5555569f1720 (relaxed-data-head-clang+0x149d91a)
+
+  Thread T1 (tid=62516, running) created by main thread at:
+    #0 pthread_create <null> (relaxed-data-head-clang+0x655de) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+    #1 test_view_drain_concurrent /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:187:9 (relaxed-data-head-clang+0xeb1a8) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+    #2 main /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:481:5 (relaxed-data-head-clang+0xeb1a8)
+
+SUMMARY: ThreadSanitizer: data race /home/fred/dev/c_mastery/assessor/performance_followthrough/pmu.c:176:20 in copy_ring
+==================
+==================
+WARNING: ThreadSanitizer: data race (pid=62514)
+  Read of size 1 at 0x5555569f1f1d by thread T3:
+    #0 copy_ring /home/fred/dev/c_mastery/assessor/performance_followthrough/pmu.c:176:20 (relaxed-data-head-clang+0xef40f) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+    #1 pf_ring_drain /home/fred/dev/c_mastery/assessor/performance_followthrough/pmu.c:230:13 (relaxed-data-head-clang+0xef40f)
+    #2 pf_ring_view_drain /home/fred/dev/c_mastery/reviews/v5/expansion/polish_revision/pmu_protocol_v3/relaxed-data-head-pmu_sampling.c:85:18 (relaxed-data-head-clang+0xec92a) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+    #3 drainer_main /home/fred/dev/c_mastery/reviews/v5/expansion/polish_revision/pmu_protocol_v3/relaxed-data-head-pmu_sampling.c:207:13 (relaxed-data-head-clang+0xeced2) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+
+  Previous write of size 1 at 0x5555569f1f1d by main thread:
+    #0 ring_write /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:80:50 (relaxed-data-head-clang+0xec38a) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+    #1 producer_put /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:124:5 (relaxed-data-head-clang+0xec38a)
+    #2 produce /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:134:14 (relaxed-data-head-clang+0xec38a)
+    #3 model_workload /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:303:5 (relaxed-data-head-clang+0xec74b) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+    #4 pf_sampling_observe /home/fred/dev/c_mastery/reviews/v5/expansion/polish_revision/pmu_protocol_v3/relaxed-data-head-pmu_sampling.c:352:9 (relaxed-data-head-clang+0xecc10) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+    #5 observe_model /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:327:13 (relaxed-data-head-clang+0xec5a1) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+    #6 test_observe_concurrent /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:342:5 (relaxed-data-head-clang+0xeb4d4) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+    #7 main /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:484:5 (relaxed-data-head-clang+0xeb4d4)
+
+  Location is global 'test_observe_concurrent.model' of size 560 at 0x5555569f1da0 (relaxed-data-head-clang+0x149df1d)
+
+  Thread T3 (tid=62694, running) created by main thread at:
+    #0 pthread_create <null> (relaxed-data-head-clang+0x655de) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+    #1 pf_sampling_observe /home/fred/dev/c_mastery/reviews/v5/expansion/polish_revision/pmu_protocol_v3/relaxed-data-head-pmu_sampling.c:341:10 (relaxed-data-head-clang+0xecb9d) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+    #2 observe_model /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:327:13 (relaxed-data-head-clang+0xec5a1) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+    #3 test_observe_concurrent /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:342:5 (relaxed-data-head-clang+0xeb4d4) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+    #4 main /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:484:5 (relaxed-data-head-clang+0xeb4d4)
+
+SUMMARY: ThreadSanitizer: data race /home/fred/dev/c_mastery/assessor/performance_followthrough/pmu.c:176:20 in copy_ring
+==================
+==================
+WARNING: ThreadSanitizer: data race (pid=62514)
+  Read of size 1 at 0x5555569f1ed4 by thread T3:
+    #0 copy_ring /home/fred/dev/c_mastery/assessor/performance_followthrough/pmu.c:176:20 (relaxed-data-head-clang+0xef33f) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+    #1 pf_ring_drain /home/fred/dev/c_mastery/assessor/performance_followthrough/pmu.c:203:9 (relaxed-data-head-clang+0xef33f)
+    #2 pf_ring_view_drain /home/fred/dev/c_mastery/reviews/v5/expansion/polish_revision/pmu_protocol_v3/relaxed-data-head-pmu_sampling.c:85:18 (relaxed-data-head-clang+0xec92a) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+    #3 drainer_main /home/fred/dev/c_mastery/reviews/v5/expansion/polish_revision/pmu_protocol_v3/relaxed-data-head-pmu_sampling.c:207:13 (relaxed-data-head-clang+0xeced2) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+
+  Previous write of size 1 at 0x5555569f1ed4 by main thread:
+    #0 ring_write /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:80:50 (relaxed-data-head-clang+0xec38a) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+    #1 producer_put /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:124:5 (relaxed-data-head-clang+0xec38a)
+    #2 produce /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:134:14 (relaxed-data-head-clang+0xec38a)
+    #3 model_workload /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:303:5 (relaxed-data-head-clang+0xec74b) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+    #4 pf_sampling_observe /home/fred/dev/c_mastery/reviews/v5/expansion/polish_revision/pmu_protocol_v3/relaxed-data-head-pmu_sampling.c:352:9 (relaxed-data-head-clang+0xecc10) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+    #5 observe_model /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:327:13 (relaxed-data-head-clang+0xec5a1) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+    #6 test_observe_concurrent /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:342:5 (relaxed-data-head-clang+0xeb4d4) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+    #7 main /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:484:5 (relaxed-data-head-clang+0xeb4d4)
+
+  Location is global 'test_observe_concurrent.model' of size 560 at 0x5555569f1da0 (relaxed-data-head-clang+0x149ded4)
+
+  Thread T3 (tid=62694, running) created by main thread at:
+    #0 pthread_create <null> (relaxed-data-head-clang+0x655de) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+    #1 pf_sampling_observe /home/fred/dev/c_mastery/reviews/v5/expansion/polish_revision/pmu_protocol_v3/relaxed-data-head-pmu_sampling.c:341:10 (relaxed-data-head-clang+0xecb9d) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+    #2 observe_model /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:327:13 (relaxed-data-head-clang+0xec5a1) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+    #3 test_observe_concurrent /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:342:5 (relaxed-data-head-clang+0xeb4d4) (BuildId: b959de3a3bb40428cea7bffbc94ffb2eed5293dd)
+    #4 main /home/fred/dev/c_mastery/labs/performance_followthrough/pmu_sampling_tests.c:484:5 (relaxed-data-head-clang+0xeb4d4)
+
+SUMMARY: ThreadSanitizer: data race /home/fred/dev/c_mastery/assessor/performance_followthrough/pmu.c:176:20 in copy_ring
+==================
+ThreadSanitizer: reported 4 warnings

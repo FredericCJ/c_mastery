@@ -1,0 +1,495 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-10-30T13:32:28.859227+00:00",
+  "passed": true,
+  "error": null,
+  "provenance": "TEST IMPLEMENTATION",
+  "round": "final review round; supersedes reviews/v5/expansion/polish_revision/learner_native_v2 (which saturated at period 100000 while the documented period is 200000)",
+  "load": {
+    "before": {
+      "utc": "2026-10-30T13:31:56.555049+00:00",
+      "loadavg": "1.41 3.41 4.40 1/809 94604",
+      "mem_available_kb": 4742724
+    },
+    "after": {
+      "utc": "2026-10-30T13:32:28.859314+00:00",
+      "loadavg": "1.72 3.27 4.31 1/805 95372",
+      "mem_available_kb": 4750424
+    }
+  },
+  "notice": "Author reference pmu.c and algo.c copied into the scratch workspace and labelled TEST IMPLEMENTATION to exercise the learner workflow. Not learner evidence, not an independent assessment, and not the extracted-learner-archive test (route packaging is separate).",
+  "workspace": "/home/fred/dev/c_mastery/build/learner_e2e_v3/workspace",
+  "workspace_view": "/mnt/learner",
+  "isolation": "bubblewrap: the author checkout path is covered by an empty tmpfs for every step; only the copied labs/ tree and test-implementation/ are reachable",
+  "copied_inputs_sha256": {
+    "labs/performance_followthrough/native.py": "c4c8ca96c65bbb88da4d7b5ff30eca634506f8240bc2a940ce65b1e7ad821daf",
+    "labs/support/measurement_gates.py": "27241a5f68ce2635dcac47129f5555dbe374d21af78940bf192a16f18fdaedfc",
+    "test-implementation/pmu.c": "70e8e1101992d7dfeaa9642754624ebed48b9fd97b2d48a3c9d9296bc1f31660",
+    "test-implementation/algo.c": "41966967ab12e80d28e1176f83ea8774bc20512dc568f1a75ddb5ae5297323da"
+  },
+  "steps": [
+    {
+      "label": "doctor",
+      "argv": [
+        "python3",
+        "native.py",
+        "doctor"
+      ],
+      "isolation": [
+        "bwrap",
+        "--dev-bind",
+        "/",
+        "/",
+        "--tmpfs",
+        "/mnt",
+        "--bind",
+        "/home/fred/dev/c_mastery/build/learner_e2e_v3/workspace",
+        "/mnt/learner"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "reviews/v5/expansion/polish_revision/learner_native_v3/doctor.txt",
+      "log_sha256": "c5a6a945e7dc0122b546575c793b4705fbbca344a1ec02e11bef37816451dbc4"
+    },
+    {
+      "label": "protocol-scaffold",
+      "argv": [
+        "python3",
+        "native.py",
+        "protocol"
+      ],
+      "isolation": [
+        "bwrap",
+        "--dev-bind",
+        "/",
+        "/",
+        "--tmpfs",
+        "/mnt",
+        "--bind",
+        "/home/fred/dev/c_mastery/build/learner_e2e_v3/workspace",
+        "/mnt/learner"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "log": "reviews/v5/expansion/polish_revision/learner_native_v3/protocol-scaffold.txt",
+      "log_sha256": "2610302b0d74539fec4b8dc8e171f15f502e1a6eaeab9ebe3b21ce31654ea0f3"
+    },
+    {
+      "label": "protocol-test-implementation",
+      "argv": [
+        "python3",
+        "native.py",
+        "protocol",
+        "--sanitizers",
+        "--test-implementation",
+        "--pmu-source",
+        "/mnt/learner/test-implementation/pmu.c"
+      ],
+      "isolation": [
+        "bwrap",
+        "--dev-bind",
+        "/",
+        "/",
+        "--tmpfs",
+        "/mnt",
+        "--bind",
+        "/home/fred/dev/c_mastery/build/learner_e2e_v3/workspace",
+        "/mnt/learner"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "reviews/v5/expansion/polish_revision/learner_native_v3/protocol-test-implementation.txt",
+      "log_sha256": "b38a57d17d02b5ae4e14f3d3d27fee06b52cfd3bcf9f4e410d516cf004068a59"
+    },
+    {
+      "label": "protocol-own-directory-named-assessor",
+      "argv": [
+        "python3",
+        "native.py",
+        "protocol",
+        "--pmu-source",
+        "/mnt/learner/mywork/assessor/pmu.c"
+      ],
+      "isolation": [
+        "bwrap",
+        "--dev-bind",
+        "/",
+        "/",
+        "--tmpfs",
+        "/mnt",
+        "--bind",
+        "/home/fred/dev/c_mastery/build/learner_e2e_v3/workspace",
+        "/mnt/learner"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "log": "reviews/v5/expansion/polish_revision/learner_native_v3/protocol-own-directory-named-assessor.txt",
+      "log_sha256": "71b9d2b9c74331be182b7bf98a2aa03351bf24100d0974aa5087e925d1ba010d"
+    },
+    {
+      "label": "checkout-copy-of-assessor-refused",
+      "argv": [
+        "python3",
+        "/home/fred/dev/c_mastery/labs/performance_followthrough/native.py",
+        "protocol",
+        "--pmu-source",
+        "/home/fred/dev/c_mastery/build/learner_e2e_v3/assessor-copy/pmu.c"
+      ],
+      "isolation": "none: runs in the author checkout",
+      "exit_code": 2,
+      "expected_exit_code": 2,
+      "log": "reviews/v5/expansion/polish_revision/learner_native_v3/checkout-copy-of-assessor-refused.txt",
+      "log_sha256": "6cb20114676e609db830c457862405ab29c0f9df41f6df9cfc96c5c01a023360"
+    },
+    {
+      "label": "build-test-implementation",
+      "argv": [
+        "python3",
+        "native.py",
+        "build",
+        "--pmu-source",
+        "/mnt/learner/test-implementation/pmu.c",
+        "--algorithms-source",
+        "/mnt/learner/test-implementation/algo.c",
+        "--test-implementation",
+        "--output",
+        "/mnt/learner/build/native"
+      ],
+      "isolation": [
+        "bwrap",
+        "--dev-bind",
+        "/",
+        "/",
+        "--tmpfs",
+        "/mnt",
+        "--bind",
+        "/home/fred/dev/c_mastery/build/learner_e2e_v3/workspace",
+        "/mnt/learner"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "reviews/v5/expansion/polish_revision/learner_native_v3/build-test-implementation.txt",
+      "log_sha256": "171157a9ed560f4edd706a84ab4f5185ddc58f77d3460abfb518359848695615"
+    },
+    {
+      "label": "run-numeric-8192",
+      "argv": [
+        "python3",
+        "native.py",
+        "run",
+        "--build",
+        "/mnt/learner/build/native",
+        "--family",
+        "numeric",
+        "--n",
+        "8192",
+        "--report",
+        "/mnt/learner/runs/run-numeric-8192.json"
+      ],
+      "isolation": [
+        "bwrap",
+        "--dev-bind",
+        "/",
+        "/",
+        "--tmpfs",
+        "/mnt",
+        "--bind",
+        "/home/fred/dev/c_mastery/build/learner_e2e_v3/workspace",
+        "/mnt/learner"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "reviews/v5/expansion/polish_revision/learner_native_v3/run-numeric-8192.txt",
+      "log_sha256": "e0bce9eaf4656e595d53b3c9ee94b577b345f4095198600940efe78fbdd3c346"
+    },
+    {
+      "label": "run-sort-128",
+      "argv": [
+        "python3",
+        "native.py",
+        "run",
+        "--build",
+        "/mnt/learner/build/native",
+        "--family",
+        "sort",
+        "--n",
+        "128",
+        "--report",
+        "/mnt/learner/runs/run-sort-128.json"
+      ],
+      "isolation": [
+        "bwrap",
+        "--dev-bind",
+        "/",
+        "/",
+        "--tmpfs",
+        "/mnt",
+        "--bind",
+        "/home/fred/dev/c_mastery/build/learner_e2e_v3/workspace",
+        "/mnt/learner"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "reviews/v5/expansion/polish_revision/learner_native_v3/run-sort-128.txt",
+      "log_sha256": "11867db6f42d5e155eb0442e2fd48abd701e54ed0e86609d9d8abddc6379ff49"
+    },
+    {
+      "label": "run-service-unavailable",
+      "argv": [
+        "python3",
+        "native.py",
+        "run",
+        "--build",
+        "/mnt/learner/build/native",
+        "--family",
+        "service",
+        "--n",
+        "64",
+        "--report",
+        "/mnt/learner/runs/run-service-64.json"
+      ],
+      "isolation": [
+        "bwrap",
+        "--dev-bind",
+        "/",
+        "/",
+        "--tmpfs",
+        "/mnt",
+        "--bind",
+        "/home/fred/dev/c_mastery/build/learner_e2e_v3/workspace",
+        "/mnt/learner"
+      ],
+      "exit_code": 3,
+      "expected_exit_code": 3,
+      "log": "reviews/v5/expansion/polish_revision/learner_native_v3/run-service-unavailable.txt",
+      "log_sha256": "f980f0f7b2de45b35bff4241e3d6054c47ed7272736e0e7e0dfe4aef7f85b52f"
+    },
+    {
+      "label": "sample-saturation-final",
+      "argv": [
+        "python3",
+        "native.py",
+        "sample",
+        "--build",
+        "/mnt/learner/build/native",
+        "--family",
+        "numeric",
+        "--n",
+        "1048576",
+        "--repetitions",
+        "64",
+        "--pages",
+        "1",
+        "--period",
+        "200000",
+        "--drain",
+        "final",
+        "--retain",
+        "0",
+        "--report",
+        "/mnt/learner/runs/sample-saturation-final.json"
+      ],
+      "isolation": [
+        "bwrap",
+        "--dev-bind",
+        "/",
+        "/",
+        "--tmpfs",
+        "/mnt",
+        "--bind",
+        "/home/fred/dev/c_mastery/build/learner_e2e_v3/workspace",
+        "/mnt/learner"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "reviews/v5/expansion/polish_revision/learner_native_v3/sample-saturation-final.txt",
+      "log_sha256": "d2d3db74c874fcf52777a78102c920ebdb5d87d549b33c62d33697ea13b03e51"
+    },
+    {
+      "label": "sample-saturation-concurrent",
+      "argv": [
+        "python3",
+        "native.py",
+        "sample",
+        "--build",
+        "/mnt/learner/build/native",
+        "--family",
+        "numeric",
+        "--n",
+        "1048576",
+        "--repetitions",
+        "64",
+        "--pages",
+        "1",
+        "--period",
+        "200000",
+        "--drain",
+        "concurrent",
+        "--retain",
+        "0",
+        "--report",
+        "/mnt/learner/runs/sample-saturation-concurrent.json"
+      ],
+      "isolation": [
+        "bwrap",
+        "--dev-bind",
+        "/",
+        "/",
+        "--tmpfs",
+        "/mnt",
+        "--bind",
+        "/home/fred/dev/c_mastery/build/learner_e2e_v3/workspace",
+        "/mnt/learner"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "reviews/v5/expansion/polish_revision/learner_native_v3/sample-saturation-concurrent.txt",
+      "log_sha256": "5f4613db86a4068cdb9fda9abcfb3e7f842ab8625a6c402ed761e4e63ef93e34"
+    },
+    {
+      "label": "sample-default",
+      "argv": [
+        "python3",
+        "native.py",
+        "sample",
+        "--build",
+        "/mnt/learner/build/native",
+        "--family",
+        "numeric",
+        "--n",
+        "65536",
+        "--repetitions",
+        "256",
+        "--report",
+        "/mnt/learner/runs/sample-default.json"
+      ],
+      "isolation": [
+        "bwrap",
+        "--dev-bind",
+        "/",
+        "/",
+        "--tmpfs",
+        "/mnt",
+        "--bind",
+        "/home/fred/dev/c_mastery/build/learner_e2e_v3/workspace",
+        "/mnt/learner"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "reviews/v5/expansion/polish_revision/learner_native_v3/sample-default.txt",
+      "log_sha256": "02c1f455b54763d03978396910f36fefd9879c89a1dea1cfc9251204104f5259"
+    },
+    {
+      "label": "sample-precision-3",
+      "argv": [
+        "python3",
+        "native.py",
+        "sample",
+        "--build",
+        "/mnt/learner/build/native",
+        "--family",
+        "numeric",
+        "--n",
+        "65536",
+        "--precision",
+        "3",
+        "--report",
+        "/mnt/learner/runs/sample-precision-3.json"
+      ],
+      "isolation": [
+        "bwrap",
+        "--dev-bind",
+        "/",
+        "/",
+        "--tmpfs",
+        "/mnt",
+        "--bind",
+        "/home/fred/dev/c_mastery/build/learner_e2e_v3/workspace",
+        "/mnt/learner"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "reviews/v5/expansion/polish_revision/learner_native_v3/sample-precision-3.txt",
+      "log_sha256": "3cee4728534f76f2a227ef7cbbbaf2cfdbd5b8f021c8fa8858422fcdc11fcd40"
+    },
+    {
+      "label": "sample-throttled-period-20000",
+      "argv": [
+        "python3",
+        "native.py",
+        "sample",
+        "--build",
+        "/mnt/learner/build/native",
+        "--family",
+        "numeric",
+        "--n",
+        "1048576",
+        "--repetitions",
+        "16",
+        "--period",
+        "20000",
+        "--retain",
+        "0",
+        "--report",
+        "/mnt/learner/runs/sample-throttled-20000.json"
+      ],
+      "isolation": [
+        "bwrap",
+        "--dev-bind",
+        "/",
+        "/",
+        "--tmpfs",
+        "/mnt",
+        "--bind",
+        "/home/fred/dev/c_mastery/build/learner_e2e_v3/workspace",
+        "/mnt/learner"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "reviews/v5/expansion/polish_revision/learner_native_v3/sample-throttled-period-20000.txt",
+      "log_sha256": "e500fdd5cac3f416eb6053c629aa375b8660b3354ff4504e777c54385253302a"
+    },
+    {
+      "label": "report",
+      "argv": [
+        "python3",
+        "native.py",
+        "report",
+        "/mnt/learner/runs/run-numeric-8192.json",
+        "/mnt/learner/runs/run-sort-128.json",
+        "/mnt/learner/runs/sample-default.json",
+        "/mnt/learner/runs/sample-precision-3.json",
+        "/mnt/learner/runs/sample-saturation-concurrent.json",
+        "/mnt/learner/runs/sample-saturation-final.json",
+        "/mnt/learner/runs/sample-throttled-20000.json"
+      ],
+      "isolation": [
+        "bwrap",
+        "--dev-bind",
+        "/",
+        "/",
+        "--tmpfs",
+        "/mnt",
+        "--bind",
+        "/home/fred/dev/c_mastery/build/learner_e2e_v3/workspace",
+        "/mnt/learner"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "reviews/v5/expansion/polish_revision/learner_native_v3/report.txt",
+      "log_sha256": "2a14f6fb992602a298482bbc10058a2880247fdbb39aacfecffd1547cf7e0286"
+    }
+  ],
+  "report_copies_sha256": {
+    "reviews/v5/expansion/polish_revision/learner_native_v3/run-numeric-8192.json": "97f3365d5120bb148a8bf3cef0bd6a8dbf65b17495257ce3d22b17f536d52d86",
+    "reviews/v5/expansion/polish_revision/learner_native_v3/run-sort-128.json": "e5c5593bf34ceb4117027c6ef62fbcfc595365af1ba52db595d66db3acf36fa9",
+    "reviews/v5/expansion/polish_revision/learner_native_v3/sample-default.json": "92707cef4b3370044816a14c76f8236ae569f5f533ade143c61512aa99fd09a5",
+    "reviews/v5/expansion/polish_revision/learner_native_v3/sample-precision-3.json": "f1a35e21ac6e06c31a49be09650f5879e18497dab594a2ba134fc5ffb1a0888f",
+    "reviews/v5/expansion/polish_revision/learner_native_v3/sample-saturation-concurrent.json": "d94e41f1625cae1d580d9d4ecaa3bb00d570240aa9d34a1de068cf09d0027ce0",
+    "reviews/v5/expansion/polish_revision/learner_native_v3/sample-saturation-final.json": "73c1067a2944bf455ae5188b2c8b2e1286452f377c28df5b219d86196d732db4",
+    "reviews/v5/expansion/polish_revision/learner_native_v3/sample-throttled-20000.json": "10b0289646b0b5f05d3ec59079105a81336a8b74c687b4c1e4382dc7baf3e631",
+    "reviews/v5/expansion/polish_revision/learner_native_v3/build.json": "60186e7457c57989b00e99029686cf4cf5b55ff674dcb73990842f69ea62ea7c"
+  },
+  "perf_event_paranoid": "-1",
+  "host_policy_changed": false
+}

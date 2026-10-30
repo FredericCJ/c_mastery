@@ -247,11 +247,13 @@ int pf_ring_drain(const unsigned char *ring, size_t capacity, uint64_t head,
                 return PF_RING_INVALID;
             }
             copy_ring(&lost, ring, capacity, *tail + (type == 2 ? 16 : 8), 8);
-            if (lost > UINT64_MAX - stats->lost)
+            uint64_t *total =
+                (type == 2) ? &stats->lost : &stats->hardware_lost;
+            if (lost > UINT64_MAX - *total)
             {
                 return PF_RING_OVERFLOW;
             }
-            stats->lost += lost;
+            *total += lost;
         }
         else
         {

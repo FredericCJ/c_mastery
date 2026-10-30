@@ -1,640 +1,673 @@
-/* Supplied native observation adapter, not a learner solution.
- * Linux ABI/GCC or Clang builtins are explicit dependencies. */
-#define _GNU_SOURCE
+/*
+ * Supplied native observation adapter (PMU_PROTOCOL.md), not a learner
+ * solution. The Linux perf ABI, sched_getcpu and GCC/Clang builtins are
+ * explicit dependencies. This file is only the command line: request
+ * parsing, mode dispatch and measurement brackets. The workloads live in
+ * pmu_workloads.c, sampling in pmu_sampling.c and serialization in
+ * pmu_report.c.
+ *
+ *   pmu_native count  FAMILY N VARIANT [REPETITIONS]
+ *   pmu_native work   FAMILY N VARIANT [REPETITIONS]
+ *   pmu_native sample FAMILY N VARIANT [REPETITIONS [PRECISION]] [OPTION...]
+ *   pmu_native check  FAMILY N VARIANT [REPETITIONS [PRECISION]] [OPTION...]
+ *   pmu_native families
+ *
+ *   OPTION  --drain=final|concurrent    (default final)
+ *           --pages=P      data pages, a power of two in 1..256 (default 8)
+ *           --period=C     cycles per sample, 1000..4294967295 (200000)
+ *           --retain=S     samples kept for output, 0..1048576 (65536)
+ *
+ * N is 1..4194304 (smaller for some families), VARIANT 0 or 1, REPETITIONS
+ * 1..1024 (default 16) and PRECISION (precise_ip) 0..3 (default 0). Every
+ * number is plain ASCII decimal (labs/support/cm_parse.h). A request outside
+ * these bounds is rejected; it is never clamped, rounded or weakened.
+ *
+ *   count     strict instructions+cycles group around one measured batch
+ *   work      the same batch bracketed by perf stat's control pipe
+ *   sample    cycle sampling of the batch into a perf ring
+ *   check     validate the request and the workload oracle; opens no event
+ *   families  list the workload families and whether this build has them
+ *
+ * Exit status: 0 an observation was printed (its status field says whether
+ * hardware was measured); 1 a component failed: a workload failed its
+ * equivalence, oracle or checksum check, or the ring parser pf_ring_drain
+ * stopped on the kernel's records; 2 invalid request or infrastructure
+ * failure; 3 the family is not compiled into this build.
+ */
+#define _GNU_SOURCE /* sched_getcpu */
+#include "cm_clock.h"
+#include "cm_parse.h"
 #include "pmu.h"
 #include "pmu_control.h"
-#include "pmu_integrations.h"
-#include "algo.h"
-#include <errno.h>
+#include "pmu_report.h"
+#include "pmu_sampling.h"
+#include "pmu_workloads.h"
+
 #include <inttypes.h>
 #include <linux/perf_event.h>
 #include <sched.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/ioctl.h>
-#include <sys/mman.h>
-#include <sys/prctl.h>
-#include <sys/syscall.h>
-#include <time.h>
-#include <unistd.h>
 
-struct pf_wide
+enum
 {
-    uint64_t value;
-    unsigned char padding[56];
+    EXIT_ASSERT = 1,
+    EXIT_INVALID = 2,
+    EXIT_UNAVAILABLE = 3
 };
 
-struct pf_work
+enum native_defaults
 {
-    size_t n;
-    uint64_t *values;
-    struct pf_wide *wide;
-    algo_pair *records;
-    unsigned family, variant;
-    uint64_t (*dispatch[2])(uint64_t);
+    DEFAULT_REPETITIONS = 16,
+    DEFAULT_PAGES = 8,
+    MAX_PAGES = 256,
+    MAX_PRECISION = 3,
+    POLL_INTERVAL_MS = 1
 };
 
+/* 200000 cycles was about twice the throttle floor of a 4.4 GHz host at
+ * perf_event_max_sample_rate 50000/s. The kernel may lower that rate at run
+ * time, so every sampling line reports the floor read at its start and any
+ * throttle records, which are the evidence. */
+#define DEFAULT_PERIOD_CYCLES UINT64_C(200000)
+#define MIN_PERIOD_CYCLES UINT64_C(1000)
+#define MAX_PERIOD_CYCLES UINT64_C(4294967295)
+#define DEFAULT_RETAIN ((size_t)65536)
+#define MAX_RETAIN ((size_t)1048576)
+
+enum native_mode
+{
+    MODE_COUNT,
+    MODE_WORK,
+    MODE_SAMPLE,
+    MODE_CHECK
+};
+
+struct native_request
+{
+    enum native_mode mode;
+    struct pf_request_summary summary;
+    struct pf_sampling_config sampling;
+};
+
+/* Keeps every checksum observable so no measured batch is optimized away. */
 static volatile uint64_t observable;
 
-static uint64_t clock_ns(void)
+static void usage(const char *program)
 {
-    struct timespec t;
-    if (clock_gettime(CLOCK_MONOTONIC_RAW, &t))
-    {
-        perror("clock_gettime");
-        exit(2);
-    }
-    return (uint64_t)t.tv_sec * 1000000000u + (uint64_t)t.tv_nsec;
+    (void)fprintf(stderr,
+                  "usage: %s count|work FAMILY N VARIANT [REPETITIONS]\n"
+                  "       %s sample|check FAMILY N VARIANT [REPETITIONS "
+                  "[PRECISION]] [--drain=final|concurrent] [--pages=P] "
+                  "[--period=CYCLES] [--retain=S]\n"
+                  "       %s families\n",
+                  program, program, program);
 }
 
-__attribute__((noinline)) static uint64_t operation0(uint64_t v)
+static bool report_parse(const char *name, const char *text,
+                         enum cm_parse_status status, uintmax_t min,
+                         uintmax_t max)
 {
-    return v * 33 + 17;
+    if (status == CM_PARSE_OK)
+    {
+        return true;
+    }
+    (void)fprintf(stderr,
+                  "pmu_native: %s \"%s\" rejected (%s; accepted %" PRIuMAX
+                  "..%" PRIuMAX ")\n",
+                  name, text, cm_parse_status_name(status), min, max);
+    return false;
 }
 
-__attribute__((noinline)) static uint64_t operation1(uint64_t v)
+static bool parse_unsigned(const char *name, const char *text, unsigned min,
+                           unsigned max, unsigned *value)
 {
-    return v * 33 + 19;
+    return report_parse(name, text, cm_parse_unsigned(text, min, max, value),
+                        min, max);
 }
 
-static uint64_t execute(struct pf_work *w, unsigned repetitions)
+static bool parse_size(const char *name, const char *text, size_t min,
+                       size_t max, size_t *value)
 {
-    if (w->family == 6)
+    return report_parse(name, text, cm_parse_size(text, min, max, value), min,
+                        max);
+}
+
+static bool parse_mode(const char *text, enum native_mode *mode)
+{
+    static const char *const names[] = {"count", "work", "sample", "check"};
+
+    for (size_t i = 0; i < sizeof names / sizeof names[0]; ++i)
     {
-        return pf_concurrency_work(w->n, w->variant, repetitions);
-    }
-    if (w->family == 7)
-    {
-        return pf_service_work(w->n, w->variant, repetitions);
-    }
-    uint64_t sum = 0;
-    for (unsigned repeat = 0; repeat < repetitions; ++repeat)
-    {
-        if (w->family == 0)
-        { /* same sorted immutable lower-bound contract */
-            for (unsigned q = 0; q < 256; ++q)
-            {
-                uint64_t key =
-                    ((uint64_t)q * 2654435761u + repeat) % (2 * w->n + 1);
-                size_t i = 0;
-                if (w->variant)
-                {
-                    size_t hi = w->n;
-                    while (i < hi)
-                    {
-                        size_t mid = i + (hi - i) / 2;
-                        if (w->values[mid] < key)
-                        {
-                            i = mid + 1;
-                        }
-                        else
-                        {
-                            hi = mid;
-                        }
-                    }
-                }
-                else
-                {
-                    while (i < w->n && w->values[i] < key)
-                    {
-                        ++i;
-                    }
-                }
-                sum += i;
-            }
-        }
-        else if (w->family == 1)
+        if (strcmp(text, names[i]) == 0)
         {
-            for (size_t i = 0; i < w->n; ++i)
-            {
-                sum += w->variant ? w->wide[i].value : w->values[i];
-            }
-        }
-        else if (w->family == 2)
-        {
-            if (w->variant)
-            {
-                uint64_t a = 0, b = 0, c = 0, d = 0;
-                size_t i = 0;
-                for (; i + 3 < w->n; i += 4)
-                {
-                    a += w->values[i];
-                    b += w->values[i + 1];
-                    c += w->values[i + 2];
-                    d += w->values[i + 3];
-                }
-                sum += a + b + c + d;
-                for (; i < w->n; ++i)
-                {
-                    sum += w->values[i];
-                }
-            }
-            else
-            {
-                for (size_t i = 0; i < w->n; ++i)
-                {
-                    sum += w->values[i];
-                }
-            }
-        }
-        else if (w->family == 3)
-        {
-            for (size_t i = 0; i < w->n; ++i)
-            {
-                uint64_t v = w->values[i] + repeat;
-                sum += w->variant ? w->dispatch[v & 1u](v)
-                                  : ((v & 1u) ? operation1(v) : operation0(v));
-            }
-        }
-        else if (w->family == 4)
-        {
-            /* Same allocation lifetime and values; representation changes. */
-            if (w->variant)
-            {
-                uint64_t *block = malloc(w->n * sizeof *block);
-                if (!block)
-                {
-                    return UINT64_MAX;
-                }
-                for (size_t i = 0; i < w->n; ++i)
-                {
-                    block[i] = w->values[i] + repeat;
-                }
-                for (size_t i = 0; i < w->n; ++i)
-                {
-                    sum += block[i];
-                }
-                free(block);
-            }
-            else
-            {
-                uint64_t **items = calloc(w->n, sizeof *items);
-                if (!items)
-                {
-                    return UINT64_MAX;
-                }
-                size_t i;
-                for (i = 0; i < w->n; ++i)
-                {
-                    items[i] = malloc(sizeof **items);
-                    if (!items[i])
-                    {
-                        break;
-                    }
-                    *items[i] = w->values[i] + repeat;
-                }
-                if (i != w->n)
-                {
-                    for (size_t j = 0; j < i; ++j)
-                    {
-                        free(items[j]);
-                    }
-                    free(items);
-                    return UINT64_MAX;
-                }
-                for (i = 0; i < w->n; ++i)
-                {
-                    sum += *items[i];
-                    free(items[i]);
-                }
-                free(items);
-            }
-        }
-        else
-        { /* existing retained stable sorting interfaces, n <=1024 */
-            for (size_t i = 0; i < w->n; ++i)
-            {
-                w->records[i] =
-                    (algo_pair){(uint32_t)((w->n - i) % 17), (uint32_t)i};
-            }
-            int rc = w->variant ? algo_merge(w->records, (uint32_t)w->n,
-                                             (uint32_t)w->n, NULL)
-                                : algo_insertion(w->records, (uint32_t)w->n,
-                                                 (uint32_t)w->n, NULL);
-            if (rc)
-            {
-                return UINT64_MAX;
-            }
-            for (size_t i = 0; i < w->n; ++i)
-            {
-                sum += (i + 1) * (w->records[i].key + 31u * w->records[i].tag);
-            }
+            *mode = (enum native_mode)i;
+            return true;
         }
     }
-    return sum;
+    (void)fprintf(stderr, "pmu_native: unknown mode \"%s\"\n", text);
+    return false;
 }
 
-static uint64_t oracle(const struct pf_work *w, unsigned repetitions)
+static bool parse_drain(const char *text, enum pf_drain_mode *drain)
 {
-    uint64_t n = w->n, total = 0;
-    for (unsigned r = 0; r < repetitions; ++r)
+    if (strcmp(text, "final") == 0)
     {
-        if (w->family == 0)
+        *drain = PF_DRAIN_FINAL;
+        return true;
+    }
+    if (strcmp(text, "concurrent") == 0)
+    {
+        *drain = PF_DRAIN_CONCURRENT;
+        return true;
+    }
+    (void)fprintf(stderr,
+                  "pmu_native: --drain \"%s\" is not final|concurrent\n", text);
+    return false;
+}
+
+static bool parse_pages(const char *text, unsigned *pages)
+{
+    if (!parse_unsigned("--pages", text, 1, MAX_PAGES, pages))
+    {
+        return false;
+    }
+    if ((*pages & (*pages - 1u)) != 0u)
+    {
+        (void)fprintf(stderr, "pmu_native: --pages %u is not a power of two\n",
+                      *pages);
+        return false;
+    }
+    return true;
+}
+
+static bool parse_period(const char *text, uint64_t *period)
+{
+    uintmax_t value = 0;
+
+    if (!report_parse(
+            "--period", text,
+            cm_parse_umax(text, MIN_PERIOD_CYCLES, MAX_PERIOD_CYCLES, &value),
+            MIN_PERIOD_CYCLES, MAX_PERIOD_CYCLES))
+    {
+        return false;
+    }
+    *period = (uint64_t)value; /* value <= MAX_PERIOD_CYCLES */
+    return true;
+}
+
+/* One --name=value option. Each name may appear once; `seen` records which. */
+static bool parse_option(const char *argument,
+                         struct pf_sampling_config *config, unsigned *seen)
+{
+    static const char *const names[] = {
+        "--drain=", "--pages=", "--period=", "--retain="};
+
+    for (unsigned i = 0; i < sizeof names / sizeof names[0]; ++i)
+    {
+        size_t length = strlen(names[i]);
+        const char *value = argument + length;
+
+        if (strncmp(argument, names[i], length) != 0)
         {
-            for (unsigned q = 0; q < 256; ++q)
-            {
-                uint64_t key = ((uint64_t)q * 2654435761u + r) % (2 * n + 1);
-                total += (key + 1) / 2;
-            }
+            continue;
         }
-        else if (w->family == 1 || w->family == 2)
+        if ((*seen & (1u << i)) != 0u)
         {
-            total += n * (n - 1);
+            (void)fprintf(stderr, "pmu_native: %.*s given twice\n",
+                          (int)(length - 1u), names[i]);
+            return false;
         }
-        else if (w->family == 3)
+        *seen |= 1u << i;
+        switch (i)
         {
-            total += 33 * (n * (n - 1) + n * r) + (17 + 2 * (r & 1u)) * n;
-        }
-        else if (w->family == 4)
-        {
-            total += n * (n - 1) + n * r;
-        }
-        else if (w->family == 5)
-        {
-            size_t position = 0;
-            for (unsigned key = 0; key < 17; ++key)
-            {
-                for (size_t tag = 0; tag < n; ++tag)
-                {
-                    if ((n - tag) % 17 == key)
-                    {
-                        total += (++position) * (key + 31u * tag);
-                    }
-                }
-            }
-        }
-        else if (w->family == 6)
-        {
-            total += n * 2;
-        }
-        else
-        {
-            for (size_t i = 0; i < n; ++i)
-            {
-                if (i % 5)
-                {
-                    total += 18 + i;
-                }
-            }
+            case 0:
+                return parse_drain(value, &config->drain);
+            case 1:
+                return parse_pages(value, &config->data_pages);
+            case 2:
+                return parse_period(value, &config->sample_period_cycles);
+            default:
+                return parse_size("--retain", value, 0, MAX_RETAIN,
+                                  &config->sample_capacity);
         }
     }
-    return total;
+    (void)fprintf(stderr, "pmu_native: unknown option \"%s\"\n", argument);
+    return false;
 }
 
-static void emit_sample(void *unused, const struct pf_sample *s)
+/* FAMILY N VARIANT [REPETITIONS [PRECISION]]: `count` arguments. */
+static bool parse_positional(char **arguments, size_t count,
+                             struct native_request *request)
 {
-    (void)unused;
-    printf("{\"kind\":\"sample\",\"ip\":%" PRIu64
-           ",\"pid\":%u,\"tid\":%u,\"time\":%" PRIu64 ",\"period\":%" PRIu64
-           "}\n",
-           s->ip, s->pid, s->tid, s->time, s->period);
+    struct pf_request_summary *summary = &request->summary;
+    size_t limit =
+        (request->mode == MODE_SAMPLE || request->mode == MODE_CHECK) ? 5u : 4u;
+
+    if ((count < 3u) || (count > limit))
+    {
+        (void)fputs("pmu_native: wrong number of arguments\n", stderr);
+        return false;
+    }
+    if (!pf_family_lookup(arguments[0], &summary->family))
+    {
+        (void)fprintf(stderr, "pmu_native: unknown family \"%s\"\n",
+                      arguments[0]);
+        return false;
+    }
+    /* The family's own bound applies even when it is not built in, so an
+     * invalid request is invalid on every build. */
+    size_t max_n = pf_family_describe(summary->family)->max_n;
+    return parse_size("N", arguments[1], 1, max_n, &summary->n) &&
+           parse_unsigned("VARIANT", arguments[2], 0, PF_WORKLOAD_VARIANTS - 1u,
+                          &summary->variant) &&
+           ((count < 4u) || parse_unsigned("REPETITIONS", arguments[3], 1,
+                                           PF_WORKLOAD_MAX_REPETITIONS,
+                                           &summary->repetitions)) &&
+           ((count < 5u) ||
+            parse_unsigned("PRECISION", arguments[4], 0, MAX_PRECISION,
+                           &request->sampling.precise_ip));
 }
 
-static void mapping_identity(void)
+static bool parse_request(int argc, char **argv, struct native_request *request)
 {
+    *request = (struct native_request){
+        .summary = {.repetitions = DEFAULT_REPETITIONS},
+        .sampling = {.sample_period_cycles = DEFAULT_PERIOD_CYCLES,
+                     .data_pages = DEFAULT_PAGES,
+                     .drain = PF_DRAIN_FINAL,
+                     .poll_interval_ms = POLL_INTERVAL_MS,
+                     .request_lost_count = true,
+                     .sample_capacity = DEFAULT_RETAIN},
+    };
+    if ((argc < 2) || !parse_mode(argv[1], &request->mode))
+    {
+        return false;
+    }
+    /* Positional arguments first, then options; never interleaved. */
+    size_t positional = 0;
+    while ((positional + 2u < (size_t)argc) &&
+           (strncmp(argv[positional + 2u], "--", 2) != 0))
+    {
+        ++positional;
+    }
+    if (!parse_positional(argv + 2, positional, request))
+    {
+        return false;
+    }
+    bool takes_options =
+        (request->mode == MODE_SAMPLE) || (request->mode == MODE_CHECK);
+    unsigned seen = 0;
+    for (size_t i = positional + 2u; i < (size_t)argc; ++i)
+    {
+        if (!takes_options)
+        {
+            (void)fputs("pmu_native: options apply to sample|check only\n",
+                        stderr);
+            return false;
+        }
+        if ((strncmp(argv[i], "--", 2) != 0) ||
+            !parse_option(argv[i], &request->sampling, &seen))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+/* Close the request bracket: report a disagreement with the verified
+ * checksum as an assertion, never as a valid observation. */
+static int verdict(enum pf_workload_status status, uint64_t checksum,
+                   uint64_t expected)
+{
+    observable ^= checksum;
+    if ((status != PF_WORKLOAD_OK) || (checksum != expected))
+    {
+        (void)fputs("PF_NATIVE_ASSERT:workload checksum\n", stderr);
+        return EXIT_ASSERT;
+    }
+    return EXIT_SUCCESS;
+}
+
+/* The measured interval itself: the batch between two clock reads, with
+ * the CPU recorded at both ends. Returns false if a clock read failed. */
+static bool run_timed(struct pf_workload *workload,
+                      const struct pf_request_summary *summary,
+                      struct pf_count_report *report,
+                      enum pf_workload_status *status)
+{
+    uint64_t start = 0;
+    uint64_t end = 0;
+
+    report->cpu_before = sched_getcpu();
+    bool timed = cm_clock_now_ns(CM_CLOCK_MONOTONIC_RAW, &start);
+    *status = pf_workload_run(workload, summary->variant, summary->repetitions,
+                              &report->checksum);
+    timed = cm_clock_now_ns(CM_CLOCK_MONOTONIC_RAW, &end) && timed;
+    report->cpu_after = sched_getcpu();
+    report->elapsed_ns = end - start;
+    return timed;
+}
+
+/* count: the strict group (pmu.h) brackets the batch. work: perf stat's
+ * control pipe does (pmu_control.h). The clock brackets sit inside either. */
+static int measure_count(const struct native_request *request,
+                         struct pf_workload *workload, uint64_t expected)
+{
+    static const struct pf_pmu_event events[] = {
+        {PERF_TYPE_HARDWARE, PERF_COUNT_HW_INSTRUCTIONS},
+        {PERF_TYPE_HARDWARE, PERF_COUNT_HW_CPU_CYCLES}};
+    struct cm_clock_calibration clock;
+    struct pf_pmu group;
+    struct pf_count_report report = {.request = request->summary,
+                                     .state = PF_PMU_EMPTY,
+                                     .strict_group =
+                                         (request->mode == MODE_COUNT),
+                                     .group = &group,
+                                     .clock = &clock};
+    enum pf_workload_status status = PF_WORKLOAD_FAILED;
+    bool count = (request->mode == MODE_COUNT);
+
+    memset(&group, 0, sizeof group);
+    if (!cm_clock_calibrate(CM_CLOCK_MONOTONIC_RAW, &clock))
+    {
+        perror("clock");
+        return EXIT_INVALID;
+    }
+    if (count)
+    {
+        report.state = pf_pmu_open(&group, pf_pmu_linux(), events, 2);
+        if (report.state == PF_PMU_READY)
+        {
+            report.state = pf_pmu_start(&group);
+        }
+    }
+    else if (pf_perf_control(1) != 0)
+    {
+        perror("perf-control enable");
+        return EXIT_INVALID;
+    }
+    bool timed = run_timed(workload, &request->summary, &report, &status);
+    if (count && (report.state == PF_PMU_ACTIVE))
+    {
+        report.state = pf_pmu_stop(&group);
+    }
+    else if (!count && (pf_perf_control(0) != 0))
+    {
+        perror("perf-control disable");
+        return EXIT_INVALID;
+    }
+    int result = verdict(status, report.checksum, expected);
+    if (timed)
+    {
+        pf_report_count(stdout, &report);
+    }
+    else
+    {
+        perror("clock");
+        result = EXIT_INVALID;
+    }
+    pf_pmu_close(&group);
+    return result;
+}
+
+struct sampled_batch
+{
+    struct pf_workload *workload;
+    const struct pf_request_summary *summary;
+    bool ran;
+    enum pf_workload_status status;
+    uint64_t checksum;
+};
+
+static void run_sampled_batch(void *context)
+{
+    struct sampled_batch *batch = context;
+
+    batch->status =
+        pf_workload_run(batch->workload, batch->summary->variant,
+                        batch->summary->repetitions, &batch->checksum);
+    batch->ran = true;
+}
+
+/* The executable mappings let a reader resolve sampled addresses later. */
+static void report_mappings(void)
+{
+    char line[4096];
     FILE *maps = fopen("/proc/self/maps", "r");
-    char line[1024];
-    if (!maps)
+
+    if (maps == NULL)
     {
         return;
     }
-    while (fgets(line, sizeof line, maps))
+    while (fgets(line, sizeof line, maps) != NULL)
     {
-        fputs("{\"kind\":\"mapping\",\"line\":\"", stdout);
-        for (const char *p = line; *p; ++p)
-        {
-            if (*p == '\n')
-            {
-                fputs("\\n", stdout);
-            }
-            else if (*p == '\\' || *p == '\"')
-            {
-                putchar('\\');
-                putchar(*p);
-            }
-            else if ((unsigned char)*p >= 32)
-            {
-                putchar(*p);
-            }
-        }
-        puts("\"}");
+        pf_report_mapping(stdout, line);
     }
-    fclose(maps);
+    (void)fclose(maps);
 }
 
-static int sampled(struct pf_work *w, unsigned precision)
+/* One positive decimal value from a one-line kernel file. */
+static bool read_decimal_file(const char *path, uint64_t *value)
 {
-    struct perf_event_attr a = {0};
-    a.size = sizeof a;
-    a.type = PERF_TYPE_HARDWARE;
-    a.config = PERF_COUNT_HW_CPU_CYCLES;
-    a.disabled = 1;
-    a.exclude_kernel = 1;
-    a.exclude_hv = 1;
-    a.sample_period = 100000;
-    a.sample_type = PERF_SAMPLE_IP | PERF_SAMPLE_TID | PERF_SAMPLE_TIME |
-                    PERF_SAMPLE_PERIOD;
-    a.wakeup_events = 1;
-    a.precise_ip = precision;
-    a.read_format =
-        PERF_FORMAT_TOTAL_TIME_ENABLED | PERF_FORMAT_TOTAL_TIME_RUNNING;
-    mapping_identity();
-    int fd =
-        (int)syscall(SYS_perf_event_open, &a, 0, -1, -1, PERF_FLAG_FD_CLOEXEC);
-    if (fd < 0)
+    char text[32];
+    uintmax_t parsed = 0;
+    FILE *file = fopen(path, "r");
+
+    if (file == NULL)
     {
-        printf("{\"kind\":\"sampling\",\"status\":\"%s\",\"errno\":%d}\n",
-               errno == EACCES || errno == EPERM ? "denied" : "unavailable",
-               errno);
-        return 0;
+        return false;
     }
-    long page = sysconf(_SC_PAGESIZE);
-    if (page <= 0 || ((size_t)page & (size_t)(page - 1)))
+    bool read = (fgets(text, sizeof text, file) != NULL);
+    (void)fclose(file);
+    if (!read)
     {
-        close(fd);
-        return 2;
+        return false;
     }
-    size_t length = (size_t)page * 9;
-    void *mapping =
-        mmap(NULL, length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-    if (mapping == MAP_FAILED)
+    text[strcspn(text, "\n")] = '\0';
+    if (cm_parse_umax(text, 1, UINT32_MAX, &parsed) != CM_PARSE_OK)
     {
-        int e = errno;
-        close(fd);
-        printf(
-            "{\"kind\":\"sampling\",\"status\":\"map-failed\",\"errno\":%d}\n",
-            e);
-        return 0;
+        return false;
     }
-    struct perf_event_mmap_page *meta = mapping;
-    uint64_t offset = meta->data_offset, size = meta->data_size;
-    int rc = 0, error = 0;
-    struct pf_ring_stats stats = {0};
-    uint64_t tail = 0;
-    if (offset > length || size > length - offset || !size ||
-        (size & (size - 1)))
+    *value = (uint64_t)parsed;
+    return true;
+}
+
+/* The host's throttle floor for the requested period (pmu_report.h). */
+static struct pf_period_floor period_floor(void)
+{
+    struct pf_period_floor floor = {0};
+
+    floor.known =
+        read_decimal_file("/proc/sys/kernel/perf_event_max_sample_rate",
+                          &floor.max_sample_rate) &&
+        read_decimal_file("/sys/devices/system/cpu/cpu0/cpufreq/"
+                          "cpuinfo_max_freq",
+                          &floor.cpu_max_khz);
+    if (floor.known)
     {
-        rc = PF_RING_INVALID;
+        /* <= 4294967295 kHz * 1000: no overflow in 64 bits. */
+        uint64_t hz = floor.cpu_max_khz * UINT64_C(1000);
+
+        floor.floor_cycles =
+            (hz + floor.max_sample_rate - 1u) / floor.max_sample_rate;
     }
-    if (!rc && (ioctl(fd, PERF_EVENT_IOC_RESET, 0) ||
-                ioctl(fd, PERF_EVENT_IOC_ENABLE, 0)))
+    return floor;
+}
+
+/* Exit status of a sampling run: only the parser (pf_ring_drain) is the
+ * learner's component; open and map refusals are observations, every other
+ * failed stage is the host or the supplied adapter. */
+static int sampling_verdict(const struct pf_sampling_result *result)
+{
+    switch (result->stage)
     {
-        rc = PF_RING_INVALID;
-        error = errno;
+        case PF_SAMPLING_COMPLETE:
+        case PF_SAMPLING_OPEN:
+        case PF_SAMPLING_MAP:
+            return EXIT_SUCCESS;
+        case PF_SAMPLING_PARSER:
+            (void)fprintf(stderr,
+                          "PF_NATIVE_ASSERT:ring parser pf_ring_drain stopped "
+                          "on the kernel's records (status %d)\n",
+                          result->parser_status);
+            return EXIT_ASSERT;
+        default:
+            (void)fprintf(stderr, "pmu_native: sampling failed at stage %s\n",
+                          pf_sampling_stage_name(result->stage));
+            return EXIT_INVALID;
     }
-    /* Print only after disable: serialization is outside measured workload. */
-    if (!rc)
+}
+
+static int measure_samples(const struct native_request *request,
+                           struct pf_workload *workload, uint64_t expected)
+{
+    struct pf_period_floor floor = period_floor();
+
+    size_t capacity = request->sampling.sample_capacity;
+    struct pf_sample *items = NULL;
+
+    if (capacity > 0u)
     {
-        observable ^= execute(w, 256);
-    }
-    if (ioctl(fd, PERF_EVENT_IOC_DISABLE, 0))
-    {
-        rc = PF_RING_INVALID;
-        error = errno;
-    }
-    uint64_t counts[3] = {0};
-    ssize_t got = -1;
-    for (unsigned tries = 0; tries < 8; ++tries)
-    {
-        got = read(fd, counts, sizeof counts);
-        if (got >= 0 || errno != EINTR)
+        items = calloc(capacity, sizeof *items);
+        if (items == NULL)
         {
-            break;
+            perror("sample buffer");
+            return EXIT_INVALID;
         }
     }
-    if (!rc)
+    report_mappings();
+    struct sampled_batch batch = {.workload = workload,
+                                  .summary = &request->summary};
+    struct pf_sampling_result result = {.samples = {.items = items}};
+    pf_sampling_run(&request->sampling, run_sampled_batch, &batch, &result);
+
+    /* Serialization happens only now, after the event is disabled. */
+    for (size_t i = 0; i < result.samples.count; ++i)
     {
-        uint64_t head = __atomic_load_n(&meta->data_head, __ATOMIC_ACQUIRE);
-        rc = pf_ring_drain((unsigned char *)mapping + offset, (size_t)size,
-                           head, &tail, 4096, &stats, emit_sample, NULL);
-        /* Linux perf ABI: all record reads precede publication of data_tail. */
-        __atomic_thread_fence(__ATOMIC_SEQ_CST);
-        __atomic_store_n(&meta->data_tail, tail, __ATOMIC_RELEASE);
-        if (tail != head && !rc)
+        pf_report_sample(stdout, &items[i]);
+    }
+    struct pf_sampling_report report = {
+        .request = request->summary,
+        .workload_ran = batch.ran,
+        .checksum = batch.checksum,
+        .config = &request->sampling,
+        .result = &result,
+        .floor = &floor,
+    };
+    pf_report_sampling(stdout, &report);
+    free(items);
+    if (batch.ran && (verdict(batch.status, batch.checksum, expected) != 0))
+    {
+        return EXIT_ASSERT;
+    }
+    return sampling_verdict(&result);
+}
+
+static int list_families(void)
+{
+    for (unsigned i = 0; i < PF_FAMILY_COUNT; ++i)
+    {
+        pf_report_family(stdout, (enum pf_family)i);
+    }
+    return EXIT_SUCCESS;
+}
+
+/* Build the inputs, verify both variants against the oracle outside any
+ * measured interval, warm the requested variant once, then measure. */
+static int run_request(const struct native_request *request)
+{
+    struct pf_workload *workload = NULL;
+    uint64_t expected = 0;
+    enum pf_workload_status status = pf_workload_create(
+        request->summary.family, request->summary.n, &workload);
+
+    if (status != PF_WORKLOAD_OK)
+    {
+        (void)fprintf(stderr, "pmu_native: workload %s\n",
+                      pf_workload_status_name(status));
+        return EXIT_INVALID;
+    }
+    status =
+        pf_workload_verify(workload, request->summary.repetitions, &expected);
+    int result = EXIT_ASSERT;
+    if (status != PF_WORKLOAD_OK)
+    {
+        (void)fprintf(stderr,
+                      "PF_NATIVE_ASSERT:equivalent results and independent "
+                      "oracle (%s)\n",
+                      pf_workload_status_name(status));
+    }
+    else if (request->mode == MODE_CHECK)
+    {
+        struct pf_period_floor floor = period_floor();
+
+        pf_report_check(stdout, &request->summary, expected, &request->sampling,
+                        &floor);
+        result = EXIT_SUCCESS;
+    }
+    else
+    {
+        uint64_t warm = 0;
+
+        status = pf_workload_run(workload, request->summary.variant, 1, &warm);
+        observable ^= warm;
+        if (status != PF_WORKLOAD_OK)
         {
-            rc = PF_RING_PARTIAL;
+            (void)fputs("PF_NATIVE_ASSERT:warm-up run\n", stderr);
+        }
+        else if (request->mode == MODE_SAMPLE)
+        {
+            result = measure_samples(request, workload, expected);
+        }
+        else
+        {
+            result = measure_count(request, workload, expected);
         }
     }
-    int cleanup = 0;
-    if (munmap(mapping, length))
+    pf_workload_destroy(workload);
+    return result;
+}
+
+static int dispatch(int argc, char **argv)
+{
+    struct native_request request;
+
+    if ((argc >= 2) && (strcmp(argv[1], "families") == 0))
     {
-        cleanup = errno;
+        if (argc != 2)
+        {
+            usage(argv[0]);
+            return EXIT_INVALID;
+        }
+        return list_families();
     }
-    if (close(fd) && !cleanup)
+    if (!parse_request(argc, argv, &request))
     {
-        cleanup = errno;
+        usage((argc > 0) ? argv[0] : "pmu_native");
+        return EXIT_INVALID;
     }
-    const char *status =
-        rc || got != (ssize_t)sizeof counts || counts[2] > counts[1] ? "invalid"
-        : !counts[2]     ? "never-scheduled"
-        : !stats.samples ? "no-samples"
-                         : "measured";
-    printf(
-        "{\"kind\":\"sampling\",\"status\":\"%s\",\"errno\":%d,\"cleanup_errno\":%d,\"parser_status\":%d,\"samples\":%" PRIu64
-        ",\"lost\":%" PRIu64 ",\"unknown\":%" PRIu64 ",\"enabled\":%" PRIu64
-        ",\"running\":%" PRIu64
-        ",\"precise_ip\":%u,\"scope\":\"calling-thread-user\"}\n",
-        status, error, cleanup, rc, stats.samples, stats.lost, stats.unknown,
-        counts[1], counts[2], precision);
-    return rc ? 2 : 0;
+    const struct pf_family_info *info =
+        pf_family_describe(request.summary.family);
+    if (!info->available)
+    {
+        pf_report_family(stdout, request.summary.family);
+        (void)fprintf(stderr, "pmu_native: family %s needs the %s\n",
+                      info->name, info->needs);
+        return EXIT_UNAVAILABLE;
+    }
+    return run_request(&request);
 }
 
 int main(int argc, char **argv)
 {
-    const char *families[] = {"search",     "layout", "numeric",     "dispatch",
-                              "allocation", "sort",   "concurrency", "service"};
-    if (argc < 5)
+    int result = dispatch(argc, argv);
+
+    /* An observation that did not reach its reader was not reported. */
+    if ((fflush(stdout) != 0) || (ferror(stdout) != 0))
     {
-        fprintf(stderr,
-                "usage: %s count|work|sample FAMILY N VARIANT [REPETITIONS]\n",
-                argv[0]);
-        return 2;
+        return EXIT_INVALID;
     }
-    struct pf_work w = {0};
-    for (; w.family < 8 && strcmp(argv[2], families[w.family]); ++w.family)
-    {
-    }
-    char *end;
-    unsigned long n = strtoul(argv[3], &end, 10);
-    if (*end || !n || n > 4194304 || w.family == 8)
-    {
-        return 2;
-    }
-    w.n = (size_t)n;
-    w.variant = (unsigned)strtoul(argv[4], &end, 10);
-    if (*end || w.variant > 1)
-    {
-        return 2;
-    }
-    unsigned repetitions = argc > 5 ? (unsigned)strtoul(argv[5], &end, 10) : 16;
-    if (!repetitions || repetitions > 1024 || *end)
-    {
-        return 2;
-    }
-    if ((w.family == 4 && n > 65536) ||
-        ((w.family == 5 || w.family == 7) && n > 1024))
-    {
-        return 2;
-    }
-    w.values = malloc(w.n * sizeof *w.values);
-    w.wide = w.family == 1 ? malloc(w.n * sizeof *w.wide) : NULL;
-    w.records = w.family == 5 ? malloc(w.n * sizeof *w.records) : NULL;
-    if (!w.values || (w.family == 1 && !w.wide) ||
-        (w.family == 5 && !w.records))
-    {
-        free(w.values);
-        free(w.wide);
-        free(w.records);
-        return 2;
-    }
-    for (size_t i = 0; i < w.n; ++i)
-    {
-        w.values[i] = i * 2;
-        if (w.wide)
-        {
-            w.wide[i].value = i * 2;
-        }
-    }
-    w.dispatch[0] = operation0;
-    w.dispatch[1] = operation1;
-    /* Independent arithmetic oracle for sums/search; full stable-sort order
-     * validation in retained tests, plus checksum parity outside interval. */
-    unsigned saved = w.variant;
-    w.variant = 0;
-    uint64_t expected = execute(&w, repetitions);
-    w.variant = 1;
-    uint64_t alternate = execute(&w, repetitions);
-    w.variant = saved;
-    if (expected == UINT64_MAX || expected != alternate ||
-        expected != oracle(&w, repetitions))
-    {
-        fputs("PF_NATIVE_ASSERT:equivalent results and independent oracle\n",
-              stderr);
-        return 1;
-    }
-    if (w.family == 1 || w.family == 2)
-    {
-        uint64_t independent = (uint64_t)w.n * (w.n - 1) * repetitions;
-        if (expected != independent)
-        {
-            return 1;
-        }
-    }
-    if (w.family == 6 && expected != (uint64_t)n * repetitions * 2)
-    {
-        return 1;
-    }
-    if (w.family == 7)
-    {
-        uint64_t independent = 0;
-        for (size_t i = 0; i < n; ++i)
-        {
-            if (i % 5)
-            {
-                independent += 18 + i;
-            }
-        }
-        if (expected != independent * repetitions)
-        {
-            return 1;
-        }
-    }
-    observable ^= execute(&w, 1);
-    int rc = 0;
-    if (!strcmp(argv[1], "sample"))
-    {
-        unsigned precision =
-            argc > 6 ? (unsigned)strtoul(argv[6], &end, 10) : 0;
-        if (precision > 3 || *end)
-        {
-            return 2;
-        }
-        rc = sampled(&w, precision);
-    }
-    else
-    {
-        struct pf_pmu group = {0};
-        enum pf_pmu_state state = PF_PMU_EMPTY;
-        uint64_t brackets[31], overhead = 0;
-        struct timespec resolution;
-        if (clock_getres(CLOCK_MONOTONIC_RAW, &resolution))
-        {
-            return 2;
-        }
-        uint64_t resolution_ns = (uint64_t)resolution.tv_sec * 1000000000u +
-                                 (uint64_t)resolution.tv_nsec;
-        for (unsigned i = 0; i < 31; ++i)
-        {
-            uint64_t begin = clock_ns();
-            brackets[i] = clock_ns() - begin;
-            if (brackets[i] > overhead)
-            {
-                overhead = brackets[i];
-            }
-        }
-        int count = !strcmp(argv[1], "count");
-        if (!count && strcmp(argv[1], "work"))
-        {
-            return 2;
-        }
-        const struct pf_pmu_event events[] = {
-            {PERF_TYPE_HARDWARE, PERF_COUNT_HW_INSTRUCTIONS},
-            {PERF_TYPE_HARDWARE, PERF_COUNT_HW_CPU_CYCLES}};
-        if (count)
-        {
-            state = pf_pmu_open(&group, pf_pmu_linux(), events, 2);
-            if (state == PF_PMU_READY)
-            {
-                state = pf_pmu_start(&group);
-            }
-        }
-        else if (pf_perf_control(1))
-        {
-            perror("perf-control enable");
-            return 2;
-        }
-        int before = sched_getcpu();
-        uint64_t start = clock_ns(), checksum = execute(&w, repetitions),
-                 elapsed = clock_ns() - start;
-        int after = sched_getcpu();
-        if (count && state == PF_PMU_ACTIVE)
-        {
-            state = pf_pmu_stop(&group);
-        }
-        else if (!count && pf_perf_control(0))
-        {
-            perror("perf-control disable");
-            return 2;
-        }
-        if (checksum != expected)
-        {
-            fputs("PF_NATIVE_ASSERT:workload checksum\n", stderr);
-            rc = 1;
-        }
-        observable ^= checksum;
-        printf(
-            "{\"kind\":\"count\",\"family\":\"%s\",\"n\":%zu,\"variant\":%u,\"repetitions\":%u,\"checksum\":%" PRIu64
-            ",\"elapsed_ns\":%" PRIu64
-            ",\"cpu_before\":%d,\"cpu_after\":%d,\"status\":\"%s\",\"errno\":%d,\"cleanup_errno\":%d,\"enabled\":%" PRIu64
-            ",\"running\":%" PRIu64 ",\"raw_instructions\":%" PRIu64
-            ",\"raw_cycles\":%" PRIu64 ",\"instruction_id\":%" PRIu64
-            ",\"cycle_id\":%" PRIu64
-            ",\"scope\":\"calling-thread-user\",\"strict_group\":true,\"clock_resolution_ns\":%" PRIu64
-            ",\"clock_overhead_max_ns\":%" PRIu64 ",\"clock_brackets_ns\":[",
-            families[w.family], w.n, w.variant, repetitions, checksum, elapsed,
-            before, after, pf_pmu_state_name(state), group.error,
-            group.cleanup_error, group.enabled, group.running, group.raw[0],
-            group.raw[1], group.ids[0], group.ids[1], resolution_ns, overhead);
-        for (unsigned i = 0; i < 31; ++i)
-        {
-            printf("%s%" PRIu64, i ? "," : "", brackets[i]);
-        }
-        puts("]}");
-        pf_pmu_close(&group);
-    }
-    free(w.values);
-    free(w.wide);
-    free(w.records);
-    return rc;
+    return result;
 }

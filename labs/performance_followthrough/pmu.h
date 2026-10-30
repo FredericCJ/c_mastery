@@ -68,9 +68,17 @@ struct pf_sample
     uint32_t pid, tid;
 };
 
+/* Ring accounting. `lost` sums PERF_RECORD_LOST records (samples the ring had
+ * no room for); `hardware_lost` sums PERF_RECORD_LOST_SAMPLES records
+ * (samples dropped by a hardware sampling unit). They describe different
+ * losses and are never added together. */
 struct pf_ring_stats
 {
-    uint64_t samples, lost, unknown, records;
+    uint64_t samples;
+    uint64_t lost;
+    uint64_t hardware_lost;
+    uint64_t unknown;
+    uint64_t records;
 };
 
 enum pf_ring_result

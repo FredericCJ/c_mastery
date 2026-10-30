@@ -4,9 +4,13 @@ This active companion extends T43 performance work and the streaming route.
 Use ISO C17 for the finite state machine and record parser; the supplied Linux
 adapter deliberately depends on the perf ABI, Linux system calls and GCC/Clang
 atomic builtins. `pmu.c` is unfinished learner work. The separate assessor
-implementation is selected explicitly for author validation. `pmu_linux.c`,
-`publication.c`, `pmu_native.c` and their experiment orchestration are supplied
-reference adapters, not evidence that a learner has implemented these mechanisms.
+implementation is selected explicitly for author validation. The collector
+`pmu_native.c` (command line only), `pmu_workloads.c` (the paired workloads and
+their oracles), `pmu_sampling.c` (ring and drain lifecycle), `pmu_loss.c` (loss
+accounting), `pmu_report.c` (JSON lines), `pmu_linux.c`, `pmu_control.c`,
+`pmu_integrations.c`, `publication.c`, the course support in `labs/support/`
+(`cm_parse`, `cm_clock`, `measurement_gates.py`) and the runner `native.py` are
+supplied adapters, not evidence that a learner has implemented these mechanisms.
 
 ## Why this mechanism now
 
@@ -80,51 +84,266 @@ Each completed record advances the tail; failure preserves the current record
 while retaining the prior accepted prefix. Loss is separately accumulated with
 overflow checks. The callback borrows a copied sample only until it returns.
 
-`pmu_native.c` obtains a writable mmap with one metadata page and eight data
-pages. It validates kernel offsets/sizes before accessing the ring, snapshots
+`pmu_sampling.c` obtains a writable mmap with one metadata page and a
+power-of-two number of data pages (eight by default, `--pages=P` for 1 to 256).
+It validates kernel offsets/sizes before accessing the ring, snapshots
 `data_head` with acquire ordering, consumes published bytes, and orders all reads
-before publishing `data_tail`. These are Linux/GCC/Clang implementation contracts,
-not an assertion that a learner's C ring is layout-compatible with the kernel.
-The experiment disables before the final drain, then unmaps and closes. It does
-not promise lossless collection at arbitrary rates. Loss and insufficient
-samples remain evidence, not silently discarded trials.
+before publishing `data_tail` with release ordering. Exactly one consumer owns
+`data_tail` at a time: the concurrent drainer thread until it is joined, then the
+calling thread for the final drain. These are Linux/GCC/Clang implementation
+contracts, not an assertion that a learner's C ring is layout-compatible with the
+kernel. Every run disables the event, joins the drainer, drains a final time
+unless the drainer's parser already failed (that status is then reported and
+no further record is consumed), reads the event's counts, then unmaps and
+closes. If the drainer thread cannot even be started, nothing is enabled. It
+does not promise lossless collection at arbitrary rates. Loss and insufficient samples remain evidence, not silently
+discarded trials.
 
 The sample output includes actual process mappings, instruction addresses,
 timestamps, periods and thread identity; the producer retains ELF build ID,
 binary hash, symbols and disassembly. Correlate IP using the recorded mapping
 and ELF load offsets. A sampled instruction pointer may skid from the event's
-cause. Default `precise_ip=0` makes no exact-instruction claim; an optional final
-native argument requests 1, 2 or 3 explicitly. A rejected precision request must
-stay rejected. This revision makes no unverified top-down or IBS raw-event claim.
+cause. Default `precise_ip=0` makes no exact-instruction claim; the optional
+PRECISION argument requests 1, 2 or 3 explicitly. A rejected precision request
+stays rejected: the event is reported unavailable, never reopened with less. This revision makes no unverified top-down or IBS raw-event claim.
+
+## Accounting for lost samples
+
+A sampled observation is only as trustworthy as its account of what it did
+not see. Linux reports sample loss in three different ways, and they answer
+different questions (perf_event_open(2), man-pages 6.17):
+
+| Source | What it counts | When you learn it |
+| --- | --- | --- |
+| `PERF_RECORD_LOST` in the ring | samples the ring had no room for | only when a *later* record fits |
+| the event's lost count (`PERF_FORMAT_LOST`, Linux 6.0+) | every record of any type (mostly samples) the kernel failed to write into this event's ring for lack of room; not samples skipped while throttled | whenever you `read()` the event |
+| `PERF_RECORD_LOST_SAMPLES` in the ring | samples a hardware sampling unit dropped | in the ring, separately |
+
+**Worked trace.** Take a ring that holds 6 sample records, and 64 sample
+attempts with nothing draining until the event is disabled. Attempts 1–6 fit.
+Attempt 7 does not: the kernel counts one loss and remembers that it owes a
+`PERF_RECORD_LOST` record, which it will write in front of the next sample that
+fits. Nothing ever fits again, so after disable the drain finds 6 samples and
+*no* loss record. An in-band total of 0 here means "no record arrived", not
+"nothing was lost". The event's lost count, read after disable, says 58.
+
+So the collector treats the three sources as follows:
+
+- the kernel count, when available, is the total: in-band records report a
+  subset of the same losses, so the two are never added;
+- without the kernel count, the total is **unknown** and the in-band sum is a
+  lower bound;
+- hardware drops are reported separately;
+- throttling is a gap no count covers: while the event is throttled the
+  kernel takes no samples at all and records only `PERF_RECORD_THROTTLE` and
+  `PERF_RECORD_UNTHROTTLE`, which the supplied consumer counts;
+- an observation is called lossless only when it was `measured`, the ring was
+  parsed to its end, the kernel count is available and zero, and no hardware
+  drop, throttle record or uninterpreted record was seen. A run that failed,
+  never ran or took no samples claims nothing about loss.
+
+Draining *while* the workload runs (`--drain=concurrent`) gives the kernel
+room to write its deferred loss records and keeps later samples, at the cost
+of a second thread competing for the machine. Compare both modes before
+deciding which distortion your experiment can tolerate. A final-only drain
+also biases the retained samples towards the *start* of the run, because the
+ring fills first and later samples are the ones lost.
+
+Your `pf_ring_drain` keeps `PERF_RECORD_LOST` and `PERF_RECORD_LOST_SAMPLES`
+in separate counters (`lost` and `hardware_lost`), because they describe
+different events. `pmu_loss.c` (supplied) reconciles them with the kernel
+count; read its header before interpreting a sampled result.
+
+**Final versus concurrent drain.** With `--drain=final` nothing reads the ring
+until the event is disabled, so a ring smaller than the run's samples saturates
+and stays full: the kernel keeps counting losses but has no room to write a
+`PERF_RECORD_LOST`, so typically `unreported_lost` equals `total_lost`. With
+`--drain=concurrent` a second thread waits in `poll` (the event wakes it on every
+sample; at most 1 ms between passes), drains and publishes `data_tail` while
+the workload runs; it is joined before the final drain. A final-only run asks
+for no wakeups. The drainer competes with the workload for the machine, which
+is itself a distortion to report. `drains` counts drain passes.
+
+**Throttling.** When samples arrive faster than `perf_event_max_sample_rate`
+allows (the kernel's budget is that rate divided among its ticks), sampling
+stops until the next tick. Every sampling and check line therefore reports
+`max_sample_rate`, `cpu_max_khz` and `period_floor_cycles` = ceil(maximum
+frequency / rate), and `throttle_bound` when the requested period is below that
+floor. These values are read once, when the run starts. They are an estimate,
+not a guarantee: the floor assumes the CPU's maximum frequency, and the kernel
+lowers `perf_event_max_sample_rate` by itself when sampling interrupts take too
+long (it logs "perf: interrupt took too long ... lowering
+kernel.perf_event_max_sample_rate"), so the limit can fall during or between
+runs. This host's kernel log shows it falling from the boot default 100000 to
+78000 and then 62000 within half an hour of boot. The robust evidence is
+the observation's own `throttle_records`: any throttle record makes the run
+`throttled` and never lossless; when the ring was parsed and the kernel count
+read, its loss accounting is `complete-except-throttled` (the ring-loss count is
+exact, but no total exists), otherwise it stays `unknown`. At the start of this
+revision's runs the rate read 50000 samples/s and the floor 87809 cycles at
+4.39 GHz; periods of 1000 and 20000 then produced throttle records on every
+run. The default period, 200000 cycles, was chosen with about twice that floor
+as margin; the margin of any run is its `sample_period` divided by the
+`period_floor_cycles` it recorded.
+
+A sampling line reports, separately: `status` and `stage` (`complete`, or where
+the run stopped: `config`, `open`, `map`, `layout`, `thread`, `control`,
+`parser` or `read`; only `parser` is your `pf_ring_drain`, everything else is
+the host or a supplied adapter), `errno` (open/map), `control_errno`,
+`parser_status` (null if your parser never ran), `samples`,
+`retained`/`not_retained` (the collector's own bounded memory, `--retain=S`),
+`inband_lost` (and `lost`, its older name), `hardware_lost`, `kernel_lost` (null
+when unknown), `lost_support` (`supported`, `not-requested`, `header-missing`,
+`kernel-rejected` or `undetermined` when the event itself was refused),
+`loss_accounting` (`complete`, `complete-except-throttled`, `unknown` or
+`inconsistent`), `lost_lower_bound` (the larger of the in-band total and the
+kernel count whenever that count was read, in every state), `total_lost` and
+`unreported_lost` (null unless `complete`), `throttled`,
+`throttle_records`, `unthrottle_records`, `lossless`, `unknown` records,
+`drain_mode`, `data_pages`, `sample_period`, `drains` and the throttle-floor
+fields above.
 
 ## Exercise and verification commands
 
-Build your unfinished protocol implementation and run the tests:
+`native.py` is the learner workflow. It uses only files in `labs/` (this
+directory and `labs/support/`), never `tools/` or `assessor/`, and changes no
+host policy.
 
 ```sh
-python3 labs/performance_followthrough/build.py --protocol --output /tmp/pmu-learner
-/tmp/pmu-learner
+python3 native.py doctor                   # access, paranoid level, capabilities, clock source
+python3 native.py protocol [--sanitizers]  # deterministic tests against ./pmu.c
+python3 native.py build --pmu-source pmu.c --output build/native
+python3 native.py run --build build/native --family numeric --n 8192 --report runs/numeric-8192.json
+python3 native.py sample --build build/native --family numeric --n 1048576 --repetitions 64 \
+    --pages 1 --drain final --retain 0 --report runs/final.json
+python3 native.py report runs/numeric-8192.json runs/final.json
 ```
 
-Visible cases exercise failed leader/member creation, control/read errors,
-short records, zero running time, unexpected/duplicate IDs, interrupted reads,
-cleanup, every ring origin, incomplete and malformed records, bounded progress
-and loss. Add independent fixtures before revising the implementation. Passing
-these does not establish a complete kernel-ABI implementation or all interleavings.
+`protocol` builds the protocol, loss-accounting and ring-consumer tests with
+your `pmu.c` under GCC and Clang (`--sanitizers` adds ASan/UBSan builds and a
+ThreadSanitizer build of the ring tests, which run the real drainer thread
+against a model producer) and reports each result as
+passed, semantic rejection (a contract assertion: fix `pmu.c`), build error,
+crash or timeout. Visible cases exercise failed leader/member creation,
+control/read errors, short records, zero running time, unexpected/duplicate IDs,
+interrupted reads, cleanup, every ring origin, incomplete and malformed records,
+bounded progress, loss and concurrent consumption. Add independent fixtures
+before revising the implementation. Passing these does not establish a complete
+kernel-ABI implementation or all interleavings. (`build.py --protocol` still
+builds the protocol tests alone.)
+
+`build` compiles the collector from your `pmu.c` plus the supplied adapters with
+`-O2 -g`, never with a sanitizer: a sanitizer runtime measures itself, so a
+collector that links one is refused by `build`, `run` and `sample`. The sort
+family needs your algorithms component (`--algorithms-source algo.c`); the
+service family needs `--events-source`, `--collection-source` and
+`--timer-source` together. Without them those families are reported
+unavailable, never substituted. Every component is recorded with its path and
+hash; supplied adapters are labelled SUPPLIED. `--test-implementation` labels a
+build (or a `protocol` run) made from a supplied test or reference
+implementation TEST IMPLEMENTATION, and every report from it carries that
+label: such results are never evidence of your own work. Inside the author
+checkout, a source that is one of the checkout's assessor implementations (it
+lies in the checkout's `assessor/` tree, or it is a byte-identical copy of a file
+there) is refused without that label; a directory of yours that merely has the
+name `assessor` is not. In a learner workspace, which has no `assessor/` tree,
+the label in `build.json` is self-asserted by whoever ran the build: it records
+a claim and the source hashes, not proof of authorship.
+
+`run` performs one bounded paired comparison (calibration, then up to 31 pairs
+in alternating order) and judges it with the gates below; `sample` performs one
+sampling observation with explicit ring size, period, precision and drain
+mode; `report` prints both kinds, re-deriving each run's calibration and gates
+from its raw rows and each sample's loss accounting and lossless claim from its
+raw loss fields (a stored verdict is never trusted; a sample report from an
+older collector without those fields is refused), and ranking only supported
+comparisons. Every run and sample report records the host load average and
+available memory before and after. Numbers on the command line are plain decimal digits. Exit status:
+0 completed (a completed run may still be inconclusive or refused), 1 a
+contract, workload or ring-parser check rejected your component, 2 invalid
+request, build error, refused build or host/adapter failure, 3 the family is
+not built in.
+
+The collector itself is a small command line (`pmu_native.c`):
+
+```text
+pmu_native count|work FAMILY N VARIANT [REPETITIONS]
+pmu_native sample|check FAMILY N VARIANT [REPETITIONS [PRECISION]]
+           [--drain=final|concurrent] [--pages=P] [--period=CYCLES] [--retain=S]
+pmu_native families
+```
+
+N is 1 to 4194304 (allocation 65536, sort and service 1024), VARIANT 0 or 1,
+REPETITIONS 1 to 1024 (default 16), PRECISION 0 to 3, P a power of two in 1 to
+256, CYCLES 1000 to 4294967295 and S 0 to 1048576. Every number is plain ASCII
+decimal, parsed by `labs/support/cm_parse.h` with the range checked before any
+narrowing: `""`, `"+1"`, `" 1"`, `"1x"` and `"4294967297"` are rejected with exit
+status 2, never turned into 0 or 1. `check` validates a request and the
+workload oracle without opening any perf event; `check_native_args.py` uses it
+to test every argument's boundaries, including the `PF_PERF_CONTROL_FD` and
+`PF_PERF_ACK_FD` descriptors of `work`. Exit status 1 means a workload failed its
+equivalence, oracle or checksum check or your ring parser stopped on the
+kernel's records, and 3 that the family is not built in. Every requested
+repetition count is honoured, including when sampling. Count lines carry
+`strict_group: true` and `acquisition: "strict-group"` only in `count` mode; in
+`work` mode perf stat counts and the line says `perf-control`.
+
+## Timing and interpretation gates
+
+A paired comparison is judged in five separate dimensions
+(`labs/support/measurement_gates.py`, shared by `native.py` and the author
+campaigns), so that one failure cannot hide behind another:
+
+| Gate | States |
+| --- | --- |
+| acquisition | `valid` only when every row was measured, scheduled (`0 < running <= enabled`), read with distinct IDs and cleaned up; otherwise `invalid` |
+| scheduling | `full` or `multiplexed` (`unknown` after invalid acquisition) |
+| timing | `adequate` only when calibration reached its target and every measured row ran at the calibrated repetitions and reached its own target; otherwise `inadequate`, or `inadequate-exhausted` when 1024 repetitions still fell short |
+| comparability | `comparable` (31 complete pairs, one row per pair and variant, the same checksum in every row), `incomplete-pairs`, `duplicate-rows` or `not-comparable` |
+| interpretation | `supported` only when all pass; `refused` for invalid acquisition, duplicate rows or unequal work; otherwise `inconclusive` |
+
+Each row's timing target is the largest of 50 µs, 100 times the cost of a
+clock read and 1000 times the clock resolution. The cost of a clock read is the
+upper quartile (nearest rank) of the 31 back-to-back clock-read brackets that
+row recorded: a bracket stretched by preemption measures the scheduler, not the
+clock, and up to 7 such outliers leave the estimate unchanged. Because every
+accepted row is at least 100 times that cost, the typical clock read is under
+1% of every accepted interval. Calibration doubles the repetitions from 1 until
+the shorter variant reaches twice its target (headroom, so run-to-run variation
+does not drop the measured rows below it) or 1024 repetitions are used. The
+clock source matters: a host using `hpet` pays microseconds per read, raising
+the target to hundreds of microseconds (`doctor` and every report record it).
+Raw rows are always kept. A median paired difference and the number of pairs
+where variant 1 was faster are produced only for `supported` comparisons; a
+comparison with any short row, a multiplexed or incomplete one is inconclusive
+and feeds no ranking or competence claim. The same rule judges timer-only
+benchmarks (`tools/run_deadline_pilot.py`), whose rows carry the target of a
+separate clock probe.
 
 The author-only deterministic campaign explicitly selects the assessor source:
 
 ```sh
-python3 tools/run_native_pmu.py --protocol-only --report /tmp/pmu-protocol.json
+python3 tools/run_native_pmu.py --protocol-only --sanitizers --report /tmp/pmu-protocol.json
 python3 tools/run_native_pmu.py --report /tmp/pmu-native.json
 ```
 
-Choose a fresh report path on each run. The second command also builds the
-optimized unsanitized observation binary and attempts actual hardware collection.
-`--sanitizers` adds instrumented protocol tests; those binaries are never used
-for performance observations. A denied hardware request is recorded separately
-and does not fail unrelated deterministic checks. `passed` means the producer
-completed its declared scope; inspect each `gates` field independently.
+Choose a fresh report path on each run. The first command runs every
+deterministic test above under GCC and Clang, mutation checks that reintroduce
+each repaired defect (with `--sanitizers`, also two ThreadSanitizer mutants that
+weaken the `data_head` acquire or the `data_tail` release), the collector's
+argument tests and the Python tests of the gates and `native.py`. The second
+also builds the unsanitized observation binary with the same `-O2 -g` as
+`native.py build` and attempts actual hardware collection: the gated sweep,
+sampled records and a bounded saturation experiment (one data page,
+200000-cycle period, final and concurrent drains alternated over three trials;
+a throttled trial makes the outcome `throttled`, never `saturated` or
+`saturation not reached`). Instrumented binaries are never used for
+performance observations. A denied hardware request
+is recorded separately and does not fail unrelated deterministic checks.
+`passed` means the producer completed its declared scope; inspect each `gates`
+field independently. `tools/analyze_native_pmu.py` verifies a campaign's hashes
+and re-derives every calibration and gate from the raw rows with the current
+rules, including for historical receipts, without rewriting them.
 
 The environment preflight records available PMUs/events, CPU, topology, allowed
 affinity, cgroups, process capability/seccomp state, virtualization detection,
@@ -138,10 +357,11 @@ Root execution is an experiment condition and must appear in provenance.
 
 The supplied workloads compare equivalent results with allocation/initialization,
 oracle comparison and checksums outside the measured interval. Stable sorting
-uses the existing `algo_insertion` and `algo_merge` reference adapters. Search
-deliberately lifts the old 1024-element bound into a separately specified sorted
-immutable extent. The other workloads compare representations or operation
-decomposition; they do not replace the original finite proofs.
+uses the algorithms component's `algo_insertion` and `algo_merge` and is built
+only when that component is supplied. Search deliberately lifts the old
+1024-element bound into a separately specified sorted immutable extent. The
+other workloads compare representations or operation decomposition; they do not
+replace the original finite proofs.
 
 | Investigation | Competing explanations and discriminating work |
 | --- | --- |
@@ -167,9 +387,11 @@ work and join; these are identical lifecycle boundaries for both layouts. The
 64-byte separation is an explicit tested layout intervention, not a universal
 cache-line-size assumption. Check the detected target before calling it false
 sharing. The service is a bounded in-process deadline-driven stream consumer,
-not a socket throughput claim. It uses actual `struct tc_collection`, `struct ev_parser`,
-`struct ev_queue` and `struct ev_sum` implementations selected as author reference adapters;
-their learner exports remain unfinished. Cancelled items never enter the parser.
+not a socket throughput claim. It uses actual `struct tc_collection`,
+`struct ev_parser`, `struct ev_queue` and `struct ev_sum` implementations, built
+in only when the events, collection and timer components are supplied (author
+campaigns select the assessor implementations explicitly). Cancelled items
+never enter the parser.
 
 Counted groups contain instructions and cycles. Further branch/cache/target raw
 events require new explicit requests and verified event semantics. The standard
@@ -184,8 +406,9 @@ exactly. `tools/check_perf_control.py` tests actual pipes and malformed ACK
 rejection without hardware. A focused privileged rerun can use
 `--hardware-only --crosscheck-only --binary PATH --report FRESH_PATH`.
 
-Write hypotheses before interpreting results. Check whether elapsed work is
-large enough relative to the timer and PMU bracket. Do not infer a cache-miss
+Write hypotheses before interpreting results. The timing gate checks whether
+elapsed work is large enough relative to the timer; also consider the PMU
+bracket. Do not infer a cache-miss
 cause from cycles alone, equate CPU cycles with a fixed-frequency wall clock,
 or turn observed maxima into WCET. A rigorous inconclusive result is acceptable.
 
