@@ -30,6 +30,36 @@ board is known-good (§6 step 2); a FLASH_OPTCR1 baseline for `probe` and
 same-user tampering recorded as an accepted residual risk (§8). The
 revision-3 changes have not been independently reviewed.
 
+Revision 4 (2026-10-31, offline only, after the partial phase-2 run recorded
+in `phase2/STATUS.md`; no board access while it was written; reviewed
+afterwards, see the next paragraph) answers two phase-2 defects. (1) The
+post-program identity of `flash bu-cold-cross` read 0x00000005 at
+FLASH_OPTCR, FLASH_OPTCR1 and RCC_CSR alike while the image slept in WFI
+with the MPU enabled; debug-domain and flash reads in the same attach were
+correct and a later `recover` read both option registers unchanged. Every
+identity attach now reads only while
+the core is halted (`halt` ... `resume`, confirmed by three DHCSR reads) and
+refuses identical values at those three unrelated registers (§3 items 6-9).
+The cause is not established; §6 step 8 is a phase-3 diagnostic with
+predictions written before data. (2) `analyze ticks` fitted one line through
+every `T` line of a capture, including a backlog delivered when the port
+opened and ticks of a different boot, which gave a negative slope for the
+HCLK/8 capture; dated note under E4. Images are unchanged (§4 hashes
+rebuilt and equal).
+
+Revision 4 after review (2026-10-31, offline, no board access). A deep
+review of revision 4, whose outcome the orchestrator relayed (no must-fix
+item; should-fix items S1-S7; the review record is not part of this
+packet), led to these changes: the ST-LINK version and target voltage are
+parsed again from the `init` output before the halt (S1); per-field tests
+of the missing-read rule (S2) and of the tick fit's standard error (S3); a
+refusal when the DHCSR read before `resume` shows S_RESET_ST, and the
+DBGMCU_APB1_FZ precondition of §6 step 1 (S4); the bracket's further
+recalled side effects (§2 Finding 2, S5); the computed P4.3 and P4.6
+outcomes stated as computed (E4 dated note, S6); a refusal on any openocd
+`Error:` line and smaller wording fixes (S7). These changes have not been
+reviewed.
+
 This packet does not claim learner, physical or independent-review evidence
 and closes no obligation.
 
@@ -47,8 +77,9 @@ and closes no obligation.
 - No external wiring, instruments or peers. Phase 2 can observe: bytes
   delivered by the ST-LINK virtual COM port (USB CDC ACM) with the host
   `CLOCK_MONOTONIC` time at which `read()` returned them; SWD memory reads
-  through openocd without halting; target-internal counts printed by the
-  images (DWT CYCCNT, SysTick).
+  through openocd without halting (revision 4: inside a brief debug halt,
+  §3 item 7); target-internal counts printed by the images (DWT CYCCNT,
+  SysTick).
 - Not observable (stays open, never estimated): line waveforms and on-wire
   baud error, voltages and supply ramps, reset pulse widths, current or energy
   (T30.09.c), microsecond-scale wake or interrupt latency.
@@ -69,6 +100,21 @@ and closes no obligation.
    drives NRST and sends the ST-LINK system-reset command; st-info in its
    default mode likely halts the core and writes DHCSR (reviewer note), so
    st-info runs only as `--probe --hot-plug` and only in the `probe` action.
+   Revision 4's halt bracket adds DHCSR writes (C_HALT set by `halt`,
+   cleared by `resume`) and, in openocd's hla target, a DEMCR write of
+   TRCENA on debug entry and resume and a DCRDR restore on resume
+   (recalled, openocd source not inspected). The harness images set only
+   DEMCR.TRCENA themselves (`bf_hw.c`); the bu-* images do not touch DEMCR.
+   Also recalled from openocd's hla `adapter_debug_entry` and
+   `adapter_resume`, not confirmed *[doc-check openocd 0.12 source]*: on
+   debug entry openocd saves DCRDR and reads the core registers through
+   DCRSR/DCRDR register transfers (a DCRSR write per register); on
+   `resume` it sets the Thumb bit in its copy of xPSR and writes xPSR back
+   through DCRSR, which preserves the value because a running Cortex-M core
+   has T = 1 *[doc-check Armv7-M]*; and before resuming it reads the 16-bit
+   instruction at PC, to step over a `bkpt` there (a flash read for these
+   images, which contain no `bkpt`). If this recollection is right, none of
+   these changes RAM, flash or peripheral state.
 3. **openocd script search order** (openocd.info, "Configuration Basics"):
    current directory, `-s` directories, `OPENOCD_SCRIPTS`,
    `$XDG_CONFIG_HOME/openocd` or `~/.config/openocd`, `~/.openocd`,
@@ -182,9 +228,48 @@ Enforcement, in order:
    SysTick CSR removed: read-sensitive), or ELF symbols in SRAM/CCM. The ST-LINK
    serial must match `^[0-9A-F]{24}$` before it reaches any argv; capture
    labels must match `[A-Za-z0-9][A-Za-z0-9._-]{0,63}` (should-fix 9).
+   Revision 4 adds one allowlisted form, the **halt bracket**: `init`,
+   reads, `halt`, DHCSR read (`mdw 0xe000edf0`), reads or a flash
+   `dump_image`, DHCSR read, `resume`, DHCSR read, reads, `shutdown`
+   (`_check_bracket`, one token per command matched against
+   `i[mD]*hD[mDd]*DrD[mD]*s`). `halt` and `resume` are bare (no `halt <ms>`,
+   no `resume <address>`), appear once each, and share the attach with no
+   reset, programming, echo or second bracket. The denylist is unchanged; its
+   scan skips exactly two argv elements, a `-c halt` and a `-c resume`
+   standing in the bracket positions (`_bracket_exempt`), so every other
+   occurrence of either word (`reset halt`, `halt 100`, `resume 0x...`, a
+   path containing the word) is still refused by the denylist as well.
 7. **Identity** (openocd only): DBGMCU_IDCODE, UID, flash size, FLASH_OPTCR
    (must equal `0x0FFFAAED`), and FLASH_OPTCR1, DBGMCU_CR, DBGMCU_APB1_FZ and
-   RCC_CSR recorded. `probe` adds `st-info --probe --hot-plug` (one programmer,
+   RCC_CSR recorded. Revision 4: these reads run inside the halt bracket and
+   their values are taken only from the output between the DHCSR read after
+   `halt` and the one before `resume`. The attach is refused unless all
+   DHCSR reads issued are printed, both halted DHCSR reads show C_DEBUGEN
+   (bit 0) and S_HALT (bit 17), the read after `resume` does not show S_HALT
+   (bit numbers recalled from the Armv7-M DHCSR layout *[doc-check]*), every
+   identity read is in that window, and FLASH_OPTCR, FLASH_OPTCR1 and
+   RCC_CSR are pairwise different (phase 2 read 0x00000005 at all three; an
+   accepted FLASH_OPTCR sets bits reserved in the other two *[doc-check
+   RM0090]*, so a genuine state cannot trip this rule). The three DHCSR
+   values are recorded with the identity. After the review: the read before
+   `resume` must not show S_RESET_ST (bit 25, sticky, cleared by every
+   DHCSR read *[doc-check Armv7-M]*). Set there, it means a reset after the
+   halted read, inside the window. In the first halted read it reports a
+   reset before the halt (for example `program`'s) and is accepted. A DHCSR
+   read made by openocd itself between the two (a poll, for example) would
+   clear the bit first, so a clear bit does not prove that no reset
+   happened; S_HALT must still hold in the same read. An openocd output
+   line containing `Error:` refuses the attach (the `Error: ` prefix is in
+   `strings /usr/bin/openocd`). Register values come only from the halted
+   window. The ST-LINK version and target voltage, which openocd prints at
+   `init` before the halt, come from the output before it; revision 4 as
+   first written parsed them from the window and so recorded neither.
+   Reading the option registers
+   under reset was rejected: RM0090 gives 0x0FFFAAED and 0x0FFF0000 as the
+   reset values of FLASH_OPTCR and FLASH_OPTCR1 with the option bits loaded
+   from flash at reset release *[doc-check]*, so a read while NRST is held
+   could show the reset values whatever the option bytes hold. `probe` adds
+   `st-info --probe --hot-plug` (one programmer,
    serial, chipid, flash size). The identity receipt predates the
    FLASH_OPTCR1 read, so the first `probe` records the observed value in
    `<state>/probe-baseline.json` (schema `f439-probe-baseline/v1`, serial,
@@ -196,13 +281,17 @@ Enforcement, in order:
    programmed; then one attach repeats the identity and dumps the load range
    of flash (`dump_image`), which is compared byte for byte in Python with the
    ELF segments, independently of openocd's verify; FLASH_OPTCR1 must equal
-   its value before programming.
+   its value before programming. Revision 4: both identity attaches (before
+   programming, with the previous image running, and after it, with the new
+   one running) and the flash dump sit inside the halt bracket; `program`
+   itself is unchanged.
 9. **Recover** (M3): refused before any tool unless the probe baseline
    exists, is parsable and names this ST-LINK serial; then connect under
    reset, read only DBGMCU_IDCODE (debug domain) with the pinned adapter
    serial, program the park image's session copy under reset, then the full
-   identity and readback; FLASH_OPTCR1 after programming must equal the
-   baseline (as FLASH_OPTCR must equal the receipt).
+   identity and readback (revision 4: inside the halt bracket); FLASH_OPTCR1
+   after programming must equal the baseline (as FLASH_OPTCR must equal the
+   receipt).
 10. **Bounds and children** (should-fix 7): subprocess timeouts 20-180 s;
     every child runs in its own process group and is terminated (SIGTERM,
     then SIGKILL) before the call returns, at session exit and before the lock
@@ -221,7 +310,11 @@ Enforcement, in order:
     identity, both lock paths, sandbox leftovers, HEAD,
     perf_event_paranoid) and `SHA256SUMS`. A flash session's directory is
     tagged `program-<image>` so the denylisted word never appears in a
-    program path.
+    program path. Revision 4: `read --also-running` (phase-3 diagnostic
+    only, §6 step 8) repeats its reads with the core running, after a DHCSR
+    read before the `halt` and after the `resume`; those values go to
+    `running_before_blocks` and `running_after_blocks` in `run.json` and are
+    never used for the identity or for `blocks`.
 
 Offline verification (author checks of phase 1; exit codes in the hand-back
 report): `python3 tools/test_f439_board.py` (140 deterministic tests:
@@ -243,6 +336,46 @@ empty-sandbox check before every tool, TIOCGEXCL confirmation, termios
 refusal in `Board.capture`) were also deleted in place one at a time: the
 unchanged suite failed (exit 1) in exactly the test aimed at that control
 each time, and the file was restored byte-identical.
+
+Revision 4 (2026-10-31, offline, uncommitted at the time of the run):
+`python3 tools/test_f439_board.py` ran 160 tests, OK, exit 0. The new tests
+cover the bracket form, the exact denylist exemption, the bracket template,
+the halted window, DHCSR confirmation, the pattern rule, missing identity
+reads, a replay of the refused phase-2 attach (`02-identity.stderr`), both
+flash attaches, `read --also-running`, and the tick analyzer on synthetic
+lines and on the two tracked phase-2 clock captures.
+`python3 tools/test_f439_board.py --mutants --jobs 2` was run on
+`tools/f439_board.py` SHA-256
+`e09fafa5aaa9df92ce27c0c5453b8ea73264f2cff95861b814cb4f7e0ad553ce` and
+`tools/test_f439_board.py` SHA-256
+`28f4ac89005b3f4504b01494fb9bd1e189b50e2b991472e96607234c2e4fbc36`: 216/216
+killed (36 new mutants for the revision-4 rules), exit 0, 430 s. As before,
+the capture time bound is the only mutant killed by the 120 s timeout. One
+existing assertion changed: the `read` test now requires the reads to sit
+inside the bracket instead of requiring no `halt`. The offline gate refuses
+to flash until the orchestrator commits this file.
+
+After the review of revision 4 (2026-10-31, offline, uncommitted):
+`python3 tools/test_f439_board.py` ran 171 tests, OK, exit 0.
+`python3 tools/test_f439_board.py --mutants --jobs 2` on
+`tools/f439_board.py` SHA-256
+`7953d766e00c59bb43f5f537eee9544408fa53e8e21adcfcebda679f86467d4d` and
+`tools/test_f439_board.py` SHA-256
+`b51e50476c2331b5f5531795a5d229795d2af1fbe92c1bd2045a60c5c575f279`: 235/235
+killed, exit 0, 464 s. The run includes 19 new mutants (init strings from
+the window, `Error:` refusal, S_RESET_ST, each of the eight missing-read
+fields, the n - 2 divisor, the Hz scaling of the standard error, the
+divider, a repeated `n`, the bracket rule triggered by `halt` or `resume`
+alone), and `identity-from-window` was re-anchored. A scratch driver
+outside the repository ran each new mutant against the suite with this
+round's new tests removed (and the earlier phase-2 tick test and fake
+output order restored): 16 of 19 survived; the other three (DBGMCU_CR and
+RCC_CSR missing-read fields, the divider) were already killed. With the
+new tests all 19 were killed. The fake executor now prints the `init`
+lines before the halt, as the recorded phase-2 output shows openocd does.
+Two fresh builds under `$TMPDIR` gave all twelve §4 hashes;
+`verify_tooling()` returned no refusal; `--dry-run probe` and the two
+step-8 `read --also-running` commands planned the bracketed forms.
 
 ## 4. Images
 
@@ -311,8 +444,10 @@ power-on reset**.
 ## 5. Experiments
 
 *raw* = a byte, line field or register value as delivered; *derived* =
-computed by a pre-registered function (`analyze ...`); *[doc-check]* = an
-unconfirmed fact from an unavailable primary document (§9). Obligation IDs
+computed by a pre-registered function (`analyze ...`; `analyze ticks` was
+revised after the phase-2 data were seen, see the E4 notes);
+*[doc-check]* = an unconfirmed fact from an unavailable primary document
+(§9). Obligation IDs
 are addressed in their physical-observation dimension only, partially unless
 stated; "-DELAYED" twins share that state but not their delayed-transfer
 dimension. HSI tolerances: ±1 % is the datasheet figure at 25 °C
@@ -394,6 +529,14 @@ differs between them; the predictions keep both outcomes.
 | X1 | `read bu-guard-cross` | `bu_stage = 0x00000003`; SCB_CFSR low byte `0x82` (MMARVALID, DACCVIOL); SCB_MMFAR `0x2000F7FC` (`_stack_low` - 4); SCB_SHCSR bits 16 and 0 set; SCB_HFSR `0x0` | HFSR FORCED: MemManage escalated |
 | P2.4 | optional `e2-power-on`, **after the final park** (operator USB replug, explicit user approval) | `R csr` bit 27 = 1 and bit 25 = 1 *[doc-check]*; `dbg0=0x00000000` (DBGMCU_CR reset by power-on only *[doc-check]*); then `probe` DBGMCU_CR `0x00000001` (set by the park image), APB1_FZ `0x0` | `ret=1` after power loss is possible but not expected |
 
+Dated note (2026-10-31, revision 4; predictions above unchanged). The
+bu-cold-cross ELF's last data accesses before its WFI loop are `str` of 5
+to `bu_stage` (0x08000246) and `ldr` of `bu_stage` (0x0800045e), and phase 2
+read 0x00000005 at three unrelated registers while that image slept. A read
+of `bu_stage` taken while the core sleeps therefore cannot tell a correct
+read from a stale one for P2.5. From revision 4 every `read` value comes
+from the halted window, and P2.5-P2.6 and X1 run only after step 8 (§6).
+
 Obligations: AX-PR-T27-01-T27.02.b (with E3), AX-PR-T27-01-T27.01.a and
 T27.02.a (board marking needs visual inspection), AX-PR-T27-02-T27.03.a and
 .b, AX-PR-T27-03-T27.05.b and .c, AX-PR-T27-03-T27.07.b, AX-PR-T27-04-T27.08.b
@@ -427,6 +570,16 @@ record-physical: `PR-CAP-MCU-02 --unit U-CAP-MCU-02-03` (`target:
 | P3.3 | raw (`e3-starve`, 45 s, reset at 2 s) | cycles: windows 1-11 `feed=0`, >= 12 `feed=1` (CS_WAIT) `starving=1`, then `BOOT` with bit 29 = 1, bits 25/27/28/30 = 0, `ret=1`, `boots` +1; >= 3 cycles | no reset: IWDG not running (`start` != 0) |
 | P3.4 | derived (`analyze starvation`) | last fed `W` to next `BOOT`: [2.75, 7.75] s from (511+1) x 256 / f_LSI with f_LSI 17-47 kHz *[doc-check DS9484]*, -12 ms line print, +5 ms boot print; nominal 4.10 s; f_LSI = 131072 / interval with cycle-to-cycle spread | outside: LSI out of range, or IWDG frozen by a halt (none issued) |
 
+Dated note (2026-10-31, revision 4 after review; the row above is left as
+written because phase-2 data exist). P3.4's "(none issued)" held for the
+phase-2 run (revision 3, no halt) and is stale from revision 4 on.
+`capture e3-starve --reset-at 2` now runs one halted identity attach on
+the running image before the capture opens; the in-capture `reset run`
+does not halt. That halt falls before the capture and before the reset
+that starts the measured cycles, so no halt falls inside a measured
+interval. The attach after the capture (the next `flash`) halts the
+starving image after the capture has closed.
+
 Obligations: AX-PR-T30-05-T30.08.a and .b, AX-PR-T30-05-T30.08.c (the
 "at most 3 recovery attempts then safe state" policy is not implemented, so
 that aspect stays open), AX-PR-CAP-MCU-03-T31.10.c, AX-PR-T27-01-T27.02.b.
@@ -451,9 +604,120 @@ USART3 SR/DR after a Stop wake are recorded only. Not measurable: Stop or
 Sleep current and energy (T30.09.c stays open), wake latency below ~ms,
 regulator-mode effects.
 
+Dated note (2026-10-31, revision 4, written after the phase-2 clock
+captures existed; predictions above unchanged). As run in phase 2,
+`analyze ticks` fitted one line through every `T` line of a capture. Both
+captures start with lines that do not belong to the boot after the
+in-capture debugger reset: a backlog delivered in one read when the port
+opened (the core-rate image's n=89-104 at the start of the HCLK/8 capture)
+and ticks of a boot whose `T START` was not captured (n=5, 6 in the
+core-rate capture). Tick numbering restarts at each `T START`, so the fit
+mixed series; that gave the negative slope and the second-scale residuals.
+The corrected estimator (`tick_series`, `fit_ticks`) fits only the longest
+series opened by `T START` (closed by `BOOT`, `T START` or a non-increasing
+`n`) and counts the rest as unanchored. Its primary fit also leaves out the
+`T` lines printed right after a probe `E` line in the same tick
+(`bf_main.c` `run_clock`/`probe_sleep`); those arrive later by the `E`
+line's transmission time (about 104 bytes, 9 ms at 115200 8N1).
+`all_ticks_fit` keeps them. This exclusion rule, the series rule and the
+slope standard error were all defined after the phase-2 data were seen:
+none of them is pre-registered. CYCCNT deltas count as one period
+only for n >= 2 with `skipped=0`: tick 1 counts from the CYCCNT value
+before SysTick started. A delta is "after probe" only if a probe `E` line
+for that tick was received; the old rule used the parity of n.
+
+Dated note (2026-10-31, revision 4 after review): P4.3 and P4.6 as
+computed. Derived estimates by `fit_ticks` from the tracked raw captures
+(`phase2/runs/*-capture-e4-clock-core`, `*-capture-e4-clock-div8`), pinned
+by `test_tick_fit_on_the_phase2_captures`. The standard error is the
+ordinary least-squares slope error (residual variance over n - 2, divided
+by Sxx), scaled to Hz as f x SE(slope) / slope; it assumes independent
+residuals. `phase2/STATUS.md` is a phase-2 record and is not edited.
+
+| Capture | Fit | Ticks | f (Hz) | SE (Hz) | Residual RMS | Residual max |
+|---|---|---|---|---|---|---|
+| e4-clock-core, divider 1 | primary | 56 of 87 | 16 031 806.9 | 202.4 | 2.55 ms | 5.32 ms |
+| e4-clock-core, divider 1 | all ticks | 87 | 16 032 197.9 | 385.3 | 5.55 ms | 15.16 ms |
+| e4-clock-div8, divider 8 | primary | 12 of 20 | 16 029 242.0 | 440.3 | 4.45 ms | 6.81 ms |
+| e4-clock-div8, divider 8 | all ticks | 20 | 16 028 906.8 | 565.9 | 6.90 ms | 12.74 ms |
+
+Series: core 87 ticks from `T START`, 2 unanchored, 31 probe-delayed;
+div8 20 ticks, 16 unanchored, 8 probe-delayed.
+
+- **P4.3**: the core clock is inside [15.84, 16.16] MHz in both fits. The
+  "expected <= 3 ms" residual RMS is met only by the primary fit (2.55 ms
+  RMS, 5.32 ms max), whose exclusion of probe-delayed lines was chosen
+  after the data were seen. The all-ticks fit gives 5.55 ms RMS and
+  15.16 ms max and does not meet it.
+- **P4.6**: inside [15.84, 16.16] MHz in both fits, but "within 3 combined
+  standard errors of P4.3" **fails as computed**. The primary estimates
+  differ by 2 564.9 Hz, 5.29 combined standard errors
+  (sqrt(202.4^2 + 440.3^2) = 484.6 Hz); the all-ticks estimates by
+  3 291.1 Hz, 4.81 (684.6 Hz). The standard error was defined after the
+  data and assumes independent residuals, which host delivery delays need
+  not satisfy. The outcome is **not met (inconclusive about the cause)**:
+  correlated host-timing error, temperature drift between the runs and a
+  real difference are not separated. The estimator is not re-tuned to
+  change this outcome.
+
+This note covers the derived clauses of P4.3 and P4.6 only. For reference,
+the raw CYCCNT `d` fields of the fitted series (n >= 2, `skipped=0`) range
+over 15 999 999-16 000 001 at divider 1 and are all 128 000 000 at
+divider 8.
+
 Obligations: AX-PR-T30-05-T30.09.a, AX-PR-T30-05-T30.09.b, AX-PR-T30-04-T30.10.c
 and AX-PR-CAP-MCU-04-T30.10.c; AX-PR-T30-05-T30.09.c is **not** addressed.
 record-physical: `PR-CAP-MCU-04 --unit U-CAP-MCU-04-03` (`stm32f439`).
+
+### D1 System-bus reads while a bu-* image sleeps (phase 3, §6 step 8)
+
+Revision 4, written before any step-8 data. Phase 2 established three
+things. While bu-cold-cross ran, three unrelated System-bus registers read
+0x00000005. In the same attach, the PPB reads (DBGMCU) and the D-code reads
+(UID, flash size, a 1200-byte flash dump) were correct, and openocd reported
+no error. With bf-report running (no WFI, no MPU), the same reads were
+correct. The bus taken by each address is the Cortex-M4 address map:
+D-code below 0x20000000 (flash, system memory, CCM), System bus from
+0x20000000 (SRAM, peripherals), PPB at 0xE0000000-0xE00FFFFF *[doc-check
+Cortex-M4 TRM]*. Hypotheses, none established:
+
+- **H1**: debug reads on the System bus return stale data while the core
+  sleeps in WFI. Their value 5 equals the core's last System-bus data
+  before the WFI loop (§5 E2 note). DBGMCU_CR read 0x7 in that attach.
+  DBG_SLEEP should therefore have kept HCLK running in Sleep *[doc-check
+  RM0090 DBGMCU_CR]*, and no inspected document explains this mechanism.
+  DBGMCU_CR has read 0x3 since the end of phase 2 (bf-stop-debug wrote
+  0x2, the park image set bit 0; final `probe`, `phase2/runs/*-probe` at
+  17:56 UTC), not 0x7 as at the phase-2 bu-cold-cross attach, and only a
+  power-on reset clears it *[doc-check]*. Step 8 therefore runs with
+  DBG_STANDBY (bit 2) clear. No image enters Standby, so that bit should
+  not matter *[doc-check RM0090]*. It is still a difference from the
+  phase-2 condition and a competing explanation if step 8 does not
+  reproduce the phase-2 reads. Step 1's `probe` records the value.
+- **H1b**: as H1, but only on the peripheral path (AHB1/APB), with SRAM
+  read correctly.
+- **H2**: the MPU or the privilege of the debug access. The MPU should not
+  check debugger accesses *[doc-check Armv7-M]*. An unprivileged access
+  outside every region would fault, and would do so for the flash and
+  system-memory reads too, which were correct. A faulting AP access returns
+  an error, not data. Unlikely, not excluded.
+- **H3**: the ST-LINK V2 (API v2) / hla path for reads while the core runs.
+  The correct reads with bf-report running and the correct PPB reads
+  interleaved with the wrong ones argue against it.
+
+| ID | Kind | Prediction | Competing explanation |
+|---|---|---|---|
+| P8.1 | raw (`flash bu-cold-cross`) | completes. Its `identity_after` comes from the halted window: FLASH_OPTCR `0x0FFFAAED`, FLASH_OPTCR1 equal to the baseline, the three registers pairwise different. `dhcsr.halted` and `before_resume` show S_HALT; `after_resume` does not (S_SLEEP, bit 18, recorded) | refused with halted values alike: halting does not restore the reads (H2 or H3). Stop, run `recover`; the bu-* steps stay deferred |
+| P8.2 | raw (`read bu-cold-cross --also-running`, halted `blocks`) | `bu_stage` 0x00000005, `bu_data` 0x12345678, `bu_bank` 0x87654321, vectors `0x20010000 0x080001ad`. FLASH_OPTCR, FLASH_OPTCR1 and RCC_CSR are each read twice in the window (identity read, then `--register`); `blocks` keeps both in output order, but `read_words` returns only the first, so both copies are compared (in `blocks`, or as the raw `0x40023c14:`, `0x40023c18:` and `0x40023874:` lines of the step's stderr between the DHCSR read after `halt` and the one before `resume`, the second and third DHCSR lines with `--also-running`): each pair equal, FLASH_OPTCR and FLASH_OPTCR1 as in P8.1. RCC_CR and PWR_CR equal the control's halted values (P8.4) | a difference, including between the two copies: halted reads are also unreliable for this image |
+| P8.3 | raw (`running_before_blocks`, `running_after_blocks`) | no direction predicted. Outcome per hypothesis: H1: running DHCSR has S_SLEEP; FLASH_OPTCR, FLASH_OPTCR1, RCC_CSR, RCC_CR, PWR_CR and `bu_data` read one value (0x00000005 if it is the core's last System-bus data); `bu_bank`, the vectors and DBGMCU_CR read correctly. H1b: as H1 with `bu_data` correct. H2: running equals halted, both wrong (P8.1 already refused). H3: the control (P8.4) is wrong too | running DHCSR without S_SLEEP: the core was awake at that read, so H1 is not tested (inconclusive) |
+| P8.4 | raw (control: `read bf-report-115200 --also-running`, no WFI, no MPU) | running equals halted for FLASH_OPTCR, FLASH_OPTCR1, RCC_CR, PWR_CR, `data_canary` (0x5AA5C33C, `bf_hw.c`, only ever read) and the vectors; RCC_CSR and DBGMCU_CR recorded; running DHCSR without S_HALT | a difference: running reads fail without WFI or MPU (H3) |
+| P8.5 | raw (§6 step 4, `read bu-watchdog-cross --also-running`; MPU enabled, no WFI; its loop writes 0xAAAA to IWDG_KR) | under H1: running equals halted | running System-bus reads alike (for example 0x0000AAAA): the artefact needs no sleep (H2) |
+
+The step itself writes nothing new: two more programmings of sector 0
+(bu-cold-cross, then the park image), reads, and the halt bracket's debug
+register writes (§2 Finding 2). It does not establish the mechanism inside
+the ST-LINK, the core or the bus matrix; it separates sleep, MPU and probe
+path at the level of what a debugger reads.
 
 ### Safety-layer logs as observations
 
@@ -471,8 +735,9 @@ unclassified items. Satisfiable by these images (physical dimension, partial)
 and folded in above: T27.01.a, T27.02.a/b/c, T27.03.a/b, T27.05.b/c,
 T27.07.b, T27.08.b/c, T27.09.a/c, T27.10.a/b/c, T28.03.a/b, T28.05.a,
 T30.10.c, T31.01.a/b/c, T31.10.c, CAP-MCU-02 T27.10.b/T31.08.b, CAP-MCU-04
-T30.10.c. Need a separately reviewed procedure (halting and watchpoints are
-denylisted): AX-PR-T31-01-T31.02.b, AX-PR-T31-03-T31.06.c,
+T30.10.c. Need a separately reviewed procedure (halting outside the
+identity bracket and watchpoints are denylisted): AX-PR-T31-01-T31.02.b,
+AX-PR-T31-03-T31.06.c,
 AX-PR-T29-01-T29.01.a-c. Not satisfiable without instruments or peers:
 T28.06.c, T29.10.b, T30.09.c, T31.05.c. Not addressed: AX-PR-T29-04-T29.08.b,
 AX-PR-T38-01-T38.01.b.
@@ -502,6 +767,16 @@ $B selfcheck-openocd           # openocd parses config, no init; both markers em
 # 1  identity and pre-state
 $B probe                       # P2.0; st-info --probe --hot-plug + openocd reads;
                                # records FLASH_OPTCR1 in build/f439/probe-baseline.json
+# Revision 4 precondition: run.json identity.dbgmcu_apb1_fz must still be
+# 0x00001800 (6144 as JSON prints it; DBG_IWDG_STOP, DBG_WWDG_STOP; 0x1800
+# in every phase-2 attach).
+# It reads 0x0 after a power-on reset [doc-check RM0090], no image sets it,
+# and this tool cannot (memory writes denylisted, examine-end emptied).
+# Without it the IWDG keeps counting while an attach halts the core. If it
+# is not 0x1800: record the value, do not flash or attach to any watchdog
+# image (bf-iwdg-fed, bf-iwdg-starve, bu-watchdog-cross: step 4 and the
+# deferred bu-watchdog-cross), run the other steps, and report; E3 then
+# needs a reviewed decision.
 $B dump-flash                  # optional: first 16 KiB of the existing firmware, never re-flashed
 
 # 2  E1. The first park programming uses `recover`, so its first use is on a
@@ -527,6 +802,8 @@ $B flash bf-report-115200      # also sets DBG_SLEEP for the bu-* WFI loops belo
 $B capture e2-program-reset --seconds 6 --max-bytes 65536
 $B capture e2-debugger-reset --seconds 12 --max-bytes 65536 --reset-at 2
 $B capture e2-software-reset --seconds 10 --max-bytes 65536 --send 2.0:10 --send 2.2:53
+# bu-* commands below: deferred in phase 2; run after step 8 only if P8.1
+# and P8.2 hold (their reads now come from the halted window)
 $B flash bu-cold-cross
 $B read bu-cold-cross --symbol bu_stage --symbol bu_reset_flags --symbol bu_retained \
    --vectors 107 --register SCB_VTOR --register RCC_CSR
@@ -538,10 +815,12 @@ $B read bu-guard-cross --symbol bu_stage --register SCB_CFSR --register SCB_MMFA
 
 # 4  E3
 $B flash bf-report-115200      # clears sticky flags; DBG_SLEEP stays set
-$B flash bu-watchdog-cross
+$B flash bu-watchdog-cross     # deferred with the other bu-* (after step 8)
 sleep 20
-$B read bu-watchdog-cross --symbol bu_stage --symbol bu_reset_flags --symbol bu_retained \
+$B read bu-watchdog-cross --also-running \
+   --symbol bu_stage --symbol bu_reset_flags --symbol bu_retained \
    --register RCC_CSR --register IWDG_SR --register DBGMCU_APB1_FZ --register DBGMCU_CR
+                               # --also-running: P8.5 (revision 4)
 $B flash bf-iwdg-fed
 $B capture e3-fed --seconds 70 --max-bytes 1048576 --reset-at 2
 $B flash bf-iwdg-starve
@@ -582,10 +861,25 @@ $B probe                       # identity, FLASH_OPTCR 0x0FFFAAED, FLASH_OPTCR1 
 #   unplug CN1 USB >= 5 s, replug, wait for
 #   /dev/serial/by-id/usb-STMicroelectronics_STM32_STLink_0669FF485753667187124334-if02, then:
 #   $B capture e2-power-on --seconds 8 --max-bytes 65536 && $B probe
+
+# 8  phase 3 (revision 4): run only after review of the revision-4 change,
+#    after the orchestrator has committed it, and with the user's go-ahead
+#    for hardware. Order: 0, 1, 8, then the deferred bu-* commands of 3 and
+#    4, then 6. Section 5 D1, P8.1-P8.4. A refused post-program identity in
+#    the first command is P8.1's answer: stop, go to section 7.
+R="--register FLASH_OPTCR --register FLASH_OPTCR1 --register RCC_CSR \
+   --register RCC_CR --register PWR_CR --register DBGMCU_CR --vectors 2"
+$B flash bu-cold-cross         # P8.1; both identity attaches halted
+$B read bu-cold-cross --also-running $R \
+   --symbol bu_stage --symbol bu_data --symbol bu_bank   # P8.2, P8.3
+$B park                        # its first identity meets bu-cold-cross asleep
+$B read bf-report-115200 --also-running $R --symbol data_canary   # P8.4
 ```
 
 About 30 minutes, 15 program cycles (one of them by `recover` in step 2),
-all of sector 0. Raw run directories stay
+all of sector 0. Step 8 adds two (bu-cold-cross, park); the deferred bu-*
+commands of steps 3 and 4 need their own programmings when they run.
+Raw run directories stay
 under `build/f439/runs/`; the orchestrator decides what to copy into this
 packet. Every capture records its ModemManager journal window; an entry inside
 a window is reported with that capture.
@@ -608,6 +902,12 @@ a window is reported with that capture.
   the Stop images are awake before DLE `G` and after their 10 cycles.
 - `recover` fails: stop; removing USB power is the operator's last resort,
   then `$B probe` and `$B park`.
+- Revision 4: a refused or failed halt-bracket attach may leave the core
+  halted. openocd likely stops at the first failing `-c` command, before
+  `resume` (openocd's error handling not inspected), and the refusal
+  follows the attach. The next attach's bracket resumes the core, and
+  `recover` resets it. A halted core is a known, attachable state; it is
+  not an emergency.
 - No image or command writes the backup domain (RTC, RCC_BDCR) or option
   bytes.
 
@@ -651,6 +951,23 @@ a window is reported with that capture.
     not). Another local user can pre-create
     `/run/lock/cmastery-f439.lock`; every session then refuses until the
     file is removed or the host reboots (availability, not safety).
+12. **Revision 4, halt bracket.** Every identity attach now stops the core
+    for the duration of its reads; in phase 2 a whole identity attach took
+    0.13-0.15 s. While the core is halted, peripherals keep running.
+    IWDG and WWDG freeze only if DBGMCU_APB1_FZ has DBG_IWDG_STOP and
+    DBG_WWDG_STOP: 0x1800 since the identity probe, 0x0 after a power-on
+    reset *[doc-check RM0090]*; §6 step 1 checks it before any watchdog
+    image is halted. Without the freeze a starving image could reset
+    during the halt. The DHCSR read before `resume` would then show
+    S_RESET_ST, or lack S_HALT if the core ran on after the reset, and the
+    attach refuses (§3 item 7). CYCCNT and SysTick behaviour in debug halt is
+    *[doc-check Armv7-M]*. No capture is open during an identity attach:
+    the identity before an in-capture reset precedes the capture.
+    `resume` without an address continues where the core stopped; the
+    images contain no `bkpt`, so nothing should halt it again, and the
+    third DHCSR read checks that. The mechanism of the phase-2 artefact is
+    open (§5 D1). If halted reads are also wrong (P8.1 refused), the bu-*
+    steps stay deferred.
 
 ## 9. Document checks before phase 2
 
@@ -671,7 +988,31 @@ receipt and the reused assessor sources. Added in revision 3: hier(7)
 flock(2) (locks belong to the open file description), proc_sys_fs(5)
 (`protected_regular`), and `assessor/board_f439/bf_main.c`
 (`probe_command`, `run_clock`: a repeated `Q` changes nothing and prints
-nothing).
+nothing). Added in revision 4: openocd.info `halt [ms]`/`wait_halt`,
+`resume [address]` (General Commands), `mdw`, `$dap_name apcsw` (the CSW
+pattern; "sets HPROT1 bit (required by Cortex-M)"), and the `hla` and
+`st-link` driver sections (hla hides the lower-level DAP access, so openocd
+cannot set CSW/HPROT for these reads; the attach log reports "API v2" and
+"The selected transport took over low-level target control");
+`interface/stlink.cfg` (`adapter driver hla`); `target/stm32f4x.cfg`
+(examine-end comment "Enable debug during low power modes"; `using_hla`
+skips `cortex_m reset_config sysresetreq`); arm-none-eabi-objdump of the
+phase-2 bu-cold-cross ELF (last data accesses before the WFI loop: `str`
+at 0x08000246 and `ldr` at 0x0800045e, both of `bu_stage` = 5);
+`assessor/bringup_depth/target/{reset.S,guest.c}` (MPU region and
+MPU_CTRL = 5, `cpsid i` before the WFI loop, no SysTick start);
+`assessor/board_f439/bf_hw.c` (`data_canary`, DEMCR.TRCENA only);
+`bf_main.c` `run_clock`/`probe_sleep` (the `E` line precedes the `T` line
+of the same tick); the phase-2 raw files under `phase2/runs/`. Added after
+the review of revision 4: `strings /usr/bin/openocd` (log prefixes
+`Error: `, `Warn : `, `Info : `; halt report formats `[%s] halted due to
+%s, current mode: %s %s` and `xPSR: %#8.8x pc: %#8.8x %csp: %#8.8x%s%s`;
+where openocd prints them was not observed);
+`phase2/runs/*-program-bu-cold-cross/00-identity.stderr` (the `STLINK
+V2J39M27` and `Target voltage` lines precede the output of the first `-c`
+read); the final `phase2/runs/*-probe` (DBGMCU_CR 0x3, APB1_FZ 0x1800);
+every source `image_sources` lists for the twelve images (DBGMCU_APB1_FZ
+is only read, `bf_main.c`; nothing writes it).
 
 Unavailable, therefore every dependent fact is unconfirmed and must be
 re-inspected before execution:
@@ -689,3 +1030,20 @@ re-inspected before execution:
 - PM0214 / Armv7-M Architecture Reference Manual: event register and WFE
   wake conditions, DWT CYCCNT in sleep, debug register effects of an attach.
 - ES0206: errata touching IWDG, Stop or debug for REV_ID 0x2003.
+- Revision 4: Armv7-M ARM, DHCSR bit layout (C_DEBUGEN 0, C_HALT 1,
+  S_HALT 17, S_SLEEP 18) and its read side effects; whether DAP accesses
+  are checked by the MPU; debug access while the core sleeps; CYCCNT and
+  SysTick in debug halt. Cortex-M4 TRM: bus interface per address range,
+  HCLK/FCLK gating in sleep. RM0090: DBGMCU_CR DBG_SLEEP semantics;
+  FLASH_OPTCR/OPTCR1 reset values, option loading at reset release and
+  reserved bits; RCC_CSR reserved bits; AHB bus matrix; RCC_AHB1LPENR
+  reset value; CCM reachable by the D-bus only. openocd 0.12 hla and
+  st-link source: register writes of `halt` and `resume`, and error
+  handling of `-c` commands. ST-LINK V2J39 firmware: CSW/HPROT of its
+  memory accesses (closed).
+- After the review of revision 4: Armv7-M ARM, DHCSR S_RESET_ST (bit 25,
+  set by a reset, cleared by a DHCSR read). openocd 0.12 hla
+  `adapter_debug_entry`, `adapter_resume` and `adapter_poll`: register
+  transfers through DCRSR, the xPSR write-back, the 16-bit read at PC, and
+  whether openocd reads DHCSR itself between two `-c` commands. RM0090:
+  DBGMCU_APB1_FZ reset by power-on only, DBG_STANDBY.

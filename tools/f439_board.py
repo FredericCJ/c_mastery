@@ -22,22 +22,35 @@ session is able to do. It enforces, in this order:
    the pinned adapter serial, disabled gdb/telnet/tcl servers and empty
    examine-end/reset-init handlers;
 5. a command allowlist plus an independent denylist on every argv (no option,
-   lock, unlock, protect, RDP/WRP/BOR, OTP, erase, memory writes, halting,
-   register writes or probe-firmware tools; reads only from main flash,
-   allowlisted registers and ELF symbols in RAM);
-6. identity (read-only openocd attach; st-info --probe --hot-plug only in the
-   `probe` action); programming of a re-hashed session copy; an independent
-   flash readback compared in Python with the bytes the offline gate hashed;
-   FLASH_OPTCR equal to the identity receipt and FLASH_OPTCR1 unchanged
-   (across a flash, and against the baseline the first `probe` recorded for
-   `probe` and `recover`);
+   lock, unlock, protect, RDP/WRP/BOR, OTP, erase, memory writes, halting
+   outside the one reviewed halt bracket, register writes or probe-firmware
+   tools; reads only from main flash, allowlisted registers and ELF symbols
+   in RAM);
+6. identity (openocd attach that reads only while the core is halted:
+   `halt`, a DHCSR read, the identity reads, a DHCSR read, `resume`, a DHCSR
+   read; st-info --probe --hot-plug only in the `probe` action), refused
+   unless both halted DHCSR reads show the halt, the one before `resume`
+   shows no reset since the halted read (S_RESET_ST), the last shows the
+   core running, openocd printed no `Error:` line, every identity read is
+   present and three unrelated System-bus registers do not read alike
+   (register values from the halted window only; the ST-LINK version and
+   target voltage from the `init` output before it); programming of a
+   re-hashed session copy; an
+   independent flash readback compared in Python with the bytes the offline
+   gate hashed; FLASH_OPTCR equal to the identity receipt and FLASH_OPTCR1
+   unchanged (across a flash, and against the baseline the first `probe`
+   recorded for `probe` and `recover`);
 7. bounded execution: timeouts, process groups terminated before the lock is
    released, byte and time bounds on captures, exclusive and unshared ports;
 8. a raw log per step (argv, working directory, environment keys, stdout,
    stderr, SHA-256) and a SHA256SUMS file per session.
 
 An attach is not free of side effects: the debug-port setup itself writes
-Cortex-M debug registers and `reset run` resets the target; see PLAN.md.
+Cortex-M debug registers, the halt bracket writes DHCSR (and, through
+openocd's hla target, recalled and not inspected: DEMCR, DCRDR, core
+register transfers through DCRSR, a value-preserving xPSR write on resume
+and a 16-bit read of the instruction at PC) and `reset run` resets the
+target; see PLAN.md.
 
 Run `python3 tools/f439_board.py --help`. Tests: tools/test_f439_board.py.
 Phase-2 procedure and predictions: reviews/v5/expansion/polish_revision/
@@ -523,6 +536,24 @@ IDENTITY_READS = ["mdw 0xe0042000", "mdw 0x1fff7a10 3", "mdh 0x1fff7a22",
                   "mdw 0x40023c14", "mdw 0x40023c18", "mdw 0xe0042004",
                   "mdw 0xe0042008", "mdw 0x40023874"]
 IDCODE_READ = "mdw 0xe0042000"
+# Halt bracket (revision 4). Phase 2 read 0x00000005 at FLASH_OPTCR,
+# FLASH_OPTCR1 and RCC_CSR alike while bu-cold-cross slept in WFI, and
+# correct debug-domain and flash values in the same attach. Identity reads
+# therefore happen only while the core is halted: openocd `halt` (send the
+# request, wait up to 5 s for the halt) and `resume` (continue at the
+# current position), both without arguments (openocd.info, "General
+# Commands"). DHCSR is read right after `halt`, right before `resume` and
+# right after it; bits per the Armv7-M DHCSR layout (recalled, not
+# inspected): 0 C_DEBUGEN, 17 S_HALT, 18 S_SLEEP, 25 S_RESET_ST (sticky,
+# cleared by a DHCSR read).
+HALT, RESUME = "halt", "resume"
+DHCSR = 0xE000EDF0
+DHCSR_READ = "mdw 0x%08x" % DHCSR
+DHCSR_C_DEBUGEN, DHCSR_S_HALT = 1 << 0, 1 << 17
+DHCSR_S_RESET_ST = 1 << 25
+# One token per command: i init, h halt, r resume, s shutdown, D DHCSR read,
+# m other mdw/mdh read, d dump_image, x anything else.
+BRACKET_TEMPLATE = r"i[mD]*hD[mDd]*DrD[mD]*s"
 
 
 def _check_read(command, approved_reads):
@@ -531,7 +562,7 @@ def _check_read(command, approved_reads):
                          command)
     if not match:
         return False
-    if command in IDENTITY_READS:
+    if command in IDENTITY_READS or command == DHCSR_READ:
         return True
     width = 4 if match[1] == "mdw" else 2
     count, address = int(match[3] or 1), int(match[2], 16)
@@ -557,8 +588,11 @@ def _inside(path, run_dir):
 
 
 def _check_openocd_command(command, approved_elf, run_dir, approved_reads):
+    # `halt` and `resume` pass here only as exact words; _check_bracket
+    # decides where they may stand.
     if command in SELF_CHECK or command in (
-            "init", "shutdown", "reset run", CONNECT_UNDER_RESET):
+            "init", "shutdown", "reset run", CONNECT_UNDER_RESET, HALT,
+            RESUME):
         return
     if _check_read(command, approved_reads):
         return
@@ -589,13 +623,47 @@ def denylisted(text):
     return None
 
 
+def _bracket_exempt(argv):
+    """argv indices of the one `-c halt` / `-c resume` pair standing where
+    the halt bracket puts them (halt then a DHCSR read; a DHCSR read, resume,
+    a DHCSR read), else (). Only these two exact elements are kept out of
+    the denylist scan; check_command then validates the whole bracket."""
+    found = [i for i, a in enumerate(argv) if a in (HALT, RESUME)]
+    if [argv[i] for i in found] != [HALT, RESUME]:
+        return ()
+    halt, resume = found
+    if argv[halt - 1] != "-c" or argv[resume - 1] != "-c":
+        return ()
+    if argv[halt + 1:halt + 3] != ["-c", DHCSR_READ] or \
+            argv[resume - 2:resume] != [DHCSR_READ, "-c"] or \
+            argv[resume + 1:resume + 3] != ["-c", DHCSR_READ]:
+        return ()
+    return (halt, resume)
+
+
+def _check_bracket(body):
+    """The only reviewed use of halt and resume: init, reads, halt, DHCSR,
+    reads or flash dumps, DHCSR, resume, DHCSR, reads, shutdown. Nothing
+    else (no reset, no programming, no second halt) may share the attach."""
+    tokens = "".join(
+        "i" if c == "init" else "h" if c == HALT else "r" if c == RESUME
+        else "s" if c == "shutdown" else "D" if c == DHCSR_READ
+        else "m" if c.startswith(("mdw ", "mdh ")) else "d"
+        if c.startswith("dump_image ") else "x" for c in body)
+    if not re.fullmatch(BRACKET_TEMPLATE, tokens):
+        raise PolicyError("halt and resume only as the reviewed bracket: "
+                          "init, reads, halt, DHCSR, reads, DHCSR, resume, "
+                          "DHCSR, reads, shutdown")
+
+
 def check_command(argv, *, approved_elf=None, serial=None, run_dir=None,
                   approved_reads=()):
     """Raise PolicyError unless argv is one of the reviewed command forms."""
     if not argv or not all(isinstance(a, str) for a in argv):
         raise PolicyError("empty or non-text argv")
     require_serial(serial)
-    joined = " ".join(argv)
+    exempt = _bracket_exempt(argv)
+    joined = " ".join(a for i, a in enumerate(argv) if i not in exempt)
     pattern = denylisted(joined)
     if pattern:
         raise PolicyError("denylisted pattern %r in: %s" % (pattern, joined))
@@ -622,6 +690,8 @@ def check_command(argv, *, approved_elf=None, serial=None, run_dir=None,
     for command in body:
         _check_openocd_command(command, approved_elf, run_dir,
                                approved_reads)
+    if HALT in body or RESUME in body:
+        _check_bracket(body)
     if body[:1] == [CONNECT_UNDER_RESET]:
         body = body[1:]
     if CONNECT_UNDER_RESET in body:
@@ -651,9 +721,19 @@ def _with_commands(argv, commands):
     return argv
 
 
-def openocd_identity_command(serial, extra=()):
-    return _with_commands(openocd_base(serial),
-                          ["init", *IDENTITY_READS, *extra, "shutdown"])
+def halt_bracket(reads):
+    """halt, DHCSR, reads, DHCSR, resume, DHCSR."""
+    return [HALT, DHCSR_READ, *reads, DHCSR_READ, RESUME, DHCSR_READ]
+
+
+def openocd_identity_command(serial, extra=(), running=()):
+    """The identity reads and `extra` inside the halt bracket. `running`
+    reads (diagnostic only) are repeated with the core running: after a
+    DHCSR read before the halt, and after the resume."""
+    before = [DHCSR_READ, *running] if running else []
+    return _with_commands(openocd_base(serial), [
+        "init", *before, *halt_bracket([*IDENTITY_READS, *extra]), *running,
+        "shutdown"])
 
 
 def openocd_idcode_command(serial):
@@ -1094,12 +1174,16 @@ def _first(values):
     return values[0] if values else None
 
 
-def identity_from_outputs(st_info_text, openocd_text):
+def identity_from_outputs(st_info_text, openocd_text, init_text=None):
+    """Register values only from openocd_text (the halted window). The
+    ST-LINK version and target voltage, which openocd prints at `init`
+    before any halt, from init_text (default: openocd_text)."""
     st = parse_st_info(st_info_text)
     blocks = parse_openocd_reads(openocd_text)
     idcode = _first(read_words(blocks, 0xE0042000, 1))
-    version = re.search(r"STLINK (V\S+)", openocd_text)
-    voltage = re.search(r"Target voltage: ([0-9.]+)", openocd_text)
+    init_text = openocd_text if init_text is None else init_text
+    version = re.search(r"STLINK (V\S+)", init_text)
+    voltage = re.search(r"Target voltage: ([0-9.]+)", init_text)
     return dict(programmers=st["programmers"], stlink_serial=st["serial"],
                 st_info_version=st["version"], st_info_chipid=st["chipid"],
                 st_info_flash_bytes=st["flash_bytes"],
@@ -1159,6 +1243,89 @@ def identity_mismatches(observed, expected, check_probe=True):
     compare("flash size KiB", observed["flash_kib"], expected["flash_kib"])
     compare("FLASH_OPTCR", observed["optcr"], expected["optcr"], hexs)
     return problems
+
+
+DHCSR_LINE = re.compile(r"^0x%08x: ([0-9a-f]{8})\s*$" % DHCSR, re.MULTILINE)
+
+
+def halted_window(text, argv):
+    """Split openocd output at its DHCSR read lines, using the command list
+    to know which of them follows `halt`, precedes `resume` and follows
+    `resume`. Returns the halted window (the only text identity values come
+    from), the running text before and after it, and the three DHCSR
+    values. Raises PolicyError unless every DHCSR read issued is printed."""
+    commands = [argv[i + 1] for i in range(len(argv) - 1) if argv[i] == "-c"]
+    reads = [i for i, c in enumerate(commands) if c == DHCSR_READ]
+    try:
+        halt, resume = commands.index(HALT), commands.index(RESUME)
+        first, last, after = (reads.index(halt + 1), reads.index(resume - 1),
+                              reads.index(resume + 1))
+    except ValueError:
+        raise PolicyError("identity attach without the halt bracket") \
+            from None
+    lines = list(DHCSR_LINE.finditer(text))
+    if len(lines) != len(reads):
+        raise PolicyError("halt bracket not confirmed: %d DHCSR reads issued, "
+                          "%d printed" % (len(reads), len(lines)))
+    value = [int(match[1], 16) for match in lines]
+    return dict(window=text[lines[first].end():lines[last].start()],
+                before=text[:lines[first].start()],
+                after=text[lines[after].end():],
+                dhcsr=dict(halted=value[first], before_resume=value[last],
+                           after_resume=value[after]))
+
+
+def halt_problems(dhcsr):
+    """Both halted DHCSR reads must show C_DEBUGEN and S_HALT; the read
+    before `resume` must not show S_RESET_ST (sticky, cleared by every
+    DHCSR read, so set there it means a reset after the halted read: inside
+    the window); the read after `resume` must not show S_HALT (the core
+    runs again). S_RESET_ST in the first halted read reports a reset before
+    the halt (for example the `program` step's) and is accepted."""
+    problems = []
+    for key in ("halted", "before_resume"):
+        if not dhcsr[key] & DHCSR_C_DEBUGEN:
+            problems.append("DHCSR %s 0x%08x: C_DEBUGEN clear"
+                            % (key, dhcsr[key]))
+        if not dhcsr[key] & DHCSR_S_HALT:
+            problems.append("DHCSR %s 0x%08x: core not halted"
+                            % (key, dhcsr[key]))
+    if dhcsr["before_resume"] & DHCSR_S_RESET_ST:
+        problems.append("DHCSR before resume 0x%08x: S_RESET_ST, a reset "
+                        "inside the halted window" % dhcsr["before_resume"])
+    if dhcsr["after_resume"] & DHCSR_S_HALT:
+        problems.append("DHCSR after resume 0x%08x: core still halted"
+                        % dhcsr["after_resume"])
+    return problems
+
+
+def implausible_reads(observed):
+    """Equal values at FLASH_OPTCR, FLASH_OPTCR1 and RCC_CSR are a read
+    artefact, never a state (phase 2 read 0x00000005 at all three): an
+    accepted FLASH_OPTCR (0x0FFFAAED) sets bits that are reserved in the
+    other two [doc-check RM0090 register maps]."""
+    named = [("FLASH_OPTCR", observed["optcr"]),
+             ("FLASH_OPTCR1", observed["optcr1"]),
+             ("RCC_CSR", observed["rcc_csr"])]
+    values = [value for _, value in named if value is not None]
+    if len(set(values)) < len(values):
+        return ["identical values at unrelated registers: " + ", ".join(
+            "%s %s" % (name, _hex32(value)) for name, value in named)]
+    return []
+
+
+IDENTITY_FIELDS = (("DBGMCU_IDCODE", "idcode"), ("UID", "uid"),
+                   ("flash size", "flash_kib"), ("FLASH_OPTCR", "optcr"),
+                   ("FLASH_OPTCR1", "optcr1"), ("DBGMCU_CR", "dbgmcu_cr"),
+                   ("DBGMCU_APB1_FZ", "dbgmcu_apb1_fz"),
+                   ("RCC_CSR", "rcc_csr"))
+
+
+def missing_identity_reads(observed):
+    missing = [name for name, key in IDENTITY_FIELDS
+               if observed.get(key) is None]
+    return ["identity reads missing from the halted window: " +
+            ", ".join(missing)] if missing else []
 
 
 # --------------------------------------------------------------------------
@@ -1590,29 +1757,49 @@ class Board:
             if session.status == "started":
                 session.finish("completed")
 
-    def _identity(self, session, extra=(), probe=False, approved_reads=()):
-        """One read-only openocd attach (and st-info --hot-plug if probe).
-        Nothing is written to target RAM or peripherals by these commands;
-        the attach itself still programs debug registers (see PLAN.md)."""
+    def _identity(self, session, extra=(), probe=False, approved_reads=(),
+                  running=()):
+        """One openocd attach that reads the identity and `extra` only while
+        the core is halted (and st-info --hot-plug if probe). Nothing is
+        written to target RAM or peripherals by these commands; the attach
+        and the halt bracket still write debug registers (see PLAN.md).
+        Returns the identity and the split output (halted window, running
+        text before and after, DHCSR values)."""
         probed = session.run([ST_INFO, "--probe", "--hot-plug"],
                              timeout_s=TIMEOUT_ST_INFO,
                              label="st-info-probe") if probe else None
-        read = session.run(openocd_identity_command(self.serial, extra),
-                           timeout_s=TIMEOUT_DUMP if any(
+        argv = openocd_identity_command(self.serial, extra, running)
+        read = session.run(argv, timeout_s=TIMEOUT_DUMP if any(
                                e.startswith("dump_image") for e in extra)
                            else TIMEOUT_OPENOCD, label="identity",
                            approved_reads=approved_reads)
         if self.dry_run:
             return None, None
+        text, problems = session.text(read), []
+        try:
+            bracket = halted_window(text, argv)
+            problems += halt_problems(bracket["dhcsr"])
+        except PolicyError as error:
+            # Values are still parsed (whole output) for the record only.
+            bracket = dict(window=text, before=text, after="", dhcsr=None)
+            problems.append(str(error))
+        errors = [line.strip() for line in text.splitlines()
+                  if "Error:" in line]
+        if errors:
+            problems.append("openocd reported an error: " + errors[0])
         observed = identity_from_outputs(
-            session.text(probed) if probed else "", session.text(read))
-        problems = identity_mismatches(observed, self.expected,
-                                       check_probe=probe)
+            session.text(probed) if probed else "", bracket["window"],
+            init_text=bracket["before"])
+        observed["dhcsr"] = bracket["dhcsr"]
+        problems += missing_identity_reads(observed)
+        problems += identity_mismatches(observed, self.expected,
+                                        check_probe=probe)
+        problems += implausible_reads(observed)
         if read["timed_out"] or read["returncode"] != 0:
             problems.append("openocd identity read failed")
         if problems:
             raise PolicyError("identity mismatch: " + "; ".join(problems))
-        return observed, session.text(read)
+        return observed, bracket
 
     def offline_gate(self, name, image_dir):
         image_dir = Path(image_dir)
@@ -1776,10 +1963,14 @@ class Board:
                            optcr1_baseline=baseline)
             return dict(run_dir=str(session.dir), planned=session.planned)
 
-    def read(self, name, image_dir, symbols=(), registers=(), vectors=0):
-        """SWD reads without reset or halt: allowlisted registers, ELF
-        symbols in RAM or flash, and optionally N vector words compared
-        with the ELF."""
+    def read(self, name, image_dir, symbols=(), registers=(), vectors=0,
+             also_running=False):
+        """SWD reads without reset, inside the identity's halt bracket:
+        allowlisted registers, ELF symbols in RAM or flash, and optionally
+        N vector words compared with the ELF. also_running (phase-3
+        diagnostic) repeats the same reads with the core running, before
+        the halt and after the resume; those values are recorded raw and
+        never used."""
         image = parse_elf((Path(image_dir) / "image.elf").read_bytes())
         reads, approved = [], []
         if vectors:
@@ -1802,9 +1993,11 @@ class Board:
                                   + register)
             reads.append("mdw 0x%08x" % READ_REGISTERS[register])
         with self.session("read", name) as session:
-            observed, text = self._identity(session, extra=reads,
-                                            approved_reads=approved)
-            blocks = parse_openocd_reads(text or "")
+            observed, bracket = self._identity(
+                session, extra=reads, approved_reads=approved,
+                running=reads if also_running else ())
+            bracket = bracket or dict(window="", before="", after="")
+            blocks = parse_openocd_reads(bracket["window"])
             match = None
             if vectors and not self.dry_run:
                 expected = image.read_flash(MAIN_FLASH.start, 4 * vectors)
@@ -1812,9 +2005,13 @@ class Board:
                 match = (expected is not None and seen is not None and
                          list(struct.unpack("<%dI" % vectors, expected)) ==
                          seen)
+            running = dict(
+                running_before_blocks=parse_openocd_reads(bracket["before"]),
+                running_after_blocks=parse_openocd_reads(bracket["after"])
+            ) if also_running else {}
             session.finish("completed", image=name, symbols=list(symbols),
                            registers=list(registers), identity=observed,
-                           blocks=blocks, vectors_match_elf=match)
+                           blocks=blocks, vectors_match_elf=match, **running)
             return dict(run_dir=str(session.dir), planned=session.planned)
 
     def reset_run(self):
@@ -1930,8 +2127,10 @@ class Board:
 
 
 # --------------------------------------------------------------------------
-# Pre-registered analysis. Every result is a derived estimate computed from
-# the raw capture; it never replaces the raw bytes and their timestamps.
+# Analysis. Every result is a derived estimate computed from the raw
+# capture; it never replaces the raw bytes and their timestamps. Defined
+# before phase 2, except tick_series/fit_ticks (revision 4, defined after
+# the phase-2 clock captures were seen).
 # --------------------------------------------------------------------------
 FIELD = re.compile(r"([a-z_0-9]+)=(0x[0-9a-fA-F]+|[0-9]+)")
 
@@ -1973,43 +2172,114 @@ def capture_lines(raw_path):
     return lines
 
 
-def fit_ticks(lines, *, reload, divider, probe_every=2):
-    """Least-squares host seconds per SysTick tick -> core clock estimate.
+def tick_series(lines):
+    """Group `T` lines into the series their numbering belongs to.
 
-    Model: tick period = divider * (reload + 1) / f_core. Host timestamps
-    include UART and USB delivery jitter; residuals bound that jitter.
+    The clock image numbers ticks from 1 after its `T START` line, so a
+    series opens at `T START` and closes at the next `BOOT` or `T START`
+    line or where `n` stops increasing. Every other `T` line is unanchored:
+    a backlog the bridge delivers when the port opens, or ticks of a boot
+    whose `T START` was not captured; its numbering origin and emission
+    time are unknown. `probed` holds the `ticks` field of each probe `E`
+    line inside the series: the tick whose `T` line followed that `E` line.
     """
-    ticks = [l for l in lines if l["tag"] == "T" and "n" in l["fields"]]
-    xs = [l["fields"]["n"] for l in ticks]
-    ys = [l["t_s"] for l in ticks]
+    series, unanchored, current = [], [], None
+    for line in lines:
+        if line["tag"] in ("BOOT", "T START"):
+            current = None
+            if line["tag"] == "T START":
+                current = dict(start_t_s=line["t_s"], ticks=[], probed=set())
+                series.append(current)
+        elif line["tag"] == "E" and current is not None:
+            current["probed"].add(line["fields"].get("ticks"))
+        elif line["tag"] == "T" and "n" in line["fields"]:
+            if current is not None and current["ticks"] and \
+                    line["fields"]["n"] <= current["ticks"][-1]["fields"]["n"]:
+                current = None
+            (current["ticks"] if current is not None
+             else unanchored).append(line)
+    return series, unanchored
+
+
+def _line_fit(xs, ys):
+    """Ordinary least squares y = a + b x: slope, its standard error (from
+    the residual variance, which assumes independent residuals) and the
+    residuals."""
     count = len(xs)
-    if count < 3:
-        return dict(kind="derived-estimate", ticks=count,
-                    status="inconclusive: fewer than 3 tick lines")
     mean_x, mean_y = sum(xs) / count, sum(ys) / count
     sxx = sum((x - mean_x) ** 2 for x in xs)
     slope = sum((x - mean_x) * (y - mean_y) for x, y in zip(xs, ys)) / sxx
     residuals = [y - (mean_y + slope * (x - mean_x)) for x, y in zip(xs, ys)]
-    # A sleep probe runs after each tick whose number is a multiple of
-    # probe_every, so the next interval may contain sleep. "Clean" deltas
-    # come from intervals that ended on a probe-free multiple.
-    usable = [l for l in ticks[1:] if l["fields"].get("skipped") == 0]
-    deltas = [l["fields"]["d"] for l in usable
-              if l["fields"]["n"] % probe_every == 0]
-    after_probe = [l["fields"]["d"] for l in usable
-                   if l["fields"]["n"] % probe_every != 0]
-    return dict(kind="derived-estimate", ticks=count, slope_s_per_tick=slope,
-                derived_core_hz=divider * (reload + 1) / slope,
-                residual_rms_s=(sum(r * r for r in residuals) / count) ** 0.5,
-                residual_max_s=max(abs(r) for r in residuals),
-                clean_ticks=len(deltas),
-                cyccnt_delta_min=min(deltas) if deltas else None,
-                cyccnt_delta_max=max(deltas) if deltas else None,
-                after_probe_delta_min=min(after_probe) if after_probe
-                else None,
-                after_probe_delta_max=max(after_probe) if after_probe
-                else None,
-                model="period = %d*(%d+1)/f_core" % (divider, reload))
+    stderr = (sum(r * r for r in residuals) / (count - 2) / sxx) ** 0.5
+    return slope, stderr, residuals
+
+
+def fit_ticks(lines, *, reload, divider):
+    """Least-squares host seconds per SysTick tick -> core clock estimate.
+
+    Model: arrival time of a `T` line = t0 + n * period + a constant
+    delivery delay, period = divider * (reload + 1) / f_core. Only the
+    longest series opened by `T START` is fitted (tick numbering restarts
+    at every boot). A `T` line printed after a probe's `E` line in the same
+    tick arrives later by that line's transmission time (bf_main.c
+    run_clock/probe_sleep), which breaks the constant-delay assumption: the
+    primary fit leaves those lines out and `all_ticks_fit` keeps them.
+    CYCCNT `d` is a one-period delta only for n >= 2 with skipped=0 (the
+    first tick counts from the CYCCNT value before SysTick started).
+    Not pre-registered: the series rule, the exclusion of probe-delayed
+    lines and the standard error (which assumes independent residuals)
+    were defined after the phase-2 clock captures were seen.
+    """
+    series, unanchored = tick_series(lines)
+    chosen = max(series, key=lambda s: len(s["ticks"]), default=None)
+    ticks = chosen["ticks"] if chosen else []
+    probed = chosen["probed"] if chosen else set()
+    first = [l for l in ticks if l["fields"]["n"] not in probed]
+    result = dict(
+        kind="derived-estimate",
+        model="arrival = t0 + n*%d*(%d+1)/f_core + delay" % (divider, reload),
+        series=[dict(start_t_s=s["start_t_s"], ticks=len(s["ticks"]),
+                     first_n=s["ticks"][0]["fields"]["n"] if s["ticks"]
+                     else None, last_n=s["ticks"][-1]["fields"]["n"]
+                     if s["ticks"] else None) for s in series],
+        unanchored_ticks=len(unanchored),
+        unanchored_n=[l["fields"]["n"] for l in unanchored],
+        ticks=len(ticks), probe_delayed_ticks=len(ticks) - len(first),
+        fit_ticks=len(first))
+    if len(first) < 3:
+        result["status"] = ("inconclusive: fewer than 3 first-output tick "
+                            "lines in a series opened by T START")
+        return result
+    for key, chosen_lines in (("primary", first), ("all", ticks)):
+        slope, stderr, residuals = _line_fit(
+            [l["fields"]["n"] for l in chosen_lines],
+            [l["t_s"] for l in chosen_lines])
+        hz = divider * (reload + 1) / slope
+        fit = dict(slope_s_per_tick=slope, slope_stderr_s_per_tick=stderr,
+                   derived_core_hz=hz,
+                   derived_core_hz_stderr=abs(hz * stderr / slope),
+                   residual_rms_s=(sum(r * r for r in residuals) /
+                                   len(residuals)) ** 0.5,
+                   residual_max_s=max(abs(r) for r in residuals))
+        if key == "primary":
+            result.update(fit)
+        else:
+            result["all_ticks_fit"] = fit
+    whole = [l for l in ticks if l["fields"]["n"] >= 2 and
+             l["fields"].get("skipped") == 0]
+    deltas = [l["fields"]["d"] for l in whole
+              if l["fields"]["n"] not in probed]
+    after_probe = [l["fields"]["d"] for l in whole
+                   if l["fields"]["n"] in probed]
+    result.update(status="ok", clean_ticks=len(deltas),
+                  cyccnt_delta_min=min(deltas) if deltas else None,
+                  cyccnt_delta_max=max(deltas) if deltas else None,
+                  after_probe_ticks=len(after_probe),
+                  after_probe_delta_min=min(after_probe) if after_probe
+                  else None,
+                  after_probe_delta_max=max(after_probe) if after_probe
+                  else None)
+    return result
 
 
 def starvation_intervals(lines, *, reload=511, prescaler=256):
@@ -2160,6 +2430,9 @@ def main(argv=None):
     read.add_argument("--register", action="append", default=[])
     read.add_argument("--vectors", type=int, default=0, metavar="WORDS",
                       help="read WORDS at 0x08000000 and compare with ELF")
+    read.add_argument("--also-running", action="store_true",
+                      help="diagnostic: repeat the reads with the core "
+                      "running, before the halt and after the resume")
     sub.add_parser("reset", help="debugger reset (reset run)")
     sub.add_parser("dump-flash", help="read the first 16 KiB of flash")
     capture = sub.add_parser("capture", help="bounded VCP capture")
@@ -2221,7 +2494,8 @@ def main(argv=None):
             result = board.flash(args.name, args.images / args.name)
         elif args.command == "read":
             result = board.read(args.name, args.images / args.name,
-                                args.symbol, args.register, args.vectors)
+                                args.symbol, args.register, args.vectors,
+                                args.also_running)
         elif args.command == "reset":
             result = board.reset_run()
         elif args.command == "dump-flash":

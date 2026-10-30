@@ -37,8 +37,59 @@ import f439_board as fb  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 IDENTITY_DIR = ROOT / "reviews/v5/expansion/polish_revision/physical/identity"
+PHASE2_RUNS = ROOT / ("reviews/v5/expansion/polish_revision/physical/phase2/"
+                      "runs")
+# The refused post-program attach of phase 2 (bu-cold-cross running) and the
+# two E4 clock captures, read as recorded (tracked, never written).
+PHASE2_BU_ATTACH = PHASE2_RUNS / ("20261030T174238496624Z-program-bu-cold-"
+                                  "cross/02-identity.stderr")
+# The accepted attach of the same session, before programming (bf-report
+# running): openocd's real output order, init Info lines first.
+PHASE2_GOOD_ATTACH = PHASE2_RUNS / ("20261030T174238496624Z-program-bu-cold-"
+                                    "cross/00-identity.stderr")
+PHASE2_CLOCK_CORE = PHASE2_RUNS / ("20261030T174912011975Z-capture-e4-clock-"
+                                   "core/e4-clock-core.bin")
+PHASE2_CLOCK_DIV8 = PHASE2_RUNS / ("20261030T175104462877Z-capture-e4-clock-"
+                                   "div8/e4-clock-div8.bin")
 SERIAL = "0669FF485753667187124334"
 OPTCR1_LINE = "0x40023c18: 0fff0000 \n"
+# The identity reads the receipt predates (values as read in phase 2).
+IDENTITY_TAIL = ("0xe0042004: 00000007 \n0xe0042008: 00001800 \n"
+                 "0x40023874: 00000000 \n")
+# DHCSR as openocd prints it. Bits (Armv7-M DHCSR, recalled, not inspected):
+# 0 C_DEBUGEN, 1 C_HALT, 16 S_REGRDY, 17 S_HALT, 18 S_SLEEP, 24 S_RETIRE_ST,
+# 25 S_RESET_ST.
+DHCSR_HALTED = "0xe000edf0: 00030003 \n"
+DHCSR_ASLEEP = "0xe000edf0: 00040001 \n"
+DHCSR_RUNNING = "0xe000edf0: 01000001 \n"
+DHCSR_HALTED_AFTER_RESET = "0xe000edf0: 02030003 \n"
+SHUTDOWN_LINE = "shutdown command invoked\n"
+# Printed after `halt`. Format strings from `strings /usr/bin/openocd`
+# ("[%s] halted due to %s, current mode: %s %s", "xPSR: %#8.8x pc: %#8.8x
+# %csp: %#8.8x%s%s"); that openocd prints them here is assumed, not seen.
+HALT_MESSAGE = ("[stm32f4x.cpu] halted due to debug-request, current mode: "
+                "Thread \nxPSR: 0x01000000 pc: 0x08000246 msp: 0x2000fff8\n")
+
+
+def bracketed(window, before="", after="", halted=DHCSR_HALTED,
+              closing=DHCSR_HALTED, resumed=DHCSR_ASLEEP):
+    """openocd output of a halt-bracketed attach: optional running reads,
+    the DHCSR read after `halt`, the window of halted reads, the DHCSR read
+    before `resume`, the DHCSR read after it, optional running reads."""
+    return before + halted + window + closing + resumed + after
+
+
+def as_printed(text, **dhcsr):
+    """Place an identity output in openocd's order for one bracketed attach:
+    the banner and the `init` Info lines (ST-LINK version, target voltage)
+    before `halt`, the reads in the halted window, `shutdown command
+    invoked` after `resume`. The DHCSR lines are inserted, not observed."""
+    first = re.search(r"^0x[0-9a-f]{8}:", text, re.MULTILINE)
+    cut = first.start() if first else len(text)
+    window = text[cut:]
+    after = SHUTDOWN_LINE if SHUTDOWN_LINE in window else ""
+    return bracketed(window.replace(SHUTDOWN_LINE, ""),
+                     before=text[:cut] + HALT_MESSAGE, after=after, **dhcsr)
 
 # Programs no test may start, whatever a (mutated) module under test does.
 # Kept independent of fb.BOARD_TOOL_NAMES so a mutant cannot disable it.
@@ -595,6 +646,125 @@ class CommandPolicyTests(unittest.TestCase):
     def test_shutdown_must_be_the_final_command(self):
         self.deny(self.openocd("init", "shutdown", "mdw 0xe0042000"))
 
+    # halt bracket (revision 4) --------------------------------------------
+    def test_identity_attach_is_a_halt_bracket(self):
+        dhcsr = fb.DHCSR_READ
+        self.assertEqual(IDENTITY_CMD[6::2][6:], [
+            "init", "halt", dhcsr, *fb.IDENTITY_READS, dhcsr, "resume", dhcsr,
+            "shutdown"])
+        self.allow(IDENTITY_CMD)
+        dump = "dump_image {%s} 0x08000000 0x4000" % (RUN_DIR /
+                                                      "readback.bin")
+        self.allow(fb.openocd_identity_command(SERIAL, [dump]))
+        both = fb.openocd_identity_command(SERIAL, ["mdw 0x40023c14"],
+                                           running=["mdw 0x40023c18"])
+        self.assertEqual(both[6::2][6:], [
+            "init", dhcsr, "mdw 0x40023c18", "halt", dhcsr,
+            *fb.IDENTITY_READS, "mdw 0x40023c14", dhcsr, "resume", dhcsr,
+            "mdw 0x40023c18", "shutdown"])
+        self.allow(both)
+
+    def test_halt_and_resume_appear_only_as_the_reviewed_bracket(self):
+        dhcsr, read = fb.DHCSR_READ, "mdw 0x40023c14"
+        good = fb.halt_bracket([read])
+        dump = "dump_image {%s} 0x08000000 0x10" % (RUN_DIR / "r.bin")
+        self.allow(self.openocd("init", *good, "shutdown"))
+        self.allow(self.openocd("init", dhcsr, read, *good, read, "shutdown"))
+        self.allow(self.openocd("init", *fb.halt_bracket([read, dump]),
+                                "shutdown"))
+        for body in [
+            ["init", "halt", dhcsr, read, dhcsr, "shutdown"],
+            ["init", dhcsr, read, dhcsr, "resume", dhcsr, "shutdown"],
+            ["init", "halt 100", dhcsr, read, dhcsr, "resume", dhcsr,
+             "shutdown"],
+            ["init", "halt", dhcsr, read, dhcsr, "resume 0x08000000", dhcsr,
+             "shutdown"],
+            ["init", "resume", dhcsr, read, dhcsr, "halt", dhcsr, "shutdown"],
+            ["init", *good, *good, "shutdown"],
+            ["init", "halt", read, dhcsr, "resume", dhcsr, "shutdown"],
+            ["init", "halt", dhcsr, read, "resume", dhcsr, "shutdown"],
+            ["init", "halt", dhcsr, read, dhcsr, "resume", "shutdown"],
+            ["init", "halt", dhcsr, "reset run", dhcsr, "resume", dhcsr,
+             "shutdown"],
+            ["init", *good, "reset run", "shutdown"],
+            ["init", "reset run", *good, "shutdown"],
+            ["init", fb.SELF_CHECK[0], *good, "shutdown"],
+            [*good, "init", "shutdown"],
+            [fb.CONNECT_UNDER_RESET, "init", *good, "shutdown"],
+            ["init", *good, read],
+            ["init", *good],
+            ["init", "halt", dhcsr, "wait_halt", dhcsr, "resume", dhcsr,
+             "shutdown"],
+            ["init", "soft_reset_halt", dhcsr, read, dhcsr, "resume", dhcsr,
+             "shutdown"],
+        ]:
+            self.deny(self.openocd(*body))
+
+    def test_only_the_reviewed_pair_is_kept_out_of_the_denylist(self):
+        dhcsr, read = fb.DHCSR_READ, "mdw 0x40023c14"
+        argv = self.openocd("init", *fb.halt_bracket([read]), "shutdown")
+        pair = fb._bracket_exempt(argv)
+        self.assertEqual([argv[i] for i in pair], ["halt", "resume"])
+        self.assertIsNone(fb.denylisted(" ".join(
+            a for i, a in enumerate(argv) if i not in pair)))
+        flagged = list(argv)
+        flagged[pair[0] - 1] = "-f"
+        for variant in [
+            self.openocd("init", "resume", dhcsr, read, dhcsr, "halt", dhcsr,
+                         "shutdown"),
+            self.openocd("init", *fb.halt_bracket([read]),
+                         *fb.halt_bracket([read]), "shutdown"),
+            self.openocd("init", "halt", read, dhcsr, "resume", dhcsr,
+                         "shutdown"),
+            self.openocd("init", "halt", dhcsr, read, "resume", dhcsr,
+                         "shutdown"),
+            self.openocd("init", "halt", dhcsr, read, dhcsr, "resume",
+                         "shutdown"),
+            flagged,
+        ]:
+            self.assertEqual(fb._bracket_exempt(variant), (), variant)
+
+    def test_the_bracket_rule_stands_without_the_denylist(self):
+        # The denylist also refuses a lone `halt` or `resume`; with it
+        # emptied, check_command's own bracket rule must still refuse them.
+        dhcsr, read = fb.DHCSR_READ, "mdw 0x40023c14"
+        with mock.patch.object(fb, "DENY_PATTERNS", []):
+            self.assertIsNone(fb.denylisted("halt resume"))
+            self.allow(self.openocd("init", *fb.halt_bracket([read]),
+                                    "shutdown"))
+            for body in [
+                ["init", "halt", dhcsr, read, dhcsr, "shutdown"],
+                ["init", dhcsr, read, dhcsr, "resume", dhcsr, "shutdown"],
+                ["init", *fb.halt_bracket([read]), "reset run", "shutdown"],
+            ]:
+                self.deny(self.openocd(*body))
+
+    def test_bracket_template(self):
+        dhcsr, read = fb.DHCSR_READ, "mdw 0x40023c14"
+        dump = "dump_image {%s} 0x08000000 0x10" % (RUN_DIR / "r.bin")
+        for body in (["init", *fb.halt_bracket([read, dump]), "shutdown"],
+                     ["init", dhcsr, read, *fb.halt_bracket([read]), read,
+                      "shutdown"]):
+            fb._check_bracket(body)
+        for body in [
+            ["init", "halt", read, dhcsr, "resume", dhcsr, "shutdown"],
+            ["init", "halt", dhcsr, read, "resume", dhcsr, "shutdown"],
+            ["init", "halt", dhcsr, read, dhcsr, "resume", read, "shutdown"],
+            ["init", "halt", dhcsr, "reset run", dhcsr, "resume", dhcsr,
+             "shutdown"],
+            ["init", *fb.halt_bracket([read]), "init", "shutdown"],
+            ["init", *fb.halt_bracket([read]), "reset run", "shutdown"],
+            ["init", fb.SELF_CHECK[0], *fb.halt_bracket([read]), "shutdown"],
+            ["init", *fb.halt_bracket([read]), dump, "shutdown"],
+            ["init", *fb.halt_bracket([read])],
+            [fb.CONNECT_UNDER_RESET, "init", *fb.halt_bracket([read]),
+             "shutdown"],
+            ["init", "halt", dhcsr, read, dhcsr, "shutdown"],
+            ["init", dhcsr, "resume", dhcsr, "shutdown"],
+        ]:
+            with self.assertRaises(fb.PolicyError, msg=body):
+                fb._check_bracket(body)
+
     def test_every_denylist_pattern_refuses_its_probe(self):
         # Each probe is matched by one pattern only and sits inside an
         # otherwise reviewed program path, so removing that one pattern
@@ -946,6 +1116,117 @@ class IdentityTests(unittest.TestCase):
                             (needle, mismatches))
 
 
+class HaltWindowTests(unittest.TestCase):
+    """The identity values come only from reads made while the core was
+    halted, confirmed by DHCSR reads issued before and after them."""
+
+    def setUp(self):
+        self.receipt = (IDENTITY_DIR / "openocd-identity.txt").read_text()
+        self.window = self.receipt + OPTCR1_LINE + IDENTITY_TAIL
+        self.argv = fb.openocd_identity_command(SERIAL)
+
+    def test_identity_values_come_only_from_the_halted_window(self):
+        bogus = "".join("0x%08x: 00000005 \n" % a
+                        for a in (0x40023C14, 0x40023C18, 0x40023874))
+        argv = fb.openocd_identity_command(SERIAL, running=[
+            "mdw 0x40023c14", "mdw 0x40023c18", "mdw 0x40023874"])
+        text = bracketed(self.window, before=DHCSR_ASLEEP + bogus,
+                         after=bogus)
+        bracket = fb.halted_window(text, argv)
+        observed = fb.identity_from_outputs("", bracket["window"])
+        self.assertEqual((observed["optcr"], observed["optcr1"],
+                          observed["rcc_csr"]), (0x0FFFAAED, 0x0FFF0000, 0))
+        self.assertEqual(bracket["dhcsr"], dict(
+            halted=0x00030003, before_resume=0x00030003,
+            after_resume=0x00040001))
+        self.assertIn("0x40023c14: 00000005", bracket["before"])
+        self.assertIn("0x40023874: 00000005", bracket["after"])
+        self.assertNotIn("00000005", bracket["window"])
+
+    def test_the_bracket_must_appear_in_the_output(self):
+        for text in [self.window,
+                     DHCSR_HALTED + self.window + DHCSR_HALTED,
+                     bracketed(self.window) + DHCSR_ASLEEP]:
+            with self.assertRaises(fb.PolicyError):
+                fb.halted_window(text, self.argv)
+        with self.assertRaises(fb.PolicyError):
+            fb.halted_window(bracketed(self.window),
+                             fb.openocd_idcode_command(SERIAL))
+
+    def test_halt_must_be_confirmed_and_released(self):
+        good = dict(halted=0x00030003, before_resume=0x00030003,
+                    after_resume=0x00040001)
+        self.assertEqual(fb.halt_problems(good), [])
+        for key, value in [("halted", 0x00040001),
+                           ("before_resume", 0x00040001),
+                           ("halted", 0x00020000),
+                           ("before_resume", 0x00020002),
+                           ("after_resume", 0x00030003)]:
+            self.assertTrue(fb.halt_problems(dict(good, **{key: value})),
+                            (key, value))
+
+    def test_a_reset_after_the_halted_read_is_refused(self):
+        # S_RESET_ST (bit 25): set by a reset, cleared by a DHCSR read
+        # (recalled Armv7-M semantics, [doc-check]).
+        good = dict(halted=0x00030003, before_resume=0x00030003,
+                    after_resume=0x00040001)
+        self.assertEqual(fb.halt_problems(dict(good, halted=0x02030003)), [])
+        problems = fb.halt_problems(dict(good, before_resume=0x02030003))
+        self.assertEqual(len(problems), 1, problems)
+        self.assertIn("S_RESET_ST", problems[0])
+
+    def test_register_values_never_come_from_the_init_text(self):
+        # The ST-LINK version and the target voltage are printed at `init`,
+        # before the halt; every register value is taken from the window.
+        text = as_printed(PHASE2_GOOD_ATTACH.read_text())
+        bracket = fb.halted_window(text, self.argv)
+        self.assertNotIn("STLINK", bracket["window"])
+        observed = fb.identity_from_outputs("", bracket["window"],
+                                            init_text=bracket["before"])
+        self.assertEqual((observed["openocd_stlink_version"],
+                          observed["target_voltage_v"], observed["optcr"]),
+                         ("V2J39M27", 3.248915, 0x0FFFAAED))
+        running = "0x40023c14: 00000005 \n" + bracket["before"]
+        observed = fb.identity_from_outputs(
+            "", bracket["window"].replace("0x40023c14: 0fffaaed", ""),
+            init_text=running)
+        self.assertIsNone(observed["optcr"])
+        self.assertEqual(observed["openocd_stlink_version"], "V2J39M27")
+
+    def test_each_identity_read_is_required_on_its_own(self):
+        # Written out here, not taken from fb.IDENTITY_FIELDS, so dropping
+        # one entry there fails this test.
+        reads = [("DBGMCU_IDCODE", "0xe0042000:"), ("UID", "0x1fff7a10:"),
+                 ("flash size", "0x1fff7a22:"), ("FLASH_OPTCR", "0x40023c14:"),
+                 ("FLASH_OPTCR1", "0x40023c18:"), ("DBGMCU_CR", "0xe0042004:"),
+                 ("DBGMCU_APB1_FZ", "0xe0042008:"), ("RCC_CSR", "0x40023874:")]
+        lines = self.window.splitlines(keepends=True)
+        for name, prefix in reads:
+            window = "".join(l for l in lines if not l.startswith(prefix))
+            self.assertNotEqual(window, self.window, name)
+            observed = fb.identity_from_outputs("", window)
+            self.assertEqual(fb.missing_identity_reads(observed), [
+                "identity reads missing from the halted window: " + name])
+
+    def test_identical_values_at_unrelated_registers_are_refused(self):
+        good = dict(optcr=0x0FFFAAED, optcr1=0x0FFF0000, rcc_csr=0)
+        self.assertEqual(fb.implausible_reads(good), [])
+        self.assertEqual(fb.implausible_reads(dict(good, rcc_csr=None)), [])
+        for case in [dict(optcr=5, optcr1=5, rcc_csr=5),
+                     dict(good, optcr1=0x0FFFAAED),
+                     dict(good, rcc_csr=0x0FFF0000),
+                     dict(good, rcc_csr=0x0FFFAAED)]:
+            self.assertTrue(fb.implausible_reads(case), case)
+
+    def test_every_identity_read_must_be_present(self):
+        observed = fb.identity_from_outputs("", self.window)
+        self.assertEqual(fb.missing_identity_reads(observed), [])
+        observed = fb.identity_from_outputs("", self.receipt + OPTCR1_LINE)
+        problems = fb.missing_identity_reads(observed)
+        self.assertTrue(any("DBGMCU_CR" in p and "RCC_CSR" in p
+                            for p in problems), problems)
+
+
 
 
 class ToolingTests(unittest.TestCase):
@@ -1211,11 +1492,15 @@ class FakeExecutor:
     openocd_outputs / openocd_rcs: optional lists consumed by successive
     non-program openocd calls (defaults: the given text, return code 0).
     readback: bytes written by a dump_image command.
+    bracket: when argv halts, print the given text in openocd's order
+    (`as_printed`: banner and init Info lines before the halt, the reads
+    between the halted DHCSR reads, then the running DHCSR read); False
+    returns the text exactly as given.
     """
 
     def __init__(self, st_info, openocd, program_rc=0, verified=True,
                  openocd_outputs=None, readback=GOOD_FLASH, on_call=None,
-                 openocd_rcs=None):
+                 openocd_rcs=None, bracket=True):
         self.calls, self.contexts = [], []
         self.on_call = on_call or (lambda argv: None)
         self.st_info, self.openocd = st_info, openocd
@@ -1223,6 +1508,7 @@ class FakeExecutor:
         self.outputs = list(openocd_outputs or [])
         self.rcs = list(openocd_rcs or [])
         self.readback = readback
+        self.bracket = bracket
 
     def __call__(self, argv, *, timeout_s, log_dir, label, cwd=None,
                  env=None):
@@ -1242,6 +1528,8 @@ class FakeExecutor:
         else:
             out = self.outputs.pop(0) if self.outputs else self.openocd
             rc = self.rcs.pop(0) if self.rcs else 0
+            if self.bracket and "halt" in argv:
+                out = as_printed(out)
             for arg in argv:
                 match = re.fullmatch(r"dump_image \{(.+)\} 0x[0-9a-f]+ "
                                      r"0x([0-9a-f]+)", arg)
@@ -1296,7 +1584,7 @@ class ProvenanceAndBoardTests(unittest.TestCase):
         # The receipt predates the FLASH_OPTCR1 read that every identity
         # attach now makes; the fake adds that line.
         self.receipt = (IDENTITY_DIR / "openocd-identity.txt").read_text()
-        self.openocd = self.receipt + OPTCR1_LINE
+        self.openocd = self.receipt + OPTCR1_LINE + IDENTITY_TAIL
         self.lock = Path(self.tmp.name) / "lock" / "board.lock"
         self.host_lock = Path(self.tmp.name) / "host" / fb.HOST_LOCK_NAME
         self.state = Path(self.tmp.name) / "state"
@@ -1330,7 +1618,8 @@ class ProvenanceAndBoardTests(unittest.TestCase):
         return json.loads(runs[0].read_text())
 
     def record_baseline(self, line=OPTCR1_LINE):
-        self.board(FakeExecutor(self.st_info, self.receipt + line)).probe()
+        self.board(FakeExecutor(self.st_info, self.receipt + line +
+                                IDENTITY_TAIL)).probe()
 
     # provenance --------------------------------------------------------
     def test_sources_tracked_and_clean_pass(self):
@@ -1562,6 +1851,142 @@ class ProvenanceAndBoardTests(unittest.TestCase):
         self.assertIn("identity read failed", str(caught.exception))
         self.assertEqual(len(executor.calls), 1)
 
+    # identity inside the halt bracket (revision 4) ------------------------
+    def test_the_phase2_bu_cold_cross_attach_is_refused(self):
+        text = PHASE2_BU_ATTACH.read_text()
+        executor = FakeExecutor(self.st_info, text, bracket=False)
+        with self.assertRaises(fb.PolicyError) as caught:
+            self.board(executor).reset_run()
+        self.assertIn("halt bracket", str(caught.exception))
+        self.assertEqual(len(executor.calls), 1)
+        # The same reads inside a confirmed halt are still refused.
+        executor = FakeExecutor(self.st_info, text)
+        with self.assertRaises(fb.PolicyError) as caught:
+            self.board(executor).reset_run()
+        self.assertIn("FLASH_OPTCR: expected 0xfffaaed, observed 0x5",
+                      str(caught.exception))
+        self.assertIn("identical values", str(caught.exception))
+
+    def test_a_good_identity_without_a_confirmed_halt_is_refused(self):
+        for text in [self.openocd,
+                     bracketed(self.openocd, halted=DHCSR_ASLEEP),
+                     bracketed(self.openocd, closing=DHCSR_ASLEEP),
+                     bracketed(self.openocd, resumed=DHCSR_HALTED)]:
+            executor = FakeExecutor(self.st_info, text, bracket=False)
+            with self.assertRaises(fb.PolicyError, msg=text[-80:]):
+                self.board(executor).reset_run()
+            self.assertEqual(len(executor.calls), 1)
+
+    def test_identical_values_inside_the_halt_are_refused(self):
+        # FLASH_OPTCR matches; only the pattern rule can refuse this.
+        text = self.openocd.replace("0x40023c18: 0fff0000", "0x40023c18: "
+                                    "0fffaaed").replace(
+            "0x40023874: 00000000", "0x40023874: 0fffaaed")
+        executor = FakeExecutor(self.st_info, text)
+        with self.assertRaises(fb.PolicyError) as caught:
+            self.board(executor).reset_run()
+        self.assertIn("identical values", str(caught.exception))
+
+    def test_an_identity_read_missing_from_the_halt_is_refused(self):
+        executor = FakeExecutor(self.st_info, self.openocd.replace(
+            "0x40023874: 00000000 \n", ""))
+        with self.assertRaises(fb.PolicyError) as caught:
+            self.board(executor).reset_run()
+        self.assertIn("RCC_CSR", str(caught.exception))
+
+    def test_every_identity_attach_of_a_flash_is_bracketed(self):
+        executor = FakeExecutor(self.st_info, self.openocd)
+        self.board(executor).flash("bf-test", self.image_dir)
+        before, program, after = executor.calls
+        for argv in (before, after):
+            body = argv[6::2][6:]
+            self.assertEqual(body[:3], ["init", "halt", fb.DHCSR_READ])
+            self.assertEqual(body[-4:], [fb.DHCSR_READ, "resume",
+                                         fb.DHCSR_READ, "shutdown"])
+        self.assertNotIn("halt", program)
+        run = self.only_run("program-bf-test")
+        for key in ("identity_before", "identity_after"):
+            self.assertEqual(run[key]["dhcsr"]["halted"], 0x00030003)
+            self.assertEqual(run[key]["dhcsr"]["after_resume"], 0x00040001)
+
+    def test_strings_printed_at_init_are_recorded(self):
+        # openocd prints the ST-LINK version and the target voltage at
+        # `init`, before the halt; the fake prints them there too.
+        self.board(FakeExecutor(self.st_info, self.openocd)).probe()
+        identity = self.only_run("probe")["identity"]
+        self.assertEqual(identity["openocd_stlink_version"], "V2J39M27")
+        self.assertEqual(identity["target_voltage_v"], 3.241025)
+
+    def test_the_phase2_good_attach_replayed_inside_a_halt_bracket(self):
+        # The real pre-program attach of the bu-cold-cross session
+        # (bf-report running) with DHCSR lines inserted where the bracket
+        # prints them; every other byte is as recorded.
+        raw = PHASE2_GOOD_ATTACH.read_text()
+        text = as_printed(raw, resumed=DHCSR_RUNNING)
+        self.assertLess(text.index("Target voltage"),
+                        text.index(DHCSR_HALTED))
+        self.board(FakeExecutor(self.st_info, text, bracket=False)).probe()
+        identity = self.only_run("probe")["identity"]
+        self.assertEqual(
+            {key: identity[key] for key in (
+                "idcode", "uid", "flash_kib", "optcr", "optcr1",
+                "dbgmcu_cr", "dbgmcu_apb1_fz", "rcc_csr",
+                "openocd_stlink_version", "target_voltage_v", "dhcsr")},
+            dict(idcode=0x20036419, uid=[0x004C0025, 0x3133510A, 0x36393739],
+                 flash_kib=2048, optcr=0x0FFFAAED, optcr1=0x0FFF0000,
+                 dbgmcu_cr=7, dbgmcu_apb1_fz=0x1800, rcc_csr=0,
+                 openocd_stlink_version="V2J39M27",
+                 target_voltage_v=3.248915,
+                 dhcsr=dict(halted=0x00030003, before_resume=0x00030003,
+                            after_resume=0x01000001)))
+
+    def test_flash_refuses_an_optcr1_read_missing_from_both_attaches(self):
+        # `before["optcr1"] != after["optcr1"]` holds for None == None, so
+        # only the missing-read rule stops this flash.
+        executor = FakeExecutor(self.st_info,
+                                self.openocd.replace(OPTCR1_LINE, ""))
+        with self.assertRaises(fb.PolicyError) as caught:
+            self.board(executor).flash("bf-test", self.image_dir)
+        self.assertIn("missing from the halted window: FLASH_OPTCR1",
+                      str(caught.exception))
+        self.assertFalse(any(is_program(c) for c in executor.calls))
+
+    def test_a_reset_inside_the_halted_window_is_refused(self):
+        # S_RESET_ST (bit 25) is sticky and cleared by every DHCSR read, so
+        # in the read before `resume` it means a reset after the halted read.
+        executor = FakeExecutor(self.st_info, as_printed(
+            self.openocd, closing=DHCSR_HALTED_AFTER_RESET), bracket=False)
+        with self.assertRaises(fb.PolicyError) as caught:
+            self.board(executor).reset_run()
+        self.assertIn("S_RESET_ST", str(caught.exception))
+        self.assertEqual(len(executor.calls), 1)
+        # In the halted read it reports a reset before the halt (for example
+        # the `program` step's): accepted.
+        executor = FakeExecutor(self.st_info, as_printed(
+            self.openocd, halted=DHCSR_HALTED_AFTER_RESET), bracket=False)
+        self.board(executor).reset_run()
+        self.assertEqual(len(executor.calls), 2)
+
+    def test_an_openocd_error_refuses_the_attach(self):
+        error = "Error: timed out while waiting for target halted\n"
+        for text in [self.openocd + error,
+                     self.openocd.replace("Info : clock speed",
+                                          error + "Info : clock speed")]:
+            executor = FakeExecutor(self.st_info, text)
+            with self.assertRaises(fb.PolicyError) as caught:
+                self.board(executor).reset_run()
+            self.assertIn("openocd reported an error", str(caught.exception))
+            self.assertEqual(len(executor.calls), 1)
+
+    def test_baseline_needs_an_optcr1_value(self):
+        board = self.board(FakeExecutor(self.st_info, self.openocd))
+        with board.session("probe") as session:
+            with self.assertRaises(fb.PolicyError) as caught:
+                board._check_baseline(dict(optcr1=None, optcr=0x0FFFAAED),
+                                      session)
+        self.assertIn("FLASH_OPTCR1", str(caught.exception))
+        self.assertFalse((self.state / fb.PROBE_BASELINE).exists())
+
     def test_host_lock_is_shared_by_every_checkout(self):
         first = self.board(FakeExecutor(self.st_info, self.openocd))
         executor = FakeExecutor(self.st_info, self.openocd)
@@ -1655,8 +2080,8 @@ class ProvenanceAndBoardTests(unittest.TestCase):
         self.assertFalse(any(is_program(c) for c in executor.calls))
 
     def test_flash_detects_an_optcr1_change(self):
-        before = self.receipt + "0x40023c18: 0fff0000 \n"
-        after = self.receipt + "0x40023c18: 0ffe0000 \n"
+        before = self.receipt + "0x40023c18: 0fff0000 \n" + IDENTITY_TAIL
+        after = self.receipt + "0x40023c18: 0ffe0000 \n" + IDENTITY_TAIL
         executor = FakeExecutor(self.st_info, self.openocd,
                                 openocd_outputs=[before, after])
         with self.assertRaises(fb.PolicyError) as caught:
@@ -1738,7 +2163,8 @@ class ProvenanceAndBoardTests(unittest.TestCase):
     def test_recover_refuses_an_optcr1_change(self):
         self.record_baseline()
         executor = FakeExecutor(self.st_info,
-                                self.receipt + "0x40023c18: 0ffe0000 \n")
+                                self.receipt + "0x40023c18: 0ffe0000 \n" +
+                                IDENTITY_TAIL)
         with self.assertRaises(fb.PolicyError) as caught:
             self.board(executor).recover("bf-test", self.image_dir)
         self.assertIn("FLASH_OPTCR1", str(caught.exception))
@@ -1807,8 +2233,13 @@ class ProvenanceAndBoardTests(unittest.TestCase):
         reads = [c for c in executor.calls if "mdw 0x2001f000" in c]
         self.assertEqual(len(reads), 1)
         self.assertIn("mdw 0x40023874", reads[0])
-        self.assertFalse(any(a.startswith(("reset", "halt", "program"))
+        # Revision 4: the reads sit inside the halt bracket; no reset, no
+        # programming, and halt/resume only as the bracket.
+        self.assertFalse(any(a.startswith(("reset", "program"))
                              for a in reads[0]))
+        body = reads[0][6::2][6:]
+        self.assertEqual(body[:3], ["init", "halt", fb.DHCSR_READ])
+        self.assertLess(body.index("mdw 0x2001f000"), body.index("resume"))
         for kwargs in [dict(symbols=["no_such"]),
                        dict(registers=["FLASH_KEYR"]),
                        dict(registers=["USART3_SR"]),
@@ -1833,6 +2264,33 @@ class ProvenanceAndBoardTests(unittest.TestCase):
             run = json.loads((Path(result["run_dir"]) / "run.json")
                              .read_text())
             self.assertIs(run["vectors_match_elf"], expected)
+
+    def test_read_also_running_records_running_reads_beside_halted_ones(self):
+        # Phase-3 diagnostic: the same reads with the core running (before
+        # the halt and after the resume) are recorded raw; the identity and
+        # the reported values use the halted window only.
+        bogus = "0x2001f000: 00000005 \n0x40023c14: 00000005 \n"
+        text = bracketed(self.openocd + "0x2001f000: 00000004 \n0x40023c14:"
+                         " 0fffaaed \n", before=DHCSR_ASLEEP + bogus,
+                         after=bogus)
+        executor = FakeExecutor(self.st_info, text, bracket=False)
+        result = self.board(executor).read(
+            "bf-test", self.image_dir, symbols=["bf_stage"],
+            registers=["FLASH_OPTCR"], also_running=True)
+        body = executor.calls[0][6::2][6:]
+        halt, resume = body.index("halt"), body.index("resume")
+        reads = ["mdw 0x2001f000", "mdw 0x40023c14"]
+        self.assertEqual(body[:halt], ["init", fb.DHCSR_READ, *reads])
+        self.assertEqual(body[resume + 2:], [*reads, "shutdown"])
+        run = json.loads((Path(result["run_dir"]) / "run.json").read_text())
+        self.assertEqual(run["identity"]["optcr"], 0x0FFFAAED)
+        self.assertEqual(fb.read_words(run["blocks"], 0x2001F000, 1), [4])
+        self.assertEqual(fb.read_words(run["running_before_blocks"],
+                                       0x2001F000, 1), [5])
+        self.assertEqual(fb.read_words(run["running_before_blocks"],
+                                       0xE000EDF0, 1), [0x00040001])
+        self.assertEqual(fb.read_words(run["running_after_blocks"],
+                                       0x40023C14, 1), [5])
 
     # capture --------------------------------------------------------------
     def test_capture_with_reset_checks_identity_then_resets_once(self):
@@ -1976,6 +2434,24 @@ def write_capture(directory, chunks, label="cap", sends=()):
     return directory / (label + ".bin")
 
 
+T_START = "T START syst=0x00000007 reload=15999999 cyc=0x000b2a8b"
+# Primary host-time estimates of the two phase-2 captures (first-output tick
+# lines of the series after the in-capture debugger reset).
+CORE_HZ = 16_031_806.9
+DIV8_HZ = 16_029_242.0
+
+
+def tick(n, d=16_000_000, skipped=0):
+    return "T n=%d cyc=0x%08x d=%d skipped=%d" % (
+        n, (n * 16_000_000) & 0xFFFFFFFF, d, skipped)
+
+
+def tick_capture(directory, events, label="ticks"):
+    """events: (t_seconds, BF1 line body), one read chunk per line."""
+    return write_capture(directory, [(t, ("BF1 %s\r\n" % body).encode())
+                                     for t, body in events], label=label)
+
+
 class AnalysisTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
@@ -1995,18 +2471,177 @@ class AnalysisTests(unittest.TestCase):
 
     def test_tick_fit_recovers_a_known_clock(self):
         period = 16_000_000 / 15_920_000  # HSI 0.5 % slow
-        chunks = [(0.010 + n * period + (0.0007 if n % 3 else 0.0),
-                   ("BF1 T n=%d cyc=0x%08x d=%d skipped=0\r\n"
-                    % (n, (n * 16_000_000) & 0xFFFFFFFF,
-                       16_000_000)).encode()) for n in range(1, 61)]
+        chunks = [(0.005, b"BF1 " + T_START.encode() + b"\r\n")]
+        chunks += [(0.010 + n * period + (0.0007 if n % 3 else 0.0),
+                    ("BF1 %s\r\n" % tick(n)).encode()) for n in range(1, 61)]
         fit = fb.fit_ticks(fb.capture_lines(write_capture(self.dir, chunks)),
                            reload=15_999_999, divider=1)
         self.assertEqual(fit["ticks"], 60)
         self.assertAlmostEqual(fit["derived_core_hz"], 15_920_000, delta=200)
         self.assertLess(fit["residual_max_s"], 0.001)
         self.assertEqual(fit["cyccnt_delta_min"], 16_000_000)
-        self.assertEqual(fit["clean_ticks"], 30)
+        # Every tick after the first is a one-period delta (no probe ran).
+        self.assertEqual(fit["clean_ticks"], 59)
         self.assertEqual(fit["kind"], "derived-estimate")
+
+    def test_tick_fit_uses_only_the_series_opened_by_t_start(self):
+        # Phase-2 layout: a backlog delivered when the port opens, ticks of
+        # a boot whose T START was not captured, then the debugger reset.
+        period = 16_000_000 / 15_950_000
+        events = [(0.001, tick(n)) for n in range(89, 105)]
+        events += [(0.002, "BOOT mode=3 csr=0x04000000 boots=3"),
+                   (0.75, tick(5)), (1.75, tick(6)),
+                   (2.15, "BOOT mode=3 csr=0x04000000 boots=4"),
+                   (2.19, T_START)]
+        events += [(2.19 + n * period,
+                    tick(n, d=16_672_510 if n == 1 else 16_000_000))
+                   for n in range(1, 41)]
+        fit = fb.fit_ticks(fb.capture_lines(tick_capture(self.dir, events)),
+                           reload=15_999_999, divider=1)
+        self.assertEqual((fit["ticks"], fit["unanchored_ticks"]), (40, 18))
+        self.assertGreater(fit["slope_s_per_tick"], 0)
+        self.assertAlmostEqual(fit["derived_core_hz"], 15_950_000, delta=50)
+        self.assertLess(fit["residual_max_s"], 1e-6)
+        self.assertEqual((fit["cyccnt_delta_min"], fit["cyccnt_delta_max"],
+                          fit["clean_ticks"]), (16_000_000, 16_000_000, 39))
+
+    def test_tick_series_end_at_boot_and_where_numbering_goes_back(self):
+        events = [(0.1, T_START)] + [(0.1 + n, tick(n)) for n in (1, 2, 3)]
+        events += [(4.5, "BOOT mode=3 boots=2"),  # its T START was lost
+                   (7.2, tick(7)), (8.2, tick(8)), (9.0, T_START)]
+        events += [(9.0 + n, tick(n)) for n in range(1, 21)]
+        events += [(31.0, tick(4)), (32.0, tick(5)),  # numbering went back
+                   (33.0, T_START)]
+        events += [(33.0 + n, tick(n)) for n in (1, 2, 3)]
+        fit = fb.fit_ticks(fb.capture_lines(tick_capture(self.dir, events)),
+                           reload=15_999_999, divider=1)
+        self.assertEqual([s["ticks"] for s in fit["series"]], [3, 20, 3])
+        self.assertEqual((fit["ticks"], fit["unanchored_ticks"]), (20, 4))
+        self.assertEqual(fit["series"][1]["start_t_s"], 9.0)
+
+    def test_probe_delayed_lines_and_partial_deltas_are_kept_apart(self):
+        # The clock image prints a probe's E line before the T line of the
+        # tick that ended the probe sleep, so that T line arrives later by
+        # the E line's transmission time (bf_main.c run_clock/probe_sleep).
+        events = [(0.0, T_START)]
+        for n in range(1, 31):
+            when = 0.005 + n
+            if n % 2 and 5 <= n <= 25:
+                events.append((when + 0.008, "E probe=%d wfi=0 dbg=0x00000006 "
+                               "restored=0x00000007 latched=13 cvr=15929923 "
+                               "slept=15929962 ticks=%d" % (n, n)))
+                when += 0.010
+            events.append((when, tick(
+                n, d=16_672_510 if n == 1 else 32_000_000 if n == 20
+                else 16_000_000, skipped=1 if n == 20 else 0)))
+        fit = fb.fit_ticks(fb.capture_lines(tick_capture(self.dir, events)),
+                           reload=15_999_999, divider=1)
+        self.assertEqual((fit["ticks"], fit["probe_delayed_ticks"],
+                          fit["fit_ticks"]), (30, 11, 19))
+        self.assertAlmostEqual(fit["derived_core_hz"], 16_000_000, delta=1)
+        self.assertLess(fit["residual_max_s"], 1e-6)
+        self.assertGreater(fit["all_ticks_fit"]["residual_max_s"], 0.003)
+        self.assertEqual((fit["clean_ticks"], fit["cyccnt_delta_min"],
+                          fit["cyccnt_delta_max"]), (17, 16_000_000,
+                                                     16_000_000))
+        self.assertEqual((fit["after_probe_ticks"],
+                          fit["after_probe_delta_min"],
+                          fit["after_probe_delta_max"]),
+                         (11, 16_000_000, 16_000_000))
+
+    def test_tick_fit_standard_error_and_hz_scaling(self):
+        # Eight ticks of period P with residuals r * (+ - - + + - - +): that
+        # pattern sums to zero and is orthogonal to n = 1..8, so least
+        # squares returns slope P and exactly these residuals. By hand:
+        # SSR = 8 r^2, n - 2 = 6, Sxx = sum (n - 4.5)^2 = 42, so
+        # SE(slope) = r * sqrt(8 / 6 / 42); f = divider * 16e6 / P and
+        # SE(f) = f * SE(slope) / P.
+        period, r = 0.998, 0.002
+        signs = (1, -1, -1, 1, 1, -1, -1, 1)
+        events = [(0.005, T_START)] + [
+            (0.010 + n * period + r * sign, tick(n))
+            for n, sign in zip(range(1, 9), signs)]
+        lines = fb.capture_lines(tick_capture(self.dir, events))
+        stderr = r * (8 / 6 / 42) ** 0.5
+        for divider in (1, 8):
+            hz = divider * 16_000_000 / period
+            fit = fb.fit_ticks(lines, reload=15_999_999, divider=divider)
+            self.assertEqual((fit["fit_ticks"], fit["probe_delayed_ticks"]),
+                             (8, 0))
+            for result in (fit, fit["all_ticks_fit"]):
+                self.assertAlmostEqual(result["slope_s_per_tick"], period,
+                                       delta=1e-8)
+                self.assertAlmostEqual(result["slope_stderr_s_per_tick"],
+                                       stderr, delta=stderr * 1e-5)
+                self.assertAlmostEqual(result["derived_core_hz"], hz,
+                                       delta=1.0)
+                self.assertAlmostEqual(result["derived_core_hz_stderr"],
+                                       hz * stderr / period,
+                                       delta=hz * stderr / period * 1e-5)
+                self.assertAlmostEqual(result["residual_rms_s"], r,
+                                       delta=1e-8)
+                self.assertAlmostEqual(result["residual_max_s"], r,
+                                       delta=1e-8)
+
+    def test_a_repeated_tick_number_closes_the_series(self):
+        # `n` must increase: a repeated n starts unanchored lines, as a
+        # smaller one does.
+        events = [(0.1, T_START)] + [(0.1 + i, tick(n)) for i, n in
+                                     enumerate((1, 2, 3, 3, 4, 5), 1)]
+        fit = fb.fit_ticks(fb.capture_lines(tick_capture(self.dir, events)),
+                           reload=15_999_999, divider=1)
+        self.assertEqual([s["ticks"] for s in fit["series"]], [3])
+        self.assertEqual(fit["unanchored_n"], [3, 4, 5])
+
+    def test_tick_fit_on_the_phase2_captures(self):
+        # Pinned from the tracked raw captures on 2026-10-31; PLAN.md (E4
+        # dated note) reports these numbers. The estimator, its exclusion
+        # of probe-delayed lines and its standard error were defined after
+        # these data were seen: not pre-registered. A change here means the
+        # estimator changed.
+        core = fb.fit_ticks(fb.capture_lines(PHASE2_CLOCK_CORE),
+                            reload=15_999_999, divider=1)
+        div8 = fb.fit_ticks(fb.capture_lines(PHASE2_CLOCK_DIV8),
+                            reload=15_999_999, divider=8)
+        # (Hz, standard error Hz, residual RMS s, residual max s)
+        for fit, pinned in [
+                (core, (16_031_806.9, 202.4, 0.002554, 0.005324)),
+                (core["all_ticks_fit"], (16_032_197.9, 385.3, 0.005553,
+                                         0.015159)),
+                (div8, (16_029_242.0, 440.3, 0.004448, 0.006806)),
+                (div8["all_ticks_fit"], (16_028_906.8, 565.9, 0.006898,
+                                         0.012736))]:
+            self.assertEqual(len(pinned), 4)
+            for key, value, delta in zip(
+                    ("derived_core_hz", "derived_core_hz_stderr",
+                     "residual_rms_s", "residual_max_s"),
+                    pinned, (0.1, 0.1, 1e-6, 1e-6)):
+                self.assertAlmostEqual(fit[key], value, delta=delta)
+        # P4.6: difference in combined standard errors (as computed).
+        for a, b, z in [(core, div8, 5.29), (core["all_ticks_fit"],
+                                             div8["all_ticks_fit"], 4.81)]:
+            self.assertAlmostEqual(
+                (a["derived_core_hz"] - b["derived_core_hz"]) /
+                (a["derived_core_hz_stderr"] ** 2 +
+                 b["derived_core_hz_stderr"] ** 2) ** 0.5, z, delta=0.005)
+        self.assertEqual((core["ticks"], core["unanchored_ticks"],
+                          core["probe_delayed_ticks"], core["fit_ticks"]),
+                         (87, 2, 31, 56))
+        self.assertEqual((div8["ticks"], div8["unanchored_ticks"],
+                          div8["probe_delayed_ticks"], div8["fit_ticks"]),
+                         (20, 16, 8, 12))
+        self.assertEqual((core["cyccnt_delta_min"], core["cyccnt_delta_max"]),
+                         (15_999_999, 16_000_001))
+        self.assertEqual((div8["cyccnt_delta_min"], div8["cyccnt_delta_max"],
+                          div8["after_probe_delta_min"],
+                          div8["after_probe_delta_max"]),
+                         (128_000_000,) * 4)
+        for fit in (core, div8):
+            self.assertGreater(fit["slope_s_per_tick"], 0)
+            self.assertLess(fit["residual_max_s"], 0.01)
+        self.assertAlmostEqual(core["derived_core_hz"], CORE_HZ, delta=1)
+        self.assertAlmostEqual(div8["derived_core_hz"], DIV8_HZ, delta=1)
+
 
     def test_starvation_interval_runs_from_last_feed_to_boot(self):
         lines = [(5.5, "BF1 W win=11 feed=0 starving=1"),
@@ -2125,7 +2760,15 @@ class RegistryTests(unittest.TestCase):
 # the check_elf of the session copy (its digest equals the checked bytes);
 # the owner part of the lock-file check (needs a second user); the 128-word
 # symbol limit (_check_read refuses the same reads); r"st-flash" (see
-# DENY_REDUNDANT).
+# DENY_REDUNDANT). Revision 4: the exact `halt`/`resume` words and the DHCSR
+# read in the per-command allowlist (permissive entries; _check_bracket and
+# _bracket_exempt decide where they stand, and both are mutated); the
+# conversion of a command list without the bracket into a PolicyError in
+# halted_window (only reached with an argv the Board built itself, which
+# always brackets). After the review of revision 4: `before=text` in the
+# fallback of Board._identity (that attach is always refused; the values
+# are never recorded); the DHCSR bit numbers (recalled constants, pinned by
+# the tests that use them, not facts the tests can check).
 # --------------------------------------------------------------------------
 FB_PATH = Path(fb.__file__).resolve()
 MUTANT_TIMEOUT_S = 120
@@ -2451,6 +3094,114 @@ MUTANTS = [
     ("probing-exit-code", 'return 1 if args.kind == "probing" and not '
      'result["stopped"] \\', 'return 0 if args.kind == "probing" and not '
      'result["stopped"] \\'),
+    # halt bracket (revision 4): denylist exemption, template, identity
+    ("bracket-exempt-order", "if [argv[i] for i in found] != [HALT, RESUME]:",
+     "if len(found) != 2:"),
+    ("bracket-exempt-c-args",
+     'if argv[halt - 1] != "-c" or argv[resume - 1] != "-c":', "if False:"),
+    ("bracket-exempt-dhcsr-after-halt",
+     'if argv[halt + 1:halt + 3] != ["-c", DHCSR_READ] or \\',
+     "if False or \\"),
+    ("bracket-exempt-dhcsr-before-resume",
+     'argv[resume - 2:resume] != [DHCSR_READ, "-c"] or \\', "False or \\"),
+    ("bracket-exempt-dhcsr-after-resume",
+     'argv[resume + 1:resume + 3] != ["-c", DHCSR_READ]:', "False:"),
+    ("bracket-applied",
+     "    if HALT in body or RESUME in body:\n        _check_bracket(body)\n",
+     ""),
+    ("bracket-fullmatch", "if not re.fullmatch(BRACKET_TEMPLATE, tokens):",
+     "if not re.search(BRACKET_TEMPLATE, tokens):"),
+    ("bracket-token-dhcsr", 'else "D" if c == DHCSR_READ',
+     'else "D" if c.startswith("mdw ")'),
+    ("bracket-dhcsr-after-halt", 'r"i[mD]*hD[mDd]*DrD[mD]*s"',
+     'r"i[mD]*h[mDd]*DrD[mD]*s"'),
+    ("bracket-dhcsr-before-resume", 'r"i[mD]*hD[mDd]*DrD[mD]*s"',
+     'r"i[mD]*hD[mDd]*rD[mD]*s"'),
+    ("bracket-dhcsr-after-resume", 'r"i[mD]*hD[mDd]*DrD[mD]*s"',
+     'r"i[mD]*hD[mDd]*Dr[mD]*s"'),
+    ("bracket-reads-before-halt", 'r"i[mD]*hD[mDd]*DrD[mD]*s"',
+     'r"i[mDx]*hD[mDd]*DrD[mD]*s"'),
+    ("bracket-reads-inside", 'r"i[mD]*hD[mDd]*DrD[mD]*s"',
+     'r"i[mD]*hD[mDdx]*DrD[mD]*s"'),
+    ("bracket-reads-after-resume", 'r"i[mD]*hD[mDd]*DrD[mD]*s"',
+     'r"i[mD]*hD[mDd]*DrD[mDx]*s"'),
+    ("bracket-no-dump-after-resume", 'r"i[mD]*hD[mDd]*DrD[mD]*s"',
+     'r"i[mD]*hD[mDd]*DrD[mDd]*s"'),
+    ("bracket-starts-at-init", 'r"i[mD]*hD[mDd]*DrD[mD]*s"',
+     'r"x?i[mD]*hD[mDd]*DrD[mD]*s"'),
+    ("bracket-ends-at-shutdown", 'r"i[mD]*hD[mDd]*DrD[mD]*s"',
+     'r"i[mD]*hD[mDd]*DrD[mD]*s?"'),
+    ("window-dhcsr-count", "if len(lines) != len(reads):", "if False:"),
+    ("identity-bracket-required", "            problems.append(str(error))\n",
+     ""),
+    ("identity-halt-confirmed",
+     '            problems += halt_problems(bracket["dhcsr"])\n', ""),
+    ("identity-from-window",
+     'session.text(probed) if probed else "", bracket["window"],',
+     'session.text(probed) if probed else "", text,'),
+    ("halt-c-debugen", "if not dhcsr[key] & DHCSR_C_DEBUGEN:", "if False:"),
+    ("halt-s-halt", "if not dhcsr[key] & DHCSR_S_HALT:", "if False:"),
+    ("resume-released", 'if dhcsr["after_resume"] & DHCSR_S_HALT:',
+     "if False:"),
+    ("identity-missing-reads",
+     "        problems += missing_identity_reads(observed)\n", ""),
+    ("missing-reads-rule", "if observed.get(key) is None]", "if False]"),
+    ("identity-pattern", "        problems += implausible_reads(observed)\n",
+     ""),
+    ("pattern-rule", "if len(set(values)) < len(values):", "if False:"),
+    ("read-values-halted", 'blocks = parse_openocd_reads(bracket["window"])',
+     'blocks = parse_openocd_reads(bracket["before"] + bracket["window"])'),
+    # tick analysis (revision 4)
+    ("ticks-anchor-t-start", 'if line["tag"] == "T START":\n'
+     "                current = dict(", "if True:\n"
+     "                current = dict("),
+    ("ticks-boot-closes", 'if line["tag"] in ("BOOT", "T START"):',
+     'if line["tag"] == "T START":'),
+    ("ticks-n-increasing",
+     'line["fields"]["n"] <= current["ticks"][-1]["fields"]["n"]:', "False:"),
+    ("ticks-longest",
+     'chosen = max(series, key=lambda s: len(s["ticks"]), default=None)',
+     "chosen = series[-1] if series else None"),
+    ("ticks-exclude-delayed",
+     'first = [l for l in ticks if l["fields"]["n"] not in probed]',
+     "first = list(ticks)"),
+    ("ticks-first-delta", 'whole = [l for l in ticks if l["fields"]["n"] >= 2',
+     'whole = [l for l in ticks if l["fields"]["n"] >= 1'),
+    ("ticks-skipped", 'l["fields"].get("skipped") == 0]', "True]"),
+    # review of revision 4, should-fix items S1-S4 and S7
+    ("identity-init-strings", 'init_text=bracket["before"])',
+     'init_text=bracket["window"])'),
+    ("identity-init-default",
+     "init_text = openocd_text if init_text is None else init_text",
+     "init_text = openocd_text"),
+    ("identity-openocd-error", "        if errors:\n            problems."
+     "append(\"openocd reported an error: \"", "        if False:\n"
+     "            problems.append(\"openocd reported an error: \""),
+    ("halt-reset-inside", 'if dhcsr["before_resume"] & DHCSR_S_RESET_ST:',
+     "if False:"),
+    ("missing-reads-idcode", '(("DBGMCU_IDCODE", "idcode"), ', "("),
+    ("missing-reads-uid", '("UID", "uid"),', ""),
+    ("missing-reads-flash-size", '("flash size", "flash_kib"), ', ""),
+    ("missing-reads-optcr", '("FLASH_OPTCR", "optcr"),', ""),
+    ("missing-reads-optcr1", '("FLASH_OPTCR1", "optcr1"), ', ""),
+    ("missing-reads-dbgmcu-cr", '("DBGMCU_CR", "dbgmcu_cr"),', ""),
+    ("missing-reads-apb1-fz", '("DBGMCU_APB1_FZ", "dbgmcu_apb1_fz"),', ""),
+    ("missing-reads-rcc-csr", ',\n                   ("RCC_CSR", "rcc_csr"))',
+     ")"),
+    ("ticks-stderr-dof", "/ (count - 2) / sxx", "/ count / sxx"),
+    ("ticks-hz-stderr", "derived_core_hz_stderr=abs(hz * stderr / slope)",
+     "derived_core_hz_stderr=abs(stderr)"),
+    ("ticks-hz-stderr-slope",
+     "derived_core_hz_stderr=abs(hz * stderr / slope)",
+     "derived_core_hz_stderr=abs(hz * stderr)"),
+    ("ticks-hz-divider", "hz = divider * (reload + 1) / slope",
+     "hz = (reload + 1) / slope"),
+    ("ticks-n-repeat-closes", '<= current["ticks"][-1]["fields"]["n"]:',
+     '< current["ticks"][-1]["fields"]["n"]:'),
+    ("bracket-on-halt-only", "    if HALT in body or RESUME in body:\n",
+     "    if HALT in body:\n"),
+    ("bracket-on-resume-only", "    if HALT in body or RESUME in body:\n",
+     "    if RESUME in body:\n"),
 ]
 MUTANTS += [("deny %s" % pattern, 'r"%s"' % pattern, 'r"(?!)"')
             for pattern in fb.DENY_PATTERNS if pattern not in DENY_REDUNDANT]
