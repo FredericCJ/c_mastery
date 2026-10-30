@@ -31,6 +31,10 @@ struct pc_ops
 };
 
 void pc_init(struct pc_copy *copy);
+/* Cooperative copy: performs at most call_budget read/write callbacks, then
+ * returns PC_YIELD, PC_WAIT_READ/PC_WAIT_WRITE (callback reported EAGAIN),
+ * PC_DONE (all input copied) or PC_ERROR (error latched in copy->error).
+ * The callbacks and their context are borrowed; the copy owns no resource. */
 enum pc_status pc_resume(struct pc_copy *copy, struct pc_ops ops,
                          unsigned call_budget);
 uintmax_t pc_off_max(void);

@@ -28,7 +28,13 @@ struct pm_record
     unsigned char payload[64];
 };
 
+/* Observer called at publish points 1..3 (after invalidation, after data
+ * completion and after commit) with the caller's context; tests use it to
+ * stop the writer. */
 typedef void (*pm_cut_fn)(unsigned, void *);
+/* All functions return 0 or a positive errno. Descriptors are borrowed.
+ * pm_map() yields an active mapping the caller releases with pm_unmap();
+ * pm_remap() invalidates every outstanding struct pm_borrow (ESTALE). */
 int pm_map(int, off_t, size_t, size_t, struct pm_map *);
 int pm_remap(struct pm_map *, int, size_t, size_t);
 int pm_copy(const struct pm_map *, struct pm_borrow, void *, size_t);

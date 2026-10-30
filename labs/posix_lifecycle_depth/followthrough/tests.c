@@ -236,117 +236,166 @@ static void pause_child(void)
     }
 }
 
+/* The three blocking calls under test, each interrupted by a periodic
+   SIGALRM while the child delays its side by ~100 ms. */
+enum
+{
+    INTERRUPT_READ_ALL,
+    INTERRUPT_WRITE_ALL,
+    INTERRUPT_WAIT,
+    INTERRUPT_MODES
+};
+
+/* Fills a non-blocking pipe until it would block, so the next write must
+   wait for the child to read. *filled receives the byte count. */
+static int fill_pipe(int write_end, size_t *filled)
+{
+    char bytes[256] = {0};
+    *filled = 0;
+    for (;;)
+    {
+        ssize_t n = write(write_end, bytes, sizeof bytes);
+        if (n > 0)
+        {
+            *filled += (size_t)n;
+        }
+        else
+        {
+            CHECK(n == -1 && errno == EAGAIN);
+            return 0;
+        }
+    }
+}
+
+/* Child for INTERRUPT_READ_ALL: after a pause, delivers 8 bytes one at a
+   time, so the parent's read is interrupted and resumed repeatedly. */
+static void feed_reader(const int pipefd[2])
+{
+    close(pipefd[0]);
+    pause_child();
+    for (unsigned i = 0; i < 8; ++i)
+    {
+        if (write(pipefd[1], &"abcdefgh"[i], 1) != 1)
+        {
+            _exit(122);
+        }
+    }
+    close(pipefd[1]);
+}
+
+/* Child for INTERRUPT_WRITE_ALL: after a pause, drains the full pipe plus
+   the parent's one extra byte. The read end is non-blocking, so EAGAIN is
+   retried rather than treated as the end. */
+static void drain_pipe(const int pipefd[2], size_t filled)
+{
+    close(pipefd[1]);
+    pause_child();
+    char bytes[256];
+    size_t drained = 0;
+    while (drained < filled + 1)
+    {
+        ssize_t n = read(pipefd[0], bytes, sizeof bytes);
+        if (n > 0)
+        {
+            drained += (size_t)n;
+        }
+        else if (n < 0 && (errno == EINTR || errno == EAGAIN))
+        {
+            continue;
+        }
+        else
+        {
+            break;
+        }
+    }
+    close(pipefd[0]);
+}
+
+/* Child body per mode; for INTERRUPT_WAIT it only sleeps and exits 0. */
+static void run_interrupt_child(unsigned mode, const int pipefd[2],
+                                size_t filled)
+{
+    if (mode == INTERRUPT_READ_ALL)
+    {
+        feed_reader(pipefd);
+    }
+    else if (mode == INTERRUPT_WRITE_ALL)
+    {
+        drain_pipe(pipefd, filled);
+    }
+    else
+    {
+        close(pipefd[0]);
+        close(pipefd[1]);
+        pause_child();
+    }
+    _exit(0);
+}
+
+/* The parent keeps only the end its call uses. */
+static void close_unused_ends(unsigned mode, const int pipefd[2])
+{
+    if (mode == INTERRUPT_READ_ALL)
+    {
+        close(pipefd[1]);
+    }
+    else if (mode == INTERRUPT_WRITE_ALL)
+    {
+        close(pipefd[0]);
+    }
+    else
+    {
+        close(pipefd[0]);
+        close(pipefd[1]);
+    }
+}
+
 static int interrupts(void)
 {
-    struct sigaction action = {0}, old;
+    struct sigaction action = {0};
+    struct sigaction old;
     action.sa_handler = notice;
     CHECK(sigemptyset(&action.sa_mask) == 0);
     CHECK(sigaction(SIGALRM, &action, &old) == 0);
-    struct itimerval timer = {{0, 1000}, {0, 1000}}, none = {{0, 0}, {0, 0}},
-                     previous;
+    /* 1000 microsecond period: frequent enough to hit every blocked call. */
+    struct itimerval timer = {{0, 1000}, {0, 1000}};
+    struct itimerval none = {{0, 0}, {0, 0}};
+    struct itimerval previous;
     CHECK(getitimer(ITIMER_REAL, &previous) == 0 &&
           previous.it_value.tv_sec == 0 && previous.it_value.tv_usec == 0);
     int initial = descriptors();
-    for (unsigned mode = 0; mode < 3; ++mode)
+    for (unsigned mode = 0; mode < INTERRUPT_MODES; ++mode)
     {
         int pipefd[2];
-        CHECK(pipe2(pipefd, O_CLOEXEC | (mode == 1 ? O_NONBLOCK : 0)) == 0);
-        size_t fill = 0;
-        if (mode == 1)
+        int nonblocking = mode == INTERRUPT_WRITE_ALL ? O_NONBLOCK : 0;
+        CHECK(pipe2(pipefd, O_CLOEXEC | nonblocking) == 0);
+        size_t filled = 0;
+        if (mode == INTERRUPT_WRITE_ALL)
         {
-            char bytes[256] = {0};
-            for (;;)
-            {
-                ssize_t n = write(pipefd[1], bytes, sizeof bytes);
-                if (n > 0)
-                {
-                    fill += (size_t)n;
-                }
-                else
-                {
-                    CHECK(n == -1 && errno == EAGAIN);
-                    break;
-                }
-            }
+            CHECK(fill_pipe(pipefd[1], &filled) == 0);
+            /* Back to blocking, so the call under test really blocks. */
             CHECK(fcntl(pipefd[1], F_SETFL, 0) == 0);
         }
         pid_t child = fork();
         CHECK(child >= 0);
         if (child == 0)
         {
-            if (mode == 0)
-            {
-                close(pipefd[0]);
-                pause_child();
-                for (unsigned i = 0; i < 8; ++i)
-                {
-                    if (write(pipefd[1], &"abcdefgh"[i], 1) != 1)
-                    {
-                        _exit(122);
-                    }
-                }
-                close(pipefd[1]);
-            }
-            else if (mode == 1)
-            {
-                close(pipefd[1]);
-                pause_child();
-                char bytes[256];
-                size_t n = 0;
-                while (n < fill + 1)
-                {
-                    ssize_t k = read(pipefd[0], bytes, sizeof bytes);
-                    if (k > 0)
-                    {
-                        n += (size_t)k;
-                    }
-                    else if (k < 0 && errno == EINTR)
-                    {
-                        continue;
-                    }
-                    else if (k < 0 && errno == EAGAIN)
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                close(pipefd[0]);
-            }
-            else
-            {
-                close(pipefd[0]);
-                close(pipefd[1]);
-                pause_child();
-            }
-            _exit(0);
+            run_interrupt_child(mode, pipefd, filled);
         }
-        if (mode == 0)
-        {
-            close(pipefd[1]);
-        }
-        else if (mode == 1)
-        {
-            close(pipefd[0]);
-        }
-        else
-        {
-            close(pipefd[0]);
-            close(pipefd[1]);
-        }
+        close_unused_ends(mode, pipefd);
+
         signal_seen = 0;
         CHECK(setitimer(ITIMER_REAL, &timer, NULL) == 0);
-        int status = 0, rc;
+        int status = 0;
+        int rc;
         unsigned interrupted = 0;
         size_t used = 0;
         char bytes[8] = {0};
-        if (mode == 0)
+        if (mode == INTERRUPT_READ_ALL)
         {
             rc = plx_read_all(pipefd[0], bytes, 8, &used, &interrupted);
         }
-        else if (mode == 1)
+        else if (mode == INTERRUPT_WRITE_ALL)
         {
             rc = plx_write_all(pipefd[1], "!", 1, &used, &interrupted);
         }
@@ -355,24 +404,25 @@ static int interrupts(void)
             rc = plx_wait(child, &status, &interrupted);
         }
         CHECK(setitimer(ITIMER_REAL, &none, NULL) == 0);
-        if (mode < 2)
+        if (mode != INTERRUPT_WAIT)
         {
-            close(pipefd[mode == 0 ? 0 : 1]);
+            close(pipefd[mode == INTERRUPT_READ_ALL ? 0 : 1]);
         }
-        if (mode < 2 || rc)
+        /* Reap here unless plx_wait already did so successfully. */
+        if (mode != INTERRUPT_WAIT || rc)
         {
             reap(child);
         }
         CHECK(rc == 0 && interrupted > 0 && signal_seen);
-        if (mode == 0)
+        if (mode == INTERRUPT_READ_ALL)
         {
             CHECK(used == 8 && memcmp(bytes, "abcdefgh", 8) == 0);
         }
-        if (mode == 1)
+        if (mode == INTERRUPT_WRITE_ALL)
         {
             CHECK(used == 1);
         }
-        if (mode == 2)
+        if (mode == INTERRUPT_WAIT)
         {
             CHECK(WIFEXITED(status) && WEXITSTATUS(status) == 0);
         }

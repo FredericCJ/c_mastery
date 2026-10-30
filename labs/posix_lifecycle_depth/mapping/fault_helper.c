@@ -1,3 +1,6 @@
+/* CM-SPECIMEN: deliberate invalid mapped-memory access (SIGSEGV on a
+   PROT_NONE page, SIGBUS past EOF); observed externally, never
+   sanitizer-instrumented. */
 /* Original deliberately faulting specimens; isolated subprocess, no core dump.
    This executable is intentionally not instrumented by a signal-intercepting
    sanitizer: its externally observed Linux termination signal is the subject. */
