@@ -252,7 +252,7 @@ def run(output=None, *, build=False):
         report['tools'] = [identify(x) for x in ('gcc', 'clang', 'cmake', 'ninja')]
         report['structure'] = schema_checks()
         scripts = ['check_public_profiles.py', 'check_native_route.py', 'check_learning_v4.py',
-                   'check_exercise_workflow.py']
+                   'check_exercise_workflow.py', 'check_security_labs.py']
         for script in scripts:
             report['checks'].append(run_command([sys.executable, ROOT/'tools'/script], raw, script[:-3]))
         from check_fixtures import selected_oracles
