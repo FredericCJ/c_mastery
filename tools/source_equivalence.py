@@ -93,10 +93,10 @@ def include_dirs(relative, tree):
 
 
 def compile_unit(args):
-    relative, tree, out_dir, compiler = args
+    relative, tree, out_dir, compiler, extra = args
     tree = Path(tree)
     obj = Path(out_dir) / (relative.replace("/", "__") + f".{compiler[0]}.o")
-    flags = [*compiler[1], *COMMON, f"-ffile-prefix-map={tree}=.", f"-fmacro-prefix-map={tree}=."]
+    flags = [*compiler[1], *COMMON, *extra, f"-ffile-prefix-map={tree}=.", f"-fmacro-prefix-map={tree}=."]
     command = [*flags, *("-I" + str(d) for d in include_dirs(relative, tree)), str(tree / relative),
                "-o", str(obj)]
     result = subprocess.run(command, cwd=tree, capture_output=True, text=True, timeout=120)
@@ -138,7 +138,7 @@ def renamed(text, rename):
     return text
 
 
-def compare_objects(old_obj, new_obj, rename):
+def compare_objects(old_obj, new_obj, rename, squash_strings=False):
     a, b = object_view(old_obj), object_view(new_obj)
     if a["sections"] == b["sections"] and a["relocations"] == b["relocations"]:
         return "identical"
@@ -158,15 +158,27 @@ def compare_objects(old_obj, new_obj, rename):
                             if name.startswith(".rodata")
                             for piece in data.decode("latin-1").split("\0") if piece]
     remaining = Counter(collect(b))
+    matched = True
     for piece in collect(a):
         for candidate in (renamed(piece, rename), piece):
             if remaining[candidate] > 0:
                 remaining[candidate] -= 1
                 break
         else:
+            matched = False
+            break
+    if matched and +remaining:
+        matched = False
+    whitespace_only = False
+    if not matched:
+        if not squash_strings:
             return "different"
-    if +remaining:
-        return "different"
+        # Audit class: strings that differ only in whitespace (a stringified
+        # argument whose layout changed). Printed output differs; code must not.
+        squash = lambda view: Counter("".join(p.split()) for p in collect(view))
+        if squash(a) != squash(b):
+            return "different"
+        whitespace_only = True
     # Code must be identical once relocation addends into string data, which
     # move when a string's length changes, are masked.
     def mask(text):
@@ -182,7 +194,7 @@ def compare_objects(old_obj, new_obj, rename):
     # those labels move with string data while the target address does not.
     strip = lambda s: re.sub(r"<[^>]*>", "<>", re.sub(r"^\s*[0-9a-f]+:", "", s, flags=re.M))
     if strip(mask(a["disassembly"])) == strip(mask(b["disassembly"])):
-        return "identical-except-renamed-strings"
+        return "identical-except-string-whitespace" if whitespace_only else "identical-except-renamed-strings"
     return "different"
 
 
@@ -223,17 +235,18 @@ def prove_objects(args):
                 results[relative] = "new-file"
                 continue
             jobs.append(relative)
-        with ProcessPoolExecutor(max_workers=os.cpu_count()) as pool:
+        extra = ["-D__LINE__=0"] if args.neutral_line else []
+        with ProcessPoolExecutor(max_workers=args.jobs or os.cpu_count()) as pool:
             for relative in jobs:
                 outcome = "not-compiled"
                 for compiler in COMPILERS:
-                    old_obj = pool.submit(compile_unit, (relative, str(before), str(objects / "b"), compiler))
-                    new_obj = pool.submit(compile_unit, (relative, str(after), str(objects / "a"), compiler))
+                    old_obj = pool.submit(compile_unit, (relative, str(before), str(objects / "b"), compiler, extra))
+                    new_obj = pool.submit(compile_unit, (relative, str(after), str(objects / "a"), compiler, extra))
                     (objects / "b").mkdir(exist_ok=True)
                     (objects / "a").mkdir(exist_ok=True)
                     o, n = old_obj.result(), new_obj.result()
                     if o and n:
-                        outcome = compare_objects(o, n, file_map(relative)) + f"@{compiler[0]}"
+                        outcome = compare_objects(o, n, file_map(relative), args.squash_strings) + f"@{compiler[0]}"
                         break
                     if bool(o) != bool(n):
                         outcome = f"compile-mismatch@{compiler[0]}"
@@ -245,7 +258,9 @@ def prove_objects(args):
         counts[key] = counts.get(key, 0) + 1
     failed = sorted(f for f, o in results.items() if o.startswith(("different", "compile-mismatch")))
     report = dict(schema_version=1, proof="objects", base=base, generated_at=datetime.now(timezone.utc).isoformat(),
-                  compilers=[c[1] for c in COMPILERS], common_flags=COMMON, counts=counts,
+                  compilers=[c[1] for c in COMPILERS], common_flags=COMMON + extra,
+                  squash_strings=args.squash_strings, counts=counts,
+                  audit=bool(extra or args.squash_strings),
                   failed=failed, results=results, passed=not failed,
                   limits="not-compiled units (host and Cortex-M4 heuristics both failed) rely on the token-level "
                          "rename structure and on re-running their own campaigns.")
@@ -408,6 +423,8 @@ def record(args):
     proof = json.loads(Path(args.proof).read_text())
     if not proof["passed"]:
         raise SystemExit("refusing to record a failed proof")
+    if proof.get("audit"):
+        raise SystemExit("refusing to record an audit run (--neutral-line or --squash-strings) as a proof")
     data = json.loads(MIGRATION.read_text()) if MIGRATION.is_file() else dict(
         schema_version=1,
         description="Proven layout/naming migrations of lab and assessor C. A receipt pinned to "
@@ -482,6 +499,11 @@ def main():
     o.add_argument("--rename-map", help="JSON {old identifier: replacement text} for string checks")
     o.add_argument("--rename-plan", help="tools/c_rename.py plan, for per-file string maps")
     o.add_argument("--only", help="file listing the units to (re)check")
+    o.add_argument("--jobs", type=int, help="parallel compiles (default: CPU count)")
+    o.add_argument("--neutral-line", action="store_true",
+                   help="audit: compile with __LINE__ defined as 0, so moved lines do not differ")
+    o.add_argument("--squash-strings", action="store_true",
+                   help="audit: report strings that differ only in whitespace as their own class")
     o.add_argument("--report", required=True)
     for name in ("tokens", "braces"):
         t = sub.add_parser(name)
