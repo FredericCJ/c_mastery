@@ -12,9 +12,13 @@
         }                                                                     \
     } while (0)
 
+/* `fail` is a 1-based take ordinal that returns NULL; `live` counts blocks
+ * acquired and not yet released. */
 struct cd_alloc
 {
-    unsigned calls, fail, live;
+    unsigned calls;
+    unsigned fail;
+    unsigned live;
 };
 
 static struct cd_bucket *take(void *v, unsigned n)
@@ -40,7 +44,9 @@ static void release(void *v, struct cd_bucket *p)
     free(p);
 }
 
-static void hashes(void)
+/* Deleting 5 must not hide 9 behind the tombstone: live and occupied counts
+ * differ until a rebuild, and a failed rebuild keeps the old table. */
+static void hash_tombstones_and_rebuild(void)
 {
     struct cd_alloc a = {0};
     struct cd_hash h;
@@ -78,6 +84,16 @@ static void hashes(void)
     CHECK(cd_hash_rebuild(&h, 8) == CD_OK && h.live == 3 && h.occupied == 3 &&
           a.live == 1);
     CHECK(cd_hash_destroy(&h) == CD_OK && a.live == 0);
+}
+
+/* A table holding only tombstones still terminates a miss after exactly
+ * capacity probes, can reuse a tombstone, and a rebuild drops them all. */
+static void hash_all_tombstones(void)
+{
+    struct cd_alloc a = {0};
+    struct cd_hash h;
+    unsigned probes;
+    int out = 99;
     CHECK(cd_hash_init(&h, 4, (struct cd_hash_allocator){&a, take, release},
                        0) == CD_OK);
     for (unsigned k = 0; k < 4; ++k)
@@ -94,6 +110,16 @@ static void hashes(void)
           h.occupied == 4);
     CHECK(cd_hash_rebuild(&h, 4) == CD_OK && h.occupied == 1 &&
           cd_hash_destroy(&h) == CD_OK);
+}
+
+/* Clustered hashing sends every key to bucket 0, so the k-th insert probes
+ * k + 1 buckets and a miss probes the whole table. */
+static void hash_clustered_probes(void)
+{
+    struct cd_alloc a = {0};
+    struct cd_hash h;
+    unsigned probes;
+    int out = 99;
     CHECK(cd_hash_init(&h, 16, (struct cd_hash_allocator){&a, take, release},
                        1) == CD_OK);
     for (unsigned k = 0; k < 16; ++k)
@@ -102,7 +128,14 @@ static void hashes(void)
     }
     CHECK(cd_hash_get(&h, 99, &out, &probes) == CD_MISSING && probes == 16);
     CHECK(cd_hash_destroy(&h) == CD_OK);
+}
+
+/* Keys are copied into the map, so mutating the caller's buffer afterwards
+ * cannot change what the map holds. */
+static void bytemap_copied_keys(void)
+{
     struct cd_byte_map m = {0};
+    int out = 99;
     unsigned char buffer[2] = {'A', 0};
     CHECK(cd_bytemap_put(&m, buffer, 2, 7) == CD_OK);
     buffer[0] = 'B';
@@ -110,12 +143,22 @@ static void hashes(void)
     CHECK(cd_bytemap_get(&m, original, 2, &out) == CD_OK && out == 7 &&
           cd_bytemap_get(&m, buffer, 2, &out) == CD_MISSING);
     /* Defined borrowed-key counterexample: stored placement uses old hash; live bytes changed. */
-    unsigned old_bucket = original[0] % 4, new_bucket = buffer[0] % 4;
+    unsigned old_bucket = original[0] % 4;
+    unsigned new_bucket = buffer[0] % 4;
     CHECK(old_bucket != new_bucket);
-    /* Case-insensitive equality with case-sensitive mod-4 hash is inconsistent. */
-    CHECK(('A' | 32) ==
-          ('a' | 32)); /* use mod-3: modulo4 happens to preserve this pair */
+    /* Case-insensitive equality with a case-sensitive hash is inconsistent:
+     * 'A' and 'a' are equal when folded but hash differently (mod 3 here;
+     * mod 4 happens to preserve this pair). */
+    CHECK(('A' | 32) == ('a' | 32));
     CHECK((unsigned)'A' % 3 != (unsigned)'a' % 3);
+}
+
+static void hashes(void)
+{
+    hash_tombstones_and_rebuild();
+    hash_all_tombstones();
+    hash_clustered_probes();
+    bytemap_copied_keys();
     puts(
         "CONTAINERS_HASH_PASS tombstone all_tombstones transactional_rebuild clustered copied_key inconsistent_callbacks");
 }
@@ -170,9 +213,15 @@ static void tries(void)
         t.count, t.count * sizeof(struct cd_trie_node), sizeof t.nodes);
 }
 
-static void sets(void)
+/* Bit-set algebra, including the exhaustive complement identity: for every
+ * subset a of a universe of up to 10 bits, a joined with ~a is the full mask,
+ * a met with ~a is empty and a minus ~a is a. */
+static void bitset_algebra_and_iteration(void)
 {
-    uint32_t join, meet, difference, mask;
+    uint32_t join;
+    uint32_t meet;
+    uint32_t difference;
+    uint32_t mask;
     CHECK(cd_bitset_algebra((1u << 1) | (1u << 2) | (1u << 5),
                             (1u << 2) | (1u << 3), 10, &join, &meet,
                             &difference) == CD_OK &&
@@ -182,7 +231,8 @@ static void sets(void)
           join == 1023);
     CHECK(cd_bitset_mask(32, &mask) == CD_OK && mask == UINT32_MAX &&
           cd_bitset_mask(0, &mask) == CD_OK && !mask);
-    unsigned position = 0, key;
+    unsigned position = 0;
+    unsigned key;
     CHECK(cd_bitset_next(34, 10, &position, &key) == CD_OK && key == 1 &&
           cd_bitset_next(34, 10, &position, &key) == CD_OK && key == 5 &&
           cd_bitset_next(34, 10, &position, &key) == CD_EMPTY &&
@@ -197,6 +247,12 @@ static void sets(void)
                   join == top - 1 && !meet && difference == a);
         }
     }
+}
+
+/* The two-bit generation wraps after three clears; every clear must hide the
+ * old members. */
+static void sparse_set_generations(void)
+{
     struct cd_sparse s;
     cd_sparse_init(&s);
     CHECK(cd_sparse_insert(&s, 2) == CD_OK &&
@@ -211,7 +267,12 @@ static void sets(void)
         CHECK(!cd_sparse_has(&s, 17) && !cd_sparse_has(&s, 5) &&
               s.generation != oldgeneration);
     }
+}
+
+static void disjoint_sets_rollback(void)
+{
     struct cd_sets u;
+    unsigned key;
     CHECK(cd_sets_init(&u, 6) == CD_OK);
     size_t empty = u.used;
     CHECK(cd_sets_union(&u, 0, 2) == CD_OK &&
@@ -223,6 +284,7 @@ static void sets(void)
     }
     CHECK(r[0] == r[2] && r[2] == r[3] && r[3] == r[4] && r[1] != r[0] &&
           r[5] != r[0] && r[1] != r[5] && u.size[r[0]] == 4);
+    /* Joining two members of one set does not double the root's size. */
     CHECK(cd_sets_union(&u, 0, 4) == CD_OK && u.size[r[0]] == 4);
     CHECK(cd_sets_rollback(&u, empty) == CD_OK);
     for (unsigned i = 0; i < 6; ++i)
@@ -232,6 +294,7 @@ static void sets(void)
     CHECK(cd_sets_union(&u, 0, 1) == CD_OK &&
           cd_sets_union(&u, 2, 3) == CD_OK && cd_sets_union(&u, 0, 2) == CD_OK);
     CHECK(u.parent[3] == 2);
+    /* Path compression is itself logged, so it can be rolled back. */
     size_t before = u.used;
     CHECK(cd_sets_find(&u, 3, &key) == CD_OK && key == 0 && u.parent[3] == 0 &&
           u.used == before + 1);
@@ -240,6 +303,13 @@ static void sets(void)
     u.used = 128;
     struct cd_sets old = u;
     CHECK(cd_sets_find(&u, 3, &key) == CD_FULL && !memcmp(&old, &u, sizeof u));
+}
+
+static void sets(void)
+{
+    bitset_algebra_and_iteration();
+    sparse_set_generations();
+    disjoint_sets_rollback();
     puts(
         "CONTAINERS_SETS_PASS bitset_exhaustive_complements two_bit_wrap rollback_compression");
 }
@@ -254,7 +324,9 @@ static void graphs(void)
     {
         CHECK(csr.offset[i] == expected[i]);
     }
-    unsigned matrix[4][4] = {{0}}, list[4][4] = {{0}}, degrees[4] = {0};
+    unsigned matrix[4][4] = {{0}};
+    unsigned list[4][4] = {{0}};
+    unsigned degrees[4] = {0};
     for (unsigned i = 0; i < 3; ++i)
     {
         matrix[edges[i].from][edges[i].to] = 1;
@@ -290,7 +362,8 @@ static void filters(void)
     unsigned char filter = 0;
     CHECK(cd_filter_insert(&filter, 1) == CD_OK &&
           cd_filter_insert(&filter, 2) == CD_OK);
-    unsigned matches = 0, false_hits = 0;
+    unsigned matches = 0;
+    unsigned false_hits = 0;
     for (unsigned k = 0; k < 16; ++k)
     {
         unsigned result;

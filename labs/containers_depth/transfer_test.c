@@ -25,12 +25,14 @@ struct cd_wrapper
     struct cd_task *payload;
 };
 
-int main(void)
+/* The pool queue and the ring must agree on FIFO order and on exhaustion
+ * for the same three-element trace; only the refill path differs. */
+static void check_queue_matches_ring(void)
 {
-    int a[3] = {0};
+    int storage[3] = {0};
     struct cd_ring ring;
     struct cd_queue queue;
-    CHECK(cd_ring_init(&ring, a, 3) == CD_OK);
+    CHECK(cd_ring_init(&ring, storage, 3) == CD_OK);
     cd_queue_init(&queue);
     size_t written;
     for (int i = 1; i <= 3; ++i)
@@ -41,10 +43,12 @@ int main(void)
     int value = 4;
     CHECK(cd_ring_push(&ring, &value, 1, 0, &written) == CD_FULL &&
           cd_queue_push(&queue, 4, 0, 0) == CD_FULL);
+    /* A failed refill must publish neither availability nor any link. */
     struct cd_queue before = queue;
     CHECK(cd_queue_push(&queue, 4, 1, 1) == CD_NOMEM &&
           !memcmp(&before, &queue, sizeof queue));
-    int left, right;
+    int left;
+    int right;
     CHECK(cd_ring_pop(&ring, &left, 1) == CD_OK &&
           cd_queue_pop(&queue, &right) == CD_OK && left == 1 && right == 1);
     CHECK(cd_ring_push(&ring, &value, 1, 0, &written) == CD_OK &&
@@ -59,6 +63,7 @@ int main(void)
         CHECK(cd_queue_push(&queue, i, 1, 0) == CD_OK);
     }
     CHECK(queue.available == 6 && cd_queue_push(&queue, 7, 1, 0) == CD_FULL);
+    /* Strong push refuses a batch that does not fit; partial copies a prefix. */
     int values[2] = {1, 2};
     CHECK(cd_ring_push(&ring, values, 2, 0, &written) == CD_OK);
     int batch[2] = {8, 9};
@@ -66,8 +71,13 @@ int main(void)
           ring.count == 2);
     CHECK(cd_ring_push(&ring, batch, 2, 1, &written) == CD_OK && written == 1 &&
           ring.count == 3);
+}
+
+static void check_segmented_stable_addresses(void)
+{
     struct cd_segmented segmented = {0};
-    int *first = NULL, *last = NULL;
+    int *first = NULL;
+    int *last = NULL;
     CHECK(cd_segmented_append(&segmented, 10, &first) == CD_OK);
     for (int i = 1; i < 16; ++i)
     {
@@ -76,6 +86,12 @@ int main(void)
     CHECK(first == &segmented.blocks[0][0] && *first == 10 &&
           last == &segmented.blocks[3][3] &&
           cd_segmented_append(&segmented, 99, &last) == CD_FULL);
+}
+
+/* Cancellation points 1 and 2 must leave the source token intact; a published
+ * token is cleared, and two tokens with equal values keep distinct resources. */
+static void check_move_only_ownership(void)
+{
     struct cd_owned owned = {0};
     struct cd_move_only input = {7, 1};
     for (unsigned cancel = 1; cancel <= 2; ++cancel)
@@ -92,26 +108,36 @@ int main(void)
     struct cd_move_only duplicated = {9, 1};
     CHECK(cd_owned_append(&owned, &duplicated, 0) == CD_DUPLICATE &&
           duplicated.resource == 1 && owned.count == 2);
-    /* Wrapper deallocation and payload destruction have distinct ownership. */
+}
+
+static struct cd_wrapper *new_wrapper(struct cd_task *task)
+{
+    struct cd_wrapper *wrapper = calloc(1, sizeof *wrapper);
+    CHECK(wrapper);
+    wrapper->payload = task;
+    return wrapper;
+}
+
+/* Wrapper deallocation and payload destruction have distinct ownership. */
+static void check_wrapper_lifetime(void)
+{
     struct cd_list list;
     cd_list_init(&list);
     struct cd_task task = {9, 0};
-    struct cd_wrapper *wrapper = calloc(1, sizeof *wrapper);
-    CHECK(wrapper);
-    wrapper->payload = &task;
+    struct cd_wrapper *wrapper = new_wrapper(&task);
     CHECK(cd_list_push(&list, &wrapper->link, 0) == CD_OK &&
           cd_list_remove(&list, &wrapper->link) == CD_OK);
     CHECK(!task.released && wrapper->payload == &task);
     free(wrapper);
     task.released = 1;
-    /* Save next before freeing the containing wrapper, never after. */
+
     for (unsigned i = 0; i < 3; ++i)
     {
-        wrapper = calloc(1, sizeof *wrapper);
-        CHECK(wrapper);
-        wrapper->payload = &task;
+        wrapper = new_wrapper(&task);
         CHECK(cd_list_push(&list, &wrapper->link, 0) == CD_OK);
     }
+    /* Save next before freeing the containing wrapper, never after.  The link
+     * is the first member, so the link address is the wrapper address. */
     unsigned releases = 0;
     for (struct cd_link *node = list.head; node;)
     {
@@ -122,7 +148,12 @@ int main(void)
         node = next;
     }
     CHECK(releases == 3 && !list.count);
+}
+
+static void check_deque_ends(void)
+{
     struct cd_deque deque = {0};
+    int value;
     CHECK(cd_deque_push(&deque, 2, 0) == CD_OK &&
           cd_deque_push(&deque, 1, 1) == CD_OK &&
           cd_deque_push(&deque, 3, 0) == CD_OK &&
@@ -131,7 +162,8 @@ int main(void)
           cd_deque_pop(&deque, &value, 1) == CD_OK && value == 1 &&
           cd_deque_pop(&deque, &value, 0) == CD_OK && value == 2 &&
           cd_deque_pop(&deque, &value, 0) == CD_EMPTY);
-    /* Stack is the explicitly selected back/back projection; queue is back/front. */
+    /* Stack is the explicitly selected back/back projection; queue is
+     * back/front. */
     for (int i = 1; i <= 3; ++i)
     {
         CHECK(cd_deque_push(&deque, i, 0) == CD_OK);
@@ -140,6 +172,15 @@ int main(void)
     {
         CHECK(cd_deque_pop(&deque, &value, 0) == CD_OK && value == i);
     }
+}
+
+int main(void)
+{
+    check_queue_matches_ring();
+    check_segmented_stable_addresses();
+    check_move_only_ownership();
+    check_wrapper_lifetime();
+    check_deque_ends();
     puts(
         "CONTAINERS_TRANSFER_PASS typed_queue_refill segmented_stable move_ownership cancellation wrapper_lifetime stack_deque");
     return 0;

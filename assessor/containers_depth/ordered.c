@@ -1,51 +1,103 @@
+/*
+ * Reference implementations of the linked and ordered containers: intrusive
+ * lists, the generation-checked binary heap and the index-based binary search
+ * tree with optional AVL repair.
+ *
+ * Shared contract (full text in labs/containers_depth/CONTRACTS.md):
+ *  - Controls and links are caller-owned, live and at stable addresses;
+ *    operations are externally serialized.
+ *  - Removing a link detaches it; it never destroys the enclosing payload.
+ *  - A refused operation (CD_INVALID, CD_FULL, CD_DUPLICATE, CD_MISSING, ...)
+ *    leaves the structure unchanged.
+ *
+ * The heap section (from the comparison function to the tree) is copied
+ * verbatim, apart from the sink function, by assessor/algorithm_heap/generate.py.
+ * It must stay self-contained: no file-scope names defined above it.
+ *
+ * CD_MUTANT selects one deliberately wrong variant for the mutation campaign.
+ */
 #include "containers.h"
+
 #ifndef CD_MUTANT
 #define CD_MUTANT 0
 #endif
+
+/* Index-based tree: node indices are 0..TREE_NODES-1, -1 means "none". */
+enum
+{
+    TREE_NODES = 32,
+    TREE_NO_NODE = -1
+};
+
+static int link_is_detached(const struct cd_link *n)
+{
+    return !n->owner && !n->next && !n->previous;
+}
+
+static void link_detach(struct cd_link *n)
+{
+    n->next = 0;
+    n->previous = 0;
+    n->owner = 0;
+}
+
 void cd_list_init(struct cd_list *l)
 {
     *l = (struct cd_list){0, 0, 0};
 }
 
+static void list_push_front(struct cd_list *l, struct cd_link *n)
+{
+    n->next = l->head;
+    if (l->head)
+    {
+        l->head->previous = n;
+    }
+    else
+    {
+        l->tail = n;
+    }
+    l->head = n;
+}
+
+static void list_push_back(struct cd_list *l, struct cd_link *n)
+{
+    n->previous = l->tail;
+    if (l->tail)
+    {
+        l->tail->next = n;
+    }
+    else
+    {
+        l->head = n;
+    }
+    l->tail = n;
+}
+
+/* The link must be detached (all three fields zero).  front selects the end;
+ * any other value is CD_INVALID.  The list does not own the link's payload. */
 enum cd_status cd_list_push(struct cd_list *l, struct cd_link *n,
                             unsigned front)
 {
-    if (!l || !n || n->owner || n->next || n->previous || front > 1 ||
-        l->count == SIZE_MAX)
+    if (!l || !n || !link_is_detached(n) || front > 1 || l->count == SIZE_MAX)
     {
         return CD_INVALID;
     }
     n->owner = l;
     if (front)
     {
-        n->next = l->head;
-        if (l->head)
-        {
-            l->head->previous = n;
-        }
-        else
-        {
-            l->tail = n;
-        }
-        l->head = n;
+        list_push_front(l, n);
     }
     else
     {
-        n->previous = l->tail;
-        if (l->tail)
-        {
-            l->tail->next = n;
-        }
-        else
-        {
-            l->head = n;
-        }
-        l->tail = n;
+        list_push_back(l, n);
     }
     ++l->count;
     return CD_OK;
 }
 
+/* Repairs both neighbours (or head/tail) and clears the link; the owner field
+ * is how a link proves it belongs to this list. */
 enum cd_status cd_list_remove(struct cd_list *l, struct cd_link *n)
 {
     if (!l || !n || n->owner != l || !l->count)
@@ -68,12 +120,15 @@ enum cd_status cd_list_remove(struct cd_list *l, struct cd_link *n)
     {
         l->tail = n->previous;
     }
-    n->next = n->previous = 0;
-    n->owner = 0;
+    link_detach(n);
     --l->count;
     return CD_OK;
 }
 
+/* Circular list with a sentinel: the sentinel is never a member, so removal
+ * needs no head/tail special cases.  `identity` is the owner token that
+ * members point at; its count field also holds the member count, which
+ * cd_circle_append increments (refusing at SIZE_MAX). */
 void cd_circle_init(struct cd_circle *c)
 {
     cd_list_init(&c->identity);
@@ -82,8 +137,7 @@ void cd_circle_init(struct cd_circle *c)
 
 enum cd_status cd_circle_append(struct cd_circle *c, struct cd_link *n)
 {
-    if (!c || !n || n->owner || n->next || n->previous ||
-        c->identity.count == SIZE_MAX)
+    if (!c || !n || !link_is_detached(n) || c->identity.count == SIZE_MAX)
     {
         return CD_INVALID;
     }
@@ -106,8 +160,7 @@ enum cd_status cd_circle_remove(struct cd_circle *c, struct cd_link *n)
     }
     n->previous->next = n->next;
     n->next->previous = n->previous;
-    n->next = n->previous = 0;
-    n->owner = 0;
+    link_detach(n);
     --c->identity.count;
     return CD_OK;
 }
@@ -132,13 +185,16 @@ enum cd_status cd_single_append(struct cd_single_list *l, struct cd_single *n)
     return CD_OK;
 }
 
+/* Singly linked removal is a linear search for the predecessor.  CD_MISSING
+ * means the node claims membership but is not on this list. */
 enum cd_status cd_single_remove(struct cd_single_list *l, struct cd_single *n)
 {
     if (!l || !n || !n->linked)
     {
         return CD_INVALID;
     }
-    struct cd_single *previous = 0, *at = l->head;
+    struct cd_single *previous = 0;
+    struct cd_single *at = l->head;
     while (at && at != n)
     {
         previous = at;
@@ -166,6 +222,8 @@ enum cd_status cd_single_remove(struct cd_single_list *l, struct cd_single *n)
     return CD_OK;
 }
 
+/* Heap order: priority (min or max by mode), ties by insertion sequence so
+ * equal priorities leave in insertion order.  Every call is one comparison. */
 static int before(struct cd_heap *h, struct cd_heap_item a,
                   struct cd_heap_item b)
 {
@@ -175,6 +233,7 @@ static int before(struct cd_heap *h, struct cd_heap_item a,
                                     : a.sequence < b.sequence;
 }
 
+/* Swaps two array positions and keeps the slot -> position map consistent. */
 static void swap(struct cd_heap *h, unsigned a, unsigned b)
 {
     struct cd_heap_item tmp = h->data[a];
@@ -187,6 +246,7 @@ static void swap(struct cd_heap *h, unsigned a, unsigned b)
     }
 }
 
+/* Sifts position `at` toward the root; returns its final position. */
 static unsigned rise(struct cd_heap *h, unsigned at)
 {
     while (at)
@@ -221,6 +281,9 @@ static void sink(struct cd_heap *h, unsigned at)
     }
 }
 
+/* Handle slot states: 0 free, 1 live (holds an item), 2 retired for good once
+ * the slot's generation has reached 3, so a stale handle can never match a
+ * reused slot.  The heap holds at most 16 items. */
 void cd_heap_init(struct cd_heap *h, unsigned maximum)
 {
     h->count = 0;
@@ -235,6 +298,8 @@ void cd_heap_init(struct cd_heap *h, unsigned maximum)
     }
 }
 
+/* CD_FULL when 16 items are held, no slot is free or the 32-bit insertion
+ * sequence is exhausted; the heap is unchanged in every refusal. */
 enum cd_status cd_heap_insert(struct cd_heap *h, int key, unsigned identity,
                               struct cd_heap_handle *out)
 {
@@ -271,6 +336,8 @@ static int handle_valid(const struct cd_heap *h, struct cd_heap_handle handle)
            h->generation[handle.slot] == handle.generation;
 }
 
+/* A handle is valid only while its slot is live and its generation matches;
+ * the reciprocal check data[at].slot == slot detects a stale index entry. */
 enum cd_status cd_heap_get(const struct cd_heap *h,
                            struct cd_heap_handle handle, int *out,
                            unsigned *identity)
@@ -289,6 +356,8 @@ enum cd_status cd_heap_get(const struct cd_heap *h,
     return CD_OK;
 }
 
+/* Update-key: rewrites the priority, then repairs in whichever direction is
+ * needed (rise first; if it did not move, sink). */
 enum cd_status cd_heap_change(struct cd_heap *h, struct cd_heap_handle handle,
                               int value)
 {
@@ -307,6 +376,8 @@ enum cd_status cd_heap_change(struct cd_heap *h, struct cd_heap_handle handle,
     return CD_OK;
 }
 
+/* Removes the root.  Its slot's generation advances so the old handle goes
+ * stale; after generation 3 the slot is retired instead of reused. */
 enum cd_status cd_heap_take(struct cd_heap *h, int *out, unsigned *identity)
 {
     if (!h || !out || !identity || h->count > 16)
@@ -340,6 +411,8 @@ enum cd_status cd_heap_take(struct cd_heap *h, int *out, unsigned *identity)
     return CD_OK;
 }
 
+/* Bottom-up build: place all items, then sink every internal node from the
+ * last parent down to the root. */
 enum cd_status cd_heap_build(struct cd_heap *h, const int *input, size_t n,
                              unsigned maximum)
 {
@@ -365,22 +438,24 @@ enum cd_status cd_heap_build(struct cd_heap *h, const int *input, size_t n,
 
 void cd_tree_init(struct cd_tree *t, unsigned balanced, unsigned multiplicity)
 {
-    t->root = -1;
+    t->root = TREE_NO_NODE;
     t->count = 0;
-    t->rotations = t->repair_steps = 0;
+    t->rotations = 0;
+    t->repair_steps = 0;
     t->balanced = balanced != 0;
     t->multiplicity = multiplicity != 0;
-    for (unsigned i = 0; i < 32; ++i)
+    for (unsigned i = 0; i < TREE_NODES; ++i)
     {
         t->nodes[i] = (struct cd_tree_node){0, -1, -1, -1, 0, 0, 0, 1};
     }
 }
 
+/* Returns the node index holding key, or -1. */
 int cd_tree_find(const struct cd_tree *t, int key)
 {
     if (!t)
     {
-        return -1;
+        return TREE_NO_NODE;
     }
     int at = t->root;
     while (at >= 0)
@@ -391,7 +466,7 @@ int cd_tree_find(const struct cd_tree *t, int key)
         }
         at = key < t->nodes[at].key ? t->nodes[at].left : t->nodes[at].right;
     }
-    return -1;
+    return TREE_NO_NODE;
 }
 
 static int height(const struct cd_tree *t, int at)
@@ -401,11 +476,13 @@ static int height(const struct cd_tree *t, int at)
 
 static void update(struct cd_tree *t, int at)
 {
-    int left = height(t, t->nodes[at].left),
-        right = height(t, t->nodes[at].right);
+    int left = height(t, t->nodes[at].left);
+    int right = height(t, t->nodes[at].right);
     t->nodes[at].height = 1 + (left > right ? left : right);
 }
 
+/* Makes `next` take `old`'s place under old's parent (or as root).  Does not
+ * touch old's own links. */
 static void replace(struct cd_tree *t, int old, int next)
 {
     int parent = t->nodes[old].parent;
@@ -427,10 +504,13 @@ static void replace(struct cd_tree *t, int old, int next)
     }
 }
 
+/* Rotations return the new subtree root.  Heights are recomputed bottom-up:
+ * the demoted node first, then its replacement. */
 static int left_rotate(struct cd_tree *t, int at)
 {
     ++t->rotations;
-    int next = t->nodes[at].right, inner = t->nodes[next].left;
+    int next = t->nodes[at].right;
+    int inner = t->nodes[next].left;
     replace(t, at, next);
     t->nodes[next].left = at;
     t->nodes[at].parent = next;
@@ -450,7 +530,8 @@ static int left_rotate(struct cd_tree *t, int at)
 static int right_rotate(struct cd_tree *t, int at)
 {
     ++t->rotations;
-    int next = t->nodes[at].left, inner = t->nodes[next].right;
+    int next = t->nodes[at].left;
+    int inner = t->nodes[next].right;
     replace(t, at, next);
     t->nodes[next].right = at;
     t->nodes[at].parent = next;
@@ -464,6 +545,29 @@ static int right_rotate(struct cd_tree *t, int at)
     return next;
 }
 
+/* Left-heavy node: a left-right shape needs the left child rotated first. */
+static int rebalance_left_heavy(struct cd_tree *t, int at)
+{
+    int left = t->nodes[at].left;
+    if (height(t, t->nodes[left].left) < height(t, t->nodes[left].right))
+    {
+        left_rotate(t, left);
+    }
+    return right_rotate(t, at);
+}
+
+static int rebalance_right_heavy(struct cd_tree *t, int at)
+{
+    int right = t->nodes[at].right;
+    if (height(t, t->nodes[right].right) < height(t, t->nodes[right].left))
+    {
+        right_rotate(t, right);
+    }
+    return left_rotate(t, at);
+}
+
+/* Walks from `at` to the root refreshing heights and, in balanced mode,
+ * restoring |balance factor| <= 1.  Counts one repair step per ancestor. */
 static void repair(struct cd_tree *t, int at)
 {
     while (at >= 0)
@@ -474,28 +578,62 @@ static void repair(struct cd_tree *t, int at)
             height(t, t->nodes[at].left) - height(t, t->nodes[at].right);
         if (t->balanced && difference > 1)
         {
-            int left = t->nodes[at].left;
-            if (height(t, t->nodes[left].left) <
-                height(t, t->nodes[left].right))
-            {
-                left_rotate(t, left);
-            }
-            at = right_rotate(t, at);
+            at = rebalance_left_heavy(t, at);
         }
         else if (t->balanced && difference < -1)
         {
-            int right = t->nodes[at].right;
-            if (height(t, t->nodes[right].right) <
-                height(t, t->nodes[right].left))
-            {
-                right_rotate(t, right);
-            }
-            at = left_rotate(t, at);
+            at = rebalance_right_heavy(t, at);
         }
         at = t->nodes[at].parent;
     }
 }
 
+/* Returns the first slot that is not live and whose generation can still
+ * advance (a slot at UINT32_MAX is retired), or TREE_NODES if none. */
+static unsigned tree_free_slot(const struct cd_tree *t)
+{
+    unsigned slot = 0;
+    while (slot < TREE_NODES &&
+           (t->nodes[slot].live || t->nodes[slot].generation == UINT32_MAX))
+    {
+        ++slot;
+    }
+    return slot;
+}
+
+/* Hangs the new node under the leaf where an ordinary search for key ends.
+ * Returns that leaf's index (the first ancestor to repair), or -1 for the
+ * root. */
+static int tree_attach_leaf(struct cd_tree *t, unsigned slot, int key)
+{
+    int parent = TREE_NO_NODE;
+    int at = t->root;
+    while (at >= 0)
+    {
+        parent = at;
+        at = key < t->nodes[at].key ? t->nodes[at].left : t->nodes[at].right;
+    }
+    uint32_t generation = t->nodes[slot].generation;
+    t->nodes[slot] =
+        (struct cd_tree_node){key, -1, -1, parent, 1, 1, 1, generation};
+    if (parent < 0)
+    {
+        t->root = (int)slot;
+    }
+    else if (key < t->nodes[parent].key)
+    {
+        t->nodes[parent].left = (int)slot;
+    }
+    else
+    {
+        t->nodes[parent].right = (int)slot;
+    }
+    return parent;
+}
+
+/* A duplicate key is CD_DUPLICATE in set mode and a multiplicity increment in
+ * multiset mode.  `fail` simulates node acquisition failure (CD_NOMEM); it is
+ * checked before any link or height changes.  *out is the node index. */
 enum cd_status cd_tree_insert(struct cd_tree *t, int key, unsigned fail,
                               int *out)
 {
@@ -522,43 +660,53 @@ enum cd_status cd_tree_insert(struct cd_tree *t, int key, unsigned fail,
     {
         return CD_NOMEM;
     }
-    unsigned slot = 0;
-    while (slot < 32 &&
-           (t->nodes[slot].live || t->nodes[slot].generation == UINT32_MAX))
-    {
-        ++slot;
-    }
-    if (slot == 32)
+    unsigned slot = tree_free_slot(t);
+    if (slot == TREE_NODES)
     {
         return CD_FULL;
     }
-    int parent = -1, at = t->root;
-    while (at >= 0)
-    {
-        parent = at;
-        at = key < t->nodes[at].key ? t->nodes[at].left : t->nodes[at].right;
-    }
-    uint32_t generation = t->nodes[slot].generation;
-    t->nodes[slot] =
-        (struct cd_tree_node){key, -1, -1, parent, 1, 1, 1, generation};
-    if (parent < 0)
-    {
-        t->root = (int)slot;
-    }
-    else if (key < t->nodes[parent].key)
-    {
-        t->nodes[parent].left = (int)slot;
-    }
-    else
-    {
-        t->nodes[parent].right = (int)slot;
-    }
+    int parent = tree_attach_leaf(t, slot, key);
     ++t->count;
     repair(t, parent);
     *out = (int)slot;
     return CD_OK;
 }
 
+static int tree_leftmost(const struct cd_tree *t, int at)
+{
+    while (t->nodes[at].left >= 0)
+    {
+        at = t->nodes[at].left;
+    }
+    return at;
+}
+
+/* Unlinks the node `at`, which has two children, by transplanting its
+ * in-order successor into its place.  The successor keeps its own slot, so
+ * its identity (and anything keyed to the slot) survives; only the victim's
+ * slot is invalidated by the caller.  Returns the first node to repair. */
+static int tree_unlink_two_children(struct cd_tree *t, int at)
+{
+    const struct cd_tree_node *n = &t->nodes[at];
+    int successor = tree_leftmost(t, n->right);
+    int start = successor;
+    if (t->nodes[successor].parent != at)
+    {
+        start = t->nodes[successor].parent;
+        replace(t, successor, t->nodes[successor].right);
+        t->nodes[successor].right = n->right;
+        t->nodes[n->right].parent = successor;
+    }
+    replace(t, at, successor);
+    t->nodes[successor].left = n->left;
+    t->nodes[n->left].parent = successor;
+    update(t, successor);
+    return start;
+}
+
+/* Removes one occurrence of key.  A node with multiplicity above one only has
+ * its multiplicity decremented; the node is unlinked when its last occurrence
+ * (multiplicity one) is removed.  CD_MISSING if key is absent. */
 enum cd_status cd_tree_delete(struct cd_tree *t, int key)
 {
     if (!t)
@@ -587,29 +735,12 @@ enum cd_status cd_tree_delete(struct cd_tree *t, int key)
     }
     else
     {
-        int successor = n->right;
-        while (t->nodes[successor].left >= 0)
-        {
-            successor = t->nodes[successor].left;
-        }
-        if (t->nodes[successor].parent != at)
-        {
-            start = t->nodes[successor].parent;
-            replace(t, successor, t->nodes[successor].right);
-            t->nodes[successor].right = n->right;
-            t->nodes[n->right].parent = successor;
-        }
-        else
-        {
-            start = successor;
-        }
-        replace(t, at, successor);
-        t->nodes[successor].left = n->left;
-        t->nodes[n->left].parent = successor;
-        update(t, successor);
+        start = tree_unlink_two_children(t, at);
     }
     n->live = 0;
-    n->left = n->right = n->parent = -1;
+    n->left = TREE_NO_NODE;
+    n->right = TREE_NO_NODE;
+    n->parent = TREE_NO_NODE;
     n->height = 0;
     n->multiplicity = 0;
     if (n->generation < UINT32_MAX)
@@ -621,16 +752,36 @@ enum cd_status cd_tree_delete(struct cd_tree *t, int key)
     return CD_OK;
 }
 
+/* Appends one node's key `multiplicity` times.  CD_FULL when out is full; the
+ * keys written so far stay and are reported through *written. */
+static enum cd_status emit_key(const struct cd_tree_node *node, int *out,
+                               size_t capacity, size_t *written)
+{
+    for (unsigned i = 0; i < node->multiplicity; ++i)
+    {
+        if (*written == capacity)
+        {
+            return CD_FULL;
+        }
+        out[(*written)++] = node->key;
+    }
+    return CD_OK;
+}
+
+/* In-order walk with a caller-supplied stack of node indices (at most one per
+ * tree level, so TREE_NODES entries always suffice).  On CD_FULL (stack or
+ * output too small) *used is the count already written. */
 enum cd_status cd_tree_walk(const struct cd_tree *t, unsigned *stack,
                             size_t stack_cap, int *out, size_t capacity,
                             size_t *used)
 {
     if (!t || !used || (!stack && stack_cap) || (!out && capacity) ||
-        stack_cap > 32)
+        stack_cap > TREE_NODES)
     {
         return CD_INVALID;
     }
-    size_t top = 0, written = 0;
+    size_t top = 0;
+    size_t written = 0;
     int at = t->root;
     while (at >= 0 || top)
     {
@@ -645,14 +796,10 @@ enum cd_status cd_tree_walk(const struct cd_tree *t, unsigned *stack,
             at = t->nodes[at].left;
         }
         at = (int)stack[--top];
-        for (unsigned i = 0; i < t->nodes[at].multiplicity; ++i)
+        if (emit_key(&t->nodes[at], out, capacity, &written) != CD_OK)
         {
-            if (written == capacity)
-            {
-                *used = written;
-                return CD_FULL;
-            }
-            out[written++] = t->nodes[at].key;
+            *used = written;
+            return CD_FULL;
         }
         at = t->nodes[at].right;
     }
@@ -660,6 +807,9 @@ enum cd_status cd_tree_walk(const struct cd_tree *t, unsigned *stack,
     return CD_OK;
 }
 
+/* In-order walk with constant auxiliary storage: the successor of a node is
+ * the leftmost node of its right subtree, else the nearest ancestor reached
+ * from a left child.  Relies on the parent links being consistent. */
 enum cd_status cd_tree_parent_walk(const struct cd_tree *t, int *out,
                                    size_t capacity, size_t *used)
 {
@@ -671,29 +821,18 @@ enum cd_status cd_tree_parent_walk(const struct cd_tree *t, int *out,
     int at = t->root;
     if (at >= 0)
     {
-        while (t->nodes[at].left >= 0)
-        {
-            at = t->nodes[at].left;
-        }
+        at = tree_leftmost(t, at);
     }
     while (at >= 0)
     {
-        for (unsigned i = 0; i < t->nodes[at].multiplicity; ++i)
+        if (emit_key(&t->nodes[at], out, capacity, &written) != CD_OK)
         {
-            if (written == capacity)
-            {
-                *used = written;
-                return CD_FULL;
-            }
-            out[written++] = t->nodes[at].key;
+            *used = written;
+            return CD_FULL;
         }
         if (t->nodes[at].right >= 0)
         {
-            at = t->nodes[at].right;
-            while (t->nodes[at].left >= 0)
-            {
-                at = t->nodes[at].left;
-            }
+            at = tree_leftmost(t, t->nodes[at].right);
         }
         else
         {

@@ -12,10 +12,15 @@
         }                                                               \
     } while (0)
 
+/* Counting allocator.  `fail` is a 1-based call ordinal that makes that take
+ * return NULL.  Every take also proves the vector still shows its published
+ * length (`expected_length`), i.e. nothing is observable mid-growth. */
 struct cd_alloc
 {
     struct cd_vector *owner;
-    unsigned calls, live, fail;
+    unsigned calls;
+    unsigned live;
+    unsigned fail;
     size_t expected_length;
 };
 
@@ -45,9 +50,13 @@ static void release(void *v, int *p)
     free(p);
 }
 
+/* Resource ids are bit positions in `live`; `fail` is a 1-based clone ordinal. */
 struct cd_cloner
 {
-    unsigned calls, fail, live, destroyed;
+    unsigned calls;
+    unsigned fail;
+    unsigned live;
+    unsigned destroyed;
 };
 
 static int clone(void *v, const struct cd_payload *in, struct cd_payload *out)
@@ -73,9 +82,10 @@ static void destroy(void *v, struct cd_payload *p)
     p->resource = 0;
 }
 
-int main(void)
+static void check_array_insert_erase(void)
 {
-    int data[5] = {10, 20, 30, 0, 77}, old = 0;
+    int data[5] = {10, 20, 30, 0, 77};
+    int old = 0;
     struct cd_array a;
     CHECK(cd_array_init(&a, data, 4) == CD_OK);
     a.length = 3;
@@ -86,6 +96,7 @@ int main(void)
           data[2] == 30);
     CHECK(cd_array_get(&a, a.length, &old) == CD_INVALID);
     CHECK(cd_array_insert(&a, a.length + 1, &value) == CD_INVALID);
+    /* The inserted scalar aliases an element that the shift moves. */
     data[0] = 1;
     data[1] = 2;
     data[2] = 3;
@@ -103,9 +114,17 @@ int main(void)
     CHECK(a.length == 0);
     CHECK(cd_array_destroy(&a) == CD_OK && cd_array_destroy(&a) == CD_INVALID &&
           cd_array_insert(&a, 0, &value) == CD_INVALID);
+    /* Zero capacity with no backing is a valid empty owner. */
     CHECK(cd_array_init(&a, NULL, 0) == CD_OK &&
           cd_array_insert(&a, 0, &value) == CD_FULL &&
           cd_array_get(&a, 0, &old) == CD_INVALID);
+}
+
+static void check_array_capacity(void)
+{
+    int data[5] = {10, 20, 30, 0, 77};
+    int old = 0;
+    struct cd_array a;
     CHECK(cd_array_init(&a, data, 3) == CD_OK);
     for (int i = 1; i <= 3; ++i)
     {
@@ -124,8 +143,14 @@ int main(void)
           data[1] == 1 && data[2] == 2 && data[3] == 3);
     CHECK(cd_array_erase(&a, 0, &old) == CD_OK && old == 9 && data[0] == 1 &&
           data[2] == 3);
+}
+
+static void check_views(void)
+{
     int source[5] = {0, 1, 2, 3, 4};
-    struct cd_view view, sub;
+    int old = 0;
+    struct cd_view view;
+    struct cd_view sub;
     CHECK(cd_view_init(&view, source, 5, 0, 3, 2) == CD_OK &&
           cd_view_get(&view, 2, &old) == CD_OK && old == 4);
     CHECK(cd_view_sub(&view, 1, 2, &sub) == CD_OK &&
@@ -135,10 +160,16 @@ int main(void)
     {
         CHECK(cd_view_get(&view, i, &old) == CD_OK && old == 4 - (int)(2 * i));
     }
+    /* An empty negative-stride subview forms no endpoint. */
     CHECK(cd_view_sub(&view, 3, 0, &sub) == CD_OK &&
           cd_view_get(&sub, 0, &old) == CD_INVALID);
     CHECK(cd_view_init(&view, source, 5, 0, 2, -1) == CD_INVALID &&
           cd_view_init(&view, source, 5, 0, SIZE_MAX, 2) == CD_INVALID);
+}
+
+/* head 4, count 3 in five slots: the contents wrap into two spans. */
+static void check_ring_wrap_and_reservation(void)
+{
     struct cd_ring ring;
     int ring_storage[5] = {0};
     struct cd_spans spans;
@@ -165,6 +196,7 @@ int main(void)
     CHECK(cd_ring_pop(&ring, output, 5) == CD_OK && output[0] == 9 &&
           output[1] == 8 && output[2] == 9 && output[3] == 10 &&
           output[4] == 8);
+    /* Over-commit is refused and keeps the reservation open. */
     CHECK(cd_ring_reserve(&ring, 2, &spans) == CD_OK);
     CHECK(cd_ring_commit(&ring, 3) == CD_INVALID && ring.count == 0 &&
           ring.reserving);
@@ -185,8 +217,15 @@ int main(void)
           cd_ring_read(&ring, &spans) == CD_OK && spans.first == NULL &&
           cd_ring_reserve(&ring, 0, &spans) == CD_OK &&
           cd_ring_commit(&ring, 0) == CD_OK);
+}
+
+/* Appending 1..8 doubles 1,2,4,8 and copies 1+2+4 = 7 old values.  A failed
+ * growth keeps the old block; a failed shrink keeps the larger block. */
+static void check_vector_growth_failures(void)
+{
     struct cd_alloc allocator = {0};
     struct cd_vector vector;
+    int old = 0;
     allocator.owner = &vector;
     CHECK(cd_vector_init(&vector, (struct cd_allocator){&allocator, take,
                                                         release}) == CD_OK);
@@ -221,10 +260,19 @@ int main(void)
     {
         CHECK(cd_vector_erase(&vector, 0, &old) == CD_OK);
     }
+    /* Shrinking an empty vector frees its block. */
     allocator.expected_length = 0;
     CHECK(cd_vector_shrink(&vector) == CD_OK && vector.data == NULL &&
           allocator.live == 0 && cd_vector_destroy(&vector) == CD_OK);
-    allocator = (struct cd_alloc){&vector, 0, 0, 0, 0};
+}
+
+/* Five appends copy 7 values by growth; reserve(4) is a no-op and shrinking to
+ * five copies five more. */
+static void check_vector_copy_counts(void)
+{
+    struct cd_alloc allocator = {0};
+    struct cd_vector vector;
+    allocator.owner = &vector;
     CHECK(cd_vector_init(&vector, (struct cd_allocator){&allocator, take,
                                                         release}) == CD_OK);
     for (int i = 1; i <= 5; ++i)
@@ -238,8 +286,14 @@ int main(void)
           cd_vector_shrink(&vector) == CD_OK && vector.capacity == 5 &&
           vector.copies == 12 && cd_vector_destroy(&vector) == CD_OK &&
           !allocator.live);
-    struct cd_payload inputs[4] = {{1, 0}, {2, 0}, {3, 0}, {4, 0}},
-                      destination[4] = {{99, 0}, {99, 0}, {99, 0}, {99, 0}};
+}
+
+/* Clone k failing must destroy exactly the k-1 clones already made and leave
+ * the destination untouched. */
+static void check_clone_batch(void)
+{
+    struct cd_payload inputs[4] = {{1, 0}, {2, 0}, {3, 0}, {4, 0}};
+    struct cd_payload destination[4] = {{99, 0}, {99, 0}, {99, 0}, {99, 0}};
     for (unsigned failure = 1; failure <= 4; ++failure)
     {
         struct cd_cloner cloner = {0, failure, 0, 0};
@@ -262,6 +316,17 @@ int main(void)
         destroy(&cloner, &destination[i]);
     }
     CHECK(cloner.live == 0);
+}
+
+int main(void)
+{
+    check_array_insert_erase();
+    check_array_capacity();
+    check_views();
+    check_ring_wrap_and_reservation();
+    check_vector_growth_failures();
+    check_vector_copy_counts();
+    check_clone_batch();
     puts("CONTAINERS_SEQUENCE_PASS array view ring vector prefix rollback");
     return 0;
 }

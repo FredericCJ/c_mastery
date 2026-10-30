@@ -1,19 +1,71 @@
+/*
+ * Reference implementations of the indexed containers: open-addressing hash,
+ * byte-keyed map, trie, sparse set, disjoint sets with undo, CSR graph,
+ * Bloom-style filters, chained hash and bit-set helpers.
+ *
+ * Shared contract (full text in labs/containers_depth/CONTRACTS.md): controls
+ * are caller-owned and externally serialized, every capacity is a small fixed
+ * bound, and a refused operation (CD_INVALID, CD_FULL, CD_MISSING, ...) leaves
+ * the structure unchanged unless a function below says otherwise.
+ *
+ * CD_MUTANT selects one deliberately wrong variant for the mutation campaign.
+ */
 #include "containers.h"
+
 #ifndef CD_MUTANT
 #define CD_MUTANT 0
 #endif
+
+/* Open-addressing bucket states.  A tombstone keeps probe chains unbroken
+ * after a delete; only an EMPTY bucket ends a search. */
+enum
+{
+    BUCKET_EMPTY = 0,
+    BUCKET_LIVE = 1,
+    BUCKET_TOMBSTONE = 2
+};
+
+enum
+{
+    HASH_MAX_CAPACITY = 16,
+    BYTE_KEY_MAX = 8,
+    BYTEMAP_SLOTS = 4,
+    BYTEMAP_HASH_MODULUS = 4,
+    TRIE_NODES = 64,
+    SPARSE_UNIVERSE = 32,
+    SPARSE_MAX_COUNT = 16,
+    SPARSE_LAST_GENERATION = 3,
+    SETS_MAX_ITEMS = 16,
+    SETS_LOG_CAPACITY = 128,
+    CSR_MAX_VERTICES = 8,
+    CSR_MAX_EDGES = 32,
+    FILTER_KEYS = 16,
+    FILTER_CELLS = 8,
+    FILTER_CELL_LIMIT = 3,
+    CHAIN_BUCKETS = 4,
+    CHAIN_NODES = 16,
+    BITSET_WIDTH = 32
+};
+
 static int hash_valid(const struct cd_hash *h)
 {
-    return h && h->slots && h->capacity && h->capacity <= 16 &&
+    return h && h->slots && h->capacity && h->capacity <= HASH_MAX_CAPACITY &&
            h->live <= h->occupied && h->occupied <= h->capacity &&
            h->allocator.take && h->allocator.release;
 }
 
+/* First probe position.  The clustered mode maps every key to bucket 0 to
+ * produce worst-case probe sequences on purpose. */
 static unsigned start(const struct cd_hash *h, uint32_t key)
 {
     return h->clustered ? 0 : key % h->capacity;
 }
 
+/* Linear probe for key, visiting at most capacity buckets.  Returns the
+ * bucket index of a live match, or -1.  *empty receives the first reusable
+ * bucket seen (empty or tombstone), or capacity if none; *probes counts the
+ * buckets examined.  The search stops at an EMPTY bucket, never at a
+ * tombstone. */
 static int locate(const struct cd_hash *h, uint32_t key, unsigned *empty,
                   unsigned *probes)
 {
@@ -24,15 +76,16 @@ static int locate(const struct cd_hash *h, uint32_t key, unsigned *empty,
     {
         ++*probes;
         const struct cd_bucket *b = &h->slots[at];
-        if (b->state == 1 && b->key == key)
+        if (b->state == BUCKET_LIVE && b->key == key)
         {
             return (int)at;
         }
-        if (b->state != 1 && *empty == h->capacity)
+        if (b->state != BUCKET_LIVE && *empty == h->capacity)
         {
             *empty = at;
         }
-        if (b->state == 0 || (CD_MUTANT == 6 && b->state == 2))
+        if (b->state == BUCKET_EMPTY ||
+            (CD_MUTANT == 6 && b->state == BUCKET_TOMBSTONE))
         {
             break;
         }
@@ -44,11 +97,14 @@ static int locate(const struct cd_hash *h, uint32_t key, unsigned *empty,
     return -1;
 }
 
+/* Acquires the bucket array from the allocator (CD_NOMEM on failure, with *h
+ * untouched).  The table owns the array until cd_hash_destroy. */
 enum cd_status cd_hash_init(struct cd_hash *h, unsigned cap,
                             struct cd_hash_allocator allocator,
                             unsigned cluster)
 {
-    if (!h || !cap || cap > 16 || !allocator.take || !allocator.release)
+    if (!h || !cap || cap > HASH_MAX_CAPACITY || !allocator.take ||
+        !allocator.release)
     {
         return CD_INVALID;
     }
@@ -59,12 +115,15 @@ enum cd_status cd_hash_init(struct cd_hash *h, unsigned cap,
     }
     for (unsigned i = 0; i < cap; ++i)
     {
-        p[i] = (struct cd_bucket){0, 0, 0};
+        p[i] = (struct cd_bucket){0, 0, BUCKET_EMPTY};
     }
     *h = (struct cd_hash){p, cap, 0, 0, cluster != 0, allocator};
     return CD_OK;
 }
 
+/* Inserts or updates.  An update changes neither count.  Reusing a tombstone
+ * raises live but not occupied.  CD_FULL when no live match and no reusable
+ * bucket exists; *probes is set on every non-INVALID outcome. */
 enum cd_status cd_hash_put(struct cd_hash *h, uint32_t key, int value,
                            unsigned *probes)
 {
@@ -81,13 +140,13 @@ enum cd_status cd_hash_put(struct cd_hash *h, uint32_t key, int value,
             return CD_FULL;
         }
         at = (int)empty;
-        if (h->slots[at].state == 0)
+        if (h->slots[at].state == BUCKET_EMPTY)
         {
             ++h->occupied;
         }
         ++h->live;
     }
-    h->slots[at] = (struct cd_bucket){key, value, 1};
+    h->slots[at] = (struct cd_bucket){key, value, BUCKET_LIVE};
     return CD_OK;
 }
 
@@ -108,26 +167,30 @@ enum cd_status cd_hash_get(const struct cd_hash *h, uint32_t key, int *out,
     return CD_OK;
 }
 
+/* Leaves a tombstone; occupied is unchanged until a rebuild. */
 enum cd_status cd_hash_delete(struct cd_hash *h, uint32_t key)
 {
     if (!hash_valid(h))
     {
         return CD_INVALID;
     }
-    unsigned empty, probes;
+    unsigned empty;
+    unsigned probes;
     int at = locate(h, key, &empty, &probes);
     if (at < 0)
     {
         return CD_MISSING;
     }
-    h->slots[at].state = 2;
+    h->slots[at].state = BUCKET_TOMBSTONE;
     --h->live;
     return CD_OK;
 }
 
+/* Manual maintenance: acquire a new table, reinsert every live key, publish,
+ * then release the old array.  Failed acquisition keeps the old table. */
 enum cd_status cd_hash_rebuild(struct cd_hash *h, unsigned cap)
 {
-    if (!hash_valid(h) || cap < h->live || !cap || cap > 16)
+    if (!hash_valid(h) || cap < h->live || !cap || cap > HASH_MAX_CAPACITY)
     {
         return CD_INVALID;
     }
@@ -140,11 +203,21 @@ enum cd_status cd_hash_rebuild(struct cd_hash *h, unsigned cap)
     }
     for (unsigned i = 0; i < h->capacity; ++i)
     {
-        if (h->slots[i].state == 1)
+        if (h->slots[i].state != BUCKET_LIVE)
         {
-            unsigned probes;
-            cd_hash_put(&replacement, h->slots[i].key, h->slots[i].value,
-                        &probes);
+            continue;
+        }
+        unsigned probes;
+        /* Defensive and unreachable today: cap >= live, the live keys are
+         * distinct and a fresh table has no tombstones, so every put finds a
+         * bucket.  The check keeps the old table intact (and releases the
+         * replacement) should that ever stop being true. */
+        result = cd_hash_put(&replacement, h->slots[i].key, h->slots[i].value,
+                             &probes);
+        if (result != CD_OK)
+        {
+            h->allocator.release(h->allocator.context, replacement.slots);
+            return result;
         }
     }
     struct cd_bucket *old = h->slots;
@@ -153,6 +226,7 @@ enum cd_status cd_hash_rebuild(struct cd_hash *h, unsigned cap)
     return CD_OK;
 }
 
+/* Releases the bucket array once; a second destroy is CD_INVALID. */
 enum cd_status cd_hash_destroy(struct cd_hash *h)
 {
     if (!hash_valid(h))
@@ -161,17 +235,20 @@ enum cd_status cd_hash_destroy(struct cd_hash *h)
     }
     struct cd_bucket *old = h->slots;
     h->slots = 0;
-    h->capacity = h->live = h->occupied = 0;
+    h->capacity = 0;
+    h->live = 0;
+    h->occupied = 0;
     h->allocator.release(h->allocator.context, old);
     return CD_OK;
 }
 
+/* Deliberately weak 4-bucket hash so collisions are easy to produce. */
 static unsigned key_hash(const unsigned char *p, size_t n)
 {
     unsigned h = 0;
     for (size_t i = 0; i < n; ++i)
     {
-        h = (h * 33u + p[i]) % 4;
+        h = (h * 33u + p[i]) % BYTEMAP_HASH_MODULUS;
     }
     return h;
 }
@@ -192,15 +269,17 @@ static int equal(const struct cd_key *k, const unsigned char *p, size_t n)
     return 1;
 }
 
+/* Keys are length-delimited byte strings (embedded zeros and the empty key
+ * are valid) and are copied into the map, so the caller may reuse its buffer. */
 enum cd_status cd_bytemap_put(struct cd_byte_map *m, const unsigned char *p,
                               size_t n, int value)
 {
-    if (!m || (!p && n) || n > 8)
+    if (!m || (!p && n) || n > BYTE_KEY_MAX)
     {
         return CD_INVALID;
     }
     unsigned at = key_hash(p, n);
-    for (unsigned i = 0; i < 4; ++i)
+    for (unsigned i = 0; i < BYTEMAP_SLOTS; ++i)
     {
         struct cd_key *k = &m->keys[at];
         if (!m->live[at] || equal(k, p, n))
@@ -214,7 +293,7 @@ enum cd_status cd_bytemap_put(struct cd_byte_map *m, const unsigned char *p,
             m->live[at] = 1;
             return CD_OK;
         }
-        at = (at + 1) % 4;
+        at = (at + 1) % BYTEMAP_SLOTS;
     }
     return CD_FULL;
 }
@@ -222,12 +301,12 @@ enum cd_status cd_bytemap_put(struct cd_byte_map *m, const unsigned char *p,
 enum cd_status cd_bytemap_get(const struct cd_byte_map *m,
                               const unsigned char *p, size_t n, int *out)
 {
-    if (!m || !out || (!p && n) || n > 8)
+    if (!m || !out || (!p && n) || n > BYTE_KEY_MAX)
     {
         return CD_INVALID;
     }
     unsigned at = key_hash(p, n);
-    for (unsigned i = 0; i < 4; ++i)
+    for (unsigned i = 0; i < BYTEMAP_SLOTS; ++i)
     {
         if (!m->live[at])
         {
@@ -238,14 +317,16 @@ enum cd_status cd_bytemap_get(const struct cd_byte_map *m,
             *out = m->keys[at].value;
             return CD_OK;
         }
-        at = (at + 1) % 4;
+        at = (at + 1) % BYTEMAP_SLOTS;
     }
     return CD_MISSING;
 }
 
+/* Trie of TRIE_NODES slot-indexed nodes; slot 0 is the root (the empty key).
+ * Each node keeps its first child and a sibling chain; -1 means none. */
 void cd_trie_init(struct cd_trie *t)
 {
-    for (unsigned i = 0; i < 64; ++i)
+    for (unsigned i = 0; i < TRIE_NODES; ++i)
     {
         t->nodes[i] = (struct cd_trie_node){-1, -1, -1, 0, 0, 0};
     }
@@ -264,6 +345,7 @@ static int child(const struct cd_trie *t, int parent, unsigned char byte)
     return at;
 }
 
+/* Node reached by following all n bytes from the root, or -1. */
 static int path(const struct cd_trie *t, const unsigned char *p, size_t n)
 {
     int at = 0;
@@ -274,13 +356,11 @@ static int path(const struct cd_trie *t, const unsigned char *p, size_t n)
     return at;
 }
 
-enum cd_status cd_trie_insert(struct cd_trie *t, const unsigned char *p,
-                              size_t n, unsigned fail)
+/* Follows p from the root as far as existing nodes allow.  Returns the number
+ * of bytes matched; *last is the node reached. */
+static size_t trie_match(const struct cd_trie *t, const unsigned char *p,
+                         size_t n, int *last)
 {
-    if (!t || (!p && n) || n > 8 || !t->generation)
-    {
-        return CD_INVALID;
-    }
     int parent = 0;
     size_t matched = 0;
     while (matched < n)
@@ -293,6 +373,44 @@ enum cd_status cd_trie_insert(struct cd_trie *t, const unsigned char *p,
         parent = next;
         ++matched;
     }
+    *last = parent;
+    return matched;
+}
+
+/* Finds `needed` free node slots before anything is modified, so a failure at
+ * any acquisition leaves the trie as it was.  `fail` (1-based) simulates the
+ * failure of that acquisition and returns CD_NOMEM. */
+static enum cd_status trie_plan_slots(const struct cd_trie *t, unsigned needed,
+                                      unsigned fail,
+                                      unsigned slots[BYTE_KEY_MAX])
+{
+    unsigned made = 0;
+    for (unsigned i = 1; i < TRIE_NODES && made < needed; ++i)
+    {
+        if (t->nodes[i].live)
+        {
+            continue;
+        }
+        if (fail == made + 1)
+        {
+            return CD_NOMEM;
+        }
+        slots[made++] = i;
+    }
+    return made == needed ? CD_OK : CD_FULL;
+}
+
+/* A mutation advances the generation, which invalidates open cursors; a
+ * saturated generation refuses further mutation (CD_FULL). */
+enum cd_status cd_trie_insert(struct cd_trie *t, const unsigned char *p,
+                              size_t n, unsigned fail)
+{
+    if (!t || (!p && n) || n > BYTE_KEY_MAX || !t->generation)
+    {
+        return CD_INVALID;
+    }
+    int parent;
+    size_t matched = trie_match(t, p, n, &parent);
     if (matched == n && t->nodes[parent].terminal)
     {
         return CD_DUPLICATE;
@@ -301,21 +419,12 @@ enum cd_status cd_trie_insert(struct cd_trie *t, const unsigned char *p,
     {
         return CD_FULL;
     }
-    unsigned needed = (unsigned)(n - matched), slots[8], made = 0;
-    for (unsigned i = 1; i < 64 && made < needed; ++i)
+    unsigned needed = (unsigned)(n - matched);
+    unsigned slots[BYTE_KEY_MAX];
+    enum cd_status planned = trie_plan_slots(t, needed, fail, slots);
+    if (planned != CD_OK)
     {
-        if (!t->nodes[i].live)
-        {
-            if (fail == made + 1)
-            {
-                return CD_NOMEM;
-            }
-            slots[made++] = i;
-        }
-    }
-    if (made != needed)
-    {
-        return CD_FULL;
+        return planned;
     }
     for (unsigned i = 0; i < needed; ++i)
     {
@@ -331,10 +440,26 @@ enum cd_status cd_trie_insert(struct cd_trie *t, const unsigned char *p,
     return CD_OK;
 }
 
+/* Unlinks node `at` from its parent's child chain and frees it. */
+static void trie_free_leaf(struct cd_trie *t, int at)
+{
+    int parent = t->nodes[at].parent;
+    int *edge = &t->nodes[parent].child;
+    while (*edge != at)
+    {
+        edge = &t->nodes[*edge].sibling;
+    }
+    *edge = t->nodes[at].sibling;
+    t->nodes[at].live = 0;
+    --t->count;
+}
+
+/* Clears the terminal mark, then prunes upward while a node has no children
+ * and is not itself terminal.  Descendants of a terminal are never removed. */
 enum cd_status cd_trie_delete(struct cd_trie *t, const unsigned char *p,
                               size_t n)
 {
-    if (!t || (!p && n) || n > 8)
+    if (!t || (!p && n) || n > BYTE_KEY_MAX)
     {
         return CD_INVALID;
     }
@@ -350,14 +475,8 @@ enum cd_status cd_trie_delete(struct cd_trie *t, const unsigned char *p,
     t->nodes[at].terminal = 0;
     while (at && t->nodes[at].child < 0 && !t->nodes[at].terminal)
     {
-        int parent = t->nodes[at].parent, *edge = &t->nodes[parent].child;
-        while (*edge != at)
-        {
-            edge = &t->nodes[*edge].sibling;
-        }
-        *edge = t->nodes[at].sibling;
-        t->nodes[at].live = 0;
-        --t->count;
+        int parent = t->nodes[at].parent;
+        trie_free_leaf(t, at);
         at = parent;
     }
     ++t->generation;
@@ -377,10 +496,12 @@ static int descendant(const struct cd_trie *t, int at, int root)
     return 0;
 }
 
+/* Snapshots, in node-slot order (not lexicographic), the terminal nodes at or
+ * below the prefix.  The cursor borrows the trie and records its generation. */
 enum cd_status cd_trie_prefix(const struct cd_trie *t, const unsigned char *p,
                               size_t n, struct cd_trie_cursor *out)
 {
-    if (!t || !out || (!p && n) || n > 8)
+    if (!t || !out || (!p && n) || n > BYTE_KEY_MAX)
     {
         return CD_INVALID;
     }
@@ -390,7 +511,7 @@ enum cd_status cd_trie_prefix(const struct cd_trie *t, const unsigned char *p,
         return CD_MISSING;
     }
     struct cd_trie_cursor cursor = {t, t->generation, {0}, 0, 0};
-    for (unsigned i = 0; i < 64; ++i)
+    for (unsigned i = 0; i < TRIE_NODES; ++i)
     {
         if (t->nodes[i].live && t->nodes[i].terminal &&
             descendant(t, (int)i, root))
@@ -402,6 +523,31 @@ enum cd_status cd_trie_prefix(const struct cd_trie *t, const unsigned char *p,
     return CD_OK;
 }
 
+/* Rebuilds the key of node `at` into *key by walking to the root, which
+ * yields the bytes in reverse.  Returns 0 if the path exceeds BYTE_KEY_MAX. */
+static int trie_key_of(const struct cd_trie *t, int at, struct cd_key *key)
+{
+    unsigned char reverse[BYTE_KEY_MAX];
+    size_t n = 0;
+    while (at)
+    {
+        if (n == BYTE_KEY_MAX)
+        {
+            return 0;
+        }
+        reverse[n++] = t->nodes[at].byte;
+        at = t->nodes[at].parent;
+    }
+    *key = (struct cd_key){{0}, n, 0};
+    for (size_t i = 0; i < n; ++i)
+    {
+        key->bytes[i] = reverse[n - 1 - i];
+    }
+    return 1;
+}
+
+/* CD_BUSY (nothing published) once the trie has been mutated since the
+ * cursor was made; CD_EMPTY when exhausted. */
 enum cd_status cd_trie_next(struct cd_trie_cursor *c, struct cd_key *out)
 {
     if (!c || !out || !c->owner)
@@ -416,47 +562,39 @@ enum cd_status cd_trie_next(struct cd_trie_cursor *c, struct cd_key *out)
     {
         return CD_EMPTY;
     }
-    unsigned char reverse[8];
-    size_t n = 0;
-    int at = (int)c->nodes[c->position];
-    while (at)
+    struct cd_key key;
+    if (!trie_key_of(c->owner, (int)c->nodes[c->position], &key))
     {
-        if (n == 8)
-        {
-            return CD_INVALID;
-        }
-        reverse[n++] = c->owner->nodes[at].byte;
-        at = c->owner->nodes[at].parent;
-    }
-    struct cd_key key = {{0}, n, 0};
-    for (size_t i = 0; i < n; ++i)
-    {
-        key.bytes[i] = reverse[n - 1 - i];
+        return CD_INVALID;
     }
     *out = key;
     ++c->position;
     return CD_OK;
 }
 
+/* Sparse set over 0..SPARSE_UNIVERSE-1.  Membership needs the generation tag
+ * and reciprocal agreement between the sparse and dense arrays, so stale
+ * entries are harmless and clear is O(1) until the generation wraps. */
 void cd_sparse_init(struct cd_sparse *s)
 {
     s->count = 0;
     s->generation = 1;
-    for (unsigned i = 0; i < 32; ++i)
+    for (unsigned i = 0; i < SPARSE_UNIVERSE; ++i)
     {
-        s->tags[i] = s->sparse[i] = 0;
+        s->tags[i] = 0;
+        s->sparse[i] = 0;
     }
 }
 
 int cd_sparse_has(const struct cd_sparse *s, unsigned key)
 {
-    return s && key < 32 && s->tags[key] == s->generation &&
+    return s && key < SPARSE_UNIVERSE && s->tags[key] == s->generation &&
            s->sparse[key] < s->count && s->dense[s->sparse[key]] == key;
 }
 
 enum cd_status cd_sparse_insert(struct cd_sparse *s, unsigned key)
 {
-    if (!s || key >= 32)
+    if (!s || key >= SPARSE_UNIVERSE)
     {
         return CD_INVALID;
     }
@@ -464,7 +602,7 @@ enum cd_status cd_sparse_insert(struct cd_sparse *s, unsigned key)
     {
         return CD_DUPLICATE;
     }
-    if (s->count == 16)
+    if (s->count == SPARSE_MAX_COUNT)
     {
         return CD_FULL;
     }
@@ -474,9 +612,10 @@ enum cd_status cd_sparse_insert(struct cd_sparse *s, unsigned key)
     return CD_OK;
 }
 
+/* Moves the last dense element into the hole. */
 enum cd_status cd_sparse_remove(struct cd_sparse *s, unsigned key)
 {
-    if (!s || key >= 32)
+    if (!s || key >= SPARSE_UNIVERSE)
     {
         return CD_INVALID;
     }
@@ -484,19 +623,22 @@ enum cd_status cd_sparse_remove(struct cd_sparse *s, unsigned key)
     {
         return CD_MISSING;
     }
-    unsigned at = s->sparse[key], last = s->dense[--s->count];
+    unsigned at = s->sparse[key];
+    unsigned last = s->dense[--s->count];
     s->dense[at] = last;
     s->sparse[last] = at;
     s->tags[key] = 0;
     return CD_OK;
 }
 
+/* Generations run 1..SPARSE_LAST_GENERATION (a two-bit model).  On wrap every
+ * tag is zeroed before generation 1 is reused, the one O(universe) clear. */
 void cd_sparse_clear(struct cd_sparse *s)
 {
     s->count = 0;
-    if (s->generation == 3)
+    if (s->generation == SPARSE_LAST_GENERATION)
     {
-        for (unsigned i = 0; i < 32; ++i)
+        for (unsigned i = 0; i < SPARSE_UNIVERSE; ++i)
         {
             s->tags[i] = 0;
         }
@@ -510,7 +652,7 @@ void cd_sparse_clear(struct cd_sparse *s)
 
 enum cd_status cd_sets_init(struct cd_sets *s, unsigned n)
 {
-    if (!s || n > 16)
+    if (!s || n > SETS_MAX_ITEMS)
     {
         return CD_INVALID;
     }
@@ -524,6 +666,7 @@ enum cd_status cd_sets_init(struct cd_sets *s, unsigned n)
     return CD_OK;
 }
 
+/* Root of `at` in the working copy p, with full path compression. */
 static unsigned root(unsigned *p, unsigned at)
 {
     unsigned r = at;
@@ -540,6 +683,21 @@ static unsigned root(unsigned *p, unsigned at)
     return r;
 }
 
+/* Copies the live arrays into scratch so an operation can be computed fully
+ * before anything is published. */
+static void sets_snapshot(const struct cd_sets *s, unsigned *parent,
+                          unsigned *size)
+{
+    for (unsigned i = 0; i < s->count; ++i)
+    {
+        parent[i] = s->parent[i];
+        size[i] = s->size[i];
+    }
+}
+
+/* Publishes the scratch arrays, logging the old value of every changed entry.
+ * The undo-log capacity is checked first, so either all changes and all log
+ * records land or neither does (CD_FULL). */
 static enum cd_status commit(struct cd_sets *s, const unsigned *p,
                              const unsigned *size)
 {
@@ -548,7 +706,7 @@ static enum cd_status commit(struct cd_sets *s, const unsigned *p,
     {
         required += (p[i] != s->parent[i]) + (size[i] != s->size[i]);
     }
-    if (required > 128 - s->used)
+    if (required > SETS_LOG_CAPACITY - s->used)
     {
         return CD_FULL;
     }
@@ -568,18 +726,17 @@ static enum cd_status commit(struct cd_sets *s, const unsigned *p,
     return CD_OK;
 }
 
+/* Path compression changes parents, so find itself logs and can return
+ * CD_FULL when the undo log has no room. */
 enum cd_status cd_sets_find(struct cd_sets *s, unsigned at, unsigned *out)
 {
-    if (!s || !out || at >= s->count || s->used > 128)
+    if (!s || !out || at >= s->count || s->used > SETS_LOG_CAPACITY)
     {
         return CD_INVALID;
     }
-    unsigned p[16], sizes[16];
-    for (unsigned i = 0; i < s->count; ++i)
-    {
-        p[i] = s->parent[i];
-        sizes[i] = s->size[i];
-    }
+    unsigned p[SETS_MAX_ITEMS];
+    unsigned sizes[SETS_MAX_ITEMS];
+    sets_snapshot(s, p, sizes);
     unsigned r = root(p, at);
     enum cd_status status = commit(s, p, sizes);
     if (status == CD_OK)
@@ -589,19 +746,19 @@ enum cd_status cd_sets_find(struct cd_sets *s, unsigned at, unsigned *out)
     return status;
 }
 
+/* Union by size: the smaller root hangs under the larger.  Joining two
+ * elements already in one set changes no size. */
 enum cd_status cd_sets_union(struct cd_sets *s, unsigned a, unsigned b)
 {
-    if (!s || a >= s->count || b >= s->count || s->used > 128)
+    if (!s || a >= s->count || b >= s->count || s->used > SETS_LOG_CAPACITY)
     {
         return CD_INVALID;
     }
-    unsigned p[16], sizes[16];
-    for (unsigned i = 0; i < s->count; ++i)
-    {
-        p[i] = s->parent[i];
-        sizes[i] = s->size[i];
-    }
-    unsigned x = root(p, a), y = root(p, b);
+    unsigned p[SETS_MAX_ITEMS];
+    unsigned sizes[SETS_MAX_ITEMS];
+    sets_snapshot(s, p, sizes);
+    unsigned x = root(p, a);
+    unsigned y = root(p, b);
     if (x != y)
     {
         if (sizes[x] < sizes[y])
@@ -616,6 +773,7 @@ enum cd_status cd_sets_union(struct cd_sets *s, unsigned a, unsigned b)
     return commit(s, p, sizes);
 }
 
+/* mark must be a log length previously observed at an operation boundary. */
 enum cd_status cd_sets_rollback(struct cd_sets *s, size_t mark)
 {
     if (!s || mark > s->used)
@@ -637,15 +795,13 @@ enum cd_status cd_sets_rollback(struct cd_sets *s, size_t mark)
     return CD_OK;
 }
 
-enum cd_status cd_csr_build(struct cd_csr *out, unsigned vertices,
-                            const struct cd_edge *edges, size_t n,
-                            unsigned parallel)
+/* Validates every endpoint (and, unless parallel edges are allowed, rejects a
+ * repeated from/to pair) while counting the edges leaving each vertex into
+ * result->offset[from + 1]. */
+static enum cd_status csr_count_edges(struct cd_csr *result, unsigned vertices,
+                                      const struct cd_edge *edges, size_t n,
+                                      unsigned parallel)
 {
-    if (!out || vertices > 8 || n > 32 || (!edges && n) || parallel > 1)
-    {
-        return CD_INVALID;
-    }
-    struct cd_csr result = {vertices, (unsigned)n, {0}, {{0}}};
     for (size_t i = 0; i < n; ++i)
     {
         if (edges[i].from >= vertices || edges[i].to >= vertices)
@@ -663,13 +819,35 @@ enum cd_status cd_csr_build(struct cd_csr *out, unsigned vertices,
                 }
             }
         }
-        ++result.offset[edges[i].from + 1];
+        ++result->offset[edges[i].from + 1];
+    }
+    return CD_OK;
+}
+
+/* Compressed sparse row: count per source, prefix-sum into offsets, then
+ * scatter, which keeps input order within each source.  The result is built
+ * aside and copied out last, so a rejected build preserves the old snapshot. */
+enum cd_status cd_csr_build(struct cd_csr *out, unsigned vertices,
+                            const struct cd_edge *edges, size_t n,
+                            unsigned parallel)
+{
+    if (!out || vertices > CSR_MAX_VERTICES || n > CSR_MAX_EDGES ||
+        (!edges && n) || parallel > 1)
+    {
+        return CD_INVALID;
+    }
+    struct cd_csr result = {vertices, (unsigned)n, {0}, {{0}}};
+    enum cd_status status =
+        csr_count_edges(&result, vertices, edges, n, parallel);
+    if (status != CD_OK)
+    {
+        return status;
     }
     for (unsigned i = 1; i <= vertices; ++i)
     {
         result.offset[i] += result.offset[i - 1];
     }
-    unsigned next[8];
+    unsigned next[CSR_MAX_VERTICES];
     for (unsigned i = 0; i < vertices; ++i)
     {
         next[i] = result.offset[i];
@@ -682,35 +860,60 @@ enum cd_status cd_csr_build(struct cd_csr *out, unsigned vertices,
     return CD_OK;
 }
 
+/* The filter sets two of eight bits per key: bit key mod 8 and bit
+ * (3 * key + 1) mod 8.  Keys are 0..FILTER_KEYS-1. */
+static unsigned filter_cell_a(unsigned key)
+{
+    return key % FILTER_CELLS;
+}
+
+static unsigned filter_cell_b(unsigned key)
+{
+    return (3 * key + 1) % FILTER_CELLS;
+}
+
+static unsigned filter_mask(unsigned key)
+{
+    return (1u << filter_cell_a(key)) | (1u << filter_cell_b(key));
+}
+
+/* No deletion is offered: clearing a bit could erase another key's evidence. */
 enum cd_status cd_filter_insert(unsigned char *bits, unsigned key)
 {
-    if (!bits || key >= 16)
+    if (!bits || key >= FILTER_KEYS)
     {
         return CD_INVALID;
     }
-    *bits |= (unsigned char)((1u << (key % 8)) | (1u << ((3 * key + 1) % 8)));
+    *bits |= (unsigned char)filter_mask(key);
     return CD_OK;
 }
 
+/* *out is 1 when both bits are set (maybe present) and 0 when definitely
+ * absent; a 1 does not prove the key was inserted. */
 enum cd_status cd_filter_query(unsigned char bits, unsigned key, unsigned *out)
 {
-    if (!out || key >= 16)
+    if (!out || key >= FILTER_KEYS)
     {
         return CD_INVALID;
     }
-    unsigned mask = (1u << (key % 8)) | (1u << ((3 * key + 1) % 8));
+    unsigned mask = filter_mask(key);
     *out = (bits & mask) == mask;
     return CD_OK;
 }
 
+/* Counting variant: each cell saturates at FILTER_CELL_LIMIT, and a per-key
+ * multiplicity ledger justifies deletes.  All three counters are checked
+ * before any increment, so an overflow changes nothing. */
 enum cd_status cd_counting_insert(struct cd_counting_filter *f, unsigned key)
 {
-    if (!f || key >= 16)
+    if (!f || key >= FILTER_KEYS)
     {
         return CD_INVALID;
     }
-    unsigned a = key % 8, b = (3 * key + 1) % 8;
-    if (f->cells[a] == 3 || f->cells[b] == 3 || f->keys[key] == 3)
+    unsigned a = filter_cell_a(key);
+    unsigned b = filter_cell_b(key);
+    if (f->cells[a] == FILTER_CELL_LIMIT || f->cells[b] == FILTER_CELL_LIMIT ||
+        f->keys[key] == FILTER_CELL_LIMIT)
     {
         return CD_FULL;
     }
@@ -722,7 +925,7 @@ enum cd_status cd_counting_insert(struct cd_counting_filter *f, unsigned key)
 
 enum cd_status cd_counting_delete(struct cd_counting_filter *f, unsigned key)
 {
-    if (!f || key >= 16)
+    if (!f || key >= FILTER_KEYS)
     {
         return CD_INVALID;
     }
@@ -730,20 +933,22 @@ enum cd_status cd_counting_delete(struct cd_counting_filter *f, unsigned key)
     {
         return CD_MISSING;
     }
-    --f->cells[key % 8];
-    --f->cells[(3 * key + 1) % 8];
+    --f->cells[filter_cell_a(key)];
+    --f->cells[filter_cell_b(key)];
     --f->keys[key];
     return CD_OK;
 }
 
+/* Separate chaining over a node pool: CHAIN_BUCKETS list heads, CHAIN_NODES
+ * nodes, -1 ends a chain. */
 void cd_chain_init(struct cd_chain *c)
 {
     c->count = 0;
-    for (unsigned i = 0; i < 4; ++i)
+    for (unsigned i = 0; i < CHAIN_BUCKETS; ++i)
     {
         c->head[i] = -1;
     }
-    for (unsigned i = 0; i < 16; ++i)
+    for (unsigned i = 0; i < CHAIN_NODES; ++i)
     {
         c->nodes[i] = (struct cd_chain_node){0, 0, -1, 0};
     }
@@ -755,7 +960,7 @@ enum cd_status cd_chain_put(struct cd_chain *c, uint32_t key, int value)
     {
         return CD_INVALID;
     }
-    unsigned bucket = key % 4;
+    unsigned bucket = key % CHAIN_BUCKETS;
     for (int i = c->head[bucket]; i >= 0; i = c->nodes[i].next)
     {
         if (c->nodes[i].key == key)
@@ -765,11 +970,11 @@ enum cd_status cd_chain_put(struct cd_chain *c, uint32_t key, int value)
         }
     }
     unsigned free_slot = 0;
-    while (free_slot < 16 && c->nodes[free_slot].live)
+    while (free_slot < CHAIN_NODES && c->nodes[free_slot].live)
     {
         ++free_slot;
     }
-    if (free_slot == 16)
+    if (free_slot == CHAIN_NODES)
     {
         return CD_FULL;
     }
@@ -780,6 +985,7 @@ enum cd_status cd_chain_put(struct cd_chain *c, uint32_t key, int value)
     return CD_OK;
 }
 
+/* *probes counts chain nodes examined, on a hit and on a miss. */
 enum cd_status cd_chain_get(const struct cd_chain *c, uint32_t key, int *out,
                             unsigned *probes)
 {
@@ -788,7 +994,7 @@ enum cd_status cd_chain_get(const struct cd_chain *c, uint32_t key, int *out,
         return CD_INVALID;
     }
     *probes = 0;
-    for (int i = c->head[key % 4]; i >= 0; i = c->nodes[i].next)
+    for (int i = c->head[key % CHAIN_BUCKETS]; i >= 0; i = c->nodes[i].next)
     {
         ++*probes;
         if (c->nodes[i].key == key)
@@ -806,7 +1012,7 @@ enum cd_status cd_chain_delete(struct cd_chain *c, uint32_t key)
     {
         return CD_INVALID;
     }
-    int *edge = &c->head[key % 4];
+    int *edge = &c->head[key % CHAIN_BUCKETS];
     while (*edge >= 0)
     {
         struct cd_chain_node *n = &c->nodes[*edge];
@@ -823,16 +1029,20 @@ enum cd_status cd_chain_delete(struct cd_chain *c, uint32_t key)
     return CD_MISSING;
 }
 
+/* Mask of the low `universe` bits.  A full 32-bit universe is special-cased
+ * because shifting a 32-bit value by 32 is undefined. */
 enum cd_status cd_bitset_mask(unsigned universe, uint32_t *out)
 {
-    if (!out || universe > 32)
+    if (!out || universe > BITSET_WIDTH)
     {
         return CD_INVALID;
     }
-    *out = universe == 32 ? UINT32_MAX : ((UINT32_C(1) << universe) - 1);
+    *out =
+        universe == BITSET_WIDTH ? UINT32_MAX : ((UINT32_C(1) << universe) - 1);
     return CD_OK;
 }
 
+/* Join, meet and difference (a minus b), each restricted to the universe. */
 enum cd_status cd_bitset_algebra(uint32_t a, uint32_t b, unsigned universe,
                                  uint32_t *join, uint32_t *meet,
                                  uint32_t *difference)
@@ -849,10 +1059,12 @@ enum cd_status cd_bitset_algebra(uint32_t a, uint32_t b, unsigned universe,
     return CD_OK;
 }
 
+/* Iterator: *position is the next bit index to examine, so a caller loops
+ * until CD_EMPTY.  *position is advanced past the returned bit. */
 enum cd_status cd_bitset_next(uint32_t bits, unsigned universe,
                               unsigned *position, unsigned *out)
 {
-    if (!position || !out || universe > 32 || *position > universe)
+    if (!position || !out || universe > BITSET_WIDTH || *position > universe)
     {
         return CD_INVALID;
     }
