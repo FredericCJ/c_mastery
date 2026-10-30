@@ -124,10 +124,13 @@ def typedef_findings(text):
             continue
         head = declaration[0].text
         names = list(declared_names(declaration))
-        if head in ("struct", "union", "enum") and any(t.text == "{" for t in declaration):
+        aggregate = head in ("struct", "union", "enum")
+        if aggregate and any(t.text == "{" for t in declaration):
             yield "aggregate-typedef", " ".join(t.text for t in declaration[:2])
             continue
-        if head in ("struct", "union", "enum") and len(declaration) >= 3:
+        # `typedef enum x (*name_fn)(...)` names a function type that returns
+        # an aggregate; it is checked as a function-pointer typedef below.
+        if aggregate and len(declaration) >= 3 and not any(t.text == "(" for t in declaration):
             yield "aggregate-typedef", " ".join(t.text for t in declaration[:3])
             continue
         is_function_pointer = any(declaration[k].text == "(" and declaration[k + 1].text == "*"
