@@ -1,0 +1,179 @@
+{
+ "perf_version": {
+  "argv": [
+   "perf",
+   "--version"
+  ],
+  "exit_code": 0,
+  "stdout": "perf version 7.0.14\n",
+  "stderr": ""
+ },
+ "events": {
+  "ex_ret_instr": {
+   "name": "ex_ret_instr",
+   "encoding": "event=0xc0",
+   "role": "work check",
+   "justification": "perf list (amdzen3): Retired Instructions. The kernel maps the generic PERF_COUNT_HW_INSTRUCTIONS to 0x00c0 on family 19h (amd_zen2_perfmon_event_map, selected by amd_pmu_event_map for x86 >= 0x19, arch/x86/events/amd/core.c, Linux v7.0) and sysfs events/instructions reads event=0xc0. Every layout runs the same loop, so equal instructions per increment confirm that only addresses changed.",
+   "pmu_type": "4",
+   "state": "available",
+   "config": 192,
+   "perf_list": {
+    "Unit": "cpu",
+    "Topic": "core",
+    "EventName": "ex_ret_instr",
+    "EventType": "Kernel PMU event",
+    "BriefDescription": "Retired Instructions",
+    "Encoding": "cpu/event=0xc0/"
+   },
+   "sysfs_format": {
+    "event": "config:0-7,32-35"
+   }
+  },
+  "ls_not_halted_cyc": {
+   "name": "ls_not_halted_cyc",
+   "encoding": "event=0x76",
+   "role": "cost in core cycles",
+   "justification": "perf list: Cycles not in Halt; the kernel's generic PERF_COUNT_HW_CPU_CYCLES on family 19h (0x0076; sysfs events/cpu-cycles = event=0x76). User-mode cycles of the counting thread only (exclude_kernel). Cycles divided by elapsed nanoseconds gives an effective user-cycle rate, a check for frequency differences.",
+   "pmu_type": "4",
+   "state": "available",
+   "config": 118,
+   "perf_list": {
+    "Unit": "cpu",
+    "Topic": "memory",
+    "EventName": "ls_not_halted_cyc",
+    "EventType": "Kernel PMU event",
+    "BriefDescription": "Cycles not in Halt",
+    "Encoding": "cpu/event=0x76/"
+   },
+   "sysfs_format": {
+    "event": "config:0-7,32-35"
+   }
+  },
+  "ls_dmnd_fills_from_sys.int_cache": {
+   "name": "ls_dmnd_fills_from_sys.int_cache",
+   "encoding": "event=0x43,umask=0x02",
+   "role": "line transfer between cores",
+   "justification": "perf list: Demand Data Cache Fills by Data Source, From L3 or different L2 in same CCX. A fill of this core's L1D from another core's L2 or the shared L3 is what a line moving between private caches looks like from the requesting core.",
+   "pmu_type": "4",
+   "state": "available",
+   "config": 579,
+   "perf_list": {
+    "Unit": "cpu",
+    "Topic": "memory",
+    "EventName": "ls_dmnd_fills_from_sys.int_cache",
+    "EventType": "Kernel PMU event",
+    "BriefDescription": "Demand Data Cache Fills by Data Source. From L3 or different L2 in same CCX",
+    "Encoding": "cpu/event=0x43,umask=2/"
+   },
+   "sysfs_format": {
+    "event": "config:0-7,32-35",
+    "umask": "config:8-15"
+   }
+  },
+  "ls_dmnd_fills_from_sys.lcl_l2": {
+   "name": "ls_dmnd_fills_from_sys.lcl_l2",
+   "encoding": "event=0x43,umask=0x01",
+   "role": "control: fills from the core's own L2",
+   "justification": "perf list: Demand Data Cache Fills by Data Source, From Local L2 to the core. SMT siblings share the L1D, so a sibling's writes need no fill from L2; a nonzero count would indicate L1D evictions rather than inter-core transfer.",
+   "pmu_type": "4",
+   "state": "available",
+   "config": 323,
+   "perf_list": {
+    "Unit": "cpu",
+    "Topic": "memory",
+    "EventName": "ls_dmnd_fills_from_sys.lcl_l2",
+    "EventType": "Kernel PMU event",
+    "BriefDescription": "Demand Data Cache Fills by Data Source. From Local L2 to the core",
+    "Encoding": "cpu/event=0x43,umask=1/"
+   },
+   "sysfs_format": {
+    "event": "config:0-7,32-35",
+    "umask": "config:8-15"
+   }
+  },
+  "ls_locks.non_spec_lock": {
+   "name": "ls_locks.non_spec_lock",
+   "encoding": "event=0x25,umask=0x02",
+   "role": "how locked read-modify-writes completed",
+   "justification": "perf list: Retired lock instructions, Non-speculative lock succeeded. The measured loop's only memory operation is a locked add; the event distinguishes the non-speculative completion path. Its microarchitectural meaning beyond that description is not claimed (no matching PPR was obtained).",
+   "pmu_type": "4",
+   "state": "available",
+   "config": 549,
+   "perf_list": {
+    "Unit": "cpu",
+    "Topic": "memory",
+    "EventName": "ls_locks.non_spec_lock",
+    "EventType": "Kernel PMU event",
+    "BriefDescription": "Retired lock instructions. Non-speculative lock succeeded",
+    "Encoding": "cpu/event=0x25,umask=2/"
+   },
+   "sysfs_format": {
+    "event": "config:0-7,32-35",
+    "umask": "config:8-15"
+   }
+  },
+  "l2_request_g1.rd_blk_x": {
+   "name": "l2_request_g1.rd_blk_x",
+   "encoding": "event=0x60,umask=0x40",
+   "role": "store requests reaching L2",
+   "justification": "perf list: All L2 Cache Requests (Breakdown 1 - Common), Data cache stores. A locked add on a line this core does not hold writable must request it from L2; counts per increment measure how often that happened.",
+   "pmu_type": "4",
+   "state": "available",
+   "config": 16480,
+   "perf_list": {
+    "Unit": "cpu",
+    "Topic": "cache",
+    "EventName": "l2_request_g1.rd_blk_x",
+    "EventType": "Kernel PMU event",
+    "BriefDescription": "All L2 Cache Requests (Breakdown 1 - Common). Data cache stores",
+    "Encoding": "cpu/event=0x60,umask=0x40/"
+   },
+   "sysfs_format": {
+    "event": "config:0-7,32-35",
+    "umask": "config:8-15"
+   }
+  },
+  "l2_cache_req_stat.ls_rd_blk_c": {
+   "name": "l2_cache_req_stat.ls_rd_blk_c",
+   "encoding": "event=0x64,umask=0x08",
+   "role": "data requests that missed this core's L2",
+   "justification": "perf list: Core to L2 cacheable request access status, Data cache request miss in L2 (all types). The generic cache-misses event on this kernel is event=0x64,umask=0x09 (L2 misses including instruction fetch), so it is an L2 count, not a last-level-cache count; this event isolates the data side.",
+   "pmu_type": "4",
+   "state": "available",
+   "config": 2148,
+   "perf_list": {
+    "Unit": "cpu",
+    "Topic": "cache",
+    "EventName": "l2_cache_req_stat.ls_rd_blk_c",
+    "EventType": "Kernel PMU event",
+    "BriefDescription": "Core to L2 cacheable request access status (not including L2 Prefetch). Data cache request miss in L2 (all types). Use l2_cache_misses_from_dc_misses instead",
+    "Encoding": "cpu/event=0x64,umask=8/"
+   },
+   "sysfs_format": {
+    "event": "config:0-7,32-35",
+    "umask": "config:8-15"
+   }
+  },
+  "ls_locks.spec_lock_hi_spec": {
+   "name": "ls_locks.spec_lock_hi_spec",
+   "encoding": "event=0x25,umask=0x08",
+   "role": "how locked read-modify-writes completed",
+   "justification": "perf list: Retired lock instructions, High speculative cacheable lock speculation succeeded. Recorded beside the non-speculative count; together they show which documented completion paths the locked adds took.",
+   "pmu_type": "4",
+   "state": "available",
+   "config": 2085,
+   "perf_list": {
+    "Unit": "cpu",
+    "Topic": "memory",
+    "EventName": "ls_locks.spec_lock_hi_spec",
+    "EventType": "Kernel PMU event",
+    "BriefDescription": "Retired lock instructions. High speculative cacheable lock speculation succeeded",
+    "Encoding": "cpu/event=0x25,umask=8/"
+   },
+   "sysfs_format": {
+    "event": "config:0-7,32-35",
+    "umask": "config:8-15"
+   }
+  }
+ }
+}

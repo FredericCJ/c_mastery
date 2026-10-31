@@ -1,0 +1,292 @@
+{
+ "schema_version": 1,
+ "dossier": "concurrent_state",
+ "title": "True sharing, false sharing and per-thread state under explicit placement",
+ "question": "When two placed threads increment relaxed atomic counters, how does the measured thread's steady-state cost per increment depend on whether the counters share one slot, share one 64-byte line, or live 128 bytes apart, and does the answer change when the threads share a core (SMT siblings) instead of only the L3?",
+ "design_target": "AMD Ryzen 3 7330U (family 19h, model 50h, Zen 3), Linux 7.0.0-42, perf 7.0.14. CPU numbers and the line size are this host's; on another host edit the variants and placements and re-check the events.",
+ "driver": {
+  "name": "cs_driver",
+  "sources": [
+   "driver.c",
+   "concurrent_state.c"
+  ],
+  "headers": [
+   "concurrent_state.h"
+  ]
+ },
+ "tests": {
+  "sources": [
+   "tests.c",
+   "concurrent_state.c"
+  ],
+  "pass_marker": "CS_TEST_PASS",
+  "threads": true,
+  "needs_support": true
+ },
+ "disassemble": [
+  "cs_increment",
+  "run_thread"
+ ],
+ "row": {
+  "windows": [
+   "thread0.window",
+   "thread1.window"
+  ],
+  "measured_window": "thread0.window",
+  "peer_window": "thread1.window",
+  "checksum": "thread0.measured",
+  "units": "window_iterations",
+  "units_times_repetitions": false
+ },
+ "placements": [
+  {
+   "name": "cross-core",
+   "cpus": [
+    2,
+    4
+   ],
+   "relation": "different-core",
+   "meaning": "measured thread on CPU 2, peer on CPU 4: different cores (private L1D and L2 each), one shared L3"
+  },
+  {
+   "name": "smt-siblings",
+   "cpus": [
+    2,
+    3
+   ],
+   "relation": "smt-siblings",
+   "meaning": "measured thread on CPU 2, peer on CPU 3: two hardware threads of one core sharing its L1D and L2"
+  }
+ ],
+ "events": {
+  "ex_ret_instr": {
+   "encoding": "event=0xc0",
+   "role": "work check",
+   "justification": "perf list (amdzen3): Retired Instructions. The kernel maps the generic PERF_COUNT_HW_INSTRUCTIONS to 0x00c0 on family 19h (amd_zen2_perfmon_event_map, selected by amd_pmu_event_map for x86 >= 0x19, arch/x86/events/amd/core.c, Linux v7.0) and sysfs events/instructions reads event=0xc0. Every layout runs the same loop, so equal instructions per increment confirm that only addresses changed."
+  },
+  "ls_not_halted_cyc": {
+   "encoding": "event=0x76",
+   "role": "cost in core cycles",
+   "justification": "perf list: Cycles not in Halt; the kernel's generic PERF_COUNT_HW_CPU_CYCLES on family 19h (0x0076; sysfs events/cpu-cycles = event=0x76). User-mode cycles of the counting thread only (exclude_kernel). Cycles divided by elapsed nanoseconds gives an effective user-cycle rate, a check for frequency differences."
+  },
+  "ls_dmnd_fills_from_sys.int_cache": {
+   "encoding": "event=0x43,umask=0x02",
+   "role": "line transfer between cores",
+   "justification": "perf list: Demand Data Cache Fills by Data Source, From L3 or different L2 in same CCX. A fill of this core's L1D from another core's L2 or the shared L3 is what a line moving between private caches looks like from the requesting core."
+  },
+  "ls_dmnd_fills_from_sys.lcl_l2": {
+   "encoding": "event=0x43,umask=0x01",
+   "role": "control: fills from the core's own L2",
+   "justification": "perf list: Demand Data Cache Fills by Data Source, From Local L2 to the core. SMT siblings share the L1D, so a sibling's writes need no fill from L2; a nonzero count would indicate L1D evictions rather than inter-core transfer."
+  },
+  "ls_locks.non_spec_lock": {
+   "encoding": "event=0x25,umask=0x02",
+   "role": "how locked read-modify-writes completed",
+   "justification": "perf list: Retired lock instructions, Non-speculative lock succeeded. The measured loop's only memory operation is a locked add; the event distinguishes the non-speculative completion path. Its microarchitectural meaning beyond that description is not claimed (no matching PPR was obtained)."
+  },
+  "l2_request_g1.rd_blk_x": {
+   "encoding": "event=0x60,umask=0x40",
+   "role": "store requests reaching L2",
+   "justification": "perf list: All L2 Cache Requests (Breakdown 1 - Common), Data cache stores. A locked add on a line this core does not hold writable must request it from L2; counts per increment measure how often that happened."
+  },
+  "l2_cache_req_stat.ls_rd_blk_c": {
+   "encoding": "event=0x64,umask=0x08",
+   "role": "data requests that missed this core's L2",
+   "justification": "perf list: Core to L2 cacheable request access status, Data cache request miss in L2 (all types). The generic cache-misses event on this kernel is event=0x64,umask=0x09 (L2 misses including instruction fetch), so it is an L2 count, not a last-level-cache count; this event isolates the data side."
+  },
+  "ls_locks.spec_lock_hi_spec": {
+   "encoding": "event=0x25,umask=0x08",
+   "role": "how locked read-modify-writes completed",
+   "justification": "perf list: Retired lock instructions, High speculative cacheable lock speculation succeeded. Recorded beside the non-speculative count; together they show which documented completion paths the locked adds took."
+  }
+ },
+ "groups": {
+  "coherence": [
+   "ex_ret_instr",
+   "ls_not_halted_cyc",
+   "ls_dmnd_fills_from_sys.int_cache",
+   "ls_locks.non_spec_lock",
+   "ls_dmnd_fills_from_sys.lcl_l2"
+  ],
+  "l2": [
+   "ex_ret_instr",
+   "ls_not_halted_cyc",
+   "l2_request_g1.rd_blk_x",
+   "l2_cache_req_stat.ls_rd_blk_c",
+   "ls_locks.spec_lock_hi_spec"
+  ]
+ },
+ "variants": {
+  "cross-shared": [
+   "shared",
+   "2",
+   "4",
+   "65536"
+  ],
+  "cross-adjacent": [
+   "adjacent",
+   "2",
+   "4",
+   "65536"
+  ],
+  "cross-separate": [
+   "separate",
+   "2",
+   "4",
+   "65536"
+  ],
+  "cross-solo": [
+   "solo",
+   "2",
+   "4",
+   "65536"
+  ],
+  "smt-shared": [
+   "shared",
+   "2",
+   "3",
+   "65536"
+  ],
+  "smt-adjacent": [
+   "adjacent",
+   "2",
+   "3",
+   "65536"
+  ],
+  "smt-separate": [
+   "separate",
+   "2",
+   "3",
+   "65536"
+  ],
+  "smt-solo": [
+   "solo",
+   "2",
+   "3",
+   "65536"
+  ]
+ },
+ "regimes": [
+  {
+   "name": "cross-core: adjacent (0) vs separate (1)",
+   "variants": [
+    "cross-adjacent",
+    "cross-separate"
+   ],
+   "groups": [
+    "coherence",
+    "l2"
+   ]
+  },
+  {
+   "name": "cross-core: shared (0) vs adjacent (1)",
+   "variants": [
+    "cross-shared",
+    "cross-adjacent"
+   ],
+   "groups": [
+    "coherence",
+    "l2"
+   ]
+  },
+  {
+   "name": "cross-core: solo (0) vs separate (1)",
+   "variants": [
+    "cross-solo",
+    "cross-separate"
+   ],
+   "groups": [
+    "coherence",
+    "l2"
+   ]
+  },
+  {
+   "name": "smt-siblings: adjacent (0) vs separate (1)",
+   "variants": [
+    "smt-adjacent",
+    "smt-separate"
+   ],
+   "groups": [
+    "coherence",
+    "l2"
+   ]
+  },
+  {
+   "name": "smt-siblings: shared (0) vs adjacent (1)",
+   "variants": [
+    "smt-shared",
+    "smt-adjacent"
+   ],
+   "groups": [
+    "coherence",
+    "l2"
+   ]
+  },
+  {
+   "name": "smt-siblings: solo (0) vs separate (1)",
+   "variants": [
+    "smt-solo",
+    "smt-separate"
+   ],
+   "groups": [
+    "coherence",
+    "l2"
+   ]
+  }
+ ],
+ "hypotheses": [
+  {
+   "id": "H1",
+   "claim": "Line transfer: across cores, adjacent and shared slots make each increment wait for the 64-byte line to move between the two cores' private caches.",
+   "predictions": [
+    "cross-core adjacent and shared cost many more cycles per increment than separate",
+    "their int_cache demand fills and L2 store requests per increment are far above separate's, which are near zero"
+   ],
+   "falsified_if": "cross-core adjacent shows no more fills or L2 store requests than separate, or no slowdown"
+  },
+  {
+   "id": "H2",
+   "claim": "Lifecycle: the earlier campaign's difference came from thread creation, barrier and join, which its interval included.",
+   "predictions": [
+    "if H2 holds, the in-thread steady-state difference between adjacent and separate is small beside the lifecycle time"
+   ],
+   "falsified_if": "the steady-state window difference is large while thread start time is similar across layouts"
+  },
+  {
+   "id": "H3",
+   "claim": "Line transfer is the whole explanation, so removing it removes the cost: on SMT siblings, which share the L1D, adjacent slots should cost about what separate slots cost.",
+   "predictions": [
+    "smt adjacent is close to smt separate",
+    "smt int_cache fills and L2 store requests are near zero"
+   ],
+   "falsified_if": "smt adjacent is still much slower than smt separate while its fills and L2 requests stay near zero; that would point to an in-core mechanism for same-line locked operations from two hardware threads"
+  },
+  {
+   "id": "H4",
+   "claim": "Resource sharing or frequency: a running peer slows the measured thread whatever the layout, through shared execution resources (SMT) or a lower clock with two active cores.",
+   "predictions": [
+    "smt separate is slower than smt solo",
+    "cross-core separate is close to cross-core solo",
+    "user cycles per ns differ between placements if the clock does"
+   ],
+   "falsified_if": "solo and separate cost the same on SMT siblings"
+  },
+  {
+   "id": "H5",
+   "claim": "The line, not the slot, is the unit: true sharing (one slot) and false sharing (two slots in one line) cost about the same.",
+   "predictions": [
+    "shared and adjacent differ little in cycles, fills and L2 requests per increment in each placement"
+   ],
+   "falsified_if": "shared and adjacent differ consistently; something beyond line ownership then matters"
+  }
+ ],
+ "design_log": [
+  "Smoke runs before this spec was frozen showed that a sleeping start barrier let one thread begin its window up to about 2 ms after the other; the start barrier now spins, every row records both windows, the peer's tail end and per-window context switches, and the analysis reports how much of the measured window the peer was active.",
+  "The same smoke runs showed nonzero int_cache fills only for cross-core adjacent/shared, zero change_to_x and lcl_l2 everywhere, and a large SMT adjacent cost with zero fills. Those observations chose the events above and made H3 a stated challenge; they are not evidence for any hypothesis. Only the gated runs are."
+ ],
+ "limits": [
+  "Each thread counts only itself, user space only; kernel work (clock reads on this HPET host are system calls) is in elapsed time but not in counts.",
+  "Placement is per-thread affinity within the allowed set; other tasks may still run on the chosen CPUs or their siblings. Rows record load, per-CPU busy fractions and in-window context switches.",
+  "64 and 128 bytes are tested address interventions on a host reporting coherency_line_size 64, not a universal line size."
+ ]
+}

@@ -7,6 +7,10 @@ precedence. This file adds Claude-specific operating rules for the polish
 revision recorded in `research/v5/expansion/polish_revision/obligations.json`
 (checkpoint: `planning/polish_revision.json`).
 
+**Resuming (for example on a new machine): read
+`planning/handoff/CONTINUATION_PROMPT.md` first.** It holds the setup
+checklist, the state at handoff, the working procedures and the next steps.
+
 ## Orchestration and model choice
 
 The main session is the orchestrator. It owns the plan, the POLISH-* ledger,

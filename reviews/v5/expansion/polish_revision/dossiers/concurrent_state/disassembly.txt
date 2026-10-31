@@ -1,0 +1,255 @@
+=== cs_increment
+0000000000002d50 <cs_increment>:
+cs_increment():
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:106
+    2d50:	endbr64
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:107 (discriminator 1)
+    2d54:	test   %rsi,%rsi
+    2d57:	je     2d93 <cs_increment+0x43>
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:107
+    2d59:	xor    %eax,%eax
+    2d5b:	test   $0x1,%sil
+    2d5f:	je     2d80 <cs_increment+0x30>
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:109
+    2d61:	lock addq $0x1,(%rdi)
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:107 (discriminator 3)
+    2d66:	mov    $0x1,%eax
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:107 (discriminator 1)
+    2d6b:	cmp    $0x1,%rsi
+    2d6f:	je     2d94 <cs_increment+0x44>
+    2d71:	nopl   0x0(%rax)
+    2d75:	data16 cs nopw 0x0(%rax,%rax,1)
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:109
+    2d80:	lock addq $0x1,(%rdi)
+    2d85:	lock addq $0x1,(%rdi)
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:107 (discriminator 3)
+    2d8a:	add    $0x2,%rax
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:107 (discriminator 1)
+    2d8e:	cmp    %rax,%rsi
+    2d91:	jne    2d80 <cs_increment+0x30>
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:111
+    2d93:	ret
+    2d94:	ret
+
+Disassembly of section .fini:
+
+=== run_thread
+0000000000002a40 <run_thread>:
+run_thread():
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:159
+    2a40:	endbr64
+    2a44:	push   %r15
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:166
+    2a46:	lea    0x28(%rdi),%rsi
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:159
+    2a4a:	push   %r14
+    2a4c:	push   %r13
+    2a4e:	push   %r12
+    2a50:	push   %rbp
+    2a51:	mov    %rdi,%rbp
+    2a54:	push   %rbx
+    2a55:	sub    $0x8,%rsp
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:162
+    2a59:	mov    0x20(%rdi),%r12
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:161
+    2a5d:	mov    (%rdi),%rax
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:166
+    2a60:	mov    $0x1,%edi
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:163
+    2a65:	movzbl 0x170(%r12),%r14d
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:161
+    2a6e:	mov    0x28(%rax),%r13
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:166
+    2a72:	call   4430 <cm_clock_now_ns>
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:165
+    2a77:	mov    %al,0x30(%rbp)
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:167
+    2a7a:	test   %r14b,%r14b
+    2a7d:	je     2b60 <run_thread+0x120>
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:167 (discriminator 4)
+    2a83:	mov    0x20(%r13),%rsi
+    2a87:	mov    %r12,%rdi
+    2a8a:	call   3ad0 <pfd_window_open>
+wait_at():
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:131
+    2a8f:	mov    0x0(%rbp),%rdi
+    2a93:	call   22c0 <pthread_barrier_wait@plt>
+run_thread():
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:171
+    2a98:	mov    0x18(%r13),%rcx
+wait_at():
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:133
+    2a9c:	add    $0x1,%eax
+    2a9f:	cmp    $0x1,%eax
+run_thread():
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:168 (discriminator 1)
+    2aa2:	setbe  0x32(%rbp)
+cs_increment():
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:107 (discriminator 1)
+    2aa6:	test   %rcx,%rcx
+    2aa9:	je     2af0 <run_thread+0xb0>
+run_thread():
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:171
+    2aab:	mov    0x8(%rbp),%rax
+cs_increment():
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:107
+    2aaf:	xor    %edx,%edx
+    2ab1:	test   $0x1,%cl
+    2ab4:	je     2ad0 <run_thread+0x90>
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:109
+    2ab6:	lock addq $0x1,(%rax)
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:107 (discriminator 3)
+    2abb:	mov    $0x1,%edx
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:107 (discriminator 1)
+    2ac0:	cmp    $0x1,%rcx
+    2ac4:	je     2af0 <run_thread+0xb0>
+    2ac6:	cs nopw 0x0(%rax,%rax,1)
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:109
+    2ad0:	lock addq $0x1,(%rax)
+    2ad5:	lock addq $0x1,(%rax)
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:107 (discriminator 3)
+    2ada:	add    $0x2,%rdx
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:107 (discriminator 1)
+    2ade:	cmp    %rdx,%rcx
+    2ae1:	jne    2ad0 <run_thread+0x90>
+    2ae3:	xchg   %ax,%ax
+    2ae5:	data16 cs nopw 0x0(%rax,%rax,1)
+run_thread():
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:173
+    2af0:	mov    0x0(%rbp),%rax
+    2af4:	mov    0x20(%rax),%r15
+spin_until_both_arrived():
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:145
+    2af8:	lock addl $0x1,(%r15)
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:143
+    2afd:	xor    %ebx,%ebx
+    2aff:	nop
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:146
+    2b00:	mov    (%r15),%eax
+    2b03:	cmp    $0x1,%eax
+    2b06:	ja     2b20 <run_thread+0xe0>
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:148
+    2b08:	add    $0x1,%ebx
+    2b0b:	test   $0xfff,%ebx
+    2b11:	jne    2b00 <run_thread+0xc0>
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:150
+    2b13:	call   2330 <sched_yield@plt>
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:146
+    2b18:	mov    (%r15),%eax
+    2b1b:	cmp    $0x1,%eax
+    2b1e:	jbe    2b08 <run_thread+0xc8>
+run_thread():
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:174
+    2b20:	test   %r14b,%r14b
+    2b23:	jne    2b88 <run_thread+0x148>
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:181
+    2b25:	mov    0x10(%rbp),%rax
+    2b29:	movl   $0x1,(%rax)
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:187
+    2b2f:	lea    0x158(%r12),%rsi
+    2b37:	mov    $0x1,%edi
+    2b3c:	call   4430 <cm_clock_now_ns>
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:188
+    2b41:	mov    %r12,%rdi
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:186
+    2b44:	mov    %al,0x31(%rbp)
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:188
+    2b47:	call   3d70 <pfd_window_close>
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:190
+    2b4c:	add    $0x8,%rsp
+    2b50:	xor    %eax,%eax
+    2b52:	pop    %rbx
+    2b53:	pop    %rbp
+    2b54:	pop    %r12
+    2b56:	pop    %r13
+    2b58:	pop    %r14
+    2b5a:	pop    %r15
+    2b5c:	ret
+    2b5d:	nopl   (%rax)
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:167 (discriminator 4)
+    2b60:	xor    %esi,%esi
+    2b62:	mov    %r12,%rdi
+    2b65:	call   3ad0 <pfd_window_open>
+wait_at():
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:131
+    2b6a:	mov    0x0(%rbp),%rdi
+    2b6e:	call   22c0 <pthread_barrier_wait@plt>
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:133
+    2b73:	add    $0x1,%eax
+    2b76:	cmp    $0x1,%eax
+run_thread():
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:168 (discriminator 1)
+    2b79:	setbe  0x32(%rbp)
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:169
+    2b7d:	jmp    2af0 <run_thread+0xb0>
+    2b82:	nopw   0x0(%rax,%rax,1)
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:176
+    2b88:	mov    %r12,%rdi
+    2b8b:	call   3bd0 <pfd_window_begin>
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:177
+    2b90:	mov    0x10(%r13),%rcx
+cs_increment():
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:107 (discriminator 1)
+    2b94:	test   %rcx,%rcx
+    2b97:	je     2bd3 <run_thread+0x193>
+run_thread():
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:177
+    2b99:	mov    0x8(%rbp),%rax
+cs_increment():
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:107
+    2b9d:	xor    %edx,%edx
+    2b9f:	test   $0x1,%cl
+    2ba2:	je     2bc0 <run_thread+0x180>
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:109
+    2ba4:	lock addq $0x1,(%rax)
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:107 (discriminator 3)
+    2ba9:	mov    $0x1,%edx
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:107 (discriminator 1)
+    2bae:	cmp    $0x1,%rcx
+    2bb2:	je     2bd3 <run_thread+0x193>
+    2bb4:	nop
+    2bb5:	data16 cs nopw 0x0(%rax,%rax,1)
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:109
+    2bc0:	lock addq $0x1,(%rax)
+    2bc5:	lock addq $0x1,(%rax)
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:107 (discriminator 3)
+    2bca:	add    $0x2,%rdx
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:107 (discriminator 1)
+    2bce:	cmp    %rdx,%rcx
+    2bd1:	jne    2bc0 <run_thread+0x180>
+run_thread():
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:178
+    2bd3:	mov    %r12,%rdi
+    2bd6:	call   3ca0 <pfd_window_end>
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:179
+    2bdb:	mov    0x10(%r13),%rax
+    2bdf:	mov    %rax,0x148(%r12)
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:181
+    2be7:	mov    0x10(%rbp),%rax
+    2beb:	movl   $0x1,(%rax)
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:182 (discriminator 1)
+    2bf1:	cmpl   $0x3,0x0(%r13)
+    2bf6:	je     2b2f <run_thread+0xef>
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:184
+    2bfc:	mov    0x18(%rbp),%rsi
+    2c00:	mov    0x8(%rbp),%rcx
+contend_until_done():
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:119
+    2c04:	xor    %edx,%edx
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:121
+    2c06:	jmp    2c19 <run_thread+0x1d9>
+    2c08:	nopl   0x0(%rax,%rax,1)
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:123
+    2c10:	lock addq $0x1,(%rcx)
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:124
+    2c15:	add    $0x1,%rdx
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:121
+    2c19:	mov    (%rsi),%eax
+    2c1b:	test   %eax,%eax
+    2c1d:	je     2c10 <run_thread+0x1d0>
+run_thread():
+/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c:184 (discriminator 1)
+    2c1f:	mov    %rdx,0x150(%r12)
+    2c27:	jmp    2b2f <run_thread+0xef>
+
+Disassembly of section .fini:

@@ -1,0 +1,448 @@
+{
+ "schema_version": 1,
+ "kind": "dossier-campaign",
+ "dossier": "dispatch_predictability",
+ "provenance": "TEST IMPLEMENTATION",
+ "notice": "TEST IMPLEMENTATION: the component sources are a supplied test or reference implementation used to exercise this workflow. Nothing produced from them is evidence of your own work.",
+ "started_utc": "2026-10-31T05:40:57.261372+00:00",
+ "finished_utc": "2026-10-31T05:40:59.095839+00:00",
+ "runner": {
+  "path": "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/run_dossier.py",
+  "sha256": "62061f2669dfaecfe44f568c37d0904cadd0aee67e158167db8f792d7bf4faab",
+  "argv": [
+   "labs/performance_followthrough/dossiers/run_dossier.py",
+   "run",
+   "--spec",
+   "assessor/performance_followthrough/dossiers/dispatch_predictability/spec.json",
+   "--pmu-source",
+   "assessor/performance_followthrough/pmu.c",
+   "--test-implementation",
+   "--pairs",
+   "3",
+   "--regime",
+   "alternating: indirect (0) vs hinted (1)",
+   "--regime",
+   "random: branch (0) vs branchless (1)",
+   "--quiet-marker",
+   "/home/fred/.cache/cmastery-tmp/orch/QUIET",
+   "--max-load",
+   "1.5",
+   "--out",
+   "reviews/v5/expansion/polish_revision/dossiers/pilots/dispatch_predictability"
+  ]
+ },
+ "spec": {
+  "path": "/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/dispatch_predictability/spec.json",
+  "sha256": "1af740c9a88486883b5f68a32e37125c6e4f57edd46849103baecaff5d4d998c"
+ },
+ "pmu_source": {
+  "path": "/home/fred/dev/c_mastery/assessor/performance_followthrough/pmu.c",
+  "sha256": "70e8e1101992d7dfeaa9642754624ebed48b9fd97b2d48a3c9d9296bc1f31660"
+ },
+ "binary_sha256": "48b6052ba0003888ae1583285eb92782cb7c6f4e908ca6bf581527b3f01bf09f",
+ "disassembly": {
+  "file": "disassembly.txt",
+  "sha256": "0992f459a5b6f79832a9017802bd661441ee97b87c4b5a53bacce8f3fb9cc0c4",
+  "symbols": [
+   "dp_kernel_branch",
+   "dp_kernel_indirect",
+   "dp_kernel_hinted",
+   "dp_kernel_branchless",
+   "dp_operation0",
+   "dp_operation1"
+  ]
+ },
+ "placements": [
+  {
+   "name": "measured-cpu",
+   "cpus": [
+    2
+   ],
+   "relation": "single",
+   "meaning": "the single measured thread on CPU 2; its SMT sibling CPU 3 is not reserved and its busy fraction is recorded per row",
+   "holds": true
+  }
+ ],
+ "pairs_requested": 3,
+ "quiet_window": {
+  "marker": "/home/fred/.cache/cmastery-tmp/orch/QUIET",
+  "max_load": 1.5,
+  "polls": [
+   {
+    "utc": "2026-10-31T05:40:58.692780+00:00",
+    "load_1min": 0.64
+   }
+  ],
+  "marker_created_utc": "2026-10-31T05:40:58.692622+00:00",
+  "waited_s": 0.0,
+  "measurement_start_utc": "2026-10-31T05:40:58.692791+00:00",
+  "measurement_s": 0.4,
+  "marker_removed_utc": "2026-10-31T05:40:59.090521+00:00",
+  "ended_by": "completion"
+ },
+ "outcomes": [
+  {
+   "regime": "alternating: indirect (0) vs hinted (1)",
+   "group": "branches",
+   "state": "measured",
+   "repetitions": 1
+  },
+  {
+   "regime": "alternating: indirect (0) vs hinted (1)",
+   "group": "indirect",
+   "state": "measured",
+   "repetitions": 1
+  },
+  {
+   "regime": "alternating: indirect (0) vs hinted (1)",
+   "group": "returns",
+   "state": "measured",
+   "repetitions": 1
+  },
+  {
+   "regime": "random: branch (0) vs branchless (1)",
+   "group": "branches",
+   "state": "measured",
+   "repetitions": 1
+  },
+  {
+   "regime": "random: branch (0) vs branchless (1)",
+   "group": "indirect",
+   "state": "measured",
+   "repetitions": 1
+  },
+  {
+   "regime": "random: branch (0) vs branchless (1)",
+   "group": "returns",
+   "state": "measured",
+   "repetitions": 1
+  }
+ ],
+ "commands": [
+  {
+   "label": "test-gcc-debug-build",
+   "argv": [
+    "gcc",
+    "-std=c17",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-O0",
+    "-g",
+    "-pthread",
+    "-I/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/dispatch_predictability",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough",
+    "-I/home/fred/dev/c_mastery/labs/support",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/dispatch_predictability/tests.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/dispatch_predictability/dispatch.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/dispatch_predictability/dispatch_kernels.c",
+    "-o",
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-57hlvnxk/test-gcc-debug"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.089,
+   "log": "logs/test-gcc-debug-build.txt",
+   "log_sha256": "a7d816ed5155c377c73b62125d630a1649cbbb63ab3a574bb46b4e0fe822777c"
+  },
+  {
+   "label": "test-gcc-debug",
+   "argv": [
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-57hlvnxk/test-gcc-debug"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.041,
+   "log": "logs/test-gcc-debug.txt",
+   "log_sha256": "8a05ba8a4467eca15bd9ef51bf8d6af66cbfe309a5654aa41429229fc228137e"
+  },
+  {
+   "label": "test-gcc-optimized-build",
+   "argv": [
+    "gcc",
+    "-std=c17",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-O2",
+    "-g",
+    "-pthread",
+    "-I/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/dispatch_predictability",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough",
+    "-I/home/fred/dev/c_mastery/labs/support",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/dispatch_predictability/tests.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/dispatch_predictability/dispatch.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/dispatch_predictability/dispatch_kernels.c",
+    "-o",
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-57hlvnxk/test-gcc-optimized"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.207,
+   "log": "logs/test-gcc-optimized-build.txt",
+   "log_sha256": "7ef717ba09482d90ad5c7d6e1c58519ae501ad2dfeff04c5a5e079ffd5f069d9"
+  },
+  {
+   "label": "test-gcc-optimized",
+   "argv": [
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-57hlvnxk/test-gcc-optimized"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.02,
+   "log": "logs/test-gcc-optimized.txt",
+   "log_sha256": "733bf0d1be6206e0c12ecb79c77b130e9fa6dc022a742303266005301f5bd4f3"
+  },
+  {
+   "label": "test-clang-debug-build",
+   "argv": [
+    "clang",
+    "-std=c17",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-O0",
+    "-g",
+    "-pthread",
+    "-I/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/dispatch_predictability",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough",
+    "-I/home/fred/dev/c_mastery/labs/support",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/dispatch_predictability/tests.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/dispatch_predictability/dispatch.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/dispatch_predictability/dispatch_kernels.c",
+    "-o",
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-57hlvnxk/test-clang-debug"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.131,
+   "log": "logs/test-clang-debug-build.txt",
+   "log_sha256": "47422b01648621333883531c206573335ff24fece565aa97ef8f00a591853755"
+  },
+  {
+   "label": "test-clang-debug",
+   "argv": [
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-57hlvnxk/test-clang-debug"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.061,
+   "log": "logs/test-clang-debug.txt",
+   "log_sha256": "8492c13a9afa7d355dc72c63a00e29481b8c85d6dd9d98724fdc19f995fb5991"
+  },
+  {
+   "label": "test-clang-optimized-build",
+   "argv": [
+    "clang",
+    "-std=c17",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-O2",
+    "-g",
+    "-pthread",
+    "-I/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/dispatch_predictability",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough",
+    "-I/home/fred/dev/c_mastery/labs/support",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/dispatch_predictability/tests.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/dispatch_predictability/dispatch.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/dispatch_predictability/dispatch_kernels.c",
+    "-o",
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-57hlvnxk/test-clang-optimized"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.24,
+   "log": "logs/test-clang-optimized-build.txt",
+   "log_sha256": "abf12c9a188580b61301640dfd9f252c6c9de97b134a2362bb20a9342cc15bd7"
+  },
+  {
+   "label": "test-clang-optimized",
+   "argv": [
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-57hlvnxk/test-clang-optimized"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.019,
+   "log": "logs/test-clang-optimized.txt",
+   "log_sha256": "7b0d62f6f0956b801a570dd4d6932e413c05a1f9b9edffccfe032ae418cc0963"
+  },
+  {
+   "label": "build-driver",
+   "argv": [
+    "gcc",
+    "-std=c17",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-O2",
+    "-g",
+    "-pthread",
+    "-I/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/dispatch_predictability",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough",
+    "-I/home/fred/dev/c_mastery/labs/support",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/dispatch_predictability/driver.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/dispatch_predictability/dispatch.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/dispatch_predictability/dispatch_kernels.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/dossier_common.c",
+    "/home/fred/dev/c_mastery/labs/support/cm_parse.c",
+    "/home/fred/dev/c_mastery/labs/support/cm_clock.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/pmu_linux.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/pmu.c",
+    "-o",
+    "/home/fred/dev/c_mastery/reviews/v5/expansion/polish_revision/dossiers/pilots/dispatch_predictability/build/dp_driver"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.459,
+   "log": "logs/build-driver.txt",
+   "log_sha256": "a167e2bbdf0ae90069b178f5360b14d960e75891863024ef323c20ed40f444a0"
+  },
+  {
+   "label": "dwarf-producer",
+   "argv": [
+    "readelf",
+    "--debug-dump=info",
+    "/home/fred/dev/c_mastery/reviews/v5/expansion/polish_revision/dossiers/pilots/dispatch_predictability/build/dp_driver"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.007,
+   "log": "logs/dwarf-producer.txt",
+   "log_sha256": "d7c89d2dc6f3662d78ad20221bee182ade1df8937d5b10ebd899c99a4e9ffaaf"
+  },
+  {
+   "label": "objdump-dp_kernel_branch",
+   "argv": [
+    "objdump",
+    "-d",
+    "--no-show-raw-insn",
+    "-l",
+    "--disassemble=dp_kernel_branch",
+    "/home/fred/dev/c_mastery/reviews/v5/expansion/polish_revision/dossiers/pilots/dispatch_predictability/build/dp_driver"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.003,
+   "log": "logs/objdump-dp_kernel_branch.txt",
+   "log_sha256": "d1310ce9a35acadec0572918b39d64d7eb59ac27913906c52f2b589065c88329"
+  },
+  {
+   "label": "objdump-dp_kernel_indirect",
+   "argv": [
+    "objdump",
+    "-d",
+    "--no-show-raw-insn",
+    "-l",
+    "--disassemble=dp_kernel_indirect",
+    "/home/fred/dev/c_mastery/reviews/v5/expansion/polish_revision/dossiers/pilots/dispatch_predictability/build/dp_driver"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.003,
+   "log": "logs/objdump-dp_kernel_indirect.txt",
+   "log_sha256": "748a441eacda3be8880805c7e9af66c9dc0d6f0cf88912f641f2197ec2752f64"
+  },
+  {
+   "label": "objdump-dp_kernel_hinted",
+   "argv": [
+    "objdump",
+    "-d",
+    "--no-show-raw-insn",
+    "-l",
+    "--disassemble=dp_kernel_hinted",
+    "/home/fred/dev/c_mastery/reviews/v5/expansion/polish_revision/dossiers/pilots/dispatch_predictability/build/dp_driver"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.003,
+   "log": "logs/objdump-dp_kernel_hinted.txt",
+   "log_sha256": "1d69e697abc15222297d505ebf77848d5c7e2b190ea6c0e3b757e91b1c704899"
+  },
+  {
+   "label": "objdump-dp_kernel_branchless",
+   "argv": [
+    "objdump",
+    "-d",
+    "--no-show-raw-insn",
+    "-l",
+    "--disassemble=dp_kernel_branchless",
+    "/home/fred/dev/c_mastery/reviews/v5/expansion/polish_revision/dossiers/pilots/dispatch_predictability/build/dp_driver"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.003,
+   "log": "logs/objdump-dp_kernel_branchless.txt",
+   "log_sha256": "efc0d14db17d978f24465bbd7c13777ec51288d540aef36e69c1e253eb27a6c7"
+  },
+  {
+   "label": "objdump-dp_operation0",
+   "argv": [
+    "objdump",
+    "-d",
+    "--no-show-raw-insn",
+    "-l",
+    "--disassemble=dp_operation0",
+    "/home/fred/dev/c_mastery/reviews/v5/expansion/polish_revision/dossiers/pilots/dispatch_predictability/build/dp_driver"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.002,
+   "log": "logs/objdump-dp_operation0.txt",
+   "log_sha256": "f34c40de99bc0e73126400271cdc35f7a1f79bbe299eecbbee3e4b000b0858c5"
+  },
+  {
+   "label": "objdump-dp_operation1",
+   "argv": [
+    "objdump",
+    "-d",
+    "--no-show-raw-insn",
+    "-l",
+    "--disassemble=dp_operation1",
+    "/home/fred/dev/c_mastery/reviews/v5/expansion/polish_revision/dossiers/pilots/dispatch_predictability/build/dp_driver"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.003,
+   "log": "logs/objdump-dp_operation1.txt",
+   "log_sha256": "466c88410cf39c5b46f07068578378ebb6047eea97be6b85a46c0924bdc33f5a"
+  }
+ ],
+ "files_sha256": {
+  "analysis.json": "730a38b8f39567251985fd1fce21456e26bea22dc896f63ece1fdae8839dc602",
+  "build/dp_driver": "48b6052ba0003888ae1583285eb92782cb7c6f4e908ca6bf581527b3f01bf09f",
+  "build.json": "74e7c3553004d60d059f4a91094e09400880e48bf04d09f6dc31b79b21db6d9d",
+  "disassembly.txt": "0992f459a5b6f79832a9017802bd661441ee97b87c4b5a53bacce8f3fb9cc0c4",
+  "environment.json": "0d6bccde98573d15bc44865fa19c49462e5c7a76546e97a640facd65b0697a93",
+  "events.json": "d07a610f254d070e418ce7c0cf0f860e4a741029fe3efd26c2ed54b7ef0167f1",
+  "logs/build-driver.txt": "a167e2bbdf0ae90069b178f5360b14d960e75891863024ef323c20ed40f444a0",
+  "logs/dwarf-producer.txt": "d7c89d2dc6f3662d78ad20221bee182ade1df8937d5b10ebd899c99a4e9ffaaf",
+  "logs/objdump-dp_kernel_branch.txt": "d1310ce9a35acadec0572918b39d64d7eb59ac27913906c52f2b589065c88329",
+  "logs/objdump-dp_kernel_branchless.txt": "efc0d14db17d978f24465bbd7c13777ec51288d540aef36e69c1e253eb27a6c7",
+  "logs/objdump-dp_kernel_hinted.txt": "1d69e697abc15222297d505ebf77848d5c7e2b190ea6c0e3b757e91b1c704899",
+  "logs/objdump-dp_kernel_indirect.txt": "748a441eacda3be8880805c7e9af66c9dc0d6f0cf88912f641f2197ec2752f64",
+  "logs/objdump-dp_operation0.txt": "f34c40de99bc0e73126400271cdc35f7a1f79bbe299eecbbee3e4b000b0858c5",
+  "logs/objdump-dp_operation1.txt": "466c88410cf39c5b46f07068578378ebb6047eea97be6b85a46c0924bdc33f5a",
+  "logs/test-clang-debug-build.txt": "47422b01648621333883531c206573335ff24fece565aa97ef8f00a591853755",
+  "logs/test-clang-debug.txt": "8492c13a9afa7d355dc72c63a00e29481b8c85d6dd9d98724fdc19f995fb5991",
+  "logs/test-clang-optimized-build.txt": "abf12c9a188580b61301640dfd9f252c6c9de97b134a2362bb20a9342cc15bd7",
+  "logs/test-clang-optimized.txt": "7b0d62f6f0956b801a570dd4d6932e413c05a1f9b9edffccfe032ae418cc0963",
+  "logs/test-gcc-debug-build.txt": "a7d816ed5155c377c73b62125d630a1649cbbb63ab3a574bb46b4e0fe822777c",
+  "logs/test-gcc-debug.txt": "8a05ba8a4467eca15bd9ef51bf8d6af66cbfe309a5654aa41429229fc228137e",
+  "logs/test-gcc-optimized-build.txt": "7ef717ba09482d90ad5c7d6e1c58519ae501ad2dfeff04c5a5e079ffd5f069d9",
+  "logs/test-gcc-optimized.txt": "733bf0d1be6206e0c12ecb79c77b130e9fa6dc022a742303266005301f5bd4f3",
+  "rows.jsonl": "6a6f8cc16169fc36a1dd018db292b8ac375c67f8d7f33b5818faf1eedd4da928",
+  "spec.json": "429c0d80c5ecb121a94d5275095f6b3cf63de5b7b9e6c0fdb50fa56e68e5a338",
+  "tests.json": "60357be3ee75cf2d4801fec3472e2ac4fa9cbd3c8c00aa83934923081cf67664"
+ }
+}

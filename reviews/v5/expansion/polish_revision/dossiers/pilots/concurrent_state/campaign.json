@@ -1,0 +1,390 @@
+{
+ "schema_version": 1,
+ "kind": "dossier-campaign",
+ "dossier": "concurrent_state",
+ "provenance": "TEST IMPLEMENTATION",
+ "notice": "TEST IMPLEMENTATION: the component sources are a supplied test or reference implementation used to exercise this workflow. Nothing produced from them is evidence of your own work.",
+ "started_utc": "2026-10-31T05:40:11.981165+00:00",
+ "finished_utc": "2026-10-31T05:40:14.390416+00:00",
+ "runner": {
+  "path": "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/run_dossier.py",
+  "sha256": "62061f2669dfaecfe44f568c37d0904cadd0aee67e158167db8f792d7bf4faab",
+  "argv": [
+   "labs/performance_followthrough/dossiers/run_dossier.py",
+   "run",
+   "--spec",
+   "labs/performance_followthrough/dossiers/concurrent_state/spec.json",
+   "--pmu-source",
+   "assessor/performance_followthrough/pmu.c",
+   "--test-implementation",
+   "--pairs",
+   "3",
+   "--regime",
+   "cross-core: adjacent (0) vs separate (1)",
+   "--regime",
+   "smt-siblings: adjacent (0) vs separate (1)",
+   "--quiet-marker",
+   "/home/fred/.cache/cmastery-tmp/orch/QUIET",
+   "--max-load",
+   "1.5",
+   "--out",
+   "reviews/v5/expansion/polish_revision/dossiers/pilots/concurrent_state"
+  ]
+ },
+ "spec": {
+  "path": "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/spec.json",
+  "sha256": "b1fa12cf3576eede33edc1a6fe5918cce1d1ab13dcd9b5a50aaeee205f5151cd"
+ },
+ "pmu_source": {
+  "path": "/home/fred/dev/c_mastery/assessor/performance_followthrough/pmu.c",
+  "sha256": "70e8e1101992d7dfeaa9642754624ebed48b9fd97b2d48a3c9d9296bc1f31660"
+ },
+ "binary_sha256": "ea4879881edff3548f2ceb581aed434cbc507fe01a976d992aa55a7cdf8020ef",
+ "disassembly": {
+  "file": "disassembly.txt",
+  "sha256": "eb4fad727a8ac650b7e5be6d8133ef75e036a88912fe77ab744d09e3002fb166",
+  "symbols": [
+   "cs_increment",
+   "run_thread"
+  ]
+ },
+ "placements": [
+  {
+   "name": "cross-core",
+   "cpus": [
+    2,
+    4
+   ],
+   "relation": "different-core",
+   "meaning": "measured thread on CPU 2, peer on CPU 4: different cores (private L1D and L2 each), one shared L3",
+   "holds": true
+  },
+  {
+   "name": "smt-siblings",
+   "cpus": [
+    2,
+    3
+   ],
+   "relation": "smt-siblings",
+   "meaning": "measured thread on CPU 2, peer on CPU 3: two hardware threads of one core sharing its L1D and L2",
+   "holds": true
+  }
+ ],
+ "pairs_requested": 3,
+ "quiet_window": {
+  "marker": "/home/fred/.cache/cmastery-tmp/orch/QUIET",
+  "max_load": 1.5,
+  "polls": [
+   {
+    "utc": "2026-10-31T05:40:14.165703+00:00",
+    "load_1min": 0.68
+   }
+  ],
+  "marker_created_utc": "2026-10-31T05:40:14.165519+00:00",
+  "waited_s": 0.0,
+  "measurement_start_utc": "2026-10-31T05:40:14.165714+00:00",
+  "measurement_s": 0.2,
+  "marker_removed_utc": "2026-10-31T05:40:14.381538+00:00",
+  "ended_by": "completion"
+ },
+ "outcomes": [
+  {
+   "regime": "cross-core: adjacent (0) vs separate (1)",
+   "group": "coherence",
+   "state": "measured",
+   "repetitions": 4
+  },
+  {
+   "regime": "cross-core: adjacent (0) vs separate (1)",
+   "group": "l2",
+   "state": "measured",
+   "repetitions": 4
+  },
+  {
+   "regime": "smt-siblings: adjacent (0) vs separate (1)",
+   "group": "coherence",
+   "state": "measured",
+   "repetitions": 4
+  },
+  {
+   "regime": "smt-siblings: adjacent (0) vs separate (1)",
+   "group": "l2",
+   "state": "measured",
+   "repetitions": 4
+  }
+ ],
+ "commands": [
+  {
+   "label": "test-gcc-debug-build",
+   "argv": [
+    "gcc",
+    "-std=c17",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-O0",
+    "-g",
+    "-pthread",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough",
+    "-I/home/fred/dev/c_mastery/labs/support",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/tests.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/dossier_common.c",
+    "/home/fred/dev/c_mastery/labs/support/cm_parse.c",
+    "/home/fred/dev/c_mastery/labs/support/cm_clock.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/pmu_linux.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/pmu.c",
+    "-o",
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-krfobobp/test-gcc-debug"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.231,
+   "log": "logs/test-gcc-debug-build.txt",
+   "log_sha256": "14ef2d0cf7a0c017935b8b7d4ea0abb661b8e6a70b388809dc4941ab6351b6bf"
+  },
+  {
+   "label": "test-gcc-debug",
+   "argv": [
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-krfobobp/test-gcc-debug"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.005,
+   "log": "logs/test-gcc-debug.txt",
+   "log_sha256": "9c50e2a117668a668c7b4522bed1a4ddfd1290913856a4f8fbdfb09bfaa773d2"
+  },
+  {
+   "label": "test-gcc-optimized-build",
+   "argv": [
+    "gcc",
+    "-std=c17",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-O2",
+    "-g",
+    "-pthread",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough",
+    "-I/home/fred/dev/c_mastery/labs/support",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/tests.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/dossier_common.c",
+    "/home/fred/dev/c_mastery/labs/support/cm_parse.c",
+    "/home/fred/dev/c_mastery/labs/support/cm_clock.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/pmu_linux.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/pmu.c",
+    "-o",
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-krfobobp/test-gcc-optimized"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.484,
+   "log": "logs/test-gcc-optimized-build.txt",
+   "log_sha256": "2a2f7e1b78810155940fda522b2a3a30c81604213cf648dc43f671f8dd4820b1"
+  },
+  {
+   "label": "test-gcc-optimized",
+   "argv": [
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-krfobobp/test-gcc-optimized"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.004,
+   "log": "logs/test-gcc-optimized.txt",
+   "log_sha256": "76c159993524744aca6ef676be40f3ce078a0b25410c6c4eb4449bfce245d27a"
+  },
+  {
+   "label": "test-clang-debug-build",
+   "argv": [
+    "clang",
+    "-std=c17",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-O0",
+    "-g",
+    "-pthread",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough",
+    "-I/home/fred/dev/c_mastery/labs/support",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/tests.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/dossier_common.c",
+    "/home/fred/dev/c_mastery/labs/support/cm_parse.c",
+    "/home/fred/dev/c_mastery/labs/support/cm_clock.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/pmu_linux.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/pmu.c",
+    "-o",
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-krfobobp/test-clang-debug"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.31,
+   "log": "logs/test-clang-debug-build.txt",
+   "log_sha256": "14591022b8663725f53b2f9cc2886ee9b60f1f1c86d5e408fdee116056ed41f5"
+  },
+  {
+   "label": "test-clang-debug",
+   "argv": [
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-krfobobp/test-clang-debug"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.005,
+   "log": "logs/test-clang-debug.txt",
+   "log_sha256": "bb6d0a38690ca6b36576f9e9e0d6c2147f84197c2f5a2458bd5b67e7446bf05e"
+  },
+  {
+   "label": "test-clang-optimized-build",
+   "argv": [
+    "clang",
+    "-std=c17",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-O2",
+    "-g",
+    "-pthread",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough",
+    "-I/home/fred/dev/c_mastery/labs/support",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/tests.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/dossier_common.c",
+    "/home/fred/dev/c_mastery/labs/support/cm_parse.c",
+    "/home/fred/dev/c_mastery/labs/support/cm_clock.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/pmu_linux.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/pmu.c",
+    "-o",
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-krfobobp/test-clang-optimized"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.522,
+   "log": "logs/test-clang-optimized-build.txt",
+   "log_sha256": "1cf1771dbda06fe5318465967fe51ef0fca72f32a2e266b1c9614ca5a6382d07"
+  },
+  {
+   "label": "test-clang-optimized",
+   "argv": [
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-krfobobp/test-clang-optimized"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.005,
+   "log": "logs/test-clang-optimized.txt",
+   "log_sha256": "1809ba607001f028a5fd5e64d4ff48d8cd708770347ded19ccd382f99c0c6134"
+  },
+  {
+   "label": "build-driver",
+   "argv": [
+    "gcc",
+    "-std=c17",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-O2",
+    "-g",
+    "-pthread",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough",
+    "-I/home/fred/dev/c_mastery/labs/support",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/driver.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/dossier_common.c",
+    "/home/fred/dev/c_mastery/labs/support/cm_parse.c",
+    "/home/fred/dev/c_mastery/labs/support/cm_clock.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/pmu_linux.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/pmu.c",
+    "-o",
+    "/home/fred/dev/c_mastery/reviews/v5/expansion/polish_revision/dossiers/pilots/concurrent_state/build/cs_driver"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.447,
+   "log": "logs/build-driver.txt",
+   "log_sha256": "1a7d3d0c8cb4947bfe3bd5aa73e67288fdb8b45a11c6a5af9dc4a8208cdb6e01"
+  },
+  {
+   "label": "dwarf-producer",
+   "argv": [
+    "readelf",
+    "--debug-dump=info",
+    "/home/fred/dev/c_mastery/reviews/v5/expansion/polish_revision/dossiers/pilots/concurrent_state/build/cs_driver"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.008,
+   "log": "logs/dwarf-producer.txt",
+   "log_sha256": "fbd51dad87803417e5e99e7e5dc5660a1e25bc2a80755eec8e557bb9538751fd"
+  },
+  {
+   "label": "objdump-cs_increment",
+   "argv": [
+    "objdump",
+    "-d",
+    "--no-show-raw-insn",
+    "-l",
+    "--disassemble=cs_increment",
+    "/home/fred/dev/c_mastery/reviews/v5/expansion/polish_revision/dossiers/pilots/concurrent_state/build/cs_driver"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.003,
+   "log": "logs/objdump-cs_increment.txt",
+   "log_sha256": "a5818ad867aa34527217eb5ba0a6f933937cb3ab1db5f3e50ed3266c6fb9bdb6"
+  },
+  {
+   "label": "objdump-run_thread",
+   "argv": [
+    "objdump",
+    "-d",
+    "--no-show-raw-insn",
+    "-l",
+    "--disassemble=run_thread",
+    "/home/fred/dev/c_mastery/reviews/v5/expansion/polish_revision/dossiers/pilots/concurrent_state/build/cs_driver"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.003,
+   "log": "logs/objdump-run_thread.txt",
+   "log_sha256": "eba8c912d6cdfc58f40c26899fc8b301b0e6a71c2cdb078dbaa6bafc708e2d65"
+  }
+ ],
+ "files_sha256": {
+  "analysis.json": "ffb05d6215586f2c81060cb8bb4cf88740b3774932563158baf89a692a498892",
+  "build/cs_driver": "ea4879881edff3548f2ceb581aed434cbc507fe01a976d992aa55a7cdf8020ef",
+  "build.json": "f9b0404d27557b8f51f7ac61ce40d2a5d2f22c607e55bd135db47b2f46b35911",
+  "disassembly.txt": "eb4fad727a8ac650b7e5be6d8133ef75e036a88912fe77ab744d09e3002fb166",
+  "environment.json": "9a70e486605c888499aaf920925c4f380437a157df829f0f5fb6861f19025ae8",
+  "events.json": "a15e95f5234a6309cb67d9d252e71cf35317aaa67a8c0c0bdce8e5aaaa2c3f4e",
+  "logs/build-driver.txt": "1a7d3d0c8cb4947bfe3bd5aa73e67288fdb8b45a11c6a5af9dc4a8208cdb6e01",
+  "logs/dwarf-producer.txt": "fbd51dad87803417e5e99e7e5dc5660a1e25bc2a80755eec8e557bb9538751fd",
+  "logs/objdump-cs_increment.txt": "a5818ad867aa34527217eb5ba0a6f933937cb3ab1db5f3e50ed3266c6fb9bdb6",
+  "logs/objdump-run_thread.txt": "eba8c912d6cdfc58f40c26899fc8b301b0e6a71c2cdb078dbaa6bafc708e2d65",
+  "logs/test-clang-debug-build.txt": "14591022b8663725f53b2f9cc2886ee9b60f1f1c86d5e408fdee116056ed41f5",
+  "logs/test-clang-debug.txt": "bb6d0a38690ca6b36576f9e9e0d6c2147f84197c2f5a2458bd5b67e7446bf05e",
+  "logs/test-clang-optimized-build.txt": "1cf1771dbda06fe5318465967fe51ef0fca72f32a2e266b1c9614ca5a6382d07",
+  "logs/test-clang-optimized.txt": "1809ba607001f028a5fd5e64d4ff48d8cd708770347ded19ccd382f99c0c6134",
+  "logs/test-gcc-debug-build.txt": "14ef2d0cf7a0c017935b8b7d4ea0abb661b8e6a70b388809dc4941ab6351b6bf",
+  "logs/test-gcc-debug.txt": "9c50e2a117668a668c7b4522bed1a4ddfd1290913856a4f8fbdfb09bfaa773d2",
+  "logs/test-gcc-optimized-build.txt": "2a2f7e1b78810155940fda522b2a3a30c81604213cf648dc43f671f8dd4820b1",
+  "logs/test-gcc-optimized.txt": "76c159993524744aca6ef676be40f3ce078a0b25410c6c4eb4449bfce245d27a",
+  "rows.jsonl": "969daa5a01a01bed579e7b50f970fcb3b9ceabfa606c306484f407bc89778853",
+  "spec.json": "5899f50a3962ee17b966472da59f98b2092cdebfa1fc6900790a6c43cbdc17a7",
+  "tests.json": "c0e29ba0d3cb8e73da0ca7874e1a7417776d952abf859d3d1449e643399df93a"
+ }
+}

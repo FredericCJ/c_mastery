@@ -1,0 +1,5 @@
+- [C house style](c-house-style.md) — BARR-C/CERT/MISRA/kernel blend, Allman 4sp 80col, public rename, clang-format 21.1.8
+- [Polish revision orchestration](polish-revision-orchestration.md) — cheapest-capable subagents, repo tools, local commits per batch, F439 board available
+- [Host resource limits](host-resource-limits.md) — 8 GB RAM + swap, quota /tmp; cap concurrent builds, TMPDIR on disk outside repo
+- [Golfed Python edits](golfed-python-edits.md) — never append inline # comments when patching one-line tool functions
+- [Producers ignore --help](producers-ignore-help.md) — run_*.py often lack argparse; --help runs them and rewrites receipts; read source instead

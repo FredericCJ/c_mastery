@@ -1,0 +1,430 @@
+{
+ "schema_version": 1,
+ "kind": "dossier-campaign",
+ "dossier": "representation_locality",
+ "provenance": "TEST IMPLEMENTATION",
+ "notice": "TEST IMPLEMENTATION: the component sources are a supplied test or reference implementation used to exercise this workflow. Nothing produced from them is evidence of your own work.",
+ "started_utc": "2026-10-31T05:40:51.091112+00:00",
+ "finished_utc": "2026-10-31T05:40:57.190083+00:00",
+ "runner": {
+  "path": "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/run_dossier.py",
+  "sha256": "62061f2669dfaecfe44f568c37d0904cadd0aee67e158167db8f792d7bf4faab",
+  "argv": [
+   "labs/performance_followthrough/dossiers/run_dossier.py",
+   "run",
+   "--spec",
+   "assessor/performance_followthrough/dossiers/representation_locality/spec.json",
+   "--pmu-source",
+   "assessor/performance_followthrough/pmu.c",
+   "--test-implementation",
+   "--pairs",
+   "3",
+   "--regime",
+   "n=2048: soa (0) vs aos64 (1)",
+   "--regime",
+   "n=2097152: aos64 (0) vs aos128 (1)",
+   "--quiet-marker",
+   "/home/fred/.cache/cmastery-tmp/orch/QUIET",
+   "--max-load",
+   "1.5",
+   "--out",
+   "reviews/v5/expansion/polish_revision/dossiers/pilots/representation_locality"
+  ]
+ },
+ "spec": {
+  "path": "/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/representation_locality/spec.json",
+  "sha256": "598874fd3c079bc8eef0f444f8405641fa0a1ba8caa9e19ee69d6014a2b5f42e"
+ },
+ "pmu_source": {
+  "path": "/home/fred/dev/c_mastery/assessor/performance_followthrough/pmu.c",
+  "sha256": "70e8e1101992d7dfeaa9642754624ebed48b9fd97b2d48a3c9d9296bc1f31660"
+ },
+ "binary_sha256": "dc3c162b7e76ceb5cf0715dbdb48932e6e073add8676c0a2aaa00069c827d4c6",
+ "disassembly": {
+  "file": "disassembly.txt",
+  "sha256": "d50b25b5420db6263a1228e460a1ba32154306b1ebe49bd567451b65f8ff6ed3",
+  "symbols": [
+   "rl_sum_soa",
+   "rl_sum_aos16",
+   "rl_sum_aos64",
+   "rl_sum_aos128",
+   "rl_sum"
+  ]
+ },
+ "placements": [
+  {
+   "name": "measured-cpu",
+   "cpus": [
+    2
+   ],
+   "relation": "single",
+   "meaning": "the single measured thread on CPU 2; its SMT sibling CPU 3 is not reserved and its busy fraction is recorded per row",
+   "holds": true
+  }
+ ],
+ "pairs_requested": 3,
+ "quiet_window": {
+  "marker": "/home/fred/.cache/cmastery-tmp/orch/QUIET",
+  "max_load": 1.5,
+  "polls": [
+   {
+    "utc": "2026-10-31T05:40:53.622772+00:00",
+    "load_1min": 0.61
+   }
+  ],
+  "marker_created_utc": "2026-10-31T05:40:53.622612+00:00",
+  "waited_s": 0.0,
+  "measurement_start_utc": "2026-10-31T05:40:53.622783+00:00",
+  "measurement_s": 3.6,
+  "marker_removed_utc": "2026-10-31T05:40:57.182996+00:00",
+  "ended_by": "completion"
+ },
+ "outcomes": [
+  {
+   "regime": "n=2048: soa (0) vs aos64 (1)",
+   "group": "fills",
+   "state": "measured",
+   "repetitions": 1024
+  },
+  {
+   "regime": "n=2048: soa (0) vs aos64 (1)",
+   "group": "prefetch",
+   "state": "measured",
+   "repetitions": 1024
+  },
+  {
+   "regime": "n=2048: soa (0) vs aos64 (1)",
+   "group": "translation",
+   "state": "measured",
+   "repetitions": 1024
+  },
+  {
+   "regime": "n=2097152: aos64 (0) vs aos128 (1)",
+   "group": "fills",
+   "state": "measured",
+   "repetitions": 1
+  },
+  {
+   "regime": "n=2097152: aos64 (0) vs aos128 (1)",
+   "group": "prefetch",
+   "state": "measured",
+   "repetitions": 1
+  },
+  {
+   "regime": "n=2097152: aos64 (0) vs aos128 (1)",
+   "group": "translation",
+   "state": "measured",
+   "repetitions": 1
+  }
+ ],
+ "commands": [
+  {
+   "label": "test-gcc-debug-build",
+   "argv": [
+    "gcc",
+    "-std=c17",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-O0",
+    "-g",
+    "-pthread",
+    "-I/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/representation_locality",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough",
+    "-I/home/fred/dev/c_mastery/labs/support",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/representation_locality/tests.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/representation_locality/locality.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/representation_locality/locality_kernels.c",
+    "-o",
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-8xe7djfi/test-gcc-debug"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.107,
+   "log": "logs/test-gcc-debug-build.txt",
+   "log_sha256": "d1eb73bc81d90da16ce3c35d6607d5cd52f6453952a480ad95c59aff66584329"
+  },
+  {
+   "label": "test-gcc-debug",
+   "argv": [
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-8xe7djfi/test-gcc-debug"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.36,
+   "log": "logs/test-gcc-debug.txt",
+   "log_sha256": "ddc6e27ea41b07e0ec3ce65ab5314268af7a0af0d7b5bff81860b8727a90b103"
+  },
+  {
+   "label": "test-gcc-optimized-build",
+   "argv": [
+    "gcc",
+    "-std=c17",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-O2",
+    "-g",
+    "-pthread",
+    "-I/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/representation_locality",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough",
+    "-I/home/fred/dev/c_mastery/labs/support",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/representation_locality/tests.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/representation_locality/locality.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/representation_locality/locality_kernels.c",
+    "-o",
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-8xe7djfi/test-gcc-optimized"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.177,
+   "log": "logs/test-gcc-optimized-build.txt",
+   "log_sha256": "72ad9b7b255969c8b1b6924d448d69d9fb7ea2a028162b8f370ee56e12f84463"
+  },
+  {
+   "label": "test-gcc-optimized",
+   "argv": [
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-8xe7djfi/test-gcc-optimized"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.246,
+   "log": "logs/test-gcc-optimized.txt",
+   "log_sha256": "2b37c6943b4bb2c64bc9d65d201906d66c43057316f6630394f864b95900e048"
+  },
+  {
+   "label": "test-clang-debug-build",
+   "argv": [
+    "clang",
+    "-std=c17",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-O0",
+    "-g",
+    "-pthread",
+    "-I/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/representation_locality",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough",
+    "-I/home/fred/dev/c_mastery/labs/support",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/representation_locality/tests.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/representation_locality/locality.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/representation_locality/locality_kernels.c",
+    "-o",
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-8xe7djfi/test-clang-debug"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.134,
+   "log": "logs/test-clang-debug-build.txt",
+   "log_sha256": "743db208df8fb64aca4839c3f9957155fc008814671af3ee65fbf72bfe07898c"
+  },
+  {
+   "label": "test-clang-debug",
+   "argv": [
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-8xe7djfi/test-clang-debug"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.393,
+   "log": "logs/test-clang-debug.txt",
+   "log_sha256": "b8d991a3591f532aeb73416a8d917969f02a1093fdc3fe6bdd5c314938bd148a"
+  },
+  {
+   "label": "test-clang-optimized-build",
+   "argv": [
+    "clang",
+    "-std=c17",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-O2",
+    "-g",
+    "-pthread",
+    "-I/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/representation_locality",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough",
+    "-I/home/fred/dev/c_mastery/labs/support",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/representation_locality/tests.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/representation_locality/locality.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/representation_locality/locality_kernels.c",
+    "-o",
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-8xe7djfi/test-clang-optimized"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.228,
+   "log": "logs/test-clang-optimized-build.txt",
+   "log_sha256": "7614218de89135180e0d9e6c79520dca0897967d534b22d11e40f2b02f2aae26"
+  },
+  {
+   "label": "test-clang-optimized",
+   "argv": [
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-8xe7djfi/test-clang-optimized"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.233,
+   "log": "logs/test-clang-optimized.txt",
+   "log_sha256": "72803f3c03063c3f2bc8d1b97c308ed20d96d7ccea417c4963d542d9d1fccba3"
+  },
+  {
+   "label": "build-driver",
+   "argv": [
+    "gcc",
+    "-std=c17",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-O2",
+    "-g",
+    "-pthread",
+    "-I/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/representation_locality",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough",
+    "-I/home/fred/dev/c_mastery/labs/support",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/representation_locality/driver.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/representation_locality/locality.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/dossiers/representation_locality/locality_kernels.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/dossier_common.c",
+    "/home/fred/dev/c_mastery/labs/support/cm_parse.c",
+    "/home/fred/dev/c_mastery/labs/support/cm_clock.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/pmu_linux.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/pmu.c",
+    "-o",
+    "/home/fred/dev/c_mastery/reviews/v5/expansion/polish_revision/dossiers/pilots/representation_locality/build/rl_driver"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.441,
+   "log": "logs/build-driver.txt",
+   "log_sha256": "c820d75c9ca811586cfa2ff90b83adf3c4727e62eafc83a16e362af1034b92a9"
+  },
+  {
+   "label": "dwarf-producer",
+   "argv": [
+    "readelf",
+    "--debug-dump=info",
+    "/home/fred/dev/c_mastery/reviews/v5/expansion/polish_revision/dossiers/pilots/representation_locality/build/rl_driver"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.007,
+   "log": "logs/dwarf-producer.txt",
+   "log_sha256": "be12b7bd215650af0c7888fb90d0743e4b24ddd745cf8fd8283a63dfe042ac2f"
+  },
+  {
+   "label": "objdump-rl_sum_soa",
+   "argv": [
+    "objdump",
+    "-d",
+    "--no-show-raw-insn",
+    "-l",
+    "--disassemble=rl_sum_soa",
+    "/home/fred/dev/c_mastery/reviews/v5/expansion/polish_revision/dossiers/pilots/representation_locality/build/rl_driver"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.003,
+   "log": "logs/objdump-rl_sum_soa.txt",
+   "log_sha256": "211f9a896b1fae7de75961be22b6dc279424192e6dc8ca3c7fff63a782be073b"
+  },
+  {
+   "label": "objdump-rl_sum_aos16",
+   "argv": [
+    "objdump",
+    "-d",
+    "--no-show-raw-insn",
+    "-l",
+    "--disassemble=rl_sum_aos16",
+    "/home/fred/dev/c_mastery/reviews/v5/expansion/polish_revision/dossiers/pilots/representation_locality/build/rl_driver"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.003,
+   "log": "logs/objdump-rl_sum_aos16.txt",
+   "log_sha256": "45d3aa62165e1f52913c68bdd6b626c02955b0b51d2fdbc2c10ac4136f88952b"
+  },
+  {
+   "label": "objdump-rl_sum_aos64",
+   "argv": [
+    "objdump",
+    "-d",
+    "--no-show-raw-insn",
+    "-l",
+    "--disassemble=rl_sum_aos64",
+    "/home/fred/dev/c_mastery/reviews/v5/expansion/polish_revision/dossiers/pilots/representation_locality/build/rl_driver"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.003,
+   "log": "logs/objdump-rl_sum_aos64.txt",
+   "log_sha256": "e664415683879a419092987142371688e94d518f462534b6016b2d51ea977f9c"
+  },
+  {
+   "label": "objdump-rl_sum_aos128",
+   "argv": [
+    "objdump",
+    "-d",
+    "--no-show-raw-insn",
+    "-l",
+    "--disassemble=rl_sum_aos128",
+    "/home/fred/dev/c_mastery/reviews/v5/expansion/polish_revision/dossiers/pilots/representation_locality/build/rl_driver"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.002,
+   "log": "logs/objdump-rl_sum_aos128.txt",
+   "log_sha256": "cbc79a6f1df93f8cec08d1befe09bb50669fc5d587076dcb1c8d12fef59a1811"
+  },
+  {
+   "label": "objdump-rl_sum",
+   "argv": [
+    "objdump",
+    "-d",
+    "--no-show-raw-insn",
+    "-l",
+    "--disassemble=rl_sum",
+    "/home/fred/dev/c_mastery/reviews/v5/expansion/polish_revision/dossiers/pilots/representation_locality/build/rl_driver"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.003,
+   "log": "logs/objdump-rl_sum.txt",
+   "log_sha256": "a3d244fe4520b21ef3a3217d3bd940c7446ec4d5eefdb0f7fe669dd7da6112eb"
+  }
+ ],
+ "files_sha256": {
+  "analysis.json": "1a00e1dc2897c88814c8c333ff48e13339810b58b94de4383064ab2c3a159950",
+  "build/rl_driver": "dc3c162b7e76ceb5cf0715dbdb48932e6e073add8676c0a2aaa00069c827d4c6",
+  "build.json": "dd4b3bbebc812a0ef23972cdb7a05a0a8ab6208ff142032ae69ef480b68a2985",
+  "disassembly.txt": "d50b25b5420db6263a1228e460a1ba32154306b1ebe49bd567451b65f8ff6ed3",
+  "environment.json": "c4f73e7a122166422de509cc0d9291e0761c3485e1f03e37335455ac73e3d7bb",
+  "events.json": "effc76aa6a3106266c180511a3b90857e71d5edec07039ae22d6413c2e81598a",
+  "logs/build-driver.txt": "c820d75c9ca811586cfa2ff90b83adf3c4727e62eafc83a16e362af1034b92a9",
+  "logs/dwarf-producer.txt": "be12b7bd215650af0c7888fb90d0743e4b24ddd745cf8fd8283a63dfe042ac2f",
+  "logs/objdump-rl_sum.txt": "a3d244fe4520b21ef3a3217d3bd940c7446ec4d5eefdb0f7fe669dd7da6112eb",
+  "logs/objdump-rl_sum_aos128.txt": "cbc79a6f1df93f8cec08d1befe09bb50669fc5d587076dcb1c8d12fef59a1811",
+  "logs/objdump-rl_sum_aos16.txt": "45d3aa62165e1f52913c68bdd6b626c02955b0b51d2fdbc2c10ac4136f88952b",
+  "logs/objdump-rl_sum_aos64.txt": "e664415683879a419092987142371688e94d518f462534b6016b2d51ea977f9c",
+  "logs/objdump-rl_sum_soa.txt": "211f9a896b1fae7de75961be22b6dc279424192e6dc8ca3c7fff63a782be073b",
+  "logs/test-clang-debug-build.txt": "743db208df8fb64aca4839c3f9957155fc008814671af3ee65fbf72bfe07898c",
+  "logs/test-clang-debug.txt": "b8d991a3591f532aeb73416a8d917969f02a1093fdc3fe6bdd5c314938bd148a",
+  "logs/test-clang-optimized-build.txt": "7614218de89135180e0d9e6c79520dca0897967d534b22d11e40f2b02f2aae26",
+  "logs/test-clang-optimized.txt": "72803f3c03063c3f2bc8d1b97c308ed20d96d7ccea417c4963d542d9d1fccba3",
+  "logs/test-gcc-debug-build.txt": "d1eb73bc81d90da16ce3c35d6607d5cd52f6453952a480ad95c59aff66584329",
+  "logs/test-gcc-debug.txt": "ddc6e27ea41b07e0ec3ce65ab5314268af7a0af0d7b5bff81860b8727a90b103",
+  "logs/test-gcc-optimized-build.txt": "72ad9b7b255969c8b1b6924d448d69d9fb7ea2a028162b8f370ee56e12f84463",
+  "logs/test-gcc-optimized.txt": "2b37c6943b4bb2c64bc9d65d201906d66c43057316f6630394f864b95900e048",
+  "rows.jsonl": "97490e01a7d59b017b73a17fa50c8f0a061824ff81670207750bb23358cb9d90",
+  "spec.json": "41284b89cd62bde7c3e2ec5ad8a8be805465a2389fcf991526b4f5432713b45c",
+  "tests.json": "3258b2a9d86255f873f935efab3c3416ca476775920878dab3adfa8d2a7db194"
+ }
+}
