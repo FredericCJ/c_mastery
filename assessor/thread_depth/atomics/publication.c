@@ -1,6 +1,18 @@
 #include "atomics.h"
 #include <limits.h>
 
+enum
+{
+    MAX_SNAPSHOT_ATTEMPTS = 16,
+    MAX_SLOT_READERS = 2,
+    MAX_CLOSURE_EVENTS = 8
+};
+
+/*
+ * Sequence-lock snapshot: a single writer makes `sequence` odd while it
+ * updates a and b, and even afterwards. The atomic operations below keep
+ * their default (sequentially consistent) order unchanged.
+ */
 void ta_snapshot_init(struct ta_snapshot *s)
 {
     atomic_init(&s->sequence, 0);
@@ -28,7 +40,7 @@ int ta_snapshot_write(struct ta_snapshot *s, int a)
 
 int ta_snapshot_try(struct ta_snapshot *s, unsigned attempts, int *out)
 {
-    if (!attempts || attempts > 16 || !out)
+    if (!attempts || attempts > MAX_SNAPSHOT_ATTEMPTS || !out)
     {
         return TA_INVALID;
     }
@@ -52,9 +64,14 @@ int ta_snapshot_try(struct ta_snapshot *s, unsigned attempts, int *out)
     return TA_LIMIT;
 }
 
+/*
+ * Single-producer slot handed to 1 or 2 enrolled readers. `pending` holds one
+ * bit per reader that has not yet taken the current payload; the producer may
+ * publish again only when it is zero.
+ */
 int ta_slot_init(struct ta_slot *s, unsigned readers)
 {
-    if (readers < 1 || readers > 2)
+    if (readers < 1 || readers > MAX_SLOT_READERS)
     {
         return TA_INVALID;
     }
@@ -95,6 +112,9 @@ int ta_slot_read(struct ta_slot *s, unsigned reader, int *out)
     return TA_SUCCESS;
 }
 
+/* Two accesses race when they touch the same location, at least one
+ * writes, the accesses are not both atomic and neither happens before the
+ * other. -1 for non-boolean input. */
 int ta_data_race(unsigned same, unsigned a, unsigned b, unsigned atomic,
                  unsigned ordered)
 {
@@ -109,9 +129,14 @@ int ta_data_race(unsigned same, unsigned a, unsigned b, unsigned atomic,
         ;
 }
 
+/*
+ * Warshall transitive closure on at most MAX_CLOSURE_EVENTS events. Returns
+ * TA_INVALID, leaving edges untouched, for a null graph, n == 0, an oversized
+ * graph or an edge to a nonexistent event.
+ */
 int ta_closure(unsigned *edges, size_t n)
 {
-    if (!edges || !n || n > 8)
+    if (!edges || !n || n > MAX_CLOSURE_EVENTS)
     {
         return TA_INVALID;
     }

@@ -16,10 +16,21 @@
         }                                                                    \
     } while (0)
 
+enum
+{
+    PER_PRODUCER = 1000,
+    PRODUCERS = 2,
+    HISTORY_ROUNDS = 20,
+    VALUE_LIMIT = 1000000
+};
+
+/* One queue call made from a helper thread: `value` is the input (push) or
+ * output (pop), `result` the errno-style status. */
 struct tw_call
 {
     struct tp_end_queue *q;
-    int value, result;
+    int value;
+    int result;
 };
 
 static void *pop(void *p)
@@ -38,12 +49,15 @@ static void *push(void *p)
     return NULL;
 }
 
-static void shutdown_case(void)
+/* The queue is full (3 admitted values) when a fourth push blocks. Aborting
+ * must refuse the blocked push, discard the three residual values once, and
+ * leave a retired queue that rejects everything else. */
+static void shutdown_with_blocked_producer(void)
 {
     struct tp_end_queue q;
     CHECK(tp_queue_init(&q) == 0);
     CHECK(tp_queue_push(&q, -1) == EINVAL &&
-          tp_queue_push(&q, 1000001) == EINVAL);
+          tp_queue_push(&q, VALUE_LIMIT + 1) == EINVAL);
     for (int i = 1; i <= 3; i++)
     {
         CHECK(tp_queue_push(&q, i) == 0);
@@ -62,8 +76,15 @@ static void shutdown_case(void)
     CHECK(tp_queue_push(&q, 5) == ECANCELED);
     CHECK(tp_queue_abort(&q) == EALREADY);
     tp_queue_destroy(&q);
+}
+
+/* An empty queue with a blocked consumer: abort releases it with EPIPE. */
+static void shutdown_with_blocked_consumer(void)
+{
+    struct tp_end_queue q;
     CHECK(tp_queue_init(&q) == 0);
-    c = (struct tw_call){.q = &q, .value = 77};
+    struct tw_call c = {.q = &q, .value = 77};
+    pthread_t t;
     CHECK(pthread_create(&t, NULL, pop, &c) == 0);
     CHECK(tw_wait_entries(&q.queue, 1) == 0);
     CHECK(tp_queue_abort(&q) == 0);
@@ -71,12 +92,20 @@ static void shutdown_case(void)
     CHECK(c.result == EPIPE && c.value == 77 && q.accepted == 0 &&
           q.delivered == 0 && q.discarded == 0);
     tp_queue_destroy(&q);
+}
+
+/* The blocked producer is canceled just before abort: the in-flight count
+ * must still reach zero and the abort must complete. */
+static void shutdown_with_canceled_producer(void)
+{
+    struct tp_end_queue q;
     CHECK(tp_queue_init(&q) == 0);
     for (int i = 1; i <= 3; i++)
     {
         CHECK(tp_queue_push(&q, i) == 0);
     }
-    c = (struct tw_call){.q = &q, .value = 4, .result = 99};
+    struct tw_call c = {.q = &q, .value = 4, .result = 99};
+    pthread_t t;
     CHECK(pthread_create(&t, NULL, push, &c) == 0);
     CHECK(tw_wait_entries(&q.queue, 1) == 0);
     CHECK(pthread_cancel(t) == 0);
@@ -86,16 +115,25 @@ static void shutdown_case(void)
     CHECK(q.inflight == 0 && q.accepted == 3 && q.discarded == 3 &&
           c.result == 99);
     tp_queue_destroy(&q);
+}
+
+static void shutdown_case(void)
+{
+    shutdown_with_blocked_producer();
+    shutdown_with_blocked_consumer();
+    shutdown_with_canceled_producer();
     puts(
         "OBS shutdown admitted blocked producer/consumer settle; residual copied "
         "values discarded once; no new admissions; destroy only after join");
 }
 
+/* Producer `id` pushes id * 1000 + 0..999; consumers count how often each
+ * payload was seen so the test can demand exactly once. */
 struct tw_stress
 {
     struct tw_queue *q;
     unsigned id;
-    unsigned seen[2][1000];
+    unsigned seen[PRODUCERS][PER_PRODUCER];
 };
 
 struct history_call
@@ -127,7 +165,7 @@ static void *history_call(void *arg)
 
 static void actual_histories(void)
 {
-    for (unsigned repeat = 0; repeat < 20; repeat++)
+    for (unsigned repeat = 0; repeat < HISTORY_ROUNDS; repeat++)
     {
         struct tw_queue q;
         struct tw_init init;
@@ -170,14 +208,14 @@ static void *producer(void *arg)
 {
     struct tw_stress *s = arg;
     uint32_t seed = UINT32_C(0x12345678) + s->id;
-    for (unsigned i = 0; i < 1000; i++)
+    for (unsigned i = 0; i < PER_PRODUCER; i++)
     {
         seed = seed * 1664525u + 1013904223u;
         if (seed & 1u)
         {
             sched_yield();
         }
-        CHECK(tw_push(s->q, (int)(s->id * 1000 + i), NULL) == 0);
+        CHECK(tw_push(s->q, (int)(s->id * PER_PRODUCER + i), NULL) == 0);
     }
     return NULL;
 }
@@ -193,8 +231,9 @@ static void *consumer(void *arg)
         {
             break;
         }
-        CHECK(e == 0 && value >= 0 && value < 2000);
-        s->seen[(unsigned)value / 1000][(unsigned)value % 1000]++;
+        CHECK(e == 0 && value >= 0 && value < PRODUCERS * PER_PRODUCER);
+        s->seen[(unsigned)value / PER_PRODUCER]
+               [(unsigned)value % PER_PRODUCER]++;
     }
     return NULL;
 }
@@ -207,9 +246,10 @@ static void stress(void)
     CHECK(tw_push(&q, 7, NULL) == 0);
     int probe = 0;
     CHECK(tw_pop(&q, &probe, NULL, NULL, NULL) == 0 && probe == 7);
-    struct tw_stress p[2] = {{.q = &q, .id = 0}, {.q = &q, .id = 1}},
-                     c[2] = {{.q = &q}, {.q = &q}};
-    pthread_t pt[2], ct[2];
+    struct tw_stress p[2] = {{.q = &q, .id = 0}, {.q = &q, .id = 1}};
+    struct tw_stress c[2] = {{.q = &q}, {.q = &q}};
+    pthread_t pt[2];
+    pthread_t ct[2];
     for (unsigned i = 0; i < 2; i++)
     {
         CHECK(pthread_create(&ct[i], NULL, consumer, &c[i]) == 0);
@@ -230,7 +270,7 @@ static void stress(void)
     }
     for (unsigned producer_id = 0; producer_id < 2; producer_id++)
     {
-        for (unsigned i = 0; i < 1000; i++)
+        for (unsigned i = 0; i < PER_PRODUCER; i++)
         {
             CHECK(c[0].seen[producer_id][i] + c[1].seen[producer_id][i] == 1);
         }

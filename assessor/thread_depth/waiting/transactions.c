@@ -3,6 +3,13 @@
 #include <limits.h>
 #include <stdlib.h>
 
+/* Both accounts start at half the invariant total of 100. */
+enum
+{
+    ACCOUNT_OPENING = 50
+};
+
+/* A failed lock/unlock means broken harness state: abort. */
 static void ok(int e)
 {
     if (e)
@@ -16,12 +23,18 @@ int tw_bank_init(struct tw_bank *b)
     int e = pthread_mutex_init(&b->lock, NULL);
     if (!e)
     {
-        b->a = 50;
-        b->b = 50;
+        b->a = ACCOUNT_OPENING;
+        b->b = ACCOUNT_OPENING;
     }
     return e;
 }
 
+/*
+ * Moves amount from a to b under one lock hold, so tw_bank_total never sees
+ * the money in flight. hook (may be NULL) runs between the debit and the
+ * credit, still inside the critical section. EINVAL, with no change, for an
+ * amount outside [0, a].
+ */
 int tw_transfer(struct tw_bank *b, int amount, tw_hook_fn hook, void *arg)
 {
     ok(pthread_mutex_lock(&b->lock));
@@ -60,6 +73,13 @@ void tw_bank_destroy(struct tw_bank *b)
     ok(pthread_mutex_destroy(&b->lock));
 }
 
+/*
+ * Sequence-lock snapshot of two values whose sum is always 100. The
+ * writer makes `sequence` odd while it updates and even again
+ * afterwards; a reader retries until it sees the same even sequence
+ * before and after reading both values. At most one writer at a time
+ * is assumed. Atomic operations keep their default memory order.
+ */
 void tw_snapshot_init(struct tw_snapshot *s)
 {
     atomic_init(&s->sequence, 0);

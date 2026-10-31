@@ -12,10 +12,52 @@
         }                                                                    \
     } while (0)
 
+enum
+{
+    THREADS = 4,
+    PRIORITY_LEVELS = 4,
+    PRIORITY_CODES = 256,
+    GRAPH_CODES = 625,
+    UNTOUCHED = 77
+};
+
+/*
+ * Independent oracle for tp_donate: a thread's priority reaches every owner
+ * on its waiting chain, so each thread's expected priority is the maximum
+ * base priority over itself and everything whose chain passes through it.
+ * base[] and owners[] are decoded from two mixed-radix counters:
+ * base-4 digits for priorities, base-5 digits for owner -1..3.
+ */
+static void decode_case(unsigned priority_code, unsigned graph_code,
+                        unsigned *base, int *owners, unsigned *expected)
+{
+    for (unsigned i = 0; i < THREADS; i++)
+    {
+        base[i] = priority_code % PRIORITY_LEVELS;
+        expected[i] = base[i];
+        priority_code /= PRIORITY_LEVELS;
+        owners[i] = (int)(graph_code % (THREADS + 1)) - 1;
+        graph_code /= THREADS + 1;
+    }
+    for (unsigned i = 0; i < THREADS; i++)
+    {
+        int at = (int)i;
+        for (unsigned depth = 0; depth < THREADS && at >= 0; depth++)
+        {
+            if (expected[(unsigned)at] < base[i])
+            {
+                expected[(unsigned)at] = base[i];
+            }
+            at = owners[(unsigned)at];
+        }
+    }
+}
+
 static void donation(void)
 {
-    unsigned base[4] = {1, 2, 3, 7}, out[4] = {99, 99, 99, 99};
-    int owners[4] = {-1, 0, 1, 2};
+    unsigned base[THREADS] = {1, 2, 3, 7};
+    unsigned out[THREADS] = {99, 99, 99, 99};
+    int owners[THREADS] = {-1, 0, 1, 2};
     CHECK(tp_donate(base, owners, 4, out) == TP_OK);
     CHECK(out[0] == 7 && out[1] == 7 && out[2] == 7 && out[3] == 7);
     owners[3] = -1;
@@ -23,48 +65,31 @@ static void donation(void)
     CHECK(out[0] == 3 && out[1] == 3 && out[2] == 3 && out[3] == 7);
     owners[2] = -1;
     CHECK(tp_donate(base, owners, 4, out) == TP_OK && out[0] == 2);
-    /* Independent reachability: every waiting chain carries the base priority. */
-    for (unsigned b = 0; b < 256; b++)
+    /* Exhaustive: every priority assignment against every owner graph. */
+    for (unsigned b = 0; b < PRIORITY_CODES; b++)
     {
-        for (unsigned g = 0; g < 625; g++)
+        for (unsigned g = 0; g < GRAPH_CODES; g++)
         {
-            unsigned code = b, graph = g, expected[4];
-            for (unsigned i = 0; i < 4; i++)
-            {
-                base[i] = expected[i] = code % 4;
-                code /= 4;
-                owners[i] = (int)(graph % 5) - 1;
-                graph /= 5;
-            }
-            for (unsigned i = 0; i < 4; i++)
-            {
-                int at = (int)i;
-                for (unsigned depth = 0; depth < 4 && at >= 0; depth++)
-                {
-                    if (expected[(unsigned)at] < base[i])
-                    {
-                        expected[(unsigned)at] = base[i];
-                    }
-                    at = owners[(unsigned)at];
-                }
-            }
+            unsigned expected[THREADS];
+            decode_case(b, g, base, owners, expected);
             CHECK(tp_donate(base, owners, 4, out) == TP_OK);
-            for (unsigned i = 0; i < 4; i++)
+            for (unsigned i = 0; i < THREADS; i++)
             {
                 CHECK(out[i] == expected[i]);
             }
         }
     }
     owners[0] = 4;
-    out[0] = 77;
-    CHECK(tp_donate(base, owners, 4, out) == TP_INVALID && out[0] == 77);
+    out[0] = UNTOUCHED;
+    CHECK(tp_donate(base, owners, 4, out) == TP_INVALID && out[0] == UNTOUCHED);
     puts("OBS donation160000 graph/priority combinations, recursive chain and "
          "withdrawal recomputed from base");
 }
 
 static void bound(void)
 {
-    uint64_t cost[5] = {3, 3, 2, 4, 0}, out = 77;
+    uint64_t cost[5] = {3, 3, 2, 4, 0};
+    uint64_t out = 77;
     CHECK(tp_bound(cost, 5, 1, 12, &out) == TP_OK && out == 12);
     out = 77;
     CHECK(tp_bound(cost, 5, 1, 11, &out) == TP_UNSUPPORTED && out == 77);
@@ -86,7 +111,8 @@ static void effects(void)
         CHECK(tp_nonsleepable(1u << i) == TP_UNSUPPORTED);
     }
     CHECK(tp_nonsleepable(64) == TP_INVALID);
-    uint64_t path[5] = {50, 200, 300, 400, 500}, out = 77;
+    uint64_t path[5] = {50, 200, 300, 400, 500};
+    uint64_t out = 77;
     CHECK(tp_bound(path, 5, 0, 1000, &out) == TP_UNSUPPORTED && out == 77);
     CHECK(tp_nonsleepable(TP_ALLOC | TP_PAGEFAULT | TP_LOG | TP_BLOCK |
                           TP_PREEMPT | TP_UNAUDITED) == TP_UNSUPPORTED);

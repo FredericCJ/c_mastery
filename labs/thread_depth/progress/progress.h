@@ -13,7 +13,8 @@ enum tp_status
     TP_INCOMPLETE
 };
 
-/* Priorities0..7, owners-1(no wait) or valid thread index, at most4 threads.
+/* Priorities 0..7, owners -1 (no wait) or valid thread index, at most 4
+   threads.
    Recompute from base priorities for withdrawal; never reuse donated output. */
 int tp_donate(const unsigned *, const int *, size_t, unsigned *);
 int tp_bound(const uint64_t *, size_t, unsigned, uint64_t, uint64_t *);
@@ -43,9 +44,16 @@ enum tp_result
     TP_FULL
 };
 
+/* One recorded call: invocation/response are distinct positive timestamps,
+ * response 0 means the call never returned (pending). */
 struct tp_op
 {
-    unsigned invocation, response, thread, kind, value, result;
+    unsigned invocation;
+    unsigned response;
+    unsigned thread;
+    unsigned kind;
+    unsigned value;
+    unsigned result;
 };
 
 enum tp_pending_policy
@@ -54,12 +62,18 @@ enum tp_pending_policy
     TP_ALLOW_EXTENSION
 };
 
+/* A sequential order of the history: operation[0 .. length) are indexes
+ * into the input; result and value are indexed by input position. */
 struct tp_witness
 {
-    unsigned length, operation[6], completed_pending_mask, result[6], value[6];
+    unsigned length;
+    unsigned operation[6];
+    unsigned completed_pending_mask;
+    unsigned result[6];
+    unsigned value[6];
 };
 
-/* Finite capacity3 FIFO; at most6 operations. A pending operation is response0;
-   its result/value output is unspecified and synthesized if included. */
+/* Finite capacity-3 FIFO; at most 6 operations. A pending operation is
+   response 0; its result/value output is unspecified and synthesized if included. */
 int tp_history(const struct tp_op *, size_t, unsigned, struct tp_witness *);
 #endif

@@ -1,4 +1,6 @@
-/* Original intentional race: detector sensitivity only, no output oracle. */
+/* CM-SPECIMEN: defective by design; classify the defect before running
+   (see ../atomics/CONTRACTS.md). Exists for detector sensitivity only: no
+   output oracle. */
 #define _POSIX_C_SOURCE 200809L
 #include <pthread.h>
 #include <stdlib.h>

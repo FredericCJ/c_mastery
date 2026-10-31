@@ -13,15 +13,34 @@
         }                                                                    \
     } while (0)
 
+enum
+{
+    SCRIPT_CALLS = 16,
+    ORDER_COUNT = 6
+};
+
+/*
+ * Scripted stand-in for a compare-and-swap word.
+ *   actual    the value the "memory" currently holds;
+ *   spurious  number of weak attempts that fail without changing anything;
+ *   mismatch  if set, the next attempt first sets `actual` to 20 (a competing
+ *             writer); it fails, reporting 20, only if *expected != 20;
+ *   strong    count of strong attempts; desired[] records each desired value.
+ */
 struct tw_script
 {
-    unsigned actual, call, spurious, mismatch, strong, desired[16];
+    unsigned actual;
+    unsigned call;
+    unsigned spurious;
+    unsigned mismatch;
+    unsigned strong;
+    unsigned desired[SCRIPT_CALLS];
 };
 
 static int scripted(void *arg, unsigned *expected, unsigned desired, int weak)
 {
     struct tw_script *s = arg;
-    CHECK(s->call < 16);
+    CHECK(s->call < SCRIPT_CALLS);
     s->desired[s->call++] = desired;
     if (!weak)
     {
@@ -63,9 +82,9 @@ static void orders(void)
     const unsigned pairs[][2] = {{0, 0}, {1, 0}, {1, 1}, {2, 0}, {2, 1},
                                  {2, 2}, {3, 0}, {4, 0}, {4, 1}, {4, 2},
                                  {5, 0}, {5, 1}, {5, 2}, {5, 5}};
-    for (unsigned s = 0; s < 6; s++)
+    for (unsigned s = 0; s < ORDER_COUNT; s++)
     {
-        for (unsigned f = 0; f < 6; f++)
+        for (unsigned f = 0; f < ORDER_COUNT; f++)
         {
             int expected = 0;
             for (size_t i = 0; i < sizeof pairs / sizeof pairs[0]; i++)
@@ -78,7 +97,7 @@ static void orders(void)
             CHECK(ta_order_pair(s, f) == expected);
         }
     }
-    CHECK(!ta_order_pair(6, 0) && !ta_order_pair(0, 6));
+    CHECK(!ta_order_pair(ORDER_COUNT, 0) && !ta_order_pair(0, ORDER_COUNT));
     atomic_uint p;
     atomic_init(&p, 0);
     unsigned expected = 0;
@@ -119,10 +138,16 @@ static void retry(void)
          "one-attempt; unsigned wrap");
 }
 
+/* Pointer-valued counterpart of tw_script. With free_on_success the CAS
+ * acts as the terminal receiver: it frees the published node itself. */
 struct node_script
 {
-    struct ta_node *actual, *replacement;
-    unsigned call, spurious, mismatch, freed;
+    struct ta_node *actual;
+    struct ta_node *replacement;
+    unsigned call;
+    unsigned spurious;
+    unsigned mismatch;
+    unsigned freed;
     int free_on_success;
 };
 
@@ -157,10 +182,13 @@ static int node_cas(void *arg, struct ta_node **expected,
     return 1;
 }
 
+/* A real atomic head whose "receiver" takes the node back out and frees it
+ * as soon as a publication succeeds. */
 struct native_node
 {
     _Atomic(struct ta_node *) head;
-    unsigned calls, freed;
+    unsigned calls;
+    unsigned freed;
 };
 
 static int native_node_cas(void *arg, struct ta_node **expected,
@@ -183,14 +211,20 @@ static int native_node_cas(void *arg, struct ta_node **expected,
     return 1;
 }
 
+/* Heap node holding `value`; the caller owns it. */
+static struct ta_node *node_new(unsigned value)
+{
+    struct ta_node *node = malloc(sizeof *node);
+    CHECK(node);
+    *node = (struct ta_node){value};
+    return node;
+}
+
 static void ownership(void)
 {
-    struct ta_node *old = malloc(sizeof *old), *other = malloc(sizeof *other),
-                   *owned = malloc(sizeof *owned);
-    CHECK(old && other && owned);
-    *old = (struct ta_node){10};
-    *other = (struct ta_node){20};
-    *owned = (struct ta_node){77};
+    struct ta_node *old = node_new(10);
+    struct ta_node *other = node_new(20);
+    struct ta_node *owned = node_new(77);
     struct ta_node *leases[] = {old, other};
     struct ta_node_report r;
     struct node_script s = {
@@ -210,9 +244,7 @@ static void ownership(void)
           r.published == 0 && s.actual == other);
     CHECK(old->value == 10 && other->value == 20);
     free(owned);
-    owned = malloc(sizeof *owned);
-    CHECK(owned);
-    *owned = (struct ta_node){0};
+    owned = node_new(0);
     s = (struct node_script){
         .actual = old, .replacement = other, .spurious = 1, .mismatch = 1};
     CHECK(ta_publish(node_cas, &s, owned, old, leases, 2, 1, 3, &r) ==
@@ -220,28 +252,23 @@ static void ownership(void)
           r.published == 1 && r.derived_value == 21 && s.actual == owned);
     free(owned);
     /* A live address not protected by the declared lease is not dereferenced. */
-    owned = malloc(sizeof *owned);
-    CHECK(owned);
-    *owned = (struct ta_node){88};
+    owned = node_new(88);
     s = (struct node_script){.actual = other};
     CHECK(ta_publish(node_cas, &s, owned, other, leases, 1, 1, 3, &r) ==
               TA_UNPROTECTED &&
           r.attempts == 0 && r.published == 0 && owned->value == 88);
     free(owned);
-    owned = malloc(sizeof *owned);
-    CHECK(owned);
-    *owned = (struct ta_node){99};
+    owned = node_new(99);
     s = (struct node_script){.actual = old, .free_on_success = 1};
     CHECK(ta_publish(node_cas, &s, owned, old, leases, 2, 0, 1, &r) ==
               TA_SUCCESS &&
           r.published == 1 &&
           s.freed == 1); /* owned already freed by receiver callback */
-    owned = malloc(sizeof *owned);
-    CHECK(owned);
-    *owned = (struct ta_node){7};
+    owned = node_new(7);
     struct native_node native;
     atomic_init(&native.head, other);
-    native.calls = native.freed = 0;
+    native.calls = 0;
+    native.freed = 0;
     CHECK(ta_publish(native_node_cas, &native, owned, old, leases, 2, 0, 2,
                      &r) == TA_SUCCESS &&
           r.published == 1 && native.calls == 2 && native.freed == 1 &&

@@ -27,9 +27,14 @@ enum ta_result
 
 typedef int (*ta_cas_fn)(void *, unsigned *, unsigned, int);
 
+/* Outcome of ta_increment: attempts made, the last expected and desired
+ * values, and whether the exchange published (1) or not (0). */
 struct ta_report
 {
-    unsigned attempts, expected, desired, published;
+    unsigned attempts;
+    unsigned expected;
+    unsigned desired;
+    unsigned published;
 };
 
 int ta_increment(ta_cas_fn, void *, unsigned, unsigned, int,
@@ -44,7 +49,9 @@ typedef int (*ta_node_cas_fn)(void *, struct ta_node **, struct ta_node *, int);
 
 struct ta_node_report
 {
-    unsigned attempts, published, derived_value;
+    unsigned attempts;
+    unsigned published;
+    unsigned derived_value;
 };
 
 /* The explicit lease set is live until the operation completes. It is not
@@ -56,7 +63,8 @@ int ta_publish(ta_node_cas_fn, void *, struct ta_node *, struct ta_node *,
 struct ta_snapshot
 {
     atomic_uint sequence;
-    atomic_int a, b;
+    atomic_int a;
+    atomic_int b;
 };
 
 void ta_snapshot_init(struct ta_snapshot *);
@@ -77,7 +85,7 @@ int ta_slot_read(struct ta_slot *, unsigned, int *);
 int ta_data_race(unsigned same_location, unsigned first_writes,
                  unsigned second_writes, unsigned both_atomic,
                  unsigned happens_before);
-/* Transitive closure for at most8 events. Each bit j of edges[i] is i->j. */
+/* Transitive closure for at most 8 events. Each bit j of edges[i] is i->j. */
 int ta_closure(unsigned *, size_t);
 
 enum ta_litmus
@@ -95,12 +103,13 @@ enum ta_model
 };
 
 /* Restricted two-location, two-thread, constant-store model in CONTRACTS.md.
-   Returns1 permitted,0 forbidden,-1 outside this model. */
+   Returns 1 permitted, 0 forbidden, -1 outside this model. */
 int ta_litmus(unsigned, unsigned, unsigned, unsigned);
 
 struct ta_pair
 {
-    uint64_t first, second;
+    uint64_t first;
+    uint64_t second;
 };
 
 struct ta_counter

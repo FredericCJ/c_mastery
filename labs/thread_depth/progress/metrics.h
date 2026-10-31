@@ -4,9 +4,14 @@
 #include <pthread.h>
 #include <stdatomic.h>
 
+/* Per-thread totals from tp_accumulate; shared_updates counts how often
+ * the thread published to the shared atomic. */
 struct tp_work
 {
-    uint64_t sum, checksum, items, shared_updates;
+    uint64_t sum;
+    uint64_t checksum;
+    uint64_t items;
+    uint64_t shared_updates;
 };
 
 int tp_separated(uintptr_t, size_t, size_t, size_t, size_t);
@@ -17,7 +22,8 @@ int tp_accumulate(const unsigned *, size_t, unsigned, unsigned, unsigned,
 struct tp_total
 {
     pthread_mutex_t lock;
-    uint64_t value, items;
+    uint64_t value;
+    uint64_t items;
 };
 
 int tp_total_init(struct tp_total *);

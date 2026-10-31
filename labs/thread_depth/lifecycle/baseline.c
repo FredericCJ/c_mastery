@@ -21,7 +21,9 @@ int main(void)
     {
         for (unsigned fail = 0; fail <= n; fail++)
         {
-            unsigned made = fail ? fail - 1 : n, sum = 0;
+            /* A failing create ordinal k leaves k - 1 workers running. */
+            unsigned made = fail ? fail - 1 : n;
+            unsigned sum = 0;
             for (unsigned i = 1; i <= made; i++)
             {
                 sum += i * i;

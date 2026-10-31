@@ -2,6 +2,19 @@
 #include <errno.h>
 #include <stdlib.h>
 
+enum
+{
+    MAX_INFLIGHT = 8,
+    ACCEPT_LIMIT = 16000,
+    VALUE_LIMIT = 1000000
+};
+
+/*
+ * Shutdown-capable wrapper around struct tw_queue. `gate` guards closing,
+ * inflight and the counters; an operation is admitted by enter() and counted
+ * out by leave(), and tp_queue_abort waits on `quiet` until inflight is 0.
+ * A failed lock/wait/broadcast is a harness bug and aborts.
+ */
 static void ok(int e)
 {
     if (e)
@@ -31,12 +44,18 @@ int tp_queue_init(struct tp_end_queue *q)
         ok(pthread_mutex_destroy(&q->gate));
         return e;
     }
-    q->closing = q->inflight = q->retired = q->accepted = q->delivered =
-        q->discarded = 0;
+    q->closing = 0;
+    q->inflight = 0;
+    q->retired = 0;
+    q->accepted = 0;
+    q->delivered = 0;
+    q->discarded = 0;
     q->discarded_sum = 0;
     return 0;
 }
 
+/* Admits one operation: ECANCELED once closing, EOVERFLOW at the lifetime
+ * accept limit, EAGAIN at MAX_INFLIGHT concurrent operations. */
 static int enter(struct tp_end_queue *q, int writing)
 {
     ok(pthread_mutex_lock(&q->gate));
@@ -45,11 +64,11 @@ static int enter(struct tp_end_queue *q, int writing)
     {
         e = ECANCELED;
     }
-    else if (writing && q->accepted + q->inflight >= 16000)
+    else if (writing && q->accepted + q->inflight >= ACCEPT_LIMIT)
     {
         e = EOVERFLOW;
     }
-    else if (q->inflight == 8)
+    else if (q->inflight == MAX_INFLIGHT)
     {
         e = EAGAIN;
     }
@@ -82,7 +101,7 @@ static void leave(struct tp_end_queue *q, int e, int write)
 
 int tp_queue_push(struct tp_end_queue *q, int value)
 {
-    if (value < 0 || value > 1000000)
+    if (value < 0 || value > VALUE_LIMIT)
     {
         return EINVAL;
     }
@@ -116,6 +135,8 @@ int tp_queue_pop(struct tp_end_queue *q, int *out)
     return e;
 }
 
+/* Exactly one caller wins; later callers get EALREADY. Cancellation is
+ * disabled throughout so the shutdown always runs to completion. */
 int tp_queue_abort(struct tp_end_queue *q)
 {
     int old;
@@ -136,11 +157,13 @@ int tp_queue_abort(struct tp_end_queue *q)
         ok(pthread_cond_wait(&q->quiet, &q->gate));
     }
     ok(pthread_mutex_unlock(&q->gate));
-    int value, e;
-    while ((e = tw_pop(&q->queue, &value, NULL, NULL, NULL)) == 0)
+    int value;
+    int e = tw_pop(&q->queue, &value, NULL, NULL, NULL);
+    while (e == 0)
     {
         q->discarded++;
         q->discarded_sum += (unsigned)value;
+        e = tw_pop(&q->queue, &value, NULL, NULL, NULL);
     }
     if (e != EPIPE)
     {

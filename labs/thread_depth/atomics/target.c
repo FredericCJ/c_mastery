@@ -1,3 +1,7 @@
+/* Object-code probes: one tiny function per ordering form, compiled for the
+ * Cortex-M targets and inspected, never executed. Keep each body to the one
+ * operation named by the function so its disassembly can be read in
+ * isolation. */
 #include "atomics.h"
 
 unsigned target_counter(struct ta_counter *p)

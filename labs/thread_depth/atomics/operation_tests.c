@@ -24,7 +24,8 @@ static void operations(void)
     CHECK(ta_counter_read(&c) == 1);
     CHECK(ta_counter_add(&c, 0) == 1 && ta_counter_read(&c) == 1);
     _Atomic(struct ta_pair) object;
-    struct ta_pair initial = {UINT64_MAX, 7}, desired = {3, 9};
+    struct ta_pair initial = {UINT64_MAX, 7};
+    struct ta_pair desired = {3, 9};
     atomic_init(&object, initial);
     struct ta_pair observed = atomic_load(&object);
     CHECK(observed.first == UINT64_MAX && observed.second == 7);
@@ -81,72 +82,113 @@ static void lockfree(void)
          "runtime claim");
 }
 
+enum
+{
+    EVENTS = 4,
+    PERMUTATION_CODES = 256,
+    UNSET = 2
+};
+
+/* True when `order` lists events 0..3 exactly once each. */
+static int is_permutation(const unsigned order[EVENTS])
+{
+    for (unsigned i = 0; i < EVENTS; i++)
+    {
+        for (unsigned j = i + 1; j < EVENTS; j++)
+        {
+            if (order[i] == order[j])
+            {
+                return 0;
+            }
+        }
+    }
+    return 1;
+}
+
+/* Events 0,1 are thread 0 and events 2,3 are thread 1; a total order must
+ * keep each thread's own events in program order. */
+static int respects_program_order(const unsigned order[EVENTS])
+{
+    unsigned position[EVENTS];
+    for (unsigned i = 0; i < EVENTS; i++)
+    {
+        position[order[i]] = i;
+    }
+    return position[0] < position[1] && position[2] < position[3];
+}
+
+/*
+ * Executes the events in `order` against plain variables x and y (initially
+ * 0). Event 0 stores x; event 1 is thread 0's second operation (store y for
+ * MP, load y for SB); event 2 is thread 1's first (load y for MP, store y for
+ * SB); event 3 loads x. *r and *s receive the two loaded values, UNSET when
+ * the corresponding load never ran.
+ */
+static void execute_order(unsigned litmus, const unsigned order[EVENTS],
+                          unsigned *r, unsigned *s)
+{
+    unsigned x = 0;
+    unsigned y = 0;
+    *r = UNSET;
+    *s = UNSET;
+    for (unsigned i = 0; i < EVENTS; i++)
+    {
+        switch (order[i])
+        {
+            case 0:
+                x = 1;
+                break;
+            case 1:
+                if (litmus == TA_MP)
+                {
+                    y = 1;
+                }
+                else
+                {
+                    *r = y;
+                }
+                break;
+            case 2:
+                if (litmus == TA_MP)
+                {
+                    *r = y;
+                }
+                else
+                {
+                    y = 1;
+                }
+                break;
+            case 3:
+                *s = x;
+                break;
+            default:
+                break;
+        }
+    }
+}
+
 static int permutation(unsigned litmus, unsigned first, unsigned second)
 {
-    /* Independent SC oracle: enumerate all24 total orders and execute stores and
-       loads. This oracle is deliberately not used for relaxed or RA outcomes. */
-    for (unsigned a = 0; a < 4; a++)
+    /* Independent SC oracle: enumerate all 24 total orders and execute stores
+       and loads. This oracle is deliberately not used for relaxed or RA
+       outcomes. Each order is encoded as four base-4 digits. */
+    for (unsigned code = 0; code < PERMUTATION_CODES; code++)
     {
-        for (unsigned b = 0; b < 4; b++)
+        unsigned order[EVENTS];
+        for (unsigned i = 0; i < EVENTS; i++)
         {
-            for (unsigned c = 0; c < 4; c++)
-            {
-                for (unsigned d = 0; d < 4; d++)
-                {
-                    unsigned p[4] = {a, b, c, d};
-                    if (a == b || a == c || a == d || b == c || b == d ||
-                        c == d)
-                    {
-                        continue;
-                    }
-                    unsigned pos[4];
-                    for (unsigned i = 0; i < 4; i++)
-                    {
-                        pos[p[i]] = i;
-                    }
-                    if (pos[0] > pos[1] || pos[2] > pos[3])
-                    {
-                        continue;
-                    }
-                    unsigned x = 0, y = 0, r = 2, s = 2;
-                    for (unsigned i = 0; i < 4; i++)
-                    {
-                        switch (p[i])
-                        {
-                            case 0:
-                                x = 1;
-                                break;
-                            case 1:
-                                if (litmus == TA_MP)
-                                {
-                                    y = 1;
-                                }
-                                else
-                                {
-                                    r = y;
-                                }
-                                break;
-                            case 2:
-                                if (litmus == TA_MP)
-                                {
-                                    r = y;
-                                }
-                                else
-                                {
-                                    y = 1;
-                                }
-                                break;
-                            case 3:
-                                s = x;
-                                break;
-                        }
-                    }
-                    if (r == first && s == second)
-                    {
-                        return 1;
-                    }
-                }
-            }
+            order[i] = (code >> (2 * i)) & 3u;
+        }
+        if (!is_permutation(order) || !respects_program_order(order))
+        {
+            continue;
+        }
+        unsigned r;
+        unsigned s;
+        execute_order(litmus, order, &r, &s);
+        if (r == first && s == second)
+        {
+            return 1;
         }
     }
     return 0;
@@ -178,6 +220,10 @@ static void model(void)
          "RA SB00 permitted; mixed loads outside SC order");
 }
 
+/* Message passing between the main thread (writer) and one reader thread.
+ * The reader sees the payload `node` either through `pointer` or after
+ * observing `ready`; each path has its own ordering, stated where it is
+ * used. */
 struct tw_message
 {
     atomic_int ready;
@@ -228,6 +274,8 @@ static void dependency(void)
     pthread_t thread;
     CHECK(pthread_create(&thread, NULL, consume_reader, &m) == 0);
     m.node.value = 42;
+    /* Publishes the payload written above; the reader's consume load pairs
+       with this store. */
     atomic_store_explicit(&m.pointer, &m.node, memory_order_release);
     CHECK(pthread_join(thread, NULL) == 0 && m.result == 42);
 #ifndef TA_TSAN
@@ -235,6 +283,8 @@ static void dependency(void)
     m.result = 0;
     CHECK(pthread_create(&thread, NULL, fence_reader, &m) == 0);
     m.node.value = 71;
+    /* The release fence orders the payload write before the relaxed flag
+       store; the reader's acquire fence completes the pairing. */
     atomic_thread_fence(memory_order_release);
     atomic_store_explicit(&m.ready, 1, memory_order_relaxed);
     CHECK(pthread_join(thread, NULL) == 0 && m.result == 71);

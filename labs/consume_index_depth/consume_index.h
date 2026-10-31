@@ -2,9 +2,11 @@
 #define CM_CONSUME_INDEX_H
 #include <stdatomic.h>
 
+/* A published node: `index` selects an array element, `value` is payload. */
 struct ci_node
 {
-    unsigned index, value;
+    unsigned index;
+    unsigned value;
 };
 
 /* Live atomic control; all potential nodes and four array elements are immutable

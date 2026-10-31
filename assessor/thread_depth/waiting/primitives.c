@@ -3,6 +3,14 @@
 #include <limits.h>
 #include <stdlib.h>
 
+enum
+{
+    BARRIER_MAX_PARTIES = 4,
+    PERMIT_COUNT = 3,
+    PRIMITIVE_COUNT = 4
+};
+
+/* A failed lock/wait/broadcast means broken harness state: abort. */
 static void ok(int e)
 {
     if (e)
@@ -11,9 +19,11 @@ static void ok(int e)
     }
 }
 
+/* EINVAL unless 1 <= n <= BARRIER_MAX_PARTIES. On failure nothing is left
+ * initialized. */
 int tw_barrier_init(struct tw_barrier *b, unsigned n)
 {
-    if (!n || n > 4)
+    if (!n || n > BARRIER_MAX_PARTIES)
     {
         return EINVAL;
     }
@@ -29,10 +39,18 @@ int tw_barrier_init(struct tw_barrier *b, unsigned n)
         return e;
     }
     b->expected = n;
-    b->arrived = b->generation = b->broken = 0;
+    b->arrived = 0;
+    b->generation = 0;
+    b->broken = 0;
     return 0;
 }
 
+/*
+ * Reusable barrier. Waiters leave when `generation` advances, so a thread
+ * that races ahead into the next phase cannot be confused with a straggler of
+ * the previous one. Returns 0, ECANCELED once the barrier is broken, or
+ * EOVERFLOW (and breaks the barrier) when the generation counter would wrap.
+ */
 int tw_barrier_wait(struct tw_barrier *b)
 {
     ok(pthread_mutex_lock(&b->mutex));
@@ -75,6 +93,7 @@ int tw_barrier_wait(struct tw_barrier *b)
     return e;
 }
 
+/* Wakes every waiter with ECANCELED; later waits fail the same way. */
 int tw_barrier_break(struct tw_barrier *b)
 {
     ok(pthread_mutex_lock(&b->mutex));
@@ -95,16 +114,19 @@ int tw_permits_init(struct tw_permits *p)
     int e = pthread_mutex_init(&p->mutex, NULL);
     if (!e)
     {
-        p->mask = p->settlements = 0;
+        p->mask = 0;
+        p->settlements = 0;
     }
     return e;
 }
 
+/* Bit i of `mask` is set while permit i is held. EAGAIN, with *token left
+ * unchanged, when all PERMIT_COUNT permits are held. */
 int tw_permit_take(struct tw_permits *p, unsigned *token)
 {
     int e = EAGAIN;
     ok(pthread_mutex_lock(&p->mutex));
-    for (unsigned i = 0; i < 3; i++)
+    for (unsigned i = 0; i < PERMIT_COUNT; i++)
     {
         if (!(p->mask & (1u << i)))
         {
@@ -118,9 +140,11 @@ int tw_permit_take(struct tw_permits *p, unsigned *token)
     return e;
 }
 
+/* EINVAL for a token outside the pool, EALREADY for one not currently held;
+ * each successful release is counted once in `settlements`. */
 int tw_permit_release(struct tw_permits *p, unsigned token)
 {
-    if (token >= 3)
+    if (token >= PERMIT_COUNT)
     {
         return EINVAL;
     }
@@ -172,6 +196,6 @@ int tw_select(unsigned requirement)
     (void)requirement;
     return TW_PERMITS;
 #else
-    return requirement < 4 ? (int)requirement : -1;
+    return requirement < PRIMITIVE_COUNT ? (int)requirement : -1;
 #endif
 }

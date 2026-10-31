@@ -8,7 +8,7 @@ int main(int argc, char **argv)
     void (*tests[])(void) = {test_bank,    test_order,    test_lifecycle,
                              test_queue,   test_wake,     test_deadline,
                              test_barrier, test_fairness, test_permit};
-    for (unsigned i = 0; i < 9; i++)
+    for (size_t i = 0; i < sizeof names / sizeof names[0]; i++)
     {
         if (!strcmp(argv[1], names[i]))
         {

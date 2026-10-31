@@ -12,7 +12,8 @@
 struct tw_bank
 {
     pthread_mutex_t lock;
-    int a, b;
+    int a;
+    int b;
 };
 
 typedef void (*tw_hook_fn)(void *);
@@ -33,20 +34,38 @@ int tw_snapshot_read(struct tw_snapshot *, int *);
 int tw_key_next(uint64_t *, uint64_t *);
 int tw_order(uint64_t, uint64_t);
 
+/* Report of one tw_queue_init call: how many primitives were initialized,
+ * how many of those were destroyed again on failure, and which stage failed
+ * (0 when none did). */
 struct tw_init
 {
-    unsigned initialized, destroyed, failed_stage;
+    unsigned initialized;
+    unsigned destroyed;
+    unsigned failed_stage;
 };
 
+/* Bounded FIFO of three ints. Field protection and the root/mutex lock order
+ * are part of the contract in CONTRACTS.md; tests may read fields only while
+ * the queue is quiescent. */
 struct tw_queue
 {
-    pthread_mutex_t root, mutex;
-    pthread_cond_t nonempty, nonfull, observer;
-    unsigned state, references, active, initialized, wait_entries;
-    size_t head, tail, count;
+    pthread_mutex_t root;
+    pthread_mutex_t mutex;
+    pthread_cond_t nonempty;
+    pthread_cond_t nonfull;
+    pthread_cond_t observer;
+    unsigned state;
+    unsigned references;
+    unsigned active;
+    unsigned initialized;
+    unsigned wait_entries;
+    size_t head;
+    size_t tail;
+    size_t count;
     int values[3];
     struct timespec last_deadline;
-    unsigned timed_waits, deadline_changes;
+    unsigned timed_waits;
+    unsigned deadline_changes;
 };
 
 int tw_queue_init(struct tw_queue *, unsigned, struct tw_init *);
@@ -66,7 +85,10 @@ struct tw_barrier
 {
     pthread_mutex_t mutex;
     pthread_cond_t condition;
-    unsigned expected, arrived, generation, broken;
+    unsigned expected;
+    unsigned arrived;
+    unsigned generation;
+    unsigned broken;
 };
 
 int tw_barrier_init(struct tw_barrier *, unsigned);
@@ -77,7 +99,8 @@ void tw_barrier_destroy(struct tw_barrier *);
 struct tw_permits
 {
     pthread_mutex_t mutex;
-    unsigned mask, settlements;
+    unsigned mask;
+    unsigned settlements;
 };
 
 int tw_permits_init(struct tw_permits *);

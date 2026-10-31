@@ -7,8 +7,12 @@ struct tp_end_queue
     pthread_mutex_t gate;
     pthread_cond_t quiet;
     struct tw_queue queue;
-    unsigned closing, inflight, retired;
-    unsigned accepted, delivered, discarded;
+    unsigned closing;
+    unsigned inflight;
+    unsigned retired;
+    unsigned accepted;
+    unsigned delivered;
+    unsigned discarded;
     uint64_t discarded_sum;
 };
 

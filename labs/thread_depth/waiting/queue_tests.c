@@ -1,9 +1,21 @@
 #include "test_support.h"
 
+enum
+{
+    /* Initial output value: proves a failed pop wrote nothing. */
+    UNTOUCHED = 77,
+    REFERENCE_LIMIT = 16,
+    INIT_STAGES = 5,
+    DEADLINE_RACE_ROUNDS = 16
+};
+
+/* One consumer thread: pops once (timed against `deadline` when `timed`),
+ * leaving the status in `result` and the popped value in `out`. */
 struct tw_consumer
 {
     struct tw_queue *queue;
-    int out, result;
+    int out;
+    int result;
     struct timespec deadline;
     int timed;
     tw_hook_fn hook;
@@ -18,6 +30,7 @@ static void *consume(void *p)
     return NULL;
 }
 
+/* Full shutdown sequence for a queue with no users left. */
 static void finish(struct tw_queue *q)
 {
     CHECK(tw_close(q) == 0);
@@ -27,9 +40,10 @@ static void finish(struct tw_queue *q)
     tw_root_destroy(q);
 }
 
-void test_lifecycle(void)
+/* Failing the initialization at each stage destroys exactly the prefix. */
+static void lifecycle_init_failures(void)
 {
-    for (unsigned stage = 1; stage <= 5; stage++)
+    for (unsigned stage = 1; stage <= INIT_STAGES; stage++)
     {
         struct tw_queue q;
         struct tw_init r;
@@ -37,25 +51,32 @@ void test_lifecycle(void)
         CHECK(r.initialized == stage - 1 && r.destroyed == stage - 1 &&
               r.failed_stage == stage);
     }
+}
+
+void test_lifecycle(void)
+{
+    lifecycle_init_failures();
     struct tw_queue q;
     struct tw_init r;
-    CHECK(tw_queue_init(&q, 0, &r) == 0 && r.initialized == 5 &&
+    CHECK(tw_queue_init(&q, 0, &r) == 0 && r.initialized == INIT_STAGES &&
           r.destroyed == 0);
-    for (unsigned i = 1; i < 16; i++)
+    /* The creator holds the first reference; take the rest up to the limit. */
+    for (unsigned i = 1; i < REFERENCE_LIMIT; i++)
     {
         CHECK(tw_ref(&q) == 0);
     }
     CHECK(tw_ref(&q) == EOVERFLOW);
-    for (unsigned i = 1; i < 16; i++)
+    for (unsigned i = 1; i < REFERENCE_LIMIT; i++)
     {
         CHECK(tw_unref(&q) == 0);
     }
     CHECK(tw_ref(&q) == 0);
-    unsigned refs, active;
+    unsigned refs;
+    unsigned active;
     size_t count;
     CHECK(tw_counts(&q, &refs, &active, &count) == 0);
     CHECK(refs == 2 && active == 0 && count == 0);
-    struct tw_consumer c = {.queue = &q, .out = 77};
+    struct tw_consumer c = {.queue = &q, .out = UNTOUCHED};
     pthread_t t;
     CHECK(pthread_create(&t, NULL, consume, &c) == 0);
     CHECK(tw_wait_entries(&q, 1) == 0);
@@ -65,7 +86,7 @@ void test_lifecycle(void)
     CHECK(tw_unref(&q) == 0);
     CHECK(tw_retire(&q) == EBUSY);
     CHECK(pthread_join(t, NULL) == 0);
-    CHECK(c.result == EPIPE && c.out == 77);
+    CHECK(c.result == EPIPE && c.out == UNTOUCHED);
     CHECK(tw_unref(&q) == 0);
     CHECK(tw_ref(&q) == EPIPE);
     CHECK(tw_pop(&q, &c.out, NULL, NULL, NULL) == EPIPE);
@@ -102,8 +123,8 @@ void test_queue(void)
     CHECK(tw_pop(&q, &out, NULL, NULL, NULL) == EPIPE && out == 88);
     finish(&q);
     CHECK(tw_queue_init(&q, 0, &r) == 0);
-    struct tw_consumer c[2] = {{.queue = &q, .out = 77},
-                               {.queue = &q, .out = 77}};
+    struct tw_consumer c[2] = {{.queue = &q, .out = UNTOUCHED},
+                               {.queue = &q, .out = UNTOUCHED}};
     pthread_t t[2];
     for (unsigned i = 0; i < 2; i++)
     {
@@ -120,7 +141,7 @@ void test_queue(void)
     CHECK((c[0].result == EPIPE) + (c[1].result == EPIPE) == 1);
     for (unsigned i = 0; i < 2; i++)
     {
-        CHECK(c[i].out == (c[i].result ? 77 : 21));
+        CHECK(c[i].out == (c[i].result ? UNTOUCHED : 21));
     }
     finish(&q);
     puts("OBS queue ring fixture FIFO; full timeout preserves input; two "
@@ -150,13 +171,13 @@ void test_wake(void)
     CHECK(tw_pop(&q, &n, NULL, NULL, NULL) == 0 && n == 17);
     CHECK(q.wait_entries == 0);
     struct tw_consumer c = {
-        .queue = &q, .out = 77, .timed = 1, .deadline = later(150)};
+        .queue = &q, .out = UNTOUCHED, .timed = 1, .deadline = later(150)};
     pthread_t t;
     CHECK(pthread_create(&t, NULL, consume, &c) == 0);
     CHECK(tw_wait_entries(&q, 1) == 0);
     CHECK(tw_noise(&q) == 0);
     CHECK(pthread_join(t, NULL) == 0);
-    CHECK(c.result == ETIMEDOUT && c.out == 77);
+    CHECK(c.result == ETIMEDOUT && c.out == UNTOUCHED);
     CHECK(q.timed_waits >= 2);
     finish(&q);
     /* If would continue with an empty queue after broadcast; record a rejected
@@ -169,7 +190,7 @@ void test_wake(void)
     CHECK(pthread_barrier_init(&h.entered, NULL, 2) == 0);
     CHECK(pthread_barrier_init(&h.release, NULL, 2) == 0);
     c = (struct tw_consumer){.queue = &q,
-                             .out = 77,
+                             .out = UNTOUCHED,
                              .timed = 1,
                              .deadline = later(150),
                              .hook = wake_hook,
@@ -181,7 +202,7 @@ void test_wake(void)
     CHECK(tw_pop(&q, &n, NULL, NULL, NULL) == 0 && n == 31);
     gate(&h.release);
     CHECK(pthread_join(t, NULL) == 0);
-    CHECK(c.result == ETIMEDOUT && c.out == 77);
+    CHECK(c.result == ETIMEDOUT && c.out == UNTOUCHED);
     CHECK(q.timed_waits >= 2);
     CHECK(pthread_barrier_destroy(&h.entered) == 0);
     CHECK(pthread_barrier_destroy(&h.release) == 0);
@@ -196,7 +217,7 @@ void test_deadline(void)
     struct tw_init r;
     CHECK(tw_queue_init(&q, 0, &r) == 0);
     struct tw_consumer c = {
-        .queue = &q, .out = 77, .timed = 1, .deadline = later(10000)};
+        .queue = &q, .out = UNTOUCHED, .timed = 1, .deadline = later(10000)};
     pthread_t t;
     CHECK(pthread_create(&t, NULL, consume, &c) == 0);
     for (unsigned i = 1; i <= 4; i++)
@@ -209,11 +230,11 @@ void test_deadline(void)
     }
     CHECK(tw_close(&q) == 0);
     CHECK(pthread_join(t, NULL) == 0);
-    CHECK(c.result == EPIPE && c.out == 77);
+    CHECK(c.result == EPIPE && c.out == UNTOUCHED);
     CHECK(q.timed_waits == 4 && q.deadline_changes == 0);
     finish(&q);
     CHECK(tw_queue_init(&q, 0, &r) == 0);
-    int n = 77;
+    int n = 77; /* the UNTOUCHED value */
     struct timespec past = {0};
     CHECK(tw_pop(&q, &n, &past, NULL, NULL) == ETIMEDOUT && n == 77);
     CHECK(tw_push(&q, 44, NULL) == 0);
@@ -222,19 +243,20 @@ void test_deadline(void)
     CHECK(tw_pop(&q, &n, &past, NULL, NULL) == EPIPE && n == 44);
     finish(&q);
     /* Actual competing transitions, not a wall-clock ordering assertion. */
-    for (unsigned i = 0; i < 16; i++)
+    for (unsigned i = 0; i < DEADLINE_RACE_ROUNDS; i++)
     {
         CHECK(tw_queue_init(&q, 0, &r) == 0);
         c = (struct tw_consumer){
-            .queue = &q, .out = 77, .timed = 1, .deadline = later(0)};
+            .queue = &q, .out = UNTOUCHED, .timed = 1, .deadline = later(0)};
         CHECK(pthread_create(&t, NULL, consume, &c) == 0);
         CHECK(tw_close(&q) == 0);
         CHECK(pthread_join(t, NULL) == 0);
-        CHECK((c.result == ETIMEDOUT || c.result == EPIPE) && c.out == 77);
+        CHECK((c.result == ETIMEDOUT || c.result == EPIPE) &&
+              c.out == UNTOUCHED);
         finish(&q);
     }
     CHECK(tw_queue_init(&q, 0, &r) == 0);
-    c = (struct tw_consumer){.queue = &q, .out = 77};
+    c = (struct tw_consumer){.queue = &q, .out = UNTOUCHED};
     CHECK(pthread_create(&t, NULL, consume, &c) == 0);
     CHECK(tw_wait_entries(&q, 1) == 0);
     CHECK(pthread_cancel(t) == 0);

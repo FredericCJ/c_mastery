@@ -1,10 +1,27 @@
 #include "metrics.h"
+#include <stdbool.h>
 
+enum
+{
+    MAX_SEPARATED_ELEMENTS = 4,
+    MAX_ACCUMULATE_ITEMS = 65536,
+    MAX_STEP = 4,
+    MAX_MODE = 2,
+    MAX_BATCH = 65536,
+    MAX_INTENSITY = 64
+};
+
+/*
+ * 1 when the first `count` elements, each `extent` bytes wide and `stride`
+ * bytes apart starting at address `base`, occupy distinct cache lines of
+ * `line` bytes (a power of two); 0 when two share a line; -1 for arguments
+ * outside the model or address arithmetic that would wrap.
+ */
 int tp_separated(uintptr_t base, size_t stride, size_t count, size_t extent,
                  size_t line)
 {
     if (!line || (line & (line - 1)) || !extent || extent > line || !stride ||
-        count > 4)
+        count > MAX_SEPARATED_ELEMENTS)
     {
         return -1;
     }
@@ -21,8 +38,8 @@ int tp_separated(uintptr_t base, size_t stride, size_t count, size_t extent,
         {
             return -1;
         }
-        uintptr_t first = (base + offset) / line,
-                  last = (base + offset + extent - 1) / line;
+        uintptr_t first = (base + offset) / line;
+        uintptr_t last = (base + offset + extent - 1) / line;
 #ifdef TP_MUTANT_LAYOUT
         (void)first;
         (void)previous;
@@ -50,18 +67,29 @@ uint32_t tp_mix(uint32_t value, unsigned intensity)
     return value;
 }
 
+/*
+ * Sums data[begin], data[begin + step], ... and folds the same items into
+ * `shared` according to mode: 0 never touches it, 1 publishes a batch every
+ * `batch` items (plus a final partial batch), 2 publishes every item.
+ * Returns TP_INVALID without touching *out or *shared for bad arguments.
+ * The shared updates are relaxed: only the final total matters, not the
+ * order in which other threads observe the partial ones.
+ */
 int tp_accumulate(const unsigned *data, size_t n, unsigned begin, unsigned step,
                   unsigned mode, unsigned batch, unsigned intensity,
                   _Atomic(uint64_t) *shared, struct tp_work *out)
 {
-    if ((n && !data) || !shared || !out || n > 65536 || !step || step > 4 ||
-        begin >= step || mode > 2 || !batch || batch > 65536 || intensity > 64)
+    bool bad_data = (n && !data) || n > MAX_ACCUMULATE_ITEMS;
+    bool bad_stride = !step || step > MAX_STEP || begin >= step;
+    bool bad_policy = mode > MAX_MODE || !batch || batch > MAX_BATCH;
+    if (bad_data || bad_stride || bad_policy || !shared || !out ||
+        intensity > MAX_INTENSITY)
     {
         return TP_INVALID;
     }
     struct tp_work r = {0};
-    uint64_t pending = 0;
-    unsigned used = 0;
+    uint64_t pending = 0; /* unpublished sum of the batch (mode 1) */
+    unsigned used = 0; /* items in that batch */
     for (size_t i = begin; i < n; i += step)
     {
         r.sum += data[i];
@@ -98,6 +126,11 @@ int tp_accumulate(const unsigned *data, size_t n, unsigned begin, unsigned step,
     return TP_OK;
 }
 
+/*
+ * Mutex-guarded running total. value and items change together under the
+ * lock, so a reader never sees one without the other. tp_total_add returns
+ * TP_OVERFLOW (and changes nothing) instead of wrapping.
+ */
 int tp_total_init(struct tp_total *t)
 {
     int e = pthread_mutex_init(&t->lock, NULL);
@@ -105,7 +138,8 @@ int tp_total_init(struct tp_total *t)
     {
         return e;
     }
-    t->value = t->items = 0;
+    t->value = 0;
+    t->items = 0;
     return 0;
 }
 

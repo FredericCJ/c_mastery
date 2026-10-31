@@ -3,16 +3,30 @@
 #include <errno.h>
 #include <stdlib.h>
 
-struct tl_cell
+enum
 {
-    unsigned input, result;
+    POOL_MAX_WORKERS = 4,
+    JOB_MAX_BYTES = 16
 };
 
+/* One worker's private input and result; no other thread touches a cell. */
+struct tl_cell
+{
+    unsigned input;
+    unsigned result;
+};
+
+/*
+ * created counts successful pthread_create calls; joined counts successful
+ * joins, so threads[joined .. created - 1] are the ones still to be joined.
+ * create_error keeps the first create failure for tl_pool_collect to report.
+ */
 struct tl_pool
 {
-    pthread_t threads[4];
-    struct tl_cell cells[4];
-    unsigned created, joined;
+    pthread_t threads[POOL_MAX_WORKERS];
+    struct tl_cell cells[POOL_MAX_WORKERS];
+    unsigned created;
+    unsigned joined;
     int create_error;
 };
 
@@ -23,6 +37,24 @@ static void *square(void *arg)
     return NULL;
 }
 
+/* fail_ordinal is 1-based; 0 means no injected failure. */
+static int start_worker(struct tl_pool *p, unsigned index,
+                        unsigned fail_ordinal)
+{
+    if (fail_ordinal == index + 1)
+    {
+        return EAGAIN;
+    }
+    return pthread_create(&p->threads[index], NULL, square, &p->cells[index]);
+}
+
+/*
+ * Returns a pool owning the started threads, or NULL with *error set
+ * (EINVAL for bad arguments, ENOMEM when allocation fails or is injected).
+ * A create failure is not a start failure: the pool is returned with
+ * *error == 0 and the failure is reported later by tl_pool_collect.
+ * The caller must collect, then dispose.
+ */
 struct tl_pool *tl_pool_start(unsigned n, unsigned fail, int allocation,
                               int *error)
 {
@@ -30,7 +62,7 @@ struct tl_pool *tl_pool_start(unsigned n, unsigned fail, int allocation,
     {
         return NULL;
     }
-    if (n > 4 || fail > n || allocation < 0 || allocation > 1)
+    if (n > POOL_MAX_WORKERS || fail > n || allocation < 0 || allocation > 1)
     {
         *error = EINVAL;
         return NULL;
@@ -44,9 +76,7 @@ struct tl_pool *tl_pool_start(unsigned n, unsigned fail, int allocation,
     for (unsigned i = 0; i < n; i++)
     {
         p->cells[i].input = i + 1;
-        int e = fail == i + 1 ? EAGAIN
-                              : pthread_create(&p->threads[i], NULL, square,
-                                               &p->cells[i]);
+        int e = start_worker(p, i, fail);
         if (e)
         {
             p->create_error = e;
@@ -58,6 +88,12 @@ struct tl_pool *tl_pool_start(unsigned n, unsigned fail, int allocation,
     return p;
 }
 
+/*
+ * Joins the remaining threads in creation order. A join failure returns its
+ * error and leaves *out and the pool's joined count as they were, so the
+ * call can be repeated. Once every thread is joined, repeating the call is
+ * harmless and returns the same statistics.
+ */
 int tl_pool_collect(struct tl_pool *p, tl_join_fn join, void *context,
                     struct tl_stats *out)
 {
@@ -68,8 +104,9 @@ int tl_pool_collect(struct tl_pool *p, tl_join_fn join, void *context,
     while (p->joined < p->created)
     {
         void *result = NULL;
-        int e = join ? join(p->threads[p->joined], &result, context)
-                     : pthread_join(p->threads[p->joined], &result);
+        pthread_t thread = p->threads[p->joined];
+        int e = join ? join(thread, &result, context)
+                     : pthread_join(thread, &result);
         if (e)
         {
 #ifdef TL_MUTANT2
@@ -92,6 +129,7 @@ int tl_pool_collect(struct tl_pool *p, tl_join_fn join, void *context,
     return 0;
 }
 
+/* Frees the pool and clears *p; EBUSY (pool kept) while threads are unjoined. */
 int tl_pool_dispose(struct tl_pool **p)
 {
     if (!p || !*p)
@@ -107,13 +145,20 @@ int tl_pool_dispose(struct tl_pool **p)
     return 0;
 }
 
+/*
+ * A detached worker and its creator share one job through monitor->live_refs.
+ * Each side drops its reference with release_job(); whoever drops the last
+ * one frees the job. live_refs, freed and every other monitor field are
+ * protected by monitor->mutex.
+ */
 struct tl_job
 {
     struct tl_monitor *monitor;
-    unsigned char bytes[16];
+    unsigned char bytes[JOB_MAX_BYTES];
     size_t length;
 };
 
+/* Aborts on a failed lock, wait or cleanup call: it means a harness bug. */
 static void invariant(int e)
 {
     if (e)
@@ -141,6 +186,8 @@ static void release_job(struct tl_job *j)
     invariant(pthread_mutex_unlock(&m->mutex));
 }
 
+/* Waits for release_worker, sums its private copy of the input, then drops
+ * the worker's reference. It never reads the creator's input buffer. */
 static void *detached_worker(void *arg)
 {
     struct tl_job *j = arg;
@@ -164,6 +211,10 @@ static void *detached_worker(void *arg)
     return NULL;
 }
 
+/* Cleanup handler for the creator. It runs both when the creator is canceled
+ * while waiting and on every normal exit through pthread_cleanup_pop(1). The
+ * creator holds the monitor mutex on both paths, so unlock it and drop the
+ * creator's reference. */
 static void creator_cleanup(void *arg)
 {
     struct tl_job *j = arg;
@@ -188,11 +239,17 @@ int tl_monitor_init(struct tl_monitor *m)
         invariant(pthread_mutex_destroy(&m->mutex));
         return e;
     }
-    m->created = m->creator_waiting = m->release_worker = m->completed = 0;
-    m->live_refs = m->freed = m->sum = 0;
+    m->created = 0;
+    m->creator_waiting = 0;
+    m->release_worker = 0;
+    m->completed = 0;
+    m->live_refs = 0;
+    m->freed = 0;
+    m->sum = 0;
     return 0;
 }
 
+/* EBUSY while a job is live or a created job has not yet been freed. */
 int tl_monitor_destroy(struct tl_monitor *m)
 {
     if (!m)
@@ -211,41 +268,38 @@ int tl_monitor_destroy(struct tl_monitor *m)
     return pthread_mutex_destroy(&m->mutex);
 }
 
-void *tl_detached_creator(void *arg)
+/* Allocates a job holding a private copy of the creator's input. NULL means
+ * allocation failure. The job is owned by the caller until a worker owns it. */
+static struct tl_job *job_new(const struct tl_creator *c)
 {
-    struct tl_creator *c = arg;
-    if (!c)
-    {
-        return NULL;
-    }
-    if (!c->monitor || c->length > 16 || (!c->input && c->length) ||
-        c->wait_for_completion < 0 || c->wait_for_completion > 1)
-    {
-        c->error = EINVAL;
-        return NULL;
-    }
-    int previous;
-    invariant(pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &previous));
     struct tl_job *j = malloc(sizeof *j);
-    int e = j ? 0 : ENOMEM;
-    pthread_attr_t attr;
-    int initialized = 0;
-    if (j)
+    if (!j)
     {
-        j->monitor = c->monitor;
-        j->length = c->length;
-        for (size_t i = 0; i < c->length; i++)
-        {
-            j->bytes[i] = c->input[i];
-        }
-        e = pthread_attr_init(&attr);
-        if (!e)
-        {
-            initialized = 1;
-            e = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-        }
+        return NULL;
     }
-    struct tl_monitor *m = c->monitor;
+    j->monitor = c->monitor;
+    j->length = c->length;
+    for (size_t i = 0; i < c->length; i++)
+    {
+        j->bytes[i] = c->input[i];
+    }
+    return j;
+}
+
+/*
+ * Starts the detached worker with live_refs = 2 (worker + creator) already
+ * published, so neither side can free the job while the other still uses it.
+ * On failure live_refs is back to 0 and the caller still owns the job.
+ */
+static int spawn_worker(struct tl_monitor *m, struct tl_job *j)
+{
+    pthread_attr_t attr;
+    int e = pthread_attr_init(&attr);
+    if (e)
+    {
+        return e;
+    }
+    e = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
     if (!e)
     {
         invariant(pthread_mutex_lock(&m->mutex));
@@ -262,10 +316,36 @@ void *tl_detached_creator(void *arg)
         }
         invariant(pthread_mutex_unlock(&m->mutex));
     }
-    if (initialized)
+    invariant(pthread_attr_destroy(&attr));
+    return e;
+}
+
+/*
+ * Thread body for the creator. Sets c->error (0, EINVAL, ENOMEM or a
+ * pthread_attr_* or pthread_create error) and returns NULL. If the thread is
+ * canceled while waiting it does not return: it exits through the cleanup
+ * handler and pthread_join then reports PTHREAD_CANCELED. Cancellation is
+ * disabled except at the wait, where the cleanup handler releases the
+ * creator's reference.
+ */
+void *tl_detached_creator(void *arg)
+{
+    struct tl_creator *c = arg;
+    if (!c)
     {
-        invariant(pthread_attr_destroy(&attr));
+        return NULL;
     }
+    if (!c->monitor || c->length > JOB_MAX_BYTES || (!c->input && c->length) ||
+        c->wait_for_completion < 0 || c->wait_for_completion > 1)
+    {
+        c->error = EINVAL;
+        return NULL;
+    }
+    int previous;
+    invariant(pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &previous));
+    struct tl_monitor *m = c->monitor;
+    struct tl_job *j = job_new(c);
+    int e = j ? spawn_worker(m, j) : ENOMEM;
     if (e)
     {
         free(j);
