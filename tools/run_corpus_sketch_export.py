@@ -25,7 +25,8 @@ def main():
             for p in (ROOT/'labs/corpus_sketch').rglob('*'):
                 if p.is_file() and '__pycache__' not in p.parts:
                     rel=p.relative_to(ROOT/'labs/corpus_sketch');assert sha(workspace/rel)==sha(p);copied[rel.as_posix()]=sha(p)
-            body=(workspace/'EXERCISE.md').read_text();assert all(r['criterion'] in body for r in meta['rubric'])
+            rubric = workspace/'ACTIVE.md'
+            body=(rubric if rubric.is_file() else workspace/'EXERCISE.md').read_text(encoding='utf8');assert all(r['criterion'] in body for r in meta['rubric'])
             for mode,provider in [('learner',None),('explicit-family',ROOT/'assessor/corpus_sketch'),('explicit-parent',ROOT/'assessor')]:
                 build=tmp/(identifier+'-'+mode);args=['cmake','-S',workspace,'-B',build,'-G','Ninja','-DCMAKE_BUILD_TYPE=Debug']
                 if provider:args+=['-DCMASTERY_ASSESSOR_ROOT='+str(provider)]

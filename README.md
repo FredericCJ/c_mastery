@@ -15,16 +15,25 @@ bash tools/bootstrap_ubuntu.sh --install
 .venv/bin/python tools/build_v5.py --profile public
 ```
 
+The [binary inspection exercises](curriculum/guides/binary-inspection.md) trace a C17
+program from source through linking, debugging, decompilation and native measurement.
+
+Build a process supervisor in a disposable Linux guest, then use it to explain
+PID views, a refused fork, worker shutdown and socket ownership. The optional
+final exercise investigates a slow telemetry service. [Linux supervision guide](curriculum/guides/linux-supervision.md)
+
 The [native PMU strand](labs/performance_followthrough/PMU_PROTOCOL.md) separates
 deterministic acquisition tests, actual hardware measurements and diagnosis.
 The [deadline progression](labs/hosted_systems/timer_depth/COLLECTION.md) connects
 the existing timer lifecycle to representation choice, native event handling and
-measured workloads. New evidence is recorded under
-`reviews/v5/expansion/native_revision/`; independent learner assessment and
+measured workloads. The native campaign and selective integration record evidence under
+`reviews/v5/expansion/native_revision/` and `reviews/v5/expansion/main_integration/`; independent learner assessment and
 physical-board obligations remain separate.
 
-Repository author assistance is configured with Graphify, OpenSpec, Spec Kit,
-Beads and Superpowers. See [author-tool commands and restoration](planning/author_tools.md)
+Authors can use Graphify and Serena to navigate code, QMD to search curriculum
+prose, and `python3 tools/author-tool obligation ID` to look up recorded evidence.
+OpenSpec, Beads, Spec Kit and Superpowers support changes and reviews.
+See [author-tool commands and restoration](planning/author_tools.md)
 and [the repository working agreement](AGENTS.md). These tools support the
 canonical curriculum and evidence records; their task status does not replace them.
 

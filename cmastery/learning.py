@@ -132,7 +132,7 @@ def events(profile):
     return result
 
 
-def append(profile, kind, **values):
+def append(profile, kind, *, reuse_latest=False, **values):
     history = events(profile)
     when = clock()
     if history and when < instant(history[-1]["at"]):
@@ -147,6 +147,10 @@ def append(profile, kind, **values):
         with lock.open("x", encoding="utf-8"):
             acquired = True
             current = events(profile)
+            if reuse_latest:
+                last = next((entry for entry in reversed(current) if entry["kind"] == kind), None)
+                if last and all(last.get(key) == value for key, value in values.items()):
+                    return last
             if (current[-1]["sha256"] if current else "0" * 64) != record["previous"]:
                 raise ValueError("Concurrent ledger update; retry")
             with (area(profile) / "ledger.jsonl").open("a", encoding="utf-8", newline="\n") as stream:
@@ -507,7 +511,7 @@ def acceptance_valid(entry):
         selected = entry.get("active_specification")
         if selected:
             from . import route
-            if selected["sha256"] != route.specification_identity(selected["id"]):
+            if selected["sha256"] != route.specification_identity(selected["id"], route.recorded_route(selected)):
                 return False, "effective learner contract changed"
         if not verify_files(workspace, entry.get("source_files", {})):
             return False, "claimed component source changed"
@@ -846,9 +850,14 @@ def study_status(profile):
     core_projects = {data["units"][key]["project"] for key in core_units}
     gates = {u["project"]: key for key, u in data["units"].items() if u.get("project_completion")}
     completed = {project for project, key in gates.items() if key in historical}
-    from . import exercises
+    from . import exercises, route
     expansion = exercises.progress(profile)
-    return {"profile": str(Path(profile).resolve()), "studied": sorted({e["unit"] for e in history if e["kind"] == "unit-studied"}),
+    active = route.available(profile, historical | set(expansion["accepted"]))
+    if active:
+        expansion["available_exercises"] = [row for row in active["available"] if row["kind"] == "exercise"]
+        expansion["available_electives"] = active["available_elective_exercises"]
+    return {"profile": str(Path(profile).resolve()), "route": active,
+            "studied": sorted({e["unit"] for e in history if e["kind"] == "unit-studied"}),
             "accepted": sorted(historical),
             "current_acceptances": [key for key, result in assessed.items() if result["valid"]],
             "reopened": {key: result["reason"] for key, result in assessed.items() if not result["valid"]},
@@ -876,13 +885,11 @@ def study_next(profile, studied=None, studied_exercise=None):
     available = [data["units"][key] for key in data["order"]
                  if key not in accepted_ids and set(data["units"][key].get("requires", [])) <= accepted_ids]
     cfg = settings(profile)
-    from . import route
-    active = route.available(profile)
+    active = state["route"]
     if active is not None:
         ready = {row["id"] for row in active["available"]}
         available = [data["units"][key] for key in ready if key in data["units"]]
         available.sort(key=lambda u: next(i for i, row in enumerate(active["available"]) if row["id"] == u["id"]))
-        state["expansion_completion"]["available_exercises"] = [row for row in active["available"] if row["kind"] == "exercise"]
     return {"route": active, "review_minutes": cfg["session_minutes"], "recall": due(profile)[:cfg.get("sets_per_session", 2)],
             "available_units": [{"id": u["id"], "title": u["title"], "hours": u["hours"], "project": u["project"],
                                   "decision_required": u.get("decision_required", False)} for u in available[:8]],
@@ -910,8 +917,10 @@ def study_sheet(profile, output, identifier=None, assessment_template=None):
                   "Architecture choice, alternatives and reversal condition: __________________", ""]
     if chosen:
         from . import route
-        if route.node(chosen["id"]):
-            lines += ["", route.render_node(chosen["id"])]
+        pinned = route.selected(profile)
+        route_id = pinned["id"] if pinned else None
+        if route.node(chosen["id"], route_id=route_id):
+            lines += ["", route.render_node(chosen["id"], route_id=route_id)]
     lines += ["## Enter this record", "", "Use study next --studied UNIT after study, then recall start / submit / grade.",
               "Paper dates may be described in the answer; CLI records entry time and never backdates mastery.", ""]
     Path(output).write_text("\n".join(lines), encoding="utf-8")
@@ -1057,7 +1066,7 @@ def artifact_link(profile, workspace, bundle, profile_name, target):
     from . import route
     active_imports=set()
     if meta.get('active_specification'):
-        entry=route.node(meta['active_specification']['id'])
+        entry=route.node(meta['active_specification']['id'],route_id=route.recorded_route(meta['active_specification']))
         if entry is None:raise ValueError('Active consumer specification is unavailable')
         active_imports={edge['artifact'] for edge in entry['prerequisites'] if edge['kind']=='component'}
     if meta.get("unit"):

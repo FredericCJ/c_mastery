@@ -21,7 +21,7 @@ PUBLIC_LEARNER_TOOLS = {
     'tools/check_interrupt_time_capture.py', 'tools/check_network_arp_capture.py',
     'tools/check_network_ip_capture.py', 'tools/check_network_tcp_capture.py',
     'tools/verify_embedded_fixtures.py', 'tools/verify_legacy_checkpoint_fixtures.py',
-    'tools/verify_systems_fixtures.py',
+    'tools/verify_systems_fixtures.py', 'tools/install_inspection_tools.sh',
 }
 
 def safe_name(name):
@@ -132,6 +132,32 @@ def reproduce(work_directory, report_path):
             if any({'assessor', 'private', 'reviews'} & set(p.relative_to(destination).parts)
                    for p in destination.rglob('*')):
                 raise ValueError('Withheld path leaked into learner workspace: '+unit)
+    card_families = ('binary_inspection', 'linux_supervision')
+    family_cards = [(family, card) for family in card_families for card in
+                    json.loads((learner/'labs'/family/'family.json').read_text())['exercises']]
+    for family, card in family_cards:
+        destination = candidate/('learner-'+card['id'])
+        checks.append(run_command([sys.executable, '-m', 'cmastery', 'init', card['project'],
+                                   destination, '--exercise', card['id']], candidate, card['id'], cwd=learner))
+        if not checks[-1]['passed']:
+            continue
+        if (destination/'ACTIVE.md').read_text() != route.render_node(card['id']):
+            raise ValueError('Extracted learner card differs: '+card['id'])
+        if family == 'linux_supervision':
+            if any({'assessor', 'private', 'reviews'} & set(p.relative_to(destination).parts)
+                   for p in destination.rglob('*')):
+                raise ValueError('Withheld path leaked into supervision workspace: '+card['id'])
+            checks.append(run_command([sys.executable, 'submission.py', 'fixture'], candidate,
+                                      'offline-fixture-'+card['id'], cwd=destination))
+            if checks[-1]['passed']:
+                observed = json.loads(Path(checks[-1]['log']).read_text())
+                if observed.get('kind') != 'offline-fixture' or observed.get('guest_execution') != 'not-run':
+                    raise ValueError('Extracted fixture evidence misclassified: '+card['id'])
+        if card['id'] == 'X-T43-002':
+            pmu = destination/'labs/performance_followthrough'
+            checks.append(run_command([sys.executable, pmu/'native.py', 'report',
+                                       pmu/'dossiers/replay/layout.json'],
+                                      candidate, 'offline-layout-replay', cwd=destination))
     if not all(c['passed'] for c in checks):
         raise ValueError('Extracted learner workflow failed')
     workspace = candidate/'learner-workspace'

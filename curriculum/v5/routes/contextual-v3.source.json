@@ -1,0 +1,141 @@
+{
+  "schema_version": 2,
+  "id": "contextual-v3",
+  "predecessor": {
+    "id": "contextual-v2",
+    "route": "curriculum/v5/routes/contextual-v2.json",
+    "source": "curriculum/v5/routes/contextual-v2.source.json",
+    "frozen_sha256": {
+      "curriculum/v5/routes/contextual-v2.source.json": "7005564f2abb39daac7bd068187dbe40ffcff8789ffaee3a77aabd355f8b96e9",
+      "curriculum/v5/routes/contextual-v2.json": "e9d9e3046a0eaebc3284e83966c45f4884e5724c2f92ded2dd272fc7f5e53b40",
+      "curriculum/v5/routes/contextual-v2.coverage.json": "cbd2dd7a8f8ebe00af62d68a20c0905750f9aeb335b5851bf2d914235d73ea28",
+      "curriculum/v5/routes/contextual-v2.migration.json": "a70184bdd2fba1164a5b9c414c5db391713f4568cba9e0a7ff7380f56be4754c",
+      "curriculum/v5/routes/schema-v2.json": "385c7f7e20952ee59e9cf66a4162a319fec4dc77a3e17fae1a3c24a1cd04592c",
+      "curriculum/v5/routes/v2/foundation.md": "01f30f18ee08f1f87f237a4264eec91466120205e0253e434825bd2ce8356908",
+      "curriculum/v5/routes/v2/records.md": "2557c0ba146e6bbdaebec517c02ea558e87163f672fe73bddb43482464a6357a",
+      "curriculum/v5/routes/v2/streaming.md": "631a64387ae51f1ea170110dd486097eeb7f04092a9630bfff391a1d0fd41f30",
+      "curriculum/v5/routes/v2/identity.md": "6d0ef8ec76f161d8d8df61e607ab812de3754c1cb65883b2f515693ab5cc7822",
+      "curriculum/v5/routes/v2/deadlines.md": "b59e94862267ba6ce84d5f79ef53ad5b799a7bb15dbf08d7b414f0ea84f8ab5e",
+      "curriculum/v5/routes/v2/storage.md": "5abc23ac2e802478851b9959121e575acde9d5294ee742baefdd8aeb3d454667",
+      "curriculum/v5/routes/v2/graphs.md": "ef21b4d6879c07517e3fddb60f186b4c557dab7e91a8293c3af2ac1ae0cab4b6",
+      "curriculum/v5/routes/v2/telemetry.md": "ae47b734399c88c37bdc10fdd8d87c7ede7d06c9f98d9e21fcb33983b957a116",
+      "curriculum/v5/routes/v2/publication.md": "e37ce7c247add347915156d70dd2e677f1be6117c5dd9de2f06d14fcc2282df6",
+      "curriculum/v5/routes/v2/targets.md": "ed9cdf1b37635b2cf887037f36cfd5ff05b8ce5f9d60b6d51a341d3f6b4be003",
+      "curriculum/v5/routes/v2/measurement.md": "93a84e366112fd1ebfc399090756ba9409bf87d475db45976bb83f6952603aa0",
+      "curriculum/v5/routes/v2/integration.md": "b34d6406cd6adf51450823ed6e158791693293b97b5f5ab32939d6dcdd1761b6"
+    },
+    "rendered_cards": {
+      "count": 2599,
+      "sha256": "a760210cba802c4e3894371f96632d2384364d1991213c7c6b6b11f1f5b84800",
+      "encoding": "SHA-256 of compact sorted-key JSON mapping each unit, exercise and project ID to the SHA-256 of its rendered UTF-8 card."
+    },
+    "resource_register": {
+      "path": "references/resources.json",
+      "sha256": "f2cdced9fdf78e8addafd0c07b0038a40ac737d6d5e12908ae09c63ee79211a8",
+      "added_ids": [
+        "R-LSUP-CGROUP",
+        "R-LSUP-PID",
+        "R-LSUP-NET"
+      ]
+    }
+  },
+  "contexts": [
+    {
+      "id": "linux-supervision",
+      "title": "Linux process, resource and network supervision",
+      "problem": "Explain an observation of a service worker by identifying the observer, the resource boundary and the process that owns cleanup.",
+      "domains": [],
+      "teaching": "curriculum/v5/routes/v3/linux-supervision.md"
+    }
+  ],
+  "episodes": [
+    {
+      "id": "EP-linux-supervision",
+      "title": "Observe and supervise an isolated Linux service",
+      "context": "linux-supervision",
+      "entering_state": {
+        "components": [],
+        "concepts": [
+          "U-T49-08-03",
+          "U-T49-09-04",
+          "U-T24-02-04"
+        ],
+        "summary": "You have traced a namespace view, inspected a cgroup budget and completed a socket lifecycle."
+      },
+      "motivating_limitation": "A service supervisor has different process identifiers in two observations. Establish who observed each identifier before you use either to explain resource failures or supervise the worker.",
+      "construction": [
+        "X-T49-002",
+        "X-T49-003",
+        "X-T49-004",
+        "X-T49-005"
+      ],
+      "notes": {
+        "X-T49-002": "Match the supervisor across the inner and outer PID views. Reconcile its worker’s pipe report with the fork result, mount marker and cgroup observations.",
+        "X-T49-003": "Predict the second fork at pids.max values of two and three. Reconcile membership and event deltas with both outcomes.",
+        "X-T49-004": "Trace each child and pipe end through normal exit, failed startup, and a worker that outlives the first shutdown request.",
+        "X-T49-005": "Compare two binds to the same loopback address within one network namespace with one bind in each of two namespaces."
+      },
+      "exiting_artifact": {
+        "description": "A service supervision record linking each observation to its namespace, resource budget, owned worker or socket.",
+        "components": [],
+        "competence": "A service supervision record linking each observation to its namespace, resource budget, owned worker or socket."
+      },
+      "transition_reason": "The required sequence ends with the network observation. The elective service diagnosis brings the four investigations together.",
+      "produces": [],
+      "consumes": []
+    },
+    {
+      "id": "EP-linux-supervision-elective",
+      "title": "Elective investigation of a slow telemetry service",
+      "context": "linux-supervision",
+      "entering_state": {
+        "components": [],
+        "concepts": [
+          "X-T49-002",
+          "X-T49-003",
+          "X-T49-004",
+          "X-T49-005"
+        ],
+        "summary": "You can identify the observed process, trace a resource refusal, account for child cleanup and interpret a socket bind in its network namespace."
+      },
+      "motivating_limitation": "The service starts but responds slowly. Establish which observations can distinguish the competing explanations.",
+      "construction": [
+        "X-T49-006"
+      ],
+      "notes": {
+        "X-T49-006": "Keep the request batch fixed. Compare cgroup CPU counters, write refusals and payload conservation across baseline, quota and stalled-consumer trials."
+      },
+      "exiting_artifact": {
+        "description": "An evidence-backed diagnosis with the original observation, comparison and remaining uncertainty.",
+        "components": [],
+        "competence": "An evidence-backed diagnosis with the original observation, comparison and remaining uncertainty."
+      },
+      "transition_reason": "Course completion uses the four required investigations. This elective records a separate opportunity for transfer.",
+      "produces": [],
+      "consumes": []
+    }
+  ],
+  "environment_requirements": [
+    {
+      "kind": "environment",
+      "target": "linux",
+      "reason": "Use the Linux host tools that build and run the disposable guest."
+    },
+    {
+      "kind": "environment",
+      "target": "cmake",
+      "reason": "Configure the selected supervision executable and guest check."
+    },
+    {
+      "kind": "environment",
+      "target": "qemu-system-x86_64",
+      "reason": "Boot the pinned Linux x86-64 guest for this observation. The lab runner verifies the guest inputs."
+    }
+  ],
+  "semantic_review": {
+    "record": "curriculum/v5/routes/semantic-review.md",
+    "status": "predecessor-author-review",
+    "reviewed_route": "contextual-v2",
+    "scope": "The recorded review covers the inherited material. Independent assessment of the five Linux supervision exercises remains open."
+  }
+}

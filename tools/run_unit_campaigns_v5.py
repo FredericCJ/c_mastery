@@ -118,7 +118,7 @@ def firmware_integration(native):
 def family(name_of_family, native):
     """Assessor pass, learner rejection and mutation rejection for a fifth-edition family."""
     sys.path.insert(0, str(ROOT))
-    from cmastery.cli import instantiate, run_checks  # noqa: E402
+    from cmastery.cli import dependency_contracts, instantiate, run_checks  # noqa: E402
     import tempfile
     identity = source_identity(); name = 'new_family_acceptance.json'
     existing = read_json(receipt_path(name)) if receipt_path(name).is_file() else {'families': {}}
@@ -129,6 +129,12 @@ def family(name_of_family, native):
     campaign_meta = meta.get('campaign')
     campaign_meta = campaign_meta if isinstance(campaign_meta, dict) else {}
     producer = campaign_meta.get('producer')
+    if name_of_family == 'linux_supervision':
+        from check_linux_supervision import REPORT
+        if producer != 'tools/check_linux_supervision.py' or ROOT / campaign_meta['canonical_receipt'] != REPORT:
+            raise ValueError('Linux supervision full campaign producer or receipt path differs')
+        command = python_command(producer, '--full', '--report', str(REPORT))
+        return subprocess.run(command, cwd=ROOT).returncode
     if name_of_family in {'kernel_lifecycle', 'architecture_ports', 'firmware_lifecycle', 'subset_compiler',
                           'verification_fuzzing', 'linux_io_depth', 'memory_defense', 'numeric_simd'}:
         # B06 uses one shared producer with a family selector and explicit output.
@@ -157,7 +163,9 @@ def family(name_of_family, native):
     with tempfile.TemporaryDirectory(prefix='c mastery ' + name_of_family + ' ') as directory:
         workspace = Path(directory) / 'learner'
         instantiate(project, workspace, family_name=name_of_family)
-        learner = run_checks(workspace, 'gcc', 'debug', False, 240, all_tests=True)
+        dependencies = {name: ROOT / 'labs' / name for name in dependency_contracts(meta, {})}
+        learner = run_checks(workspace, 'gcc', 'debug', False, 240, all_tests=True,
+                             dependencies=dependencies or None)
         rejects = learner['status'] == 'failed' and len(learner['steps']) == 3 and learner['steps'][2]['exit_code'] not in (None, 0)
         checks = []
         for compiler, profile in [(c, p) for c, p in PROFILES]:

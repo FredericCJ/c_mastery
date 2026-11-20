@@ -1,5 +1,6 @@
 #define _GNU_SOURCE
 #include "pmu.h"
+#include "pmu_domain.h"
 #include <linux/perf_event.h>
 #include <sys/ioctl.h>
 #include <sys/syscall.h>
@@ -11,6 +12,11 @@ static int event_open(void *context, PFPmuEvent event, int leader) {
     attr.type = event.type;
     attr.size = sizeof attr;
     attr.config = event.config;
+    if (event.type == PERF_TYPE_HARDWARE) {
+        uint64_t selected;
+        if (pf_generic_event_config(event.config, &selected) < 0) return -1;
+        attr.config = selected;
+    }
     attr.disabled = leader == -1;
     attr.exclude_kernel = 1;
     attr.exclude_hv = 1;

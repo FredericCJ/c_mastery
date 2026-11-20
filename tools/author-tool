@@ -8,6 +8,11 @@ ROOT = Path(__file__).resolve().parents[1]
 BASE = ROOT/'build/author-tools'
 TOOLS = {'graphify': BASE/'python/bin/graphify', 'specify': BASE/'python/bin/specify',
          'openspec': BASE/'bin/openspec', 'bd': BASE/'bin/bd'}
+PROJECT_TOOLS = {
+    'serena': ROOT / 'tools/serena_author.py',
+    'qmd': ROOT / 'tools/qmd_author.py',
+    'obligation': ROOT / 'tools/lookup_obligation.py',
+}
 def environment():
     env = dict(os.environ)
     env.update(DO_NOT_TRACK='1', OPENSPEC_TELEMETRY='0', BD_DISABLE_METRICS='1',
@@ -16,10 +21,15 @@ def environment():
     env['PATH'] = str(BASE/'python/bin')+os.pathsep+str(BASE/'bin')+os.pathsep+env.get('PATH', '')
     return env
 def main():
-    if len(sys.argv) < 2 or sys.argv[1] not in TOOLS:
-        print('Usage: python3 tools/author-tool {graphify|specify|openspec|bd} ARGS...', file=sys.stderr)
+    if len(sys.argv) < 2 or sys.argv[1] not in TOOLS.keys() | PROJECT_TOOLS.keys():
+        names = '|'.join([*TOOLS, *PROJECT_TOOLS])
+        print(f'Usage: python3 tools/author-tool {{{names}}} ARGS...', file=sys.stderr)
         return 2
     name, args = sys.argv[1], sys.argv[2:]
+    if name in PROJECT_TOOLS:
+        # A stdio MCP server must receive client signals and EOF directly.
+        os.chdir(ROOT)
+        os.execve(sys.executable, [sys.executable, str(PROJECT_TOOLS[name]), *args], environment())
     path = TOOLS[name]
     if not path.is_file():
         print('Missing author tool; run python3 tools/install_author_tools.py --install', file=sys.stderr)

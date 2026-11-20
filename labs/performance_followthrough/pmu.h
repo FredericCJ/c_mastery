@@ -38,6 +38,7 @@ PFPmuOS pf_pmu_linux(void);
 typedef struct { uint64_t ip, time, period; uint32_t pid, tid; } PFSample;
 typedef struct {
     uint64_t samples, lost, unknown, records;
+    uint64_t hardware_lost; /* PERF_RECORD_LOST_SAMPLES, separately from ring loss */
 } PFRingStats;
 enum PFRingResult { PF_RING_OK, PF_RING_PARTIAL, PF_RING_INVALID,
                     PF_RING_OVERFLOW, PF_RING_UNIMPLEMENTED };

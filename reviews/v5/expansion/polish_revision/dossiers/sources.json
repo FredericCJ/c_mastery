@@ -1,0 +1,38 @@
+{
+ "schema_version": 1,
+ "kind": "dossier-primary-sources",
+ "consulted_utc": "2026-10-31",
+ "note": "Primary documentation inspected for the event and interface choices of the three dossiers. Each receipt also captures, at run time, the host's own sysfs PMU description and the perf list entries of the events it used (events.json, environment.json).",
+ "linux_kernel_amd_pmu": {
+  "url": "https://raw.githubusercontent.com/torvalds/linux/v7.0/arch/x86/events/amd/core.c",
+  "sha256": "bc33864734b390d12c079ca0cccdac092a38d0e91026f00dfd7a1c596c33a22f",
+  "running_kernel": "7.0.0-42-generic (Ubuntu); the upstream v7.0 source is assumed to match for these tables, and sysfs events/* on the running kernel (which the kernel derives from the same event map) agree with them",
+  "excerpts": {
+   "lines 236-302: generic-event maps and their selection (family 19h selects amd_zen2_perfmon_event_map)": "\n/*\n * AMD Performance Monitor K7 and later, up to and including Family 16h:\n */\nstatic const u64 amd_perfmon_event_map[PERF_COUNT_HW_MAX] =\n{\n\t[PERF_COUNT_HW_CPU_CYCLES]\t\t= 0x0076,\n\t[PERF_COUNT_HW_INSTRUCTIONS]\t\t= 0x00c0,\n\t[PERF_COUNT_HW_CACHE_REFERENCES]\t= 0x077d,\n\t[PERF_COUNT_HW_CACHE_MISSES]\t\t= 0x077e,\n\t[PERF_COUNT_HW_BRANCH_INSTRUCTIONS]\t= 0x00c2,\n\t[PERF_COUNT_HW_BRANCH_MISSES]\t\t= 0x00c3,\n\t[PERF_COUNT_HW_STALLED_CYCLES_FRONTEND]\t= 0x00d0, /* \"Decoder empty\" event */\n\t[PERF_COUNT_HW_STALLED_CYCLES_BACKEND]\t= 0x00d1, /* \"Dispatch stalls\" event */\n};\n\n/*\n * AMD Performance Monitor Family 17h and later:\n */\nstatic const u64 amd_zen1_perfmon_event_map[PERF_COUNT_HW_MAX] =\n{\n\t[PERF_COUNT_HW_CPU_CYCLES]\t\t= 0x0076,\n\t[PERF_COUNT_HW_INSTRUCTIONS]\t\t= 0x00c0,\n\t[PERF_COUNT_HW_CACHE_REFERENCES]\t= 0xff60,\n\t[PERF_COUNT_HW_CACHE_MISSES]\t\t= 0x0964,\n\t[PERF_COUNT_HW_BRANCH_INSTRUCTIONS]\t= 0x00c2,\n\t[PERF_COUNT_HW_BRANCH_MISSES]\t\t= 0x00c3,\n\t[PERF_COUNT_HW_STALLED_CYCLES_FRONTEND]\t= 0x0287,\n\t[PERF_COUNT_HW_STALLED_CYCLES_BACKEND]\t= 0x0187,\n};\n\nstatic const u64 amd_zen2_perfmon_event_map[PERF_COUNT_HW_MAX] =\n{\n\t[PERF_COUNT_HW_CPU_CYCLES]\t\t= 0x0076,\n\t[PERF_COUNT_HW_INSTRUCTIONS]\t\t= 0x00c0,\n\t[PERF_COUNT_HW_CACHE_REFERENCES]\t= 0xff60,\n\t[PERF_COUNT_HW_CACHE_MISSES]\t\t= 0x0964,\n\t[PERF_COUNT_HW_BRANCH_INSTRUCTIONS]\t= 0x00c2,\n\t[PERF_COUNT_HW_BRANCH_MISSES]\t\t= 0x00c3,\n\t[PERF_COUNT_HW_STALLED_CYCLES_FRONTEND]\t= 0x00a9,\n};\n\nstatic const u64 amd_zen4_perfmon_event_map[PERF_COUNT_HW_MAX] =\n{\n\t[PERF_COUNT_HW_CPU_CYCLES]\t\t= 0x0076,\n\t[PERF_COUNT_HW_INSTRUCTIONS]\t\t= 0x00c0,\n\t[PERF_COUNT_HW_CACHE_REFERENCES]\t= 0xff60,\n\t[PERF_COUNT_HW_CACHE_MISSES]\t\t= 0x0964,\n\t[PERF_COUNT_HW_BRANCH_INSTRUCTIONS]\t= 0x00c2,\n\t[PERF_COUNT_HW_BRANCH_MISSES]\t\t= 0x00c3,\n\t[PERF_COUNT_HW_STALLED_CYCLES_FRONTEND]\t= 0x00a9,\n\t[PERF_COUNT_HW_REF_CPU_CYCLES]\t\t= 0x100000120,\n};\n\nstatic u64 amd_pmu_event_map(int hw_event)\n{\n\tif (cpu_feature_enabled(X86_FEATURE_ZEN4) || boot_cpu_data.x86 >= 0x1a)\n\t\treturn amd_zen4_perfmon_event_map[hw_event];\n\n\tif (cpu_feature_enabled(X86_FEATURE_ZEN2) || boot_cpu_data.x86 >= 0x19)\n\t\treturn amd_zen2_perfmon_event_map[hw_event];\n\n\tif (cpu_feature_enabled(X86_FEATURE_ZEN1))\n\t\treturn amd_zen1_perfmon_event_map[hw_event];\n\n\treturn amd_perfmon_event_map[hw_event];\n}",
+   "line 1428: six core counters": "\tx86_pmu.cntr_mask64\t= GENMASK_ULL(AMD64_NUM_COUNTERS_CORE - 1, 0);",
+   "lines 1462-1471: Fam17h+ large-increment pairing constraint (not used by any dossier event)": "\tif (boot_cpu_data.x86 >= 0x17) {\n\t\tpr_cont(\"Fam17h+ \");\n\t\t/*\n\t\t * Family 17h and compatibles have constraints for Large\n\t\t * Increment per Cycle events: they may only be assigned an\n\t\t * even numbered counter that has a consecutive adjacent odd\n\t\t * numbered counter following it.\n\t\t */\n\t\tfor (i = 0; i < x86_pmu_max_num_counters(NULL) - 1; i += 2)\n\t\t\teven_ctr_mask |= BIT_ULL(i);"
+  },
+  "derived_fact": "With nmi_watchdog=1 the hard-lockup detector holds one core counter, leaving five; every dossier group has five events and every measured row reported running == enabled (scheduling gate: full)."
+ },
+ "linux_perf_event_tables": {
+  "tool": "perf 7.0.14 (perf list -j --details); the amdzen3 pmu-events tables built into perf",
+  "use": "event names, encodings and descriptions; resolved per run and stored in each receipt's events.json"
+ },
+ "linux_man_pages": {
+  "package": "manpages-dev 6.17-1 (local)",
+  "perf_event_open(2)": "pid == 0 and cpu == -1: 'This measures the calling process/thread on any CPU.'",
+  "sched_setaffinity(2)": "sched_getaffinity: 'If pid is zero, then the mask of the calling thread is returned.' (why the drivers snapshot the allowed set before pinning)",
+  "pthread_setaffinity_np(3)": "'If the call is successful, and the thread is not currently running on one of the CPUs in cpuset, then it is migrated to one of those CPUs.'",
+  "pthread_attr_setaffinity_np(3)": "sets the affinity a created thread starts with",
+  "getrusage(2)": "RUSAGE_THREAD (since Linux 2.6.26) returns the calling thread's usage; ru_nivcsw counts involuntary context switches",
+  "sched_getcpu(3)": "the CPU the calling thread is running on, recorded at both ends of every window"
+ },
+ "amd_documentation": {
+  "ppr_for_family_19h_model_50h": "not obtained. A fetch attempt on 2026-10-31 returned only a web-viewer page, and no document number was verified to match this model. Event meanings are therefore taken only from the perf list descriptions and the kernel maps; no claim relies on PPR text.",
+  "product_identification": "AMD Ryzen 3 7330U, family 19h model 50h (lscpu: family 25, model 80), identified by AMD as Zen 3 (PMU_PROTOCOL.md cites AMD's product page)"
+ },
+ "host_clock": {
+  "observation": "The kernel log records 'Measured 3642704559 cycles TSC warp between CPUs, turning off TSC clock', 'Marking TSC unstable' and 'Switched to clocksource hpet'. Every clock read in these dossiers is therefore an HPET read through a system call (about 1.4 microseconds per read on this host), which raises the timing target to about 147 microseconds; HPET is one global counter, so timestamps from different CPUs are comparable.",
+  "source": "journalctl -k (captured in each receipt's environment.json)"
+ }
+}

@@ -1,14 +1,48 @@
-"""Verify effective object/link flags and run the algorithm correctness matrix."""
+"""Verify effective object/link flags and run the algorithm correctness matrix.
+
+Four profiles are configured with GCC and Clang: `semantic` (uninstrumented
+correctness), `instrumented` (ASan/UBSan), `thread` (ThreadSanitizer) and
+`performance`. Correctness targets carry exactly their profile's sanitizer at
+compile and link time; the performance target never carries one. Without
+--configure-only every profile is also built, its tests run with ctest, and
+the linked sanitizer runtime is confirmed in the binaries."""
 import argparse
 import hashlib
 import json
 import os
 from pathlib import Path
+import shlex
 import subprocess
 import sys
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
+SANITIZERS = {'instrumented': {'address', 'undefined'}, 'thread': {'thread'}}
+ALL_RUNTIME = ('__asan_init', '__ubsan_handle', '__tsan_init')
+# Runtime symbols each profile's correctness binaries must contain, and must
+# not contain. Clang's static ThreadSanitizer runtime bundles UBSan handler
+# definitions without any UBSan instrumentation (the parsed compile/link flags
+# prove that), so __ubsan_handle is required for `instrumented` but not
+# forbidden for `thread`. Uninstrumented binaries contain no runtime at all.
+RUNTIME_SYMBOLS = {'instrumented': {'__asan_init', '__ubsan_handle'}, 'thread': {'__tsan_init'}}
+FORBIDDEN_RUNTIME = {'instrumented': {'__tsan_init'}, 'thread': {'__asan_init'}}
+PROFILES = ('semantic', 'instrumented', 'thread', 'performance')
+
+
+def sanitizers_in(command):
+    """The effective sanitizer set of a compile or link command, from its
+    parsed arguments: each -fsanitize=a,b adds, -fno-sanitize=a removes
+    (`all` removes everything), in command order. Options such as
+    -fsanitize-recover=... are not sanitizer selections."""
+    enabled = set()
+    for token in shlex.split(command):
+        name, _, value = token.partition('=')
+        names = {v for v in value.split(',') if v}
+        if name == '-fsanitize':
+            enabled |= names
+        elif name == '-fno-sanitize':
+            enabled = set() if 'all' in names else enabled - names
+    return enabled
 
 
 def main():
@@ -49,7 +83,7 @@ def main():
             check('negative-outcome-' + name, True)
         for cc in ('gcc', 'clang'):
             run([cc, '--version'])
-            for profile in ('semantic', 'instrumented', 'performance'):
+            for profile in PROFILES:
                 directory = ROOT / 'build/native/profiles' / (cc + '-' + profile)
                 run(['cmake', '-S', source, '-B', directory, '-G', 'Ninja',
                      '-DCMAKE_C_COMPILER=' + cc, '-DCMAKE_EXPORT_COMPILE_COMMANDS=ON',
@@ -59,18 +93,27 @@ def main():
                 for target in ('algorithms_tests', 'v4_algorithms_tests', 'algorithms_measure'):
                     selected = [row['command'] for row in commands if '/'+target+'.dir/' in row['command'] and row['file'].endswith('.c')]
                     check(f'{cc}-{profile}-{target}-has-implementation-and-tests', len(selected) >= 2)
-                    instrumented = profile == 'instrumented' and target != 'algorithms_measure'
-                    check(f'{cc}-{profile}-{target}-compile-policy', all(('-fsanitize=address,undefined' in cmd) == instrumented for cmd in selected))
+                    expected = SANITIZERS.get(profile, set()) if target != 'algorithms_measure' else set()
+
+                    def policy(command):
+                        """Exactly the profile's sanitizers, or none at all."""
+                        return sanitizers_in(command) == expected
+                    check(f'{cc}-{profile}-{target}-compile-policy', all(policy(cmd) for cmd in selected))
                     emitted = run(['ninja', '-C', directory, '-t', 'commands', target])
                     link = [line for line in emitted.splitlines() if ' -o ' + target + ' ' in line]
-                    check(f'{cc}-{profile}-{target}-link-policy', len(link) == 1 and ('-fsanitize=address,undefined' in link[0]) == instrumented)
+                    check(f'{cc}-{profile}-{target}-link-policy', len(link) == 1 and policy(link[0]))
                 if not args.configure_only:
                     run(['cmake', '--build', directory, '-j', '2'])
                     run(['ctest', '--test-dir', directory, '--output-on-failure', '-E', 'thumb'])
                     for target in ('algorithms_tests', 'v4_algorithms_tests', 'algorithms_measure'):
                         symbols = run(['nm', '-a', directory / target])
-                        expected = profile == 'instrumented' and target != 'algorithms_measure'
-                        check(f'{cc}-{profile}-{target}-runtime-symbols', ('__asan_init' in symbols) == expected)
+                        present = {name for name in ALL_RUNTIME if name in symbols}
+                        if target == 'algorithms_measure' or profile not in RUNTIME_SYMBOLS:
+                            required, forbidden = set(), set(ALL_RUNTIME)
+                        else:
+                            required, forbidden = RUNTIME_SYMBOLS[profile], FORBIDDEN_RUNTIME[profile]
+                        check(f'{cc}-{profile}-{target}-runtime-symbols',
+                              required <= present and not (forbidden & present))
         bad = ROOT / 'build/native/profiles/conflict'
         run(['cmake', '-S', source, '-B', bad, '-G', 'Ninja',
              '-DCMASTERY_PROFILE=thread', '-DCMASTERY_SANITIZERS=ON'], expected=1)

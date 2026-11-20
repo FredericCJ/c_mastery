@@ -35,7 +35,7 @@ def main():
     if expansion:
         from check_exercises_v5 import inspect as inspect_exercises
         result = inspect_exercises()
-        if result['status'] != 'passed' or result['exercise_count'] != expansion['required_exercises']:
+        if result['status'] != 'passed' or result['required_exercise_count'] != expansion['required_exercises']:
             raise ValueError('Required exercise expansion is incomplete or stale')
         from expansion_evidence import historical_errors
         if historical_errors():
@@ -52,6 +52,12 @@ def main():
             path = ROOT / row['receipt']
             if not path.is_file() or sha(path) != row['receipt_sha256']:
                 raise ValueError('Bound family observations changed: ' + row['family'])
+            if row['family'] == 'linux_supervision':
+                from check_expansion_campaigns import inspect_family
+                current = inspect_family(row['family'])
+                if not current['passed'] or current['receipt'] != row['receipt'] or current['receipt_sha256'] != row['receipt_sha256']:
+                    raise ValueError('Linux supervision guest evidence is stale or incomplete: ' +
+                                     ', '.join(current['errors']))
         modern = read_json(ROOT / RECEIPTS / 'modern_coverage.json')
         if modern.get('resolved_census') != 100 or modern.get('unresolved_swe') or modern.get('unresolved_census'):
             raise ValueError('Modern discovery dispositions do not resolve to complete assessment contracts')

@@ -47,5 +47,13 @@ Use `python3 tools/author-tool TOOL ...`; pinned versions and restoration are in
   review and verification. Apply relevant skills within the approved scope.
   Existing user authorization takes precedence over generic approval, worktree
   and commit workflow steps.
+- **Serena** provides read-only symbol navigation for Python author code and
+  the selected C laboratory. Use its project-local stdio server to follow
+  declarations and references.
+- **QMD** searches selected curriculum and planning Markdown locally. Use
+  `python3 tools/author-tool qmd search "terms"` for prose.
+- For an exact curriculum obligation, use `python3 tools/author-tool obligation ID`.
+  Add `--json` to read the complete row from the canonical inventory. Evidence
+  states describe the recorded checks and observations.
 
 No Git hooks or remote graph services were enabled by this setup.

@@ -8,6 +8,7 @@ import hashlib
 import importlib.util
 import json
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -24,6 +25,8 @@ def digest(path):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--report", type=Path, help="new immutable JSON receipt")
+    parser.add_argument("--navigation", action="store_true",
+                        help="also check the installed Serena server, QMD index and obligation lookup")
     args = parser.parse_args()
     if args.report and args.report.exists():
         parser.error("report already exists; use a new path")
@@ -37,9 +40,9 @@ def main():
         checks.append({"name": name, "passed": bool(passed), **details})
         print(f"{'PASS' if passed else 'FAIL'} {name}")
 
-    def command(name, args_, *, expected=0, contains=None):
+    def command(name, args_, *, expected=0, contains=None, timeout=90):
         result = subprocess.run([str(x) for x in args_], cwd=ROOT, env=installer.wrapper.environment(),
-                                capture_output=True, text=True, timeout=90)
+                                capture_output=True, text=True, timeout=timeout)
         output = result.stdout + result.stderr
         passed = result.returncode == expected and (contains is None or contains in output)
         record(name, passed, command=[str(x) for x in args_], exit_code=result.returncode,
@@ -78,11 +81,17 @@ def main():
     # Exercise the dangerous upstream initialization behavior in an isolated location.
     with tempfile.TemporaryDirectory(prefix="cmastery-beads-verify-") as directory:
         destination = Path(directory) / ".beads"
+        destination.mkdir(mode=0o700)
+        metadata = destination / "metadata.json"
+        shutil.copy2(ROOT / ".beads/metadata.json", metadata)
+        project_id = json.loads(metadata.read_text())["project_id"]
         installer.initialize_beads(destination)
         result = subprocess.run([str(BASE / "bin/bd"), "--sandbox", "ready", "--json"],
                                 cwd=directory, env={**installer.wrapper.environment(), "BEADS_DIR": str(destination)},
                                 capture_output=True, text=True, timeout=60)
         no_git = not (Path(directory) / ".git").exists()
+        record("Beads hydration preserves the project UUID",
+               json.loads(metadata.read_text())["project_id"] == project_id)
         record("isolated Beads initialization and relocation", result.returncode == 0 and json.loads(result.stdout) == [] and no_git,
                exit_code=result.returncode, output=result.stdout + result.stderr,
                no_git_directory=no_git)
@@ -93,13 +102,25 @@ def main():
            graph_sha256=digest(graph_path) if graph_path.exists() else None,
            ast_only=all(node.get("_origin") == "ast" for node in nodes))
     command("local graph query", [*wrapper, "graphify", "query", "run_native_pmu", "--budget", "600"], contains="run_native_pmu")
+    source_paths = ["tools/author_tools.lock.json", "tools/author_tools_requirements.lock", "tools/install_author_tools.py",
+                    "tools/check_author_tools.py", "tools/author-tool", "AGENTS.md", ".graphifyignore",
+                    "openspec/config.yaml", ".specify/memory/constitution.md", "planning/author_tools.md"]
+    if args.navigation:
+        command("live Serena symbol references", [*wrapper, "serena", "check"], timeout=180)
+        command("QMD guide retrieval", [*wrapper, "qmd", "search", "-c", "guides", "-n", "1",
+                                        "--json", "shared component contracts"], contains="component-contracts.md")
+        result = command("obligation lookup", [*wrapper, "obligation", "NATIVE-ROUTE", "--json"])
+        inventory = ROOT / "curriculum/v5/expansion/work_inventory.json"
+        expected = next(r for r in json.loads(inventory.read_bytes())["obligations"] if r["id"] == "NATIVE-ROUTE")
+        record("lookup returns the canonical row", result.returncode == 0 and json.loads(result.stdout) == expected)
+        source_paths += [".codex/config.toml", "tools/lookup_obligation.py", "tools/qmd_author.py",
+                         "tools/serena_author.py", inventory.relative_to(ROOT).as_posix()]
+        for folder in ("tools/serena_author", "tools/qmd_author"):
+            source_paths.extend(p.relative_to(ROOT).as_posix() for p in sorted((ROOT / folder).iterdir()) if p.is_file())
     head_after = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
     index_after = subprocess.check_output(["git", "diff", "--cached", "--binary"], cwd=ROOT)
     record("Git HEAD and staged content unchanged", head_before == head_after and index_before == index_after,
            head_before=head_before, head_after=head_after)
-    source_paths = ["tools/author_tools.lock.json", "tools/author_tools_requirements.lock", "tools/install_author_tools.py",
-                    "tools/check_author_tools.py", "tools/author-tool", "AGENTS.md", ".graphifyignore",
-                    "openspec/config.yaml", ".specify/memory/constitution.md", "planning/author_tools.md"]
     receipt = {"schema_version": 1, "generated_at": datetime.now(timezone.utc).isoformat(),
                "scope": "optional local author tools; not curriculum acceptance or learner assessment",
                "passed": all(check["passed"] for check in checks), "checks": checks,

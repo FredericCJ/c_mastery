@@ -271,6 +271,11 @@ def object_runtime_errors(meta, report):
 
 
 def candidates(family, meta):
+    if family == 'linux_supervision':
+        from check_linux_supervision import REPORT
+        if ROOT / meta['campaign']['canonical_receipt'] != REPORT:
+            raise ValueError('Linux supervision requires its canonical full campaign receipt')
+        return [REPORT]
     if family in B06:
         return [ROOT / RECEIPTS / (family + '_campaign.json'), ROOT / RECEIPTS / 'b06_core_campaign.json',
                 ROOT / 'research/v5/expansion/b06/core_validation.json']
@@ -278,6 +283,31 @@ def candidates(family, meta):
     name = campaign.get('receipt', family + '_campaign.json') if isinstance(campaign, dict) else family + '_campaign.json'
     return [ROOT / RECEIPTS / name, ROOT / 'reviews/v5/expansion/b07' / name,
             ROOT / 'reviews/v5/expansion/b01' / name]
+
+
+def inspect_supervision(meta, path):
+    from check_linux_supervision import verify_report
+    digest = sha(path)
+    try:
+        report = read_json(path)
+        if not isinstance(report, dict) or report.get('profile') != 'full':
+            raise ValueError('Linux supervision requires the full guest campaign')
+        if report.get('passed') is not True:
+            raise ValueError('Linux supervision requires a successful full campaign')
+        if (report.get('independent_learner') != 'not-assessed'
+                or report.get('native_hardware_observation') != 'not-run'):
+            raise ValueError('Linux supervision guest evidence has an unsupported assessment or hardware claim')
+        verify_report(path)
+        if sha(path) != digest:
+            raise ValueError('Linux supervision campaign changed during validation')
+    except (OSError, ValueError, KeyError, TypeError) as error:
+        return dict(family='linux_supervision', passed=False, errors=[str(error)])
+    return dict(family='linux_supervision', passed=True, errors=[],
+                receipt=path.relative_to(ROOT).as_posix(), receipt_sha256=digest,
+                declared_anchors=anchors(meta), source_pins=len(report['inputs']),
+                guest_runs=sorted(report['guest_runs']), execution_receipt_rewritten=False,
+                whole_source_bytes_current=True, source_binding_scope='current scoped source bytes',
+                limitations=[meta['evidence_limits']])
 
 
 def inspect_family(family):
@@ -288,6 +318,8 @@ def inspect_family(family):
     # Prefer the integrated designated receipt. A newer failed run is not hidden
     # by selecting an older success from another location.
     path = paths[0]
+    if family == 'linux_supervision':
+        return inspect_supervision(meta, path)
     report = read_json(path)
     source_errors, publication = source_binding(report)
     errors = source_errors + execution_errors(report)

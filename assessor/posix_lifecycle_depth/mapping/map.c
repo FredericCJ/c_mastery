@@ -2,6 +2,7 @@
 #include "map.h"
 #include <errno.h>
 #include <fcntl.h>
+#include <stdatomic.h>
 #include <string.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -80,9 +81,17 @@ static int publish_locked(int fd,uint64_t session,const void *data,size_t length
   else if(decoded!=EAGAIN){munmap(bytes,128);return decoded;}
   PMRecord record={session,length,{0}};if(length)memcpy(record.payload,data,length);
   unsigned char temp[128];e=pm_encode(temp,&record,1);if(e){munmap(bytes,128);return e;}
+  /* Keep the busy marker, payload and stable marker in instruction order
+     for a killed Linux writer and the next lock holder. Power failure
+     and concurrent unlocked readers require different protocols. */
+  atomic_signal_fence(memory_order_seq_cst);
   bytes[4]=0;if(cut)cut(1,context);
+  atomic_signal_fence(memory_order_seq_cst);
   memcpy(bytes,temp,4);memcpy(bytes+5,temp+5,123);if(cut)cut(2,context);
-  bytes[4]=1;if(cut)cut(3,context);
+  atomic_signal_fence(memory_order_seq_cst);
+  bytes[4]=1;
+  atomic_signal_fence(memory_order_seq_cst);
+  if(cut)cut(3,context);
   return munmap(bytes,128)==0?0:errno;
 }
 int pm_publish(int fd,uint64_t session,const void *data,size_t length,PMCut cut,void *context){

@@ -175,6 +175,11 @@ def initialize_beads(destination=None):
                                capture_output=True, text=True)
         if probe.returncode == 0:
             raise RuntimeError("Beads initialization requires a stage outside any Git repository")
+        # A clone carries its project UUID in metadata.json even when local Dolt
+        # storage is absent. Seed that identity before bd creates the database.
+        if metadata.is_file():
+            database.mkdir(mode=0o700)
+            shutil.copy2(metadata, database / "metadata.json")
         run([BASE / "bin/bd", "--sandbox", "init", "--skip-agents", "--skip-hooks",
              "--non-interactive", "--role", "maintainer", "--prefix", "cmastery", "--remote", ""],
             cwd=stage, extra_env={"BEADS_DIR": str(database)})

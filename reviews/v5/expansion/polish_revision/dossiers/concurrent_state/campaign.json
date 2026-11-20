@@ -1,0 +1,623 @@
+{
+ "schema_version": 1,
+ "kind": "dossier-campaign",
+ "dossier": "concurrent_state",
+ "provenance": "TEST IMPLEMENTATION",
+ "notice": "TEST IMPLEMENTATION: the component sources are a supplied test or reference implementation used to exercise this workflow. Nothing produced from them is evidence of your own work.",
+ "started_utc": "2026-10-31T05:43:06.816440+00:00",
+ "finished_utc": "2026-10-31T05:43:14.424392+00:00",
+ "runner": {
+  "path": "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/run_dossier.py",
+  "sha256": "bef20e05c2f0eb9254e8922acd57da33f19c9261c8bd7f726f3366aee392ff9c",
+  "argv": [
+   "labs/performance_followthrough/dossiers/run_dossier.py",
+   "run",
+   "--spec",
+   "labs/performance_followthrough/dossiers/concurrent_state/spec.json",
+   "--pmu-source",
+   "assessor/performance_followthrough/pmu.c",
+   "--test-implementation",
+   "--sanitizers",
+   "--quiet-marker",
+   "/home/fred/.cache/cmastery-tmp/orch/QUIET",
+   "--max-load",
+   "1.5",
+   "--max-wait-minutes",
+   "60",
+   "--out",
+   "reviews/v5/expansion/polish_revision/dossiers/concurrent_state"
+  ]
+ },
+ "spec": {
+  "path": "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/spec.json",
+  "sha256": "b1fa12cf3576eede33edc1a6fe5918cce1d1ab13dcd9b5a50aaeee205f5151cd"
+ },
+ "pmu_source": {
+  "path": "/home/fred/dev/c_mastery/assessor/performance_followthrough/pmu.c",
+  "sha256": "70e8e1101992d7dfeaa9642754624ebed48b9fd97b2d48a3c9d9296bc1f31660"
+ },
+ "binary_sha256": "ea4879881edff3548f2ceb581aed434cbc507fe01a976d992aa55a7cdf8020ef",
+ "disassembly": {
+  "file": "disassembly.txt",
+  "sha256": "eb4fad727a8ac650b7e5be6d8133ef75e036a88912fe77ab744d09e3002fb166",
+  "symbols": [
+   "cs_increment",
+   "run_thread"
+  ]
+ },
+ "placements": [
+  {
+   "name": "cross-core",
+   "cpus": [
+    2,
+    4
+   ],
+   "relation": "different-core",
+   "meaning": "measured thread on CPU 2, peer on CPU 4: different cores (private L1D and L2 each), one shared L3",
+   "holds": true
+  },
+  {
+   "name": "smt-siblings",
+   "cpus": [
+    2,
+    3
+   ],
+   "relation": "smt-siblings",
+   "meaning": "measured thread on CPU 2, peer on CPU 3: two hardware threads of one core sharing its L1D and L2",
+   "holds": true
+  }
+ ],
+ "pairs_requested": 31,
+ "quiet_window": {
+  "marker": "/home/fred/.cache/cmastery-tmp/orch/QUIET",
+  "max_load": 1.5,
+  "polls": [
+   {
+    "utc": "2026-10-31T05:43:11.586394+00:00",
+    "load_1min": 0.19
+   }
+  ],
+  "marker_created_utc": "2026-10-31T05:43:11.586236+00:00",
+  "waited_s": 0.0,
+  "measurement_start_utc": "2026-10-31T05:43:11.586404+00:00",
+  "measurement_s": 2.8,
+  "marker_removed_utc": "2026-10-31T05:43:14.358935+00:00",
+  "ended_by": "completion"
+ },
+ "outcomes": [
+  {
+   "regime": "cross-core: adjacent (0) vs separate (1)",
+   "group": "coherence",
+   "state": "measured",
+   "repetitions": 4
+  },
+  {
+   "regime": "cross-core: adjacent (0) vs separate (1)",
+   "group": "l2",
+   "state": "measured",
+   "repetitions": 4
+  },
+  {
+   "regime": "cross-core: shared (0) vs adjacent (1)",
+   "group": "coherence",
+   "state": "measured",
+   "repetitions": 1
+  },
+  {
+   "regime": "cross-core: shared (0) vs adjacent (1)",
+   "group": "l2",
+   "state": "measured",
+   "repetitions": 1
+  },
+  {
+   "regime": "cross-core: solo (0) vs separate (1)",
+   "group": "coherence",
+   "state": "measured",
+   "repetitions": 4
+  },
+  {
+   "regime": "cross-core: solo (0) vs separate (1)",
+   "group": "l2",
+   "state": "measured",
+   "repetitions": 4
+  },
+  {
+   "regime": "smt-siblings: adjacent (0) vs separate (1)",
+   "group": "coherence",
+   "state": "measured",
+   "repetitions": 4
+  },
+  {
+   "regime": "smt-siblings: adjacent (0) vs separate (1)",
+   "group": "l2",
+   "state": "measured",
+   "repetitions": 4
+  },
+  {
+   "regime": "smt-siblings: shared (0) vs adjacent (1)",
+   "group": "coherence",
+   "state": "measured",
+   "repetitions": 1
+  },
+  {
+   "regime": "smt-siblings: shared (0) vs adjacent (1)",
+   "group": "l2",
+   "state": "measured",
+   "repetitions": 1
+  },
+  {
+   "regime": "smt-siblings: solo (0) vs separate (1)",
+   "group": "coherence",
+   "state": "measured",
+   "repetitions": 4
+  },
+  {
+   "regime": "smt-siblings: solo (0) vs separate (1)",
+   "group": "l2",
+   "state": "measured",
+   "repetitions": 4
+  }
+ ],
+ "commands": [
+  {
+   "label": "test-gcc-debug-build",
+   "argv": [
+    "gcc",
+    "-std=c17",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-O0",
+    "-g",
+    "-pthread",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough",
+    "-I/home/fred/dev/c_mastery/labs/support",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/tests.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/dossier_common.c",
+    "/home/fred/dev/c_mastery/labs/support/cm_parse.c",
+    "/home/fred/dev/c_mastery/labs/support/cm_clock.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/pmu_linux.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/pmu.c",
+    "-o",
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-9u0hytxh/test-gcc-debug"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.228,
+   "log": "logs/test-gcc-debug-build.txt",
+   "log_sha256": "26ee6f70cad218a3790a6393aad37dfc2b78c0339780c96d94da8e5ba833980b"
+  },
+  {
+   "label": "test-gcc-debug",
+   "argv": [
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-9u0hytxh/test-gcc-debug"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.005,
+   "log": "logs/test-gcc-debug.txt",
+   "log_sha256": "345288f128b80d82320ca4f13bbf49cfee3970d554c4ddda2881b0b4503969d1"
+  },
+  {
+   "label": "test-gcc-optimized-build",
+   "argv": [
+    "gcc",
+    "-std=c17",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-O2",
+    "-g",
+    "-pthread",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough",
+    "-I/home/fred/dev/c_mastery/labs/support",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/tests.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/dossier_common.c",
+    "/home/fred/dev/c_mastery/labs/support/cm_parse.c",
+    "/home/fred/dev/c_mastery/labs/support/cm_clock.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/pmu_linux.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/pmu.c",
+    "-o",
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-9u0hytxh/test-gcc-optimized"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.483,
+   "log": "logs/test-gcc-optimized-build.txt",
+   "log_sha256": "79d7501858f4d49062c1cfdb7ac0e4dec413e118f258bb77a4165dc926d3d6c4"
+  },
+  {
+   "label": "test-gcc-optimized",
+   "argv": [
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-9u0hytxh/test-gcc-optimized"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.004,
+   "log": "logs/test-gcc-optimized.txt",
+   "log_sha256": "8d7abc23945f244302a17dc68b4d3bedd90a09d58c2f167690d484e759e0010a"
+  },
+  {
+   "label": "test-gcc-asan-ubsan-build",
+   "argv": [
+    "gcc",
+    "-std=c17",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-O1",
+    "-g",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "-fno-omit-frame-pointer",
+    "-pthread",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough",
+    "-I/home/fred/dev/c_mastery/labs/support",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/tests.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/dossier_common.c",
+    "/home/fred/dev/c_mastery/labs/support/cm_parse.c",
+    "/home/fred/dev/c_mastery/labs/support/cm_clock.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/pmu_linux.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/pmu.c",
+    "-o",
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-9u0hytxh/test-gcc-asan-ubsan"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.683,
+   "log": "logs/test-gcc-asan-ubsan-build.txt",
+   "log_sha256": "af57b52f10878c4b3d88cd353d1b9fac511382b5cb3fe504c97e791db52ed566"
+  },
+  {
+   "label": "test-gcc-asan-ubsan",
+   "argv": [
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-9u0hytxh/test-gcc-asan-ubsan"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.016,
+   "log": "logs/test-gcc-asan-ubsan.txt",
+   "log_sha256": "0640e984b7b0f57dd5a988c5cfee5403b527a4de1ab0c011c48c3299a5c0ddde"
+  },
+  {
+   "label": "test-gcc-tsan-build",
+   "argv": [
+    "gcc",
+    "-std=c17",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-O1",
+    "-g",
+    "-fsanitize=thread",
+    "-pthread",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough",
+    "-I/home/fred/dev/c_mastery/labs/support",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/tests.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/dossier_common.c",
+    "/home/fred/dev/c_mastery/labs/support/cm_parse.c",
+    "/home/fred/dev/c_mastery/labs/support/cm_clock.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/pmu_linux.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/pmu.c",
+    "-o",
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-9u0hytxh/test-gcc-tsan"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.417,
+   "log": "logs/test-gcc-tsan-build.txt",
+   "log_sha256": "684ae139b26cd6b1d5d43210becf0ef5c23551cabc7ede4a4f7c38384b39dc83"
+  },
+  {
+   "label": "test-gcc-tsan",
+   "argv": [
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-9u0hytxh/test-gcc-tsan"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.027,
+   "log": "logs/test-gcc-tsan.txt",
+   "log_sha256": "7cfabd7e179f706acac204f3a38229254da46d0eb7efaa1438d81de0644099f2"
+  },
+  {
+   "label": "test-clang-debug-build",
+   "argv": [
+    "clang",
+    "-std=c17",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-O0",
+    "-g",
+    "-pthread",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough",
+    "-I/home/fred/dev/c_mastery/labs/support",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/tests.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/dossier_common.c",
+    "/home/fred/dev/c_mastery/labs/support/cm_parse.c",
+    "/home/fred/dev/c_mastery/labs/support/cm_clock.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/pmu_linux.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/pmu.c",
+    "-o",
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-9u0hytxh/test-clang-debug"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.311,
+   "log": "logs/test-clang-debug-build.txt",
+   "log_sha256": "320ca35beb75186dbeaafab6c5efb3151764aa42f62f83abb351508d62636536"
+  },
+  {
+   "label": "test-clang-debug",
+   "argv": [
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-9u0hytxh/test-clang-debug"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.005,
+   "log": "logs/test-clang-debug.txt",
+   "log_sha256": "fe8309fbbb52b13417452e1a6814c11465df8d19d1cbb8ee52886d7102e162cc"
+  },
+  {
+   "label": "test-clang-optimized-build",
+   "argv": [
+    "clang",
+    "-std=c17",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-O2",
+    "-g",
+    "-pthread",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough",
+    "-I/home/fred/dev/c_mastery/labs/support",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/tests.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/dossier_common.c",
+    "/home/fred/dev/c_mastery/labs/support/cm_parse.c",
+    "/home/fred/dev/c_mastery/labs/support/cm_clock.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/pmu_linux.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/pmu.c",
+    "-o",
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-9u0hytxh/test-clang-optimized"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.522,
+   "log": "logs/test-clang-optimized-build.txt",
+   "log_sha256": "1c50c0230a60dd478c742db78d8ba90b2504293699750e5d79f43ba23cd9f053"
+  },
+  {
+   "label": "test-clang-optimized",
+   "argv": [
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-9u0hytxh/test-clang-optimized"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.005,
+   "log": "logs/test-clang-optimized.txt",
+   "log_sha256": "502055b2be20af9d80353788fcbff7cfed79218056c778f118e5002a3c2b4847"
+  },
+  {
+   "label": "test-clang-asan-ubsan-build",
+   "argv": [
+    "clang",
+    "-std=c17",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-O1",
+    "-g",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "-fno-omit-frame-pointer",
+    "-pthread",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough",
+    "-I/home/fred/dev/c_mastery/labs/support",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/tests.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/dossier_common.c",
+    "/home/fred/dev/c_mastery/labs/support/cm_parse.c",
+    "/home/fred/dev/c_mastery/labs/support/cm_clock.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/pmu_linux.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/pmu.c",
+    "-o",
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-9u0hytxh/test-clang-asan-ubsan"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.817,
+   "log": "logs/test-clang-asan-ubsan-build.txt",
+   "log_sha256": "2e1d2b253c4103e9f6e5a38a653dfca60d261d5b0dc9df12d6936cfbef821c70"
+  },
+  {
+   "label": "test-clang-asan-ubsan",
+   "argv": [
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-9u0hytxh/test-clang-asan-ubsan"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.014,
+   "log": "logs/test-clang-asan-ubsan.txt",
+   "log_sha256": "5dd84aabc5d4d52dfa34830c0ad3572fc5d1439140d4a460983e9fdb3787cbed"
+  },
+  {
+   "label": "test-clang-tsan-build",
+   "argv": [
+    "clang",
+    "-std=c17",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-O1",
+    "-g",
+    "-fsanitize=thread",
+    "-pthread",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough",
+    "-I/home/fred/dev/c_mastery/labs/support",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/tests.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/dossier_common.c",
+    "/home/fred/dev/c_mastery/labs/support/cm_parse.c",
+    "/home/fred/dev/c_mastery/labs/support/cm_clock.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/pmu_linux.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/pmu.c",
+    "-o",
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-9u0hytxh/test-clang-tsan"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.6,
+   "log": "logs/test-clang-tsan-build.txt",
+   "log_sha256": "6442b35b46f4a43ce34bc3943f8990201bcc81df5241f29e04089408a5b561fc"
+  },
+  {
+   "label": "test-clang-tsan",
+   "argv": [
+    "/home/fred/.cache/cmastery-tmp/b8/dossier-tests-9u0hytxh/test-clang-tsan"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.026,
+   "log": "logs/test-clang-tsan.txt",
+   "log_sha256": "89b49568d27b219c6c7213a76041cf3901ac98d3d6ad0d6ec0368e735354e51d"
+  },
+  {
+   "label": "build-driver",
+   "argv": [
+    "gcc",
+    "-std=c17",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-O2",
+    "-g",
+    "-pthread",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers",
+    "-I/home/fred/dev/c_mastery/labs/performance_followthrough",
+    "-I/home/fred/dev/c_mastery/labs/support",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/driver.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/concurrent_state/concurrent_state.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/dossiers/dossier_common.c",
+    "/home/fred/dev/c_mastery/labs/support/cm_parse.c",
+    "/home/fred/dev/c_mastery/labs/support/cm_clock.c",
+    "/home/fred/dev/c_mastery/labs/performance_followthrough/pmu_linux.c",
+    "/home/fred/dev/c_mastery/assessor/performance_followthrough/pmu.c",
+    "-o",
+    "/home/fred/dev/c_mastery/reviews/v5/expansion/polish_revision/dossiers/concurrent_state/build/cs_driver"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.444,
+   "log": "logs/build-driver.txt",
+   "log_sha256": "29c6fba3d357cceca7303260e91988d3eb8c95450e6ec675ee5aa79695eda388"
+  },
+  {
+   "label": "dwarf-producer",
+   "argv": [
+    "readelf",
+    "--debug-dump=info",
+    "/home/fred/dev/c_mastery/reviews/v5/expansion/polish_revision/dossiers/concurrent_state/build/cs_driver"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.007,
+   "log": "logs/dwarf-producer.txt",
+   "log_sha256": "38b44769cc337c4ba1066f5400d2eddaac72a99bffbe4863be053e148e2625de"
+  },
+  {
+   "label": "objdump-cs_increment",
+   "argv": [
+    "objdump",
+    "-d",
+    "--no-show-raw-insn",
+    "-l",
+    "--disassemble=cs_increment",
+    "/home/fred/dev/c_mastery/reviews/v5/expansion/polish_revision/dossiers/concurrent_state/build/cs_driver"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.003,
+   "log": "logs/objdump-cs_increment.txt",
+   "log_sha256": "fb86aa000c25d2c7a5a74ebc51e446d89eabb0f44759126472b9f7cd9fe6fb23"
+  },
+  {
+   "label": "objdump-run_thread",
+   "argv": [
+    "objdump",
+    "-d",
+    "--no-show-raw-insn",
+    "-l",
+    "--disassemble=run_thread",
+    "/home/fred/dev/c_mastery/reviews/v5/expansion/polish_revision/dossiers/concurrent_state/build/cs_driver"
+   ],
+   "exit_code": 0,
+   "expected_exit_code": 0,
+   "seconds": 0.003,
+   "log": "logs/objdump-run_thread.txt",
+   "log_sha256": "d063bc2f4b70bddb1b1b65918cccc2cb0013827ef364a197cf72a3539ea6edb2"
+  }
+ ],
+ "files_sha256": {
+  "analysis.json": "fe84d8f49288ac0fbfb5faaba985c2b466bc19b0f75a290e690add6fa833c965",
+  "build/cs_driver": "ea4879881edff3548f2ceb581aed434cbc507fe01a976d992aa55a7cdf8020ef",
+  "build.json": "9ddac1a1eb79ffc061a2b8fe1156a6e54aa5f531229348c255ce14cd91fafc82",
+  "disassembly.txt": "eb4fad727a8ac650b7e5be6d8133ef75e036a88912fe77ab744d09e3002fb166",
+  "environment.json": "a132ac60f8846cb9ad92058bdf2331907ecec9f2ea3c6e1751fbe87bdc8f8dce",
+  "events.json": "a15e95f5234a6309cb67d9d252e71cf35317aaa67a8c0c0bdce8e5aaaa2c3f4e",
+  "logs/build-driver.txt": "29c6fba3d357cceca7303260e91988d3eb8c95450e6ec675ee5aa79695eda388",
+  "logs/dwarf-producer.txt": "38b44769cc337c4ba1066f5400d2eddaac72a99bffbe4863be053e148e2625de",
+  "logs/objdump-cs_increment.txt": "fb86aa000c25d2c7a5a74ebc51e446d89eabb0f44759126472b9f7cd9fe6fb23",
+  "logs/objdump-run_thread.txt": "d063bc2f4b70bddb1b1b65918cccc2cb0013827ef364a197cf72a3539ea6edb2",
+  "logs/test-clang-asan-ubsan-build.txt": "2e1d2b253c4103e9f6e5a38a653dfca60d261d5b0dc9df12d6936cfbef821c70",
+  "logs/test-clang-asan-ubsan.txt": "5dd84aabc5d4d52dfa34830c0ad3572fc5d1439140d4a460983e9fdb3787cbed",
+  "logs/test-clang-debug-build.txt": "320ca35beb75186dbeaafab6c5efb3151764aa42f62f83abb351508d62636536",
+  "logs/test-clang-debug.txt": "fe8309fbbb52b13417452e1a6814c11465df8d19d1cbb8ee52886d7102e162cc",
+  "logs/test-clang-optimized-build.txt": "1c50c0230a60dd478c742db78d8ba90b2504293699750e5d79f43ba23cd9f053",
+  "logs/test-clang-optimized.txt": "502055b2be20af9d80353788fcbff7cfed79218056c778f118e5002a3c2b4847",
+  "logs/test-clang-tsan-build.txt": "6442b35b46f4a43ce34bc3943f8990201bcc81df5241f29e04089408a5b561fc",
+  "logs/test-clang-tsan.txt": "89b49568d27b219c6c7213a76041cf3901ac98d3d6ad0d6ec0368e735354e51d",
+  "logs/test-gcc-asan-ubsan-build.txt": "af57b52f10878c4b3d88cd353d1b9fac511382b5cb3fe504c97e791db52ed566",
+  "logs/test-gcc-asan-ubsan.txt": "0640e984b7b0f57dd5a988c5cfee5403b527a4de1ab0c011c48c3299a5c0ddde",
+  "logs/test-gcc-debug-build.txt": "26ee6f70cad218a3790a6393aad37dfc2b78c0339780c96d94da8e5ba833980b",
+  "logs/test-gcc-debug.txt": "345288f128b80d82320ca4f13bbf49cfee3970d554c4ddda2881b0b4503969d1",
+  "logs/test-gcc-optimized-build.txt": "79d7501858f4d49062c1cfdb7ac0e4dec413e118f258bb77a4165dc926d3d6c4",
+  "logs/test-gcc-optimized.txt": "8d7abc23945f244302a17dc68b4d3bedd90a09d58c2f167690d484e759e0010a",
+  "logs/test-gcc-tsan-build.txt": "684ae139b26cd6b1d5d43210becf0ef5c23551cabc7ede4a4f7c38384b39dc83",
+  "logs/test-gcc-tsan.txt": "7cfabd7e179f706acac204f3a38229254da46d0eb7efaa1438d81de0644099f2",
+  "rows.jsonl": "9df27cbff360dc7cd111de9f089d6d36988ada58a45f0b28e4385bd78b1c1ad7",
+  "spec.json": "5899f50a3962ee17b966472da59f98b2092cdebfa1fc6900790a6c43cbdc17a7",
+  "tests.json": "9916a7021ac1e61257955488e97e8ffe188e8945fe36441e4034038549f2ca4a"
+ }
+}

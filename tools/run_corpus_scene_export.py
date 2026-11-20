@@ -34,7 +34,8 @@ def main():
             for p in (ROOT/'labs/corpus_scene').rglob('*'):
                 if p.is_file() and '__pycache__' not in p.parts:
                     rel=p.relative_to(ROOT/'labs/corpus_scene');assert sha(workspace/rel)==sha(p);files[rel.as_posix()]=sha(p)
-            text=(workspace/'EXERCISE.md').read_text(encoding='utf8');assert all(r['criterion'] in text for r in meta['rubric'])
+            rubric = workspace/'ACTIVE.md'
+            text=(rubric if rubric.is_file() else workspace/'EXERCISE.md').read_text(encoding='utf8');assert all(r['criterion'] in text for r in meta['rubric'])
             for mode,provider in [('learner',None),('family',ROOT/'assessor/corpus_scene'),('parent',ROOT/'assessor')]:
                 build=tmp/(ident+mode);args=['cmake','-S',workspace,'-B',build,'-G','Ninja','-DCMAKE_BUILD_TYPE=Debug']
                 if provider:args+=['-DCMASTERY_ASSESSOR_ROOT='+str(provider)]

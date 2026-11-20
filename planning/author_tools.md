@@ -58,3 +58,44 @@ entries should reference canonical obligation IDs, and closure proves no curricu
 gate. Full developer checkouts retain the project integrations. Public curriculum
 source archives can restore optional author integrations with the pinned installer;
 these tools are not dependencies of public curriculum validation.
+
+## Code and document navigation
+
+From the repository root, restore Serena and QMD after the base installation.
+These commands use the Linux x86-64 pins listed in
+`tools/author_tools.lock.json` and put the runtimes and indexes under
+`build/author-tools/`. Use Python 3.14, CMake, Ninja, and a C compiler.
+
+```sh
+python3 tools/author-tool serena install
+python3 tools/author-tool serena check
+python3 tools/author-tool qmd install
+python3 tools/author-tool qmd index
+python3 tools/author-tool qmd search 'shared component contracts' -c guides -n 3
+python3 tools/author-tool obligation NATIVE-ROUTE
+python3 tools/check_author_tools.py --navigation
+```
+
+**Serena** serves read-only symbol queries over local stdio. A new Codex
+session opened in the trusted checkout loads the project registration from
+`.codex/config.toml`. Other MCP clients can launch `python3 tools/author-tool
+serena serve` in the repository root. The Python backend is ty. The C backend
+is clangd and reads the compile commands generated from the learner build of
+`labs/foundations/`. Rerun `serena install` after changing that lab's CMake
+flags or the Serena project configuration. The project also includes
+`cmastery/` and the `build_v5.py`, `public_validation.py`, and
+`public_exports.py` scripts in `tools/`. The smoke check uses an actual MCP
+client to list the enabled tools and resolve references in each language.
+
+**QMD** searches six collections of Markdown sources. The collection names are
+`planning`, `guides`, `projects`, `routes`, `contracts`, and `exercises`.
+Public source exports that omit planning documents use the five curriculum collections.
+Use `-c` to select one and `--json` for machine-readable results. Run
+`qmd index` through the wrapper after editing those sources. The keyword search
+uses a local SQLite index. The installer pins its own Node runtime and npm
+dependencies.
+
+**Obligation lookup** reads an exact ID from
+`curriculum/v5/expansion/work_inventory.json`. It prints source pointers,
+linked IDs and the evidence recorded for each dimension. Add `--json` for the
+entire row, including the validation method and external blockers.

@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+import re
 import sys
 import tempfile
 
@@ -15,8 +16,9 @@ def inspect(run_stub=False):
     data = exercises.catalog()
     records, errors = [], []
     expected = cli.read(cli.ROOT / "curriculum/edition.json").get("exercise_expansion", {}).get("required_exercises")
-    if expected is not None and len(data["exercises"]) != expected:
-        errors.append("Actual exercise catalog differs from manifest count")
+    required = sum(x["required"] for x in data["exercises"].values())
+    if expected is not None and required != expected:
+        errors.append("Required exercise count differs from the manifest")
     executions = []
     checked_families = set()
     with tempfile.TemporaryDirectory(prefix="c mastery real exercise ") as directory:
@@ -32,23 +34,36 @@ def inspect(run_stub=False):
                 names = [p.relative_to(workspace).as_posix() for p in workspace.rglob("*") if p.is_file()]
                 if any("assessor" in Path(name).parts or Path(name).name == "semantic_answers.inc" for name in names):
                     raise ValueError("Assessor material copied into learner workspace")
-                body = (workspace / "EXERCISE.md").read_text(encoding="utf-8")
+                metadata = cli.read(workspace / ".cmastery/project.json")
+                operative = metadata.get("active_specification", {}).get("path", "EXERCISE.md")
+                body = (workspace / operative).read_text(encoding="utf-8")
                 if any(row["criterion"] not in body or any(level not in body for level in row["levels"].values()) for row in value["rubric"]):
                     raise ValueError("Learner brief omitted an objective-specific rubric anchor")
                 scaffold = exercises.path_in_root(value["lab"]["scaffold"])
+                family = value['lab']['family']
                 learner_sources = {name: identity for name, identity in cli.snapshot(scaffold)["files"].items() if name.startswith("src/")}
-                if not learner_sources or any(exercises.sha(workspace / name) != identity for name, identity in learner_sources.items()):
+                submissions = []
+                if family == 'binary_inspection':
+                    # These exercises ask for observations about supplied binaries.
+                    # workspace_contract already verified every supplied specimen and harness file.
+                    brief = exercises.learner_brief(value)
+                    submissions = sorted(set(re.findall(r'answers/[a-z0-9_-]+\.json', brief)))
+                    if not submissions or any(name.startswith('answers/') for name in names):
+                        raise ValueError("Missing inspection submission contract or prefilled learner answer")
+                elif not learner_sources:
+                    raise ValueError("Implementation exercise has no canonical learner sources")
+                if any(exercises.sha(workspace / name) != identity for name, identity in learner_sources.items()):
                     raise ValueError("Initialized learner source differs from the canonical unsolved scaffold")
                 for name in learner_sources:
                     answer = cli.ROOT / "assessor" / value["lab"]["family"] / Path(name).name
                     if answer.is_file() and exercises.sha(answer) == exercises.sha(workspace / name):
                         raise ValueError("Completed assessor implementation shipped as learner source")
                 records.append({"exercise": identifier, "project": value["project"], "status": "passed",
-                    "contract_sha256": cli.read(workspace / ".cmastery/project.json")["exercise_contract"],
+                    "contract_sha256": metadata["exercise_contract"],
                     "criteria_present": len(value["rubric"]), "copied_fixtures": value["fixtures"],
                     "copied_shared_contracts": value["shared_contracts"], "learner_sources": learner_sources,
+                    "learner_submissions": submissions,
                     "assessor_files_absent": True, "canonical_workspace_contract": selected["id"]})
-                family = value['lab']['family']
                 if run_stub and family not in checked_families:
                     execution = check_exported_stub(workspace, temporary, identifier)
                     executions.append(execution)
@@ -74,7 +89,7 @@ def inspect(run_stub=False):
     if run_stub and not executions:
         errors.append('Requested exported workspace executions did not occur')
     return {"schema_version": 1, "status": "failed" if errors else "passed", "errors": errors,
-            "exercise_count": len(records), "workspaces": records,
+            "exercise_count": len(records), "required_exercise_count": required, "workspaces": records,
             "stub_executions": executions, "executed_families": sorted(checked_families),
             "limits": "Temporary actual-catalog integration; no learner progress, assessment, independent human review or physical validation recorded."}
 

@@ -40,6 +40,9 @@ def reconcile():
     counts = dict(Counter(u['id'].split('-')[1] for u in units if u.get('new_executable')))
     if counts != recipes['new_executable_counts']:
         raise ValueError('Declared executable counts differ from authored units')
+    # Preserve existing domain order when regenerating the edition on another filesystem.
+    order = dict.fromkeys([*edition['expected']['added']['new_executable_units'], *recipes['new_executable_counts']])
+    counts = {key: counts[key] for key in order if key in counts}
     recall = [s for key in new_domains for s in read_json(ROOT/'curriculum/v5/recall'/f'{key}.json')['sets']]
     vocabulary = [s for s in vocabulary_sets() if s['id'] not in base['recall']]
     artifacts = [a['id'] for d in recipes['domains'].values() for a in d.get('artifacts', [])]
@@ -71,7 +74,8 @@ def reconcile():
     research_batches, author_evidence_batches = discover()
     expansion.update(batch='B01-B08', research_batches=research_batches,
                      author_evidence_batches=author_evidence_batches,
-                     required_exercises=len(list((ROOT/'curriculum/v5/exercises').glob('X-*.md'))),
+                     required_exercises=sum(parse(path)[0]['required'] for path in
+                                            (ROOT/'curriculum/v5/exercises').glob('X-*.md')),
                      validation_receipt='reviews/v5/expansion/integrated/validation.json',
                      status='authored-additions-under-validation',
                      planned_domains_not_yet_authored=sorted({f'T{i}' for i in range(57,77)}-set(new_domains)))

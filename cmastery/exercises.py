@@ -45,7 +45,10 @@ def sha(path):
 
 
 def parse_brief(path):
-    text = Path(path).read_text(encoding="utf-8-sig")
+    return parse_text(Path(path).read_text(encoding="utf-8-sig"), path)
+
+
+def parse_text(text, path):
     match = META.match(text)
     if not match:
         raise ValueError(str(path) + ": missing leading fenced JSON contract")
@@ -270,16 +273,52 @@ def catalog():
     return {"exercises": {x["id"]: x for x in value["exercises"]}, "order": value["order"]}
 
 
-def exercise(identifier, project=None, family=None):
+def listing(module=None, route_id=None):
+    """List selectable exercises in route order, including elective work."""
+    from . import route
+    selected = route.load(route_id=route_id)
+    if route_id and selected is None:
+        raise ValueError("Unknown route: " + route_id)
+    if selected:
+        values = {n["id"]: n for n in selected["nodes"] if n["kind"] == "exercise"}
+        order = selected["order"]
+    else:
+        data = catalog()
+        values, order = data["exercises"], data["order"]
+    return [{field: values[key][field] for field in ("id", "title", "project", "required")}
+            for key in order if key in values and (module is None or key.split("-")[1] == module)]
+
+
+def exercise(identifier, project=None, family=None, *, route_id=None):
+    from . import route
     value = catalog()["exercises"].get(identifier)
     if value is None:
         raise ValueError("Unknown exercise: " + str(identifier))
+    stale = "Exercise catalog is stale; regenerate from canonical sources"
+    if sha(path_in_root(value["brief"])) != value["brief_sha256"]:
+        raise ValueError(stale)
+    if route_id and not route.node(identifier, route_id=route_id):
+        raise ValueError("Exercise absent from the selected route: " + identifier)
+    if route_id == route.LEGACY_RECORDED_ROUTE:
+        raw = route.input_bytes(cli.ROOT, value["brief"], route_id)
+        original_hash = hashlib.sha256(raw).hexdigest()
+        if original_hash != value["brief_sha256"]:
+            fields, _ = parse_text(raw.decode("utf-8-sig").replace("\r\n", "\n"), value["brief"])
+            bound = fields["fixtures"] + fields["shared_contracts"] + [r["path"] for r in fields["source_records"]]
+            value = dict(fields, brief=value["brief"], brief_sha256=original_hash,
+                         bound_files={name: sha(path_in_root(name)) for name in sorted(set(bound))})
     if project is not None and value["project"] != project:
         raise ValueError("Exercise belongs to a different project")
     if family is not None and value["lab"]["family"] != family:
         raise ValueError("Exercise requires family: " + value["lab"]["family"])
-    if sha(path_in_root(value["brief"])) != value["brief_sha256"] or any(sha(path_in_root(name)) != identity for name, identity in value["bound_files"].items()):
-        raise ValueError("Exercise catalog is stale; regenerate from canonical sources")
+    bindings = dict(value["bound_files"])
+    for name, identity in bindings.items():
+        if route.predecessor_register(name, route_id):
+            bindings[name] = hashlib.sha256(route.input_bytes(cli.ROOT, name, route_id)).hexdigest()
+        elif sha(path_in_root(name)) != identity:
+            raise ValueError(stale)
+    if bindings != value["bound_files"]:
+        value = dict(value, bound_files=bindings)
     return value
 
 
@@ -302,7 +341,9 @@ def workspace_contract(workspace, identifier=None):
     identifier = identifier or meta.get("exercise")
     if meta.get("unit") or meta.get("exercise") != identifier:
         raise ValueError("Exercise check requires its explicitly initialized exercise workspace")
-    value = exercise(identifier, meta["project"], meta["family"])
+    from . import route
+    recorded = meta.get("active_specification")
+    value = exercise(identifier, meta["project"], meta["family"], route_id=route.recorded_route(recorded) if recorded else None)
     if meta.get("exercise_contract") != learning.digest(value):
         raise ValueError("Initialized exercise contract changed; initialize a fresh exercise workspace")
     harness(value, workspace)
@@ -313,7 +354,7 @@ def workspace_contract(workspace, identifier=None):
 
 
 def studied(profile, identifier):
-    value = exercise(identifier)
+    value = exercise(identifier, route_id=learning.settings(profile).get("route"))
     return learning.append(profile, "exercise-studied", exercise=identifier,
                            exercise_contract=learning.digest(value), objectives=value["objectives"])
 
@@ -328,9 +369,10 @@ def assessment_template(value):
             "limits": "Self-assessment records claims; a CLI cannot certify independent reasoning."}
 
 
-def learner_brief(value, *, inline_shared=False):
+def learner_brief(value, *, inline_shared=False, route_id=None):
     """Render the substantive contract and objective-specific rubric without answers."""
-    _, body = parse_brief(path_in_root(value["brief"]))
+    from . import route
+    _, body = parse_text(route.input_text(cli.ROOT, value["brief"], route_id), value["brief"])
     for name in value["shared_contracts"]:
         body = body.replace("](" + Path(name).name + ")", "](" + name + ")")
     lines = [body.rstrip(), "", "## Objective-specific assessment anchors", ""]
@@ -359,14 +401,14 @@ def learner_brief(value, *, inline_shared=False):
     lines += ["", "Contract SHA-256: " + learning.digest(value), ""]
     if inline_shared:
         for name in value["shared_contracts"]:
-            lines += ["", "---", "", path_in_root(name).read_text(encoding="utf-8-sig"), ""]
+            lines += ["", "---", "", route.input_path(cli.ROOT, name, route_id).read_text(encoding="utf-8-sig"), ""]
     return "\n".join(lines)
 
 
 def sheet(profile, output, identifier, template=None):
-    learning.settings(profile)
-    value = exercise(identifier)
-    text = "# Exercise study sheet\n\n" + learner_brief(value, inline_shared=True) + "\n\n## Attempt record\n\n"
+    route_id = learning.settings(profile).get("route")
+    value = exercise(identifier, route_id=route_id)
+    text = "# Exercise study sheet\n\n" + learner_brief(value, inline_shared=True, route_id=route_id) + "\n\n## Attempt record\n\n"
     text += "Prediction, invariant, evidence paths, assistance, and changed-condition reasoning: __________\n\n"
     text += "Record study with `study next PROFILE --studied-exercise " + identifier + "`. Tests and independent assessment remain separate.\n"
     Path(output).write_text(text, encoding="utf-8")
@@ -450,7 +492,10 @@ def accepted(profile):
         try:
             if identifier in visiting:
                 raise ValueError("Cyclic exercise acceptance")
-            value = exercise(identifier)
+            from . import route
+            recorded = entry.get("active_specification")
+            route_id = route.recorded_route(recorded) if recorded else None
+            value = exercise(identifier, route_id=route_id)
             if entry.get("exercise_contract") != learning.digest(value):
                 raise ValueError("Exercise contract changed")
             revision = entry.get("revision", {})
@@ -502,7 +547,7 @@ def accepted(profile):
                 selected = entry.get("active_specification")
                 if selected:
                     from . import route
-                    current = current and selected["sha256"] == route.specification_identity(selected["id"])
+                    current = current and selected["sha256"] == route.specification_identity(selected["id"], route.recorded_route(selected))
                 links = learning.linked_state(entry["workspace"])
                 current = current and all(links.get(key, {}).get("sha256") == identity for key, identity in entry.get("imports", {}).items())
             except (OSError, ValueError):
@@ -569,10 +614,17 @@ def acceptance(profile, workspace, identifier, assessment_file):
 
 
 def progress(profile):
+    from . import route
     data = catalog()
     assessed = accepted(profile)
     historical = {key for key, row in assessed.items() if row["historical_valid"]}
-    required = {key for key, value in data["exercises"].items() if value["required"]}
+    pinned = route.selected(profile)
+    if pinned:
+        selected = {n["id"]: n for n in pinned["nodes"] if n["kind"] == "exercise"}
+    else:
+        selected = data["exercises"]
+    required = {key for key, value in selected.items() if value["required"]}
+    electives = set(selected) - required
     pending_batches = []
     edition = cli.ROOT / "curriculum/edition.json"
     manifest = cli.read(edition) if edition.is_file() else {}
@@ -585,8 +637,10 @@ def progress(profile):
             pending_batches = [row["id"] for row in work["batches"] if row.get("required", True) and row.get("status") not in available_statuses]
         except (OSError, ValueError, KeyError):
             pending_batches = ["remaining-work-manifest-unavailable"]
-    missing_authorship = max(0, expansion.get("required_exercises", len(required)) - len(required))
-    available = [data["exercises"][key] for key in data["order"] if key not in historical and set(data["exercises"][key]["prerequisite_exercises"]) <= historical]
+    historical_route = pinned and pinned["id"] != route.load()["id"]
+    expected = len(required) if historical_route else expansion.get("required_exercises", len(required))
+    missing_authorship = max(0, expected - len(required & data["exercises"].keys()))
+    available = [data["exercises"][key] for key in data["order"] if key in selected and key not in historical and set(data["exercises"][key]["prerequisite_exercises"]) <= historical]
     return {"studied": sorted({row["exercise"] for row in learning.events(profile) if row["kind"] == "exercise-studied"}),
             "accepted": sorted(historical), "pending": sorted(required - historical),
             "current_acceptances": sorted(key for key, row in assessed.items() if row["valid"]),
@@ -594,7 +648,8 @@ def progress(profile):
             "current_exercises_complete": required <= historical,
             "complete": required <= historical and not pending_batches and not missing_authorship,
             "pending_batches": pending_batches, "missing_required_specifications": missing_authorship,
-            "required_count": len(required),
+            "required_count": len(required), "total_count": len(selected),
+            "electives": sorted(electives), "accepted_electives": sorted(electives & historical),
             "available_exercises": [{key: value[key] for key in ("id", "title", "project")} for value in available[:8]],
             "independent_assessment": "Recorded acceptances are self-reported independent attempts; independent reviewer status is not inferred.",
             "limits": "Authored exercise completion and pending curriculum-wide batches are separate; neither proves absolute mastery."}

@@ -1,0 +1,417 @@
+{
+  "schema_version": 1,
+  "checked_utc": "2026-11-20T05:52:50.213934+00:00",
+  "passed": true,
+  "scope": "Author reference with the exported learner controls in the pinned x86-64 Linux QEMU guest.",
+  "learner_assessment": "not-assessed",
+  "native_hardware_observation": "not-run",
+  "candidate": "build/linux-supervision/candidates/public_20261120T054911892794Z",
+  "candidate_public_baseline_passed": true,
+  "public_baseline_sha256": "34903d936ba2604bde059e6c513fb2e6bab04111898fbf455c3e335dadea3748",
+  "source_identity": "0ab274c63ae60b371f0f12809d233573e56b4e7fa8ec4fdad1e87bdc77c62204",
+  "archive": "learner.zip",
+  "archive_sha256": "1f1bd22fc7b813cc1a60cb26ea7eba40d01d17254d6fdc07ac73fdfee35344d1",
+  "verified_member_count": 7709,
+  "member_sha256_map_identity": "3d65be6e50bec949f741c9737997dcc06982f50159b4664c18a68386853e7f08",
+  "archive_set_matches_learner_selection": true,
+  "public_workspace_controls": {
+    "CMakeLists.txt": "d39cd2de036b072b3c6136965302b498a906b667900e84aab5b14a7f8917aedb",
+    "guest.py": "e6fd0f7738ef1d773a3bea52a2b5b793f9d24183bf5efa6880036eea701bc8c8",
+    "guest_fixture.c": "a7bced976012abb0b2c71e73ba1d3d7103c867f69ca6d72674097f0701887b24",
+    "supervision.h": "e8b9c02dc076971edb135a401d9c2d06c0afe10d355f7fdea76cd480eceb9109",
+    "supervisor_main.c": "164d74e51849ed73e78f0e1303f10779754d8c5441fbcaca2b6d8c1b5efa3298",
+    "observations.py": "f1e25073b462c42631e9051b9fe20baa80411a24850196d253758b9afe2c4dda",
+    "submission.py": "e5100cd82385a44e50bb43f4654b76acae2607c284b1ff47b6efbff49caa1eed",
+    "family.json": "e76546bb72f3ea22b7fea3f2c3ce13376b653cc633b01e688f40a2e76a78b021",
+    "CONTRACTS.md": "088a4434e154fce9166f88dddd9ecf1a511394dfa09892493fdb0f670f45070d",
+    "PROTOCOL.md": "90aa6ee1e63c9c0b14848a36cf581ce624d0dc80023204b65f3db96dda50319e",
+    "src/namespace.c": "1d248f532a332c4089f34ec17a86bce3b4be66a25f3b5902f1f08edb4ce209d0",
+    "src/pids.c": "4a266cd2ac066e2e2dbeb35caf350f017884a21f0eca87683e47976f0761c6ae",
+    "src/shutdown.c": "8789be7ed7ff31079d6e00ab22b31abe4b0aadaffa3962a25e6ef6ab3b645193",
+    "src/network.c": "812f2a5ff85f585c8bc33f5e06e488fbd27237421471a1fd5383c220613fde2c",
+    "src/telemetry.c": "403a0c869380793300255cd03acb153cce2a73487a95a58a925cf17ed662ab63",
+    "fixtures/linux_supervision/workloads.json": "b2f2a21d180606bf368308d46d79a2e64c057cbd60bd7163c4736ad3ec25af98"
+  },
+  "exercise": "X-T49-002",
+  "external_reference_sha256": {
+    "assessor/linux_supervision/namespace.c": "04dada77f01a4cbb129652e4037882a4e7f0ef6e219b7794ea5a34f8fa8a7dc5",
+    "assessor/linux_supervision/pids.c": "a7430b5d0113f3a839f6ecf926db8c426119a7867b21174f754a1ecd05e6025a",
+    "assessor/linux_supervision/shutdown.c": "325f023663fd27288f1e2af4dbed6e3921347d6a5558d22e4b4b35ef528f648f",
+    "assessor/linux_supervision/network.c": "893c44ca2e547a00d017a5e3ceeac8c41ded3c058b6ae9418a4aeff1971dbbd5",
+    "assessor/linux_supervision/telemetry.c": "188786f30cc89018606ca62c63c9f3181fa367c8b455f397667475147ed4a473",
+    "assessor/linux_supervision/support.c": "4f517d1a1ea25fd85a1a6e333e864ffc98a402b30cebc303f0a64986247301bd",
+    "assessor/linux_supervision/support.h": "c26ff615b563998dfa20519cf0a6bd4ba6e4ad5b25d0264dc7823c1ab5995523"
+  },
+  "compiled_inputs": [
+    "external-reference/namespace.c",
+    "external-reference/network.c",
+    "external-reference/pids.c",
+    "external-reference/shutdown.c",
+    "external-reference/support.c",
+    "external-reference/telemetry.c",
+    "workspace/supervisor_main.c"
+  ],
+  "offline_host": {
+    "uid": 1000,
+    "euid": 1000,
+    "CapEff": "0000000000000000",
+    "NoNewPrivs": 1,
+    "Seccomp": 2,
+    "filter_count": 1,
+    "denied_socket_errno": {
+      "AF_INET": 1,
+      "AF_INET6": 1
+    },
+    "AF_UNIX_socketpair_exchange": true,
+    "libseccomp": "2.6.0",
+    "filter_source_sha256": "5ab9739d3ff26519f2e25ae4d78acfe575547afa59d6e62b6b5c4e195a69fa2c",
+    "filter_source": "\"\"\"Apply a libseccomp socket-family filter before replacing this unprivileged process.\"\"\"\nimport ctypes as C\nimport errno\nimport os\nimport socket\nimport sys\n\n\nclass Arg(C.Structure):\n    _fields_ = [(\"arg\", C.c_uint), (\"op\", C.c_uint), (\"a\", C.c_uint64), (\"b\", C.c_uint64)]\n\n\ndef check(result):\n    if result < 0:\n        raise OSError(-result, os.strerror(-result))\n\n\nif os.geteuid() == 0:\n    raise SystemExit(\"must run as an ordinary user\")\nlibc = C.CDLL(None, use_errno=True)\nif libc.prctl(38, 1, 0, 0, 0):\n    raise OSError(C.get_errno(), \"PR_SET_NO_NEW_PRIVS\")\nlib = C.CDLL(\"libseccomp.so.2\")\nlib.seccomp_init.argtypes = [C.c_uint32]\nlib.seccomp_init.restype = C.c_void_p\nlib.seccomp_rule_add_array.argtypes = [C.c_void_p, C.c_uint32, C.c_int, C.c_uint, C.POINTER(Arg)]\nlib.seccomp_syscall_resolve_name.argtypes = [C.c_char_p]\nlib.seccomp_load.argtypes = [C.c_void_p]\nlib.seccomp_release.argtypes = [C.c_void_p]\nctx = lib.seccomp_init(0x7fff0000)  # SCMP_ACT_ALLOW\nif not ctx:\n    raise OSError(\"seccomp_init\")\ntry:\n    number = lib.seccomp_syscall_resolve_name(b\"socket\")\n    check(number)\n    for family in (socket.AF_INET, socket.AF_INET6):\n        check(lib.seccomp_rule_add_array(ctx, 0x00050000 | errno.EPERM, number, 1,\n                                        C.byref(Arg(0, 4, family, 0))))  # SCMP_CMP_EQ\n    check(lib.seccomp_load(ctx))\nfinally:\n    lib.seccomp_release(ctx)\nos.execvp(sys.argv[1], sys.argv[1:])\n",
+    "scope": "All host descendants inherit EPERM for socket(AF_INET, ...) and socket(AF_INET6, ...). QEMU runs TCG with -nic none."
+  },
+  "commands": [
+    {
+      "cwd": "<run>/course",
+      "argv": [
+        "/home/fred/miniforge3/bin/python3",
+        "-m",
+        "cmastery",
+        "init",
+        "PR-T49-08",
+        "<run>/workspace",
+        "--exercise",
+        "X-T49-002"
+      ],
+      "returncode": 0
+    },
+    {
+      "cwd": "<run>/workspace",
+      "argv": [
+        "/home/fred/miniforge3/bin/python3",
+        "submission.py",
+        "fixture"
+      ],
+      "returncode": 0
+    },
+    {
+      "cwd": "<run>/workspace",
+      "argv": [
+        "cmake",
+        "-S",
+        ".",
+        "-B",
+        "<run>/build",
+        "-DCMAKE_C_COMPILER=gcc",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+        "-DCMASTERY_ASSESSOR_ROOT=<run>/external-reference"
+      ],
+      "returncode": 0
+    },
+    {
+      "cwd": "<run>/workspace",
+      "argv": [
+        "cmake",
+        "--build",
+        "<run>/build",
+        "--parallel",
+        "2"
+      ],
+      "returncode": 0
+    },
+    {
+      "cwd": "<run>/workspace",
+      "argv": [
+        "/home/fred/miniforge3/bin/python3",
+        "guest.py",
+        "run",
+        "--program",
+        "<run>/build/supervise",
+        "--out",
+        "<run>/guest",
+        "--cache",
+        "<checkout>/build/linux-supervision/cache"
+      ],
+      "returncode": 0
+    },
+    {
+      "cwd": "<run>/workspace",
+      "argv": [
+        "/home/fred/miniforge3/bin/python3",
+        "submission.py",
+        "replay",
+        "namespace",
+        "<run>/guest/serial.txt"
+      ],
+      "returncode": 0
+    },
+    {
+      "cwd": "<run>/workspace",
+      "argv": [
+        "/home/fred/miniforge3/bin/python3",
+        "submission.py",
+        "replay",
+        "pids",
+        "<run>/guest/serial.txt"
+      ],
+      "returncode": 0
+    },
+    {
+      "cwd": "<run>/workspace",
+      "argv": [
+        "/home/fred/miniforge3/bin/python3",
+        "submission.py",
+        "replay",
+        "shutdown",
+        "<run>/guest/serial.txt"
+      ],
+      "returncode": 0
+    },
+    {
+      "cwd": "<run>/workspace",
+      "argv": [
+        "/home/fred/miniforge3/bin/python3",
+        "submission.py",
+        "replay",
+        "network",
+        "<run>/guest/serial.txt"
+      ],
+      "returncode": 0
+    },
+    {
+      "cwd": "<run>/workspace",
+      "argv": [
+        "/home/fred/miniforge3/bin/python3",
+        "submission.py",
+        "replay",
+        "telemetry",
+        "<run>/guest/serial.txt"
+      ],
+      "returncode": 0
+    },
+    {
+      "cwd": "<run>/workspace",
+      "argv": [
+        "gcc",
+        "--version"
+      ],
+      "returncode": 0
+    }
+  ],
+  "offline_fixture": {
+    "kind": "offline-fixture",
+    "network_reply_sum": 643,
+    "frames": 8192,
+    "input_bytes": 65536,
+    "checksum": 8355840,
+    "guest_execution": "not-run"
+  },
+  "guest_facts": {
+    "namespace": {
+      "view": {
+        "outer_child_pid": 77,
+        "inner_pid": 1,
+        "mount_ns": "4026532129",
+        "pids_max": 24
+      }
+    },
+    "pids": {
+      "two": {
+        "admitted": 1,
+        "limit_event_delta": 1
+      },
+      "three": {
+        "admitted": 2,
+        "limit_event_delta": 0
+      }
+    },
+    "shutdown": {
+      "normal": {
+        "reaped": 1,
+        "exit": 0,
+        "signal": 0
+      },
+      "early": {
+        "reaped": 1,
+        "exit": 23,
+        "signal": 0
+      },
+      "startfail": {
+        "reaped": 2,
+        "exit": 127,
+        "signal": 0
+      },
+      "stubborn": {
+        "reaped": 1,
+        "exit": -1,
+        "signal": 9
+      }
+    },
+    "network": {
+      "A": {
+        "outer_pid": 97,
+        "network_namespace": "4026532131",
+        "marker": 65
+      },
+      "B": {
+        "outer_pid": 98,
+        "network_namespace": "4026532185",
+        "marker": 66
+      }
+    },
+    "telemetry": {
+      "baseline": {
+        "cause": "none-observed",
+        "throttled_periods": 0,
+        "write_refusals": 0,
+        "successful_resumes": 0,
+        "frames": 8192
+      },
+      "quota": {
+        "cause": "cpu-throttling",
+        "throttled_periods": 7,
+        "write_refusals": 0,
+        "successful_resumes": 0,
+        "frames": 8192
+      },
+      "stalled": {
+        "cause": "pipe-backpressure",
+        "throttled_periods": 0,
+        "write_refusals": 1,
+        "successful_resumes": 1,
+        "frames": 8192
+      }
+    }
+  },
+  "serial_file": "learner-zip-guest.serial.txt",
+  "guest": {
+    "status": "completed",
+    "cases": [
+      {
+        "name": "namespace",
+        "variant": "view",
+        "status": 0
+      },
+      {
+        "name": "pids",
+        "variant": "two",
+        "status": 0
+      },
+      {
+        "name": "pids",
+        "variant": "three",
+        "status": 0
+      },
+      {
+        "name": "shutdown",
+        "variant": "normal",
+        "status": 0
+      },
+      {
+        "name": "shutdown",
+        "variant": "early",
+        "status": 0
+      },
+      {
+        "name": "shutdown",
+        "variant": "startfail",
+        "status": 0
+      },
+      {
+        "name": "shutdown",
+        "variant": "stubborn",
+        "status": 0
+      },
+      {
+        "name": "network",
+        "variant": "A",
+        "status": 0
+      },
+      {
+        "name": "network",
+        "variant": "B",
+        "status": 0
+      },
+      {
+        "name": "telemetry",
+        "variant": "baseline",
+        "status": 0
+      },
+      {
+        "name": "telemetry",
+        "variant": "quota",
+        "status": 0
+      },
+      {
+        "name": "telemetry",
+        "variant": "stalled",
+        "status": 0
+      }
+    ],
+    "sha256": {
+      "runner": "e6fd0f7738ef1d773a3bea52a2b5b793f9d24183bf5efa6880036eea701bc8c8",
+      "kernel": "646f7e41faa4b7c8899deee5f725c39eb46987977b5d0ab4340deb3463d9de86",
+      "busybox": "df12634c17fcdca839ae5dc47d7627b7558511f7645de7c99ccf097a0f28ed5b",
+      "fixture_source": "a7bced976012abb0b2c71e73ba1d3d7103c867f69ca6d72674097f0701887b24",
+      "fixture_header": "e8b9c02dc076971edb135a401d9c2d06c0afe10d355f7fdea76cd480eceb9109",
+      "fixture": "559d5bfdcf05e07683e7794b3477339a0d4df4eef95e3b5bfe2732e119dbe8a6",
+      "program": "c9b9056240f2e11dc782a3cabfe401623b72da57dc35bc9aa14ae1e4bf9d7181",
+      "initramfs": "c3aa54c1d86b9588403cc1677171e663731e786391ae9630a2bfd7b1cb48af65",
+      "serial": "ea18e22b5bd0e6736291936b02111f8c26561bc6f01e220c0af1fc5d1b870721"
+    },
+    "packages": {
+      "kernel": {
+        "version": "7.0.0-43.43",
+        "archive": "pool/main/l/linux-signed/linux-image-7.0.0-43-generic_7.0.0-43.43_amd64.deb",
+        "sha256": "fb44ae94b483fb2e04aa898b92863552bea8a92a6ea9b5f4610a7bd17ac5d4a1",
+        "member": "boot/vmlinuz-7.0.0-43-generic"
+      },
+      "busybox": {
+        "version": "1:1.37.0-7ubuntu1",
+        "archive": "pool/main/b/busybox/busybox-static_1.37.0-7ubuntu1_amd64.deb",
+        "sha256": "fd605342f62268753076aa7d9321ff098b36ba53e47434145a9aedc28fd141a4",
+        "member": "usr/bin/busybox"
+      }
+    },
+    "snapshot": "https://snapshot.ubuntu.com/ubuntu/20261120T000000Z/",
+    "qemu_returncode": 0,
+    "tool_versions": {
+      "cc": "cc (Ubuntu 15.2.0-16ubuntu1) 15.2.0",
+      "cpio": "cpio (GNU cpio) 2.15",
+      "dpkg-deb": "Debian 'dpkg-deb' package archive backend version 1.23.7 (amd64).",
+      "qemu-system-x86_64": "QEMU emulator version 10.2.1 (Debian 1:10.2.1+ds-1ubuntu3.3)",
+      "readelf": "GNU readelf (GNU Binutils for Ubuntu) 2.46"
+    }
+  },
+  "compiler": "gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0",
+  "host": "Linux-7.0.0-43-generic-x86_64-with-glibc2.43",
+  "host_python": "3.14.10",
+  "qemu_command": [
+    "qemu-system-x86_64",
+    "-machine",
+    "q35",
+    "-accel",
+    "tcg",
+    "-cpu",
+    "max",
+    "-smp",
+    "1",
+    "-m",
+    "384M",
+    "-nodefaults",
+    "-display",
+    "none",
+    "-monitor",
+    "none",
+    "-serial",
+    "stdio",
+    "-nic",
+    "none",
+    "-no-reboot",
+    "-kernel",
+    "/tmp/cmastery-guest-ivf63f1f/packages/boot/vmlinuz-7.0.0-43-generic",
+    "-initrd",
+    "/tmp/cmastery-guest-ivf63f1f/supervision.cpio",
+    "-append",
+    "console=ttyS0 rdinit=/init panic=-1 quiet"
+  ]
+}

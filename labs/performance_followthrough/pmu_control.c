@@ -1,5 +1,6 @@
 #define _POSIX_C_SOURCE 200809L
 #include "pmu_control.h"
+#include "cm_parse.h"
 #include <errno.h>
 #include <limits.h>
 #include <poll.h>
@@ -8,10 +9,11 @@
 #include <unistd.h>
 
 static int descriptor(const char *name){
-    const char *text=getenv(name);char *end;
-    if(!text||!*text){errno=EINVAL;return -1;}
-    errno=0;long value=strtol(text,&end,10);
-    if(errno||*end||value<0||value>INT_MAX){errno=EINVAL;return -1;}
+    unsigned value;
+    if (cm_parse_unsigned(getenv(name), 0, INT_MAX, &value) != CM_PARSE_OK) {
+        errno = EINVAL;
+        return -1;
+    }
     return (int)value;
 }
 int pf_perf_control(int enable){

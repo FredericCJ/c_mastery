@@ -1,0 +1,242 @@
+{
+ "perf_version": {
+  "argv": [
+   "perf",
+   "--version"
+  ],
+  "exit_code": 0,
+  "stdout": "perf version 7.0.14\n",
+  "stderr": ""
+ },
+ "events": {
+  "ex_ret_instr": {
+   "name": "ex_ret_instr",
+   "encoding": "event=0xc0",
+   "role": "work check",
+   "justification": "perf list (amdzen3): Retired Instructions; the kernel's generic PERF_COUNT_HW_INSTRUCTIONS on family 19h (0x00c0 in amd_zen2_perfmon_event_map, arch/x86/events/amd/core.c, Linux v7.0; sysfs events/instructions = event=0xc0). Equal instructions per key across layouts mean the same loop shape ran.",
+   "pmu_type": "4",
+   "state": "available",
+   "config": 192,
+   "perf_list": {
+    "Unit": "cpu",
+    "Topic": "core",
+    "EventName": "ex_ret_instr",
+    "EventType": "Kernel PMU event",
+    "BriefDescription": "Retired Instructions",
+    "Encoding": "cpu/event=0xc0/"
+   },
+   "sysfs_format": {
+    "event": "config:0-7,32-35"
+   }
+  },
+  "ls_not_halted_cyc": {
+   "name": "ls_not_halted_cyc",
+   "encoding": "event=0x76",
+   "role": "cost in core cycles",
+   "justification": "perf list: Cycles not in Halt; the generic PERF_COUNT_HW_CPU_CYCLES on family 19h (0x0076). Cycles divided by elapsed ns is the effective user-cycle rate used to check frequency.",
+   "pmu_type": "4",
+   "state": "available",
+   "config": 118,
+   "perf_list": {
+    "Unit": "cpu",
+    "Topic": "memory",
+    "EventName": "ls_not_halted_cyc",
+    "EventType": "Kernel PMU event",
+    "BriefDescription": "Cycles not in Halt",
+    "Encoding": "cpu/event=0x76/"
+   },
+   "sysfs_format": {
+    "event": "config:0-7,32-35"
+   }
+  },
+  "ls_any_fills_from_sys.lcl_l2": {
+   "name": "ls_any_fills_from_sys.lcl_l2",
+   "encoding": "event=0x44,umask=0x01",
+   "role": "where L1D fills came from: the core's L2",
+   "justification": "perf list: Any Data Cache Fills by Data Source, From Local L2 to the core. Any fills include demand and prefetch fills, so per key they approximate lines brought into L1D from L2.",
+   "pmu_type": "4",
+   "state": "available",
+   "config": 324,
+   "perf_list": {
+    "Unit": "cpu",
+    "Topic": "memory",
+    "EventName": "ls_any_fills_from_sys.lcl_l2",
+    "EventType": "Kernel PMU event",
+    "BriefDescription": "Any Data Cache Fills by Data Source. From Local L2 to the core",
+    "Encoding": "cpu/event=0x44,umask=1/"
+   },
+   "sysfs_format": {
+    "event": "config:0-7,32-35",
+    "umask": "config:8-15"
+   }
+  },
+  "ls_any_fills_from_sys.int_cache": {
+   "name": "ls_any_fills_from_sys.int_cache",
+   "encoding": "event=0x44,umask=0x02",
+   "role": "where L1D fills came from: L3 (or another L2)",
+   "justification": "perf list: Any Data Cache Fills by Data Source, From L3 or different L2 in same CCX. With one measured thread this is, in practice, the L3.",
+   "pmu_type": "4",
+   "state": "available",
+   "config": 580,
+   "perf_list": {
+    "Unit": "cpu",
+    "Topic": "memory",
+    "EventName": "ls_any_fills_from_sys.int_cache",
+    "EventType": "Kernel PMU event",
+    "BriefDescription": "Any Data Cache Fills by Data Source. From L3 or different L2 in same CCX",
+    "Encoding": "cpu/event=0x44,umask=2/"
+   },
+   "sysfs_format": {
+    "event": "config:0-7,32-35",
+    "umask": "config:8-15"
+   }
+  },
+  "ls_any_fills_from_sys.mem_io_local": {
+   "name": "ls_any_fills_from_sys.mem_io_local",
+   "encoding": "event=0x44,umask=0x08",
+   "role": "where L1D fills came from: DRAM",
+   "justification": "perf list: Any Data Cache Fills by Data Source, From DRAM or IO connected in same node.",
+   "pmu_type": "4",
+   "state": "available",
+   "config": 2116,
+   "perf_list": {
+    "Unit": "cpu",
+    "Topic": "memory",
+    "EventName": "ls_any_fills_from_sys.mem_io_local",
+    "EventType": "Kernel PMU event",
+    "BriefDescription": "Any Data Cache Fills by Data Source. From DRAM or IO connected in same node",
+    "Encoding": "cpu/event=0x44,umask=8/"
+   },
+   "sysfs_format": {
+    "event": "config:0-7,32-35",
+    "umask": "config:8-15"
+   }
+  },
+  "ls_hw_pf_dc_fills.mem_io_local": {
+   "name": "ls_hw_pf_dc_fills.mem_io_local",
+   "encoding": "event=0x5a,umask=0x08",
+   "role": "DRAM fills made by the L1 hardware prefetcher",
+   "justification": "perf list: Hardware Prefetch Data Cache Fills by Data Source, From DRAM or IO connected in same node. Compared with demand fills from DRAM it shows how much of the DRAM traffic arrived ahead of the loads.",
+   "pmu_type": "4",
+   "state": "available",
+   "config": 2138,
+   "perf_list": {
+    "Unit": "cpu",
+    "Topic": "memory",
+    "EventName": "ls_hw_pf_dc_fills.mem_io_local",
+    "EventType": "Kernel PMU event",
+    "BriefDescription": "Hardware Prefetch Data Cache Fills by Data Source. From DRAM or IO connected in same node",
+    "Encoding": "cpu/event=0x5a,umask=8/"
+   },
+   "sysfs_format": {
+    "event": "config:0-7,32-35",
+    "umask": "config:8-15"
+   }
+  },
+  "ls_dmnd_fills_from_sys.mem_io_local": {
+   "name": "ls_dmnd_fills_from_sys.mem_io_local",
+   "encoding": "event=0x43,umask=0x08",
+   "role": "DRAM fills the loads themselves waited for",
+   "justification": "perf list: Demand Data Cache Fills by Data Source, From DRAM or IO connected in same node.",
+   "pmu_type": "4",
+   "state": "available",
+   "config": 2115,
+   "perf_list": {
+    "Unit": "cpu",
+    "Topic": "memory",
+    "EventName": "ls_dmnd_fills_from_sys.mem_io_local",
+    "EventType": "Kernel PMU event",
+    "BriefDescription": "Demand Data Cache Fills by Data Source. From DRAM or IO connected in same node",
+    "Encoding": "cpu/event=0x43,umask=8/"
+   },
+   "sysfs_format": {
+    "event": "config:0-7,32-35",
+    "umask": "config:8-15"
+   }
+  },
+  "l2_request_g1.l2_hw_pf": {
+   "name": "l2_request_g1.l2_hw_pf",
+   "encoding": "event=0x60,umask=0x02",
+   "role": "L2 prefetcher activity",
+   "justification": "perf list: All L2 Cache Requests (Breakdown 1 - Common), L2 Prefetcher: all prefetches accepted by the L2 pipeline, hit or miss.",
+   "pmu_type": "4",
+   "state": "available",
+   "config": 608,
+   "perf_list": {
+    "Unit": "cpu",
+    "Topic": "cache",
+    "EventName": "l2_request_g1.l2_hw_pf",
+    "EventType": "Kernel PMU event",
+    "BriefDescription": "All L2 Cache Requests (Breakdown 1 - Common). L2 Prefetcher. All prefetches accepted by L2 pipeline, hit or miss. Types of PF and L2 hit/miss broken out in a separate perfmon event",
+    "Encoding": "cpu/event=0x60,umask=2/"
+   },
+   "sysfs_format": {
+    "event": "config:0-7,32-35",
+    "umask": "config:8-15"
+   }
+  },
+  "ls_dc_accesses": {
+   "name": "ls_dc_accesses",
+   "encoding": "event=0x40",
+   "role": "loads issued per key",
+   "justification": "perf list: Number of accesses to the dcache for load/store references; each increment is an eight-byte access; speculative. One per key is expected for every layout.",
+   "pmu_type": "4",
+   "state": "available",
+   "config": 64,
+   "perf_list": {
+    "Unit": "cpu",
+    "Topic": "memory",
+    "EventName": "ls_dc_accesses",
+    "EventType": "Kernel PMU event",
+    "BriefDescription": "Number of accesses to the dcache for load/store references",
+    "PublicDescription": "The number of accesses to the data cache for load and store references. This may include certain microcode scratchpad accesses, although these are generally rare. Each increment represents an eight-byte access, although the instruction may only be accessing a portion of that. This event is a speculative event",
+    "Encoding": "cpu/event=0x40/"
+   },
+   "sysfs_format": {
+    "event": "config:0-7,32-35"
+   }
+  },
+  "l1_dtlb_misses": {
+   "name": "l1_dtlb_misses",
+   "encoding": "event=0x45,umask=0xff",
+   "role": "address translation: L1 DTLB misses",
+   "justification": "perf list (recommended): L1 DTLB Misses (event 0x45, all unit-mask bits).",
+   "pmu_type": "4",
+   "state": "available",
+   "config": 65349,
+   "perf_list": {
+    "Unit": "cpu",
+    "Topic": "recommended",
+    "EventName": "l1_dtlb_misses",
+    "EventType": "Kernel PMU event",
+    "BriefDescription": "L1 DTLB Misses",
+    "Encoding": "cpu/event=0x45,umask=0xff/"
+   },
+   "sysfs_format": {
+    "event": "config:0-7,32-35",
+    "umask": "config:8-15"
+   }
+  },
+  "l2_dtlb_misses": {
+   "name": "l2_dtlb_misses",
+   "encoding": "event=0x45,umask=0xf0",
+   "role": "address translation: L2 DTLB misses and page walks",
+   "justification": "perf list (recommended): L2 DTLB Misses & Data page walks (event 0x45, the four L2-miss unit-mask bits).",
+   "pmu_type": "4",
+   "state": "available",
+   "config": 61509,
+   "perf_list": {
+    "Unit": "cpu",
+    "Topic": "recommended",
+    "EventName": "l2_dtlb_misses",
+    "EventType": "Kernel PMU event",
+    "BriefDescription": "L2 DTLB Misses & Data page walks",
+    "Encoding": "cpu/event=0x45,umask=0xf0/"
+   },
+   "sysfs_format": {
+    "event": "config:0-7,32-35",
+    "umask": "config:8-15"
+   }
+  }
+ }
+}

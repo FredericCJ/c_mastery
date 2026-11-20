@@ -1,0 +1,70 @@
+LS_BOOT kernel=7.0.0-43-generic controllers=cpu pids
+LS_INNER_FIX name=namespace variant=view pid=1 uid=1000 gid=1000 pid_ns=4026532130 mnt_ns=4026532129 net_ns=4026531833 marker=inner group=/lab/namespace-view
+LS_OUTER name=namespace variant=view observer_pid=76 child_pid=77 observer_group=/ child_group=/lab/namespace-view pids_current=1 pids_max=24 cpu_quota=max cpu_period=100000 pid_ns=4026531836 mnt_ns=4026531832 net_ns=4026531833 marker=outer child_pid_ns=4026532130 child_mnt_ns=4026532129 child_net_ns=4026531833
+LS view variant=view inner_pid=1 worker_pid=2 proc_pid=1 report_pid=2 report_ppid=1 pid_ns=4026532130 mount_ns=4026532129 marker=inner cgroup=/lab/namespace-view pids_max=24
+LS_CLEAN name=namespace variant=view pids_current=0 pids_hits=0 nr_throttled=0 usage_usec=44890 removed=1 marker=outer observer_group=/ child_group=/lab/namespace-view pids_max=24 cpu_quota=max cpu_period=100000 child_pid=77 empty_procs=1
+LS_CASE_END name=namespace variant=view status=0
+LS_INNER_FIX name=pids variant=two pid=1 uid=1000 gid=1000 pid_ns=4026532130 mnt_ns=4026532129 net_ns=4026531833 marker=inner group=/lab/pids-two
+LS_OUTER name=pids variant=two observer_pid=79 child_pid=80 observer_group=/ child_group=/lab/pids-two pids_current=1 pids_max=2 cpu_quota=max cpu_period=100000 pid_ns=4026531836 mnt_ns=4026531832 net_ns=4026531833 marker=outer child_pid_ns=4026532130 child_mnt_ns=4026532129 child_net_ns=4026531833
+LS pids variant=two cgroup=/lab/pids-two limit=2 before=1 occupied=2 attempted_pid=-1 fork_errno=11 peak=2 event_before=0 event_after=1 remaining=1 reaped=1
+LS_CLEAN name=pids variant=two pids_current=0 pids_hits=1 nr_throttled=0 usage_usec=13006 removed=1 marker=outer observer_group=/ child_group=/lab/pids-two pids_max=2 cpu_quota=max cpu_period=100000 child_pid=80 empty_procs=1
+LS_CASE_END name=pids variant=two status=0
+LS_INNER_FIX name=pids variant=three pid=1 uid=1000 gid=1000 pid_ns=4026532130 mnt_ns=4026532129 net_ns=4026531833 marker=inner group=/lab/pids-three
+LS_OUTER name=pids variant=three observer_pid=79 child_pid=83 observer_group=/ child_group=/lab/pids-three pids_current=1 pids_max=3 cpu_quota=max cpu_period=100000 pid_ns=4026531836 mnt_ns=4026531832 net_ns=4026531833 marker=outer child_pid_ns=4026532130 child_mnt_ns=4026532129 child_net_ns=4026531833
+LS pids variant=three cgroup=/lab/pids-three limit=3 before=1 occupied=2 attempted_pid=3 fork_errno=0 peak=3 event_before=0 event_after=0 remaining=1 reaped=2
+LS_CLEAN name=pids variant=three pids_current=0 pids_hits=0 nr_throttled=0 usage_usec=11788 removed=1 marker=outer observer_group=/ child_group=/lab/pids-three pids_max=3 cpu_quota=max cpu_period=100000 child_pid=83 empty_procs=1
+LS_CASE_END name=pids variant=three status=0
+LS_INNER_FIX name=shutdown variant=normal pid=1 uid=1000 gid=1000 pid_ns=4026532130 mnt_ns=4026532129 net_ns=4026531833 marker=inner group=/lab/shutdown-normal
+LS_OUTER name=shutdown variant=normal observer_pid=86 child_pid=87 observer_group=/ child_group=/lab/shutdown-normal pids_current=1 pids_max=24 cpu_quota=max cpu_period=100000 pid_ns=4026531836 mnt_ns=4026531832 net_ns=4026531833 marker=outer child_pid_ns=4026532130 child_mnt_ns=4026532129 child_net_ns=4026531833
+LS shutdown variant=normal ready=1 startup_errno=0 term=1 escalated=0 exit=0 signal=0 eof=1 reaped=1 children_errno=10 fd_before=3 fd_after=3 peer_started=0 peer_eof=0 peer_exit=-1 grace_ms=0 elapsed_ms=7
+LS_CLEAN name=shutdown variant=normal pids_current=0 pids_hits=0 nr_throttled=0 usage_usec=15980 removed=1 marker=outer observer_group=/ child_group=/lab/shutdown-normal pids_max=24 cpu_quota=max cpu_period=100000 child_pid=87 empty_procs=1
+LS_CASE_END name=shutdown variant=normal status=0
+LS_INNER_FIX name=shutdown variant=early pid=1 uid=1000 gid=1000 pid_ns=4026532130 mnt_ns=4026532129 net_ns=4026531833 marker=inner group=/lab/shutdown-early
+LS_OUTER name=shutdown variant=early observer_pid=86 child_pid=89 observer_group=/ child_group=/lab/shutdown-early pids_current=1 pids_max=24 cpu_quota=max cpu_period=100000 pid_ns=4026531836 mnt_ns=4026531832 net_ns=4026531833 marker=outer child_pid_ns=4026532130 child_mnt_ns=4026532129 child_net_ns=4026531833
+LS shutdown variant=early ready=0 startup_errno=0 term=0 escalated=0 exit=23 signal=0 eof=1 reaped=1 children_errno=10 fd_before=3 fd_after=3 peer_started=0 peer_eof=0 peer_exit=-1 grace_ms=0 elapsed_ms=4
+LS_CLEAN name=shutdown variant=early pids_current=0 pids_hits=0 nr_throttled=0 usage_usec=8499 removed=1 marker=outer observer_group=/ child_group=/lab/shutdown-early pids_max=24 cpu_quota=max cpu_period=100000 child_pid=89 empty_procs=1
+LS_CASE_END name=shutdown variant=early status=0
+LS_INNER_FIX name=shutdown variant=startfail pid=1 uid=1000 gid=1000 pid_ns=4026532130 mnt_ns=4026532129 net_ns=4026531833 marker=inner group=/lab/shutdown-startfail
+LS_OUTER name=shutdown variant=startfail observer_pid=86 child_pid=91 observer_group=/ child_group=/lab/shutdown-startfail pids_current=1 pids_max=24 cpu_quota=max cpu_period=100000 pid_ns=4026531836 mnt_ns=4026531832 net_ns=4026531833 marker=outer child_pid_ns=4026532130 child_mnt_ns=4026532129 child_net_ns=4026531833
+LS shutdown variant=startfail ready=0 startup_errno=2 term=0 escalated=0 exit=127 signal=0 eof=1 reaped=2 children_errno=10 fd_before=3 fd_after=3 peer_started=1 peer_eof=1 peer_exit=0 grace_ms=0 elapsed_ms=6
+LS_CLEAN name=shutdown variant=startfail pids_current=0 pids_hits=0 nr_throttled=0 usage_usec=10891 removed=1 marker=outer observer_group=/ child_group=/lab/shutdown-startfail pids_max=24 cpu_quota=max cpu_period=100000 child_pid=91 empty_procs=1
+LS_CASE_END name=shutdown variant=startfail status=0
+LS_INNER_FIX name=shutdown variant=stubborn pid=1 uid=1000 gid=1000 pid_ns=4026532130 mnt_ns=4026532129 net_ns=4026531833 marker=inner group=/lab/shutdown-stubborn
+LS_OUTER name=shutdown variant=stubborn observer_pid=86 child_pid=94 observer_group=/ child_group=/lab/shutdown-stubborn pids_current=1 pids_max=24 cpu_quota=max cpu_period=100000 pid_ns=4026531836 mnt_ns=4026531832 net_ns=4026531833 marker=outer child_pid_ns=4026532130 child_mnt_ns=4026532129 child_net_ns=4026531833
+LS shutdown variant=stubborn ready=1 startup_errno=0 term=1 escalated=1 exit=-1 signal=9 eof=1 reaped=1 children_errno=10 fd_before=3 fd_after=3 peer_started=0 peer_eof=0 peer_exit=-1 grace_ms=151 elapsed_ms=154
+LS_CLEAN name=shutdown variant=stubborn pids_current=0 pids_hits=0 nr_throttled=0 usage_usec=15912 removed=1 marker=outer observer_group=/ child_group=/lab/shutdown-stubborn pids_max=24 cpu_quota=max cpu_period=100000 child_pid=94 empty_procs=1
+LS_CASE_END name=shutdown variant=stubborn status=0
+LS_INNER_FIX name=network variant=A pid=1 uid=1000 gid=1000 pid_ns=4026532130 mnt_ns=4026532129 net_ns=4026532131 marker=inner group=/lab/network-A
+LS_OUTER name=network variant=A observer_pid=96 child_pid=97 observer_group=/ child_group=/lab/network-A pids_current=1 pids_max=24 cpu_quota=max cpu_period=100000 pid_ns=4026531836 mnt_ns=4026531832 net_ns=4026531833 marker=outer child_pid_ns=4026532130 child_mnt_ns=4026532129 child_net_ns=4026532131
+LS_INNER_FIX name=network variant=B pid=1 uid=1000 gid=1000 pid_ns=4026532184 mnt_ns=4026532183 net_ns=4026532185 marker=inner group=/lab/network-B
+LS_OUTER name=network variant=B observer_pid=96 child_pid=98 observer_group=/ child_group=/lab/network-B pids_current=1 pids_max=24 cpu_quota=max cpu_period=100000 pid_ns=4026531836 mnt_ns=4026531832 net_ns=4026531833 marker=outer child_pid_ns=4026532184 child_mnt_ns=4026532183 child_net_ns=4026532185
+LS_NET_OVERLAP a_pid=97 b_pid=98 ready=2 a_socket=954 b_socket=970 port=39073
+LS network variant=B net_ns=4026532185 port=39073 marker=66 reply=643 duplicate_errno=98
+LS network variant=A net_ns=4026532131 port=39073 marker=65 reply=643 duplicate_errno=98
+LS_CLEAN name=network variant=A pids_current=0 pids_hits=0 nr_throttled=0 usage_usec=45066 removed=1 marker=outer observer_group=/ child_group=/lab/network-A pids_max=24 cpu_quota=max cpu_period=100000 child_pid=97 empty_procs=1
+LS_CASE_END name=network variant=A status=0
+LS_CLEAN name=network variant=B pids_current=0 pids_hits=0 nr_throttled=0 usage_usec=30144 removed=1 marker=outer observer_group=/ child_group=/lab/network-B pids_max=24 cpu_quota=max cpu_period=100000 child_pid=98 empty_procs=1
+LS_CASE_END name=network variant=B status=0
+LS_INNER_FIX name=telemetry variant=baseline pid=1 uid=1000 gid=1000 pid_ns=4026532130 mnt_ns=4026532129 net_ns=4026532183 marker=inner group=/lab/telemetry-baseline
+LS_OUTER name=telemetry variant=baseline observer_pid=101 child_pid=102 observer_group=/ child_group=/lab/telemetry-baseline pids_current=1 pids_max=24 cpu_quota=max cpu_period=100000 pid_ns=4026531836 mnt_ns=4026531832 net_ns=4026531833 marker=outer child_pid_ns=4026532130 child_mnt_ns=4026532129 child_net_ns=4026532183
+LS_TCP name=telemetry variant=baseline port=39073 client_port=48926 server_inode=1015 usage_usec=8733 nr_throttled=0
+LS_CPU_END name=telemetry variant=baseline usage_usec=145101 nr_throttled=0
+LS telemetry variant=baseline cgroup=/lab/telemetry-baseline quota=max period=100000 frames=8192 bytes=65536 checksum=8355840 digest=3940692756 usage_before=7776 usage_after=145179 throttle_before=0 throttle_after=0 eagain=0 resumed=0 peer=127.0.0.1 port=39073 client_port=48926 server_inode=1015 tcp_reply_bytes=32768 pipe_size=4096 elapsed_ms=139
+LS_CLEAN name=telemetry variant=baseline pids_current=0 pids_hits=0 nr_throttled=0 usage_usec=147261 removed=1 marker=outer observer_group=/ child_group=/lab/telemetry-baseline pids_max=24 cpu_quota=max cpu_period=100000 child_pid=102 empty_procs=1
+LS_CASE_END name=telemetry variant=baseline status=0
+LS_INNER_FIX name=telemetry variant=quota pid=1 uid=1000 gid=1000 pid_ns=4026532130 mnt_ns=4026532129 net_ns=4026532131 marker=inner group=/lab/telemetry-quota
+LS_OUTER name=telemetry variant=quota observer_pid=101 child_pid=105 observer_group=/ child_group=/lab/telemetry-quota pids_current=1 pids_max=24 cpu_quota=20000 cpu_period=100000 pid_ns=4026531836 mnt_ns=4026531832 net_ns=4026531833 marker=outer child_pid_ns=4026532130 child_mnt_ns=4026532129 child_net_ns=4026532131
+LS_TCP name=telemetry variant=quota port=39073 client_port=48938 server_inode=1050 usage_usec=7337 nr_throttled=0
+LS_CPU_END name=telemetry variant=quota usage_usec=144523 nr_throttled=7
+LS telemetry variant=quota cgroup=/lab/telemetry-quota quota=20000 period=100000 frames=8192 bytes=65536 checksum=8355840 digest=3940692756 usage_before=7008 usage_after=144523 throttle_before=0 throttle_after=7 eagain=0 resumed=0 peer=127.0.0.1 port=39073 client_port=48938 server_inode=1050 tcp_reply_bytes=32768 pipe_size=4096 elapsed_ms=670
+LS_CLEAN name=telemetry variant=quota pids_current=0 pids_hits=0 nr_throttled=7 usage_usec=146982 removed=1 marker=outer observer_group=/ child_group=/lab/telemetry-quota pids_max=24 cpu_quota=20000 cpu_period=100000 child_pid=105 empty_procs=1
+LS_CASE_END name=telemetry variant=quota status=0
+LS_INNER_FIX name=telemetry variant=stalled pid=1 uid=1000 gid=1000 pid_ns=4026532130 mnt_ns=4026532129 net_ns=4026532131 marker=inner group=/lab/telemetry-stalled
+LS_OUTER name=telemetry variant=stalled observer_pid=101 child_pid=108 observer_group=/ child_group=/lab/telemetry-stalled pids_current=1 pids_max=24 cpu_quota=max cpu_period=100000 pid_ns=4026531836 mnt_ns=4026531832 net_ns=4026531833 marker=outer child_pid_ns=4026532130 child_mnt_ns=4026532129 child_net_ns=4026532131
+LS_TCP name=telemetry variant=stalled port=39073 client_port=48854 server_inode=1085 usage_usec=7003 nr_throttled=0
+LS_CPU_END name=telemetry variant=stalled usage_usec=133780 nr_throttled=0
+LS telemetry variant=stalled cgroup=/lab/telemetry-stalled quota=max period=100000 frames=8192 bytes=65536 checksum=8355840 digest=3940692756 usage_before=6256 usage_after=134470 throttle_before=0 throttle_after=0 eagain=1 resumed=1 peer=127.0.0.1 port=39073 client_port=48854 server_inode=1085 tcp_reply_bytes=32768 pipe_size=4096 elapsed_ms=131
+LS_CLEAN name=telemetry variant=stalled pids_current=0 pids_hits=0 nr_throttled=0 usage_usec=136467 removed=1 marker=outer observer_group=/ child_group=/lab/telemetry-stalled pids_max=24 cpu_quota=max cpu_period=100000 child_pid=108 empty_procs=1
+LS_CASE_END name=telemetry variant=stalled status=0
+LS_BOOT_END status=0
+[    3.777492] reboot: Power down

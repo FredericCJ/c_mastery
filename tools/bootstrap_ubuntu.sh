@@ -13,10 +13,10 @@ USAGE
 fi
 sudo apt-get update
 sudo apt-get install -y build-essential cmake ninja-build clang llvm lld \
-  libclang-rt-dev python3-venv python3-pip gdb valgrind binutils time \
+  libclang-rt-dev python3-venv python3-pip gdb gdb-multiarch valgrind binutils bsdextrautils time curl unzip \
   linux-tools-common "linux-tools-$(uname -r)" \
   gcc-arm-none-eabi binutils-arm-none-eabi qemu-system-arm qemu-system-x86 \
-  qemu-user gcc-multilib libc6-dev-i386 grub-pc-bin xorriso
+  qemu-user gcc-multilib libc6-dev-i386 grub-pc-bin xorriso cpio
 python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements-lock.txt
 .venv/bin/python -m cmastery doctor

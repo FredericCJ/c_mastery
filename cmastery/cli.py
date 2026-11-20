@@ -107,7 +107,11 @@ def snapshot(folder):
     identity = hashlib.sha256(json.dumps(records, sort_keys=True).encode()).hexdigest()
     return {"sha256": identity, "files": records}
 
-def instantiate(project, destination, family_name=None, unit_id=None, exercise_id=None):
+def instantiate(project, destination, family_name=None, unit_id=None, exercise_id=None, route_id=None):
+    from . import route
+    active_id = unit_id or exercise_id or project
+    if route_id and not route.node(active_id, route_id=route_id):
+        raise ValueError("Entry absent from the selected route: " + active_id)
     item, family = locate(project)
     from . import project_assets
     public_project_assets = project_assets.prepare(ROOT, project)
@@ -117,7 +121,7 @@ def instantiate(project, destination, family_name=None, unit_id=None, exercise_i
         raise ValueError('Select either a unit or an exercise')
     if exercise_id:
         from . import exercises, learning
-        learning_exercise = exercises.exercise(exercise_id, project)
+        learning_exercise = exercises.exercise(exercise_id, project, route_id=route_id)
         family_name = family_name or learning_exercise['lab']['family']
         if family_name != learning_exercise['lab']['family']:
             raise ValueError('Selected family differs from exercise')
@@ -184,19 +188,17 @@ def instantiate(project, destination, family_name=None, unit_id=None, exercise_i
     if learning_exercise:
         record.update(exercise=exercise_id, exercise_contract=learning.digest(learning_exercise))
         save(destination / '.cmastery/exercise.json', learning_exercise)
-        (destination / 'EXERCISE.md').write_text(exercises.learner_brief(learning_exercise), encoding='utf-8')
+        (destination / 'EXERCISE.md').write_text(exercises.learner_brief(learning_exercise, route_id=route_id), encoding='utf-8')
         for name in learning_exercise['fixtures'] + learning_exercise['shared_contracts']:
-            source = exercises.path_in_root(name)
+            source = route.input_path(ROOT, name, route_id)
             target = destination / name
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source, target)
         exercises.harness(learning_exercise, destination)
-    from . import route
-    active_id = unit_id or exercise_id or project
-    if active_id and route.node(active_id):
-        route.export_assets(active_id, destination)
-        (destination / "ACTIVE.md").write_text(route.render_node(active_id), encoding="utf-8")
-        record["active_specification"] = {"path": "ACTIVE.md", "route": route.load()["id"], "id": active_id, "sha256": route.specification_identity(active_id)}
+    if active_id and route.node(active_id, route_id=route_id):
+        route.export_assets(active_id, destination, route_id=route_id)
+        (destination / "ACTIVE.md").write_text(route.render_node(active_id, route_id=route_id), encoding="utf-8")
+        record["active_specification"] = {"path": "ACTIVE.md", "route": route.load(route_id=route_id)["id"], "id": active_id, "sha256": route.specification_identity(active_id, route_id)}
         # The entry point points to one resolved card; retained per-unit files
         # remain machine inputs and provenance rather than competing directions.
         (destination / "PROJECT.md").write_text("# Active learner specification\n\nRead [ACTIVE.md](ACTIVE.md) for the operative instructions and assessment.\n", encoding="utf-8")
@@ -240,6 +242,9 @@ def advance(workspace, project, unit_id=None):
     """Select another project in the same family without replacing learner code."""
     workspace=Path(workspace).expanduser().resolve()
     meta=read(workspace/'.cmastery/project.json')
+    from . import route
+    recorded = meta.get('active_specification')
+    route_id = route.recorded_route(recorded) if recorded else None
     if meta.get('exercise'):
         raise ValueError('Initialize each exercise separately to retain its selected contract and evidence')
     item,_=locate(project)
@@ -273,6 +278,7 @@ def advance(workspace, project, unit_id=None):
     for source,name in [(workspace/'.cmastery/project.json','project.json'),
                         (workspace/'.cmastery/prediction.json','prediction.json'),
                         (workspace/'PROJECT.md','PROJECT.md'),
+                        (workspace/'ACTIVE.md','ACTIVE.md'),
                         (workspace/'ASSESSMENT.md','ASSESSMENT.md'),
                         (workspace/'ASSESSMENT.json','ASSESSMENT.json'),
                         (workspace/'UNIT.md','UNIT.md'),
@@ -299,12 +305,11 @@ def advance(workspace, project, unit_id=None):
         meta.pop('unit',None); meta.pop('unit_contract',None)
         (workspace/'.cmastery/unit.json').unlink(missing_ok=True)
         (workspace/'UNIT.md').unlink(missing_ok=True)
-    from . import route
     active_id = unit_id or project
-    if route.node(active_id):
-        route.export_assets(active_id, workspace)
-        (workspace/"ACTIVE.md").write_text(route.render_node(active_id), encoding="utf-8")
-        meta["active_specification"] = {"path": "ACTIVE.md", "route": route.load()["id"], "id": active_id, "sha256": route.specification_identity(active_id)}
+    if route.node(active_id, route_id=route_id):
+        route.export_assets(active_id, workspace, route_id=route_id)
+        (workspace/"ACTIVE.md").write_text(route.render_node(active_id, route_id=route_id), encoding="utf-8")
+        meta["active_specification"] = {"path": "ACTIVE.md", "route": route.load(route_id=route_id)["id"], "id": active_id, "sha256": route.specification_identity(active_id, route_id)}
         (workspace/"PROJECT.md").write_text("# Active learner specification\n\nRead [ACTIVE.md](ACTIVE.md) for the operative instructions and assessment.\n", encoding="utf-8")
         for alias in ("UNIT.md", "ASSESSMENT.md"):
             if (workspace/alias).exists():
@@ -529,6 +534,8 @@ def run_checks(workspace, compiler, profile, assessor=False, timeout=180, all_te
         record['evidence_kind'] = 'host-and-emulator-execution' if any('guest' in c.get('name','') for c in record.get('tests',[])) else 'host-execution'
         if target_contract.get('evidence_kind'):
             record['evidence_kind'] = target_contract['evidence_kind']
+        if learning_exercise and not all_tests and record['status'] == 'passed' and project_contract.get('evidence_kind'):
+            record['evidence_kind'] = project_contract['evidence_kind']
         if learning_unit and 'emulator' in record['evidence_kind']:
             record['emulator_execution_tests'] = emulator_test_names(record)
             if not record['emulator_execution_tests']:
@@ -541,7 +548,8 @@ def run_checks(workspace, compiler, profile, assessor=False, timeout=180, all_te
                             if p.is_file() and p.resolve().is_relative_to(output.resolve()) and p.suffix in {'.json','.log'}})
         if target_files:
             record['target_evidence'] = {p.relative_to(output).as_posix():p.read_text(encoding='utf-8',errors='replace') for p in target_files}
-            record['target_limits'] = 'Host compiler/profile flags do not instrument the freestanding guest. Guest compiler, flags, images and machine are recorded in build.json.'
+            record['target_limits'] = family_meta.get('evidence_limits',
+                'Host compiler/profile flags do not instrument the freestanding guest. Guest compiler, flags, images and machine are recorded in build.json.')
     if snapshot(workspace)["sha256"] != before["sha256"]:
         record.update(status="failed", reason="Source changed during the run")
     if any(not Path(p).is_dir() or snapshot(Path(p))['sha256'] != digest for p,digest in record.get('external_sources', {}).items()):
@@ -695,9 +703,12 @@ def main(argv=None):
     sub.add_parser("doctor")
     listing = sub.add_parser("list")
     listing.add_argument("--module")
+    listing.add_argument("--exercises", action="store_true", help="List required and elective exercises in route order")
+    listing.add_argument("--route", help="Select a pinned route when listing exercises")
     initialize = sub.add_parser("init")
     initialize.add_argument("project")
     initialize.add_argument("destination")
+    initialize.add_argument("--route", help="Select a route ID for an existing pinned study profile")
     initialize.add_argument('--family', help='Select an additional family listed for this project')
     selection = initialize.add_mutually_exclusive_group()
     selection.add_argument('--unit', help='Select a v4 learning unit')
@@ -732,11 +743,17 @@ def main(argv=None):
         if args.command == "doctor":
             result = doctor()
         elif args.command == "list":
-            result = [{"id": p["id"], "title": p["title"], "module": p["module"],
-                       "lab_family": p.get("lab_family"), "lab_families":p.get('lab_families',[]), "requires": p.get("requires", [])}
-                      for p in catalog() if not args.module or p["module"] == args.module]
+            if args.exercises:
+                from . import exercises
+                result = exercises.listing(args.module, args.route)
+            elif args.route:
+                raise ValueError("--route selects the route for --exercises")
+            else:
+                result = [{"id": p["id"], "title": p["title"], "module": p["module"],
+                           "lab_family": p.get("lab_family"), "lab_families":p.get('lab_families',[]), "requires": p.get("requires", [])}
+                          for p in catalog() if not args.module or p["module"] == args.module]
         elif args.command == "init":
-            result = instantiate(args.project, args.destination, args.family, args.unit, args.exercise)
+            result = instantiate(args.project, args.destination, args.family, args.unit, args.exercise, args.route)
         elif args.command == 'advance':
             result = advance(args.workspace,args.project,args.unit)
         elif args.command == "check":

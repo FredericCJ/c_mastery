@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "C Mastery contextual learning route, schema version 2 (contextual-v2 and later)",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "id",
+    "catalog",
+    "contexts",
+    "nodes",
+    "order",
+    "coverage",
+    "migration",
+    "mechanisms",
+    "pilots",
+    "episodes",
+    "blocks",
+    "theory",
+    "paths",
+    "predecessor",
+    "statistics"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 2
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "project",
+          "context",
+          "objectives",
+          "prerequisites",
+          "sources",
+          "contracts",
+          "why_now",
+          "next_consumer",
+          "assessment"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "unit",
+              "exercise"
+            ]
+          },
+          "why_now_kind": {
+            "enum": [
+              "episode",
+              "increment",
+              "generic"
+            ]
+          },
+          "placement": {
+            "type": "object",
+            "required": [
+              "kind"
+            ],
+            "properties": {
+              "kind": {
+                "enum": [
+                  "episode",
+                  "unauthored"
+                ]
+              }
+            }
+          },
+          "prerequisites": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "kind",
+                "target",
+                "reason"
+              ],
+              "properties": {
+                "kind": {
+                  "enum": [
+                    "concept",
+                    "component",
+                    "environment",
+                    "preparation"
+                  ]
+                }
+              },
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "kind": {
+                        "const": "component"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "artifact",
+                      "contract_version"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "order": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string"
+      }
+    },
+    "episodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "context",
+          "entering_state",
+          "motivating_limitation",
+          "construction",
+          "exiting_artifact",
+          "transition_reason",
+          "produces",
+          "consumes"
+        ]
+      }
+    },
+    "mechanisms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "mechanism"
+        ],
+        "properties": {
+          "encounters": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "role",
+                "deliverable",
+                "criterion"
+              ],
+              "properties": {
+                "role": {
+                  "enum": [
+                    "introduction",
+                    "derivation",
+                    "implementation",
+                    "integrated-reuse",
+                    "changed-assumption",
+                    "independent-transfer"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "theory": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "topic",
+          "reasoning",
+          "bindings"
+        ]
+      }
+    }
+  },
+  "description": "Schema-1 routes (the frozen contextual-v1.json) are described by schema.json. This file describes schema_version 2: authored episodes, explicit mechanism encounters, unauthored project blocks and the theory strand."
+}

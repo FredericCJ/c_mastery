@@ -252,7 +252,9 @@ def run(output=None, *, build=False):
         report['tools'] = [identify(x) for x in ('gcc', 'clang', 'cmake', 'ninja')]
         report['structure'] = schema_checks()
         scripts = ['check_public_profiles.py', 'check_native_route.py', 'check_learning_v4.py',
-                   'check_exercise_workflow.py']
+                   'check_exercise_workflow.py', 'check_security_labs.py',
+                   'check_assessment_packages.py', 'check_binary_inspection.py',
+                   'test_linux_supervision_guest.py', 'check_linux_supervision.py']
         for script in scripts:
             report['checks'].append(run_command([sys.executable, ROOT/'tools'/script], raw, script[:-3]))
         from check_fixtures import selected_oracles
@@ -269,7 +271,7 @@ def run(output=None, *, build=False):
                                              '--configure-only', '--report', raw/'build_profiles.json'],
                                             raw, 'build-profile-policy'))
         report['checks'].append(run_command([sys.executable, ROOT/'tools/run_native_pmu.py',
-                                             '--protocol-only', '--report', raw/'pmu_protocol.json'],
+                                             '--protocol-only', '--sanitizers', '--report', raw/'pmu_protocol.json'],
                                             raw, 'pmu-protocol'))
         report['checks'].append(run_command([sys.executable, ROOT/'tools/run_deadline_pilot.py',
                                              '--no-measure', '--report', raw/'deadline_protocol.json'],

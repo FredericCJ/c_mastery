@@ -643,6 +643,19 @@ class LegacyAssessments(unittest.TestCase):
         self.assertEqual(successor_locator({'path': 'research/safe.json', 'id': '[answer](assessor/a)'}),
                          '`research/safe.json`')
 
+    def assert_effective_project(self, folder, assessment, successor):
+        from cmastery import route
+        for entry in ('PROJECT.md', 'ASSESSMENT.md'):
+            self.assertIn('[ACTIVE.md](ACTIVE.md)', (folder/entry).read_text(encoding='utf-8'))
+        rendered = (folder/'ACTIVE.md').read_text(encoding='utf-8')
+        self.assertIn('Operative requirement: ' + successor, rendered)
+        public_text = (ROOT/successor).read_text(encoding='utf-8-sig')
+        self.assertIn(route.inline_markdown(public_text, successor, ROOT), rendered)
+        for criterion in assessment['criteria']:
+            self.assertIn(criterion['id'], rendered)
+            self.assertIn(criterion['rubric']['2'], rendered)
+        self.assertEqual(read_json(folder/'ASSESSMENT.json')['criteria'], assessment['criteria'])
+
     def test_cli_export_carries_required_criteria_without_assessor_files(self):
         import tempfile
         from pathlib import Path
@@ -650,9 +663,7 @@ class LegacyAssessments(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             workspace = Path(temp)/'learner'
             cli.instantiate('PR-T01-01', workspace)
-            rendered = (workspace/'ASSESSMENT.md').read_text(encoding='utf-8')
-            self.assertIn(self.example['criteria'][0]['task'], rendered)
-            self.assertIn('ASSESSMENT.md', (workspace/'PROJECT.md').read_text(encoding='utf-8'))
+            self.assert_effective_project(workspace, self.example, 'labs/foundation_entry/CONTRACTS.md')
             self.assertFalse(any('assessor' in p.relative_to(workspace).parts for p in workspace.rglob('*')))
             record = read_json(workspace/'.cmastery/project.json')
             self.assertEqual(record['supplemental_assessment']['learner_assessment'], 'not-assessed')
@@ -703,17 +714,22 @@ class LegacyAssessments(unittest.TestCase):
             workspace = Path(temp)/'learner'
             cli.instantiate('PR-T01-01', workspace)
             old = (workspace/'ASSESSMENT.json').read_bytes()
+            original_card = (workspace/'ACTIVE.md').read_bytes()
+            self.assert_effective_project(workspace, self.example, 'labs/foundation_entry/CONTRACTS.md')
             cli.advance(workspace, 'PR-T01-02')
             history = list((workspace/'evidence/history').iterdir())
             self.assertEqual(len(history), 1)
             self.assertEqual((history[0]/'ASSESSMENT.json').read_bytes(), old)
+            self.assertEqual((history[0]/'ACTIVE.md').read_bytes(), original_card)
+            self.assert_effective_project(history[0], self.example, 'labs/foundation_entry/CONTRACTS.md')
             new = read_json(workspace/'ASSESSMENT.json')
             self.assertEqual(new['project'], 'PR-T01-02')
             meta = read_json(workspace/'.cmastery/project.json')
             self.assertEqual(meta['supplemental_assessment']['criteria'],
                              [c['id'] for c in new['criteria']])
             self.assertEqual(meta['supplemental_assessment']['learner_assessment'], 'not-assessed')
-            self.assertIn(new['criteria'][0]['task'], (workspace/'ASSESSMENT.md').read_text(encoding='utf-8'))
+            canonical = read_json(ROOT/'curriculum/v5/expansion/legacy_assessments/PR-T01-02.json')
+            self.assert_effective_project(workspace, canonical, 'labs/foundation_semantics/CONTRACTS.md')
             self.assertFalse(any('assessor' in p.relative_to(workspace).parts for p in workspace.rglob('*')))
 
 

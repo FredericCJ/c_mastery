@@ -21,8 +21,22 @@ the real exercise contracts and references, canonical JSON and Python syntax,
 the active contextual route, preserved historical identities, independent fixture
 oracles, and actual foundation and algorithm implementations under GCC and Clang.
 It executes the PMU protocol and deadline pilot, including sanitizer and mutation
-checks, without requiring PMU access. It also requires semantic rejection of
-unimplemented learner scaffolds. Its `build/public/validation.json` records exact
+checks, without requiring PMU access: the PMU protocol, loss-accounting, ring,
+parser, clock and publication fault-injection tests run in debug, optimized and
+ASan/UBSan builds; the ring consumer and its real drainer thread also run under
+ThreadSanitizer, which must catch two deliberately weakened memory orderings;
+and the native collector's argument checks run against an ASan/UBSan build.
+The deadline collection tests run in debug, optimized and ASan/UBSan builds.
+The PMU and deadline ASan/UBSan builds use `-fno-sanitize-recover=all`, so a
+sanitizer finding fails the run instead of only printing a report; the CMake
+`instrumented` profile (`labs/algorithms/cmake/Profiles.cmake`) does not set it,
+so there a UBSan finding is reported without necessarily failing the test. Public validation only
+configures the build profiles: it verifies the compile and link sanitizer
+policy of the semantic, instrumented (ASan/UBSan), thread (ThreadSanitizer) and
+performance CMake profiles but does not build or run them. Building every
+profile, including the ThreadSanitizer profile, and running its tests is done by
+`tools/check_native_build_profiles.py` without `--configure-only`. It also
+requires semantic rejection of unimplemented learner scaffolds. Its `build/public/validation.json` records exact
 commands, output hashes, tool identities and the unchanged source identity.
 Each invocation keeps immutable logs and campaign receipts in a fresh
 `build/public/runs/` directory, so build and validation can run consecutively.
@@ -48,3 +62,25 @@ argument takes precedence over `CMASTERY_TOOL_<NAME>`, then PATH. For example,
 `CMASTERY_TOOL_LD_LLD=/usr/bin/ld.lld-21` selects an installed linker. A bad
 override fails visibly. New runs record the actual tool path, version and hash;
 historical receipts still identify their original tools and machines.
+
+## Linux supervision
+
+A learner can build the supervisor, restore the pinned guest and obtain a live
+receipt from an exported workspace. [Linux supervision guide](linux-supervision.md)
+
+From a source checkout, restore the guest packages in the user cache and run
+the author comparison. Use a fresh report path for a reproduction run.
+
+```sh
+python3 labs/linux_supervision/guest.py setup
+python3 tools/check_linux_supervision.py --full --report build/supervision-reproduction/report.json
+python3 tools/check_linux_supervision.py --verify-report build/supervision-reproduction/report.json
+```
+
+The receipt identifies the compiled sources, guest and raw serial captures for
+the positive and negative controls. Its observations apply to the pinned Linux
+guest. Independent learner work and delayed transfer require separate evidence.
+
+## Binary inspection
+
+Run `python3 tools/check_binary_inspection.py` to exercise GCC and Clang builds, ELF observations, offline replay and rejection of ineligible live evidence. On a host with GDB, gdb-multiarch and QEMU, install the checksum-pinned Ghidra and JDK with `bash tools/install_inspection_tools.sh`. Then run `python3 tools/check_binary_inspection.py --full --report build/inspection-author.json` in the author checkout with its retained PMU test capture. This runs Ghidra's analyzer and decompiler on both stripped executables and observes Cortex-M4 reset in QEMU. The interactive assignment and its seven entry points are in the [binary inspection guide](binary-inspection.md).

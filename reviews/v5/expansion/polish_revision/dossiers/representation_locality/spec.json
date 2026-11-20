@@ -1,0 +1,326 @@
+{
+ "schema_version": 1,
+ "dossier": "representation_locality",
+ "title": "Structure of arrays against arrays of structures, from L1-resident to DRAM-sized working sets",
+ "question": "Summing one 8-byte field of n records, how does the cost per useful key depend on the representation (8, 16, 64 or 128 bytes of address span per key) and on the working-set size, and which of bytes moved, instruction count, address span (translation) and prefetch coverage explains the differences on this host?",
+ "design_target": "AMD Ryzen 3 7330U (family 19h, model 50h, Zen 3): L1D 32 KiB and L2 512 KiB per core, L3 8 MiB shared, 64-byte lines, 4 KiB pages (transparent huge pages madvise-only; the driver never madvises).",
+ "driver": {
+  "name": "rl_driver",
+  "sources": [
+   "driver.c",
+   "locality.c",
+   "locality_kernels.c"
+  ],
+  "headers": [
+   "locality.h"
+  ]
+ },
+ "tests": {
+  "sources": [
+   "tests.c",
+   "locality.c",
+   "locality_kernels.c"
+  ],
+  "pass_marker": "RL_TEST_PASS",
+  "threads": false,
+  "needs_support": false
+ },
+ "disassemble": [
+  "rl_sum_soa",
+  "rl_sum_aos16",
+  "rl_sum_aos64",
+  "rl_sum_aos128",
+  "rl_sum"
+ ],
+ "row": {
+  "windows": [
+   "window"
+  ],
+  "measured_window": "window",
+  "checksum": "checksum",
+  "units": "n",
+  "units_times_repetitions": true
+ },
+ "placements": [
+  {
+   "name": "measured-cpu",
+   "cpus": [
+    2
+   ],
+   "relation": "single",
+   "meaning": "the single measured thread on CPU 2; its SMT sibling CPU 3 is not reserved and its busy fraction is recorded per row"
+  }
+ ],
+ "events": {
+  "ex_ret_instr": {
+   "encoding": "event=0xc0",
+   "role": "work check",
+   "justification": "perf list (amdzen3): Retired Instructions; the kernel's generic PERF_COUNT_HW_INSTRUCTIONS on family 19h (0x00c0 in amd_zen2_perfmon_event_map, arch/x86/events/amd/core.c, Linux v7.0; sysfs events/instructions = event=0xc0). Equal instructions per key across layouts mean the same loop shape ran."
+  },
+  "ls_not_halted_cyc": {
+   "encoding": "event=0x76",
+   "role": "cost in core cycles",
+   "justification": "perf list: Cycles not in Halt; the generic PERF_COUNT_HW_CPU_CYCLES on family 19h (0x0076). Cycles divided by elapsed ns is the effective user-cycle rate used to check frequency."
+  },
+  "ls_any_fills_from_sys.lcl_l2": {
+   "encoding": "event=0x44,umask=0x01",
+   "role": "where L1D fills came from: the core's L2",
+   "justification": "perf list: Any Data Cache Fills by Data Source, From Local L2 to the core. Any fills include demand and prefetch fills, so per key they approximate lines brought into L1D from L2."
+  },
+  "ls_any_fills_from_sys.int_cache": {
+   "encoding": "event=0x44,umask=0x02",
+   "role": "where L1D fills came from: L3 (or another L2)",
+   "justification": "perf list: Any Data Cache Fills by Data Source, From L3 or different L2 in same CCX. With one measured thread this is, in practice, the L3."
+  },
+  "ls_any_fills_from_sys.mem_io_local": {
+   "encoding": "event=0x44,umask=0x08",
+   "role": "where L1D fills came from: DRAM",
+   "justification": "perf list: Any Data Cache Fills by Data Source, From DRAM or IO connected in same node."
+  },
+  "ls_hw_pf_dc_fills.mem_io_local": {
+   "encoding": "event=0x5a,umask=0x08",
+   "role": "DRAM fills made by the L1 hardware prefetcher",
+   "justification": "perf list: Hardware Prefetch Data Cache Fills by Data Source, From DRAM or IO connected in same node. Compared with demand fills from DRAM it shows how much of the DRAM traffic arrived ahead of the loads."
+  },
+  "ls_dmnd_fills_from_sys.mem_io_local": {
+   "encoding": "event=0x43,umask=0x08",
+   "role": "DRAM fills the loads themselves waited for",
+   "justification": "perf list: Demand Data Cache Fills by Data Source, From DRAM or IO connected in same node."
+  },
+  "l2_request_g1.l2_hw_pf": {
+   "encoding": "event=0x60,umask=0x02",
+   "role": "L2 prefetcher activity",
+   "justification": "perf list: All L2 Cache Requests (Breakdown 1 - Common), L2 Prefetcher: all prefetches accepted by the L2 pipeline, hit or miss."
+  },
+  "ls_dc_accesses": {
+   "encoding": "event=0x40",
+   "role": "loads issued per key",
+   "justification": "perf list: Number of accesses to the dcache for load/store references; each increment is an eight-byte access; speculative. One per key is expected for every layout."
+  },
+  "l1_dtlb_misses": {
+   "encoding": "event=0x45,umask=0xff",
+   "role": "address translation: L1 DTLB misses",
+   "justification": "perf list (recommended): L1 DTLB Misses (event 0x45, all unit-mask bits)."
+  },
+  "l2_dtlb_misses": {
+   "encoding": "event=0x45,umask=0xf0",
+   "role": "address translation: L2 DTLB misses and page walks",
+   "justification": "perf list (recommended): L2 DTLB Misses & Data page walks (event 0x45, the four L2-miss unit-mask bits)."
+  }
+ },
+ "groups": {
+  "fills": [
+   "ex_ret_instr",
+   "ls_not_halted_cyc",
+   "ls_any_fills_from_sys.lcl_l2",
+   "ls_any_fills_from_sys.int_cache",
+   "ls_any_fills_from_sys.mem_io_local"
+  ],
+  "prefetch": [
+   "ex_ret_instr",
+   "ls_not_halted_cyc",
+   "ls_hw_pf_dc_fills.mem_io_local",
+   "ls_dmnd_fills_from_sys.mem_io_local",
+   "l2_request_g1.l2_hw_pf"
+  ],
+  "translation": [
+   "ex_ret_instr",
+   "ls_not_halted_cyc",
+   "ls_dc_accesses",
+   "l1_dtlb_misses",
+   "l2_dtlb_misses"
+  ]
+ },
+ "variants": {
+  "soa-2048": [
+   "soa",
+   "2048",
+   "2"
+  ],
+  "aos64-2048": [
+   "aos64",
+   "2048",
+   "2"
+  ],
+  "aos128-2048": [
+   "aos128",
+   "2048",
+   "2"
+  ],
+  "soa-32768": [
+   "soa",
+   "32768",
+   "2"
+  ],
+  "aos64-32768": [
+   "aos64",
+   "32768",
+   "2"
+  ],
+  "aos128-32768": [
+   "aos128",
+   "32768",
+   "2"
+  ],
+  "soa-2097152": [
+   "soa",
+   "2097152",
+   "2"
+  ],
+  "aos16-2097152": [
+   "aos16",
+   "2097152",
+   "2"
+  ],
+  "aos64-2097152": [
+   "aos64",
+   "2097152",
+   "2"
+  ],
+  "aos128-2097152": [
+   "aos128",
+   "2097152",
+   "2"
+  ]
+ },
+ "regimes": [
+  {
+   "name": "n=2048: soa (0) vs aos64 (1)",
+   "variants": [
+    "soa-2048",
+    "aos64-2048"
+   ],
+   "groups": [
+    "fills",
+    "prefetch",
+    "translation"
+   ]
+  },
+  {
+   "name": "n=2048: aos64 (0) vs aos128 (1)",
+   "variants": [
+    "aos64-2048",
+    "aos128-2048"
+   ],
+   "groups": [
+    "fills",
+    "prefetch",
+    "translation"
+   ]
+  },
+  {
+   "name": "n=32768: soa (0) vs aos64 (1)",
+   "variants": [
+    "soa-32768",
+    "aos64-32768"
+   ],
+   "groups": [
+    "fills",
+    "prefetch",
+    "translation"
+   ]
+  },
+  {
+   "name": "n=32768: aos64 (0) vs aos128 (1)",
+   "variants": [
+    "aos64-32768",
+    "aos128-32768"
+   ],
+   "groups": [
+    "fills",
+    "prefetch",
+    "translation"
+   ]
+  },
+  {
+   "name": "n=2097152: soa (0) vs aos16 (1)",
+   "variants": [
+    "soa-2097152",
+    "aos16-2097152"
+   ],
+   "groups": [
+    "fills",
+    "prefetch",
+    "translation"
+   ]
+  },
+  {
+   "name": "n=2097152: soa (0) vs aos64 (1)",
+   "variants": [
+    "soa-2097152",
+    "aos64-2097152"
+   ],
+   "groups": [
+    "fills",
+    "prefetch",
+    "translation"
+   ]
+  },
+  {
+   "name": "n=2097152: aos64 (0) vs aos128 (1)",
+   "variants": [
+    "aos64-2097152",
+    "aos128-2097152"
+   ],
+   "groups": [
+    "fills",
+    "prefetch",
+    "translation"
+   ]
+  }
+ ],
+ "hypotheses": [
+  {
+   "id": "H1",
+   "claim": "Bytes moved: the cost per key follows the 64-byte lines each key brings in (1/8 for soa, 1/4 for aos16, 1 for aos64 and aos128) once the touched span leaves the cache level that held it.",
+   "predictions": [
+    "equal instructions per key across layouts",
+    "at n=2097152 soa < aos16 < aos64 per key, with L1D fills per key near 1/8, 1/4 and 1",
+    "at n=2048 (aos64 128 KiB, L2-resident) a smaller gap than at n=2097152"
+   ],
+   "falsified_if": "time per key does not grow with lines per key at the DRAM-sized working set"
+  },
+  {
+   "id": "H2",
+   "claim": "Instruction count or vectorization: the representations compile to different loops.",
+   "predictions": [
+    "instructions per key differ between layouts; the disassembly shows different loop bodies"
+   ],
+   "falsified_if": "instructions per key are equal and the loops differ only in the stride constant"
+  },
+  {
+   "id": "H3",
+   "claim": "Address span and translation: beyond lines, the span matters; aos128 touches the same lines per key as aos64 over twice the pages.",
+   "predictions": [
+    "if only lines matter, aos128 costs about what aos64 costs",
+    "if span matters, aos128 is slower and has more DTLB misses per key"
+   ],
+   "falsified_if": "aos128 and aos64 cost the same per key at every size while their DTLB misses differ"
+  },
+  {
+   "id": "H4",
+   "claim": "Prefetch coverage: the hardware prefetchers hide part of the DRAM latency, and how much depends on the stride.",
+   "predictions": [
+    "the prefetch share of DRAM fills differs by layout",
+    "demand DRAM fills per key are larger for aos64/aos128 than for soa"
+   ],
+   "falsified_if": "prefetch and demand DRAM fills split the same way for every layout"
+  },
+  {
+   "id": "H5",
+   "claim": "Frequency or host noise produces the differences.",
+   "predictions": [
+    "user cycles per ns differ between variants; involuntary switches concentrate in one variant"
+   ],
+   "falsified_if": "cycle-based and time-based orderings agree and the effective cycle rate is the same for both variants"
+  }
+ ],
+ "design_log": [
+  "Smoke runs before this spec was frozen confirmed that every listed event counts in this host's user-space groups and that instructions per key were 4.0 in all four layouts; they also showed DRAM fills at n=32768 for aos64, which made the fills group's three sources the first group. They are not evidence for any hypothesis; only the gated runs are."
+ ],
+ "limits": [
+  "One thread, user space only; page faults happen during setup, outside the window, and are not counted.",
+  "Each row is a fresh process: physical page placement differs between rows, which is part of the variation measured.",
+  "The hardware prefetchers, the L3 and DRAM are shared with the rest of the host; their state at the start of a window is not controlled."
+ ]
+}

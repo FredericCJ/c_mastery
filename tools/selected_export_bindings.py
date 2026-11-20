@@ -32,7 +32,9 @@ def bind_completed_exports(root,before,records):
         entry=entries[0]
         assert entry['brief_sha256']==sha(brief) and all(entry[k]==v for k,v in meta.items()),('selected canonical mismatch',ident)
         assert meta['project']==cmd[4],('selected project mismatch',ident)
-        text=(Path(cmd[5])/'EXERCISE.md').read_text(encoding='utf8')
+        workspace=Path(cmd[5])
+        rubric=workspace/'ACTIVE.md'
+        text=(rubric if rubric.is_file() else workspace/'EXERCISE.md').read_text(encoding='utf8')
         assert all(r['criterion'] in text for r in meta['rubric']),('exported rubric mismatch',ident)
         pins.add(brief)
         for path,digest in entry['bound_files'].items():

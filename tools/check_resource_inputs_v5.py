@@ -143,12 +143,25 @@ class ResourceDiscovery(unittest.TestCase):
         self.put('research/v5/alias_resources.json', [{'id': 'R', 'reuse': True, 'inspection': {'scope': 'invented'}}])
         with self.assertRaisesRegex(ValueError, 'unverified'): self.collect()
 
-    def integrate(self, accepted=None):
+    def integrate(self, accepted=None, register=None):
         from unittest.mock import patch
         import integrate_v5
         self.put('research/v5/resource_merge_policy.json', self.policy)
         with patch.object(integrate_v5, 'ROOT', self.root), patch('v5_common.baseline', return_value={'resources': accepted or {}}):
-            return integrate_v5.merge_resources()
+            return integrate_v5.merge_resources(register)
+
+    def test_supplement_only_appends_and_cannot_replace_an_existing_identity(self):
+        retained = dict(self.row, id='RETAINED')
+        path = self.put('references/resources.json', {'resources': [retained]})
+        self.assertEqual(self.integrate(register=self.name), 1)
+        expected = path.read_bytes()
+        self.integrate(register=self.name)
+        self.assertEqual(path.read_bytes(), expected)
+        self.assertEqual(json.loads(expected)['resources'], [retained, self.row])
+        self.put(self.name, [dict(self.row, title='different work')])
+        with self.assertRaisesRegex(ValueError, 'another registration'):
+            self.integrate(register=self.name)
+        self.assertEqual(path.read_bytes(), expected)
 
     def test_integrated_merge_is_byte_fixed_point_and_retains_other_registry_fields(self):
         path=self.put('references/resources.json', {'schema_version': 2, 'retained': 'metadata', 'resources': []})

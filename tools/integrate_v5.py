@@ -42,13 +42,22 @@ def graph():
                    preserved_order=accepted['project_order'])
 
 
-def merge_resources():
+def merge_resources(register=None):
     from v5_common import baseline
     accepted = baseline()['resources']
     from resource_inputs_v5 import discover
     from resource_identity_v5 import corrections
     additions, discovery = discover(ROOT)
-    reviewed_corrections = corrections(ROOT)
+    provenance = discovery['registration_provenance']
+    if register is not None:
+        # A supplemental append cannot authorize a correction to a historical
+        # reading. Require a single direct producer for each selected ID.
+        keys = {key for key, rows in provenance.items() if any(r['path'] == register for r in rows)}
+        if not keys or any(len(provenance[key]) != 1 or provenance[key][0]['role'] != 'registration'
+                           for key in keys):
+            raise ValueError('Expected a uniquely authored supplemental resource register: ' + register)
+        additions = [item for item in additions if item['id'] in keys]
+    reviewed_corrections = corrections(ROOT) if register is None else {}
     if not additions:
         return 0
     path = ROOT / 'references/resources.json'
@@ -64,10 +73,21 @@ def merge_resources():
             if key not in resources:
                 raise ValueError('Unknown reused resource: ' + key)
             continue
-        resources[key] = merge_resource_record(resources.get(key, {}), item, key in accepted, reviewed_corrections.get(key))
+        if (register is not None and key in resources
+                and value.get('v5_registration_provenance', {}).get(key) != provenance[key]):
+            raise ValueError('Supplemental resource ID already belongs to another registration: ' + key)
+        immutable = key in accepted or (register is not None and key in resources)
+        resources[key] = merge_resource_record(resources.get(key, {}), item, immutable, reviewed_corrections.get(key))
     value['resources'] = list(resources.values())
     # Provenance stays outside the accepted resource objects and their identity.
-    value['v5_registration_provenance'] = discovery['registration_provenance']
+    if register is None:
+        value['v5_registration_provenance'] = provenance
+    else:
+        existing = value.setdefault('v5_registration_provenance', {})
+        for key in seen:
+            if key in existing and existing[key] != provenance[key]:
+                raise ValueError('Supplemental resource provenance changed: ' + key)
+        existing.update({item['id']: provenance[item['id']] for item in additions})
     dump(path, value)
     return len(seen)
 
@@ -109,6 +129,16 @@ def merge_readings():
 
 
 def main():
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--add-resource-register', metavar='REPOSITORY_PATH',
+                        help='append one supplemental reading register and rebuild resource identities')
+    args = parser.parse_args()
+    if args.add_resource_register:
+        count = merge_resources(args.add_resource_register)
+        registry()
+        print({'supplemental_resources': count, 'register': args.add_resource_register})
+        return
     from v5_common import require_domain_research
     require_domain_research()
     if (ROOT / 'research/v5/expansion').is_dir():

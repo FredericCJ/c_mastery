@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "dossier": "dispatch_predictability",
+  "title": "Branch, indirect call and branch-free selection under constant, alternating and random targets",
+  "question": "Choosing one of two operations per call, how does the cost of a conditional branch to direct calls, an indirect call through a run-time table, the same indirect call preceded by a correlated conditional branch, and branch-free arithmetic depend on how predictable the selector is, and is any difference explained by extra instructions, mispredictions, or what the predictors can see?",
+  "design_target": "AMD Ryzen 3 7330U (family 19h, model 50h, Zen 3), Linux 7.0.0-42 with spectre_v2 'Retpolines; IBPB conditional; IBRS_FW; STIBP always-on' (read from sysfs, never changed).",
+  "driver": {
+    "name": "dp_driver",
+    "sources": ["driver.c", "dispatch.c", "dispatch_kernels.c"],
+    "headers": ["dispatch.h"]
+  },
+  "tests": {
+    "sources": ["tests.c", "dispatch.c", "dispatch_kernels.c"],
+    "pass_marker": "DP_TEST_PASS",
+    "threads": false,
+    "needs_support": false
+  },
+  "disassemble": ["dp_kernel_branch", "dp_kernel_indirect", "dp_kernel_hinted", "dp_kernel_branchless",
+                  "dp_operation0", "dp_operation1"],
+  "row": {
+    "windows": ["window"],
+    "measured_window": "window",
+    "checksum": "checksum",
+    "units": "n",
+    "units_times_repetitions": true
+  },
+  "placements": [
+    {"name": "measured-cpu", "cpus": [2], "relation": "single",
+     "meaning": "the single measured thread on CPU 2; its SMT sibling CPU 3 is not reserved and its busy fraction is recorded per row"}
+  ],
+  "events": {
+    "ex_ret_instr": {
+      "encoding": "event=0xc0",
+      "role": "work check",
+      "justification": "perf list (amdzen3): Retired Instructions; the generic PERF_COUNT_HW_INSTRUCTIONS on family 19h (0x00c0, amd_zen2_perfmon_event_map, arch/x86/events/amd/core.c, Linux v7.0; sysfs events/instructions). A mechanism's instructions per call must not change with the distribution."
+    },
+    "ls_not_halted_cyc": {
+      "encoding": "event=0x76",
+      "role": "cost in core cycles",
+      "justification": "perf list: Cycles not in Halt; the generic PERF_COUNT_HW_CPU_CYCLES on family 19h (0x0076)."
+    },
+    "ex_ret_brn": {
+      "encoding": "event=0xc2",
+      "role": "branches retired per call",
+      "justification": "perf list: Retired Branch Instructions; the generic PERF_COUNT_HW_BRANCH_INSTRUCTIONS on family 19h (0x00c2; sysfs events/branch-instructions)."
+    },
+    "ex_ret_brn_misp": {
+      "encoding": "event=0xc3",
+      "role": "all retired mispredicted branches",
+      "justification": "perf list: Retired Branch Instructions Mispredicted; the generic PERF_COUNT_HW_BRANCH_MISSES on family 19h (0x00c3; sysfs events/branch-misses)."
+    },
+    "ex_ret_brn_ind_misp": {
+      "encoding": "event=0xca",
+      "role": "mispredicted indirect branches",
+      "justification": "perf list: Retired Indirect Branch Instructions Mispredicted; 'each such mispredict incurs the same penalty as a mispredicted conditional branch instruction; only EX mispredicts are counted'. Separates target mispredictions of the indirect call from direction mispredictions."
+    },
+    "ex_ret_ind_brch_instr": {
+      "encoding": "event=0xcc",
+      "role": "indirect branches retired per call",
+      "justification": "perf list: Retired Indirect Branch Instructions. One per call is expected for indirect and hinted, zero for branch and branchless (returns are counted separately)."
+    },
+    "bp_dyn_ind_pred": {
+      "encoding": "event=0x8e",
+      "role": "use of the dynamic indirect predictor",
+      "justification": "perf list: Dynamic Indirect Predictions. Shows whether the indirect call's predictions came from the history-based indirect predictor at all."
+    },
+    "ex_ret_msprd_brnch_instr_dir_msmtch": {
+      "encoding": "event=0x1c7",
+      "role": "direction mispredictions of conditional branches",
+      "justification": "perf list: Retired Mispredicted Branch Instructions due to Direction Mismatch (event 0x1c7: config bits 0-7 = 0xc7, bits 32-35 = 0x1 by the PMU's sysfs format)."
+    },
+    "ex_ret_near_ret": {
+      "encoding": "event=0xc8",
+      "role": "returns retired per call",
+      "justification": "perf list: Retired Near Returns. One per call is expected wherever an operation is called."
+    },
+    "ex_ret_near_ret_mispred": {
+      "encoding": "event=0xc9",
+      "role": "mispredicted returns",
+      "justification": "perf list: Retired Near Returns Mispredicted. A control: returns are predicted by a return-address stack, so they should not depend on the selector."
+    },
+    "bp_de_redirect": {
+      "encoding": "event=0x91",
+      "role": "decoder redirects",
+      "justification": "perf list: Decode Redirects. A control for front-end redirects that are not execute-time mispredictions."
+    }
+  },
+  "groups": {
+    "branches": ["ex_ret_instr", "ls_not_halted_cyc", "ex_ret_brn", "ex_ret_brn_misp", "ex_ret_brn_ind_misp"],
+    "indirect": ["ex_ret_instr", "ls_not_halted_cyc", "ex_ret_ind_brch_instr", "bp_dyn_ind_pred",
+                 "ex_ret_msprd_brnch_instr_dir_msmtch"],
+    "returns": ["ex_ret_instr", "ls_not_halted_cyc", "ex_ret_near_ret", "ex_ret_near_ret_mispred", "bp_de_redirect"]
+  },
+  "variants": {
+    "branch-constant": ["branch", "constant", "262144", "2"],
+    "indirect-constant": ["indirect", "constant", "262144", "2"],
+    "hinted-constant": ["hinted", "constant", "262144", "2"],
+    "branchless-constant": ["branchless", "constant", "262144", "2"],
+    "branch-alternating": ["branch", "alternating", "262144", "2"],
+    "indirect-alternating": ["indirect", "alternating", "262144", "2"],
+    "hinted-alternating": ["hinted", "alternating", "262144", "2"],
+    "branchless-alternating": ["branchless", "alternating", "262144", "2"],
+    "branch-random": ["branch", "random", "262144", "2"],
+    "indirect-random": ["indirect", "random", "262144", "2"],
+    "hinted-random": ["hinted", "random", "262144", "2"],
+    "branchless-random": ["branchless", "random", "262144", "2"]
+  },
+  "regimes": [
+    {"name": "constant: branch (0) vs indirect (1)", "variants": ["branch-constant", "indirect-constant"],
+     "groups": ["branches", "indirect", "returns"]},
+    {"name": "constant: indirect (0) vs hinted (1)", "variants": ["indirect-constant", "hinted-constant"],
+     "groups": ["branches", "indirect", "returns"]},
+    {"name": "constant: branch (0) vs branchless (1)", "variants": ["branch-constant", "branchless-constant"],
+     "groups": ["branches", "indirect", "returns"]},
+    {"name": "alternating: branch (0) vs indirect (1)", "variants": ["branch-alternating", "indirect-alternating"],
+     "groups": ["branches", "indirect", "returns"]},
+    {"name": "alternating: indirect (0) vs hinted (1)", "variants": ["indirect-alternating", "hinted-alternating"],
+     "groups": ["branches", "indirect", "returns"]},
+    {"name": "alternating: branch (0) vs branchless (1)", "variants": ["branch-alternating", "branchless-alternating"],
+     "groups": ["branches", "indirect", "returns"]},
+    {"name": "random: branch (0) vs indirect (1)", "variants": ["branch-random", "indirect-random"],
+     "groups": ["branches", "indirect", "returns"]},
+    {"name": "random: indirect (0) vs hinted (1)", "variants": ["indirect-random", "hinted-random"],
+     "groups": ["branches", "indirect", "returns"]},
+    {"name": "random: branch (0) vs branchless (1)", "variants": ["branch-random", "branchless-random"],
+     "groups": ["branches", "indirect", "returns"]}
+  ],
+  "hypotheses": [
+    {"id": "H1", "claim": "Extra dispatch work: with a constant target every mechanism is predicted, and indirect differs from branch only by its instructions.",
+     "predictions": ["near-zero mispredictions per call for every mechanism under constant", "branchless executes the fewest instructions and cycles per call"],
+     "falsified_if": "mispredictions per call are material under the constant distribution"},
+    {"id": "H2", "claim": "Misprediction cost: with random selectors both the conditional branch and the indirect call mispredict about half the calls, and each misprediction costs a pipeline restart; branch-free selection is insensitive to the distribution.",
+     "predictions": ["about 0.5 mispredictions per call for branch and indirect under random", "their cycles per call rise accordingly", "branchless cycles per call are equal across distributions"],
+     "falsified_if": "random selectors leave mispredictions or cycles per call unchanged"},
+    {"id": "H3", "claim": "History-based prediction learns a period-two pattern for both the conditional branch and the indirect call.",
+     "predictions": ["near-zero mispredictions per call for branch and indirect under alternating"],
+     "falsified_if": "either mechanism mispredicts materially under alternating"},
+    {"id": "H4", "claim": "Indirect targets are predicted from global branch history: the plain indirect call has no preceding conditional branch that correlates with its target, while hinted places one there.",
+     "predictions": ["hinted has near-zero indirect mispredictions under alternating and random", "under random its conditional branch still mispredicts about half the calls"],
+     "falsified_if": "hinted still mispredicts its indirect target under alternating"},
+    {"id": "H5", "claim": "A mitigation (STIBP always-on, retpolines, IBPB) disables or limits user-space indirect prediction on this host.",
+     "predictions": ["indirect mispredictions persist whatever history precedes the call"],
+     "falsified_if": "hinted removes the indirect mispredictions; H5 cannot be tested further here because changing mitigations is a host-policy change"},
+    {"id": "H6", "claim": "Frequency or host noise produces the differences.",
+     "predictions": ["user cycles per ns differ between variants of a regime"],
+     "falsified_if": "cycle-based and time-based orderings agree with the same effective cycle rate"}
+  ],
+  "design_log": [
+    "H1-H3 and the three original mechanisms were written first. A smoke run then showed the indirect call mispredicting about 99% of calls under the alternating distribution while the conditional branch mispredicted almost none. H3 is kept as written, and the hinted mechanism and H4/H5 were added to discriminate between missing history and a disabled predictor. The smoke runs are not evidence; only the gated runs are."
+  ],
+  "limits": [
+    "One thread, user space only. The SMT sibling CPU 3 is not reserved: with STIBP always-on (sysfs) indirect-branch predictions are not shared between siblings, but the core's other front-end and execution resources are.",
+    "-fcf-protection (Ubuntu's default) adds endbr64 at every call target; the disassembly shows the actual code.",
+    "Two targets, three distributions and one call site are a bounded probe, not a characterization of the predictors."
+  ]
+}

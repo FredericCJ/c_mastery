@@ -1,7 +1,9 @@
 #define _GNU_SOURCE
 #include "pmu_integrations.h"
+#ifdef PF_WITH_SERVICE
 #include "events.h"
 #include "collection.h"
+#endif
 #include <pthread.h>
 #include <stdatomic.h>
 #include <string.h>
@@ -42,6 +44,7 @@ uint64_t pf_concurrency_work(size_t n,unsigned variant,unsigned repetitions){
            atomic_load_explicit(theirs,memory_order_relaxed);
 }
 
+#ifdef PF_WITH_SERVICE
 static int drain(EvQueue *queue,EvSum *sum){
     EvEvent event;
     while(evq_pop(queue,&event)==EV_OK)
@@ -92,3 +95,4 @@ uint64_t pf_service_work(size_t n,unsigned variant,unsigned repetitions){
     }
     return checksum;
 }
+#endif
